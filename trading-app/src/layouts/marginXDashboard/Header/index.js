@@ -5,16 +5,16 @@ import MDButton from '../../../components/MDButton';
 import {Grid, CircularProgress, Divider} from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
 import { Link } from "react-router-dom";
-import CachedIcon from '@mui/icons-material/Cached';
-import LiveContest from '../data/infinityContests'
+// import CachedIcon from '@mui/icons-material/Cached';
+// import LiveContest from '../data/infinityContests'
 
 //data
 import CompanySideContestDailyChart from '../data/companySideContestDailyChart'
-import DailyContestUsers from '../data/dailyContestUsers'
+// import DailyContestUsers from '../data/dailyContestUsers'
 import DailyPaidContestUsers from '../data/dailyPaidContestUsers'
 import PnlOverviewMock from '../infinityContestComponent/pnlOverviewMock';
-import PnlOverviewLive from '../infinityContestComponent/pnlOverviewLive';
-import XTSOverview from '../infinityContestComponent/xtsOverview';
+// import PnlOverviewLive from '../infinityContestComponent/pnlOverviewLive';
+// import XTSOverview from '../infinityContestComponent/xtsOverview';
 
 export default function LabTabs({socket}) {
   const [isLoading,setIsLoading] = useState(false);
@@ -29,7 +29,7 @@ export default function LabTabs({socket}) {
     .then((res) => {
         console.log("Inside Payout chart data");
         setCompletedMarginX(res.data.data);
-        // console.log("Completed Contest Res:",res.data.data)
+        // console.log("Completed MarginX Res:",res.data.data)
     }).catch((err) => {
         setIsLoading(false)
         return new Error(err);
@@ -60,7 +60,7 @@ export default function LabTabs({socket}) {
   return (
     <MDBox bgColor="dark" mt={2} mb={1} p={2} borderRadius={10} display='flex' flexDirection='column' justifyContent='center' alignItems='center' minHeight='auto' maxWidth='100%'>
         <MDBox display='flex' justifyContent='left'>
-            <MDTypography ml={1} mb={1} color='light' fontSize={18} fontWeight='bold'>Contest Dashboard</MDTypography>
+            <MDTypography ml={1} mb={1} color='light' fontSize={18} fontWeight='bold'>MarginX Dashboard</MDTypography>
         </MDBox>
         <PnlOverviewMock socket={socket} />
         
@@ -86,7 +86,7 @@ export default function LabTabs({socket}) {
 
                         <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
                             <MDBox display="flex" flexDirection="column">
-                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check all trader's contest position here!</MDTypography>
+                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check all trader's marginx position here!</MDTypography>
                             </MDBox>
                         </Grid>
 
@@ -122,7 +122,7 @@ export default function LabTabs({socket}) {
 
                         <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
                             <MDBox display="flex" flexDirection="column">
-                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check all trader's contest position here!</MDTypography>
+                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check all trader's marginx position here!</MDTypography>
                             </MDBox>
                         </Grid>
 
@@ -147,69 +147,33 @@ export default function LabTabs({socket}) {
                     size="small"
                     component={Link}
                     to={{
-                        pathname: `/contestdashboard/dailycontestreport`,
+                        pathname: `/marginxdashboard/marginxreport`,
                     }}
                 >
                     <Grid container xs={12} md={12} lg={12}>
 
                         <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Report</MDTypography>
+                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>MarginX Report</MDTypography>
                         </Grid>
 
                         <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
                             <MDBox display="flex" flexDirection="column">
-                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check all daily contest reports here!</MDTypography>
+                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check all daily marginx reports here!</MDTypography>
                             </MDBox>
                         </Grid>
 
-                        <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                        {/* <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
                             <MDTypography fontSize={9} style={{ color: "white" }}>Total Free Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
-                        </Grid>
+                        </Grid> */}
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid MarginX: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
                         </Grid>
 
                     </Grid>
                 </MDButton>
 
             </Grid>
-
-              <Grid item xs={12} md={6} lg={3}>
-
-                  <MDButton
-                      variant="contained"
-                      color={"secondary"}
-                      size="small"
-                      component={Link}
-                      to={{
-                          pathname: `/contestdashboard/dailycontestreportlive`,
-                      }}
-                  >
-                      <Grid container xs={12} md={12} lg={12}>
-
-                          <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
-                              <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Report Live</MDTypography>
-                          </Grid>
-
-                          <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
-                              <MDBox display="flex" flexDirection="column">
-                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check all daily contest reports here!</MDTypography>
-                              </MDBox>
-                          </Grid>
-
-                          <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                              <MDTypography fontSize={9} style={{ color: "white" }}>Total Free Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
-                          </Grid>
-
-                          <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                              <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
-                          </Grid>
-
-                      </Grid>
-                  </MDButton>
-
-              </Grid>
 
             <Grid item xs={12} md={6} lg={3}>
 
@@ -234,12 +198,12 @@ export default function LabTabs({socket}) {
                             </MDBox>
                         </Grid>
 
-                        <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                        {/* <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
                             <MDTypography fontSize={9} style={{ color: "white" }}>Total Free Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
-                        </Grid>
+                        </Grid> */}
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid MarginX: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
                         </Grid>
 
                     </Grid>
@@ -270,12 +234,12 @@ export default function LabTabs({socket}) {
                             </MDBox>
                         </Grid>
 
-                        <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                        {/* <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
                             <MDTypography fontSize={9} style={{ color: "white" }}>Total Free Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
-                        </Grid>
+                        </Grid> */}
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid MarginX: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
                         </Grid>
 
                     </Grid>

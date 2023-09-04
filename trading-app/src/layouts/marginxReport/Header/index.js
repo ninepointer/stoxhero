@@ -145,12 +145,12 @@ export default function LabTabs() {
           <CustomTextField
             select
             label=""
-            value={`${selectedMarginx?.marginXName} - ${changeDateFormat(selectedMarginx?.contestStartTime)}`}
+            value={`${selectedMarginx?.marginXName} - ${changeDateFormat(selectedMarginx?.startTime)}`}
             minHeight="4em"
             placeholder="Select Contest"
             variant="outlined"
             sx={{ width: "400px" }}
-            onChange={(e) => {setselectedMarginx(marginx.filter((item) => item.contestName == (e.target.value).split(" | ")[0].slice(0, -13).trim())[0]) }}
+            onChange={(e) => {setselectedMarginx(marginx.filter((item) => item.marginXName == (e.target.value).split(" | ")[0].slice(0, -13).trim())[0]) }}
             InputLabelProps={{
               style: { color: '#ffffff' },
             }}
@@ -163,8 +163,8 @@ export default function LabTabs() {
             }}
           >
             {marginx?.map((option) => (
-              <MenuItem key={`${option?.contestName} - ${changeDateFormat(option?.contestStartTime)}`} value={`${option?.contestName} - ${changeDateFormat(option?.contestStartTime)}`} minHeight="4em" width='300px'>
-                {`${option?.contestName} - ${changeDateFormat(option?.contestStartTime)}`}
+              <MenuItem key={`${option?.marginXName} - ${changeDateFormat(option?.startTime)}`} value={`${option?.marginXName} - ${changeDateFormat(option?.startTime)}`} minHeight="4em" width='300px'>
+                {`${option?.marginXName} - ${changeDateFormat(option?.startTime)}`}
               </MenuItem>
             ))}
           </CustomTextField>
@@ -275,7 +275,7 @@ export default function LabTabs() {
       <Grid mt={0} container spacing={3}>
         <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1} borderRadius={4}>
-            <TableView dateWiseData={dateWiseData} contestData={selectedMarginx} tab={selectTab}/>
+            <TableView dateWiseData={dateWiseData} marginxData={selectedMarginx} tab={selectTab}/>
           </MDBox>
         </Grid>
 

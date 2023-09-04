@@ -738,9 +738,11 @@ exports.overallMarginXPnlYesterday = async (req, res, next) => {
         }
     }
 
+    console.log("pnlDetailsData", pnlDetailsData)
+
     res.status(201).json({
         message: "pnl received",
-        data: pnlDetailsData,
+        data: pnlDetailsData ? pnlDetailsData : [],
         results: pnlDetailsData ? pnlDetailsData.length : 0,
         date: date
     });
@@ -878,7 +880,7 @@ exports.overallMarginXCompanySidePnlThisMonth = async (req, res, next) => {
     // const { ydate } = req.params;
     let date = new Date();
     date.setDate(date.getDate() - 1);
-    let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()-1).padStart(2, '0')}`
     yesterdayDate = yesterdayDate + "T00:00:00.000Z";
     // console.log("Yesterday Date:",yesterdayDate)
     // const today = new Date(todayDate);
@@ -892,7 +894,7 @@ exports.overallMarginXCompanySidePnlThisMonth = async (req, res, next) => {
             {
                 trade_time: {
                     $gte: new Date(monthStartDate),
-                    // $lte: yesterdayDate
+                    $lte: yesterdayDate
                 },
                 status: "COMPLETE",
             }
@@ -926,8 +928,8 @@ exports.overallMarginXCompanySidePnlThisMonth = async (req, res, next) => {
     ]
 
     let x = await MarginxMockCompany.aggregate(pipeline)
-    // console.log("MTD",x)
-    res.status(201).json({ message: "data received", data: x });
+    console.log("MTD",x)
+    res.status(201).json({ message: "data received", data: x ? x : [] });
 }
 
 exports.overallMarginXCompanySidePnlLifetime = async (req, res, next) => {
@@ -982,7 +984,7 @@ exports.overallMarginXCompanySidePnlLifetime = async (req, res, next) => {
 
     let x = await MarginxMockCompany.aggregate(pipeline)
     // console.log("Lifetime",x)
-    res.status(201).json({ message: "data received", data: x });
+    res.status(201).json({ message: "data received", data: x ? x : [] });
 }
 
 exports.traderWiseMockTraderSide = async (req, res, next) => {
@@ -1264,7 +1266,7 @@ exports.MarginXPnlTWise = async (req, res, next) => {
         {
             $match: {
                 status: "COMPLETE",
-                marginxId: ObjectId(
+                marginxId: new ObjectId(
                     id
                 ),
             },
@@ -1432,7 +1434,7 @@ exports.MarginxPnlTWiseTraderSide = async (req, res, next) => {
         {
           $match: {
             status: "COMPLETE",
-            marginxId: ObjectId(
+            marginxId: new ObjectId(
               id
             ),
           },

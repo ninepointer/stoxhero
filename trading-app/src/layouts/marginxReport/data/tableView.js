@@ -13,9 +13,9 @@ import {CircularProgress} from "@mui/material";
 import { Grid } from "@mui/material";
 
 
-export default function TableView({ dateWiseData, contestData, tab}) {
+export default function TableView({ dateWiseData, marginxData, tab}) {
   const [isLoading,setIsLoading] = useState(false);
-console.log("contestData", contestData)
+console.log("marginxData", marginxData)
 
   return (
 
@@ -72,7 +72,7 @@ console.log("contestData", contestData)
                   <MDTypography color={"light"} fontSize={10} fontWeight="bold">{elem?.noOfTrade}</MDTypography>
                 </Grid>
                   <Grid item xs={12} md={2} lg={2}>
-                  <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{ (elem?.npnl*contestData?.payoutPercentage)/100 >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((elem?.npnl*contestData?.payoutPercentage)/100)) : "-₹" + 0.00}</MDTypography>
+                  <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{ (elem?.npnl*marginxData?.payoutPercentage)/100 >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((elem?.npnl*marginxData?.payoutPercentage)/100)) : "-₹" + 0.00}</MDTypography>
                 </Grid>
               </Grid>
 

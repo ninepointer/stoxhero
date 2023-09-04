@@ -891,90 +891,185 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     return res.json({status: 'success', active: activeUsers, inactive: inactiveUsers});
   }
   
-exports.getEligibleInternshipBatch = async(req,res, next) => {
-  try{
+// exports.getEligibleInternshipBatch = async(req,res, next) => {
+//   try{
+//     const user = await User.findById(req.user._id)
+//     .populate({
+//         path: 'internshipBatch',
+//         select: 'batchName career batchStartDate batchEndDate attendancePercentage',  // select only 'batchName' and 'career' fields from 'internshipBatch'
+//         populate: {
+//             path: 'career',
+//             select: 'listingType'  // select only 'listingType' from 'career'
+//         }
+//     });
+//     if(!user?.internshipBatch || user?.internshipBatch == 0){
+//       return res.status(200).json({data:{}, result:0, message:'No eligible batches'});
+//     }
+
+//     const batches = user?.internshipBatch;
+//     const internshipBatches = batches.filter(batch => 
+//       batch.career.listingType === 'Job' && 
+//       batch.batchEndDate <= new Date()
+//     );
+//     if(internshipBatches.length == 0){
+//       console.log('no bathces');
+//       return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
+//     }
+//     const lastBatch = internshipBatches[internshipBatches.length -1];
+//     console.log('lastBatch', lastBatch);
+//     const attendanceDocs = await InternshipOrders.aggregate([
+//       {
+//         $match: {
+//           status: "COMPLETE",
+//           batch: new ObjectId(lastBatch._id),
+//           trader: new ObjectId(req.user._id)
+//         },
+//       },
+//       {
+//         $group: {
+//           _id:0,
+//           tradingDays: {
+//             $addToSet: {
+//               $dateToString: {
+//                 format: "%Y-%m-%d",
+//                 date: "$trade_time",
+//               },
+//             },
+//           },
+//         }
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           tradingDays: {
+//             $size: "$tradingDays",
+//           },
+//         },
+//       },
+//     ]);
+//     console.log('attendance', attendanceDocs);
+//     if(attendanceDocs.length == 0){
+//       console.log('no attendance docs');
+//       return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
+//     }
+//     const totalMarketDays = await countTradingDays(lastBatch?.batchStartDate, lastBatch?.batchEndDate);
+//     console.log('totalMarketDays', totalMarketDays);
+
+//     if((attendanceDocs[0].tradingDays/totalMarketDays)*100 <= lastBatch?.attendancePercentage -5){
+//       console.log('condition passed');
+//       return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
+//     }
+    
+//     return res.status(200).json({
+//       status:'success',
+//       message:'eligible for certificate',
+//       batch: lastBatch?._id
+//     });
+
+//   }catch(e){
+//     console.log(e);
+//     res.status(500).json({status:'error', message:'Something went wrong.'})
+//   }
+// }
+exports.getEligibleInternshipBatch = async(req, res, next) => {
+  try {
     const user = await User.findById(req.user._id)
-    .populate({
+      .populate({
         path: 'internshipBatch',
-        select: 'batchName career batchStartDate batchEndDate attendancePercentage',  // select only 'batchName' and 'career' fields from 'internshipBatch'
+        select: 'batchName career batchStartDate batchEndDate attendancePercentage',
         populate: {
-            path: 'career',
-            select: 'listingType'  // select only 'listingType' from 'career'
+          path: 'career',
+          select: 'listingType'
         }
-    });
-    if(!user?.internshipBatch || user?.internshipBatch == 0){
-      return res.status(200).json({data:{}, result:0, message:'No eligible batches'});
+      });
+    if (!user?.internshipBatch || user?.internshipBatch.length == 0) {
+      return res.status(200).json({ data: {}, result: 0, message: 'No eligible batches' });
     }
 
     const batches = user?.internshipBatch;
-    const internshipBatches = batches.filter(batch => 
-      batch.career.listingType === 'Job' && 
+    const internshipBatches = batches.filter(batch =>
+      batch.career.listingType === 'Job' &&
       batch.batchEndDate <= new Date()
     );
-    if(internshipBatches.length == 0){
-      return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
-    }
-    const lastBatch = internshipBatches[internshipBatches.length -1];
-    const attendanceDocs = await InternshipOrders.aggregate([
-      {
-        $match: {
-          status: "COMPLETE",
-          batch: new ObjectId(lastBatch._id),
-          trader: new ObjectId(req.user._id)
+
+    const eligibleBatches = []; // To hold eligible batches
+
+    for (let batch of internshipBatches) {
+      const attendanceDocs = await InternshipOrders.aggregate([
+        {
+          $match: {
+            status: "COMPLETE",
+            batch: new ObjectId(batch._id),
+            trader: new ObjectId(req.user._id)
+          },
         },
-      },
-      {
-        $group: {
-          _id:0,
-          tradingDays: {
-            $addToSet: {
-              $dateToString: {
-                format: "%Y-%m-%d",
-                date: "$trade_time",
+        {
+          $group: {
+            _id: 0,
+            tradingDays: {
+              $addToSet: {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$trade_time",
+                },
               },
             },
-          },
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          tradingDays: {
-            $size: "$tradingDays",
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            tradingDays: {
+              $size: "$tradingDays",
+            },
           },
         },
-      },
-    ]);
-    
-    if(attendanceDocs.length == 0){
-      return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
-    }
-    const totalMarketDays = await countTradingDays(lastBatch?.batchStartDate);
+      ]);
 
-    if((attendanceDocs[0].tradingDays/totalMarketDays)*100 <= lastBatch?.attendancePercentage -5){
-      return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
+      if (attendanceDocs.length == 0) continue; // Go to the next iteration
+
+      const totalMarketDays = await countTradingDays(batch?.batchStartDate, batch?.batchEndDate);
+      if ((attendanceDocs[0].tradingDays / totalMarketDays) * 100 > batch?.attendancePercentage - 5) {
+        eligibleBatches.push({
+          id: batch._id,
+          name: batch.batchName,
+          startDate: batch?.batchStartDate,
+          endDate: batch?.batchEndDate
+        });
+      }
     }
-    
+
+    if (eligibleBatches.length == 0) {
+      return res.status(200).json({ data: internshipBatches, result: 0, message: 'No eligible batches' });
+    }
+
     return res.status(200).json({
-      status:'success',
-      message:'eligible for certificate',
-      batch: lastBatch?._id
+      status: 'success',
+      message: 'Eligible for certificate',
+      batches: eligibleBatches
     });
 
-  }catch(e){
+  } catch (e) {
     console.log(e);
-    res.status(500).json({status:'error', message:'Something went wrong.'})
+    res.status(500).json({ status: 'error', message: 'Something went wrong.' });
   }
 }
+
 
 exports.downloadCertificate = async (req,res, next) => {
   try {
     // Load the existing PDF into pdf-lib
-    const{name} = req.body;
-    const start = '25th July 2023'
-    const end = '25th August 2023'
+    const batchId = req.params.id;
+    const batch = await Batch.findById(batchId).select('batchStartDate batchEndDate');
+    const userId = req.user._id;
+    const user = await User.findById(userId).select('first_name last_name');
+    const name = `${user.first_name} ${user.last_name}`;
+    console.log('this', batch?.batchStartDate);
+    const start = moment(batch?.batchStartDate).format('Do MMMM YYYY').toString();
+    const end = moment(batch?.batchEndDate).format('Do MMMM YYYY').toString();
+    console.log('start and end', start, end, batch?.batchStartDate, batch?.batchEndDate);
     const existingPdfBytes = fs.readFileSync(path.join(__dirname, '/template.pdf'));
-    console.log(existingPdfBytes);
+    // console.log(existingPdfBytes);
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
     //Get the first page of the document
     const pages = pdfDoc.getPages();
@@ -989,18 +1084,18 @@ exports.downloadCertificate = async (req,res, next) => {
     });
     firstPage.drawText(start, {
         x: 450,
-        y: 342,
+        y: 344,
         size: 14
     });
     firstPage.drawText(end, {
         x: 620,
-        y: 342,
-        size: 14
+        y: 344,
+        size: 14,
     });
     // console.log(firstPage);
     // Serialize the modified PDF back to bytes
     const pdfBytes = await pdfDoc.save();
-    console.log('file', pdfBytes);
+    // console.log('file', pdfBytes);
     const filePath = path.join(__dirname, '/certificateout.pdf');
     fs.writeFileSync(filePath, pdfBytes);
     res.download(path.join(__dirname, '/certificateout.pdf'));
@@ -1017,9 +1112,9 @@ exports.downloadCertificate = async (req,res, next) => {
 
 
 
-async function countTradingDays(startDate) {
+async function countTradingDays(startDate, endDate) {
   let start = moment(startDate);
-  let end = moment();
+  let end = moment(endDate);
 
   let count = 0;
 
