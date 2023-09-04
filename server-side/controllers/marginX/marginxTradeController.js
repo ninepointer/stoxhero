@@ -563,7 +563,7 @@ exports.myPnlAndPayout = async (req, res, next) => {
       }
 }
 
-exports.overallDailyContestTraderPnl = async (req, res, next) => {
+exports.overallMarginXTraderPnl = async (req, res, next) => {
     // console.log("Inside overall virtual pnl")
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -676,7 +676,7 @@ exports.liveTotalTradersCount = async (req, res, next) => {
     res.status(201).json({ message: "pnl received", data: pnlDetails });
 }
 
-exports.overallDailyContestPnlYesterday = async (req, res, next) => {
+exports.overallMarginXPnlYesterday = async (req, res, next) => {
     let date;
     let i = 1;
     let maxDaysBack = 30;  // define a maximum limit to avoid infinite loop
@@ -729,7 +729,7 @@ exports.overallDailyContestPnlYesterday = async (req, res, next) => {
             },
         ]);
 
-        const contest = await MarginX.find({contestEndTime: {$gte: startTime, $lte: endTime}})
+        // const contest = await MarginX.find({contestEndTime: {$gte: startTime, $lte: endTime}})
 
         if (!pnlDetailsData || pnlDetailsData.length === 0) {
             pnlDetailsData = null;  // reset the value to ensure the while loop continues
@@ -874,7 +874,7 @@ exports.traderWiseMockCompanySide = async (req, res, next) => {
     res.status(201).json({ message: "data received", data: x });
 }
 
-exports.overallDailyContestCompanySidePnlThisMonth = async (req, res, next) => {
+exports.overallMarginXCompanySidePnlThisMonth = async (req, res, next) => {
     // const { ydate } = req.params;
     let date = new Date();
     date.setDate(date.getDate() - 1);
@@ -930,14 +930,14 @@ exports.overallDailyContestCompanySidePnlThisMonth = async (req, res, next) => {
     res.status(201).json({ message: "data received", data: x });
 }
 
-exports.overallDailyContestCompanySidePnlLifetime = async (req, res, next) => {
+exports.overallMarginXCompanySidePnlLifetime = async (req, res, next) => {
     // const { ydate } = req.params;
     let date = new Date();
     date.setDate(date.getDate() - 1);
     let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     yesterdayDate = yesterdayDate + "T23:59:59.000Z";
     // const today = new Date(todayDate);
-    let monthStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-01`
+    // let monthStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-01`
     // monthStartDate = monthStartDate + "T23:59:59.000Z";
     // console.log("Yesterday Date:",yesterdayDate)
 
@@ -991,172 +991,6 @@ exports.traderWiseMockTraderSide = async (req, res, next) => {
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
-    // 64f2c081250ef784218c57b2
-    const pnl_pipeline = [
-        {
-            $match:
-            {
-                status: "COMPLETE",
-                marginxId: new ObjectId(id)
-            }
-        },
-        {
-            $lookup: {
-                from: "user-personal-details",
-                localField: "trader",
-                foreignField: "_id",
-                as: "user",
-            },
-        },
-        {
-            $group:
-            {
-                _id:
-                {
-                    "traderId": "$trader",
-                    "traderName": {
-                        $arrayElemAt: ["$user.name", 0]
-                    },
-                    "symbol": "$instrumentToken",
-                    "exchangeInstrumentToken": "$exchangeInstrumentToken",
-                    "traderEmail": {
-                        $arrayElemAt: ["$user.email", 0]
-                    },
-                    "traderMobile": {
-                        $arrayElemAt: ["$user.mobile", 0]
-                    }
-
-                },
-                amount: {
-                    $sum: { $multiply: ["$amount", -1] }
-                },
-                brokerage: {
-                    $sum: { $toDouble: "$brokerage" }
-                },
-                lots: {
-                    $sum: { $toInt: "$Quantity" }
-                },
-                trades: {
-                    $count: {}
-                },
-                lotUsed: {
-                    $sum: { $abs: { $toInt: "$Quantity" } }
-                }
-            }
-        },
-        { $sort: { _id: -1 } },
-
-    ]
-
-    const cumm_pnl_pipeline = [
-        {
-            $match:
-            {
-                status: "COMPLETE",
-            },
-        },
-        {
-            $group:
-            {
-                _id: {
-                    trader: "$trader",
-                    marginxId: "$marginxId",
-                },
-                amount: {
-                    $sum: {
-                        $multiply: ["$amount", -1],
-                    },
-                },
-                brokerage: {
-                    $sum: {
-                        $toDouble: "$brokerage",
-                    },
-                },
-            },
-        },
-        {
-            $lookup: {
-                from: "marginxes",
-                localField: "_id.marginxId",
-                foreignField: "_id",
-                as: "marginx",
-            },
-        },
-        {
-            $lookup: {
-                from: "marginx-templates",
-                localField: "marginx.marginXTemplate",
-                foreignField: "_id",
-                as: "templates",
-            },
-        },
-        {
-            $project:
-            {
-                marginxId: "$_id.marginxId",
-                _id: 0,
-                trader: "$_id.trader",
-                npnl: {
-                    $subtract: ["$amount", "$brokerage"],
-                },
-                portfolioValue: {
-                    $arrayElemAt: [
-                        "$templates.portfolioValue",
-                        0,
-                    ],
-                },
-                entryFee: {
-                    $arrayElemAt: [
-                        "$templates.entryFee",
-                        0,
-                    ],
-                },
-                return: {
-                    $divide: [
-                        {
-                            $subtract: [
-                                "$amount",
-                                "$brokerage",
-                            ],
-                        },
-                        {
-                            $divide: [
-                                {
-                                    $arrayElemAt: [
-                                        "$templates.portfolioValue",
-                                        0,
-                                    ],
-                                },
-                                {
-                                    $arrayElemAt: [
-                                        "$templates.entryFee",
-                                        0,
-                                    ],
-                                },
-                            ],
-                        },
-                    ],
-                },
-            },
-        },
-        {
-            $group: {
-                _id: {
-                    trader: "$trader",
-                },
-                cumm_return: {
-                    $sum: "$return",
-                },
-            },
-        },
-        {
-            $project: {
-                trader: "$_id.trader",
-                cumm_return: "$cumm_return",
-                _id: 0,
-            },
-        },
-    ]
 
     const pipeline = [
         {
@@ -1368,7 +1202,7 @@ exports.traderWiseMockTraderSide = async (req, res, next) => {
     res.status(201).json({ message: "data received", data: traderWise });
 }
 
-exports.DailyContestPnlTWise = async (req, res, next) => {
+exports.MarginXPnlTWise = async (req, res, next) => {
 
     let { id } = req.params
     let pipeline = [
@@ -1428,89 +1262,103 @@ exports.DailyContestPnlTWise = async (req, res, next) => {
 
     let pipeline1 = [
         {
-            $match:
-            {
+            $match: {
                 status: "COMPLETE",
-                marginxId: new ObjectId(id)
-            },
-        },
-        {
-            $lookup:
-            {
-                from: "daily-contests",
-                localField: "marginxId",
-                foreignField: "_id",
-                as: "contestData",
-            },
-        },
-        {
-            $unwind:
-            {
-                path: "$contestData",
+                marginxId: ObjectId(
+                    id
+                ),
             },
         },
         {
             $group: {
                 _id: {
                     trader: "$trader",
-                    payoutPer:
-                        "$contestData.payoutPercentage",
+                    marginxId: "$marginxId",
                 },
-                gpnl: {
+                amount: {
                     $sum: {
                         $multiply: ["$amount", -1],
                     },
                 },
                 brokerage: {
-                    $sum: "$brokerage",
+                    $sum: {
+                        $toDouble: "$brokerage",
+                    },
                 },
             },
         },
         {
-            $project:
-            {
+            $lookup: {
+                from: "marginxes",
+                localField: "_id.marginxId",
+                foreignField: "_id",
+                as: "marginx",
+            },
+        },
+        {
+            $lookup: {
+                from: "marginx-templates",
+                localField: "marginx.marginXTemplate",
+                foreignField: "_id",
+                as: "templates",
+            },
+        },
+        {
+            $project: {
+                marginxId: "$_id.marginxId",
                 _id: 0,
+                trader: "$_id.trader",
                 npnl: {
-                    $subtract: ["$gpnl", "$brokerage"],
+                    $subtract: ["$amount", "$brokerage"],
                 },
-                payout: {
+                portfolioValue: {
+                    $arrayElemAt: [
+                        "$templates.portfolioValue",
+                        0,
+                    ],
+                },
+                entryFee: {
+                    $arrayElemAt: ["$templates.entryFee", 0],
+                },
+                return: {
                     $divide: [
                         {
-                            $multiply: [
+                            $subtract: ["$amount", "$brokerage"],
+                        },
+                        {
+                            $divide: [
                                 {
-                                    $subtract: [
-                                        "$gpnl",
-                                        "$brokerage",
+                                    $arrayElemAt: [
+                                        "$templates.portfolioValue",
+                                        0,
                                     ],
                                 },
-                                "$_id.payoutPer",
+                                {
+                                    $arrayElemAt: [
+                                        "$templates.entryFee",
+                                        0,
+                                    ],
+                                },
                             ],
                         },
-                        100,
                     ],
                 },
             },
         },
         {
-            $match:
-            {
-                payout: {
-                    $gt: 0,
+            $group: {
+                _id: {
+                    // trader: "$trader",
+                },
+                cumm_return: {
+                    $sum: "$return",
                 },
             },
         },
         {
-            $group:
-            {
-                _id: {},
-                totalPayout: {
-                    $sum: "$payout",
-                },
-            },
-        },
-        {
-            $project:
-            {
+            $project: {
+                trader: "$_id.trader",
+                total_return: "$cumm_return",
                 _id: 0,
             },
         },
@@ -1522,7 +1370,7 @@ exports.DailyContestPnlTWise = async (req, res, next) => {
     res.status(201).json({ message: "data received", data: x, user: user[0] });
 }
 
-exports.DailyContestPnlTWiseTraderSide = async (req, res, next) => {
+exports.MarginxPnlTWiseTraderSide = async (req, res, next) => {
 
     let { id } = req.params
     let pipeline = [
@@ -1582,93 +1430,107 @@ exports.DailyContestPnlTWiseTraderSide = async (req, res, next) => {
 
     let pipeline1 = [
         {
-            $match:
-            {
-                status: "COMPLETE",
-                marginxId: new ObjectId(id)
-            },
+          $match: {
+            status: "COMPLETE",
+            marginxId: ObjectId(
+              id
+            ),
+          },
         },
         {
-            $lookup:
-            {
-                from: "daily-contests",
-                localField: "marginxId",
-                foreignField: "_id",
-                as: "contestData",
+          $group: {
+            _id: {
+              trader: "$trader",
+              marginxId: "$marginxId",
             },
+            amount: {
+              $sum: {
+                $multiply: ["$amount", -1],
+              },
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$brokerage",
+              },
+            },
+          },
         },
         {
-            $unwind:
-            {
-                path: "$contestData",
-            },
+          $lookup: {
+            from: "marginxes",
+            localField: "_id.marginxId",
+            foreignField: "_id",
+            as: "marginx",
+          },
         },
         {
-            $group: {
-                _id: {
-                    trader: "$trader",
-                    payoutPer:
-                        "$contestData.payoutPercentage",
+          $lookup: {
+            from: "marginx-templates",
+            localField: "marginx.marginXTemplate",
+            foreignField: "_id",
+            as: "templates",
+          },
+        },
+        {
+          $project: {
+            marginxId: "$_id.marginxId",
+            _id: 0,
+            trader: "$_id.trader",
+            npnl: {
+              $subtract: ["$amount", "$brokerage"],
+            },
+            portfolioValue: {
+              $arrayElemAt: [
+                "$templates.portfolioValue",
+                0,
+              ],
+            },
+            entryFee: {
+              $arrayElemAt: ["$templates.entryFee", 0],
+            },
+            return: {
+              $divide: [
+                {
+                  $subtract: ["$amount", "$brokerage"],
                 },
-                gpnl: {
-                    $sum: {
-                        $multiply: ["$amount", -1],
+                {
+                  $divide: [
+                    {
+                      $arrayElemAt: [
+                        "$templates.portfolioValue",
+                        0,
+                      ],
                     },
+                    {
+                      $arrayElemAt: [
+                        "$templates.entryFee",
+                        0,
+                      ],
+                    },
+                  ],
                 },
-                brokerage: {
-                    $sum: "$brokerage",
-                },
+              ],
             },
+          },
         },
         {
-            $project:
-            {
-                _id: 0,
-                npnl: {
-                    $subtract: ["$gpnl", "$brokerage"],
-                },
-                payout: {
-                    $divide: [
-                        {
-                            $multiply: [
-                                {
-                                    $subtract: [
-                                        "$gpnl",
-                                        "$brokerage",
-                                    ],
-                                },
-                                "$_id.payoutPer",
-                            ],
-                        },
-                        100,
-                    ],
-                },
+          $group: {
+            _id: {
+              // trader: "$trader",
             },
+            cumm_return: {
+              $sum: "$return",
+            },
+          },
         },
         {
-            $match:
-            {
-                payout: {
-                    $gt: 0,
-                },
-            },
+          $project: {
+            trader: "$_id.trader",
+            total_return: "$cumm_return",
+            _id: 0,
+          },
         },
-        {
-            $group:
-            {
-                _id: {},
-                totalPayout: {
-                    $sum: "$payout",
-                },
-            },
-        },
-        {
-            $project:
-            {
-                _id: 0,
-            },
-        },
-    ]
+      ]
 
     let user = await MarginxMockUser.aggregate(pipeline1)
     let x = await MarginxMockUser.aggregate(pipeline)

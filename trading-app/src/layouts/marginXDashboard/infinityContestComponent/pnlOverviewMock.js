@@ -60,7 +60,7 @@ export default function PnlOverviewMock({socket}) {
     useEffect(()=>{
         console.log("Loading: ",isLoading)
         setIsLoading(true)
-        axios.get(`${baseUrl}api/v1/dailycontest/trade/overalltraderpnltoday`, {withCredentials: true})
+        axios.get(`${baseUrl}api/v1/marginxtrade/overalltraderpnltoday`, {withCredentials: true})
         .then((res) => {
             setTradeData(res.data.data); 
         }).catch((err) => {
@@ -68,7 +68,7 @@ export default function PnlOverviewMock({socket}) {
             return new Error(err);
         })
         console.log("Loading: ",isLoading)
-        axios.get(`${baseUrl}api/v1/dailycontest/trade/liveandtotaltradercounttoday`, {withCredentials: true})
+        axios.get(`${baseUrl}api/v1/marginxtrade/liveandtotaltradercounttoday`, {withCredentials: true})
         .then((res) => {
             setNotLiveTraderCount(res.data.data[0].zeroLotsTraderCount)
             setLiveTraderCount(res.data.data[0].nonZeroLotsTraderCount)
@@ -77,7 +77,7 @@ export default function PnlOverviewMock({socket}) {
             return new Error(err);
         })
     
-        axios.get(`${baseUrl}api/v1/dailycontest/trade/overalltraderpnlyesterday`, {withCredentials: true})
+        axios.get(`${baseUrl}api/v1/marginxtrade/overalltraderpnlyesterday`, {withCredentials: true})
         .then((res) => {
             setTradeDataYesterday(res?.data?.data);
         }).catch((err) => {
@@ -85,7 +85,7 @@ export default function PnlOverviewMock({socket}) {
             return new Error(err);
         })
     
-        axios.get(`${baseUrl}api/v1/dailycontest/trade/overalltraderpnlthismonth`, {withCredentials: true})
+        axios.get(`${baseUrl}api/v1/marginxtrade/overalltraderpnlthismonth`, {withCredentials: true})
         .then((res) => {
             setTradeDataThisMonth(res?.data?.data[0]);
         }).catch((err) => {
@@ -93,7 +93,7 @@ export default function PnlOverviewMock({socket}) {
             return new Error(err);
         })
     
-        axios.get(`${baseUrl}api/v1/dailycontest/trade/overalltraderpnllifetime`, {withCredentials: true})
+        axios.get(`${baseUrl}api/v1/marginxtrade/overalltraderpnllifetime`, {withCredentials: true})
         .then((res) => {
             setTradeDataLifetime(res?.data?.data[0]);
         }).catch((err) => {
@@ -101,7 +101,7 @@ export default function PnlOverviewMock({socket}) {
             return new Error(err);
         })
     
-        axios.get(`${baseUrl}api/v1/dailycontest/trade/liveandtotaltradercountyesterday`, {withCredentials: true})
+        axios.get(`${baseUrl}api/v1/marginxtrade/liveandtotaltradercountyesterday`, {withCredentials: true})
         .then((res) => {
             setNotLiveTraderCountYesterday(res?.data?.data[0]?.zeroLotsTraderCount)
             setLiveTraderCountYesterday(res?.data?.data[0]?.nonZeroLotsTraderCount)

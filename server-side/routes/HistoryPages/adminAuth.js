@@ -69,13 +69,13 @@ const DailyContest = require("../../models/DailyContest/dailyContest")
 const TenxSubscription = require("../../models/TenXSubscription/TenXSubscriptionSchema");
 const InternBatch = require("../../models/Careers/internBatch")
 const DailyLiveContest = require("../../models/DailyContest/dailyContestLiveCompany")
+const {creditAmountToWallet} = require("../../controllers/marginX/marginxController")
 
 
 
+router.get("/marginxcredit", async (req, res) => {
 
-router.get("/tradableupdate", async (req, res) => {
-
-  const data = await TradableInstrumentSchema.updateMany({}, {$set: {status: "Inactive"}});
+  const data = await creditAmountToWallet();
 
   res.send(data);
 });

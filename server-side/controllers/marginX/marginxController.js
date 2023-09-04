@@ -571,7 +571,7 @@ exports.creditAmountToWallet = async () => {
                             },
                             status: "COMPLETE",
                             trader: new ObjectId(userId),
-                            marginx: new ObjectId(id)
+                            marginxId: new ObjectId(id)
                         },
                     },
                     {
@@ -600,18 +600,21 @@ exports.creditAmountToWallet = async () => {
                     },
                 ])
 
-                // console.log(pnlDetails[0]);
+                // console.log(pnlDetails);
                 let payoutAmount = entryFee;
-                if(pnlDetails.length =!0 && pnlDetails[0]?.npnl){
+                console.log(pnlDetails?.length !=0 && pnlDetails[0]?.npnl, pnlDetails.length , pnlDetails[0]?.npnl)
+                if(pnlDetails?.length !=0 && pnlDetails[0]?.npnl){
+                    
                     payoutAmount = (pnlDetails[0]?.npnl/leverage) + entryFee;
+                    console.log("in if ", payoutAmount)
                 }
                 if(payoutAmount >=0){
                     const wallet = await Wallet.findOne({ userId: userId });
-                    console.log(userId, pnlDetails[0]);
+                    console.log("second if", userId, pnlDetails[0], payoutAmount);
 
                     wallet.transactions = [...wallet.transactions, {
                         title: 'Marginx Credit',
-                        description: `Amount credited for Marginx ${marginxs[j].name}`,
+                        description: `Amount credited for Marginx ${marginxs[j].marginXName}`,
                         transactionDate: new Date(),
                         amount: payoutAmount?.toFixed(2),
                         transactionId: uuid.v4(),
@@ -626,7 +629,6 @@ exports.creditAmountToWallet = async () => {
             marginxs[j].payoutStatus = 'Completed'
             marginxs[j].status = "Completed";
             await marginxs[j].save();
-            // }
         }
 
 
@@ -634,6 +636,7 @@ exports.creditAmountToWallet = async () => {
         console.log(error);
     }
 };
+
 
 exports.purchaseIntent = async (req, res) => {
     try {
