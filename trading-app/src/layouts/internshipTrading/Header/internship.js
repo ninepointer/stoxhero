@@ -17,6 +17,8 @@ import beginner from '../../../assets/images/beginner.png'
 import intermediate from '../../../assets/images/intermediate.png'
 import pro from '../../../assets/images/pro.png'
 import checklist from '../../../assets/images/checklist.png'
+import {BiDownload} from 'react-icons/bi';
+import {Tooltip} from '@mui/material';
 
 // import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -49,6 +51,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
   const [serverTime, setServerTime] = useState();
   const [batchEndDate, setBatchEndDate] = useState();
   const [currentBatch, setCurrentBatch] = useState();
+  const [certificateBatches, setCertificateBatches] = useState([]);
   const [myReferralCount, setMyReferralCount] = useState(getDetails?.userDetails?.referrals?.length);
   // const portfolioValue = getDetails?.userDetails?.internshipBatch[0]?.portfolio?.portfolioValue
   // const [portfolioValue, setPortfolioValue] = useState();
@@ -93,7 +96,33 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
 
 
   }
-
+  const handleDownload = async (id) => {
+    try {
+      const response = await axios.get(`${baseUrl}api/v1/internbatch/download/${id}`, {
+        responseType: 'blob',
+        withCredentials: true
+      });
+        console.log(response.data);
+        console.log(response.data.size, response.data.type);
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'certificate.pdf');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);  
+      // const blob = new Blob([response.data], { type: 'application/pdf' });
+      // const url = window.URL.createObjectURL(blob);
+      // const link = document.createElement('a');
+      // link.href = url;
+      // link.setAttribute('download', 'certificate.pdf');
+      // document.body.appendChild(link);
+      // link.click();
+  } catch (error) {
+      console.error('Error generating certificate:', error);
+  }
+  }
   useEffect(()=>{
     const startDate = currentBatch ? (currentBatch?.batchStartDate).toString().split('T')[0] : ''
     const endDate = moment(new Date().toString()).format("YYYY-MM-DD");
@@ -173,6 +202,13 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
       setBatchId(res?.data?.data?._id);
       setBatchEndDate(res?.data?.data?.batchEndDate);
       setCurrentBatch(res?.data?.data);
+    }
+  })()}, []);
+  useEffect(()=> {(async ()=>{
+    const res = await axios.get(`${baseUrl}api/v1/internbatch/eligibleforcertificate`, {withCredentials:true});
+    console.log("Batch certificate",res?.data?.batches);
+    if(res?.data?.batches){
+       setCertificateBatches(res.data.batches); 
     }
   })()}, []);
 
@@ -528,8 +564,18 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
       </Grid>              
     </Grid>
     :
-    <MDBox display='flex' alignItems='center' justifyContent='center'><MDButton onClick={()=>{window.open('/careers','_blank')}}>Apply for Internships</MDButton></MDBox>}
-
+    <MDBox display='flex' alignItems='center' minWidth='100%' justifyContent='center'>
+      <MDButton onClick={()=>{window.open('/careers','_blank')}}>Apply for Internships</MDButton>
+    </MDBox>
+    }
+    <Grid item lg ={12} style={{minWidth:'100%'}}>
+    {certificateBatches.length !=0 && certificateBatches.map((elem)=>{
+      return <MDBox mt={2} display='flex' style={{minWidth:'100%'}} alignItems='center' justifyContent='center'>
+         <MDButton style={{minWidth:'100%'}} onClick={()=>{handleDownload(elem?.id)}}>Internship Certificate - {elem.name} [{moment(elem?.startDate).format("Do MMM YY").toString()} - {moment(elem?.endDate).format("Do MMM YY").toString()}] <Tooltip title='Download Intenship Certificate' placement='top'><BiDownload style={{marginLeft:'12px'}} color='green'/></Tooltip></MDButton>
+        </MDBox>
+    })
+    }
+    </Grid>
     </MDBox>
   );
 }
