@@ -1032,7 +1032,9 @@ exports.getEligibleInternshipBatch = async(req, res, next) => {
       if ((attendanceDocs[0].tradingDays / totalMarketDays) * 100 > batch?.attendancePercentage - 5) {
         eligibleBatches.push({
           id: batch._id,
-          name: batch.batchName
+          name: batch.batchName,
+          startDate: batch?.batchStartDate,
+          endDate: batch?.batchEndDate
         });
       }
     }

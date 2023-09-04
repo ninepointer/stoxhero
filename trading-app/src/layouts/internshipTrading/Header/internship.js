@@ -17,7 +17,8 @@ import beginner from '../../../assets/images/beginner.png'
 import intermediate from '../../../assets/images/intermediate.png'
 import pro from '../../../assets/images/pro.png'
 import checklist from '../../../assets/images/checklist.png'
-import {BiDownload} from 'react-icons/bi'
+import {BiDownload} from 'react-icons/bi';
+import {Tooltip} from '@mui/material';
 
 // import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -563,11 +564,18 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
       </Grid>              
     </Grid>
     :
-    <MDBox display='flex' alignItems='center' justifyContent='center'><MDButton onClick={()=>{window.open('/careers','_blank')}}>Apply for Internships</MDButton></MDBox>}
+    <MDBox display='flex' alignItems='center' minWidth='100%' justifyContent='center'>
+      <MDButton onClick={()=>{window.open('/careers','_blank')}}>Apply for Internships</MDButton>
+    </MDBox>
+    }
+    <Grid item lg ={12} style={{minWidth:'100%'}}>
     {certificateBatches.length !=0 && certificateBatches.map((elem)=>{
-      return <MDBox mt={2} display='flex' alignItems='center' justifyContent='center'><MDButton onClick={()=>{handleDownload(elem?.id)}}>Internship Certificate - {elem.name} <BiDownload color='green'/></MDButton></MDBox>
+      return <MDBox mt={2} display='flex' style={{minWidth:'100%'}} alignItems='center' justifyContent='center'>
+         <MDButton style={{minWidth:'100%'}} onClick={()=>{handleDownload(elem?.id)}}>Internship Certificate - {elem.name} [{moment(elem?.startDate).format("Do MMM YY").toString()} - {moment(elem?.endDate).format("Do MMM YY").toString()}] <Tooltip title='Download Intenship Certificate' placement='top'><BiDownload style={{marginLeft:'12px'}} color='green'/></Tooltip></MDButton>
+        </MDBox>
     })
-      }
+    }
+    </Grid>
     </MDBox>
   );
 }
