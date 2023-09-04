@@ -152,6 +152,7 @@ async function commonProcess() {
     app.use('/api/v1/battles', require("./routes/battle/battleRoutes"));
     app.use('/api/v1/marginxs', require("./routes/marginx/marginxRoutes"));
     app.use('/api/v1/marginxtemplates', require("./routes/marginx/marginxTemplateRoutes"));
+    app.use('/api/v1/challengetemplates', require("./routes/challenges/challengeTemplateRoutes"));
 
     const PORT = process.env.PORT || 5002;
     const server = app.listen(PORT);

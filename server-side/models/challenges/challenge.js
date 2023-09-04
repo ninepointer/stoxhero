@@ -22,6 +22,10 @@ const challengeSchema = new Schema({
         type: Number,
         // required: true,
     },
+    participants:[{
+        type: Schema.Types.ObjectId,
+        ref:'challenge-participant'
+    }],
     status:{
         type: String,
         enum: ['Active','Inactive'],

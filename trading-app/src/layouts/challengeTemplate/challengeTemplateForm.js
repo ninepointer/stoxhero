@@ -34,11 +34,12 @@ function Index() {
   const [action, setAction] = useState(false);
   const [saving, setSaving] = useState(false)
   const [updatedDocument, setUpdatedDocument] = useState([]);
-  const [creating, setCreating] = useState(false)
+  const [creating, setCreating] = useState(false);
+  const [currentTemplate, setCurrentTemplate] = useState();
   const navigate = useNavigate();
   const [formState, setFormState] = useState({
     challengeName: '' || template?.challengeName,
-    liveTime: '' || template?.liveTime,
+    startTime: '' || template?.startTime,
     endTime: '' || template?.endTime,
     challengeType: '' || template?.challengeType,
     status: '' || template?.status,
@@ -63,14 +64,14 @@ function Index() {
     try{
       console.log(formState)
 
-      if (!formState.challengeName || !formState.liveTime || !formState.endTime || !formState.status || !formState.challengeType) {
+      if (!formState.challengeName || !formState.startTime || !formState.endTime || !formState.status || !formState.challengeType) {
         setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
         return openErrorSB("Missing Field", "Please fill all the mandatory fields")
       }
   
       setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-      const { challengeName, liveTime, endTime, status, challengeType } = formState;
-      const res = await fetch(`${apiUrl}marginxtemplate`, {
+      const { challengeName, startTime, endTime, status, challengeType } = formState;
+      const res = await fetch(`${apiUrl}challengetemplates`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -78,7 +79,7 @@ function Index() {
           "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-          challengeName, liveTime, endTime, status, challengeType
+          challengeName, startTime, endTime, status, challengeType
         })
       });
   
@@ -89,6 +90,8 @@ function Index() {
         setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
         openErrorSB("Challenge Template not created", data?.message)
       } else {
+        console.log('res',data?.data);
+        setCurrentTemplate(data?.data);
         openSuccessSB("Challenge Template Created", data?.message)
         // setNewObjectId(data?.data?._id)
         setIsSubmitted(true);
@@ -109,15 +112,17 @@ function Index() {
     }
     const {category, interval, entryFee} = childFormState;
   
-    const res = await fetch(`${baseUrl}api/v1/parameter/`, {
-        method: "POST",
+    const res = await fetch(`${apiUrl}challengetemplates/${currentTemplate._id}`, {
+        method: "PATCH",
         credentials:"include",
         headers: {
             "content-type" : "application/json",
             "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-          category, interval, entryFee, template:template
+          challengeParameters:[ ...currentTemplate?.challengeParameters, {
+          category, interval, entryFee
+        }]  
         })
     });
     const data = await res.json();
@@ -137,14 +142,14 @@ function Index() {
     console.log("formstate", formState)
 
 
-    if (!formState.challengeName || !formState.liveTime || !formState.endTime || !formState.status || !formState.challengeType) {
+    if (!formState.challengeName || !formState.startTime || !formState.endTime || !formState.status || !formState.challengeType) {
       console.log('edit', formState);
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const { challengeName, liveTime, endTime, status, challengeType } = formState;
+    const { challengeName, startTime, endTime, status, challengeType } = formState;
 
-    const res = await fetch(`${apiUrl}marginxtemplate/${template?._id}`, {
+    const res = await fetch(`${apiUrl}challengetemplates/${template?._id}`, {
       method: "PATCH",
       credentials: "include",
       headers: {
@@ -152,7 +157,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        challengeName, liveTime, endTime, status, challengeType
+        challengeName, startTime, endTime, status, challengeType
       })
     });
 
@@ -271,12 +276,12 @@ function Index() {
                       <DemoItem>
                         <TimePicker 
                           // defaultValue={dayjs('2022-04-17T15:30')}
-                          label="Live Time"
+                          label="Start Time"
                           disabled={((isSubmitted || template) && (!editing || saving))}
-                          value={formState?.liveTime || dayjs(template?.liveTime)}
+                          value={formState?.startTime || dayjs(template?.startTime)}
                           onChange={(newValue) => {
                             if (newValue && newValue.isValid()) {
-                              setFormState(prevState => ({ ...prevState, liveTime: newValue }))
+                              setFormState(prevState => ({ ...prevState, startTime: newValue }))
                             }
                           }}
                           minDateTime={null}
@@ -297,7 +302,7 @@ function Index() {
                       <DemoItem>
                         <TimePicker 
                           // defaultValue={dayjs('2022-04-17T15:30')}
-                          label="Live Time"
+                          label="End Time"
                           disabled={((isSubmitted || template) && (!editing || saving))}
                           value={formState?.endTime || dayjs(template?.endTime)}
                           onChange={(newValue) => {
