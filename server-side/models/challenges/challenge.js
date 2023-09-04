@@ -33,12 +33,6 @@ const challengeSchema = new Schema({
         default: 'Not Started',
         required: true,
     },
-    participants:[{
-        userId:{ type: Schema.Types.ObjectId, ref: 'user-personal-detail'},
-        participationTime:{type:Date},
-        stockIndexEntryPrice:{type:Number},
-        payout:{type:Number}
-    }],
     createdOn:{
         type: Date,
         required : true,

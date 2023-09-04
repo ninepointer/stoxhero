@@ -646,109 +646,110 @@ const handleChange = (e) => {
                     )}
             </Grid>
 
-            {(isSubmitted || id) && !editing && 
-                <Grid item xs={12} md={6} xl={12}>
-                    
-                    <Grid container spacing={2}>
+                {(isSubmitted || id) && !editing && 
+                  <Grid item xs={12} md={6} xl={12}>
+                      
+                      <Grid container spacing={2}>
 
-                    <Grid item xs={12} md={6} xl={12} mb={1}>
-                    <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
-                        Create Group Discussion
-                    </MDTypography>
-                    </Grid>
-                    
-                    <Grid item xs={12} md={1.35} xl={3}>
-                        <TextField
-                            id="outlined-required"
-                            label='Title'
-                            fullWidth
-                            type="text"
-                            // value={formState?.features?.orderNo}
-                            onChange={(e) => {setChildFormState(prevState => ({
-                                ...prevState,
-                                gdTitle: e.target.value
-                            }))}}
-                        />
-                    </Grid>
-        
-                    <Grid item xs={12} md={6} xl={6}>
-                        <TextField
-                            id="outlined-required"
-                            label='Topic *'
-                            fullWidth
-                            type="text"
-                            // value={formState?.features?.description}
-                            onChange={(e) => {setChildFormState(prevState => ({
-                                ...prevState,
-                                gdTopic: e.target.value
-                            }))}}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} md={6} xl={3}>
-                        <TextField
-                            id="outlined-required"
-                            label='Meet Link *'
-                            fullWidth
-                            type="text"
-                            // value={formState?.features?.description}
-                            onChange={(e) => {setChildFormState(prevState => ({
-                                ...prevState,
-                                meetLink: e.target.value
-                            }))}}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} md={6} xl={3} mt={-1} mb={2.5}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DemoContainer components={['MobileDateTimePicker']}>
-                        <DemoItem>
-                          <MobileDateTimePicker 
-                            label="GD Start Date"
-                            // disabled={((isSubmitted || id) && (!editing || saving))}
-                            // defaultValue={dayjs(oldObjectId ? contestData?.contestEndDate : setFormState?.contestEndDate)}
-                            onChange={(e) => {setChildFormState(prevState => ({
-                              ...prevState,
-                              gdStartDate: dayjs(e)
-                            }))}}
-                            sx={{ width: '100%' }}
+                      <Grid item xs={12} md={6} xl={12} mb={1}>
+                      <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
+                          Create Group Discussion
+                      </MDTypography>
+                      </Grid>
+                      
+                      <Grid item xs={12} md={1.35} xl={3}>
+                          <TextField
+                              id="outlined-required"
+                              label='Title'
+                              fullWidth
+                              type="text"
+                              // value={formState?.features?.orderNo}
+                              onChange={(e) => {setChildFormState(prevState => ({
+                                  ...prevState,
+                                  gdTitle: e.target.value
+                              }))}}
                           />
-                        </DemoItem>
-                      </DemoContainer>
-                    </LocalizationProvider>
-                    </Grid>
-
-                    <Grid item xs={12} md={6} xl={3} mt={-1} mb={2.5}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DemoContainer components={['MobileDateTimePicker']}>
-                        <DemoItem>
-                          <MobileDateTimePicker 
-                            label="GD End Date"
-                            // disabled={((isSubmitted || id) && (!editing || saving))}
-                            // defaultValue={dayjs(oldObjectId ? contestData?.contestEndDate : setFormState?.contestEndDate)}
-                            onChange={(e) => {setChildFormState(prevState => ({
-                              ...prevState,
-                              gdEndDate: dayjs(e)
-                            }))}}
-                            sx={{ width: '100%' }}
+                      </Grid>
+          
+                      <Grid item xs={12} md={6} xl={6}>
+                          <TextField
+                              id="outlined-required"
+                              label='Topic *'
+                              fullWidth
+                              type="text"
+                              // value={formState?.features?.description}
+                              onChange={(e) => {setChildFormState(prevState => ({
+                                  ...prevState,
+                                  gdTopic: e.target.value
+                              }))}}
                           />
-                        </DemoItem>
-                      </DemoContainer>
-                    </LocalizationProvider>
-                    </Grid>
-            
-                    <Grid item xs={12} md={6} xl={3}>
-                        {/* <IoMdAddCircle cursor="pointer" onClick={(e)=>{onAddFeature(e,formState,setFormState)}}/> */}
-                        <MDButton 
-                          variant='contained' 
-                          color='success' 
-                          size='small' 
-                          onClick={(e)=>{createGD(e,childFormState,setChildFormState)}}>Create GD</MDButton>
-                    </Grid>
-    
-                    </Grid>
-    
-                </Grid>}
+                      </Grid>
+
+                      <Grid item xs={12} md={6} xl={3}>
+                          <TextField
+                              id="outlined-required"
+                              label='Meet Link *'
+                              fullWidth
+                              type="text"
+                              // value={formState?.features?.description}
+                              onChange={(e) => {setChildFormState(prevState => ({
+                                  ...prevState,
+                                  meetLink: e.target.value
+                              }))}}
+                          />
+                      </Grid>
+
+                      <Grid item xs={12} md={6} xl={3} mt={-1} mb={2.5}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DemoContainer components={['MobileDateTimePicker']}>
+                          <DemoItem>
+                            <MobileDateTimePicker 
+                              label="GD Start Date"
+                              // disabled={((isSubmitted || id) && (!editing || saving))}
+                              // defaultValue={dayjs(oldObjectId ? contestData?.contestEndDate : setFormState?.contestEndDate)}
+                              onChange={(e) => {setChildFormState(prevState => ({
+                                ...prevState,
+                                gdStartDate: dayjs(e)
+                              }))}}
+                              sx={{ width: '100%' }}
+                            />
+                          </DemoItem>
+                        </DemoContainer>
+                      </LocalizationProvider>
+                      </Grid>
+
+                      <Grid item xs={12} md={6} xl={3} mt={-1} mb={2.5}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DemoContainer components={['MobileDateTimePicker']}>
+                          <DemoItem>
+                            <MobileDateTimePicker 
+                              label="GD End Date"
+                              // disabled={((isSubmitted || id) && (!editing || saving))}
+                              // defaultValue={dayjs(oldObjectId ? contestData?.contestEndDate : setFormState?.contestEndDate)}
+                              onChange={(e) => {setChildFormState(prevState => ({
+                                ...prevState,
+                                gdEndDate: dayjs(e)
+                              }))}}
+                              sx={{ width: '100%' }}
+                            />
+                          </DemoItem>
+                        </DemoContainer>
+                      </LocalizationProvider>
+                      </Grid>
+              
+                      <Grid item xs={12} md={6} xl={3}>
+                          {/* <IoMdAddCircle cursor="pointer" onClick={(e)=>{onAddFeature(e,formState,setFormState)}}/> */}
+                          <MDButton 
+                            variant='contained' 
+                            color='success' 
+                            size='small' 
+                            onClick={(e)=>{createGD(e,childFormState,setChildFormState)}}>Create GD</MDButton>
+                      </Grid>
+      
+                      </Grid>
+      
+                  </Grid>
+                }
 
                 {(isSubmitted || id) && <Grid item xs={12} md={12} xl={12} mt={2}>
                     <MDBox>
