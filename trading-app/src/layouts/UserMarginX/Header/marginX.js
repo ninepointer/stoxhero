@@ -16,11 +16,11 @@ import MarginXsLeaderboard from '../../contestScoreboard/Header/marginXLeaderBoa
 
 export default function LabTabs() {
     const [clicked, setClicked] = useState('live')
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-    let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
+    // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    // let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
 
 
-    const socket = useContext(socketContext);
+    // const socket = useContext(socketContext);
 
   
     useEffect(() => {
@@ -28,39 +28,39 @@ export default function LabTabs() {
     }, []);
 
     const [isLoading, setIsLoading] = useState(false);
-    let [showPay, setShowPay] = useState(true);
-    const [isInterested, setIsInterested] = useState(false);
-    const [contest, setContest] = useState([]);
+    // let [showPay, setShowPay] = useState(true);
+    // const [isInterested, setIsInterested] = useState(false);
+    // const [contest, setContest] = useState([]);
 
-    useEffect(() => {
-        setIsLoading(true)
-        axios.get(`${baseUrl}api/v1/marginx/upcoming`, {
-            withCredentials: true,
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Credentials": true
-            },
-        })
-        .then((res) => {
-            setContest(res.data.data);
-            setTimeout(()=>{
-                setIsLoading(false)
-            },1000)
+    // useEffect(() => {
+    //     setIsLoading(true)
+    //     axios.get(`${baseUrl}api/v1/marginx/upcoming`, {
+    //         withCredentials: true,
+    //         headers: {
+    //             Accept: "application/json",
+    //             "Content-Type": "application/json",
+    //             "Access-Control-Allow-Credentials": true
+    //         },
+    //     })
+    //     .then((res) => {
+    //         setContest(res.data.data);
+    //         setTimeout(()=>{
+    //             setIsLoading(false)
+    //         },1000)
             
-        }).catch((err) => {
-            setIsLoading(false)
-            return new Error(err);
-        })
-    }, [isInterested, showPay])
+    //     }).catch((err) => {
+    //         setIsLoading(false)
+    //         return new Error(err);
+    //     })
+    // }, [isInterested, showPay])
 
-    let free = contest.filter((elem)=>{
-        return elem?.entryFee === 0;
-    })
+    // let free = contest.filter((elem)=>{
+    //     return elem?.entryFee === 0;
+    // })
 
-    let paid = contest.filter((elem)=>{
-        return elem?.entryFee !== 0;
-    })
+    // let paid = contest.filter((elem)=>{
+    //     return elem?.entryFee !== 0;
+    // })
 
     const handleClick = (e) => {
         console.log(e)

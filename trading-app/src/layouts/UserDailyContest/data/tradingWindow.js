@@ -65,7 +65,7 @@ function Header({ socket, data }) {
           isGetStartedClicked={isGetStartedClicked}
           setIsGetStartedClicked={handleSetIsGetStartedClicked}
           from={dailyContest}
-          contestData={data}
+          moduleData={data}
           watchList={watchList}
         />;
       }, [watchList, data, socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
@@ -77,7 +77,7 @@ function Header({ socket, data }) {
           setIsGetStartedClicked={handleSetIsGetStartedClicked}
           from={dailyContest}
           subscriptionId={contestId}
-          contestData={data}
+          moduleData={data}
           setWatchList={setWatchList}
         />;
       }, [setWatchList, data, contestId, socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
@@ -90,7 +90,7 @@ function Header({ socket, data }) {
           from={dailyContest}
           subscriptionId={contestId}
         //   setAvailbleMargin={setAvailbleMargin}
-          contestData={data}
+          moduleData={data}
         />;
       }, [data, contestId, handleSetIsGetStartedClicked, isGetStartedClicked, socket]);
     

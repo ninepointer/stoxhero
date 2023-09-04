@@ -352,7 +352,7 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                             color='info'
                                                             onClick={() => {
                                                                 navigate(`/marginxs/${elem?.marginXName}/${elem?.startTime.split('T')[0]}`, {
-                                                                    state: { elem: elem, date: elem?.startTime, id: elem?._id }
+                                                                    state: { elem: elem, date: elem?.startTime, id: elem?._id, whichTab: "Upcoming" }
                                                                 })
                                                             }}
                                                         >

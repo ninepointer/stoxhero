@@ -31,7 +31,7 @@ exports.mockTrade = async (req, res) => {
 
     req.body.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
 
-    console.log("caseStudy 8: mocktrade", )
+    console.log("caseStudy 8: mocktrade", req.body)
 
     if(exchange === "NFO"){
         exchangeSegment = 2;
@@ -140,9 +140,9 @@ exports.mockTrade = async (req, res) => {
         secondsRemaining: secondsRemaining
     }
 
-    if(!paperTrade && isAlgoTrader && !dailyContest){
-        await infinityTrade(req, res, otherData)
-    }
+    // if(!paperTrade && isAlgoTrader && !dailyContest){
+    //     await infinityTrade(req, res, otherData)
+    // }
 
     if(dailyContest){
         await dailyContestTrade(req, res, otherData)
@@ -161,6 +161,7 @@ exports.mockTrade = async (req, res) => {
     }
 
     if(marginx){
+        console.log("in marginx", marginx)
         await marginxTrade(req, res, otherData)
     }
 }

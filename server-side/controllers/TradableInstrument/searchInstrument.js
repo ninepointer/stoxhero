@@ -138,9 +138,9 @@ exports.search = async (searchString, res, req) => {
             {
               status: 'Active'
             },
-            {
-              tradingsymbol: { $regex: /^(NIFTY|BANK)/i }
-            },
+            // {
+            //   tradingsymbol: { $regex: /^(NIFTY|BANK)/i }
+            // },
             {
               expiry: {
                 $gte: todayDate, // expiry is greater than or equal to today's date
