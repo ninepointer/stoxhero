@@ -29,7 +29,7 @@ export default function LabTabs({socket}) {
     .then((res) => {
         console.log("Inside Payout chart data");
         setCompletedMarginX(res.data.data);
-        // console.log("Completed MarginX Res:",res.data.data)
+        console.log("Completed MarginX Res:",res.data.data)
     }).catch((err) => {
         setIsLoading(false)
         return new Error(err);

@@ -1545,7 +1545,7 @@ exports.MarginXPayoutChart = async (req, res, next) => {
     let pipeline = [
         {
             $match: {
-                status: "Completed",
+                status: "COMPLETE",
             },
         },
         {
@@ -1603,15 +1603,36 @@ exports.MarginXPayoutChart = async (req, res, next) => {
                     $subtract: ["$gpnl", "$brokerage"],
                 },
                 payout: {
-                    $add: [
-                        "$_id.entryFee",
+                    $cond: [
                         {
-                            $divide: ["$npnl", {
-                                $divide: ["$_id.portfolioValue", "$_id.entryFee"]
-                            }]
-                        }
+                            $gt: [
+                                {
+                                    $add: [
+                                        "$_id.entryFee",
+                                        {
+                                            $divide: ["$npnl", {
+                                                $divide: ["$_id.portfolioValue", "$_id.entryFee"]
+                                            }]
+                                        }
+                                    ]
+                                },
+                                0
+                            ]
+                        },
+                        {
+                            $add: [
+                                "$_id.entryFee",
+                                {
+                                    $divide: ["$npnl", {
+                                        $divide: ["$_id.portfolioValue", "$_id.entryFee"]
+                                    }]
+                                }
+                            ]
+                        },
+                        0
                     ]
                 }
+                
             },
         },
         {
