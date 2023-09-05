@@ -72,6 +72,11 @@ const tenXTraderSchema = new mongoose.Schema({
         type: Date,
         required: true        
     },
+    trade_time_utc:{
+        type: Date,
+        default: ()=>new Date(),
+        required: true
+    },
     trader:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',

@@ -344,7 +344,7 @@ function Header() {
                                 <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>Return</MDTypography>
+                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>Payout</MDTypography>
                                         </MDBox>
                                     </Grid>
                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
@@ -358,7 +358,7 @@ function Header() {
                                 <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>Return %</MDTypography>
+                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>Payout %</MDTypography>
                                         </MDBox>
                                     </Grid>
                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>

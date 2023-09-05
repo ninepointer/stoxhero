@@ -699,7 +699,7 @@ exports.overallDailyContestPnlYesterday = async (req, res, next) => {
             },
         ]);
 
-        const contest = await DailyContest.find({contestEndTime: {$gte: startTime, $lte: endTime}})
+        // const contest = await DailyContest.find({contestEndTime: {$gte: startTime, $lte: endTime}})
 
         if (!pnlDetailsData || pnlDetailsData.length === 0) {
             pnlDetailsData = null;  // reset the value to ensure the while loop continues

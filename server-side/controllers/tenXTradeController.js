@@ -47,7 +47,7 @@ exports.overallPnl = async (req, res, next) => {
       let pnlDetails = await TenXTrader.aggregate([
         {
           $match: {
-            trade_time: {
+            trade_time_utc: {
               $gte: new Date(matchingTime)
             },
             status: "COMPLETE",
@@ -117,10 +117,10 @@ exports.myTodaysTrade = async (req, res, next) => {
   const today = new Date(todayDate);
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  const count = await TenXTrader.countDocuments({ subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time: { $gte: today } })
+  const count = await TenXTrader.countDocuments({ subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time_utc: { $gte: today } })
   // console.log("Under my today orders", userId, today)
   try {
-    const myTodaysTrade = await TenXTrader.find({ subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time: { $gte: today } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1, 'subscriptionId': 1 }).populate('subscriptionId', 'plan_name')
+    const myTodaysTrade = await TenXTrader.find({ subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time_utc: { $gte: today } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time_utc': 1, 'order_id': 1, 'subscriptionId': 1 }).populate('subscriptionId', 'plan_name')
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
@@ -154,10 +154,10 @@ exports.myHistoryTrade = async (req, res, next) => {
 
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  const count = await TenXTrader.countDocuments({subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time: {$gte: subscribedOn, $lt: expiredOn } })
+  const count = await TenXTrader.countDocuments({subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time_utc: {$gte: subscribedOn, $lt: expiredOn } })
   // console.log("Under my today orders", userId, today)
   try {
-    const myHistoryTrade = await TenXTrader.find({subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time: {$gte: subscribedOn, $lt: expiredOn } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1, 'subscriptionId': 1 }).populate('subscriptionId', 'plan_name')
+    const myHistoryTrade = await TenXTrader.find({subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time_utc: {$gte: subscribedOn, $lt: expiredOn } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time_utc': 1, 'order_id': 1, 'subscriptionId': 1 }).populate('subscriptionId', 'plan_name')
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
@@ -235,8 +235,8 @@ exports.marginDetail = async (req, res, next) => {
           $match: {
             $expr: {
               $and: [
-                { $gt: ["$trades.trade_time", "$users.subscribedOn"] },
-                { $lt: ["$trades.trade_time", today] }
+                { $gt: ["$trades.trade_time_utc", "$users.subscribedOn"] },
+                { $lt: ["$trades.trade_time_utc", today] }
               ]
             },
             "trades.status": "COMPLETE",
@@ -382,7 +382,7 @@ exports.tradingDays = async (req, res, next) => {
           subscriptionId: "$subscriptionId",
           users: "$subscriptionData.users",
           validity: "$subscriptionData.validity",
-          date: "$trade_time",
+          date: "$trade_time_utc",
         },
       },
     },
@@ -566,7 +566,7 @@ exports.autoExpireTenXSubscription = async () => {
                 subscriptionId: "$subscriptionId",
                 users: "$subscriptionData.users",
                 validity: "$subscriptionData.validity",
-                date: "$trade_time",
+                date: "$trade_time_utc",
               },
             },
           },
@@ -679,7 +679,7 @@ exports.autoExpireTenXSubscription = async () => {
         let pnlDetails = await TenXTrader.aggregate([
           {
             $match: {
-              trade_time: {
+              trade_time_utc: {
                 $gte: new Date(subscribedOn)
               },
               status: "COMPLETE",
@@ -872,7 +872,7 @@ exports.traderWiseMockTrader = async (req, res, next) => {
     {
       $match:
       {
-        trade_time: {
+        trade_time_utc: {
           $gte: today
         },
         status: "COMPLETE",
@@ -943,7 +943,7 @@ exports.overallTenXPnl = async (req, res, next) => {
     let pnlDetails = await TenXTrader.aggregate([
       {
         $match: {
-          trade_time: {
+          trade_time_utc: {
             $gte: today
             // $gte: new Date("2023-05-26T00:00:00.000+00:00")
           },
@@ -1001,7 +1001,7 @@ exports.liveTotalTradersCount = async (req, res, next) => {
     let pnlDetails = await TenXTrader.aggregate([
       {
         $match: {
-          trade_time: {
+          trade_time_utc: {
             $gte: today
             // $gte: new Date("2023-05-26T00:00:00.000+00:00")
           },
@@ -1064,7 +1064,7 @@ exports.liveTotalTradersCount = async (req, res, next) => {
 //     let pnlDetailsData = await TenXTrader.aggregate([
 //       {
 //         $match: {
-//           trade_time: {
+//           trade_time_utc: {
 //             $gte: startTime, $lte: endTime
 //             // $gte: new Date("2023-06-23T00:00:00.000+00:00"), $lte: new Date("2023-06-23T23:59:59.000+00:00")
 //             // $gte: new Date("2023-05-26T00:00:00.000+00:00")
@@ -1143,7 +1143,7 @@ exports.overallTenXPnlYesterday = async (req, res, next) => {
     pnlDetailsData = await TenXTrader.aggregate([
       {
         $match: {
-          trade_time: {
+          trade_time_utc: {
             $gte: startTime,
             $lte: endTime
           },
@@ -1208,7 +1208,7 @@ exports.liveTotalTradersCountYesterday = async (req, res, next) => {
     let pnlDetails = await TenXTrader.aggregate([
       {
         $match: {
-          trade_time: {
+          trade_time_utc: {
             $gte: startTime, $lte: endTime
             // $gte: new Date("2023-05-26T00:00:00.000+00:00")
           },
@@ -1262,17 +1262,17 @@ exports.tenxPnlReport = async (req, res, next) => {
   let pipeline = [
     {
       $match: {
-        // trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        // trade_time_utc: { $gte: new Date(startDate), $lte: new Date(endDate) },
         status: "COMPLETE",
         subscriptionId: new ObjectId(id)
       }
-      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+      // trade_time_utc : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
     },
     {
       $group:
       {
         _id: {
-          "date": { $substr: ["$trade_time", 0, 10] },
+          "date": { $substr: ["$trade_time_utc", 0, 10] },
         },
         gpnl: {
           $sum: { $multiply: ["$amount", -1] }
@@ -1353,13 +1353,13 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
             {
               $lte: [
                 "$users.subscribedOn",
-                "$trade.trade_time",
+                "$trade.trade_time_utc",
               ],
             },
             {
               $gte: [
                 today,
-                "$trade.trade_time",
+                "$trade.trade_time_utc",
               ],
             },
           ],
@@ -1395,7 +1395,7 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
             $addToSet: {
               $dateToString: {
                 format: "%Y-%m-%d",
-                date: "$trade.trade_time",
+                date: "$trade.trade_time_utc",
               },
             },
           },
@@ -1524,13 +1524,13 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
             {
               $lte: [
                 "$users.subscribedOn",
-                "$trade.trade_time",
+                "$trade.trade_time_utc",
               ],
             },
             {
               $gte: [
                 "$users.expiredOn",
-                "$trade.trade_time",
+                "$trade.trade_time_utc",
               ],
             },
           ],
@@ -1565,7 +1565,7 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
           $addToSet: {
             $dateToString: {
               format: "%Y-%m-%d",
-              date: "$trade.trade_time",
+              date: "$trade.trade_time_utc",
             },
           },
         },
@@ -1659,6 +1659,8 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
     {
       $sort: {
         payout: -1,
+        tradingDays: -1,
+        npnl: -1
       },
     },
   ]
@@ -1715,7 +1717,7 @@ exports.getDailyTenXUsers = async (req, res) => {
         $group: {
           _id: {
             date: {
-              $substr: ["$trade_time", 0, 10],
+              $substr: ["$trade_time_utc", 0, 10],
             },
             trader: "$trader",
           },

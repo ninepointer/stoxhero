@@ -78,6 +78,7 @@ import BattleDashboard from './layouts/battleDashboard'
 import PaymentTest from './layouts/paymentTest/index'
 import ContestScoreboard from './layouts/contestScoreboard'
 import StoxHeroUserDashboard from './layouts/StoxHeroDashboard'
+import MarginXReport from "./layouts/marginxReport";
 
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
@@ -291,6 +292,11 @@ const routes = [
     key: "dailycontestreport",
     route: "/contestdashboard/dailycontestreport",
     component: <DailyContestReport />,
+  },
+  {
+    key: "marginxreport",
+    route: "/marginxdashboard/marginxreport",
+    component: <MarginXReport />,
   },
   {
     key: "dailycontestreportlive",

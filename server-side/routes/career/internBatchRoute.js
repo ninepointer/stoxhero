@@ -6,12 +6,14 @@ const {createBatch, getTodaysInternshipOrders, getAllInternshipOrders, getBatch,
         getBatches,getInactiveBatches,getCompletedBatches, editBatch, approveUser, 
         deleteBatch, getActiveBatches, getBatchParticipants, removeParticipantFromBatch, 
         getCurrentBatch, getWorkshops, getCurrentWorkshop, collegewiseuser, batchAndCollegeWiseUser,
-        collegewiseuserPerticularBatch, batchWiseActiveAndInactiveUser} = require('../../controllers/career/internBatch');
+        collegewiseuserPerticularBatch, batchWiseActiveAndInactiveUser, getEligibleInternshipBatch, downloadCertificate} = require('../../controllers/career/internBatch');
 
 
 router.route('/').post(Authenticate,restrictTo('Admin', 'Super Admin'), createBatch).get(Authenticate, getBatches);
 router.route('/active').get(getActiveBatches);
 router.route('/currentinternship').get(Authenticate, getCurrentBatch)
+router.route('/eligibleforcertificate').get(Authenticate, getEligibleInternshipBatch);
+router.route('/download/:id').get(Authenticate, downloadCertificate);
 router.route('/currentworkshop').get(Authenticate, getCurrentWorkshop)
 router.route('/workshops').get(Authenticate, getWorkshops)
 router.route('/inactive').get(Authenticate, getInactiveBatches);

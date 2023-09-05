@@ -168,6 +168,27 @@ exports.getDraftCarousels = async(req, res, next)=>{
   }
 };
 
+exports.getPastCarousels = async(req, res, next)=>{
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 8
+  const count = await Carousel.countDocuments(
+                      {
+                        carouselEndDate: {$lt: new Date()}
+                      })
+  try{
+      const liveCarousels = await Carousel.find(
+                            {
+                              carouselEndDate: {$lt: new Date()}
+                            })
+                            .skip(skip)
+                            .limit(limit);
+      res.status(201).json({status: 'success', data: liveCarousels, count: count});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+};
+
 exports.getUpcomingCarousels = async(req, res, next)=>{
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 8

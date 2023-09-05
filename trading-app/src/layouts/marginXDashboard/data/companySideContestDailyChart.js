@@ -13,7 +13,7 @@ export default function TraderDetails({completedMarginX, isLoading}) {
   let numberOfMarginXs = []
 
   dates = completedMarginX?.map((e)=>{
-    let tradeDate = new Date(e?.MarginXDate)
+    let tradeDate = new Date(e?.marginXDate)
     let utcDateString = tradeDate.toLocaleString("en-US", { timeZone: "UTC" });
     return moment.utc(utcDateString).utcOffset('+00:00').format('DD-MMM')
   })

@@ -69,13 +69,30 @@ const DailyContest = require("../../models/DailyContest/dailyContest")
 const TenxSubscription = require("../../models/TenXSubscription/TenXSubscriptionSchema");
 const InternBatch = require("../../models/Careers/internBatch")
 const DailyLiveContest = require("../../models/DailyContest/dailyContestLiveCompany")
+const {creditAmountToWallet} = require("../../controllers/marginX/marginxController")
 
 
 
+router.get("/tenxfeild", async (req, res) => {
 
-router.get("/tradableupdate", async (req, res) => {
+  const data = await TenXTrade.updateMany(
+    {},
+    [
+      {
+        $set: {
+          trade_time_utc: {
+            $subtract: [
+              "$trade_time",
+              {
+                $multiply: [60 * 60 * 1000, 5.5] // 5.5 hours for IST to UTC conversion
+              }
+            ]
+          }
+        }
+      }
+    ]
+  );
 
-  const data = await TradableInstrumentSchema.updateMany({}, {$set: {status: "Inactive"}});
 
   res.send(data);
 });

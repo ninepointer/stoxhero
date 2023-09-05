@@ -4,7 +4,7 @@ const restrictTo = require('../../authentication/authorization');
 const { getCarousels, getCarousel, editCarousel, deleteCarousel, createCarousel,
 uploadMulter, uploadToS3, resizePhoto, getActiveCarousels, getLiveCarousels, getHomePageCarousels,
 getInfinityLiveCarousels, getStoxHeroLiveCarousels, getUpcomingInfinityCarousels, 
-getUpcomingStoxHeroCarousels, getUpcomingCarousels, getDraftCarousels } = require('../../controllers/carouselController');
+getUpcomingStoxHeroCarousels, getUpcomingCarousels, getDraftCarousels, getPastCarousels } = require('../../controllers/carouselController');
 const Carousel = require('../../models/carousel/carouselSchema');
 
 const router = express.Router();
@@ -23,6 +23,7 @@ router.route('/live').get(Authenticate, getLiveCarousels)
 router.route('/upcoming').get(getUpcomingCarousels)
 router.route('/home').get(Authenticate,getHomePageCarousels)
 router.route('/draft').get(Authenticate, getDraftCarousels)
+router.route('/past').get(Authenticate, getPastCarousels)
 router.route('/:id').get(Authenticate, getCarousel).patch(Authenticate,restrictTo('Admin', 'Super Admin'), uploadMulter, resizePhoto, 
 uploadToS3,editCarousel).delete(Authenticate, restrictTo('Admin', 'Super Admin'), deleteCarousel);
 

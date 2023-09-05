@@ -184,7 +184,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                                 }
                                 const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
                             }
-                            console.log("this is redis client", newredisClient);
+                            // console.log("this is redis client", newredisClient);
 
                             // if(isRedisConnected && await client.exists(`${req.user._id.toString()}: instrument`)){
                             let instrument = await client.LPUSH(`${req.user._id.toString()}: instrument`, JSON.stringify({

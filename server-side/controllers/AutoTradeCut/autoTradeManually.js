@@ -1102,8 +1102,8 @@ const takeMarginXMockTrades = async(companyTradeObjects, userTradeObjects)=>{
     await MarginXMockCompany.insertMany(companyTradeObjects, {session});
     console.log('Documents inserted');
     for(trade of userTradeObjects){
-      if (isRedisConnected && await client.exists(`${trade?.trader.toString()}${trade?.contestId.toString()} overallpnlMarginX`)) {
-        let pnl = await client.get(`${trade?.trader.toString()}${trade?.contestId.toString()} overallpnlMarginX`)
+      if (isRedisConnected && await client.exists(`${trade?.trader.toString()}${trade?.marginxId.toString()} overallpnlMarginX`)) {
+        let pnl = await client.get(`${trade?.trader.toString()}${trade?.marginxId.toString()} overallpnlMarginX`)
         pnl = JSON.parse(pnl);
         const matchingElement = pnl.find((element) => (element._id.instrumentToken === trade?.instrumentToken && element._id.product === trade?.Product));
   
@@ -1131,12 +1131,12 @@ const takeMarginXMockTrades = async(companyTradeObjects, userTradeObjects)=>{
           });
         }
   
-        settingRedis = await client.set(`${trade?.trader.toString()}${trade?.contestId?.toString()} overallpnlMarginX`, JSON.stringify(pnl))
+        settingRedis = await client.set(`${trade?.trader.toString()}${trade?.marginxId?.toString()} overallpnlMarginX`, JSON.stringify(pnl))
   
       }
   
       if (isRedisConnected) {
-        await client.expire(`${trade?.trader.toString()}${trade?.contestId?.toString()} overallpnlMarginX`, secondsRemaining);
+        await client.expire(`${trade?.trader.toString()}${trade?.marginxId?.toString()} overallpnlMarginX`, secondsRemaining);
       }
       io.emit(`${trade?.trader.toString()}autoCut`, trade);
     }
@@ -1221,3 +1221,4 @@ const takeMarginXMockTrades = async(companyTradeObjects, userTradeObjects)=>{
 
 
 module.exports = { takeAutoDailyContestMockTrade, takeAutoTenxTrade, takeAutoPaperTrade, takeAutoInfinityTrade, takeAutoInternshipTrade, takeInternshipTrades, takeDailyContestMockTrades, takeMarginXMockTrades };
+
