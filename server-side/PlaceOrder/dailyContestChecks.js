@@ -4,14 +4,17 @@ const MarginX = require("../models/marginX/marginX");
 
 exports.contestChecks = async(req,res,next) => {
     try{
+        // req.body.contestId = req.body.marginxId;
+        console.log("req.body.contestId", req.body.contestId)
         const dailyContest = await DailyContest.findById(req.body.contestId);
         const userId = req.user._id;
         if(dailyContest?.contestEndTime < new Date()){
             return res.status(201).json({ status: 'error', message: 'This contest has ended.' });
         }
     
-        let user = dailyContest.participants.filter((elem)=>{
-            // console.log(userId, elem?.userId)
+        console.log(dailyContest?.participants)
+        let user = dailyContest?.participants.filter((elem)=>{
+            console.log(userId, elem?.userId)
             return elem?.userId?.toString() === userId?.toString()
         })
 

@@ -602,7 +602,7 @@ exports.creditAmountToWallet = async () => {
 
                 // console.log(pnlDetails[0]);
                 let payoutAmount = entryFee;
-                if(pnlDetails?.length !=0 && pnlDetails[0]?.npnl){
+                if(pnlDetails.length =!0 && pnlDetails[0]?.npnl){
                     payoutAmount = (pnlDetails[0]?.npnl/leverage) + entryFee;
                 }
                 if(payoutAmount >=0){

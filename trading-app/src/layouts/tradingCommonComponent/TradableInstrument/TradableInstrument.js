@@ -137,6 +137,8 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
       return;
     }
 
+    console.log("moduleData", moduleData)
+
     let isNifty = moduleData?.isNifty;
     let isBankNifty = moduleData?.isBank;
     let isFinNifty = moduleData?.isFin;

@@ -387,6 +387,7 @@ function Header() {
                                                     variant='contained'
                                                     color='secondary'
                                                     style={{ minWidth: '100%' }}
+                                                    disabled={whichTab === "Upcoming"}
                                                     onClick={() => {
                                                         navigate(`/marginx/${state?.marginXName}`, {
                                                             state: { data: state?._id, isNifty: state?.isNifty, isBank: state?.isBankNifty, isFin: state.isFinNifty, name: state?.contestName, endTime: state?.endTime, entryFee: state?.marginXTemplate?.entryFee, portfolioValue: state?.marginXTemplate?.portfolioValue }

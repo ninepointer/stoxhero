@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router({mergeParams: true});
 const {getDailyActiveUsers, getMonthlyActiveUsers, getDateWiseTradeInformation, getOverallTradeInformation,
     getWeeklyActiveUsers, getDailyActiveUsersOnPlatform, getRollingActiveUsersOnPlatform, getOverallRevenue,
-    getMonthlyActiveUsersOnPlatform, getWeeklyActiveUsersOnPlatform} = require('../../controllers/StoxHeroUserDashboard/userAnalytics');
+    getMonthlyActiveUsersOnPlatform, getWeeklyActiveUsersOnPlatform, getMonthWiseActiveUsers, getDateWiseActiveUsers} = require('../../controllers/StoxHeroUserDashboard/userAnalytics');
 
 const Authenticate = require('../../authentication/authentication');
 const restrictTo = require('../../authentication/authorization');
@@ -18,6 +18,8 @@ router.route('/rollingactiveusersonplatform').get(Authenticate, restrictTo('Admi
 router.route('/tradeinformation').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getDateWiseTradeInformation);
 router.route('/overalltradeinformation').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getOverallTradeInformation);
 router.route('/overallrevenue').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getOverallRevenue);
+router.route('/monthwiseactiveusers').get(Authenticate, getMonthWiseActiveUsers);
+router.route('/datewiseactiveusers').get(Authenticate, getDateWiseActiveUsers);
 
 
 module.exports = router;

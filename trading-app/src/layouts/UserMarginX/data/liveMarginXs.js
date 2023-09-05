@@ -81,3 +81,4 @@ export default function LabTabs({setClicked}) {
 
     );
 }
+

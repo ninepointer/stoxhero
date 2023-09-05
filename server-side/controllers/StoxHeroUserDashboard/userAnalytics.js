@@ -1296,6 +1296,295 @@ exports.getOverallRevenue = async (req, res) => {
   }
 };
 
+exports.getMonthWiseActiveUsers = async (req, res) => {
+  try {
+    const pipeline = [
+      {
+        $match:{
+          trade_time : {$gte : new Date('2023-05-01:00:00:00'), $lt: new Date('2023-09-01:00:00:00')}
+        }
+      },
+      {
+        $group: {
+          _id: {
+            // month: { $substr: ["$trade_time", 0, 7] },
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          traders: { $sum: 1 },
+          uniqueUsers: { $addToSet: {$toString : "$_id.trader"} },
+        },
+      },
+    ];
+
+    const virtualTraders = await PaperTrading.aggregate(pipeline);
+    const tenXTraders = await TenXTrading.aggregate(pipeline);
+    const contestTraders = await ContestTrading.aggregate(pipeline);
+    const internshipTraders = await InternshipTrading.aggregate(pipeline);
+    const marginXTraders = await MarginXTrading.aggregate(pipeline);
+    // console.log("Data:",virtualTraders.length,tenXTraders.length,contestTraders.length,internshipTraders.length,marginXTraders.length)
+    // console.log("Virtual Data:",virtualTraders)
+
+    // Create a month-wise mapping of MAUs for different products
+    const monthWiseMAUs = {
+      virtualTrading: 0,
+      tenXTrading: 0,
+      contest: 0,
+      internshipTrading: 0,
+      marginXTrading:0,
+      total: 0,
+      uniqueUsers: [],
+    };
+
+    virtualTraders.forEach(entry => {
+      const { traders, uniqueUsers } = entry;
+        
+        monthWiseMAUs.virtualTrading = traders;
+        monthWiseMAUs.uniqueUsers.push(...uniqueUsers);
+        console.log("Traders:",traders)
+        console.log("Monthweise MASUs at Virtual:",monthWiseMAUs)
+    });
+    tenXTraders.forEach(entry => {
+      const { traders, uniqueUsers } = entry;
+      
+        monthWiseMAUs.tenXTrading = traders;
+        monthWiseMAUs.uniqueUsers.push(...uniqueUsers);
+      
+    });
+
+    contestTraders.forEach(entry => {
+      const { traders, uniqueUsers } = entry;
+        
+        monthWiseMAUs.contest = traders;
+        monthWiseMAUs.uniqueUsers.push(...uniqueUsers);
+      
+    });
+
+    internshipTraders.forEach(entry => {
+      const { traders, uniqueUsers } = entry;
+        
+        monthWiseMAUs.internshipTrading = traders;
+        monthWiseMAUs.uniqueUsers.push(...uniqueUsers);
+      
+    });
+    marginXTraders.forEach(entry => {
+      const { traders, uniqueUsers } = entry;
+      
+        monthWiseMAUs.marginxTrading = traders;
+        monthWiseMAUs.uniqueUsers.push(...uniqueUsers);
+      
+    });
+
+    // Calculate the month-wise total MAUs and unique users
+    // console.log("MonthwiseMAUs:",monthWiseMAUs)
+    Object.keys(monthWiseMAUs).forEach(month => {
+      console.log("Month:",month)
+      const { virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, uniqueUsers } = monthWiseMAUs[month];
+      // console.log("Data:",virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, uniqueUsers)
+      // console.log("Data:",virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, uniqueUsers)
+      console.log("Month Wise MAUs:",monthWiseMAUs[month])
+      monthWiseMAUs.uniqueUsers = ([...new Set(monthWiseMAUs['uniqueUsers'])]);
+      monthWiseMAUs.total = monthWiseMAUs['uniqueUsers'].length
+    });
+
+    console.log("Unique Users at month:",monthWiseMAUs.uniqueUsers.length)
+
+    const response = {
+      status: "success",
+      message: "Monthly Active Users fetched successfully",
+      data: Object.values(monthWiseMAUs).splice(Object.values(monthWiseMAUs).length <= 12 ? 0 : Object.values(monthWiseMAUs).length - 12,Object.values(monthWiseMAUs).length),
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.getDateWiseActiveUsers = async (req, res) => {
+  try {
+    const pipeline = [
+      {
+        $match:{
+          trade_time : {$gte: new Date('2023-05-01:00:00:00'), $lt: new Date('2023-09-05:00:00:00')}
+        }
+      },
+      {
+        $group: {
+          _id: {
+            date: { $substr: ["$trade_time", 0, 10] },
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { date: "$_id.date" },
+          traders: { $sum: 1 },
+          uniqueUsers: { $addToSet: {$toString : "$_id.trader"} },
+        },
+      },
+      {
+        $sort: {
+          "_id.date": 1,
+        },
+      },
+    ];
+
+    const virtualTraders = await PaperTrading.aggregate(pipeline);
+    const tenXTraders = await TenXTrading.aggregate(pipeline);
+    const contestTraders = await ContestTrading.aggregate(pipeline);
+    const internshipTraders = await InternshipTrading.aggregate(pipeline);
+    const marginXTraders = await MarginXTrading.aggregate(pipeline);
+
+    // Create a month-wise mapping of MAUs for different products
+    const dateWiseDAUs = {};
+
+    virtualTraders.forEach(entry => {
+      const { _id, traders, uniqueUsers } = entry;
+      const date = _id.date;
+      if (date !== "1970-01-01") {
+        if (!dateWiseDAUs[date]) {
+            dateWiseDAUs[date] = {
+            date,
+            virtualTrading: 0,
+            tenXTrading: 0,
+            contest: 0,
+            internshipTrading: 0,
+            marginXTrading:0,
+            total: 0,
+            uniqueUsers: [],
+          };
+        }
+        dateWiseDAUs[date].virtualTrading = traders;
+        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+      }
+    });
+
+    tenXTraders.forEach(entry => {
+      const { _id, traders, uniqueUsers } = entry;
+      const date = _id.date;
+      if (date !== "1970-01-01") {
+        if (!dateWiseDAUs[date]) {
+          dateWiseDAUs[date] = {
+            date,
+            virtualTrading: 0,
+            tenXTrading: 0,
+            contest: 0,
+            internshipTrading: 0,
+            marginXTrading:0,
+            total: 0,
+            uniqueUsers: [],
+          };
+        }
+        dateWiseDAUs[date].tenXTrading = traders;
+        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+      }
+    });
+
+    contestTraders.forEach(entry => {
+      const { _id, traders, uniqueUsers } = entry;
+      const date = _id.date;
+      if (date !== "1970-01-01") {
+        if (!dateWiseDAUs[date]) {
+          dateWiseDAUs[date] = {
+            date,
+            virtualTrading: 0,
+            tenXTrading: 0,
+            contest: 0,
+            internshipTrading: 0,
+            marginXTrading:0,
+            total: 0,
+            uniqueUsers: [],
+          };
+        }
+        dateWiseDAUs[date].contest = traders;
+        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+      }
+    });
+
+    internshipTraders.forEach(entry => {
+      const { _id, traders, uniqueUsers } = entry;
+      const date = _id.date;
+      if (date !== "1970-01") {
+        if (!dateWiseDAUs[date]) {
+          dateWiseDAUs[date] = {
+            date,
+            virtualTrading: 0,
+            tenXTrading: 0,
+            contest: 0,
+            internshipTrading: 0,
+            marginXTrading:0,
+            total: 0,
+            uniqueUsers: [],
+          };
+        }
+        dateWiseDAUs[date].internshipTrading = traders;
+        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+      }
+    });
+    marginXTraders.forEach(entry => {
+      const { _id, traders, uniqueUsers } = entry;
+      const date = _id.date;
+      if (date !== "1970-01-01") {
+        if (!dateWiseDAUs[date]) {
+          dateWiseDAUs[date] = {
+            date,
+            virtualTrading: 0,
+            tenXTrading: 0,
+            contest: 0,
+            internshipTrading: 0,
+            marginXTrading:0,
+            total: 0,
+            uniqueUsers: [],
+          };
+        }
+        dateWiseDAUs[date].marginxTrading = traders;
+        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+      }
+    });
+
+    // Calculate the month-wise total MAUs and unique users
+    Object.keys(dateWiseDAUs).forEach(date => {
+      const { virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, uniqueUsers } = dateWiseDAUs[date];
+      dateWiseDAUs[date].uniqueUsers = [...new Set(uniqueUsers)];
+      dateWiseDAUs[date].total = dateWiseDAUs[date].uniqueUsers.length
+    });
+    console.log("DateWiseDAUs:",dateWiseDAUs)
+
+    let data = []
+    for(let elem in dateWiseDAUs){
+      let obj = {}
+      obj.date = elem
+      obj.daus = dateWiseDAUs[elem].total
+      data.push(obj)
+    }
+    // dateWiseDAUs[date].total = dateWiseDAUs[date].uniqueUsers.length
+
+    const response = {
+      status: "success",
+      message: "Monthly Active Users fetched successfully",
+      data: data,
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
 
 
 

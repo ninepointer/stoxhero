@@ -107,7 +107,8 @@ function TraderwiseTraderPNL({ socket }) {
         noOfTrade: allTrade[i].trades,
         userId: allTrade[i]._id.traderId,
         email: allTrade[i]._id.traderEmail,
-        mobile: allTrade[i]._id.traderMobile
+        mobile: allTrade[i]._id.traderMobile,
+        cumm_return: allTrade[i].cumm_return
       })
     }
 
@@ -129,8 +130,11 @@ function TraderwiseTraderPNL({ socket }) {
   let totalTrades = 0;
   let totalLotsUsed = 0;
   let totalTraders = 0;
+  let totalReturn = 0;
+  let totalCummReturn = 0;
 
 
+  const xFactor = selectedMarginx?.marginXTemplate?.portfolioValue / selectedMarginx?.marginXTemplate?.entryFee;
 
   finalTraderPnl.map((subelem, index) => {
     let obj = {};
@@ -147,6 +151,8 @@ function TraderwiseTraderPNL({ socket }) {
     totalLotsUsed += (subelem.lotUsed);
     totalTrades += (subelem.noOfTrade);
     totalTraders += 1;
+    totalReturn += (subelem.totalPnl - subelem.brokerage)/xFactor
+    totalCummReturn += subelem.cumm_return;
 
     obj.traderName = (
       <MDTypography component="a" variant="caption" color={tradercolor} fontWeight="medium" backgroundColor={traderbackgroundcolor} padding="5px" borderRadius="5px">
@@ -190,6 +196,18 @@ function TraderwiseTraderPNL({ socket }) {
       </MDTypography>
     );
 
+    obj.return = (
+      <MDTypography component="a" variant="caption" color={(subelem.totalPnl - subelem.brokerage)/xFactor >= 0 ? "success" : "error"} padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
+        {((subelem.totalPnl - subelem.brokerage)/xFactor) >= 0.00 ? "+₹" + (((subelem.totalPnl - subelem.brokerage)/xFactor).toFixed(2)) : "-₹" + ((-((subelem.totalPnl - subelem.brokerage)/xFactor)).toFixed(2))}
+      </MDTypography>
+    );
+  
+    obj.cumm_return = (
+      <MDTypography component="a" variant="caption" color={subelem?.cumm_return >= 0 ? "success" : "error"} padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
+        {(subelem?.cumm_return) >= 0.00 ? "+₹" + ((subelem?.cumm_return).toFixed(2)) : "-₹" + ((-(subelem?.cumm_return)).toFixed(2))}
+      </MDTypography>
+    );
+
     obj.email = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
         {(subelem?.email)}
@@ -201,6 +219,8 @@ function TraderwiseTraderPNL({ socket }) {
         {(subelem.mobile)}
       </MDTypography>
     );
+
+
 
     rows.push(obj);
   })
@@ -250,6 +270,18 @@ function TraderwiseTraderPNL({ socket }) {
   obj.netPnl = (
     <MDTypography component="a" variant="caption" color={totalnetPnlcolor} padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
       {(totalGrossPnl - totalTransactionCost) >= 0.00 ? "+₹" + ((totalGrossPnl - totalTransactionCost).toFixed(2)) : "-₹" + ((-(totalGrossPnl - totalTransactionCost)).toFixed(2))}
+    </MDTypography>
+  );
+
+  obj.return = (
+    <MDTypography component="a" variant="caption" color={totalReturn>=0 ? "success":"error"} padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
+      {totalReturn >= 0.00 ? "+₹" + (totalReturn.toFixed(2)) : "-₹" + ((-totalReturn).toFixed(2))}
+    </MDTypography>
+  );
+
+  obj.cumm_return = (
+    <MDTypography component="a" variant="caption" color={totalCummReturn>=0 ? "success":"error"} padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
+      {totalCummReturn >= 0.00 ? "+₹" + (totalCummReturn.toFixed(2)) : "-₹" + ((-totalCummReturn).toFixed(2))}
     </MDTypography>
   );
 
