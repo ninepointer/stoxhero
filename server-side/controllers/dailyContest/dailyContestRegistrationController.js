@@ -17,7 +17,12 @@ exports.generateOTP = async(req, res, next)=>{
   
     const{ firstName, lastName, email, mobile, dob, collegeName, source, contest, campaignCode
     } = req.body
-  
+    if(!contest){
+        return res.status(400).json({
+            message: "Contest doesn't exixt",
+            status: 'error'
+          });
+    }
     const inactiveUser = await User.findOne({ $or: [{ email: email }, { mobile: mobile }], status: "Inactive" });
     if (inactiveUser) {
       return res.status(400).json({
@@ -27,7 +32,7 @@ exports.generateOTP = async(req, res, next)=>{
     }
     let mobile_otp = otpGenerator.generate(6, {digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false});
     try {
-        if(await ContestRegistration.findOne({mobileNo: mobile, status:'OTP Verified'})){
+        if(await ContestRegistration.findOne({mobileNo: mobile, status:'OTP Verified', contest:contest})){
             return res.status(400).json({
                 message: "You have already registered for this contest.",
                 status: 'error'
@@ -49,7 +54,7 @@ exports.generateOTP = async(req, res, next)=>{
         // console.log(data)
         if(process.env.PROD == 'true')sendOTP(mobile.toString(), mobile_otp);
        if(process.env.PROD!=='true')sendOTP("9319671094", mobile_otp);
-        res.status(201).json({info: "OTP Sent on your mobile number!"}); 
+        res.status(201).json({message: "OTP Sent on your mobile number!"}); 
     }catch(error){
       console.log(error)
     }
@@ -65,7 +70,7 @@ console.log(req.body)
 const correctOTP = await ContestRegistration.findOne({$and : [{mobileNo: mobile}], mobile_otp: mobile_otp}).select('status');
 // console.log(correctOTP)
 if(!correctOTP){
-    return res.status(400).json({info:'Please enter the correct OTP'})
+    return res.status(400).json({message:'Please enter the correct OTP'})
 }
 
 correctOTP.status = 'OTP Verified'

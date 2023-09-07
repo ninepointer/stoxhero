@@ -35,6 +35,18 @@ exports.createMarginX = async (req, res) => {
                 message: "Validation error: Live time can't be greater than end time",
             });
         }
+        const startTimeDate = new Date(startTime);
+
+        // Set the seconds to "00"
+        startTimeDate.setSeconds(0);
+
+        // Check if startTime is valid
+        if (isNaN(startTimeDate.getTime())) {
+            return res.status(400).json({
+                status: 'error',
+                message: "Validation error: Invalid start time format",
+            });
+        }
 
         if (getMarginX) {
             return res.status(400).json({
@@ -44,7 +56,7 @@ exports.createMarginX = async (req, res) => {
         }
 
         const marginX = await MarginX.create({
-            marginXName, startTime, endTime, marginXTemplate, maxParticipants, 
+            marginXName, startTime: startTimeDate, endTime, marginXTemplate, maxParticipants, 
             status, payoutStatus, createdBy: req.user._id, lastModifiedBy: req.user._id,
             marginXExpiry, isNifty, isBankNifty, isFinNifty, liveTime
         });

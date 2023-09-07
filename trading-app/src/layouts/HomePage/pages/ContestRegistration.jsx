@@ -77,10 +77,8 @@ const CareerForm = () => {
 }
   },[])
   async function confirmOTP(){
-
-    setCreating(true);
     setDetails(prevState => ({...prevState, mobile_otp: detail.mobile_otp}));
-
+    
     const { 
       firstName,
       lastName,
@@ -93,7 +91,10 @@ const CareerForm = () => {
       campaignCode,
       mobile_otp,
     } = detail;
-    
+    if(!mobile_otp || !mobile){
+      return openSuccessSB("Data Incomplete", "Please fill all the required fields", "Error");
+    }
+    setCreating(true); 
     const res = await fetch(`${baseUrl}api/v1/dailycontest/confirmotp`, {
       method: "POST",
       // credentials:"include",
@@ -120,9 +121,9 @@ const CareerForm = () => {
     if(res.status === 201){ 
         setSubmitted(true);
         setCreating(false);
-        return openSuccessSB("Application Submitted",data.info,"SUCCESS");  
+        return openSuccessSB("Application Submitted",data.message,"SUCCESS");  
     }else{
-        return openSuccessSB("Error",data.info,"Error")
+        return openSuccessSB("Error",data.message,"Error")
     }
 
   }
@@ -192,11 +193,11 @@ const CareerForm = () => {
         setOTPGenerated(true);
         // setTimerActive(true);
         // setResendTimer(30); 
-        return openSuccessSB("OTP Sent",data.info,"SUCCESS");  
+        return openSuccessSB("OTP Sent",data.message,"SUCCESS");  
     }else{
         // console.log("openInfoBS Called")
         setOTPGenerated(false)
-        return openSuccessSB("Error",data.info,"Error")
+        return openSuccessSB("Error",data.message,"Error")
     }
 
   }
