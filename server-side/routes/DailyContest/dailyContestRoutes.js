@@ -2,6 +2,7 @@ const express = require("express");
 const Authenticate = require('../../authentication/authentication');
 const router = express.Router({mergeParams: true});
 const contestController = require('../../controllers/dailyContestController');
+const registrationController = require('../../controllers/dailyContest/dailyContestRegistrationController');
 const restrictTo = require('../../authentication/authorization');
 
 router.post('/contest', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.createContest);
@@ -53,6 +54,9 @@ router.get('/contests/collegecompleted', Authenticate, contestController.getComp
 
 router.get('/contests/completedadminLive', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getCommpletedContestsAdminLive);
 router.get('/contests/completedadmin', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getCommpletedContestsAdmin);
+router.get('/findbyname', contestController.findContestByName);
+router.post('/generateotp', registrationController.generateOTP);
+router.post('/confirmotp', registrationController.confirmOTP);
 router.get('/draft', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDraftContests);
 
 

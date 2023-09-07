@@ -2015,3 +2015,26 @@ exports.getDailyContestAllUsers = async (req, res) => {
         });
     }
 };
+
+exports.findContestByName = async(req,res,next)=>{
+    try{
+        const {name, date} = req.query;
+        let dateString = date.includes('-') ? date.split('-').join('') : date.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
+        const result = await Contest.findOne({contestName: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'College'}).
+            select('_id contestName');
+        if(!result){
+            res.status(404).json({
+                status: "error",
+                message: "No contests found",
+            });
+        }
+        res.status(200).json({data:result, status:'success'});
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: e.message
+        });
+    }
+}

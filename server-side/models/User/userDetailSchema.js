@@ -161,7 +161,7 @@ const userDetailSchema = new mongoose.Schema({
     creationProcess:{
         type: String,
         // required: true,
-        enum: ['Auto SignUp','By Admin','Career SignUp']
+        enum: ['Auto SignUp','By Admin','Career SignUp', 'College Contest SignUp']
     },
     employeeid:{
         type: String,
@@ -218,6 +218,13 @@ const userDetailSchema = new mongoose.Schema({
         // required: true
     },
     watchlistInstruments: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "instrument-detail"
+        }
+        
+    ],
+    allInstruments: [
         {
             type: Schema.Types.ObjectId,
             ref: "instrument-detail"
@@ -341,7 +348,7 @@ userDetailSchema.pre('save', async function(next){
     if(!this.employeeid || this.isNew){
         const count = await this.constructor.countDocuments();
         // console.log("Count of Documents: ",count)
-        let userId = this.email.split('@')[0]
+        let userId = this?.email?.split('@')[0]
         let userIds = await userPersonalDetail.find({employeeid:userId})
         if(userIds.length > 0)
         {
@@ -403,4 +410,3 @@ userDetailSchema.methods.changedPasswordAfter = function(JWTiat) {
 };
 const userPersonalDetail = mongoose.model("user-personal-detail", userDetailSchema);
 module.exports = userPersonalDetail;
-
