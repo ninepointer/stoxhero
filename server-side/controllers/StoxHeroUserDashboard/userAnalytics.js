@@ -688,8 +688,8 @@ exports.getMonthlyActiveUsersOnPlatform = async (req, res) => {
             monthToTradersMap.set(month, new Set(uniqueUsers));
         }
     });
-
-    let result = Array.from(monthToTradersMap, ([month, traders]) => ({month, uniqueUsers: Array.from(traders), uniqueUsersCount: traders.size}));
+//uniqueUsers: Array.from(traders)
+    let result = Array.from(monthToTradersMap, ([month, traders]) => ({month, uniqueUsersCount: traders.size}));
 
     result.sort((a, b) => (a.month > b.month ? 1 : b.month > a.month ? -1 : 0));
     
@@ -699,6 +699,7 @@ exports.getMonthlyActiveUsersOnPlatform = async (req, res) => {
       data: result.splice(result.length <= 12 ? 0 : result.length-12,result.length),
     };
     
+
 
   res.status(200).json(response);
   } catch (error) {
@@ -1296,20 +1297,521 @@ exports.getOverallRevenue = async (req, res) => {
   }
 };
 
+exports.getMonthWiseCummActiveUsers = async (req, res) => {
+  try {
+    const pipeline = [
+      {
+        $match:{
+          trade_time : {$gte : new Date('2023-05-01:00:00:00'), $lt: new Date('2023-09-01:00:00:00')}
+        }
+      },
+      {
+        $group: {
+          _id: {
+            // month: { $substr: ["$trade_time", 0, 7] },
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          traders: { $sum: 1 },
+          uniqueUsers: { $addToSet: {$toString : "$_id.trader"} },
+        },
+      },
+    ];
+
+    const virtualTraders = await PaperTrading.aggregate(pipeline);
+    const tenXTraders = await TenXTrading.aggregate(pipeline);
+    const contestTraders = await ContestTrading.aggregate(pipeline);
+    const internshipTraders = await InternshipTrading.aggregate(pipeline);
+    const marginXTraders = await MarginXTrading.aggregate(pipeline);
+    // console.log("Data:",virtualTraders.length,tenXTraders.length,contestTraders.length,internshipTraders.length,marginXTraders.length)
+    // console.log("Virtual Data:",virtualTraders)
+
+    // Create a month-wise mapping of MAUs for different products
+    const monthWiseMAUs = {
+      virtualTrading: 0,
+      tenXTrading: 0,
+      contest: 0,
+      internshipTrading: 0,
+      marginXTrading:0,
+      total: 0,
+      uniqueUsers: [],
+    };
+
+    virtualTraders.forEach(entry => {
+      const { traders, uniqueUsers } = entry;
+        
+        monthWiseMAUs.virtualTrading = traders;
+        monthWiseMAUs.uniqueUsers.push(...uniqueUsers);
+        console.log("Traders:",traders)
+        console.log("Monthweise MASUs at Virtual:",monthWiseMAUs)
+    });
+
+    tenXTraders.forEach(entry => {
+      const { traders, uniqueUsers } = entry;
+      
+        monthWiseMAUs.tenXTrading = traders;
+        monthWiseMAUs.uniqueUsers.push(...uniqueUsers);
+      
+    });
+
+    contestTraders.forEach(entry => {
+      const { traders, uniqueUsers } = entry;
+        
+        monthWiseMAUs.contest = traders;
+        monthWiseMAUs.uniqueUsers.push(...uniqueUsers);
+      
+    });
+
+    internshipTraders.forEach(entry => {
+      const { traders, uniqueUsers } = entry;
+        
+        monthWiseMAUs.internshipTrading = traders;
+        monthWiseMAUs.uniqueUsers.push(...uniqueUsers);
+      
+    });
+
+    marginXTraders.forEach(entry => {
+      const { traders, uniqueUsers } = entry;
+      
+        monthWiseMAUs.marginxTrading = traders;
+        monthWiseMAUs.uniqueUsers.push(...uniqueUsers);
+      
+    });
+
+    // Calculate the month-wise total MAUs and unique users
+    // console.log("MonthwiseMAUs:",monthWiseMAUs)
+    Object.keys(monthWiseMAUs).forEach(month => {
+      console.log("Month:",month)
+      // const { virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, uniqueUsers } = monthWiseMAUs[month];
+      // console.log("Data:",virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, uniqueUsers)
+      // console.log("Data:",virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, uniqueUsers)
+      console.log("Month Wise MAUs:",monthWiseMAUs[month])
+      monthWiseMAUs.uniqueUsers = ([...new Set(monthWiseMAUs['uniqueUsers'])]);
+      monthWiseMAUs.total = monthWiseMAUs['uniqueUsers'].length
+    });
+
+    console.log("Unique Users at month:",monthWiseMAUs.uniqueUsers.length)
+
+    const response = {
+      status: "success",
+      message: "Monthly Active Users fetched successfully",
+      data: Object.values(monthWiseMAUs).splice(Object.values(monthWiseMAUs).length <= 12 ? 0 : Object.values(monthWiseMAUs).length - 12,Object.values(monthWiseMAUs).length),
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.getDateWiseAverageActiveUsers = async (req, res) => {
+  try {
+    const pipeline = [
+      {
+        $match:{
+          trade_time : {$gte: new Date('2023-05-01:00:00:00'), $lt: new Date('2023-09-05:00:00:00')}
+        }
+      },
+      {
+        $group: {
+          _id: {
+            date: { $substr: ["$trade_time", 0, 10] },
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { date: "$_id.date" },
+          traders: { $sum: 1 },
+          uniqueUsers: { $addToSet: {$toString : "$_id.trader"} },
+        },
+      },
+      {
+        $sort: {
+          "_id.date": 1,
+        },
+      },
+    ];
+
+    const virtualTraders = await PaperTrading.aggregate(pipeline);
+    const tenXTraders = await TenXTrading.aggregate(pipeline);
+    const contestTraders = await ContestTrading.aggregate(pipeline);
+    const internshipTraders = await InternshipTrading.aggregate(pipeline);
+    const marginXTraders = await MarginXTrading.aggregate(pipeline);
+
+    // Create a month-wise mapping of MAUs for different products
+    const dateWiseDAUs = {};
+
+    virtualTraders.forEach(entry => {
+      const { _id, traders, uniqueUsers } = entry;
+      const date = _id.date;
+      if (date !== "1970-01-01") {
+        if (!dateWiseDAUs[date]) {
+            dateWiseDAUs[date] = {
+            date,
+            virtualTrading: 0,
+            tenXTrading: 0,
+            contest: 0,
+            internshipTrading: 0,
+            marginXTrading:0,
+            total: 0,
+            uniqueUsers: [],
+          };
+        }
+        dateWiseDAUs[date].virtualTrading = traders;
+        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+      }
+    });
+
+    tenXTraders.forEach(entry => {
+      const { _id, traders, uniqueUsers } = entry;
+      const date = _id.date;
+      if (date !== "1970-01-01") {
+        if (!dateWiseDAUs[date]) {
+          dateWiseDAUs[date] = {
+            date,
+            virtualTrading: 0,
+            tenXTrading: 0,
+            contest: 0,
+            internshipTrading: 0,
+            marginXTrading:0,
+            total: 0,
+            uniqueUsers: [],
+          };
+        }
+        dateWiseDAUs[date].tenXTrading = traders;
+        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+      }
+    });
+
+    contestTraders.forEach(entry => {
+      const { _id, traders, uniqueUsers } = entry;
+      const date = _id.date;
+      if (date !== "1970-01-01") {
+        if (!dateWiseDAUs[date]) {
+          dateWiseDAUs[date] = {
+            date,
+            virtualTrading: 0,
+            tenXTrading: 0,
+            contest: 0,
+            internshipTrading: 0,
+            marginXTrading:0,
+            total: 0,
+            uniqueUsers: [],
+          };
+        }
+        dateWiseDAUs[date].contest = traders;
+        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+      }
+    });
+
+    internshipTraders.forEach(entry => {
+      const { _id, traders, uniqueUsers } = entry;
+      const date = _id.date;
+      if (date !== "1970-01") {
+        if (!dateWiseDAUs[date]) {
+          dateWiseDAUs[date] = {
+            date,
+            virtualTrading: 0,
+            tenXTrading: 0,
+            contest: 0,
+            internshipTrading: 0,
+            marginXTrading:0,
+            total: 0,
+            uniqueUsers: [],
+          };
+        }
+        dateWiseDAUs[date].internshipTrading = traders;
+        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+      }
+    });
+
+    marginXTraders.forEach(entry => {
+      const { _id, traders, uniqueUsers } = entry;
+      const date = _id.date;
+      if (date !== "1970-01-01") {
+        if (!dateWiseDAUs[date]) {
+          dateWiseDAUs[date] = {
+            date,
+            virtualTrading: 0,
+            tenXTrading: 0,
+            contest: 0,
+            internshipTrading: 0,
+            marginXTrading:0,
+            total: 0,
+            uniqueUsers: [],
+          };
+        }
+        dateWiseDAUs[date].marginxTrading = traders;
+        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+      }
+    });
+
+    // Calculate the month-wise total MAUs and unique users
+    Object.keys(dateWiseDAUs).forEach(date => {
+      const { virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, uniqueUsers } = dateWiseDAUs[date];
+      dateWiseDAUs[date].uniqueUsers = [...new Set(uniqueUsers)];
+      dateWiseDAUs[date].total = dateWiseDAUs[date].uniqueUsers.length
+    });
+    console.log("DateWiseDAUs:",dateWiseDAUs)
+
+    const months = ['2023-01', '2023-02', '2023-03', '2023-04', '2023-05', '2023-06', '2023-07', '2023-08', '2023-09', '2023-10', '2023-11', '2023-12'];
+    let data = []
+    for(let elem in dateWiseDAUs){
+      let obj = {}
+      obj.date = elem
+      obj.daus = dateWiseDAUs[elem].total
+      data.push(obj)
+    }
+
+    const average_data = [];
+    for (const month of months) {
+      const average = calculateAverageForMonth(month, data);
+      console.log(`Average for ${month}:`, average);
+      average_data.push({month: month, data: Math.floor(average)})
+    }
+
+    const response = {
+      status: "success",
+      message: "Average Daily Active Users MonthWise fetched successfully",
+      data: average_data,
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+function calculateAverageForMonth(month, data) {
+  const monthData = data.filter(entry => entry.date.startsWith(month));
+  let sum = 0;
+  for (const entry of monthData) {
+    sum += entry.daus;
+  }
+  return sum / monthData.length;
+}
 
 
+exports.getCummMonthlyActiveUsersOnPlatform = async (req, res) => {
+  try {
+    const pipeline = [
+      {
+        $project: {
+          trade_time: 1,
+          trader: 1,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            month: { $substr: ["$trade_time", 0, 7] },
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id.month",
+          uniqueUsers: { $addToSet: {$toString : "$_id.trader"} }, // Calculate the total number of unique active users
+        },
+      },
+      {
+        $match: {
+          "_id": { $ne: "1970-01" }, // Exclude year 1970
+        },
+      },
+      {
+        $project: {
+          _id:0,
+          month: "$_id",
+          uniqueUsers: 1,
+        },
+      },
+      {
+        $sort: {
+          "month": 1,
+        },
+      },
+    ];
+    
+    const tenXTraders = await TenXTrading.aggregate(pipeline);
+    const virtualTraders = await PaperTrading.aggregate(pipeline);
+    const contestTraders = await ContestTrading.aggregate(pipeline);
+    const internshipTraders = await InternshipTrading.aggregate(pipeline);
+    const marginXTraders = await MarginXTrading.aggregate(pipeline);
+    
+    let allTraders = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders];
+
+    let monthToTradersMap = new Map();
+
+    allTraders.forEach(({month, uniqueUsers}) => {
+        if(monthToTradersMap.has(month)) {
+            let existingTradersSet = monthToTradersMap.get(month);
+            uniqueUsers.forEach(trader => existingTradersSet.add(trader));
+        } else {
+            monthToTradersMap.set(month, new Set(uniqueUsers));
+        }
+    });
+
+    let result = Array.from(monthToTradersMap, ([month, traders]) => ({month, uniqueUsers: Array.from(traders), uniqueUsersCount: traders.size}));
+
+    result.sort((a, b) => (a.month > b.month ? 1 : b.month > a.month ? -1 : 0));
+    
+    // console.log("result", result)
+
+    let cumm_data = [];
+    let arr = [];
+    for(let elem of result){
+      arr = [...arr, ...elem.uniqueUsers]
+      cumm_data.push({month: elem.month, count: [...new Set(arr)].length})
+    }
+
+    const response = {
+      status: "success",
+      message: "Monthly Active Users on Platform fetched successfully",
+      data: cumm_data
+    };
+    
 
 
+  res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
 
 
+exports.getSignUpAndCummSignup = async(req, res) =>{
 
-
-
-
-
-
+  try{
+    let date1 = new Date("2023-01-31T18:30:00");
+    let date2 = new Date("2023-02-28T18:30:00");
   
-  
-  
-  
+    const currentDate = new Date();
+    // Set the date to the last day of the current month
+    currentDate.setMonth(currentDate.getMonth() + 1, 0);
+    // Format the last date as a string (YYYY-MM-DD)
+    const lastDateOfMonth = currentDate.toISOString().substr(0, 10) + "T18:30:00"
+    let data = [];
 
+    // date1.setDate(0);
+    // date2.setDate(0); // Set date2 to the last day of the current month
+  
+    
+    while (date2 <= new Date(lastDateOfMonth)) {
+      let newDate = date1;
+      const user = await User.aggregate([
+        {
+          $facet: {
+            "monthSignups": [
+              {
+                $match: {
+                  joining_date: {
+                    $gte: date1,
+                    $lte: date2,
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: null, // Since you want a count for the entire month, _id can be null
+                  num: {
+                    $sum: 1,
+                  },
+                },
+              }
+            ],
+            "uptoMonthSignups": [
+              {
+                $match: {
+                  joining_date: {
+                    $lte: lastDateOfMonth,
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: null,
+                  num: {
+                    $sum: 1,
+                  },
+                },
+              }
+            ],
+            "totalSignups": [
+              {
+                $match: {
+                  joining_date: {
+                    $lte: new Date(),
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: null,
+                  num: {
+                    $sum: 1,
+                  },
+                },
+              }
+            ]
+          }
+        }
+      ])
+  
+      data.push({date: newDate.toISOString().split("T"), data: user})
+      // Increment the month by one
+      // date2.setMonth(date2.getMonth() + 1);
+      // date1.setMonth(date1.getMonth() + 1);
+
+      date1.setMonth(date1.getMonth() + 2);
+      date2.setMonth(date2.getMonth() + 2);
+      console.log("first", date1, date1.getMonth())
+      // Set date1 to the first day of the next month
+      date1.setDate(0);
+    
+      // Set date2 to the last day of the month
+      // if (date2.getDate() !== 1) {
+        date2.setDate(0); // Set date2 to the last day of the current month
+      // }
+      // console.log("second", date1, date2)
+      // date1.setMonth(date1.getMonth() + 1);
+      // date2.setMonth(date2.getMonth() + 1);
+      // console.log(date1, date2)
+    }
+  
+    const response = {
+      status: "success",
+      message: "Data fetched successfully",
+      data: data
+    };
+    
+    res.status(200).json(response);
+  
+  } catch(err){
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: err.message,
+    });
+  }
+  
+}
