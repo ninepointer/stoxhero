@@ -14,3 +14,4 @@ router.route('/user/:id').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), g
 
 
 module.exports = router;
+//paymentRoute

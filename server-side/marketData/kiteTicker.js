@@ -186,8 +186,8 @@ const getTicksForUserPosition = async (socket, id) => {
           userId = await client.get(socket.id);
         }
         // console.log(isRedisConnected)
-        if (isRedisConnected && await client.exists((userId)?.toString())) {
-          let instruments = await client.SMEMBERS((userId)?.toString())
+        if (isRedisConnected && await client.exists(`${userId?.toString()}allInstrument`)) {
+          let instruments = await client.SMEMBERS(`${userId?.toString()}allInstrument`)
           // instrumentTokenArr = new Set(instruments)
           const parsedInstruments = instruments.map(jsonString => JSON.parse(jsonString));
           instrumentTokenArr = new Set();
@@ -200,19 +200,19 @@ const getTicksForUserPosition = async (socket, id) => {
           // console.log("this is instrumentTokenArr");
         } else {
           const user = await User.findById({_id: new ObjectId(id)})
-            .populate('watchlistInstruments')
+            .populate('allInstruments')
 
           userId = user._id;
           instrumentTokenArr = [];
-          for (let i = 0; i < user.watchlistInstruments.length; i++) {
+          for (let i = 0; i < user.allInstruments.length; i++) {
             
-            instrumentTokenArr.push(user.watchlistInstruments[i].instrumentToken);
-            instrumentTokenArr.push(user.watchlistInstruments[i].exchangeInstrumentToken);
+            instrumentTokenArr.push(user.allInstruments[i].instrumentToken);
+            instrumentTokenArr.push(user.allInstruments[i].exchangeInstrumentToken);
             let obj = {
-              instrumentToken: user.watchlistInstruments[i].instrumentToken,
-              exchangeInstrumentToken: user.watchlistInstruments[i].exchangeInstrumentToken
+              instrumentToken: user.allInstruments[i].instrumentToken,
+              exchangeInstrumentToken: user.allInstruments[i].exchangeInstrumentToken
             }
-            const newredisClient = await client.SADD((user._id).toString(), JSON.stringify(obj));
+            const newredisClient = await client.SADD(`${userId?.toString()}allInstrument`, JSON.stringify(obj));
 
           }
           instrumentTokenArr = new Set(instrumentTokenArr)

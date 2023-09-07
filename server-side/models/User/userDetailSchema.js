@@ -224,6 +224,13 @@ const userDetailSchema = new mongoose.Schema({
         }
         
     ],
+    allInstruments: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "instrument-detail"
+        }
+        
+    ],
     referralProgramme: 
         {
             type: Schema.Types.ObjectId,
@@ -341,7 +348,7 @@ userDetailSchema.pre('save', async function(next){
     if(!this.employeeid || this.isNew){
         const count = await this.constructor.countDocuments();
         // console.log("Count of Documents: ",count)
-        let userId = this.email.split('@')[0]
+        let userId = this?.email?.split('@')[0]
         let userIds = await userPersonalDetail.find({employeeid:userId})
         if(userIds.length > 0)
         {

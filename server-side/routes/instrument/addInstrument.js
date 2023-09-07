@@ -63,9 +63,11 @@ router.post("/addInstrument", authentication, async (req, res) => {
 
                     if (!isDataAlreadyExist) {
                         getInstruments.watchlistInstruments.push(dataExist._id)
+                        getInstruments.allInstruments.push(dataExist._id)
                         const updateInstrument = await User.findOneAndUpdate({ _id: _id }, {
                             $set: {
-                                watchlistInstruments: getInstruments.watchlistInstruments
+                                watchlistInstruments: getInstruments.watchlistInstruments,
+                                allInstruments: getInstruments.allInstruments
                             }
                         })
                         try {
@@ -77,6 +79,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                                     exchangeInstrumentToken: exchangeInstrumentToken
                                 }
                                 const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
+                                const allinstrument = await client.SADD(`${(_id).toString()}allInstrument`, JSON.stringify(obj));
                             }
 
                             let instrument = await client.LPUSH(`${req.user._id.toString()}: infinityInstrument`, JSON.stringify({
@@ -116,6 +119,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                                     exchangeInstrumentToken: exchangeInstrumentToken
                                 }
                                 const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
+                                const allinstrument = await client.SADD(`${(_id).toString()}allInstrument`, JSON.stringify(obj));
                             }
 
                             let instrument = await client.LPUSH(`${req.user._id.toString()}: infinityInstrument`, JSON.stringify({
@@ -142,9 +146,11 @@ router.post("/addInstrument", authentication, async (req, res) => {
                         let getInstruments = await User.findOne({ _id: _id });
                         // console.log("instrument is", addingInstruments._id)
                         getInstruments.watchlistInstruments.push(addingInstruments._id)
+                        getInstruments.allInstruments.push(addingInstruments._id)
                         const updateInstrument = await User.findOneAndUpdate({ _id: _id }, {
                             $set: {
-                                watchlistInstruments: getInstruments.watchlistInstruments
+                                watchlistInstruments: getInstruments.watchlistInstruments,
+                                allInstruments: getInstruments.allInstruments
                             }
                         })
                         res.status(201).json({ message: "Instrument Added" });
@@ -167,10 +173,12 @@ router.post("/addInstrument", authentication, async (req, res) => {
                     if (!isDataAlreadyExist) {
                         console.log("in isDataAlreadyExist.............", isDataAlreadyExist)
                         getInstruments.watchlistInstruments.push(dataExist._id)
+                        getInstruments.allInstruments.push(dataExist._id)
                         const updateInstrument = await User.findOneAndUpdate({ _id: _id }, {
                             $set: {
 
-                                watchlistInstruments: getInstruments.watchlistInstruments
+                                watchlistInstruments: getInstruments.watchlistInstruments,
+                                allInstruments: getInstruments.allInstruments
                             }
 
                         })
@@ -183,6 +191,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                                     exchangeInstrumentToken: exchangeInstrumentToken
                                 }
                                 const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
+                                const allinstrument = await client.SADD(`${(_id).toString()}allInstrument`, JSON.stringify(obj));
                             }
                             // console.log("this is redis client", newredisClient);
 
@@ -227,6 +236,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                                     exchangeInstrumentToken: exchangeInstrumentToken
                                 }
                                 const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
+                                const allinstrument = await client.SADD(`${(_id).toString()}allInstrument`, JSON.stringify(obj));
                             }
 
                             let instrument = await client.LPUSH(`${req.user._id.toString()}: instrument`, JSON.stringify({
@@ -254,11 +264,13 @@ router.post("/addInstrument", authentication, async (req, res) => {
                         await subscribeSingleXTSToken(exchangeInstrumentToken, Number(exchangeSegment))
                         let getInstruments = await User.findOne({ _id: _id });
                         getInstruments.watchlistInstruments.push(addingInstruments._id)
+                        getInstruments.allInstruments.push(addingInstruments._id)
                         console.log("instrument is", addingInstruments._id)
 
                         const updateInstrument = await User.findOneAndUpdate({ _id: _id }, {
                             $set: {
-                                watchlistInstruments: getInstruments.watchlistInstruments
+                                watchlistInstruments: getInstruments.watchlistInstruments,
+                                allInstruments: getInstruments.allInstruments
                             }
 
                         })
