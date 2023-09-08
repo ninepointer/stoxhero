@@ -16,7 +16,7 @@ import { apiUrl } from '../../../constants/constants';
 const UpcomingContest = ({type}) => {
 // const [registeredUserCount, setRegisteredUserCount] = useState(0);
 const [activeTemplate,setActiveTemplate] = useState([]);
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
     let call1 = axios.get(`${apiUrl}marginxtemplate/active`,{

@@ -38,7 +38,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
   const [exitState, setExitState] = useState(false);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [tradeData, setTradeData] = useState([]);
   const countPosition = {
     openPosition: 0,
