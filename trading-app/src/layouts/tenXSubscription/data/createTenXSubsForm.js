@@ -49,7 +49,7 @@ const [subscriptionCount,setSubscriptionCount] = useState([]);
 const [LiveTenXSubs,setLiveTenXSubs] = useState([]);
 const [ExpiredTenXSubs,setExpiredTenXSubs] = useState([]);
 
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
 const [formState,setFormState] = useState({
     plan_name:'',
