@@ -17,8 +17,8 @@ router.route('/rollingactiveusersonplatform').get(Authenticate, restrictTo('Admi
 router.route('/tradeinformation').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getDateWiseTradeInformation);
 router.route('/overalltradeinformation').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getOverallTradeInformation);
 router.route('/overallrevenue').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getOverallRevenue);
-router.route('/monthwiseactiveusers').get(Authenticate, getMonthWiseActiveUsers);
-router.route('/datewiseactiveusers').get(Authenticate, getDateWiseActiveUsers);
+// router.route('/monthwiseactiveusers').get(Authenticate, getMonthWiseActiveUsers);
+// router.route('/datewiseactiveusers').get(Authenticate, getDateWiseActiveUsers);
 
 
 router.route('/monthlyactiveusersonplatform').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getMonthlyActiveUsersOnPlatform);

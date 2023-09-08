@@ -177,6 +177,8 @@ import MarginXDashboard from "./layouts/marginXDashboard"
 import MarginXTemplateDetail from "./layouts/marginXTemplate"
 import ChallengeTemplateDetail from "./layouts/challengeTemplate"
 import ChallengeTemplateForm from "./layouts/challengeTemplate/challengeTemplateIndex"
+import BattleTemplateDetail from "./layouts/battleTemplate"
+import BattleTemplateForm from "./layouts/battleTemplate/battleTemplateIndex"
 import CreateMarginXTemplate from "./layouts/marginXTemplate/createMarginIndex"
 import CreateMarginX from "./layouts/marginX/createMarginIndex"
 import MarginX from "./layouts/marginX"
@@ -585,6 +587,10 @@ const routes = [
     component: <ChallengeTemplateDetail />,
   },
   {
+    route: "/battledashboard/battletemplate",
+    component: <BattleTemplateDetail />,
+  },
+  {
     key: "marginxdetails",
     route: "/marginxdashboard/createmarginxtemplate",
     component: <CreateMarginXTemplate />,
@@ -592,6 +598,10 @@ const routes = [
   {
     route: "/challengedashboard/challengetemplateform",
     component: <ChallengeTemplateForm/>,
+  },
+  {
+    route: "/battledashboard/battletemplateform",
+    component: <BattleTemplateForm/>,
   },
   {
     key: "marginx",
@@ -720,6 +730,11 @@ const routes = [
     // type: "collapse",
     // name: "Internship Batch",
     key: "battles",
+    // icon: <BatchIcon/>,
+    route: "/battledashboard/battles",
+    component: <Battles />,
+  },
+  {
     // icon: <BatchIcon/>,
     route: "/battledashboard/battles",
     component: <Battles />,
