@@ -125,3 +125,21 @@ exports.getInactiveBattleTemplates = async (req, res) => {
         });
     }
 };
+exports.getDraftBattleTemplates = async (req, res) => {
+    try {
+        const draftTemplates = await BattleTemplate.find({ status: 'Draft' });
+        
+        res.status(200).json({
+            status: 'success',
+            data: draftTemplates
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Error fetching draft templates",
+            error: error.message
+        });
+    }
+};
+s
