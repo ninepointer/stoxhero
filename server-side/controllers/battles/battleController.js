@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Battle = require('../../models/battles/battle'); // Modify path to your actual model's location
+const Transaction = require('../../models/Transactions/transaction');
 
 // Controller for creating a Battle
 exports.createBattle = async (req, res) => {
@@ -372,5 +373,17 @@ const refundParticipant = async(userId, battleName, refundAmount)=>{
         transactionType:'Cash',
         type:'Credit'
     });
+    const transacation = await Transaction.create({
+        transactionCategory:'Credit',
+        transactionBy: '63ecbc570302e7cf0153370c',
+        transactionAmount:refundAmount,
+        transactionFor:'Refund',
+        transactionStatus:'Complete',
+        transactionMode:'Wallet',
+        currency:'INR',
+        transactionType:'Cash',
+        wallet:userWallet._id
+    });
     await userWallet.save();
 }
+
