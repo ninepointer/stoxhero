@@ -604,6 +604,10 @@ const routes = [
     component: <BattleTemplateForm/>,
   },
   {
+    route: "/battledashboard/:name",
+    component: <BattleTemplateForm/>,
+  },
+  {
     key: "marginx",
     route: "/marginxdashboard/marginx",
     component: <MarginX />,

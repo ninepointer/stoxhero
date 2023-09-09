@@ -8,7 +8,7 @@ import Card from "@mui/material/Card";
 import axios from "axios";
 
 
-export default function GroupDiscussions({saving,template, action, setAction}) {
+export default function GroupDiscussions({saving,template, action, setAction, prizePool}) {
     console.log("Template", template)
     const [open, setOpen] = useState(false);
   
@@ -17,7 +17,7 @@ export default function GroupDiscussions({saving,template, action, setAction}) {
     const [rankingPayout,setRankingPayout] = React.useState([]);
     const [rankingPayoutCount,setRankingPayoutCount] = useState(0);
     async function getRankingPayout(){
-        let call1 = axios.get(`${baseUrl}api/v1/rankingPayout/batchtemplate/${template?._id}`,{
+        let call1 = axios.get(`${baseUrl}api/v1/battletemplates/${template?._id}`,{
             withCredentials: true,
             headers: {
                 Accept: "application/json",
@@ -29,8 +29,8 @@ export default function GroupDiscussions({saving,template, action, setAction}) {
             .then(([api1Response]) => {
             // Process the responses here
             console.log(api1Response.data.data);
-            setRankingPayout(api1Response.data.data)
-            setRankingPayoutCount(api1Response.data.count);
+            setRankingPayout(api1Response?.data?.data?.rankingPayout)
+            setRankingPayoutCount(api1Response?.data?.data?.rankingPayout?.count);
             })
             .catch((error) => {
             // Handle errors here
@@ -46,6 +46,7 @@ export default function GroupDiscussions({saving,template, action, setAction}) {
         { Header: "#", accessor: "index", align: "center" },
         { Header: "Rank", accessor: "rank", align: "center" },
         { Header: "Reward Percentage", accessor: "percentage", align: "center" },
+        { Header: "Reward Amount", accessor: "amount", align: "center" },
       ]
 
     let rows = []
@@ -65,7 +66,12 @@ export default function GroupDiscussions({saving,template, action, setAction}) {
   );
   featureObj.percentage = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {elem?.rewardPercentage}
+      {elem?.rewardPercentage}%
+    </MDTypography>
+  );
+  featureObj.amount = (
+    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      ₹{((elem?.rewardPercentage*prizePool)/100).toFixed(0)}
     </MDTypography>
   );
 

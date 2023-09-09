@@ -61,6 +61,7 @@ exports.editBattleTemplate = async (req, res) => {
         res.status(200).json({
             status: 'success',
             message: "Battle Template updated successfully",
+            data: result,
         });
     } catch (error) {
         console.error('error', error);
@@ -74,7 +75,7 @@ exports.editBattleTemplate = async (req, res) => {
 
 exports.getAllBattleTemplates = async (req, res) => {
     try {
-        const templates = await BattleTemplate.find({});
+        const templates = await BattleTemplate.find({}).sort({_id:-1});
         
         res.status(200).json({
             status: 'success',
@@ -90,13 +91,37 @@ exports.getAllBattleTemplates = async (req, res) => {
     }
 };
 
-exports.getActiveBattleTemplates = async (req, res) => {
+exports.getBattleTemplateById = async (req, res) => {
+    const id = req.params.id
     try {
-        const activeTemplates = await BattleTemplate.find({ status: 'Active' });
+        const template = await BattleTemplate.findOne({_id : id});
         
         res.status(200).json({
             status: 'success',
-            data: activeTemplates
+            data: template
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Error fetching all templates",
+            error: error.message
+        });
+    }
+};
+
+exports.getActiveBattleTemplates = async (req, res) => {
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10;
+    const count = await BattleTemplate.countDocuments({ status : 'Active'})
+    try {
+        const activeTemplates = await BattleTemplate.find({ status: 'Active' }).sort({_id:-1}).skip(skip).limit(limit);
+        
+        res.status(200).json({
+            status: 'success',
+            data: activeTemplates,
+            results: activeTemplates.length , 
+            count: count
         });
     } catch (error) {
         console.error(error);
@@ -109,12 +134,17 @@ exports.getActiveBattleTemplates = async (req, res) => {
 };
 
 exports.getInactiveBattleTemplates = async (req, res) => {
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10;
+    const count = await BattleTemplate.countDocuments({ status : 'Inactive'})
     try {
-        const inactiveTemplates = await BattleTemplate.find({ status: 'Inactive' });
+        const inactiveTemplates = await BattleTemplate.find({ status: 'Inactive' }).sort({_id:-1}).skip(skip).limit(limit);
         
         res.status(200).json({
             status: 'success',
-            data: inactiveTemplates
+            data: inactiveTemplates,
+            results: inactiveTemplates.length , 
+            count: count
         });
     } catch (error) {
         console.error(error);
@@ -125,13 +155,19 @@ exports.getInactiveBattleTemplates = async (req, res) => {
         });
     }
 };
+
 exports.getDraftBattleTemplates = async (req, res) => {
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10;
+    const count = await BattleTemplate.countDocuments({ status : 'Draft'})
     try {
-        const draftTemplates = await BattleTemplate.find({ status: 'Draft' });
+        const draftTemplates = await BattleTemplate.find({ status: 'Draft' }).sort({_id:-1}).skip(skip).limit(limit);
         
         res.status(200).json({
             status: 'success',
-            data: draftTemplates
+            data: draftTemplates,
+            results: draftTemplates.length , 
+            count: count
         });
     } catch (error) {
         console.error(error);

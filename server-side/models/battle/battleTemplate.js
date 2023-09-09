@@ -42,7 +42,7 @@ const battleTemplateSchema = new Schema({
     },
     status:{
         type: String,
-        enum: ['Active','Inactive'],
+        enum: ['Active','Inactive','Draft'],
         required: true,
     },
     rankingPayout:[{

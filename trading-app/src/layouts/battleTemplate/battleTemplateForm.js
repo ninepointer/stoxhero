@@ -19,7 +19,8 @@ import RankingPayout from './data/rankingPayout'
 
 function Index() {
   const location = useLocation();
-  const template = location?.state?.data;
+  const id = location?.state?.data;
+  const [template, setTemplate] = useState(id ? id : null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [isLoading, setIsLoading] = useState(template ? true : false)
@@ -30,15 +31,17 @@ function Index() {
   const [updatedDocument, setUpdatedDocument] = useState([]);
   const [action, setAction] = useState(false);
   const [formState, setFormState] = useState({
-    templateName: '' || template?.templateName,
+    battleTemplateName: '' || template?.battleTemplateName,
     portfolioValue: '' || template?.portfolioValue,
-    entryFee: '' || template?.entryFee,
+    entryFee: (template?.entryFee ? parseInt(template?.entryFee) : 0),
     status: '' || template?.status,
-    platformCommission: '' || template?.platformCommission,
-    minParticipants: '' || template?.minParticipants,
-    gstPercentage: '' || template?.gstPercentage,
-    winnersPercentage: '' || template?.winnersPercentage,
+    platformCommissionPercentage: (template?.platformCommissionPercentage ? parseInt(template?.platformCommissionPercentage) : 0),
+    minParticipants: (template?.minParticipants ? parseInt(template?.minParticipants) : 0),
+    gstPercentage: (template?.gstPercentage ? parseInt(template?.gstPercentage) : 0),
+    winnerPercentage: (template?.winnerPercentage ? parseInt(template?.winnerPercentage) : 0),
     battleType: '' || template?.battleType,
+    battleTemplateType: '' || template?.battleTemplateType,
+    expectedCollection: 0 
   });
 
   const [childFormState,setChildFormState] = useState({
@@ -46,11 +49,13 @@ function Index() {
     rewardPercentage: '',
   });
 
+  console.log(formState)
+
   useEffect(() => {
     setTimeout(() => {
       template && setUpdatedDocument(template)
       setIsLoading(false);
-    }, 500)
+    }, 200)
   }, [])
 
 
@@ -59,14 +64,14 @@ function Index() {
     try{
       console.log(formState)
 
-      if (!formState.templateName || !formState.portfolioValue || !formState.entryFee || !formState.status) {
+      if (!formState.battleTemplateName || !formState.portfolioValue || !formState.entryFee || !formState.winnerPercentage || !formState.platformCommissionPercentage || !formState.minParticipants || !formState.gstPercentage || !formState.battleType || !formState.battleTemplateType  || !formState.status) {
         setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
         return openErrorSB("Missing Field", "Please fill all the mandatory fields")
       }
   
       setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-      const { templateName, portfolioValue, entryFee, status } = formState;
-      const res = await fetch(`${apiUrl}battletemplate`, {
+      const { battleTemplateName, portfolioValue, entryFee, winnerPercentage, platformCommissionPercentage, minParticipants, gstPercentage, battleType, battleTemplateType, status } = formState;
+      const res = await fetch(`${apiUrl}battletemplates`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -74,7 +79,7 @@ function Index() {
           "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-          templateName, portfolioValue, entryFee, status
+          battleTemplateName, portfolioValue, entryFee, winnerPercentage, platformCommissionPercentage, minParticipants, gstPercentage, battleType, battleTemplateType, status
         })
       });
   
@@ -88,7 +93,21 @@ function Index() {
         openSuccessSB("Battle Template Created", data?.message)
         // setNewObjectId(data?.data?._id)
         setIsSubmitted(true);
-        // setTemplate(data?.data);
+        console.log("Created Template Data:",data?.data)
+        setTemplate(data?.data);
+        setFormState({
+          battleTemplateName: '' || template?.battleTemplateName,
+          portfolioValue: '' || template?.portfolioValue,
+          entryFee: '' || template?.entryFee,
+          status: '' || template?.status,
+          platformCommissionPercentage: '' || template?.platformCommissionPercentage,
+          minParticipants: '' || template?.minParticipants,
+          gstPercentage: '' || template?.gstPercentage,
+          winnerPercentage: '' || template?.winnerPercentage,
+          battleType: '' || template?.battleType,
+          battleTemplateType: '' || template?.battleTemplateType
+        });
+        calculation();
         setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
       }
     }catch(e){
@@ -105,14 +124,14 @@ function Index() {
     console.log("formstate", formState)
 
 
-    if (!formState.templateName || !formState.portfolioValue || !formState.entryFee || !formState.status) {
+    if (!formState.battleTemplateName || !formState.portfolioValue || !formState.entryFee || !formState.winnerPercentage || !formState.platformCommissionPercentage || !formState.minParticipants || !formState.gstPercentage || !formState.battleType || !formState.battleTemplateType || !formState.status) {
       console.log('edit', formState);
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const { templateName, portfolioValue, entryFee, status } = formState;
+    const { battleTemplateName, portfolioValue, entryFee, winnerPercentage, platformCommissionPercentage, minParticipants, gstPercentage, battleType, battleTemplateType, status } = formState;
 
-    const res = await fetch(`${apiUrl}battletemplate/${template?._id}`, {
+    const res = await fetch(`${apiUrl}battletemplates/${template?._id}`, {
       method: "PATCH",
       credentials: "include",
       headers: {
@@ -120,7 +139,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        templateName, portfolioValue, entryFee, status
+        battleTemplateName, portfolioValue, entryFee, winnerPercentage, platformCommissionPercentage, minParticipants, gstPercentage, battleType, battleTemplateType, status
       })
     });
 
@@ -138,6 +157,7 @@ function Index() {
 
   async function createRankingPayout(e,childFormState,setChildFormState){
     e.preventDefault()
+    console.log("Inside Add Ranking Payout Function")
     setSaving(true)
     if(!childFormState?.rank || !childFormState?.rewardPercentage){
         setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
@@ -145,26 +165,45 @@ function Index() {
     }
     const {rank, rewardPercentage} = childFormState;
   
-    const res = await fetch(`${baseUrl}api/v1/rewardPayout/`, {
-        method: "POST",
+    const res = await fetch(`${baseUrl}api/v1/battletemplates/${template?._id}`, {
+        method: "PATCH",
         credentials:"include",
         headers: {
             "content-type" : "application/json",
             "Access-Control-Allow-Credentials": true
         },
-        body: JSON.stringify({
-          rank, rewardPercentage, battleTemplate : template
-        })
+        body: JSON.stringify(
+          {rankingPayout : [...template?.rankingPayout, {rank, rewardPercentage} ]}
+          )
     });
     const data = await res.json();
-    if (res.status !== 201) {
+    if (res.status !== 200) {
         openErrorSB("Error",data.message)
     } else {
-        // setUpdatedDocument(data?.data);
-        openSuccessSB("Success",data.message)
+        setUpdatedDocument(data?.data);
+        console.log("Data Check:",data?.data);
+        setTemplate(data?.data);
+        openSuccessSB("Success",data.message);
+        setChildFormState({
+          rank:'',
+          rewardPercentage: '',
+        });
         setTimeout(()=>{setSaving(false);setEditing(false)},500)
     }
   }
+
+  let collection = 0;
+  function calculation(entryFee,minParticipants){
+    // Perform your calculation based on formState.field1 and formState.field2
+    console.log("Calculation Function Called")
+    //  collection = formState.entryFee * formState.minParticipants;
+    // Update the calculatedField in the state
+    setFormState(prevState => ({
+      ...prevState,
+      expectedCollection: entryFee * minParticipants,
+    }));
+  }
+
 
 
   const [title, setTitle] = useState('')
@@ -212,15 +251,40 @@ function Index() {
     />
   );
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (!formState[name]?.includes(e.target.value)) {
-      setFormState(prevState => ({
-        ...prevState,
-        [name]: value,
-      }));
-    }
-  };
+
+const handleEntryFeeChange = (e) => {
+  // Update field2 in the state
+  console.log("Inside Entry Fee Change")
+  setFormState(prevState => ({
+    ...prevState,
+    entryFee: e.target.value,
+  }));
+
+  // Call the calculation function here
+  calculation(e.target.value,formState?.minParticipants);
+};
+
+const handleParticipantChange = (e) => {
+  // Update field2 in the state
+  console.log("Inside Participant Change")
+  setFormState(prevState => ({
+    ...prevState,
+    minParticipants: e.target.value,
+  }));
+
+  // Call the calculation function here
+  calculation(formState?.entryFee,e.target.value);
+};
+console.log("Condiiton:",(isSubmitted || template) && (!editing || saving))
+console.log("Condiiton:",(isSubmitted || template))
+console.log("Condiiton:",(!editing || saving))
+console.log("Condiiton:",isSubmitted,template,!editing,saving)
+let totalCollection = template ? template?.entryFee*template?.minParticipants : (formState?.expectedCollection ? formState?.expectedCollection : 0);
+let gst = template ? ((template?.entryFee*template?.minParticipants)*template?.gstPercentage)/100 : (formState.expectedCollection*formState?.gstPercentage)/100;
+let collectionAfterTax = (totalCollection)-(gst)
+let platfromFee = template ? ((collectionAfterTax*template?.platformCommissionPercentage)/100): (collectionAfterTax*formState?.platformCommissionPercentage)/100;
+let prizePool = (collectionAfterTax) - platfromFee;
+let totalNumberOfWinners = template ? ((template?.minParticipants*template?.winnerPercentage)/100).toFixed(0) : ((formState?.minParticipants*formState?.winnerPercentage)/100).toFixed(0)
 
   // console.log("check stoxhero", formState?.isNifty , contest?.contestFor , dailyContest?.contestFor )
 
@@ -247,13 +311,13 @@ function Index() {
                     disabled={((isSubmitted || template) && (!editing || saving))}
                     id="outlined-required"
                     label='Template Name *'
-                    name='templateName'
+                    name='battleTemplateName'
                     fullWidth
-                    defaultValue={editing ? formState?.templateName : template?.templateName}
+                    defaultValue={editing ? formState?.battleTemplateName : template?.battleTemplateName}
                     onChange={(e) => {
                       setFormState(prevState => ({
                         ...prevState,
-                        templateName: e.target.value
+                        battleTemplateName: e.target.value
                       }))
                     }}
                   />
@@ -287,14 +351,17 @@ function Index() {
                     name='entryFee'
                     fullWidth
                     type='number'
+                    value={template ? template?.entryFee : formState?.entryFee}
                     defaultValue={editing ? formState?.entryFee : template?.entryFee}
                     // onChange={handleChange}
-                    onChange={(e) => {
-                      setFormState(prevState => ({
-                        ...prevState,
-                        entryFee: e.target.value
-                      }))
-                    }}
+                    // onChange={(e) => {
+                    //   setFormState(prevState => ({
+                    //     ...prevState,
+                    //     entryFee: e.target.value
+                    //   }))
+                    //   calculation();
+                    // }}
+                    onChange={handleEntryFeeChange}
                   />
                 </Grid>
 
@@ -306,12 +373,13 @@ function Index() {
                     name='winnerPercentage'
                     fullWidth
                     type='number'
-                    defaultValue={editing ? formState?.winnersPercentage : template?.winnersPercentage}
+                    value={template ? template?.winnerPercentage : formState?.winnerPercentage}
+                    defaultValue={editing ? formState?.winnerPercentage : template?.winnerPercentage}
                     // onChange={handleChange}
                     onChange={(e) => {
                       setFormState(prevState => ({
                         ...prevState,
-                        winnersPercentage: e.target.value
+                        winnerPercentage: e.target.value
                       }))
                     }}
                   />
@@ -322,15 +390,16 @@ function Index() {
                     disabled={((isSubmitted || template) && (!editing || saving))}
                     id="outlined-required"
                     label='Platform Commission*'
-                    name='platformCommission'
+                    name='platformCommissionPercentage'
                     fullWidth
                     type='number'
-                    defaultValue={editing ? formState?.platformCommission : template?.platformCommission}
+                    value={template ? template?.platformCommissionPercentage : formState?.platformCommissionPercentage}
+                    defaultValue={editing ? formState?.platformCommissionPercentage : template?.platformCommissionPercentage}
                     // onChange={handleChange}
                     onChange={(e) => {
                       setFormState(prevState => ({
                         ...prevState,
-                        platformCommission: e.target.value
+                        platformCommissionPercentage: e.target.value
                       }))
                     }}
                   />
@@ -344,14 +413,17 @@ function Index() {
                     name='minParticipants'
                     fullWidth
                     type='number'
+                    value={template ? template?.minParticipants : formState?.minParticipants}
                     defaultValue={editing ? formState?.minParticipants : template?.minParticipants}
                     // onChange={handleChange}
-                    onChange={(e) => {
-                      setFormState(prevState => ({
-                        ...prevState,
-                        minParticipants: e.target.value
-                      }))
-                    }}
+                    // onChange={(e) => {
+                    //   setFormState(prevState => ({
+                    //     ...prevState,
+                    //     minParticipants: e.target.value
+                    //   }))
+                    //   calculation();
+                    // }}
+                    onChange={handleParticipantChange}
                   />
                 </Grid>
 
@@ -363,6 +435,7 @@ function Index() {
                     name='gstPercentage'
                     fullWidth
                     type='number'
+                    value={template ? template?.gstPercentage : formState?.gstPercentage}
                     defaultValue={editing ? formState?.gstPercentage : template?.gstPercentage}
                     // onChange={handleChange}
                     onChange={(e) => {
@@ -380,16 +453,41 @@ function Index() {
                     <Select
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
-                      name='status'
-                      value={formState?.status || template?.status}
+                      name='battleType'
+                      value={formState?.battleType || template?.battleType}
                       disabled={((isSubmitted || template) && (!editing || saving))}
                       onChange={(e) => {
                         setFormState(prevState => ({
                           ...prevState,
-                          status: e.target.value
+                          battleType: e.target.value
                         }))
                       }}
-                      label="Battle Type"
+                      label="Battle Template Type"
+                      sx={{ minHeight: 43 }}
+                    >
+                      <MenuItem value="Intraday">Intraday</MenuItem>
+                      <MenuItem value="Weeklong">Weeklong</MenuItem>
+                      <MenuItem value="Monthlong">Monthlong</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormControl sx={{ width: "100%" }}>
+                    <InputLabel id="demo-simple-select-autowidth-label">Battle Template Type *</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-autowidth-label"
+                      id="demo-simple-select-autowidth"
+                      name='battleTemplateType'
+                      value={formState?.battleTemplateType || template?.battleTemplateType}
+                      disabled={((isSubmitted || template) && (!editing || saving))}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          battleTemplateType: e.target.value
+                        }))
+                      }}
+                      label="Battle Template Type"
                       sx={{ minHeight: 43 }}
                     >
                       <MenuItem value="HRHR">HRHR</MenuItem>
@@ -419,12 +517,66 @@ function Index() {
                     >
                       <MenuItem value="Active">Active</MenuItem>
                       <MenuItem value="Inactive">Inactive</MenuItem>
-                      <MenuItem value="Completed">Completed</MenuItem>
+                      <MenuItem value="Draft">Draft</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
 
               </Grid>
+
+            </Grid>
+
+            <Grid container mt={2} xs={12} md={12} xl={12} >
+              
+              <Grid item xs={12} md={6} xl={12} mb={1}>
+                <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
+                    Calculated Fields
+                </MDTypography>
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={3} mb={1}>
+                <MDTypography fontSize={15}>Total Collection(Exp.): ₹{totalCollection}</MDTypography>
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={3} mb={1}>
+                <MDTypography fontSize={15}>GST(Exp.): ₹{gst}</MDTypography>
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={3} mb={1}>
+                <MDTypography fontSize={15}>Collection After Tax(Exp.): ₹{collectionAfterTax}</MDTypography>
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={3} mb={1}>
+                <MDTypography fontSize={15}>Platform Fee(Exp.): ₹{platfromFee}</MDTypography>
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={3} mb={1}>
+                <MDTypography fontSize={15}>Prize Pool(Exp.): ₹{prizePool}</MDTypography>
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={3} mb={1}>
+                <MDTypography fontSize={15}>Top # of Winners: {template?.rankingPayout.length}</MDTypography>
+              </Grid>
+
+              {template?.rankingPayout?.length > 0 && <Grid item xs={12} md={6} xl={3} mb={1}>
+                <MDTypography fontSize={15}>Total # of Winners: {totalNumberOfWinners}</MDTypography>
+              </Grid>}
+
+              {template?.rankingPayout?.length > 0 && <Grid item xs={12} md={6} xl={3} mb={1}>
+                <MDTypography fontSize={15}>Reward(Remaining Winners):
+                ₹{((100-(template?.rankingPayout.reduce((total, currentItem) => {
+                    return total + currentItem.rewardPercentage;
+                  }, 0)))*prizePool)/100}
+                </MDTypography>
+              </Grid>}
+
+              {template?.rankingPayout.length > 0 && <Grid item xs={12} md={6} xl={3} mb={1}>
+                <MDTypography fontSize={15}>Reward/Remaining Winners:
+                ₹{(((100-(template?.rankingPayout.reduce((total, currentItem) => {
+                    return total + currentItem.rewardPercentage;
+                  }, 0)))*prizePool)/100)/(totalNumberOfWinners-template?.rankingPayout.length)}
+                </MDTypography>
+              </Grid>}
 
             </Grid>
 
@@ -442,7 +594,7 @@ function Index() {
                     >
                       {creating ? <CircularProgress size={20} color="inherit" /> : "Save"}
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/battledashboard") }}>
+                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/battledashboard/battletemplate") }}>
                       Cancel
                     </MDButton>
                   </>
@@ -485,7 +637,7 @@ function Index() {
 
             </Grid>
 
-            {/* {(isSubmitted || template) && !editing &&  */}
+            {(isSubmitted || template) && !editing && 
                   <Grid item xs={12} md={6} xl={12}>
                       
                       <Grid container spacing={2} display='flex' justifyContent='left' alignItems='center'>
@@ -502,7 +654,7 @@ function Index() {
                               label='Rank'
                               fullWidth
                               type="text"
-                              // value={formState?.features?.orderNo}
+                              value={childFormState?.rank}
                               onChange={(e) => {setChildFormState(prevState => ({
                                   ...prevState,
                                   rank: e.target.value
@@ -516,7 +668,7 @@ function Index() {
                               label='Reward Percentage*'
                               fullWidth
                               type="text"
-                              // value={formState?.features?.description}
+                              value={childFormState?.rewardPercentage}
                               onChange={(e) => {setChildFormState(prevState => ({
                                   ...prevState,
                                   rewardPercentage: e.target.value
@@ -536,15 +688,15 @@ function Index() {
                       </Grid>
       
                   </Grid>
-                {/* } */}
+                }
 
-                {/* {(isSubmitted || template) &&  */}
+                {(isSubmitted || template) && 
                 <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                     <MDBox>
-                        <RankingPayout saving={saving} template={template} updatedDocument={updatedDocument} setUpdatedDocument={setUpdatedDocument} action={action} setAction={setAction}/>
+                        <RankingPayout saving={saving} template={template} updatedDocument={updatedDocument} setUpdatedDocument={setUpdatedDocument} prizePool={prizePool} action={action} setAction={setAction}/>
                     </MDBox>
                 </Grid>
-                {/* } */}
+                }
 
 
             {renderSuccessSB}

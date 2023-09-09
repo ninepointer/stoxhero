@@ -8,8 +8,8 @@ import MDTypography from "../../../components/MDTypography";
 import { Link } from "react-router-dom";
 
 
-const ActiveBattleTemplates = ({type}) => {
-const [activeBattleTemplates,setActiveBattleTemplates] = useState([]);
+const DraftBattleTemplates = ({type}) => {
+const [draftBattleTemplates,setDraftBattleTemplates] = useState([]);
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 let [skip, setSkip] = useState(0);
 const limitSetting = 10;
@@ -17,7 +17,7 @@ const [count, setCount] = useState(0);
 const [isLoading,setIsLoading] = useState(false);
 
   useEffect(()=>{
-    let call1 = axios.get(`${baseUrl}api/v1/battletemplates/active`,{
+    let call1 = axios.get(`${baseUrl}api/v1/battletemplates/draft`,{
                 withCredentials: true,
                 headers: {
                     Accept: "application/json",
@@ -27,7 +27,7 @@ const [isLoading,setIsLoading] = useState(false);
                 })
     Promise.all([call1])
     .then(([api1Response]) => {
-      setActiveBattleTemplates(api1Response.data.data)
+      setDraftBattleTemplates(api1Response.data.data)
       setCount(api1Response.data.count)
     })
     .catch((error) => {
@@ -40,9 +40,9 @@ const [isLoading,setIsLoading] = useState(false);
         return;
     }
     setSkip(prev => prev-limitSetting);
-    setActiveBattleTemplates([]);
+    setDraftBattleTemplates([]);
     setIsLoading(true)
-    axios.get(`${baseUrl}api/v1/battletemplates/active/?skip=${skip-limitSetting}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/battletemplates/draft/?skip=${skip-limitSetting}&limit=${limitSetting}`,{
         withCredentials: true,
         headers: {
             Accept: "application/json",
@@ -51,7 +51,7 @@ const [isLoading,setIsLoading] = useState(false);
         },
     })
     .then((res) => {
-        setActiveBattleTemplates(res.data.data)
+        setDraftBattleTemplates(res.data.data)
         setCount(res.data.count)
         setTimeout(()=>{
             setIsLoading(false)
@@ -68,9 +68,9 @@ const [isLoading,setIsLoading] = useState(false);
     }
     console.log("inside next handler")
     setSkip(prev => prev+limitSetting);
-    setActiveBattleTemplates([]);
+    setDraftBattleTemplates([]);
     setIsLoading(true)
-    axios.get(`${baseUrl}api/v1/battletemplates/active/?skip=${skip+limitSetting}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/battletemplates/draft/?skip=${skip+limitSetting}&limit=${limitSetting}`,{
         withCredentials: true,
         headers: {
             Accept: "application/json",
@@ -80,7 +80,7 @@ const [isLoading,setIsLoading] = useState(false);
     })
     .then((res) => {
         console.log('report',res.data.data);
-        setActiveBattleTemplates(res.data.data)
+        setDraftBattleTemplates(res.data.data)
         setCount(res.data.count)
         setTimeout(()=>{
             setIsLoading(false)
@@ -93,11 +93,11 @@ const [isLoading,setIsLoading] = useState(false);
   
     return (
       <>
-      {activeBattleTemplates.length > 0 ?
+      {draftBattleTemplates.length > 0 ?
         
           <MDBox>
             <Grid container spacing={2} bgColor="dark">
-              {activeBattleTemplates?.map((e, index)=>{
+              {draftBattleTemplates?.map((e, index)=>{
 
                     return (
                       
@@ -183,7 +183,7 @@ const [isLoading,setIsLoading] = useState(false);
           :
          <Grid container spacing={1} xs={12} md={6} lg={12}>
           <Grid item mt={2} xs={6} md={3} lg={12} display="flex" justifyContent="center">
-            <MDTypography color="light">No Active Battle Templates(s)</MDTypography>
+            <MDTypography color="light">No Draft Battle Templates(s)</MDTypography>
           </Grid>
          </Grid>
          } 
@@ -193,4 +193,4 @@ const [isLoading,setIsLoading] = useState(false);
 
 
 
-export default ActiveBattleTemplates;
+export default DraftBattleTemplates;

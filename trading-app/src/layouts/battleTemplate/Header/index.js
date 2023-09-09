@@ -10,6 +10,7 @@ import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
 import ActiveBattleTemplate from '../data/activeBattleTemplate';
 import InactiveBattleTemplate from '../data/inactiveBattleTemplate';
+import DraftBattleTemplate from '../data/draftBattleTemplate';
 
 
 export default function LabTabs() {
@@ -51,6 +52,7 @@ export default function LabTabs() {
           <TabList onChange={handleChange} aria-label="lab API tabs example">
             <Tab label="Active Template" value="1" />
             <Tab label="Inactive Template" value="2" />
+            <Tab label="Draft Template" value="3" />
           </TabList>
         </MDBox>
         <TabPanel value="1">
@@ -61,7 +63,7 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-          {/* <ActiveBattleTemplate/> */}
+          <ActiveBattleTemplate/>
           </MDBox>
    
           }
@@ -74,7 +76,20 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-          {/* <InactiveBattleTemplate/> */}
+            <InactiveBattleTemplate/>
+          </MDBox>
+   
+          }
+          </TabPanel>
+          <TabPanel value="3">
+          {isLoading ? 
+          
+          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+            <CircularProgress color="info" />
+          </MDBox>
+          : 
+          <MDBox style={{minWidth:'100%'}}>
+            <DraftBattleTemplate/>
           </MDBox>
    
           }
