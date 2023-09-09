@@ -371,6 +371,7 @@ async function singleProcess() {
     app.use('/api/v1/post', require("./routes/post/postRoutes"));
     app.use('/api/v1/signup', require("./routes/UserRoute/signUpUser"));
     app.use('/api/v1/battles', require("./routes/battle/battleRoutes"));
+    app.use('/api/v1/battletemplates', require("./routes/battles/battleTemplateRoutes"));
     app.use('/api/v1/marginxs', require("./routes/marginx/marginxRoutes"));
     app.use('/api/v1/marginxtemplates', require("./routes/marginx/marginxTemplateRoutes"));
     
