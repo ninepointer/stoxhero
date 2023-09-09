@@ -2,8 +2,6 @@
 import * as React from 'react';
 import { useEffect, useState } from "react";
 import axios from "axios";
-// import { useForm } from "react-hook-form";
-// import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Grid from "@mui/material/Grid";
 import MDTypography from "../../components/MDTypography";
@@ -17,24 +15,20 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import { useNavigate, useLocation } from "react-router-dom";
-import { IoMdAddCircle } from 'react-icons/io';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import dayjs from 'dayjs';
 import Autocomplete from '@mui/material/Autocomplete';
 import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
-import { pink } from '@mui/material/colors';
 import Checkbox from '@mui/material/Checkbox';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-// import User from './users';
-import CreateRules from './rulesAndRewards/battleRules';
-import CreateRewards from './rulesAndRewards/battleRewards';
-
-const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
+import { apiUrl } from '../../constants/constants';
+import RegisteredUsers from './data/registeredUsers';
+import PotentialUsers from './data/potentialUsers'
+import Shared from './data/shared'
 
 
 const CustomAutocomplete = styled(Autocomplete)`
@@ -57,138 +51,104 @@ const MenuProps = {
 function Index() {
   const location = useLocation();
   const battle = location?.state?.data;
-  const [collegeSelectedOption, setCollegeSelectedOption] = useState();
-  console.log('id hai', battle);
-  // const [applicationCount, setApplicationCount] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [isLoading, setIsLoading] = useState(battle ? true : false)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [creating, setCreating] = useState(false)
-  const navigate = useNavigate();
   const [newObjectId, setNewObjectId] = useState("");
-  const [updatedDocument, setUpdatedDocument] = useState([]);
-  const [battles, setBattles] = useState([]);
-  const [portfolios, setPortfolios] = useState([]);
-  const [college, setCollege] = useState([]);
-  const [action, setAction] = useState(false);
+  const navigate = useNavigate();
+  const [battleTemplates, setBattleTemplates] = useState([]);
   const [createdBattle, setCreatedBattle] = useState();
-  console.log('created battle', createdBattle);
+  const [action, setAction] = useState(false);
+  console.log("battle:",battle)
   
   const [formState, setFormState] = useState({
     battleName: '' || battle?.battleName,
     battleLiveTime: dayjs(battle?.battleLiveTime) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
     battleStartTime: dayjs(battle?.battleStartTime) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
     battleEndTime: dayjs(battle?.battleEndTime) ?? dayjs(new Date()).set('hour', 23).set('minute', 59).set('second', 59),
-    battleStatus: '' || battle?.battleStatus,
-    battleType: '' || battle?.battleType,
-    battleFor: '' || battle?.battleFor,
-    collegeCode: '' || battle?.collegeCode,
-    minParticipants: '' || battle?.minParticipants,
-    entryFee: '' || battle?.entryFee,
-    description: '' || battle?.description,
-    portfolio: {
-      id: "" || battle?.portfolio?._id,
-      name: "" || battle?.portfolio?.portfolioName
+    status: '' || battle?.status,
+    battleTemplate: {
+      id: "" || battle?.battleTemplate?._id,
+      name: "" || battle?.battleTemplate?.templateName,
+      entryFee: "" || battle?.battleTemplate?.entryFee,
+      portfolioValue: "" || battle?.battleTemplate?.portfolioValue,
+      minParticipants: "" || battle?.battleTemplate?.minParticipants,
+      winnerPercentage: "" || battle?.battleTemplate?.winnerPercentage,
+      battleType: "" || battle?.battleTemplate?.battleType,
+      battleTemplateType: "" || battle?.battleTemplate?.battleTemplateType,
+      gstPercentage: "" || battle?.battleTemplate?.gstPercentage,
+      topWinners: "" || battle?.battleTemplate?.rankingPayout?.length,
     },
-    college: "" || battle?.college?._id,
-    battleExpiry: "" || battle?.battleExpiry,
     isNifty:false || battle?.isNifty,
     isBankNifty: false || battle?.isBankNifty,
     isFinNifty: false || battle?.isFinNifty,
-    rewardType: ""|| battle?.rewardType,
 
-    registeredUsers: {
-      userId: "",
-      registeredOn: "",
-      status: "",
-      exitDate: "",
-    },
   });
 
+  console.log("formState", formState)
   useEffect(() => {
     setTimeout(() => {
-      battle && setUpdatedDocument(battle)
+      // marginx && setUpdatedDocument(marginx)
       setIsLoading(false);
     }, 500)
-  }, [])
+  }, [saving,creating,editing])
 
 
   useEffect(() => {
-    axios.get(`${baseUrl}api/v1/portfolio/battleportfolio`, {withCredentials: true})
+    axios.get(`${apiUrl}battletemplates/active`, {withCredentials: true})
       .then((res) => {
-        console.log("Battle Portfolios :", res?.data?.data)
-        setPortfolios(res?.data?.data);
+        setBattleTemplates(res?.data?.data);
+        console.log("Battle Template:",res?.data?.data)
       }).catch((err) => {
         return new Error(err)
       })
 
-    axios.get(`${baseUrl}api/v1/college`,{withCredentials: true})
-    .then((res) => {
-      console.log("College Lists :", res?.data?.data)
-      setCollege(res?.data?.data);
-    }).catch((err) => {
-      return new Error(err)
-    })
-
-    axios.get(`${baseUrl}api/v1/college/${battle?.college?._id}`,{withCredentials: true})
-    .then((res) => {
-      console.log("College :", res?.data?.data)
-      setCollegeSelectedOption(res?.data?.data);
-    }).catch((err) => {
-      return new Error(err)
-    })
-
   }, [])
 
-  // console.log("College:", collegeSelectedOption)
-  const handlePortfolioChange = (event) => {
+  const handleTemplateChange = (event) => {
     const {
       target: { value },
     } = event;
-    let portfolioId = portfolios?.filter((elem) => {
-      return elem.portfolioName === value;
+    let battleTemplate = battleTemplates?.filter((elem) => {
+      return elem.battleTemplateName === value;
     })
+    let entryFee = 0;
     setFormState(prevState => ({
       ...prevState,
-      portfolio: {
-        ...prevState.portfolio,
-        id: portfolioId[0]?._id,
-        name: portfolioId[0]?.portfolioName
+      battleTemplate: {
+        ...prevState.battleTemplate,
+        id: battleTemplate[0]?._id,
+        name: battleTemplate[0]?.battleTemplateName,
+        entryFee: battleTemplate[0]?.entryFee,
+        portfolioValue: battleTemplate[0]?.portfolioValue,
+        minParticipants: battleTemplate[0]?.minParticipants,
+        winnerPercentage: battleTemplate[0]?.winnerPercentage,
+        battleType: battleTemplate[0]?.battleType,
+        battleTemplateType: battleTemplate[0]?.battleTemplateType,
+        gstPercentage: battleTemplate[0]?.gstPercentage,
+        topWinners: battleTemplate[0]?.rankingPayout?.length,
       }
     }));
-    // console.log("portfolioId", portfolioId, formState)
   };
-
-  const handleCollegeChange = (event, newValue) => {
-    console.log("College Selection:",newValue)
-    setCollegeSelectedOption(newValue);
-    setFormState(prevState => ({
-      ...prevState,
-      college: newValue?._id
-
-    }))
-    // setTraderId(newValue);
-  };
-
 
   async function onSubmit(e, formState) {
     // console.log("inside submit")
     e.preventDefault();
     try{
-      console.log(formState)
+      console.log(formState, battleTemplates)
       if(formState.battleStartTime > formState.battleEndTime){
         return openErrorSB("Error", "Date range is not valid.")
       }
-      if (!formState.battleName || !formState.battleLiveTime || !formState.battleStartTime || !formState.battleEndTime || !formState.battleStatus || !formState.battleType || !formState.portfolio.id || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty) ) {
+      if (!formState.battleName || !formState.battleLiveTime || !formState.battleStartTime || !formState.battleEndTime || !formState.status || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty) ) {
         setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
         return openErrorSB("Missing Field", "Please fill all the mandatory fields")
       }
-  
+
       setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-      const { battleName, battleLiveTime, battleStartTime, battleEndTime, rewardType, battleStatus, minParticipants, entryFee, description, portfolio, battleType, battleFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, battleExpiry } = formState;
-      const res = await fetch(`${baseUrl}api/v1/battles/`, {
+      const { battleName ,battleLiveTime ,battleStartTime ,battleEndTime ,status, isNifty, isBankNifty, isFinNifty, battleTemplate } = formState;
+      const res = await fetch(`${apiUrl}battles/`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -196,7 +156,7 @@ function Index() {
           "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-          battleName, battleLiveTime, battleStartTime, rewardType, battleEndTime, battleStatus, minParticipants, entryFee, description, portfolio: portfolio?.id, battleType, battleFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, battleExpiry
+          battleTemplate: battleTemplate?.id, battleName ,battleLiveTime ,battleStartTime ,battleEndTime ,status, isNifty, isBankNifty, isFinNifty
         })
       });
   
@@ -205,28 +165,21 @@ function Index() {
       setCreatedBattle(data);
       console.log(data, res.status);
       if (res.status !== 201) {
-        console.log('is submitted', isSubmitted);
         setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
         openErrorSB("Battle not created", data?.message)
       } else {
         openSuccessSB("Battle Created", data?.message)
         setNewObjectId(data?.data?._id)
-        console.log('is submitted', isSubmitted);
-        console.log("New Object Id: ", data?.data?._id, newObjectId)
         setIsSubmitted(true);
-        setBattles(data?.data);
         setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
       }
     }catch(e){
       console.log(e);
-      console.log('is submitted', isSubmitted, battle, editing);
-      console.log('condition', ((isSubmitted || Boolean(battle)) && !editing) );
     }
   }
 
   async function onEdit(e, formState) {
     e.preventDefault()
-    console.log("Edited FormState: ", new Date(formState.battleStartTime).toISOString(), new Date(formState.battleEndTime).toISOString())
     setSaving(true)
     console.log("formstate", formState)
 
@@ -234,14 +187,13 @@ function Index() {
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Error", "Date range is not valid.")
     }
-    if (!formState.battleName || !formState.battleLiveTime || !formState.battleStartTime || !formState.battleEndTime || !formState.battleStatus || !formState.minParticipants || !formState.description || !formState.battleType || !formState.portfolio || !formState.battleFor || !formState.rewardType) {
-      console.log('edit', formState);
-      setTimeout(() => { setSaving(false); setEditing(true) }, 500)
+    if (!formState.battleName || !formState.battleLiveTime || !formState.battleStartTime || !formState.battleEndTime || !formState.status || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty)  ) {
+      setTimeout(() => { setCreating(false); setIsSubmitted(false); setSaving(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const { battleName, battleLiveTime, battleStartTime, rewardType, battleEndTime, battleStatus, minParticipants, entryFee, description, portfolio, battleType, battleFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, battleExpiry } = formState;
+    const { battleTemplate, battleName ,battleLiveTime ,battleStartTime ,battleEndTime ,status, isNifty, isBankNifty, isFinNifty } = formState;
 
-    const res = await fetch(`${baseUrl}api/v1/battles/${battle?._id}`, {
+    const res = await fetch(`${apiUrl}battle/${battle?._id}`, {
       method: "PUT",
       credentials: "include",
       headers: {
@@ -249,7 +201,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        battleName, battleLiveTime, battleStartTime, rewardType, battleEndTime, battleStatus, minParticipants, entryFee, description, portfolio: portfolio?.id, battleType, battleFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, battleExpiry
+        battleTemplate: battleTemplate?.id, battleName ,battleLiveTime ,battleStartTime ,battleEndTime ,status, isNifty, isBankNifty, isFinNifty
       })
     });
 
@@ -261,7 +213,6 @@ function Index() {
     } else {
       openSuccessSB("Battle Edited", "Edited Successfully")
       setTimeout(() => { setSaving(false); setEditing(false) }, 500)
-      console.log("entry succesfull");
     }
   }
 
@@ -311,17 +262,6 @@ function Index() {
     />
   );
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (!formState[name]?.includes(e.target.value)) {
-      setFormState(prevState => ({
-        ...prevState,
-        [name]: value,
-      }));
-    }
-  };
-
-  // console.log("check stoxhero", formState?.isNifty , contest?.contestFor , dailyContest?.contestFor )
 
   return (
     <>
@@ -339,8 +279,8 @@ function Index() {
               </MDTypography>
             </MDBox>
 
-            <Grid container display="flex" flexDirection="row" justifyContent="space-between">
-              <Grid container spacing={2} mt={0.5} mb={0} xs={12} md={9} xl={12}>
+            <Grid container display="flex" flexDirection="row" justifyContent="space-between" alignItems='center'>
+              <Grid container spacing={2} mt={0.5} mb={0} xs={12} md={9} xl={12} display='flex' justifyContent='center' alignItems='center'>
                 <Grid item xs={12} md={6} xl={3}>
                   <TextField
                     disabled={((isSubmitted || battle) && (!editing || saving))}
@@ -363,7 +303,7 @@ function Index() {
                     <DemoContainer components={['MobileDateTimePicker']}>
                       <DemoItem>
                         <MobileDateTimePicker
-                          label="Battle Live Time"
+                          label="Live Time"
                           disabled={((isSubmitted || battle) && (!editing || saving))}
                           value={(formState?.battleLiveTime || battle?.battleLiveTime)}
                           onChange={(newValue) => {
@@ -384,7 +324,7 @@ function Index() {
                     <DemoContainer components={['MobileDateTimePicker']}>
                       <DemoItem>
                         <MobileDateTimePicker
-                          label="Battle Start Time"
+                          label="Start Time"
                           disabled={((isSubmitted || battle) && (!editing || saving))}
                           value={(formState?.battleStartTime || battle?.battleStartTime)}
                           onChange={(newValue) => {
@@ -400,13 +340,12 @@ function Index() {
                   </LocalizationProvider>
                 </Grid>
 
-
                 <Grid item xs={12} md={6} xl={3} mt={-1} mb={1}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DemoContainer components={['MobileDateTimePicker']}>
                       <DemoItem>
                         <MobileDateTimePicker
-                          label="Battle End Time"
+                          label="End Time"
                           disabled={((isSubmitted || battle) && (!editing || saving))}
                           value={(formState?.battleEndTime || battle?.battleEndTime)}
                           onChange={(newValue) => {
@@ -423,201 +362,25 @@ function Index() {
                 </Grid>
 
                 <Grid item xs={12} md={3} xl={3}>
-                  <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
-                    <InputLabel id="demo-multiple-name-label">Battle For</InputLabel>
+                  <FormControl sx={{ minHeight: 10, minWidth: '100%' }}>
+                    <InputLabel id="demo-multiple-name-label">Battle Template</InputLabel>
                     <Select
                       labelId="demo-multiple-name-label"
                       id="demo-multiple-name"
-                      name='battleFor'
+                      name='battletemplates'
                       disabled={((isSubmitted || battle) && (!editing || saving))}
-                      // defaultValue={id ? portfolios?.portfolio : ''}
-                      value={formState?.battleFor}
-                      // onChange={handleTypeChange}
-                      onChange={(e) => {
-                        setFormState(prevState => ({
-                          ...prevState,
-                          battleFor: e.target.value
-                        }))
-                      }}
-                      input={<OutlinedInput label="Battle For" />}
-                      sx={{ minHeight: 45 }}
+                      value={formState?.battleTemplate?.name || battle?.battleTemplate?.templateName}
+                      onChange={handleTemplateChange}
+                      input={<OutlinedInput label="Battle Template" />}
+                      sx={{ minHeight: 45, minWidth:'100%' }}
                       MenuProps={MenuProps}
                     >
-                      <MenuItem
-                        value='StoxHero'
-                      >
-                        StoxHero
-                      </MenuItem>
-                      <MenuItem
-                        value='College'
-                      >
-                        College
-                      </MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                {(formState?.battleFor === "College" || battle?.battleFor === "College") &&
-                  <>
-                    <Grid item xs={12} md={3} xl={6}>
-                      <CustomAutocomplete
-                        id="country-select-demo"
-                        sx={{
-                          width: 526,
-                          height: 10,
-                          '& .MuiAutocomplete-clearIndicator': {
-                            color: 'black',
-                          },
-                        }}
-                        options={college}
-                        disabled={((isSubmitted || battle) && (!editing || saving))}
-                        value={collegeSelectedOption}
-                        onChange={handleCollegeChange}
-                        autoHighlight
-                        getOptionLabel={(option) => option.collegeName + ' - ' + option.zone}
-                        renderOption={(props, option) => (
-                          <MDBox component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                            {option.collegeName + ' - ' + option.zone}
-                          </MDBox>
-                        )}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="College"
-                            inputProps={{
-                              ...params.inputProps,
-                              autoComplete: 'new-password', // disable autocomplete and autofill
-                              style: { color: 'grey', height: 11 }, // set text color to white
-                            }}
-                            InputLabelProps={{
-                              style: { color: 'grey' },
-                            }}
-                          />
-                        )}
-                      />
-                    </Grid>
-
-                    <Grid item xs={12} md={6} xl={3}>
-                      <TextField
-                        disabled={((isSubmitted || battle) && (!editing || saving))}
-                        id="outlined-required"
-                        label='College Code *'
-                        name='collegeCode'
-                        fullWidth
-                        defaultValue={editing ? formState?.collegeCode : battle?.collegeCode}
-                        onChange={handleChange}
-                      />
-                    </Grid>
-                  </>
-                }
-
-                {!battle && 
-                <Grid item xs={12} md={3} xl={3}>
-                  <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
-                    <InputLabel id="demo-multiple-name-label">Battle Type</InputLabel>
-                    <Select
-                      labelId="demo-multiple-name-label"
-                      id="demo-multiple-name"
-                      name='battleType'
-                      disabled={((isSubmitted || battle) && (!editing || saving))}
-                      // defaultValue={id ? portfolios?.portfolio : ''}
-                      value={formState?.battleType}
-                      // onChange={handleTypeChange}
-                      onChange={(e) => {
-                        setFormState(prevState => ({
-                          ...prevState,
-                          battleType: e.target.value
-                        }))
-                      }}
-                      input={<OutlinedInput label="Battle Type" />}
-                      sx={{ minHeight: 45 }}
-                      MenuProps={MenuProps}
-                    >
-                      <MenuItem
-                        value='Mock'
-                      >
-                        Mock
-                      </MenuItem>
-                      <MenuItem
-                        value='Live'
-                      >
-                        Live
-                      </MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>}
-
-                <Grid item xs={12} md={6} xl={3} mb={2}>
-                  <TextField
-                    disabled={((isSubmitted || battle) && (!editing || saving))}
-                    id="outlined-required"
-                    label='Min Participants *'
-                    name='minParticipants'
-                    fullWidth
-                    type='number'
-                    defaultValue={editing ? formState?.minParticipants : battle?.minParticipants}
-                    // onChange={handleChange}
-                    onChange={(e) => {
-                      setFormState(prevState => ({
-                        ...prevState,
-                        minParticipants: parseInt(e.target.value, 10)
-                      }))
-                    }}
-                  />
-                </Grid>
-
-
-                <Grid item xs={12} md={6} xl={3} mb={2}>
-                  <TextField
-                    disabled={((isSubmitted || battle) && (!editing || saving))}
-                    id="outlined-required"
-                    label='Entry Fee *'
-                    name='entryFee'
-                    fullWidth
-                    type='number'
-                    defaultValue={editing ? formState?.entryFee : battle?.entryFee}
-                    // onChange={handleChange}
-                    onChange={(e) => {
-                      setFormState(prevState => ({
-                        ...prevState,
-                        entryFee: e.target.value
-                      }))
-                    }}
-                  />
-                </Grid>
-
-                <Grid item xs={12} md={6} xl={12} mt={-2}>
-                  <TextField
-                    disabled={((isSubmitted || battle) && (!editing || saving))}
-                    id="outlined-required"
-                    label='Description *'
-                    name='description'
-                    fullWidth
-                    defaultValue={editing ? formState?.description : battle?.description}
-                    onChange={handleChange}
-                  />
-                </Grid>
-
-                <Grid item xs={12} md={3} xl={3}>
-                  <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
-                    <InputLabel id="demo-multiple-name-label">Portfolio</InputLabel>
-                    <Select
-                      labelId="demo-multiple-name-label"
-                      id="demo-multiple-name"
-                      name='portfolio'
-                      disabled={((isSubmitted || battle) && (!editing || saving))}
-                      value={formState?.portfolio?.name?.portfolio?.portfolioName || battle?.portfolio?.portfolioName}
-                      onChange={handlePortfolioChange}
-                      input={<OutlinedInput label="Portfolio" />}
-                      sx={{ minHeight: 45 }}
-                      MenuProps={MenuProps}
-                    >
-                      {portfolios?.map((portfolio) => (
+                      {battleTemplates?.map((battleTemplate) => (
                         <MenuItem
-                          key={portfolio?.portfolioName}
-                          value={portfolio?.portfolioName}
+                          key={battleTemplate?.battleTemplateName}
+                          value={battleTemplate?.battleTemplateName}
                         >
-                          {portfolio.portfolioName}
+                          {battleTemplate.battleTemplateName}
                         </MenuItem>
                       ))}
                     </Select>
@@ -626,100 +389,31 @@ function Index() {
 
                 <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Reward Type *</InputLabel>
+                    <InputLabel id="demo-simple-select-autowidth-label">Status *</InputLabel>
                     <Select
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
-                      name='rewardType'
-                      value={formState?.rewardType || battle?.rewardType}
+                      name='status'
+                      value={formState?.status || battle?.status}
                       disabled={((isSubmitted || battle) && (!editing || saving))}
                       onChange={(e) => {
                         setFormState(prevState => ({
                           ...prevState,
-                          rewardType: e.target.value
+                          status: e.target.value
                         }))
                       }}
-                      label="Reward Type"
-                      sx={{ minHeight: 43 }}
-                    >
-                      <MenuItem value="Gift">Gift</MenuItem>
-                      <MenuItem value="Cash">Cash</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid item xs={12} md={6} xl={3}>
-                  <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Battle Status *</InputLabel>
-                    <Select
-                      labelId="demo-simple-select-autowidth-label"
-                      id="demo-simple-select-autowidth"
-                      name='battleStatus'
-                      value={formState?.battleStatus || battle?.battleStatus}
-                      disabled={((isSubmitted || battle) && (!editing || saving))}
-                      onChange={(e) => {
-                        setFormState(prevState => ({
-                          ...prevState,
-                          battleStatus: e.target.value
-                        }))
-                      }}
-                      label="Battle Status"
+                      label="Status"
                       sx={{ minHeight: 43 }}
                     >
                       <MenuItem value="Active">Active</MenuItem>
                       <MenuItem value="Draft">Draft</MenuItem>
                       <MenuItem value="Cancelled">Cancelled</MenuItem>
+                      <MenuItem value="Completed">Completed</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
-
-                <Grid item xs={12} md={6} xl={3}>
-                  <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Battle Expiry *</InputLabel>
-                    <Select
-                      labelId="demo-simple-select-autowidth-label"
-                      id="demo-simple-select-autowidth"
-                      name='battleExpiry'
-                      value={formState?.battleExpiry || battle?.battleExpiry}
-                      disabled={((isSubmitted || battle) && (!editing || saving))}
-                      onChange={(e) => {
-                        setFormState(prevState => ({
-                          ...prevState,
-                          battleExpiry: e.target.value
-                        }))
-                      }}
-                      label="Battle Expiry"
-                      sx={{ minHeight: 43 }}
-                    >
-                      <MenuItem value="Day">Day</MenuItem>
-                      <MenuItem value="Weekly">Weekly</MenuItem>
-                      <MenuItem value="Monthly">Monthly</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid item xs={12} md={6} xl={3}>
-                  {/* <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Is Battle on Nifty ? *</InputLabel>
-                    <Select
-                      labelId="demo-simple-select-autowidth-label"
-                      id="demo-simple-select-autowidth"
-                      name='isNifty'
-                      value={(battle?.isNifty !== undefined && !editing && formState?.isNifty === undefined) ? battle?.isNifty : formState?.isNifty}
-                      disabled={((isSubmitted || battle) && (!editing || saving))}
-                      onChange={(e) => {
-                        setFormState(prevState => ({
-                          ...prevState,
-                          isNifty: e.target.value
-                        }))
-                      }}
-                      label="Is Nifty"
-                      sx={{ minHeight: 43 }}
-                    >
-                      <MenuItem value={true}>TRUE</MenuItem>
-                      <MenuItem value={false}>FALSE</MenuItem>
-                    </Select>
-                  </FormControl> */}
+                </Grid>               
+              
+                <Grid item xs={12} md={6} xl={2}>
                   <FormGroup>
                     <FormControlLabel  
                       checked={(battle?.isNifty !== undefined && !editing && formState?.isNifty === undefined) ? battle?.isNifty : formState?.isNifty}
@@ -736,28 +430,7 @@ function Index() {
                   </FormGroup>
                 </Grid>
 
-                <Grid item xs={12} md={6} xl={3}>
-                  {/* <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Is Battle on BankNifty ? *</InputLabel>
-                    <Select
-                      labelId="demo-simple-select-autowidth-label"
-                      id="demo-simple-select-autowidth"
-                      name='isBankNifty'
-                      value={(battle?.isBankNifty !== undefined && !editing && formState?.isBankNifty === undefined) ? battle?.isBankNifty : formState?.isBankNifty}
-                      disabled={((isSubmitted || battle) && (!editing || saving))}
-                      onChange={(e) => {
-                        setFormState(prevState => ({
-                          ...prevState,
-                          isBankNifty: e.target.value
-                        }))
-                      }}
-                      label="Is BankNifty"
-                      sx={{ minHeight: 43 }}
-                    >
-                      <MenuItem value={true}>TRUE</MenuItem>
-                      <MenuItem value={false}>FALSE</MenuItem>
-                    </Select>
-                  </FormControl> */}
+                <Grid item xs={12} md={6} xl={2}>
                   <FormGroup>
                   <FormControlLabel 
                     checked={(battle?.isBankNifty !== undefined && !editing && formState?.isBankNifty === undefined) ? battle?.isBankNifty : formState?.isBankNifty}
@@ -773,7 +446,7 @@ function Index() {
                   </FormGroup>
                 </Grid>
 
-                <Grid item xs={12} md={6} xl={3}>
+                <Grid item xs={12} md={6} xl={2}>
                   <FormGroup>
                     <FormControlLabel 
                       checked={(battle?.isFinNifty !== undefined && !editing && formState?.isFinNifty === undefined) ? battle?.isFinNifty : formState?.isFinNifty}
@@ -788,6 +461,62 @@ function Index() {
                       label="FINNIFTY" />
                   </FormGroup>
                 </Grid>
+
+                <Grid container xs={12} md={12} xl={12} m={2} p={1}>
+                
+                  <Grid item xs={12} md={6} xl={3}>
+                    <MDTypography fontSize={15}>Entry Fee: {formState?.battleTemplate?.entryFee}</MDTypography>
+                  </Grid>
+
+                  <Grid item xs={12} md={6} xl={3}>
+                    <MDTypography fontSize={15}>Portfolio Value: {formState?.battleTemplate?.portfolioValue}</MDTypography>
+                  </Grid>
+
+                  <Grid item xs={12} md={6} xl={3} ml={0}>
+                    <MDTypography fontSize={15}>Min Participants: {formState?.battleTemplate?.minParticipants}</MDTypography>
+                  </Grid>
+
+                  <Grid item xs={12} md={6} xl={3} ml={0}>
+                    <MDTypography fontSize={15}>GST Percentage: {formState?.battleTemplate?.gstPercentage}%</MDTypography>
+                  </Grid>
+
+                  <Grid item xs={12} md={6} xl={3} ml={0}>
+                    <MDTypography fontSize={15}>Battle Type: {formState?.battleTemplate?.battleType}</MDTypography>
+                  </Grid>
+
+                  <Grid item xs={12} md={6} xl={3} ml={0}>
+                    <MDTypography fontSize={15}>Battle Template: {formState?.battleTemplate?.battleTemplateType}</MDTypography>
+                  </Grid>
+
+                  <Grid item xs={12} md={6} xl={3} ml={0}>
+                    <MDTypography fontSize={15}>Top Winners: {formState?.battleTemplate?.topWinners}</MDTypography>
+                  </Grid>
+
+                </Grid>
+               
+                {(battle || newObjectId) && 
+                <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                  <MDBox>
+                    <RegisteredUsers battle={battle} action={action} setAction={setAction} />
+                  </MDBox>
+                </Grid>
+                }
+
+                {(battle || newObjectId) && 
+                <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                  <MDBox>
+                    <PotentialUsers battle={battle} action={action} setAction={setAction} />
+                  </MDBox>
+                </Grid>
+                }
+
+                {(battle || newObjectId) && 
+                <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                  <MDBox>
+                    <Shared battle={battle} action={action} setAction={setAction} />
+                  </MDBox>
+                </Grid>
+                }
 
               </Grid>
 
@@ -807,18 +536,18 @@ function Index() {
                     >
                       {creating ? <CircularProgress size={20} color="inherit" /> : "Save"}
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/battledashboard") }}>
+                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/battledashboard/battles") }}>
                       Cancel
                     </MDButton>
                   </>
                 )}
                 {((isSubmitted || Boolean(battle)) && !editing) && (
                   <>
-                  {battle?.battleStatus !== "Completed" &&
+                  {battle?.status !== "Completed" &&
                     <MDButton variant="contained" color="warning" size="small" sx={{ mr: 1, ml: 2 }} onClick={() => { setEditing(true) }}>
                       Edit
                     </MDButton>}
-                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/battledashboard') }}>
+                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/battledashboard/battles') }}>
                       Back
                     </MDButton>
                   </>
@@ -840,7 +569,31 @@ function Index() {
                       color="error"
                       size="small"
                       disabled={saving}
-                      onClick={() => { setEditing(false) }}
+                      onClick={() => { setEditing(false); setFormState(
+                        {
+                          battleName: '' || battle?.battleName,
+                          battleLiveTime: dayjs(battle?.battleLiveTime) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
+                          battleStartTime: dayjs(battle?.battleStartTime) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
+                          battleEndTime: dayjs(battle?.battleEndTime) ?? dayjs(new Date()).set('hour', 23).set('minute', 59).set('second', 59),
+                          status: '' || battle?.status,
+                          battleTemplate: {
+                            id: "" || battle?.battleTemplate?._id,
+                            name: "" || battle?.battleTemplate?.battleTemplateName,
+                            entryFee: "" || battle?.battleTemplate?.entryFee,
+                            portfolioValue: "" || battle?.battleTemplate?.portfolioValue,
+                            minParticipants: "" || battle?.battleTemplate?.minParticipants,
+                            winnerPercentage: "" || battle?.battleTemplate?.winnerPercentage,
+                            battleType: "" || battle?.battleTemplate?.battleType,
+                            battleTemplateType: "" || battle?.battleTemplate?.battleTemplateType,
+                            gstPercentage: "" || battle?.battleTemplate?.gstPercentage,
+                            topWinners: "" || battle?.battleTemplate?.rankingPayout?.length,
+                          },
+                          isNifty:false || battle?.isNifty,
+                          isBankNifty: false || battle?.isBankNifty,
+                          isFinNifty: false || battle?.isFinNifty,
+                      
+                        }
+                      ) }}
                     >
                       Cancel
                     </MDButton>
@@ -850,8 +603,6 @@ function Index() {
 
             </Grid>
 
-            {(isSubmitted || battle) && <CreateRules battle={battle!=undefined?battle?._id:createdBattle?.data?._id}/>}
-            {(isSubmitted || battle) && <CreateRewards battle={battle!=undefined?battle?._id:createdBattle?.data?._id}/>}
             {renderSuccessSB}
             {renderErrorSB}
           </MDBox>

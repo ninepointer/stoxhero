@@ -44,7 +44,7 @@ import CareerList from './layouts/career'
 import CareerDetails from './layouts/career/careerDetails'
 import BatchDetails from './layouts/internBatch/batchDetails'
 import DailyContestDetails from './layouts/dailyContest/dailyContestDetails'
-import BattleDetails from './layouts/battle/battleDetails'
+// import BattleDetails from './layouts/battle/battleDetails'
 import CampaignDetails from './layouts/campaign/campaignDetails'
 import ReferralProgramDetails from './layouts/referral-program/ReferralProgramDetails'
 import ContestPage from './layouts/UserContest/contestPage'
@@ -181,6 +181,7 @@ import BattleTemplateDetail from "./layouts/battleTemplate"
 import BattleTemplateForm from "./layouts/battleTemplate/battleTemplateIndex"
 import CreateMarginXTemplate from "./layouts/marginXTemplate/createMarginIndex"
 import CreateMarginX from "./layouts/marginX/createMarginIndex"
+import CreateBattle from "./layouts/battle/createBattleIndex"
 import MarginX from "./layouts/marginX"
 
 const routes = [
@@ -404,10 +405,10 @@ const routes = [
     route: "/dailycontestdetails",
     component: <DailyContestDetails />,
   },
-  {
-    route: "/battledetails",
-    component: <BattleDetails />,
-  },
+  // {
+  //   route: "/battledetails",
+  //   component: <BattleDetails />,
+  // },
   {
     route: "/campaigndetails",
     component: <CampaignDetails />,
@@ -618,6 +619,10 @@ const routes = [
     component: <CreateMarginX />,
   },
   {
+    route: "/battledashboard/battles/createbattle",
+    component: <CreateBattle />,
+  },
+  {
     key: "dailycontestposition",
     route: "/contestdashboard/dailycontestposition",
     component: <DailyContestPosition />,
@@ -731,10 +736,6 @@ const routes = [
     component: <DailyContest />,
   },
   {
-    // type: "collapse",
-    // name: "Internship Batch",
-    key: "battles",
-    // icon: <BatchIcon/>,
     route: "/battledashboard/battles",
     component: <Battles />,
   },

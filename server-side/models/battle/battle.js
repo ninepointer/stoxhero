@@ -49,6 +49,21 @@ const battleSchema = new Schema({
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         date:{type:Date},
     }],
+    isNifty:{
+        type:Boolean,
+        default: false,
+        // required: true
+    },
+    isBankNifty:{
+        type:Boolean,
+        default: false,
+        // required: true
+    },
+    isFinNifty:{
+        type:Boolean,
+        default: false,
+        // required: true
+    },
     createdOn:{
         type: Date,
         required : true,

@@ -8,9 +8,10 @@ import { CircularProgress } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
-import ActiveBattle from '../data/activeBattle';
-import InactiveBattle from '../data/inactiveBattle';
-import DraftBattle from '../data/draftBattle';
+import UpcomingContest from '../data/activeBattles';
+import CompletedContest from '../data/completedBattles';
+import DraftContest from '../data/draftBattles'
+import OngoingDailyContest from '../data/ongoingBattles';
 
 
 export default function LabTabs() {
@@ -42,7 +43,7 @@ export default function LabTabs() {
     color="warning" 
     size="small"
     component={Link}
-    to='/battledashboard/battles/createbattle'
+    to='/battledetails'
     >
         Create Battle
     </MDButton>
@@ -50,9 +51,10 @@ export default function LabTabs() {
       <TabContext value={value}>
         <MDBox sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Active Battle" value="1" />
-            <Tab label="Inactive Battle" value="2" />
-            <Tab label="Draft Battle" value="3" />
+            <Tab label="Ongoing Battle(s)" value="1" />
+            <Tab label="Upcoming Battle(s)" value="2" />
+            <Tab label="Completed Battle(s)" value="3" />
+            <Tab label="Draft Battle(s)" value="4" />
           </TabList>
         </MDBox>
         <TabPanel value="1">
@@ -63,7 +65,7 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-          <ActiveBattle/>
+          <OngoingDailyContest/>
           </MDBox>
    
           }
@@ -76,24 +78,29 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-            <InactiveBattle/>
+          <UpcomingContest/>
           </MDBox>
    
           }
           </TabPanel>
-          <TabPanel value="3">
+        <TabPanel value="3">
           {isLoading ? 
-          
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <MDBox style={{minWidth:'100%'}}>
-            <DraftBattle/>
-          </MDBox>
-   
+          <CompletedContest/>
           }
-          </TabPanel>
+        </TabPanel>
+        <TabPanel value="4">
+          {isLoading ? 
+          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+            <CircularProgress color="info" />
+          </MDBox>
+          : 
+          <DraftContest/>
+          }
+        </TabPanel>
       </TabContext>
     </MDBox>
   );

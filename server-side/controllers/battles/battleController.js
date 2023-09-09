@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Battle = require('../../models/battles/battle'); // Modify path to your actual model's location
+const Battle = require('../../models/battle/battle'); // Modify path to your actual model's location
 const Transaction = require('../../models/Transactions/transaction');
 
 // Controller for creating a Battle
@@ -7,7 +7,7 @@ exports.createBattle = async (req, res) => {
     try {
         const { 
             battleName, battleStartTime, battleEndTime, battleLiveTime, battleTemplate,
-            battleStatus, payoutStatus
+            status, isNifty, isBankNifty, isFinNifty
         } = req.body;
 
         if(battleStartTime > battleEndTime){
@@ -53,8 +53,10 @@ exports.createBattle = async (req, res) => {
             battleEndTime, 
             battleLiveTime, 
             battleTemplate,
-            battleStatus, 
-            payoutStatus, 
+            status, 
+            isNifty,
+            isBankNifty,
+            isFinNifty, 
             createdBy: req.user._id, 
             lastModifiedBy: req.user._id
         });
@@ -134,7 +136,7 @@ exports.getOngoingBattles = async (req, res) => {
         const ongoingBattles = await Battle.find({ 
             battleStartTime: { $lte: now }, 
             battleEndTime: { $gt: now },
-            battleStatus: 'Active'
+            status: 'Active'
         })
         .sort({ battleStartTime: -1 })
         .populate('participants.userId', 'first_name last_name email mobile creationProcess')
@@ -162,7 +164,7 @@ exports.getUserLiveBattles = async (req, res) => {
         const ongoingBattles = await Battle.find({
             battleStartTime: { $lte: now },
             battleEndTime: { $gt: now },
-            battleStatus: 'Active'
+            status: 'Active'
         }).
         populate('battleTemplate', 'BattleTemplateName portfolioValue entryFee').
         sort({ battleStartTime: -1, entryFee: -1 });
@@ -187,7 +189,7 @@ exports.getUpcomingBattles = async (req, res) => {
     try {
         const upcomingBattles = await Battle.find({
             battleStartTime: { $gt: now },
-            battleStatus: 'Active'
+            status: 'Active'
         }).sort({ battleStartTime: -1, entryFee: -1 })
           .populate('participants.userId', 'first_name last_name email mobile creationProcess')
           .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
@@ -215,7 +217,7 @@ exports.getUserUpcomingBattles = async (req, res) => {
         const upcomingBattles = await Battle.find({
             battleStartTime: { $gt: now },
             battleLiveTime: { $lt: now },
-            battleStatus: 'Active'
+            status: 'Active'
         }).sort({ battleStartTime: -1, entryFee: -1 })
           .populate('battleTemplate', 'battleTemplateName portfolioValue entryFee');
 
@@ -265,7 +267,7 @@ exports.getCompletedBattles = async (req, res) => {
     const now = new Date();
     try {
         const completedBattles = await Battle.find({
-            battleStatus: 'Completed'
+            status: 'Completed'
         }).sort({ startTime: -1, entryFee: -1 })
           .populate('participants.userId', 'first_name last_name email mobile creationProcess')
           .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
@@ -332,7 +334,7 @@ exports.processBattles = async () => {
         while (continueProcessing) {
             const battles = await Battle.find({
                 battleStartTime: { $lte: bufferTime },
-                battleStatus: 'active'
+                status: 'active'
             }).populate('battleTemplate', 'entryFee battleTemplateName').skip(skipCount).limit(BATCH_SIZE);
 
             if (battles.length === 0) {
@@ -342,7 +344,7 @@ exports.processBattles = async () => {
 
             for (let battle of battles) {
                 if (battle.participants.length < battle.minParticipants) {
-                    battle.battleStatus = 'Cancelled';
+                    battle.status = 'Cancelled';
                     // await battle.save();
 
                     // Refund the participants.
