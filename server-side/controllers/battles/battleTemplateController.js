@@ -142,4 +142,3 @@ exports.getDraftBattleTemplates = async (req, res) => {
         });
     }
 };
-s
