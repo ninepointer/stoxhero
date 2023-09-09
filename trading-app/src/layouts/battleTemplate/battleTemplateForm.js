@@ -14,18 +14,21 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import { useNavigate, useLocation } from "react-router-dom";
 import { apiUrl } from '../../constants/constants';
+import RankingPayout from './data/rankingPayout'
 
 
 function Index() {
   const location = useLocation();
   const template = location?.state?.data;
   const [isSubmitted, setIsSubmitted] = useState(false);
-  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [isLoading, setIsLoading] = useState(template ? true : false)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [creating, setCreating] = useState(false)
   const navigate = useNavigate();
+  const [updatedDocument, setUpdatedDocument] = useState([]);
+  const [action, setAction] = useState(false);
   const [formState, setFormState] = useState({
     templateName: '' || template?.templateName,
     portfolioValue: '' || template?.portfolioValue,
@@ -38,8 +41,14 @@ function Index() {
     battleType: '' || template?.battleType,
   });
 
+  const [childFormState,setChildFormState] = useState({
+    rank:'',
+    rewardPercentage: '',
+  });
+
   useEffect(() => {
     setTimeout(() => {
+      template && setUpdatedDocument(template)
       setIsLoading(false);
     }, 500)
   }, [])
@@ -124,6 +133,36 @@ function Index() {
       openSuccessSB("Battle Template Edited", "Edited Successfully")
       setTimeout(() => { setSaving(false); setEditing(false) }, 500)
       console.log("entry succesfull");
+    }
+  }
+
+  async function createRankingPayout(e,childFormState,setChildFormState){
+    e.preventDefault()
+    setSaving(true)
+    if(!childFormState?.rank || !childFormState?.rewardPercentage){
+        setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
+        return openErrorSB("Missing Field","Please fill all the mandatory fields")
+    }
+    const {rank, rewardPercentage} = childFormState;
+  
+    const res = await fetch(`${baseUrl}api/v1/rewardPayout/`, {
+        method: "POST",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+        body: JSON.stringify({
+          rank, rewardPercentage, battleTemplate : template
+        })
+    });
+    const data = await res.json();
+    if (res.status !== 201) {
+        openErrorSB("Error",data.message)
+    } else {
+        // setUpdatedDocument(data?.data);
+        openSuccessSB("Success",data.message)
+        setTimeout(()=>{setSaving(false);setEditing(false)},500)
     }
   }
 
@@ -445,6 +484,68 @@ function Index() {
               </Grid>
 
             </Grid>
+
+            {/* {(isSubmitted || template) && !editing &&  */}
+                  <Grid item xs={12} md={6} xl={12}>
+                      
+                      <Grid container spacing={2} display='flex' justifyContent='left' alignItems='center'>
+
+                      <Grid item xs={12} md={6} xl={12} mb={1}>
+                      <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
+                          Create Ranking Payout
+                      </MDTypography>
+                      </Grid>
+                      
+                      <Grid item xs={12} md={1} xl={1}>
+                          <TextField
+                              id="outlined-required"
+                              label='Rank'
+                              fullWidth
+                              type="text"
+                              // value={formState?.features?.orderNo}
+                              onChange={(e) => {setChildFormState(prevState => ({
+                                  ...prevState,
+                                  rank: e.target.value
+                              }))}}
+                          />
+                      </Grid>
+          
+                      <Grid item xs={12} md={2} xl={2}>
+                          <TextField
+                              id="outlined-required"
+                              label='Reward Percentage*'
+                              fullWidth
+                              type="text"
+                              // value={formState?.features?.description}
+                              onChange={(e) => {setChildFormState(prevState => ({
+                                  ...prevState,
+                                  rewardPercentage: e.target.value
+                              }))}}
+                          />
+                      </Grid>
+              
+                      <Grid item xs={12} md={5} xl={5}>
+                          {/* <IoMdAddCircle cursor="pointer" onClick={(e)=>{onAddFeature(e,formState,setFormState)}}/> */}
+                          <MDButton 
+                            variant='contained' 
+                            color='success' 
+                            size='small' 
+                            onClick={(e)=>{createRankingPayout(e,childFormState,setChildFormState)}}>Create Reward Payouts</MDButton>
+                      </Grid>
+      
+                      </Grid>
+      
+                  </Grid>
+                {/* } */}
+
+                {/* {(isSubmitted || template) &&  */}
+                <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                    <MDBox>
+                        <RankingPayout saving={saving} template={template} updatedDocument={updatedDocument} setUpdatedDocument={setUpdatedDocument} action={action} setAction={setAction}/>
+                    </MDBox>
+                </Grid>
+                {/* } */}
+
 
             {renderSuccessSB}
             {renderErrorSB}
