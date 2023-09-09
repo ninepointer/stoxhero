@@ -317,3 +317,60 @@ exports.getBattleById = async (req, res) => {
         });
     }
 };
+
+const BUFFER_TIME_SECONDS=30;
+BATCH_SIZE=50;
+exports.processBattles = async () => {
+    try {
+        const now = new Date();
+        const bufferTime = new Date(now.getTime() + BUFFER_TIME_SECONDS * 1000);
+
+        let skipCount = 0;
+        let continueProcessing = true;
+
+        while (continueProcessing) {
+            const battles = await Battle.find({
+                battleStartTime: { $lte: bufferTime },
+                battleStatus: 'active'
+            }).populate('battleTemplate', 'entryFee battleTemplateName').skip(skipCount).limit(BATCH_SIZE);
+
+            if (battles.length === 0) {
+                continueProcessing = false;
+                break;
+            }
+
+            for (let battle of battles) {
+                if (battle.participants.length < battle.minParticipants) {
+                    battle.battleStatus = 'Cancelled';
+                    // await battle.save();
+
+                    // Refund the participants.
+                    for (let participant of battle.participants) {
+                        // Your refund logic here.
+                        await refundParticipant(participant?.userId, battleName, battle?.battleTemplate?.entryFee);
+                        participant.payoutStatus='Completed'
+                        participant.payout =battle?.battleTemplate?.entryFee
+                    }
+                    await battle.save();
+                }
+            }
+            skipCount += BATCH_SIZE;
+        }
+    } catch (error) {
+        console.error("Error processing battles:", error);
+    }
+}
+
+const refundParticipant = async(userId, battleName, refundAmount)=>{
+    //TODO: Add an entry in the transactions collection and store the id in wallet
+    const userWallet = await Wallet.findById(userId);
+    userWallet.transactions.push({
+        title:`Battle Refund`,
+        description:`Refund for cancelled battle ${battleName}`,
+        amount:refundAmount,
+        transactionId:uuid.v4(),
+        transactionType:'Cash',
+        type:'Credit'
+    });
+    await userWallet.save();
+}
