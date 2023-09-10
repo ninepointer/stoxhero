@@ -14,9 +14,8 @@ router.get('/today', Authenticate, todaysBattle);
 // router.get('/findbyname', Authenticate, findBattleByName);
 router.get('/ongoing', Authenticate, restrictTo('Admin', 'SuperAdmin'), getOngoingBattles);
 router.get('/completed', Authenticate, restrictTo('Admin', 'SuperAdmin'), getCompletedBattles);
-// router.get('/cancelled', Authenticate, restrictTo('Admin', 'SuperAdmin'), getCancelledBattles);
-
-// router.get('/draft', Authenticate, restrictTo('Admin', 'SuperAdmin'), getDraftBattles);
+router.get('/cancelled', Authenticate, restrictTo('Admin', 'SuperAdmin'), getCancelledBattles);
+router.get('/draft', Authenticate, restrictTo('Admin', 'SuperAdmin'), getDraftBattles);
 // router.route('/share/:id').put(Authenticate, copyAndShare);  
 router.get('/userlive', Authenticate, getUserLiveBattles);
 router.get('/userupcoming', Authenticate, getUserUpcomingBattles);

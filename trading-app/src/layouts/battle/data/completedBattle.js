@@ -8,8 +8,8 @@ import MDTypography from "../../../components/MDTypography";
 import { Link } from "react-router-dom";
 
 
-const InactiveBattleTemplates = ({type}) => {
-const [inactiveBattleTemplates,setInactiveBattleTemplates] = useState([]);
+const ActiveBattleTemplates = ({type}) => {
+const [activeBattleTemplates,setActiveBattleTemplates] = useState([]);
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 let [skip, setSkip] = useState(0);
 const limitSetting = 10;
@@ -17,7 +17,7 @@ const [count, setCount] = useState(0);
 const [isLoading,setIsLoading] = useState(false);
 
   useEffect(()=>{
-    let call1 = axios.get(`${baseUrl}api/v1/battletemplates/inactive`,{
+    let call1 = axios.get(`${baseUrl}api/v1/battles/completed`,{
                 withCredentials: true,
                 headers: {
                     Accept: "application/json",
@@ -27,7 +27,7 @@ const [isLoading,setIsLoading] = useState(false);
                 })
     Promise.all([call1])
     .then(([api1Response]) => {
-      setInactiveBattleTemplates(api1Response.data.data)
+      setActiveBattleTemplates(api1Response.data.data)
       setCount(api1Response.data.count)
     })
     .catch((error) => {
@@ -40,9 +40,9 @@ const [isLoading,setIsLoading] = useState(false);
         return;
     }
     setSkip(prev => prev-limitSetting);
-    setInactiveBattleTemplates([]);
+    setActiveBattleTemplates([]);
     setIsLoading(true)
-    axios.get(`${baseUrl}api/v1/battletemplates/inactive/?skip=${skip-limitSetting}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/battles/completed/?skip=${skip-limitSetting}&limit=${limitSetting}`,{
         withCredentials: true,
         headers: {
             Accept: "application/json",
@@ -51,7 +51,7 @@ const [isLoading,setIsLoading] = useState(false);
         },
     })
     .then((res) => {
-        setInactiveBattleTemplates(res.data.data)
+        setActiveBattleTemplates(res.data.data)
         setCount(res.data.count)
         setTimeout(()=>{
             setIsLoading(false)
@@ -68,9 +68,9 @@ const [isLoading,setIsLoading] = useState(false);
     }
     console.log("inside next handler")
     setSkip(prev => prev+limitSetting);
-    setInactiveBattleTemplates([]);
+    setActiveBattleTemplates([]);
     setIsLoading(true)
-    axios.get(`${baseUrl}api/v1/battletemplates/inactive/?skip=${skip+limitSetting}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/battles/completed/?skip=${skip+limitSetting}&limit=${limitSetting}`,{
         withCredentials: true,
         headers: {
             Accept: "application/json",
@@ -80,7 +80,7 @@ const [isLoading,setIsLoading] = useState(false);
     })
     .then((res) => {
         console.log('report',res.data.data);
-        setInactiveBattleTemplates(res.data.data)
+        setActiveBattleTemplates(res.data.data)
         setCount(res.data.count)
         setTimeout(()=>{
             setIsLoading(false)
@@ -93,11 +93,11 @@ const [isLoading,setIsLoading] = useState(false);
   
     return (
       <>
-      {inactiveBattleTemplates.length > 0 ?
+      {activeBattleTemplates.length > 0 ?
         
           <MDBox>
             <Grid container spacing={2} bgColor="dark">
-              {inactiveBattleTemplates?.map((e, index)=>{
+              {activeBattleTemplates?.map((e, index)=>{
 
                     return (
                       
@@ -110,7 +110,7 @@ const [isLoading,setIsLoading] = useState(false);
                         component = {Link}
                         style={{minWidth:'100%'}}
                         to={{
-                            pathname: `/battledashboard/${e?.battleTemplateName}`,
+                            pathname: `/battledashboard/battles/${e?.battleName}`,
                           }}
                         state={{data: e}}
                       >
@@ -183,7 +183,7 @@ const [isLoading,setIsLoading] = useState(false);
           :
          <Grid container spacing={1} xs={12} md={6} lg={12}>
           <Grid item mt={2} xs={6} md={3} lg={12} display="flex" justifyContent="center">
-            <MDTypography color="light">No Inactive Battle Templates(s)</MDTypography>
+            <MDTypography color="light">No Completed Battle Template(s)</MDTypography>
           </Grid>
          </Grid>
          } 
@@ -193,4 +193,4 @@ const [isLoading,setIsLoading] = useState(false);
 
 
 
-export default InactiveBattleTemplates;
+export default ActiveBattleTemplates;

@@ -275,10 +275,7 @@ const handleParticipantChange = (e) => {
   // Call the calculation function here
   calculation(formState?.entryFee,e.target.value);
 };
-console.log("Condiiton:",(isSubmitted || template) && (!editing || saving))
-console.log("Condiiton:",(isSubmitted || template))
-console.log("Condiiton:",(!editing || saving))
-console.log("Condiiton:",isSubmitted,template,!editing,saving)
+
 let totalCollection = template ? template?.entryFee*template?.minParticipants : (formState?.expectedCollection ? formState?.expectedCollection : 0);
 let gst = template ? ((template?.entryFee*template?.minParticipants)*template?.gstPercentage)/100 : (formState.expectedCollection*formState?.gstPercentage)/100;
 let collectionAfterTax = (totalCollection)-(gst)
