@@ -29,6 +29,8 @@ import { apiUrl } from '../../constants/constants';
 import RegisteredUsers from './data/registeredUsers';
 import PotentialUsers from './data/potentialUsers'
 import Shared from './data/shared'
+import ExpectedRewardSystem from './data/expectedRewardSystem'
+import ActualRewardSystem from './data/actualRewardSystem'
 
 
 const CustomAutocomplete = styled(Autocomplete)`
@@ -79,9 +81,10 @@ function Index() {
       battleType: "" || battle?.battleTemplate?.battleType,
       battleTemplateType: "" || battle?.battleTemplate?.battleTemplateType,
       gstPercentage: "" || battle?.battleTemplate?.gstPercentage,
+      platformCommissionPercentage: "" || battle?.battleTemplate?.platformCommissionPercentage,
       topWinners: "" || battle?.battleTemplate?.rankingPayout?.length,
     },
-    isNifty:false || battle?.isNifty,
+    isNifty: false || battle?.isNifty,
     isBankNifty: false || battle?.isBankNifty,
     isFinNifty: false || battle?.isFinNifty,
 
@@ -104,7 +107,6 @@ function Index() {
       }).catch((err) => {
         return new Error(err)
       })
-
   }, [])
 
   const handleTemplateChange = (event) => {
@@ -114,7 +116,6 @@ function Index() {
     let battleTemplate = battleTemplates?.filter((elem) => {
       return elem.battleTemplateName === value;
     })
-    let entryFee = 0;
     setFormState(prevState => ({
       ...prevState,
       battleTemplate: {
@@ -128,6 +129,7 @@ function Index() {
         battleType: battleTemplate[0]?.battleType,
         battleTemplateType: battleTemplate[0]?.battleTemplateType,
         gstPercentage: battleTemplate[0]?.gstPercentage,
+        platformCommissionPercentage: battleTemplate[0]?.platformCommissionPercentage,
         topWinners: battleTemplate[0]?.rankingPayout?.length,
       }
     }));
@@ -161,8 +163,8 @@ function Index() {
       });
   
   
-      const data = await res.json();
-      setCreatedBattle(data);
+      const data = await res.json({new:true});
+      setCreatedBattle(data.data);
       console.log(data, res.status);
       if (res.status !== 201) {
         setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
@@ -193,7 +195,7 @@ function Index() {
     }
     const { battleTemplate, battleName ,battleLiveTime ,battleStartTime ,battleEndTime ,status, isNifty, isBankNifty, isFinNifty } = formState;
 
-    const res = await fetch(`${apiUrl}battle/${battle?._id}`, {
+    const res = await fetch(`${apiUrl}battles/${battle?._id}`, {
       method: "PUT",
       credentials: "include",
       headers: {
@@ -369,9 +371,9 @@ function Index() {
                       id="demo-multiple-name"
                       name='battletemplates'
                       disabled={((isSubmitted || battle) && (!editing || saving))}
-                      value={formState?.battleTemplate?.name || battle?.battleTemplate?.templateName}
+                      value={formState?.battleTemplate?.name || battle?.battleTemplate?.battleTemplateName}
                       onChange={handleTemplateChange}
-                      input={<OutlinedInput label="Battle Template" />}
+                      input={<OutlinedInput label="Battle Template*" />}
                       sx={{ minHeight: 45, minWidth:'100%' }}
                       MenuProps={MenuProps}
                     >
@@ -465,11 +467,11 @@ function Index() {
                 <Grid container xs={12} md={12} xl={12} m={2} p={1}>
                 
                   <Grid item xs={12} md={6} xl={3}>
-                    <MDTypography fontSize={15}>Entry Fee: {formState?.battleTemplate?.entryFee}</MDTypography>
+                    <MDTypography fontSize={15}>Entry Fee: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(formState?.battleTemplate?.entryFee)}</MDTypography>
                   </Grid>
 
                   <Grid item xs={12} md={6} xl={3}>
-                    <MDTypography fontSize={15}>Portfolio Value: {formState?.battleTemplate?.portfolioValue}</MDTypography>
+                    <MDTypography fontSize={15}>Portfolio Value: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(formState?.battleTemplate?.portfolioValue)}</MDTypography>
                   </Grid>
 
                   <Grid item xs={12} md={6} xl={3} ml={0}>
@@ -477,7 +479,15 @@ function Index() {
                   </Grid>
 
                   <Grid item xs={12} md={6} xl={3} ml={0}>
+                    <MDTypography fontSize={15}>Winner Percentage: {formState?.battleTemplate?.winnerPercentage}%</MDTypography>
+                  </Grid>
+
+                  <Grid item xs={12} md={6} xl={3} ml={0}>
                     <MDTypography fontSize={15}>GST Percentage: {formState?.battleTemplate?.gstPercentage}%</MDTypography>
+                  </Grid>
+
+                  <Grid item xs={12} md={6} xl={3} ml={0}>
+                    <MDTypography fontSize={15}>Platform Commission: {formState?.battleTemplate?.platformCommissionPercentage}%</MDTypography>
                   </Grid>
 
                   <Grid item xs={12} md={6} xl={3} ml={0}>
@@ -493,30 +503,6 @@ function Index() {
                   </Grid>
 
                 </Grid>
-               
-                {(battle || newObjectId) && 
-                <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
-                  <MDBox>
-                    <RegisteredUsers battle={battle} action={action} setAction={setAction} />
-                  </MDBox>
-                </Grid>
-                }
-
-                {(battle || newObjectId) && 
-                <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
-                  <MDBox>
-                    <PotentialUsers battle={battle} action={action} setAction={setAction} />
-                  </MDBox>
-                </Grid>
-                }
-
-                {(battle || newObjectId) && 
-                <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
-                  <MDBox>
-                    <Shared battle={battle} action={action} setAction={setAction} />
-                  </MDBox>
-                </Grid>
-                }
 
               </Grid>
 
@@ -586,6 +572,7 @@ function Index() {
                             battleType: "" || battle?.battleTemplate?.battleType,
                             battleTemplateType: "" || battle?.battleTemplate?.battleTemplateType,
                             gstPercentage: "" || battle?.battleTemplate?.gstPercentage,
+                            platformCommissionPercentage: "" || battle?.battleTemplate?.platformCommissionPercentage,
                             topWinners: "" || battle?.battleTemplate?.rankingPayout?.length,
                           },
                           isNifty:false || battle?.isNifty,
@@ -602,6 +589,46 @@ function Index() {
               </Grid>
 
             </Grid>
+
+            {(battle?.participants?.length <= battle?.battleTemplate?.minParticipants) && 
+                <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                  <MDBox>
+                    <ExpectedRewardSystem battle={battle ? battle : createdBattle} expectedPrizePool={battle ? (battle?.battleTemplate?.entryFee*battle?.battleTemplate?.minParticipants) : (createdBattle?.battleTemplate?.entryFee*createdBattle?.battleTemplate?.minParticipants)} action={action} setAction={setAction} />
+                  </MDBox>
+                </Grid>
+                }
+
+                {(battle?.participants?.length > battle?.battleTemplate?.minParticipants) && 
+                <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                  <MDBox>
+                    <ActualRewardSystem battle={battle ? battle : createdBattle} actualPrizePool={battle ? (battle?.battleTemplate?.entryFee*battle?.participants?.length) : (createdBattle?.battleTemplate?.entryFee*createdBattle?.participants?.length)} action={action} setAction={setAction} />
+                  </MDBox>
+                </Grid>
+                }
+               
+                {(battle || newObjectId) && 
+                <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                  <MDBox>
+                    <RegisteredUsers battle={battle ? battle : createdBattle} action={action} setAction={setAction} />
+                  </MDBox>
+                </Grid>
+                }
+
+                {(battle || newObjectId) && 
+                <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                  <MDBox>
+                    <PotentialUsers battle={battle ? battle : createdBattle} action={action} setAction={setAction} />
+                  </MDBox>
+                </Grid>
+                }
+
+                {(battle || newObjectId) && 
+                <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                  <MDBox>
+                    <Shared battle={battle ? battle : createdBattle} action={action} setAction={setAction} />
+                  </MDBox>
+                </Grid>
+                }
 
             {renderSuccessSB}
             {renderErrorSB}

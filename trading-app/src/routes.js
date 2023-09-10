@@ -623,6 +623,10 @@ const routes = [
     component: <CreateBattle />,
   },
   {
+    route: "/battledashboard/battles/:name",
+    component: <CreateBattle />,
+  },
+  {
     key: "dailycontestposition",
     route: "/contestdashboard/dailycontestposition",
     component: <DailyContestPosition />,

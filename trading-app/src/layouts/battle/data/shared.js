@@ -6,9 +6,8 @@ import Card from "@mui/material/Card";
 import moment from 'moment';
 
 
-export default function RegisteredUsers({ marginx }) {
+export default function RegisteredUsers({ battle }) {
 
-  console.log("MarginX in Registered Users:",marginx)
   let columns = [
     { Header: "#", accessor: "index", align: "center" },
     { Header: "Name", accessor: "fullname", align: "center" },
@@ -23,7 +22,7 @@ export default function RegisteredUsers({ marginx }) {
   let rows = []
 
 
-  marginx?.sharedBy?.map((elem, index) => {
+  battle?.sharedBy?.map((elem, index) => {
 
     let featureObj = {}
     featureObj.index = (
@@ -67,7 +66,7 @@ export default function RegisteredUsers({ marginx }) {
       <MDBox display="flex" justifyContent="space-between" alignItems="left">
         <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{ backgroundColor: "lightgrey", borderRadius: "2px" }}>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-            Users Who Shared the MarginX({marginx?.sharedBy?.length})
+            Users Who Shared the Battle({battle?.sharedBy?.length})
           </MDTypography>
         </MDBox>
       </MDBox>

@@ -6,7 +6,7 @@ import MDTypography from "../../../components/MDTypography"
 import Card from "@mui/material/Card";
 
 
-export default function AllowedUsers({saving, marginx, action, updatedDocument}) {
+export default function AllowedUsers({battle}) {
 
     let columns = [
         { Header: "#", accessor: "index", align: "center" },
@@ -19,7 +19,7 @@ export default function AllowedUsers({saving, marginx, action, updatedDocument})
     let rows = []
 
 
-    marginx?.potentialParticipants?.map((elem, index) => {
+    battle?.potentialParticipants?.map((elem, index) => {
     let featureObj = {}
 
     featureObj.index = (
@@ -57,7 +57,7 @@ export default function AllowedUsers({saving, marginx, action, updatedDocument})
       <MDBox display="flex" justifyContent="space-between" alignItems="left">
         <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{backgroundColor:"lightgrey",borderRadius:"2px"}}>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-            Potential Users({marginx?.potentialParticipants?.length})
+            Potential Participants({battle?.potentialParticipants?.length})
           </MDTypography>
         </MDBox>
       </MDBox>

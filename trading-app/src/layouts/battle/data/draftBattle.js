@@ -17,7 +17,7 @@ const [count, setCount] = useState(0);
 const [isLoading,setIsLoading] = useState(false);
 
   useEffect(()=>{
-    let call1 = axios.get(`${baseUrl}api/v1/battletemplates/draft`,{
+    let call1 = axios.get(`${baseUrl}api/v1/battles/draft`,{
                 withCredentials: true,
                 headers: {
                     Accept: "application/json",
@@ -42,7 +42,7 @@ const [isLoading,setIsLoading] = useState(false);
     setSkip(prev => prev-limitSetting);
     setDraftBattleTemplates([]);
     setIsLoading(true)
-    axios.get(`${baseUrl}api/v1/battletemplates/draft/?skip=${skip-limitSetting}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/battles/draft/?skip=${skip-limitSetting}&limit=${limitSetting}`,{
         withCredentials: true,
         headers: {
             Accept: "application/json",
@@ -70,7 +70,7 @@ const [isLoading,setIsLoading] = useState(false);
     setSkip(prev => prev+limitSetting);
     setDraftBattleTemplates([]);
     setIsLoading(true)
-    axios.get(`${baseUrl}api/v1/battletemplates/draft/?skip=${skip+limitSetting}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/battles/draft/?skip=${skip+limitSetting}&limit=${limitSetting}`,{
         withCredentials: true,
         headers: {
             Accept: "application/json",
@@ -110,7 +110,7 @@ const [isLoading,setIsLoading] = useState(false);
                         component = {Link}
                         style={{minWidth:'100%'}}
                         to={{
-                            pathname: `/battledashboard/${e?.battleTemplateName}`,
+                            pathname: `/battledashboard/battles/${e?.battleName}`,
                           }}
                         state={{data: e}}
                       >
@@ -183,7 +183,7 @@ const [isLoading,setIsLoading] = useState(false);
           :
          <Grid container spacing={1} xs={12} md={6} lg={12}>
           <Grid item mt={2} xs={6} md={3} lg={12} display="flex" justifyContent="center">
-            <MDTypography color="light">No Draft Battle Templates(s)</MDTypography>
+            <MDTypography color="light">No Draft Battle Template(s)</MDTypography>
           </Grid>
          </Grid>
          } 
