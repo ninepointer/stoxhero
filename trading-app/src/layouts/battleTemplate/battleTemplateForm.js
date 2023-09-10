@@ -435,10 +435,11 @@ let totalNumberOfWinners = template ? ((template?.minParticipants*template?.winn
                     name='gstPercentage'
                     fullWidth
                     type='number'
-                    value={template ? template?.gstPercentage : formState?.gstPercentage}
-                    defaultValue={editing ? formState?.gstPercentage : template?.gstPercentage}
+                    value={formState?.gstPercentage}
+                    // defaultValue={editing ? formState?.gstPercentage : template?.gstPercentage}
                     // onChange={handleChange}
                     onChange={(e) => {
+                      console.log('change',e.target.value);
                       setFormState(prevState => ({
                         ...prevState,
                         gstPercentage: e.target.value
