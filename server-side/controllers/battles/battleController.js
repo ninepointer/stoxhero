@@ -13,19 +13,19 @@ exports.createBattle = async (req, res) => {
         if(battleStartTime > battleEndTime){
             return res.status(400).json({
                 status: 'error',
-                message: "Validation error: Start time can't be greater than end time",
+                message: "Start time can't be greater than end time",
             });
         }
         if(battleStartTime < battleLiveTime){
             return res.status(400).json({
                 status: 'error',
-                message: "Validation error: Live time can't be greater than start time",
+                message: "Live time can't be greater than start time",
             });
         }
         if(battleEndTime < battleLiveTime){
             return res.status(400).json({
                 status: 'error',
-                message: "Validation error: Live time can't be greater than end time",
+                message: "Live time can't be greater than end time",
             });
         }
 
@@ -35,23 +35,43 @@ exports.createBattle = async (req, res) => {
         if (isNaN(battleStartTimeDate.getTime())) {
             return res.status(400).json({
                 status: 'error',
-                message: "Validation error: Invalid start time format",
+                message: "Invalid Start time format",
             });
         }
 
-        const existingBattle = await Battle.findOne({ battleName: battleName, battleStartTime: battleStartTimeDate });
-        if (existingBattle) {
+        const battleEndTimeDate = new Date(battleEndTime);
+        battleEndTimeDate.setSeconds(0);
+
+        if (isNaN(battleEndTimeDate.getTime())) {
             return res.status(400).json({
                 status: 'error',
-                message: "Battle already exists with this name and start time.",
+                message: "Invalid End time format",
             });
         }
+
+        const battleLiveTimeDate = new Date(battleLiveTime);
+        battleLiveTimeDate.setSeconds(0);
+
+        if (isNaN(battleLiveTimeDate.getTime())) {
+            return res.status(400).json({
+                status: 'error',
+                message: "Invalid Live time format",
+            });
+        }
+
+        // const existingBattle = await Battle.findOne({ battleName: battleName, battleStartTime: battleStartTimeDate });
+        // if (existingBattle) {
+        //     return res.status(400).json({
+        //         status: 'error',
+        //         message: "Battle already exists with this name and start time.",
+        //     });
+        // }
 
         const battle = await Battle.create({
             battleName, 
             battleStartTime: battleStartTimeDate, 
-            battleEndTime, 
-            battleLiveTime, 
+            battleEndTime: battleEndTimeDate, 
+            battleLiveTime : battleLiveTimeDate, 
             battleTemplate,
             status, 
             isNifty,
@@ -61,10 +81,12 @@ exports.createBattle = async (req, res) => {
             lastModifiedBy: req.user._id
         });
 
+        const populatedBattle = await Battle.findById(battle._id).populate('battleTemplate');
+
         res.status(201).json({
             status: 'success',
             message: "Battle created successfully",
-            data: battle
+            data: populatedBattle
         });
     } catch (error) {
         console.error(error);
@@ -111,6 +133,7 @@ exports.getAllBattles = async (req, res) => {
     try {
         const battles = await Battle.find({})
             .sort({ battleStartTime: -1 })
+            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess');
@@ -132,6 +155,13 @@ exports.getAllBattles = async (req, res) => {
 // Fetch Ongoing Battles
 exports.getOngoingBattles = async (req, res) => {
     const now = new Date();
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10;
+    const count = await Battle.countDocuments({ 
+        battleStartTime: { $lte: now }, 
+        battleEndTime: { $gt: now },
+        status: 'Active'
+    })
     try {
         const ongoingBattles = await Battle.find({ 
             battleStartTime: { $lte: now }, 
@@ -139,14 +169,17 @@ exports.getOngoingBattles = async (req, res) => {
             status: 'Active'
         })
         .sort({ battleStartTime: -1 })
+        .skip(skip).limit(limit)
+        .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage')
         .populate('participants.userId', 'first_name last_name email mobile creationProcess')
         .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
         .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
-        .populate('battleTemplate', 'battleTemplateName')  // Modify 'templateName' based on the fields of your battle template
 
         res.status(200).json({
             status: 'success',
-            data: ongoingBattles
+            data: ongoingBattles,
+            results: ongoingBattles.length , 
+            count: count
         });
     } catch (error) {
         console.error(error);
@@ -186,19 +219,28 @@ exports.getUserLiveBattles = async (req, res) => {
 // Fetches upcoming Battles
 exports.getUpcomingBattles = async (req, res) => {
     const now = new Date();
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10;
+    const count = await Battle.countDocuments({ 
+        battleStartTime: { $gt: now }, 
+        status: 'Active'
+    })
     try {
         const upcomingBattles = await Battle.find({
             battleStartTime: { $gt: now },
             status: 'Active'
         }).sort({ battleStartTime: -1, entryFee: -1 })
+          .skip(skip).limit(limit)
+          .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage')
           .populate('participants.userId', 'first_name last_name email mobile creationProcess')
           .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
           .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
-          .populate('battleTemplate', 'battleTemplateName portfolioValue entryFee');
 
         res.status(200).json({
             status: 'success',
-            data: upcomingBattles
+            data: upcomingBattles,
+            results: upcomingBattles.length , 
+            count: count
         });
     } catch (error) {
         console.error(error);
@@ -263,26 +305,100 @@ exports.todaysBattle = async (req, res) => {
 };
 
 // Fetches completed Battles
-exports.getCompletedBattles = async (req, res) => {
+exports.getDraftBattles = async (req, res) => {
     const now = new Date();
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10;
+    const count = await Battle.countDocuments({ 
+        status: 'Draft'
+    })
     try {
-        const completedBattles = await Battle.find({
-            status: 'Completed'
+        const draftBattles = await Battle.find({
+            status: 'Draft'
         }).sort({ startTime: -1, entryFee: -1 })
+          .skip(skip).limit(limit)
           .populate('participants.userId', 'first_name last_name email mobile creationProcess')
           .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
           .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
-          .populate('battleTemplate', 'battleTemplateName portfolioValue entryFee');
+          .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage')
 
         res.status(200).json({
             status: 'success',
-            data: completedBattles
+            data: draftBattles,
+            results: draftBattles.length , 
+            count: count
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({
             status: 'error',
             message: "Error fetching completed Battles",
+            error: error.message
+        });
+    }
+};
+
+exports.getCompletedBattles = async (req, res) => {
+    const now = new Date();
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10;
+    const count = await Battle.countDocuments({ 
+        status: 'Completed'
+    })
+    try {
+        const completedBattles = await Battle.find({
+            status: 'Completed'
+        }).sort({ startTime: -1, entryFee: -1 })
+          .skip(skip).limit(limit)
+          .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+          .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
+          .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
+          .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage')
+
+        res.status(200).json({
+            status: 'success',
+            data: completedBattles,
+            results: completedBattles.length , 
+            count: count
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Error fetching completed Battles",
+            error: error.message
+        });
+    }
+};
+
+exports.getCancelledBattles = async (req, res) => {
+    const now = new Date();
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10;
+    const count = await Battle.countDocuments({ 
+        status: 'Cancelled'
+    })
+    try {
+        const cancelledBattles = await Battle.find({
+            status: 'Cancelled'
+        }).sort({ startTime: -1, entryFee: -1 })
+          .skip(skip).limit(limit)
+          .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+          .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
+          .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
+          .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage')
+
+        res.status(200).json({
+            status: 'success',
+            data: cancelledBattles,
+            results: cancelledBattles.length , 
+            count: count
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Error fetching cancelled Battles",
             error: error.message
         });
     }
@@ -298,6 +414,7 @@ exports.getBattleById = async (req, res) => {
 
         // Fetching the Battle based on the id and populating the necessary fields
         const battle = await Battle.findById(id)
+        .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue getPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout')
         .populate('participants.userId', 'first_name last_name email mobile creationProcess')
         .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
         .populate('potentialParticipants', 'first_name last_name email mobile creationProcess');
