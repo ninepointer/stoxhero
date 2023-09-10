@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Battle = require('../../models/battle/battle'); // Modify path to your actual model's location
-const Transaction = require('../../models/Transactions/transaction');
+const Transaction = require('../../models/Transactions/Transaction');
 
 // Controller for creating a Battle
 exports.createBattle = async (req, res) => {
