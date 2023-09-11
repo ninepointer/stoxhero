@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Battle = require('../../models/battle/battle'); // Modify path to your actual model's location
-const Transaction = require('../../models/Transactions/transaction');
+const Transaction = require('../../models/Transactions/Transaction');
 const Wallet = require("../../models/UserWallet/userWalletSchema");
 const User = require("../../models/User/userDetailSchema");
 const { ObjectId } = require('mongodb');
