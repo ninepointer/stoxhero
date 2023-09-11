@@ -161,7 +161,7 @@ const userDetailSchema = new mongoose.Schema({
     creationProcess:{
         type: String,
         // required: true,
-        enum: ['Auto SignUp','By Admin','Career SignUp']
+        enum: ['Auto SignUp','By Admin','Career SignUp', 'College Contest SignUp']
     },
     employeeid:{
         type: String,
@@ -410,4 +410,3 @@ userDetailSchema.methods.changedPasswordAfter = function(JWTiat) {
 };
 const userPersonalDetail = mongoose.model("user-personal-detail", userDetailSchema);
 module.exports = userPersonalDetail;
-
