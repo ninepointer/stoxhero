@@ -20,6 +20,7 @@ const { v4: uuidv4 } = require('uuid');
 const { client, getValue } = require('../marketData/redisClient');
 const MarginXMockUser = require("../models/marginX/marginXUserMock");
 const MarginXMockCompany = require("../models/marginX/marginXCompanyMock");
+const BattleMockUser = require("../models/battles/battle");
 
 
 
@@ -1232,6 +1233,154 @@ exports.fundCheckMarginX = async (req, res, next) => {
                         status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
                         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                         order_id: req.body.order_id, instrumentToken, brokerage: 0, marginxId, exchangeInstrumentToken,
+                        createdBy: req.user._id, trader: req.user._id, amount: 0, trade_time: myDate,
+
+                    });
+                    console.log("margincall saving")
+                    await algoTrader.save();
+                } catch (e) {
+                    console.log("error saving margin call", e);
+                }
+
+                //console.log("sending response from authorise trade");
+                return res.status(401).json({ status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.' });
+            }
+            else {
+                console.log("if user have enough funds")
+                return next();
+            }
+        }
+    });
+}
+
+exports.fundCheckBattle = async (req, res, next) => {
+
+    const { exchange, symbol, buyOrSell, variety,
+        Product, OrderType, Quantity, battleId, exchangeInstrumentToken } = req.body;
+
+    getKiteCred.getAccess().then(async (data) => {
+
+        let isRedisConnected = getValue();
+        let userFunds;
+        let runningLots = [];
+        let userNetPnl;
+        let todayPnlData = [];
+        let date = new Date();
+        let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+        todayDate = todayDate + "T00:00:00.000Z";
+        const today = new Date(todayDate);
+
+        let auth = 'token ' + data.getApiKey + ':' + data.getAccessToken;
+        let headers = {
+            'X-Kite-Version': '3',
+            'Authorization': auth,
+            "content-type": "application/json"
+        }
+        let orderData = [{
+            "exchange": exchange,
+            "tradingsymbol": symbol,
+            "transaction_type": buyOrSell,
+            "variety": variety,
+            "product": Product,
+            "order_type": OrderType,
+            "quantity": Quantity,
+            "price": 0,
+            "trigger_price": 0
+        }]
+
+        try {
+
+
+            if (isRedisConnected && await client.exists(`${req.user._id.toString()}${battleId.toString()} overallpnlBattle`)) {
+                todayPnlData = await client.get(`${req.user._id.toString()}${battleId.toString()} overallpnlBattle`)
+                todayPnlData = JSON.parse(todayPnlData);
+
+                for (let i = 0; i < todayPnlData?.length; i++) {
+                    if (todayPnlData[i]?._id?.symbol === symbol) {
+                        runningLots.push({
+                            _id: {
+                                symbol: symbol
+                            },
+                            runningLots: todayPnlData[i]?.lots
+                        })
+                    }
+                }
+            }
+        } catch (e) {
+            console.log("errro fetching pnl 5", e);
+        }
+
+        let transactionTypeRunningLot = runningLots[0]?.runningLots > 0 ? "BUY" : "SELL";
+        if (runningLots[0]?._id?.symbol !== symbol) {
+            isSymbolMatch = false;
+        }
+        if (Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots)) {
+            isLesserQuantity = true;
+        }
+        if (transactionTypeRunningLot !== buyOrSell) {
+            isOpposite = true;
+        }
+
+        let totalAmount = 0;
+        for (const element of todayPnlData) {
+            if (element.lots < 0) {
+                element.amount = -element.amount;
+            }
+            totalAmount += (element.amount - element.brokerage);
+        }
+
+        if (isRedisConnected && await client.exists(`${req.user._id.toString()}${battleId.toString()} openingBalanceAndMarginBattle`)) {
+            let pnl = await client.get(`${req.user._id.toString()}${battleId.toString()} openingBalanceAndMarginBattle`)
+            pnl = JSON.parse(pnl);
+            userFunds = pnl?.totalFund;
+
+            if (pnl?.openingBalance) {
+                userNetPnl = (pnl?.openingBalance - userFunds) + totalAmount
+            } else {
+                userNetPnl = totalAmount
+            }
+        }
+
+        console.log(runningLots[0]?._id?.symbol, symbol, Math.abs(Number(Quantity)), Math.abs(runningLots[0]?.runningLots), transactionTypeRunningLot, buyOrSell)
+        if (((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) {
+            return next();
+        }
+        let marginData;
+        let zerodhaMargin;
+
+        try {
+            marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers })
+            zerodhaMargin = marginData.data.data.orders[0].total;
+        } catch (e) {
+            // console.log("error fetching zerodha margin", e);
+        }
+
+
+        console.log(userFunds, userNetPnl, zerodhaMargin)
+        console.log((userFunds + userNetPnl - zerodhaMargin))
+
+        if (Number(userFunds + userNetPnl) >= 0 && ((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) {
+            console.log("user wants square off")
+            return next();
+        } else {
+            // console.log("in else")
+            if (userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin) < 0 : Number(userFunds - zerodhaMargin) < 0) {
+                let { exchange, symbol, buyOrSell, Quantity, Product, OrderType,
+                    validity, variety, instrumentToken, 
+                    order_id, battleId, exchangeInstrumentToken } = req.body;
+
+                    let myDate = new Date();
+                    order_id = `${myDate.getFullYear() - 2000}${String(myDate.getMonth() + 1).padStart(2, '0')}${String(myDate.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
+
+                    myDate.setHours(myDate.getHours() + 5);       // Add 5 hours
+                    myDate.setMinutes(myDate.getMinutes() + 30); // Add 30 minutes
+                    
+                try {
+
+                    const algoTrader = new BattleMockUser({
+                        status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
+                        variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+                        order_id: req.body.order_id, instrumentToken, brokerage: 0, battleId, exchangeInstrumentToken,
                         createdBy: req.user._id, trader: req.user._id, amount: 0, trade_time: myDate,
 
                     });

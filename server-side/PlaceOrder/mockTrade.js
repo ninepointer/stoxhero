@@ -10,6 +10,7 @@ const {tenxTrade} = require("./saveDataInDB/tenx")
 const {internTrade} = require("./saveDataInDB/internship")
 const {infinityTrade} = require("./saveDataInDB/infinity")
 const {marginxTrade} = require("./saveDataInDB/marginx")
+const {battleTrade} = require("./saveDataInDB/battle");
 
 exports.mockTrade = async (req, res) => {
     const setting = await Setting.find().select('toggle');
@@ -22,7 +23,7 @@ exports.mockTrade = async (req, res) => {
 
 
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType,
-        validity, variety, instrumentToken, tenxTraderPath, internPath,
+        validity, variety, instrumentToken, tenxTraderPath, internPath, battle,
         realBuyOrSell, realQuantity, isAlgoTrader, paperTrade, dailyContest, marginx } = req.body 
 
     if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
@@ -163,6 +164,10 @@ exports.mockTrade = async (req, res) => {
     if(marginx){
         console.log("in marginx", marginx)
         await marginxTrade(req, res, otherData)
+    }
+
+    if(battle){
+        await battleTrade(req, res, otherData)
     }
 }
 

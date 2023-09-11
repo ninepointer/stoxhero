@@ -76,6 +76,12 @@ router.post("/paperTrade", isAppLive, authentication, authoizeTrade.fundCheckPap
     MockTradeFunc.mockTrade(req, res)
     
 })
+
+router.post("/battleTrade", isAppLive, authentication, authoizeTrade.fundCheckPaperTrade,  async (req, res)=>{
+
+    MockTradeFunc.mockTrade(req, res)
+    
+})
 //authoizeTrade.fundCheckPaperTrade
 router.post("/tenxPlacingOrder", isAppLive, authentication, authoizeTrade.fundCheckTenxTrader,  async (req, res)=>{
 

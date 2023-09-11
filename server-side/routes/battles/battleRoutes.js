@@ -4,7 +4,7 @@ const router = express.Router({mergeParams: true});
 const {createBattle, getAllBattles, getCompletedBattles, todaysBattle, getCancelledBattles,
     getOngoingBattles, getUpcomingBattles, editBattle, getBattleById, getDraftBattles, 
     participateUsers, copyAndShare, purchaseIntent, deductBattleAmount, findBattleByName,
-    getUserLiveBattles, getUserUpcomingBattles, getUserCompletedBattles, getBattleAllUsers,getBattleByIdUser} = require('../../controllers/battles/battleController');
+    getUserLiveBattles, getUserUpcomingBattles, getUserCompletedBattles} = require('../../controllers/battles/battleController');
 const restrictTo = require('../../authentication/authorization');
 
 router.route('/').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createBattle).
@@ -20,9 +20,9 @@ router.get('/draft', Authenticate, restrictTo('Admin', 'SuperAdmin'), getDraftBa
 router.get('/userlive', Authenticate, getUserLiveBattles);
 router.get('/userupcoming', Authenticate, getUserUpcomingBattles);
 router.get('/usercompleted', Authenticate, getUserCompletedBattles);  
-// router.put('/purchaseintent/:id', Authenticate, purchaseIntent);
+router.put('/purchaseintent/:id', Authenticate, purchaseIntent);
 // router.put('participate/:id', Authenticate, participateUsers);
-// router.patch('/feededuct', Authenticate, deductBattleAmount);    
+router.patch('/feededuct', Authenticate, deductBattleAmount);    
 // router.get('/live', Authenticate, getOngoingBattles);
 // router.get('/allbattleusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), getBattleAllUsers);
 router.route('/:id').put(Authenticate, restrictTo('Admin', 'SuperAdmin'),editBattle).
