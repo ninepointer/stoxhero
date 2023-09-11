@@ -230,7 +230,7 @@ const routes = [
     component: <MarginXTradingWindow />,
   },
   {
-    route: "/battle/:name",
+    route: "/battles/:name",
     component: <BattleTradingWindow />,
   },
   {

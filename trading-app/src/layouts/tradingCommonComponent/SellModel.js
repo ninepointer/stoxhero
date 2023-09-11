@@ -28,7 +28,7 @@ import { Box } from '@mui/material';
 import { renderContext } from "../../renderContext";
 import {Howl} from "howler";
 import sound from "../../assets/sound/tradeSound.mp3"
-import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader, marginX } from "../../variables";
+import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader, marginX, battle } from "../../variables";
 
 
 const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState, module}) => {
@@ -209,6 +209,8 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
       }
     }else if(from === marginX){
       endPoint = 'placingOrderMarginx';
+    }else if(from === battle){
+      endPoint = 'battleTrade';
     }
 
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
@@ -222,7 +224,7 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
           exchange, symbol, buyOrSell, Quantity, Price, subscriptionId, contestId: module?.data,
           Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin,
           validity, variety, createdBy, order_id:dummyOrderId, internPath, marginxId: subscriptionId,
-          userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath
+          userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, battleId: subscriptionId
 
         })
     });

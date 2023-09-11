@@ -91,12 +91,6 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
       });
   }, []);
 
-  // useEffect(() => {
-  //   return () => {
-  //     // socket.emit('removeKey', socket.id)
-  //     socket.close();
-  //   }
-  // }, []);
 
   const [instrumentData, setInstrumentData] = useState([]);
 

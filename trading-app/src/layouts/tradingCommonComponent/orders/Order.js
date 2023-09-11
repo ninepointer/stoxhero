@@ -22,6 +22,7 @@ import { apiUrl } from "../../../constants/constants";
 import OrderHelper from "./orderHelper";
 import MDButton from "../../../components/MDButton";
 import { renderContext } from "../../../renderContext";
+import { marginX, battle } from "../../../variables";
 
 
 export default function Order({ from, id }) {
@@ -43,7 +44,8 @@ export default function Order({ from, id }) {
   // const getDetails = useContext(userContext);
   const { render } = useContext(renderContext);
 
-  let url = `marginxtrade/${id}/my/todayorders`
+  let url = from === marginX ? `marginxtrade/${id}/my/todayorders` : 
+            from === battle && `battletrade/${id}/my/todayorders`;
 
   useEffect(() => {
     setIsLoading(true)

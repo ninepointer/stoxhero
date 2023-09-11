@@ -17,7 +17,7 @@ import OverallRow from './OverallRow';
 import { marketDataContext } from '../../../MarketDataContext';
 import Grid from '@mui/material/Grid'
 import { renderContext } from '../../../renderContext';
-import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest, marginX } from "../../../variables";
+import {battle, paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest, marginX } from "../../../variables";
 import { userContext } from '../../../AuthContext';
 import { maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, lotSize_Nifty, lotSize_BankNifty, lotSize_FinNifty } from "../../../variables";
 
@@ -48,7 +48,13 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
   let rows = [];
-  let pnlEndPoint = from === paperTrader ? `paperTrade/pnl` : from === infinityTrader ? "infinityTrade/pnl" : from === tenxTrader ? `tenX/${subscriptionId}/trade/pnl` : from === internshipTrader ? `internship/pnl/${subscriptionId}` : from === dailyContest ? `dailycontest/trade/${subscriptionId}/pnl` : from === marginX && `marginxtrade/${subscriptionId}/pnl`;
+  let pnlEndPoint = from === paperTrader ? `paperTrade/pnl` : 
+                    from === infinityTrader ? "infinityTrade/pnl" : 
+                    from === tenxTrader ? `tenX/${subscriptionId}/trade/pnl` : 
+                    from === internshipTrader ? `internship/pnl/${subscriptionId}` : 
+                    from === dailyContest ? `dailycontest/trade/${subscriptionId}/pnl` : 
+                    from === marginX ? `marginxtrade/${subscriptionId}/pnl` :
+                    from === battle && `battletrade/${subscriptionId}/pnl`;
   const [trackEvent, setTrackEvent] = useState({});
 
 

@@ -77,8 +77,8 @@ router.post("/paperTrade", isAppLive, authentication, authoizeTrade.fundCheckPap
     
 })
 
-router.post("/battleTrade", isAppLive, authentication, authoizeTrade.fundCheckPaperTrade,  async (req, res)=>{
-
+router.post("/battleTrade", isAppLive, authentication, authoizeTrade.fundCheckBattle,  async (req, res)=>{
+    req.body.battle = true;
     MockTradeFunc.mockTrade(req, res)
     
 })

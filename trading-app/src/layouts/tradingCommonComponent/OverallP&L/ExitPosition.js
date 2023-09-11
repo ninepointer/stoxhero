@@ -23,7 +23,7 @@ import InputLabel from '@mui/material/InputLabel';
 import { renderContext } from '../../../renderContext';
 import { Howl } from "howler";
 import sound from "../../../assets/sound/tradeSound.mp3"
-import { marginX, paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest } from "../../../variables";
+import { marginX, paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest, battle } from "../../../variables";
 
 
 function ExitPosition({ module, maxLot, lotSize, traderId, socket, subscriptionId, from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState, exchangeInstrumentToken }) {
@@ -217,6 +217,8 @@ function ExitPosition({ module, maxLot, lotSize, traderId, socket, subscriptionI
       }
     } else if (from === marginX) {
       endPoint = 'placingOrderMarginx';
+    }else if (from === battle) {
+      endPoint = 'battleTrade';
     }
 
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
@@ -227,7 +229,7 @@ function ExitPosition({ module, maxLot, lotSize, traderId, socket, subscriptionI
       },
       body: JSON.stringify({
 
-        exchange, symbol, buyOrSell, Quantity, Price, contestId: module?.data,
+        exchange, symbol, buyOrSell, Quantity, Price, contestId: module?.data, battleId: subscriptionId,
         Product, OrderType, TriggerPrice, stopLoss, internPath, marginxId: subscriptionId,
         validity, variety, order_id: dummyOrderId, subscriptionId, exchangeInstrumentToken, fromAdmin,
         userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath

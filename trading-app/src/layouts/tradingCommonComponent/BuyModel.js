@@ -25,21 +25,10 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import { Box } from '@mui/material';
 import { renderContext } from "../../renderContext";
-import {Howl} from "howler";
-import sound from "../../assets/sound/tradeSound.mp3"
-import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader, marginX } from "../../variables";
+import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader, marginX, battle } from "../../variables";
 
-
-// import MDBox from '../../../../../components/MDBox';
-// import { borderBottom } from '@mui/system';
-// import { marketDataContext } from "../../../../../MarketDataContext";
 
 const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, module}) => {
-  // const tradeSound = new Howl({
-  //   src : [sound],
-  //   html5 : true
-  // })
-  
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const {render, setRender} = useContext(renderContext);
@@ -210,6 +199,8 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
       }
     }else if(from === marginX){
       endPoint = 'placingOrderMarginx';
+    }else if(from === battle){
+      endPoint = 'battleTrade';
     }
 
     console.log("module", module)
@@ -220,7 +211,7 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
             "content-type": "application/json"
         },
         body: JSON.stringify({
-          exchange, symbol, buyOrSell, Quantity, Price, contestId: module?.data,
+          exchange, symbol, buyOrSell, Quantity, Price, contestId: module?.data, battleId: subscriptionId,
           Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin,
           validity, variety, createdBy, order_id:dummyOrderId, subscriptionId, marginxId: subscriptionId,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath

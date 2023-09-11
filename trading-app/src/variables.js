@@ -9,6 +9,8 @@ export const tenxTrader = "TenX Trader";
 export const zerodhaAccountType = "ZERODHA";
 export const xtsAccountType = "XTS";
 export const internshipTrader = "Internship Trader";
+export const battle = "Battle";
+
 
 export const maxLot_BankNifty = 900;
 export const maxLot_Nifty = 1800;

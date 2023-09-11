@@ -30,7 +30,7 @@ import SellModel from "../SellModel";
 import { marketDataContext } from "../../../MarketDataContext";
 import uniqid from "uniqid"
 import { renderContext } from "../../../renderContext";
-import {marginX, paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest } from "../../../variables";
+import {battle, marginX, paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest } from "../../../variables";
 import { userContext } from "../../../AuthContext";
 import {maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty} from "../../../variables";
 
@@ -78,7 +78,7 @@ function reducer(state, action) {
 
 function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked, from, subscriptionId, moduleData, watchList}) {
 
-  if(from === marginX){
+  if(from === marginX || from === battle){
     from = dailyContest;
   }
   const {render, setRender} = useContext(renderContext);

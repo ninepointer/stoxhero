@@ -28,39 +28,6 @@ export default function LabTabs() {
     }, []);
 
     const [isLoading, setIsLoading] = useState(false);
-    // let [showPay, setShowPay] = useState(true);
-    // const [isInterested, setIsInterested] = useState(false);
-    // const [contest, setContest] = useState([]);
-
-    // useEffect(() => {
-    //     setIsLoading(true)
-    //     axios.get(`${baseUrl}api/v1/marginx/upcoming`, {
-    //         withCredentials: true,
-    //         headers: {
-    //             Accept: "application/json",
-    //             "Content-Type": "application/json",
-    //             "Access-Control-Allow-Credentials": true
-    //         },
-    //     })
-    //     .then((res) => {
-    //         setContest(res.data.data);
-    //         setTimeout(()=>{
-    //             setIsLoading(false)
-    //         },1000)
-            
-    //     }).catch((err) => {
-    //         setIsLoading(false)
-    //         return new Error(err);
-    //     })
-    // }, [isInterested, showPay])
-
-    // let free = contest.filter((elem)=>{
-    //     return elem?.entryFee === 0;
-    // })
-
-    // let paid = contest.filter((elem)=>{
-    //     return elem?.entryFee !== 0;
-    // })
 
     const handleClick = (e) => {
         console.log(e)
@@ -155,7 +122,7 @@ export default function LabTabs() {
                             :
                             clicked === "completed" ?
                             <>
-                                <CompletedMarginXs/>
+                                <CompletedMarginXs setClicked={setClicked}/>
                             </>
                             :
                             clicked === "leaderboard" ?

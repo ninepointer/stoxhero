@@ -15,7 +15,7 @@ import OptionChain from "./optionChain";
 import TradableInstrument from '../../tradingCommonComponent/TradableInstrument/TradableInstrument';
 import WatchList from "../../tradingCommonComponent/InstrumentDetails/index"
 import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
-import { dailyContest } from '../../../variables';
+import { battle } from '../../../variables';
 // import DailyContestMargin from '../../tradingCommonComponent/MarginDetails/DailyContestMargin';
 import StockIndexDailyContest from "../../tradingCommonComponent/StockIndex/StockIndexDailyContest";
 // import Leaderboard from '../data/dailyContestLeaderboard'
@@ -37,7 +37,7 @@ function Header({ socket, data }) {
         socket.on("serverTime", (time) => {
             const serverTimeString = new Date(time).toISOString().slice(0, 19); // Extract relevant parts
             const endTimeString = new Date(endTime).toISOString().slice(0, 19); // Extract relevant parts
-            console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
+            // console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
             if (serverTimeString === endTimeString) {
                 navigate(`/battle/result`, {
                     state: { battleId: battleId}
@@ -59,7 +59,7 @@ function Header({ socket, data }) {
           socket={socket}
           isGetStartedClicked={isGetStartedClicked}
           setIsGetStartedClicked={handleSetIsGetStartedClicked}
-          from={dailyContest}
+          from={battle}
           moduleData={data}
           watchList={watchList}
         />;
@@ -70,7 +70,7 @@ function Header({ socket, data }) {
           socket={socket}
           isGetStartedClicked={isGetStartedClicked}
           setIsGetStartedClicked={handleSetIsGetStartedClicked}
-          from={dailyContest}
+          from={battle}
           subscriptionId={battleId}
           moduleData={data}
           setWatchList={setWatchList}
@@ -82,7 +82,7 @@ function Header({ socket, data }) {
           socket={socket}
           isGetStartedClicked={isGetStartedClicked}
           setIsGetStartedClicked={handleSetIsGetStartedClicked}
-          from={dailyContest}
+          from={battle}
           subscriptionId={battleId}
           moduleData={data}
         />;
@@ -90,7 +90,7 @@ function Header({ socket, data }) {
     
       const memoizedOrder = useMemo(() => {
         return <Order
-          from={dailyContest}
+          from={battle}
           id={battleId}
           moduleData={data}
         />;

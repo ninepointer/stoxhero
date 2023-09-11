@@ -62,27 +62,6 @@ function Header({ marginX }) {
             })
     }
 
-    // const handleCopy = async (id) => {
-    //     let text = 'https://stoxhero.com/marginxs'
-    //     const textarea = document.createElement('textarea');
-    //     textarea.value = text;
-    //     document.body.appendChild(textarea);
-    //     textarea.select();
-    //     document.execCommand('copy');
-    //     document.body.removeChild(textarea);
-    //     openSuccessSB('success', 'Link Copied', 'Share it with your friends');
-    //     const res = await fetch(`${baseUrl}api/v1/marginx/${id}/share`, {
-    //         method: "PUT",
-    //         credentials: "include",
-    //         headers: {
-    //             "content-type": "application/json",
-    //             "Access-Control-Allow-Credentials": true
-    //         },
-    //         body: JSON.stringify({
-    //         })
-    //     });
-    // };
-
     const captureScreenshot = (id, name) => {
         const screenshotElement = document.getElementById(id);
         setTimeout(() => {
