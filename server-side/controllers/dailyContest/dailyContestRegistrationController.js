@@ -15,8 +15,9 @@ const DailyContest = require('../../models/DailyContest/dailyContest');
 exports.generateOTP = async(req, res, next)=>{
     console.log(req.body)   
   
-    const{ firstName, lastName, email, mobile, dob, collegeName, source, contest, campaignCode
+    const{ firstName, lastName, email, mobile, dob, collegeName, source, contest, campaignCode, referrerCode
     } = req.body
+    console.log('ref',referrerCode);
     if(!contest){
         return res.status(400).json({
             message: "Contest doesn't exixt",
@@ -50,6 +51,7 @@ exports.generateOTP = async(req, res, next)=>{
         campaignCode: campaignCode?.trim(),
         mobile_otp: mobile_otp,
         status: 'OTP Verification Pending',
+        referrerCode:referrerCode
         });
         // console.log(data)
         if(process.env.PROD == 'true')sendOTP(mobile.toString(), mobile_otp);
@@ -64,7 +66,7 @@ exports.generateOTP = async(req, res, next)=>{
 exports.confirmOTP = async(req, res, next)=>{
 
 
-const{ firstName, lastName, email, mobile, campaignCode, mobile_otp, contest
+const{ firstName, lastName, email, mobile, campaignCode, mobile_otp, contest, referrerCode
 } = req.body
 console.log(req.body)
 const correctOTP = await ContestRegistration.findOne({$and : [{mobileNo: mobile}], mobile_otp: mobile_otp}).select('status');
@@ -104,7 +106,8 @@ if(!existingUser){
         obj.activationDate = new Date();
         portfolioArr.push(obj);
     }
-
+    let referralUser;
+    if(referrerCode)referralUser = await User.findOne({myReferralCode:referrerCode}).select('_id');
     try{
         let obj = {
             first_name : firstName.trim(), 
@@ -122,6 +125,8 @@ if(!existingUser){
             portfolio: portfolioArr,
             campaign: campaign && campaign._id,
             campaignCode: campaign && campaignCode,
+            referrerCode:referralUser && referrerCode,
+            referredBy: referralUser && referralUser?._id
         }
 
             const newuser = await User.create(obj);

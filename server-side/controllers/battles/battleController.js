@@ -506,3 +506,67 @@ const refundParticipant = async(userId, battleName, refundAmount)=>{
     await userWallet.save();
 }
 
+const getPrizeDetails = async (req, res, next) => {
+    const battleId = req.params.id;
+    try {
+        // 1. Get the corresponding battleTemplate for a given battle
+        const battle = await Battle.findById(battleId).populate('battleTemplate');
+        if (!battle || !battle.battleTemplate) {
+            return res.status(404).json({status:'error', message: "Battle or its template not found." });
+        }
+
+        const template = battle.battleTemplate;
+
+        // Calculate the Expected Collection
+        const expectedCollection = template.entryFee * template.minParticipants;
+        let collection = expectedCollection;
+        let battleParticipants = template?.minParticipants;
+        if(battle?.participants?.length > template?.minParticipants){
+            battleParticipants = battle?.participants?.length;
+            collection = template?.entryFee * battleParticipants;
+        }
+
+        // Calculate the Prize Pool
+        const prizePool = collection - (collection * template.gstPercentage / 100);
+
+        // Calculate the total number of winners
+        const totalWinners = Math.round(template.winnerPercentage * battleParticipants / 100);
+
+        // Determine the reward distribution for each rank mentioned in the rankingPayout
+        let totalRewardDistributed = 0;
+        const rankingReward = template.rankingPayout.map((rankPayout) => {
+            const reward = prizePool * rankPayout.rewardPercentage / 100;
+            totalRewardDistributed += reward;
+            return {
+                rank: rankPayout.rank.toString(),
+                reward: reward
+            };
+        });
+
+        // Calculate the reward for the remaining winners
+        const remainingWinners = totalWinners - rankingReward.length;
+        const rewardForRemainingWinners = remainingWinners > 0 ? (prizePool - totalRewardDistributed) / remainingWinners : 0;
+
+        if(remainingWinners > 0) {
+            rankingReward.push({
+                rank: `${rankingReward.length + 1}-${totalWinners}`,
+                reward: rewardForRemainingWinners
+            });
+        }
+
+        let data = {
+            prizePool: prizePool,
+            prizeDistribution: rankingReward
+        };
+        res.status(200).json({
+            status:'success',
+            message:'Rewards fetched',
+            data:data
+        });
+
+    } catch(err) {
+        return res.status(500).json({status:'error', message: "Something went wrong.", error:err.message });
+    }
+};
+
+

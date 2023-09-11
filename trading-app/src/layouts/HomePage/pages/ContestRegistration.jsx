@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState, useContext} from 'react'
 import MDBox from '../../../components/MDBox'
 import MDButton from '../../../components/MDButton';
 import ReactGA from "react-ga"
@@ -22,6 +22,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import {apiUrl} from '../../../constants/constants';
+import { userContext } from "../../../AuthContext";
 
 
 const CareerForm = () => {
@@ -33,7 +34,13 @@ const CareerForm = () => {
   const [contestDetails,setContestDetails] = useState(false);
   const location = useLocation();
   const contest = location?.state?.data;
-  const campaignCode = location?.state?.campaignCode;
+  let campaignCode = location?.state?.campaignCode;
+  console.log('location', location?.search?.slice(1).split('&'));
+  const referrerCode = location?.search?.slice(1).split('&')[0]?.split('=')[1];
+  campaignCode = location?.search?.slice(1).split('&')[1]?.split('=')[1];
+  console.log('here\'s the deal', referrerCode, campaignCode);
+  const getDetails = useContext(userContext);
+
 
   const [detail, setDetails] = useState({
     firstName: "",
@@ -47,6 +54,7 @@ const CareerForm = () => {
     contest: contest?._id || contestDetails?._id,
     campaignCode: campaignCode,
     mobile_otp: "",
+    referrerCode: referrerCode
   })
 
   const [file, setFile] = useState(null);
@@ -88,6 +96,7 @@ const CareerForm = () => {
       collegeName,
       source,
       contest,
+      referrerCode,
       campaignCode,
       mobile_otp,
     } = detail;
@@ -113,6 +122,7 @@ const CareerForm = () => {
         dob:dob,  
         campaignCode:campaignCode,
         mobile_otp: mobile_otp,
+        referrerCode
       })
   });
 
@@ -141,6 +151,7 @@ const CareerForm = () => {
       collegeName,
       source,
       contest,
+      referrerCode,
       campaignCode,
     } = detail;
     
@@ -183,6 +194,7 @@ const CareerForm = () => {
         contest:contest,
         dob:dob,  
         campaignCode:campaignCode,
+        referrerCode
       })
   });
 
@@ -427,8 +439,8 @@ const CareerForm = () => {
               <Grid container>
                 <Grid item p={2} m={2} xs={12} md={12} lg={12} display="flex" justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{textAlign: 'center'}}>
                   <MDTypography>Your registration has been submitted successfully.</MDTypography>
-                  <MDTypography mt={1}>We have also created your StoxHero trading account and the login details have been sent on your email!</MDTypography>
-                  <MDTypography mt={1} fontSize={20} fontWeight='bold'>Explore the world of options trading by visiting www.stoxhero.com</MDTypography>
+                  {!getDetails?.userDetails && <MDTypography mt={1}>We have also created your StoxHero trading account and the login details have been sent on your email!</MDTypography>}
+                  <MDTypography mt={1} fontSize={20} fontWeight='bold'>Explore the world of options trading on www.stoxhero.com</MDTypography>
                 </Grid>
               </Grid>
             </MDBox>

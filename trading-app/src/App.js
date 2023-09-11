@@ -341,7 +341,9 @@ export default function App() {
           <Route path='/jobdescription' element={<JobDescription/>}/>
           <Route path='/apply' element={<JobApply/>}/>
           <Route path='/collegecontest/:id/:date' element={<ContestRegistration/>}/>
-          <Route path='/home' element={<Home/>}/>
+          <Route path='/home' element={<Navigate 
+            to={getDetails?.userDetails?.role ? getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/stoxherodashboard':'/'} 
+            />}/>
           <Route path='/login' element={<SignIn />}/>
           <Route path='/about' element={<About/>}/>
           <Route path='/contact' element={<Contact/>}/>

@@ -421,14 +421,14 @@ const routes = [
     route: "/jobdescription",
     component: <JD />,
   },
-  {
-    // type: "collapse",
-    // name: "Arena",
-    // key: "arena",
-    // icon: <BusinessIcon/>,
-    route: "/home",
-    component: <Home />,
-  },
+  // {
+  //   // type: "collapse",
+  //   // name: "Arena",
+  //   // key: "arena",
+  //   // icon: <BusinessIcon/>,
+  //   route: "/home",
+  //   component: <Home />,
+  // },
   {
     // type: "collapse",
     // name: "Arena",

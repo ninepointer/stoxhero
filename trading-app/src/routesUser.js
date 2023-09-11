@@ -114,10 +114,10 @@ const routes = [
     route: "jobdescription",
     component: <JD />,
   },
-  {
-    route: "home",
-    component: <Home />,
-  },
+  // {
+  //   route: "home",
+  //   component: <Home />,
+  // },
   {
     route: "apply",
     component: <CareerForm />,
