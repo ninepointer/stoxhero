@@ -29,11 +29,11 @@ import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../..
 function ExitPosition({subscriptionId, from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState }) {
   const [buttonClicked, setButtonClicked] = useState(false);
   const {render, setRender} = useContext(renderContext);
-  const tradeSound = new Howl({
-    src : [sound],
-    html5 : true
-  })
-  console.log("rendering : exit", quantity)
+  // const tradeSound = new Howl({
+  //   src : [sound],
+  //   html5 : true
+  // })
+  // console.log("rendering : exit", quantity)
   let checkBuyOrSell;
   if (quantity > 0) {
     checkBuyOrSell = "BUY"
@@ -44,6 +44,7 @@ function ExitPosition({subscriptionId, from, isFromHistory, product, symbol, qua
 
   const getDetails = React.useContext(userContext);
   // let uId = uniqid();
+  const tradeSound = getDetails.tradeSound;
   let date = new Date();
   // let createdBy = getDetails.userDetails.name;
   let userId = getDetails.userDetails.email;

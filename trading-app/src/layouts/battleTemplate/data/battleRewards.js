@@ -41,7 +41,6 @@ export default function ChallengeParameters({saving,template, action, setAction}
     },[saving, open])
 
     let columns = [
-        { Header: "#", accessor: "index", align: "center" },
         { Header: "Category", accessor: "category", align: "center" },
         { Header: "Interval", accessor: "interval", align: "center" },
         { Header: "Entry Fee", accessor: "entryfee", align: "center" },
@@ -52,11 +51,6 @@ export default function ChallengeParameters({saving,template, action, setAction}
   challengeParameters?.map((elem, index)=>{
   let featureObj = {}
 
-  featureObj.index = (
-    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {index+1}
-    </MDTypography>
-  );
   featureObj.category = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
       {elem?.category}
@@ -75,7 +69,35 @@ export default function ChallengeParameters({saving,template, action, setAction}
 
   rows.push(featureObj)
 })
-console.log(template)
+
+let remainingObj = {}
+  let remainingWinners = (((template?.minParticipants?.length*template?.winnerPercentage)/100)-template?.rankingPayout?.length)
+  let prizePoolToppersPercentage = template?.rankingPayout.reduce((total, currentItem) => {
+    return total + currentItem.rewardPercentage;
+  }, 0)
+  let remainingPrizePoolPercentage = 100-prizePoolToppersPercentage
+  let remainingPrizePool = (actualPrizePool*remainingPrizePoolPercentage)/100
+  
+    remainingObj.rank = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {battle?.battleTemplate?.rankingPayout?.length+1 + "-" + ((battle?.battleTemplate?.minParticipants*battle?.battleTemplate?.winnerPercentage)/100).toFixed(0)}
+      </MDTypography>
+    );
+    remainingObj.rewardpercentage = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {((100-(battle?.battleTemplate?.rankingPayout.reduce((total, currentItem) => {
+                    return total + currentItem.rewardPercentage;
+                  }, 0)))/remainingWinners).toFixed(2)}%
+      </MDTypography>
+    );
+    remainingObj.reward = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(remainingPrizePool/remainingWinners)}
+      </MDTypography>
+    );
+
+    rows.push(remainingObj)
+
   return (
     <Card>
       <MDBox display="flex" justifyContent="space-between" alignItems="left">

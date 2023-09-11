@@ -1,4 +1,4 @@
-import React, { useContext, useState, memo , useEffect} from 'react'
+import React, { useContext, useState, memo, useEffect } from 'react'
 // import axios from "axios";
 import { userContext } from '../../../AuthContext';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -21,18 +21,18 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import { renderContext } from '../../../renderContext';
-import {Howl} from "howler";
+import { Howl } from "howler";
 import sound from "../../../assets/sound/tradeSound.mp3"
-import {marginX, paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest } from "../../../variables";
+import { marginX, paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest } from "../../../variables";
 
 
-function ExitPosition({module, maxLot, lotSize, traderId, socket, subscriptionId, from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState, exchangeInstrumentToken }) {
+function ExitPosition({ module, maxLot, lotSize, traderId, socket, subscriptionId, from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState, exchangeInstrumentToken }) {
   const [buttonClicked, setButtonClicked] = useState(false);
-  const {render, setRender} = useContext(renderContext);
-  const tradeSound = new Howl({
-    src : [sound],
-    html5 : true
-  })
+  const { render, setRender } = useContext(renderContext);
+  // const tradeSound = new Howl({
+  //   src : [sound],
+  //   html5 : true
+  // })
   // console.log("rendering : exit", quantity)
   let checkBuyOrSell;
   if (quantity > 0) {
@@ -43,6 +43,7 @@ function ExitPosition({module, maxLot, lotSize, traderId, socket, subscriptionId
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const getDetails = React.useContext(userContext);
+  const tradeSound = getDetails.tradeSound;
   // let uId = uniqid();
   let date = new Date();
   // let createdBy = getDetails.userDetails.name;
@@ -81,7 +82,7 @@ function ExitPosition({module, maxLot, lotSize, traderId, socket, subscriptionId
 
   const [filledQuantity, setFilledQuantity] = useState((Math.abs(quantity) > maxLot) ? maxLot : Math.abs(quantity));
 
-  useEffect(()=>{
+  useEffect(() => {
     setFilledQuantity((Math.abs(quantity) > maxLot) ? maxLot : Math.abs(quantity))
   }, [quantity])
 
@@ -108,8 +109,8 @@ function ExitPosition({module, maxLot, lotSize, traderId, socket, subscriptionId
     exitPositionFormDetails.validity = event.target.value;
   };
 
-  useEffect(()=>{
-    socket?.on(`sendResponse${trader.toString()}`, (data)=>{
+  useEffect(() => {
+    socket?.on(`sendResponse${trader.toString()}`, (data) => {
       // render ? setRender(false) : setRender(true);
       openSuccessSB(data.status, data.message)
     })
@@ -142,10 +143,10 @@ function ExitPosition({module, maxLot, lotSize, traderId, socket, subscriptionId
     optionData.push(<MenuItem value={i * lotSize}>{i * lotSize}</MenuItem>)
   }
 
-// console.log("lotSize", lotSize, maxLot)
+  // console.log("lotSize", lotSize, maxLot)
 
   async function exitPosition(e, uId) {
-    if(buttonClicked){
+    if (buttonClicked) {
       // setButtonClicked(false);
       return;
     }
@@ -186,35 +187,35 @@ function ExitPosition({module, maxLot, lotSize, traderId, socket, subscriptionId
 
     const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = exitPositionFormDetails;
 
-    let endPoint 
+    let endPoint
     let paperTrade = false;
     let tenxTraderPath;
-    let internPath ;
+    let internPath;
     let fromAdmin;
-    if(from === paperTrader){
+    if (from === paperTrader) {
       endPoint = 'paperTrade';
       paperTrade = true;
-    } else if(from === infinityTrader){
+    } else if (from === infinityTrader) {
       endPoint = 'placingOrder';
       paperTrade = false;
-    } else if(from === tenxTrader){
+    } else if (from === tenxTrader) {
       endPoint = 'tenxPlacingOrder';
       tenxTraderPath = true;
-    } else if(from === internshipTrader){
+    } else if (from === internshipTrader) {
       endPoint = 'internPlacingOrder';
       internPath = true;
-    }else if(from === "Admin"){
+    } else if (from === "Admin") {
       endPoint = 'placingOrder'
       paperTrade = false;
       trader = traderId;
       fromAdmin = true;
-    }else if(from === dailyContest){
-      if(module?.currentLiveStatus==="Live"){
+    } else if (from === dailyContest) {
+      if (module?.currentLiveStatus === "Live") {
         endPoint = 'placingLiveOrderDailyContest';
-      } else{
+      } else {
         endPoint = 'placingOrderDailyContest';
       }
-    }else if(from === marginX){
+    } else if (from === marginX) {
       endPoint = 'placingOrderMarginx';
     }
 
@@ -254,10 +255,10 @@ function ExitPosition({module, maxLot, lotSize, traderId, socket, subscriptionId
         // //console.log(dataResp);
         openSuccessSB('amo', "AMO Request Recieved")
         // window.alert("AMO Request Recieved");
-      } else if(dataResp.message === "Live"){
-      }else {
-          openSuccessSB('else', dataResp.message)
-        
+      } else if (dataResp.message === "Live") {
+      } else {
+        openSuccessSB('else', dataResp.message)
+
       }
       render ? setRender(false) : setRender(true)
     }

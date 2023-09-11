@@ -68,6 +68,8 @@ import Terms from "./layouts/HomePage/pages/Tnc";
 import Contests from "../src/layouts/UserDailyContest/Header/contests";
 import ProtectedRoute from "./ProtectedRoute";
 import { socketContext } from "./socketContext";
+import {Howl} from "howler";
+import sound from "./assets/sound/tradeSound.mp3"
 // import ContestRegistration from "./layouts/UserContest/data/ContestRegistration";
 
 
@@ -137,6 +139,12 @@ export default function App() {
       // navigate("/")
       setIsLoading(false);
     })
+
+    setDetails.setTradeSound(new Howl({
+      src : [sound],
+      html5 : true
+    }));
+
   }, [])
 
   useEffect(() => {
@@ -353,4 +361,4 @@ export default function App() {
         </Routes>
       </ThemeProvider>
   );
-} //
+} 

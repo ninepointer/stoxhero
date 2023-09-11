@@ -12,24 +12,24 @@ import MDAvatar from "../../../components/MDAvatar";
 // Material Dashboard 2 React base styles
 
 // Images
-import MDButton from "../../../components/MDButton";
+// import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-import ContestCarousel from '../../../assets/images/target.png'
-import WinnerImage from '../../../assets/images/cup-image.png'
-import BattleCard from "../../../assets/images/battlecard.jpg"
-import BattleIcon from "../../../assets/images/swords.png"
-import Gift from "../../../assets/images/gift.png"
+// import ContestCarousel from '../../../assets/images/target.png'
+// import WinnerImage from '../../../assets/images/cup-image.png'
+// import BattleCard from "../../../assets/images/battlecard.jpg"
+// import BattleIcon from "../../../assets/images/swords.png"
+// import Gift from "../../../assets/images/gift.png"
 import Regulation from "../../../assets/images/regulation.png"
 import BattlePoint from "../../../assets/images/axe.png"
 
 
-import Timer from '../timer'
-import ProgressBar from "../progressBar";
-import { HiUserGroup } from 'react-icons/hi';
+// import Timer from '../timer'
+// import ProgressBar from "../progressBar";
+// import { HiUserGroup } from 'react-icons/hi';
 
 import { Box, CircularProgress, Divider, Paper, Tooltip, Typography } from "@mui/material";
-import MDSnackbar from "../../../components/MDSnackbar";
-import { Link } from "react-router-dom";
+// import MDSnackbar from "../../../components/MDSnackbar";
+// import { Link } from "react-router-dom";
 
 function Header({ contest, showPay, setShowPay, isInterested, setIsInterested }) {
 
