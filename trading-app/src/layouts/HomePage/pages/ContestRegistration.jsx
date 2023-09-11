@@ -23,7 +23,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import {apiUrl} from '../../../constants/constants';
 import { userContext } from "../../../AuthContext";
-
+import moment from 'moment';
 
 const CareerForm = () => {
 
@@ -35,13 +35,13 @@ const CareerForm = () => {
   const location = useLocation();
   const contest = location?.state?.data;
   let campaignCode = location?.state?.campaignCode;
-  console.log('location', location?.search?.slice(1).split('&'));
+  // console.log('location', location?.search?.slice(1).split('&'));
   const params = new URLSearchParams(location?.search);
 
   const referrerCode = params.get('referral');
   campaignCode = params.get('campaigncode');
 
-console.log('here\'s the deal', referrerCode, campaignCode);
+// console.log('here\'s the deal', referrerCode, campaignCode);
   const getDetails = useContext(userContext);
 
 
@@ -270,6 +270,16 @@ console.log('here\'s the deal', referrerCode, campaignCode);
                 <MDBox display='flex' justifyContent='center'>
                     <MDTypography color="black">Register for College Contest-{contest?.contestName||contestDetails?.contestName}!</MDTypography>
                 </MDBox>
+                {(contest?.contestName || contestDetails?.contestName) && <MDBox display='flex' justifyContent='space-between'>
+                  <MDTypography fontSize={14} mr={2}>
+                    Contest Start Time:{moment(contest?.contestStartTime||contestDetails?.contestStartTime).format('Do MMM YY HH:MM').toString()}
+                    </MDTypography>
+                  <MDTypography fontSize={14} mr={2}>
+                    Contest End Time:{moment(contest?.contestStartTime||contestDetails?.contestEndTime).format('Do MMM YY HH:MM').toString()}
+                    </MDTypography>
+                  <MDTypography fontSize={14} mr={2}>Payout:{contest?.payoutPercentage||contestDetails?.payoutPercentage}% of net P&L</MDTypography>
+                  <MDTypography fontSize={14} mr={2}>Entry:{contest?.entryFee?`₹${contest?.entryFee}||${contestDetails?.entryFee}`:'FREE'}</MDTypography>
+                </MDBox>}
                 <Grid container spacing={2} mt={1} xs={12} md={12} lg={6} display='flex' justifyContent='center' alignItems='center'>
                     <Grid item xs={12} md={6} lg={6}>
                     <TextField

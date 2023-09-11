@@ -39,6 +39,7 @@ router.get('/contests/userlive', Authenticate, contestController.getUserLiveCont
 router.get('/collegecontests/userupcoming', Authenticate, contestController.getCollegeUserUpcomingContests);
 router.get('/collegecontests/userlive', Authenticate, contestController.getCollegeUserLiveContests);
 router.get('/contests/userupcoming', Authenticate, contestController.getUserUpcomingContests);
+router.get('/collegecontest/getregistrations/:id', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getCollegeContestRegistrations);
 
 router.get('/contests/onlyupcoming', Authenticate, contestController.getOnlyUpcomingContests);
 

@@ -8,7 +8,7 @@ const DailyContestMockUser = require("../models/DailyContest/dailyContestMockUse
 const uuid = require("uuid")
 const UserWallet = require("../models/UserWallet/userWalletSchema")
 const emailService = require("../utils/emailService")
-
+const Registration = require("../models/DailyContest/contestRegistration");
 
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
@@ -2021,7 +2021,7 @@ exports.findContestByName = async(req,res,next)=>{
         const {name, date} = req.query;
         let dateString = date.includes('-') ? date.split('-').join('') : date.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
         const result = await Contest.findOne({contestName: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'College'}).
-            select('_id contestName');
+            select('_id contestName contestStartTime contestEndTime payoutPercentage entryFee');
         if(!result){
             res.status(404).json({
                 status: "error",
@@ -2036,5 +2036,16 @@ exports.findContestByName = async(req,res,next)=>{
             message: "Something went wrong",
             error: e.message
         });
+    }
+}
+
+exports.getCollegeContestRegistrations = async(req,res) => {
+    const {id} = req.params;
+    try{
+        const registrations = await Registration.find({contest: new ObjectId(id), status:'OTP Verified'});
+        res.status(200).json({status:'success', data:registrations, results:registrations.length});
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status:'error', message:'Something went wrong.', error:e?.message});
     }
 }
