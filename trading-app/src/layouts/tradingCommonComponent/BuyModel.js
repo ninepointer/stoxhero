@@ -35,15 +35,16 @@ import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader,
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
 const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, module}) => {
-  const tradeSound = new Howl({
-    src : [sound],
-    html5 : true
-  })
+  // const tradeSound = new Howl({
+  //   src : [sound],
+  //   html5 : true
+  // })
   
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const {render, setRender} = useContext(renderContext);
   const getDetails = React.useContext(userContext);
+  const tradeSound = getDetails.tradeSound;
   let uId = uniqid();
   let date = new Date();
   // let createdOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`

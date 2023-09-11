@@ -53,6 +53,7 @@ import Careers from './layouts/HomePage/pages/Career'
 import Workshops from './layouts/HomePage/pages/Workshop'
 import JobDescription from './layouts/HomePage/pages/JobDescription'
 import JobApply from './layouts/HomePage/pages/CareerForm'
+import ContestRegistration from './layouts/HomePage/pages/ContestRegistration'
 import Home from "../src/layouts/HomePage/pages/Home";
 import About from "../src/layouts/HomePage/pages/About";
 // import ResetPassword from './layouts/authentication/reset-password'
@@ -67,6 +68,9 @@ import Terms from "./layouts/HomePage/pages/Tnc";
 import Contests from "../src/layouts/UserDailyContest/Header/contests";
 import ProtectedRoute from "./ProtectedRoute";
 import { socketContext } from "./socketContext";
+import {Howl} from "howler";
+import sound from "./assets/sound/tradeSound.mp3"
+// import ContestRegistration from "./layouts/UserContest/data/ContestRegistration";
 
 
 const TRACKING_ID = "UA-264098426-2"
@@ -135,6 +139,12 @@ export default function App() {
       // navigate("/")
       setIsLoading(false);
     })
+
+    setDetails.setTradeSound(new Howl({
+      src : [sound],
+      html5 : true
+    }));
+
   }, [])
 
   useEffect(() => {
@@ -338,6 +348,7 @@ export default function App() {
           <Route path='/terms' element={<Terms/>}/>
           <Route path='/jobdescription' element={<JobDescription/>}/>
           <Route path='/apply' element={<JobApply/>}/>
+          <Route path='/collegecontest/:id/:date' element={<ContestRegistration/>}/>
           <Route path='/home' element={<Home/>}/>
           <Route path='/login' element={<SignIn />}/>
           <Route path='/about' element={<About/>}/>
@@ -348,4 +359,4 @@ export default function App() {
         </Routes>
       </ThemeProvider>
   );
-} //
+} 
