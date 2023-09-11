@@ -44,7 +44,7 @@ import CareerList from './layouts/career'
 import CareerDetails from './layouts/career/careerDetails'
 import BatchDetails from './layouts/internBatch/batchDetails'
 import DailyContestDetails from './layouts/dailyContest/dailyContestDetails'
-import BattleDetails from './layouts/battle/battleDetails'
+// import BattleDetails from './layouts/battle/battleDetails'
 import CampaignDetails from './layouts/campaign/campaignDetails'
 import ReferralProgramDetails from './layouts/referral-program/ReferralProgramDetails'
 import ContestPage from './layouts/UserContest/contestPage'
@@ -72,6 +72,7 @@ import VpnLockIcon from '@mui/icons-material/VpnLock';
 import BackReportXTS from "./layouts/backReportXTS";
 import OverallPnlTrader from "./layouts/overallPnlTrader";
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
+import ChallengeDashboard from './layouts/challengeDashboard'
 import DailyContestDashboard from './layouts/dailyContestDashboard'
 import BattleDashboard from './layouts/battleDashboard'
 import PaymentTest from './layouts/paymentTest/index'
@@ -174,8 +175,13 @@ import ContestMaster from "./layouts/dailyContest/contestMaster/contestMaster"
 import CreateContestMasterHeader from "./layouts/dailyContest/contestMaster/createContestMasterHeader";
 import MarginXDashboard from "./layouts/marginXDashboard"
 import MarginXTemplateDetail from "./layouts/marginXTemplate"
+import ChallengeTemplateDetail from "./layouts/challengeTemplate"
+import ChallengeTemplateForm from "./layouts/challengeTemplate/challengeTemplateIndex"
+import BattleTemplateDetail from "./layouts/battleTemplate"
+import BattleTemplateForm from "./layouts/battleTemplate/battleTemplateIndex"
 import CreateMarginXTemplate from "./layouts/marginXTemplate/createMarginIndex"
 import CreateMarginX from "./layouts/marginX/createMarginIndex"
+import CreateBattle from "./layouts/battle/createBattleIndex"
 import MarginX from "./layouts/marginX"
 
 const routes = [
@@ -227,6 +233,14 @@ const routes = [
     icon: <EmojiEventsIcon/>,
     route: "/marginxdashboard",
     component: <MarginXDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Challenge Dashboard",
+    key: "challengedashboard",
+    icon: <EmojiEventsIcon/>,
+    route: "/challengedashboard",
+    component: <ChallengeDashboard />,
   },
   {
     type: "collapse",
@@ -391,10 +405,10 @@ const routes = [
     route: "/dailycontestdetails",
     component: <DailyContestDetails />,
   },
-  {
-    route: "/battledetails",
-    component: <BattleDetails />,
-  },
+  // {
+  //   route: "/battledetails",
+  //   component: <BattleDetails />,
+  // },
   {
     route: "/campaigndetails",
     component: <CampaignDetails />,
@@ -570,9 +584,29 @@ const routes = [
     component: <MarginXTemplateDetail />,
   },
   {
+    route: "/challengedashboard/challengetemplate",
+    component: <ChallengeTemplateDetail />,
+  },
+  {
+    route: "/battledashboard/battletemplate",
+    component: <BattleTemplateDetail />,
+  },
+  {
     key: "marginxdetails",
     route: "/marginxdashboard/createmarginxtemplate",
     component: <CreateMarginXTemplate />,
+  },
+  {
+    route: "/challengedashboard/challengetemplateform",
+    component: <ChallengeTemplateForm/>,
+  },
+  {
+    route: "/battledashboard/battletemplateform",
+    component: <BattleTemplateForm/>,
+  },
+  {
+    route: "/battledashboard/:name",
+    component: <BattleTemplateForm/>,
   },
   {
     key: "marginx",
@@ -583,6 +617,14 @@ const routes = [
     key: "marginxdetails",
     route: "/marginxdashboard/createmarginx",
     component: <CreateMarginX />,
+  },
+  {
+    route: "/battledashboard/battles/createbattle",
+    component: <CreateBattle />,
+  },
+  {
+    route: "/battledashboard/battles/:name",
+    component: <CreateBattle />,
   },
   {
     key: "dailycontestposition",
@@ -698,9 +740,10 @@ const routes = [
     component: <DailyContest />,
   },
   {
-    // type: "collapse",
-    // name: "Internship Batch",
-    key: "battles",
+    route: "/battledashboard/battles",
+    component: <Battles />,
+  },
+  {
     // icon: <BatchIcon/>,
     route: "/battledashboard/battles",
     component: <Battles />,

@@ -493,36 +493,36 @@ export default function LabTabs({socket}) {
 
         <Grid item xs={12} md={6} lg={3}>
 
-<MDButton
-    variant="contained"
-    color={"info"}
-    size="small"
-    component={Link}
-    to={{
-        pathname: `/battledashboard/battleposition`,
-    }}
->
-            <Grid container xs={12} md={12} lg={12}>
+            <MDButton
+                variant="contained"
+                color={"info"}
+                size="small"
+                component={Link}
+                to={{
+                    pathname: `/battledashboard/battles`,
+                }}
+            >
+                        <Grid container xs={12} md={12} lg={12}>
 
-                    <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
-                        <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Battles</MDTypography>
-                    </Grid>
+                                <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
+                                    <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Battles</MDTypography>
+                                </Grid>
 
-                    <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
-                        <MDBox display="flex" flexDirection="column">
-                            <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check all ongoing battles here!</MDTypography>
-                        </MDBox>
-                    </Grid>
+                                <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
+                                    <MDBox display="flex" flexDirection="column">
+                                        <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Create battles here!</MDTypography>
+                                    </MDBox>
+                                </Grid>
 
-                    <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                        <MDTypography fontSize={9} style={{ color: "white" }}>Active Battles: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
-                    </Grid>
+                                <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                                    <MDTypography fontSize={9} style={{ color: "white" }}>Active Battles: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                                </Grid>
 
-                    <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                        <MDTypography fontSize={9} style={{ color: "white" }}>Completed Battles: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
-                    </Grid>
+                                <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                                    <MDTypography fontSize={9} style={{ color: "white" }}>Completed Battles: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                                </Grid>
 
-                </Grid>
+                            </Grid>
             </MDButton>
 
             </Grid>
@@ -607,18 +607,18 @@ export default function LabTabs({socket}) {
                     size="small"
                     component={Link}
                     to={{
-                        pathname: `/battledashboard/battles`,
+                        pathname: `/battledashboard/battletemplate`,
                     }}
                 >
                     <Grid container xs={12} md={12} lg={12}>
 
                         <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Battles</MDTypography>
+                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Battle Templates</MDTypography>
                         </Grid>
 
                         <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
                             <MDBox display="flex" flexDirection="column">
-                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Create Battles here!</MDTypography>
+                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Create Battle Templates here!</MDTypography>
                             </MDBox>
                         </Grid>
 

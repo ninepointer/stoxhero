@@ -8,10 +8,11 @@ import { CircularProgress } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
-import UpcomingContest from '../data/activeBattles';
-import CompletedContest from '../data/completedBattles';
-import DraftContest from '../data/draftBattles'
-import OngoingDailyContest from '../data/ongoingBattles';
+import UpcomingBattle from '../data/upcomingBattle';
+import OngoingBattle from '../data/ongoingBattle';
+import CompletedBattle from '../data/completedBattle';
+import DraftBattle from '../data/draftBattle';
+import CancelledBattle from '../data/cancelledBattle';
 
 
 export default function LabTabs() {
@@ -43,7 +44,7 @@ export default function LabTabs() {
     color="warning" 
     size="small"
     component={Link}
-    to='/battledetails'
+    to='/battledashboard/battles/createbattle'
     >
         Create Battle
     </MDButton>
@@ -51,10 +52,11 @@ export default function LabTabs() {
       <TabContext value={value}>
         <MDBox sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Ongoing Battle(s)" value="1" />
-            <Tab label="Upcoming Battle(s)" value="2" />
-            <Tab label="Completed Battle(s)" value="3" />
-            <Tab label="Draft Battle(s)" value="4" />
+            <Tab label="Ongoing Battles" value="1" />
+            <Tab label="Upcoming Battles" value="2" />
+            <Tab label="Completed Battles" value="3" />
+            <Tab label="Cancelled Battles" value="4" />
+            <Tab label="Draft Battles" value="5" />
           </TabList>
         </MDBox>
         <TabPanel value="1">
@@ -65,7 +67,7 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-          <OngoingDailyContest/>
+          <OngoingBattle/>
           </MDBox>
    
           }
@@ -78,29 +80,50 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-          <UpcomingContest/>
+            <UpcomingBattle/>
           </MDBox>
    
           }
           </TabPanel>
-        <TabPanel value="3">
+          <TabPanel value="3">
           {isLoading ? 
+          
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <CompletedContest/>
+          <MDBox style={{minWidth:'100%'}}>
+            <CompletedBattle/>
+          </MDBox>
+   
           }
-        </TabPanel>
-        <TabPanel value="4">
+          </TabPanel>
+          <TabPanel value="4">
           {isLoading ? 
+          
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <DraftContest/>
+          <MDBox style={{minWidth:'100%'}}>
+            <CancelledBattle/>
+          </MDBox>
+   
           }
-        </TabPanel>
+          </TabPanel>
+          <TabPanel value="5">
+          {isLoading ? 
+          
+          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+            <CircularProgress color="info" />
+          </MDBox>
+          : 
+          <MDBox style={{minWidth:'100%'}}>
+            <DraftBattle/>
+          </MDBox>
+   
+          }
+          </TabPanel>
       </TabContext>
     </MDBox>
   );

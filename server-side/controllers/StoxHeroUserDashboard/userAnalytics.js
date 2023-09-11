@@ -1349,7 +1349,6 @@ exports.getMonthWiseCummActiveUsers = async (req, res) => {
         console.log("Traders:",traders)
         console.log("Monthweise MASUs at Virtual:",monthWiseMAUs)
     });
-
     tenXTraders.forEach(entry => {
       const { traders, uniqueUsers } = entry;
       
@@ -1373,7 +1372,6 @@ exports.getMonthWiseCummActiveUsers = async (req, res) => {
         monthWiseMAUs.uniqueUsers.push(...uniqueUsers);
       
     });
-
     marginXTraders.forEach(entry => {
       const { traders, uniqueUsers } = entry;
       
@@ -1534,7 +1532,6 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
         dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
       }
     });
-
     marginXTraders.forEach(entry => {
       const { _id, traders, uniqueUsers } = entry;
       const date = _id.date;
