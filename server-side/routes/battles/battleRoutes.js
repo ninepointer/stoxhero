@@ -19,7 +19,7 @@ router.get('/draft', Authenticate, restrictTo('Admin', 'SuperAdmin'), getDraftBa
 // router.route('/share/:id').put(Authenticate, copyAndShare);  
 router.get('/userlive', Authenticate, getUserLiveBattles);
 router.get('/userupcoming', Authenticate, getUserUpcomingBattles);
-// router.get('/usercompleted', Authenticate, getUserCompletedBattles);  
+router.get('/usercompleted', Authenticate, getUserCompletedBattles);  
 // router.put('/purchaseintent/:id', Authenticate, purchaseIntent);
 // router.put('participate/:id', Authenticate, participateUsers);
 // router.patch('/feededuct', Authenticate, deductBattleAmount);    

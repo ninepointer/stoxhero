@@ -36,7 +36,7 @@ const Timer = ({date, setTimeDifference, serverTime, id, elem}) => {
         setRemainingTime(`${days} days ${hours} hrs ${minutes} mins ${seconds} secs`);
       } else {
         clearInterval(intervalId);
-        setRemainingTime('Contest Started');
+        setRemainingTime('Battle Started');
       }
     }, 1000);
 
@@ -47,7 +47,7 @@ const Timer = ({date, setTimeDifference, serverTime, id, elem}) => {
 
   return (
     <div>
-      <p style={{color: elem.entryFee>0 ? "white" : "black"}}>{remainingTime}</p>
+      <p style={{color: elem.entryFee>0 ? "white" : "black", fontSize:12, fontWeight:'bold'}}>{remainingTime}</p>
     </div>
   );
 };
