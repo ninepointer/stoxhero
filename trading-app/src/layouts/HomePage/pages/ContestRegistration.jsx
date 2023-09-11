@@ -36,9 +36,12 @@ const CareerForm = () => {
   const contest = location?.state?.data;
   let campaignCode = location?.state?.campaignCode;
   console.log('location', location?.search?.slice(1).split('&'));
-  const referrerCode = location?.search?.slice(1).split('&')[0]?.split('=')[1];
-  campaignCode = location?.search?.slice(1).split('&')[1]?.split('=')[1];
-  console.log('here\'s the deal', referrerCode, campaignCode);
+  const params = new URLSearchParams(location?.search);
+
+  const referrerCode = params.get('referral');
+  campaignCode = params.get('campaigncode');
+
+console.log('here\'s the deal', referrerCode, campaignCode);
   const getDetails = useContext(userContext);
 
 
