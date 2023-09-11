@@ -354,7 +354,8 @@ router.patch("/inactiveInstrument/:instrumentToken/", authentication, async (req
             removeFromWatchlist = await Instrument.findOne({instrumentToken : instrumentToken, status: "Active"})
         }
         let index = user.watchlistInstruments.indexOf(removeFromWatchlist._id); // find the index of 3 in the array
-        console.log("index", index)
+
+        console.log("index", index, isRedisConnected)
         if (index !== -1 && isRedisConnected) {
             try{
             //  const redisClient = await client.LREM((_id).toString(), 1, (instrumentToken).toString());
@@ -393,9 +394,12 @@ router.patch("/inactiveInstrument/:instrumentToken/", authentication, async (req
                 return elem.includes(instrumentToken.toString())
               })
 
-              const redisClient = await client.SREM((_id).toString(), removeFromSet[0]);
-            //   console.log("redisClient", JSON.stringify(obj), _id, redisClient, instruments)
               user.watchlistInstruments.splice(index, 1); // remove the element at the index
+              console.log("watchlist", user.watchlistInstruments)
+              await user.save();
+
+              const redisClient = await client.SREM((_id).toString(), (removeFromSet[0]));
+            //   console.log("redisClient", JSON.stringify(obj), _id, redisClient, instruments)
 
             } catch(err){
                 console.log(err)
