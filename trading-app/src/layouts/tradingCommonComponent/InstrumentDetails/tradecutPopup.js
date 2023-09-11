@@ -86,7 +86,7 @@ export default function AutoCutPopUp({socket}) {
         >
 
             <DialogContent>
-            <Typography textAlign="center" sx={{ width: "100%" }} color="#000" variant="body2">System will autocut your all trades in 4 minutes. Please squre off your positions.</Typography>
+            <Typography textAlign="center" sx={{ width: "100%" }} color="#000" variant="body2">System will autocut your all trades in 4 minutes. Please square off your positions.</Typography>
             </DialogContent>
 
 
