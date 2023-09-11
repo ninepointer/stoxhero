@@ -29,10 +29,12 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 // import User from './users';
-import PotentialUser from "./data/potentialUsers"
+import PotentialUser from "./data/potentialUsers";
+import CollegeRegistrations from "./data/contestRegistrations";
 import Shared from "./data/shared";
 import CreateRewards from './data/reward/createReward';
 import ContestRewards from './data/reward/contestReward';
+import {apiUrl} from  '../../constants/constants';
 
 const CustomAutocomplete = styled(Autocomplete)`
   .MuiAutocomplete-clearIndicator {
@@ -69,6 +71,7 @@ function Index() {
   const [dailyContest, setDailyContest] = useState([]);
   const [portfolios, setPortfolios] = useState([]);
   const [college, setCollege] = useState([]);
+  const [contestRegistrations, setContestRegistrations] = useState([]);
   // const [careers,setCareers] = useState([]);
   const [action, setAction] = useState(false);
   // const [type, setType] = useState(contest?.portfolio?.portfolioName.includes('Workshop')?'Workshop':'Job');
@@ -144,6 +147,18 @@ function Index() {
 
   }, [])
 
+  useEffect(()=>{
+    if(contest?._id){
+      getCollegeContestRegistrations();
+    }
+  },[])
+
+  const getCollegeContestRegistrations = async()=>{
+    const res = await axios.get(`${apiUrl}dailycontest/collegecontest/getregistrations/${contest?._id}`,{withCredentials:true});
+    if(res.status == 200){
+      setContestRegistrations(res.data.data);
+    }
+  }
   // console.log("College:", collegeSelectedOption)
   const handlePortfolioChange = (event) => {
     const {
@@ -899,6 +914,11 @@ function Index() {
               {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                 <MDBox>
                   <Shared dailyContest={contest?._id ? contest : dailyContest} action={action} setAction={setAction} />
+                </MDBox>
+              </Grid>}
+              {(contest || newObjectId) && contest?.contestFor == 'College' && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                <MDBox>
+                  <CollegeRegistrations registrations={contestRegistrations} action={action} setAction={setAction} />
                 </MDBox>
               </Grid>}
 

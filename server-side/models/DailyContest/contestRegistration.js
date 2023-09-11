@@ -40,6 +40,9 @@ const ContestRegistration = new mongoose.Schema({
     campaignCode:{
         type:String,
     },
+    referrerCode:{
+        type:String
+    },
     mobile_otp:{
         type:String,
     },

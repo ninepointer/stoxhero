@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState, useContext} from 'react'
 import MDBox from '../../../components/MDBox'
 import MDButton from '../../../components/MDButton';
 import ReactGA from "react-ga"
@@ -22,7 +22,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import {apiUrl} from '../../../constants/constants';
-
+import { userContext } from "../../../AuthContext";
+import moment from 'moment';
 
 const CareerForm = () => {
 
@@ -33,7 +34,16 @@ const CareerForm = () => {
   const [contestDetails,setContestDetails] = useState(false);
   const location = useLocation();
   const contest = location?.state?.data;
-  const campaignCode = location?.state?.campaignCode;
+  let campaignCode = location?.state?.campaignCode;
+  // console.log('location', location?.search?.slice(1).split('&'));
+  const params = new URLSearchParams(location?.search);
+
+  const referrerCode = params.get('referral');
+  campaignCode = params.get('campaigncode');
+
+// console.log('here\'s the deal', referrerCode, campaignCode);
+  const getDetails = useContext(userContext);
+
 
   const [detail, setDetails] = useState({
     firstName: "",
@@ -47,6 +57,7 @@ const CareerForm = () => {
     contest: contest?._id || contestDetails?._id,
     campaignCode: campaignCode,
     mobile_otp: "",
+    referrerCode: referrerCode
   })
 
   const [file, setFile] = useState(null);
@@ -88,6 +99,7 @@ const CareerForm = () => {
       collegeName,
       source,
       contest,
+      referrerCode,
       campaignCode,
       mobile_otp,
     } = detail;
@@ -113,6 +125,7 @@ const CareerForm = () => {
         dob:dob,  
         campaignCode:campaignCode,
         mobile_otp: mobile_otp,
+        referrerCode
       })
   });
 
@@ -141,6 +154,7 @@ const CareerForm = () => {
       collegeName,
       source,
       contest,
+      referrerCode,
       campaignCode,
     } = detail;
     
@@ -183,6 +197,7 @@ const CareerForm = () => {
         contest:contest,
         dob:dob,  
         campaignCode:campaignCode,
+        referrerCode
       })
   });
 
@@ -255,6 +270,16 @@ const CareerForm = () => {
                 <MDBox display='flex' justifyContent='center'>
                     <MDTypography color="black">Register for College Contest-{contest?.contestName||contestDetails?.contestName}!</MDTypography>
                 </MDBox>
+                {(contest?.contestName || contestDetails?.contestName) && <MDBox display='flex' justifyContent='space-between'>
+                  <MDTypography fontSize={14} mr={2}>
+                    Contest Start Time:{moment(contest?.contestStartTime||contestDetails?.contestStartTime).format('Do MMM YY HH:MM').toString()}
+                    </MDTypography>
+                  <MDTypography fontSize={14} mr={2}>
+                    Contest End Time:{moment(contest?.contestStartTime||contestDetails?.contestEndTime).format('Do MMM YY HH:MM').toString()}
+                    </MDTypography>
+                  <MDTypography fontSize={14} mr={2}>Payout:{contest?.payoutPercentage||contestDetails?.payoutPercentage}% of net P&L</MDTypography>
+                  <MDTypography fontSize={14} mr={2}>Entry:{contest?.entryFee?`₹${contest?.entryFee}||${contestDetails?.entryFee}`:'FREE'}</MDTypography>
+                </MDBox>}
                 <Grid container spacing={2} mt={1} xs={12} md={12} lg={6} display='flex' justifyContent='center' alignItems='center'>
                     <Grid item xs={12} md={6} lg={6}>
                     <TextField
@@ -427,8 +452,8 @@ const CareerForm = () => {
               <Grid container>
                 <Grid item p={2} m={2} xs={12} md={12} lg={12} display="flex" justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{textAlign: 'center'}}>
                   <MDTypography>Your registration has been submitted successfully.</MDTypography>
-                  <MDTypography mt={1}>We have also created your StoxHero trading account and the login details have been sent on your email!</MDTypography>
-                  <MDTypography mt={1} fontSize={20} fontWeight='bold'>Explore the world of options trading by visiting www.stoxhero.com</MDTypography>
+                  {!getDetails?.userDetails && <MDTypography mt={1}>We have also created your StoxHero trading account and the login details have been sent on your email!</MDTypography>}
+                  <MDTypography mt={1} fontSize={20} fontWeight='bold'>Explore the world of options trading on www.stoxhero.com</MDTypography>
                 </Grid>
               </Grid>
             </MDBox>
