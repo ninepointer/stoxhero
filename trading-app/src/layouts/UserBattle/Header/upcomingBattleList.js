@@ -321,7 +321,7 @@ function Header({ toggleContest, setToggleContest, battle, showPay, setShowPay, 
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Prize Pool</MDTypography></MDBox>
                                                             <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>
-                                                                ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.participants <= elem?.battleTemplate?.minParticipants ? expectedPrizePool : actualPrizePool)}
+                                                                ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.participants.length <= elem?.battleTemplate?.minParticipants ? expectedPrizePool : actualPrizePool)}
                                                             </MDTypography></MDBox>
                                                         </MDBox>
                                                     </MDBox>
@@ -372,7 +372,7 @@ function Header({ toggleContest, setToggleContest, battle, showPay, setShowPay, 
                                                             fontSize={9}
                                                             onClick={() => {
                                                                 navigate(`/battles/${elem?.battleName}/${elem?.battleStartTime.split('T')[0]}`, {
-                                                                    state: { elem: elem, date: elem?.battleStartTime, id: elem?._id }
+                                                                    state: { elem: elem, date: elem?.battleStartTime, id: elem?._id, whichTab: "Upcoming" }
                                                                 })
                                                             }}
                                                         >
