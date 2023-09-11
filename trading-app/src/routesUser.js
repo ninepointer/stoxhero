@@ -54,21 +54,26 @@ import UserDailyContest from './layouts/UserDailyContest'
 import UserDailyContestCollage from './layouts/UserDailyContestCollage';
 import UserBattle from './layouts/UserBattle'
 import SchoolIcon from '@mui/icons-material/School';
-import BattleDetails from './layouts/UserBattle/battleInfo'
+// import BattleDetails from './layouts/UserBattle/battleInfo'
 
 import ContestTradingWindow from './layouts/UserDailyContest/ContestTradingView'
 import CollegeContestTradingWindow from './layouts/UserDailyContestCollage/ContestTradingView'
 import MarginXTradingWindow from "./layouts/UserMarginX/MarginxTradingView";
+import BattleTradingWindow from "./layouts/UserBattle/BattleTradingView";
 
 import Chart from './layouts/charts/index';
 import DailyContestOrder from "./layouts/UserDailyContest/Orders"
 import MarginXOrder from "./layouts/UserMarginX/Orders"
+import BattleOrder from "./layouts/UserBattle/Orders"
 import DailyCollegeContestOrder from "./layouts/UserDailyContestCollage/Orders"
 
 import MarginX from './layouts/UserMarginX'
+import Battle from './layouts/UserBattle'
 import MarginXDetails from './layouts/UserMarginX/Header/marginXDetailsHeader'
+import BattleDetails from './layouts/UserBattle/Header/battleDetailsHeader'
 
 import MarginxResultPage from "./layouts/UserMarginX/data/result-page/resultIndex"
+import BattleResultPage from "./layouts/UserBattle/data/result-page/resultIndex"
 
 import CompletedDailyContest from "./layouts/UserDailyContest/pastContestMain"
 import CompletedDailyCollegeContest from "./layouts/UserDailyContestCollage/pastContestMain"
@@ -94,12 +99,20 @@ const routes = [
     component: <MarginXDetails />,
   },
   {
+    route: "/battles/:name/:date",
+    component: <BattleDetails />,
+  },
+  {
     route: "/completedcontests/:name",
     component: <DailyContestOrder />,
   },
   {
     route: "/completedmarginxs/:name",
     component: <MarginXOrder />,
+  },
+  {
+    route: "/completedbattles/:name",
+    component: <BattleOrder />,
   },
   {
     route: "/completedcollegecontests/:name",
@@ -145,10 +158,10 @@ const routes = [
   {
     type: "collapse",
     name: "Battle Ground",
-    key: "battleground",
+    key: "battles",
     icon: <LocalFireDepartmentIcon/>,
-    route: "/battleground",
-    component: <UserBattle />,
+    route: "/battles",
+    component: <Battle />,
   },
   {
     type: "collapse",
@@ -201,11 +214,6 @@ const routes = [
   },
   {
 
-    route: "/battleground/BattleOfTeens",
-    component: <BattleDetails />,
-  },
-  {
-
     route: "/tutorials/:category",
     component: <CategoryVideos />,
   },
@@ -220,6 +228,10 @@ const routes = [
   {
     route: "/marginx/:name",
     component: <MarginXTradingWindow />,
+  },
+  {
+    route: "/battle/:name",
+    component: <BattleTradingWindow />,
   },
   {
     route: "/collegecontests/:name",
@@ -245,6 +257,10 @@ const routes = [
   {
     route: "marginx/result",
     component: <MarginxResultPage />,
+  },
+  {
+    route: "battle/result",
+    component: <BattleResultPage />,
   },
   {
     route: "collegecontests/result",

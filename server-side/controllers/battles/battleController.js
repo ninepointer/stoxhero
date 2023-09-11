@@ -195,11 +195,11 @@ exports.getUserLiveBattles = async (req, res) => {
     const now = new Date();
     try {
         const ongoingBattles = await Battle.find({
-            battleStartTime: { $lte: now },
+            battleStartTime: { $lte: now }, 
             battleEndTime: { $gt: now },
             status: 'Active'
         }).
-        populate('battleTemplate', 'BattleTemplateName portfolioValue entryFee').
+        populate('battleTemplate', 'BattleTemplateName portfolioValue entryFee gstPercentage platformCommissionPercentage minParticipants winnerPercentage').
         sort({ battleStartTime: -1, entryFee: -1 });
 
         res.status(200).json({
@@ -261,8 +261,8 @@ exports.getUserUpcomingBattles = async (req, res) => {
             battleLiveTime: { $lt: now },
             status: 'Active'
         }).sort({ battleStartTime: -1, entryFee: -1 })
-          .populate('battleTemplate', 'battleTemplateName portfolioValue entryFee');
-
+          .populate('battleTemplate', 'BattleTemplateName portfolioValue entryFee gstPercentage platformCommissionPercentage minParticipants winnerPercentage').
+           sort({ battleStartTime: -1, entryFee: -1 });
         res.status(200).json({
             status: 'success',
             data: upcomingBattles
@@ -272,6 +272,137 @@ exports.getUserUpcomingBattles = async (req, res) => {
         res.status(500).json({
             status: 'error',
             message: "Error fetching upcoming Battles for the user",
+            error: error.message
+        });
+    }
+};
+
+exports.getUserCompletedBattles = async (req, res) => {
+    const userId = req.user._id;
+    try {
+
+
+        const completed = await Battle.aggregate([
+            {
+                $match:
+                {
+                    status: "COMPLETE",
+                    trader: new ObjectId(
+                        userId
+                    ),
+                },
+            },
+            {
+                $group:
+                {
+                    _id: {
+                        marginxId: "$battleId",
+                    },
+                    amount: {
+                        $sum: {
+                            $multiply: ["$amount", -1],
+                        },
+                    },
+                    brokerage: {
+                        $sum: {
+                            $toDouble: "$brokerage",
+                        },
+                    },
+                },
+            },
+            {
+                $project:
+                {
+                    marginxId: "$_id.battleId",
+                    _id: 0,
+                    npnl: {
+                        $subtract: ["$amount", "$brokerage"],
+                    },
+                },
+            },
+            {
+                $lookup: {
+                    from: "battles",
+                    localField: "battleId",
+                    foreignField: "_id",
+                    as: "battle",
+                },
+            },
+            {
+                $lookup:
+                {
+                    from: "battle-templates",
+                    localField: "battle.battleTemplate",
+                    foreignField: "_id",
+                    as: "templates",
+                },
+            },
+            {
+                $project:
+                {
+                    marginxId: "$battleId",
+                    npnl: "$npnl",
+                    portfolioValue: {
+                        $arrayElemAt: [
+                            "$templates.portfolioValue",
+                            0,
+                        ],
+                    },
+                    entryFee: {
+                        $arrayElemAt: [
+                            "$templates.entryFee",
+                            0,
+                        ],
+                    },
+                    battleStartTime: {
+                        $arrayElemAt: ["$battle.battleStartTime", 0],
+                    },
+                    battleEndTime: {
+                        $arrayElemAt: ["$battle.battleEndTime", 0],
+                    },
+                    battleName: {
+                        $arrayElemAt: ["$battle.battleName", 0],
+                    },
+                    isNifty: {
+                        $arrayElemAt: ["$battle.isNifty", 0],
+                      },
+                        isBankNifty: {
+                        $arrayElemAt: ["$battle.isBankNifty", 0],
+                      },
+                        isFinNifty: {
+                        $arrayElemAt: ["$battle.isFinNifty", 0],
+                      },
+                        battleType: {
+                        $arrayElemAt: ["$battle.battleTemplate.battleType", 0],
+                      },
+                      minParticipants: {
+                        $arrayElemAt: ["$battle.battleTemplate.minParticipants", 0],
+                      },
+                },
+            },
+            {
+                $sort:
+                {
+                    battleStartTime: 1,
+                },
+            },
+        ])
+
+        for(let elem of completed){
+            let xFactor = (elem.portfolioValue/elem.entryFee);
+            elem.return = elem.entryFee + elem.npnl/xFactor;
+            elem.return = elem.return > 0 ? elem.return : 0;
+        }
+
+        res.status(200).json({
+            status: 'success',
+            data: completed
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Error fetching completed Battles",
             error: error.message
         });
     }

@@ -10,7 +10,7 @@ import moment from 'moment';
 
 
 const InactiveBattleTemplates = ({type}) => {
-const [inactiveBattleTemplates,setInactiveBattleTemplates] = useState([]);
+const [ongoingBattleTemplates,setOngoingBattleTemplates] = useState([]);
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 let [skip, setSkip] = useState(0);
 const limitSetting = 10;
@@ -28,7 +28,7 @@ const [isLoading,setIsLoading] = useState(false);
                 })
     Promise.all([call1])
     .then(([api1Response]) => {
-      setInactiveBattleTemplates(api1Response.data.data)
+      setOngoingBattleTemplates(api1Response.data.data)
       setCount(api1Response.data.count)
     })
     .catch((error) => {
@@ -41,7 +41,7 @@ const [isLoading,setIsLoading] = useState(false);
         return;
     }
     setSkip(prev => prev-limitSetting);
-    setInactiveBattleTemplates([]);
+    setOngoingBattleTemplates([]);
     setIsLoading(true)
     axios.get(`${baseUrl}api/v1/battles/ongoing/?skip=${skip-limitSetting}&limit=${limitSetting}`,{
         withCredentials: true,
@@ -52,7 +52,7 @@ const [isLoading,setIsLoading] = useState(false);
         },
     })
     .then((res) => {
-        setInactiveBattleTemplates(res.data.data)
+        setOngoingBattleTemplates(res.data.data)
         setCount(res.data.count)
         setTimeout(()=>{
             setIsLoading(false)
@@ -69,7 +69,7 @@ const [isLoading,setIsLoading] = useState(false);
     }
     console.log("inside next handler")
     setSkip(prev => prev+limitSetting);
-    setInactiveBattleTemplates([]);
+    setOngoingBattleTemplates([]);
     setIsLoading(true)
     axios.get(`${baseUrl}api/v1/battles/ongoing/?skip=${skip+limitSetting}&limit=${limitSetting}`,{
         withCredentials: true,
@@ -81,7 +81,7 @@ const [isLoading,setIsLoading] = useState(false);
     })
     .then((res) => {
         console.log('report',res.data.data);
-        setInactiveBattleTemplates(res.data.data)
+        setOngoingBattleTemplates(res.data.data)
         setCount(res.data.count)
         setTimeout(()=>{
             setIsLoading(false)
@@ -94,11 +94,11 @@ const [isLoading,setIsLoading] = useState(false);
   
     return (
       <>
-      {inactiveBattleTemplates.length > 0 ?
+      {ongoingBattleTemplates.length > 0 ?
         
           <MDBox>
             <Grid container spacing={2} bgColor="dark">
-              {inactiveBattleTemplates?.map((e, index)=>{
+              {ongoingBattleTemplates?.map((e, index)=>{
                   
                   let totalPayout =  (e?.participants.reduce((total, currentItem) => {
                     return total + currentItem.reward;

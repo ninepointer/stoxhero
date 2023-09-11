@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {memo, useEffect, useState} from 'react';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import Dialog from '@mui/material/Dialog';
@@ -12,19 +12,11 @@ import Title from '../../HomePage/components/Title'
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Button from '@mui/material/Button';
-import { Typography } from '@mui/material';
+import { Grid, Typography } from '@mui/material';
 import paymentQr from '../../../assets/images/paymentQrc.jpg';
-import MDTypography from '../../../components/MDTypography';
-import { userContext } from '../../../AuthContext';
-import { useNavigate } from 'react-router-dom';
-import ReactGA from "react-ga"
 
 
-
-
-
-
-export default function Payment({ elem, setShowPay, showPay }) {
+const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
   const [open, setOpen] = React.useState(false);
   const [userWallet, setUserWallet] = useState(0);
   const [setting, setSetting] = useState([]);
@@ -34,52 +26,55 @@ export default function Payment({ elem, setShowPay, showPay }) {
     error: ""
   })
 
+
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 
   useEffect(() => {
-    axios.get(`${baseUrl}api/v1/userwallet/my`, {
-      withCredentials: true,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": true
-      },
-    })
-    .then((res) => {
+    if(open){
+      axios.get(`${baseUrl}api/v1/userwallet/my`, {
+        withCredentials: true,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+        },
+      })
+      .then((res) => {
+  
+        const cashTransactions = (res.data.data)?.transactions?.filter((transaction) => {
+          return transaction.transactionType === "Cash";
+        });
+        // console.log((res.data.data)?.transactions);
+  
+        const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
+          return total + transaction?.amount;
+        }, 0);
+  
+        setUserWallet(totalCashAmount.toFixed(2));
+        // console.log("totalCashAmount", totalCashAmount)
+  
+      }).catch((err) => {
+        console.log("Fail to fetch data of user", err);
+      })
+  
+      axios.get(`${baseUrl}api/v1/readsetting`, {
+        withCredentials: true,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+        },
+      })
+      .then((res) => {
+        setSetting(res?.data[0]);
+  
+      }).catch((err) => {
+        console.log("Fail to fetch data of user", err);
+      })
+    }
 
-      const cashTransactions = (res.data.data)?.transactions?.filter((transaction) => {
-        return transaction.transactionType === "Cash";
-      });
-      console.log((res.data.data)?.transactions);
-
-      const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
-        return total + transaction?.amount;
-      }, 0);
-
-      setUserWallet(totalCashAmount.toFixed(2));
-      console.log("totalCashAmount", totalCashAmount)
-
-    }).catch((err) => {
-      console.log("Fail to fetch data of user", err);
-    })
-
-    axios.get(`${baseUrl}api/v1/readsetting`, {
-      withCredentials: true,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": true
-      },
-    })
-    .then((res) => {
-      setSetting(res?.data[0]);
-
-    }).catch((err) => {
-      console.log("Fail to fetch data of user", err);
-    })
-
-  }, [])
+  }, [open])
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -87,7 +82,7 @@ export default function Payment({ elem, setShowPay, showPay }) {
 
   const handleClose = () => {
     setOpen(false);
-    // messege.thanksMessege && setShowPay(!showPay);
+    messege.thanksMessege && setShowPay(!showPay);
   };
 
   async function captureIntent() {
@@ -116,11 +111,11 @@ export default function Payment({ elem, setShowPay, showPay }) {
         "content-type": "application/json"
       },
       body: JSON.stringify({
-        battleId: elem?._id
+        entryFee: elem?.entryFee, battleName: elem?.battleName, battleId: elem?._id
       })
     });
     const dataResp = await res.json();
-    console.log(dataResp);
+    // console.log(dataResp);
     if (dataResp.status === "error" || dataResp.error || !dataResp) {
       // openSuccessSB("error", dataResp.message)
       setMessege({
@@ -130,25 +125,33 @@ export default function Payment({ elem, setShowPay, showPay }) {
     } else {
       setMessege({
         ...messege,
-        thanksMessege: `Thanks for the payment of ₹${elem.entryFee}, your seat is booked for the contest - ${elem.battleName}.`
+        thanksMessege: `Thanks for the payment of ₹${elem?.battleTemplate?.entryFee}, your seat is booked for the Battle - ${elem?.battleName}, please click on "Start Trading" once the Battle starts.`
       })
     }
   }
 
-
   return (
 
     <>
-      <MDBox>
+    {whichTab === "view" ?
+      <Grid item xs={6} md={6} lg={12} display='flex' justifyContent='center' alignItems='center' minWidth='100%'>
+        <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center' minWidth='100%'>
+            <MDButton size='small' variant='contained' color='success' style={{minWidth:'100%'}} onClick={captureIntent} >Buy</MDButton>
+        </MDBox>
+      </Grid>
+      :
+      <MDBox display='flex' justifyContent='center' alignItems='center' minWidth='100%'>
         <MDButton
           color='success'
           size='small'
-          onClick={() => { captureIntent() }} 
+          style={{minWidth: '95%', fontSize:9}}
+          onClick={captureIntent} 
+          fontSize={9}
          >
-            Book Now
+            Buy
         </MDButton>
       </MDBox>
-
+}
 
       <Dialog
         open={open}
@@ -221,8 +224,9 @@ export default function Payment({ elem, setShowPay, showPay }) {
           </Button>
         </DialogActions>
       </Dialog>
-      {/* {renderSuccessSB} */}
     </>
   );
 
 }
+
+export default memo(Payment);
