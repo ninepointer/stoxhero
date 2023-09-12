@@ -177,7 +177,6 @@ const getTicksForUserPosition = async (socket, id) => {
         return indexObj[item.instrument_token];
       });
 
-      // console.log("indexdata", indexData)
 
       try {
         let instrumentTokenArr;
