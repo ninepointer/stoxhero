@@ -35,7 +35,7 @@ router.get("/getliveprice", async (req, res)=>{
       addUrl += ('&i=' + "NSE" + ':' + elem.instrumentSymbol);
     });
 
-    let url = `https://api.kite.trade/quote?${addUrl}`;
+    let url = `https://api.kite.trade/quote/ltp?${addUrl}`;
     const api_key = getApiKey; 
     const access_token = getAccessToken;
     let auth = 'token' + api_key + ':' + access_token;
@@ -55,8 +55,8 @@ router.get("/getliveprice", async (req, res)=>{
             let obj = {};
             obj.last_price = response.data.data[instrument].last_price;
             obj.instrument_token = response.data.data[instrument].instrument_token;
-            obj.average_price = response.data.data[instrument].ohlc.close;
-            obj.timestamp = response.data.data[instrument].timestamp
+            obj.average_price = response.data.data[instrument].last_price;
+            obj.timestamp = new Date();
             arr.push(obj);
         }
         return res.status(201).send((arr));
