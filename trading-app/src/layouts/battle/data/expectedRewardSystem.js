@@ -27,12 +27,12 @@ export default function AllowedUsers({battle,expectedPrizePool}) {
     );
     featureObj.rewardpercentage = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem?.rewardPercentage}%
+        {(elem?.rewardPercentage).toFixed(2)}%
       </MDTypography>
     );
     featureObj.reward = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((elem?.rewardPercentage*expectedPrizePool)/100)}
+        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format((elem?.rewardPercentage*expectedPrizePool)/100)}
       </MDTypography>
     );
 
@@ -61,7 +61,7 @@ export default function AllowedUsers({battle,expectedPrizePool}) {
     );
     remainingObj.reward = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(remainingPrizePool/remainingWinners)}
+        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(remainingPrizePool/remainingWinners)}
       </MDTypography>
     );
 

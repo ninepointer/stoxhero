@@ -218,6 +218,15 @@ function Index() {
     }
   }
 
+  let actualgst = (((battle?.battleTemplate?.entryFee)*(battle?.participants?.length))*battle?.battleTemplate?.gstPercentage)/100
+  let expectedgst = (((battle?.battleTemplate?.entryFee)*(battle?.battleTemplate?.minParticipants))*battle?.battleTemplate?.gstPercentage)/100
+  let actualCollection = (battle?.battleTemplate?.entryFee)*(battle?.participants?.length)
+  let expectedCollection = (battle?.battleTemplate?.entryFee)*(battle?.battleTemplate?.minParticipants)
+  let actualPlatformCommission = ((actualCollection-actualgst)*battle?.battleTemplate?.platformCommissionPercentage)/100
+  let expectedPlatformCommission = ((expectedCollection-expectedgst)*battle?.battleTemplate?.platformCommissionPercentage)/100
+  let actualPrizePool = actualCollection-actualgst-actualPlatformCommission
+  let expectedPrizePool = expectedCollection-expectedgst-expectedPlatformCommission
+
 
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
@@ -593,7 +602,7 @@ function Index() {
             {(battle?.participants?.length <= battle?.battleTemplate?.minParticipants) && 
                 <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                   <MDBox>
-                    <ExpectedRewardSystem battle={battle ? battle : createdBattle} expectedPrizePool={battle ? (battle?.battleTemplate?.entryFee*battle?.battleTemplate?.minParticipants) : (createdBattle?.battleTemplate?.entryFee*createdBattle?.battleTemplate?.minParticipants)} action={action} setAction={setAction} />
+                    <ExpectedRewardSystem battle={battle ? battle : createdBattle} expectedPrizePool={expectedPrizePool} action={action} setAction={setAction} />
                   </MDBox>
                 </Grid>
                 }
@@ -601,7 +610,7 @@ function Index() {
                 {(battle?.participants?.length > battle?.battleTemplate?.minParticipants) && 
                 <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                   <MDBox>
-                    <ActualRewardSystem battle={battle ? battle : createdBattle} actualPrizePool={battle ? (battle?.battleTemplate?.entryFee*battle?.participants?.length) : (createdBattle?.battleTemplate?.entryFee*createdBattle?.participants?.length)} action={action} setAction={setAction} />
+                    <ActualRewardSystem battle={battle ? battle : createdBattle} actualPrizePool={actualPrizePool} action={action} setAction={setAction} />
                   </MDBox>
                 </Grid>
                 }

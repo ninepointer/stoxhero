@@ -46,7 +46,7 @@ function Header({ children }) {
                         Welcome StoxHeroes!
                     </MDTypography>
                     <MDTypography color='dark' fontSize={15} textAlign='center'>
-                        Introducing Battle: Your Gateway to Realistic Trading
+                        Introducing Battle: Start your investment learning journey with Battles
                     </MDTypography>
                     <MDTypography color='dark' fontSize={15} textAlign='center'>
                         We've designed this innovative trading experience to bridge the gap between learning and real-world trading, allowing you to get as close to the market as possible.
