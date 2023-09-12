@@ -830,8 +830,8 @@ exports.deductBattleAmount = async (req, res, next) => {
                 <p>Mobile: <span class="password">${user.mobile}</span></p>
                 <p>Battle Name: <span class="password">${battle?.battleName}</span></p>
                 <p>Entry Fee: <span class="password">₹${battle?.battleTemplate?.entryFee}/-</span></p>
-                <p>Start Time: <span class="password">${moment(battle?.battleStartTime).format('YYYY-MM-DD HH:mm a')}</span></p>
-                <p>End Time: <span class="password">${moment(battle?.battleEndTime).format('YYYY-MM-DD HH:mm a')}</span></p>
+                <p>Start Time: <span class="password">${moment(battle?.battleStartTime).utcOffset('+05:30').format('YYYY-MM-DD HH:mm a')}</span></p>
+                <p>End Time: <span class="password">${moment(battle?.battleEndTime).utcOffset('+05:30').format('YYYY-MM-DD HH:mm a')}</span></p>
                 </div>
             </body>
             </html>
