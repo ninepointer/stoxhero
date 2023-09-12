@@ -260,6 +260,8 @@ const CareerForm = () => {
   />
   );
 
+  console.log(contest?.contestStartTime, contestDetails?.contestStartTime, contest, contestDetails)
+
   return (
     <div>
         <ThemeProvider theme={theme}>
@@ -272,13 +274,14 @@ const CareerForm = () => {
                 </MDBox>
                 {(contest?.contestName || contestDetails?.contestName) && <MDBox display='flex' justifyContent='space-between'>
                   <MDTypography fontSize={14} mr={2}>
-                    Contest Start Time:{moment(contest?.contestStartTime||contestDetails?.contestStartTime).format('Do MMM YY HH:MM').toString()}
+                    Contest Start Time: {moment(contest?.contestStartTime||contestDetails?.contestStartTime).format('Do MMM YY HH:mm').toString()}
                     </MDTypography>
                   <MDTypography fontSize={14} mr={2}>
-                    Contest End Time:{moment(contest?.contestStartTime||contestDetails?.contestEndTime).format('Do MMM YY HH:MM').toString()}
+                    Contest End Time: {moment(contest?.contestEndTime||contestDetails?.contestEndTime).format('Do MMM YY HH:mm').toString()}
                     </MDTypography>
-                  <MDTypography fontSize={14} mr={2}>Payout:{contest?.payoutPercentage||contestDetails?.payoutPercentage}% of net P&L</MDTypography>
-                  <MDTypography fontSize={14} mr={2}>Entry:{contest?.entryFee?`₹${contest?.entryFee}||${contestDetails?.entryFee}`:'FREE'}</MDTypography>
+                  <MDTypography fontSize={14} mr={2}>Payout: {contest?.payoutPercentage||contestDetails?.payoutPercentage}% of net P&L</MDTypography>
+                  <MDTypography fontSize={14} mr={2}>Entry: {contest?.entryFee?`₹${contest?.entryFee}||${contestDetails?.entryFee}`:'FREE'}</MDTypography>
+                  <MDTypography fontSize={14} mr={2}>Virtual Currency: {contest?.portfolio?.portfolioValue ? `₹${contest?.portfolio?.portfolioValue}` : `${contestDetails?.portfolio?.portfolioValue}`}</MDTypography>
                 </MDBox>}
                 <Grid container spacing={2} mt={1} xs={12} md={12} lg={6} display='flex' justifyContent='center' alignItems='center'>
                     <Grid item xs={12} md={6} lg={6}>

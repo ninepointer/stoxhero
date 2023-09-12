@@ -1242,8 +1242,6 @@ const marginXMockMod = async () => {
       instrumentToken: item?.instrumentToken,marginxId: item?.marginxId, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?.userId, amount: (Number(item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5*60 + 30) * 60 * 1000),
     }
   });
-  // console.log('userTrades', userTradeObjects);
-  // console.log('company trades', companyTradeObjects);
   
   await takeMarginXMockTrades(companyTradeObjects, userTradeObjects);
 
