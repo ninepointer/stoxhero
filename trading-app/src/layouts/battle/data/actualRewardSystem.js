@@ -62,7 +62,7 @@ export default function AllowedUsers({battle,actualPrizePool}) {
     );
     remainingObj.reward = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(remainingPrizePool/remainingWinners)}
+        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(remainingPrizePool/remainingWinners)}
       </MDTypography>
     );
 

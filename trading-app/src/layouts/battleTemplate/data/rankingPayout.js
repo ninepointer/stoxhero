@@ -67,12 +67,12 @@ export default function GroupDiscussions({saving,template, action, setAction, pr
   );
   featureObj.percentage = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {elem?.rewardPercentage}%
+      {(elem?.rewardPercentage).toFixed(2)}%
     </MDTypography>
   );
   featureObj.amount = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      ₹{((elem?.rewardPercentage*prizePool)/100).toFixed(0)}
+      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(((elem?.rewardPercentage*prizePool)/100))}
     </MDTypography>
   );
 
@@ -101,7 +101,7 @@ let remainingObj = {}
     );
     remainingObj.amount = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(remainingPrizePool/remainingWinners)}
+        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(remainingPrizePool/remainingWinners)}
       </MDTypography>
     );
 

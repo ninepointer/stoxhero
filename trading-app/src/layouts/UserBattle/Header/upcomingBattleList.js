@@ -319,7 +319,7 @@ function Header({ toggleContest, setToggleContest, battle, showPay, setShowPay, 
                                                 <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                     <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                            <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Prize Pool</MDTypography></MDBox>
+                                                            <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Reward Pool</MDTypography></MDBox>
                                                             <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>
                                                                 ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.participants.length <= elem?.battleTemplate?.minParticipants ? expectedPrizePool : actualPrizePool)}
                                                             </MDTypography></MDBox>

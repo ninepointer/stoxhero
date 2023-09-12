@@ -6,6 +6,7 @@ const User = require("../../models/User/userDetailSchema");
 const { ObjectId } = require('mongodb');
 const uuid = require("uuid");
 const emailService = require("../../utils/emailService")
+const moment = require('moment')
 
 // Controller for creating a Battle
 exports.createBattle = async (req, res) => {
@@ -828,7 +829,9 @@ exports.deductBattleAmount = async (req, res, next) => {
                 <p>Email: <span class="password">${user.email}</span></p>
                 <p>Mobile: <span class="password">${user.mobile}</span></p>
                 <p>Battle Name: <span class="password">${battle?.battleName}</span></p>
-                <p>Battle Fee: <span class="password">₹${battle?.battleTemplate?.entryFee}/-</span></p>
+                <p>Entry Fee: <span class="password">₹${battle?.battleTemplate?.entryFee}/-</span></p>
+                <p>Start Time: <span class="password">${moment(battle?.battleStartTime).utcOffset('+05:30').format('YYYY-MM-DD HH:mm a')}</span></p>
+                <p>End Time: <span class="password">${moment(battle?.battleEndTime).utcOffset('+05:30').format('YYYY-MM-DD HH:mm a')}</span></p>
                 </div>
             </body>
             </html>
