@@ -281,7 +281,7 @@ const CareerForm = () => {
                     </MDTypography>
                   <MDTypography fontSize={14} mr={2}>Payout: {contest?.payoutPercentage||contestDetails?.payoutPercentage}% of net P&L</MDTypography>
                   <MDTypography fontSize={14} mr={2}>Entry: {contest?.entryFee?`₹${contest?.entryFee}||${contestDetails?.entryFee}`:'FREE'}</MDTypography>
-                  <MDTypography fontSize={14} mr={2}>Virtual Currency: {contest?.portfolio?.portfolioValue ? `₹${contest?.portfolio?.portfolioValue}` : `${contestDetails?.portfolio?.portfolioValue}`}</MDTypography>
+                  <MDTypography fontSize={14} mr={2}>Virtual Currency: ₹{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(contest?.portfolio?.portfolioValue ? contest?.portfolio?.portfolioValue : contestDetails?.portfolio?.portfolioValue))}</MDTypography>
                 </MDBox>}
                 <Grid container spacing={2} mt={1} xs={12} md={12} lg={6} display='flex' justifyContent='center' alignItems='center'>
                     <Grid item xs={12} md={6} lg={6}>
@@ -474,3 +474,6 @@ const CareerForm = () => {
 }
 
 export default CareerForm
+
+
+//6UOWyIuWrBj5QdME6zzOA6p1qsLByKL1

@@ -36,7 +36,7 @@ const PopupTrading = ({elem, timeDifference}) => {
         let isParticipated = elem?.participants.some(elem => {
             return elem?.userId?._id?.toString() === getDetails?.userDetails?._id?.toString()
         })
-        // console.log("isParticipated", isParticipated)
+        console.log("isParticipated", elem?.battleEndTime)
         if (isParticipated) {
             navigate(`/battles/${elem.battleName}`, {
                 state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, timeDifference: timeDifference, name: elem?.battleName, endTime: elem?.battleEndTime }

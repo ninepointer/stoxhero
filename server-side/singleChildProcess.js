@@ -6,6 +6,8 @@ const { xtsMarketLogin } = require("./services/xts/xtsMarket");
 const { interactiveLogin } = require("./services/xts/xtsInteractive");
 
 const {sendLeaderboardData, sendMyRankData, emitServerTime} = require("./controllers/dailyContestTradeController");
+const {sendMyRankDataBattle, sendLeaderboardDataBattle} = require("./controllers/battles/battleTradeController");
+
 const {saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, saveXtsMargin} = require("./controllers/marginRequired")
 const {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus, changeMarginXStatus} = require("./controllers/AutoTradeCut/mainManually");
 const { createNewTicker, disconnectTicker,
@@ -102,6 +104,13 @@ async function singleProcess() {
                 await client.set(`dailyContestData:${userId}`, JSON.stringify(data));
             })
 
+            socket.on('battleLeaderboard', async (data) => {
+                let { id, userId } = data;
+                socket.join(`${id}`)
+                socket.join(`${id}${userId}`)
+                await client.set(`battleData:${userId}`, JSON.stringify(data));
+            })
+
             socket.on('GetHistory', async (data) => {
                 // console.log(data)
                 webSocketService.send(data);
@@ -183,6 +192,10 @@ async function singleProcess() {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });
     }
+
+    //todo-vijay
+    // sendLeaderboardDataBattle().then(() => { });
+    // sendMyRankDataBattle().then(() => { });
     emitServerTime().then(() => { });
 
 

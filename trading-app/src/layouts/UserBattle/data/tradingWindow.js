@@ -23,6 +23,8 @@ import StockIndexDailyContest from "../../tradingCommonComponent/StockIndex/Stoc
 import {useNavigate} from "react-router-dom"
 import PnlAndMarginData from "./pnlAndMarginData";
 import Order from "../../tradingCommonComponent/orders/Order";
+import Leaderboard from "./Leaderboard"
+import MyRank from "./MyRank"
 
 
 function Header({ socket, data }) {
@@ -33,6 +35,7 @@ function Header({ socket, data }) {
     // let endTime = "2023-09-02T04:56:03.136+00:00";
     const battleId = data?.data;
     let endTime = data?.endTime;
+    console.log("endtime", data)
     useEffect(() => {
         socket.on("serverTime", (time) => {
             const serverTimeString = new Date(time).toISOString().slice(0, 19); // Extract relevant parts
@@ -96,6 +99,14 @@ function Header({ socket, data }) {
         />;
       }, [data, battleId]);
 
+      const memoizedLeaderboard = useMemo(() => {
+        return <Leaderboard socket={socket} name={data?.name} />;
+      }, [socket, data?.name]);
+
+      const memoizedDailyContestMyRank = useMemo(() => {
+        return <MyRank socket={socket} />;
+      }, [socket]);
+
 
     return (
         <>
@@ -127,6 +138,22 @@ function Header({ socket, data }) {
                     <Grid item xs={12} md={6} lg={12} >
                         {memoizedInstrumentDetails}
                     </Grid>
+                </Grid>
+
+                <Grid container spacing={0.5} p={0} mt={0.5} sx={{ display: 'flex', flexDirection: 'row' }}>
+                    
+                    <Grid item xs={12} md={12} lg={8} >
+                        <MDBox sx={{ backgroundColor: '#EAC17C', height: '100%' }} borderRadius={3}>
+                            {memoizedLeaderboard}
+                        </MDBox>
+                    </Grid>
+                    
+                    <Grid item xs={12} md={12} lg={4} >
+                        <MDBox sx={{ backgroundColor: '#EAC17C', height: '100%' }} borderRadius={3}>
+                            {memoizedDailyContestMyRank}
+                        </MDBox>
+                    </Grid>
+                    
                 </Grid>
 
                 <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
