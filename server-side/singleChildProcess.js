@@ -6,6 +6,8 @@ const { xtsMarketLogin } = require("./services/xts/xtsMarket");
 const { interactiveLogin } = require("./services/xts/xtsInteractive");
 
 const {sendLeaderboardData, sendMyRankData, emitServerTime} = require("./controllers/dailyContestTradeController");
+const {sendMyRankDataBattle, sendLeaderboardDataBattle} = require("./controllers/battles/battleTradeController");
+
 const {saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, saveXtsMargin} = require("./controllers/marginRequired")
 const {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus, changeMarginXStatus} = require("./controllers/AutoTradeCut/mainManually");
 const { createNewTicker, disconnectTicker,
@@ -102,6 +104,13 @@ async function singleProcess() {
                 await client.set(`dailyContestData:${userId}`, JSON.stringify(data));
             })
 
+            socket.on('battleLeaderboard', async (data) => {
+                let { id, userId } = data;
+                socket.join(`${id}`)
+                socket.join(`${id}${userId}`)
+                await client.set(`battleData:${userId}`, JSON.stringify(data));
+            })
+
             socket.on('GetHistory', async (data) => {
                 // console.log(data)
                 webSocketService.send(data);
@@ -183,6 +192,10 @@ async function singleProcess() {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });
     }
+
+    //todo-vijay
+    // sendLeaderboardDataBattle().then(() => { });
+    // sendMyRankDataBattle().then(() => { });
     emitServerTime().then(() => { });
 
 
@@ -283,6 +296,7 @@ async function singleProcess() {
     app.use('/api/v1/marginxtemplate', require('./routes/marginx/marginxTemplateRoutes'));
     app.use('/api/v1/marginx', require('./routes/marginx/marginxRoutes'));
     app.use('/api/v1/marginxtrade', require('./routes/marginx/marginxTradeRoute'));
+    app.use('/api/v1/battletrade', require('./routes/battles/battleTradeRoute'));
 
     //  TODO toggle
     app.use('/api/v1/contestmaster', require("./routes/DailyContest/contestMaster"));
