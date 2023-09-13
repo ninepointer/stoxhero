@@ -193,9 +193,8 @@ async function singleProcess() {
         sendMyRankData().then(() => { });
     }
 
-    //todo-vijay
-    // sendLeaderboardDataBattle().then(() => { });
-    // sendMyRankDataBattle().then(() => { });
+    sendLeaderboardDataBattle().then(() => { });
+    sendMyRankDataBattle().then(() => { });
     emitServerTime().then(() => { });
 
 

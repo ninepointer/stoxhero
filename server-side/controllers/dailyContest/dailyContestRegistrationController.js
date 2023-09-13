@@ -20,7 +20,7 @@ exports.generateOTP = async(req, res, next)=>{
     console.log('ref',referrerCode);
     if(!contest){
         return res.status(400).json({
-            message: "Contest doesn't exixt",
+            message: "Contest doesn't exist",
             status: 'error'
           });
     }

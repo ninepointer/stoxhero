@@ -166,13 +166,15 @@ exports.getOngoingBattles = async (req, res) => {
     const count = await Battle.countDocuments({
         battleStartTime: { $lte: now },
         battleEndTime: { $gt: now },
-        status: 'Active'
+        status: 'Active',
+        battleStatus: "Live"
     })
     try {
         const ongoingBattles = await Battle.find({
             battleStartTime: { $lte: now },
             battleEndTime: { $gt: now },
-            status: 'Active'
+            status: 'Active',
+            battleStatus: "Live"
         })
             .sort({ battleStartTime: -1 })
             .skip(skip).limit(limit)
@@ -203,7 +205,8 @@ exports.getUserLiveBattles = async (req, res) => {
         const ongoingBattles = await Battle.find({
             battleStartTime: { $lte: now },
             battleEndTime: { $gt: now },
-            status: 'Active'
+            status: 'Active',
+            battleStatus: "Live"
         }).
             populate('battleTemplate', 'BattleTemplateName portfolioValue entryFee gstPercentage platformCommissionPercentage minParticipants winnerPercentage rankingPayout').
             sort({ battleStartTime: -1, entryFee: -1 });
@@ -228,13 +231,15 @@ exports.getUpcomingBattles = async (req, res) => {
     const skip = parseInt(req.query.skip) || 0;
     const limit = parseInt(req.query.limit) || 10;
     const count = await Battle.countDocuments({
-        battleStartTime: { $gt: now },
-        status: 'Active'
+        // battleStartTime: { $gt: now },
+        status: 'Active',
+        battleStatus: "Upcoming"
     })
     try {
         const upcomingBattles = await Battle.find({
-            battleStartTime: { $gt: now },
-            status: 'Active'
+            // battleStartTime: { $gt: now },
+            status: 'Active',
+            battleStatus: "Upcoming"
         }).sort({ battleStartTime: -1, entryFee: -1 })
             .skip(skip).limit(limit)
             .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage')
@@ -263,9 +268,10 @@ exports.getUserUpcomingBattles = async (req, res) => {
     const now = new Date();
     try {
         const upcomingBattles = await Battle.find({
-            battleStartTime: { $gt: now },
+            // battleStartTime: { $gt: now },
             battleLiveTime: { $lt: now },
-            status: 'Active'
+            status: 'Active',
+            battleStatus: "Upcoming"
         }).sort({ battleStartTime: -1, entryFee: -1 })
             .populate('battleTemplate', 'BattleTemplateName portfolioValue entryFee gstPercentage platformCommissionPercentage minParticipants winnerPercentage rankingPayout').
             sort({ battleStartTime: -1, entryFee: -1 });
