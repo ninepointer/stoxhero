@@ -27,12 +27,17 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { CircularProgress, Divider } from "@mui/material";
+import { userContext } from "../../../AuthContext";
 
 
 
-function Leaderboard({socket, name}) {
+function Leaderboard({ socket, name }) {
 
     const [leaderboard, setLeaderboard] = useState([]);
+    const [myRank, setMyRankData] = useState();
+    const getDetails = useContext(userContext);
+
+
     const [loading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -41,6 +46,14 @@ function Leaderboard({socket, name}) {
             console.log("leaderboard", data)
             setLeaderboard(data);
             setIsLoading(false);
+        })
+
+        socket?.on(`battle-myrank${getDetails.userDetails?._id}`, (data) => {
+
+            console.log("leaderboard rank", data)
+            setMyRankData((prev) => (data !== null ? data : prev));
+            setIsLoading(false);
+    
         })
 
         let timer = setTimeout(() => {
@@ -68,8 +81,6 @@ function Leaderboard({socket, name}) {
                                     <Grid item xs={12} lg={12}>
 
                                         <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center'>
-
-
                                             <Grid item xs={12} lg={2} display='flex' justifyContent='center' alignItems='center'>
                                                 <MDAvatar
                                                     src={logo}
@@ -103,13 +114,13 @@ function Leaderboard({socket, name}) {
 
                                 </Grid>
 
-                                {leaderboard?.length >= 3 ?
-                                <Grid item xs={12} lg={12} mb={-2}>
+                                {leaderboard?.length !== 0 ?
+                                    <Grid item xs={12} lg={12} mb={-2}>
 
-                                    {leaderboard?.map((elem, index) => {
-                                        return (
-                                            <div key={elem?.name}>
-                                                <Grid container spacing={0.5} xs={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                                        {leaderboard?.map((elem, index) => {
+                                            return (
+                                                <div key={elem?.name}>
+                                                    <Grid container spacing={0.5} xs={12} lg={12} display='flex' justifyContent='center' alignItems='center' border={(myRank == index+1) && "1px solid black"}>
 
                                                         <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
                                                             <MDBox><MDTypography fontSize={25} color='black' fontWeight='bold'>#{index + 1}</MDTypography></MDBox>

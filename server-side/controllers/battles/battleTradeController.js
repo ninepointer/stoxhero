@@ -1565,7 +1565,6 @@ const getRedisMyRank = async (id, employeeId) => {
 
 
 // Payout
-
 exports.creditAmountToWallet = async () => {
     console.log("in wallet")
     try {

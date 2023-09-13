@@ -929,3 +929,29 @@ exports.getPrizeDetails = async (req, res, next) => {
         return res.status(500).json({status:'error', message: "Something went wrong.", error:err.message });
     }
 };
+
+exports.findBattleByName = async(req,res) => {
+    try{
+        console.log('here');
+        const {name, date} = req.query;
+        console.log(name, date);
+        const result = await Battle.findOne({battleName: name, battleStartTime:{$gte: new Date(date)}}).
+            select('-purchaseIntent -__v -sharedBy -potentialParticipants -__v -createdBy -lastModifiedBy -createdOn -lastModifiedOn').
+            populate('battleTemplate', 'entryFee portfolioValue');
+        console.log('result', result);
+        if(!result){
+            res.status(404).json({
+                status: "error",
+                message: "No battle found",
+            });
+        }
+        res.status(200).json({data:result, status:'success'});
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: e.message
+        });
+    }
+}
