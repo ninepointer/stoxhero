@@ -9,6 +9,8 @@ const Campaign = require("../../models/campaigns/campaignSchema")
 const UserWallet = require("../../models/UserWallet/userWalletSchema");
 const emailService = require("../../utils/emailService");
 const DailyContest = require('../../models/DailyContest/dailyContest');
+const ReferralProgram = require('../../models/campaigns/referralProgram');
+const uuid = require('uuid');
 
 
 
@@ -75,6 +77,14 @@ if(!correctOTP){
     return res.status(400).json({message:'Please enter the correct OTP'})
 }
 
+if(referrerCode && !await User.findOne({myReferralCode:referrerCode})){
+    return res.status(404).json({status:'error', message:'The referral code doesn\'t exist. Please check again'});
+}
+
+if(campaignCode && !await Campaign.findOne({campaignCode})){
+    return res.status(404).json({status:'error', message:'The campaign code doesn\'t exist. Please check again'});
+}
+
 correctOTP.status = 'OTP Verified'
 await correctOTP.save({validateBeforeSave:false});
 res.status(201).json({info:"Application Submitted Successfully."})
@@ -107,7 +117,7 @@ if(!existingUser){
         portfolioArr.push(obj);
     }
     let referralUser;
-    if(referrerCode)referralUser = await User.findOne({myReferralCode:referrerCode}).select('_id');
+    if(referrerCode)referralUser = await User.findOne({myReferralCode:referrerCode}).select('_id referrals employeeid email');
     try{
         let obj = {
             first_name : firstName.trim(), 
@@ -165,7 +175,31 @@ if(!existingUser){
             const dailyContest = await DailyContest.findById(contest).select('potentialParticipants');
             dailyContest.potentialParticipants.push(newuser._id);
             await dailyContest.save({validateBeforeSave:false});
-
+            const referralProgram = await ReferralProgram.findOne({status:'Active'})
+            referralUser?.referrals?.push({
+                referredUserId:newuser._id,
+                referralCurrency: referralProgram?.currency,
+                referralEarning: referralProgram?.rewardPerReferral,
+                referralPrgoram: referralProgram?._id
+            });
+            const referralUserWallet = await UserWallet.findOne({userId: referralUser?._id});
+            console.log('referral user wallet',referralUserWallet)
+            referralUserWallet?.transactions?.push({
+                title:'Referral Credit',
+                description:`Amount credited for referral of ${newuser?.first_name} ${newuser?.last_name}`,
+                transactionDate: new Date(),
+                amount: referralProgram?.rewardPerReferral,
+                transactionId: uuid.v4(),
+                transactionType:'Cash'
+            });
+            referralProgram?.users?.push({
+                userId: newuser?._id,
+                joinedOn: new Date()
+            });
+            console.log('referral user', referralUser, referralUser?.referrals);
+            await referralProgram?.save({validateBeforeSave:false});
+            await referralUser.save({validateBeforeSave:false});
+            await referralUserWallet.save({validateBeforeSave:false});
 
             // res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
                 // let email = newuser.email;
