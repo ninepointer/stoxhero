@@ -1374,7 +1374,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2023-09-07T00:00:00.000+00:00"
+  let expiryDate = "2023-09-13T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(
@@ -1388,39 +1388,34 @@ router.get("/updateInstrumentStatus", async (req, res) => {
   )
 
 
-  const userIns = await UserDetail.find()
-    .populate('watchlistInstruments', 'status')
-    .select('watchlistInstruments allInstruments')
-  // console.log
-  for (let elem of userIns) {
-    if (elem.watchlistInstruments)
-      elem.watchlistInstruments = elem.watchlistInstruments.filter(instrument => instrument.status !== 'Inactive');
+  // const userIns = await UserDetail.find()
+  //   .populate('watchlistInstruments', 'status')
+  //   .select('watchlistInstruments allInstruments')
+  // for (let elem of userIns) {
+  //   if (elem.watchlistInstruments)
+  //     elem.watchlistInstruments = elem.watchlistInstruments.filter(instrument => instrument.status !== 'Inactive');
     
-      elem.allInstruments = elem.allInstruments ? elem.allInstruments.filter(instrument => instrument.status !== 'Inactive') : [];
+  //     elem.allInstruments = elem.allInstruments ? elem.allInstruments.filter(instrument => instrument.status !== 'Inactive') : [];
 
-      if(elem.watchlistInstruments.length > 0)
-    console.log(elem.watchlistInstruments, elem.allInstruments)
-    // for(let subelem of elem.watchlistInstruments){
-    //   if(subelem.status === "Active"){
+  //     if(elem.watchlistInstruments.length > 0)
+  //   console.log(elem.watchlistInstruments, elem.allInstruments)
+  //   // for(let subelem of elem.watchlistInstruments){
+  //   //   if(subelem.status === "Active"){
 
-    //   }
-    // }
-    await elem.save((err, updatedUser) => {
-      if (err) {
-        console.error(err);
-        return;
-      }
+  //   //   }
+  //   // }
+  //   await elem.save((err, updatedUser) => {
+  //     if (err) {
+  //       console.error(err);
+  //       return;
+  //     }
 
-      // console.log('User watchlist updated:', updatedUser);
-    });
-  }
-  // await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
+  //     // console.log('User watchlist updated:', updatedUser);
+  //   });
+  // }
 
-  // await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
+  await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
 
-  // await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
-
-  // await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
   res.send({ message: "updated", data: userIns })
 })
 

@@ -11,7 +11,7 @@ router.route('/').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createBa
     get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getAllBattles);
 router.get('/upcoming', Authenticate, restrictTo('Admin', 'SuperAdmin'), getUpcomingBattles);
 router.get('/today', Authenticate, todaysBattle);
-// router.get('/findbyname', Authenticate, findBattleByName);
+router.get('/findbyname', findBattleByName);
 router.get('/ongoing', Authenticate, restrictTo('Admin', 'SuperAdmin'), getOngoingBattles);
 router.get('/completed', Authenticate, restrictTo('Admin', 'SuperAdmin'), getCompletedBattles);
 router.get('/cancelled', Authenticate, restrictTo('Admin', 'SuperAdmin'), getCancelledBattles);

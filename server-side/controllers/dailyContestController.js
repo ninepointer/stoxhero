@@ -2024,7 +2024,7 @@ exports.findContestByName = async(req,res,next)=>{
         populate('portfolio', 'portfolioValue portfolioName').
             select('_id contestName contestStartTime contestEndTime payoutPercentage entryFee');
         if(!result){
-            res.status(404).json({
+            return res.status(404).json({
                 status: "error",
                 message: "No contests found",
             });

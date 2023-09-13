@@ -5,11 +5,12 @@ const ContestLiveTradeCompany = require("../../models/DailyContest/dailyContestL
 const Algo = require("../../models/AlgoBox/tradingAlgoSchema")
 const TenxTrader = require("../../models/mock-trade/tenXTraderSchema");
 const Internship = require("../../models/mock-trade/internshipTrade");
+const BattleTrade = require("../../models/battle/battleTrade");
 const PaperTrader = require("../../models/mock-trade/paperTrade");
 const User = require("../../models/User/userDetailSchema");
 const {autoPlaceOrder} = require("../../services/xts/xtsInteractive")
 const { takeAutoTenxTrade, takeAutoPaperTrade, takeAutoInfinityTrade, takeAutoInternshipTrade, takeAutoDailyContestMockTrade, 
-  takeInternshipTrades, takeDailyContestMockTrades, takeMarginXMockTrades } = require("./autoTradeManually");
+  takeInternshipTrades, takeDailyContestMockTrades, takeMarginXMockTrades, takeBattleTrades } = require("./autoTradeManually");
 const DailyContestMock = require("../../models/DailyContest/dailyContestMockCompany");
 const MarginXMock = require("../../models/marginX/marginXCompanyMock");
 const singleLivePrice = require('../../marketData/sigleLivePrice');
@@ -1453,6 +1454,108 @@ const contestTradeLive = async () => {
   });
 };
 
+const battleTradeMod = async () => {
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
 
-module.exports = { dailyContestMock, tenx, paperTrade, infinityTrade, internship, infinityTradeLive, contestTradeLive, internshipTradeMod, dailyContestMockMod, marginXMockMod };
+  // let tradeArr = [];
+  const data = await Internship.aggregate(
+    [
+      {
+        $match:
+        {
+          trade_time: {
+            $gte: today
+          },
+          status: "COMPLETE",
+        },
+      },
+      {
+        $group:
+        {
+          _id: {
+            userId: "$trader",
+            battleId: "$battleId",
+            exchange: "$exchange",
+            symbol: "$symbol",
+            instrumentToken: "$instrumentToken",
+            exchangeInstrumentToken: "$exchangeInstrumentToken",
+            variety: "$variety",
+            validity: "$validity",
+            order_type: "$order_type",
+            Product: "$Product",
+          },
+          runningLots: {
+            $sum: "$Quantity",
+          },
+          takeTradeQuantity: {
+            $sum: {
+              $multiply: ["$Quantity", -1],
+            },
+          },
+        },
+      },
+      {
+        $project:
+        {
+          _id: 0,
+          userId: "$_id.userId",
+          battleId: "$_id.battleId",
+          exchange: "$_id.exchange",
+          symbol: "$_id.symbol",
+          instrumentToken: "$_id.instrumentToken",
+          exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
+          variety: "$_id.variety",
+          validity: "$_id.validity",
+          order_type: "$_id.order_type",
+          Product: "$_id.Product",
+          runningLots: "$runningLots",
+          takeTradeQuantity: "$takeTradeQuantity",
+        },
+      },
+      {
+        $match: {
+          runningLots: {
+            $ne: 0
+          },
+        }
+      }
+
+    ]
+  );
+  if(data.length == 0) return;
+  const system = await User.findOne({email:'system@ninepointer.in'}).select('_id');  
+  //const uniqueInstrumentTokens = [...new Set(data.map(item => item.instrumentToken))];
+  const uniqueTokensMap = {};
+  const uniqueInstrumentObjects = data.filter(item => {
+      if (!uniqueTokensMap[item.instrumentToken]) {
+          uniqueTokensMap[item.instrumentToken] = true;
+          return true; // Keep this item
+      }
+      return false; // Discard this item
+  }).map(item => ({
+      instrumentToken: item.instrumentToken,
+      exchange: item.exchange,
+      symbol: item.symbol
+  }));
+  const pricesByTokens = await fetchPricesForTokensArr(uniqueInstrumentObjects);
+  const tradeObjects = data.map((item)=>{
+    return {
+      status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity:-(item?.runningLots), Product:item?.Product, 
+      buyOrSell:item?.runningLots>0?'SELL':'BUY',variety:item?.variety, validity: item?.validity, exchange:item?.exchange, order_type:item?.order_type, 
+      symbol: item?.symbol, placed_by: "stoxhero",order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`, 
+      instrumentToken: item?.instrumentToken, battleId: item?.battleId, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?.userId, amount: (Number(-item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5*60 + 30) * 60 * 1000),
+    }
+  });
+  // console.log('tradeObjects', tradeObjects);
+  
+  await takeBattleTrades(tradeObjects);
+
+}
+
+
+
+module.exports = { dailyContestMock, tenx, paperTrade, infinityTrade, internship, infinityTradeLive, contestTradeLive, internshipTradeMod, dailyContestMockMod, marginXMockMod, battleTradeMod };
 

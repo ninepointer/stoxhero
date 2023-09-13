@@ -1,5 +1,5 @@
 const {tenx, paperTrade, infinityTrade, internship, infinityTradeLive, contestTradeLive,
-     dailyContestMock, internshipTradeMod, dailyContestMockMod, marginXMockMod} = require("./collectingTradeManually");
+     dailyContestMock, internshipTradeMod, dailyContestMockMod, marginXMockMod, battleTradeMod} = require("./collectingTradeManually");
 const {creditAmountToWallet} = require("../../controllers/dailyContestController");
 const marginxController = require("../../controllers/marginX/marginxController");
 const DailyContestMock = require("../../models/DailyContest/dailyContestMockCompany");
@@ -9,6 +9,8 @@ const Contest = require('../../models/DailyContest/dailyContest'); // Assuming y
 const dailyContestLiveCompany = require("../../models/DailyContest/dailyContestLiveCompany")
 const MarginXMock = require("../../models/marginX/marginXCompanyMock");
 const MarginX = require("../../models/marginX/marginX");
+const BattleTrade = require("../../models/battle/battleTrade");
+const Battle = require("../../models/battle/battle");
 
 const autoCutMainManually = async() => {
     await infinityTradeLive();
@@ -74,6 +76,7 @@ const autoCutMainManuallyMock = async() => {
         // await dailyContestMock();
         await dailyContestMockMod();
         await marginXMockMod();
+        await battleTradeMod();
         return;
     }
 
@@ -355,6 +358,117 @@ const changeMarginXDocStatus = async () => {
 
     });
 }
+const changeBattleStatus = async() => {
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+
+    const data = await BattleTrade.aggregate(
+        [
+            {
+                $match:
+                {
+                    trade_time: {
+                        $gte: today
+                    },
+                    status: "COMPLETE",
+                    // appOrderId: null
+                },
+            },
+            {
+                $group:
+                {
+                    _id: {
+                        userId: "$trader",
+                        // subscriptionId: "$subscriptionId",
+                        exchange: "$exchange",
+                        symbol: "$symbol",
+                        instrumentToken: "$instrumentToken",
+                        exchangeInstrumentToken: "$exchangeInstrumentToken",
+                        variety: "$variety",
+                        validity: "$validity",
+                        order_type: "$order_type",
+                        Product: "$Product",
+                        battleId: "$battleId"
+                    },
+                    runningLots: {
+                        $sum: "$Quantity",
+                    },
+                    takeTradeQuantity: {
+                        $sum: {
+                            $multiply: ["$Quantity", -1],
+                        },
+                    },
+                },
+            },
+            {
+                $project:
+                {
+                    _id: 0,
+                    userId: "$_id.userId",
+                    // subscriptionId: "$_id.subscriptionId",
+                    exchange: "$_id.exchange",
+                    symbol: "$_id.symbol",
+                    instrumentToken: "$_id.instrumentToken",
+                    exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
+                    variety: "$_id.variety",
+                    validity: "$_id.validity",
+                    order_type: "$_id.order_type",
+                    Product: "$_id.Product",
+                    runningLots: "$runningLots",
+                    takeTradeQuantity: "$takeTradeQuantity",
+                    battleId: "$_id.battleId"
+                },
+            },
+            {
+                $match: {
+                    runningLots: {
+                        $ne: 0
+                    },
+                }
+            }
+
+        ]
+    );
+
+    if(data.length === 0){
+        console.log("in if change status..")
+        await changeBattleDocStatus();
+        //TODO:Add credit function
+        // await creditAmountMarginX();
+        return;
+    }
+
+    await changeBattleStatus();
+}
+const changeBattleDocStatus = async () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let date = new Date();
+            let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+            todayDate = todayDate + "T00:00:00.000Z";
+            let todayEndDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` + "T23:00:00.000Z";
+            const today = new Date(todayDate);
+            const todayEnd = new Date(todayEndDate);
 
 
-module.exports = {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus, changeMarginXStatus}
+            const battles = await Battle.find({ status: "Active", endTime: { $gte: today, $lte: todayEnd } });
+
+            for (let j = 0; j < battles.length; j++) {
+                battles[j].status = "Completed";
+                battles[j].battleStatus = 'Completed'
+                await battles[j].save();
+            }
+
+            resolve();
+
+        } catch (error) {
+            reject(error); // Reject the promise if an error occurs
+        }
+
+    });
+}
+
+
+module.exports = {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus, changeMarginXStatus, changeBattleStatus, changeBattleDocStatus}

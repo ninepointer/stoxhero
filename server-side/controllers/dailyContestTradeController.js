@@ -1896,7 +1896,7 @@ const dailyContestLeaderBoard = async (id) => {
         const result = await aggregateRanks(ranks);
 
         // console.log("rsult", result.length, id)
-        for (rank of result) {
+        for (let rank of result) {
 
             // if(id.toString() === "64b7770016c0eb3bec96a77b"){
 

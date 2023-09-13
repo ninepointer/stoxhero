@@ -31,8 +31,10 @@ function Header() {
     const location = useLocation();
     const [battleDetails, setBattleDetails] = useState({});
     const id = location?.state?.id;
-    const state = location?.state?.elem;
-    const whichTab = location?.state?.whichTab;
+    const [state, setState] = useState(location?.state?.elem)
+    // let state = ;
+    const [whichTab, setWhichTab] = useState(location?.state?.whichTab)
+    // let whichTab = ;
     const getDetails = useContext(userContext);
     let [showPay, setShowPay] = useState(true)
     const [prizeDetail, setPrizeDetail] = useState([]);
@@ -42,6 +44,10 @@ function Header() {
         try {
             const res = await axios.get(`${apiUrl}battles/findbyname?name=${name}&date=${date}`, { withCredentials: true });
             setBattleDetails(res?.data?.data);
+            setState(res?.data?.data)
+            setWhichTab(res?.data?.data?.battleStatus);
+
+            console.log("state, tab", state, whichTab)
         } catch (e) {
             console.log(e);
         }
@@ -60,11 +66,12 @@ function Header() {
     }, [id, location]);
 
     useEffect(() => {
+        if(id || battleDetails?._id)
         prizeDetailFunc();
-    }, [id]);
+    }, [id, battleDetails]);
 
     async function prizeDetailFunc() {
-        const res = await axios.get(`${apiUrl}battles/prizedetail/${id}`, { withCredentials: true });
+        const res = await axios.get(`${apiUrl}battles/prizedetail/${id ? id : battleDetails?._id}`, { withCredentials: true });
         console.log(res)
         setPrizeDetail(res.data.data.prizeDistribution)
 
@@ -139,8 +146,9 @@ function Header() {
         isParticipated = state?.participants.some(subelem => {
             return subelem?.userId?.toString() === getDetails?.userDetails?._id?.toString()
         })
+        console.log("isLoading", isParticipated, state, whichTab)
     }
-    console.log("isLoading", prizeDetail)
+    
     return (
         <Grid xs={12} md={12} lg={12} mt={2} container spacing={1} display='flex' flexDirection='row' alignItems='start'>
             {!isLoading ?
@@ -486,7 +494,7 @@ function Header() {
                                                                     >Start Trading</MDButton>
                                                                 </MDBox>
                                                             </Grid> :
-                                                            <Payment elem={state} whichTab={"view"} showPay={showPay} setShowPay={setShowPay} />
+                                                            <Payment elem={state ? state : battleDetails} whichTab={"view"} showPay={showPay} setShowPay={setShowPay} />
                                                     }
                                                 </>
 

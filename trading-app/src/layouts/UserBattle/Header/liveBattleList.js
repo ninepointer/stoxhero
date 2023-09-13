@@ -393,7 +393,7 @@ function Header({ toggleContest, setToggleContest, battle, showPay, setShowPay, 
                                                                 disabled={(particularBattleTime[0]?.value) > 0}
                                                                 onClick={() => {
                                                                     navigate(`/battles/${elem?.battleName}`, {
-                                                                        state: { data: elem?._id, isNifty: elem?.isNifty, isBank: elem?.isBankNifty, isFin: elem.isFinNifty, timeDifference: timeDifference, name: elem?.battleName, battleEndTime: elem?.battleEndTime, entryFee: elem?.battleTemplate?.entryFee, portfolioValue: elem?.battleTemplate?.portfolioValue }
+                                                                        state: { data: elem?._id, isNifty: elem?.isNifty, isBank: elem?.isBankNifty, isFin: elem.isFinNifty, timeDifference: timeDifference, name: elem?.battleName, endTime: elem?.battleEndTime, entryFee: elem?.battleTemplate?.entryFee, portfolioValue: elem?.battleTemplate?.portfolioValue }
                                                                     });
                                                                 }}
                                                             >
