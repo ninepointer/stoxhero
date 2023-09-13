@@ -106,7 +106,6 @@ const CareerForm = () => {
     if(!mobile_otp || !mobile){
       return openSuccessSB("Data Incomplete", "Please fill all the required fields", "Error");
     }
-    setCreating(true); 
     const res = await fetch(`${baseUrl}api/v1/dailycontest/confirmotp`, {
       method: "POST",
       // credentials:"include",
@@ -130,6 +129,7 @@ const CareerForm = () => {
   });
 
   const data = await res.json();
+  // setCreating(true); 
 
     if(res.status === 201){ 
         setSubmitted(true);
@@ -138,9 +138,7 @@ const CareerForm = () => {
     }else{
         return openSuccessSB("Error",data.message,"Error")
     }
-
   }
-
   async function generateOTP(){
 
     // setDetails(prevState => ({...prevState, mobile_otp: detail.mobile_otp}));
@@ -260,6 +258,8 @@ const CareerForm = () => {
   />
   );
 
+  console.log(contest?.contestStartTime, contestDetails?.contestStartTime, contest, contestDetails)
+
   return (
     <div>
         <ThemeProvider theme={theme}>
@@ -272,13 +272,14 @@ const CareerForm = () => {
                 </MDBox>
                 {(contest?.contestName || contestDetails?.contestName) && <MDBox display='flex' justifyContent='space-between'>
                   <MDTypography fontSize={14} mr={2}>
-                    Contest Start Time:{moment(contest?.contestStartTime||contestDetails?.contestStartTime).format('Do MMM YY HH:MM').toString()}
+                    Contest Start Time: {moment(contest?.contestStartTime||contestDetails?.contestStartTime).format('Do MMM YY HH:mm a').toString()}
                     </MDTypography>
                   <MDTypography fontSize={14} mr={2}>
-                    Contest End Time:{moment(contest?.contestStartTime||contestDetails?.contestEndTime).format('Do MMM YY HH:MM').toString()}
+                    Contest End Time: {moment(contest?.contestEndTime||contestDetails?.contestEndTime).format('Do MMM YY HH:mm a').toString()}
                     </MDTypography>
-                  <MDTypography fontSize={14} mr={2}>Payout:{contest?.payoutPercentage||contestDetails?.payoutPercentage}% of net P&L</MDTypography>
-                  <MDTypography fontSize={14} mr={2}>Entry:{contest?.entryFee?`₹${contest?.entryFee}||${contestDetails?.entryFee}`:'FREE'}</MDTypography>
+                  <MDTypography fontSize={14} mr={2}>Payout: {contest?.payoutPercentage||contestDetails?.payoutPercentage}% of net P&L</MDTypography>
+                  <MDTypography fontSize={14} mr={2}>Entry: {contest?.entryFee?`₹${contest?.entryFee}||${contestDetails?.entryFee}`:'FREE'}</MDTypography>
+                  <MDTypography fontSize={14} mr={2}>Virtual Currency: ₹{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(contest?.portfolio?.portfolioValue ? contest?.portfolio?.portfolioValue : contestDetails?.portfolio?.portfolioValue))}</MDTypography>
                 </MDBox>}
                 <Grid container spacing={2} mt={1} xs={12} md={12} lg={6} display='flex' justifyContent='center' alignItems='center'>
                     <Grid item xs={12} md={6} lg={6}>
@@ -471,3 +472,6 @@ const CareerForm = () => {
 }
 
 export default CareerForm
+
+
+//6UOWyIuWrBj5QdME6zzOA6p1qsLByKL1

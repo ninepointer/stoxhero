@@ -13,29 +13,29 @@ router.get("/getliveprice", async (req, res)=>{
 
   getKiteCred.getAccess().then(async (data) => {
     let {getApiKey, getAccessToken} = data;
-    const infinityInstrument = await InfinityInstrument.find({status: "Active"});
+    // const infinityInstrument = await InfinityInstrument.find({status: "Active"});
     const ans = await Instrument.find({status: "Active"});
     const stockIndex = await StockIndex.find({status: "Active"});
     
     let addUrl;
     ans.forEach((elem, index) => {
       if (index === 0) {
-        addUrl = ('i=' + elem.exchange + ':' + elem.symbol + '&i=' + elem.exchange + ':' + elem.otm);
+        addUrl = ('i=' + elem.exchange + ':' + elem.symbol);
       } else {
-        addUrl += ('&i=' + elem.exchange + ':' + elem.symbol + '&i=' + elem.exchange + ':' + elem.otm);
+        addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
       }
     });
 
 
-    infinityInstrument.forEach((elem, index) => {
-      addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
-    });
+    // infinityInstrument.forEach((elem, index) => {
+    //   addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
+    // });
 
     stockIndex.forEach((elem, index) => {
       addUrl += ('&i=' + "NSE" + ':' + elem.instrumentSymbol);
     });
 
-    let url = `https://api.kite.trade/quote?${addUrl}`;
+    let url = `https://api.kite.trade/quote/ltp?${addUrl}`;
     const api_key = getApiKey; 
     const access_token = getAccessToken;
     let auth = 'token' + api_key + ':' + access_token;
@@ -51,12 +51,13 @@ router.get("/getliveprice", async (req, res)=>{
       try{
         const response = await axios.get(url, authOptions);
         
+        // console.log(response.data.data, response.data, response)
         for (let instrument in response.data.data) {
             let obj = {};
             obj.last_price = response.data.data[instrument].last_price;
             obj.instrument_token = response.data.data[instrument].instrument_token;
-            obj.average_price = response.data.data[instrument].ohlc.close;
-            obj.timestamp = response.data.data[instrument].timestamp
+            obj.average_price = response.data.data[instrument].last_price;
+            obj.timestamp = new Date();
             arr.push(obj);
         }
         return res.status(201).send((arr));
@@ -69,5 +70,3 @@ router.get("/getliveprice", async (req, res)=>{
 })
 
 module.exports = router;
-
-

@@ -1,8 +1,13 @@
 const BattleMock = require("../../models/battle/battleTrade");
 const { ObjectId } = require("mongodb");
 const { client, getValue } = require('../../marketData/redisClient');
-const Battle = require("../../models/marginX/marginX");
+const Battle = require("../../models/battle/battle");
 const {getIOValue} = require('../../marketData/socketio');
+const User = require("../../models/User/userDetailSchema");
+const Instrument = require("../../models/Instruments/instrumentSchema")
+const getKiteCred = require('../../marketData/getKiteCred');
+const axios = require("axios")
+const Wallet = require("../../models/UserWallet/userWalletSchema")
 
 exports.overallPnlTrader = async (req, res, next) => {
     let isRedisConnected = getValue();
@@ -411,7 +416,7 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
                 const portfolioValue = await Battle.aggregate([
                     {
                         $match: {
-                            _id: new ObjectId(id),
+                            _id: new ObjectId("64febd9511c0cd0de1d00d4d"),
                         },
                     },
                     {
@@ -443,6 +448,7 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
                         },
                     },
                 ])
+                // console.log(portfolioValue, new ObjectId(id))
                 if (isRedisConnected) {
                     await client.set(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginBattle`, JSON.stringify(portfolioValue[0]))
                     await client.expire(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginBattle`, secondsRemaining);
@@ -1214,3 +1220,541 @@ exports.BattlePayoutChart = async (req, res, next) => {
 
     res.status(201).json({ message: "data received", data: x });
 }
+
+exports.sendLeaderboardDataBattle = async () => {
+    try {
+        const activeBattle = await Battle.find({ status: "Active" });
+
+        if (activeBattle.length) {
+            contestQueue.push(...activeBattle);
+
+            if (!isProcessingQueue) {
+                // Start processing the queue and set the recurring interval
+                isProcessingQueue = true;
+                setInterval(processContestQueue, 5000);
+            }
+        }
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+async function processContestQueue() {
+    const io = getIOValue();
+    // Get the current time
+    const currentTime = new Date();
+    // Define the start and end time for processing (9 am to 3:18 pm)
+    const startTime = new Date(currentTime);
+    startTime.setHours(3, 0, 0, 0);
+
+    const endTime = new Date(currentTime);
+    endTime.setHours(9, 48, 0, 0);
+
+    if (currentTime >= startTime && currentTime <= endTime) {
+        // console.log("1st if");
+
+        // If the queue is empty, reset the processing flag and return
+        if (contestQueue.length === 0) {
+            // console.log("2nd if");
+            isProcessingQueue = false;
+            return;
+        }
+
+        // Process contests and emit the data
+        for (const battle of contestQueue) {
+            if (battle.status === "Active" && battle.battleStartTime <= new Date()) {
+                const leaderBoard = await battleLeaderBoard(battle._id?.toString());
+                // console.log(leaderBoard, battle._id?.toString());
+                io.to(`${battle._id?.toString()}`).emit('battle-leaderboardData', leaderBoard);
+            }
+        }
+
+        // Clear the processed contests from the queue
+        // contestQueue.length = 0;
+    }
+}
+
+const battleLeaderBoard = async (id) => {
+    try {
+        
+        if (!await client.exists(`${id.toString()}employeeid`)) {
+            let allUsers = await User.find({ status: "Active" });
+
+            let obj = {};
+            for (let i = 0; i < allUsers.length; i++) {
+                let data = {
+                    employeeid: allUsers[i].employeeid,
+                    name: allUsers[i].first_name + " " + allUsers[i].last_name,
+                    photo: allUsers[i]?.profilePhoto?.url,
+                };
+
+                obj[allUsers[i]._id.toString()] = data;
+            }
+
+            try {
+                let temp = await client.set(`${id.toString()}employeeid`, JSON.stringify(obj));
+
+            } catch (err) {
+                console.log(err)
+            }
+        }
+
+        let addUrl;
+        let livePrices = {};
+        let dummyTesting = false;
+        if (dummyTesting) {
+            let filteredTicks = getFilteredTicks();
+            if (filteredTicks.length > 0) {
+                for (tick of filteredTicks) {
+                    livePrices[tick.instrument_token] = tick.last_price;
+                }
+            }
+        } else {
+            const contestInstruments = await Instrument.find({ status: "Active" }).select('instrumentToken exchange symbol');
+            const data = await getKiteCred.getAccess();
+            contestInstruments.forEach((elem, index) => {
+                if (index === 0) {
+                    addUrl = ('i=' + elem.exchange + ':' + elem.symbol);
+                } else {
+                    addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
+                }
+            });
+            const ltpBaseUrl = `https://api.kite.trade/quote/ltp?${addUrl}`;
+            let auth = 'token' + data.getApiKey + ':' + data.getAccessToken;
+
+            let authOptions = {
+                headers: {
+                    'X-Kite-Version': '3',
+                    Authorization: auth,
+                },
+            };
+
+            const response = await axios.get(ltpBaseUrl, authOptions);
+            for (let instrument in response.data.data) {
+                livePrices[response.data.data[instrument].instrument_token] = response.data.data[instrument].last_price;
+            }
+        }
+
+        let ranks;
+
+
+        ranks = await BattleMock.aggregate([
+            // Match documents for the given contestId
+            {
+                $match: {
+                    battleId: new ObjectId(id),
+                    status: "COMPLETE",
+                }
+            },
+            // Group by userId and sum the amount
+            {
+                $group: {
+                    _id: {
+                        trader: "$trader",
+                        // employeeid: "$employeeid",
+                        instrumentToken: "$instrumentToken",
+                        exchangeInstrumentToken: "$exchangeInstrumentToken",
+                        symbol: "$symbol",
+                        product: "$Product",
+                    },
+                    totalAmount: { $sum: { $multiply: ["$amount", -1] } },
+                    investedAmount: {
+                        $sum: {
+                            $cond: {
+                                if: { $gte: ["$amount", 0] },
+                                then: "$amount",
+                                else: 0
+                            }
+                        }
+                    },
+                    brokerage: {
+                        $sum: {
+                            $toDouble: "$brokerage",
+                        },
+                    },
+                    lots: {
+                        $sum: { $toInt: "$Quantity" }
+                    }
+                }
+            },
+            // Sort by totalAmount in descending order
+
+            // Project the result to include only userId and totalAmount
+            {
+                $project: {
+                    _id: 0,
+                    userId: "$_id",
+                    totalAmount: 1,
+                    investedAmount: 1,
+                    brokerage: 1,
+                    lots: 1
+                }
+            },
+            {
+                $addFields: {
+                    rpnl: {
+                        $multiply: ["$lots",]
+                    }
+                }
+            },
+        ]);
+
+        for (doc of ranks) {
+            doc.rpnl = doc.lots * livePrices[doc.userId.instrumentToken];
+            doc.npnl = doc.totalAmount + doc.rpnl - doc.brokerage;
+        }
+
+        const result = await aggregateRanks(ranks, id);
+
+        console.log("rsult", result, id)
+        for (let rank of result) {
+
+            // if(id.toString() === "64b7770016c0eb3bec96a77b"){
+
+            
+                try {
+                    // if (await client.exists(`leaderboard:${id}`)) {
+                        await client.set(`${rank.name} investedAmount`, JSON.stringify(rank));
+                        await client.ZADD(`leaderboard:${id}`, {
+                            score: rank.npnl,
+                            value: JSON.stringify({ name: rank.name })
+                        });
+                    // }
+
+                } catch (err) {
+                    // console.log(err);
+                }
+            // }
+
+        }
+
+        
+        // await client.del(`leaderboard:${id}`)
+        const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "2", 'WITHSCORES'])
+        const formattedLeaderboard = await formatData(leaderBoard)
+        console.log(formattedLeaderboard)
+
+        return formattedLeaderboard;
+    } catch (e) {
+        console.log("redis error", e);
+    }
+
+}
+
+async function formatData(arr) {
+    const formattedLeaderboard = [];
+
+    for (let i = 0; i < arr.length; i += 2) {
+        // Parse the JSON string to an object
+        const obj = JSON.parse(arr[i]);
+        // Add the npnl property to the object
+        let data = await client.get(`${obj.name} investedAmount`)
+        data = JSON.parse(data);
+        obj.npnl = Number(arr[i + 1]);
+        // obj.investedAmount = Number(investedAmount);
+        obj.userName = data.userName;
+        obj.photo = data.photo;
+        // Add the object to the formattedLeaderboard array
+        formattedLeaderboard.push(obj);
+    }
+
+    return formattedLeaderboard;
+}
+
+async function aggregateRanks(ranks, id) {
+    const result = {};
+    for (const curr of ranks) {
+        const { userId, npnl, investedAmount } = curr;
+        const traderId = userId.trader;
+        let employeeidObj = await client.get(`${(id).toString()}employeeid`);
+
+        employeeidObj = JSON.parse(employeeidObj);
+        // console.log("employeeid", employeeidObj)
+        if (!result[traderId]) {
+            result[traderId] = {
+                traderId,
+                name: employeeidObj[traderId.toString()]?.employeeid,
+                npnl: 0,
+                userName: employeeidObj[traderId.toString()]?.name,
+                photo: employeeidObj[traderId.toString()]?.photo,
+                investedAmount: 0,
+
+            };
+        }
+        result[traderId].npnl += npnl;
+        result[traderId].investedAmount += investedAmount
+        // console.log("result", result)
+    }
+    return Object.entries(result).map(([key, value]) => value);
+}
+
+let isProcessingQueue = false;
+const contestQueue = [];
+exports.sendMyRankDataBattle = async () => {
+    const io = getIOValue();
+    try{
+        const activeBattle = await Battle.find({status: "Active"});
+
+
+        if(activeBattle.length){
+            emitLeaderboardData();
+            interval = setInterval(emitLeaderboardData, 5000);    
+        }
+    } catch(err){
+        console.log(err);
+    }
+
+}
+
+const emitLeaderboardData = async () => {
+    const io = getIOValue();
+    const currentTime = new Date();
+    // Define the start and end time for processing (9 am to 3:18 pm)
+    const startTime = new Date(currentTime);
+    startTime.setHours(3, 0, 0, 0);
+    const endTime = new Date(currentTime);
+    endTime.setHours(9, 48, 0, 0);
+    //todo-vijay
+    // if (currentTime >= startTime && currentTime <= endTime) {
+        const battle = await Battle.find({status: "Active", battleStartTime: {$lte: new Date()}});
+
+        // console.log("battle", battle)
+        for(let i = 0; i < battle?.length; i++){
+            const room = io.sockets.adapter.rooms.get(battle[i]?._id?.toString());
+            const socketIds = Array.from(room ?? []);
+            for(let j = 0; j < socketIds?.length; j++){
+                let userId = await client.get(socketIds[j]);
+                // console.log("userId", userId)
+                let data = await client.get(`battleData:${userId}`);
+                data = JSON.parse(data);
+                if(data){
+                    let {id, employeeId} = data;
+                    const myRank = await getRedisMyRank(battle[i]?._id?.toString(), employeeId);
+                    console.log(myRank)
+                    io.to(`${battle[i]?._id?.toString()}${userId?.toString()}`).emit(`battle-myrank${userId}`, myRank);
+                    // await client.del(`leaderboard:${battle[i]?._id?.toString()}`)
+                    // io // Emit the leaderboard data to the client
+                }
+
+            }
+
+        }
+    // }
+};
+
+const getRedisMyRank = async (id, employeeId) => {
+
+    // console.log(id, employeeId, await client.exists(`leaderboard:${id}`))
+    try {
+        if (await client.exists(`leaderboard:${id}`)) {
+
+            const leaderBoardRank = await client.ZREVRANK(`leaderboard:${id}`, JSON.stringify({ name: employeeId }));
+            // console.log("leaderBoardRank", leaderBoardRank)
+            // await client.del(`leaderboard:${id}`)
+            if (leaderBoardRank == null) return null
+            return leaderBoardRank + 1
+        } else {
+            console.log("loading rank")
+        }
+
+    } catch (err) {
+        console.log(err);
+    }
+
+}
+
+
+// Payout
+
+exports.creditAmountToWallet = async () => {
+    console.log("in wallet")
+    try {
+        let date = new Date();
+        let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+        todayDate = todayDate + "T00:00:00.000Z";
+        const today = new Date(todayDate);
+
+        const battle = await Battle.find({ status: "Completed", payoutStatus: null, battleEndTime: {$gte: today} });
+
+        // console.log(battle.length, battle)
+        for (let j = 0; j < battle.length; j++) {
+
+            const userBattleWise = await BattleMock.aggregate([
+                {
+                    $match: {
+                        status: "COMPLETE",
+                        trade_time_utc: {
+                            $gte: today,
+                        },
+                        battleId: new ObjectId(
+                            battle[j]._id
+                        ),
+                    },
+                },
+                {
+                    $group: {
+                        _id: {
+                            userId: "$trader",
+                        },
+                        amount: {
+                            $sum: {
+                                $multiply: ["$amount", -1],
+                            },
+                        },
+                        brokerage: {
+                            $sum: {
+                                $toDouble: "$brokerage",
+                            },
+                        },
+                    },
+                },
+                {
+                    $project: {
+                        userId: "$_id.userId",
+                        _id: 0,
+                        npnl: {
+                            $subtract: ["$amount", "$brokerage"],
+                        },
+                    },
+                },
+                {
+                    $sort:
+                    {
+                        npnl: -1,
+                    },
+                },
+            ])
+
+            const rewardData = await getPrizeDetails(battle[j]._id);
+
+            for(let i = 0; i < userBattleWise.length; i++){
+                const preDefinedReward = rewardData.reward;
+                const wallet = await Wallet.findOne({ userId: new ObjectId(userBattleWise[i].userId) });
+
+                if(preDefinedReward[preDefinedReward.length-1].rank >= i+1){
+                    for(const elem of preDefinedReward){
+    
+                        wallet.transactions = [...wallet.transactions, {
+                            title: 'Battle Credit',
+                            description: `Amount credited for battle ${battle[j].battleName}`,
+                            transactionDate: new Date(),
+                            amount: elem.reward?.toFixed(2),
+                            transactionId: uuid.v4(),
+                            transactionType: 'Cash'
+                        }];
+                        wallet.save();
+
+                        for(let subelem of battle[j]?.participants){
+                            if(subelem.userId.toString() === userBattleWise[i].userId.toString()){
+                                subelem.reward = elem.reward?.toFixed(2);
+                                subelem.rank = elem.rank;
+                            }
+                        }
+
+                        await battle[j].save();
+    
+                    }
+                } else{
+                    const remainingInitialRank = rewardData.remainWinnerStart;
+                    const finalRank = rewardData.totalWinner;
+                    const remainingReward = rewardData.remainingReward
+
+                    for(let k = remainingInitialRank; k <= finalRank; k++){
+                        if(k === i+1){
+                            wallet.transactions = [...wallet.transactions, {
+                                title: 'Battle Credit',
+                                description: `Amount credited for battle ${battle[j].battleName}`,
+                                transactionDate: new Date(),
+                                amount: remainingReward?.toFixed(2),
+                                transactionId: uuid.v4(),
+                                transactionType: 'Cash'
+                            }];
+                            wallet.save();
+    
+                            for(let subelem of battle[j]?.participants){
+                                if(subelem.userId.toString() === userBattleWise[i].userId.toString()){
+                                    subelem.reward = remainingReward?.toFixed(2);
+                                    subelem.rank = k;
+                                }
+                            }
+    
+                            await battle[j].save();
+                        }
+                    }
+                }
+
+            }
+
+            battle[j].payoutStatus = 'Completed'
+            battle[j].status = "Completed";
+            await battle[j].save();
+        }
+
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+const getPrizeDetails = async (battleId) => {
+    try {
+        // 1. Get the corresponding battleTemplate for a given battle
+        const battle = await Battle.findById(battleId).populate('battleTemplate');
+        if (!battle || !battle.battleTemplate) {
+            return res.status(404).json({status:'error', message: "Battle or its template not found." });
+        }
+
+        const template = battle.battleTemplate;
+
+        // Calculate the Expected Collection
+        const expectedCollection = template.entryFee * template.minParticipants;
+        let collection = expectedCollection;
+        let battleParticipants = template?.minParticipants;
+        if(battle?.participants?.length > template?.minParticipants){
+            battleParticipants = battle?.participants?.length;
+            collection = template?.entryFee * battleParticipants;
+        }
+
+        // Calculate the Prize Pool
+        const prizePool = collection - (collection * template.gstPercentage / 100);
+
+        // Calculate the total number of winners
+        const totalWinners = Math.round(template.winnerPercentage * battleParticipants / 100);
+
+        // Determine the reward distribution for each rank mentioned in the rankingPayout
+        let totalRewardDistributed = 0;
+        const rankingReward = template.rankingPayout.map((rankPayout) => {
+            const reward = prizePool * rankPayout.rewardPercentage / 100;
+            totalRewardDistributed += reward;
+            return {
+                rank: rankPayout.rank,
+                reward: reward,
+                rewardPercentage: rankPayout.rewardPercentage
+                
+            };
+        });
+
+        // Calculate the reward for the remaining winners
+        // const remainingWinners = totalWinners - rankingReward.length;
+        // const rewardForRemainingWinners = remainingWinners > 0 ? (prizePool - totalRewardDistributed) / remainingWinners : 0;
+        // const remainingWinnersPercentge = rewardForRemainingWinners * 100/prizePool;
+
+        // if(remainingWinners > 0) {
+        //     rankingReward.push({
+        //         rank: `${rankingReward.length + 1}-${totalWinners}`,
+        //         reward: rewardForRemainingWinners,
+        //         rewardPercentage: remainingWinnersPercentge
+        //     });
+        // }
+
+        // let data = {
+        //     prizePool: prizePool,
+        //     prizeDistribution: rankingReward
+        // };
+
+        return {reward: rankingReward, totalWinner: totalWinners, remainWinnerStart: rankingReward.length + 1, remainingReward: rewardForRemainingWinners};
+
+    } catch(err) {
+        console.log(err)
+        return;
+    }
+};

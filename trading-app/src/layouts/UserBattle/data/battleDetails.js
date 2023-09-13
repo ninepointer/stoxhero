@@ -160,7 +160,7 @@ function Header() {
                                             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
                                                 <MDBox p={1} display='flex' justifyContent='flex-start' alignItems='center'>
                                                     <MDTypography color='white' fontSize={15} fontWeight='bold' style={{ padding: 4, backgroundColor: '#1A73E8', borderRadius: 3, textAlign: 'center' }}>
-                                                        Introducing Battle: Your Gateway to Realistic Trading
+                                                        Introducing Battle: Start your investment learning journey with Battles 
                                                     </MDTypography>
                                                 </MDBox>
                                             </Grid>
@@ -181,7 +181,22 @@ function Header() {
                                             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
                                                 <MDBox p={1} display='flex' justifyContent='center' alignItems='center'>
                                                     <MDTypography color='black' fontSize={15} fontWeight='bold' style={{ textAlign: 'center' }}>
-                                                        In Battle, you won't just learn about trading; you'll experience it. Battle is designed to bridge the gap between learning and real-world trading, allowing you to get as close to the market as possible & also continue to make real profit using virtual currency. Your success in MarginX depends on your ability to make informed decisions, manage risk, and seize opportunities – just like in the real trading world.
+                                                        In Battle, you won't just learn about trading; you'll experience it. Battle is designed to bridge the gap between learning and real-world trading, allowing you to get as close to the market as possible & also continue to make real profit using virtual currency. Your success in Battle depends on your ability to make informed decisions, manage risk, and seize opportunities – just like in the real trading world.
+                                                    </MDTypography>
+                                                </MDBox>
+                                            </Grid>
+
+                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+                                                <MDBox p={1} display='flex' justifyContent='center' alignItems='center'>
+                                                    <MDTypography color='black' fontSize={15} fontWeight='bold' style={{ padding: 4, backgroundColor: 'lightgrey', borderRadius: 3 }}>
+                                                        What is the Prize Pool of the Battle?
+                                                    </MDTypography>
+                                                </MDBox>
+                                            </Grid>
+                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+                                                <MDBox p={1} display='flex' justifyContent='center' alignItems='center'>
+                                                    <MDTypography color='black' fontSize={15} fontWeight='bold' style={{ textAlign: 'center' }}>
+                                                        The intial prize pool is based on the minimum number of participants and it keep on increasing as more and more participants join the battle.
                                                     </MDTypography>
                                                 </MDBox>
                                             </Grid>
@@ -195,21 +210,14 @@ function Header() {
                                             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
                                                 <MDBox p={1} display='flex' justifyContent='center' alignItems='center'>
                                                     <MDTypography color='black' fontSize={15} fontWeight='bold' style={{ textAlign: 'center' }}>
-                                                        Profit on Your Investment: Just like real options trading, you'll make a profit on the amount you've invested. Let's say you've invested Rs. 100. If you grow your trading capital by 10%, your real profit will also be 10% of your invested amount, which is Rs. 10. So your final amount will be Rs. 100 (your invested amount) + Rs. 10 (profit earned), making the total Rs. 110.
+                                                        Rewards on Your Investment: Based on the ranking system table displayed on the page, you will recieve a reward as per you rank in the battle.
                                                     </MDTypography>
                                                 </MDBox>
                                             </Grid>
                                             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
                                                 <MDBox p={1} display='flex' justifyContent='center' alignItems='center'>
                                                     <MDTypography color='black' fontSize={15} fontWeight='bold' style={{ padding: 4, backgroundColor: 'lightgrey', borderRadius: 3, textAlign: 'center' }}>
-                                                        Safety Net: If you end up with the same capital, your entire invested amount is safe.
-                                                    </MDTypography>
-                                                </MDBox>
-                                            </Grid>
-                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
-                                                <MDBox p={1} display='flex' justifyContent='center' alignItems='center'>
-                                                    <MDTypography color='black' fontSize={15} fontWeight='bold' style={{ textAlign: 'center' }}>
-                                                        Proportional Loss: If your capital reduces by 10%, your real loss will also be in the same proportion, i.e., Rs. 10. So your final amount will be Rs. 100 (your invested amount) - Rs. 10 (loss made), making the total Rs. 90.
+                                                        Safety Net: If you end up with the top certain percentage of the participants, your will not loose the major chunk of your invested amount.
                                                     </MDTypography>
                                                 </MDBox>
                                             </Grid>
@@ -217,7 +225,7 @@ function Header() {
                                             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
                                                 <MDBox p={1} display='flex' justifyContent='center' alignItems='center'>
                                                     <MDTypography color='black' fontSize={15} fontWeight='bold' style={{ padding: 4, backgroundColor: 'lightgrey', borderRadius: 3 }}>
-                                                        When will I receive my profit in my wallet?
+                                                        When will I receive my reward in my wallet?
                                                     </MDTypography>
                                                 </MDBox>
                                             </Grid>
@@ -225,7 +233,7 @@ function Header() {
                                             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
                                                 <MDBox p={1} display='flex' justifyContent='center' alignItems='center'>
                                                     <MDTypography color='black' fontSize={15} fontWeight='bold' style={{ textAlign: 'center' }}>
-                                                        You recieve the payout in your wallet as soon as the market closes for that day i.e after 3:30 PM
+                                                        You recieve the reward in your wallet as soon as the market closes for that day i.e after 3:30 PM
                                                     </MDTypography>
                                                 </MDBox>
                                             </Grid>
@@ -256,26 +264,12 @@ function Header() {
                                         <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                             <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                 <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>Battle Name</MDTypography>
+                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>Battle Name</MDTypography>
                                                 </MDBox>
                                             </Grid>
                                             <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                 <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>{whichTab !== "Completed" ? state?.battleName : state?.battleName}</MDTypography>
-                                                </MDBox>
-                                            </Grid>
-                                        </Grid>
-                                    </MDBox>
-                                    <MDBox bgColor='white' minWidth='100%'>
-                                        <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
-                                            <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
-                                                <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>Start Time</MDTypography>
-                                                </MDBox>
-                                            </Grid>
-                                            <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
-                                                <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>{moment(state ? state?.startTime : battleDetails?.startTime).format('DD MMM YYYY HH:MM').toString()}</MDTypography>
+                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>{whichTab !== "Completed" ? state?.battleName : state?.battleName}</MDTypography>
                                                 </MDBox>
                                             </Grid>
                                         </Grid>
@@ -284,12 +278,12 @@ function Header() {
                                         <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                             <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                 <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>End Time</MDTypography>
+                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>Start Time</MDTypography>
                                                 </MDBox>
                                             </Grid>
                                             <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                 <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>{moment(state ? state?.endTime : battleDetails?.endTime).format('DD MMM YYYY HH:MM').toString()}</MDTypography>
+                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>{moment(state ? state?.battleStartTime : battleDetails?.battleStartTime).format('DD MMM YYYY HH:mm a').toString()}</MDTypography>
                                                 </MDBox>
                                             </Grid>
                                         </Grid>
@@ -298,12 +292,26 @@ function Header() {
                                         <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                             <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                 <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>Min Seats</MDTypography>
+                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>End Time</MDTypography>
                                                 </MDBox>
                                             </Grid>
                                             <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                 <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>{state ? state?.battleTemplate?.minParticipants : battleDetails?.battleTemplate?.minParticipants}</MDTypography>
+                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>{moment(state ? state?.battleEndTime : battleDetails?.battleEndTime).format('DD MMM YYYY HH:mm a').toString()}</MDTypography>
+                                                </MDBox>
+                                            </Grid>
+                                        </Grid>
+                                    </MDBox>
+                                    <MDBox bgColor='white' minWidth='100%'>
+                                        <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
+                                            <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
+                                                <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
+                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>Min Participants</MDTypography>
+                                                </MDBox>
+                                            </Grid>
+                                            <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
+                                                <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
+                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>{state ? state?.battleTemplate?.minParticipants : battleDetails?.battleTemplate?.minParticipants}</MDTypography>
                                                 </MDBox>
                                             </Grid>
                                         </Grid>
@@ -313,12 +321,12 @@ function Header() {
                                             <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                                 <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                     <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                        <MDTypography color='black' fontSize={15} fontWeight='bold'>Total Participants</MDTypography>
+                                                        <MDTypography color='black' fontSize={10} fontWeight='bold'>Entires</MDTypography>
                                                     </MDBox>
                                                 </Grid>
                                                 <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                     <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                        <MDTypography color='black' fontSize={15} fontWeight='bold'>{state ? state?.participants?.length : battleDetails?.participants?.length}</MDTypography>
+                                                        <MDTypography color='black' fontSize={10} fontWeight='bold'>{state ? state?.participants?.length : battleDetails?.participants?.length}</MDTypography>
                                                     </MDBox>
                                                 </Grid>
                                             </Grid>
@@ -327,12 +335,15 @@ function Header() {
                                         <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                             <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                 <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>Portfolio Value</MDTypography>
+                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>Portfolio Value</MDTypography>
                                                 </MDBox>
                                             </Grid>
                                             <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                 <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>{state ? ((whichTab !== "Completed") ? state?.battleTemplate?.portfolioValue : state?.portfolioValue) : battleDetails?.battleTemplate?.portfolioValue}</MDTypography>
+                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>
+                                                        {/* {state ? ((whichTab !== "Completed") ? state?.battleTemplate?.portfolioValue : state?.portfolioValue) : battleDetails?.battleTemplate?.portfolioValue} */}
+                                                        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((state ? ((whichTab !== "Completed") ? state?.battleTemplate?.portfolioValue : state?.portfolioValue) : battleDetails?.battleTemplate?.portfolioValue))}
+                                                    </MDTypography>
                                                 </MDBox>
                                             </Grid>
                                         </Grid>
@@ -341,12 +352,14 @@ function Header() {
                                         <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                             <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                 <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>Investment</MDTypography>
+                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>Entry Fee</MDTypography>
                                                 </MDBox>
                                             </Grid>
                                             <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                 <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>{state ? ((whichTab !== "Completed") ? state?.battleTemplate?.entryFee : state?.entryFee) : battleDetails?.battleTemplate?.entryFee}</MDTypography>
+                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>
+                                                        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((state ? ((whichTab !== "Completed") ? state?.battleTemplate?.entryFee : state?.entryFee) : battleDetails?.battleTemplate?.entryFee))}
+                                                    </MDTypography>
                                                 </MDBox>
                                             </Grid>
                                         </Grid>
@@ -357,12 +370,12 @@ function Header() {
                                                 <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>Payout</MDTypography>
+                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>Payout</MDTypography>
                                                         </MDBox>
                                                     </Grid>
                                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>{state?.return?.toFixed(2)}</MDTypography>
+                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{state?.return?.toFixed(2)}</MDTypography>
                                                         </MDBox>
                                                     </Grid>
                                                 </Grid>
@@ -371,12 +384,12 @@ function Header() {
                                                 <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>Payout %</MDTypography>
+                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>Payout %</MDTypography>
                                                         </MDBox>
                                                     </Grid>
                                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>{(((state?.return.toFixed(2) - state?.entryFee) / state?.entryFee) * 100).toFixed(2)}%</MDTypography>
+                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{(((state?.return.toFixed(2) - state?.entryFee) / state?.entryFee) * 100).toFixed(2)}%</MDTypography>
                                                         </MDBox>
                                                     </Grid>
                                                 </Grid>
@@ -389,7 +402,7 @@ function Header() {
                                         <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' border='2px solid grey'>
                                                 <MDBox bgColor='orange' p={0.5} display='flex' justifyContent='center' alignItems='center' minWidth='100%'>
-                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>Reward Table</MDTypography>
+                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>Reward Table</MDTypography>
                                                 </MDBox>
                                             </Grid>
                                         </Grid>
@@ -398,17 +411,17 @@ function Header() {
                                         <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                             <Grid item xs={6} md={6} lg={4} display='flex' justifyContent='center' border='2px solid grey'>
                                                 <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>#</MDTypography>
+                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>#</MDTypography>
                                                 </MDBox>
                                             </Grid>
                                             <Grid item xs={6} md={6} lg={4} display='flex' justifyContent='center' border='2px solid grey'>
                                                 <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>Reward %</MDTypography>
+                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>Reward %</MDTypography>
                                                 </MDBox>
                                             </Grid>
                                             <Grid item xs={6} md={6} lg={4} display='flex' justifyContent='center' border='2px solid grey'>
                                                 <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>Reward</MDTypography>
+                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>Reward</MDTypography>
                                                 </MDBox>
                                             </Grid>
                                         </Grid>
@@ -420,17 +433,20 @@ function Header() {
                                                     <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                                         <Grid item xs={6} md={6} lg={4} display='flex' justifyContent='center' border='2px solid grey'>
                                                             <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                                <MDTypography color='black' fontSize={15} fontWeight='bold'>{elem?.rank}</MDTypography>
+                                                                <MDTypography color='black' fontSize={10} fontWeight='bold'>{elem?.rank}</MDTypography>
                                                             </MDBox>
                                                         </Grid>
                                                         <Grid item xs={6} md={6} lg={4} display='flex' justifyContent='center' border='2px solid grey'>
                                                             <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                                <MDTypography color='black' fontSize={15} fontWeight='bold'>{elem?.rewardPercentage?.toFixed(2)}</MDTypography>
+                                                                <MDTypography color='black' fontSize={10} fontWeight='bold'>{elem?.rewardPercentage?.toFixed(2)}%</MDTypography>
                                                             </MDBox>
                                                         </Grid>
                                                         <Grid item xs={6} md={6} lg={4} display='flex' justifyContent='center' border='2px solid grey'>
                                                             <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                                <MDTypography color='black' fontSize={15} fontWeight='bold'>{elem?.reward?.toFixed(2)}</MDTypography>
+                                                                <MDTypography color='black' fontSize={10} fontWeight='bold'>
+                                                                    {/* {elem?.reward?.toFixed(2)} */}
+                                                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(elem?.reward)}
+                                                                </MDTypography>
                                                             </MDBox>
                                                         </Grid>
                                                     </Grid>

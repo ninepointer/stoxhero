@@ -20,7 +20,7 @@ const { v4: uuidv4 } = require('uuid');
 const { client, getValue } = require('../marketData/redisClient');
 const MarginXMockUser = require("../models/marginX/marginXUserMock");
 const MarginXMockCompany = require("../models/marginX/marginXCompanyMock");
-const BattleMockUser = require("../models/battles/battle");
+const BattleMockUser = require("../models/battle/battleTrade");
 
 
 
