@@ -78,7 +78,7 @@ if(!correctOTP){
 }
 
 if(referrerCode && !await User.findOne({myReferralCode:referrerCode})){
-    return res.status(404).json({status:'error', message:'The campaign code doesn\'t exist. Please check again'});
+    return res.status(404).json({status:'error', message:'The referral code doesn\'t exist. Please check again'});
 }
 
 if(campaignCode && !await Campaign.findOne({campaignCode})){
@@ -117,7 +117,7 @@ if(!existingUser){
         portfolioArr.push(obj);
     }
     let referralUser;
-    if(referrerCode)referralUser = await User.findOne({myReferralCode:referrerCode}).select('_id');
+    if(referrerCode)referralUser = await User.findOne({myReferralCode:referrerCode}).select('_id referrals employeeid email');
     try{
         let obj = {
             first_name : firstName.trim(), 
@@ -176,14 +176,15 @@ if(!existingUser){
             dailyContest.potentialParticipants.push(newuser._id);
             await dailyContest.save({validateBeforeSave:false});
             const referralProgram = await ReferralProgram.findOne({status:'Active'})
-            referralUser.referrals.push({
+            referralUser?.referrals?.push({
                 referredUserId:newuser._id,
                 referralCurrency: referralProgram?.currency,
                 referralEarning: referralProgram?.rewardPerReferral,
                 referralPrgoram: referralProgram?._id
             });
-            const referralUserWallet = await UserWallet.find({userId: referralUser?._id});
-            referralUserWallet.transactions.push({
+            const referralUserWallet = await UserWallet.findOne({userId: referralUser?._id});
+            console.log('referral user wallet',referralUserWallet)
+            referralUserWallet?.transactions?.push({
                 title:'Referral Credit',
                 description:`Amount credited for referral of ${newuser?.first_name} ${newuser?.last_name}`,
                 transactionDate: new Date(),
@@ -191,10 +192,11 @@ if(!existingUser){
                 transactionId: uuid.v4(),
                 transactionType:'Cash'
             });
-            referralProgram?.users.push({
+            referralProgram?.users?.push({
                 userId: newuser?._id,
                 joinedOn: new Date()
             });
+            console.log('referral user', referralUser, referralUser?.referrals);
             await referralProgram?.save({validateBeforeSave:false});
             await referralUser.save({validateBeforeSave:false});
             await referralUserWallet.save({validateBeforeSave:false});
