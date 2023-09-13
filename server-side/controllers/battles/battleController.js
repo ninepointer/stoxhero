@@ -167,14 +167,14 @@ exports.getOngoingBattles = async (req, res) => {
         battleStartTime: { $lte: now },
         battleEndTime: { $gt: now },
         status: 'Active',
-        battleStatus: "Live"
+        //battleStatus: "Live"
     })
     try {
         const ongoingBattles = await Battle.find({
             battleStartTime: { $lte: now },
             battleEndTime: { $gt: now },
             status: 'Active',
-            battleStatus: "Live"
+            //battleStatus: "Live"
         })
             .sort({ battleStartTime: -1 })
             .skip(skip).limit(limit)
@@ -206,7 +206,7 @@ exports.getUserLiveBattles = async (req, res) => {
             battleStartTime: { $lte: now },
             battleEndTime: { $gt: now },
             status: 'Active',
-            battleStatus: "Live"
+            //battleStatus: "Live"
         }).
             populate('battleTemplate', 'BattleTemplateName portfolioValue entryFee gstPercentage platformCommissionPercentage minParticipants winnerPercentage rankingPayout').
             sort({ battleStartTime: -1, entryFee: -1 });
@@ -233,13 +233,13 @@ exports.getUpcomingBattles = async (req, res) => {
     const count = await Battle.countDocuments({
         // battleStartTime: { $gt: now },
         status: 'Active',
-        battleStatus: "Upcoming"
+        //battleStatus: "Upcoming"
     })
     try {
         const upcomingBattles = await Battle.find({
             // battleStartTime: { $gt: now },
             status: 'Active',
-            battleStatus: "Upcoming"
+            //battleStatus: "Upcoming"
         }).sort({ battleStartTime: -1, entryFee: -1 })
             .skip(skip).limit(limit)
             .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage')
@@ -271,7 +271,7 @@ exports.getUserUpcomingBattles = async (req, res) => {
             // battleStartTime: { $gt: now },
             battleLiveTime: { $lt: now },
             status: 'Active',
-            battleStatus: "Upcoming"
+            //battleStatus: "Upcoming"
         }).sort({ battleStartTime: -1, entryFee: -1 })
             .populate('battleTemplate', 'BattleTemplateName portfolioValue entryFee gstPercentage platformCommissionPercentage minParticipants winnerPercentage rankingPayout').
             sort({ battleStartTime: -1, entryFee: -1 });
@@ -625,7 +625,8 @@ exports.processBattles = async () => {
         while (continueProcessing) {
             const battles = await Battle.find({
                 battleStartTime: { $lte: bufferTime },
-                status: 'active'
+                status: 'Active',
+                battleStatus:{$ne:'Cancelled'}
             }).populate('battleTemplate', 'entryFee battleTemplateName').skip(skipCount).limit(BATCH_SIZE);
 
             if (battles.length === 0) {
@@ -636,6 +637,7 @@ exports.processBattles = async () => {
             for (let battle of battles) {
                 if (battle.participants.length < battle.minParticipants) {
                     battle.status = 'Cancelled';
+                    batle.battleStatus = 'Canecelled'
                     // await battle.save();
 
                     // Refund the participants.
@@ -645,7 +647,12 @@ exports.processBattles = async () => {
                         participant.payoutStatus = 'Completed'
                         participant.payout = battle?.battleTemplate?.entryFee
                     }
-                    await battle.save();
+                    await battle.save({validateBeforeSave:false});
+                }else{
+                    battle.status='Active';
+                    battle.battleStatus = 'Live';
+                    await battle.save({validateBeforeSave:false});
+
                 }
             }
             skipCount += BATCH_SIZE;
