@@ -197,7 +197,7 @@ const getTicksForUserPosition = async (socket, id) => {
             instrumentTokenArr.add(obj.exchangeInstrumentToken);
           });
 
-          // console.log("this is instrumentTokenArr");
+          // console.log("this is instrumentTokenArr", instrumentTokenArr);
         } else {
           const user = await User.findById({_id: new ObjectId(id)})
             .populate('allInstruments')
@@ -225,6 +225,7 @@ const getTicksForUserPosition = async (socket, id) => {
 
 
         if (filteredTicks.length > 0) {
+          console.log(filteredTicks.length)
           io.to(`${userId}`).emit('tick-room', filteredTicks);
         }
 
