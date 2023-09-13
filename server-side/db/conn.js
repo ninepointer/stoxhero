@@ -10,9 +10,9 @@ const stagingDB = process.env.STAGINGDB;
 const infinityDB = process.env.INFINITYDB;
 
 
-    mongoose.connect(devDB, {
+    // mongoose.connect(devDB, {
         //  mongoose.connect(DB, {
-        // mongoose.connect(stagingDB, {
+        mongoose.connect(stagingDB, {
         // mongoose.connect(infinityDB, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
