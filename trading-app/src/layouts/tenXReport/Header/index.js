@@ -82,11 +82,11 @@ export default function LabTabs() {
 
     if (selectedSubscription && alignment === dailPnl) {
       const res = await axios.get(`${apiUrl}${endpoint}`, { withCredentials: true });
-      console.log(res.data.data);
+      console.log("Data",res.data.data);
       setDateWiseData(prev => res.data.data);
     } else if(selectedSubscription && alignment === traderWisePnl){
       const res = await axios.get(`${apiUrl}${endpoint}`, { withCredentials: true });
-      console.log(res.data.data);
+      console.log(res.data.liveUser)
       setLiveUser(res.data.liveUser);
       setExpiredUser(res.data.expiredUser);
       setData(res.data.data)
@@ -113,6 +113,39 @@ export default function LabTabs() {
 
   console.log("Selected Subs:",selectedSubscription)
 
+  let revenueCollectedExpired = selectedSubscription?.users.reduce((total, currentItem) => {
+    if (currentItem?.status === "Expired") {
+      return total + currentItem.fee;
+    }
+    return total;
+  }, 0)
+  let revenueCollectedLive = selectedSubscription?.users.reduce((total, currentItem) => {
+    if (currentItem?.status === "Live") {
+      return total + currentItem.fee;
+    }
+    return total;
+  }, 0)
+  let revenueCollected = selectedSubscription?.users.reduce((total, currentItem) => {
+    // if (currentItem.status === "Live") {
+      return total + currentItem.fee;
+    // }
+  }, 0)
+
+  let tradersPayoutCountExpired = expiredUser?.reduce((count, currentItem) => {
+    if (currentItem.payout > 0) {
+      return count + 1;
+    }
+    return count;
+  }, 0);
+
+  let tradersPayoutCountLive = liveUser?.reduce((count, currentItem) => {
+    if (currentItem.payout > 0) {
+      return count + 1;
+    }
+    return count;
+  }, 0);
+  
+  // console.log("Expired Users with Payout:",tradersPayoutExpired)
   return (
    
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
@@ -148,14 +181,14 @@ export default function LabTabs() {
             ))}
           </CustomTextField>
           <ToggleButtonGroup
-      color={textColor}
-      style={{backgroundColor:"white",margin:3}}
-      value={alignment}
-      size='small'
-      exclusive
-      onChange={handleChangeView}
-      aria-label="Platform"
-      >
+          color={textColor}
+          style={{backgroundColor:"white",margin:3}}
+          value={alignment}
+          size='small'
+          exclusive
+          onChange={handleChangeView}
+          aria-label="Platform"
+          >
         <ToggleButton style={{paddingLeft:14,paddingRight:14,fontSize:10,fontWeight:700}} value={dailPnl}> {dailPnl}</ToggleButton>
         <ToggleButton style={{paddingLeft:14,paddingRight:14,fontSize:10,fontWeight:700}} value={traderWisePnl}>{traderWisePnl}</ToggleButton>
       </ToggleButtonGroup>
@@ -171,23 +204,14 @@ export default function LabTabs() {
             <MDBox>
               <Grid container spacing={0} p={1} display="flex" justifyContent="space-around" alignContent="center" alignItems="center">
                 
-                <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
                     <MDTypography fontSize={11}>Subscription:&nbsp;</MDTypography>
                     <MDTypography fontSize={13} fontWeight="bold" >{selectedSubscription?.plan_name}</MDTypography>
                   </MDBox>
                 </Grid>
 
-                <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
-                    <MDTypography fontSize={11}>Portfolio:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" >
-                      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(selectedSubscription?.portfolio?.portfolioValue)}
-                    </MDTypography>
-                  </MDBox>
-                </Grid>
-
-                <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
                     <MDTypography fontSize={11}>Actual Price:&nbsp;</MDTypography>
                     <MDTypography fontSize={13} fontWeight="bold" >
@@ -196,7 +220,7 @@ export default function LabTabs() {
                   </MDBox>
                 </Grid>
 
-                <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
                     <MDTypography fontSize={11}>Discounted Price:&nbsp;</MDTypography>
                     <MDTypography fontSize={13} fontWeight="bold" >
@@ -205,14 +229,169 @@ export default function LabTabs() {
                   </MDBox>
                 </Grid>
 
-                <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11}>Portfolio | ProfitCap:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(selectedSubscription?.portfolio?.portfolioValue)} | ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(selectedSubscription?.profitCap)}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11}>Total Subscriptions:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{selectedSubscription?.users?.length}</MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11}>Live Subscriptions:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{data?.totalLiveUser}</MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Expired Subscriptions:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{data?.totalExpiredUser}</MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Renewed Subscriptions:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{data?.totalRenewed}</MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Revenue(Total):&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(revenueCollected)}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Revenue(Live):&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(revenueCollectedLive)}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Revenue(Expired):&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(revenueCollectedExpired)}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Total Payout(Expired):&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(data?.totalPayout)}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Expected Payout(Expired + Live):&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(data?.totalPayout + data?.totalExpectedPayout)}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Expected Payout(Live):&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(data?.totalExpectedPayout)}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Actual Payout(Expired):&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(data?.totalPayout)}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
                     <MDTypography fontSize={11}>Validity:&nbsp;</MDTypography>
                     <MDTypography fontSize={13} fontWeight="bold" >{selectedSubscription?.validity} trading {selectedSubscription.validityPeriod}</MDTypography>
                   </MDBox>
                 </Grid>
 
-                <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11}>(+) Traders(Live + Expired):&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{tradersPayoutCountExpired+tradersPayoutCountLive}</MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11}>(+) Traders(Live):&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{tradersPayoutCountLive}</MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11}>(+) Traders(Expired):&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{tradersPayoutCountExpired}</MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11}>Status:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{selectedSubscription?.status}</MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Exp. Avg. Payout(Live + Expired):&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((data?.totalPayout + data?.totalExpectedPayout)/(selectedSubscription?.users?.length),0)}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Exp. Avg. Payout(Live):&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((data?.totalExpectedPayout)/(data?.totalLiveUser))}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Act. Avg. Payout(Expired):&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((data?.totalPayout)/(data?.totalExpiredUser))}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
                     <MDButton 
                       variant='outlined' 
@@ -225,52 +404,6 @@ export default function LabTabs() {
                     >
                       View Subscription
                     </MDButton>
-                  </MDBox>
-                </Grid>
-
-                <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
-                    <MDTypography fontSize={11}>Bought:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" >{selectedSubscription?.users?.length}</MDTypography>
-                  </MDBox>
-                </Grid>
-
-                <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
-                    <MDTypography fontSize={11}>Live:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" >{data?.totalLiveUser}</MDTypography>
-                  </MDBox>
-                </Grid>
-
-                <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
-                    <MDTypography fontSize={11} >Expired:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" >{data?.totalExpiredUser}</MDTypography>
-                  </MDBox>
-                </Grid>
-
-                <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
-                    <MDTypography fontSize={11} >Renewed:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" >{data?.totalRenewed}</MDTypography>
-                  </MDBox>
-                </Grid>
-
-                <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
-                    <MDTypography fontSize={11} >Payout:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" >
-                      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(data?.totalPayout)}
-                    </MDTypography>
-                  </MDBox>
-                </Grid>
-
-                <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
-                    <MDTypography fontSize={11} >Expected Payout:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" >
-                      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(data?.totalExpectedPayout)}
-                    </MDTypography>
                   </MDBox>
                 </Grid>
 

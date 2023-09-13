@@ -24,7 +24,7 @@ const PostForm = ({postCount, setPostCount}) => {
     post: '',
   });
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
     ReactGA.pageview(window.location.pathname)

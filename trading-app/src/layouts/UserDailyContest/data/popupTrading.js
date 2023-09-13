@@ -15,7 +15,7 @@ import MDTypography from "../../../components/MDTypography";
 import { useNavigate } from "react-router-dom";
 
 const PopupTrading = ({elem, timeDifference}) => {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));

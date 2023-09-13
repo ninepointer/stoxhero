@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 
 const InactiveBattleTemplates = ({type}) => {
 const [inactiveBattleTemplates,setInactiveBattleTemplates] = useState([]);
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 let [skip, setSkip] = useState(0);
 const limitSetting = 10;
 const [count, setCount] = useState(0);

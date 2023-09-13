@@ -1,7 +1,7 @@
 const BattleMock = require("../../models/battle/battleTrade");
 const { ObjectId } = require("mongodb");
 const { client, getValue } = require('../../marketData/redisClient');
-const Battle = require("../../models/marginX/marginX");
+const Battle = require("../../models/battle/battle");
 const {getIOValue} = require('../../marketData/socketio');
 
 exports.overallPnlTrader = async (req, res, next) => {
@@ -411,7 +411,7 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
                 const portfolioValue = await Battle.aggregate([
                     {
                         $match: {
-                            _id: new ObjectId(id),
+                            _id: new ObjectId("64febd9511c0cd0de1d00d4d"),
                         },
                     },
                     {
@@ -443,6 +443,7 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
                         },
                     },
                 ])
+                // console.log(portfolioValue, new ObjectId(id))
                 if (isRedisConnected) {
                     await client.set(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginBattle`, JSON.stringify(portfolioValue[0]))
                     await client.expire(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginBattle`, secondsRemaining);

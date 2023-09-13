@@ -5,6 +5,8 @@ const Wallet = require("../../models/UserWallet/userWalletSchema");
 const User = require("../../models/User/userDetailSchema");
 const { ObjectId } = require('mongodb');
 const uuid = require("uuid");
+const emailService = require("../../utils/emailService")
+const moment = require('moment')
 
 // Controller for creating a Battle
 exports.createBattle = async (req, res) => {
@@ -821,13 +823,15 @@ exports.deductBattleAmount = async (req, res, next) => {
                 <div class="container">
                 <h1>Battle Fee</h1>
                 <p>Hello ${user.first_name},</p>
-                <p>Thanks for participating in marginX trading! Please find your transaction details below.</p>
+                <p>Thanks for participating in Battle! Please find your transaction details below.</p>
                 <p>User ID: <span class="userid">${user.employeeid}</span></p>
                 <p>Full Name: <span class="password">${user.first_name} ${user.last_name}</span></p>
                 <p>Email: <span class="password">${user.email}</span></p>
                 <p>Mobile: <span class="password">${user.mobile}</span></p>
                 <p>Battle Name: <span class="password">${battle?.battleName}</span></p>
-                <p>Battle Fee: <span class="password">₹${battle?.battleTemplate?.entryFee}/-</span></p>
+                <p>Entry Fee: <span class="password">₹${battle?.battleTemplate?.entryFee}/-</span></p>
+                <p>Start Time: <span class="password">${moment(battle?.battleStartTime).utcOffset('+05:30').format('YYYY-MM-DD HH:mm a')}</span></p>
+                <p>End Time: <span class="password">${moment(battle?.battleEndTime).utcOffset('+05:30').format('YYYY-MM-DD HH:mm a')}</span></p>
                 </div>
             </body>
             </html>
