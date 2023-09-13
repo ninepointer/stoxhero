@@ -610,9 +610,11 @@ exports.getBattleById = async (req, res) => {
     }
 };
 
-const BUFFER_TIME_SECONDS = 30;
-BATCH_SIZE = 50;
+
 exports.processBattles = async () => {
+    console.log("running")
+    const BUFFER_TIME_SECONDS = 30;
+    const BATCH_SIZE = 50;
     try {
         const now = new Date();
         const bufferTime = new Date(now.getTime() + BUFFER_TIME_SECONDS * 1000);
