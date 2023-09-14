@@ -58,6 +58,7 @@ router.get('/contests/completedadmin', Authenticate, restrictTo('Admin', 'SuperA
 router.get('/findbyname', contestController.findContestByName);
 router.post('/generateotp', registrationController.generateOTP);
 router.post('/confirmotp', registrationController.confirmOTP);
+router.get('/registrationcount', Authenticate, registrationController.registeredCount);
 router.get('/draft', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDraftContests);
 
 

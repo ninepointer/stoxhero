@@ -183,6 +183,7 @@ import CreateMarginXTemplate from "./layouts/marginXTemplate/createMarginIndex"
 import CreateMarginX from "./layouts/marginX/createMarginIndex"
 import CreateBattle from "./layouts/battle/createBattleIndex"
 import MarginX from "./layouts/marginX"
+import BattlePosition from "./layouts/battleTraderPosition";
 
 const routes = [
 
@@ -662,6 +663,12 @@ const routes = [
     route: "/marginxdashboard/marginxtraderposition",
     component: <MarginXPositionTrader />,
   },
+  {
+    key: "battleposition",
+    route: "/battledashboard/battleposition",
+    component: <BattlePosition />,
+  },
+  
   {
     key: "virtualposition",
     route: "/virtualposition",

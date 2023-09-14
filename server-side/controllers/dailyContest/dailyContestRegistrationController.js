@@ -361,3 +361,12 @@ while (codeExists) {
 
 return myReferralCode;
 }
+
+exports.registeredCount = async (req, res, next) => {
+
+    const count = await ContestRegistration.countDocuments();
+
+    res.status(200).json({count: count});
+
+
+}
