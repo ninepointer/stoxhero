@@ -104,7 +104,7 @@ function Header({ socket, data }) {
     }, [socket, data?.name]);
 
     const memoizedDailyContestMyRank = useMemo(() => {
-        return <MyRank socket={socket} />;
+        return <MyRank socket={socket} id={data?.data}/>;
     }, [socket]);
 
 
@@ -128,9 +128,9 @@ function Header({ socket, data }) {
                 </MDBox>
             </MDBox>
 
-            <Grid container spacing={0.5} p={0} mt={0.5} sx={{ display: 'flex', flexDirection: 'row' }}>
+            {/* <Grid container spacing={0.5} p={0} mt={0.5} sx={{ display: 'flex', flexDirection: 'row' }}>
 
-                <Grid item xs={12} md={12} lg={8} >
+                <Grid item xs={12} md={12} lg={8} > */}
                     <MDBox color="dark" mt={1} mb={1} borderRadius={10} minHeight='80vH'>
 
 
@@ -146,7 +146,13 @@ function Header({ socket, data }) {
                             </Grid>
                         </Grid>
 
+                        <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
+                            <Grid item xs={12} md={6} lg={12} >
+                            {memoizedDailyContestMyRank}
+                            </Grid>
+                        </Grid>
 
+                        
 
                         <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
                             <Grid item xs={12} md={6} lg={12} >
@@ -161,16 +167,16 @@ function Header({ socket, data }) {
                         </Grid>
                     </MDBox>
 
-                </Grid>
+                {/* </Grid> */}
                 {/* </Grid> */}
 
                 {/* <Grid container spacing={0.5} p={0} mt={0.5} sx={{ display: 'flex', flexDirection: 'row' }}> */}
 
-                <Grid item xs={12} md={12} lg={4} mt={1} >
+                {/* <Grid item xs={12} md={12} lg={4} mt={1} >
                     <MDBox sx={{ backgroundColor: '#EAC17C', height: '100%' }} borderRadius={7}>
                         {memoizedLeaderboard}
                     </MDBox>
-                </Grid>
+                </Grid> */}
 
                 {/* <Grid item xs={12} md={12} lg={4} >
                         <MDBox sx={{ backgroundColor: '#EAC17C', height: '100%' }} borderRadius={3}>
@@ -178,7 +184,7 @@ function Header({ socket, data }) {
                         </MDBox>
                     </Grid> */}
 
-            </Grid>
+            {/* </Grid> */}
         </>
     );
 }

@@ -28,16 +28,19 @@ import FacebookIcon from '@mui/icons-material/Facebook';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { CircularProgress, Divider } from "@mui/material";
 import { userContext } from "../../../AuthContext";
-import { NetPnlContext } from "../../../PnlContext";
+// import { NetPnlContext } from "../../../PnlContext";
+import axios from "axios";
 
 
 
-function Leaderboard({ socket, name }) {
+function Leaderboard({ socket, name, id}) {
 
     const [leaderboard, setLeaderboard] = useState([]);
     const [myRank, setMyRankData] = useState();
+    const [myPnl, setMyPnl] = useState();
     const getDetails = useContext(userContext);
-    const pnl = useContext(NetPnlContext);
+    const [reward, setReward] = useState([]);
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 
     const [loading, setIsLoading] = useState(true);
@@ -64,6 +67,42 @@ function Leaderboard({ socket, name }) {
 
     }, [])
 
+    useEffect(() => {
+        axios.get(`${baseUrl}api/v1/battles/prizedetail/${id}`,{
+          withCredentials: true,
+          headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Credentials": true
+          }}
+          ).then((res)=>{
+            setReward(res.data.data?.prizeDistribution);
+            // setyesterdayData(res.data.data);
+          })
+          
+      }, []);
+
+    useEffect(()=>{
+        leaderboard.map((elem, index)=>{
+            if(myRank === index+1){
+                setMyPnl(elem?.npnl);
+            }
+        })
+    }, [leaderboard, myRank])
+
+    let myReward;
+    reward.map((elem)=>{
+        if((elem.rank == myRank) && !myReward){
+            
+            myReward = elem.reward
+            console.log("reward", myReward, elem.rank ,myRank)
+        } else if((elem.rank.length > 1) && !myReward){
+            myReward = elem.reward
+            console.log("reward in else", myReward, elem.rank ,myRank)
+        }
+    })
+
+
     return (
         <>
             {loading ?
@@ -77,6 +116,7 @@ function Leaderboard({ socket, name }) {
                         <MDBox width='100%' minHeight='auto' display='flex' justifyContent='center'>
 
                             <Grid container spacing={0.5} xs={12} md={12} lg={12}>
+
 
                                 <Grid item xs={12} lg={12} mt={2}>
 
@@ -103,15 +143,15 @@ function Leaderboard({ socket, name }) {
                                             <Grid item xs={12} lg={12} display='flex' justifyContent='left' alignItems='center'>
                                                 <MDTypography fontSize={15} color='black' fontWeight='bold'>StoxHero {name} Contest Leaderboard</MDTypography>
                                             </Grid>
-                                            {/* <Grid item xs={12} lg={4} display='flex' justifyContent='right' alignItems='center' gap={1} mr={1}>
+                                            <Grid item xs={12} lg={4} display='flex' justifyContent='right' alignItems='center' gap={1} mr={1}>
                                                 <MDBox><MDTypography fontSize={15} color='#000000' backgroundColor='#000000' fontWeight='bold' style={{ cursor: 'pointer', borderRadius: "5px" }}><MDButton variant='text' size='small'><TwitterIcon /></MDButton></MDTypography></MDBox>
                                                 <MDBox><MDTypography fontSize={15} color='#000000' backgroundColor='#000000' fontWeight='bold' style={{ cursor: 'pointer', borderRadius: "5px" }}><MDButton variant='text' size='small'><FacebookIcon /></MDButton></MDTypography></MDBox>
                                                 <MDBox><MDTypography fontSize={15} color='#000000' backgroundColor='#000000' fontWeight='bold' style={{ cursor: 'pointer', borderRadius: "5px" }}><MDButton variant='text' size='small'><WhatsAppIcon /></MDButton></MDTypography></MDBox>
-                                            </Grid> */}
+                                            </Grid>
 
                                         </Grid>
 
-                                        <Divider style={{ backgroundColor: 'white' }} />
+                                        <Divider style={{ backgroundColor: 'black' }} />
                                     </Grid>
 
                                 </Grid>
@@ -119,13 +159,39 @@ function Leaderboard({ socket, name }) {
                                 {leaderboard?.length !== 0 ?
                                     <Grid item xs={12} lg={12} mb={-2}>
 
+                                        <Grid container xs={12} lg={12} pb={0.5} pt={0.5} display='flex' justifyContent='center' alignItems='center' >
+
+                                            <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
+                                                <MDBox><MDTypography fontSize={15} color='black' fontWeight='bold'>Rank</MDTypography></MDBox>
+                                            </Grid>
+
+                                            <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
+                                                <MDBox><MDTypography fontSize={15} color='black' fontWeight='bold'>Image</MDTypography></MDBox>
+                                            </Grid>
+
+                                            <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
+                                                <MDBox><MDTypography fontSize={15} color='black' fontWeight='bold'>Name</MDTypography></MDBox>
+                                            </Grid>
+
+                                            <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
+                                                <MDBox><MDTypography fontSize={15} color='black' fontWeight='bold'>Net P&L</MDTypography></MDBox>
+                                            </Grid>
+
+                                            <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
+                                                <MDBox><MDTypography fontSize={15} color='black' fontWeight='bold'>Reward</MDTypography></MDBox>
+                                            </Grid>
+
+                                        </Grid>
+
+                                        <Divider style={{ backgroundColor: 'black' }} />
+
                                         <Grid container xs={12} lg={12} pb={2} pt={2} display='flex' justifyContent='center' alignItems='center' style={{ backgroundColor: '#524632' }}>
 
-                                            <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
+                                            <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
                                                 <MDBox><MDTypography fontSize={25} color='light' fontWeight='bold'>#{myRank}</MDTypography></MDBox>
                                             </Grid>
 
-                                            <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
+                                            <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
 
                                                 {/* <MDBox display='flex' justifyContent='flex-start'><img src={AMargin} width='40px' height='40px' /></MDBox> */}
                                                 <MDAvatar
@@ -146,28 +212,41 @@ function Leaderboard({ socket, name }) {
 
                                             </Grid>
 
-                                            <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center'>
+                                            <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
                                                 <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>You</MDTypography></MDBox>
                                             </Grid>
 
-                                            <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center'>
-                                                <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>{(pnl?.netPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnl?.netPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnl?.netPnl))}</MDTypography></MDBox>
+                                            <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
+                                                <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>{(myPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(myPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-myPnl))}</MDTypography></MDBox>
+                                            </Grid>
+
+                                            <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
+                                                <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>{(myReward) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(myReward)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-myReward))}</MDTypography></MDBox>
                                             </Grid>
 
                                         </Grid>
 
-                                        <Divider style={{ backgroundColor: 'white' }} />
+                                        <Divider style={{ backgroundColor: 'grey' }} />
 
                                         {leaderboard?.map((elem, index) => {
+
+                                            let myReward;
+                                            reward.map((subelem)=>{
+                                                if(subelem.rank == index+1 && !myReward){
+                                                    myReward = subelem.reward
+                                                } else if((subelem.rank.length > 1) && !myReward){
+                                                    myReward = subelem.reward
+                                                }
+                                            })
                                             return (
                                                 <div key={elem?.name}>
                                                     <Grid container xs={12} lg={12} display='flex' justifyContent='center' alignItems='center' border={(myRank == index + 1) && "1px solid black"}>
 
-                                                        <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
+                                                        <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
                                                             <MDBox><MDTypography fontSize={25} color='black' fontWeight='bold'>#{index + 1}</MDTypography></MDBox>
                                                         </Grid>
 
-                                                        <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
+                                                        <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
 
                                                             {/* <MDBox display='flex' justifyContent='flex-start'><img src={AMargin} width='40px' height='40px' /></MDBox> */}
                                                             <MDAvatar
@@ -188,12 +267,16 @@ function Leaderboard({ socket, name }) {
 
                                                         </Grid>
 
-                                                        <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center'>
+                                                        <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
                                                             <MDBox><MDTypography fontSize={15} color='black' fontWeight='bold'>{elem?.userName}</MDTypography></MDBox>
                                                         </Grid>
 
-                                                        <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center'>
-                                                            <MDBox><MDTypography fontSize={15} color='black' fontWeight='bold'>{(pnl?.netPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.npnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-elem?.npnl))}</MDTypography></MDBox>
+                                                        <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
+                                                            <MDBox><MDTypography fontSize={15} color='black' fontWeight='bold'>{(elem?.npnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(elem?.npnl))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(elem?.npnl)))}</MDTypography></MDBox>
+                                                        </Grid>
+
+                                                        <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
+                                                            <MDBox><MDTypography fontSize={15} color='black' fontWeight='bold'>{(myReward) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(myReward))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(myReward)))}</MDTypography></MDBox>
                                                         </Grid>
 
                                                     </Grid>

@@ -38,7 +38,7 @@ const { marginDetail, tradingDays, autoExpireTenXSubscription } = require("../..
 const { getMyPnlAndCreditData } = require("../../controllers/infinityController");
 // const {tenx, paperTrade, infinityTrade} = require("../../controllers/AutoTradeCut/autoTradeCut");
 const { infinityTradeLive } = require("../../controllers/AutoTradeCut/collectingTradeManually")
-const { autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus } = require("../../controllers/AutoTradeCut/mainManually");
+const { autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus, changeBattleStatus} = require("../../controllers/AutoTradeCut/mainManually");
 const TenXTrade = require("../../models/mock-trade/tenXTraderSchema")
 const InternTrade = require("../../models/mock-trade/internshipTrade")
 const InfinityInstrument = require("../../models/Instruments/infinityInstrument");
@@ -69,9 +69,110 @@ const DailyContest = require("../../models/DailyContest/dailyContest")
 const TenxSubscription = require("../../models/TenXSubscription/TenXSubscriptionSchema");
 const InternBatch = require("../../models/Careers/internBatch")
 const DailyLiveContest = require("../../models/DailyContest/dailyContestLiveCompany")
-const { creditAmountToWallet } = require("../../controllers/marginX/marginxController")
+const { creditAmountToWallet } = require("../../controllers/marginX/marginxController");
+const userWallet = require("../../models/UserWallet/userWalletSchema");
+const {processBattles} = require("../../controllers/battles/battleController")
 
 
+
+
+
+router.get("/ltv", async (req, res) => {
+  const data = await userWallet.aggregate([
+    {
+      $unwind: {
+        path: "$transactions",
+      },
+    },
+    {
+      $match: {
+        "transactions.transactionDate": {
+          $gt: new Date("2023-08-31T18:29:59.001Z"),
+          $lte: new Date(
+            "2023-09-30T18:29:59.001Z"
+          ),
+        },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          userId: "$userId",
+        },
+        amount: {
+          $sum: {
+            $cond: [
+              {
+                $or: [
+                  {
+                    $eq: [
+                      "$transactions.title",
+                      "Bought TenX Trading Subscription",
+                    ],
+                  },
+                  {
+                    $eq: [
+                      "$transactions.title",
+                      "MarginX Fee",
+                    ],
+                  },
+                  {
+                    $eq: [
+                      "$transactions.title",
+                      "Contest Fee",
+                    ],
+                  },
+                  {
+                    $eq: [
+                      "$transactions.title",
+                      "Battle Fee",
+                    ],
+                  },
+                ],
+              },
+              {
+                $multiply: [
+                  "$transactions.amount",
+                  -1,
+                ],
+              },
+              0,
+            ],
+          },
+        },
+      },
+    },
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          amount: {
+            $gt: 0,
+          },
+        },
+    },
+    {
+      $project:
+        /**
+         * specifications: The fields to
+         *   include or exclude.
+         */
+        {
+          _id: 0,
+          userId: "$_id.userId",
+          amount: 1,
+        },
+    },
+  ])
+  res.send(data);
+});
+
+router.get("/processBattles", async (req, res) => {
+  const data = await processBattles(req, res)
+  res.send(data);
+});
 
 router.get("/tenxfeild", async (req, res) => {
 
@@ -721,10 +822,10 @@ router.get("/margin", async (req, res) => {
 });
 
 router.get("/afterContest", async (req, res) => {
+  console.log("running after contest")
   await autoCutMainManually();
   await autoCutMainManuallyMock();
-  await changeStatus();
-  await creditAmount();
+  await changeBattleStatus();
   res.send("ok");
 });
 

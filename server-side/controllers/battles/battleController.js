@@ -167,14 +167,14 @@ exports.getOngoingBattles = async (req, res) => {
         battleStartTime: { $lte: now },
         battleEndTime: { $gt: now },
         status: 'Active',
-        //battleStatus: "Live"
+        // battleStatus: "Live"
     })
     try {
         const ongoingBattles = await Battle.find({
             battleStartTime: { $lte: now },
             battleEndTime: { $gt: now },
             status: 'Active',
-            //battleStatus: "Live"
+            // battleStatus: "Live"
         })
             .sort({ battleStartTime: -1 })
             .skip(skip).limit(limit)
@@ -206,7 +206,7 @@ exports.getUserLiveBattles = async (req, res) => {
             battleStartTime: { $lte: now },
             battleEndTime: { $gt: now },
             status: 'Active',
-            //battleStatus: "Live"
+            battleStatus: "Live"
         }).
             populate('battleTemplate', 'BattleTemplateName portfolioValue entryFee gstPercentage platformCommissionPercentage minParticipants winnerPercentage rankingPayout').
             sort({ battleStartTime: -1, entryFee: -1 });
@@ -233,13 +233,13 @@ exports.getUpcomingBattles = async (req, res) => {
     const count = await Battle.countDocuments({
         // battleStartTime: { $gt: now },
         status: 'Active',
-        //battleStatus: "Upcoming"
+        // battleStatus: "Upcoming"
     })
     try {
         const upcomingBattles = await Battle.find({
             // battleStartTime: { $gt: now },
             status: 'Active',
-            //battleStatus: "Upcoming"
+            // battleStatus: "Upcoming"
         }).sort({ battleStartTime: -1, entryFee: -1 })
             .skip(skip).limit(limit)
             .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage')
@@ -271,7 +271,7 @@ exports.getUserUpcomingBattles = async (req, res) => {
             // battleStartTime: { $gt: now },
             battleLiveTime: { $lt: now },
             status: 'Active',
-            //battleStatus: "Upcoming"
+            battleStatus: "Upcoming"
         }).sort({ battleStartTime: -1, entryFee: -1 })
             .populate('battleTemplate', 'BattleTemplateName portfolioValue entryFee gstPercentage platformCommissionPercentage minParticipants winnerPercentage rankingPayout').
             sort({ battleStartTime: -1, entryFee: -1 });
@@ -613,7 +613,7 @@ exports.getBattleById = async (req, res) => {
 
 exports.processBattles = async () => {
     console.log("running")
-    const BUFFER_TIME_SECONDS = 30;
+    const BUFFER_TIME_SECONDS = 120;
     const BATCH_SIZE = 50;
     try {
         const now = new Date();
@@ -627,28 +627,36 @@ exports.processBattles = async () => {
                 battleStartTime: { $lte: bufferTime },
                 status: 'Active',
                 battleStatus:{$ne:'Cancelled'}
-            }).populate('battleTemplate', 'entryFee battleTemplateName').skip(skipCount).limit(BATCH_SIZE);
+            }).populate('battleTemplate', 'entryFee battleTemplateName minParticipants').skip(skipCount).limit(BATCH_SIZE);
 
+            // console.log("battles", battles)
             if (battles.length === 0) {
                 continueProcessing = false;
                 break;
             }
 
             for (let battle of battles) {
-                if (battle.participants.length < battle.minParticipants) {
+                // console.log(battle.battleName)
+                if (battle.participants.length < battle.battleTemplate.minParticipants) {
                     battle.status = 'Cancelled';
                     battle.battleStatus = 'Cancelled'
                     // await battle.save();
 
+                    // console.log("in if", battle.battleName)
+
                     // Refund the participants.
                     for (let participant of battle.participants) {
                         // Your refund logic here.
-                        await refundParticipant(participant?.userId, battleName, battle?.battleTemplate?.entryFee);
+                        console.log("in refund")
+                        await refundParticipant(participant?.userId, battle.battleName, battle?.battleTemplate?.entryFee);
                         participant.payoutStatus = 'Completed'
                         participant.payout = battle?.battleTemplate?.entryFee
                     }
-                    await battle.save({validateBeforeSave:false});
+                    const saved = await battle.save({validateBeforeSave:false});
+                    // console.log("saved", saved)
                 }else{
+
+                    if(battle.battleStartTime >= new Date())
                     battle.status='Active';
                     battle.battleStatus = 'Live';
                     await battle.save({validateBeforeSave:false});
@@ -664,7 +672,9 @@ exports.processBattles = async () => {
 
 const refundParticipant = async (userId, battleName, refundAmount) => {
     //TODO: Add an entry in the transactions collection and store the id in wallet
-    const userWallet = await Wallet.findById(userId);
+    // console.log(userId, battleName, refundAmount)
+    const userWallet = await Wallet.findOne({userId: userId});
+    // console.log(userWallet)
     userWallet.transactions.push({
         title: `Battle Refund`,
         description: `Refund for cancelled battle ${battleName}`,
@@ -725,7 +735,7 @@ exports.deductBattleAmount = async (req, res, next) => {
 
 
 
-        console.log("battle check", battle?.battleTemplate?.entryFee, battle)
+        // console.log("battle check", battle?.battleTemplate?.entryFee, battle)
 
         wallet.transactions = [...wallet.transactions, {
             title: 'Battle Fee',
@@ -852,10 +862,11 @@ exports.deductBattleAmount = async (req, res, next) => {
             </html>
 
         `
-        if (process.env.PROD === "true") {
+        //todo-vijay
+        // if (process.env.PROD === "true") {
             emailService(recipientString, subject, message);
             console.log("Subscription Email Sent")
-        }
+        // }
 
         res.status(200).json({
             status: "success",

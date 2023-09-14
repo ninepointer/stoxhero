@@ -1248,8 +1248,8 @@ const takeBattleTrades = async(tradeObjs)=>{
     await BattleTrade.insertMany(tradeObjs);
     console.log('Documents inserted');
     for(trade of tradeObjs){
-      if (isRedisConnected && await client.exists(`${trade?.trader.toString()}${trade?.battleId.toString()}: overallpnlBattle`)) {
-        let pnl = await client.get(`${trade?.trader.toString()}${trade?.battleId.toString()}: overallpnlBattle`)
+      if (isRedisConnected && await client.exists(`${trade?.trader.toString()}${trade?.battleId.toString()} overallpnlBattle`)) {
+        let pnl = await client.get(`${trade?.trader.toString()}${trade?.battleId.toString()} overallpnlBattle`)
         pnl = JSON.parse(pnl);
         const matchingElement = pnl.find((element) => (element._id.instrumentToken === trade?.instrumentToken && element._id.product === trade?.Product));
   
@@ -1277,15 +1277,15 @@ const takeBattleTrades = async(tradeObjs)=>{
           });
         }
   
-        await client.set(`${trade?.trader.toString()}${trade?.battleId.toString()}: overallpnlBattle`, JSON.stringify(pnl))
+        await client.set(`${trade?.trader.toString()}${trade?.battleId.toString()} overallpnlBattle`, JSON.stringify(pnl))
   
       }
   
       if (isRedisConnected) {
-        await client.expire(`${trade?.trader.toString()}${trade?.battleId.toString()}: overallpnlBattle`, secondsRemaining);
+        await client.expire(`${trade?.trader.toString()}${trade?.battleId.toString()} overallpnlBattle`, secondsRemaining);
       }
   
-      io.emit(`${trade?.trader.toString()}autoCut`, trade);
+      io?.emit(`${trade?.trader.toString()}autoCut`, trade);
     }
     resolve();
 } catch (err) {

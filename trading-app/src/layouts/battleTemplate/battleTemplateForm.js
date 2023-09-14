@@ -348,7 +348,7 @@ let totalNumberOfWinners = template ? ((template?.minParticipants*template?.winn
                     name='entryFee'
                     fullWidth
                     type='number'
-                    value={template ? template?.entryFee : formState?.entryFee}
+                    value={template && isSubmitted ? template?.entryFee : formState?.entryFee}
                     defaultValue={editing ? formState?.entryFee : template?.entryFee}
                     // onChange={handleChange}
                     // onChange={(e) => {
@@ -370,7 +370,7 @@ let totalNumberOfWinners = template ? ((template?.minParticipants*template?.winn
                     name='winnerPercentage'
                     fullWidth
                     type='number'
-                    value={template ? template?.winnerPercentage : formState?.winnerPercentage}
+                    value={template && isSubmitted ? template?.winnerPercentage : formState?.winnerPercentage}
                     defaultValue={editing ? formState?.winnerPercentage : template?.winnerPercentage}
                     // onChange={handleChange}
                     onChange={(e) => {
@@ -390,7 +390,7 @@ let totalNumberOfWinners = template ? ((template?.minParticipants*template?.winn
                     name='platformCommissionPercentage'
                     fullWidth
                     type='number'
-                    value={template ? template?.platformCommissionPercentage : formState?.platformCommissionPercentage}
+                    value={template && isSubmitted ? template?.platformCommissionPercentage : formState?.platformCommissionPercentage}
                     defaultValue={editing ? formState?.platformCommissionPercentage : template?.platformCommissionPercentage}
                     // onChange={handleChange}
                     onChange={(e) => {
@@ -410,7 +410,7 @@ let totalNumberOfWinners = template ? ((template?.minParticipants*template?.winn
                     name='minParticipants'
                     fullWidth
                     type='number'
-                    value={template ? template?.minParticipants : formState?.minParticipants}
+                    value={template && isSubmitted ? template?.minParticipants : formState?.minParticipants}
                     defaultValue={editing ? formState?.minParticipants : template?.minParticipants}
                     // onChange={handleChange}
                     // onChange={(e) => {
@@ -432,8 +432,8 @@ let totalNumberOfWinners = template ? ((template?.minParticipants*template?.winn
                     name='gstPercentage'
                     fullWidth
                     type='number'
-                    value={formState?.gstPercentage}
-                    // defaultValue={editing ? formState?.gstPercentage : template?.gstPercentage}
+                    value={template && isSubmitted ? template?.gstPercentage:formState?.gstPercentage}
+                    defaultValue={editing ? formState?.gstPercentage : template?.gstPercentage}
                     // onChange={handleChange}
                     onChange={(e) => {
                       console.log('change',e.target.value);

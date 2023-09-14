@@ -29,7 +29,7 @@ const battleSchema = new Schema({
     },
     battleStatus:{
         type: String,
-        enum: ['Upcoming','Live','Cancelled'],
+        enum: ['Upcoming','Live','Cancelled', 'Completed'],
         default: 'Upcoming'
     },
     payoutStatus:{

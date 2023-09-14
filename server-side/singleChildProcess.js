@@ -9,7 +9,7 @@ const {sendLeaderboardData, sendMyRankData, emitServerTime} = require("./control
 const {sendMyRankDataBattle, sendLeaderboardDataBattle} = require("./controllers/battles/battleTradeController");
 
 const {saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, saveXtsMargin} = require("./controllers/marginRequired")
-const {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus, changeMarginXStatus} = require("./controllers/AutoTradeCut/mainManually");
+const {autoCutMainManually, autoCutMainManuallyMock, changeBattleStatus, changeStatus, changeMarginXStatus} = require("./controllers/AutoTradeCut/mainManually");
 const { createNewTicker, disconnectTicker,
     subscribeTokens, onError,
     onOrderUpdate, getTicksForUserPosition,
@@ -194,6 +194,7 @@ async function singleProcess() {
         sendMyRankData().then(() => { });
     }
 
+    //todo-vijay
     sendLeaderboardDataBattle().then(() => { });
     sendMyRankDataBattle().then(() => { });
     emitServerTime().then(() => { });
@@ -245,6 +246,7 @@ async function singleProcess() {
                 autoCutMainManuallyMock();
                 changeStatus();
                 changeMarginXStatus();
+                changeBattleStatus();
                 // creditAmount();
             });
 
@@ -270,7 +272,8 @@ async function singleProcess() {
 
     }
 //`*/5 9-23 * * * *`
-    // const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
+    const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
+    // const battle = nodeCron.schedule(`59 3 * * *`, processBattles);
     
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })

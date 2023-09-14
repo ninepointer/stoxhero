@@ -8,6 +8,8 @@ const Instrument = require("../../models/Instruments/instrumentSchema")
 const getKiteCred = require('../../marketData/getKiteCred');
 const axios = require("axios")
 const Wallet = require("../../models/UserWallet/userWalletSchema")
+const Transaction = require('../../models/Transactions/Transaction');
+const uuid = require("uuid")
 
 exports.overallPnlTrader = async (req, res, next) => {
     let isRedisConnected = getValue();
@@ -416,7 +418,7 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
                 const portfolioValue = await Battle.aggregate([
                     {
                         $match: {
-                            _id: new ObjectId("64febd9511c0cd0de1d00d4d"),
+                            _id: new ObjectId(id),
                         },
                     },
                     {
@@ -448,9 +450,10 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
                         },
                     },
                 ])
-                // console.log(portfolioValue, new ObjectId(id))
+                // console.log(portfolioValue, new ObjectId(id), req.user._id)
                 if (isRedisConnected) {
-                    await client.set(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginBattle`, JSON.stringify(portfolioValue[0]))
+                    let data = JSON.stringify(portfolioValue[0]);
+                    await client.set(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginBattle`, data)
                     await client.expire(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginBattle`, secondsRemaining);
                 }
                 res.status(200).json({ status: 'success', data: portfolioValue[0] });
@@ -1226,7 +1229,7 @@ exports.sendLeaderboardDataBattle = async () => {
         const activeBattle = await Battle.find({ status: "Active" });
 
         if (activeBattle.length) {
-            console.log("activeBattle", activeBattle.length)
+            // console.log("activeBattle", activeBattle.length)
             contestQueue.push(...activeBattle);
 
             if (!isProcessingQueue) {
@@ -1263,13 +1266,13 @@ async function processContestQueue() {
         }
 
         // Process contests and emit the data
-        console.log("contestQueue", contestQueue.length)
+        // console.log("contestQueue", contestQueue.length)
         for (const battle of contestQueue) {
             // console.log(battle)
             if ((battle.status === "Active" )&& (battle.battleStartTime <= new Date())) {
-                console.log("battle", battle.battleName)
+                // console.log("battle", battle.battleName)
                 const leaderBoard = await battleLeaderBoard(battle._id?.toString());
-                console.log(leaderBoard, battle._id?.toString());
+                // console.log(leaderBoard, battle._id?.toString());
                 io.to(`${battle._id?.toString()}`).emit('battle-leaderboardData', leaderBoard);
             }
         }
@@ -1411,7 +1414,7 @@ const battleLeaderBoard = async (id) => {
 
         const result = await aggregateRanks(ranks, id);
 
-        console.log("rsult", result, id)
+        // console.log("rsult", result, id)
         for (let rank of result) {
 
             // if(id.toString() === "64b7770016c0eb3bec96a77b"){
@@ -1435,9 +1438,9 @@ const battleLeaderBoard = async (id) => {
 
         
         // await client.del(`leaderboard:${id}`)
-        const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "2", 'WITHSCORES'])
+        const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "19", 'WITHSCORES'])
         const formattedLeaderboard = await formatData(leaderBoard)
-        console.log(formattedLeaderboard)
+        // console.log(formattedLeaderboard)
 
         return formattedLeaderboard;
     } catch (e) {
@@ -1535,7 +1538,7 @@ const emitLeaderboardData = async () => {
                 if(data){
                     let {id, employeeId} = data;
                     const myRank = await getRedisMyRank(battle[i]?._id?.toString(), employeeId);
-                    console.log(myRank)
+                    // console.log(myRank)
                     io.to(`${battle[i]?._id?.toString()}${userId?.toString()}`).emit(`battle-myrank${userId}`, myRank);
                     // await client.del(`leaderboard:${battle[i]?._id?.toString()}`)
                     // io // Emit the leaderboard data to the client
@@ -1569,8 +1572,7 @@ const getRedisMyRank = async (id, employeeId) => {
 }
 
 
-// Payout
-exports.creditAmountToWallet = async () => {
+exports.creditAmountToWalletBattle = async () => {
     console.log("in wallet")
     try {
         let date = new Date();
@@ -1578,7 +1580,7 @@ exports.creditAmountToWallet = async () => {
         todayDate = todayDate + "T00:00:00.000Z";
         const today = new Date(todayDate);
 
-        const battle = await Battle.find({ status: "Completed", payoutStatus: null, battleEndTime: {$gte: today} });
+        const battle = await Battle.find({ status: "Completed", payoutStatus: "Not Started", battleEndTime: {$gte: today} });
 
         // console.log(battle.length, battle)
         for (let j = 0; j < battle.length; j++) {
@@ -1637,25 +1639,40 @@ exports.creditAmountToWallet = async () => {
 
                 if(preDefinedReward[preDefinedReward.length-1].rank >= i+1){
                     for(const elem of preDefinedReward){
+
+                        if(elem.rank === i+1){
+                            console.log("user in top", userBattleWise[i].userId, battle[j].battleName)
+                            wallet.transactions = [...wallet.transactions, {
+                                title: 'Battle Credit',
+                                description: `Amount credited for battle ${battle[j].battleName}`,
+                                transactionDate: new Date(),
+                                amount: elem.reward?.toFixed(2),
+                                transactionId: uuid.v4(),
+                                transactionType: 'Cash'
+                            }];
+                            wallet.save();
     
-                        wallet.transactions = [...wallet.transactions, {
-                            title: 'Battle Credit',
-                            description: `Amount credited for battle ${battle[j].battleName}`,
-                            transactionDate: new Date(),
-                            amount: elem.reward?.toFixed(2),
-                            transactionId: uuid.v4(),
-                            transactionType: 'Cash'
-                        }];
-                        wallet.save();
-
-                        for(let subelem of battle[j]?.participants){
-                            if(subelem.userId.toString() === userBattleWise[i].userId.toString()){
-                                subelem.reward = elem.reward?.toFixed(2);
-                                subelem.rank = elem.rank;
+                            const transacation = await Transaction.create({
+                                transactionCategory: 'Debit',
+                                transactionBy: '63ecbc570302e7cf0153370c',
+                                transactionAmount: elem.reward?.toFixed(2),
+                                transactionFor: 'Battle',
+                                transactionStatus: 'Complete',
+                                transactionMode: 'Wallet',
+                                currency: 'INR',
+                                transactionType: 'Cash',
+                                wallet: wallet._id
+                            });
+    
+                            for(let subelem of battle[j]?.participants){
+                                if(subelem.userId.toString() === userBattleWise[i].userId.toString()){
+                                    subelem.reward = elem.reward?.toFixed(2);
+                                    subelem.rank = elem.rank;
+                                }
                             }
+    
+                            await battle[j].save();
                         }
-
-                        await battle[j].save();
     
                     }
                 } else{
@@ -1665,6 +1682,8 @@ exports.creditAmountToWallet = async () => {
 
                     for(let k = remainingInitialRank; k <= finalRank; k++){
                         if(k === i+1){
+
+                            console.log("users", userBattleWise[i].userId, battle[j].battleName)
                             wallet.transactions = [...wallet.transactions, {
                                 title: 'Battle Credit',
                                 description: `Amount credited for battle ${battle[j].battleName}`,
@@ -1674,6 +1693,18 @@ exports.creditAmountToWallet = async () => {
                                 transactionType: 'Cash'
                             }];
                             wallet.save();
+
+                            const transacation = await Transaction.create({
+                                transactionCategory: 'Debit',
+                                transactionBy: '63ecbc570302e7cf0153370c',
+                                transactionAmount: remainingReward?.toFixed(2),
+                                transactionFor: 'Battle',
+                                transactionStatus: 'Complete',
+                                transactionMode: 'Wallet',
+                                currency: 'INR',
+                                transactionType: 'Cash',
+                                wallet: wallet._id
+                            });
     
                             for(let subelem of battle[j]?.participants){
                                 if(subelem.userId.toString() === userBattleWise[i].userId.toString()){
@@ -1738,8 +1769,8 @@ const getPrizeDetails = async (battleId) => {
         });
 
         // Calculate the reward for the remaining winners
-        // const remainingWinners = totalWinners - rankingReward.length;
-        // const rewardForRemainingWinners = remainingWinners > 0 ? (prizePool - totalRewardDistributed) / remainingWinners : 0;
+        const remainingWinners = totalWinners - rankingReward.length;
+        const rewardForRemainingWinners = remainingWinners > 0 ? (prizePool - totalRewardDistributed) / remainingWinners : 0;
         // const remainingWinnersPercentge = rewardForRemainingWinners * 100/prizePool;
 
         // if(remainingWinners > 0) {

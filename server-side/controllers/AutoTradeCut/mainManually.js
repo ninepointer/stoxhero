@@ -9,6 +9,10 @@ const Contest = require('../../models/DailyContest/dailyContest'); // Assuming y
 const dailyContestLiveCompany = require("../../models/DailyContest/dailyContestLiveCompany")
 const MarginXMock = require("../../models/marginX/marginXCompanyMock");
 const MarginX = require("../../models/marginX/marginX");
+const BattleTrade = require("../../models/battle/battleTrade");
+const Battle = require("../../models/battle/battle");
+const {creditAmountToWalletBattle} = require("../../controllers/battles/battleTradeController");
+
 
 const autoCutMainManually = async() => {
     await infinityTradeLive();
@@ -25,7 +29,7 @@ const autoCutMainManuallyMock = async() => {
         {
             $match: {
                 trade_time: {
-                    $gte: new Date("2023-08-28"),
+                    $gte: new Date(today),
                 },
                 status: "COMPLETE",
             },
@@ -65,13 +69,13 @@ const autoCutMainManuallyMock = async() => {
         },
     ]);
 
+    console.log(data)
+
     if(data.length === 0){
         await tenx();
         await paperTrade();
-        // await internship();
         await internshipTradeMod();
         await infinityTrade();
-        // await dailyContestMock();
         await dailyContestMockMod();
         await marginXMockMod();
         await battleTradeMod();
@@ -358,4 +362,147 @@ const changeMarginXDocStatus = async () => {
 }
 
 
-module.exports = {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus, changeMarginXStatus}
+const changeBattleStatus = async() => {
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+
+    const data = await BattleTrade.aggregate(
+        [
+            {
+                $match:
+                {
+                    trade_time: {
+                        $gte: today
+                    },
+                    status: "COMPLETE",
+                    // appOrderId: null
+                },
+            },
+            {
+                $group:
+                {
+                    _id: {
+                        userId: "$trader",
+                        // subscriptionId: "$subscriptionId",
+                        exchange: "$exchange",
+                        symbol: "$symbol",
+                        instrumentToken: "$instrumentToken",
+                        exchangeInstrumentToken: "$exchangeInstrumentToken",
+                        variety: "$variety",
+                        validity: "$validity",
+                        order_type: "$order_type",
+                        Product: "$Product",
+                        battleId: "$battleId"
+                    },
+                    runningLots: {
+                        $sum: "$Quantity",
+                    },
+                    takeTradeQuantity: {
+                        $sum: {
+                            $multiply: ["$Quantity", -1],
+                        },
+                    },
+                },
+            },
+            {
+                $project:
+                {
+                    _id: 0,
+                    userId: "$_id.userId",
+                    // subscriptionId: "$_id.subscriptionId",
+                    exchange: "$_id.exchange",
+                    symbol: "$_id.symbol",
+                    instrumentToken: "$_id.instrumentToken",
+                    exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
+                    variety: "$_id.variety",
+                    validity: "$_id.validity",
+                    order_type: "$_id.order_type",
+                    Product: "$_id.Product",
+                    runningLots: "$runningLots",
+                    takeTradeQuantity: "$takeTradeQuantity",
+                    battleId: "$_id.battleId"
+                },
+            },
+            {
+                $match: {
+                    runningLots: {
+                        $ne: 0
+                    },
+                }
+            }
+
+        ]
+    );
+
+    console.log("changeBattleStatus", data.length)
+
+    if(data.length === 0){
+        console.log("in if change status..")
+        await changeBattleDocStatus();
+        //TODO:Add credit function
+        await creditBattleAmount();
+        return;
+    }
+
+    await changeBattleStatus();
+}
+
+const changeBattleDocStatus = async () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let date = new Date();
+            let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+            todayDate = todayDate + "T00:00:00.000Z";
+            let todayEndDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` + "T23:00:00.000Z";
+            const today = new Date(todayDate);
+            const todayEnd = new Date(todayEndDate);
+
+
+            const battles = await Battle.find({ status: "Active", endTime: { $gte: today, $lte: todayEnd } });
+
+            for (let j = 0; j < battles.length; j++) {
+                battles[j].status = "Completed";
+                battles[j].battleStatus = 'Completed'
+                await battles[j].save();
+            }
+
+            resolve();
+
+        } catch (error) {
+            reject(error); // Reject the promise if an error occurs
+        }
+
+    });
+}
+
+const creditBattleAmount = async() => {
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+
+    let todayEndDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` + "T23:00:00.000Z";
+    const todayEnd =  new Date(todayEndDate);
+
+
+    const data = await Battle.find({ payoutStatus: "Not Started", status: "Completed", battleEndTime: {$gte: today} });
+    // const contest = await Contest.find({ contestEndTime: {$gte: today, $lte: todayEnd} });
+
+    // console.log("contest", contest.length, data.length);
+
+    // if(data.length === contest.length){
+        if(data.length > 0){
+        console.log("in if wallet..")
+        await creditAmountToWalletBattle();
+        return;
+        
+    }
+
+    await creditAmount();
+}
+
+
+
+module.exports = {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus, changeMarginXStatus, changeBattleStatus}

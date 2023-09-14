@@ -22,6 +22,7 @@ export default function LabTabs({setClicked}) {
     let [showPay, setShowPay] = useState(true);
     const [isInterested, setIsInterested] = useState(false);
     const [battle, setBattle] = useState([]);
+    let [toggleContest, setToggleContest] = useState(true);
   
     useEffect(() => {
       ReactGA.pageview(window.location.pathname)
@@ -48,7 +49,7 @@ export default function LabTabs({setClicked}) {
             setIsLoading(false)
             return new Error(err);
         })
-    }, [isInterested, showPay])
+    }, [isInterested, showPay, toggleContest])
 
 
     return (
@@ -64,7 +65,7 @@ export default function LabTabs({setClicked}) {
                 <Grid container xs={12} md={12} lg={12} display='flex'>
                     
                     <Grid item xs={12} md={6} lg={12} mt={.5}>
-                            <UpcomingBattleList socket={socket} battle={battle} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay}/>
+                        <UpcomingBattleList socket={socket} battle={battle} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay} toggleContest={toggleContest} setToggleContest={setToggleContest}/>
                     </Grid>
 
                 </Grid>
