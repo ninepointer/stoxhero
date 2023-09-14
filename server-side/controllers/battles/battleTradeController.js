@@ -1226,6 +1226,7 @@ exports.sendLeaderboardDataBattle = async () => {
         const activeBattle = await Battle.find({ status: "Active" });
 
         if (activeBattle.length) {
+            console.log("activeBattle", activeBattle.length)
             contestQueue.push(...activeBattle);
 
             if (!isProcessingQueue) {
@@ -1250,7 +1251,8 @@ async function processContestQueue() {
     const endTime = new Date(currentTime);
     endTime.setHours(9, 48, 0, 0);
 
-    if (currentTime >= startTime && currentTime <= endTime) {
+    //todo-vijay
+    // if (currentTime >= startTime && currentTime <= endTime) {
         // console.log("1st if");
 
         // If the queue is empty, reset the processing flag and return
@@ -1261,17 +1263,20 @@ async function processContestQueue() {
         }
 
         // Process contests and emit the data
+        console.log("contestQueue", contestQueue.length)
         for (const battle of contestQueue) {
-            if (battle.status === "Active" && battle.battleStartTime <= new Date()) {
+            // console.log(battle)
+            if ((battle.status === "Active" )&& (battle.battleStartTime <= new Date())) {
+                console.log("battle", battle.battleName)
                 const leaderBoard = await battleLeaderBoard(battle._id?.toString());
-                // console.log(leaderBoard, battle._id?.toString());
+                console.log(leaderBoard, battle._id?.toString());
                 io.to(`${battle._id?.toString()}`).emit('battle-leaderboardData', leaderBoard);
             }
         }
 
         // Clear the processed contests from the queue
         // contestQueue.length = 0;
-    }
+    // }
 }
 
 const battleLeaderBoard = async (id) => {

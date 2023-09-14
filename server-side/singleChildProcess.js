@@ -270,7 +270,7 @@ async function singleProcess() {
 
     }
 //`*/5 9-23 * * * *`
-    const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
+    // const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
     
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })

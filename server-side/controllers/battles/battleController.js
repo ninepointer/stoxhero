@@ -637,7 +637,7 @@ exports.processBattles = async () => {
             for (let battle of battles) {
                 if (battle.participants.length < battle.minParticipants) {
                     battle.status = 'Cancelled';
-                    batle.battleStatus = 'Canecelled'
+                    battle.battleStatus = 'Cancelled'
                     // await battle.save();
 
                     // Refund the participants.

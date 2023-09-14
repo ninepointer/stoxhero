@@ -28,6 +28,7 @@ import FacebookIcon from '@mui/icons-material/Facebook';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { CircularProgress, Divider } from "@mui/material";
 import { userContext } from "../../../AuthContext";
+import { NetPnlContext } from "../../../PnlContext";
 
 
 
@@ -36,6 +37,7 @@ function Leaderboard({ socket, name }) {
     const [leaderboard, setLeaderboard] = useState([]);
     const [myRank, setMyRankData] = useState();
     const getDetails = useContext(userContext);
+    const pnl = useContext(NetPnlContext);
 
 
     const [loading, setIsLoading] = useState(true);
@@ -53,7 +55,7 @@ function Leaderboard({ socket, name }) {
             console.log("leaderboard rank", data)
             setMyRankData((prev) => (data !== null ? data : prev));
             setIsLoading(false);
-    
+
         })
 
         let timer = setTimeout(() => {
@@ -98,14 +100,14 @@ function Leaderboard({ socket, name }) {
                                                     })}
                                                 />
                                             </Grid>
-                                            <Grid item xs={12} lg={6} display='flex' justifyContent='left' alignItems='center'>
+                                            <Grid item xs={12} lg={12} display='flex' justifyContent='left' alignItems='center'>
                                                 <MDTypography fontSize={15} color='black' fontWeight='bold'>StoxHero {name} Contest Leaderboard</MDTypography>
                                             </Grid>
-                                            <Grid item xs={12} lg={4} display='flex' justifyContent='right' alignItems='center' gap={1} mr={1}>
+                                            {/* <Grid item xs={12} lg={4} display='flex' justifyContent='right' alignItems='center' gap={1} mr={1}>
                                                 <MDBox><MDTypography fontSize={15} color='#000000' backgroundColor='#000000' fontWeight='bold' style={{ cursor: 'pointer', borderRadius: "5px" }}><MDButton variant='text' size='small'><TwitterIcon /></MDButton></MDTypography></MDBox>
                                                 <MDBox><MDTypography fontSize={15} color='#000000' backgroundColor='#000000' fontWeight='bold' style={{ cursor: 'pointer', borderRadius: "5px" }}><MDButton variant='text' size='small'><FacebookIcon /></MDButton></MDTypography></MDBox>
                                                 <MDBox><MDTypography fontSize={15} color='#000000' backgroundColor='#000000' fontWeight='bold' style={{ cursor: 'pointer', borderRadius: "5px" }}><MDButton variant='text' size='small'><WhatsAppIcon /></MDButton></MDTypography></MDBox>
-                                            </Grid>
+                                            </Grid> */}
 
                                         </Grid>
 
@@ -117,10 +119,49 @@ function Leaderboard({ socket, name }) {
                                 {leaderboard?.length !== 0 ?
                                     <Grid item xs={12} lg={12} mb={-2}>
 
+                                        <Grid container xs={12} lg={12} pb={2} pt={2} display='flex' justifyContent='center' alignItems='center' style={{ backgroundColor: '#524632' }}>
+
+                                            <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
+                                                <MDBox><MDTypography fontSize={25} color='light' fontWeight='bold'>#{myRank}</MDTypography></MDBox>
+                                            </Grid>
+
+                                            <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
+
+                                                {/* <MDBox display='flex' justifyContent='flex-start'><img src={AMargin} width='40px' height='40px' /></MDBox> */}
+                                                <MDAvatar
+                                                    src={getDetails?.userDetails?.profilePhoto?.url ? getDetails?.userDetails?.profilePhoto?.url : DefaultProfilePic}
+                                                    alt="Profile"
+                                                    size="sm"
+                                                    sx={({ borders: { borderWidth }, palette: { white } }) => ({
+                                                        border: `${borderWidth[2]} solid ${white.main}`,
+                                                        cursor: "pointer",
+                                                        position: "relative",
+                                                        ml: 0,
+
+                                                        "&:hover, &:focus": {
+                                                            zIndex: "10",
+                                                        },
+                                                    })}
+                                                />
+
+                                            </Grid>
+
+                                            <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center'>
+                                                <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>You</MDTypography></MDBox>
+                                            </Grid>
+
+                                            <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center'>
+                                                <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>{(pnl?.netPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnl?.netPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnl?.netPnl))}</MDTypography></MDBox>
+                                            </Grid>
+
+                                        </Grid>
+
+                                        <Divider style={{ backgroundColor: 'white' }} />
+
                                         {leaderboard?.map((elem, index) => {
                                             return (
                                                 <div key={elem?.name}>
-                                                    <Grid container spacing={0.5} xs={12} lg={12} display='flex' justifyContent='center' alignItems='center' border={(myRank == index+1) && "1px solid black"}>
+                                                    <Grid container xs={12} lg={12} display='flex' justifyContent='center' alignItems='center' border={(myRank == index + 1) && "1px solid black"}>
 
                                                         <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
                                                             <MDBox><MDTypography fontSize={25} color='black' fontWeight='bold'>#{index + 1}</MDTypography></MDBox>
@@ -152,7 +193,7 @@ function Leaderboard({ socket, name }) {
                                                         </Grid>
 
                                                         <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center'>
-                                                            <MDBox><MDTypography fontSize={15} color='black' fontWeight='bold'>{(elem?.npnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.npnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-elem?.npnl))}</MDTypography></MDBox>
+                                                            <MDBox><MDTypography fontSize={15} color='black' fontWeight='bold'>{(pnl?.netPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.npnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-elem?.npnl))}</MDTypography></MDBox>
                                                         </Grid>
 
                                                     </Grid>

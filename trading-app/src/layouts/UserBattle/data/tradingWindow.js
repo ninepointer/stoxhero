@@ -20,7 +20,7 @@ import { battle } from '../../../variables';
 import StockIndexDailyContest from "../../tradingCommonComponent/StockIndex/StockIndexDailyContest";
 // import Leaderboard from '../data/dailyContestLeaderboard'
 // import DailyContestMyRank from '../data/dailyContestMyRank'
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import PnlAndMarginData from "./pnlAndMarginData";
 import Order from "../../tradingCommonComponent/orders/Order";
 import Leaderboard from "./Leaderboard"
@@ -43,131 +43,142 @@ function Header({ socket, data }) {
             // console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
             if (serverTimeString === endTimeString) {
                 navigate(`/battle/result`, {
-                    state: { battleId: battleId}
+                    state: { battleId: battleId }
                 })
             }
         });
     }, []);
-    
+
     const handleSetIsGetStartedClicked = useCallback((value) => {
         setIsGetStartedClicked(value);
-      }, []);
+    }, []);
 
-      const memoizedStockIndex = useMemo(() => {
+    const memoizedStockIndex = useMemo(() => {
         return <StockIndexDailyContest socket={socket} />;
-      }, [socket]);
+    }, [socket]);
 
     const memoizedTradableInstrument = useMemo(() => {
         return <TradableInstrument
-          socket={socket}
-          isGetStartedClicked={isGetStartedClicked}
-          setIsGetStartedClicked={handleSetIsGetStartedClicked}
-          from={battle}
-          moduleData={data}
-          watchList={watchList}
+            socket={socket}
+            isGetStartedClicked={isGetStartedClicked}
+            setIsGetStartedClicked={handleSetIsGetStartedClicked}
+            from={battle}
+            moduleData={data}
+            watchList={watchList}
         />;
-      }, [watchList, data, socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
-    
-      const memoizedInstrumentDetails = useMemo(() => {
+    }, [watchList, data, socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
+
+    const memoizedInstrumentDetails = useMemo(() => {
         return <WatchList
-          socket={socket}
-          isGetStartedClicked={isGetStartedClicked}
-          setIsGetStartedClicked={handleSetIsGetStartedClicked}
-          from={battle}
-          subscriptionId={battleId}
-          moduleData={data}
-          setWatchList={setWatchList}
+            socket={socket}
+            isGetStartedClicked={isGetStartedClicked}
+            setIsGetStartedClicked={handleSetIsGetStartedClicked}
+            from={battle}
+            subscriptionId={battleId}
+            moduleData={data}
+            setWatchList={setWatchList}
         />;
-      }, [setWatchList, data, battleId, socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
-    
-      const memoizedOverallPnl = useMemo(() => {
+    }, [setWatchList, data, battleId, socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
+
+    const memoizedOverallPnl = useMemo(() => {
         return <OverallPnl
-          socket={socket}
-          isGetStartedClicked={isGetStartedClicked}
-          setIsGetStartedClicked={handleSetIsGetStartedClicked}
-          from={battle}
-          subscriptionId={battleId}
-          moduleData={data}
+            socket={socket}
+            isGetStartedClicked={isGetStartedClicked}
+            setIsGetStartedClicked={handleSetIsGetStartedClicked}
+            from={battle}
+            subscriptionId={battleId}
+            moduleData={data}
         />;
-      }, [data, battleId, handleSetIsGetStartedClicked, isGetStartedClicked, socket]);
-    
-      const memoizedOrder = useMemo(() => {
+    }, [data, battleId, handleSetIsGetStartedClicked, isGetStartedClicked, socket]);
+
+    const memoizedOrder = useMemo(() => {
         return <Order
-          from={battle}
-          id={battleId}
-          moduleData={data}
+            from={battle}
+            id={battleId}
+            moduleData={data}
         />;
-      }, [data, battleId]);
+    }, [data, battleId]);
 
-      const memoizedLeaderboard = useMemo(() => {
+    const memoizedLeaderboard = useMemo(() => {
         return <Leaderboard socket={socket} name={data?.name} />;
-      }, [socket, data?.name]);
+    }, [socket, data?.name]);
 
-      const memoizedDailyContestMyRank = useMemo(() => {
+    const memoizedDailyContestMyRank = useMemo(() => {
         return <MyRank socket={socket} />;
-      }, [socket]);
+    }, [socket]);
 
 
     return (
         <>
-            <MDBox color="dark" mt={2} mb={1} borderRadius={10} minHeight='80vH'>
-                <MDBox bgColor="lightgrey" display='flex' p={1} borderRadius={10}>
-                    <MDBox width='100%' minHeight='auto' display='flex' justifyContent='center'>
-                        <PnlAndMarginData battleId={battleId} />
-                    </MDBox>
-                </MDBox>
 
-                <MDBox bgColor="lightgrey" display='flex' p={1} mt={1} borderRadius={10}>
-                    <MDBox width='100%' minHeight='auto' display='flex' justifyContent='center'>
-                        <Grid container spacing={1} xs={12} md={12} lg={12}>
-                            <Grid item xs={12} md={6} lg={3}>
-                                <OptionChain socket={socket} data={data}/>
+            <MDBox bgColor="lightgrey" display='flex' p={1} borderRadius={10}>
+                <MDBox width='100%' minHeight='auto' display='flex' justifyContent='center'>
+                    <PnlAndMarginData battleId={battleId} />
+                </MDBox>
+            </MDBox>
+
+            <MDBox bgColor="lightgrey" display='flex' p={1} mt={1} borderRadius={10}>
+                <MDBox width='100%' minHeight='auto' display='flex' justifyContent='center'>
+                    <Grid container spacing={1} xs={12} md={12} lg={12}>
+                        <Grid item xs={12} md={6} lg={3}>
+                            <OptionChain socket={socket} data={data} />
+                        </Grid>
+                        {memoizedStockIndex}
+                    </Grid>
+                </MDBox>
+            </MDBox>
+
+            <Grid container spacing={0.5} p={0} mt={0.5} sx={{ display: 'flex', flexDirection: 'row' }}>
+
+                <Grid item xs={12} md={12} lg={8} >
+                    <MDBox color="dark" mt={1} mb={1} borderRadius={10} minHeight='80vH'>
+
+
+                        <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
+                            <Grid item xs={12} md={6} lg={12} mb={-2} >
+                                {memoizedTradableInstrument}
                             </Grid>
-                            {memoizedStockIndex}
+                        </Grid>
+
+                        <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
+                            <Grid item xs={12} md={6} lg={12} >
+                                {memoizedInstrumentDetails}
+                            </Grid>
+                        </Grid>
+
+
+
+                        <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
+                            <Grid item xs={12} md={6} lg={12} >
+                                {memoizedOverallPnl}
+                            </Grid>
+                        </Grid>
+
+                        <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
+                            <Grid item xs={12} md={6} lg={12} >
+                                {memoizedOrder}
+                            </Grid>
                         </Grid>
                     </MDBox>
-                </MDBox>
 
-                <Grid container  p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
-                    <Grid item xs={12} md={6} lg={12} mb={-2} >
-                        {memoizedTradableInstrument}
-                    </Grid>
+                </Grid>
+                {/* </Grid> */}
+
+                {/* <Grid container spacing={0.5} p={0} mt={0.5} sx={{ display: 'flex', flexDirection: 'row' }}> */}
+
+                <Grid item xs={12} md={12} lg={4} mt={1} >
+                    <MDBox sx={{ backgroundColor: '#EAC17C', height: '100%' }} borderRadius={7}>
+                        {memoizedLeaderboard}
+                    </MDBox>
                 </Grid>
 
-                <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
-                    <Grid item xs={12} md={6} lg={12} >
-                        {memoizedInstrumentDetails}
-                    </Grid>
-                </Grid>
-
-                <Grid container spacing={0.5} p={0} mt={0.5} sx={{ display: 'flex', flexDirection: 'row' }}>
-                    
-                    <Grid item xs={12} md={12} lg={8} >
-                        <MDBox sx={{ backgroundColor: '#EAC17C', height: '100%' }} borderRadius={3}>
-                            {memoizedLeaderboard}
-                        </MDBox>
-                    </Grid>
-                    
-                    <Grid item xs={12} md={12} lg={4} >
+                {/* <Grid item xs={12} md={12} lg={4} >
                         <MDBox sx={{ backgroundColor: '#EAC17C', height: '100%' }} borderRadius={3}>
                             {memoizedDailyContestMyRank}
                         </MDBox>
-                    </Grid>
-                    
-                </Grid>
+                    </Grid> */}
 
-                <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
-                    <Grid item xs={12} md={6} lg={12} >
-                        {memoizedOverallPnl}
-                    </Grid>
-                </Grid>
-
-                <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
-                    <Grid item xs={12} md={6} lg={12} >
-                        {memoizedOrder}
-                    </Grid>
-                </Grid>
-            </MDBox>
+            </Grid>
         </>
     );
 }

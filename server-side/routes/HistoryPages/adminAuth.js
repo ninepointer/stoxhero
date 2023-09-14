@@ -1416,7 +1416,7 @@ router.get("/updateInstrumentStatus", async (req, res) => {
 
   await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
 
-  res.send({ message: "updated", data: userIns })
+  res.send({ message: "updated", data: instrument, data1: infinityInstrument })
 })
 
 router.get("/updatePortfolio", async (req, res) => {
