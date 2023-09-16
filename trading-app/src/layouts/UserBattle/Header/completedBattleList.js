@@ -26,7 +26,7 @@ import MDSnackbar from "../../../components/MDSnackbar";
 // import InfoIcon from '@mui/icons-material/Info';
 import ScreenshotMonitorIcon from '@mui/icons-material/ScreenshotMonitor';
 
-function Header({ marginX }) {
+function Header({ battle }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     // const [timeDifference, setTimeDifference] = useState([]);
     // const getDetails = useContext(userContext);
@@ -41,7 +41,7 @@ function Header({ marginX }) {
 
     async function handleNavigate(id, name) {
         console.log("Details MarginX:", id, name)
-        axios.get(`${baseUrl}api/v1/marginxtrade/${id}/my/allorders`, {
+        axios.get(`${baseUrl}api/v1/battletrade/${id}/my/allorders`, {
             withCredentials: true,
             headers: {
                 Accept: "application/json",
@@ -51,7 +51,7 @@ function Header({ marginX }) {
         })
             .then((res) => {
                 if (res.data.count > 0) {
-                    navigate(`/completedmarginxs/${name}`, {
+                    navigate(`/completedbattles/${name}`, {
                         state: { data: res.data.data }
                     });
                 } else {
@@ -61,27 +61,6 @@ function Header({ marginX }) {
                 return new Error(err);
             })
     }
-
-    // const handleCopy = async (id) => {
-    //     let text = 'https://stoxhero.com/marginxs'
-    //     const textarea = document.createElement('textarea');
-    //     textarea.value = text;
-    //     document.body.appendChild(textarea);
-    //     textarea.select();
-    //     document.execCommand('copy');
-    //     document.body.removeChild(textarea);
-    //     openSuccessSB('success', 'Link Copied', 'Share it with your friends');
-    //     const res = await fetch(`${baseUrl}api/v1/marginx/${id}/share`, {
-    //         method: "PUT",
-    //         credentials: "include",
-    //         headers: {
-    //             "content-type": "application/json",
-    //             "Access-Control-Allow-Credentials": true
-    //         },
-    //         body: JSON.stringify({
-    //         })
-    //     });
-    // };
 
     const captureScreenshot = (id, name) => {
         const screenshotElement = document.getElementById(id);
@@ -188,11 +167,11 @@ function Header({ marginX }) {
                 <>
                     <Grid container spacing={1} xs={12} md={12} lg={12}>
                         {
-                            marginX?.map((elem) => {
+                            battle?.map((elem) => {
                                 if (elem?.entryFee !== 0) {
 
                                     return (
-                                        <Grid item xs={12} md={6} lg={4} borderRadius={3}>
+                                        <Grid item xs={12} md={6} lg={6} borderRadius={3}>
                                             <MDBox id='screenshot-component2'>
                                                 <MDBox p={1} style={{ backgroundColor: "lightgrey", minWidth: '100%', borderRadius: '5px 5px 0px 0px' }} color={"#252525"} size="small">
                                                     <Grid container display='flex' justifyContent='space-between' alignItems='center' minWidth='100%'>
@@ -200,7 +179,7 @@ function Header({ marginX }) {
                                                             <Grid item xs={3} md={2} lg={12} mb={1} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                                                 <Grid item xs={9} md={9} lg={9} display='flex' justifyContent='left'>
                                                                     <MDBox display='flex' justifyContent='flex-start' alignItems='center'>
-                                                                        <MDTypography color='black' fontSize={15} fontWeight='bold'>{elem?.marginxName}</MDTypography>
+                                                                        <MDTypography color='black' fontSize={15} fontWeight='bold'>{elem?.battleName}</MDTypography>
                                                                     </MDBox>
                                                                 </Grid>
                                                                 <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='right'>
@@ -210,7 +189,7 @@ function Header({ marginX }) {
                                                                             // style={{padding:-2,margin:-2}} 
                                                                             size='small'
                                                                             varaint='outlined'
-                                                                            onClick={() => { captureScreenshot('screenshot-component2', elem?.marginxName) }}
+                                                                            onClick={() => { captureScreenshot('screenshot-component2', elem?.battleName) }}
                                                                         >
                                                                             <Tooltip title={"Take Screenshot"} placement="top">
                                                                                 <ScreenshotMonitorIcon color='blue' />
@@ -226,7 +205,7 @@ function Header({ marginX }) {
                                                                 {elem?.isNifty && <MDBox><MDTypography color='white' fontSize={10} ml={0.5} mr={0.5} fontWeight='bold' style={{ backgroundColor: "green", padding: '0px 5px 0px 5px', border: "1px solid green", borderRadius: '5px 5px 5px 5px' }}>{elem?.isNifty === true ? 'NIFTY' : ''}</MDTypography></MDBox>}
                                                                 {elem?.isBankNifty && <MDBox><MDTypography color='black' fontSize={10} ml={0.5} mr={0.5} fontWeight='bold' style={{ backgroundColor: "lightyellow", padding: '0px 5px 0px 5px', border: "1px solid lightyellow", borderRadius: '5px 5px 5px 5px' }}>{elem?.isBankNifty === true ? 'BANKNIFTY' : ''}</MDTypography></MDBox>}
                                                                 {elem?.isFinNifty && <MDBox><MDTypography color='white' fontSize={10} ml={0.5} mr={0.5} fontWeight='bold' style={{ backgroundColor: "orange", padding: '0px 5px 0px 5px', border: "1px solid orange", borderRadius: '5px 5px 5px 5px' }}>{elem?.isFinNifty === true ? 'FINNIFTY' : ''}</MDTypography></MDBox>}
-                                                                {elem?.marginxExpiry && <MDBox><MDTypography color='white' fontSize={10} ml={0.5} mr={0.5} fontWeight='bold' style={{ backgroundColor: "red", padding: '0px 5px 0px 5px', border: "1px solid red", borderRadius: '5px 5px 5px 5px' }}>{elem?.marginxExpiry}</MDTypography></MDBox>}
+                                                                {/* {elem?.marginxExpiry && <MDBox><MDTypography color='white' fontSize={10} ml={0.5} mr={0.5} fontWeight='bold' style={{ backgroundColor: "red", padding: '0px 5px 0px 5px', border: "1px solid red", borderRadius: '5px 5px 5px 5px' }}>{elem?.marginxExpiry}</MDTypography></MDBox>} */}
                                                             </Grid>
                                                         </MDBox>
 
@@ -235,32 +214,38 @@ function Header({ marginX }) {
                                                 <MDBox p={1} style={{ backgroundColor: "white", minWidth: '100%', borderRadius: '0px 0px 5px 5px' }} color={"#252525"}>
 
                                                     <Grid xs={12} md={12} lg={12} pl={1} pr={1} pt={1} pb={.5} container display='flex' justifyContent='center' alignItems='center'>
-                                                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                        <Grid item xs={4} md={4} lg={4} display='flex' justifyContent='flex-start' alignItems='center'>
                                                             <MDTypography style={{ color: 'grey' }} fontSize={12} fontWeight='bold'>Net P&L</MDTypography>
                                                         </Grid>
-                                                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-end' alignItems='center'>
+                                                        <Grid item xs={4} md={4} lg={4} display='flex' justifyContent='center' alignItems='center'>
+                                                            <MDTypography style={{ color: 'grey' }} fontSize={12} fontWeight='bold'>Your Rank</MDTypography>
+                                                        </Grid>
+                                                        <Grid item xs={4} md={4} lg={4} display='flex' justifyContent='flex-end' alignItems='center'>
                                                             <MDTypography style={{ color: 'grey' }} fontSize={12} fontWeight='bold'>Net Earnings</MDTypography>
                                                         </Grid>
                                                     </Grid>
 
                                                     <Grid xs={12} md={12} lg={12} pl={1} pr={1} container display='flex' justifyContent='center' alignItems='center'>
-                                                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-start' alignItems='center'>
-                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{(elem?.npnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.npnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-elem?.npnl))}</MDTypography>
+                                                        <Grid item xs={6} md={6} lg={4} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{(elem?.npnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(elem?.npnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-elem?.npnl))}</MDTypography>
                                                         </Grid>
-                                                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{(elem?.return) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.return)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-elem?.return))}</MDTypography>
+                                                        <Grid item xs={6} md={6} lg={4} display='flex' justifyContent='center' alignItems='center'>
+                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{elem?.rank}</MDTypography>
+                                                        </Grid>
+                                                        <Grid item xs={6} md={6} lg={4} display='flex' justifyContent='flex-end' alignItems='center'>
+                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{(elem?.payout) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(elem?.payout)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-elem?.payout))}</MDTypography>
                                                         </Grid>
                                                     </Grid>
 
-                                                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                                                    <Grid item xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='center' alignItems='center'>
                                                         <img src={WinnerImage} width='60px' height='60px' />
                                                     </Grid>
 
                                                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Return</MDTypography></MDBox>
-                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>% OF YOUR INVESTMENT</MDTypography></MDBox>
+                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Prize Pool</MDTypography></MDBox>
+                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>{elem?.prizePool}</MDTypography></MDBox>
                                                             </MDBox>
                                                         </MDBox>
                                                     </Grid>
@@ -276,10 +261,10 @@ function Header({ marginX }) {
 
                                                     <Grid xs={12} md={12} lg={12} pl={1} pr={1} pb={.5} container display='flex' justifyContent='center' alignItems='center'>
                                                         <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-start' alignItems='center'>
-                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{changeDateFormat(elem.startTime)}</MDTypography>
+                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{changeDateFormat(elem.battleStartTime)}</MDTypography>
                                                         </Grid>
                                                         <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{changeDateFormat(elem.endTime)}</MDTypography>
+                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{changeDateFormat(elem.battleEndTime)}</MDTypography>
                                                         </Grid>
                                                     </Grid>
 
@@ -308,8 +293,8 @@ function Header({ marginX }) {
                                                                 size='small'
                                                                 color='info'
                                                                 onClick={() => {
-                                                                    navigate(`/marginxs/${elem?.marginxName}/${elem?.startTime.split('T')[0]}`, {
-                                                                        state: { elem: elem, date: elem?.startTime, id: elem?.marginxId, whichTab: "Completed" }
+                                                                    navigate(`/battles/${elem?.battleName}/${elem?.battleStartTime.split('T')[0]}`, {
+                                                                        state: { elem: elem, date: elem?.battleStartTime, id: elem?.battleId, whichTab: "Completed" }
                                                                     })
                                                                 }}
                                                             >
@@ -325,7 +310,7 @@ function Header({ marginX }) {
                                                                 size='small'
                                                                 color='success'
                                                                 component={Link}
-                                                                onClick={() => { handleNavigate(elem?.marginxId, elem?.marginxName) }}
+                                                                onClick={() => { handleNavigate(elem?.battleId, elem?.battleName) }}
                                                             >
                                                                 Orders
                                                             </MDButton>

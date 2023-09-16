@@ -8,7 +8,7 @@ import Footer from "../../examples/Footer";
 // import { userContext } from "../../AuthContext";
 // import ReactGA from "react-ga"
 // import { useLocation } from "react-router-dom";
-import MarginXOrders from "./data/viewOrders";
+import BattleOrders from "./data/viewOrders";
 
 function Tables() {
 
@@ -17,7 +17,7 @@ function Tables() {
     <>
     <DashboardLayout>
       <DashboardNavbar />
-        <MarginXOrders />
+        <BattleOrders />
       <Footer />
     </DashboardLayout>
     </>

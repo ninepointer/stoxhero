@@ -7,6 +7,7 @@ const { ObjectId } = require('mongodb');
 const uuid = require("uuid");
 const emailService = require("../../utils/emailService")
 const moment = require('moment')
+const BattleTrade = require("../../models/battle/battleTrade");
 
 // Controller for creating a Battle
 exports.createBattle = async (req, res) => {
@@ -292,12 +293,9 @@ exports.getUserUpcomingBattles = async (req, res) => {
 exports.getUserCompletedBattles = async (req, res) => {
     const userId = req.user._id;
     try {
-
-
-        const completed = await Battle.aggregate([
+        const completed = await BattleTrade.aggregate([
             {
-                $match:
-                {
+                $match: {
                     status: "COMPLETE",
                     trader: new ObjectId(
                         userId
@@ -305,10 +303,15 @@ exports.getUserCompletedBattles = async (req, res) => {
                 },
             },
             {
-                $group:
-                {
+                $group: {
                     _id: {
                         battleId: "$battleId",
+                        symbol: "$symbol",
+                        product: "$Product",
+                        instrumentToken: "$instrumentToken",
+                        exchangeInstrumentToken:
+                            "$exchangeInstrumentToken",
+                        exchange: "$exchange",
                     },
                     amount: {
                         $sum: {
@@ -341,69 +344,109 @@ exports.getUserCompletedBattles = async (req, res) => {
                 },
             },
             {
-                $lookup:
-                {
+                $unwind: {
+                    path: "$battle",
+                },
+            },
+            {
+                $match: {
+                    "battle.status": "Completed",
+                    "battle.payoutStatus": "Completed",
+                    "battle.battleStatus": "Completed",
+                },
+            },
+            {
+                $lookup: {
                     from: "battle-templates",
                     localField: "battle.battleTemplate",
                     foreignField: "_id",
-                    as: "templates",
+                    as: "template",
+                },
+            },
+            {
+                $addFields: {
+                    totalParticipants: {
+                        $size: "$battle.participants",
+                    },
+                },
+            },
+            {
+                $unwind:
+                {
+                    path: "$battle.participants",
+                },
+            },
+            {
+                $match:
+                {
+                    "battle.participants.userId": new ObjectId(
+                        userId
+                    ),
                 },
             },
             {
                 $project:
                 {
-                    battleId: "$battleId",
-                    npnl: "$npnl",
+                    battleId: 1,
+                    npnl:1,
+                    totalParticipants: 1,
+                    rank: "$battle.participants.rank",
+                    payout: "$battle.participants.reward",
+                    battleStartTime:
+                        "$battle.battleStartTime",
+                        battleName:
+                        "$battle.battleName",
+                    
+                        isNifty: "$battle.isNifty",
+                        isFinNifty: "$battle.isFinNifty",
+                        isBankNifty: "$battle.isBankNifty",
+                       
+                    battleEndTime: "$battle.battleEndTime",
+                    entryFee: {
+                        $arrayElemAt: ["$template.entryFee", 0],
+                    },
                     portfolioValue: {
                         $arrayElemAt: [
-                            "$templates.portfolioValue",
+                            "$template.portfolioValue",
                             0,
                         ],
-                    },
-                    entryFee: {
-                        $arrayElemAt: [
-                            "$templates.entryFee",
-                            0,
-                        ],
-                    },
-                    battleStartTime: {
-                        $arrayElemAt: ["$battle.battleStartTime", 0],
-                    },
-                    battleEndTime: {
-                        $arrayElemAt: ["$battle.battleEndTime", 0],
-                    },
-                    battleName: {
-                        $arrayElemAt: ["$battle.battleName", 0],
-                    },
-                    isNifty: {
-                        $arrayElemAt: ["$battle.isNifty", 0],
-                    },
-                    isBankNifty: {
-                        $arrayElemAt: ["$battle.isBankNifty", 0],
-                    },
-                    isFinNifty: {
-                        $arrayElemAt: ["$battle.isFinNifty", 0],
-                    },
-                    battleType: {
-                        $arrayElemAt: ["$battle.battleTemplate.battleType", 0],
                     },
                     minParticipants: {
-                        $arrayElemAt: ["$battle.battleTemplate.minParticipants", 0],
+                        $arrayElemAt: [
+                            "$template.minParticipants",
+                            0,
+                        ],
                     },
-                },
-            },
-            {
-                $sort:
-                {
-                    battleStartTime: 1,
+                    gst: {
+                        $arrayElemAt: [
+                            "$template.gstPercentage",
+                            0,
+                        ],
+                    },
+                    platformPercentage: {
+                        $arrayElemAt: [
+                            "$template.platformCommissionPercentage",
+                            0,
+                        ],
+                    },
+                    collection: {
+                        $multiply: [
+                            "$totalParticipants",
+                            {
+                                $arrayElemAt: [
+                                    "$template.entryFee",
+                                    0,
+                                ],
+                            },
+                        ],
+                    },
                 },
             },
         ])
 
         for (let elem of completed) {
-            let xFactor = (elem.portfolioValue / elem.entryFee);
-            elem.return = elem.entryFee + elem.npnl / xFactor;
-            elem.return = elem.return > 0 ? elem.return : 0;
+            let gstApply = (elem.collection - elem.collection*elem.gst/100);
+            elem.prizePool = gstApply - gstApply*elem.platformPercentage/100;
         }
 
         res.status(200).json({
