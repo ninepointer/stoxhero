@@ -7,7 +7,7 @@ import Card from "@mui/material/Card";
 
 
 export default function AllowedUsers({battle,expectedPrizePool}) {
-    console.log("Battle in Exp. Ranking System:",battle)
+    console.log("Battle in Exp. Ranking System:",battle, (battle?.participants?.length <= battle?.battleTemplate?.minParticipants))
     let columns = [
         { Header: "Rank", accessor: "rank", align: "center" },
         { Header: "Reward Percentage", accessor: "rewardpercentage", align: "center" },

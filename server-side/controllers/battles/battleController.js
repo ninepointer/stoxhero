@@ -167,14 +167,14 @@ exports.getOngoingBattles = async (req, res) => {
         battleStartTime: { $lte: now },
         battleEndTime: { $gt: now },
         status: 'Active',
-        // battleStatus: "Live"
+        battleStatus: "Live"
     })
     try {
         const ongoingBattles = await Battle.find({
             battleStartTime: { $lte: now },
             battleEndTime: { $gt: now },
             status: 'Active',
-            // battleStatus: "Live"
+            battleStatus: "Live"
         })
             .sort({ battleStartTime: -1 })
             .skip(skip).limit(limit)
@@ -233,13 +233,13 @@ exports.getUpcomingBattles = async (req, res) => {
     const count = await Battle.countDocuments({
         // battleStartTime: { $gt: now },
         status: 'Active',
-        // battleStatus: "Upcoming"
+        battleStatus: "Upcoming"
     })
     try {
         const upcomingBattles = await Battle.find({
             // battleStartTime: { $gt: now },
             status: 'Active',
-            // battleStatus: "Upcoming"
+            battleStatus: "Upcoming"
         }).sort({ battleStartTime: -1, entryFee: -1 })
             .skip(skip).limit(limit)
             .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage')
@@ -992,7 +992,8 @@ exports.getPrizeDetails = async (req, res, next) => {
         }
 
         // Calculate the Prize Pool
-        const prizePool = collection - (collection * template.gstPercentage / 100);
+        let prizePool = collection - (collection * template.gstPercentage / 100)
+        prizePool = prizePool - (prizePool * template.platformCommissionPercentage / 100);
 
         // Calculate the total number of winners
         const totalWinners = Math.round(template.winnerPercentage * battleParticipants / 100);
@@ -1016,8 +1017,9 @@ exports.getPrizeDetails = async (req, res, next) => {
         const remainingWinnersPercentge = rewardForRemainingWinners * 100/prizePool;
 
         if(remainingWinners > 0) {
+            const remainRank = (rankingReward.length + 1 === totalWinners) ? totalWinners : `${rankingReward.length + 1}-${totalWinners}`;
             rankingReward.push({
-                rank: `${rankingReward.length + 1}-${totalWinners}`,
+                rank: remainRank,
                 reward: rewardForRemainingWinners,
                 rewardPercentage: remainingWinnersPercentge
             });

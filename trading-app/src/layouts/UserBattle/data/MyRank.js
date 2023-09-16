@@ -70,7 +70,12 @@ function MyRank({ socket, id}) {
             
             myReward = elem.reward
         } else if((elem.rank.length > 1) && !myReward){
-            myReward = elem.reward
+            let splited = elem.rank.split("-");
+            if(splited[0] <= myRank <= splited[1]){
+                myReward = elem.reward
+            } else{
+                myReward = 0;
+            }
         }
     })
 

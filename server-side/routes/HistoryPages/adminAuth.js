@@ -823,8 +823,8 @@ router.get("/margin", async (req, res) => {
 
 router.get("/afterContest", async (req, res) => {
   console.log("running after contest")
-  await autoCutMainManually();
-  await autoCutMainManuallyMock();
+  // await autoCutMainManually();
+  // await autoCutMainManuallyMock();
   await changeBattleStatus();
   res.send("ok");
 });
@@ -1475,7 +1475,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2023-09-13T00:00:00.000+00:00"
+  let expiryDate = "2023-09-15T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(

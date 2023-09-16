@@ -63,7 +63,7 @@ function Index() {
   const [battleTemplates, setBattleTemplates] = useState([]);
   const [createdBattle, setCreatedBattle] = useState();
   const [action, setAction] = useState(false);
-  console.log("battle:",battle)
+
   
   const [formState, setFormState] = useState({
     battleName: '' || battle?.battleName,
@@ -90,7 +90,7 @@ function Index() {
 
   });
 
-  console.log("formState", formState)
+  console.log("formState", battle)
   useEffect(() => {
     setTimeout(() => {
       // marginx && setUpdatedDocument(marginx)
@@ -108,6 +108,7 @@ function Index() {
         return new Error(err)
       })
   }, [])
+
 
   const handleTemplateChange = (event) => {
     const {

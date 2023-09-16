@@ -46,7 +46,7 @@ function Leaderboard({ socket, name, id}) {
     const [loading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        socket?.on("battle-leaderboardData", (data) => {
+        socket?.on(`battle-leaderboardData${id}`, (data) => {
 
             console.log("leaderboard", data)
             setLeaderboard(data);
@@ -97,7 +97,13 @@ function Leaderboard({ socket, name, id}) {
             myReward = elem.reward
             console.log("reward", myReward, elem.rank ,myRank)
         } else if((elem.rank.length > 1) && !myReward){
-            myReward = elem.reward
+            let splited = elem.rank.split("-");
+            if(splited[0] <= myRank <= splited[1]){
+                myReward = elem.reward
+            } else{
+                myReward = 0;
+            }
+            
             console.log("reward in else", myReward, elem.rank ,myRank)
         }
     })
@@ -188,7 +194,7 @@ function Leaderboard({ socket, name, id}) {
                                         <Grid container xs={12} lg={12} pb={2} pt={2} display='flex' justifyContent='center' alignItems='center' style={{ backgroundColor: '#524632' }}>
 
                                             <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
-                                                <MDBox><MDTypography fontSize={25} color='light' fontWeight='bold'>#{myRank}</MDTypography></MDBox>
+                                                <MDBox><MDTypography fontSize={25} color='light' fontWeight='bold'>{myRank ? `#${myRank}` : `-`}</MDTypography></MDBox>
                                             </Grid>
 
                                             <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
@@ -217,11 +223,11 @@ function Leaderboard({ socket, name, id}) {
                                             </Grid>
 
                                             <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
-                                                <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>{(myPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(myPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-myPnl))}</MDTypography></MDBox>
+                                                <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>{myPnl ? (myPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(myPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-myPnl))  : "-"}</MDTypography></MDBox>
                                             </Grid>
 
                                             <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
-                                                <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>{(myReward) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(myReward)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-myReward))}</MDTypography></MDBox>
+                                                <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>{myReward ? (myReward) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(myReward)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-myReward)) : "-"}</MDTypography></MDBox>
                                             </Grid>
 
                                         </Grid>
@@ -235,7 +241,13 @@ function Leaderboard({ socket, name, id}) {
                                                 if(subelem.rank == index+1 && !myReward){
                                                     myReward = subelem.reward
                                                 } else if((subelem.rank.length > 1) && !myReward){
-                                                    myReward = subelem.reward
+                                                    console.log()
+                                                    let splited = subelem?.rank?.split("-");
+                                                    if(splited[0] <= index+1 <= splited[1]){
+                                                        myReward = subelem.reward
+                                                    } else{
+                                                        myReward = 0;
+                                                    }
                                                 }
                                             })
                                             return (

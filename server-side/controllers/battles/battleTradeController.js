@@ -1254,8 +1254,8 @@ async function processContestQueue() {
     const endTime = new Date(currentTime);
     endTime.setHours(9, 48, 0, 0);
 
-    if (currentTime >= startTime && currentTime <= endTime) {
-        // console.log("1st if");
+    //todo-vijay
+    // if (currentTime >= startTime && currentTime <= endTime) {
 
         // If the queue is empty, reset the processing flag and return
         if (contestQueue.length === 0) {
@@ -1272,13 +1272,11 @@ async function processContestQueue() {
                 // console.log("battle", battle.battleName)
                 const leaderBoard = await battleLeaderBoard(battle._id?.toString());
                 // console.log(leaderBoard, battle._id?.toString());
-                io.to(`${battle._id?.toString()}`).emit('battle-leaderboardData', leaderBoard);
+                io.to(`${battle._id?.toString()}`).emit(`battle-leaderboardData${battle._id?.toString()}`, leaderBoard);
             }
         }
 
-        // Clear the processed contests from the queue
-        // contestQueue.length = 0;
-    }
+    // }
 }
 
 const battleLeaderBoard = async (id) => {
@@ -1521,7 +1519,8 @@ const emitLeaderboardData = async () => {
     startTime.setHours(3, 0, 0, 0);
     const endTime = new Date(currentTime);
     endTime.setHours(9, 48, 0, 0);
-    if (currentTime >= startTime && currentTime <= endTime) {
+    //todo-vijay
+    // if (currentTime >= startTime && currentTime <= endTime) {
         const battle = await Battle.find({status: "Active", battleStartTime: {$lte: new Date()}});
 
         // console.log("battle", battle)
@@ -1545,7 +1544,7 @@ const emitLeaderboardData = async () => {
             }
 
         }
-    }
+    // }
 };
 
 const getRedisMyRank = async (id, employeeId) => {
@@ -1631,6 +1630,8 @@ exports.creditAmountToWalletBattle = async () => {
 
             const rewardData = await getPrizeDetails(battle[j]._id);
 
+            console.log("rewardData", rewardData)
+
             for(let i = 0; i < userBattleWise.length; i++){
                 const preDefinedReward = rewardData.reward;
                 const wallet = await Wallet.findOne({ userId: new ObjectId(userBattleWise[i].userId) });
@@ -1639,7 +1640,7 @@ exports.creditAmountToWalletBattle = async () => {
                     for(const elem of preDefinedReward){
 
                         if(elem.rank === i+1){
-                            console.log("user in top", userBattleWise[i].userId, battle[j].battleName)
+                            console.log("user in top", userBattleWise[i].userId, battle[j].battleName, elem.reward, elem.rank)
                             wallet.transactions = [...wallet.transactions, {
                                 title: 'Battle Credit',
                                 description: `Amount credited for battle ${battle[j].battleName}`,
@@ -1681,7 +1682,7 @@ exports.creditAmountToWalletBattle = async () => {
                     for(let k = remainingInitialRank; k <= finalRank; k++){
                         if(k === i+1){
 
-                            console.log("users", userBattleWise[i].userId, battle[j].battleName)
+                            console.log("users", userBattleWise[i].userId, battle[j].battleName, remainingReward)
                             wallet.transactions = [...wallet.transactions, {
                                 title: 'Battle Credit',
                                 description: `Amount credited for battle ${battle[j].battleName}`,
@@ -1718,9 +1719,9 @@ exports.creditAmountToWalletBattle = async () => {
 
             }
 
-            battle[j].payoutStatus = 'Completed'
-            battle[j].status = "Completed";
-            await battle[j].save();
+            // battle[j].payoutStatus = 'Completed'
+            // battle[j].status = "Completed";
+            // await battle[j].save();
         }
 
     } catch (error) {
@@ -1748,7 +1749,10 @@ const getPrizeDetails = async (battleId) => {
         }
 
         // Calculate the Prize Pool
-        const prizePool = collection - (collection * template.gstPercentage / 100);
+        let prizePool = collection - (collection * template.gstPercentage / 100)
+        prizePool = prizePool - (prizePool * template.platformCommissionPercentage / 100);
+
+        console.log(prizePool);
 
         // Calculate the total number of winners
         const totalWinners = Math.round(template.winnerPercentage * battleParticipants / 100);

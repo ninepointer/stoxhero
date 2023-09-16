@@ -1,6 +1,6 @@
-const {tenx, paperTrade, infinityTrade, internship, infinityTradeLive, contestTradeLive,
-     dailyContestMock, internshipTradeMod, dailyContestMockMod, marginXMockMod, battleTradeMod} = require("./collectingTradeManually");
-const {creditAmountToWallet} = require("../../controllers/dailyContestController");
+const { tenx, paperTrade, infinityTrade, internship, infinityTradeLive, contestTradeLive,
+    dailyContestMock, internshipTradeMod, dailyContestMockMod, marginXMockMod, battleTradeMod } = require("./collectingTradeManually");
+const { creditAmountToWallet } = require("../../controllers/dailyContestController");
 const marginxController = require("../../controllers/marginX/marginxController");
 const DailyContestMock = require("../../models/DailyContest/dailyContestMockCompany");
 const InfinityLiveTradeCompany = require("../../models/TradeDetails/liveTradeSchema");
@@ -11,15 +11,15 @@ const MarginXMock = require("../../models/marginX/marginXCompanyMock");
 const MarginX = require("../../models/marginX/marginX");
 const BattleTrade = require("../../models/battle/battleTrade");
 const Battle = require("../../models/battle/battle");
-const {creditAmountToWalletBattle} = require("../../controllers/battles/battleTradeController");
+const { creditAmountToWalletBattle } = require("../../controllers/battles/battleTradeController");
 
 
-const autoCutMainManually = async() => {
+const autoCutMainManually = async () => {
     await infinityTradeLive();
     await contestTradeLive();
 }
 
-const autoCutMainManuallyMock = async() => {
+const autoCutMainManuallyMock = async () => {
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
@@ -71,7 +71,7 @@ const autoCutMainManuallyMock = async() => {
 
     console.log(data)
 
-    if(data.length === 0){
+    if (data.length === 0) {
         await tenx();
         await paperTrade();
         await internshipTradeMod();
@@ -85,7 +85,7 @@ const autoCutMainManuallyMock = async() => {
     await autoCutMainManuallyMock();
 }
 
-const changeStatus = async() => {
+const changeStatus = async () => {
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
@@ -161,7 +161,7 @@ const changeStatus = async() => {
         ]
     );
 
-    if(data.length === 0){
+    if (data.length === 0) {
         console.log("in if change status..")
         await changeContestStatus();
         await creditAmount();
@@ -170,7 +170,7 @@ const changeStatus = async() => {
 
     await changeStatus();
 }
-const changeMarginXStatus = async() => {
+const changeMarginXStatus = async () => {
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
@@ -246,7 +246,7 @@ const changeMarginXStatus = async() => {
         ]
     );
 
-    if(data.length === 0){
+    if (data.length === 0) {
         console.log("in if change status..")
         await changeMarginXDocStatus();
         await creditAmountMarginX();
@@ -256,52 +256,52 @@ const changeMarginXStatus = async() => {
     await changeMarginXStatus();
 }
 
-const creditAmount = async() => {
+const creditAmount = async () => {
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
 
     let todayEndDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` + "T23:00:00.000Z";
-    const todayEnd =  new Date(todayEndDate);
+    const todayEnd = new Date(todayEndDate);
 
 
-    const data = await Contest.find({ payoutStatus: null, contestStatus: "Completed", contestEndTime: {$gte: today} });
+    const data = await Contest.find({ payoutStatus: null, contestStatus: "Completed", contestEndTime: { $gte: today } });
     // const contest = await Contest.find({ contestEndTime: {$gte: today, $lte: todayEnd} });
 
     // console.log("contest", contest.length, data.length);
 
     // if(data.length === contest.length){
-        if(data.length > 0){
+    if (data.length > 0) {
         console.log("in if wallet..")
         await creditAmountToWallet();
         return;
-        
+
     }
 
     await creditAmount();
 }
-const creditAmountMarginX = async() => {
+const creditAmountMarginX = async () => {
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
 
     let todayEndDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` + "T23:00:00.000Z";
-    const todayEnd =  new Date(todayEndDate);
+    const todayEnd = new Date(todayEndDate);
 
 
-    const data = await MarginX.find({ payoutStatus: null, status: "Completed", endTime: {$gte: today} });
+    const data = await MarginX.find({ payoutStatus: null, status: "Completed", endTime: { $gte: today } });
     // const contest = await Contest.find({ contestEndTime: {$gte: today, $lte: todayEnd} });
 
     // console.log("contest", contest.length, data.length);
 
     // if(data.length === contest.length){
-        if(data.length > 0){
+    if (data.length > 0) {
         console.log("in if wallet..")
         await marginxController.creditAmountToWallet();
         return;
-        
+
     }
 
     await creditAmountMarginX();
@@ -362,7 +362,7 @@ const changeMarginXDocStatus = async () => {
 }
 
 
-const changeBattleStatus = async() => {
+const changeBattleStatus = async () => {
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
@@ -438,7 +438,7 @@ const changeBattleStatus = async() => {
 
     console.log("changeBattleStatus", data.length)
 
-    if(data.length === 0){
+    if (data.length === 0) {
         console.log("in if change status..")
         await changeBattleDocStatus();
         //TODO:Add credit function
@@ -460,7 +460,7 @@ const changeBattleDocStatus = async () => {
             const todayEnd = new Date(todayEndDate);
 
 
-            const battles = await Battle.find({ status: "Active", endTime: { $gte: today, $lte: todayEnd } });
+            const battles = await Battle.find({ status: "Active", battleEndTime: { $gte: today, $lte: todayEnd } });
 
             for (let j = 0; j < battles.length; j++) {
                 battles[j].status = "Completed";
@@ -477,27 +477,21 @@ const changeBattleDocStatus = async () => {
     });
 }
 
-const creditBattleAmount = async() => {
+const creditBattleAmount = async () => {
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
 
     let todayEndDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` + "T23:00:00.000Z";
-    const todayEnd =  new Date(todayEndDate);
+    const todayEnd = new Date(todayEndDate);
 
 
-    const data = await Battle.find({ payoutStatus: "Not Started", status: "Completed", battleEndTime: {$gte: today} });
-    // const contest = await Contest.find({ contestEndTime: {$gte: today, $lte: todayEnd} });
-
-    // console.log("contest", contest.length, data.length);
-
-    // if(data.length === contest.length){
-        if(data.length > 0){
+    const data = await Battle.find({ payoutStatus: "Not Started", status: "Completed", battleEndTime: { $gte: today } });
+    if (data.length > 0) {
         console.log("in if wallet..")
         await creditAmountToWalletBattle();
         return;
-        
     }
 
     await creditAmount();
@@ -505,4 +499,4 @@ const creditBattleAmount = async() => {
 
 
 
-module.exports = {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus, changeMarginXStatus, changeBattleStatus}
+module.exports = { autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus, changeMarginXStatus, changeBattleStatus }
