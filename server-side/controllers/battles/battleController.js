@@ -203,7 +203,7 @@ exports.getUserLiveBattles = async (req, res) => {
     const now = new Date();
     try {
         const ongoingBattles = await Battle.find({
-            battleStartTime: { $lte: now },
+            // battleStartTime: { $lte: now },
             battleEndTime: { $gt: now },
             status: 'Active',
             battleStatus: "Live"

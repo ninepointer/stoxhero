@@ -54,7 +54,7 @@ function MyRank({ socket, id}) {
       }, []);
 
     useEffect(() => {
-        socket?.on(`battle-myrank${getDetails.userDetails?._id}`, (data) => {
+        socket?.on(`battle-myrank${getDetails.userDetails?._id}${id}`, (data) => {
 
             console.log("leaderboard rank", data)
             setMyRankData((prev) => (data !== null ? data : prev));
@@ -64,22 +64,25 @@ function MyRank({ socket, id}) {
 
     }, [])
 
-    let myReward;
+    let myReward = 0;
     reward.map((elem)=>{
         if((elem.rank == myRank) && !myReward){
-            
+            console.log("in if 1")
             myReward = elem.reward
         } else if((elem.rank.length > 1) && !myReward){
+            console.log("in if 2")
             let splited = elem.rank.split("-");
             if(splited[0] <= myRank <= splited[1]){
+                console.log("in if 3")
                 myReward = elem.reward
             } else{
                 myReward = 0;
+                console.log("myRank in else", myRank, myReward)
             }
         }
     })
 
-    console.log("myRank", myRank)
+    console.log("myRank", myRank, myReward)
 
     return (
         <>

@@ -1530,13 +1530,13 @@ const emitLeaderboardData = async () => {
             for(let j = 0; j < socketIds?.length; j++){
                 let userId = await client.get(socketIds[j]);
                 // console.log("userId", userId)
-                let data = await client.get(`battleData:${userId}`);
+                let data = await client.get(`battleData:${userId}${battle[i]?._id?.toString()}`);
                 data = JSON.parse(data);
                 if(data){
                     let {id, employeeId} = data;
                     const myRank = await getRedisMyRank(battle[i]?._id?.toString(), employeeId);
                     // console.log(myRank)
-                    io.to(`${battle[i]?._id?.toString()}${userId?.toString()}`).emit(`battle-myrank${userId}`, myRank);
+                    io.to(`${battle[i]?._id?.toString()}${userId?.toString()}`).emit(`battle-myrank${userId}${battle[i]?._id.toString()}`, myRank);
                     // await client.del(`leaderboard:${battle[i]?._id?.toString()}`)
                     // io // Emit the leaderboard data to the client
                 }
@@ -1554,7 +1554,7 @@ const getRedisMyRank = async (id, employeeId) => {
         if (await client.exists(`leaderboard:${id}`)) {
 
             const leaderBoardRank = await client.ZREVRANK(`leaderboard:${id}`, JSON.stringify({ name: employeeId }));
-            // console.log("leaderBoardRank", leaderBoardRank)
+            // console.log("leaderBoardRank", leaderBoardRank, id, employeeId)
             // await client.del(`leaderboard:${id}`)
             if (leaderBoardRank == null) return null
             return leaderBoardRank + 1
@@ -1719,9 +1719,9 @@ exports.creditAmountToWalletBattle = async () => {
 
             }
 
-            // battle[j].payoutStatus = 'Completed'
-            // battle[j].status = "Completed";
-            // await battle[j].save();
+            battle[j].payoutStatus = 'Completed'
+            battle[j].status = "Completed";
+            await battle[j].save();
         }
 
     } catch (error) {

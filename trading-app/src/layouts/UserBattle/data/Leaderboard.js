@@ -53,7 +53,7 @@ function Leaderboard({ socket, name, id}) {
             setIsLoading(false);
         })
 
-        socket?.on(`battle-myrank${getDetails.userDetails?._id}`, (data) => {
+        socket?.on(`battle-myrank${getDetails.userDetails?._id}${id}`, (data) => {
 
             console.log("leaderboard rank", data)
             setMyRankData((prev) => (data !== null ? data : prev));
@@ -90,7 +90,7 @@ function Leaderboard({ socket, name, id}) {
         })
     }, [leaderboard, myRank])
 
-    let myReward;
+    let myReward = 0;
     reward.map((elem)=>{
         if((elem.rank == myRank) && !myReward){
             
@@ -227,7 +227,7 @@ function Leaderboard({ socket, name, id}) {
                                             </Grid>
 
                                             <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
-                                                <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>{myReward ? (myReward) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(myReward)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-myReward)) : "-"}</MDTypography></MDBox>
+                                                <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>{myReward ? (myReward) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(myReward)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-myReward)) : myRank ? "+₹0.00" : "-"}</MDTypography></MDBox>
                                             </Grid>
 
                                         </Grid>
@@ -236,7 +236,7 @@ function Leaderboard({ socket, name, id}) {
 
                                         {leaderboard?.map((elem, index) => {
 
-                                            let myReward;
+                                            let myReward = 0;
                                             reward.map((subelem)=>{
                                                 if(subelem.rank == index+1 && !myReward){
                                                     myReward = subelem.reward
