@@ -28,12 +28,8 @@ import ScreenshotMonitorIcon from '@mui/icons-material/ScreenshotMonitor';
 
 function Header({ battle }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-    // const [timeDifference, setTimeDifference] = useState([]);
-    // const getDetails = useContext(userContext);
     const navigate = useNavigate();
     const [showDownloadButton, setShowDownloadButton] = useState(true);
-
-
 
     useEffect(() => {
         ReactGA.pageview(window.location.pathname)
@@ -49,17 +45,17 @@ function Header({ battle }) {
                 "Access-Control-Allow-Credentials": true
             }
         })
-            .then((res) => {
-                if (res.data.count > 0) {
-                    navigate(`/completedbattles/${name}`, {
-                        state: { data: res.data.data }
-                    });
-                } else {
-                    openSuccessSB("error", "You dont have any trade for this contest.")
-                }
-            }).catch((err) => {
-                return new Error(err);
-            })
+        .then((res) => {
+            if (res.data.count > 0) {
+                navigate(`/completedbattles/${name}`, {
+                    state: { data: res.data.data }
+                });
+            } else {
+                openSuccessSB("error", "You dont have any trade for this contest.")
+            }
+        }).catch((err) => {
+            return new Error(err);
+        })
     }
 
     const captureScreenshot = (id, name) => {
@@ -81,7 +77,6 @@ function Header({ battle }) {
         }, 500)
 
     };
-
 
     function changeDateFormat(givenDate) {
 
@@ -158,7 +153,6 @@ function Header({ battle }) {
             sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto" }}
         />
     );
-
 
     return (
         <>

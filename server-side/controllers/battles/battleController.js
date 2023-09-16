@@ -500,7 +500,7 @@ exports.todaysBattle = async (req, res) => {
     try {
         const battles = await Battle.find({
             battleEndTime: { $gte: today }
-        }).populate('battleTemplate', 'battleTemplateName _id portfolioValue entryFee')
+        }).populate('battleTemplate', 'battleTemplateName _id portfolioValue entryFee minParticipants')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .sort({ battleStartTime: 1 });
 

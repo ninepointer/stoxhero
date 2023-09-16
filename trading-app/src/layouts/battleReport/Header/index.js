@@ -13,10 +13,10 @@ export default function LabTabs() {
   const lastMonth = new Date(date.getFullYear(), date.getMonth(), 1);
   lastMonth.setDate(date.getDate());
   const [dateWiseData, setDateWiseData] = useState([]);
-  const [marginx,setMarginx] = useState([]);
-  const [selectedMarginx, setselectedMarginx] = useState();
+  const [battle,setBattle] = useState([]);
+  const [selectedBattle, setselectedBattle] = useState();
   const [payout, setPayout] = useState();
-  const [selectTab, setselectedTab] = useState("Trader Side");
+  const selectTab = "Trader Side";
 
   const CustomTextField = withStyles({
     root: {
@@ -49,37 +49,37 @@ export default function LabTabs() {
   })(TextField);
 
   useEffect(()=>{
-    axios.get(`${apiUrl}marginx/completed`, {withCredentials: true})
+    axios.get(`${apiUrl}battles/completed`, {withCredentials: true})
     .then((res)=>{
-      setMarginx(res.data.data);
-      setselectedMarginx(res.data.data[0])
+      setBattle(res.data.data);
+      setselectedBattle(res.data.data[0])
     }).catch(e => console.log(e));
   },[])
 
 
   useEffect(()=>{
     handleShowDetails();
-  },[ selectedMarginx?._id, selectTab])
+  },[ selectedBattle?._id, selectTab])
 
   const handleShowDetails = async() => {
-    if (selectedMarginx?._id) {
+    if (selectedBattle?._id) {
       let endpoint;
       if(selectTab === "Trader Side"){
         endpoint = "traderwisetraderpnlreport"
       } else{
         endpoint = "traderwisecompanypnlreport"
       }
-      const res = await axios.get(`${apiUrl}marginxtrade/${selectedMarginx?._id}/${endpoint}`, { withCredentials: true });
+      const res = await axios.get(`${apiUrl}battletrade/${selectedBattle?._id}/${endpoint}`, { withCredentials: true });
       console.log(res.data.data);
       setDateWiseData(prev => res.data.data);
       setPayout(res?.data?.user);
     }
   }
 
-  console.log("selectedMarginx", selectedMarginx)
+  console.log("selectedBattle", selectedBattle)
 
 
-  let totalgpnl =0 , totalnpnl =0, totalBrokerage =0, totalOrders=0, totalTradingDays =0, positiveTrader =0, negetiveTrader = 0;
+  let totalgpnl =0 , totalnpnl =0, totalBrokerage =0, totalOrders=0, totalTradingDays =0, positiveTrader =0, negetiveTrader = 0, totalPayout = 0;
   if(dateWiseData.length>0){
     // console.log('datewise',dateWiseData);
     for(let item of dateWiseData ){
@@ -87,6 +87,7 @@ export default function LabTabs() {
       totalnpnl += item.npnl;
       totalBrokerage += item.brokerage;
       totalOrders += item.noOfTrade;
+      totalPayout += item.payout;
 
       if(item.npnl >= 0){
         positiveTrader += 1;
@@ -133,24 +134,22 @@ export default function LabTabs() {
 
   }
 
-  // console.log("+ve Trader", dateWiseData)
-
   return (
 
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
 
       <MDBox mb={2} style={{ border: '1px solid white', borderRadius: 5 }} display="flex" justifyContent="space-between">
-        <MDTypography color="light" fontSize={15} fontWeight="bold" p={1} alignItem="center">MarginX Report</MDTypography>
+        <MDTypography color="light" fontSize={15} fontWeight="bold" p={1} alignItem="center">Battle Report</MDTypography>
         <MDBox sx={{ display: 'flex', alignItems: 'center' }}>
           <CustomTextField
             select
             label=""
-            value={`${selectedMarginx?.marginXName} - ${changeDateFormat(selectedMarginx?.startTime)}`}
+            value={`${selectedBattle?.battleName} - ${changeDateFormat(selectedBattle?.battleStartTime)}`}
             minHeight="4em"
             placeholder="Select Contest"
             variant="outlined"
             sx={{ width: "400px" }}
-            onChange={(e) => {setselectedMarginx(marginx.filter((item) => item.marginXName == (e.target.value).split(" | ")[0].slice(0, -13).trim())[0]) }}
+            onChange={(e) => {setselectedBattle(battle.filter((item) => item.battleName == (e.target.value).split(" | ")[0].slice(0, -13).trim())[0]) }}
             InputLabelProps={{
               style: { color: '#ffffff' },
             }}
@@ -162,14 +161,14 @@ export default function LabTabs() {
               },
             }}
           >
-            {marginx?.map((option) => (
-              <MenuItem key={`${option?.marginXName} - ${changeDateFormat(option?.startTime)}`} value={`${option?.marginXName} - ${changeDateFormat(option?.startTime)}`} minHeight="4em" width='300px'>
-                {`${option?.marginXName} - ${changeDateFormat(option?.startTime)}`}
+            {battle?.map((option) => (
+              <MenuItem key={`${option?.battleName} - ${changeDateFormat(option?.battleStartTime)}`} value={`${option?.battleName} - ${changeDateFormat(option?.battleStartTime)}`} minHeight="4em" width='300px'>
+                {`${option?.battleName} - ${changeDateFormat(option?.battleStartTime)}`}
               </MenuItem>
             ))}
           </CustomTextField>
 
-          <CustomTextField2
+          {/* <CustomTextField2
             select
             label=""
             value={selectTab}
@@ -195,7 +194,7 @@ export default function LabTabs() {
             <MenuItem value="Company Side" minHeight="4em">
               Company Side
             </MenuItem>
-          </CustomTextField2>
+          </CustomTextField2> */}
         </MDBox>
 
       </MDBox>
@@ -238,7 +237,7 @@ export default function LabTabs() {
                 <Grid item xs={12} md={6} lg={1.7} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
                     <MDTypography fontSize={13} fontWeight="bold">Payout:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" color="#344767">{payout?.totalPayout?.toFixed(2)}</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" color="#344767">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(totalPayout))}</MDTypography>
                   </MDBox>
                 </Grid>
 
@@ -275,7 +274,7 @@ export default function LabTabs() {
       <Grid mt={0} container spacing={3}>
         <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1} borderRadius={4}>
-            <TableView dateWiseData={dateWiseData} marginxData={selectedMarginx} tab={selectTab}/>
+            <TableView dateWiseData={dateWiseData} battleData={selectedBattle} tab={selectTab}/>
           </MDBox>
         </Grid>
 

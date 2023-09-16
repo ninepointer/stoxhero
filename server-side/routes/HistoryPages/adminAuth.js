@@ -38,7 +38,7 @@ const { marginDetail, tradingDays, autoExpireTenXSubscription } = require("../..
 const { getMyPnlAndCreditData } = require("../../controllers/infinityController");
 // const {tenx, paperTrade, infinityTrade} = require("../../controllers/AutoTradeCut/autoTradeCut");
 const { infinityTradeLive } = require("../../controllers/AutoTradeCut/collectingTradeManually")
-const { autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus, changeBattleStatus} = require("../../controllers/AutoTradeCut/mainManually");
+const { autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus, changeBattleStatus } = require("../../controllers/AutoTradeCut/mainManually");
 const TenXTrade = require("../../models/mock-trade/tenXTraderSchema")
 const InternTrade = require("../../models/mock-trade/internshipTrade")
 const InfinityInstrument = require("../../models/Instruments/infinityInstrument");
@@ -71,11 +71,183 @@ const InternBatch = require("../../models/Careers/internBatch")
 const DailyLiveContest = require("../../models/DailyContest/dailyContestLiveCompany")
 const { creditAmountToWallet } = require("../../controllers/marginX/marginxController");
 const userWallet = require("../../models/UserWallet/userWalletSchema");
-const {processBattles} = require("../../controllers/battles/battleController")
+const { processBattles } = require("../../controllers/battles/battleController")
+const Battle = require("../../models/battle/battle")
+const BattleMock = require("../../models/battle/battleTrade")
 
 
+const getPrizeDetails = async (battleId) => {
+  try {
+    // 1. Get the corresponding battleTemplate for a given battle
+    const battle = await Battle.findById(battleId).populate('battleTemplate');
+    if (!battle || !battle.battleTemplate) {
+      return res.status(404).json({ status: 'error', message: "Battle or its template not found." });
+    }
 
+    const template = battle.battleTemplate;
 
+    // Calculate the Expected Collection
+    const expectedCollection = template.entryFee * template.minParticipants;
+    let collection = expectedCollection;
+    let battleParticipants = template?.minParticipants;
+    if (battle?.participants?.length > template?.minParticipants) {
+      battleParticipants = battle?.participants?.length;
+      collection = template?.entryFee * battleParticipants;
+    }
+
+    // Calculate the Prize Pool
+    let prizePool = collection - (collection * template.gstPercentage / 100)
+    prizePool = prizePool - (prizePool * template.platformCommissionPercentage / 100);
+
+    console.log(prizePool);
+
+    // Calculate the total number of winners
+    const totalWinners = Math.round(template.winnerPercentage * battleParticipants / 100);
+
+    // Determine the reward distribution for each rank mentioned in the rankingPayout
+    let totalRewardDistributed = 0;
+    const rankingReward = template.rankingPayout.map((rankPayout) => {
+      const reward = prizePool * rankPayout.rewardPercentage / 100;
+      totalRewardDistributed += reward;
+      return {
+        rank: rankPayout.rank,
+        reward: reward,
+        rewardPercentage: rankPayout.rewardPercentage
+
+      };
+    });
+
+    // Calculate the reward for the remaining winners
+    const remainingWinners = totalWinners - rankingReward.length;
+    const rewardForRemainingWinners = remainingWinners > 0 ? (prizePool - totalRewardDistributed) / remainingWinners : 0;
+
+    return { reward: rankingReward, totalWinner: totalWinners, remainWinnerStart: rankingReward.length + 1, remainingReward: rewardForRemainingWinners };
+
+  } catch (err) {
+    console.log(err)
+    return;
+  }
+};
+
+router.get("/updaterankandpayout", async (req, res) => {
+
+  console.log("in wallet")
+  try {
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+
+    const battle = await Battle.find({ status: "Completed", payoutStatus: "Completed" });
+
+    // console.log(battle.length, battle)
+    for (let j = 0; j < battle.length; j++) {
+
+      const userBattleWise = await BattleMock.aggregate([
+        {
+          $match: {
+            status: "COMPLETE",
+            // trade_time_utc: {
+            //     $gte: today,
+            // },
+            battleId: new ObjectId(
+              battle[j]._id
+            ),
+          },
+        },
+        {
+          $group: {
+            _id: {
+              userId: "$trader",
+            },
+            amount: {
+              $sum: {
+                $multiply: ["$amount", -1],
+              },
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$brokerage",
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            userId: "$_id.userId",
+            _id: 0,
+            npnl: {
+              $subtract: ["$amount", "$brokerage"],
+            },
+          },
+        },
+        {
+          $sort:
+          {
+            npnl: -1,
+          },
+        },
+      ])
+
+      const rewardData = await getPrizeDetails(battle[j]._id);
+
+      console.log("rewardData", rewardData)
+
+      for (let i = 0; i < userBattleWise.length; i++) {
+        const preDefinedReward = rewardData.reward;
+        const wallet = await userWallet.findOne({ userId: new ObjectId(userBattleWise[i].userId) });
+
+        if (preDefinedReward[preDefinedReward.length - 1].rank >= i + 1) {
+          for (const elem of preDefinedReward) {
+
+            if (elem.rank === i + 1) {
+              console.log("user in top", userBattleWise[i].userId, battle[j].battleName, elem.reward, elem.rank)
+            }
+
+          }
+        } else {
+          const remainingInitialRank = rewardData.remainWinnerStart;
+          const finalRank = rewardData.totalWinner;
+          const remainingReward = rewardData.remainingReward
+
+          for (let k = remainingInitialRank; k <= finalRank; k++) {
+            if (k === i + 1) {
+              for (let subelem of battle[j]?.participants) {
+                if (subelem.userId.toString() === userBattleWise[i].userId.toString()) {
+                  subelem.reward = remainingReward?.toFixed(2);
+                  subelem.rank = k;
+                }
+              }
+              await battle[j].save();
+            }
+            if (i + 1 > finalRank) {
+              for (let subelem of battle[j]?.participants) {
+                console.log("updating feilds")
+                if (subelem.userId.toString() === userBattleWise[i].userId.toString()) {
+                  subelem.reward = 0;
+                  subelem.rank = i+1;
+                }
+              }
+  
+              await battle[j].save();
+            }
+          }
+
+         
+        }
+
+      }
+
+      battle[j].payoutStatus = 'Completed'
+      battle[j].status = "Completed";
+      await battle[j].save();
+    }
+
+  } catch (error) {
+    console.log(error);
+  }
+  // res.send(data);
+});
 
 router.get("/ltv", async (req, res) => {
   const data = await userWallet.aggregate([
@@ -144,26 +316,26 @@ router.get("/ltv", async (req, res) => {
     },
     {
       $match:
-        /**
-         * query: The query in MQL.
-         */
-        {
-          amount: {
-            $gt: 0,
-          },
+      /**
+       * query: The query in MQL.
+       */
+      {
+        amount: {
+          $gt: 0,
         },
+      },
     },
     {
       $project:
-        /**
-         * specifications: The fields to
-         *   include or exclude.
-         */
-        {
-          _id: 0,
-          userId: "$_id.userId",
-          amount: 1,
-        },
+      /**
+       * specifications: The fields to
+       *   include or exclude.
+       */
+      {
+        _id: 0,
+        userId: "$_id.userId",
+        amount: 1,
+      },
     },
   ])
   res.send(data);
@@ -1495,7 +1667,7 @@ router.get("/updateInstrumentStatus", async (req, res) => {
   // for (let elem of userIns) {
   //   if (elem.watchlistInstruments)
   //     elem.watchlistInstruments = elem.watchlistInstruments.filter(instrument => instrument.status !== 'Inactive');
-    
+
   //     elem.allInstruments = elem.allInstruments ? elem.allInstruments.filter(instrument => instrument.status !== 'Inactive') : [];
 
   //     if(elem.watchlistInstruments.length > 0)

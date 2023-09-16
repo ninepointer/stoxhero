@@ -184,7 +184,7 @@ import CreateMarginX from "./layouts/marginX/createMarginIndex"
 import CreateBattle from "./layouts/battle/createBattleIndex"
 import MarginX from "./layouts/marginX"
 import BattlePosition from "./layouts/battleTraderPosition";
-
+import BattleReport from "./layouts/battleReport";
 const routes = [
 
   {
@@ -626,6 +626,10 @@ const routes = [
   {
     route: "/battledashboard/battles/:name",
     component: <CreateBattle />,
+  },
+  {
+    route: "/battledashboard/battlereport",
+    component: <BattleReport />,
   },
   {
     key: "dailycontestposition",

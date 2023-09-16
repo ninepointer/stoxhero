@@ -930,7 +930,7 @@ exports.BattlePnlTWiseTraderSide = async (req, res, next) => {
                 brokerage: { $sum: { $toDouble: "$brokerage" } },
                 trades: { $count: {} },
                 tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
-                
+
             },
         },
         {
@@ -955,111 +955,37 @@ exports.BattlePnlTWiseTraderSide = async (req, res, next) => {
     let pipeline1 = [
         {
           $match: {
-            status: "COMPLETE",
-            battleId: new ObjectId(
-              id
-            ),
+            _id: new ObjectId(id),
           },
         },
         {
-          $group: {
-            _id: {
-              trader: "$trader",
-              battleId: "$battleId",
-            },
-            amount: {
-              $sum: {
-                $multiply: ["$amount", -1],
-              },
-            },
-            brokerage: {
-              $sum: {
-                $toDouble: "$brokerage",
-              },
-            },
-          },
-        },
-        {
-          $lookup: {
-            from: "battles",
-            localField: "_id.battleId",
-            foreignField: "_id",
-            as: "battle",
-          },
-        },
-        {
-          $lookup: {
-            from: "battle-templates",
-            localField: "battle.battleTemplate",
-            foreignField: "_id",
-            as: "templates",
+          $unwind: {
+            path: "$participants",
           },
         },
         {
           $project: {
-            battleId: "$_id.battleId",
-            _id: 0,
-            trader: "$_id.trader",
-            npnl: {
-              $subtract: ["$amount", "$brokerage"],
-            },
-            portfolioValue: {
-              $arrayElemAt: [
-                "$templates.portfolioValue",
-                0,
-              ],
-            },
-            entryFee: {
-              $arrayElemAt: ["$templates.entryFee", 0],
-            },
-            return: {
-              $divide: [
-                {
-                  $subtract: ["$amount", "$brokerage"],
-                },
-                {
-                  $divide: [
-                    {
-                      $arrayElemAt: [
-                        "$templates.portfolioValue",
-                        0,
-                      ],
-                    },
-                    {
-                      $arrayElemAt: [
-                        "$templates.entryFee",
-                        0,
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-        },
-        {
-          $group: {
-            _id: {
-              // trader: "$trader",
-            },
-            cumm_return: {
-              $sum: "$return",
-            },
-          },
-        },
-        {
-          $project: {
-            trader: "$_id.trader",
-            total_return: "$cumm_return",
+            trader: "$participants.userId",
+            payout: "$participants.reward",
+            rank: "$participants.rank",
             _id: 0,
           },
         },
       ]
 
-    let user = await BattleMock.aggregate(pipeline1)
+    let payout = await Battle.aggregate(pipeline1)
     let x = await BattleMock.aggregate(pipeline)
 
-    res.status(201).json({ message: "data received", data: x, user: user[0] });
+    for( let elem of x){
+        for(let subelem of payout){
+            if(elem.userId.toString() === subelem.trader.toString()){
+                elem.payout = subelem.payout;
+                elem.rank = subelem.rank;
+            }
+        }
+    }
+
+    res.status(201).json({ message: "data received", data: x });
 }
 
 exports.BattlePayoutChart = async (req, res, next) => {
@@ -1714,6 +1640,16 @@ exports.creditAmountToWalletBattle = async () => {
     
                             await battle[j].save();
                         }
+                        // else{
+                        //     for(let subelem of battle[j]?.participants){
+                        //         if(subelem.userId.toString() === userBattleWise[i].userId.toString()){
+                        //             subelem.reward = 0;
+                        //             subelem.rank = k;
+                        //         }
+                        //     }
+    
+                        //     await battle[j].save();
+                        // }
                     }
                 }
 
@@ -1795,3 +1731,362 @@ const getPrizeDetails = async (battleId) => {
         return;
     }
 };
+
+
+
+
+
+
+
+exports.overallBattleTraderPnl = async (req, res, next) => {
+    // console.log("Inside overall virtual pnl")
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+    // console.log(today)
+    let pnlDetails = await BattleMock.aggregate([
+        {
+            $match: {
+                trade_time: {
+                    $gte: today
+                    // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+                },
+                status: "COMPLETE",
+            },
+        },
+        {
+            $group: {
+                _id: {
+                    symbol: "$symbol",
+                    product: "$Product",
+                    instrumentToken: "$instrumentToken",
+                    exchangeInstrumentToken: "$exchangeInstrumentToken",
+                },
+                amount: {
+                    $sum: { $multiply: ["$amount", -1] },
+                },
+                turnover: {
+                    $sum: {
+                        $toInt: { $abs: "$amount" },
+                    },
+                },
+                brokerage: {
+                    $sum: {
+                        $toDouble: "$brokerage",
+                    },
+                },
+                lots: {
+                    $sum: {
+                        $toInt: "$Quantity",
+                    },
+                },
+                totallots: {
+                    $sum: {
+                        $toInt: { $abs: "$Quantity" },
+                    },
+                },
+                trades: {
+                    $count: {}
+                },
+            },
+        },
+        {
+            $sort: {
+                _id: -1,
+            },
+        },
+    ])
+    res.status(201).json({ message: "pnl received", data: pnlDetails });
+}
+
+exports.liveTotalTradersCount = async (req, res, next) => {
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+    let pnlDetails = await BattleMock.aggregate([
+        {
+            $match: {
+                trade_time: {
+                    $gte: today
+                    // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+                },
+                status: "COMPLETE"
+            }
+        },
+        {
+            $group: {
+                _id: {
+                    trader: "$trader"
+                },
+                runninglots: {
+                    $sum: "$Quantity"
+                }
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                zeroLotsTraderCount: {
+                    $sum: {
+                        $cond: [{ $eq: ["$runninglots", 0] }, 1, 0]
+                    }
+                },
+                nonZeroLotsTraderCount: {
+                    $sum: {
+                        $cond: [{ $ne: ["$runninglots", 0] }, 1, 0]
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                zeroLotsTraderCount: 1,
+                nonZeroLotsTraderCount: 1
+            }
+        }
+    ])
+    res.status(201).json({ message: "pnl received", data: pnlDetails });
+}
+
+exports.overallBattlePnlYesterday = async (req, res, next) => {
+    let date;
+    let i = 1;
+    let maxDaysBack = 30;  // define a maximum limit to avoid infinite loop
+    let pnlDetailsData;
+
+    while (!pnlDetailsData && i <= maxDaysBack) {
+        let day = new Date();
+        day.setDate(day.getDate() - i);
+        let startTime = new Date(day.setHours(0, 0, 0, 0));
+        let endTime = new Date(day.setHours(23, 59, 59, 999));
+        date = startTime;
+
+        pnlDetailsData = await BattleMock.aggregate([
+            {
+                $match: {
+                    trade_time: {
+                        $gte: startTime,
+                        $lte: endTime
+                    },
+                    status: "COMPLETE",
+                },
+            },
+            {
+                $group: {
+                    _id: null,
+                    amount: {
+                        $sum: { $multiply: ["$amount", -1] },
+                    },
+                    turnover: {
+                        $sum: { $toInt: { $abs: "$amount" } },
+                    },
+                    brokerage: {
+                        $sum: { $toDouble: "$brokerage" },
+                    },
+                    lots: {
+                        $sum: { $toInt: "$Quantity" },
+                    },
+                    totallots: {
+                        $sum: { $toInt: { $abs: "$Quantity" } },
+                    },
+                    trades: {
+                        $count: {}
+                    },
+                },
+            },
+            {
+                $sort: {
+                    _id: -1,
+                },
+            },
+        ]);
+
+        // const contest = await MarginX.find({contestEndTime: {$gte: startTime, $lte: endTime}})
+
+        if (!pnlDetailsData || pnlDetailsData.length === 0) {
+            pnlDetailsData = null;  // reset the value to ensure the while loop continues
+            
+            i++;  // increment the day counter
+        }
+    }
+
+    console.log("pnlDetailsData", pnlDetailsData)
+
+    res.status(201).json({
+        message: "pnl received",
+        data: pnlDetailsData ? pnlDetailsData : [],
+        results: pnlDetailsData ? pnlDetailsData.length : 0,
+        date: date
+    });
+}
+
+exports.liveTotalTradersCountYesterday = async (req, res, next) => {
+    let yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    // console.log(yesterdayDate)
+    let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
+    yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
+    let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
+    yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
+    const startTime = new Date(yesterdayStartTime);
+    const endTime = new Date(yesterdayEndTime);
+    // console.log("Query Timing: ", startTime, endTime)  
+    let pnlDetails = await BattleMock.aggregate([
+        {
+            $match: {
+                trade_time: {
+                    $gte: startTime, $lte: endTime
+                    // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+                },
+                status: "COMPLETE"
+            }
+        },
+        {
+            $group: {
+                _id: {
+                    trader: "$trader"
+                },
+                runninglots: {
+                    $sum: "$Quantity"
+                }
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                zeroLotsTraderCount: {
+                    $sum: {
+                        $cond: [{ $eq: ["$runninglots", 0] }, 1, 0]
+                    }
+                },
+                nonZeroLotsTraderCount: {
+                    $sum: {
+                        $cond: [{ $ne: ["$runninglots", 0] }, 1, 0]
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                zeroLotsTraderCount: 1,
+                nonZeroLotsTraderCount: 1
+            }
+        }
+    ])
+    res.status(201).json({ message: "pnl received", data: pnlDetails });
+}
+
+exports.overallBattleCompanySidePnlThisMonth = async (req, res, next) => {
+    // const { ydate } = req.params;
+    let date = new Date();
+    date.setDate(date.getDate() - 1);
+    let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()-1).padStart(2, '0')}`
+    yesterdayDate = yesterdayDate + "T00:00:00.000Z";
+    // console.log("Yesterday Date:",yesterdayDate)
+    // const today = new Date(todayDate);
+    let monthStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-01`
+    monthStartDate = monthStartDate + "T00:00:00.000Z";
+    console.log("Month Start Date:",new Date(monthStartDate), new Date(yesterdayDate))
+
+    const pipeline = [
+        {
+            $match:
+            {
+                trade_time: {
+                    $gte: new Date(monthStartDate),
+                    // $lte: new Date(yesterdayDate)
+                },
+                status: "COMPLETE",
+            }
+        },
+        {
+            $group:
+            {
+                _id:null,
+                gpnl: {
+                    $sum: { $multiply: ["$amount", -1] }
+                },
+                turnover: {
+                    $sum: { $abs: ["$amount"] }
+                },
+                brokerage: {
+                    $sum: { $toDouble: "$brokerage" }
+                },
+                lots: {
+                    $sum: { $toInt: "$Quantity" }
+                },
+                trades: {
+                    $count: {}
+                },
+                lotUsed: {
+                    $sum: { $abs: { $toInt: "$Quantity" } }
+                }
+            }
+        },
+        { $sort: { _id: -1 } },
+
+    ]
+
+    let x = await BattleMock.aggregate(pipeline)
+    console.log("MTD",x)
+    res.status(201).json({ message: "data received", data: x ? x : [] });
+}
+
+exports.overallBattleCompanySidePnlLifetime = async (req, res, next) => {
+    // const { ydate } = req.params;
+    let date = new Date();
+    date.setDate(date.getDate() - 1);
+    let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    yesterdayDate = yesterdayDate + "T23:59:59.000Z";
+    // const today = new Date(todayDate);
+    // let monthStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-01`
+    // monthStartDate = monthStartDate + "T23:59:59.000Z";
+    // console.log("Yesterday Date:",yesterdayDate)
+
+    const pipeline = [
+        {
+            $match:
+            {
+                trade_time: {
+                    $lte: new Date(yesterdayDate),
+                    // $lte: yesterdayDate
+                },
+                status: "COMPLETE",
+            }
+        },
+        {
+            $group:
+            {
+                _id:null,
+                gpnl: {
+                    $sum: { $multiply: ["$amount", -1] }
+                },
+                turnover: {
+                    $sum: { $abs: ["$amount"] }
+                },
+                brokerage: {
+                    $sum: { $toDouble: "$brokerage" }
+                },
+                lots: {
+                    $sum: { $toInt: "$Quantity" }
+                },
+                trades: {
+                    $count: {}
+                },
+                lotUsed: {
+                    $sum: { $abs: { $toInt: "$Quantity" } }
+                }
+            }
+        },
+        { $sort: { _id: -1 } },
+
+    ]
+
+    let x = await BattleMock.aggregate(pipeline)
+    // console.log("Lifetime",x)
+    res.status(201).json({ message: "data received", data: x ? x : [] });
+}

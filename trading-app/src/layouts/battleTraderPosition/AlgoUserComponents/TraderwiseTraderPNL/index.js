@@ -20,7 +20,7 @@ import { apiUrl } from "../../../../constants/constants";
 
 function TraderwiseTraderPNL({ socket }) {
   const { columns, rows } = data();
-  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [allTrade, setAllTrade] = useState([]);
   const [marketData, setMarketData] = useState([]);
   const [battle, setBattle] = useState([]);
@@ -28,6 +28,26 @@ function TraderwiseTraderPNL({ socket }) {
   const [trackEvent, setTrackEvent] = useState({});
   // const [isLive, setIsLive] = useState(false);
   const [action, setAction] = useState(false);
+  const [reward, setReward] = useState([]);
+
+
+  useEffect(() => {
+
+    if(selectedBattle){
+      axios.get(`${baseUrl}api/v1/battles/prizedetail/${selectedBattle._id}`,{
+        withCredentials: true,
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true
+        }}
+        ).then((res)=>{
+          setReward(res.data.data?.prizeDistribution);
+          // setyesterdayData(res.data.data);
+        })
+    }
+      
+  }, [selectedBattle]);
 
   useEffect(() => {
     axios.get(`${apiUrl}battles/today`, { withCredentials: true })
@@ -154,6 +174,21 @@ function TraderwiseTraderPNL({ socket }) {
     totalReturn += (subelem.totalPnl - subelem.brokerage)/xFactor
     totalCummReturn += subelem.cumm_return;
 
+    let myReward = 0;
+    reward.map((subelem)=>{
+        if(subelem.rank == index+1 && !myReward){
+            myReward = subelem.reward
+        } else if((subelem.rank.length > 1) && !myReward){
+            console.log()
+            let splited = subelem?.rank?.split("-");
+            if(splited[0] <= index+1 <= splited[1]){
+                myReward = subelem.reward
+            } else{
+                myReward = 0;
+            }
+        }
+    })
+
     obj.traderName = (
       <MDTypography component="a" variant="caption" color={tradercolor} fontWeight="medium" backgroundColor={traderbackgroundcolor} padding="5px" borderRadius="5px">
         {(subelem.name)}
@@ -198,15 +233,15 @@ function TraderwiseTraderPNL({ socket }) {
 
     obj.return = (
       <MDTypography component="a" variant="caption" color={(subelem.totalPnl - subelem.brokerage)/xFactor >= 0 ? "success" : "error"} padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
-        {((subelem.totalPnl - subelem.brokerage)/xFactor) >= 0.00 ? "+₹" + (((subelem.totalPnl - subelem.brokerage)/xFactor).toFixed(2)) : "-₹" + ((-((subelem.totalPnl - subelem.brokerage)/xFactor)).toFixed(2))}
+        {myReward >= 0.00 ? "+₹" + (myReward.toFixed(2)) : "-₹" + ((-myReward).toFixed(2))}
       </MDTypography>
     );
   
-    obj.cumm_return = (
-      <MDTypography component="a" variant="caption" color={subelem?.cumm_return >= 0 ? "success" : "error"} padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
-        {(subelem?.cumm_return) >= 0.00 ? "+₹" + ((subelem?.cumm_return).toFixed(2)) : "-₹" + ((-(subelem?.cumm_return)).toFixed(2))}
-      </MDTypography>
-    );
+    // obj.cumm_return = (
+    //   <MDTypography component="a" variant="caption" color={subelem?.cumm_return >= 0 ? "success" : "error"} padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
+    //     {(subelem?.cumm_return) >= 0.00 ? "+₹" + ((subelem?.cumm_return).toFixed(2)) : "-₹" + ((-(subelem?.cumm_return)).toFixed(2))}
+    //   </MDTypography>
+    // );
 
     obj.email = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">

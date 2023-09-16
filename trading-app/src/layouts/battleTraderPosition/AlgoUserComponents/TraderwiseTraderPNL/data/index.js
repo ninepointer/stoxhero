@@ -11,7 +11,7 @@ export default function data() {
       { Header: "Brokerage", accessor: "brokerage", width: "12.5%", align: "center" },
       { Header: "Net P&L", accessor: "netPnl", width: "12.5%", align: "center" },
       { Header: "Return", accessor: "return", width: "12.5%", align: "center" },
-      { Header: "Cumm Return", accessor: "cumm_return", width: "12.5%", align: "center" },
+      // { Header: "Cumm Return", accessor: "cumm_return", width: "12.5%", align: "center" },
 
       { Header: "Email", accessor: "email", width: "12.5%", align: "center" },
       { Header: "Mobile", accessor: "mobile", width: "12.5%", align: "center" },
