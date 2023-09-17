@@ -8,21 +8,21 @@ import { Link } from "react-router-dom";
 // import CachedIcon from '@mui/icons-material/Cached';
 
 //data
-import CompanySideContestDailyChart from '../data/companySideContestDailyChart'
+import BattleChart from '../data/battleChart'
 import BattleUsers from '../data/battleUsers'
 import PnlOverviewMock from '../data/pnlOverviewMock';
 
 export default function LabTabs({socket}) {
   const [isLoading,setIsLoading] = useState(false);
   const [battleUsers, setBattleUsers] = useState();
-  const [completedContest,setCompletedContest] = useState();
+  const [completedBattle,setCompletedBattle] = useState();
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/battletrade/payoutchart`, {withCredentials: true})
     .then((res) => {
         console.log("Inside Payout chart data");
-        setCompletedContest(res.data.data);
+        setCompletedBattle(res.data.data);
         console.log("Completed Contest Res:",res.data.data)
     }).catch((err) => {
         setIsLoading(false)
@@ -210,7 +210,7 @@ export default function LabTabs({socket}) {
         <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
             <Grid item xs={12} md={12} lg={12}>
                 <MDBox p={1}>
-                    { completedContest && <CompanySideContestDailyChart completedContest={completedContest}/>}
+                    { completedBattle && <BattleChart completedBattle={completedBattle}/>}
                 </MDBox>
             </Grid>
         </Grid>

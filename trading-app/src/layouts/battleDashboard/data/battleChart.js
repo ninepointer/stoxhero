@@ -3,31 +3,31 @@ import * as echarts from 'echarts';
 import MDBox from '../../../components/MDBox';
 import moment, { min } from 'moment';
 
-export default function TraderDetails({completedContest, isLoading}) {
+export default function TraderDetails({completedBattle, isLoading}) {
   const chartRef = useRef(null);
-  console.log("Completed Contest Data:", completedContest, isLoading);
+  console.log("Completed Contest Data:", completedBattle, isLoading);
 
   let dates = []
   let npnl = []
   let payout = []
-  let numberOfContests = []
+  let numberOfBattle = []
 
-  dates = completedContest?.map((e)=>{
-    let tradeDate = new Date(e?.contestDate)
+  dates = completedBattle?.map((e)=>{
+    let tradeDate = new Date(e?.BattleDate)
     let utcDateString = tradeDate.toLocaleString("en-US", { timeZone: "UTC" });
     return moment.utc(utcDateString).utcOffset('+00:00').format('DD-MMM')
   })
 
-  npnl = completedContest?.map((e)=>{
+  npnl = completedBattle?.map((e)=>{
     return (e?.totalNpnl/100)?.toFixed(0)
   })
 
-  payout = completedContest?.map((e)=>{
+  payout = completedBattle?.map((e)=>{
     return (e?.totalPayout)?.toFixed(0)
   })
 
-  numberOfContests = completedContest?.map((e)=>{
-    return (e?.numberOfContests)
+  numberOfBattle = completedBattle?.map((e)=>{
+    return (e?.numberOfBattle)
   })
 
   let npnlMax = Math.max(...npnl)
@@ -125,7 +125,7 @@ export default function TraderDetails({completedContest, isLoading}) {
           tooltip: {
             formatter: '{c}'
           },
-          data: numberOfContests
+          data: numberOfBattle
         },
       ]
     };
@@ -135,7 +135,7 @@ export default function TraderDetails({completedContest, isLoading}) {
     return () => {
       chart.dispose();
     };
-  }, [completedContest]);
+  }, [completedBattle]);
 
   return isLoading ? <MDBox ref={chartRef} style={{ minWidth: '100%', height: '400px', filter: 'blur(2px)' }} /> : <MDBox ref={chartRef} style={{ minWidth: '100%', height: '400px' }} />;
 };

@@ -1031,10 +1031,15 @@ exports.BattlePayoutChart = async (req, res, next) => {
                     battleId: "$battleId",
                     battleName: "$battleData.battleName",
                     date: {
-                        $substr: ["$battleData.startTime", 0, 10],
+                        $substr: [
+                            "$battleData.battleStartTime",
+                            0,
+                            10,
+                        ],
                     },
                     entryFee: "$templateData.entryFee",
-                    portfolioValue: "$templateData.portfolioValue"
+                    portfolioValue:
+                        "$templateData.portfolioValue",
                 },
                 gpnl: {
                     $sum: {
@@ -1053,36 +1058,8 @@ exports.BattlePayoutChart = async (req, res, next) => {
                     $subtract: ["$gpnl", "$brokerage"],
                 },
                 payout: {
-                    $cond: [
-                        {
-                            $gt: [
-                                {
-                                    $add: [
-                                        "$_id.entryFee",
-                                        {
-                                            $divide: ["$npnl", {
-                                                $divide: ["$_id.portfolioValue", "$_id.entryFee"]
-                                            }]
-                                        }
-                                    ]
-                                },
-                                0
-                            ]
-                        },
-                        {
-                            $add: [
-                                "$_id.entryFee",
-                                {
-                                    $divide: ["$npnl", {
-                                        $divide: ["$_id.portfolioValue", "$_id.entryFee"]
-                                    }]
-                                }
-                            ]
-                        },
-                        0
-                    ]
-                }
-                
+                 
+                },
             },
         },
         {
@@ -1142,9 +1119,9 @@ exports.BattlePayoutChart = async (req, res, next) => {
         },
         {
             $sort: {
-                BattleDate: 1
-            }
-        }
+                BattleDate: 1,
+            },
+        },
     ]
 
     let x = await BattleMock.aggregate(pipeline) 
