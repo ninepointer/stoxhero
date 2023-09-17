@@ -175,31 +175,32 @@ if(!existingUser){
             const dailyContest = await DailyContest.findById(contest).select('potentialParticipants');
             dailyContest.potentialParticipants.push(newuser._id);
             await dailyContest.save({validateBeforeSave:false});
-            const referralProgram = await ReferralProgram.findOne({status:'Active'})
-            referralUser?.referrals?.push({
-                referredUserId:newuser._id,
-                referralCurrency: referralProgram?.currency,
-                referralEarning: referralProgram?.rewardPerReferral,
-                referralPrgoram: referralProgram?._id
-            });
-            const referralUserWallet = await UserWallet.findOne({userId: referralUser?._id});
-            console.log('referral user wallet',referralUserWallet)
-            referralUserWallet?.transactions?.push({
-                title:'Referral Credit',
-                description:`Amount credited for referral of ${newuser?.first_name} ${newuser?.last_name}`,
-                transactionDate: new Date(),
-                amount: referralProgram?.rewardPerReferral,
-                transactionId: uuid.v4(),
-                transactionType:'Cash'
-            });
-            referralProgram?.users?.push({
-                userId: newuser?._id,
-                joinedOn: new Date()
-            });
-            console.log('referral user', referralUser, referralUser?.referrals);
-            await referralProgram?.save({validateBeforeSave:false});
-            await referralUser.save({validateBeforeSave:false});
-            await referralUserWallet.save({validateBeforeSave:false});
+            if(referrerCode){
+                const referralProgram = await ReferralProgram.findOne({status:'Active'})
+                referralUser?.referrals?.push({
+                    referredUserId:newuser._id,
+                    referralCurrency: referralProgram?.currency,
+                    referralEarning: referralProgram?.rewardPerReferral,
+                    referralProgram: referralProgram?._id
+                });
+                const referralUserWallet = await UserWallet.findOne({userId: referralUser?._id});
+                console.log('referral user wallet',referralUserWallet)
+                referralUserWallet?.transactions?.push({
+                    title:'Referral Credit',
+                    description:`Amount credited for referral of ${newuser?.first_name} ${newuser?.last_name}`,
+                    transactionDate: new Date(),
+                    amount: referralProgram?.rewardPerReferral,
+                    transactionId: uuid.v4(),
+                    transactionType:'Cash'
+                });
+                referralProgram?.users?.push({
+                    userId: newuser?._id,
+                    joinedOn: new Date()
+                });
+                if(referralProgram) await referralProgram?.save({validateBeforeSave:false});
+                if(referralUser) await referralUser.save({validateBeforeSave:false});
+                if(referralUserWallet) await referralUserWallet.save({validateBeforeSave:false});
+            }
 
             // res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
                 // let email = newuser.email;
