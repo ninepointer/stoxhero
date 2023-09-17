@@ -233,6 +233,7 @@ function Index() {
         rank:'',
         rewardPercentage: '',
       });
+      setRankingPayoutMode('create');
       setAction(!action);
       setTimeout(()=>{setSaving(false);setEditing(false)},500)
   }
