@@ -190,13 +190,12 @@ async function singleProcess() {
 
     //emitting leaderboard for contest.
 
-    //todo-vijay
-    // if (process.env.PROD === "true") {
+    if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });
         sendLeaderboardDataBattle().then(() => { });
         sendMyRankDataBattle().then(() => { });
-    // }
+    }
 
     emitServerTime().then(() => { });
 
@@ -272,8 +271,8 @@ async function singleProcess() {
         const internshipPayout = nodeCron.schedule(`0 30 13 * * *`, updateUserWallet);
 
     }
-    const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
-    // const battle = nodeCron.schedule(`56 5 * * *`, processBattles);
+    // const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
+    const battle = nodeCron.schedule(`54 5 * * *`, processBattles);
     
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
