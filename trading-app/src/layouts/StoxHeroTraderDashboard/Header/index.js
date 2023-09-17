@@ -10,6 +10,17 @@ import Summary from '../data/summary'
 import { userContext } from '../../../AuthContext';
 import UpcomingContest from '../data/ongoingContest'
 import DailyChallenge from '../data/dailyChallenge'
+import MDTypography from '../../../components/MDTypography';
+import Contest from '../../../assets/images/contests.png'
+import Battle from '../../../assets/images/battle.png'
+import MarginX from '../../../assets/images/marginx.png'
+import TenX from '../../../assets/images/tenx.png'
+import MDButton from '../../../components/MDButton';
+import {useNavigate} from 'react-router-dom';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+
 
 export default function Dashboard() {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
@@ -24,6 +35,35 @@ export default function Dashboard() {
   const [timeframe, setTimeframe] = useState('this month');
   const [tradeType, setTradeType] = useState('virtual');
   const [summary, setSummary] = useState();
+  const navigate = useNavigate();
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 4, // Adjust the number of slides to show
+    slidesToScroll: 1,
+    padding:1,
+    responsive: [
+      {
+        breakpoint: 1024, // Adjust breakpoints as needed
+        settings: {
+          slidesToShow: 4,
+        },
+      },
+      {
+        breakpoint: 900, // Adjust breakpoints as needed
+        settings: {
+          slidesToShow: 3,
+        },
+      },
+      {
+        breakpoint: 600, // Adjust breakpoints as needed
+        settings: {
+          slidesToShow: 1,
+        },
+      },
+    ],
+  }
 
   useEffect(() => {
     setIsLoading(true);
@@ -115,16 +155,145 @@ export default function Dashboard() {
 
   return (
     <MDBox bgColor="light" color="light" mt={2} mb={1} borderRadius={10} minHeight="auto" width='100%'>
-      {CarouselImages?.length && (
+      {/* {CarouselImages?.length && (
         <Grid container spacing={1} mb={2} lg={12} display="flex" justifyContent="center" alignItems="center">
           <Grid item xs={12} md={6} lg={12}>
             <Carousel items={CarouselImages} />
           </Grid>
         </Grid>
-      )}
+      )} */}
+      {/* <Grid container spacing={1} xs={12} md={12} lg={12} mb={1}> */}
+          <Slider {...settings}>
+                {/* Your MDBox components go here */}
+                  <div>
+                    <MDBox
+                      style={{
+                        width: '98%',
+                        height: '180px',
+                        borderRadius: 5,
+                        backgroundImage: `url(${Contest})`,
+                        backgroundSize: 'cover',
+                        backgroundRepeat: 'no-repeat',
+                        padding: '10px', // Add padding here to create a gap
+                      }}>
+                    </MDBox>
+                  </div>
+
+                  <div style={{ margin: '0 3px' }}>
+                    <MDBox
+                      style={{
+                        width: '98%',
+                        height: '180px',
+                        borderRadius: 5,
+                        backgroundImage: `url(${Battle})`,
+                        backgroundSize: 'cover',
+                        backgroundRepeat: 'no-repeat',
+                        padding: '10px', // Add padding here to create a gap
+                      }}>
+                    </MDBox>
+                  </div>
+        
+                  <div style={{ margin: '0 3px' }}>
+                    <MDBox
+                      style={{
+                        width: '98%',
+                        height: '180px',
+                        borderRadius: 5,
+                        backgroundImage: `url(${MarginX})`,
+                        backgroundSize: 'cover',
+                        backgroundRepeat: 'no-repeat',
+                        padding: '10px', // Add padding here to create a gap
+                      }}>
+                    </MDBox>
+                  </div>
+        
+                  <div style={{ margin: '0 3px' }}>
+                    <MDBox
+                      style={{
+                        width: '98%',
+                        height: '180px',
+                        borderRadius: 5,
+                        backgroundImage: `url(${TenX})`,
+                        backgroundSize: 'cover',
+                        backgroundRepeat: 'no-repeat',
+                        padding: '10px', // Add padding here to create a gap
+                      }}>
+                    </MDBox>
+                  </div>
+        
+          </Slider>
+{/* 
+      <Grid container spacing={1} xs={12} md={12} lg={12} mb={1} display='flex' justifyContent='center'>
+        
+        <Grid item xs={12} md={4} lg={3} display='flex' justifyContent="center" alignItems="center">
+          <MDButton 
+            onClick={()=>{navigate('/battles')}}
+            style={{width:'100%', padding:0}}>
+            <MDBox bgColor='info' 
+              style={{
+                  width:'100%',
+                  height: '180px', 
+                  borderRadius: 5,
+                  backgroundImage: `url(${Battle})`,
+                  backgroundSize: 'cover', // You can adjust this property as needed
+                  backgroundRepeat: 'no-repeat', // You can adjust this property as needed
+                  }}>
+            </MDBox>
+          </MDButton>
+        </Grid>
+        <Grid item xs={12} md={4} lg={3} display='flex' justifyContent="center" alignItems="center">
+          <MDButton 
+            onClick={()=>{navigate('/contests')}}
+            style={{width:'100%', padding:0}}>
+            <MDBox bgColor='info' 
+              style={{
+                  width:'100%',
+                  height: '180px', 
+                  borderRadius: 5,
+                  backgroundImage: `url(${Contest})`,
+                  backgroundSize: 'cover', // You can adjust this property as needed
+                  backgroundRepeat: 'no-repeat', // You can adjust this property as needed
+                  }}>
+            </MDBox>
+          </MDButton>
+        </Grid>
+        <Grid item xs={12} md={4} lg={3} display='flex' justifyContent="center" alignItems="center">
+          <MDButton 
+            onClick={()=>{navigate('/marginxs')}}
+            style={{width:'100%', padding:0}}>
+            <MDBox bgColor='info' 
+              style={{
+                  width:'100%',
+                  height: '180px', 
+                  borderRadius: 5,
+                  backgroundImage: `url(${MarginX})`,
+                  backgroundSize: 'cover', // You can adjust this property as needed
+                  backgroundRepeat: 'no-repeat', // You can adjust this property as needed
+                  }}>
+            </MDBox>
+          </MDButton>
+        </Grid>
+        <Grid item xs={12} md={4} lg={3} display='flex' justifyContent="center" alignItems="center">
+          <MDButton 
+            onClick={()=>{navigate('/tenxtrading')}}
+            style={{width:'100%', padding:0}}>
+            <MDBox bgColor='info' 
+              style={{
+                  width:'100%',
+                  height: '180px', 
+                  borderRadius: 5,
+                  backgroundImage: `url(${TenX})`,
+                  backgroundSize: 'cover', // You can adjust this property as needed
+                  backgroundRepeat: 'no-repeat', // You can adjust this property as needed
+                  }}>
+            </MDBox>
+          </MDButton>
+        </Grid>
+      
+      </Grid> */}
       
         <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignItems='start' flexDirection='row'>
-        
+
         <Grid item xs={12} md={12} lg={8} display='flex' justifyContent="center" alignItems="center">
         <Grid container xs={12} md={12} lg={12} mb={1} display="flex" justifyContent="center" alignItems="center">
           
@@ -134,13 +303,13 @@ export default function Dashboard() {
               </MDBox>
             </Grid> */}
           
-          <Grid item xs={12} md={6} lg={12} mt={.5}>
+          <Grid item xs={12} md={6} lg={12} mt={1}>
             <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
               <Summary summary={summary}/>
             </MDBox>
           </Grid>
 
-          <Grid item xs={12} md={6} lg={12} mt={0.5}>
+          <Grid item xs={12} md={6} lg={12} mt={1}>
             <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
               {stats && <Performance tradingData={stats} timeframe={timeframe} setTimeframe={setTimeframe} tradeType={tradeType} setTradeType={setTradeType}/>}
             </MDBox>
@@ -149,7 +318,7 @@ export default function Dashboard() {
         </Grid>
         </Grid>
 
-        <Grid item xs={12} md={12} lg={4} display='flex' justifyContent="center" alignItems="top">
+        <Grid item xs={12} md={12} lg={4} mt={1} display='flex' justifyContent="center" alignItems="top">
         <Grid container xs={12} md={12} lg={12} mb={1} display="flex" justifyContent="center" alignItems="top">
           <Grid item xs={12} md={6} lg={12}>
             <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>

@@ -1,5 +1,6 @@
 const { default: mongoose } = require('mongoose');
 const BattleTemplate = require('../../models/battle/battleTemplate');
+const { ObjectId } = require("mongodb");
 
 
 exports.createBattleTemplate = async (req, res) => {
@@ -178,3 +179,63 @@ exports.getDraftBattleTemplates = async (req, res) => {
         });
     }
 };
+
+exports.getBattleTemplateParticipantCount = async (req, res, next) => {
+
+    const id = req.params.id;
+    // //console.log(userId, today)
+    let participantCount = await BattleTemplate.aggregate(
+        [
+            {
+              $match: {
+                _id: new ObjectId(id),
+              },
+            },
+            {
+              $lookup: {
+                from: "battles",
+                localField: "_id",
+                foreignField: "battleTemplate",
+                as: "battles",
+              },
+            },
+            {
+              $unwind: {
+                path: "$battles",
+              },
+            },
+            {
+              $unwind: {
+                path: "$battles.participants",
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                templateId: "$_id",
+                battleTemplateName: 1,
+                user: "$battles.participants.userId",
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  template: "$templateId",
+                  templateName: "$battleTemplateName",
+                },
+                count: {
+                  $sum: 1,
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                templateName: "$_id.templateName",
+                count: 1,
+              },
+            },
+          ]
+    )
+    res.status(201).json({ message: "Participant Count Recieved", data: participantCount });
+}

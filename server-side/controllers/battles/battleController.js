@@ -713,18 +713,6 @@ exports.deductBattleAmount = async (req, res, next) => {
             }
         }
 
-        // if (battle?.maxParticipants <= battle?.participants?.length) {
-        //     if (!battle.potentialParticipants.includes(userId)) {
-        //         battle.potentialParticipants.push(userId);
-        //         battle.save();
-        //     }
-        //     return res.status(404).json({ status: "error", message: "The battle is already full. We sincerely appreciate your enthusiasm. Please join another battle" });
-        // }
-
-
-
-        console.log("battle check", battle?.battleTemplate?.entryFee, battle)
-
         wallet.transactions = [...wallet.transactions, {
             title: 'Battle Fee',
             description: `Amount deducted for ${battle?.battleName} Battle fee`,

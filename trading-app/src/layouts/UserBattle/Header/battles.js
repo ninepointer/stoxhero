@@ -83,10 +83,6 @@ export default function LabTabs() {
                         </Grid>
                         <Grid item xs={12} md={4} lg={2.4} display='flex' justifyContent='center'>
                             <MDButton bgColor='dark' color={clicked == "upcoming" ? "warning" : "secondary"} size='small'
-                                // component={Link}
-                                // to={{
-                                //     pathname: `/completedcontests`,
-                                // }}
                                 onClick={()=>{handleClick("upcoming")}}
                             >
                                 <MDBox display='flex' justifyContent='center' alignItems='center'>
@@ -101,10 +97,6 @@ export default function LabTabs() {
                         </Grid>
                         <Grid item xs={12} md={4} lg={2.4} display='flex' justifyContent='center'>
                             <MDButton bgColor='dark' color={clicked == "past" ? "warning" : "secondary"} size='small'
-                                // component={Link}
-                                // to={{
-                                //     pathname: `/completedcontests`,
-                                // }}
                                 onClick={()=>{handleClick("past")}}
                             >
                                 <MDBox display='flex' justifyContent='center' alignItems='center'>
@@ -119,10 +111,6 @@ export default function LabTabs() {
                         </Grid>
                         <Grid item xs={12} md={4} lg={2.4} display='flex' justifyContent='center'>
                             <MDButton bgColor='dark' color={clicked == "leaderboard" ? "warning" : "secondary"} size='small'
-                                // component={Link}
-                                // to={{
-                                //     pathname: `/contestscoreboard`,
-                                // }}
                                 onClick={()=>{handleClick("leaderboard")}}
                             >
                                 <MDBox display='flex' justifyContent='center' alignItems='center'>
@@ -137,10 +125,6 @@ export default function LabTabs() {
                         </Grid>
                         <Grid item xs={12} md={4} lg={2.4} display='flex' justifyContent='center'>
                             <MDButton bgColor='dark' color={clicked == "college" ? "warning" : "secondary"} size='small'
-                                // component={Link}
-                                // to={{
-                                //     pathname: `/collegecontest`,
-                                // }}
                                 onClick={()=>{handleClick("college")}}
                             >
                                 <MDBox display='flex' justifyContent='center' alignItems='center'>
