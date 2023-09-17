@@ -30,6 +30,8 @@ function Index() {
   const navigate = useNavigate();
   const [updatedDocument, setUpdatedDocument] = useState([]);
   const [action, setAction] = useState(false);
+  const [rankingPayoutMode, setRankingPayoutMode] = useState('create');
+  const [rankingPayout,setRankingPayout] = React.useState([]);
   const [formState, setFormState] = useState({
     battleTemplateName: '' || template?.battleTemplateName,
     portfolioValue: '' || template?.portfolioValue,
@@ -192,6 +194,52 @@ function Index() {
     }
   }
 
+  async function editRankingPayout(e, childFormState, setChildFormState){
+    e.preventDefault();
+    if(!childFormState?.rank || !childFormState?.rewardPercentage){
+      setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
+      return openErrorSB("Missing Field","Please fill all the mandatory fields")
+  }
+
+  const ranks = rankingPayout.map(item=>item);
+  let obj = ranks?.find(item => item._id == childFormState?._id);
+  if(obj.rank != childFormState?.rank){
+    obj.rank = childFormState?.rank
+  }
+  if(obj.rewardPercentage != childFormState?.rewardPercentage){
+    obj.rewardPercentage = childFormState?.rewardPercentage
+  }
+  console.log('new rewards', ranks.map((elem)=>{return {rank:elem?.rank, rewardPercentage:elem?.rewardPercentage}}));
+  const res = await fetch(`${baseUrl}api/v1/battletemplates/${template?._id}`, {
+    method: "PATCH",
+    credentials:"include",
+    headers: {
+        "content-type" : "application/json",
+        "Access-Control-Allow-Credentials": true
+    },
+    body: JSON.stringify(
+      {rankingPayout : ranks.map((elem)=>{return {rank:elem?.rank, rewardPercentage:elem?.rewardPercentage}})}
+      )
+  });
+  const data = await res.json();
+  if (res.status !== 200) {
+      openErrorSB("Error",data.message)
+  } else {
+      setUpdatedDocument(data?.data);
+      console.log("Data Check:",data?.data);
+      setTemplate(data?.data);
+      openSuccessSB("Success",data.message);
+      setChildFormState({
+        rank:'',
+        rewardPercentage: '',
+      });
+      setAction(!action);
+      setTimeout(()=>{setSaving(false);setEditing(false)},500)
+  }
+
+  }
+  
+  
   let collection = 0;
   function calculation(entryFee,minParticipants){
     // Perform your calculation based on formState.field1 and formState.field2
@@ -674,6 +722,7 @@ let totalNumberOfWinners = template ? ((template?.minParticipants*template?.winn
                           />
                       </Grid>
               
+                      {rankingPayoutMode=='create'?
                       <Grid item xs={12} md={5} xl={5}>
                           {/* <IoMdAddCircle cursor="pointer" onClick={(e)=>{onAddFeature(e,formState,setFormState)}}/> */}
                           <MDButton 
@@ -682,6 +731,28 @@ let totalNumberOfWinners = template ? ((template?.minParticipants*template?.winn
                             size='small' 
                             onClick={(e)=>{createRankingPayout(e,childFormState,setChildFormState)}}>Create Reward Payouts</MDButton>
                       </Grid>
+                      :
+                      <Grid item xs={12} md={5} xl={5}>
+                          {/* <IoMdAddCircle cursor="pointer" onClick={(e)=>{onAddFeature(e,formState,setFormState)}}/> */}
+                          <MDButton 
+                            variant='contained' 
+                            color='success' 
+                            size='small' 
+                            onClick={(e)=>{editRankingPayout(e,childFormState,setChildFormState)}}>Edit Reward Payout</MDButton>
+                      </Grid>
+                      }
+
+                      {
+                        rankingPayoutMode=='edit' && 
+                        <Grid item xl={1} ml={-35}>
+                            {/* <IoMdAddCircle cursor="pointer" onClick={(e)=>{onAddFeature(e,formState,setFormState)}}/> */}
+                            <MDButton 
+                              variant='contained' 
+                              color='warning' 
+                              size='small' 
+                              onClick={(e)=>{setChildFormState({rank:'', rewardPercentage:''}); setRankingPayoutMode('create');}}>Cancel</MDButton>
+                        </Grid>
+                      }
       
                       </Grid>
       
@@ -691,7 +762,13 @@ let totalNumberOfWinners = template ? ((template?.minParticipants*template?.winn
                 {(isSubmitted || template) && 
                 <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                     <MDBox>
-                        <RankingPayout saving={saving} template={template} updatedDocument={updatedDocument} setUpdatedDocument={setUpdatedDocument} prizePool={prizePool} action={action} setAction={setAction}/>
+                        <RankingPayout saving={saving} template={template} updatedDocument={updatedDocument} 
+                        setUpdatedDocument={setUpdatedDocument} prizePool={prizePool} action={action} 
+                        setAction={setAction} childFormState={childFormState} setChildFormState={setChildFormState} 
+                        rankingPayoutMode={rankingPayoutMode} setRankingPayoutMode = {setRankingPayoutMode} 
+                        rankingPayout={rankingPayout} setRankingPayout={setRankingPayout}
+                        ranking
+                        />
                     </MDBox>
                 </Grid>
                 }

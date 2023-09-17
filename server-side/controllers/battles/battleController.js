@@ -1093,7 +1093,7 @@ exports.findBattleByName = async(req,res) => {
             populate('battleTemplate', 'entryFee portfolioValue');
         console.log('result', result);
         if(!result){
-            res.status(404).json({
+            return res.status(404).json({
                 status: "error",
                 message: "No battle found",
             });
