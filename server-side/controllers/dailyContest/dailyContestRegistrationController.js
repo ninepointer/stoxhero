@@ -365,9 +365,29 @@ return myReferralCode;
 
 exports.registeredCount = async (req, res, next) => {
 
-    const count = await ContestRegistration.countDocuments();
+    try {
+        const contests = await DailyContest.find({
+            contestStartTime: { $gt: new Date() }, contestFor: "College", contestStatus:"Active"
+        }).select('potentialParticipants')
 
-    res.status(200).json({count: count});
+        let arr = [];
+
+        for(let elem of contests){
+            arr.push({_id: elem._id, count: elem.potentialParticipants.length})
+        }
+
+        res.status(200).json({
+            status: "success",
+            message: "data fetched successfully",
+            data: arr
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Error in fetching upcoming contests",
+            error: error.message
+        });
+    }
 
 
 }

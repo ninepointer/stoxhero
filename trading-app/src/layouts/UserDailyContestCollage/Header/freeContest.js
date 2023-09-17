@@ -34,7 +34,7 @@ function Header({toggleContest, setToggleContest, contest, socket, setIsInterest
     // const [isInterested, setIsInterested] = useState(false);
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
-    const [registrationCount, setCount] = useState();
+    const [registrationCount, setCount] = useState([]);
     // const [loading, setIsLoading] = useState(true);
     // const [showPay, setShowPay] = useState(true);
 
@@ -48,7 +48,8 @@ function Header({toggleContest, setToggleContest, contest, socket, setIsInterest
             },
         })
         .then((res) => {
-            setCount(res.data.count);
+            // console.log("res.data.data", res.data.data)
+            setCount(res.data.data);
 
             
         }).catch((err) => {
@@ -162,6 +163,7 @@ function Header({toggleContest, setToggleContest, contest, socket, setIsInterest
         />
     );
 
+    // console.log("registrationCount", registrationCount)
     return (
         <>
             <MDBox display='flex' justifyContent='center'>
@@ -170,6 +172,10 @@ function Header({toggleContest, setToggleContest, contest, socket, setIsInterest
                     <Grid container spacing={1} xs={12} md={12} lg={12}>
                         {
                             contest?.map((elem) => {
+
+                                let count = registrationCount.filter((subelem)=>{
+                                    return subelem?._id?.toString() === elem?._id?.toString();
+                                })
                                 if (elem?.entryFee === 0) {
 
                                     let contestOn = [];
@@ -267,7 +273,7 @@ function Header({toggleContest, setToggleContest, contest, socket, setIsInterest
                                                         {particularContestTime[0]?.value > 0 ?
 // isInterestedState[elem?._id]?.count
                                                             <MDBox color="light" fontSize={10} display="flex" alignContent='center' alignItems='center'>
-                                                                <HiUserGroup color='black' /><MDBox color={"dark"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{registrationCount} STUDENTS ALREADY REGISTERED</MDBox>
+                                                                <HiUserGroup color='black' /><MDBox color={"dark"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{count[0]?.count} STUDENTS ALREADY REGISTERED</MDBox>
                                                             </MDBox>
                                                             :
                                                             particularContestTime[0]?.value <= 0 &&
