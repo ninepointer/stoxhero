@@ -2,7 +2,7 @@ const express = require("express");
 const Authenticate = require('../../authentication/authentication');
 const router = express.Router({ mergeParams: true });
 const { createBattle, getAllBattles, getCompletedBattles, todaysBattle, getCancelledBattles,
-    getOngoingBattles, getUpcomingBattles, editBattle, getBattleById, getDraftBattles,
+    getOngoingBattles, getUpcomingBattles, editBattle, getBattleById, getDraftBattles, getBattleUser,
     participateUsers, copyAndShare, purchaseIntent, deductBattleAmount, findBattleByName,
     getUserLiveBattles, getUserUpcomingBattles, getUserCompletedBattles, getPrizeDetails } = require('../../controllers/battles/battleController');
 const restrictTo = require('../../authentication/authorization');
@@ -12,6 +12,8 @@ router.route('/').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createBa
 router.get('/upcoming', Authenticate, restrictTo('Admin', 'SuperAdmin'), getUpcomingBattles);
 router.get('/today', Authenticate, todaysBattle);
 router.get('/findbyname', findBattleByName);
+router.get('/battleuser', Authenticate, restrictTo('Admin', 'SuperAdmin'), getBattleUser);
+
 router.get('/ongoing', Authenticate, restrictTo('Admin', 'SuperAdmin'), getOngoingBattles);
 router.get('/completed', Authenticate, restrictTo('Admin', 'SuperAdmin'), getCompletedBattles);
 router.get('/cancelled', Authenticate, restrictTo('Admin', 'SuperAdmin'), getCancelledBattles);

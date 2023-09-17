@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import MDBox from '../../../components/MDBox';
 import moment from 'moment';
 
-export default function Charts({dailyContestUsers}) {
+export default function Charts({battleUsers}) {
     const chartRef = useRef(null);
   // Dummy data for example purposes
   const data = [
@@ -54,7 +54,7 @@ export default function Charts({dailyContestUsers}) {
     xAxis: [
         {
           type: 'category',
-          data: dailyContestUsers.map(item => 
+          data: battleUsers.map(item => 
             moment.utc(((new Date(item.date)).toLocaleString("en-US", { timeZone: "UTC" }))).utcOffset('+00:00').format('DD-MMM')),
           axisPointer: {
             type: 'shadow'
@@ -80,7 +80,7 @@ export default function Charts({dailyContestUsers}) {
       {
         name: 'Contest Users',
         type: 'line',
-        data: dailyContestUsers.map(item => item.contest),
+        data: battleUsers.map(item => item.contest),
       },
     ],
   };
@@ -90,7 +90,7 @@ export default function Charts({dailyContestUsers}) {
   return () => {
     chart.dispose();
   };
-}, [dailyContestUsers]);
+}, [battleUsers]);
 
   return <MDBox ref={chartRef} style={{ minWidth: '100%', height: '400px' }} />;
 };
