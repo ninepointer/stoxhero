@@ -2,7 +2,7 @@ import { React, useState, useEffect, useContext, useCallback, useMemo } from "re
 // import axios from "axios";
 // import { Link } from "react-router-dom";
 // import moment from 'moment'
-import ReactGA from "react-ga"
+// import ReactGA from "react-ga"
 
 
 // @mui material components
@@ -17,19 +17,21 @@ import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton";
 import MDAvatar from "../../../components/MDAvatar";
 import MDTypography from "../../../components/MDTypography";
-import AMargin from '../../../assets/images/amargin.png'
+// import AMargin from '../../../assets/images/amargin.png'
 import DefaultProfilePic from "../../../assets/images/default-profile.png";
 
 import logo from '../../../assets/images/logo1.jpeg'
-import Profit from '../../../assets/images/profit.png'
-import Tcost from '../../../assets/images/tcost.png'
-import TwitterIcon from '@mui/icons-material/Twitter';
+// import Profit from '../../../assets/images/profit.png'
+// import Tcost from '../../../assets/images/tcost.png'
+// import TwitterIcon from '@mui/icons-material/Twitter';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { CircularProgress, Divider } from "@mui/material";
 import { userContext } from "../../../AuthContext";
 // import { NetPnlContext } from "../../../PnlContext";
 import axios from "axios";
+import InstagramIcon from '@mui/icons-material/Instagram';
+import TelegramIcon from '@mui/icons-material/Telegram';
 
 
 
@@ -150,9 +152,11 @@ function Leaderboard({ socket, name, id}) {
                                                 <MDTypography fontSize={15} color='black' fontWeight='bold'>StoxHero {name} Contest Leaderboard</MDTypography>
                                             </Grid>
                                             <Grid item xs={12} lg={4} display='flex' justifyContent='right' alignItems='center' gap={1} mr={1}>
-                                                <MDBox><MDTypography fontSize={15} color='#000000' backgroundColor='#000000' fontWeight='bold' style={{ cursor: 'pointer', borderRadius: "5px" }}><MDButton variant='text' size='small'><TwitterIcon /></MDButton></MDTypography></MDBox>
-                                                <MDBox><MDTypography fontSize={15} color='#000000' backgroundColor='#000000' fontWeight='bold' style={{ cursor: 'pointer', borderRadius: "5px" }}><MDButton variant='text' size='small'><FacebookIcon /></MDButton></MDTypography></MDBox>
-                                                <MDBox><MDTypography fontSize={15} color='#000000' backgroundColor='#000000' fontWeight='bold' style={{ cursor: 'pointer', borderRadius: "5px" }}><MDButton variant='text' size='small'><WhatsAppIcon /></MDButton></MDTypography></MDBox>
+                                                <MDBox><MDTypography fontSize={15} color='#000000' backgroundColor='#000000' fontWeight='bold' style={{ cursor: 'pointer', borderRadius: "5px" }}><MDButton variant='text' size='small' onClick={() => window.open('https://instagram.com/stoxhero_official?igshid=MzRlODBiNWFlZA==', '_blank')}><InstagramIcon /></MDButton></MDTypography></MDBox>
+                                                <MDBox><MDTypography fontSize={15} color='#000000' backgroundColor='#000000' fontWeight='bold' style={{ cursor: 'pointer', borderRadius: "5px" }}><MDButton variant='text' size='small' onClick={() => window.open('https://www.facebook.com/profile.php?id=100091564856087&mibextid=ZbWKwL', '_blank')}><FacebookIcon /></MDButton></MDTypography></MDBox>
+                                                <MDBox><MDTypography fontSize={15} color='#000000' backgroundColor='#000000' fontWeight='bold' style={{ cursor: 'pointer', borderRadius: "5px" }}><MDButton variant='text' size='small' onClick={() => window.open('https://chat.whatsapp.com/CbRHo9BP3SO5fIHI2nM6jq', '_blank')}><WhatsAppIcon /></MDButton></MDTypography></MDBox>
+                                                <MDBox><MDTypography fontSize={15} color='#000000' backgroundColor='#000000' fontWeight='bold' style={{ cursor: 'pointer', borderRadius: "5px" }}><MDButton variant='text' size='small' onClick={() => window.open('https://t.me/stoxhero_official', '_blank')}><TelegramIcon /></MDButton></MDTypography></MDBox>
+
                                             </Grid>
 
                                         </Grid>

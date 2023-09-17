@@ -27,13 +27,16 @@ import { Typography } from "@mui/material";
 import InstrumentComponent from "./InstrumentComponent";
 import { marketDataContext } from "../../../MarketDataContext";
 import { renderContext } from "../../../renderContext";
-import { InfinityTraderRole, dailyContest } from "../../../variables";
+import { InfinityTraderRole, dailyContest, battle, marginX } from "../../../variables";
 import { userContext } from "../../../AuthContext";
 import Timer from "./timer";
 import AutoCutPopUp from "./tradecutPopup";
 
 
 function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionId, moduleData, setWatchList}) {
+  if(from === marginX || from === battle){
+    from = dailyContest;
+  }
   const marketDetails = useContext(marketDataContext)
   const {render, setRender} = useContext(renderContext);
   const [buyState, setBuyState] = useState(false);

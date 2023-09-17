@@ -9,7 +9,9 @@ const getKiteCred = require('../../marketData/getKiteCred');
 const axios = require("axios")
 const Wallet = require("../../models/UserWallet/userWalletSchema")
 const Transaction = require('../../models/Transactions/Transaction');
-const uuid = require("uuid")
+const uuid = require("uuid");
+const sendMail = require('../../utils/emailService');
+
 
 exports.overallPnlTrader = async (req, res, next) => {
     let isRedisConnected = getValue();
@@ -1597,6 +1599,95 @@ exports.creditAmountToWalletBattle = async () => {
                             }
     
                             await battle[j].save();
+
+                            const user = await User.findOne({_id: new ObjectId(userBattleWise[i].userId)});
+
+                            if (process.env.PROD == 'true') {
+                                sendMail(user?.email, 'Battle Reward Credited - StoxHero', `
+                                <!DOCTYPE html>
+                                <html>
+                                <head>
+                                    <meta charset="UTF-8">
+                                    <title>Amount Credited</title>
+                                    <style>
+                                    body {
+                                        font-family: Arial, sans-serif;
+                                        font-size: 16px;
+                                        line-height: 1.5;
+                                        margin: 0;
+                                        padding: 0;
+                                    }
+                          
+                                    .container {
+                                        max-width: 600px;
+                                        margin: 0 auto;
+                                        padding: 20px;
+                                        border: 1px solid #ccc;
+                                    }
+                          
+                                    h1 {
+                                        font-size: 24px;
+                                        margin-bottom: 20px;
+                                    }
+                          
+                                    p {
+                                        margin: 0 0 20px;
+                                    }
+                          
+                                    .userid {
+                                        display: inline-block;
+                                        background-color: #f5f5f5;
+                                        padding: 10px;
+                                        font-size: 15px;
+                                        font-weight: bold;
+                                        border-radius: 5px;
+                                        margin-right: 10px;
+                                    }
+                          
+                                    .password {
+                                        display: inline-block;
+                                        background-color: #f5f5f5;
+                                        padding: 10px;
+                                        font-size: 15px;
+                                        font-weight: bold;
+                                        border-radius: 5px;
+                                        margin-right: 10px;
+                                    }
+                          
+                                    .login-button {
+                                        display: inline-block;
+                                        background-color: #007bff;
+                                        color: #fff;
+                                        padding: 10px 20px;
+                                        font-size: 18px;
+                                        font-weight: bold;
+                                        text-decoration: none;
+                                        border-radius: 5px;
+                                    }
+                          
+                                    .login-button:hover {
+                                        background-color: #0069d9;
+                                    }
+                                    </style>
+                                </head>
+                                <body>
+                                    <div class="container">
+                                    <h1>Amount Credited</h1>
+                                    <p>Hello ${user.first_name},</p>
+                                    <p>Amount of ${elem.reward?.toFixed(2)}INR has been credited in you wallet</p>
+                                    <p>You can now purchase Tenx and participate in various activity on stoxhero.</p>
+                                    
+                                    <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                                    <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                                    <br/><br/>
+                                    <p>Thanks,</p>
+                                    <p>StoxHero Team</p>
+                          
+                                    </div>
+                                </body>
+                                </html>
+                                `);
+                            }
                         }
     
                     }
@@ -1639,17 +1730,108 @@ exports.creditAmountToWalletBattle = async () => {
                             }
     
                             await battle[j].save();
+
+                            const user = await User.findOne({_id: new ObjectId(userBattleWise[i].userId)});
+
+                            if (process.env.PROD == 'true') {
+                                sendMail(user?.email, 'Battle Reward Credited - StoxHero', `
+                                <!DOCTYPE html>
+                                <html>
+                                <head>
+                                    <meta charset="UTF-8">
+                                    <title>Amount Credited</title>
+                                    <style>
+                                    body {
+                                        font-family: Arial, sans-serif;
+                                        font-size: 16px;
+                                        line-height: 1.5;
+                                        margin: 0;
+                                        padding: 0;
+                                    }
+                          
+                                    .container {
+                                        max-width: 600px;
+                                        margin: 0 auto;
+                                        padding: 20px;
+                                        border: 1px solid #ccc;
+                                    }
+                          
+                                    h1 {
+                                        font-size: 24px;
+                                        margin-bottom: 20px;
+                                    }
+                          
+                                    p {
+                                        margin: 0 0 20px;
+                                    }
+                          
+                                    .userid {
+                                        display: inline-block;
+                                        background-color: #f5f5f5;
+                                        padding: 10px;
+                                        font-size: 15px;
+                                        font-weight: bold;
+                                        border-radius: 5px;
+                                        margin-right: 10px;
+                                    }
+                          
+                                    .password {
+                                        display: inline-block;
+                                        background-color: #f5f5f5;
+                                        padding: 10px;
+                                        font-size: 15px;
+                                        font-weight: bold;
+                                        border-radius: 5px;
+                                        margin-right: 10px;
+                                    }
+                          
+                                    .login-button {
+                                        display: inline-block;
+                                        background-color: #007bff;
+                                        color: #fff;
+                                        padding: 10px 20px;
+                                        font-size: 18px;
+                                        font-weight: bold;
+                                        text-decoration: none;
+                                        border-radius: 5px;
+                                    }
+                          
+                                    .login-button:hover {
+                                        background-color: #0069d9;
+                                    }
+                                    </style>
+                                </head>
+                                <body>
+                                    <div class="container">
+                                    <h1>Amount Credited</h1>
+                                    <p>Hello ${user.first_name},</p>
+                                    <p>Amount of ${remainingReward?.toFixed(2)}INR has been credited in you wallet</p>
+                                    <p>You can now purchase Tenx and participate in various activity on stoxhero.</p>
+                                    
+                                    <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                                    <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                                    <br/><br/>
+                                    <p>Thanks,</p>
+                                    <p>StoxHero Team</p>
+                          
+                                    </div>
+                                </body>
+                                </html>
+                                `);
+                            }
                         }
-                        // else{
-                        //     for(let subelem of battle[j]?.participants){
-                        //         if(subelem.userId.toString() === userBattleWise[i].userId.toString()){
-                        //             subelem.reward = 0;
-                        //             subelem.rank = k;
-                        //         }
-                        //     }
-    
-                        //     await battle[j].save();
-                        // }
+
+                        if (i + 1 > finalRank) {
+                            for (let subelem of battle[j]?.participants) {
+                              console.log("updating feilds")
+                              if (subelem.userId.toString() === userBattleWise[i].userId.toString()) {
+                                subelem.reward = 0;
+                                subelem.rank = i+1;
+                              }
+                            }
+                
+                            await battle[j].save();
+                        }
                     }
                 }
 

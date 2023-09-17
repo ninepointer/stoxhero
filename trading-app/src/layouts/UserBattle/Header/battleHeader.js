@@ -56,13 +56,13 @@ function Header({ children }) {
                         <Grid container display='flex' justifyContent='center' alignItems='center'>
                             <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center'>
                                 <MDButton size='small' varaint='Outlined' color='success' onClick={() => window.open('https://chat.whatsapp.com/CbRHo9BP3SO5fIHI2nM6jq', '_blank')}><WhatsAppIcon/></MDButton>
-                                    <span style={{ margin: '0 1px' }}></span> {/* Add space between buttons */}
+                                    <span style={{ margin: '0 1px' }}></span>
                                 <MDButton size='small' varaint='Outlined' color='info' onClick={() => window.open('https://t.me/stoxhero_official', '_blank')}><TelegramIcon/></MDButton>
-                                    <span style={{ margin: '0 1px' }}></span> {/* Add space between buttons */}
+                                    <span style={{ margin: '0 1px' }}></span>
                                 <MDButton size='small' varaint='Outlined' color='info' onClick={() => window.open('https://www.linkedin.com/company/stoxhero', '_blank')}><LinkedInIcon/></MDButton>
-                                    <span style={{ margin: '0 1px' }}></span> {/* Add space between buttons */}
+                                    <span style={{ margin: '0 1px' }}></span>
                                 <MDButton size='small' varaint='Outlined' color='error' onClick={() => window.open('https://instagram.com/stoxhero_official?igshid=MzRlODBiNWFlZA==', '_blank')}><InstagramIcon/></MDButton>
-                                    <span style={{ margin: '0 1px' }}></span> {/* Add space between buttons */}
+                                    <span style={{ margin: '0 1px' }}></span>
                                 <MDButton size='small' varaint='Outlined' color='info' onClick={() => window.open('https://www.facebook.com/profile.php?id=100091564856087&mibextid=ZbWKwL', '_blank')}><FacebookIcon/></MDButton>
                             </Grid>
                         </Grid>
