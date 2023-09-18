@@ -1649,8 +1649,8 @@ exports.creditAmountToWalletBattle = async () => {
                                     <div class="container">
                                     <h1>Amount Credited</h1>
                                     <p>Hello ${user.first_name},</p>
-                                    <p>Amount of ${elem.reward?.toFixed(2)}INR has been credited in you wallet</p>
-                                    <p>You can now purchase Tenx and participate in various activity on stoxhero.</p>
+                                    <p>Amount of ${elem.reward?.toFixed(2)}INR has been credited in your StoxHero wallet as reward for ${battle[j].battleName}</p>
+                                    <p>You can now purchase Tenx and participate in various activities on StoxHero.</p>
                                     
                                     <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
                                     <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
@@ -1780,8 +1780,8 @@ exports.creditAmountToWalletBattle = async () => {
                                     <div class="container">
                                     <h1>Amount Credited</h1>
                                     <p>Hello ${user.first_name},</p>
-                                    <p>Amount of ${remainingReward?.toFixed(2)}INR has been credited in you wallet</p>
-                                    <p>You can now purchase Tenx and participate in various activity on stoxhero.</p>
+                                    <p>Amount of ${remainingReward?.toFixed(2)}INR has been credited in your StoxHero wallet as reward for ${battle[j].battleName}.</p>
+                                    <p>You can now purchase Tenx and participate in various activity on StoxHero.</p>
                                     
                                     <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
                                     <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
