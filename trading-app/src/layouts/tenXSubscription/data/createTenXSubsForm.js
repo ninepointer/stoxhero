@@ -56,6 +56,8 @@ const [formState,setFormState] = useState({
     actual_price:'',
     discounted_price:'',
     isRecommended: '',
+    expiryDays: "",
+    payoutPercentage: "",
     features: {
         orderNo: "",
         description: ""
@@ -111,7 +113,9 @@ React.useEffect(()=>{
             validityPeriod: res.data.data?.validityPeriod || '',
             portfolio: res.data.data?.portfolio?.portfolioName || '',
             allowPurchase: res.data.data?.allowPurchase || '',
-            allowRenewal: res.data.data?.allowRenewal || ''
+            allowRenewal: res.data.data?.allowRenewal || '',
+            expiryDays: res.data.data?.expiryDays || '',
+            payoutPercentage: res.data.data?.payoutPercentage || ''
           });
             setTimeout(()=>{setIsLoading(false)},500) 
         // setIsLoading(false)
@@ -130,7 +134,7 @@ async function onEdit(e,formState){
         setTimeout(()=>{setSaving(false);setEditing(true)},500)
         return openErrorSB("Missing Field","Please fill all the mandatory fields")
     }
-    const { plan_name, actual_price, isRecommended, discounted_price, validity, validityPeriod, status, portfolio, profitCap, allowPurchase, allowRenewal } = formState;
+    const { plan_name, actual_price, isRecommended, discounted_price, validity, validityPeriod, status, portfolio, profitCap, allowPurchase, allowRenewal, payoutPercentage, expiryDays } = formState;
 
     const res = await fetch(`${baseUrl}api/v1/tenX/${id}`, {
         method: "PATCH",
@@ -140,7 +144,7 @@ async function onEdit(e,formState){
             "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-            plan_name, actual_price, isRecommended, discounted_price, validity, validityPeriod, status, portfolio: portfolio.id, profitCap, allowPurchase, allowRenewal 
+            plan_name, actual_price, isRecommended, discounted_price, validity, validityPeriod, status, portfolio: portfolio.id, profitCap, allowPurchase, allowRenewal, payoutPercentage, expiryDays
         })
     });
 
@@ -178,7 +182,7 @@ async function onEdit(e,formState){
         return openErrorSB("Missing Field","Please fill all the mandatory fields")
     }
     setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-    const {plan_name, actual_price, isRecommended, discounted_price, validity, validityPeriod, status, portfolio, profitCap, allowPurchase, allowRenewal } = formState;
+    const {plan_name, actual_price, isRecommended, discounted_price, validity, validityPeriod, status, portfolio, profitCap, allowPurchase, allowRenewal, payoutPercentage, expiryDays } = formState;
     const res = await fetch(`${baseUrl}api/v1/tenX/create`, {
         method: "POST",
         credentials:"include",
@@ -187,7 +191,7 @@ async function onEdit(e,formState){
             "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-            plan_name, actual_price, isRecommended, discounted_price, validity, 
+            plan_name, actual_price, isRecommended, discounted_price, validity, payoutPercentage, expiryDays,
             validityPeriod, status, portfolio: portfolio.id, profitCap, allowPurchase, allowRenewal
         })
     });
@@ -385,6 +389,48 @@ async function onEdit(e,formState){
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         profitCap: e.target.value
+                    }))}}
+
+                    // onChange={handleEdit}
+                />
+            </Grid>
+
+            <Grid item xs={12} md={6} xl={3}>
+                <TextField
+                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    id="outlined-required"
+                    label='Payout Percentage *'
+                    name='payoutPercentage'
+                    type='number'
+                    fullWidth
+                    value={formState?.payoutPercentage || tenXSubs?.payoutPercentage}
+
+                    // defaultValue={portfolioData?.portfolioName}
+                    defaultValue={ editing ? formState?.payoutPercentage : tenXSubs?.payoutPercentage}
+                    onChange={(e) => {setFormState(prevState => ({
+                        ...prevState,
+                        payoutPercentage: e.target.value
+                    }))}}
+
+                    // onChange={handleEdit}
+                />
+            </Grid>
+
+            <Grid item xs={12} md={6} xl={3}>
+                <TextField
+                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    id="outlined-required"
+                    label='Expiry Days *'
+                    name='expiryDays'
+                    type='number'
+                    fullWidth
+                    value={formState?.expiryDays || tenXSubs?.expiryDays}
+
+                    // defaultValue={portfolioData?.portfolioName}
+                    defaultValue={ editing ? formState?.expiryDays : tenXSubs?.expiryDays}
+                    onChange={(e) => {setFormState(prevState => ({
+                        ...prevState,
+                        expiryDays: e.target.value
                     }))}}
 
                     // onChange={handleEdit}

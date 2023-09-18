@@ -120,7 +120,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
   url = url.slice(1);
 
   // console.log("isAllIndex url", isAllIndex, url);
-  if(from === dailyContest){
+  if(from === dailyContest || from === marginX || from === battle){
     endPoint = `${baseUrl}api/v1/instrumentDetails?${url}&dailyContest=${true}`
   } else{
     endPoint = `${baseUrl}api/v1/instrumentDetails`

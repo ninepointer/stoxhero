@@ -442,6 +442,55 @@ exports.getUserCompletedBattles = async (req, res) => {
                     },
                 },
             },
+            {
+                $group:
+                  {
+                    _id: {
+                      battleId: "$battleId",
+                      totalParticipants: "$totalParticipants",
+                      rank: "$rank",
+                      payout: "$payout",
+                      battleStartTime: "$battleStartTime",
+                      battleName: "$battleName",
+                      isNifty: "$isNifty",
+                      isFinNifty: "$isFinNifty",
+                      isBankNifty: "$isBankNifty",
+                      battleEndTime: "$battleEndTime",
+                      entryFee: "$entryFee",
+                      portfolioValue: "$portfolioValue",
+                      minParticipants: "$minParticipants",
+                      gst: "$gst",
+                      platformPercentage:
+                        "$platformPercentage",
+                      collection: "$collection",
+                    },
+                    npnl: {
+                      $sum: "$npnl",
+                    },
+                  },
+            },
+            {
+            $project: {
+                _id: 0,
+                npnl: 1,
+                totalParticipants: "$_id.totalParticipants",
+                rank: "$_id.rank",
+                payout: "$_id.payout",
+                battleStartTime: "$_id.battleStartTime",
+                battleName: "$_id.battleName",
+                isNifty: "$_id.isNifty",
+                isFinNifty: "$_id.isFinNifty",
+                isBankNifty: "$_id.isBankNifty",
+                battleEndTime: "$_id.battleEndTime",
+                entryFee: "$_id.entryFee",
+                portfolioValue: "$_id.portfolioValue",
+                minParticipants: "$_id.minParticipants",
+                gst: "$_id.gst",
+                platformPercentage:
+                "$_id.platformPercentage",
+                collection: "$_id.collection",
+            },
+            },
         ])
 
         for (let elem of completed) {
@@ -465,7 +514,7 @@ exports.getUserCompletedBattles = async (req, res) => {
 
 exports.purchaseIntent = async (req, res) => {
     try {
-        const { id } = req.params; // ID of the contest 
+        const { id } = req.params; // ID of the battle 
         const userId = req.user._id;
 
         const result = await Battle.findByIdAndUpdate(
@@ -1148,19 +1197,19 @@ exports.getBattleUser = async (req, res) => {
                 if (!dateWiseDAUs[date]) {
                     dateWiseDAUs[date] = {
                         date,
-                        contest: 0,
+                        battle: 0,
                         uniqueUsers: [],
                     };
                 }
-                dateWiseDAUs[date].contest = traders;
+                dateWiseDAUs[date].battle = traders;
                 dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
             }
         });
 
         // Calculate the date-wise total DAUs and unique users
         Object.keys(dateWiseDAUs).forEach(date => {
-            const { contest, uniqueUsers } = dateWiseDAUs[date];
-            dateWiseDAUs[date].total = contest
+            const { battle, uniqueUsers } = dateWiseDAUs[date];
+            dateWiseDAUs[date].total = battle
             dateWiseDAUs[date].uniqueUsers = [...new Set(uniqueUsers)];
         });
 

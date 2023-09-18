@@ -14,6 +14,8 @@ import { Grid } from "@mui/material";
 import ScreenshotMonitorIcon from '@mui/icons-material/ScreenshotMonitor';
 import html2canvas from 'html2canvas';
 import MDButton from "../../../components/MDButton";
+import DownloadIcon from '@mui/icons-material/Download';
+import { saveAs } from 'file-saver';
 
 
 export default function TableView({ dateWiseData}) {
@@ -23,22 +25,60 @@ export default function TableView({ dateWiseData}) {
   const captureScreenshot = (id, name) => {
     const screenshotElement = document.getElementById(id);
     setTimeout(() => {
-        setShowDownloadButton(false)
-        html2canvas(screenshotElement)
-            .then((canvas) => {
-                const link = document.createElement('a');
-                link.download = `${name}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                setShowDownloadButton(true)
-            })
-            .catch((error) => {
-                console.error('Error capturing screenshot:', error);
-                setShowDownloadButton(true)
-            });
+      setShowDownloadButton(false)
+      html2canvas(screenshotElement)
+        .then((canvas) => {
+          const link = document.createElement('a');
+          link.download = `${name}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+          setShowDownloadButton(true)
+        })
+        .catch((error) => {
+          console.error('Error capturing screenshot:', error);
+          setShowDownloadButton(true)
+        });
     }, 500)
 
-};
+  };
+
+  const handleDownload = (csvData, nameVariable) => {
+    // Create the CSV content
+    // const csvContent = csvData.map(row => row.join(',')).join('\n');
+    const csvContent = csvData?.map((row) => {
+      return row?.map((row1) => row1.join(',')).join('\n');
+    });
+    // const csvContent = 'Date,Weekday,Gross P&L(S) Gross P&L(I) Net P&L(S) Net P&L(I) Net P&L Diff(S-I)\nValue 1,Value 2,Value 3\nValue 4, Value 5, Value 6';
+
+    // Create a Blob object with the CSV content
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+
+    // Save the file using FileSaver.js
+    saveAs(blob, `${nameVariable}.csv`);
+  }
+
+  function downloadHelper(dateWiseData) {
+    let csvDataFile = [[]]
+    let csvDataDailyPnl = [["RANK", "TRADER NAME", "GROSS P&L", "TRANSACTION COST", "NET P&L", "# OF TRADES", "PAYOUT"]]
+    if (dateWiseData) {
+      // dates = Object.keys(data)
+      let csvpnlData = Object.values(dateWiseData)
+      csvDataFile = csvpnlData?.map((elem) => {
+
+        return [elem?.rank,
+        elem?.name,
+        elem?.gpnl,
+        elem?.brokerage,
+        elem?.npnl,
+        elem?.noOfTrade,
+        elem?.payout]
+      })
+    }
+
+    return [[...csvDataDailyPnl, ...csvDataFile]]
+  }
+
+  const pnlData = downloadHelper(dateWiseData)
 
   return (
 
@@ -47,11 +87,14 @@ export default function TableView({ dateWiseData}) {
 
 
         <Grid container p={0.5} mb={1} style={{backgroundColor:'white' ,border: '1px solid white', borderRadius: 5 }}>
-            <Grid item xs={12} md={2} lg={8} pl={1} display="flex" justifyContent="flex-start" alignContent="center" alignItems="center">
+            <Grid item xs={12} md={2} lg={11} pl={1} display="flex" justifyContent="flex-start" alignContent="center" alignItems="center">
               <MDTypography color="dark" fontSize={12} fontWeight="bold">Trader Wise - P&L</MDTypography>
             </Grid>
-            <Grid item xs={12} md={2} lg={4} display="flex" justifyContent="flex-end" alignContent="center" alignItems="center">
-              <Tooltip title="Download CSV"><MDButton variant='contained' onClick={()=>{captureScreenshot('screenshot-component2', "Battle-Pnl")}}><ScreenshotMonitorIcon/></MDButton></Tooltip>
+            <Grid item xs={12} md={2} lg={0.5} display="flex" justifyContent="flex-end" alignContent="center" alignItems="center">
+              <Tooltip title="Download CSV"><MDButton variant='contained' onClick={()=>{handleDownload(pnlData, "Trader-Wise-Battle")}}><DownloadIcon/></MDButton></Tooltip>
+            </Grid>
+            <Grid item xs={12} md={2} lg={0.5} display="flex" justifyContent="flex-end" alignContent="center" alignItems="center">
+              <Tooltip title="Screenshot"><MDButton variant='contained' onClick={()=>{captureScreenshot('screenshot-component2', "Battle-Pnl")}}><ScreenshotMonitorIcon/></MDButton></Tooltip>
             </Grid>
         </Grid>
 
