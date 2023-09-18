@@ -788,7 +788,7 @@ exports.processBattles = async () => {
 
                 }else{
 
-                    if(battle.battleStartTime >= new Date())
+                    // if(battle.battleStartTime >= new Date())
                     battle.status='Active';
                     battle.battleStatus = 'Live';
                     await battle.save({validateBeforeSave:false});

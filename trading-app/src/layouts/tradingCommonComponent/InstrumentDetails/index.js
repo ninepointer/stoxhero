@@ -34,9 +34,9 @@ import AutoCutPopUp from "./tradecutPopup";
 
 
 function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionId, moduleData, setWatchList}) {
-  if(from === marginX || from === battle){
-    from = dailyContest;
-  }
+  // if(from === marginX || from === battle){
+  //   from = dailyContest;
+  // }
   const marketDetails = useContext(marketDataContext)
   const {render, setRender} = useContext(renderContext);
   const [buyState, setBuyState] = useState(false);

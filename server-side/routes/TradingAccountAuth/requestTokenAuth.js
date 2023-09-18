@@ -46,7 +46,7 @@ router.post("/autologin", Authenticate, restrictTo('Admin', 'SuperAdmin'), async
         //console.log("data nhi h pura");
         return res.status(422).json({error : "Please Fill all Fields."})
     }
-    let password = accountId === process.env.KUSH_ACCOUNT_ID && process.env.KUSH_PASS
+    let password = (accountId === process.env.KUSH_ACCOUNT_ID) ? process.env.KUSH_PASS : accountId === process.env.PRATEEK_ACCOUNT_ID && process.env.PRATEEK_PASS
 
     try{
 
