@@ -1020,6 +1020,13 @@ exports.BattlePayoutChart = async (req, res, next) => {
             },
         },
         {
+            $match: {
+                "battleData.status": "Completed",
+                "battleData.battleStatus": "Completed",
+                "battleData.payoutStatus": "Completed",
+            },
+        },
+        {
             $unwind: {
                 path: "$templateData",
             },
@@ -1057,9 +1064,6 @@ exports.BattlePayoutChart = async (req, res, next) => {
                 npnl: {
                     $subtract: ["$gpnl", "$brokerage"],
                 },
-                payout: {
-                 
-                },
             },
         },
         {
@@ -1072,9 +1076,6 @@ exports.BattlePayoutChart = async (req, res, next) => {
                 totalNpnl: {
                     $sum: "$npnl",
                 },
-                totalPayout: {
-                    $sum: "$payout",
-                },
             },
         },
         {
@@ -1083,7 +1084,6 @@ exports.BattlePayoutChart = async (req, res, next) => {
                 battleName: "$_id.battleName",
                 BattleDate: "$_id.date",
                 totalNpnl: 1,
-                totalPayout: 1,
                 _id: 0,
             },
         },
@@ -1100,9 +1100,6 @@ exports.BattlePayoutChart = async (req, res, next) => {
                 totalNpnl: {
                     $sum: "$totalNpnl",
                 },
-                totalPayout: {
-                    $sum: "$totalPayout",
-                },
                 numberOfBattle: {
                     $sum: 1,
                 },
@@ -1113,7 +1110,6 @@ exports.BattlePayoutChart = async (req, res, next) => {
                 _id: 0,
                 BattleDate: "$_id.BattleDate",
                 totalNpnl: 1,
-                totalPayout: 1,
                 numberOfBattle: 1,
             },
         },
@@ -1124,7 +1120,59 @@ exports.BattlePayoutChart = async (req, res, next) => {
         },
     ]
 
-    let x = await BattleMock.aggregate(pipeline) 
+    let pipeline1 = [
+        {
+            $match: {
+                status: "Completed",
+                battleStatus: "Completed",
+                payoutStatus: "Completed",
+            },
+        },
+        {
+            $unwind: {
+                path: "$participants",
+            },
+        },
+        {
+            $group: {
+                _id: {
+                    date: {
+                        $dateToString: {
+                            format: "%Y-%m-%d",
+                            date: "$battleStartTime",
+                        },
+                    },
+                },
+                payout: {
+                    $sum: "$participants.reward",
+                },
+            },
+        },
+        {
+            $project: {
+                date: "$_id.date",
+                _id: 0,
+                payout: "$payout",
+            },
+        },
+    ]
+
+
+
+    let x = await BattleMock.aggregate(pipeline);
+    let payout = await Battle.aggregate(pipeline1); 
+
+    for(let elem of x){
+        for(let subelem of payout){
+            // console.log(elem.BattleDate , subelem.date)
+            if(elem.BattleDate === subelem.date){
+                // console.log("in if")
+                elem.totalPayout = subelem.payout;
+            }
+        }
+    }
+
+    // console.log(x, payout)
 
     res.status(201).json({ message: "data received", data: x });
 }
@@ -1158,8 +1206,8 @@ async function processContestQueue() {
 
     const endTime = new Date(currentTime);
     endTime.setHours(9, 48, 0, 0);
-
-    if (currentTime >= startTime && currentTime <= endTime) {
+//todo-vijay
+    // if (currentTime >= startTime && currentTime <= endTime) {
 
         // If the queue is empty, reset the processing flag and return
         if (contestQueue.length === 0) {
@@ -1180,7 +1228,7 @@ async function processContestQueue() {
             }
         }
 
-    }
+    // }
 }
 
 const battleLeaderBoard = async (id) => {
@@ -1423,7 +1471,9 @@ const emitLeaderboardData = async () => {
     startTime.setHours(3, 0, 0, 0);
     const endTime = new Date(currentTime);
     endTime.setHours(9, 48, 0, 0);
-    if (currentTime >= startTime && currentTime <= endTime) {
+
+    //todo-vijay
+    //if (currentTime >= startTime && currentTime <= endTime) {
         const battle = await Battle.find({status: "Active", battleStartTime: {$lte: new Date()}});
 
         // console.log("battle", battle)
@@ -1447,7 +1497,7 @@ const emitLeaderboardData = async () => {
             }
 
         }
-    }
+   // }
 };
 
 const getRedisMyRank = async (id, employeeId) => {
@@ -1575,7 +1625,7 @@ exports.creditAmountToWalletBattle = async () => {
     
                             await battle[j].save();
 
-                            const user = await User.findOne({_id: new ObjectId(userBattleWise[i].userId)});
+                            const user = await User.findOne({_id: new ObjectId(userBattleWise[i].userId)}).select('first_name last_name email');
 
                             if (process.env.PROD == 'true') {
                                 sendMail(user?.email, 'Battle Reward Credited - StoxHero', `
@@ -1706,7 +1756,7 @@ exports.creditAmountToWalletBattle = async () => {
     
                             await battle[j].save();
 
-                            const user = await User.findOne({_id: new ObjectId(userBattleWise[i].userId)});
+                            const user = await User.findOne({_id: new ObjectId(userBattleWise[i].userId)}).select('first_name last_name email')
 
                             if (process.env.PROD == 'true') {
                                 sendMail(user?.email, 'Battle Reward Credited - StoxHero', `

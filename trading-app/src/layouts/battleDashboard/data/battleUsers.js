@@ -6,19 +6,21 @@ import moment from 'moment';
 export default function Charts({battleUsers}) {
     const chartRef = useRef(null);
   // Dummy data for example purposes
-  const data = [
-    { date: '2023-07-01', virtual: 150, contest: 100, tenx: 200, total: 450 },
-    { date: '2023-07-02', virtual: 120, contest: 80, tenx: 180, total: 380 },
-    { date: '2023-07-03', virtual: 180, contest: 150, tenx: 220, total: 550 },
-    // Add more data entries for each date
-  ];
+  // const data = [
+  //   { date: '2023-07-01', virtual: 150, battle: 100, tenx: 200, total: 450 },
+  //   { date: '2023-07-02', virtual: 120, battle: 80, tenx: 180, total: 380 },
+  //   { date: '2023-07-03', virtual: 180, battle: 150, tenx: 220, total: 550 },
+  //   // Add more data entries for each date
+  // ];
+
+  console.log("battleUsers", battleUsers)
 
   useEffect(() => {
     const chart = echarts.init(chartRef.current);
 
   const options = {
     title: {
-      text: 'Daily Unique Contest Users',
+      text: 'Daily Unique Battle Users',
       left: 'left',
     },
     tooltip: {
@@ -39,7 +41,7 @@ export default function Charts({battleUsers}) {
       }
     },
     legend: {
-        data: ['Contest'],
+        data: ['Battle'],
     },
     grid: {
         right: '2%', // Adjust the right margin as per your requirement
@@ -78,9 +80,9 @@ export default function Charts({battleUsers}) {
     ],
     series: [
       {
-        name: 'Contest Users',
+        name: 'Battle Users',
         type: 'line',
-        data: battleUsers.map(item => item.contest),
+        data: battleUsers.map(item => item.battle),
       },
     ],
   };

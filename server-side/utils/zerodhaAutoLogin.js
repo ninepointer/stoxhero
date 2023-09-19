@@ -20,6 +20,7 @@ async function zerodhaLogin(ApiKey,SecretKey,UserId,Password, req, resp) {
 
   console.log(ApiKey,SecretKey,UserId,Password, totp(process.env.KUSH_ACCOUNT_HASH_CODE))
     const {accountId, status} = req.body;
+    const HASH_CODE = accountId===process.env.PRATEEK_ACCOUNT_ID ? process.env.PRATEEK_ACCOUNT_HASH_CODE : process.env.KUSH_ACCOUNT_HASH_CODE;
     const {userId} = req.user;
     (async () => {
         const browser = await puppeteer.launch({ headless: false });
@@ -33,7 +34,7 @@ async function zerodhaLogin(ApiKey,SecretKey,UserId,Password, req, resp) {
         await page.keyboard.press("Enter");
         await sleep(2000);
         await page.focus("input[type=text]").then((value) => console.log(value));
-        await page.keyboard.type(totp(process.env.KUSH_ACCOUNT_HASH_CODE));
+        await page.keyboard.type(totp(HASH_CODE));
         await page.keyboard.press("Enter");
         await page.waitForNavigation();
         const reqUrl = page.url();

@@ -51,10 +51,6 @@ export default function TableView({collegeData, holiday, whichTab, dateWiseData,
     return workingDays;
   }
 
-
-  // console.log("activeUser", activeUser)
-
-
   let pnlData;
 
   if(whichTab === "Daily P&L"){
@@ -70,11 +66,9 @@ export default function TableView({collegeData, holiday, whichTab, dateWiseData,
 
   const handleDownload = (csvData, nameVariable) => {
     // Create the CSV content
-    // const csvContent = csvData.map(row => row.join(',')).join('\n');
     const csvContent = csvData?.map((row) => {
       return row?.map((row1) => row1.join(',')).join('\n');
     });
-    // const csvContent = 'Date,Weekday,Gross P&L(S) Gross P&L(I) Net P&L(S) Net P&L(I) Net P&L Diff(S-I)\nValue 1,Value 2,Value 3\nValue 4, Value 5, Value 6';
 
     // Create a Blob object with the CSV content
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });

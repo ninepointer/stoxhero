@@ -60,6 +60,12 @@ export default function ActiveTenXSubscriptions() {
                                         <MDTypography style={{border:'1px solid #1A73E8', color:'black', width:'90%', display:'flex', justifyContent:'center',  alignItems:'center'}}  p={0.5} fontSize={12} borderRadius={2} fontWeight='bold'>Offer Price : ₹{elem?.discounted_price != 0 ? elem?.discounted_price + '/-' : 'FREE'}</MDTypography>
                                     </Grid>
                                     <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="center">
+                                        <MDTypography style={{border:'1px solid #1A73E8', color:'black', width:'90%', display:'flex', justifyContent:'center',  alignItems:'center'}}  p={0.5} fontSize={12} borderRadius={2} fontWeight='bold'>Payout% : {elem?.payoutPercentage}</MDTypography>
+                                    </Grid>
+                                    <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="center">
+                                        <MDTypography style={{border:'1px solid #1A73E8', color:'black', width:'90%', display:'flex', justifyContent:'center',  alignItems:'center'}}  p={0.5} fontSize={12} borderRadius={2} fontWeight='bold'>Expiry Days : {elem?.expiryDays}</MDTypography>
+                                    </Grid>
+                                    <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="center">
                                         <MDTypography style={{border:'1px solid #1A73E8', color:'black', width:'90%', display:'flex', justifyContent:'center',  alignItems:'center'}}  p={0.5} fontSize={12} borderRadius={2} fontWeight='bold'>Validity : {elem?.validity} TRADING {elem?.validityPeriod?.toUpperCase()}</MDTypography>
                                     </Grid>
                                     <Grid item xs={12} md={12} lg={12} mt={1} mb={1.5} display="flex" justifyContent="center">

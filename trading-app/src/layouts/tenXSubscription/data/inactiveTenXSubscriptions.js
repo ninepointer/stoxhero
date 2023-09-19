@@ -12,7 +12,7 @@ export default function ActiveTenXSubscriptions() {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
     async function getTenXActiveSubs (){
-        const res = await fetch(`${baseUrl}api/v1/tenX/inactive`, {
+        const res = await fetch(`${baseUrl}api/v1/tenX/inactive`, {//payoutPercentage expiryDays
           method: "GET",
           credentials:"include",
           headers: {
@@ -58,6 +58,12 @@ export default function ActiveTenXSubscriptions() {
                                     </Grid>
                                     <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="center">
                                         <MDTypography style={{border:'1px solid #1A73E8', color:'black', width:'90%', display:'flex', justifyContent:'center',  alignItems:'center'}}  p={0.5} fontSize={12} borderRadius={2} fontWeight='bold'>Offer Price : ₹{elem?.discounted_price != 0 ? elem?.discounted_price + '/-' : 'FREE'}</MDTypography>
+                                    </Grid>
+                                    <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="center">
+                                        <MDTypography style={{border:'1px solid #1A73E8', color:'black', width:'90%', display:'flex', justifyContent:'center',  alignItems:'center'}}  p={0.5} fontSize={12} borderRadius={2} fontWeight='bold'>Payout% : {elem?.payoutPercentage}</MDTypography>
+                                    </Grid>
+                                    <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="center">
+                                        <MDTypography style={{border:'1px solid #1A73E8', color:'black', width:'90%', display:'flex', justifyContent:'center',  alignItems:'center'}}  p={0.5} fontSize={12} borderRadius={2} fontWeight='bold'>Expiry Days : {elem?.expiryDays}</MDTypography>
                                     </Grid>
                                     <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="center">
                                         <MDTypography style={{border:'1px solid #1A73E8', color:'black', width:'90%', display:'flex', justifyContent:'center',  alignItems:'center'}}  p={0.5} fontSize={12} borderRadius={2} fontWeight='bold'>Validity : {elem?.validity} TRADING {elem?.validityPeriod?.toUpperCase()}</MDTypography>
