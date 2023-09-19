@@ -40,7 +40,7 @@ exports.resizePhoto = (req, res, next) => {
       next();
       return;
     }
-    sharp(req.file.buffer).resize({width: 500, height: 500}).toBuffer()
+    sharp(req.file.buffer).resize({width: 1080, height: 720}).toBuffer()
     .then((resizedImageBuffer) => {
       req.file.buffer = resizedImageBuffer;
       // console.log("Resized:",resizedImageBuffer)

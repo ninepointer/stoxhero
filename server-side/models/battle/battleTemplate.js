@@ -36,6 +36,14 @@ const battleTemplateSchema = new Schema({
         type: Number,
         required: true,
     },
+    freePrizePool:{
+        type: Number,
+        // required: true,
+    },
+    freeWinnerCount:{
+        type: Number,
+        // required: true,
+    },
     gstPercentage:{
         type: Number,
         required: true,

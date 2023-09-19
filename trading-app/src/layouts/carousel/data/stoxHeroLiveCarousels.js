@@ -131,12 +131,12 @@ function nextHandler(){
       :
       <MDBox>
       <MDTypography fontSize={15} color='light' p={1} sx={{textAlign:'center'}}>Live - Carousels</MDTypography>
-      <Grid container spacing={2} p={2}>
+      <Grid container xs={12} md={12} lg={12} spacing={1}>
         {!isLoading ?
              carouselData?.map((elem, index)=>{    
                 return(    
                     
-                        <Grid item xs={12} md={2} lg={3} key={index} display="flex" justifyContent="center" alignContent="center" alignItems="center" flexDirection='row'>
+                        <Grid item xs={12} md={3} lg={4} key={index} display="flex" justifyContent="center" alignContent="center" alignItems="center" flexDirection='row'>
                             <CarouselBox image={elem.carouselImage} name={elem.carouselName} startDate={elem.carouselStartDate} endDate={elem.carouselEndDate} link={elem.linkToCarousel} elem={elem}/>
                         </Grid>
                   

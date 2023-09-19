@@ -30,7 +30,7 @@ const contestSchema = new Schema({
     currentLiveStatus:{
         type: String,
         enum: ['Mock','Live'],
-        required: true,
+        // required: true,
     },
     contestFor:{
         type: String,

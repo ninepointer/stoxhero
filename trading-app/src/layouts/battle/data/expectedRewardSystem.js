@@ -40,7 +40,7 @@ export default function AllowedUsers({battle,expectedPrizePool}) {
   })
 
   let remainingObj = {}
-  let remainingWinners = (((battle?.battleTemplate?.minParticipants*battle?.battleTemplate?.winnerPercentage)/100)-battle?.battleTemplate?.rankingPayout?.length) 
+  let remainingWinners = battle?.battleTemplate?.entryFee != 0 ? (((battle?.battleTemplate?.minParticipants*battle?.battleTemplate?.winnerPercentage)/100)-battle?.battleTemplate?.rankingPayout?.length) : (battle?.battleTemplate?.freeWinnerCount-battle?.battleTemplate?.rankingPayout?.length)
   let prizePoolToppersPercentage = battle?.battleTemplate?.rankingPayout.reduce((total, currentItem) => {
     return total + currentItem.rewardPercentage;
   }, 0)
@@ -49,7 +49,7 @@ export default function AllowedUsers({battle,expectedPrizePool}) {
   console.log("Remaining Winners:",remainingWinners);
     remainingObj.rank = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {battle?.battleTemplate?.rankingPayout?.length+1 + "-" + ((battle?.battleTemplate?.minParticipants*battle?.battleTemplate?.winnerPercentage)/100).toFixed(0)}
+        {battle?.battleTemplate?.rankingPayout?.length+1 != battle?.battleTemplate?.freeWinnerCount ? (battle?.battleTemplate?.entryFee != 0 ? battle?.battleTemplate?.rankingPayout?.length+1 + "-" + ((battle?.battleTemplate?.minParticipants*battle?.battleTemplate?.winnerPercentage)/100).toFixed(0) : battle?.battleTemplate?.rankingPayout?.length+1 + '-' + battle?.battleTemplate?.freeWinnerCount) : battle?.battleTemplate?.freeWinnerCount}
       </MDTypography>
     );
     remainingObj.rewardpercentage = (

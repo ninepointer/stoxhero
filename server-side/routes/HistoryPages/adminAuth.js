@@ -778,27 +778,14 @@ router.get("/insrtOldPayout", async (req, res) => {
 
   const data = await DailyContestMockUser.aggregate([
     {
-      $match:
-      /**
-       * query: The query in MQL.
-       */
-      {
+      $match: {
         trade_time: {
-          $lt: new Date("2023-07-09"),
+          $lt: new Date("2023-07-10"),
         },
       },
     },
     {
-      $lookup:
-      /**
-       * from: The target collection.
-       * localField: The local join field.
-       * foreignField: The target join field.
-       * as: The name for the results.
-       * pipeline: Optional pipeline to run on the foreign collection.
-       * let: Optional variables to use in the pipeline field stages.
-       */
-      {
+      $lookup: {
         from: "daily-contests",
         localField: "contestId",
         foreignField: "_id",
@@ -806,24 +793,12 @@ router.get("/insrtOldPayout", async (req, res) => {
       },
     },
     {
-      $unwind:
-      /**
-       * path: Path to the array field.
-       * includeArrayIndex: Optional name for index.
-       * preserveNullAndEmptyArrays: Optional
-       *   toggle to unwind null and empty values.
-       */
-      {
+      $unwind: {
         path: "$result",
       },
     },
     {
-      $group:
-      /**
-       * _id: The id of the group.
-       * fieldN: The first field name.
-       */
-      {
+      $group: {
         _id: {
           trader: "$trader",
           contestId: "$contestId",
@@ -834,15 +809,13 @@ router.get("/insrtOldPayout", async (req, res) => {
             $multiply: ["$amount", -1],
           },
         },
+        brokerage: {
+          $sum: "$brokerage",
+        },
       },
     },
     {
-      $project:
-      /**
-       * specifications: The fields to
-       *   include or exclude.
-       */
-      {
+      $project: {
         user: "$_id.trader",
         _id: 0,
         contest: "$_id.contestId",
@@ -850,7 +823,12 @@ router.get("/insrtOldPayout", async (req, res) => {
           $divide: [
             {
               $multiply: [
-                "$amount",
+                {
+                  $subtract: [
+                    "$amount",
+                    "$brokerage",
+                  ],
+                },
                 "$_id.payper",
               ],
             },
@@ -862,11 +840,7 @@ router.get("/insrtOldPayout", async (req, res) => {
       },
     },
     {
-      $match:
-      /**
-       * query: The query in MQL.
-       */
-      {
+      $match: {
         amount: {
           $gt: 0,
         },
@@ -880,8 +854,9 @@ router.get("/insrtOldPayout", async (req, res) => {
     for (let subelem of contest.participants) {
       if (elem.user.toString() === subelem.userId.toString()) {
         subelem.payout = elem.payout;
+        console.log(contest.contestName, elem.payout)
         let c = await contest.save();
-        console.log(c)
+        // console.log(c)
       }
     }
   }

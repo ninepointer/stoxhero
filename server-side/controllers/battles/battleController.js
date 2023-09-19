@@ -140,7 +140,7 @@ exports.getAllBattles = async (req, res) => {
     try {
         const battles = await Battle.find({})
             .sort({ battleStartTime: -1 })
-            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout')
+            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout freePrizePool freeWinnerCount')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess');
@@ -179,7 +179,7 @@ exports.getOngoingBattles = async (req, res) => {
         })
             .sort({ battleStartTime: -1 })
             .skip(skip).limit(limit)
-            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage')
+            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage freePrizePool freeWinnerCount')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
@@ -209,7 +209,7 @@ exports.getUserLiveBattles = async (req, res) => {
             status: 'Active',
             battleStatus: "Live"
         }).
-            populate('battleTemplate', 'BattleTemplateName portfolioValue entryFee gstPercentage platformCommissionPercentage minParticipants winnerPercentage rankingPayout').
+            populate('battleTemplate', 'BattleTemplateName portfolioValue entryFee gstPercentage platformCommissionPercentage minParticipants winnerPercentage rankingPayout freePrizePool freeWinnerCount').
             sort({ battleStartTime: -1, entryFee: -1 });
 
         res.status(200).json({
@@ -243,7 +243,7 @@ exports.getUpcomingBattles = async (req, res) => {
             battleStatus: "Upcoming"
         }).sort({ battleStartTime: -1, entryFee: -1 })
             .skip(skip).limit(limit)
-            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage')
+            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage freePrizePool freeWinnerCount')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
@@ -274,7 +274,7 @@ exports.getUserUpcomingBattles = async (req, res) => {
             status: 'Active',
             battleStatus: "Upcoming"
         }).sort({ battleStartTime: -1, entryFee: -1 })
-            .populate('battleTemplate', 'BattleTemplateName portfolioValue entryFee gstPercentage platformCommissionPercentage minParticipants winnerPercentage rankingPayout').
+            .populate('battleTemplate', 'BattleTemplateName portfolioValue entryFee gstPercentage platformCommissionPercentage minParticipants winnerPercentage rankingPayout freePrizePool freeWinnerCount').
             sort({ battleStartTime: -1, entryFee: -1 });
         res.status(200).json({
             status: 'success',
@@ -549,7 +549,7 @@ exports.todaysBattle = async (req, res) => {
     try {
         const battles = await Battle.find({
             battleEndTime: { $gte: today }
-        }).populate('battleTemplate', 'battleTemplateName _id portfolioValue entryFee minParticipants')
+        }).populate('battleTemplate', 'battleTemplateName _id portfolioValue entryFee minParticipants freePrizePool freeWinnerCount')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .sort({ battleStartTime: 1 });
 
@@ -584,7 +584,7 @@ exports.getDraftBattles = async (req, res) => {
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
-            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage')
+            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage freePrizePool freeWinnerCount')
 
         res.status(200).json({
             status: 'success',
@@ -617,7 +617,7 @@ exports.getCompletedBattles = async (req, res) => {
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
-            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage')
+            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage freePrizePool freeWinnerCount')
 
         res.status(200).json({
             status: 'success',
@@ -650,7 +650,7 @@ exports.getCancelledBattles = async (req, res) => {
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
-            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage')
+            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage freePrizePool freeWinnerCount')
 
         res.status(200).json({
             status: 'success',
@@ -678,7 +678,7 @@ exports.getBattleById = async (req, res) => {
 
         // Fetching the Battle based on the id and populating the necessary fields
         const battle = await Battle.findById(id)
-            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue getPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout')
+            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue getPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout freePrizePool freeWinnerCount')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess');
@@ -905,18 +905,6 @@ exports.deductBattleAmount = async (req, res, next) => {
                 return res.status(404).json({ status: "error", message: "You have already participated in this battle" });
             }
         }
-
-        // if (battle?.maxParticipants <= battle?.participants?.length) {
-        //     if (!battle.potentialParticipants.includes(userId)) {
-        //         battle.potentialParticipants.push(userId);
-        //         battle.save();
-        //     }
-        //     return res.status(404).json({ status: "error", message: "The battle is already full. We sincerely appreciate your enthusiasm. Please join another battle" });
-        // }
-
-
-
-        // console.log("battle check", battle?.battleTemplate?.entryFee, battle)
 
         wallet.transactions = [...wallet.transactions, {
             title: 'Battle Fee',
@@ -1225,6 +1213,38 @@ exports.getBattleUser = async (req, res) => {
             status: "error",
             message: "Something went wrong",
             error: error.message,
+        });
+    }
+};
+
+exports.getBattleByIdUser = async (req, res) => {
+    try {
+        const { id } = req.params; // Extracting id from request parameters
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ status: "error", message: "Invalid Battle ID" });
+        }
+
+        // Fetching the MarginX based on the id and populating the participants.userId field
+        const battle = await Battle.findById(id)
+        .populate('battleTemplate', 'portfolioValue entryFee')
+        .select('battleName battleTemplate')
+
+        if (!battle) {
+            return res.status(404).json({ status: "error", message: "Battle not found" });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            data: battle
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Error fetching Battle",
+            error: error.message
         });
     }
 };

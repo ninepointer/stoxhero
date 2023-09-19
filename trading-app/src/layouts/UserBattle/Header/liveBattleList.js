@@ -3,7 +3,8 @@ import { userContext } from '../../../AuthContext';
 import { useNavigate, useLocation } from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import ShareIcon from '@mui/icons-material/Share';
-import ReactGA from "react-ga"
+import ReactGA from "react-ga";
+import axios from "axios";
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
@@ -19,17 +20,13 @@ import Draggable from 'react-draggable';
 import Button from '@mui/material/Button';
 
 // Images
-import ContestCarousel from '../../../assets/images/target.png'
-import WinnerImage from '../../../assets/images/roi.png'
 import Timer from '../timer'
 import ProgressBar from "../progressBar";
-import { HiUserGroup } from 'react-icons/hi';
 import { Tooltip } from "@mui/material";
 import MDSnackbar from "../../../components/MDSnackbar";
-import PopupMessage from "../data/popupMessage";
-import PopupTrading from "../data/popupTrading";
 import Payment from "../data/payment"
 import InfoIcon from '@mui/icons-material/Info';
+import ParticipantCount from './participantCount'
 
 function PaperComponent(props) {
     return (
@@ -48,9 +45,9 @@ function Header({ toggleContest, setToggleContest, battle, showPay, setShowPay, 
     const getDetails = useContext(userContext);
     const navigate = useNavigate();
     const [open, setOpen] = useState(false);
-    console.log("Battle:",battle)
+
     useEffect(() => {
-        ReactGA.pageview(window.location.pathname)
+        ReactGA.pageview(window.location.pathname);
     }, []);
 
     const handleCopy = async (id) => {
@@ -158,9 +155,6 @@ function Header({ toggleContest, setToggleContest, battle, showPay, setShowPay, 
         setOpen(false);
     };
 
-
-    // console.log("timediffrence", timeDifference)
-
     return (
         <>
             <MDBox display='flex' justifyContent='center'>
@@ -203,8 +197,9 @@ function Header({ toggleContest, setToggleContest, battle, showPay, setShowPay, 
                                                     <MDBox bgColor='lightgrey' minWidth='100%'>
                                                         <Grid item xs={3} md={2} lg={12} mb={0} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                                             <Grid item xs={5} md={5} lg={5} display='flex' justifyContent='left'>
-                                                                <MDBox display='flex' justifyContent='flex-start' alignItems='center'>
-                                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>{elem?.battleName}</MDTypography>
+                                                                <MDBox display='flex' justifyContent='left' flexDirection='column'>
+                                                                    <MDBox display='flex' justifyContent='left'><MDTypography color='black' fontSize={15} fontWeight='bold'>{elem?.battleName}</MDTypography></MDBox>
+                                                                    <MDBox display='flex' justifyContent='left'><ParticipantCount battle={elem}/></MDBox>
                                                                 </MDBox>
                                                             </Grid>
                                                             <Grid item xs={4} md={5} lg={5} ml={-0.5} display='flex' justifyContent='flex-end' alignItems='center'>
@@ -311,10 +306,6 @@ function Header({ toggleContest, setToggleContest, battle, showPay, setShowPay, 
                                                         <MDTypography color='black' fontSize={12} fontWeight='bold'>{elem?.battleTemplate?.winnerPercentage}%</MDTypography>
                                                     </Grid>
                                                 </Grid>
-
-                                                {/* <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                                                    <img src={WinnerImage} width='60px' height='60px' />
-                                                </Grid> */}
 
                                                 <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                     <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
