@@ -141,7 +141,8 @@ exports.getInactiveTenXSubs = async(req, res, next)=>{
       
 };
 
-exports.getDraftTenXSubs = async(req, res, next)=>{
+exports.
+getDraftTenXSubs = async(req, res, next)=>{
   try{
       const tenXSubs = await TenXSubscription.find({status: "Draft"})
       .populate('portfolio', 'portfolioName portfolioValue')

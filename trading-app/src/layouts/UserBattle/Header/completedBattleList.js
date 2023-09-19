@@ -224,10 +224,10 @@ function Header({ battle }) {
                                                             <MDTypography color='black' fontSize={10} fontWeight='bold'>{(elem?.npnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(elem?.npnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-elem?.npnl))}</MDTypography>
                                                         </Grid>
                                                         <Grid item xs={6} md={6} lg={4} display='flex' justifyContent='center' alignItems='center'>
-                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{elem?.rank}</MDTypography>
+                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{elem?.rank ? elem?.rank : elem?.totalParticipants}</MDTypography>
                                                         </Grid>
                                                         <Grid item xs={6} md={6} lg={4} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{(elem?.payout) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(elem?.payout)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-elem?.payout))}</MDTypography>
+                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{elem?.payout ? (elem?.payout) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(elem?.payout)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-elem?.payout)) : "+₹0.00"}</MDTypography>
                                                         </Grid>
                                                     </Grid>
 

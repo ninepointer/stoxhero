@@ -1228,3 +1228,35 @@ exports.getBattleUser = async (req, res) => {
         });
     }
 };
+
+exports.getBattleByIdUser = async (req, res) => {
+    try {
+        const { id } = req.params; // Extracting id from request parameters
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ status: "error", message: "Invalid Battle ID" });
+        }
+
+        // Fetching the MarginX based on the id and populating the participants.userId field
+        const battle = await Battle.findById(id)
+        .populate('battleTemplate', 'portfolioValue entryFee')
+        .select('battleName battleTemplate')
+
+        if (!battle) {
+            return res.status(404).json({ status: "error", message: "Battle not found" });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            data: battle
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Error fetching Battle",
+            error: error.message
+        });
+    }
+};
