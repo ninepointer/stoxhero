@@ -30,6 +30,7 @@ function Header({ socket, data }) {
     const navigate = useNavigate();
     let contestId = data?.data;
     let endTime = data?.endTime;
+    console.log("all data", data.allData)
     useEffect(() => {
         socket.on("serverTime", (time) => {
             const serverTimeString = new Date(time).toISOString().slice(0, 19); // Extract relevant parts
@@ -52,12 +53,12 @@ function Header({ socket, data }) {
       }, [socket]);
 
       const memoizedLeaderboard = useMemo(() => {
-        return <Leaderboard socket={socket} name={data?.name} />;
-      }, [socket, data?.name]);
+        return <Leaderboard socket={socket} name={data?.name} id={contestId} />;
+      }, [socket, data?.name, contestId]);
 
       const memoizedDailyContestMyRank = useMemo(() => {
-        return <DailyContestMyRank socket={socket} />;
-      }, [socket]);
+        return <DailyContestMyRank socket={socket} id={contestId} />;
+      }, [socket, contestId]);
 
     const memoizedTradableInstrument = useMemo(() => {
         return <TradableInstrument

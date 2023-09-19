@@ -2075,7 +2075,7 @@ async function processContestQueue() {
             if (contest.contestStatus === "Active" && contest.contestStartTime <= new Date()) {
                 const leaderBoard = await dailyContestLeaderBoard(contest._id?.toString());
                 console.log(leaderBoard, contest._id?.toString());
-                io.to(`${contest._id?.toString()}`).emit('contest-leaderboardData', leaderBoard);
+                io.to(`${contest._id?.toString()}`).emit(`contest-leaderboardData${contest._id?.toString()}`, leaderBoard);
             }
         }
 
@@ -2107,21 +2107,19 @@ exports.sendMyRankData = async () => {
                         const room = io.sockets.adapter.rooms.get(contest[i]?._id?.toString());
                         const socketIds = Array.from(room ?? []);
                         for(let j = 0; j < socketIds?.length; j++){
-                            userId = await client.get(socketIds[j]);
+                            let userId = await client.get(socketIds[j]);
                             // console.log("userId", userId)
-                            let data = await client.get(`dailyContestData:${userId}`);
+                            let data = await client.get(`dailyContestData:${userId}${contest[i]?._id?.toString()}`);
                             data = JSON.parse(data);
                             // console.log("data", data);
                             if(data){
                                 let {id, employeeId} = data;
                                 const myRank = await getRedisMyRank(contest[i]?._id?.toString(), employeeId);
-                                io.to(`${contest[i]?._id?.toString()}${userId?.toString()}`).emit(`contest-myrank${userId}`, myRank);
+                                io.to(`${contest[i]?._id?.toString()}${userId?.toString()}`).emit(`contest-myrank${userId}${contest[i]?._id?.toString()}`, myRank);
                                 // await client.del(`leaderboard:${contest[i]?._id?.toString()}`)
                                 // io // Emit the leaderboard data to the client
                             }
-        
                         }
-            
                     }
                 }
             };

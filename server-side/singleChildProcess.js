@@ -102,7 +102,7 @@ async function singleProcess() {
                 let { id, userId } = data;
                 socket.join(`${id}`)
                 socket.join(`${id}${userId}`)
-                await client.set(`dailyContestData:${userId}`, JSON.stringify(data));
+                await client.set(`dailyContestData:${userId}${id}`, JSON.stringify(data));
             })
 
             socket.on('battleLeaderboard', async (data) => {

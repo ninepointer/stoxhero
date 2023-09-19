@@ -30,13 +30,13 @@ import { CircularProgress, Divider } from "@mui/material";
 
 
 
-function Leaderboard({socket, name}) {
+function Leaderboard({socket, name, id}) {
 
     const [leaderboard, setLeaderboard] = useState([]);
     const [loading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        socket?.on("contest-leaderboardData", (data) => {
+        socket?.on(`contest-leaderboardData${id}`, (data) => {
 
             setLeaderboard(data);
             setIsLoading(false);

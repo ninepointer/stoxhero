@@ -39,7 +39,7 @@ const PopupTrading = ({elem, timeDifference}) => {
         // console.log("isParticipated", isParticipated)
         if (isParticipated) {
             navigate(`/contests/${elem.contestName}`, {
-                state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, timeDifference: timeDifference, name: elem?.contestName, endTime: elem?.contestEndTime }
+                state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, timeDifference: timeDifference, name: elem?.contestName, endTime: elem?.contestEndTime, allData: elem }
             });
             return;
         }
@@ -62,7 +62,7 @@ const PopupTrading = ({elem, timeDifference}) => {
             setData(data.message)
         } else {
             navigate(`/contests/${elem.contestName}`, {
-                state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, name: elem?.contestName, endTime: elem?.contestEndTime }
+                state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, name: elem?.contestName, endTime: elem?.contestEndTime, allData: elem }
             });
         }
     }
