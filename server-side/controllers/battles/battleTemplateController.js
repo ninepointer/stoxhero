@@ -8,7 +8,7 @@ exports.createBattleTemplate = async (req, res) => {
         const { 
             battleTemplateName, battleType, battleTemplateType, winnerPercentage,
             minParticipants, portfolioValue, platformCommissionPercentage, entryFee,
-            gstPercentage, status
+            gstPercentage, status, freePrizePool, freeWinnerCount
         } = req.body;
 
         const getTemplate = await BattleTemplate.findOne({ battleTemplateName });
@@ -23,7 +23,7 @@ exports.createBattleTemplate = async (req, res) => {
         const template = await BattleTemplate.create({
             battleTemplateName, battleType, battleTemplateType, winnerPercentage,
             minParticipants, portfolioValue, platformCommissionPercentage, entryFee,
-            gstPercentage, status, 
+            gstPercentage, status, freePrizePool, freeWinnerCount,
             createdBy: req.user._id, lastModifiedBy: req.user._id
         });
 

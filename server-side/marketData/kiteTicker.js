@@ -35,19 +35,19 @@ const disconnectTicker = () => {
 const subscribeTokens = async() => {
     let tokens = await fetchToken();
     let data = ticker?.subscribe(tokens);
-    ticker?.setMode(ticker.modeFull, tokens);
+    ticker.setMode(ticker.modeFull, tokens);
 }
 
 const subscribeSingleToken = async(instrumentToken) => {
   ticker?.subscribe(instrumentToken);
-  ticker?.setMode(ticker.modeFull, instrumentToken);
+  ticker.setMode(ticker.modeFull, instrumentToken);
  
 }
 
 const unSubscribeTokens = async(token) => {
     let tokens = [];
     tokens?.push(token)
-   let x =  ticker?.unsubscribe(tokens);
+   let x =  ticker.unsubscribe(tokens);
 }
 
 const getTicks = async (socket) => {
@@ -177,6 +177,7 @@ const getTicksForUserPosition = async (socket, id) => {
         return indexObj[item.instrument_token];
       });
 
+      // console.log("indexdata", indexData)
 
       try {
         let instrumentTokenArr;
@@ -185,8 +186,8 @@ const getTicksForUserPosition = async (socket, id) => {
           userId = await client.get(socket.id);
         }
         // console.log(isRedisConnected)
-        if (isRedisConnected && await client.exists(`${userId?.toString()}allInstrument`)) {
-          let instruments = await client.SMEMBERS(`${userId?.toString()}allInstrument`)
+        if (isRedisConnected && await client.exists((userId)?.toString())) {
+          let instruments = await client.SMEMBERS((userId)?.toString())
           // instrumentTokenArr = new Set(instruments)
           const parsedInstruments = instruments.map(jsonString => JSON.parse(jsonString));
           instrumentTokenArr = new Set();
@@ -196,22 +197,22 @@ const getTicksForUserPosition = async (socket, id) => {
             instrumentTokenArr.add(obj.exchangeInstrumentToken);
           });
 
-          // console.log("this is instrumentTokenArr", instrumentTokenArr);
+          // console.log("this is instrumentTokenArr");
         } else {
           const user = await User.findById({_id: new ObjectId(id)})
-            .populate('allInstruments')
+            .populate('watchlistInstruments')
 
           userId = user._id;
           instrumentTokenArr = [];
-          for (let i = 0; i < user.allInstruments.length; i++) {
+          for (let i = 0; i < user.watchlistInstruments.length; i++) {
             
-            instrumentTokenArr.push(user.allInstruments[i].instrumentToken);
-            instrumentTokenArr.push(user.allInstruments[i].exchangeInstrumentToken);
+            instrumentTokenArr.push(user.watchlistInstruments[i].instrumentToken);
+            instrumentTokenArr.push(user.watchlistInstruments[i].exchangeInstrumentToken);
             let obj = {
-              instrumentToken: user.allInstruments[i].instrumentToken,
-              exchangeInstrumentToken: user.allInstruments[i].exchangeInstrumentToken
+              instrumentToken: user.watchlistInstruments[i].instrumentToken,
+              exchangeInstrumentToken: user.watchlistInstruments[i].exchangeInstrumentToken
             }
-            const newredisClient = await client.SADD(`${userId?.toString()}allInstrument`, JSON.stringify(obj));
+            const newredisClient = await client.SADD((user._id).toString(), JSON.stringify(obj));
 
           }
           instrumentTokenArr = new Set(instrumentTokenArr)
@@ -224,7 +225,6 @@ const getTicksForUserPosition = async (socket, id) => {
 
 
         if (filteredTicks.length > 0) {
-          console.log(filteredTicks.length)
           io.to(`${userId}`).emit('tick-room', filteredTicks);
         }
 

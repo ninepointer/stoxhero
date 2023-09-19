@@ -1455,13 +1455,14 @@ const contestTradeLive = async () => {
 };
 
 const battleTradeMod = async () => {
+  console.log("in battle trade mode")
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
   // let tradeArr = [];
-  const data = await Internship.aggregate(
+  const data = await BattleTrade.aggregate(
     [
       {
         $match:
@@ -1549,7 +1550,7 @@ const battleTradeMod = async () => {
       instrumentToken: item?.instrumentToken, battleId: item?.battleId, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?.userId, amount: (Number(-item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5*60 + 30) * 60 * 1000),
     }
   });
-  // console.log('tradeObjects', tradeObjects);
+  console.log('tradeObjects', tradeObjects);
   
   await takeBattleTrades(tradeObjects);
 

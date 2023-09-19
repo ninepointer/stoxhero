@@ -49,7 +49,7 @@ export default function LabTabs() {
   })(TextField);
 
   useEffect(()=>{
-    axios.get(`${apiUrl}marginx/upcoming`, {withCredentials: true})
+    axios.get(`${apiUrl}marginx/completed`, {withCredentials: true})
     .then((res)=>{
       setMarginx(res.data.data);
       setselectedMarginx(res.data.data[0])

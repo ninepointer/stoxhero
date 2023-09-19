@@ -319,7 +319,7 @@ function Header() {
                                             </Grid>
                                             <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                 <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>{state ? state?.battleTemplate?.minParticipants : battleDetails?.battleTemplate?.minParticipants}</MDTypography>
+                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>{whichTab==="Completed" ? state?.minParticipants : state ? state?.battleTemplate?.minParticipants : battleDetails?.battleTemplate?.minParticipants}</MDTypography>
                                                 </MDBox>
                                             </Grid>
                                         </Grid>
@@ -329,7 +329,7 @@ function Header() {
                                             <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                                 <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                     <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                        <MDTypography color='black' fontSize={10} fontWeight='bold'>Entires</MDTypography>
+                                                        <MDTypography color='black' fontSize={10} fontWeight='bold'>Entries</MDTypography>
                                                     </MDBox>
                                                 </Grid>
                                                 <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
@@ -376,6 +376,24 @@ function Header() {
                                         <>
                                             <MDBox bgColor='white' minWidth='100%'>
                                                 <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
+
+                                                    <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
+                                                        <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
+                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>Total Participants</MDTypography>
+                                                        </MDBox>
+                                                    </Grid>
+
+                                                    <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
+                                                        <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
+                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{state?.totalParticipants}</MDTypography>
+                                                        </MDBox>
+                                                    </Grid>
+                                                </Grid>
+                                            </MDBox>
+                                            <MDBox bgColor='white' minWidth='100%'>
+                                                <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
+
+
                                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
                                                             <MDTypography color='black' fontSize={10} fontWeight='bold'>Payout</MDTypography>
@@ -383,13 +401,15 @@ function Header() {
                                                     </Grid>
                                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{state?.return?.toFixed(2)}</MDTypography>
+                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{state?.payout?.toFixed(2)}</MDTypography>
                                                         </MDBox>
                                                     </Grid>
                                                 </Grid>
                                             </MDBox>
                                             <MDBox bgColor='white' minWidth='100%' mb={1}>
                                                 <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
+
+
                                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
                                                             <MDTypography color='black' fontSize={10} fontWeight='bold'>Payout %</MDTypography>
@@ -397,12 +417,13 @@ function Header() {
                                                     </Grid>
                                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{(((state?.return.toFixed(2) - state?.entryFee) / state?.entryFee) * 100).toFixed(2)}%</MDTypography>
+                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{(((state?.payout?.toFixed(2) - state?.entryFee) / state?.entryFee) * 100).toFixed(2)}%</MDTypography>
                                                         </MDBox>
                                                     </Grid>
                                                 </Grid>
                                             </MDBox>
-                                        </>}
+                                        </>
+                                    }
 
 
                                     {/* <MDBox> */}

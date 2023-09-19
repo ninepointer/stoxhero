@@ -21,8 +21,7 @@ import DefaultProfilePic from "../../../../assets/images/default-profile.png";
 
 function BattleResultPage () {
     const getDetails = useContext(userContext);
-    const [myRank, setMyRankProps] = useState([]);
-    // const [myPnl, setMyPnl] = useState([]);
+    const [myRank, setMyRank] = useState([]);
     const location = useLocation();
     const battleId = location?.state?.battleId;
     const nevigate = useNavigate();
@@ -62,8 +61,8 @@ function BattleResultPage () {
     },[])
 
 
-    const xFactor = battleData?.battleTemplate?.portfolioValue / battleData?.battleTemplate?.entryFee;
-    const reward = battleData?.battleTemplate?.entryFee + (pnl?.netPnl)/xFactor;
+    // const xFactor = battleData?.battleTemplate?.portfolioValue / battleData?.battleTemplate?.entryFee;
+    // const reward = battleData?.battleTemplate?.entryFee + (pnl?.netPnl)/xFactor;
    
     return (
         <>
@@ -98,7 +97,7 @@ function BattleResultPage () {
                                                 {`Congratulations ${getDetails?.userDetails?.first_name} ${getDetails?.userDetails?.last_name}`}
                                             </MDTypography>
                                             <MDTypography mt={2} style={{ fontWeight: 600, fontSize: "13px" }} color="dark" display="flex" justifyContent="center">
-                                                {reward ? `You have won ₹${reward.toFixed(2)}` : "Please wait while your return is loading"}
+                                                {/* {reward ? `You have won ₹${reward.toFixed(2)}` : "Please wait while your return is loading"} */}
                                             </MDTypography>
                                             <MDTypography mt={2} style={{ fontWeight: 700 }} color="dark" display="flex" justifyContent="center">
                                                 {/* {`${myReward[0]?.reward} ${myReward[0]?.currency}`} */}
@@ -128,38 +127,6 @@ function BattleResultPage () {
                                                 <Grid item xs={12} lg={12} mt={2}>
 
                                                     <Grid item xs={12} lg={12}>
-
-                                                        {/* <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center'>
-
-
-                                                            <Grid item xs={12} lg={2} display='flex' justifyContent='center' alignItems='center'>
-                                                                <MDAvatar
-                                                                    src={logo}
-                                                                    alt="Profile"
-                                                                    size="sm"
-                                                                    sx={({ borders: { borderWidth }, palette: { white } }) => ({
-                                                                        border: `${borderWidth[2]} solid ${white.main}`,
-                                                                        cursor: "pointer",
-                                                                        position: "relative",
-                                                                        ml: 0,
-
-                                                                        "&:hover, &:focus": {
-                                                                            zIndex: "10",
-                                                                        },
-                                                                    })}
-                                                                />
-                                                            </Grid>
-                                                            <Grid item xs={12} lg={6} display='flex' justifyContent='left' alignItems='center'>
-                                                                <MDTypography fontSize={15} color='light' fontWeight='bold'>My Rank</MDTypography>
-                                                            </Grid>
-                                                            <Grid item xs={12} lg={4} display='flex' justifyContent='right' alignItems='center'>
-                                                                <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold' style={{ cursor: 'pointer' }}><MDButton variant='text' size='small'><TwitterIcon /></MDButton></MDTypography></MDBox>
-                                                                <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold' style={{ cursor: 'pointer' }}><MDButton variant='text' size='small'><FacebookIcon /></MDButton></MDTypography></MDBox>
-                                                                <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold' style={{ cursor: 'pointer' }}><MDButton variant='text' size='small'><WhatsAppIcon /></MDButton></MDTypography></MDBox>
-                                                            </Grid>
-
-                                                        </Grid> */}
-
                                                         <Divider style={{ backgroundColor: 'white' }} />
                                                     </Grid>
 
@@ -167,18 +134,6 @@ function BattleResultPage () {
 
                                               
                                                     <>
-                                                        {/* <Grid item xs={12} lg={12} mt={5}>
-
-                                                            <Grid item xs={12} lg={12}>
-                                                                <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                                                                    <Grid item xs={12} lg={2} display='flex' justifyContent='center' alignItems='center'>
-                                                                        <MDTypography fontSize={25} color='light' fontWeight='bold'>#{myRank}</MDTypography>
-                                                                    </Grid>
-                                                                </Grid>
-                                                                <Divider style={{ backgroundColor: 'white' }} />
-                                                            </Grid>
-
-                                                        </Grid> */}
 
                                                         <Grid item xs={12} lg={12}>
 
@@ -217,11 +172,11 @@ function BattleResultPage () {
                                                                     </Grid>
                                                                 </Grid>
                                                                 <Divider style={{ backgroundColor: 'white' }} />
-                                                                <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
+                                                                {/* <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
                                                                     <Grid item xs={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
                                                                         <MDTypography fontSize={20} color='light' fontWeight='bold'>Return: {(reward) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(reward)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-reward))}</MDTypography>
                                                                     </Grid>
-                                                                </Grid>
+                                                                </Grid> */}
                                                             </Grid>
 
                                                         </Grid>

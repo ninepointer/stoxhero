@@ -46,7 +46,7 @@ export default function GroupDiscussions({saving,template, action, setAction, pr
     let gst = ((template?.entryFee*template?.minParticipants)*template?.gstPercentage)/100;
     let collectionAfterTax = (totalCollection)-(gst)
     let platfromFee = ((collectionAfterTax*template?.platformCommissionPercentage)/100);
-    let expectedPrizePool = (collectionAfterTax) - platfromFee;
+    let expectedPrizePool = template?.entryFee != 0 ? ((collectionAfterTax) - platfromFee) : template?.freePrizePool;
     let totalNumberOfWinners = ((template?.minParticipants*template?.winnerPercentage)/100).toFixed(0);
 
     let columns = [
@@ -72,7 +72,7 @@ export default function GroupDiscussions({saving,template, action, setAction, pr
   );
   featureObj.amount = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(((elem?.rewardPercentage*prizePool)/100))}
+      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(elem?.entryFee != 0 ? ((elem?.rewardPercentage*prizePool)/100) : ((elem?.rewardPercentage*elem?.template?.freePrizePool)/100) )}
     </MDTypography>
   );
 
@@ -80,7 +80,7 @@ export default function GroupDiscussions({saving,template, action, setAction, pr
 })
 
 let remainingObj = {}
-  let remainingWinners = (((template?.minParticipants*template?.winnerPercentage)/100)-template?.rankingPayout?.length) 
+  let remainingWinners = template?.entryFee != 0 ? (((template?.minParticipants*template?.winnerPercentage)/100)-template?.rankingPayout?.length) : (template?.freeWinnerCount-template?.rankingPayout?.length)
   let prizePoolToppersPercentage = template?.rankingPayout.reduce((total, currentItem) => {
     return total + currentItem.rewardPercentage;
   }, 0)
@@ -89,14 +89,14 @@ let remainingObj = {}
   console.log("Remaining Winners:",remainingWinners);
     remainingObj.rank = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {template?.rankingPayout?.length+1 + "-" + ((template?.minParticipants*template?.winnerPercentage)/100).toFixed(0)}
+        {template?.rankingPayout?.length+1 !== template?.freeWinnerCount ? (template?.entryFee != 0 ? (template?.rankingPayout?.length+1 + "-" + ((template?.minParticipants*template?.winnerPercentage)/100).toFixed(0)) : (template?.rankingPayout?.length+1) + '-' + template?.freeWinnerCount) : template?.freeWinnerCount}
       </MDTypography>
     );
     remainingObj.percentage = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
         {((100-(template?.rankingPayout.reduce((total, currentItem) => {
                     return total + currentItem.rewardPercentage;
-                  }, 0)))/remainingWinners).toFixed(2)}%
+                  }, 0)))/(template?.entryFee != 0 ? remainingWinners : (template?.freeWinnerCount-template?.rankingPayout?.length))).toFixed(2)}%
       </MDTypography>
     );
     remainingObj.amount = (

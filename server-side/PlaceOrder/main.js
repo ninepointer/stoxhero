@@ -12,7 +12,7 @@ const { xtsAccountType, zerodhaAccountType } = require("../constant");
 const{isAppLive, isInfinityLive} = require('./tradeMiddlewares');
 const {infinityTradeLive, infinityTradeLiveSingle} = require("../services/xts/xtsHelper/switchAllUser");
 const {contestTradeLive} = require("../services/xts/xtsHelper/switchAllDailyContestLive");
-const {contestChecks, marginxChecks} = require("../PlaceOrder/dailyContestChecks")
+const {contestChecks, marginxChecks, battleChecks} = require("../PlaceOrder/dailyContestChecks")
 
 router.post("/placingOrder", authentication, isInfinityLive, ApplyAlgo, authoizeTrade.fundCheck,  async (req, res)=>{
     // console.log("caseStudy 4: placing")
@@ -77,10 +77,9 @@ router.post("/paperTrade", isAppLive, authentication, authoizeTrade.fundCheckPap
     
 })
 
-router.post("/battleTrade", isAppLive, authentication, authoizeTrade.fundCheckBattle,  async (req, res)=>{
+router.post("/battleTrade", isAppLive, authentication, battleChecks, authoizeTrade.fundCheckBattle,  async (req, res)=>{
     req.body.battle = true;
     MockTradeFunc.mockTrade(req, res)
-    
 })
 //authoizeTrade.fundCheckPaperTrade
 router.post("/tenxPlacingOrder", isAppLive, authentication, authoizeTrade.fundCheckTenxTrader,  async (req, res)=>{

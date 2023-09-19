@@ -22,6 +22,7 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
 
+
 export default function Dashboard() {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   let [carouselData, setCarouselData] = useState([]);
@@ -152,6 +153,14 @@ export default function Dashboard() {
       visibility: e?.visibility,
     });
   });
+  console.log(carouselData)
+
+  const handleButtonClick = (e) => {
+    if (e?.clickable) {
+      console.log('/'+e?.linkToCarousel)
+      navigate(`/${e?.linkToCarousel}`);
+    }
+  }
 
   return (
     <MDBox bgColor="light" color="light" mt={2} mb={1} borderRadius={10} minHeight="auto" width='100%'>
@@ -163,145 +172,46 @@ export default function Dashboard() {
         </Grid>
       )} */}
       {/* <Grid container spacing={1} xs={12} md={12} lg={12} mb={1}> */}
-          <Slider {...settings}>
+      {carouselData?.length && 
+      (<Slider {...settings}>
                 {/* Your MDBox components go here */}
-                  <div>
-                    <MDBox
+                  {carouselData?.map((e)=>{
+                    console.log(e)
+                    return(
+                    <div>
+                    <MDButton 
                       style={{
                         width: '98%',
                         height: '180px',
+                        padding: 0,
+                        margin: 0,
                         borderRadius: 5,
-                        backgroundImage: `url(${Contest})`,
-                        backgroundSize: 'cover',
-                        backgroundRepeat: 'no-repeat',
-                        padding: '10px', // Add padding here to create a gap
-                      }}>
-                    </MDBox>
+                        position: 'relative', // Make the container relative for positioning the image
+                      }}
+                      onClick={() => handleButtonClick(e)}
+                    >
+                      <img
+                        src={e?.carouselImage}
+                        alt="Contest Image"
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          borderRadius: 5,
+                          objectFit: 'cover', // Ensure the image covers the entire space without distortion
+                        }}
+                      />
+                    </MDButton>
                   </div>
-
-                  <div style={{ margin: '0 3px' }}>
-                    <MDBox
-                      style={{
-                        width: '98%',
-                        height: '180px',
-                        borderRadius: 5,
-                        backgroundImage: `url(${Battle})`,
-                        backgroundSize: 'cover',
-                        backgroundRepeat: 'no-repeat',
-                        padding: '10px', // Add padding here to create a gap
-                      }}>
-                    </MDBox>
-                  </div>
+                    )
+                  })}
         
-                  <div style={{ margin: '0 3px' }}>
-                    <MDBox
-                      style={{
-                        width: '98%',
-                        height: '180px',
-                        borderRadius: 5,
-                        backgroundImage: `url(${MarginX})`,
-                        backgroundSize: 'cover',
-                        backgroundRepeat: 'no-repeat',
-                        padding: '10px', // Add padding here to create a gap
-                      }}>
-                    </MDBox>
-                  </div>
-        
-                  <div style={{ margin: '0 3px' }}>
-                    <MDBox
-                      style={{
-                        width: '98%',
-                        height: '180px',
-                        borderRadius: 5,
-                        backgroundImage: `url(${TenX})`,
-                        backgroundSize: 'cover',
-                        backgroundRepeat: 'no-repeat',
-                        padding: '10px', // Add padding here to create a gap
-                      }}>
-                    </MDBox>
-                  </div>
-        
-          </Slider>
-{/* 
-      <Grid container spacing={1} xs={12} md={12} lg={12} mb={1} display='flex' justifyContent='center'>
-        
-        <Grid item xs={12} md={4} lg={3} display='flex' justifyContent="center" alignItems="center">
-          <MDButton 
-            onClick={()=>{navigate('/battles')}}
-            style={{width:'100%', padding:0}}>
-            <MDBox bgColor='info' 
-              style={{
-                  width:'100%',
-                  height: '180px', 
-                  borderRadius: 5,
-                  backgroundImage: `url(${Battle})`,
-                  backgroundSize: 'cover', // You can adjust this property as needed
-                  backgroundRepeat: 'no-repeat', // You can adjust this property as needed
-                  }}>
-            </MDBox>
-          </MDButton>
-        </Grid>
-        <Grid item xs={12} md={4} lg={3} display='flex' justifyContent="center" alignItems="center">
-          <MDButton 
-            onClick={()=>{navigate('/contests')}}
-            style={{width:'100%', padding:0}}>
-            <MDBox bgColor='info' 
-              style={{
-                  width:'100%',
-                  height: '180px', 
-                  borderRadius: 5,
-                  backgroundImage: `url(${Contest})`,
-                  backgroundSize: 'cover', // You can adjust this property as needed
-                  backgroundRepeat: 'no-repeat', // You can adjust this property as needed
-                  }}>
-            </MDBox>
-          </MDButton>
-        </Grid>
-        <Grid item xs={12} md={4} lg={3} display='flex' justifyContent="center" alignItems="center">
-          <MDButton 
-            onClick={()=>{navigate('/marginxs')}}
-            style={{width:'100%', padding:0}}>
-            <MDBox bgColor='info' 
-              style={{
-                  width:'100%',
-                  height: '180px', 
-                  borderRadius: 5,
-                  backgroundImage: `url(${MarginX})`,
-                  backgroundSize: 'cover', // You can adjust this property as needed
-                  backgroundRepeat: 'no-repeat', // You can adjust this property as needed
-                  }}>
-            </MDBox>
-          </MDButton>
-        </Grid>
-        <Grid item xs={12} md={4} lg={3} display='flex' justifyContent="center" alignItems="center">
-          <MDButton 
-            onClick={()=>{navigate('/tenxtrading')}}
-            style={{width:'100%', padding:0}}>
-            <MDBox bgColor='info' 
-              style={{
-                  width:'100%',
-                  height: '180px', 
-                  borderRadius: 5,
-                  backgroundImage: `url(${TenX})`,
-                  backgroundSize: 'cover', // You can adjust this property as needed
-                  backgroundRepeat: 'no-repeat', // You can adjust this property as needed
-                  }}>
-            </MDBox>
-          </MDButton>
-        </Grid>
+          </Slider>)
+        }
       
-      </Grid> */}
-      
-        <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignItems='start' flexDirection='row'>
+        <Grid container spacing={1} xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='space-between' alignItems='start' flexDirection='row'>
 
         <Grid item xs={12} md={12} lg={8} display='flex' justifyContent="center" alignItems="center">
         <Grid container xs={12} md={12} lg={12} mb={1} display="flex" justifyContent="center" alignItems="center">
-          
-            {/* <Grid item xs={12} md={6} lg={12}>
-              <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
-                <DailyChallenge summary={summary} />
-              </MDBox>
-            </Grid> */}
           
           <Grid item xs={12} md={6} lg={12} mt={1}>
             <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>

@@ -8,6 +8,10 @@ const Instrument = require("../../models/Instruments/instrumentSchema")
 const getKiteCred = require('../../marketData/getKiteCred');
 const axios = require("axios")
 const Wallet = require("../../models/UserWallet/userWalletSchema")
+const Transaction = require('../../models/Transactions/Transaction');
+const uuid = require("uuid");
+const sendMail = require('../../utils/emailService');
+
 
 exports.overallPnlTrader = async (req, res, next) => {
     let isRedisConnected = getValue();
@@ -416,7 +420,7 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
                 const portfolioValue = await Battle.aggregate([
                     {
                         $match: {
-                            _id: new ObjectId("64febd9511c0cd0de1d00d4d"),
+                            _id: new ObjectId(id),
                         },
                     },
                     {
@@ -448,9 +452,10 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
                         },
                     },
                 ])
-                // console.log(portfolioValue, new ObjectId(id))
+                // console.log(portfolioValue, new ObjectId(id), req.user._id)
                 if (isRedisConnected) {
-                    await client.set(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginBattle`, JSON.stringify(portfolioValue[0]))
+                    let data = JSON.stringify(portfolioValue[0]);
+                    await client.set(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginBattle`, data)
                     await client.expire(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginBattle`, secondsRemaining);
                 }
                 res.status(200).json({ status: 'success', data: portfolioValue[0] });
@@ -927,7 +932,7 @@ exports.BattlePnlTWiseTraderSide = async (req, res, next) => {
                 brokerage: { $sum: { $toDouble: "$brokerage" } },
                 trades: { $count: {} },
                 tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
-                
+
             },
         },
         {
@@ -952,111 +957,37 @@ exports.BattlePnlTWiseTraderSide = async (req, res, next) => {
     let pipeline1 = [
         {
           $match: {
-            status: "COMPLETE",
-            battleId: new ObjectId(
-              id
-            ),
+            _id: new ObjectId(id),
           },
         },
         {
-          $group: {
-            _id: {
-              trader: "$trader",
-              battleId: "$battleId",
-            },
-            amount: {
-              $sum: {
-                $multiply: ["$amount", -1],
-              },
-            },
-            brokerage: {
-              $sum: {
-                $toDouble: "$brokerage",
-              },
-            },
-          },
-        },
-        {
-          $lookup: {
-            from: "battles",
-            localField: "_id.battleId",
-            foreignField: "_id",
-            as: "battle",
-          },
-        },
-        {
-          $lookup: {
-            from: "battle-templates",
-            localField: "battle.battleTemplate",
-            foreignField: "_id",
-            as: "templates",
+          $unwind: {
+            path: "$participants",
           },
         },
         {
           $project: {
-            battleId: "$_id.battleId",
-            _id: 0,
-            trader: "$_id.trader",
-            npnl: {
-              $subtract: ["$amount", "$brokerage"],
-            },
-            portfolioValue: {
-              $arrayElemAt: [
-                "$templates.portfolioValue",
-                0,
-              ],
-            },
-            entryFee: {
-              $arrayElemAt: ["$templates.entryFee", 0],
-            },
-            return: {
-              $divide: [
-                {
-                  $subtract: ["$amount", "$brokerage"],
-                },
-                {
-                  $divide: [
-                    {
-                      $arrayElemAt: [
-                        "$templates.portfolioValue",
-                        0,
-                      ],
-                    },
-                    {
-                      $arrayElemAt: [
-                        "$templates.entryFee",
-                        0,
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-        },
-        {
-          $group: {
-            _id: {
-              // trader: "$trader",
-            },
-            cumm_return: {
-              $sum: "$return",
-            },
-          },
-        },
-        {
-          $project: {
-            trader: "$_id.trader",
-            total_return: "$cumm_return",
+            trader: "$participants.userId",
+            payout: "$participants.reward",
+            rank: "$participants.rank",
             _id: 0,
           },
         },
       ]
 
-    let user = await BattleMock.aggregate(pipeline1)
+    let payout = await Battle.aggregate(pipeline1)
     let x = await BattleMock.aggregate(pipeline)
 
-    res.status(201).json({ message: "data received", data: x, user: user[0] });
+    for( let elem of x){
+        for(let subelem of payout){
+            if(elem.userId.toString() === subelem.trader.toString()){
+                elem.payout = subelem.payout;
+                elem.rank = subelem.rank;
+            }
+        }
+    }
+
+    res.status(201).json({ message: "data received", data: x });
 }
 
 exports.BattlePayoutChart = async (req, res, next) => {
@@ -1100,10 +1031,15 @@ exports.BattlePayoutChart = async (req, res, next) => {
                     battleId: "$battleId",
                     battleName: "$battleData.battleName",
                     date: {
-                        $substr: ["$battleData.startTime", 0, 10],
+                        $substr: [
+                            "$battleData.battleStartTime",
+                            0,
+                            10,
+                        ],
                     },
                     entryFee: "$templateData.entryFee",
-                    portfolioValue: "$templateData.portfolioValue"
+                    portfolioValue:
+                        "$templateData.portfolioValue",
                 },
                 gpnl: {
                     $sum: {
@@ -1122,36 +1058,8 @@ exports.BattlePayoutChart = async (req, res, next) => {
                     $subtract: ["$gpnl", "$brokerage"],
                 },
                 payout: {
-                    $cond: [
-                        {
-                            $gt: [
-                                {
-                                    $add: [
-                                        "$_id.entryFee",
-                                        {
-                                            $divide: ["$npnl", {
-                                                $divide: ["$_id.portfolioValue", "$_id.entryFee"]
-                                            }]
-                                        }
-                                    ]
-                                },
-                                0
-                            ]
-                        },
-                        {
-                            $add: [
-                                "$_id.entryFee",
-                                {
-                                    $divide: ["$npnl", {
-                                        $divide: ["$_id.portfolioValue", "$_id.entryFee"]
-                                    }]
-                                }
-                            ]
-                        },
-                        0
-                    ]
-                }
-                
+                 
+                },
             },
         },
         {
@@ -1211,9 +1119,9 @@ exports.BattlePayoutChart = async (req, res, next) => {
         },
         {
             $sort: {
-                BattleDate: 1
-            }
-        }
+                BattleDate: 1,
+            },
+        },
     ]
 
     let x = await BattleMock.aggregate(pipeline) 
@@ -1226,6 +1134,7 @@ exports.sendLeaderboardDataBattle = async () => {
         const activeBattle = await Battle.find({ status: "Active" });
 
         if (activeBattle.length) {
+            // console.log("activeBattle", activeBattle.length)
             contestQueue.push(...activeBattle);
 
             if (!isProcessingQueue) {
@@ -1251,7 +1160,6 @@ async function processContestQueue() {
     endTime.setHours(9, 48, 0, 0);
 
     if (currentTime >= startTime && currentTime <= endTime) {
-        // console.log("1st if");
 
         // If the queue is empty, reset the processing flag and return
         if (contestQueue.length === 0) {
@@ -1261,16 +1169,17 @@ async function processContestQueue() {
         }
 
         // Process contests and emit the data
+        // console.log("contestQueue", contestQueue.length)
         for (const battle of contestQueue) {
-            if (battle.status === "Active" && battle.battleStartTime <= new Date()) {
+            // console.log(battle)
+            if ((battle.status === "Active" )&& (battle.battleStartTime <= new Date())) {
+                // console.log("battle", battle.battleName)
                 const leaderBoard = await battleLeaderBoard(battle._id?.toString());
                 // console.log(leaderBoard, battle._id?.toString());
-                io.to(`${battle._id?.toString()}`).emit('battle-leaderboardData', leaderBoard);
+                io.to(`${battle._id?.toString()}`).emit(`battle-leaderboardData${battle._id?.toString()}`, leaderBoard);
             }
         }
 
-        // Clear the processed contests from the queue
-        // contestQueue.length = 0;
     }
 }
 
@@ -1406,7 +1315,7 @@ const battleLeaderBoard = async (id) => {
 
         const result = await aggregateRanks(ranks, id);
 
-        console.log("rsult", result, id)
+        // console.log("rsult", result, id)
         for (let rank of result) {
 
             // if(id.toString() === "64b7770016c0eb3bec96a77b"){
@@ -1430,9 +1339,9 @@ const battleLeaderBoard = async (id) => {
 
         
         // await client.del(`leaderboard:${id}`)
-        const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "2", 'WITHSCORES'])
+        const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "19", 'WITHSCORES'])
         const formattedLeaderboard = await formatData(leaderBoard)
-        console.log(formattedLeaderboard)
+        // console.log(formattedLeaderboard)
 
         return formattedLeaderboard;
     } catch (e) {
@@ -1514,8 +1423,7 @@ const emitLeaderboardData = async () => {
     startTime.setHours(3, 0, 0, 0);
     const endTime = new Date(currentTime);
     endTime.setHours(9, 48, 0, 0);
-    //todo-vijay
-    // if (currentTime >= startTime && currentTime <= endTime) {
+    if (currentTime >= startTime && currentTime <= endTime) {
         const battle = await Battle.find({status: "Active", battleStartTime: {$lte: new Date()}});
 
         // console.log("battle", battle)
@@ -1525,13 +1433,13 @@ const emitLeaderboardData = async () => {
             for(let j = 0; j < socketIds?.length; j++){
                 let userId = await client.get(socketIds[j]);
                 // console.log("userId", userId)
-                let data = await client.get(`battleData:${userId}`);
+                let data = await client.get(`battleData:${userId}${battle[i]?._id?.toString()}`);
                 data = JSON.parse(data);
                 if(data){
                     let {id, employeeId} = data;
                     const myRank = await getRedisMyRank(battle[i]?._id?.toString(), employeeId);
-                    console.log(myRank)
-                    io.to(`${battle[i]?._id?.toString()}${userId?.toString()}`).emit(`battle-myrank${userId}`, myRank);
+                    // console.log(myRank)
+                    io.to(`${battle[i]?._id?.toString()}${userId?.toString()}`).emit(`battle-myrank${userId}${battle[i]?._id.toString()}`, myRank);
                     // await client.del(`leaderboard:${battle[i]?._id?.toString()}`)
                     // io // Emit the leaderboard data to the client
                 }
@@ -1539,7 +1447,7 @@ const emitLeaderboardData = async () => {
             }
 
         }
-    // }
+    }
 };
 
 const getRedisMyRank = async (id, employeeId) => {
@@ -1549,7 +1457,7 @@ const getRedisMyRank = async (id, employeeId) => {
         if (await client.exists(`leaderboard:${id}`)) {
 
             const leaderBoardRank = await client.ZREVRANK(`leaderboard:${id}`, JSON.stringify({ name: employeeId }));
-            // console.log("leaderBoardRank", leaderBoardRank)
+            // console.log("leaderBoardRank", leaderBoardRank, id, employeeId)
             // await client.del(`leaderboard:${id}`)
             if (leaderBoardRank == null) return null
             return leaderBoardRank + 1
@@ -1564,8 +1472,7 @@ const getRedisMyRank = async (id, employeeId) => {
 }
 
 
-// Payout
-exports.creditAmountToWallet = async () => {
+exports.creditAmountToWalletBattle = async () => {
     console.log("in wallet")
     try {
         let date = new Date();
@@ -1573,7 +1480,7 @@ exports.creditAmountToWallet = async () => {
         todayDate = todayDate + "T00:00:00.000Z";
         const today = new Date(todayDate);
 
-        const battle = await Battle.find({ status: "Completed", payoutStatus: null, battleEndTime: {$gte: today} });
+        const battle = await Battle.find({ status: "Completed", payoutStatus: "Not Started", battleEndTime: {$gte: today} });
 
         // console.log(battle.length, battle)
         for (let j = 0; j < battle.length; j++) {
@@ -1626,31 +1533,137 @@ exports.creditAmountToWallet = async () => {
 
             const rewardData = await getPrizeDetails(battle[j]._id);
 
+            console.log("rewardData", rewardData)
+
             for(let i = 0; i < userBattleWise.length; i++){
                 const preDefinedReward = rewardData.reward;
                 const wallet = await Wallet.findOne({ userId: new ObjectId(userBattleWise[i].userId) });
 
                 if(preDefinedReward[preDefinedReward.length-1].rank >= i+1){
                     for(const elem of preDefinedReward){
-    
-                        wallet.transactions = [...wallet.transactions, {
-                            title: 'Battle Credit',
-                            description: `Amount credited for battle ${battle[j].battleName}`,
-                            transactionDate: new Date(),
-                            amount: elem.reward?.toFixed(2),
-                            transactionId: uuid.v4(),
-                            transactionType: 'Cash'
-                        }];
-                        wallet.save();
 
-                        for(let subelem of battle[j]?.participants){
-                            if(subelem.userId.toString() === userBattleWise[i].userId.toString()){
-                                subelem.reward = elem.reward?.toFixed(2);
-                                subelem.rank = elem.rank;
+                        if(elem.rank === i+1){
+                            console.log("user in top", userBattleWise[i].userId, battle[j].battleName, elem.reward, elem.rank)
+                            wallet.transactions = [...wallet.transactions, {
+                                title: 'Battle Credit',
+                                description: `Amount credited for battle ${battle[j].battleName}`,
+                                transactionDate: new Date(),
+                                amount: elem.reward?.toFixed(2),
+                                transactionId: uuid.v4(),
+                                transactionType: 'Cash'
+                            }];
+                            wallet.save();
+    
+                            const transacation = await Transaction.create({
+                                transactionCategory: 'Debit',
+                                transactionBy: '63ecbc570302e7cf0153370c',
+                                transactionAmount: elem.reward?.toFixed(2),
+                                transactionFor: 'Battle',
+                                transactionStatus: 'Complete',
+                                transactionMode: 'Wallet',
+                                currency: 'INR',
+                                transactionType: 'Cash',
+                                wallet: wallet._id
+                            });
+    
+                            for(let subelem of battle[j]?.participants){
+                                if(subelem.userId.toString() === userBattleWise[i].userId.toString()){
+                                    subelem.reward = elem.reward?.toFixed(2);
+                                    subelem.rank = elem.rank;
+                                }
+                            }
+    
+                            await battle[j].save();
+
+                            const user = await User.findOne({_id: new ObjectId(userBattleWise[i].userId)});
+
+                            if (process.env.PROD == 'true') {
+                                sendMail(user?.email, 'Battle Reward Credited - StoxHero', `
+                                <!DOCTYPE html>
+                                <html>
+                                <head>
+                                    <meta charset="UTF-8">
+                                    <title>Amount Credited</title>
+                                    <style>
+                                    body {
+                                        font-family: Arial, sans-serif;
+                                        font-size: 16px;
+                                        line-height: 1.5;
+                                        margin: 0;
+                                        padding: 0;
+                                    }
+                          
+                                    .container {
+                                        max-width: 600px;
+                                        margin: 0 auto;
+                                        padding: 20px;
+                                        border: 1px solid #ccc;
+                                    }
+                          
+                                    h1 {
+                                        font-size: 24px;
+                                        margin-bottom: 20px;
+                                    }
+                          
+                                    p {
+                                        margin: 0 0 20px;
+                                    }
+                          
+                                    .userid {
+                                        display: inline-block;
+                                        background-color: #f5f5f5;
+                                        padding: 10px;
+                                        font-size: 15px;
+                                        font-weight: bold;
+                                        border-radius: 5px;
+                                        margin-right: 10px;
+                                    }
+                          
+                                    .password {
+                                        display: inline-block;
+                                        background-color: #f5f5f5;
+                                        padding: 10px;
+                                        font-size: 15px;
+                                        font-weight: bold;
+                                        border-radius: 5px;
+                                        margin-right: 10px;
+                                    }
+                          
+                                    .login-button {
+                                        display: inline-block;
+                                        background-color: #007bff;
+                                        color: #fff;
+                                        padding: 10px 20px;
+                                        font-size: 18px;
+                                        font-weight: bold;
+                                        text-decoration: none;
+                                        border-radius: 5px;
+                                    }
+                          
+                                    .login-button:hover {
+                                        background-color: #0069d9;
+                                    }
+                                    </style>
+                                </head>
+                                <body>
+                                    <div class="container">
+                                    <h1>Amount Credited</h1>
+                                    <p>Hello ${user.first_name},</p>
+                                    <p>Amount of ${elem.reward?.toFixed(2)}INR has been credited in you wallet</p>
+                                    <p>You can now purchase Tenx and participate in various activity on stoxhero.</p>
+                                    
+                                    <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                                    <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                                    <br/><br/>
+                                    <p>Thanks,</p>
+                                    <p>StoxHero Team</p>
+                          
+                                    </div>
+                                </body>
+                                </html>
+                                `);
                             }
                         }
-
-                        await battle[j].save();
     
                     }
                 } else{
@@ -1660,6 +1673,8 @@ exports.creditAmountToWallet = async () => {
 
                     for(let k = remainingInitialRank; k <= finalRank; k++){
                         if(k === i+1){
+
+                            console.log("users", userBattleWise[i].userId, battle[j].battleName, remainingReward)
                             wallet.transactions = [...wallet.transactions, {
                                 title: 'Battle Credit',
                                 description: `Amount credited for battle ${battle[j].battleName}`,
@@ -1669,6 +1684,18 @@ exports.creditAmountToWallet = async () => {
                                 transactionType: 'Cash'
                             }];
                             wallet.save();
+
+                            const transacation = await Transaction.create({
+                                transactionCategory: 'Debit',
+                                transactionBy: '63ecbc570302e7cf0153370c',
+                                transactionAmount: remainingReward?.toFixed(2),
+                                transactionFor: 'Battle',
+                                transactionStatus: 'Complete',
+                                transactionMode: 'Wallet',
+                                currency: 'INR',
+                                transactionType: 'Cash',
+                                wallet: wallet._id
+                            });
     
                             for(let subelem of battle[j]?.participants){
                                 if(subelem.userId.toString() === userBattleWise[i].userId.toString()){
@@ -1677,6 +1704,107 @@ exports.creditAmountToWallet = async () => {
                                 }
                             }
     
+                            await battle[j].save();
+
+                            const user = await User.findOne({_id: new ObjectId(userBattleWise[i].userId)});
+
+                            if (process.env.PROD == 'true') {
+                                sendMail(user?.email, 'Battle Reward Credited - StoxHero', `
+                                <!DOCTYPE html>
+                                <html>
+                                <head>
+                                    <meta charset="UTF-8">
+                                    <title>Amount Credited</title>
+                                    <style>
+                                    body {
+                                        font-family: Arial, sans-serif;
+                                        font-size: 16px;
+                                        line-height: 1.5;
+                                        margin: 0;
+                                        padding: 0;
+                                    }
+                          
+                                    .container {
+                                        max-width: 600px;
+                                        margin: 0 auto;
+                                        padding: 20px;
+                                        border: 1px solid #ccc;
+                                    }
+                          
+                                    h1 {
+                                        font-size: 24px;
+                                        margin-bottom: 20px;
+                                    }
+                          
+                                    p {
+                                        margin: 0 0 20px;
+                                    }
+                          
+                                    .userid {
+                                        display: inline-block;
+                                        background-color: #f5f5f5;
+                                        padding: 10px;
+                                        font-size: 15px;
+                                        font-weight: bold;
+                                        border-radius: 5px;
+                                        margin-right: 10px;
+                                    }
+                          
+                                    .password {
+                                        display: inline-block;
+                                        background-color: #f5f5f5;
+                                        padding: 10px;
+                                        font-size: 15px;
+                                        font-weight: bold;
+                                        border-radius: 5px;
+                                        margin-right: 10px;
+                                    }
+                          
+                                    .login-button {
+                                        display: inline-block;
+                                        background-color: #007bff;
+                                        color: #fff;
+                                        padding: 10px 20px;
+                                        font-size: 18px;
+                                        font-weight: bold;
+                                        text-decoration: none;
+                                        border-radius: 5px;
+                                    }
+                          
+                                    .login-button:hover {
+                                        background-color: #0069d9;
+                                    }
+                                    </style>
+                                </head>
+                                <body>
+                                    <div class="container">
+                                    <h1>Amount Credited</h1>
+                                    <p>Hello ${user.first_name},</p>
+                                    <p>Amount of ${remainingReward?.toFixed(2)}INR has been credited in you wallet</p>
+                                    <p>You can now purchase Tenx and participate in various activity on stoxhero.</p>
+                                    
+                                    <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                                    <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                                    <br/><br/>
+                                    <p>Thanks,</p>
+                                    <p>StoxHero Team</p>
+                          
+                                    </div>
+                                </body>
+                                </html>
+                                `);
+                            }
+                        }
+
+                        if (i + 1 > finalRank) {
+                            for (let subelem of battle[j]?.participants) {
+                              console.log("updating feilds")
+                              if (subelem.userId.toString() === userBattleWise[i].userId.toString()) {
+                                subelem.reward = 0;
+                                subelem.rank = i+1;
+                              }
+                            }
+                
                             await battle[j].save();
                         }
                     }
@@ -1714,7 +1842,10 @@ const getPrizeDetails = async (battleId) => {
         }
 
         // Calculate the Prize Pool
-        const prizePool = collection - (collection * template.gstPercentage / 100);
+        let prizePool = collection - (collection * template.gstPercentage / 100)
+        prizePool = prizePool - (prizePool * template.platformCommissionPercentage / 100);
+
+        console.log(prizePool);
 
         // Calculate the total number of winners
         const totalWinners = Math.round(template.winnerPercentage * battleParticipants / 100);
@@ -1733,8 +1864,8 @@ const getPrizeDetails = async (battleId) => {
         });
 
         // Calculate the reward for the remaining winners
-        // const remainingWinners = totalWinners - rankingReward.length;
-        // const rewardForRemainingWinners = remainingWinners > 0 ? (prizePool - totalRewardDistributed) / remainingWinners : 0;
+        const remainingWinners = totalWinners - rankingReward.length;
+        const rewardForRemainingWinners = remainingWinners > 0 ? (prizePool - totalRewardDistributed) / remainingWinners : 0;
         // const remainingWinnersPercentge = rewardForRemainingWinners * 100/prizePool;
 
         // if(remainingWinners > 0) {
@@ -1757,3 +1888,362 @@ const getPrizeDetails = async (battleId) => {
         return;
     }
 };
+
+
+
+
+
+
+
+exports.overallBattleTraderPnl = async (req, res, next) => {
+    // console.log("Inside overall virtual pnl")
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+    // console.log(today)
+    let pnlDetails = await BattleMock.aggregate([
+        {
+            $match: {
+                trade_time: {
+                    $gte: today
+                    // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+                },
+                status: "COMPLETE",
+            },
+        },
+        {
+            $group: {
+                _id: {
+                    symbol: "$symbol",
+                    product: "$Product",
+                    instrumentToken: "$instrumentToken",
+                    exchangeInstrumentToken: "$exchangeInstrumentToken",
+                },
+                amount: {
+                    $sum: { $multiply: ["$amount", -1] },
+                },
+                turnover: {
+                    $sum: {
+                        $toInt: { $abs: "$amount" },
+                    },
+                },
+                brokerage: {
+                    $sum: {
+                        $toDouble: "$brokerage",
+                    },
+                },
+                lots: {
+                    $sum: {
+                        $toInt: "$Quantity",
+                    },
+                },
+                totallots: {
+                    $sum: {
+                        $toInt: { $abs: "$Quantity" },
+                    },
+                },
+                trades: {
+                    $count: {}
+                },
+            },
+        },
+        {
+            $sort: {
+                _id: -1,
+            },
+        },
+    ])
+    res.status(201).json({ message: "pnl received", data: pnlDetails });
+}
+
+exports.liveTotalTradersCount = async (req, res, next) => {
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+    let pnlDetails = await BattleMock.aggregate([
+        {
+            $match: {
+                trade_time: {
+                    $gte: today
+                    // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+                },
+                status: "COMPLETE"
+            }
+        },
+        {
+            $group: {
+                _id: {
+                    trader: "$trader"
+                },
+                runninglots: {
+                    $sum: "$Quantity"
+                }
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                zeroLotsTraderCount: {
+                    $sum: {
+                        $cond: [{ $eq: ["$runninglots", 0] }, 1, 0]
+                    }
+                },
+                nonZeroLotsTraderCount: {
+                    $sum: {
+                        $cond: [{ $ne: ["$runninglots", 0] }, 1, 0]
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                zeroLotsTraderCount: 1,
+                nonZeroLotsTraderCount: 1
+            }
+        }
+    ])
+    res.status(201).json({ message: "pnl received", data: pnlDetails });
+}
+
+exports.overallBattlePnlYesterday = async (req, res, next) => {
+    let date;
+    let i = 1;
+    let maxDaysBack = 30;  // define a maximum limit to avoid infinite loop
+    let pnlDetailsData;
+
+    while (!pnlDetailsData && i <= maxDaysBack) {
+        let day = new Date();
+        day.setDate(day.getDate() - i);
+        let startTime = new Date(day.setHours(0, 0, 0, 0));
+        let endTime = new Date(day.setHours(23, 59, 59, 999));
+        date = startTime;
+
+        pnlDetailsData = await BattleMock.aggregate([
+            {
+                $match: {
+                    trade_time: {
+                        $gte: startTime,
+                        $lte: endTime
+                    },
+                    status: "COMPLETE",
+                },
+            },
+            {
+                $group: {
+                    _id: null,
+                    amount: {
+                        $sum: { $multiply: ["$amount", -1] },
+                    },
+                    turnover: {
+                        $sum: { $toInt: { $abs: "$amount" } },
+                    },
+                    brokerage: {
+                        $sum: { $toDouble: "$brokerage" },
+                    },
+                    lots: {
+                        $sum: { $toInt: "$Quantity" },
+                    },
+                    totallots: {
+                        $sum: { $toInt: { $abs: "$Quantity" } },
+                    },
+                    trades: {
+                        $count: {}
+                    },
+                },
+            },
+            {
+                $sort: {
+                    _id: -1,
+                },
+            },
+        ]);
+
+        // const contest = await MarginX.find({contestEndTime: {$gte: startTime, $lte: endTime}})
+
+        if (!pnlDetailsData || pnlDetailsData.length === 0) {
+            pnlDetailsData = null;  // reset the value to ensure the while loop continues
+            
+            i++;  // increment the day counter
+        }
+    }
+
+    console.log("pnlDetailsData", pnlDetailsData)
+
+    res.status(201).json({
+        message: "pnl received",
+        data: pnlDetailsData ? pnlDetailsData : [],
+        results: pnlDetailsData ? pnlDetailsData.length : 0,
+        date: date
+    });
+}
+
+exports.liveTotalTradersCountYesterday = async (req, res, next) => {
+    let yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    // console.log(yesterdayDate)
+    let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
+    yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
+    let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
+    yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
+    const startTime = new Date(yesterdayStartTime);
+    const endTime = new Date(yesterdayEndTime);
+    // console.log("Query Timing: ", startTime, endTime)  
+    let pnlDetails = await BattleMock.aggregate([
+        {
+            $match: {
+                trade_time: {
+                    $gte: startTime, $lte: endTime
+                    // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+                },
+                status: "COMPLETE"
+            }
+        },
+        {
+            $group: {
+                _id: {
+                    trader: "$trader"
+                },
+                runninglots: {
+                    $sum: "$Quantity"
+                }
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                zeroLotsTraderCount: {
+                    $sum: {
+                        $cond: [{ $eq: ["$runninglots", 0] }, 1, 0]
+                    }
+                },
+                nonZeroLotsTraderCount: {
+                    $sum: {
+                        $cond: [{ $ne: ["$runninglots", 0] }, 1, 0]
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                zeroLotsTraderCount: 1,
+                nonZeroLotsTraderCount: 1
+            }
+        }
+    ])
+    res.status(201).json({ message: "pnl received", data: pnlDetails });
+}
+
+exports.overallBattleCompanySidePnlThisMonth = async (req, res, next) => {
+    // const { ydate } = req.params;
+    let date = new Date();
+    date.setDate(date.getDate() - 1);
+    let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()-1).padStart(2, '0')}`
+    yesterdayDate = yesterdayDate + "T00:00:00.000Z";
+    // console.log("Yesterday Date:",yesterdayDate)
+    // const today = new Date(todayDate);
+    let monthStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-01`
+    monthStartDate = monthStartDate + "T00:00:00.000Z";
+    console.log("Month Start Date:",new Date(monthStartDate), new Date(yesterdayDate))
+
+    const pipeline = [
+        {
+            $match:
+            {
+                trade_time: {
+                    $gte: new Date(monthStartDate),
+                    // $lte: new Date(yesterdayDate)
+                },
+                status: "COMPLETE",
+            }
+        },
+        {
+            $group:
+            {
+                _id:null,
+                gpnl: {
+                    $sum: { $multiply: ["$amount", -1] }
+                },
+                turnover: {
+                    $sum: { $abs: ["$amount"] }
+                },
+                brokerage: {
+                    $sum: { $toDouble: "$brokerage" }
+                },
+                lots: {
+                    $sum: { $toInt: "$Quantity" }
+                },
+                trades: {
+                    $count: {}
+                },
+                lotUsed: {
+                    $sum: { $abs: { $toInt: "$Quantity" } }
+                }
+            }
+        },
+        { $sort: { _id: -1 } },
+
+    ]
+
+    let x = await BattleMock.aggregate(pipeline)
+    console.log("MTD",x)
+    res.status(201).json({ message: "data received", data: x ? x : [] });
+}
+
+exports.overallBattleCompanySidePnlLifetime = async (req, res, next) => {
+    // const { ydate } = req.params;
+    let date = new Date();
+    date.setDate(date.getDate() - 1);
+    let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    yesterdayDate = yesterdayDate + "T23:59:59.000Z";
+    // const today = new Date(todayDate);
+    // let monthStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-01`
+    // monthStartDate = monthStartDate + "T23:59:59.000Z";
+    // console.log("Yesterday Date:",yesterdayDate)
+
+    const pipeline = [
+        {
+            $match:
+            {
+                trade_time: {
+                    $lte: new Date(yesterdayDate),
+                    // $lte: yesterdayDate
+                },
+                status: "COMPLETE",
+            }
+        },
+        {
+            $group:
+            {
+                _id:null,
+                gpnl: {
+                    $sum: { $multiply: ["$amount", -1] }
+                },
+                turnover: {
+                    $sum: { $abs: ["$amount"] }
+                },
+                brokerage: {
+                    $sum: { $toDouble: "$brokerage" }
+                },
+                lots: {
+                    $sum: { $toInt: "$Quantity" }
+                },
+                trades: {
+                    $count: {}
+                },
+                lotUsed: {
+                    $sum: { $abs: { $toInt: "$Quantity" } }
+                }
+            }
+        },
+        { $sort: { _id: -1 } },
+
+    ]
+
+    let x = await BattleMock.aggregate(pipeline)
+    // console.log("Lifetime",x)
+    res.status(201).json({ message: "data received", data: x ? x : [] });
+}

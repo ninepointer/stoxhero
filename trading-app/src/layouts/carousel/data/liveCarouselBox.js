@@ -11,8 +11,8 @@ const CarouselBox = ({ image, elem }) => {
 
   // console.log( "dates checking", elem?.carouselStartDate, elem?.carouselEndDate)
   return (
-    <Grid container spacing={2} display='flex' justifyContent='center'>
-      <Grid item display='flex' justifyContent='center'>
+    <Grid container lg={12} md={4} xs={12} spacing={1} display='flex' justifyContent='center' alignItems='center'>
+      <Grid item lg={12} md={4} xs={12} display='flex' justifyContent='center'>
           <MDButton 
             style={{padding:0}} 
             disableRipple
@@ -23,7 +23,7 @@ const CarouselBox = ({ image, elem }) => {
             state={{data: elem}}
           >
             <div style={{position: 'relative'}}>
-              <img src={image} width='250px' height='250px' alt="Box" />
+              <img src={image} width='270px' height='180px' alt="Box" />
               <div style={{position: 'absolute', bottom: 10, right: 10}}>
                 <span style={{backgroundColor: 'green', padding: '2px 4px', color:'white', fontSize: 10, borderRadius:3}}>
                   {moment.utc(elem?.carouselEndDate).utcOffset('+05:30').format("DD-MMM HH:mm")}

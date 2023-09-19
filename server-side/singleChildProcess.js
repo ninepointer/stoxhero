@@ -9,7 +9,7 @@ const {sendLeaderboardData, sendMyRankData, emitServerTime} = require("./control
 const {sendMyRankDataBattle, sendLeaderboardDataBattle} = require("./controllers/battles/battleTradeController");
 
 const {saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, saveXtsMargin} = require("./controllers/marginRequired")
-const {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus, changeMarginXStatus} = require("./controllers/AutoTradeCut/mainManually");
+const {autoCutMainManually, autoCutMainManuallyMock, changeBattleStatus, changeStatus, changeMarginXStatus} = require("./controllers/AutoTradeCut/mainManually");
 const { createNewTicker, disconnectTicker,
     subscribeTokens, onError,
     onOrderUpdate, getTicksForUserPosition,
@@ -37,6 +37,7 @@ const helmet = require("helmet");
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
 const hpp = require("hpp")
+const {processBattles} = require("./controllers/battles/battleController")
 
 
 async function singleProcess() {
@@ -108,7 +109,7 @@ async function singleProcess() {
                 let { id, userId } = data;
                 socket.join(`${id}`)
                 socket.join(`${id}${userId}`)
-                await client.set(`battleData:${userId}`, JSON.stringify(data));
+                await client.set(`battleData:${userId}${id}`, JSON.stringify(data));
             })
 
             socket.on('GetHistory', async (data) => {
@@ -188,13 +189,14 @@ async function singleProcess() {
     });
 
     //emitting leaderboard for contest.
+
     if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });
+        sendLeaderboardDataBattle().then(() => { });
+        sendMyRankDataBattle().then(() => { });
     }
 
-    sendLeaderboardDataBattle().then(() => { });
-    sendMyRankDataBattle().then(() => { });
     emitServerTime().then(() => { });
 
 
@@ -244,6 +246,7 @@ async function singleProcess() {
                 autoCutMainManuallyMock();
                 changeStatus();
                 changeMarginXStatus();
+                changeBattleStatus();
                 // creditAmount();
             });
 
@@ -268,6 +271,10 @@ async function singleProcess() {
         const internshipPayout = nodeCron.schedule(`0 30 13 * * *`, updateUserWallet);
 
     }
+    // const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
+    const battle = nodeCron.schedule(`54 5 * * *`, processBattles);
+    
+
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
     app.use(express.json({ limit: "20kb" }));
     app.use(require("cookie-parser")());

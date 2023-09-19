@@ -24,6 +24,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import {apiUrl} from '../../../constants/constants';
 import { userContext } from "../../../AuthContext";
 import moment from 'moment';
+import { Helmet } from 'react-helmet';
 
 const CareerForm = () => {
 
@@ -450,6 +451,30 @@ const CareerForm = () => {
             </MDBox>
             :
             <MDBox minHeight='50vH' marginTop="65px" display="flex" justifyContent='center' alignItems='center' alignContent='center'>
+              <Helmet>
+              <script type="text/javascript">
+              {`
+                !function(f,b,e,v,n,t,s)
+                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)}(window, document,'script',
+                'https://connect.facebook.net/en_US/fbevents.js');
+                fbq('init', '1063612111493246');
+                fbq('track', 'PageView');
+              `}
+            </script>
+            <noscript>
+              {`<img
+                height="1" 
+                width="1" 
+                style={{ display: 'none' }}
+                src="https://www.facebook.com/tr?id=1063612111493246&ev=PageView&noscript=1"
+              />`}
+            </noscript>
+              </Helmet>
               <Grid container>
                 <Grid item p={2} m={2} xs={12} md={12} lg={12} display="flex" justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{textAlign: 'center'}}>
                   <MDTypography>Your registration has been submitted successfully.</MDTypography>

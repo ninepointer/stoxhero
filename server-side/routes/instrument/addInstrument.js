@@ -429,7 +429,7 @@ router.get("/instrumentDetails", authentication, async (req, res)=>{
     const from = req.params.from;
     const {role} = req.user;
     let {isNifty, isBankNifty, isFinNifty, dailyContest} = req.query;
-    // console.log(isNifty, isBankNifty, isFinNifty, dailyContest)
+    console.log(isNifty, isBankNifty, isFinNifty, dailyContest)
     let url;
     let roleObj;
 
@@ -454,33 +454,7 @@ router.get("/instrumentDetails", authentication, async (req, res)=>{
     
     try{
 
-        if(roleObj.roleName === infinityTrader){
-            if(isRedisConnected && await client.exists(`${req.user._id.toString()}: infinityInstrument`)){
-                // console.log("inif", infinityTrader)
-                let instrument = await client.LRANGE(`${req.user._id.toString()}: infinityInstrument`, 0, -1)
-                // console.log(instrument)
-                const instrumentJSONs = instrument.map(instrument => JSON.parse(instrument));
-      
-                res.status(201).json({message: "redis infinity instrument received", data: instrumentJSONs});      
-
-            } else{
-      
-                const user = await User.findOne({_id: _id});
-    
-                let instrument = await InfinityInstrument.find({ _id: { $in: user.watchlistInstruments }, status: "Active" })
-                .select('exchangeInstrumentToken instrument exchange symbol status lotSize maxLot instrumentToken contractDate _id chartInstrument')
-                .sort({$natural:-1})
-                  // console.log("instruments", instrument)
-                const instrumentJSONs = instrument.map(instrument => JSON.stringify(instrument));
-                // console.log("instrumentJSONs", instrumentJSONs)
-                if(instrumentJSONs.length > 0 && isRedisConnected){
-                    await client.LPUSH(`${req.user._id.toString()}: infinityInstrument`, [...instrumentJSONs])
-                }
-                // console.log("instruments", instruments)
-                res.status(201).json({message: "instruments received", data: instrument});
-    
-            }
-        } else{
+     
 
             if (isNifty) {
                 url = `|NIFTY`;
@@ -541,7 +515,7 @@ router.get("/instrumentDetails", authentication, async (req, res)=>{
                 }
             }
 
-        }
+        
 
 
   

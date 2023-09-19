@@ -34,6 +34,8 @@ function Index() {
     battleTemplateName: '' || template?.battleTemplateName,
     portfolioValue: '' || template?.portfolioValue,
     entryFee: (template?.entryFee ? parseInt(template?.entryFee) : 0),
+    freePrizePool: (template?.freePrizePool ? parseInt(template?.freePrizePool) : 0),
+    freeWinnerCount: (template?.freeWinnerCount ? parseInt(template?.freeWinnerCount) : 0),
     status: '' || template?.status,
     platformCommissionPercentage: (template?.platformCommissionPercentage ? parseInt(template?.platformCommissionPercentage) : 0),
     minParticipants: (template?.minParticipants ? parseInt(template?.minParticipants) : 0),
@@ -70,7 +72,7 @@ function Index() {
       }
   
       setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-      const { battleTemplateName, portfolioValue, entryFee, winnerPercentage, platformCommissionPercentage, minParticipants, gstPercentage, battleType, battleTemplateType, status } = formState;
+      const { battleTemplateName, portfolioValue, entryFee, freePrizePool, freeWinnerCount, winnerPercentage, platformCommissionPercentage, minParticipants, gstPercentage, battleType, battleTemplateType, status } = formState;
       const res = await fetch(`${apiUrl}battletemplates`, {
         method: "POST",
         credentials: "include",
@@ -79,7 +81,7 @@ function Index() {
           "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-          battleTemplateName, portfolioValue, entryFee, winnerPercentage, platformCommissionPercentage, minParticipants, gstPercentage, battleType, battleTemplateType, status
+          battleTemplateName, portfolioValue, entryFee, freePrizePool, freeWinnerCount, winnerPercentage, platformCommissionPercentage, minParticipants, gstPercentage, battleType, battleTemplateType, status
         })
       });
   
@@ -99,6 +101,8 @@ function Index() {
           battleTemplateName: '' || template?.battleTemplateName,
           portfolioValue: '' || template?.portfolioValue,
           entryFee: '' || template?.entryFee,
+          freePrizePool: '' || template?.freePrizePool,
+          freeWinnerCount: '' || template?.freeWinnerCount,
           status: '' || template?.status,
           platformCommissionPercentage: '' || template?.platformCommissionPercentage,
           minParticipants: '' || template?.minParticipants,
@@ -129,7 +133,7 @@ function Index() {
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const { battleTemplateName, portfolioValue, entryFee, winnerPercentage, platformCommissionPercentage, minParticipants, gstPercentage, battleType, battleTemplateType, status } = formState;
+    const { battleTemplateName, portfolioValue, entryFee, freePrizePool, freeWinnerCount, winnerPercentage, platformCommissionPercentage, minParticipants, gstPercentage, battleType, battleTemplateType, status } = formState;
 
     const res = await fetch(`${apiUrl}battletemplates/${template?._id}`, {
       method: "PATCH",
@@ -139,7 +143,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        battleTemplateName, portfolioValue, entryFee, winnerPercentage, platformCommissionPercentage, minParticipants, gstPercentage, battleType, battleTemplateType, status
+        battleTemplateName, portfolioValue, entryFee, freePrizePool, freeWinnerCount, winnerPercentage, platformCommissionPercentage, minParticipants, gstPercentage, battleType, battleTemplateType, status
       })
     });
 
@@ -280,7 +284,7 @@ let totalCollection = template ? template?.entryFee*template?.minParticipants : 
 let gst = template ? ((template?.entryFee*template?.minParticipants)*template?.gstPercentage)/100 : (formState.expectedCollection*formState?.gstPercentage)/100;
 let collectionAfterTax = (totalCollection)-(gst)
 let platfromFee = template ? ((collectionAfterTax*template?.platformCommissionPercentage)/100): (collectionAfterTax*formState?.platformCommissionPercentage)/100;
-let prizePool = (collectionAfterTax) - platfromFee;
+let prizePool = template?.entryFee != 0 ? ((collectionAfterTax) - platfromFee) : template?.freePrizePool;
 let totalNumberOfWinners = template ? ((template?.minParticipants*template?.winnerPercentage)/100).toFixed(0) : ((formState?.minParticipants*formState?.winnerPercentage)/100).toFixed(0)
 
   // console.log("check stoxhero", formState?.isNifty , contest?.contestFor , dailyContest?.contestFor )
@@ -348,7 +352,7 @@ let totalNumberOfWinners = template ? ((template?.minParticipants*template?.winn
                     name='entryFee'
                     fullWidth
                     type='number'
-                    value={template ? template?.entryFee : formState?.entryFee}
+                    value={template && isSubmitted ? template?.entryFee : formState?.entryFee}
                     defaultValue={editing ? formState?.entryFee : template?.entryFee}
                     // onChange={handleChange}
                     // onChange={(e) => {
@@ -362,6 +366,48 @@ let totalNumberOfWinners = template ? ((template?.minParticipants*template?.winn
                   />
                 </Grid>
 
+                {<Grid item xs={12} md={6} xl={3} mb={1}>
+                  <TextField
+                    disabled={((isSubmitted || template) && (!editing || saving))}
+                    id="outlined-required"
+                    label='Free Prize Pool *'
+                    name='freePrizePool'
+                    fullWidth
+                    type='number'
+                    value={template && isSubmitted ? template?.freePrizePool : formState?.freePrizePool}
+                    defaultValue={editing ? formState?.freePrizePool : template?.freePrizePool}
+                    // onChange={handleChange}
+                    onChange={(e) => {
+                      setFormState(prevState => ({
+                        ...prevState,
+                        freePrizePool: e.target.value
+                      }))
+                    }}
+                    // onChange={handleEntryFeeChange}
+                  />
+                </Grid>}
+
+                {<Grid item xs={12} md={6} xl={3} mb={1}>
+                  <TextField
+                    disabled={((isSubmitted || template) && (!editing || saving))}
+                    id="outlined-required"
+                    label='Free Winner Count *'
+                    name='freeWinnerCount'
+                    fullWidth
+                    type='number'
+                    value={template && isSubmitted ? template?.freeWinnerCount : formState?.freeWinnerCount}
+                    defaultValue={editing ? formState?.freeWinnerCount : template?.freeWinnerCount}
+                    // onChange={handleChange}
+                    onChange={(e) => {
+                      setFormState(prevState => ({
+                        ...prevState,
+                        freeWinnerCount: e.target.value
+                      }))
+                    }}
+                    // onChange={handleEntryFeeChange}
+                  />
+                </Grid>}
+
                 <Grid item xs={12} md={6} xl={3} mb={1}>
                   <TextField
                     disabled={((isSubmitted || template) && (!editing || saving))}
@@ -370,7 +416,7 @@ let totalNumberOfWinners = template ? ((template?.minParticipants*template?.winn
                     name='winnerPercentage'
                     fullWidth
                     type='number'
-                    value={template ? template?.winnerPercentage : formState?.winnerPercentage}
+                    value={template && isSubmitted ? template?.winnerPercentage : formState?.winnerPercentage}
                     defaultValue={editing ? formState?.winnerPercentage : template?.winnerPercentage}
                     // onChange={handleChange}
                     onChange={(e) => {
@@ -390,7 +436,7 @@ let totalNumberOfWinners = template ? ((template?.minParticipants*template?.winn
                     name='platformCommissionPercentage'
                     fullWidth
                     type='number'
-                    value={template ? template?.platformCommissionPercentage : formState?.platformCommissionPercentage}
+                    value={template && isSubmitted ? template?.platformCommissionPercentage : formState?.platformCommissionPercentage}
                     defaultValue={editing ? formState?.platformCommissionPercentage : template?.platformCommissionPercentage}
                     // onChange={handleChange}
                     onChange={(e) => {
@@ -410,7 +456,7 @@ let totalNumberOfWinners = template ? ((template?.minParticipants*template?.winn
                     name='minParticipants'
                     fullWidth
                     type='number'
-                    value={template ? template?.minParticipants : formState?.minParticipants}
+                    value={template && isSubmitted ? template?.minParticipants : formState?.minParticipants}
                     defaultValue={editing ? formState?.minParticipants : template?.minParticipants}
                     // onChange={handleChange}
                     // onChange={(e) => {
@@ -432,8 +478,8 @@ let totalNumberOfWinners = template ? ((template?.minParticipants*template?.winn
                     name='gstPercentage'
                     fullWidth
                     type='number'
-                    value={formState?.gstPercentage}
-                    // defaultValue={editing ? formState?.gstPercentage : template?.gstPercentage}
+                    value={template && isSubmitted ? template?.gstPercentage:formState?.gstPercentage}
+                    defaultValue={editing ? formState?.gstPercentage : template?.gstPercentage}
                     // onChange={handleChange}
                     onChange={(e) => {
                       console.log('change',e.target.value);
@@ -549,18 +595,18 @@ let totalNumberOfWinners = template ? ((template?.minParticipants*template?.winn
               </Grid>
 
               <Grid item xs={12} md={6} xl={3} mb={1}>
-                <MDTypography fontSize={15}>Prize Pool(Exp.): ₹{prizePool}</MDTypography>
+                <MDTypography fontSize={15}>Prize Pool(Exp.): ₹{template?.entryFee != 0 ? prizePool : template?.freePrizePool}</MDTypography>
               </Grid>
 
               <Grid item xs={12} md={6} xl={3} mb={1}>
-                <MDTypography fontSize={15}>Top # of Winners: {template?.rankingPayout.length}</MDTypography>
+                <MDTypography fontSize={15}>Top # of Winners: {template?.entryFee != 0 ? template?.rankingPayout.length : template?.freeWinnerCount}</MDTypography>
               </Grid>
 
               {template?.rankingPayout?.length > 0 && <Grid item xs={12} md={6} xl={3} mb={1}>
-                <MDTypography fontSize={15}>Total # of Winners: {totalNumberOfWinners}</MDTypography>
+                <MDTypography fontSize={15}>Total # of Winners: {template?.entryFee != 0 ? totalNumberOfWinners : template?.freeWinnerCount}</MDTypography>
               </Grid>}
 
-              {template?.rankingPayout?.length > 0 && <Grid item xs={12} md={6} xl={3} mb={1}>
+              {template?.rankingPayout?.length > 0 && (template?.entryFee != 0) && <Grid item xs={12} md={6} xl={3} mb={1}>
                 <MDTypography fontSize={15}>Reward(Remaining Winners):
                 ₹{((100-(template?.rankingPayout.reduce((total, currentItem) => {
                     return total + currentItem.rewardPercentage;
@@ -568,7 +614,7 @@ let totalNumberOfWinners = template ? ((template?.minParticipants*template?.winn
                 </MDTypography>
               </Grid>}
 
-              {template?.rankingPayout.length > 0 && <Grid item xs={12} md={6} xl={3} mb={1}>
+              {template?.rankingPayout.length > 0 && (template?.entryFee != 0) && <Grid item xs={12} md={6} xl={3} mb={1}>
                 <MDTypography fontSize={15}>Reward/Remaining Winners:
                 ₹{(((100-(template?.rankingPayout.reduce((total, currentItem) => {
                     return total + currentItem.rewardPercentage;

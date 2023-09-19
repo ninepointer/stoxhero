@@ -7,6 +7,7 @@ import MDTypography from '../../../components/MDTypography';
 import MonthLineChart from '../data/MonthLineChart'
 import { apiUrl } from '../../../constants/constants';
 import TableView from "../data/tableView"
+import moment from 'moment';
 
 export default function LabTabs() {
   const date = new Date();
@@ -132,6 +133,13 @@ export default function LabTabs() {
     return formattedDate;
 
   }
+
+  let ptraders = selectedSubscription?.participants?.reduce((count, currentItem) => {
+    if (currentItem?.payout && currentItem?.payout > 0) {
+      return count + 1;
+    }
+    return count;
+  }, 0)
 
   // console.log("+ve Trader", dateWiseData)
 
@@ -262,6 +270,203 @@ export default function LabTabs() {
           </MDBox>
         </Grid>
       </Grid>
+
+      {<Grid mt={3} container>
+        <Grid item xs={12} md={6} lg={12}>
+          <MDBox bgColor="light" borderRadius={5}>
+
+            <MDBox>
+              <Grid container spacing={0} p={1} display="flex" justifyContent="space-around" alignContent="center" alignItems="center">
+                
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11}>Contest:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{selectedSubscription?.contestName}</MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11}>Gross P&L:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{totalgpnl >= 0 ? `₹${totalgpnl?.toFixed(2)}` : `-₹${-1 * totalgpnl?.toFixed(2)}`}</MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11}>Net P&L:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{totalnpnl >= 0 ? `₹${totalnpnl?.toFixed(2)}` : `-₹${-1 * totalnpnl?.toFixed(2)}`}</MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Date:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      {moment.utc(selectedSubscription?.contestStartTime).utcOffset('+05:30').format('DD-MMM-YY')}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Day:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      {moment.utc(selectedSubscription?.contestStartTime).utcOffset('+05:30').format('dddd')}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Contest For:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      {selectedSubscription?.contestFor}
+                    </MDTypography>
+                  </MDBox>
+                </Grid> 
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Max. Participants:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      {selectedSubscription?.maxParticipants}
+                    </MDTypography>
+                  </MDBox>
+                </Grid> 
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} ># of Participants:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      {selectedSubscription?.participants?.length}
+                    </MDTypography>
+                  </MDBox>
+                </Grid> 
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Filled(%):&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      {((selectedSubscription?.participants?.length)/(selectedSubscription?.maxParticipants)*100).toFixed(2)}%
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Entry Fee:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(selectedSubscription?.entryFee)}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Portfolio Value:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(selectedSubscription?.portfolio?.portfolioValue)}
+                    </MDTypography>
+                  </MDBox>
+                </Grid> 
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Payout Percentage:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      {selectedSubscription?.payoutPercentage}%
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Max Payout:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(
+                          selectedSubscription?.participants.reduce((max, participant) => {
+                            console.log(max,participant)
+                              return Math.max(parseFloat(max ? max : 0), (participant?.payout ? parseFloat(participant?.payout) : 0));
+                            }, parseFloat(selectedSubscription?.participants[0].payout))
+                        )}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Total Payout:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
+                        selectedSubscription?.participants?.reduce((total,item)=>{
+                          return parseFloat(total) + parseFloat(item?.payout ? item?.payout : 0)
+                        },0)
+                        )}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >(+) Traders:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      {ptraders}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >(-) Traders:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      {selectedSubscription?.participants?.length-ptraders}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Traders(%) in loss:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      {(((selectedSubscription?.participants?.length-ptraders)/selectedSubscription?.participants?.length)*100).toFixed(0)}%
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >NIFTY:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      {selectedSubscription?.isNifty ? 'Yes' : 'No'}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >BANKNIFTY:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      {selectedSubscription?.isBankNifty ? 'Yes' : 'No'}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >FINNIFTY:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >
+                      {selectedSubscription?.isFinNifty ? 'Yes' : 'No'}
+                    </MDTypography>
+                  </MDBox>
+                </Grid>
+
+              </Grid>
+            </MDBox>
+
+          </MDBox>
+        </Grid>
+      </Grid>}
 
       <Grid mt={3} container>
         <Grid item xs={12} md={6} lg={12} overflow='auto'>

@@ -26,6 +26,7 @@ import PopupMessage from "../data/popupMessage";
 import PopupTrading from "../data/popupTrading";
 import { Link } from "react-router-dom";
 import Payment from "../data/payment"
+// import axios from "axios";
 
 function Header({toggleContest, setToggleContest, contest, socket, setIsInterested, showPay, setShowPay }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -33,9 +34,27 @@ function Header({toggleContest, setToggleContest, contest, socket, setIsInterest
     // const [isInterested, setIsInterested] = useState(false);
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
-    // const [serverTime, setServerTime] = useState();
+    const [registrationCount, setCount] = useState();
     // const [loading, setIsLoading] = useState(true);
     // const [showPay, setShowPay] = useState(true);
+
+    useEffect(()=>{
+        axios.get(`${baseUrl}api/v1/dailycontest/registrationcount`, {
+            withCredentials: true,
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Credentials": true
+            },
+        })
+        .then((res) => {
+            setCount(res.data.count);
+
+            
+        }).catch((err) => {
+            return new Error(err);
+        })
+    }, [])
 
     const initialInterestedCounts = contest.reduce((acc, elem) => {
         acc[elem._id] = {
@@ -246,9 +265,9 @@ function Header({toggleContest, setToggleContest, contest, socket, setIsInterest
 
                                                     <Grid item xs={12} md={12} lg={12} mt={1} mb={1}>
                                                         {particularContestTime[0]?.value > 0 ?
-
-                                                            <MDBox color="light" fontSize={10} display="flex" >
-                                                                <HiUserGroup color='black' /><MDBox color={"dark"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{isInterestedState[elem?._id]?.count} PEOPLE HAVE SHOWN INTEREST IN THIS CONTEST</MDBox>
+// isInterestedState[elem?._id]?.count
+                                                            <MDBox color="light" fontSize={10} display="flex" alignContent='center' alignItems='center'>
+                                                                <HiUserGroup color='black' /><MDBox color={"dark"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{registrationCount} STUDENTS ALREADY REGISTERED</MDBox>
                                                             </MDBox>
                                                             :
                                                             particularContestTime[0]?.value <= 0 &&

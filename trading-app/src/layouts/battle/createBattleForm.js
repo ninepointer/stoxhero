@@ -63,7 +63,7 @@ function Index() {
   const [battleTemplates, setBattleTemplates] = useState([]);
   const [createdBattle, setCreatedBattle] = useState();
   const [action, setAction] = useState(false);
-  console.log("battle:",battle)
+
   
   const [formState, setFormState] = useState({
     battleName: '' || battle?.battleName,
@@ -82,7 +82,7 @@ function Index() {
       battleTemplateType: "" || battle?.battleTemplate?.battleTemplateType,
       gstPercentage: "" || battle?.battleTemplate?.gstPercentage,
       platformCommissionPercentage: "" || battle?.battleTemplate?.platformCommissionPercentage,
-      topWinners: "" || battle?.battleTemplate?.rankingPayout?.length,
+      topWinners: "" || parseInt(battle?.battleTemplate?.rankingPayout?.length),
     },
     isNifty: false || battle?.isNifty,
     isBankNifty: false || battle?.isBankNifty,
@@ -90,7 +90,7 @@ function Index() {
 
   });
 
-  console.log("formState", formState)
+  console.log("formState", battle)
   useEffect(() => {
     setTimeout(() => {
       // marginx && setUpdatedDocument(marginx)
@@ -108,6 +108,7 @@ function Index() {
         return new Error(err)
       })
   }, [])
+
 
   const handleTemplateChange = (event) => {
     const {
@@ -130,7 +131,7 @@ function Index() {
         battleTemplateType: battleTemplate[0]?.battleTemplateType,
         gstPercentage: battleTemplate[0]?.gstPercentage,
         platformCommissionPercentage: battleTemplate[0]?.platformCommissionPercentage,
-        topWinners: battleTemplate[0]?.rankingPayout?.length,
+        topWinners: parseInt(battleTemplate[0]?.rankingPayout?.length),
       }
     }));
   };
@@ -224,8 +225,8 @@ function Index() {
   let expectedCollection = (battle?.battleTemplate?.entryFee)*(battle?.battleTemplate?.minParticipants)
   let actualPlatformCommission = ((actualCollection-actualgst)*battle?.battleTemplate?.platformCommissionPercentage)/100
   let expectedPlatformCommission = ((expectedCollection-expectedgst)*battle?.battleTemplate?.platformCommissionPercentage)/100
-  let actualPrizePool = actualCollection-actualgst-actualPlatformCommission
-  let expectedPrizePool = expectedCollection-expectedgst-expectedPlatformCommission
+  let actualPrizePool = (battle?.battleTemplate?.entryFee != 0 ?  actualCollection-actualgst-actualPlatformCommission : battle?.battleTemplate?.freePrizePool)
+  let expectedPrizePool = (battle?.battleTemplate?.entryFee != 0 ? expectedCollection-expectedgst-expectedPlatformCommission : battle?.battleTemplate?.freePrizePool)
 
 
   const [title, setTitle] = useState('')
@@ -582,7 +583,7 @@ function Index() {
                             battleTemplateType: "" || battle?.battleTemplate?.battleTemplateType,
                             gstPercentage: "" || battle?.battleTemplate?.gstPercentage,
                             platformCommissionPercentage: "" || battle?.battleTemplate?.platformCommissionPercentage,
-                            topWinners: "" || battle?.battleTemplate?.rankingPayout?.length,
+                            topWinners: "" || parseInt(battle?.battleTemplate?.rankingPayout?.length),
                           },
                           isNifty:false || battle?.isNifty,
                           isBankNifty: false || battle?.isBankNifty,
@@ -599,7 +600,7 @@ function Index() {
 
             </Grid>
 
-            {(battle?.participants?.length <= battle?.battleTemplate?.minParticipants) && 
+            {(battle?.battleTemplate?.entryFee != 0 ? battle?.participants?.length <= battle?.battleTemplate?.minParticipants : true) && 
                 <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                   <MDBox>
                     <ExpectedRewardSystem battle={battle ? battle : createdBattle} expectedPrizePool={expectedPrizePool} action={action} setAction={setAction} />

@@ -7,6 +7,7 @@ const { ObjectId } = require('mongodb');
 const uuid = require("uuid");
 const emailService = require("../../utils/emailService")
 const moment = require('moment')
+const BattleTrade = require("../../models/battle/battleTrade");
 
 // Controller for creating a Battle
 exports.createBattle = async (req, res) => {
@@ -139,7 +140,7 @@ exports.getAllBattles = async (req, res) => {
     try {
         const battles = await Battle.find({})
             .sort({ battleStartTime: -1 })
-            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout')
+            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout freePrizePool freeWinnerCount')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess');
@@ -178,7 +179,7 @@ exports.getOngoingBattles = async (req, res) => {
         })
             .sort({ battleStartTime: -1 })
             .skip(skip).limit(limit)
-            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage')
+            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage freePrizePool freeWinnerCount')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
@@ -203,12 +204,12 @@ exports.getUserLiveBattles = async (req, res) => {
     const now = new Date();
     try {
         const ongoingBattles = await Battle.find({
-            battleStartTime: { $lte: now },
+            // battleStartTime: { $lte: now },
             battleEndTime: { $gt: now },
             status: 'Active',
             battleStatus: "Live"
         }).
-            populate('battleTemplate', 'BattleTemplateName portfolioValue entryFee gstPercentage platformCommissionPercentage minParticipants winnerPercentage rankingPayout').
+            populate('battleTemplate', 'BattleTemplateName portfolioValue entryFee gstPercentage platformCommissionPercentage minParticipants winnerPercentage rankingPayout freePrizePool freeWinnerCount').
             sort({ battleStartTime: -1, entryFee: -1 });
 
         res.status(200).json({
@@ -242,7 +243,7 @@ exports.getUpcomingBattles = async (req, res) => {
             battleStatus: "Upcoming"
         }).sort({ battleStartTime: -1, entryFee: -1 })
             .skip(skip).limit(limit)
-            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage')
+            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage freePrizePool freeWinnerCount')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
@@ -273,7 +274,7 @@ exports.getUserUpcomingBattles = async (req, res) => {
             status: 'Active',
             battleStatus: "Upcoming"
         }).sort({ battleStartTime: -1, entryFee: -1 })
-            .populate('battleTemplate', 'BattleTemplateName portfolioValue entryFee gstPercentage platformCommissionPercentage minParticipants winnerPercentage rankingPayout').
+            .populate('battleTemplate', 'BattleTemplateName portfolioValue entryFee gstPercentage platformCommissionPercentage minParticipants winnerPercentage rankingPayout freePrizePool freeWinnerCount').
             sort({ battleStartTime: -1, entryFee: -1 });
         res.status(200).json({
             status: 'success',
@@ -292,12 +293,9 @@ exports.getUserUpcomingBattles = async (req, res) => {
 exports.getUserCompletedBattles = async (req, res) => {
     const userId = req.user._id;
     try {
-
-
-        const completed = await Battle.aggregate([
+        const completed = await BattleTrade.aggregate([
             {
-                $match:
-                {
+                $match: {
                     status: "COMPLETE",
                     trader: new ObjectId(
                         userId
@@ -305,10 +303,15 @@ exports.getUserCompletedBattles = async (req, res) => {
                 },
             },
             {
-                $group:
-                {
+                $group: {
                     _id: {
                         battleId: "$battleId",
+                        symbol: "$symbol",
+                        product: "$Product",
+                        instrumentToken: "$instrumentToken",
+                        exchangeInstrumentToken:
+                            "$exchangeInstrumentToken",
+                        exchange: "$exchange",
                     },
                     amount: {
                         $sum: {
@@ -341,69 +344,109 @@ exports.getUserCompletedBattles = async (req, res) => {
                 },
             },
             {
-                $lookup:
-                {
+                $unwind: {
+                    path: "$battle",
+                },
+            },
+            {
+                $match: {
+                    "battle.status": "Completed",
+                    "battle.payoutStatus": "Completed",
+                    "battle.battleStatus": "Completed",
+                },
+            },
+            {
+                $lookup: {
                     from: "battle-templates",
                     localField: "battle.battleTemplate",
                     foreignField: "_id",
-                    as: "templates",
+                    as: "template",
+                },
+            },
+            {
+                $addFields: {
+                    totalParticipants: {
+                        $size: "$battle.participants",
+                    },
+                },
+            },
+            {
+                $unwind:
+                {
+                    path: "$battle.participants",
+                },
+            },
+            {
+                $match:
+                {
+                    "battle.participants.userId": new ObjectId(
+                        userId
+                    ),
                 },
             },
             {
                 $project:
                 {
-                    battleId: "$battleId",
-                    npnl: "$npnl",
+                    battleId: 1,
+                    npnl:1,
+                    totalParticipants: 1,
+                    rank: "$battle.participants.rank",
+                    payout: "$battle.participants.reward",
+                    battleStartTime:
+                        "$battle.battleStartTime",
+                        battleName:
+                        "$battle.battleName",
+                    
+                        isNifty: "$battle.isNifty",
+                        isFinNifty: "$battle.isFinNifty",
+                        isBankNifty: "$battle.isBankNifty",
+                       
+                    battleEndTime: "$battle.battleEndTime",
+                    entryFee: {
+                        $arrayElemAt: ["$template.entryFee", 0],
+                    },
                     portfolioValue: {
                         $arrayElemAt: [
-                            "$templates.portfolioValue",
+                            "$template.portfolioValue",
                             0,
                         ],
-                    },
-                    entryFee: {
-                        $arrayElemAt: [
-                            "$templates.entryFee",
-                            0,
-                        ],
-                    },
-                    battleStartTime: {
-                        $arrayElemAt: ["$battle.battleStartTime", 0],
-                    },
-                    battleEndTime: {
-                        $arrayElemAt: ["$battle.battleEndTime", 0],
-                    },
-                    battleName: {
-                        $arrayElemAt: ["$battle.battleName", 0],
-                    },
-                    isNifty: {
-                        $arrayElemAt: ["$battle.isNifty", 0],
-                    },
-                    isBankNifty: {
-                        $arrayElemAt: ["$battle.isBankNifty", 0],
-                    },
-                    isFinNifty: {
-                        $arrayElemAt: ["$battle.isFinNifty", 0],
-                    },
-                    battleType: {
-                        $arrayElemAt: ["$battle.battleTemplate.battleType", 0],
                     },
                     minParticipants: {
-                        $arrayElemAt: ["$battle.battleTemplate.minParticipants", 0],
+                        $arrayElemAt: [
+                            "$template.minParticipants",
+                            0,
+                        ],
                     },
-                },
-            },
-            {
-                $sort:
-                {
-                    battleStartTime: 1,
+                    gst: {
+                        $arrayElemAt: [
+                            "$template.gstPercentage",
+                            0,
+                        ],
+                    },
+                    platformPercentage: {
+                        $arrayElemAt: [
+                            "$template.platformCommissionPercentage",
+                            0,
+                        ],
+                    },
+                    collection: {
+                        $multiply: [
+                            "$totalParticipants",
+                            {
+                                $arrayElemAt: [
+                                    "$template.entryFee",
+                                    0,
+                                ],
+                            },
+                        ],
+                    },
                 },
             },
         ])
 
         for (let elem of completed) {
-            let xFactor = (elem.portfolioValue / elem.entryFee);
-            elem.return = elem.entryFee + elem.npnl / xFactor;
-            elem.return = elem.return > 0 ? elem.return : 0;
+            let gstApply = (elem.collection - elem.collection*elem.gst/100);
+            elem.prizePool = gstApply - gstApply*elem.platformPercentage/100;
         }
 
         res.status(200).json({
@@ -457,7 +500,7 @@ exports.todaysBattle = async (req, res) => {
     try {
         const battles = await Battle.find({
             battleEndTime: { $gte: today }
-        }).populate('battleTemplate', 'battleTemplateName _id portfolioValue entryFee')
+        }).populate('battleTemplate', 'battleTemplateName _id portfolioValue entryFee minParticipants freePrizePool freeWinnerCount')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .sort({ battleStartTime: 1 });
 
@@ -492,7 +535,7 @@ exports.getDraftBattles = async (req, res) => {
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
-            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage')
+            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage freePrizePool freeWinnerCount')
 
         res.status(200).json({
             status: 'success',
@@ -525,7 +568,7 @@ exports.getCompletedBattles = async (req, res) => {
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
-            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage')
+            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage freePrizePool freeWinnerCount')
 
         res.status(200).json({
             status: 'success',
@@ -558,7 +601,7 @@ exports.getCancelledBattles = async (req, res) => {
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
-            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage')
+            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue gstPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout winnerPercentage freePrizePool freeWinnerCount')
 
         res.status(200).json({
             status: 'success',
@@ -586,7 +629,7 @@ exports.getBattleById = async (req, res) => {
 
         // Fetching the Battle based on the id and populating the necessary fields
         const battle = await Battle.findById(id)
-            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue getPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout')
+            .populate('battleTemplate', 'battleTemplateName entryFee portfolioValue getPercentage platformCommissionPercentage minParticipants battleType battleTemplateType rankingPayout freePrizePool freeWinnerCount')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess');
@@ -610,9 +653,11 @@ exports.getBattleById = async (req, res) => {
     }
 };
 
-const BUFFER_TIME_SECONDS = 30;
-BATCH_SIZE = 50;
+
 exports.processBattles = async () => {
+    console.log("running")
+    const BUFFER_TIME_SECONDS = 300;
+    const BATCH_SIZE = 50;
     try {
         const now = new Date();
         const bufferTime = new Date(now.getTime() + BUFFER_TIME_SECONDS * 1000);
@@ -625,28 +670,125 @@ exports.processBattles = async () => {
                 battleStartTime: { $lte: bufferTime },
                 status: 'Active',
                 battleStatus:{$ne:'Cancelled'}
-            }).populate('battleTemplate', 'entryFee battleTemplateName').skip(skipCount).limit(BATCH_SIZE);
+            }).populate('battleTemplate', 'entryFee battleTemplateName minParticipants').skip(skipCount).limit(BATCH_SIZE);
 
+            // console.log("battles", battles)
             if (battles.length === 0) {
                 continueProcessing = false;
                 break;
             }
 
             for (let battle of battles) {
-                if (battle.participants.length < battle.minParticipants) {
+                // console.log(battle.battleName)
+                if (battle.participants.length < battle.battleTemplate.minParticipants) {
                     battle.status = 'Cancelled';
-                    battle.battleStatus = 'Canecelled'
+                    battle.battleStatus = 'Cancelled'
                     // await battle.save();
+
+                    // console.log("in if", battle.battleName)
 
                     // Refund the participants.
                     for (let participant of battle.participants) {
                         // Your refund logic here.
-                        await refundParticipant(participant?.userId, battleName, battle?.battleTemplate?.entryFee);
+                        console.log("in refund")
+                        await refundParticipant(participant?.userId, battle.battleName, battle?.battleTemplate?.entryFee);
                         participant.payoutStatus = 'Completed'
                         participant.payout = battle?.battleTemplate?.entryFee
+                        let userData = await User.findOne({_id: new ObjectId(participant?.userId)})
+                        console.log(userData)
+                        let recipients = [userData.email, 'team@stoxhero.com'];
+                        let recipientString = recipients.join(",");
+                        let subject = "Battle Cancelled - StoxHero";
+                        let message =
+                            `
+                        <!DOCTYPE html>
+                            <html>
+                            <head>
+                                <meta charset="UTF-8">
+                                <title>Battle Cancelled Refund</title>
+                                <style>
+                                body {
+                                    font-family: Arial, sans-serif;
+                                    font-size: 16px;
+                                    line-height: 1.5;
+                                    margin: 0;
+                                    padding: 0;
+                                }
+                
+                                .container {
+                                    max-width: 600px;
+                                    margin: 0 auto;
+                                    padding: 20px;
+                                    border: 1px solid #ccc;
+                                }
+                
+                                h1 {
+                                    font-size: 24px;
+                                    margin-bottom: 20px;
+                                }
+                
+                                p {
+                                    margin: 0 0 20px;
+                                }
+                
+                                .userid {
+                                    display: inline-block;
+                                    background-color: #f5f5f5;
+                                    padding: 10px;
+                                    font-size: 15px;
+                                    font-weight: bold;
+                                    border-radius: 5px;
+                                    margin-right: 10px;
+                                }
+                
+                                .password {
+                                    display: inline-block;
+                                    background-color: #f5f5f5;
+                                    padding: 10px;
+                                    font-size: 15px;
+                                    font-weight: bold;
+                                    border-radius: 5px;
+                                    margin-right: 10px;
+                                }
+                
+                                .login-button {
+                                    display: inline-block;
+                                    background-color: #007bff;
+                                    color: #fff;
+                                    padding: 10px 20px;
+                                    font-size: 18px;
+                                    font-weight: bold;
+                                    text-decoration: none;
+                                    border-radius: 5px;
+                                }
+                
+                                .login-button:hover {
+                                    background-color: #0069d9;
+                                }
+                                </style>
+                            </head>
+                            <body>
+                                <div class="container">
+                                <h1>Battle Cancelled</h1>
+                                <p>Hello ${userData.first_name},</p>
+                                <p>Thank you for taking part in Battle! Unfortunately, ${battle?.battleName} has been cancelled due to the minimum participant requirement not being met. Your battle fee will be refunded to your wallet soon.</p>
+                                <p>Join another battle at https://stoxhero.com/battles</span></p>
+                                </div>
+                            </body>
+                            </html>
+                
+                        `
+                        if (process.env.PROD === "true") {
+                            emailService(recipientString, subject, message);
+                            console.log("Subscription Email Sent")
+                        }
                     }
-                    await battle.save({validateBeforeSave:false});
+                    const saved = await battle.save({validateBeforeSave:false});
+
+
                 }else{
+
+                    if(battle.battleStartTime >= new Date())
                     battle.status='Active';
                     battle.battleStatus = 'Live';
                     await battle.save({validateBeforeSave:false});
@@ -662,7 +804,9 @@ exports.processBattles = async () => {
 
 const refundParticipant = async (userId, battleName, refundAmount) => {
     //TODO: Add an entry in the transactions collection and store the id in wallet
-    const userWallet = await Wallet.findById(userId);
+    // console.log(userId, battleName, refundAmount)
+    const userWallet = await Wallet.findOne({userId: userId});
+    // console.log(userWallet)
     userWallet.transactions.push({
         title: `Battle Refund`,
         description: `Refund for cancelled battle ${battleName}`,
@@ -879,7 +1023,8 @@ exports.getPrizeDetails = async (req, res, next) => {
         }
 
         // Calculate the Prize Pool
-        const prizePool = collection - (collection * template.gstPercentage / 100);
+        let prizePool = collection - (collection * template.gstPercentage / 100)
+        prizePool = prizePool - (prizePool * template.platformCommissionPercentage / 100);
 
         // Calculate the total number of winners
         const totalWinners = Math.round(template.winnerPercentage * battleParticipants / 100);
@@ -903,8 +1048,9 @@ exports.getPrizeDetails = async (req, res, next) => {
         const remainingWinnersPercentge = rewardForRemainingWinners * 100/prizePool;
 
         if(remainingWinners > 0) {
+            const remainRank = (rankingReward.length + 1 === totalWinners) ? totalWinners : `${rankingReward.length + 1}-${totalWinners}`;
             rankingReward.push({
-                rank: `${rankingReward.length + 1}-${totalWinners}`,
+                rank: remainRank,
                 reward: rewardForRemainingWinners,
                 rewardPercentage: remainingWinnersPercentge
             });
@@ -950,3 +1096,74 @@ exports.findBattleByName = async(req,res) => {
         });
     }
 }
+
+exports.getBattleUser = async (req, res) => {
+    try {
+        const pipeline = [
+            {
+                $group: {
+                    _id: {
+                        date: {
+                            $substr: ["$trade_time", 0, 10],
+                        },
+                        trader: "$trader",
+                    },
+                },
+            },
+            {
+                $group: {
+                    _id: { date: "$_id.date" },
+                    traders: { $sum: 1 },
+                    uniqueUsers: { $addToSet: "$_id.trader" },
+                },
+            },
+            {
+                $sort: {
+                    "_id.date": 1,
+                },
+            },
+        ];
+
+        const battleTraders = await BattleTrade.aggregate(pipeline);
+
+        // Create a date-wise mapping of DAUs for different products
+        const dateWiseDAUs = {};
+
+        battleTraders.forEach(entry => {
+            const { _id, traders, uniqueUsers } = entry;
+            const date = _id.date;
+            if (date !== "1970-01-01") {
+                if (!dateWiseDAUs[date]) {
+                    dateWiseDAUs[date] = {
+                        date,
+                        contest: 0,
+                        uniqueUsers: [],
+                    };
+                }
+                dateWiseDAUs[date].contest = traders;
+                dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+            }
+        });
+
+        // Calculate the date-wise total DAUs and unique users
+        Object.keys(dateWiseDAUs).forEach(date => {
+            const { contest, uniqueUsers } = dateWiseDAUs[date];
+            dateWiseDAUs[date].total = contest
+            dateWiseDAUs[date].uniqueUsers = [...new Set(uniqueUsers)];
+        });
+
+        const response = {
+            status: "success",
+            message: "data fetched successfully",
+            data: Object.values(dateWiseDAUs),
+        };
+
+        res.status(200).json(response);
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message,
+        });
+    }
+};

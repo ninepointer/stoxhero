@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
-dotenv.config({path: "./config.env"});
+dotenv.config({ path: "./config.env" });
 
 // STAGINGDB
 const DB = process.env.DATABASE;
@@ -11,16 +11,16 @@ const infinityDB = process.env.INFINITYDB;
 
 
     // mongoose.connect(devDB, {
-         mongoose.connect(DB, {
-        // mongoose.connect(stagingDB, {
+        //  mongoose.connect(DB, {
+        mongoose.connect(stagingDB, {
         // mongoose.connect(infinityDB, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     // useFindAndModify: false
-    
-}).then(()=>{
+
+}).then(() => {
     console.log("connection secure");
-}).catch((err)=>{
+}).catch((err) => {
     console.log(err);
     console.log("no connection");
 })

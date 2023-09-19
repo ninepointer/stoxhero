@@ -1,5 +1,6 @@
 const DailyContest = require("../models/DailyContest/dailyContest");
 const MarginX = require("../models/marginX/marginX");
+const Battle = require("../models/battle/battle")
 
 
 exports.contestChecks = async(req,res,next) => {
@@ -43,6 +44,29 @@ exports.marginxChecks = async(req,res,next) => {
 
         if(user.length === 0){
             return res.status(404).json({ status: "error", message: "You have not participated in this MarginX."}); 
+        }
+
+        next();
+    }catch(e){
+        console.log(e);
+    }
+}
+
+exports.battleChecks = async(req,res,next) => {
+    try{
+        const battle = await Battle.findById(req.body.battleId);
+        const userId = req.user._id;
+        if(battle?.battleEndTime < new Date()){
+            return res.status(201).json({ status: 'error', message: 'This Battle has ended.' });
+        }
+    
+        let user = battle.participants.filter((elem)=>{
+            // console.log(userId, elem?.userId)
+            return elem?.userId?.toString() === userId?.toString()
+        })
+
+        if(user.length === 0){
+            return res.status(404).json({ status: "error", message: "You have not participated in this Battle."}); 
         }
 
         next();
