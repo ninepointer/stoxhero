@@ -21,7 +21,7 @@ router.post("/account", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, r
                 //console.log("data already");
                 return res.status(422).json({ error: "date already exist..." })
             }
-            const account = new Account({ brokerName, accountId, accountName, apiKey, apiSecret, status, uId, createdOn, lastModified, createdBy });
+            const account = new Account({ brokerName, accountId, accountName, apiKey, apiSecret, status, uId, createdOn: new Date(), lastModified: new Date(), createdBy: req.user._id });
 
             account.save().then(() => {
 
@@ -73,7 +73,7 @@ router.put("/readAccountDetails/:id", Authenticate, restrictTo('Admin', 'SuperAd
                 apiKey: req.body.APIKey,
                 apiSecret: req.body.APISecret,
                 status: req.body.Status,
-                lastModified: req.body.lastModified
+                lastModified: new Date()
             }
         });
 
@@ -86,6 +86,7 @@ router.put("/readAccountDetails/:id", Authenticate, restrictTo('Admin', 'SuperAd
         //console.log("this is role", account);
         res.send(account)
     } catch (e) {
+        console.log(e)
         res.status(500).json({ error: "Failed to edit data" });
     }
 })

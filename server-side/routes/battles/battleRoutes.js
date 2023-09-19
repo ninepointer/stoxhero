@@ -3,7 +3,7 @@ const Authenticate = require('../../authentication/authentication');
 const router = express.Router({ mergeParams: true });
 const { createBattle, getAllBattles, getCompletedBattles, todaysBattle, getCancelledBattles,
     getOngoingBattles, getUpcomingBattles, editBattle, getBattleById, getDraftBattles, getBattleUser,
-    participateUsers, copyAndShare, purchaseIntent, deductBattleAmount, findBattleByName,
+    participateUsers, getBattleByIdUser, purchaseIntent, deductBattleAmount, findBattleByName,
     getUserLiveBattles, getUserUpcomingBattles, getUserCompletedBattles, getPrizeDetails } = require('../../controllers/battles/battleController');
 const restrictTo = require('../../authentication/authorization');
 
@@ -33,7 +33,7 @@ router.get('/prizedetail/:id', Authenticate, getPrizeDetails);
 router.route('/:id').put(Authenticate, restrictTo('Admin', 'SuperAdmin'), editBattle).
     get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getBattleById);
 
-// router.get('/:id/user', Authenticate, getBattleByIdUser);
+router.get('/:id/user', Authenticate, getBattleByIdUser);
 
 
 module.exports = router;

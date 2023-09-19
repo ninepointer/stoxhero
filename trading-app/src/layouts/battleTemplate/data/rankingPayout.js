@@ -6,15 +6,15 @@ import MDBox from "../../../components/MDBox"
 import MDTypography from "../../../components/MDTypography"
 import Card from "@mui/material/Card";
 import axios from "axios";
+import {AiFillEdit} from 'react-icons/ai'
 
 
-export default function GroupDiscussions({saving,template, action, setAction, prizePool}) {
+export default function GroupDiscussions({saving,template, action, setAction, prizePool, childFormState, setChildFormState, rankingPayoutMode, setRankingPayoutMode, rankingPayout, setRankingPayout}) {
     console.log("Template", template)
     const [open, setOpen] = useState(false);
   
  
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-    const [rankingPayout,setRankingPayout] = React.useState([]);
     const [rankingPayoutCount,setRankingPayoutCount] = useState(0);
     async function getRankingPayout(){
         let call1 = axios.get(`${baseUrl}api/v1/battletemplates/${template?._id}`,{
@@ -40,7 +40,7 @@ export default function GroupDiscussions({saving,template, action, setAction, pr
 
     useEffect(()=>{
       getRankingPayout();
-    },[saving, open])
+    },[saving, action])
 
     let totalCollection = template?.entryFee*template?.minParticipants;
     let gst = ((template?.entryFee*template?.minParticipants)*template?.gstPercentage)/100;
@@ -48,18 +48,34 @@ export default function GroupDiscussions({saving,template, action, setAction, pr
     let platfromFee = ((collectionAfterTax*template?.platformCommissionPercentage)/100);
     let expectedPrizePool = template?.entryFee != 0 ? ((collectionAfterTax) - platfromFee) : template?.freePrizePool;
     let totalNumberOfWinners = ((template?.minParticipants*template?.winnerPercentage)/100).toFixed(0);
-
+    console.log('ranking payout', rankingPayout);
     let columns = [
+        { Header: "Edit", accessor: "edit", align: "center" },
         { Header: "Rank", accessor: "rank", align: "center" },
         { Header: "Reward Percentage", accessor: "percentage", align: "center" },
         { Header: "Reward Amount", accessor: "amount", align: "center" },
       ]
 
     let rows = []
-
+  
+  const stageRankingPayout = async (elem) => {
+    setChildFormState({
+      _id: elem?._id,
+      rank:elem?.rank,
+      rewardPercentage:elem?.rewardPercentage
+    });
+    setRankingPayoutMode('edit');
+  }  
   rankingPayout?.map((elem, index)=>{
   let featureObj = {}
  
+  featureObj.edit = (
+    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      {<MDButton onClick={() => stageRankingPayout(elem)}>
+        <AiFillEdit/>
+        </MDButton>}
+    </MDTypography>
+  );
   featureObj.rank = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
       {elem?.rank}
@@ -67,7 +83,7 @@ export default function GroupDiscussions({saving,template, action, setAction, pr
   );
   featureObj.percentage = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {(elem?.rewardPercentage).toFixed(2)}%
+      {parseInt(elem?.rewardPercentage)?.toFixed(2)}%
     </MDTypography>
   );
   featureObj.amount = (

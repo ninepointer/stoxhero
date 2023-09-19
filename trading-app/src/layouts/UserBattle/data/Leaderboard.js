@@ -97,16 +97,18 @@ function Leaderboard({ socket, name, id}) {
         if((elem.rank == myRank) && !myReward){
             
             myReward = elem.reward
-            console.log("reward", myReward, elem.rank ,myRank)
+            // console.log("reward", myReward, elem.rank ,myRank)
         } else if((elem.rank.length > 1) && !myReward){
             let splited = elem.rank.split("-");
-            if(splited[0] <= myRank <= splited[1]){
+            if((Number(splited[0]) <= myRank) && (myRank <= Number(splited[1])) && myRank){
                 myReward = elem.reward
+                // console.log("reward in else1", myReward, elem.rank ,myRank, splited[0], splited[1], splited[0] <= myRank <= splited[1])
             } else{
                 myReward = 0;
+                // console.log("reward in else2", myReward, elem.rank ,myRank)
             }
             
-            console.log("reward in else", myReward, elem.rank ,myRank)
+            
         }
     })
 
@@ -245,10 +247,12 @@ function Leaderboard({ socket, name, id}) {
                                                 if(subelem.rank == index+1 && !myReward){
                                                     myReward = subelem.reward
                                                 } else if((subelem.rank.length > 1) && !myReward){
-                                                    console.log()
+                                                    
                                                     let splited = subelem?.rank?.split("-");
-                                                    if(splited[0] <= index+1 <= splited[1]){
-                                                        myReward = subelem.reward
+                                                    console.log("leader", splited[0] , index+1 , splited[1])
+                                                    if(Number((splited[0]) <= index+1) && (index+1 <= Number(splited[1]))){
+                                                        myReward = subelem.reward;
+                                                        console.log("inside if")
                                                     } else{
                                                         myReward = 0;
                                                     }

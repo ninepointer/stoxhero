@@ -171,23 +171,27 @@ function TraderwiseTraderPNL({ socket }) {
     totalLotsUsed += (subelem.lotUsed);
     totalTrades += (subelem.noOfTrade);
     totalTraders += 1;
-    totalReturn += (subelem.totalPnl - subelem.brokerage)/xFactor
-    totalCummReturn += subelem.cumm_return;
+    // totalCummReturn += subelem.cumm_return;
 
     let myReward = 0;
     reward.map((subelem)=>{
         if(subelem.rank == index+1 && !myReward){
             myReward = subelem.reward
         } else if((subelem.rank.length > 1) && !myReward){
-            console.log()
+            
             let splited = subelem?.rank?.split("-");
-            if(splited[0] <= index+1 <= splited[1]){
-                myReward = subelem.reward
+            console.log("leader", splited[0] , index+1 , splited[1])
+            if(Number((splited[0]) <= index+1) && (index+1 <= Number(splited[1]))){
+                myReward = subelem.reward;
+                // console.log("inside if")
             } else{
                 myReward = 0;
             }
         }
     })
+
+    totalReturn += myReward;
+
 
     obj.traderName = (
       <MDTypography component="a" variant="caption" color={tradercolor} fontWeight="medium" backgroundColor={traderbackgroundcolor} padding="5px" borderRadius="5px">

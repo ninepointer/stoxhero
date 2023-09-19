@@ -34,9 +34,9 @@ import AutoCutPopUp from "./tradecutPopup";
 
 
 function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionId, moduleData, setWatchList}) {
-  if(from === marginX || from === battle){
-    from = dailyContest;
-  }
+  // if(from === marginX || from === battle){
+  //   from = dailyContest;
+  // }
   const marketDetails = useContext(marketDataContext)
   const {render, setRender} = useContext(renderContext);
   const [buyState, setBuyState] = useState(false);
@@ -120,7 +120,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
   url = url.slice(1);
 
   // console.log("isAllIndex url", isAllIndex, url);
-  if(from === dailyContest){
+  if(from === dailyContest || from === marginX || from === battle){
     endPoint = `${baseUrl}api/v1/instrumentDetails?${url}&dailyContest=${true}`
   } else{
     endPoint = `${baseUrl}api/v1/instrumentDetails`
