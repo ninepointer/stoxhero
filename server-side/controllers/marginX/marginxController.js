@@ -633,7 +633,7 @@ exports.creditAmountToWallet = async () => {
                     await wallet.save();
                     const user = await User.findById(userId).select('email first_name last_name');
                     if (process.env.PROD == 'true') {
-                        sendMail(user?.email, 'MarginX Payout Credited - StoxHero', `
+                        emailService(user?.email, 'MarginX Payout Credited - StoxHero', `
                         <!DOCTYPE html>
                         <html>
                         <head>
