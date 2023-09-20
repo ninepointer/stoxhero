@@ -388,7 +388,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
               {from === dailyContest &&
                 <>
                   <Grid item xs={6} md={3} lg={2.4} display="flex" justifyContent="center">
-                    <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color={`info`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Payout: { (totalGrossPnl - totalTransactionCost) >= 0 ? ((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost)))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-(moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost)))) : "+₹0.00"} </MDTypography>
+                    <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color={`info`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Payout: { (totalGrossPnl - totalTransactionCost) >= 0 ? ((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-(moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100)) : "+₹0.00"} </MDTypography>
                   </Grid>
                 </>
               }

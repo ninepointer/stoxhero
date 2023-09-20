@@ -1879,19 +1879,8 @@ router.get("/cronjob", async (req, res) => {
 })
 
 router.get("/dbbackup", async (req, res) => {
-  // const sourceUri = "mongodb+srv://team:stoxherodev@stoxhero0.duntdzc.mongodb.net/?retryWrites=true&w=majority"
-  // const targetUri = "mongodb+srv://staging-database:staging1234@cluster0.snsb6wx.mongodb.net/?retryWrites=true&w=majority"
-
-
-  // const sourceUri = "mongodb+srv://vvv201214:5VPljkBBPd4Kg9bJ@cluster0.j7ieec6.mongodb.net/admin-data?retryWrites=true&w=majority"
-  // const sourceUri = "mongodb+srv://team:stoxherodev@stoxhero0.duntdzc.mongodb.net/?retryWrites=true&w=majority"
-  // const targetUri = "mongodb+srv://staging-database:staging1234@cluster0.snsb6wx.mongodb.net/?retryWrites=true&w=majority";
-
-  // const targetUri = "mongodb+srv://vvv201214:vvv201214@development.tqykp6n.mongodb.net/?retryWrites=true&w=majority"
-
-  // const sourceUri = "mongodb+srv://vvv201214:5VPljkBBPd4Kg9bJ@cluster0.j7ieec6.mongodb.net/admin-data?retryWrites=true&w=majority"
-  const sourceUri = "mongodb+srv://staging-database:staging1234@cluster0.snsb6wx.mongodb.net/?retryWrites=true&w=majority"
-  const targetUri = "mongodb+srv://vvv201214:vvv201214@development.tqykp6n.mongodb.net/?retryWrites=true&w=majority";
+  const sourceUri = process.env.STAGINGDB
+  const targetUri = process.env.DEVDATABASE
 
   await dbBackup.backupDatabase(sourceUri, targetUri, res);
 
@@ -1899,11 +1888,10 @@ router.get("/dbbackup", async (req, res) => {
 
 // router.get("/dbCopyAndDelete", async (req, res)=>{
 
-//   // const sourceUri = "mongodb+srv://vvv201214:vvv201214@development.tqykp6n.mongodb.net/?retryWrites=true&w=majority"
+//   // const sourceUri = 
 
-//   // const sourceUri = "mongodb+srv://vvv201214:vvv201214@development.tqykp6n.mongodb.net/?retryWrites=true&w=majority"
-//   const targetUri = "mongodb+srv://anshuman:ninepointerdev@cluster1.iwqmp4g.mongodb.net/?retryWrites=true&w=majority";
-
+//   // const sourceUri = 
+//   const targetUri = 
 //   await newdbBackup.deleteDb(targetUri);
 //   // await newdbBackup.copy(sourceUri, targetUri);
 
