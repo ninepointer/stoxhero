@@ -1443,7 +1443,7 @@ exports.creditAmountToWallet = async () => {
                     
                     contest[j].participants[i].payout = payoutAmount?.toFixed(2)
                     if (process.env.PROD == 'true') {
-                        sendMail(user?.email, 'Contest Payout Credited - StoxHero', `
+                        emailService(user?.email, 'Contest Payout Credited - StoxHero', `
                         <!DOCTYPE html>
                         <html>
                         <head>

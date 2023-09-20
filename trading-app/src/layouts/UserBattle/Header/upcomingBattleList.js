@@ -3,7 +3,8 @@ import { userContext } from '../../../AuthContext';
 import { useNavigate, useLocation } from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import ShareIcon from '@mui/icons-material/Share';
-import ReactGA from "react-ga"
+import ReactGA from "react-ga";
+import axios from "axios";
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
@@ -17,17 +18,13 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Paper from '@mui/material/Paper';
 import Draggable from 'react-draggable';
 import Button from '@mui/material/Button';
+import ParticipantCount from './participantCount'
 
 // Images
-import ContestCarousel from '../../../assets/images/target.png'
-import WinnerImage from '../../../assets/images/roi.png'
 import Timer from '../timer'
 import ProgressBar from "../progressBar";
-import { HiUserGroup } from 'react-icons/hi';
 import { Tooltip } from "@mui/material";
 import MDSnackbar from "../../../components/MDSnackbar";
-import PopupMessage from "../data/popupMessage";
-import PopupTrading from "../data/popupTrading";
 import Payment from "../data/payment"
 import InfoIcon from '@mui/icons-material/Info';
 
@@ -48,10 +45,10 @@ function Header({ toggleContest, setToggleContest, battle, showPay, setShowPay, 
     const getDetails = useContext(userContext);
     const navigate = useNavigate();
     const [open, setOpen] = useState(false);
-    console.log("Battle:",battle)
+
     useEffect(() => {
         ReactGA.pageview(window.location.pathname)
-    }, []);
+      }, []);
 
     const handleCopy = async (id) => {
         let text = 'https://stoxhero.com/battles'
@@ -179,7 +176,6 @@ function Header({ toggleContest, setToggleContest, battle, showPay, setShowPay, 
                                     let expectedPlatformCommission = ((expectedCollection-expectedgst)*elem?.battleTemplate?.platformCommissionPercentage)/100
                                     let actualPrizePool = actualCollection-actualgst-actualPlatformCommission
                                     let expectedPrizePool = expectedCollection-expectedgst-expectedPlatformCommission
-                                    console.log("agst,egst,acoll,ecoll,apcomm,epcomm,app,epp",actualgst,expectedgst,actualCollection,expectedCollection,actualPlatformCommission,expectedPlatformCommission,actualPrizePool,expectedPrizePool)
                                     // contestOn.push(elem.contestExpiry.toUpperCase());
 
                                     let progressBar = elem?.participants?.length * 100 / elem?.maxParticipants
@@ -202,9 +198,10 @@ function Header({ toggleContest, setToggleContest, battle, showPay, setShowPay, 
                                                 <Grid container display='flex' justifyContent='space-between' alignItems='center' minWidth='100%'>
                                                     <MDBox bgColor='lightgrey' minWidth='100%'>
                                                         <Grid item xs={3} md={2} lg={12} mb={0} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
-                                                            <Grid item xs={5} md={5} lg={5} display='flex' justifyContent='left'>
-                                                                <MDBox display='flex' justifyContent='flex-start' alignItems='center'>
-                                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>{elem?.battleName}</MDTypography>
+                                                            <Grid item xs={5} md={5} lg={7} display='flex' justifyContent='left'>
+                                                                <MDBox display='flex' justifyContent='left' flexDirection='column'>
+                                                                    <MDBox display='flex' justifyContent='left'><MDTypography color='black' fontSize={15} fontWeight='bold'>{elem?.battleName}</MDTypography></MDBox>
+                                                                    <MDBox display='flex' justifyContent='left'><ParticipantCount battle={elem}/></MDBox>
                                                                 </MDBox>
                                                             </Grid>
                                                             <Grid item xs={4} md={5} lg={5} ml={-0.5} display='flex' justifyContent='flex-end' alignItems='center'>
@@ -213,7 +210,7 @@ function Header({ toggleContest, setToggleContest, battle, showPay, setShowPay, 
                                                                 {elem?.isFinNifty && <MDBox><MDTypography color='white' fontSize={12} ml={0.5} mr={0.5} fontWeight='bold' style={{ backgroundColor: "orange", padding: '0px 5px 0px 5px', border: "1px solid orange", borderRadius: '5px 5px 5px 5px' }}>{elem?.isFinNifty === true ? 'FINNIFTY' : ''}</MDTypography></MDBox>}
                                                                 {elem?.battleTemplate?.battleType && <MDBox><MDTypography color='white' fontSize={12} ml={0.5} mr={0.5} fontWeight='bold' style={{ backgroundColor: "red", padding: '0px 5px 0px 5px', border: "1px solid red", borderRadius: '5px 5px 5px 5px' }}>{elem?.battleTemplate?.battleType}</MDTypography></MDBox>}
                                                             </Grid>
-                                                            <Grid item xs={3} md={2} lg={2} display='flex' justifyContent='right'>
+                                                            {/* <Grid item xs={3} md={2} lg={2} display='flex' justifyContent='right'>
                                                                 <MDBox display='flex' justifyContent='flex-end' alignItems='center'>
                                                                     <MDButton
                                                                         color='info'
@@ -263,11 +260,10 @@ function Header({ toggleContest, setToggleContest, battle, showPay, setShowPay, 
                                                                             <Button autoFocus onClick={handleClose}>
                                                                                 Got it!
                                                                             </Button>
-                                                                            {/* <Button onClick={handleClose}>Subscribe</Button> */}
                                                                         </DialogActions>
                                                                     </Dialog>
                                                                 </MDBox>
-                                                            </Grid>
+                                                            </Grid> */}
                                                         </Grid>
 
                                                     </MDBox>
