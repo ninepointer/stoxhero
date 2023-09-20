@@ -209,7 +209,7 @@ function ContestDetails () {
 
   📲 Visit https://www.stoxhero.com/signup?referral=${referralCode}                          
 
-  Use my below invitation code 👇 and get INR ₹10,00,000 in your wallet and start trading
+  Use my below invitation code 👇 and get virtual currency of 10,000,000 in your wallet and start trading
 
   My Referral Code to join the StoxHero: ${referralCode}`
     

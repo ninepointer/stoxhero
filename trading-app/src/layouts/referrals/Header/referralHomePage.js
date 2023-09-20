@@ -137,7 +137,7 @@ function ReferralHomePage() {
 
   📲 Visit https://www.stoxhero.com/signup?referral=${referralCode}                          
 
-  Use my below invitation code 👇 and get INR ₹10,00,000 in your wallet and start trading
+  Use my below invitation code 👇 and get virtual currency of 10,000,000 in your wallet and start trading
 
   My Referral Code to join the StoxHero: ${referralCode}`
 
@@ -386,7 +386,7 @@ function ReferralHomePage() {
                                         %0A%0A👉 Join the community of ace traders and learn real-time options trading.
                                         %0A%0A👉 Participate in free options trading contests to sharpen your trading skills.
                                         %0A%0A📲 Visit https://www.stoxhero.com/signup?referral=${referralCode}
-                                        %0A%0AUse my below invitation code 👇 and get INR ₹10,00,000 in your wallet and start trading.
+                                        %0A%0AUse my below invitation code 👇 and get virtual currency of 10,000,000 in your wallet and start trading.
                                         %0A%0AMy Referral Code to join the StoxHero: *${getDetails.userDetails.myReferralCode}*`}
                                         target="_blank">
                                         <MDTypography variant="contained">
@@ -440,7 +440,7 @@ function ReferralHomePage() {
                                 %0A%0A👉 Join the community of ace traders and learn real-time options trading.
                                 %0A%0A👉 Participate in free options trading contests to sharpen your trading skills.
                                 %0A%0A📲 Visit https://www.stoxhero.com/signup
-                                %0A%0AUse my below invitation code 👇 and get INR ₹10,00,000 in your wallet and start trading.
+                                %0A%0AUse my below invitation code 👇 and get virtual currency of 10,000,000 in your wallet and start trading.
                                 %0A%0AMy Referral Code to join the StoxHero: *${getDetails.userDetails.myReferralCode}*`}
                                 target="_blank">
                                 {/* <MDTypography variant="contained" display="flex" justifyContent="center" style={{fontSize:"12px",lineHeight:1}}>
