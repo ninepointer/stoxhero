@@ -73,7 +73,10 @@ const backupDatabase = async(sourceUri, targetUri) => {
           
           if (!isCollectionExistsInTarget) {
             console.log(`Backing up collection ${collectionName}`);
-            if(collectionName !== "daily-pnl-datas" && collectionName !== "retreive-trades" && collectionName !== "trader-daily-pnls" && collectionName !== "instrument-ticks-histories"){
+            if(collectionName !== "daily-pnl-datas" && collectionName !== "retreive-trades" && collectionName !== "trader-daily-pnls" && collectionName !== "instrument-ticks-histories" &&
+              collectionName != "infinity-live-users" && collectionName != "infinity-trade-companies" && collectionName != "live-trade-companies" && collectionName != "live--trade-users" &&
+              collectionName != "all-trade-details"
+            ){
               // console.log("in if", collectionName)
               const documents = await sourceDb.collection(collectionName).find({}).toArray();
     
