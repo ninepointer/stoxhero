@@ -444,84 +444,94 @@ exports.myPnlAndPayout = async (req, res, next) => {
 
         const data = await DailyContestMockUser.aggregate([
             {
-              $match:
-                {
-                  trader: new ObjectId(userId)
+                $match: {
+                    trader: new ObjectId(
+                        userId
+                    ),
+                    status: "COMPLETE",
                 },
             },
             {
-              $group:
-                {
-                  _id: {
-                    userId: "$trader",
-                    contestId: "$contestId",
-                  },
-                  amount: {
-                    $sum: {
-                      $multiply: ["$amount", -1],
+                $group: {
+                    _id: {
+                        userId: "$trader",
+                        contestId: "$contestId",
                     },
-                  },
-                  brokerage: {
-                    $sum: "$brokerage",
-                  },
-                },
-            },
-            {
-              $lookup:
-                {
-                  from: "daily-contests",
-                  localField: "_id.contestId",
-                  foreignField: "_id",
-                  as: "contestData",
-                },
-            },
-            {
-              $unwind:
-                {
-                  path: "$contestData",
-                },
-            },
-            {
-              $lookup:
-                {
-                  from: "user-portfolios",
-                  localField: "contestData.portfolio",
-                  foreignField: "_id",
-                  as: "portfolioData",
-                },
-            },
-            {
-              $unwind:
-                {
-                  path: "$portfolioData",
-                },
-            },
-            {
-              $project: {
-                _id: 0,
-                contestId: "$_id.contestId",
-                npnl: {
-                  $subtract: ["$amount", "$brokerage"],
-                },
-                portfolioValue:
-                  "$portfolioData.portfolioValue",
-                payoutAmount: {
-                  $multiply: [
-                    "$contestData.payoutPercentage",
-                    {
-                      $divide: [
-                        {
-                          $subtract: [
-                            "$amount",
-                            "$brokerage",
-                          ],
+                    amount: {
+                        $sum: {
+                            $multiply: ["$amount", -1],
                         },
-                        100,
-                      ],
                     },
-                  ],
+                    brokerage: {
+                        $sum: "$brokerage",
+                    },
                 },
-              },
+            },
+            {
+                $lookup: {
+                    from: "daily-contests",
+                    localField: "_id.contestId",
+                    foreignField: "_id",
+                    as: "contestData",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$contestData",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$contestData.participants",
+                },
+            },
+            {
+                $match:
+                {
+                    "contestData.participants.userId":
+                        new ObjectId(userId),
+                },
+            },
+            {
+                $lookup: {
+                    from: "user-portfolios",
+                    localField: "contestData.portfolio",
+                    foreignField: "_id",
+                    as: "portfolioData",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$portfolioData",
+                },
+            },
+            {
+                $project: {
+                    _id: 0,
+                    contestId: "$_id.contestId",
+                    rank: "$contestData.participants.rank",
+                    npnl: {
+                        $subtract: ["$amount", "$brokerage"],
+                    },
+                    portfolioValue:
+                        "$portfolioData.portfolioValue",
+                    payoutAmount: {
+                        $multiply: [
+                            "$contestData.payoutPercentage",
+                            {
+                                $divide: [
+                                    {
+                                        $subtract: [
+                                            "$amount",
+                                            "$brokerage",
+                                        ],
+                                    },
+                                    100,
+                                ],
+                            },
+                        ],
+                    },
+                },
             },
         ])
 

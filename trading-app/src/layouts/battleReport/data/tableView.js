@@ -161,8 +161,6 @@ export default function TableView({ dateWiseData}) {
                   <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{"+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(elem?.payout))}</MDTypography>
                 </Grid>
               </Grid>
-
-
             )
           })
           :

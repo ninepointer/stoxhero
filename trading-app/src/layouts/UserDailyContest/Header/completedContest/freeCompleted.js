@@ -220,6 +220,14 @@ function Header({ contest }) {
                                                     </MDBox>
                                                 </Grid>
 
+                                                <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                                                    <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
+                                                        <MDTypography style={{ color: "white", fontSize: 12, fontWeight: 600 }}>
+                                                            Rank: {pnl[0]?.rank}
+                                                        </MDTypography>
+                                                    </MDBox>
+                                                </Grid>
+
                                                 <Grid item mt={1} xs={12} md={12} lg={12} display="flex" justifyContent="space-between" alignItems="center" alignContent="center">
                                                     <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
                                                         <MDBox color="dark"><MDTypography fontSize={10} style={{ backgroundColor: 'grey', padding: '2px 2px 1px 2px', border: '1px solid grey', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>ENTRY FEE : {elem.entryFee ? "+₹" + elem.entryFee : "FREE"}</MDTypography></MDBox>
