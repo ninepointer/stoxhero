@@ -1,22 +1,22 @@
 const nodeCron = require("node-cron");
-const {setIOValue, getIOValue} = require('./marketData/socketio');
+const { setIOValue, getIOValue } = require('./marketData/socketio');
 const { subscribeInstrument, getXTSTicksForUserPosition,
-  onDisconnect, getXTSTicksForCompanySide } = require("./services/xts/xtsMarket")
+    onDisconnect, getXTSTicksForCompanySide } = require("./services/xts/xtsMarket")
 const { xtsMarketLogin } = require("./services/xts/xtsMarket");
 const { interactiveLogin } = require("./services/xts/xtsInteractive");
 
-const {sendLeaderboardData, sendMyRankData, emitServerTime} = require("./controllers/dailyContestTradeController");
-const {sendMyRankDataBattle, sendLeaderboardDataBattle} = require("./controllers/battles/battleTradeController");
+const { sendLeaderboardData, sendMyRankData, emitServerTime } = require("./controllers/dailyContestTradeController");
+const { sendMyRankDataBattle, sendLeaderboardDataBattle } = require("./controllers/battles/battleTradeController");
 
-const {saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, saveXtsMargin} = require("./controllers/marginRequired")
-const {autoCutMainManually, autoCutMainManuallyMock, changeBattleStatus, changeStatus, changeMarginXStatus} = require("./controllers/AutoTradeCut/mainManually");
+const { saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, saveXtsMargin } = require("./controllers/marginRequired")
+const { autoCutMainManually, autoCutMainManuallyMock, changeBattleStatus, changeStatus, changeMarginXStatus } = require("./controllers/AutoTradeCut/mainManually");
 const { createNewTicker, disconnectTicker,
     subscribeTokens, onError,
     onOrderUpdate, getTicksForUserPosition,
-    getTicksForCompanySide, 
-    } = require('./marketData/kiteTicker');
-    // getTicksForContest
-    
+    getTicksForCompanySide,
+} = require('./marketData/kiteTicker');
+// getTicksForContest
+
 const getKiteCred = require('./marketData/getKiteCred');
 const cronJobForHistoryData = require("./marketData/getinstrumenttickshistorydata");
 
@@ -25,11 +25,11 @@ const { appLive, appOffline, infinityLive, infinityOffline } = require('./contro
 const { autoExpireTenXSubscription } = require("./controllers/tenXTradeController");
 const Setting = require("./models/settings/setting");
 
-const {zerodhaAccountType} = require("./constant")
-const {openPrice} = require("./marketData/setOpenPriceFlag");
+const { zerodhaAccountType } = require("./constant")
+const { openPrice } = require("./marketData/setOpenPriceFlag");
 const webSocketService = require('./services/chartService/chartService');
-const {updateUserWallet} = require('./controllers/internshipTradeController');
-const {EarlySubscribedInstrument} = require("./marketData/earlySubscribeInstrument")
+const { updateUserWallet } = require('./controllers/internshipTradeController');
+const { EarlySubscribedInstrument } = require("./marketData/earlySubscribeInstrument")
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -37,7 +37,7 @@ const helmet = require("helmet");
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
 const hpp = require("hpp")
-const {processBattles} = require("./controllers/battles/battleController")
+const { processBattles } = require("./controllers/battles/battleController")
 
 
 async function singleProcess() {
@@ -46,7 +46,7 @@ async function singleProcess() {
     console.log(`Master ${process.pid} is running`);
 
 
-        client.connect()
+    client.connect()
         .then(async (res) => {
             // isRedisConnected = true ; 
             setValue(true);
@@ -65,16 +65,19 @@ async function singleProcess() {
         })
 
 
-    xtsMarketLogin()
-        .then(() => { })
-        .catch((err) => {
-            console.log(err, "xts market login")
-        })
-    interactiveLogin()
-        .then(() => { })
-        .catch((err) => {
-            console.log(err, "xts interactive login")
-        })
+    if (process.env.XTS === "true") {
+        xtsMarketLogin()
+            .then(() => { })
+            .catch((err) => {
+                console.log(err, "xts market login")
+            })
+        interactiveLogin()
+            .then(() => { })
+            .catch((err) => {
+                console.log(err, "xts interactive login")
+            })
+    }
+
 
 
     getKiteCred.getAccess().then(async (data) => {
@@ -273,24 +276,24 @@ async function singleProcess() {
     }
     // const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
     const battle = nodeCron.schedule(`56 5 * * *`, processBattles);
-    
+
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
     app.use(express.json({ limit: "20kb" }));
     app.use(require("cookie-parser")());
     app.use(cors({
         credentials: true,
-      
+
         // origin: "http://3.7.187.183/"  // staging
         // origin: "http://3.108.76.71/"  // production
         origin: 'http://localhost:3000'
-      
-      }));
 
-      app.use(mongoSanitize());
-      app.use(helmet());
-      app.use(xssClean());
-      app.use(hpp());
+    }));
+
+    app.use(mongoSanitize());
+    app.use(helmet());
+    app.use(xssClean());
+    app.use(hpp());
 
     app.use('/api/v1', require("./routes/OpenPositions/openPositionsAuth"))
     app.use('/api/v1', require("./routes/StockIndex/addStockIndex"))
@@ -394,7 +397,7 @@ async function singleProcess() {
     app.use('/api/v1/battletemplates', require("./routes/battles/battleTemplateRoutes"));
     app.use('/api/v1/marginxs', require("./routes/marginx/marginxRoutes"));
     app.use('/api/v1/marginxtemplates', require("./routes/marginx/marginxTemplateRoutes"));
-    
+
 
 
 

@@ -225,7 +225,7 @@ function Header({ contest }) {
 
                                                     <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                            <MDTypography style={{color: "white", fontSize: 12, fontWeight: 600}}>
+                                                            <MDTypography style={{color: "#DBB670", fontSize: 12, fontWeight: 600}}>
                                                                 RANK: {pnl[0]?.rank}
                                                             </MDTypography>
                                                         </MDBox>
