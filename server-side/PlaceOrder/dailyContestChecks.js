@@ -17,7 +17,7 @@ exports.contestChecks = async(req,res,next) => {
             return res.status(201).json({ status: 'error', message: 'This Contest is not started yet.' });
         }
     
-        console.log(dailyContest?.participants)
+        // console.log(dailyContest?.participants)
         let user = dailyContest?.participants.filter((elem)=>{
             console.log(userId, elem?.userId)
             return elem?.userId?.toString() === userId?.toString()
