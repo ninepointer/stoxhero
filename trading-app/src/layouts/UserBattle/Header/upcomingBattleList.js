@@ -210,60 +210,7 @@ function Header({ toggleContest, setToggleContest, battle, showPay, setShowPay, 
                                                                 {elem?.isFinNifty && <MDBox><MDTypography color='white' fontSize={12} ml={0.5} mr={0.5} fontWeight='bold' style={{ backgroundColor: "orange", padding: '0px 5px 0px 5px', border: "1px solid orange", borderRadius: '5px 5px 5px 5px' }}>{elem?.isFinNifty === true ? 'FINNIFTY' : ''}</MDTypography></MDBox>}
                                                                 {elem?.battleTemplate?.battleType && <MDBox><MDTypography color='white' fontSize={12} ml={0.5} mr={0.5} fontWeight='bold' style={{ backgroundColor: "red", padding: '0px 5px 0px 5px', border: "1px solid red", borderRadius: '5px 5px 5px 5px' }}>{elem?.battleTemplate?.battleType}</MDTypography></MDBox>}
                                                             </Grid>
-                                                            {/* <Grid item xs={3} md={2} lg={2} display='flex' justifyContent='right'>
-                                                                <MDBox display='flex' justifyContent='flex-end' alignItems='center'>
-                                                                    <MDButton
-                                                                        color='info'
-                                                                        style={{ padding: -2, margin: -2 }}
-                                                                        size='small'
-                                                                        varaint='outlined'
-                                                                        onClick={handleClickOpen}
-                                                                    >
-                                                                    <Tooltip title={"Battle Info"} placement="top">
-                                                                        <InfoIcon color='blue' />
-                                                                    </Tooltip>
-                                                                    </MDButton>
-                                                                    <Dialog
-                                                                        open={open}
-                                                                        onClose={handleClose}
-                                                                        PaperComponent={PaperComponent}
-                                                                        aria-labelledby="draggable-dialog-title"
-                                                                    >
-                                                                        <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
-                                                                            Introducing Battle: Your Gateway to Realistic Trading
-                                                                        </DialogTitle>
-                                                                        <DialogContent>
-                                                                            <DialogContentText>
-
-                                                                                <p style={{ textAlign: 'center', marginBottom: 2 }}>We've designed this innovative trading experience to bridge the gap between learning and real-world trading, allowing you to get as close to the market as possible.</p>
-
-                                                                                <p style={{ textAlign: 'center', fontWeight: 'bold' }}>What is Battle?</p>
-
-                                                                                <p style={{ textAlign: 'center' }}>In Battle, you won't just learn about trading; you'll experience it. Battle is designed to bridge the gap between learning and real-world trading, allowing you to get as close to the market as possible & also continue to make real profit using virtual currency. Your success in Battle depends on your ability to make informed decisions, manage risk, and seize opportunities – just like in the real trading world.</p>
-
-                                                                                <p style={{ textAlign: 'center', fontWeight: 'bold', marginBottom: 2 }}>Here's how it works:</p>
-
-                                                                                <p style={{ textAlign: 'center' }}>Profit on Your Investment: Just like real options trading, you'll make a profit on the amount you've invested. Let's say you've invested Rs. 100. If you grow your trading capital by 10%, your real profit will also be 10% of your invested amount, which is Rs. 10. So your final amount will be Rs. 100 (your invested amount) + Rs. 10 (profit earned), making the total Rs. 110.</p>
-
-                                                                                <p style={{ textAlign: 'center', fontWeight: 'bold', marginBottom: 2 }}>Safety Net: If you end up with the same capital, your entire invested amount is safe.</p>
-
-                                                                                <p style={{ textAlign: 'center' }}>Proportional Loss: If your capital reduces by 10%, your real loss will also be in the same proportion, i.e., Rs. 10. So your final amount will be Rs. 100 (your invested amount) - Rs. 10 (loss made), making the total Rs. 90.</p>
-
-                                                                                <p style={{ textAlign: 'center', fontWeight: 'bold' }}>When will I receive my profit in my wallet?</p>
-
-                                                                                <p style={{ textAlign: 'center' }}>You recieve the payout in your wallet as soon as the market closes for that day i.e after 3:30 PM</p>
-
-
-                                                                            </DialogContentText>
-                                                                        </DialogContent>
-                                                                        <DialogActions>
-                                                                            <Button autoFocus onClick={handleClose}>
-                                                                                Got it!
-                                                                            </Button>
-                                                                        </DialogActions>
-                                                                    </Dialog>
-                                                                </MDBox>
-                                                            </Grid> */}
+                                                           
                                                         </Grid>
 
                                                     </MDBox>
@@ -307,10 +254,6 @@ function Header({ toggleContest, setToggleContest, battle, showPay, setShowPay, 
                                                         <MDTypography color='black' fontSize={12} fontWeight='bold'>{elem?.battleTemplate?.winnerPercentage}%</MDTypography>
                                                     </Grid>
                                                 </Grid>
-
-                                                {/* <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                                                    <img src={WinnerImage} width='60px' height='60px' />
-                                                </Grid> */}
 
                                                 <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                     <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
@@ -386,7 +329,7 @@ function Header({ toggleContest, setToggleContest, battle, showPay, setShowPay, 
                                                                 color={"success"}
                                                                 size='small'
                                                                 style={{minWidth:'95%', fontSize:9}}
-                                                                disabled={(particularBattleTime[0]?.value) > 0}
+                                                                disabled={(particularBattleTime[0]?.value) < 0 ? false : true}
                                                                 onClick={() => {
                                                                     navigate(`/battles/${elem?.battleName}`, {
                                                                         state: { data: elem?._id, isNifty: elem?.isNifty, isBank: elem?.isBankNifty, isFin: elem.isFinNifty, timeDifference: timeDifference, name: elem?.battleName, battleEndTime: elem?.battleEndTime, entryFee: elem?.battleTemplate?.entryFee, portfolioValue: elem?.battleTemplate?.portfolioValue }

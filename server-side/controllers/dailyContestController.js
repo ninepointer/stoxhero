@@ -1440,7 +1440,7 @@ exports.creditAmountToWallet = async () => {
                     }];
                     wallet.save();
                     const user = await User.findById(userId).select('first_name last_name email')
-                    
+
                     contest[j].participants[i].payout = payoutAmount?.toFixed(2)
                     if (process.env.PROD == 'true') {
                         emailService(user?.email, 'Contest Payout Credited - StoxHero', `
@@ -1529,14 +1529,65 @@ exports.creditAmountToWallet = async () => {
                         `);
                     }
                 }
-                contest[j].payoutStatus = 'Completed'
-                contest[j].contestStatus = "Completed";
+
+            }
+
+            const userContest = await DailyContestMockUser.aggregate([
+                {
+                    $match: {
+                        status: "COMPLETE",
+                        contestId: new ObjectId(
+                            contest[j]._id
+                        ),
+                    },
+                },
+                {
+                    $group: {
+                        _id: {
+                            userId: "$trader",
+                        },
+                        amount: {
+                            $sum: {
+                                $multiply: ["$amount", -1],
+                            },
+                        },
+                        brokerage: {
+                            $sum: {
+                                $toDouble: "$brokerage",
+                            },
+                        },
+                    },
+                },
+                {
+                    $project: {
+                        userId: "$_id.userId",
+                        _id: 0,
+                        npnl: {
+                            $subtract: ["$amount", "$brokerage"],
+                        },
+                    },
+                },
+                {
+                    $sort:
+                    {
+                        npnl: -1,
+                    },
+                },
+            ])
+            for (let i = 0; i < userContest.length; i++) {
+                for (let subelem of contest[j]?.participants) {
+                    if (subelem.userId.toString() === userContest[i].userId.toString()) {
+                        subelem.rank = i + 1;
+                        console.log("subelem.rank", subelem.rank)
+                    }
+                }
                 await contest[j].save();
             }
-            // }
+
+            contest[j].payoutStatus = 'Completed'
+            contest[j].contestStatus = "Completed";
+            await contest[j].save();
         }
-
-
     } catch (error) {
         console.log(error);
     }

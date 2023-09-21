@@ -76,6 +76,77 @@ const Battle = require("../../models/battle/battle")
 const BattleMock = require("../../models/battle/battleTrade")
 
 
+
+
+
+router.get("/updaterankandpayoutcontest", async (req, res) => {
+
+  console.log("in wallet")
+  try {
+
+    const contest = await DailyContest.find({ contestStatus: "Completed", payoutStatus: "Completed" });
+
+    console.log(contest.length, contest)
+    for (let j = 0; j < contest.length; j++) {
+      const userContest = await DailyContestMockUser.aggregate([
+        {
+          $match: {
+            status: "COMPLETE",
+            contestId: new ObjectId(
+              contest[j]._id
+            ),
+          },
+        },
+        {
+          $group: {
+            _id: {
+              userId: "$trader",
+            },
+            amount: {
+              $sum: {
+                $multiply: ["$amount", -1],
+              },
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$brokerage",
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            userId: "$_id.userId",
+            _id: 0,
+            npnl: {
+              $subtract: ["$amount", "$brokerage"],
+            },
+          },
+        },
+        {
+          $sort:
+          {
+            npnl: -1,
+          },
+        },
+      ])
+      console.log("rewardData", userContest.length)
+      for (let i = 0; i < userContest.length; i++) {
+        for (let subelem of contest[j]?.participants) {
+          if (subelem.userId.toString() === userContest[i].userId.toString()) {
+            subelem.rank = i + 1;
+            console.log("subelem.rank", subelem.rank)
+          }
+        }
+        await contest[j].save();
+      }
+    }
+    // await contest[j].save();
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 const getPrizeDetails = async (battleId) => {
   try {
     // 1. Get the corresponding battleTemplate for a given battle
@@ -1622,7 +1693,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2023-09-15T00:00:00.000+00:00"
+  let expiryDate = "2023-09-21T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(
