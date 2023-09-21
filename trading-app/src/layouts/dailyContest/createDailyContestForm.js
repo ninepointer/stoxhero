@@ -95,6 +95,10 @@ function Index() {
       name: "" || contest?.portfolio?.portfolioName
     },
     college: "" || contest?.college?._id,
+    // college: {
+    //   id: "" || contest?.college?._id,
+    //   name: "" || contest?.college?.collegeName
+    // },
     contestExpiry: "" || contest?.contestExpiry,
     isNifty: "" || contest?.isNifty,
     isBankNifty: "" || contest?.isBankNifty,
@@ -189,6 +193,16 @@ function Index() {
       college: newValue?._id
 
     }))
+
+
+    // setFormState(prevState => ({
+    //   ...prevState,
+    //   college: {
+    //     ...prevState.college,
+    //     id: newValue?._id,
+    //     name: newValue?.collegeName
+    //   }
+    // }));
     // setTraderId(newValue);
   };
 

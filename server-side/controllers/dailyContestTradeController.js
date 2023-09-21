@@ -1734,15 +1734,16 @@ exports.getRedisLeaderBoard = async (req, res, next) => {
 
 const dailyContestLeaderBoard = async (id) => {
 
-    
+    // console.log("dailyContestLeaderBoard")
 
     try {
-        
+        // console.log("temp check8...................")
         if (!await client.exists(`${id.toString()}employeeid`)) {
             let allUsers = await User.find({ status: "Active" });
-
+            // console.log("in employee if")
             let obj = {};
             for (let i = 0; i < allUsers.length; i++) {
+                // console.log("temp check4...................")
                 let data = {
                     employeeid: allUsers[i].employeeid,
                     name: allUsers[i].first_name + " " + allUsers[i].last_name,
@@ -1750,10 +1751,14 @@ const dailyContestLeaderBoard = async (id) => {
                 };
 
                 obj[allUsers[i]._id.toString()] = data;
+                // console.log("temp check1...................")
             }
 
+            // console.log("temp check2...................")
             try {
+                // console.log("temp check3...................")
                 let temp = await client.set(`${id.toString()}employeeid`, JSON.stringify(obj));
+                // console.log("temp check...................", temp)
 
             } catch (err) {
                 console.log(err)
@@ -1763,14 +1768,20 @@ const dailyContestLeaderBoard = async (id) => {
         let addUrl;
         let livePrices = {};
         let dummyTesting = false;
-        if (dummyTesting) {
-            let filteredTicks = getFilteredTicks();
-            if (filteredTicks.length > 0) {
-                for (tick of filteredTicks) {
-                    livePrices[tick.instrument_token] = tick.last_price;
-                }
-            }
-        } else {
+
+        //console.log("temp check5...................")
+        // if (dummyTesting) {
+        //     console.log("temp check6...................")
+        //     let filteredTicks = getFilteredTicks();
+        //     if (filteredTicks.length > 0) {
+        //         for (tick of filteredTicks) {
+        //             livePrices[tick.instrument_token] = tick.last_price;
+        //         }
+        //     }
+        //     console.log("temp check7...................")
+        // } else {
+
+            console.log("in main else")
             const contestInstruments = await Instrument.find({ status: "Active" }).select('instrumentToken exchange symbol');
             const data = await getKiteCred.getAccess();
             contestInstruments.forEach((elem, index) => {
@@ -1794,7 +1805,7 @@ const dailyContestLeaderBoard = async (id) => {
             for (let instrument in response.data.data) {
                 livePrices[response.data.data[instrument].instrument_token] = response.data.data[instrument].last_price;
             }
-        }
+        //}
 
         let ranks;
 
@@ -1860,6 +1871,9 @@ const dailyContestLeaderBoard = async (id) => {
             },
         ]);
 
+
+        // console.log("ranks, ", ranks)
+
         for (doc of ranks) {
             doc.rpnl = doc.lots * livePrices[doc.userId.instrumentToken];
             doc.npnl = doc.totalAmount + doc.rpnl - doc.brokerage;
@@ -1872,7 +1886,7 @@ const dailyContestLeaderBoard = async (id) => {
                 const { userId, npnl, investedAmount } = curr;
                 const traderId = userId.trader;
                 let employeeidObj = await client.get(`${(id).toString()}employeeid`);
-
+                
                 employeeidObj = JSON.parse(employeeidObj);
                 // console.log("employeeid", employeeidObj)
                 if (!result[traderId]) {
@@ -2061,7 +2075,7 @@ async function processContestQueue() {
     endTime.setHours(9, 48, 0, 0);
 
    if (currentTime >= startTime && currentTime <= endTime) {
-        // console.log("1st if", contestQueue.length);
+        console.log("1st if", contestQueue.length);
 
         // If the queue is empty, reset the processing flag and return
         if (contestQueue.length === 0) {
@@ -2073,6 +2087,7 @@ async function processContestQueue() {
         // Process contests and emit the data
         for (const contest of contestQueue) {
             if (contest.contestStatus === "Active" && contest.contestStartTime <= new Date()) {
+                console.log("in 2nd if", contest.contestStartTime , new Date(), contest.contestStatus)
                 const leaderBoard = await dailyContestLeaderBoard(contest._id?.toString());
                 console.log(leaderBoard, contest._id?.toString());
                 io.to(`${contest._id?.toString()}`).emit(`contest-leaderboardData${contest._id?.toString()}`, leaderBoard);
@@ -2120,7 +2135,7 @@ exports.sendMyRankData = async () => {
                             }
                         }
                     }
-               }
+              }
             };
             emitLeaderboardData();
             interval = setInterval(emitLeaderboardData, 5000);    

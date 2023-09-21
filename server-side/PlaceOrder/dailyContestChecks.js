@@ -12,6 +12,10 @@ exports.contestChecks = async(req,res,next) => {
         if(dailyContest?.contestEndTime < new Date()){
             return res.status(201).json({ status: 'error', message: 'This contest has ended.' });
         }
+
+        if(dailyContest?.contestStartTime > new Date()){
+            return res.status(201).json({ status: 'error', message: 'This Contest is not started yet.' });
+        }
     
         console.log(dailyContest?.participants)
         let user = dailyContest?.participants.filter((elem)=>{
@@ -36,6 +40,10 @@ exports.marginxChecks = async(req,res,next) => {
         if(marginx?.endTime < new Date()){
             return res.status(201).json({ status: 'error', message: 'This MarginX Plan has ended.' });
         }
+
+        if(marginx?.startTime > new Date()){
+            return res.status(201).json({ status: 'error', message: 'This MarginX is not started yet.' });
+        }
     
         let user = marginx.participants.filter((elem)=>{
             // console.log(userId, elem?.userId)
@@ -58,6 +66,10 @@ exports.battleChecks = async(req,res,next) => {
         const userId = req.user._id;
         if(battle?.battleEndTime < new Date()){
             return res.status(201).json({ status: 'error', message: 'This Battle has ended.' });
+        }
+
+        if(battle?.battleStartTime > new Date()){
+            return res.status(201).json({ status: 'error', message: 'This Battle is not started yet.' });
         }
     
         let user = battle.participants.filter((elem)=>{
