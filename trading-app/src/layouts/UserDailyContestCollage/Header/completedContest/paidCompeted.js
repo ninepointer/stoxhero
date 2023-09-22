@@ -46,7 +46,33 @@ function Header({ contest }) {
                 return new Error(err);
             })
     }, [])
-
+    const handleDownload = async (id) => {
+        try {
+          const response = await axios.get(`${baseUrl}api/v1/dailycontest/download/${id}`, {
+            responseType: 'blob',
+            withCredentials: true
+          });
+            console.log(response.data);
+            console.log(response.data.size, response.data.type);
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'certificate.pdf');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);  
+          // const blob = new Blob([response.data], { type: 'application/pdf' });
+          // const url = window.URL.createObjectURL(blob);
+          // const link = document.createElement('a');
+          // link.href = url;
+          // link.setAttribute('download', 'certificate.pdf');
+          // document.body.appendChild(link);
+          // link.click();
+      } catch (error) {
+          console.error('Error generating certificate:', error);
+      }
+      }
     function changeDateFormat(givenDate) {
 
         const date = new Date(givenDate);
@@ -263,6 +289,18 @@ function Header({ contest }) {
 
                                                                             >
                                                                                 <MDTypography color='warning' fontWeight='bold' fontSize={10}>VIEW ORDERS</MDTypography>
+                                                                            </MDButton>
+                                                                            <MDBox width='20px'></MDBox>
+                                                                            <MDButton
+                                                                                variant='outlined'
+                                                                                color='warning'
+                                                                                size='small'
+                                                                                component={Link}
+
+                                                                                onClick={() => { handleDownload(elem?._id) }}
+
+                                                                            >
+                                                                                <MDTypography color='warning' fontWeight='bold' fontSize={10}>PARTICIPATION CERTIFICATE</MDTypography>
                                                                             </MDButton>
                                                                         </MDBox>
                                                                     </MDBox>

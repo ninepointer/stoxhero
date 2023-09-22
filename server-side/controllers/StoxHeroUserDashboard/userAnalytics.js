@@ -5,6 +5,7 @@ const TenXTrading = require("../../models/mock-trade/tenXTraderSchema");
 const PaperTrading = require("../../models/mock-trade/paperTrade");
 const InternshipTrading = require("../../models/mock-trade/internshipTrade")
 const MarginXTrading = require("../../models/marginX/marginXUserMock")
+const BattleTrading = require("../../models/battle/battleTrade");
 const Wallet = require("../../models/UserWallet/userWalletSchema")
 const { ObjectId } = require('mongodb');
 const Withdrawal = require('../../models/withdrawal/withdrawal');
@@ -91,6 +92,7 @@ exports.getDailyActiveUsers = async (req, res) => {
     const contestTraders = await ContestTrading.aggregate(pipeline);
     const internshipTraders = await InternshipTrading.aggregate(pipeline);
     const marginXTraders = await MarginXTrading.aggregate(pipeline);
+    const battleTraders = await BattleTrading.aggregate(pipeline);
 
     // Create a date-wise mapping of DAUs for different products
     const dateWiseDAUs = {};
@@ -107,6 +109,7 @@ exports.getDailyActiveUsers = async (req, res) => {
             contest: 0,
             internshipTrading: 0,
             marginXTrading:0,
+            battleTrading:0,
             total: 0,
             uniqueUsers: [],
           };
@@ -128,6 +131,7 @@ exports.getDailyActiveUsers = async (req, res) => {
             contest: 0,
             internshipTrading: 0,
             marginXTrading:0,
+            battleTrading:0,
             total: 0,
             uniqueUsers: [],
           };
@@ -149,6 +153,7 @@ exports.getDailyActiveUsers = async (req, res) => {
             contest: 0,
             internshipTrading: 0,
             marginXTrading:0,
+            battleTrading:0,
             total: 0,
             uniqueUsers: [],
           };
@@ -170,6 +175,7 @@ exports.getDailyActiveUsers = async (req, res) => {
             contest: 0,
             internshipTrading: 0,
             marginXTrading:0,
+            battleTrading:0,
             total: 0,
             uniqueUsers: [],
           };
@@ -190,6 +196,7 @@ exports.getDailyActiveUsers = async (req, res) => {
             contest: 0,
             internshipTrading: 0,
             marginXTrading:0,
+            battleTrading:0,
             total: 0,
             uniqueUsers: [],
           };
@@ -198,11 +205,32 @@ exports.getDailyActiveUsers = async (req, res) => {
         dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
       }
     });
+    battleTraders.forEach(entry => {
+      const { _id, traders, uniqueUsers } = entry;
+      const date = _id.date;
+      if (date !== "1970-01-01") {
+        if (!dateWiseDAUs[date]) {
+          dateWiseDAUs[date] = {
+            date,
+            virtualTrading: 0,
+            tenXTrading: 0,
+            contest: 0,
+            internshipTrading: 0,
+            marginXTrading:0,
+            battleTrading:0,
+            total: 0,
+            uniqueUsers: [],
+          };
+        }
+        dateWiseDAUs[date].battleTrading = traders;
+        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+      }
+    });
 
     // Calculate the date-wise total DAUs and unique users
     Object.keys(dateWiseDAUs).forEach(date => {
-      const { virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, uniqueUsers } = dateWiseDAUs[date];
-      dateWiseDAUs[date].total = virtualTrading + tenXTrading + contest + internshipTrading + marginXTrading;
+      const { virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, battleTrading, uniqueUsers } = dateWiseDAUs[date];
+      dateWiseDAUs[date].total = virtualTrading + tenXTrading + contest + internshipTrading + marginXTrading + battleTrading;
       dateWiseDAUs[date].uniqueUsers = [...new Set(uniqueUsers)];
     });
 
@@ -252,6 +280,7 @@ exports.getMonthlyActiveUsers = async (req, res) => {
     const contestTraders = await ContestTrading.aggregate(pipeline);
     const internshipTraders = await InternshipTrading.aggregate(pipeline);
     const marginXTraders = await MarginXTrading.aggregate(pipeline);
+    const battleTraders = await BattleTrading.aggregate(pipeline);
 
     // Create a month-wise mapping of MAUs for different products
     const monthWiseMAUs = {};
@@ -268,6 +297,7 @@ exports.getMonthlyActiveUsers = async (req, res) => {
             contest: 0,
             internshipTrading: 0,
             marginXTrading:0,
+            battleTrading:0,
             total: 0,
             uniqueUsers: [],
           };
@@ -289,6 +319,7 @@ exports.getMonthlyActiveUsers = async (req, res) => {
             contest: 0,
             internshipTrading: 0,
             marginXTrading:0,
+            battleTrading:0,
             total: 0,
             uniqueUsers: [],
           };
@@ -310,6 +341,7 @@ exports.getMonthlyActiveUsers = async (req, res) => {
             contest: 0,
             internshipTrading: 0,
             marginXTrading:0,
+            battleTrading:0,
             total: 0,
             uniqueUsers: [],
           };
@@ -331,6 +363,7 @@ exports.getMonthlyActiveUsers = async (req, res) => {
             contest: 0,
             internshipTrading: 0,
             marginXTrading:0,
+            battleTrading:0,
             total: 0,
             uniqueUsers: [],
           };
@@ -351,6 +384,7 @@ exports.getMonthlyActiveUsers = async (req, res) => {
             contest: 0,
             internshipTrading: 0,
             marginXTrading:0,
+            battleTrading:0,
             total: 0,
             uniqueUsers: [],
           };
@@ -359,11 +393,32 @@ exports.getMonthlyActiveUsers = async (req, res) => {
         monthWiseMAUs[month].uniqueUsers.push(...uniqueUsers);
       }
     });
+    battleTraders.forEach(entry => {
+      const { _id, traders, uniqueUsers } = entry;
+      const month = _id.month;
+      if (month !== "1970-01") {
+        if (!monthWiseMAUs[month]) {
+          monthWiseMAUs[month] = {
+            month,
+            virtualTrading: 0,
+            tenXTrading: 0,
+            contest: 0,
+            internshipTrading: 0,
+            marginXTrading:0,
+            battleTrading:0,
+            total: 0,
+            uniqueUsers: [],
+          };
+        }
+        monthWiseMAUs[month].battleTrading = traders;
+        monthWiseMAUs[month].uniqueUsers.push(...uniqueUsers);
+      }
+    });
 
     // Calculate the month-wise total MAUs and unique users
     Object.keys(monthWiseMAUs).forEach(month => {
-      const { virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, uniqueUsers } = monthWiseMAUs[month];
-      monthWiseMAUs[month].total = virtualTrading + tenXTrading + contest + internshipTrading + marginXTrading;
+      const { virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, battleTrading, uniqueUsers } = monthWiseMAUs[month];
+      monthWiseMAUs[month].total = virtualTrading + tenXTrading + contest + internshipTrading + marginXTrading + battleTrading;
       monthWiseMAUs[month].uniqueUsers = [...new Set(uniqueUsers)];
     });
 
@@ -421,6 +476,7 @@ exports.getWeeklyActiveUsers = async (req, res) => {
     const contestTraders = await ContestTrading.aggregate(pipeline);
     const internshipTraders = await InternshipTrading.aggregate(pipeline);
     const marginXTraders = await MarginXTrading.aggregate(pipeline);
+    const battleTraders = await BattleTrading.aggregate(pipeline);
 
     // Create a week-wise mapping of WAUs for different products
     const weekWiseWAUs = {};
@@ -436,6 +492,7 @@ exports.getWeeklyActiveUsers = async (req, res) => {
           contest: 0,
           internshipTrading: 0,
           marginXTrading:0,
+          battleTrading:0,
           total: 0,
           uniqueUsers: [],
         };
@@ -455,6 +512,7 @@ exports.getWeeklyActiveUsers = async (req, res) => {
           contest: 0,
           internshipTrading: 0,
           marginXTrading:0,
+          battleTrading:0,
           total: 0,
           uniqueUsers: [],
         };
@@ -474,6 +532,7 @@ exports.getWeeklyActiveUsers = async (req, res) => {
           contest: 0,
           internshipTrading: 0,
           marginXTrading:0,
+          battleTrading:0,
           total: 0,
           uniqueUsers: [],
         };
@@ -493,6 +552,7 @@ exports.getWeeklyActiveUsers = async (req, res) => {
           contest: 0,
           internshipTrading: 0,
           marginXTrading:0,
+          battleTrading:0,
           total: 0,
           uniqueUsers: [],
         };
@@ -511,6 +571,7 @@ exports.getWeeklyActiveUsers = async (req, res) => {
           contest: 0,
           internshipTrading: 0,
           marginXTrading:0,
+          battleTrading:0,
           total: 0,
           uniqueUsers: [],
         };
@@ -518,11 +579,30 @@ exports.getWeeklyActiveUsers = async (req, res) => {
       weekWiseWAUs[week].marginXTrading = traders;
       weekWiseWAUs[week].uniqueUsers.push(...uniqueUsers);
     });
+    battleTraders.forEach(entry => {
+      const { _id, traders, uniqueUsers } = entry;
+      const week = `${_id.year}-${_id.week}`;
+      if (!weekWiseWAUs[week]) {
+        weekWiseWAUs[week] = {
+          week,
+          virtualTrading: 0,
+          tenXTrading: 0,
+          contest: 0,
+          internshipTrading: 0,
+          marginXTrading:0,
+          battleTrading:0,
+          total: 0,
+          uniqueUsers: [],
+        };
+      }
+      weekWiseWAUs[week].battleTrading = traders;
+      weekWiseWAUs[week].uniqueUsers.push(...uniqueUsers);
+    });
 
     // Calculate the week-wise total WAUs and unique users
     Object.keys(weekWiseWAUs).forEach(week => {
-      const { virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, uniqueUsers } = weekWiseWAUs[week];
-      weekWiseWAUs[week].total = virtualTrading + tenXTrading + contest + internshipTrading + marginXTrading;
+      const { virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, battleTrading, uniqueUsers } = weekWiseWAUs[week];
+      weekWiseWAUs[week].total = virtualTrading + tenXTrading + contest + internshipTrading + marginXTrading + battleTrading;
       weekWiseWAUs[week].uniqueUsers = [...new Set(uniqueUsers)];
     });
 
@@ -593,9 +673,10 @@ exports.getDailyActiveUsersOnPlatform = async (req, res) => {
     const contestTraders = await ContestTrading.aggregate(pipeline);
     const internshipTraders = await InternshipTrading.aggregate(pipeline);
     const marginXTraders = await MarginXTrading.aggregate(pipeline);
+    const battleTraders = await BattleTrading.aggregate(pipeline);
 
 
-    let allTraders = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders];
+    let allTraders = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
 
     let dateToTradersMap = new Map();
 
@@ -675,8 +756,9 @@ exports.getMonthlyActiveUsersOnPlatform = async (req, res) => {
     const contestTraders = await ContestTrading.aggregate(pipeline);
     const internshipTraders = await InternshipTrading.aggregate(pipeline);
     const marginXTraders = await MarginXTrading.aggregate(pipeline);
+    const battleTraders = await BattleTrading.aggregate(pipeline);
     
-    let allTraders = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders];
+    let allTraders = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
 
     let monthToTradersMap = new Map();
 
@@ -760,8 +842,9 @@ exports.getWeeklyActiveUsersOnPlatform = async (req, res) => {
     const contestTraders = await ContestTrading.aggregate(pipeline);
     const internshipTraders = await InternshipTrading.aggregate(pipeline);
     const marginXTraders = await MarginXTrading.aggregate(pipeline);
+    const battleTraders = await BattleTrading.aggregate(pipeline);
     
-    let allTraders = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders];
+    let allTraders = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
 
     let weekToTradersMap = new Map();
 
@@ -877,8 +960,9 @@ exports.getRollingActiveUsersOnPlatform = async (req, res) => {
     const contestTraders = await ContestTrading.aggregate(pipeline);
     const internshipTraders = await InternshipTrading.aggregate(pipeline);
     const marginXTraders = await MarginXTrading.aggregate(pipeline);
+    const battleTraders = await BattleTrading.aggregate(pipeline);
     
-    let allTraders = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders];
+    let allTraders = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
 
     let uniqueUsersSet = new Set();
     let uniqueUsersTodaySet = new Set();
@@ -965,9 +1049,10 @@ exports.getDateWiseTradeInformation = async (req, res) => {
     const tenXTraders = await TenXTrading.aggregate(pipeline);
     const contestTraders = await ContestTrading.aggregate(pipeline);
     const internshipTraders = await InternshipTrading.aggregate(pipeline);
-    const marginXTraders = await marginXTrading.aggregate(pipeline);
+    const marginXTraders = await MarginXTrading.aggregate(pipeline);
+    const battleTraders = await BattleTrading.aggregate(pipeline);
 
-    let allTrades = [...virtualTraders, ...tenXTraders, ...contestTraders, ...internshipTraders, ...marginXTraders];
+    let allTrades = [...virtualTraders, ...tenXTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
 
     let dateToTradeInfoMap = new Map();
 
@@ -1065,8 +1150,9 @@ exports.getOverallTradeInformation = async (req, res) => {
     const contestTraders = await ContestTrading.aggregate(pipeline);
     const internshipTraders = await InternshipTrading.aggregate(pipeline);
     const marginXTraders = await MarginXTrading.aggregate(pipeline);
+    const battleTraders = await BattleTrading.aggregate(pipeline);
 
-    let allTrades = [...virtualTraders, ...tenXTraders, ...contestTraders, ...internshipTraders, ...marginXTraders];
+    let allTrades = [...virtualTraders, ...tenXTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
 
     let tradeInformation = allTrades.reduce((acc, curr) => {
       Object.keys(curr).forEach(key => {
@@ -1327,6 +1413,7 @@ exports.getMonthWiseCummActiveUsers = async (req, res) => {
     const contestTraders = await ContestTrading.aggregate(pipeline);
     const internshipTraders = await InternshipTrading.aggregate(pipeline);
     const marginXTraders = await MarginXTrading.aggregate(pipeline);
+    const battleTraders = await BattleTrading.aggregate(pipeline);
     // console.log("Data:",virtualTraders.length,tenXTraders.length,contestTraders.length,internshipTraders.length,marginXTraders.length)
     // console.log("Virtual Data:",virtualTraders)
 
@@ -1337,6 +1424,7 @@ exports.getMonthWiseCummActiveUsers = async (req, res) => {
       contest: 0,
       internshipTrading: 0,
       marginXTrading:0,
+      battleTrading:0,
       total: 0,
       uniqueUsers: [],
     };
@@ -1375,7 +1463,14 @@ exports.getMonthWiseCummActiveUsers = async (req, res) => {
     marginXTraders.forEach(entry => {
       const { traders, uniqueUsers } = entry;
       
-        monthWiseMAUs.marginxTrading = traders;
+        monthWiseMAUs.marginXTrading = traders;
+        monthWiseMAUs.uniqueUsers.push(...uniqueUsers);
+      
+    });
+    battleTraders.forEach(entry => {
+      const { traders, uniqueUsers } = entry;
+      
+        monthWiseMAUs.battleTrading = traders;
         monthWiseMAUs.uniqueUsers.push(...uniqueUsers);
       
     });
@@ -1445,6 +1540,7 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
     const contestTraders = await ContestTrading.aggregate(pipeline);
     const internshipTraders = await InternshipTrading.aggregate(pipeline);
     const marginXTraders = await MarginXTrading.aggregate(pipeline);
+    const battleTraders = await BattleTrading.aggregate(pipeline);
 
     // Create a month-wise mapping of MAUs for different products
     const dateWiseDAUs = {};
@@ -1461,6 +1557,7 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
             contest: 0,
             internshipTrading: 0,
             marginXTrading:0,
+            battletrading:0,
             total: 0,
             uniqueUsers: [],
           };
@@ -1482,6 +1579,7 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
             contest: 0,
             internshipTrading: 0,
             marginXTrading:0,
+            battleTrading:0,
             total: 0,
             uniqueUsers: [],
           };
@@ -1503,6 +1601,7 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
             contest: 0,
             internshipTrading: 0,
             marginXTrading:0,
+            battleTrading:0,
             total: 0,
             uniqueUsers: [],
           };
@@ -1524,6 +1623,7 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
             contest: 0,
             internshipTrading: 0,
             marginXTrading:0,
+            battleTrading:0,
             total: 0,
             uniqueUsers: [],
           };
@@ -1544,11 +1644,33 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
             contest: 0,
             internshipTrading: 0,
             marginXTrading:0,
+            battleTrading:0,
             total: 0,
             uniqueUsers: [],
           };
         }
-        dateWiseDAUs[date].marginxTrading = traders;
+        dateWiseDAUs[date].marginXTrading = traders;
+        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+      }
+    });
+    battleTraders.forEach(entry => {
+      const { _id, traders, uniqueUsers } = entry;
+      const date = _id.date;
+      if (date !== "1970-01-01") {
+        if (!dateWiseDAUs[date]) {
+          dateWiseDAUs[date] = {
+            date,
+            virtualTrading: 0,
+            tenXTrading: 0,
+            contest: 0,
+            internshipTrading: 0,
+            marginXTrading:0,
+            battleTrading:0,
+            total: 0,
+            uniqueUsers: [],
+          };
+        }
+        dateWiseDAUs[date].battleTrading = traders;
         dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
       }
     });
@@ -1650,8 +1772,9 @@ exports.getCummMonthlyActiveUsersOnPlatform = async (req, res) => {
     const contestTraders = await ContestTrading.aggregate(pipeline);
     const internshipTraders = await InternshipTrading.aggregate(pipeline);
     const marginXTraders = await MarginXTrading.aggregate(pipeline);
+    const battleTraders = await BattleTrading.aggregate(pipeline);
     
-    let allTraders = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders];
+    let allTraders = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
 
     let monthToTradersMap = new Map();
 
