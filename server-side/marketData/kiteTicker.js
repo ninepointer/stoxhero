@@ -35,19 +35,19 @@ const disconnectTicker = () => {
 const subscribeTokens = async() => {
     let tokens = await fetchToken();
     let data = ticker?.subscribe(tokens);
-    ticker.setMode(ticker.modeFull, tokens);
+    ticker?.setMode(ticker?.modeFull, tokens);
 }
 
 const subscribeSingleToken = async(instrumentToken) => {
   ticker?.subscribe(instrumentToken);
-  ticker.setMode(ticker.modeFull, instrumentToken);
+  ticker?.setMode(ticker?.modeFull, instrumentToken);
  
 }
 
 const unSubscribeTokens = async(token) => {
     let tokens = [];
     tokens?.push(token)
-   let x =  ticker.unsubscribe(tokens);
+   let x =  ticker?.unsubscribe(tokens);
 }
 
 const getTicks = async (socket) => {
@@ -67,7 +67,7 @@ const getTicks = async (socket) => {
     indecies = JSON.parse(indecies);
   }
 
-  ticker.on('ticks', async (ticks) => {
+  ticker?.on('ticks', async (ticks) => {
     socket.emit('tick', ticks);
 
     // socket.emit('check', ticks);
@@ -164,7 +164,7 @@ const getTicksForUserPosition = async (socket, id) => {
 
   try {
     // console.log("above ticks", ticker)
-    ticker.on('ticks', async (ticks) => {
+    ticker?.on('ticks', async (ticks) => {
 
       let indexObj = {};
       let now = performance.now();
@@ -245,7 +245,7 @@ const getTicksForUserPosition = async (socket, id) => {
 }
 
 const getTicksForCompanySide = async (socket) => {
-  ticker.on('ticks', async (ticks) => {
+  ticker?.on('ticks', async (ticks) => {
     try {
       socket.emit('tick', ticks);
       ticks = null;
@@ -263,7 +263,7 @@ const onError = ()=>{
 
 const onOrderUpdate = ()=>{
   // ticker.on("order_update", onTrade)
-  ticker.on('order_update', (orderUpdate)=>{
+  ticker?.on('order_update', (orderUpdate)=>{
     let {order_id, status, average_price, quantity, product, transaction_type, exchange_order_id, order_timestamp, variety, 
       validity, exchange, exchange_timestamp, order_type, price, 
       filled_quantity, pending_quantity, cancelled_quantity, 

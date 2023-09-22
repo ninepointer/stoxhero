@@ -80,7 +80,7 @@ exports.search = async (searchString, res, req) => {
           {
             expiry: {
               $gte: todayDate, // expiry is greater than or equal to today's date
-              $lt: fromLessThen
+              $lte: fromLessThen
               // $gt: new Date(today.getFullYear(), today.getMonth(), today.getDate()) // expiry is greater than today's date
             }
           }
