@@ -267,8 +267,6 @@ async function singleProcess() {
             const subscribeTokens = nodeCron.schedule(`48 3 * * *`, () => {
                 subscribeTokens();
             });
-
-
         }
         const autoExpire = nodeCron.schedule(`0 30 13 * * *`, autoExpireTenXSubscription);
         const internshipPayout = nodeCron.schedule(`0 30 13 * * *`, updateUserWallet);

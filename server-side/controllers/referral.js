@@ -62,6 +62,16 @@ exports.getActiveReferral = async(req, res, next)=>{
     catch{(err)=>{res.status(401).json({message: "err referral", error:err}); }}  
 };
 
+exports.getReferralName = async(req, res, next)=>{
+
+  console.log("getReferralName")
+  try{
+  const referral = await Referral.find().select('referralProgramName')
+  res.status(201).json({message: "Referral Retrived",data: referral});    
+  }
+  catch{(err)=>{res.status(401).json({message: "err referral", error:err}); }}  
+};
+
 exports.editReferral = async(req, res, next) => {
     try{ 
         // const {referrralProgramName} = req.params
