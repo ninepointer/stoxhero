@@ -32,7 +32,7 @@ const xtsMarketLogin = async ()=>{
     try{
       (async ()=>{
         // console.log(loginRequest, process.env.MARKETDATA_URL)
-        let logIn = await xtsMarketDataAPI.logIn(loginRequest);
+        let logIn = await xtsMarketDataAPI?.logIn(loginRequest);
         console.log(logIn)
         let socketInitRequest = {
             userID: process.env.XTS_USERID,
@@ -40,13 +40,13 @@ const xtsMarketLogin = async ()=>{
             broadcastMode: 'Full',
             token: logIn?.result?.token
           };
-        xtsMarketDataWS.init(socketInitRequest);
+        xtsMarketDataWS?.init(socketInitRequest);
   
-        xtsMarketDataWS.onConnect((connectData) => {
+        xtsMarketDataWS?.onConnect((connectData) => {
           // console.log("socket connection", connectData);
         });
   
-        xtsMarketDataWS.onJoined((joinedData) => {
+        xtsMarketDataWS?.onJoined((joinedData) => {
           // console.log("joinedData", joinedData);
         });
   
@@ -64,13 +64,13 @@ const xtsMarketLogin = async ()=>{
 }
 
 const onDisconnect = async()=>{
-  xtsMarketDataWS.onDisconnect((disconnect) => {
+  xtsMarketDataWS?.onDisconnect((disconnect) => {
     // console.log("xts socket disconnected", disconnect);
   });
 }
 
 const getInstrument = async()=>{
-    let response = await xtsMarketDataAPI.searchInstrument({
+    let response = await xtsMarketDataAPI?.searchInstrument({
         searchString: 'NIF',
         source: "WEBAPI",
       });
@@ -80,11 +80,11 @@ const getInstrument = async()=>{
 
 const subscribeInstrument = async()=>{
   const token = await fetchXTSToken();
-  let response3 = await xtsMarketDataAPI.subscription({
+  let response3 = await xtsMarketDataAPI?.subscription({
     instruments: token,
     xtsMessageCode: 1502,
   });
-  let response4 = await xtsMarketDataAPI.subscription({
+  let response4 = await xtsMarketDataAPI?.subscription({
     instruments: token,
     xtsMessageCode: 1512,
   });
@@ -116,7 +116,7 @@ const subscribeSingleXTSToken = async(instrumentToken, exchangeSegment) => {
 }
 
 const unSubscribeXTSToken = async(instrumentToken, exchangeSegment)=>{
-  let response = await xtsMarketDataAPI.unSubscription({
+  let response = await xtsMarketDataAPI?.unSubscription({
     instruments: [
       {
         exchangeSegment: exchangeSegment,
@@ -126,7 +126,7 @@ const unSubscribeXTSToken = async(instrumentToken, exchangeSegment)=>{
     xtsMessageCode: 1502,
   });
 
-  let response3 = await xtsMarketDataAPI.subscription({
+  let response3 = await xtsMarketDataAPI?.subscription({
     instruments: [
       {
         exchangeSegment: exchangeSegment,
@@ -140,7 +140,7 @@ const unSubscribeXTSToken = async(instrumentToken, exchangeSegment)=>{
 const getXTSTicksForCompanySide = async (socket) => {
 
   await emitCompanyTicks(socket);
-  xtsMarketDataWS.onMarketDepthEvent((ticksObj) => {
+  xtsMarketDataWS?.onMarketDepthEvent((ticksObj) => {
     // console.log(ticksObj)
     let Obj = {};
     // if (ticksObj.ExchangeInstrumentID == marketDepth.ExchangeInstrumentID) {
@@ -175,13 +175,13 @@ const getXTSTicksForUserPosition = async (socket, id) => {
     indecies = JSON.parse(indecies);  
   }
 
-  // xtsMarketDataWS.onMarketDepthEvent((marketDepthData) => {
+  // xtsMarketDataWS?.onMarketDepthEvent((marketDepthData) => {
   //   marketDepth = marketDepthData;
   // });
   // let timeoutId = null;
   const userId = await client.get(socket.id)
   await emitTicks(userId);
-  xtsMarketDataWS.onMarketDepthEvent(async (ticksObj) => {
+  xtsMarketDataWS?.onMarketDepthEvent(async (ticksObj) => {
     // console.log(ticksObj)
     // ticksObj = JSON.parse(ticksObj);
     let Obj = {};
@@ -307,7 +307,7 @@ const emitCompanyTicks = async(socket)=>{
 }
 
 const tradableInstrument = async(req, res)=>{
-  let response = await xtsMarketDataAPI.searchInstrument({
+  let response = await xtsMarketDataAPI?.searchInstrument({
     searchString: 'BAN',
     // searchString: 'NIF',
     source: "WEBAPI",

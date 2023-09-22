@@ -381,7 +381,7 @@ function Header({ toggleContest, setToggleContest, battle, showPay, setShowPay, 
                                                                 color={"success"}
                                                                 size='small'
                                                                 style={{minWidth:'95%', fontSize:9}}
-                                                                disabled={(particularBattleTime[0]?.value) > 0}
+                                                                disabled={(particularBattleTime[0]?.value) < 0 ? false : true}
                                                                 onClick={() => {
                                                                     navigate(`/battles/${elem?.battleName}`, {
                                                                         state: { data: elem?._id, isNifty: elem?.isNifty, isBank: elem?.isBankNifty, isFin: elem.isFinNifty, timeDifference: timeDifference, name: elem?.battleName, endTime: elem?.battleEndTime, entryFee: elem?.battleTemplate?.entryFee, portfolioValue: elem?.battleTemplate?.portfolioValue }

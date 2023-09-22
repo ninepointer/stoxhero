@@ -52,65 +52,6 @@ export default function DailyContestOrders() {
       })
   },[])
 
-//   function backHandler(){
-//     if(skip <= 0){
-//         return;
-//     }
-//     setSkip(prev => prev-limitSetting);
-//     setData([]);
-//     setIsLoading(true)
-//     axios.get(`${baseUrl}api/v1/internbatch/todaysorders?skip=${skip-limitSetting}&limit=${limitSetting}`,{
-//         withCredentials: false,
-//         headers: {
-//             Accept: "application/json",
-//             "Content-Type": "application/json",
-//             "Access-Control-Allow-Credentials": false
-//         },
-//     })
-//     .then((res) => {
-//         console.log("Orders:",res.data)
-//         setData(res.data.data)
-//         setCount(res.data.count)
-//         setTimeout(()=>{
-//             setIsLoading(false)
-//           },500)
-//     }).catch((err) => {
-//         console.log(err)
-//         setIsLoading(false)
-//         return new Error(err);
-//     })
-//   }
-
-//   function nextHandler(){
-//     if(skip+limitSetting >= count){
-//       console.log("inside skip",count,skip+limitSetting)  
-//       return;
-//     }
-//     console.log("inside next handler")
-//     setSkip(prev => prev+limitSetting);
-//     setData([]);
-//     setIsLoading(true)
-//     axios.get(`${baseUrl}api/v1/internbatch/todaysorders?skip=${skip+limitSetting}&limit=${limitSetting}`,{
-//         withCredentials: false,
-//         headers: {
-//             Accept: "application/json",
-//             "Content-Type": "application/json",
-//             "Access-Control-Allow-Credentials": false
-//         },
-//     })
-//     .then((res) => {
-//         console.log("orders",res.data)
-//         setData(res.data.data)
-//         setCount(res.data.count)
-//         setTimeout(()=>{
-//             setIsLoading(false)
-//           },500)
-//     }).catch((err) => {
-//         console.log(err)
-//         setIsLoading(false)
-//         return new Error(err);
-//     })
-//   }
 
   return (
 
@@ -123,7 +64,7 @@ export default function DailyContestOrders() {
           component={Link}
           // disabled={timeDifference > 0}
           to={{
-              pathname: `/completedcontests`,
+              pathname: `/collegecontests`,
           }}
           // onClick={() => { participateUserToContest(elem) }}
       >

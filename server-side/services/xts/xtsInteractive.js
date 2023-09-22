@@ -45,7 +45,7 @@ const interactiveLogin = async () => {
   try {
     (async () => {
       // console.log(loginRequest, process.env.INTERACTIVE_URL)
-      let logIn = await xtsInteractiveAPI.logIn(loginRequest);
+      let logIn = await xtsInteractiveAPI?.logIn(loginRequest);
       console.log(logIn)
       let socketInitRequest = {
         userID: process.env.XTS_USERID,
@@ -53,13 +53,13 @@ const interactiveLogin = async () => {
         broadcastMode: 'Full',
         token: logIn?.result?.token
       };
-      xtsInteractiveWS.init(socketInitRequest);
+      xtsInteractiveWS?.init(socketInitRequest);
 
-      xtsInteractiveWS.onConnect((connectData) => {
+      xtsInteractiveWS?.onConnect((connectData) => {
         // console.log("socket connection", connectData);
       });
 
-      xtsInteractiveWS.onJoined((joinedData) => {
+      xtsInteractiveWS?.onJoined((joinedData) => {
         // console.log("joinedData", joinedData);
       });
 
@@ -84,7 +84,7 @@ const interactiveLogin = async () => {
 
 const placedOrderData = async () => {
   // let isRedisConnected = getValue();
-  xtsInteractiveWS.onOrder(async (orderData) => {
+  xtsInteractiveWS?.onOrder(async (orderData) => {
     // console.log(orderData)
     try{
       if (orderData.OrderStatus === "Rejected" || orderData.OrderStatus === "Filled") {
