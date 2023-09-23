@@ -9,6 +9,10 @@ const uuid = require("uuid")
 const UserWallet = require("../models/UserWallet/userWalletSchema")
 const emailService = require("../utils/emailService")
 const Registration = require("../models/DailyContest/contestRegistration");
+const moment = require('moment');
+const fs = require('fs');
+const path = require('path');
+const {PDFDocument} = require('pdf-lib');
 
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
@@ -2187,5 +2191,57 @@ exports.getCollegeContestRegistrations = async(req,res) => {
     }catch(e){
         console.log(e);
         res.status(500).json({status:'error', message:'Something went wrong.', error:e?.message});
+    }
+}
+
+exports.downloadParticipationCertificate = async (req,res,next) => {
+    const {id} = req.params;
+    console.log('downloding');
+    try {
+        // Load the existing PDF into pdf-lib
+        const dailyContest = await Contest.findById(id).select('contestStartTime contestName');
+        const userId = req.user._id;
+        const user = await User.findById(userId).select('first_name last_name');
+        const name = `${user.first_name} ${user.last_name}`;
+        const contestName = dailyContest?.contestName;
+        const start = moment(dailyContest?.contestStartTime).format('Do MMM YYYY').toString();
+        const existingPdfBytes = fs.readFileSync(path.join(__dirname, '/participationTemplate.pdf'));
+        // console.log(existingPdfBytes);
+        const pdfDoc = await PDFDocument.load(existingPdfBytes);
+        //Get the first page of the document
+        const pages = pdfDoc.getPages();
+        const firstPage = pages[0];
+    
+        // Define the coordinates and styling for the text you want to add
+        // Note: You'll have to adjust the coordinates based on where you want to place the text in your PDF
+        firstPage.drawText(name, {
+            x: 300,
+            y: 362,
+            size: 16
+        });
+        firstPage.drawText(contestName, {
+            x: 120,
+            y: 344,
+            size: 14
+        });
+        firstPage.drawText(start, {
+            x: 600,
+            y: 344,
+            size: 14,
+        });
+        // console.log(firstPage);
+        // Serialize the modified PDF back to bytes
+        const pdfBytes = await pdfDoc.save();
+        // console.log('file', pdfBytes);
+        const filePath = path.join(__dirname, '/certificateout.pdf');
+        fs.writeFileSync(filePath, pdfBytes);
+        res.download(path.join(__dirname, '/certificateout.pdf'));
+        // Send the PDF as a response
+        // res.setHeader('Content-Disposition', 'attachment; filename=certificate.pdf');
+        // res.setHeader('Content-Type', 'application/pdf');
+        // res.send(pdfBytes);
+      } catch (err) {
+        console.log(err);
+        res.status(500).send('Error generating certificate: ' + err.message);
     }
 }

@@ -415,7 +415,16 @@ exports.getCareers = async(req, res, next)=>{
     )
     res.status(201).json({message: 'success', data:career});
 }
-
+exports.fetchCareers = async (req,res, next) => {
+  try{
+    const type = req.query.type;
+    const careers = await Career.find({status:'Live', listingType:type});
+    res.status(200).json({status:'success', data:careers});
+  }catch(e){
+    res.status(500).json({status:'error', message:'Something went wrong'});
+    console.log(e);
+  }
+} 
 exports.getRejectedCareers = async(req, res, next)=>{
   const type = req.query.type;
   const cond = !type? {}:{listingType:type}

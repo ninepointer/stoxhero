@@ -26,6 +26,14 @@ exports.generateOTP = async(req, res, next)=>{
             status: 'error'
           });
     }
+    const dailyContest = await DailyContest.findById(contest).select('contestEndTime');
+    if(dailyContest?.contestEndTime<new Date()){
+        return res.status(400).json({
+            message: "Contest has ended",
+            status: 'error'
+          });
+    }
+
     const inactiveUser = await User.findOne({ $or: [{ email: email }, { mobile: mobile }], status: "Inactive" });
     if (inactiveUser) {
       return res.status(400).json({
