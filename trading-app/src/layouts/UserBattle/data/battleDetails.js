@@ -319,7 +319,7 @@ function Header() {
                                             </Grid>
                                             <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                 <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>{whichTab==="Completed" ? state?.minParticipants : state ? state?.battleTemplate?.minParticipants : battleDetails?.battleTemplate?.minParticipants}</MDTypography>
+                                                    <MDTypography color='black' fontSize={10} fontWeight='bold'>{whichTab==="Completed" ? state?.battleTemplate?.minParticipants : state ? state?.battleTemplate?.minParticipants : battleDetails?.battleTemplate?.minParticipants}</MDTypography>
                                                 </MDBox>
                                             </Grid>
                                         </Grid>
@@ -350,7 +350,7 @@ function Header() {
                                                 <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
                                                     <MDTypography color='black' fontSize={10} fontWeight='bold'>
                                                         {/* {state ? ((whichTab !== "Completed") ? state?.battleTemplate?.portfolioValue : state?.portfolioValue) : battleDetails?.battleTemplate?.portfolioValue} */}
-                                                        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((state ? ((whichTab !== "Completed") ? state?.battleTemplate?.portfolioValue : state?.portfolioValue) : battleDetails?.battleTemplate?.portfolioValue))}
+                                                        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((state ? ((whichTab !== "Completed") ? state?.battleTemplate?.portfolioValue : state?.battleTemplate?.portfolioValue) : battleDetails?.battleTemplate?.portfolioValue))}
                                                     </MDTypography>
                                                 </MDBox>
                                             </Grid>
@@ -366,7 +366,7 @@ function Header() {
                                             <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                                 <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
                                                     <MDTypography color='black' fontSize={10} fontWeight='bold'>
-                                                        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((state ? ((whichTab !== "Completed") ? state?.battleTemplate?.entryFee : state?.entryFee) : battleDetails?.battleTemplate?.entryFee))}
+                                                        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((state ? ((whichTab !== "Completed") ? state?.battleTemplate?.entryFee : state?.battleTemplate?.entryFee) : battleDetails?.battleTemplate?.entryFee))}
                                                     </MDTypography>
                                                 </MDBox>
                                             </Grid>
