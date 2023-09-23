@@ -2220,7 +2220,7 @@ exports.downloadParticipationCertificate = async (req,res,next) => {
             size: 16
         });
         firstPage.drawText(contestName, {
-            x: 120,
+            x: 112,
             y: 344,
             size: 14
         });

@@ -472,6 +472,7 @@ exports.getUserCompletedBattles = async (req, res) => {
             {
             $project: {
                 _id: 0,
+                battleId: "$_id.battleId",
                 npnl: 1,
                 totalParticipants: "$_id.totalParticipants",
                 rank: "$_id.rank",

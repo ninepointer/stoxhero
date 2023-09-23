@@ -731,9 +731,9 @@ router.get("/newuseryesterday", Authenticate, restrictTo('Admin', 'SuperAdmin'),
   let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   yesterdayDate = yesterdayDate + "T00:00:00.000Z";
   const yesterday = new Date(yesterdayDate);
-  const newuser = UserDetail.find({joining_date:{$gte: yesterday,$lte: today}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  const newuser = UserDetail.countDocuments({joining_date:{$gte: yesterday,$lte: today}})
   .then((data)=>{
-      return res.status(200).json({data : data, count: data.length});
+      return res.status(200).json({count: data});
   })
   .catch((err)=>{
       return res.status(422).json({error : err})
@@ -746,9 +746,9 @@ router.get("/newuserthismonth", Authenticate, restrictTo('Admin', 'SuperAdmin'),
   let monthStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(1).padStart(2, '0')}`
   monthStartDate = monthStartDate + "T00:00:00.000Z";
   const monthStart = new Date(monthStartDate);
-  const newuser = UserDetail.find({joining_date:{$gte: monthStart}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  const newuser = UserDetail.countDocuments({joining_date:{$gte: monthStart}})
   .then((data)=>{
-      return res.status(200).json({data : data, count: data.length});
+      return res.status(200).json({count: data});
   })
   .catch((err)=>{
       return res.status(422).json({error : err})
@@ -757,9 +757,9 @@ router.get("/newuserthismonth", Authenticate, restrictTo('Admin', 'SuperAdmin'),
 
 router.get("/allusers", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
 
-  const newuser = UserDetail.find().populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  const newuser = UserDetail.countDocuments()
   .then((data)=>{
-      return res.status(200).json({data : data, count: data.length});
+      return res.status(200).json({count: data});
   })
   .catch((err)=>{
       console.log("Error:",err)
@@ -784,10 +784,10 @@ router.get("/newuserreferralstoday", Authenticate, restrictTo('Admin', 'SuperAdm
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
-  const newuser = UserDetail.find({joining_date:{$gte: today},referredBy : { $exists: true }}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  const newuser = UserDetail.countDocuments({joining_date:{$gte: today},referredBy : { $exists: true }})
   .then((data)=>{
       // console.log(data)
-      return res.status(200).json({data : data, count: data.length});
+      return res.status(200).json({count: data});
   })
   .catch((err)=>{
       return res.status(422).json({error : err})
@@ -803,9 +803,9 @@ router.get("/newuserreferralsyesterday", Authenticate, restrictTo('Admin', 'Supe
   let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   yesterdayDate = yesterdayDate + "T00:00:00.000Z";
   const yesterday = new Date(yesterdayDate);
-  const newuser = UserDetail.find({joining_date:{$gte: yesterday,$lte: today}, referredBy :{$exists : true}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  const newuser = UserDetail.countDocuments({joining_date:{$gte: yesterday,$lte: today}, referredBy :{$exists : true}})
   .then((data)=>{
-      return res.status(200).json({data : data, count: data.length});
+      return res.status(200).json({count: data});
   })
   .catch((err)=>{
       return res.status(422).json({error : err})
@@ -817,9 +817,9 @@ router.get("/newuserreferralsthismonth", Authenticate, restrictTo('Admin', 'Supe
   let monthStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(1).padStart(2, '0')}`
   monthStartDate = monthStartDate + "T00:00:00.000Z";
   const monthStart = new Date(monthStartDate);
-  const newuser = UserDetail.find({joining_date:{$gte: monthStart}, referredBy : {$exists : true}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  const newuser = UserDetail.countDocuments({joining_date:{$gte: monthStart}, referredBy : {$exists : true}})
   .then((data)=>{
-      return res.status(200).json({data : data, count: data.length});
+      return res.status(200).json({count: data});
   })
   .catch((err)=>{
       return res.status(422).json({error : err})
@@ -828,9 +828,9 @@ router.get("/newuserreferralsthismonth", Authenticate, restrictTo('Admin', 'Supe
 
 router.get("/allreferralsusers", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
 
-  const newuser = UserDetail.find({referredBy : {$exists:true}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  const newuser = UserDetail.countDocuments({referredBy : {$exists:true}})
   .then((data)=>{
-      return res.status(200).json({data : data, count: data.length});
+      return res.status(200).json({count: data});
   })
   .catch((err)=>{
       console.log("Error:",err)
@@ -845,9 +845,9 @@ router.get("/newusercampaigntoday", Authenticate, restrictTo('Admin', 'SuperAdmi
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
-  const newuser = UserDetail.find({joining_date:{$gte: today},campaign : { $exists: true }}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  const newuser = UserDetail.countDocuments({joining_date:{$gte: today},campaign : { $exists: true }})
   .then((data)=>{
-      return res.status(200).json({data : data, count: data.length});
+      return res.status(200).json({count: data});
   })
   .catch((err)=>{
       return res.status(422).json({error : err})
@@ -863,9 +863,9 @@ router.get("/newusercampaignyesterday", Authenticate, restrictTo('Admin', 'Super
   let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   yesterdayDate = yesterdayDate + "T00:00:00.000Z";
   const yesterday = new Date(yesterdayDate);
-  const newuser = UserDetail.find({joining_date:{$gte: yesterday,$lte: today}, campaign :{$exists : true}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  const newuser = UserDetail.countDocuments({joining_date:{$gte: yesterday,$lte: today}, campaign :{$exists : true}})
   .then((data)=>{
-      return res.status(200).json({data : data, count: data.length});
+      return res.status(200).json({count: data});
   })
   .catch((err)=>{
       return res.status(422).json({error : err})
@@ -877,9 +877,9 @@ router.get("/newusercampaignthismonth", Authenticate, restrictTo('Admin', 'Super
   let monthStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(1).padStart(2, '0')}`
   monthStartDate = monthStartDate + "T00:00:00.000Z";
   const monthStart = new Date(monthStartDate);
-  const newuser = UserDetail.find({joining_date:{$gte: monthStart}, campaign : {$exists : true}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  const newuser = UserDetail.countDocuments({joining_date:{$gte: monthStart}, campaign : {$exists : true}})
   .then((data)=>{
-      return res.status(200).json({data : data, count: data.length});
+      return res.status(200).json({count: data});
   })
   .catch((err)=>{
       return res.status(422).json({error : err})
@@ -888,9 +888,9 @@ router.get("/newusercampaignthismonth", Authenticate, restrictTo('Admin', 'Super
 
 router.get("/allcampaignusers", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
 
-  const newuser = UserDetail.find({campaign : {$exists:true}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  const newuser = UserDetail.countDocuments({campaign : {$exists:true}})
   .then((data)=>{
-      return res.status(200).json({data : data, count: data.length});
+      return res.status(200).json({count: data});
   })
   .catch((err)=>{
       console.log("Error:",err)

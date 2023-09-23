@@ -20,11 +20,11 @@ const TenXSubscription = new mongoose.Schema({
     },
     expiryDays: {
         type: Number,
-        required: true,
+        // required: true,
     },
     payoutPercentage: {
         type: Number,
-        required: true,
+        // required: true,
     },
     profitCap:{
         type: Number,

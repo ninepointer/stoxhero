@@ -64,7 +64,7 @@ export default function LabTabs({setClicked}) {
                 <Grid container xs={12} md={12} lg={12} display='flex'>
                     
                     <Grid item xs={12} md={6} lg={12} mt={.5}>
-                            <CompletedBattleList socket={socket} battle={battle} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay}/>
+                        <CompletedBattleList socket={socket} battle={battle} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay}/>
                     </Grid>
 
                 </Grid>

@@ -215,7 +215,7 @@ function Header({ battle }) {
                                                             <MDTypography style={{ color: 'grey' }} fontSize={12} fontWeight='bold'>Your Rank</MDTypography>
                                                         </Grid>
                                                         <Grid item xs={4} md={4} lg={4} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                            <MDTypography style={{ color: 'grey' }} fontSize={12} fontWeight='bold'>Net Earnings</MDTypography>
+                                                            <MDTypography style={{ color: 'grey' }} fontSize={12} fontWeight='bold'>Reward</MDTypography>
                                                         </Grid>
                                                     </Grid>
 
@@ -227,7 +227,7 @@ function Header({ battle }) {
                                                             <MDTypography color='black' fontSize={10} fontWeight='bold'>{elem?.rank ? elem?.rank : elem?.totalParticipants}</MDTypography>
                                                         </Grid>
                                                         <Grid item xs={6} md={6} lg={4} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{elem?.payout ? (elem?.payout) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(elem?.payout)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-elem?.payout)) : "+₹0.00"}</MDTypography>
+                                                            <MDTypography color='black' fontSize={10} fontWeight='bold'>{elem?.payout ? (elem?.payout) >= 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(elem?.payout)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-elem?.payout)) : "₹0.00"}</MDTypography>
                                                         </Grid>
                                                     </Grid>
 
@@ -264,7 +264,7 @@ function Header({ battle }) {
 
                                                     <Grid xs={12} md={12} lg={12} pl={1} pr={1} pt={0.5} pb={.5} container display='flex' justifyContent='center' alignItems='center'>
                                                         <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-start' alignItems='center'>
-                                                            <MDTypography style={{ color: 'grey' }} fontSize={12} fontWeight='bold'>Investment</MDTypography>
+                                                            <MDTypography style={{ color: 'grey' }} fontSize={12} fontWeight='bold'>Entry Fee</MDTypography>
                                                         </Grid>
                                                         <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-end' alignItems='center'>
                                                             <MDTypography style={{ color: 'grey' }} fontSize={12} fontWeight='bold'>Portfolio</MDTypography>

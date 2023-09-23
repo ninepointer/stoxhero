@@ -6,6 +6,7 @@ const DeactivateUser = require('../models/User/deactivateUser');
 const { ObjectId } = require('mongodb');
 const {client, getValue} = require("../marketData/redisClient");
 const sendMail = require('../utils/emailService');
+const mongoose = require('mongoose');
 
 
 const storage = multer.memoryStorage();
@@ -951,4 +952,53 @@ exports.signupusersdata = async (req, res, next) => {
 
   const signupusers = await UserDetail.aggregate(pipeline)
   res.status(201).json({ message: "Users Recieved", data: signupusers });
+}
+
+exports.getFilteredUsers = async(req,res,next) =>{
+  try {
+    // Start with an empty query object
+    let query = {};
+
+    let { startDate, endDate, referral, campaign } = req.query;
+    console.log('Query', new Date(startDate), new Date(endDate), referral, campaign);
+
+    // If startDate and endDate are provided, add a range query for joiningDate
+    if(!startDate) startDate = new Date('2022-01-01');
+    if(!endDate) endDate = new Date();
+    if (startDate && endDate) {
+        query.joining_date = {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate)
+        };
+    }
+
+    // If referral is provided, add it to the query
+    if (referral) {
+        query.referralProgramme = mongoose.Types.ObjectId(referral);
+    }
+
+    // If campaign is provided, add it to the query
+    if (campaign) {
+        query.campaign = mongoose.Types.ObjectId(campaign);
+    }
+
+    // Execute the search using the constructed query
+    const users = await UserDetail.find(query).populate('campaign', 'campaignName').
+                  populate('referredBy', 'first_name last_name').
+                  select('first_name last_name email mobile joining_date referredBy campaign creationProcess');
+    console.log('filtered users', users);
+
+    // Return the results
+    res.status(200).json({
+        status:'success',
+        data: users
+    });
+
+  } catch (error) {
+      console.error("Error searching users:", error);
+      res.status(500).json({
+          status:error,
+          message: "Something went wrong"
+      });
+  }
 }

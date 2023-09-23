@@ -718,15 +718,15 @@ exports.autoExpireTenXSubscription = async () => {
         let payoutAmount = Math.min(pnl, profitCap);
   
 
-        console.log("payoutAmount", (payoutAmount > 0 && tradingDays[0]?.totalTradingDays === validity))
+        // console.log("payoutAmount", (payoutAmount > 0 && tradingDays[0]?.totalTradingDays === validity))
 
         if (tradingDays.length && Math.floor(tradingDays[0]?.actualRemainingDay) <= 0) {
-          console.log(pnlDetails[0]?.npnl, pnl, profitCap, payoutAmount, userId)
+          // console.log(pnlDetails[0]?.npnl, pnl, profitCap, payoutAmount, userId)
 
           const user = await User.findOne({ _id: new ObjectId(userId), status: "Active" });
           if(user){
 
-            console.log(user._id, user.first_name)
+            
             let len = user.subscription.length;
             
             for (let k = len - 1; k >= 0; k--) {
@@ -755,7 +755,9 @@ exports.autoExpireTenXSubscription = async () => {
             }
   
             console.log(payoutAmount, tradingDays[0]?.totalTradingDays, new ObjectId(userId));
+            
             if(payoutAmount > 0 && tradingDays[0]?.totalTradingDays >= validity){
+              console.log(user._id, user.first_name)
               const wallet = await Wallet.findOne({userId: new ObjectId(userId)});
               wallet.transactions = [...wallet.transactions, {
                     title: 'TenX Trading Payout',
@@ -766,7 +768,7 @@ exports.autoExpireTenXSubscription = async () => {
               }];
               wallet.save();
 
-              if (process.env.PROD == 'true') {
+              // if (process.env.PROD == 'true') {
                 sendMail(user?.email, 'Tenx Payout Credited - StoxHero', `
                 <!DOCTYPE html>
                 <html>
@@ -851,7 +853,7 @@ exports.autoExpireTenXSubscription = async () => {
                 </body>
                 </html>
                 `);
-              }
+              // }
 
             }
           }

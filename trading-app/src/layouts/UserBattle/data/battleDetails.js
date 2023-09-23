@@ -44,7 +44,7 @@ function Header() {
         try {
             const res = await axios.get(`${apiUrl}battles/findbyname?name=${name}&date=${date}`, { withCredentials: true });
             setBattleDetails(res?.data?.data);
-            setState(res?.data?.data)
+            // setState(res?.data?.data)
             setWhichTab(res?.data?.data?.battleStatus);
 
             console.log("state, tab", state, whichTab)
