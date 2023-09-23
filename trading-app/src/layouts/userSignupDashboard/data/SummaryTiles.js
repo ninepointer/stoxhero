@@ -5,7 +5,9 @@ import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
 import MDAvatar from '../../../components/MDAvatar';
 import todaysignup from '../../../assets/images/todaysignup.png'
-import netpnlicon from '../../../assets/images/netpnlicon.png'
+import netpnlicon from '../../../assets/images/netpnlicon.png';
+import FilteredUsers from '../data/filteredUser';
+import MDButton from '../../../components/MDButton';
 
 export default function LabTabs() {
   const [isLoading, setIsLoading] = React.useState(false);
@@ -28,6 +30,12 @@ export default function LabTabs() {
   const [beginnerCount, setBeginnerCount] = React.useState(0);
   const [intermediateCount, setIntermediateCount] = React.useState(0);
   const [proCount, setProCount] = React.useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [data,setData] = useState([]);
+
+  const perPage = 10;
+
+  console.log('this is data', data);
   
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
@@ -179,9 +187,9 @@ export default function LabTabs() {
       console.log(api14Response.data);
       setToday(api1Response.data.data)
       setTodayCount(api1Response.data.count);
-      setYesterday(api2Response.data.data);
+      // setYesterday(api2Response.data.data);
       setYesterdayCount(api2Response.data.count);
-      setThisMonth(api3Response.data.data)
+      // setThisMonth(api3Response.data.data)
       setThisMonthCount(api3Response.data.count);
       setAllUsers(api4Response.data.data)
       setAllUsersCount(api4Response.data.count);
@@ -196,6 +204,9 @@ export default function LabTabs() {
       setBeginnerCount(api13Response.data.results);
       setIntermediateCount(api14Response.data.results);
       setProCount(api15Response.data.results);
+      const startIndex = (currentPage - 1) * perPage;
+      const slicedData = api1Response.data.data.slice(startIndex, startIndex + perPage);
+      setData(slicedData);
       setIsLoading(false);
     })
     .catch((error) => {
@@ -204,7 +215,21 @@ export default function LabTabs() {
     });
     
   },[])
+  useEffect(()=>{
+    const startIndex = (currentPage - 1) * perPage;
+    const slicedData = today.slice(startIndex, startIndex + perPage);
+    setData(slicedData);
+  }, [currentPage])
 
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => prevPage + 1);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
+  };
   // console.log(thisMonth)
   console.log("IsLoading: ",isLoading)
   console.log("Beginner: ",beginnerCount)
@@ -526,7 +551,9 @@ export default function LabTabs() {
           </Grid> 
 
       </Grid>
-
+      <Grid mt={2} p={1} container style={{border:'1px solid white', borderRadius:5}}>
+        <FilteredUsers/>
+      </Grid>
       <MDBox bgColor='light' mt={2} borderRadius={5}>
           <MDTypography color="dark" fontWeight='bold' align='center' fontSize={13}>New User (Today)</MDTypography>
       </MDBox>
@@ -551,7 +578,7 @@ export default function LabTabs() {
           </Grid>
       </Grid>
 
-      {today?.map((elem)=>{
+      {data?.map((elem)=>{
             
               return (
               <Grid mt={1} p={1} container style={{border:'1px solid white', borderRadius:5}}>
@@ -576,8 +603,15 @@ export default function LabTabs() {
               </Grid>
               )
               })}
+       {!isLoading && data?.length>0 &&
+          <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
+              <MDButton variant='outlined' color='warning' disabled={currentPage === 1 ? true : false} size="small" onClick={handlePrevPage}>Back</MDButton>
+              <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Data: {today?.length} | Page {currentPage} of {Math.ceil(today?.length/perPage)}</MDTypography>
+              <MDButton variant='outlined' color='warning' disabled={Math.ceil(today?.length/perPage) === currentPage ? true : false} size="small" onClick={handleNextPage}>Next</MDButton>
+          </MDBox>
+          }        
 
-      <MDBox bgColor='light' mt={2} borderRadius={5}>
+      {/* <MDBox bgColor='light' mt={2} borderRadius={5}>
           <MDTypography color="dark" fontWeight='bold' align='center' fontSize={13}>New User (Yesterday)</MDTypography>
       </MDBox>
       <Grid mt={2} p={1} container style={{border:'1px solid white', borderRadius:5}}>
@@ -599,9 +633,9 @@ export default function LabTabs() {
           <Grid item xs={12} md={2} lg={1.8} display="flex" justifyContent="center" alignContent="center" alignItems="center">
           <MDTypography color="light" fontSize={13} fontWeight="bold">Joining Date</MDTypography>
           </Grid>
-      </Grid>
+      </Grid> */}
 
-      {yesterday?.map((elem)=>{
+      {/* {yesterday?.map((elem)=>{
             
               return (
               <Grid mt={1} p={1} container style={{border:'1px solid white', borderRadius:5}}>
@@ -675,8 +709,10 @@ export default function LabTabs() {
                   </Grid>
               </Grid>
               )
-              })}
+              })} */}
       </>
+
+
       
     }
   </>

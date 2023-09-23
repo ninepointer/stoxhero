@@ -8,6 +8,7 @@ import MDTypography from "../../../../components/MDTypography";
 import MDSnackbar from "../../../../components/MDSnackbar";
 import WinnerImage from '../../../../assets/images/cup-image.png'
 import { Link, useNavigate } from "react-router-dom";
+import DownloadIcon from '@mui/icons-material/Download';
 
 
 
@@ -300,7 +301,7 @@ function Header({ contest }) {
                                                                                 onClick={() => { handleDownload(elem?._id) }}
 
                                                                             >
-                                                                                <MDTypography color='warning' fontWeight='bold' fontSize={10}>PARTICIPATION CERTIFICATE</MDTypography>
+                                                                                <MDTypography color='warning' fontWeight='bold' fontSize={10}>PARTICIPATION CERTIFICATE <DownloadIcon/></MDTypography>
                                                                             </MDButton>
                                                                         </MDBox>
                                                                     </MDBox>
