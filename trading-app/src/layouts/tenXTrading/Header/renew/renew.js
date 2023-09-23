@@ -189,8 +189,8 @@ export default function Renew({amount, name, id, walletCash}) {
 
         <>
 
-            <MDBox>
-                <MDButton variant="contained" color="dark" sx={{fontSize: "10px"}} onClick={captureIntent} size='small'>Renew</MDButton>
+            <MDBox style={{width:'100%'}}>
+                <MDButton variant="contained" color="error" sx={{fontSize: "10px",width:"100%"}} onClick={captureIntent} size='small'>Renew</MDButton>
             </MDBox>
 
             <Dialog

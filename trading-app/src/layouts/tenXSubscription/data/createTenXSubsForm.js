@@ -15,6 +15,7 @@ import { IoMdAddCircle } from 'react-icons/io';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import FeatureData from './featureData';
 import TenXSubscriptionPurchaseIntent from './tenXSubscriptionPurchaseIntent'
+import TenXSubscriptionTutorialView from './tenXSubscriptionTutorialVideoView'
 import TenXSubscribers from './tenXSubscriber'
 import ActiveTenXSubscribers from './ActivetenXSubscriber'
 import ExpiredTenXSubscribers from './ExpiredtenXSubscribers'
@@ -35,6 +36,7 @@ const location = useLocation();
 const navigate = useNavigate();
 const  id  = location?.state?.data;
 const [purchaseIntentCount, setPurchaseIntentCount] = useState(0);
+const [tutorialVideoViewCount, setTutorialVideoViewCount] = useState(0);
 const [tenXSubs,setTenXSubs] = useState([]);
 const [portfolios,setPortfolios] = useState([]);
 const [isLoading,setIsLoading] = useState(id ? true : false)
@@ -707,6 +709,12 @@ async function onEdit(e,formState){
                 {(id || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
                     <MDBox>
                         <TenXSubscriptionPurchaseIntent tenXSubscription={newObjectId ? newObjectId : id} purchaseIntentCount={purchaseIntentCount} setPurchaseIntentCount={setPurchaseIntentCount}/>
+                    </MDBox>
+                </Grid>}
+
+                {(id || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
+                    <MDBox>
+                        <TenXSubscriptionTutorialView tenXSubscription={newObjectId ? newObjectId : id} tutorialVideoViewCount={tutorialVideoViewCount} setTutorialVideoViewCount={setTutorialVideoViewCount}/>
                     </MDBox>
                 </Grid>}
 

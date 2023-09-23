@@ -17,14 +17,7 @@ import { Grid } from '@mui/material';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
-// import Box from '@mui/material/Box';
-// import Card from '@mui/material/Card';
-// import CardActions from '@mui/material/CardActions';
-// import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
-// import MDTypography from '../../../components/MDTypography';
-// import { CopyToClipboard } from 'react-copy-to-clipboard';
-// import {BiCopy} from 'react-icons/bi'
 import MDSnackbar from '../../../components/MDSnackbar';
 import {useNavigate} from 'react-router-dom';
 import { CircularProgress, Typography } from '@mui/material';
@@ -33,7 +26,6 @@ import { set } from 'react-ga';
 
 
 export default function Dialogue({subscription ,amount, name, id, walletCash, setCheckPayment, checkPayment, allowRenewal}) {
-  // console.log("props", amount, name, id, walletCash)
   const [open, setOpen] = React.useState(false);
   const getDetails = React.useContext(userContext);
   const [updatedUser, setUpdatedUser] = React.useState({});
@@ -221,11 +213,11 @@ export default function Dialogue({subscription ,amount, name, id, walletCash, se
         <MDBox display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
           <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' flexDirection='row' style={{width:'100%'}}>
             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
-              <MDButton variant="contained" color="success" sx={{ fontSize: "10px",width:'100%'}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
+              <MDButton disabled variant="contained" color="success" sx={{ fontSize: "10px",width:'100%'}} size='small'>Already Subscribed</MDButton>
             </Grid>
-            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
+            {/* <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
               {allowRenewal && <Renew amount={amount} name={name} id={id} walletCash={walletCash}/>}
-            </Grid>
+            </Grid> */}
           </Grid>
         </MDBox>
         
