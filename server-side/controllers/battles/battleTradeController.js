@@ -277,19 +277,13 @@ exports.myAllOrder = async (req, res, next) => {
 
     const { id } = req.params;
     const userId = req.user._id;
-    // let date = new Date();
-    // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    // todayDate = todayDate + "T00:00:00.000Z";
-    // const today = new Date(todayDate);
-    // const skip = parseInt(req.query.skip) || 0;
-    // const limit = parseInt(req.query.limit) || 5
-    const count = await BattleMock.countDocuments({trader: new ObjectId(userId), battleId: new ObjectId(id) })
+    console.log(id, userId)
     
     try {
+        const count = await BattleMock.countDocuments({trader: new ObjectId(userId), battleId: new ObjectId(id) })
+
         const myTodaysTrade = await BattleMock.find({ trader: new ObjectId(userId), battleId: new ObjectId(id) }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1 })
             .sort({ _id: -1 })
-            // .skip(skip)
-            // .limit(limit);
 
         res.status(200).json({ status: 'success', data: myTodaysTrade, count: count });
     } catch (e) {

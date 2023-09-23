@@ -74,7 +74,7 @@ export default function BattleOrders() {
                 return(
               
                     
-                    <Grid container mt={1} p={1} style={{border:'1px solid white', borderRadius:5}}>
+                    <Grid key={elem?._id} container mt={1} p={1} style={{border:'1px solid white', borderRadius:5}}>
                         <Grid item xs={12} md={2} lg={1.5}>
                             <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.symbol}</MDTypography>
                         </Grid>
