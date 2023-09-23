@@ -11,16 +11,12 @@ import { userContext } from '../../../AuthContext';
 import UpcomingContest from '../data/ongoingContest'
 import DailyChallenge from '../data/dailyChallenge'
 import MDTypography from '../../../components/MDTypography';
-import Contest from '../../../assets/images/contests.png'
-import Battle from '../../../assets/images/battle.png'
-import MarginX from '../../../assets/images/marginx.png'
-import TenX from '../../../assets/images/tenx.png'
 import MDButton from '../../../components/MDButton';
 import {useNavigate} from 'react-router-dom';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-
+import ContestCard from '../data/contestCard'
 
 
 export default function Dashboard() {
@@ -153,7 +149,6 @@ export default function Dashboard() {
       visibility: e?.visibility,
     });
   });
-  console.log(carouselData)
 
   const handleButtonClick = (e) => {
     if (e?.clickable) {
@@ -164,19 +159,10 @@ export default function Dashboard() {
 
   return (
     <MDBox bgColor="light" color="light" mt={2} mb={1} borderRadius={10} minHeight="auto" width='100%'>
-      {/* {CarouselImages?.length && (
-        <Grid container spacing={1} mb={2} lg={12} display="flex" justifyContent="center" alignItems="center">
-          <Grid item xs={12} md={6} lg={12}>
-            <Carousel items={CarouselImages} />
-          </Grid>
-        </Grid>
-      )} */}
-      {/* <Grid container spacing={1} xs={12} md={12} lg={12} mb={1}> */}
       {carouselData?.length && 
       (<Slider {...settings}>
                 {/* Your MDBox components go here */}
                   {carouselData?.map((e)=>{
-                    console.log(e)
                     return(
                     <div>
                     <MDButton 
@@ -206,11 +192,42 @@ export default function Dashboard() {
                   })}
         
           </Slider>)
-        }
+      }
       
-        <Grid container spacing={1} xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='space-between' alignItems='start' flexDirection='row'>
+        <Grid container spacing={0.75} xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='space-between' alignItems='start' flexDirection='row'>
 
-        <Grid item xs={12} md={12} lg={8} display='flex' justifyContent="center" alignItems="center">
+
+        {/* <Grid item xs={12} md={12} lg={3} mt={1} display='flex' justifyContent="center" alignItems="top">
+        
+          <Grid container xs={12} md={12} lg={12} mb={1} display="flex" justifyContent="center" alignItems="top">
+            
+            <Grid item xs={12} md={6} lg={12}>
+              <MDBox style={{ backgroundColor: "white", borderRadius: 5, alignItems: 'center' }}>
+                <MDTypography style={{textAlign:'center'}} fontSize={15} color='dark' fontWeight='bold'>Upcoming Contests</MDTypography>
+                <ContestCard/>
+              </MDBox>
+            </Grid>
+
+            <Grid item xs={12} md={6} lg={12}>
+              <MDBox style={{ backgroundColor: "white", borderRadius: 5, alignItems: 'center' }}>
+                <MDTypography style={{textAlign:'center'}} fontSize={15} color='dark' fontWeight='bold'>Upcoming Battles</MDTypography>
+                <ContestCard/>
+              </MDBox>
+            </Grid>
+
+            <Grid item xs={12} md={6} lg={12}>
+              <MDBox style={{ backgroundColor: "white", borderRadius: 5, alignItems: 'center' }}>
+                <MDTypography style={{textAlign:'center'}} fontSize={15} color='dark' fontWeight='bold'>Upcoming Contests</MDTypography>
+                <ContestCard/>
+              </MDBox>
+            </Grid>
+
+          </Grid>
+
+        </Grid> */}
+
+        <Grid item xs={12} md={12} lg={12} display='flex' justifyContent="center" alignItems="center">
+        
         <Grid container xs={12} md={12} lg={12} mb={1} display="flex" justifyContent="center" alignItems="center">
           
           <Grid item xs={12} md={6} lg={12} mt={1}>
@@ -226,16 +243,7 @@ export default function Dashboard() {
           </Grid>
 
         </Grid>
-        </Grid>
 
-        <Grid item xs={12} md={12} lg={4} mt={1} display='flex' justifyContent="center" alignItems="top">
-        <Grid container xs={12} md={12} lg={12} mb={1} display="flex" justifyContent="center" alignItems="top">
-          <Grid item xs={12} md={6} lg={12}>
-            <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
-              <UpcomingContest/>
-            </MDBox>
-          </Grid>
-        </Grid>
         </Grid>
         </Grid>
 

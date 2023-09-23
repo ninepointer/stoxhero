@@ -499,6 +499,7 @@ exports.getOnlyUpcomingContests = async (req, res) => {
             purchaseIntent: 0
         }
         ).sort({ contestStartTime: 1 })
+        .populate('portfolio','portfolioValue')
         res.status(200).json({
             status: "success",
             message: "Upcoming contests fetched successfully",

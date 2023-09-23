@@ -1,0 +1,94 @@
+import React, {useEffect, useState} from 'react';
+import axios from "axios";
+import { CircularProgress, Grid } from '@mui/material';
+import MDBox from '../../../components/MDBox';
+import MDAvatar from '../../../components/MDAvatar';
+import MDTypography from '../../../components/MDTypography';
+import beginner from '../../../assets/images/beginner.png'
+import intermediate from '../../../assets/images/intermediate.png'
+import pro from '../../../assets/images/pro.png'
+import checklist from '../../../assets/images/checklist.png'
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Dialogue from './dialogueBox';
+import ActiveSubscriptionCard from '../data/activeSubscriptionCard'
+
+
+export default function TenXSubscriptions() {
+  const [cashBalance, setCashBalance] = React.useState(0);
+  const [activeTenXSubs,setActiveTenXSubs] = useState([]);
+  const [currentTenXSubs,setCurrentTenXSubs] = useState([]);
+  const [isLoading,setIsLoading] = useState(false)
+  let [checkPayment, setCheckPayment] = useState(true)
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+
+  useEffect(()=>{
+    axios.get(`${baseUrl}api/v1/userwallet/my`,{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+        },
+      })
+    .then((api1Response)=>{
+      
+      const cashTransactions = (api1Response?.data?.data)?.transactions?.filter((transaction) => {
+        return transaction.transactionType === "Cash";
+      });
+      const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
+        return total + transaction?.amount;
+      }, 0);
+      setCashBalance(totalCashAmount);
+    })
+  }, [])
+
+  useEffect(()=>{
+    setIsLoading(true)
+    let call2 = axios.get(`${baseUrl}api/v1/tenX/myactivesubs`, {
+      withCredentials:true
+    })            
+    Promise.all([call2])
+    .then(([api2Response]) => {
+      // Process the responses here
+      setCurrentTenXSubs(api2Response.data.data);
+      setTimeout(()=>{
+        setIsLoading(false)
+      },500)
+    })
+    .catch((error) => {
+      // Handle errors here
+      console.error(error);
+    });
+
+
+  },[checkPayment])
+
+  return (
+   
+    <MDBox bgColor="dark" color="light" mt={0.5} borderRadius={10} style={{width:'100%'}}>
+    {isLoading ?
+        <MDBox mt={10} mb={10} display="flex" width="100%" justifyContent="center" alignItems="center">
+            <CircularProgress color='info' />
+        </MDBox>
+        :
+    <>
+    {currentTenXSubs?.length > 0 &&
+        <Grid container spacing={1} mb={1}>
+            {
+            currentTenXSubs?.map((elem,index)=>(
+                <Grid item key={elem._id} xs={12} md={6} lg={4} display='flex' justifyContent='flex-start'>
+                <MDBox>
+                    <ActiveSubscriptionCard subscription={elem} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={elem.actual_discountPrice} name={elem.plan_name} id={elem._id} walletCash={cashBalance} allowRenewal={elem.allowRenewal}/>
+                </MDBox>
+                </Grid>
+            ))
+            }
+
+        </Grid>
+    }
+    </>
+    }
+    </MDBox>
+  );
+}

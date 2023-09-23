@@ -1,8 +1,10 @@
 const TenXSubscription = require("../models/TenXSubscription/TenXSubscriptionSchema");
 const TenXPurchaseIntent = require("../models/TenXSubscription/TenXPurchaseIntentSchema");
+const TenXTutorialView = require("../models/TenXSubscription/TenXVideoTutorialSchema");
 const { ObjectId } = require("mongodb");
 const TenXTrader = require("../models/mock-trade/tenXTraderSchema");
 const User = require("../models/User/userDetailSchema");
+const Campaign = require("../models/campaigns/campaignSchema")
 const Wallet = require("../models/UserWallet/userWalletSchema");
 const uuid = require('uuid');
 const {client, getValue} = require("../marketData/redisClient");
@@ -88,7 +90,7 @@ exports.removeFeature = async(req, res, next) => {
 
 exports.getActiveTenXSubs = async(req, res, next)=>{
     try{
-        const tenXSubs = await TenXSubscription.find({status: "Active"}).select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features allowPurchase allowRenewal')
+        const tenXSubs = await TenXSubscription.find({status: "Active"}).select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features allowPurchase allowRenewal expiryDays payoutPercentage')
         .populate('portfolio', 'portfolioName portfolioValue')
         .sort({discounted_price: 1})
         
@@ -114,7 +116,7 @@ exports.getAdminActiveTenXSubs = async(req, res, next)=>{
 
 exports.getAllTenXSubs = async(req, res, next)=>{
   try{
-      const tenXSubs = await TenXSubscription.find().select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features users')
+      const tenXSubs = await TenXSubscription.find().select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features users expiryDays payoutPercentage')
       .populate('portfolio', 'portfolioName portfolioValue')
       .sort({discounted_price: -1})
       
@@ -176,8 +178,252 @@ exports.createTenXPurchaseIntent = async(req, res, next)=>{
   const{ purchase_intent_by, tenXSubscription } = req.body;
 
   const tenXPurchaseIntent = await TenXPurchaseIntent.create({purchase_intent_by, tenXSubscription});
-  // console.log(tenXPurchaseIntent)
+  
+  const user = await User.findOne(
+    { _id: purchase_intent_by }
+    );
+
+  const referredBy = await User.findOne(
+    { _id: user.referredBy }
+    );
+
+  const campaign = await Campaign.findOne(
+    { _id: user.campaign }
+    );
+
+  const tenX = await TenXSubscription.findOne(
+    { _id: tenXSubscription }
+    ).select('plan_name discounted_price actual_price expiryDays validity validityPeriod profitCap')
+    .populate('portfolio','portfolioValue');
+
+  let recipients = ['team@stoxhero.com'];
+  let recipientString = recipients.join(",");
+  let subject = `TenX Purchase Intent by ${user.first_name} ${user.last_name}`;
+  let message = 
+  `
+  <!DOCTYPE html>
+      <html>
+      <head>
+          <meta charset="UTF-8">
+          <title>Subscription Renewed</title>
+          <style>
+          body {
+              font-family: Arial, sans-serif;
+              font-size: 16px;
+              line-height: 1.5;
+              margin: 0;
+              padding: 0;
+          }
+
+          .container {
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 20px;
+              border: 1px solid #ccc;
+          }
+
+          h1 {
+              font-size: 24px;
+              margin-bottom: 20px;
+          }
+
+          p {
+              margin: 0 0 20px;
+          }
+
+          .userid {
+              display: inline-block;
+              background-color: #f5f5f5;
+              padding: 10px;
+              font-size: 15px;
+              font-weight: bold;
+              border-radius: 5px;
+              margin-right: 10px;
+          }
+
+          .password {
+              display: inline-block;
+              background-color: #f5f5f5;
+              padding: 10px;
+              font-size: 15px;
+              font-weight: bold;
+              border-radius: 5px;
+              margin-right: 10px;
+          }
+
+          .login-button {
+              display: inline-block;
+              background-color: #007bff;
+              color: #fff;
+              padding: 10px 20px;
+              font-size: 18px;
+              font-weight: bold;
+              text-decoration: none;
+              border-radius: 5px;
+          }
+
+          .login-button:hover {
+              background-color: #0069d9;
+          }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+          <h1>TenX Purchase Intent</h1>
+          <p>Hello Team,</p>
+          <p>The below trader showed a purchase intent for TenX Subscription.</p>
+          <p>User ID: <span class="userid">${user.employeeid}</span></p>
+          <p>Full Name: <span class="password">${user.first_name} ${user.last_name}</span></p>
+          <p>Email: <span class="password">${user.email}</span></p>
+          <p>Mobile: <span class="password">${user.mobile}</span></p>
+          <p>Signup Method: <span class="password">${user.creationProcess ? user.creationProcess : 'NA'}</span></p>
+          <p>Campaign: <span class="password">${campaign ? campaign.campaignName : 'NA'}</span></p>
+          <p>Referred By: <span class="password">${referredBy ? referredBy.first_name : 'NA'} ${referredBy ? referredBy.last_name : ''}</span></p>
+          <p>Subscription Name: <span class="password">${tenX.plan_name}</span></p>
+          <p>Subscription Actual Price: <span class="password">₹${tenX.actual_price}/-</span></p>
+          <p>Subscription Discounted Price: <span class="password">₹${tenX.discounted_price}/-</span></p>
+          <p>Portfolio Value: <span class="password">₹${tenX.portfolio.portfolioValue}/-</span></p>
+          <p>Profit Cap: <span class="password">₹${tenX.profitCap}/-</span></p>    
+          <p>Completion: <span class="password">${tenX.validity} trading ${tenX.validityPeriod}</span></p>  
+          <p>Expiry: <span class="password">${tenX.expiryDays} calendar days</span></p>          
+          </div>
+      </body>
+      </html>
+
+  `
+  // if(process.env.PROD === "true"){
+    emailService(recipientString,subject,message);
+  // }
+
   res.status(201).json({message: 'TenX Purchase Intent Captured Successfully.', data:tenXPurchaseIntent});
+  }
+  catch{(err)=>{res.status(401).json({message: "Something went wrong", error:err}); }}  
+}
+
+exports.createTenXTutorialView = async(req, res, next)=>{
+  
+  try{
+  const{ tutorialViewedBy, tenXSubscription } = req.body;
+
+  const tenXTutorialView = (await TenXTutorialView.create({tutorialViewedBy, tenXSubscription}));
+
+  const user = await User.findOne(
+    { _id: tutorialViewedBy }
+    );
+
+  const referredBy = await User.findOne(
+    { _id: user.referredBy }
+    );
+
+  const campaign = await Campaign.findOne(
+    { _id: user.campaign }
+    );
+
+  const tenX = await TenXSubscription.findOne(
+    { _id: tenXSubscription }
+    ).select('plan_name discounted_price actual_price expiryDays validity validityPeriod profitCap')
+    .populate('portfolio','portfolioValue');
+
+      let recipients = ['team@stoxhero.com'];
+      let recipientString = recipients.join(",");
+      let subject = `TenX Tutorial Video View by ${user.first_name} ${user.last_name}`;
+      let message = 
+      `
+      <!DOCTYPE html>
+          <html>
+          <head>
+              <meta charset="UTF-8">
+              <title>Subscription Renewed</title>
+              <style>
+              body {
+                  font-family: Arial, sans-serif;
+                  font-size: 16px;
+                  line-height: 1.5;
+                  margin: 0;
+                  padding: 0;
+              }
+
+              .container {
+                  max-width: 600px;
+                  margin: 0 auto;
+                  padding: 20px;
+                  border: 1px solid #ccc;
+              }
+
+              h1 {
+                  font-size: 24px;
+                  margin-bottom: 20px;
+              }
+
+              p {
+                  margin: 0 0 20px;
+              }
+
+              .userid {
+                  display: inline-block;
+                  background-color: #f5f5f5;
+                  padding: 10px;
+                  font-size: 15px;
+                  font-weight: bold;
+                  border-radius: 5px;
+                  margin-right: 10px;
+              }
+
+              .password {
+                  display: inline-block;
+                  background-color: #f5f5f5;
+                  padding: 10px;
+                  font-size: 15px;
+                  font-weight: bold;
+                  border-radius: 5px;
+                  margin-right: 10px;
+              }
+
+              .login-button {
+                  display: inline-block;
+                  background-color: #007bff;
+                  color: #fff;
+                  padding: 10px 20px;
+                  font-size: 18px;
+                  font-weight: bold;
+                  text-decoration: none;
+                  border-radius: 5px;
+              }
+
+              .login-button:hover {
+                  background-color: #0069d9;
+              }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+              <h1>TenX Tutorial View</h1>
+              <p>Hello Team,</p>
+              <p>The below trader viewed the TenX tutorial video.</p>
+              <p>User ID: <span class="userid">${user.employeeid}</span></p>
+              <p>Full Name: <span class="password">${user.first_name} ${user.last_name}</span></p>
+              <p>Email: <span class="password">${user.email}</span></p>
+              <p>Mobile: <span class="password">${user.mobile}</span></p>
+              <p>Signup Method: <span class="password">${user.creationProcess ? user.creationProcess : 'NA'}</span></p>
+              <p>Campaign: <span class="password">${campaign ? campaign.campaignName : 'NA'}</span></p>
+              <p>Referred By: <span class="password">${referredBy ? referredBy.first_name : 'NA'} ${referredBy ? referredBy.last_name : ''}</span></p>
+              <p>Subscription Name: <span class="password">${tenX.plan_name}</span></p>
+              <p>Subscription Actual Price: <span class="password">₹${tenX.actual_price}/-</span></p>
+              <p>Subscription Discounted Price: <span class="password">₹${tenX.discounted_price}/-</span></p>
+              <p>Portfolio Value: <span class="password">₹${tenX.portfolio.portfolioValue}/-</span></p>
+              <p>Profit Cap: <span class="password">₹${tenX.profitCap}/-</span></p>    
+              <p>Completion: <span class="password">${tenX.validity} trading ${tenX.validityPeriod}</span></p>  
+              <p>Expiry: <span class="password">${tenX.expiryDays} calendar days</span></p>          
+              </div>
+          </body>
+          </html>
+
+      `
+      // if(process.env.PROD === "true"){
+        emailService(recipientString,subject,message);
+      // }
+
+  res.status(201).json({message: 'TenX Tutorial View Captured Successfully.', data:tenXTutorialView});
   }
   catch{(err)=>{res.status(401).json({message: "Something went wrong", error:err}); }}  
 }
@@ -186,9 +432,22 @@ exports.getTenXSubscriptionPurchaseIntent = async(req, res, next)=>{
   const id = req.params.id ? req.params.id : '';
   try{
       const purchaseIntent = await TenXPurchaseIntent.find({tenXSubscription : id})
-      .populate('purchase_intent_by', 'first_name last_name mobile email joining_date')
+      .populate('purchase_intent_by', 'first_name last_name mobile email joining_date creationProcess')
 
       res.status(201).json({status: 'success', data: purchaseIntent, count: purchaseIntent.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }   
+};
+
+exports.getTenXTutorialVideoView = async(req, res, next)=>{
+  const id = req.params.id ? req.params.id : '';
+  try{
+      const tutorialviews = await TenXTutorialView.find({tenXSubscription : id})
+      .populate('tutorialViewedBy', 'first_name last_name mobile email joining_date creationProcess')
+
+      res.status(201).json({status: 'success', data: tutorialviews, count: tutorialviews.length});    
   }catch(e){
       console.log(e);
       res.status(500).json({status: 'error', message: 'Something went wrong'});
@@ -453,12 +712,152 @@ exports.myActiveSubsciption = async(req, res, next)=>{
         }
       }
       const tenXSubs = await TenXSubscription.find({_id: {$in: mySubs}})
-      .select("_id plan_name actual_price discounted_price profitCap validity validityPeriod status portfolio features allowPurchase allowRenewal")
+      .select("_id plan_name actual_price discounted_price profitCap validity validityPeriod status portfolio features allowPurchase allowRenewal expiryDays payoutPercentage")
       .populate('portfolio', 'portfolioName portfolioValue')
       .sort({discounted_price: 1})  
       res.status(201).json({status: 'success', data: tenXSubs});    
   }catch(e){
       console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
+exports.myActiveSubs = async(req, res, next)=>{
+  const userId = req.user._id;
+  try{
+    const tenXSubs = await TenXSubscription.aggregate(
+      [
+        {
+          $unwind: {
+            path: "$users",
+          },
+        },
+        {
+          $lookup: {
+            from: "user-portfolios",
+            localField: "portfolio",
+            foreignField: "_id",
+            as: "portfolio_details",
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            plan_name: 1,
+            expiryDays:1,
+            features: 1,
+            payoutPercentage: 1,
+            portfolioValue: {
+              $arrayElemAt: [
+                "$portfolio_details.portfolioValue",
+                0,
+              ],
+            },
+            user: "$users.userId",
+            fee: "$users.fee",
+            status: "$users.status",
+            subscribedOn: "$users.subscribedOn",
+          },
+        },
+        {
+          $match: {
+            user: new ObjectId(userId),
+            status: "Live",
+          },
+        },
+        {
+          $sort: {
+            subscribedOn: -1,
+          },
+        },
+      ]
+    )
+      res.status(201).json({status: 'success', data: tenXSubs});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
+exports.SubsUserCount = async(req, res, next)=>{
+  const id = req.params.id ? req.params.id : '';
+  try{
+    const userCount = await TenXSubscription.aggregate(
+      [
+        {
+          $match: {
+            _id: new ObjectId(id),
+          },
+        },
+        {
+          $project: {
+            count: {
+              $size: "$users",
+            },
+          },
+        },
+      ]
+    )
+      res.status(201).json({status: 'success', data: userCount});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
+exports.myExpiredSubsciption = async(req, res, next)=>{
+  const userId = req.user._id;
+  try{
+      const tenXSubs = await TenXSubscription.aggregate(
+        [
+          {
+            $unwind: {
+              path: "$users",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-portfolios",
+              localField: "portfolio",
+              foreignField: "_id",
+              as: "portfolio_details",
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              plan_name: 1,
+              expiryDays:1,
+              payoutPercentage:1,
+              features: 1,
+              portfolioValue: {
+                $arrayElemAt: [
+                  "$portfolio_details.portfolioValue",
+                  0,
+                ],
+              },
+              user: "$users.userId",
+              fee: "$users.fee",
+              status: "$users.status",
+              subscribedOn: "$users.subscribedOn",
+              expiredOn: "$users.expiredOn",
+            },
+          },
+          {
+            $match: {
+              user: new ObjectId(userId),
+              status: "Expired",
+            },
+          },
+          {
+            $sort: {
+              subscribedOn: -1,
+            },
+          },
+        ]
+      )
+      res.status(201).json({status: 'success', data: tenXSubs});    
+  }catch(e){
       res.status(500).json({status: 'error', message: 'Something went wrong'});
   }     
 };
