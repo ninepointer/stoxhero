@@ -301,7 +301,7 @@ function Header({ contest }) {
                                                                                 onClick={() => { handleDownload(elem?._id) }}
 
                                                                             >
-                                                                                <MDTypography color='warning' fontWeight='bold' fontSize={10}>PARTICIPATION CERTIFICATE <DownloadIcon/></MDTypography>
+                                                                                <MDTypography color='warning' fontWeight='bold' fontSize={10} display='flex' alignItems='flex-end'>PARTICIPATION CERTIFICATE <DownloadIcon/></MDTypography>
                                                                             </MDButton>
                                                                         </MDBox>
                                                                     </MDBox>
