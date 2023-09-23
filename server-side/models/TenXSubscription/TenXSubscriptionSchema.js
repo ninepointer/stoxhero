@@ -67,7 +67,8 @@ const TenXSubscription = new mongoose.Schema({
             enum: ['System','User'],
         },
         isRenew: {type: Boolean},
-        fee: {type: Number}
+        fee: {type: Number},
+        payout:{type:Number}
     }],
     status: {
         type: String,
