@@ -145,8 +145,8 @@ function Users({selectedUser, setSelectedUser}) {
   }
 
   return (
-    <MDBox sx={{ backgroundColor: "white", display: "flex", borderRadius: 2, marginBottom: 2 }}>
-      <MDBox display="flex" flexDirection="column" justifyContent="space-between" sx={{ width: "100%" }}>
+    <MDBox sx={{display: "flex", borderRadius: 2, marginBottom: 2, marginTop:1.5 }}>
+      <MDBox display="flex" flexDirection="column" justifyContent="space-between" sx={{ width: "360px" }}>
         <TextField
           id="outlined-basic"
           // label="Click here to search any symbol and add them in your watchlist to start trading" 
@@ -158,7 +158,7 @@ function Users({selectedUser, setSelectedUser}) {
           InputProps={{
             onFocus: () => textRef.current.select(),
             endAdornment: (
-              <MDBox variant="text" color={"light"} width='100%' onClick={handleClear}>{(state.text||selectedUser?.id )&& <RxCross2 color="#000000" />}</MDBox>
+              <MDBox variant="text" color={"light"} sx={{cursor:'pointer'}} onClick={handleClear}>{(state.text||selectedUser?.id )&& <RxCross2 color="#000000" />}</MDBox>
             ),
             startAdornment: (
               <>{<AiOutlineSearch />}</>
@@ -166,7 +166,7 @@ function Users({selectedUser, setSelectedUser}) {
           }}
           sx={{ margin: 0, background: "white", padding: 0, borderRadius: 2, width: "100%", '& label': { color: '#49a3f1', fontSize: 20, padding: 0.4 } }} onChange={(e) => { dispatch({ type: 'setText', payload: e.target.value }); sendSearchReq(e) }} //e.target.value.toUpperCase()
         />
-        <MDBox>
+        {(state?.userData.length>0 && state.text!= '') &&<MDBox height='240px' style={{zIndex:'5', backgroundColor:'#ffffff', overflow:'scroll'}}>
           {state.userData?.length > 0 &&
             (state.userData.map((elem, index) => {
               return (
@@ -198,8 +198,8 @@ function Users({selectedUser, setSelectedUser}) {
                       }}
                       onClick={()=>handleUserClick(elem)}
                     >
-                      <Grid xs={3} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.first_name + " " + elem?.last_name}</Grid>
-                      <Grid xs={3} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem.mobile}</Grid>
+                      <Grid xs={3} lg={6} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.first_name + " " + elem?.last_name}</Grid>
+                      <Grid xs={3} lg={6} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem.mobile}</Grid>
                       {/* <Grid xs={3} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem.email}</Grid> */}
                       {/* <Grid xs={3} lg={3} >
 
@@ -212,7 +212,7 @@ function Users({selectedUser, setSelectedUser}) {
               )
             }))
           }
-        </MDBox>
+        </MDBox>}
       </MDBox>
     </MDBox>
   )

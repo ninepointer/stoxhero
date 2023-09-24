@@ -1943,7 +1943,7 @@ const dailyContestLeaderBoard = async (id) => {
 
         
         // await client.del(`leaderboard:${id}`)
-        const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "2", 'WITHSCORES'])
+        const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "19", 'WITHSCORES'])
         // console.log(leaderBoard, id)
         const formattedLeaderboard = await formatData(leaderBoard)
 
@@ -2084,7 +2084,7 @@ async function processContestQueue() {
     const endTime = new Date(currentTime);
     endTime.setHours(9, 48, 0, 0);
 
-   if (currentTime >= startTime && currentTime <= endTime) {
+//    if (currentTime >= startTime && currentTime <= endTime) {
         console.log("1st if", contestQueue.length);
 
         // If the queue is empty, reset the processing flag and return
@@ -2104,7 +2104,7 @@ async function processContestQueue() {
             }
         }
 
-   }
+//    }
 }
 
 
@@ -2124,7 +2124,7 @@ exports.sendMyRankData = async () => {
                 const endTime = new Date(currentTime);
                 endTime.setHours(9, 48, 0, 0);
 
-               if (currentTime >= startTime && currentTime <= endTime) {
+            //    if (currentTime >= startTime && currentTime <= endTime) {
                     const contest = await DailyContest.find({contestStatus: "Active", contestStartTime: {$lte: new Date()}});
     
                     for(let i = 0; i < contest?.length; i++){
@@ -2145,7 +2145,7 @@ exports.sendMyRankData = async () => {
                             }
                         }
                     }
-              }
+            //   }
             };
             emitLeaderboardData();
             interval = setInterval(emitLeaderboardData, 5000);    
