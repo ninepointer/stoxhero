@@ -53,6 +53,7 @@ export default function TenXSubscriptions({setClicked}) {
     .then(([api2Response]) => {
       // Process the responses here
       setCurrentTenXSubs(api2Response.data.data);
+      console.log('renewal check',api2Response.data.data)
       setTimeout(()=>{
         setIsLoading(false)
       },500)
@@ -80,7 +81,7 @@ export default function TenXSubscriptions({setClicked}) {
             currentTenXSubs?.map((elem,index)=>(
                 <Grid item key={elem._id} xs={12} md={6} lg={4} display='flex' justifyContent='flex-start'>
                 <MDBox>
-                    <ActiveSubscriptionCard subscription={elem} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={elem.actual_discountPrice} name={elem.plan_name} id={elem._id} walletCash={cashBalance} allowRenewal={elem.allowRenewal}/>
+                    <ActiveSubscriptionCard subscription={elem} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={elem.discounted_price} name={elem.plan_name} id={elem._id} walletCash={cashBalance} allowRenewal={elem.allowRenewal}/>
                 </MDBox>
                 </Grid>
             ))

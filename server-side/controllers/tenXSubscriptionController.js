@@ -490,14 +490,17 @@ exports.getProSubscription = async(req, res, next)=>{
 exports.renewSubscription = async(req, res, next)=>{
   let isRedisConnected = getValue();
   const userId = req.user._id;
-  const {subscriptionAmount, subscriptionName, subscriptionId} = req.body
+  let {subscriptionAmount, subscriptionName, subscriptionId} = req.body
   const today = new Date();
   try{
       const tenXSubs = await TenXSubscription.findOne({_id: new ObjectId(subscriptionId)})
+      subscriptionAmount = tenXSubs?.discounted_price;
       const wallet = await Wallet.findOne({userId: userId});
       let amount = 0;
       for(elem of wallet.transactions){
-        amount += elem.amount;
+        if(elem?.transactionType == 'Cash'){
+          amount += elem.amount;
+        }
       }
 
       if(amount < subscriptionAmount){
@@ -757,6 +760,7 @@ exports.myActiveSubs = async(req, res, next)=>{
             fee: "$users.fee",
             status: "$users.status",
             subscribedOn: "$users.subscribedOn",
+            allowRenewal:1
           },
         },
         {
