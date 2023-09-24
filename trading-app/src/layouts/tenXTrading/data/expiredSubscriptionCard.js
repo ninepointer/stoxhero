@@ -155,7 +155,7 @@ function Header({ subscription, checkPayment, setCheckPayment, amount, name, id,
                                 <DialogueAnalytics subscription={subscription} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={amount} name={name} id={id} walletCash={walletCash} allowRenewal={allowRenewal} />
                             </Grid>
                             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
-                                <MDButton varaint='contained' color='warning' size='small' style={{fontSize:'10px', width:'88%'}}>Order Book</MDButton>
+                                <MDButton varaint='contained' color='warning' size='small' style={{fontSize:'10px', width:'88%'}} onClick={()=>{navigate('/orders')}}>Order Book</MDButton>
                             </Grid>
                             </Grid>
                         </Grid>
