@@ -23,7 +23,7 @@ function Header({ contest }) {
         if (serverTime) {
             setTimeout(() => {
                 setIsLoading(false)
-            }, 1000)
+            }, 500)
         }
     }, [serverTime])
 
@@ -90,8 +90,8 @@ function Header({ contest }) {
         // Helper function to get the month name
         function getMonthName(month) {
             const monthNames = [
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
             ];
             return monthNames[month];
         }
@@ -272,7 +272,7 @@ function Header({ contest }) {
                                                                     </MDBox>
                                                                 </Grid>
 
-                                                                <Grid item mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignItems='center'>
+                                                                {/* <Grid item mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignItems='center'>
                                                                     <MDBox display='flex' justifyContent='space-between' flexDirection='row' width='100%'>
 
 
@@ -305,7 +305,37 @@ function Header({ contest }) {
                                                                             </MDButton>
                                                                         </MDBox>
                                                                     </MDBox>
-                                                                </Grid>
+                                                                </Grid> */}
+
+<MDBox mt={1} display='flex' justifyContent='center' alignItems='center' flexDirection='row' style={{width:'100%'}}>
+                                                        <Grid container spacing={1} display='flex' justifyContent='center' alignItems='center' flexDirection='row' style={{width:'100%'}}>
+                                                        <Grid item mb={1} xs={12} md={12} lg={6} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
+                                                            <MDButton
+                                                                variant='contained'
+                                                                color='warning'
+                                                                size='small'
+                                                                component={Link}
+                                                                style={{width:'100%', fontSize:'10px'}}
+                                                                onClick={() => { handleNavigate(elem?._id, elem?.contestName) }}
+                                                            >
+                                                                ORDER BOOK
+                                                            </MDButton>
+                                                        </Grid>
+
+                                                        <Grid item mb={1} xs={12} md={12} lg={6} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
+                                                            <MDButton
+                                                                variant='contained'
+                                                                color='success'
+                                                                size='small'
+                                                                component={Link}
+                                                                style={{width:'100%', fontSize:'10px'}}
+                                                                onClick={() => { handleDownload(elem?._id) }}
+                                                            >
+                                                                <DownloadIcon /> PARTICIPATION CERTIFICATE
+                                                            </MDButton>
+                                                        </Grid>
+                                                        </Grid>
+                                                        </MDBox>
 
 
                                                             </Grid>
