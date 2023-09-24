@@ -291,9 +291,9 @@ exports.createTenXPurchaseIntent = async(req, res, next)=>{
       </html>
 
   `
-  // if(process.env.PROD === "true"){
+  if(process.env.PROD === "true"){
     emailService(recipientString,subject,message);
-  // }
+  }
 
   res.status(201).json({message: 'TenX Purchase Intent Captured Successfully.', data:tenXPurchaseIntent});
   }
@@ -419,9 +419,9 @@ exports.createTenXTutorialView = async(req, res, next)=>{
           </html>
 
       `
-      // if(process.env.PROD === "true"){
+      if(process.env.PROD === "true"){
         emailService(recipientString,subject,message);
-      // }
+      }
 
   res.status(201).json({message: 'TenX Tutorial View Captured Successfully.', data:tenXTutorialView});
   }
@@ -858,6 +858,112 @@ exports.myExpiredSubsciption = async(req, res, next)=>{
       )
       res.status(201).json({status: 'success', data: tenXSubs});    
   }catch(e){
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
+exports.TenXLeaderboard = async(req, res, next)=>{
+  
+  try{
+    const tenxleaderboard = await TenXSubscription.aggregate(
+      [
+        {
+          $unwind: {
+            path: "$users",
+          },
+        },
+        {
+          $match: {
+            "users.status": "Expired",
+          },
+        },
+        {
+          $group: {
+            _id: "$users.userId",
+            earnings: {
+              $sum: "$users.payout",
+            },
+            subscriptions: {
+              $sum: 1,
+            },
+            subscriptionsWithPayout: {
+              $sum: {
+                $cond: {
+                  if: {
+                    $gt: ["$users.payout", 0],
+                  },
+                  then: 1,
+                  else: 0,
+                },
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "_id",
+            foreignField: "_id",
+            as: "trader",
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            userId: "$users.userId",
+            first_name: {
+              $arrayElemAt: ["$trader.first_name", 0],
+            },
+            last_name: {
+              $arrayElemAt: ["$trader.last_name", 0],
+            },
+            userid: {
+              $arrayElemAt: ["$trader.employeeid", 0],
+            },
+            status: {
+              $arrayElemAt: ["$trader.status", 0],
+            },
+            profilePic: {
+              $arrayElemAt: [
+                "$trader.profilePhoto.url",
+                0,
+              ],
+            },
+            earnings: "$earnings",
+            subscriptions: "$subscriptions",
+            subscriptionsWithPayout:
+              "$subscriptionsWithPayout",
+          },
+        },
+        {
+          $match: {
+            earnings: {
+              $gt: 0,
+            },
+            status: 'Active'
+          },
+        },
+        {
+          $addFields: {
+            strikeRate: {
+              $divide :['$subscriptionsWithPayout','$subscriptions']
+            }
+          }
+        },
+        {
+          $sort: {
+            earnings: -1,
+            strikeRate: -1,
+            first_name: 1,
+            last_name: 1,
+          },
+        },
+      ]
+    )
+      
+      res.status(201).json({status: 'success', data: tenxleaderboard});    
+  }catch(e){
+      console.log(e);
       res.status(500).json({status: 'error', message: 'Something went wrong'});
   }     
 };
