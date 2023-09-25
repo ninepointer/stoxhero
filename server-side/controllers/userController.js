@@ -959,8 +959,8 @@ exports.getFilteredUsers = async(req,res,next) =>{
     // Start with an empty query object
     let query = {};
 
-    let { startDate, endDate, referral, campaign } = req.query;
-    console.log('Query', new Date(startDate), new Date(endDate), referral, campaign);
+    let { startDate, endDate, referral, campaign, referredBy } = req.query;
+    console.log('Query', new Date(startDate), new Date(endDate), referral, campaign, referredBy);
 
     // If startDate and endDate are provided, add a range query for joiningDate
     if(!startDate) startDate = new Date('2022-01-01');
@@ -980,6 +980,10 @@ exports.getFilteredUsers = async(req,res,next) =>{
     // If campaign is provided, add it to the query
     if (campaign) {
         query.campaign = mongoose.Types.ObjectId(campaign);
+    }
+
+    if(referredBy && referredBy.toString()!='undefined'){
+      query.referredBy = mongoose.Types.ObjectId(referredBy);
     }
 
     // Execute the search using the constructed query

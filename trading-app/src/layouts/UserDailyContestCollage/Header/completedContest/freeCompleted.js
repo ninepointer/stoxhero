@@ -90,8 +90,8 @@ function Header({ contest }) {
         // Helper function to get the month name
         function getMonthName(month) {
             const monthNames = [
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
             ];
             return monthNames[month];
         }
@@ -170,8 +170,6 @@ function Header({ contest }) {
         <>
             <MDBox>
                 <>
-                    {/* <MDTypography color="light" fontWeight="bold" >Free Contest(s)</MDTypography> */}
-
                     <Grid container xs={12} md={12} lg={12}>
                         {
                             contest.map((elem) => {
@@ -266,41 +264,36 @@ function Header({ contest }) {
                                                                 <MDBox color="dark"><MDTypography fontSize={10} style={{ backgroundColor: 'grey', padding: '2px 2px 1px 2px', border: '1px solid grey', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>PORTFOLIO: {"₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnl[0]?.portfolioValue))}</MDTypography></MDBox>
                                                             </MDBox>
                                                         </Grid>
-
-                                                        <Grid item mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignItems='center'>
-                                                            <MDBox display='flex' justifyContent='space-between' flexDirection='row' width='100%'>
-
-
-                                                                <MDBox display='flex' justifyContent='flex-start' width='50%'>
-
-                                                                </MDBox>
-
-                                                                <MDBox mt={1} display='flex' justifyContent='flex-end' width='50%'>
-                                                                    <MDButton
-                                                                        variant='outlined'
-                                                                        color='warning'
-                                                                        size='small'
-                                                                        component={Link}
-                                                                        onClick={() => { handleNavigate(elem?._id, elem?.contestName) }}
-
-                                                                    >
-                                                                        <MDTypography color='warning' fontWeight='bold' fontSize={10}>VIEW ORDERS</MDTypography>
-                                                                    </MDButton>
-                                                                    <MDBox width='20px'></MDBox>
-                                                                    <MDButton
-                                                                        variant='outlined'
-                                                                        color='warning'
-                                                                        size='small'
-                                                                        component={Link}
-                                                                        onClick={() => { handleDownload(elem?._id) }}
-
-                                                                    >
-                                                                        <MDTypography color='warning' fontWeight='bold' fontSize={10}>PARTICIPATION CERTIFICATE <DownloadIcon/></MDTypography>
-                                                                    </MDButton>
-                                                                </MDBox>
-                                                            </MDBox>
+                                                        
+                                                        <MDBox mt={1} display='flex' justifyContent='center' alignItems='center' flexDirection='row' style={{width:'100%'}}>
+                                                        <Grid container spacing={1} display='flex' justifyContent='center' alignItems='center' flexDirection='row' style={{width:'100%'}}>
+                                                        <Grid item mb={1} xs={12} md={12} lg={6} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
+                                                            <MDButton
+                                                                variant='contained'
+                                                                color='warning'
+                                                                size='small'
+                                                                component={Link}
+                                                                style={{width:'100%', fontSize:'10px'}}
+                                                                onClick={() => { handleNavigate(elem?._id, elem?.contestName) }}
+                                                            >
+                                                                ORDER BOOK
+                                                            </MDButton>
                                                         </Grid>
 
+                                                        <Grid item mb={1} xs={12} md={12} lg={6} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
+                                                            <MDButton
+                                                                variant='contained'
+                                                                color='success'
+                                                                size='small'
+                                                                component={Link}
+                                                                style={{width:'100%', fontSize:'10px'}}
+                                                                onClick={() => { handleDownload(elem?._id) }}
+                                                            >
+                                                                <DownloadIcon /> PARTICIPATION CERTIFICATE
+                                                            </MDButton>
+                                                        </Grid>
+                                                        </Grid>
+                                                        </MDBox>
 
                                                     </Grid>
                                                 </MDButton>

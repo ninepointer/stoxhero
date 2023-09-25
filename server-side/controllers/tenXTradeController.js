@@ -7,6 +7,7 @@ const Wallet = require("../models/UserWallet/userWalletSchema");
 const uuid = require('uuid');
 const { ObjectId } = require("mongodb");
 const sendMail = require('../utils/emailService');
+const moment = require('moment');
 
 
 exports.overallPnl = async (req, res, next) => {
@@ -734,6 +735,7 @@ exports.autoExpireTenXSubscription = async () => {
                 user.subscription[k].status = "Expired";
                 user.subscription[k].expiredOn = new Date();
                 user.subscription[k].expiredBy = "System";
+                user.subscription[k].payout = (payoutAmount?.toFixed(2)) 
                 console.log("this is user", user)
                 await user.save();
                 break;
@@ -748,6 +750,7 @@ exports.autoExpireTenXSubscription = async () => {
                 subs.users[k].status = "Expired";
                 subs.users[k].expiredOn = new Date();
                 subs.users[k].expiredBy = "System";
+                subs.users[k].payout = (payoutAmount?.toFixed(2));
                 console.log("this is subs", subs)
                 await subs.save();
                 break;
@@ -1810,3 +1813,286 @@ exports.userSubscriptions = async (req, res) => {
     });
   }
 };
+
+
+// exports.backfillPayout = async(req,res) => {
+//   try{
+//     const inactive = await Subscription.find({status:'Inactive'});
+//     let totalPayout = 0;
+//     for(let sub of inactive){
+//       let netPayout = 0;
+//       const users = sub.users.filter((elem)=>elem?.status == 'Expired' && elem?.expiredBy!='User');
+//       for(let user of users){
+//         const pnl = await TenXTrader.aggregate([
+//           {
+//             $match: {
+//               trade_time_utc: {
+//                 $gte: new Date(user?.subscribedOn),
+//                 $lte: new Date(user?.expiredOn)
+//               },
+//               status: "COMPLETE",
+//               trader: new ObjectId(user?.userId),
+//               subscriptionId: new ObjectId(sub?._id)
+//             },
+//           },
+//           {
+//             $group: {
+//               _id: {
+//                 // symbol: "$symbol",
+//                 // product: "$Product",
+//                 // instrumentToken: "$instrumentToken",
+//                 // exchangeInstrumentToken: "$exchangeInstrumentToken",
+//                 // exchange: "$exchange"
+//                 "date": { $substr: ["$trade_time_utc", 0, 10] },
+//               },
+//               amount: {
+//                 $sum: { $multiply: ["$amount", -1] },
+//               },
+//               brokerage: {
+//                 $sum: {
+//                   $toDouble: "$brokerage",
+//                 },
+//               },
+//               lots: {
+//                 $sum: {
+//                   $toInt: "$Quantity",
+//                 },
+//               },
+//               lastaverageprice: {
+//                 $last: "$average_price",
+//               },
+//             },
+//           },
+//           {
+//             $group: {
+//               _id: { date: "$_id.date" },
+//               tradingDays: { $sum: 1 },
+//             },
+//           },
+
+//           {
+//             $project:{
+//               npnl: {$subtract:["$amount", "$brokerage"]},
+//               tradingDays:1
+//             }
+//           },
+//           {
+//             $sort: {
+//               _id: -1,
+//             },
+//           },
+//         ]);
+//         console.log('pnl', pnl[0]?.tradingDays);
+//         const payout = pnl[0]?.tradingDays>=20 ? pnl[0]?.npnl*0.1>sub?.profitCap ? sub?.profitCap:pnl[0]?.npnl*0.1>=0?pnl[0]?.npnl*0.1:0: 0;
+//         netPayout+=payout;
+//         // console.log(`payout for user${user?.userId}`, payout, user?.subscribedOn, user?.expiredOn);
+//       }
+//       console.log(`Net payout for ${sub?.plan_name}`, netPayout);
+//       totalPayout+=netPayout;
+//     }
+//     console.log('Total payout', totalPayout);
+//   }catch(e){
+//     console.log(e);
+//   }
+// }
+
+exports.backfillPayouts = async (req, res) => {
+  try {
+      const inactive = await Subscription.find({ status: 'Inactive' });
+      let totalPayout = 0;
+      let subPayout = 0;
+      let userPayout = 0;
+      for (let sub of inactive) {
+          let netPayout = 0;
+          const users = sub.users.filter((elem) => elem?.status === 'Expired' && elem?.expiredBy !== 'User');
+          for (let user of users) {
+              const pnl = await TenXTrader.aggregate([
+                  {
+                      $match: {
+                          trade_time_utc: {
+                              $gte: new Date(user?.subscribedOn),
+                              $lte: new Date(user?.expiredOn)
+                          },
+                          status: "COMPLETE",
+                          trader: new ObjectId(user?.userId),
+                          subscriptionId: new ObjectId(sub?._id)
+                      },
+                  },
+                  {
+                      $group: {
+                          _id: {
+                              "date": { $substr: ["$trade_time_utc", 0, 10] },
+                          },
+                          amount: {
+                              $sum: { $multiply: ["$amount", -1] },
+                          },
+                          brokerage: {
+                              $sum: { $toDouble: "$brokerage" },
+                          }
+                      },
+                  },
+                  {
+                      $project: {
+                          npnl: { $subtract: ["$amount", "$brokerage"] }
+                      }
+                  },
+                  {
+                      $group: {
+                          _id: null,
+                          totalNpnl: { $sum: "$npnl" },
+                          tradingDays: { $sum: 1 }
+                      }
+                  }
+              ]);
+              let payout = 0;
+              if (pnl[0]?.tradingDays >= 20) {
+                  const possiblePayout = pnl[0]?.totalNpnl * 0.1;
+                  const cappedPayout = Math.min(possiblePayout, sub?.profitCap);
+                  payout = cappedPayout >= 0 ? cappedPayout : 0;
+                  user.payout = payout.toFixed(2);
+                  netPayout += payout;
+              }else{
+                user.payout = 0;
+              }
+              subPayout+=payout;
+              // console.log('user', user);
+              await sub.save({validateBeforeSave:false});
+              let targetUser = await User.findOne({_id:new ObjectId(user?.userId)});
+              // console.log('target', targetUser);
+              if (targetUser) {
+                for (let subscription of targetUser?.subscription) {
+                    if (subscription.subscriptionId.toString() == sub._id.toString() && subscription?.status == 'Expired' && subscription?.expiredBy!= 'User') {
+                        const isWithinMargin = moment(subscription.subscribedOn).isBetween(
+                            moment(user.subscribedOn).subtract(2, 'minutes'),
+                            moment(user.subscribedOn).add(2, 'minutes')
+                        ) && moment(subscription.expiredOn).isBetween(
+                            moment(user.expiredOn).subtract(2, 'minutes'),
+                            moment(user.expiredOn).add(2, 'minutes')
+                        );
+
+                        // If the subscription dates match within the margin
+                        if (isWithinMargin) {
+                            // 3. Add the payout to the found subscription
+                            subscription.payout = payout.toFixed(2);
+                            userPayout+=payout;
+                            // console.log(targetUser.subscription);
+                            await targetUser.save({validateBeforeSave:false});
+                        }
+                    }
+                }  
+          }
+          console.log(`Net payout for ${sub?.plan_name}`, netPayout);
+          totalPayout += netPayout;
+        }
+        
+        console.log('sub user', subPayout, userPayout);
+      console.log('Total payout', totalPayout);
+
+  } }catch (e) {
+      console.log(e);
+  }
+  }
+
+  exports.backfillPayout = async (req, res) => {
+    try {
+        const inactive = await Subscription.find({ status: 'Inactive' });
+        let totalPayout = 0;
+        let subPayout = 0;
+        let userPayout = 0;
+
+        for (let sub of inactive) {
+            let netPayout = 0;
+            const users = sub.users.filter((elem) => elem?.status === 'Expired' && elem?.expiredBy !== 'User');
+
+            for (let user of users) {
+              const pnl = await TenXTrader.aggregate([
+                {
+                    $match: {
+                        trade_time_utc: {
+                            $gte: new Date(user?.subscribedOn),
+                            $lte: new Date(user?.expiredOn)
+                        },
+                        status: "COMPLETE",
+                        trader: new ObjectId(user?.userId),
+                        subscriptionId: new ObjectId(sub?._id)
+                    },
+                },
+                {
+                    $group: {
+                        _id: {
+                            "date": { $substr: ["$trade_time_utc", 0, 10] },
+                        },
+                        amount: {
+                            $sum: { $multiply: ["$amount", -1] },
+                        },
+                        brokerage: {
+                            $sum: { $toDouble: "$brokerage" },
+                        }
+                    },
+                },
+                {
+                    $project: {
+                        npnl: { $subtract: ["$amount", "$brokerage"] }
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        totalNpnl: { $sum: "$npnl" },
+                        tradingDays: { $sum: 1 }
+                    }
+                }
+            ]);
+                
+                let payout = 0;
+                if (pnl[0]?.tradingDays >= 20) {
+                    const possiblePayout = pnl[0]?.totalNpnl * 0.1;
+                    const cappedPayout = Math.min(possiblePayout, sub?.profitCap);
+                    payout = cappedPayout >= 0 ? cappedPayout : 0;
+                    
+                    // Find and update the user object inside sub.users array
+                    let userInSubscription = sub.users.id(user._id);
+                    userInSubscription.payout = payout.toFixed(2);
+                    if(payout>0) console.log('userid', user?.userId);
+                    netPayout += payout;
+                } else {
+                    let userInSubscription = sub.users.id(user._id);
+                    userInSubscription.payout = 0;
+                }
+
+                subPayout += payout;
+                await sub.save({ validateBeforeSave: false });
+
+                let targetUser = await User.findOne({ _id: new ObjectId(user?.userId) });
+                if (targetUser) {
+                    for (let subscription of targetUser?.subscription) {
+                        if (subscription.subscriptionId.toString() == sub._id.toString() && subscription?.status == 'Expired' && subscription?.expiredBy != 'User') {
+                            const isWithinMargin = moment(subscription.subscribedOn).isBetween(
+                                moment(user.subscribedOn).subtract(2, 'minutes'),
+                                moment(user.subscribedOn).add(2, 'minutes')
+                            ) && moment(subscription.expiredOn).isBetween(
+                                moment(user.expiredOn).subtract(2, 'minutes'),
+                                moment(user.expiredOn).add(2, 'minutes')
+                            );
+
+                            if (isWithinMargin) {
+                                subscription.payout = payout.toFixed(2);
+                                userPayout += payout;
+                                await targetUser.save({ validateBeforeSave: false });
+                            }
+                        }
+                    }
+                }
+
+            }
+            console.log(`Net payout for ${sub?.plan_name}`, netPayout);
+            totalPayout += netPayout;
+        }
+
+        console.log('sub user', subPayout, userPayout);
+        console.log('Total payout', totalPayout);
+
+    } catch (e) {
+        console.log(e);
+    }
+}

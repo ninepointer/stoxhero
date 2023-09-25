@@ -136,7 +136,7 @@ function Header({ subscription, checkPayment, setCheckPayment, amount, name, id,
                                         <MDBox display='flex' justifyContent='center' flexDirection='column'>
                                             <MDBox display='flex' justifyContent='center' flexDirection='column'>
                                                 <MDTypography fontSize={15} style={{textAlign:'center', textDecoration: 'line-through' }}>
-                                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(subscription?.discounted_price)}
+                                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(subscription?.actual_price)}
                                                 </MDTypography>
                                             </MDBox>
                                             <MDBox display='flex' justifyContent='center' flexDirection='column'>

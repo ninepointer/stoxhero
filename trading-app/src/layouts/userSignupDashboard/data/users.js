@@ -10,7 +10,7 @@ import Grid from "@mui/material/Grid";
 // Material Dashboard 2 React components
 
 // import MDButton from "../";
-import MDButton from "../../components/MDButton";
+import MDButton from "../../../components/MDButton";
 // import MDSnackbar from "../../../components/MDSnackbar";
 // import { userContext } from "../../../AuthContext";
 // import { Tooltip } from '@mui/material';
@@ -19,12 +19,12 @@ import MDButton from "../../components/MDButton";
 
 
 // Material Dashboard 2 React components
-import MDBox from "../../components/MDBox";
+import MDBox from "../../../components/MDBox";
 import TextField from '@mui/material/TextField';
 // import { createTheme } from '@mui/material/styles';
 import { RxCross2 } from 'react-icons/rx';
 import { AiOutlineSearch } from 'react-icons/ai';
-import SearchModel from "./searchModel";
+// import SearchModel from "./searchModel";
 // import { userContext } from "../../AuthContext";
 // import BuyModel from "../BuyModel";
 // import SellModel from "../SellModel";
@@ -76,12 +76,13 @@ function reducer(state, action) {
 }
 
 
-function Users() {
+function Users({selectedUser, setSelectedUser}) {
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let textRef = useRef(null);
   const [timeoutId, setTimeoutId] = useState(null);
   const [state, dispatch] = useReducer(reducer, initialState);
+  
 
   function sendSearchReq(e) {
     // let newData += data
@@ -94,7 +95,7 @@ function Users() {
     setTimeoutId(
       setTimeout(() => {
         sendRequest(value);
-      }, 400)
+      }, 800)
     );
   }
 
@@ -102,6 +103,13 @@ function Users() {
     // setText('');
     dispatch({ type: 'setEmptyText', payload: '' });
     dispatch({ type: 'setEmptyUserData', payload: [] });
+    if(!state?.text){
+      setSelectedUser({
+          id:'',
+          name:'',
+          mobile:''
+      })
+    }
   }
 
   function sendRequest(data){
@@ -126,21 +134,31 @@ function Users() {
     })
   }
 
+  function handleUserClick(elem){
+    console.log('value', elem);
+    setSelectedUser({
+      id:elem?._id,
+      name:elem?.first_name + ' ' + elem?.last_name,
+      mobile:elem?.mobile
+    });
+    handleClear();
+  }
+
   return (
-    <MDBox sx={{ backgroundColor: "white", display: "flex", borderRadius: 2, marginBottom: 2 }}>
-      <MDBox display="flex" flexDirection="column" justifyContent="space-between" sx={{ width: "100%" }}>
+    <MDBox sx={{display: "flex", borderRadius: 2, marginBottom: 2, marginTop:1.5 }}>
+      <MDBox display="flex" flexDirection="column" justifyContent="space-between" sx={{ width: "360px" }}>
         <TextField
           id="outlined-basic"
           // label="Click here to search any symbol and add them in your watchlist to start trading" 
           variant="outlined"
           type="text"
-          placeholder="Search user for deactivation."
-          value={state.text}
+          placeholder="Search user"
+          value={selectedUser?.id ? selectedUser.name+'-'+selectedUser?.mobile : state.text}
           inputRef={textRef}
           InputProps={{
             onFocus: () => textRef.current.select(),
             endAdornment: (
-              <MDButton variant="text" color={"light"} onClick={handleClear}>{state.text && <RxCross2 />}</MDButton>
+              <MDBox variant="text" color={"light"} sx={{cursor:'pointer'}} onClick={handleClear}>{(state.text||selectedUser?.id )&& <RxCross2 color="#000000" />}</MDBox>
             ),
             startAdornment: (
               <>{<AiOutlineSearch />}</>
@@ -148,7 +166,7 @@ function Users() {
           }}
           sx={{ margin: 0, background: "white", padding: 0, borderRadius: 2, width: "100%", '& label': { color: '#49a3f1', fontSize: 20, padding: 0.4 } }} onChange={(e) => { dispatch({ type: 'setText', payload: e.target.value }); sendSearchReq(e) }} //e.target.value.toUpperCase()
         />
-        <MDBox>
+        {(state?.userData.length>0 && state.text!= '') &&<MDBox height='240px' style={{zIndex:'5', backgroundColor:'#ffffff', overflow:'scroll'}}>
           {state.userData?.length > 0 &&
             (state.userData.map((elem, index) => {
               return (
@@ -178,10 +196,11 @@ function Users() {
                           fontWeight: 600
                         }
                       }}
+                      onClick={()=>handleUserClick(elem)}
                     >
-                      <Grid xs={3} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.first_name + " " + elem?.last_name}</Grid>
-                      <Grid xs={3} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem.mobile}</Grid>
-                      <Grid xs={3} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem.email}</Grid>
+                      <Grid xs={3} lg={6} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.first_name + " " + elem?.last_name}</Grid>
+                      <Grid xs={3} lg={6} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem.mobile}</Grid>
+                      {/* <Grid xs={3} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem.email}</Grid> */}
                       {/* <Grid xs={3} lg={3} >
 
                         <SearchModel reRender={reRender} setReRender={setReRender} elem={elem} />
@@ -193,7 +212,7 @@ function Users() {
               )
             }))
           }
-        </MDBox>
+        </MDBox>}
       </MDBox>
     </MDBox>
   )

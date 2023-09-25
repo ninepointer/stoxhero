@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import axios from "axios";
 import { CircularProgress, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
-import MDAvatar from '../../../components/MDAvatar';
+import MDButton from '../../../components/MDButton';
 import MDTypography from '../../../components/MDTypography';
 import beginner from '../../../assets/images/beginner.png'
 import intermediate from '../../../assets/images/intermediate.png'
@@ -12,9 +12,10 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Dialogue from './dialogueBox';
 import ActiveSubscriptionCard from '../data/activeSubscriptionCard'
+import WinnerImage from '../../../assets/images/TenXHeader.png'
 
 
-export default function TenXSubscriptions() {
+export default function TenXSubscriptions({setClicked}) {
   const [cashBalance, setCashBalance] = React.useState(0);
   const [activeTenXSubs,setActiveTenXSubs] = useState([]);
   const [currentTenXSubs,setCurrentTenXSubs] = useState([]);
@@ -52,6 +53,7 @@ export default function TenXSubscriptions() {
     .then(([api2Response]) => {
       // Process the responses here
       setCurrentTenXSubs(api2Response.data.data);
+      console.log('renewal check',api2Response.data.data)
       setTimeout(()=>{
         setIsLoading(false)
       },500)
@@ -73,19 +75,25 @@ export default function TenXSubscriptions() {
         </MDBox>
         :
     <>
-    {currentTenXSubs?.length > 0 &&
+    {currentTenXSubs?.length > 0 ?
         <Grid container spacing={1} mb={1}>
             {
             currentTenXSubs?.map((elem,index)=>(
                 <Grid item key={elem._id} xs={12} md={6} lg={4} display='flex' justifyContent='flex-start'>
                 <MDBox>
-                    <ActiveSubscriptionCard subscription={elem} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={elem.actual_discountPrice} name={elem.plan_name} id={elem._id} walletCash={cashBalance} allowRenewal={elem.allowRenewal}/>
+                    <ActiveSubscriptionCard subscription={elem} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={elem.discounted_price} name={elem.plan_name} id={elem._id} walletCash={cashBalance} allowRenewal={elem.allowRenewal}/>
                 </MDBox>
                 </Grid>
             ))
             }
 
         </Grid>
+        :
+        <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
+            <img src={WinnerImage} width={50} height={50}/>
+            <MDTypography color="light" fontSize={15} mb={1}>No Subscribed TenX Plan(s)</MDTypography>
+            <MDButton color="info" size='small' fontSize={10}  onClick={()=>{setClicked("live")}}>Check Available TenX Subscriptions</MDButton>
+        </MDBox>
     }
     </>
     }

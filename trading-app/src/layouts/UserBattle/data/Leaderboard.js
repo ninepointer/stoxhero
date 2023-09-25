@@ -63,9 +63,9 @@ function Leaderboard({ socket, name, id}) {
 
         })
 
-        let timer = setTimeout(() => {
-            setIsLoading(false);
-        }, 1000);
+        // let timer = setTimeout(() => {
+        //     setIsLoading(false);
+        // }, 1000);
 
     }, [])
 
@@ -116,9 +116,9 @@ function Leaderboard({ socket, name, id}) {
     return (
         <>
             {loading ?
-                <MDBox display="flex" justifyContent="center" alignItems="center">
-                    <MDBox display="flex" justifyContent="center" alignItems="center"><MDTypography fontSize={15} fontWeight='bold' color='black'>Loading Contest Leaderboard</MDTypography></MDBox>
+                <MDBox display="flex" flexDirection='column' justifyContent="center" alignItems="center">
                     <MDBox ml={1} display="flex" justifyContent="center" alignItems="center"><CircularProgress color="black" /></MDBox>
+                    <MDBox display="flex" justifyContent="center" alignItems="center"><MDTypography fontSize={15} fontWeight='bold' color='black'>Loading Battle Leaderboard</MDTypography></MDBox>
                 </MDBox>
                 :
                 <MDBox color="black" mt={0} mb={0} borderRadius={10} minHeight='auto'>
@@ -151,7 +151,7 @@ function Leaderboard({ socket, name, id}) {
                                                 />
                                             </Grid>
                                             <Grid item xs={12} lg={12} display='flex' justifyContent='left' alignItems='center'>
-                                                <MDTypography fontSize={15} color='black' fontWeight='bold'>StoxHero {name} Contest Leaderboard</MDTypography>
+                                                <MDTypography fontSize={15} color='black' fontWeight='bold'>StoxHero {name} Battle Leaderboard</MDTypography>
                                             </Grid>
                                             <Grid item xs={12} lg={4} display='flex' justifyContent='right' alignItems='center' gap={1} mr={1}>
                                                 <MDBox><MDTypography fontSize={15} color='#000000' backgroundColor='#000000' fontWeight='bold' style={{ cursor: 'pointer', borderRadius: "5px" }}><MDButton variant='text' size='small' onClick={() => window.open('https://instagram.com/stoxhero_official?igshid=MzRlODBiNWFlZA==', '_blank')}><InstagramIcon /></MDButton></MDTypography></MDBox>
@@ -311,7 +311,7 @@ function Leaderboard({ socket, name, id}) {
                                     :
 
                                     <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center'>
-                                        <MDBox mb={2}><MDTypography fontSize={15} color='black' fontWeight='bold' style={{ cursor: 'pointer' }}>The Contest Leaderboard will be displayed here!</MDTypography></MDBox>
+                                        <MDBox mb={2}><MDTypography fontSize={15} color='black' fontWeight='bold' style={{ cursor: 'pointer' }}>The Battle Leaderboard will be displayed here!</MDTypography></MDBox>
                                     </Grid>
 
                                 }

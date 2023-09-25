@@ -286,7 +286,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
         const fileBlob = dataURLtoBlob(fileDataUrl);
         const newFile = new File([fileBlob], selectedFile.name, { type: selectedFile.type });
         const previewURL = URL.createObjectURL(selectedFile)
-        if (selectedFile && selectedFile.type && selectedFile.type.startsWith("image/")){
+        if (selectedFile && selectedFile.type && selectedFile.type.startsWith("image/") && selectedFile?.size<=2*1024*1024){
         if(fieldName === "profilePhoto"){
           setFormStatePD(prevState => ({
             ...prevState,
@@ -326,7 +326,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
         }
       }
       else{
-        openErrorSB("KYC Details","Invalid file type. Please select an image.");
+        return openErrorSB("KYC Details","Invalid file type. Please select an image under 2MB size.");
         // console.log("Error: Invalid file type. Please select an image.");
       } 
       };

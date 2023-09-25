@@ -88,9 +88,9 @@ function MyRank({ socket, id}) {
         <>
 
             {loading ?
-                <MDBox display="flex" justifyContent="center" alignItems="center">
-                    <MDBox display="flex" justifyContent="center" alignItems="center"><MDTypography fontSize={15} fontWeight='bold' color='black'>Loading Your Rank</MDTypography></MDBox>
+                <MDBox display="flex" justifyContent="center" flexDirection='column' alignItems="center">
                     <MDBox ml={1} display="flex" justifyContent="center" alignItems="center"><CircularProgress color="black" /></MDBox>
+                    <MDBox display="flex" justifyContent="center" alignItems="center"><MDTypography fontSize={15} fontWeight='bold' color='black'>Loading Your Rank</MDTypography></MDBox>
                 </MDBox>
                 :
                 <MDBox color="black" mt={0} mb={0} borderRadius={10} minHeight='auto'>

@@ -334,7 +334,8 @@ const userDetailSchema = new mongoose.Schema({
             enum: ['System','User'],
         },
         isRenew: {type: Boolean},
-        fee: {type: Number}
+        fee: {type: Number},
+        payout:{type:Number}
     }],
     internshipBatch:[{
         type: Schema.Types.ObjectId,
