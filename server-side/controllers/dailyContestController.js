@@ -13,6 +13,7 @@ const moment = require('moment');
 const fs = require('fs');
 const path = require('path');
 const {PDFDocument} = require('pdf-lib');
+const {createUserNotification} = require('./notification/notificationController');
 
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
@@ -1533,6 +1534,18 @@ exports.creditAmountToWallet = async () => {
                         </html>
                         `);
                     }
+                    await createUserNotification({
+                        title:'Contest Reward Credited',
+                        description:`₹${payoutAmount?.toFixed(2)} credited to your wallet as your contest reward`,
+                        notificationType:'Individual',
+                        notificationCategory:'Informational',
+                        productCategory:'Contest',
+                        user: user?._id,
+                        priority:'Medium',
+                        channels:['App', 'Email'],
+                        createdBy:'63ecbc570302e7cf0153370c',
+                        lastModifiedBy:'63ecbc570302e7cf0153370c'  
+                      });
                 }
 
             }
@@ -1934,6 +1947,18 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
             emailService(recipientString,subject,message);
             console.log("Subscription Email Sent")
         }
+        await createUserNotification({
+            title:'Contest Fee Deducted',
+            description:`₹${contest.entryFee} deducted as contest fee for ${contest?.contestName}`,
+            notificationType:'Individual',
+            notificationCategory:'Informational',
+            productCategory:'Contest',
+            user: user?._id,
+            priority:'Low',
+            channels:['App', 'Email'],
+            createdBy:'63ecbc570302e7cf0153370c',
+            lastModifiedBy:'63ecbc570302e7cf0153370c'  
+          });
 
         res.status(200).json({
             status: "success",
