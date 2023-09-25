@@ -38,12 +38,54 @@ const uploadMultiple = multer({ storage, fileFilter,
 { name: 'aadhaarCardFrontImage', maxCount: 1 }, { name: 'aadhaarCardBackImage', maxCount: 1 }, 
 { name: 'panCardFrontImage', maxCount: 1 }, { name: 'passportPhoto', maxCount: 1 },
 { name: 'addressProofDocument', maxCount: 1 }, { name: 'incomeProofDocument', maxCount: 1 } ]);
+// const uploadMultiple = multer({
+//   storage: storage,
+//   fileFilter: (req, file, cb) => {
+//     console.log('file filter', file, file.size);
+//     if (file.mimetype.startsWith("image/")) {
+//       cb(null, true);
+//   } else {
+//       req.invalidFile = true;
+//       cb(new Error("Invalid file type"), false);
+//     }
+//     if (file.size > 2 * 1024 * 1024) {
+//       console.log('fileSize', file.size) // 2MB size check
+//       cb(null, true);
+//       req.tooLarge = true; // set a flag to indicate a file was too large
+//     } else {
+//       cb(null, false);
+//     }
+//   },
+//   limits: {
+//     fileSize: 10 * 1024 * 1024, // 10MB
+//   },
+// }).fields([
+//   { name: 'profilePhoto', maxCount: 1 },
+//   { name: 'aadhaarCardFrontImage', maxCount: 1 },
+//   { name: 'aadhaarCardBackImage', maxCount: 1 },
+//   { name: 'panCardFrontImage', maxCount: 1 },
+//   { name: 'passportPhoto', maxCount: 1 },
+//   { name: 'addressProofDocument', maxCount: 1 },
+//   { name: 'incomeProofDocument', maxCount: 1 }
+// ]);
 
+const checkFileError = async (req,res,next) =>{
+  const files = req.files;
+  for (let key in files) {
+    console.log('file size', files[key][0].size);
+    if (files[key][0].size > 2 * 1024 * 1024) { // 2MB size check
+      return res.status(400).json({
+        status: 'error',
+        message: 'File size limit is 2MB. Upload a smaller file.'
+      });
+    }
+  }
+  next();
+}
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
-
 
 const resizePhoto = async (req, res, next) => {
     // console.log('resize func');
@@ -483,7 +525,7 @@ const currentUser = (req,res, next) =>{
     next();
 };
 
-router.patch('/userdetail/me', authController.protect, currentUser, uploadMultiple, resizePhoto, uploadToS3, async(req,res,next)=>{
+router.patch('/userdetail/me', authController.protect, currentUser, uploadMultiple, checkFileError, resizePhoto, uploadToS3, async(req,res,next)=>{
 
     try{
         const user = await UserDetail.findById(req.user._id);

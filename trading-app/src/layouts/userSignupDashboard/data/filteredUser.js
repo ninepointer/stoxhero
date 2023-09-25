@@ -20,6 +20,7 @@ import { saveAs } from 'file-saver';
 import html2canvas from 'html2canvas';
 import { Tooltip } from '@mui/material';
 import moment from 'moment';
+import Users from './users';
 
 export default function LabTabs() {
   const [isLoading, setIsLoading] = React.useState(false);
@@ -43,6 +44,11 @@ export default function LabTabs() {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const[data,setData] = useState([]);
+  const [selectedUser, setSelectedUser] = useState({
+    id:'',
+    name:'',
+    mobile:''
+  });
 
   const perPage = 10;
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -91,6 +97,7 @@ export default function LabTabs() {
       '& .MuiInputBase-input': {
         color: '#000000', // Replace 'red' with your desired text color
         textAlign: 'center',
+        height:'48px'
       },
       '& .MuiInput-underline:before': {
         borderBottomColor: '#000000', // Replace 'red' with your desired text color
@@ -106,6 +113,7 @@ export default function LabTabs() {
       '& .MuiInputBase-input': {
         color: '#000000', // Replace 'red' with your desired text color
         textAlign: 'center',
+        height:'40px'
       },
       '& .MuiInput-underline:before': {
         borderBottomColor: '#000000', // Replace 'red' with your desired text color
@@ -164,13 +172,30 @@ export default function LabTabs() {
       setCurrentPage((prevPage) => prevPage - 1);
     }
   };
+  function handleReset(){
+    setSelectedTab({
+      referral: {
+        id: "",
+        name: ""
+      },
+      campaign: {
+        id: "",
+        name: ""
+      }
+    });
+    setSelectedUser({});
+    setStartDate(dayjs(lastMonth));
+    setEndDate(dayjs(date));
+    setFilteredUsers([]);
+    setData([]);
+  }
   async function handleShowDetails(){
     try{
-      const res = await axios.get(`${apiUrl}user/filteredusers?campaign=${selectedTab?.campaign?.id}&referral=${selectedTab?.referral?.id}&startDate=${startDate}&endDate=${endDate}`, {withCredentials:true});
+      const res = await axios.get(`${apiUrl}user/filteredusers?campaign=${selectedTab?.campaign?.id}&referral=${selectedTab?.referral?.id}&startDate=${startDate}&endDate=${endDate}&referredBy=${selectedUser?.id} `, {withCredentials:true});
       if(res.status == 200){
         setFilteredUsers(res.data.data);
         const startIndex = (currentPage - 1) * perPage;
-        const slicedData = filteredUsers.slice(startIndex, startIndex + perPage);
+        const slicedData = res.data.data.slice(startIndex, startIndex + perPage);
         setData(slicedData);
         setIsLoading(false);
       }else{
@@ -286,7 +311,7 @@ export default function LabTabs() {
                           minHeight="6em"
                           placeholder="Referral Programme"
                           variant="outlined"
-                          sx={{ width: "200px" }}
+                          sx={{ width: "200px"}}
                           onChange={(e) => {handleReferralChange(e)}}
                           InputLabelProps={{
                             style: { color: '#000000' },
@@ -338,8 +363,12 @@ export default function LabTabs() {
                           ))}
                         </CustomTextField2>
                         </Grid>
-                        <Grid item xs={12} md={6} lg={4} mt={0} mb={0} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                        <Grid item xs={12} md={6} lg={6} mb={0} display="flex" justifyContent="center" alignContent="center" alignItems="center">    
+                            <Users selectedUser={selectedUser} setSelectedUser={setSelectedUser}/>
+                        </Grid>
+                        <Grid item xs={12} md={6} lg={12} mt={0} mb={0} display="flex" justifyContent="center" gap={2} alignContent="center" alignItems="center" width='100%'>
                           <MDButton variant="contained" color="info" onClick={handleShowDetails}>Show Details</MDButton>
+                          <MDButton variant="contained" color="warning" onClick={handleReset}>Reset Filters</MDButton>
                         </Grid>
                       </Grid>
                     </MDBox>

@@ -30,10 +30,11 @@ import { socketContext } from "../../../socketContext";
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { CircularProgress } from '@mui/material';
 import MDButton from '../../../components/MDButton';
+import NewTradingWindow from '../data/newTradingWindow';
 
 
 
-function TradingHeader() {
+function TradingHeader({socket, data}) {
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");
 
   useEffect(() => {
@@ -60,16 +61,16 @@ function TradingHeader() {
 
   const getDetails = useContext(userContext);
   const location = useLocation();
-  const socket = useContext(socketContext);
+//   const socket = useContext(socketContext);
 
-  useEffect(() => {
+//   useEffect(() => {
 
-    socket.emit('userId', getDetails.userDetails._id)
-    socket.emit("user-ticks", getDetails.userDetails._id);
-    socket.emit("battleLeaderboard", {id: location?.state?.data, employeeId: getDetails.userDetails?.employeeid, userId: getDetails.userDetails?._id});
+//     socket.emit('userId', getDetails.userDetails._id)
+//     socket.emit("user-ticks", getDetails.userDetails._id);
+//     socket.emit("battleLeaderboard", {id: location?.state?.data, employeeId: getDetails.userDetails?.employeeid, userId: getDetails.userDetails?._id});
 
-    ReactGA.pageview(window.location.pathname)
-  }, []);
+//     ReactGA.pageview(window.location.pathname)
+//   }, []);
 
   const [isLoading, setIsLoading] = useState(false);
   const [clicked, setClicked] = useState('trading')
@@ -82,11 +83,11 @@ function TradingHeader() {
 
   return (
    
-
+    <>
       <MDBox bgColor="light" color="light" display='flex' justifyContent='center' flexDirection='column' mb={1} borderRadius={10} minHeight='auto' width='100%'>
 
 
-          <MDBox mt={0} mb={1} mt={1} p={0.5} minWidth='100%' bgColor='light' minHeight='auto' borderRadius={7}>
+          <MDBox mb={1} mt={1} p={0.5} minWidth='100%' bgColor='light' minHeight='auto' borderRadius={7}>
 
               <Grid container spacing={1} xs={12} md={12} lg={12} minWidth='100%' display='flex' justifyContent='space-around'>
                   <Grid item xs={12} md={4} lg={3} display='flex' justifyContent='center'>
@@ -95,10 +96,10 @@ function TradingHeader() {
                       >
                           <MDBox display='flex' justifyContent='center' alignItems='center'>
                               <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
-                                  <RemoveRedEyeIcon />
+                                  {/* <RemoveRedEyeIcon /> */}
                               </MDBox>
                               <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
-                                  Trading
+                                  My Positions
                               </MDBox>
                           </MDBox>
                       </MDButton>
@@ -109,7 +110,7 @@ function TradingHeader() {
                       >
                           <MDBox display='flex' justifyContent='center' alignItems='center'>
                               <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
-                                  <RemoveRedEyeIcon />
+                                  {/* <RemoveRedEyeIcon /> */}
                               </MDBox>
                               <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
                                   LeaderBoard
@@ -121,32 +122,34 @@ function TradingHeader() {
               </Grid>
           </MDBox>
 
-          {isLoading ?
-              <MDBox mt={10} mb={10} display="flex" justifyContent="center" alignItems="center">
-                  <CircularProgress color='light' />
-              </MDBox>
-              :
-              <>
-                  <MDBox>
-                      {clicked === "trading" ?
-                          <>
-                              <ContestTradingView socket={socket} data={location.state} setClicked={setClicked} />
-                          </>
-                          :
-                          clicked === "leaderboard" ?
-                              <>
-                                  <Leaderboard socket={socket} name={location.state?.name} id={location.state?.data} setClicked={setClicked} />
-                              </>
-                              :
-                              <>
-                              </>
-                      }
-                  </MDBox>
-              </>
-          }
 
       </MDBox>
    
+   {isLoading ?
+       <MDBox mt={10} mb={10} display="flex" justifyContent="center" alignItems="center">
+           <CircularProgress color='light' />
+       </MDBox>
+       :
+       <>
+           <MDBox>
+               {clicked === "trading" ?
+                   <>
+                     <NewTradingWindow socket={socket} data={data} setClicked={setClicked}/>
+                       {/* <ContestTradingView socket={socket} data={location.state} setClicked={setClicked} /> */}
+                   </>
+                   :
+                   clicked === "leaderboard" ?
+                       <>
+                           <Leaderboard socket={socket} name={data?.name} id={data?.data} setClicked={setClicked} />
+                       </>
+                       :
+                       <>
+                       </>
+               }   
+           </MDBox>
+       </>
+   }
+   </>
     
   );
 }

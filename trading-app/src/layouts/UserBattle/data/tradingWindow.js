@@ -24,7 +24,8 @@ import { useNavigate } from "react-router-dom"
 import PnlAndMarginData from "./pnlAndMarginData";
 import Order from "../../tradingCommonComponent/orders/Order";
 import Leaderboard from "./Leaderboard"
-import MyRank from "./MyRank"
+import MyRank from "./MyRank";
+import TradingHeader from '../Header/TradingHeader';
 
 
 function Header({ socket, data }) {
@@ -152,9 +153,15 @@ function Header({ socket, data }) {
                             </Grid>
                         </Grid>
 
+                        <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
+                            <Grid item xs={12} md={6} lg={12} >
+                                <TradingHeader socket={socket} data={data}/>
+                            </Grid>
+                        </Grid>
+
                         
 
-                        <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
+                        {/* <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
                             <Grid item xs={12} md={6} lg={12} >
                                 {memoizedOverallPnl}
                             </Grid>
@@ -164,7 +171,7 @@ function Header({ socket, data }) {
                             <Grid item xs={12} md={6} lg={12} >
                                 {memoizedOrder}
                             </Grid>
-                        </Grid>
+                        </Grid> */}
                     </MDBox>
 
                 {/* </Grid> */}

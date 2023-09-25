@@ -19,9 +19,10 @@ import { dailyContest } from '../../../variables';
 import DailyContestMargin from '../../tradingCommonComponent/MarginDetails/DailyContestMargin';
 import StockIndexDailyContest from "../../tradingCommonComponent/StockIndex/StockIndexDailyContest";
 import Leaderboard from '../data/dailyContestLeaderboard'
-import DailyContestMyRank from '../data/dailyContestMyRank'
+import DailyContestMyRank from '../data/newMyRank';
 import {useNavigate} from "react-router-dom"
 import PnlAndMarginData from "./pnlAndMarginData";
+import TradingHeader from '../Header/TradingHeader';
 
 
 function Header({ socket, data }) {
@@ -57,8 +58,8 @@ function Header({ socket, data }) {
       }, [socket, data?.name, contestId]);
 
       const memoizedDailyContestMyRank = useMemo(() => {
-        return <DailyContestMyRank socket={socket} id={contestId} />;
-      }, [socket, contestId]);
+        return <DailyContestMyRank socket={socket} id={contestId} data={data} />;
+      }, [socket, contestId, data]);
 
     const memoizedTradableInstrument = useMemo(() => {
         return <TradableInstrument
@@ -127,26 +128,32 @@ function Header({ socket, data }) {
                         {memoizedInstrumentDetails}
                     </Grid>
                 </Grid>
+                <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
+                    <Grid item xs={12} md={6} lg={12} >
+                        {memoizedDailyContestMyRank}
+                    </Grid>
+                </Grid>
 
                 <Grid container spacing={0.5} p={0} mt={0.5} sx={{ display: 'flex', flexDirection: 'row' }}>
                     
-                    <Grid item xs={12} md={12} lg={8} >
+                    {/* <Grid item xs={12} md={12} lg={8} >
                         <MDBox sx={{ backgroundColor: '#1A73E8', height: '100%' }} borderRadius={3}>
                             {memoizedLeaderboard}
                         </MDBox>
-                    </Grid>
+                    </Grid> */}
                     
-                    <Grid item xs={12} md={12} lg={4} >
+                    {/* <Grid item xs={12} md={12} lg={4} >
                         <MDBox sx={{ backgroundColor: '#1A73E8', height: '100%' }} borderRadius={3}>
                             {memoizedDailyContestMyRank}
                         </MDBox>
-                    </Grid>
+                    </Grid> */}
                     
                 </Grid>
 
                 <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
                     <Grid item xs={12} md={6} lg={12} >
-                        {memoizedOverallPnl}
+                        <TradingHeader socket={socket} data={data}/>
+                        {/* {memoizedOverallPnl} */}
                     </Grid>
                 </Grid>
             </MDBox>

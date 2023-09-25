@@ -91,7 +91,7 @@ export default function TenXSubscriptions({setClicked}) {
             activeTenXSubs?.map((elem,index)=>(
                 <Grid item key={elem._id} xs={12} md={6} lg={4}>
                 <MDBox>
-                    <SubscriptionCard subscription={elem} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={elem.actual_discountPrice} name={elem.plan_name} id={elem._id} walletCash={cashBalance} allowRenewal={elem.allowRenewal}/>
+                    <SubscriptionCard subscription={elem} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={elem.discounted_price} name={elem.plan_name} id={elem._id} walletCash={cashBalance} allowRenewal={elem.allowRenewal}/>
                 </MDBox>
                 </Grid>
             ))

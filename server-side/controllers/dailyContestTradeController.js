@@ -1943,7 +1943,7 @@ const dailyContestLeaderBoard = async (id) => {
 
         
         // await client.del(`leaderboard:${id}`)
-        const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "2", 'WITHSCORES'])
+        const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "19", 'WITHSCORES'])
         // console.log(leaderBoard, id)
         const formattedLeaderboard = await formatData(leaderBoard)
 

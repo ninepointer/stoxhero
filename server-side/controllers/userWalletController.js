@@ -62,15 +62,20 @@ exports.myWallet = async(req,res,next) => {
 exports.deductSubscriptionAmount = async(req,res,next) => {
     let isRedisConnected = getValue();
     const userId = req.user._id;
-    const {subscriptionAmount, subscriptionName, subscribedId} = req.body
+    let {subscriptionAmount, subscriptionName, subscribedId} = req.body
     // console.log("all three", subscriptionAmount, subscriptionName, subscribedId)
     try{
 
         const subs = await Subscription.findOne({_id: new ObjectId(subscribedId)});
+        if(!subscriptionAmount){
+            subscriptionAmount = subs?.discounted_price;
+        }
         const wallet = await UserWallet.findOne({userId: userId});
         let amount = 0;
         for(elem of wallet.transactions){
-          amount += elem.amount;
+          if(elem?.transactionType == 'Cash'){
+              amount += elem.amount;
+          }  
         }
   
         if(amount < subscriptionAmount){

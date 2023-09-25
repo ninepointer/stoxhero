@@ -37,6 +37,7 @@ function Header({ subscription, checkPayment, setCheckPayment, amount, name, id,
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
     const navigate = useNavigate();
+    console.log('allow renewal', allowRenewal);
     const [userCount,setUserCount] = useState(0);
     let TenXIcon = TenXB
 
