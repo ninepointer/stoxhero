@@ -186,22 +186,23 @@ exports.initiatePayment = async (req, res) => {
         mobileNumber,
         redirectTo
     } = req.body;
-    let merchantId = 'MERCHANTUAT';
+    let merchantId = process.env.PHONEPE_MERCHANTID;
     let merchantTransactionId = generateUniqueTransactionId();
     let merchantUserId = 'MUID'+ req.user._id;
-    let redirectUrl = `http://43.204.7.180/paymenttest/status?merchantTransactionId=${merchantTransactionId}&redirectTo=${redirectTo}`;
-    let callbackUrl = 'http://43.204.7.180/api/v1/payment/callback';
+    let redirectUrl = `https://stoxhero.com/paymenttest/status?merchantTransactionId=${merchantTransactionId}&redirectTo=${redirectTo}`;
+    let callbackUrl = 'https://stoxhero.com/api/v1/payment/callback';
     let redirectMode = 'REDIRECT'
     const payment = await Payment.create({
         paymentTime: new Date(),
         currency: 'INR',
-        amount: amount/100,
+        amount: amount/4000,
         paymentStatus: 'initiated',
         actions:[{
             actionTitle: 'Payment Initiated',
             actionDate: new Date(),
             actionBy:req.user._id
         }],
+        paymentBy:req.user?._id,
         merchantTransactionId,
         createdOn: new Date(),
         createdBy: req.user._id,
@@ -216,7 +217,7 @@ exports.initiatePayment = async (req, res) => {
     const payload = {
         merchantId,
         merchantTransactionId,
-        amount,
+        amount: amount/40,
         merchantUserId,
         redirectUrl,
         redirectMode,
@@ -226,14 +227,14 @@ exports.initiatePayment = async (req, res) => {
     };
 
     const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64');
-    const saltKey = '099eb0cd-02cf-4e2a-8aca-3e6c6aff0399'; // This should be stored securely, not hardcoded
+    const saltKey = process.env.PHONEPE_KEY; // This should be stored securely, not hardcoded
     const saltIndex = '1';
     const toHash = `${encodedPayload}/pg/v1/pay${saltKey}`;
     
     const checksum = crypto.createHash('sha256').update(toHash).digest('hex') + '###' + saltIndex;
 
     try {
-        const response = await axios.post('https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay', {
+        const response = await axios.post('https://api.phonepe.com/apis/hermes/pg/v1/pay', {
             request: encodedPayload
         }, {
             headers: {
@@ -262,6 +263,7 @@ function generateUniqueTransactionId() {
   }
 
 exports.handleCallback = async (req, res, next) => {
+    console.log('phonepe--------callback------------');
     try {
         // Extract and decode the response
         const encodedResponse = req.body.response;
@@ -329,7 +331,7 @@ exports.handleCallback = async (req, res, next) => {
     }
 }
 
-const SALT_KEY = "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399"; // You may want to keep this in a secure environment variable or secret management tool.
+const SALT_KEY = process.env.PHONEPE_KEY; // You may want to keep this in a secure environment variable or secret management tool.
 const SALT_INDEX = "1"; // This too could be managed securely if it's ever meant to change.
 
 const verifyChecksum = (encodedPayload, receivedChecksum) => {
@@ -342,24 +344,28 @@ const verifyChecksum = (encodedPayload, receivedChecksum) => {
 
 exports.checkPaymentStatus = async(req,res, next) => {
     try{
+        console.log('chekcing payment status-------------------------------------------------');
         const {merchantTransactionId} = req.params;
-        const merchantId = 'MERCHANTUAT';
+        const merchantId = process.env.PHONEPE_MERCHANTID;
         const payment  = await Payment.findOne({merchantTransactionId});
-        // console.log('payment', payment);
-        const saltKey = '099eb0cd-02cf-4e2a-8aca-3e6c6aff0399'; // This should be stored securely, not hardcoded
+        console.log('payment', payment);
+        const saltKey = process.env.PHONEPE_KEY; // This should be stored securely, not hardcoded
         const saltIndex = '1';
         const toHash = `/pg/v1/status/${merchantId}/${merchantTransactionId}`+ saltKey;
         const checksum = crypto.createHash('sha256').update(toHash).digest('hex') + '###' + saltIndex;
-        const resp = await axios.get(`https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/${merchantId}/${merchantTransactionId}`,{
+        const resp = await axios.get(`https://api.phonepe.com/apis/hermes/pg/v1/status/${merchantId}/${merchantTransactionId}`,{
             headers: {
                 'Content-Type': 'application/json',
                 'X-VERIFY': checksum,
                 'X-MERCHANT-ID':merchantId
             }
         });
+        console.log('response payment instrument', resp?.data?.data?.paymentInstrument);
         if(resp.data.code == 'PAYMENT_SUCCESS'){
             if(payment.paymentStatus != 'succeeded'){
                 payment.paymentStatus = 'succeeded';
+                payment.transactionId = resp?.data?.data?.transactionId;
+                payment.paymentMode = resp?.data?.data?.paymentInstrument?.type;
                     payment.actions.push({
                         actionTitle:'Payment Successful',
                         actionDate: new Date(),
@@ -369,6 +375,8 @@ exports.checkPaymentStatus = async(req,res, next) => {
         }else if(resp.data.code == 'PAYMENT_ERROR'){
             if(payment.paymentStatus != 'failed'){
                 payment.paymentStatus = 'failed';
+                payment.transactionId = resp?.data?.data?.transactionId;
+                payment.paymentMode = resp?.data?.data?.paymentInstrument?.type;
                     payment.actions.push({
                         actionTitle:'Payment Failed',
                         actionDate: new Date(),
@@ -376,6 +384,7 @@ exports.checkPaymentStatus = async(req,res, next) => {
                     });
             }
         }
+        await payment.save({validateBeforeSave:false});
     
         res.status(200).json({
             status:'success',
