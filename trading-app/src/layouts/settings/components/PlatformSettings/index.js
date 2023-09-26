@@ -154,6 +154,8 @@ function PlatformSettings({settingData, setReRender, reRender}) {
         leaderBoardTimming: LeaderBoardTimming,
         infinityPrice: infinityPrice,
         maxWithdrawal,
+        maxWithdrawalHigh,
+        walletBalanceUpperLimit,
         minWithdrawal,
         upiId, email, mobile,
         appStartTime, timerStartTimeInStart, appEndTime, timerStartTimeInEnd
