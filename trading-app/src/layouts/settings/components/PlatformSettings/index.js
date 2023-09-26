@@ -39,6 +39,8 @@ function PlatformSettings({settingData, setReRender, reRender}) {
   const [editable, setEditable] = useState(false);
   const [infinityPrice, setInfinityPrice] = useState(0);
   const [maxWithdrawal, setMaxWithdrawal] = useState(0);
+  const [maxWithdrawalHigh, setMaxWithdrawalHigh] = useState(0);
+  const [walletBalanceUpperLimit, setWalletBalanceUpperLimit] = useState(0);
   const [minWithdrawal, setMinWithdrawal] = useState(0);
   const [fund, setFund] = useState(0);
   const [usedMargin, setUsedMargin] = useState(0);
@@ -72,6 +74,8 @@ function PlatformSettings({settingData, setReRender, reRender}) {
       setInfinityLiveValue(settingData[0]?.infinityLive)
       setInfinityPrice(settingData[0]?.infinityPrice)
       setMaxWithdrawal(settingData[0]?.maxWithdrawal)
+      setMaxWithdrawalHigh(settingData[0]?.maxWithdrawalHigh)
+      setWalletBalanceUpperLimit(settingData[0]?.walletBalanceUpperLimit)
       setMinWithdrawal(settingData[0]?.minWithdrawal)
       accountData.upiId = settingData[0]?.contest?.upiId
       accountData.email = settingData[0]?.contest?.email
@@ -287,6 +291,16 @@ function PlatformSettings({settingData, setReRender, reRender}) {
         <TextField
           disabled={!editable}
           id="outlined-required"
+          label='Maximum Withdrawal Amount Higher Bracket'
+          fullWidth
+          type="number"
+          value={maxWithdrawalHigh}
+          sx={{marginTop: "15px"}}
+          onChange={(e)=>{setMaxWithdrawalHigh(e.target.value)}}
+        />
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
           label='Minimum Withdrawal Amount'
           fullWidth
           type="number"
@@ -295,6 +309,18 @@ function PlatformSettings({settingData, setReRender, reRender}) {
           sx={{marginTop: "15px"}}
           // defaultValue={infinityPrice ? infinityPrice: settingData[0]?.infinityPrice}
           onChange={(e)=>{setMinWithdrawal(e.target.value)}}
+        />
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='Min Wallet Balance For Higher Limit'
+          fullWidth
+          type="number"
+          value={walletBalanceUpperLimit}
+          
+          sx={{marginTop: "15px"}}
+          // defaultValue={infinityPrice ? infinityPrice: settingData[0]?.infinityPrice}
+          onChange={(e)=>{setWalletBalanceUpperLimit(e.target.value)}}
         />
 
         <MDBox>
