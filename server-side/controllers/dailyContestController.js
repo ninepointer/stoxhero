@@ -30,9 +30,22 @@ exports.createContest = async (req, res) => {
                 message: "Contest is already exist with this name.",
             });
         }
+        const startTimeDate = new Date(contestStartTime);
+
+        // Set the seconds to "00"
+        startTimeDate.setSeconds(0);
+
+        // Check if startTime is valid
+        if (isNaN(startTimeDate.getTime())) {
+            return res.status(400).json({
+                status: 'error',
+                message: "Validation error: Invalid start time format",
+            });
+        }
+
 
         const contest = await Contest.create({
-            maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio, payoutType,
+            maxParticipants, contestStatus, contestEndTime, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
             contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold
         });

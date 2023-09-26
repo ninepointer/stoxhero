@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.06af0c21.css",
-    "main.js": "/static/js/main.53e7bcbd.js",
+    "main.js": "/static/js/main.7d0f2c33.js",
     "static/js/703.0d407a6f.chunk.js": "/static/js/703.0d407a6f.chunk.js",
     "static/js/513.562b0700.chunk.js": "/static/js/513.562b0700.chunk.js",
     "static/media/bgBanner1.jpg": "/static/media/bgBanner1.c9ad6246a3bebeb04615.jpg",
@@ -60,6 +60,7 @@
     "static/media/main-bg-2_1.webp": "/static/media/main-bg-2_1.badcdca57b48fc341ba7.webp",
     "static/media/purse.png": "/static/media/purse.3bdcf4948b4673ae0853.png",
     "static/media/fniftycharticon.png": "/static/media/fniftycharticon.cbb1058bdf9b61b5a82e.png",
+    "static/media/void.png": "/static/media/void.17d42dc7efa76e6790b1.png",
     "static/media/visa.png": "/static/media/visa.71c0d5e9e2aaee42e4c3.png",
     "static/media/bniftycharticon.png": "/static/media/bniftycharticon.a47f2a114f750a451c6c.png",
     "static/media/candlestick-chart.png": "/static/media/candlestick-chart.a47f2a114f750a451c6c.png",
@@ -172,12 +173,12 @@
     "static/media/slick.woff": "/static/media/slick.295183786cd8a1389865.woff",
     "index.html": "/index.html",
     "main.06af0c21.css.map": "/static/css/main.06af0c21.css.map",
-    "main.53e7bcbd.js.map": "/static/js/main.53e7bcbd.js.map",
+    "main.7d0f2c33.js.map": "/static/js/main.7d0f2c33.js.map",
     "703.0d407a6f.chunk.js.map": "/static/js/703.0d407a6f.chunk.js.map",
     "513.562b0700.chunk.js.map": "/static/js/513.562b0700.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.06af0c21.css",
-    "static/js/main.53e7bcbd.js"
+    "static/js/main.7d0f2c33.js"
   ]
 }
