@@ -542,7 +542,19 @@ exports.selectCandidate = async (req, res, next) => {
 `
 
     await mailSender(user.email, 'Congratulations! You\'re selected for the internship.', message);
-
+    
+    await createUserNotification({
+      title:'Selected for Internship',
+      description:`Your profile is selected for Internship with batch ${batch.batchName}.`,
+      notificationType:'Individual',
+      notificationCategory:'Informational',
+      productCategory:'Internship',
+      user: user?._id,
+      priority:'High',
+      channels:['App', 'Email'],
+      createdBy:'63ecbc570302e7cf0153370c',
+      lastModifiedBy:'63ecbc570302e7cf0153370c'  
+    });
     //send success response
     res.status(200).json({status: 'success', message: user.first_name + ' selected for batch & email sent to him @ ' + user.email});
 

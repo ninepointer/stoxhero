@@ -28,6 +28,41 @@ export default function Wallet() {
   const [myWallet, setMyWallet] = useState([]);
   const [mywithdrawals, setMyWithdrawals] = useState([]);
   const [open, setOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const[data,setData] = useState([]);
+  const [currentPageWd, setCurrentPageWd] = useState(1);
+  const[dataWd,setDataWd] = useState([]);
+  const perPage =10;
+  const perPageWd = 3;
+  useEffect(()=>{
+      const startIndex = (currentPage - 1) * perPage;
+      const slicedData = myWallet?.transactions?.slice(startIndex, startIndex + perPage);
+      setData(slicedData);
+    }, [currentPage])
+  useEffect(()=>{
+      const startIndex = (currentPageWd - 1) * perPageWd;
+      const slicedData = mywithdrawals?.slice(startIndex, startIndex + perPageWd);
+      setDataWd(slicedData);
+    }, [currentPageWd])
+  
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => prevPage + 1);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
+  };
+  const handleNextPageWd = () => {
+    setCurrentPageWd((prevPage) => prevPage + 1);
+  };
+
+  const handlePrevPageWd = () => {
+    if (currentPageWd > 1) {
+      setCurrentPageWd((prevPage) => prevPage - 1);
+    }
+  };
 
   const handleClose = () => {
     setOpen(false);
@@ -51,8 +86,11 @@ export default function Wallet() {
 
     Promise.all([call1])
       .then(([api1Response]) => {
-        // console.log(api1Response?.data?.data);
-        setMyWallet(api1Response?.data?.data)
+        console.log('wallet data', api1Response?.data?.data);
+        setMyWallet(api1Response?.data?.data);
+        const startIndex = (currentPage - 1) * perPage;
+        const slicedData = api1Response.data.data?.transactions?.slice(startIndex, startIndex + perPage);
+        setData(slicedData);
         setPhoto(api1Response?.data?.data?.userId?.profilePhoto?.url)
         // console.log(api1Response?.data?.data?.userId?.profilePhoto?.url)
 
@@ -67,6 +105,9 @@ export default function Wallet() {
     axios.get(`${apiUrl}withdrawals/mywithdrawals`, { withCredentials: true }).then((res) => {
       // console.log(res.data.data);
       setMyWithdrawals(res.data.data.filter((item) => item.withdrawalStatus == 'Processed'));
+      const startIndex = (currentPage - 1) * perPage;
+      const slicedData = res.data.data.filter((item) => item.withdrawalStatus == 'Processed').slice(startIndex, startIndex + perPageWd);
+      setDataWd(slicedData);
     })
   }, [open]);
 
@@ -100,9 +141,9 @@ export default function Wallet() {
             <MDBox mb={2}>
               <MDTypography color="light" fontSize={15} display="flex" justifyContent="center">Transactions</MDTypography>
             </MDBox>
-
-            {myWallet?.transactions?.length > 0 ?
-              myWallet?.transactions?.map((elem) => {
+            {data?.length > 0 ?
+            (<>
+              {data.map((elem) => {
                 // console.log("elem", elem)
                 return (
                   <MDBox mb={1} style={{ border: '1px solid white', borderRadius: 5, padding: 4 }}>
@@ -123,7 +164,15 @@ export default function Wallet() {
                     </Grid>
                   </MDBox>
                 );
-              })
+              })}
+               {data?.length>0 &&
+                <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
+                    <MDButton variant='outlined' color='warning' disabled={currentPage === 1 ? true : false} size="small" onClick={handlePrevPage}>Back</MDButton>
+                    <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Data: {myWallet?.transactions.length} | Page {currentPage} of {Math.ceil(myWallet?.transactions.length/perPage)}</MDTypography>
+                    <MDButton variant='outlined' color='warning' disabled={Math.ceil(myWallet?.transactions.length/perPage) === currentPage ? true : false} size="small" onClick={handleNextPage}>Next</MDButton>
+                </MDBox>
+               }
+              </>)
               :
               <MDBox style={{ border: '1px solid white', borderRadius: 5, padding: 4 }} >
                 <Grid container mt={2} xs={12} md={6} lg={12} display="flex" justifyContent="center">
@@ -152,7 +201,10 @@ export default function Wallet() {
 
           <Grid item xs={12} md={6} lg={5.5}>
             <MDBox>
-              <MDTypography color="light" fontSize={15} display="flex" justifyContent="center">Complete Your KYC for withdrawals.</MDTypography>
+              { myWallet?.userId?.KYCStatus == 'Approved' ?
+                <MDTypography color="light" fontSize={15} display="flex" justifyContent="center">KYC Approved. You can do withdrawals.</MDTypography>
+                :<MDTypography color="light" fontSize={15} display="flex" justifyContent="center">Complete Your KYC for withdrawals.</MDTypography>
+              }
             </MDBox>
             <Grid container mt={1} spacing={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
               <Grid item xs={12} md={6} lg={12} display="flex" justifyContent="center">
@@ -205,10 +257,10 @@ export default function Wallet() {
 
               </Grid>
 
-              {mywithdrawals.length > 0 && <Grid item xs={12} md={6} lg={12} style={{ marginTop: '12px', display: 'flex', justifyContent: 'center' }}>
+              {dataWd.length > 0 && <Grid item xs={12} md={6} lg={12} style={{ marginTop: '12px', display: 'flex', justifyContent: 'center' }}>
                 <MDTypography color='light' fontSize={18}>Successful Withdrawals</MDTypography>
               </Grid>}
-              {mywithdrawals.length > 0 && mywithdrawals.map((elem) => {
+              {dataWd.length > 0 && dataWd.map((elem) => {
                 return (
                   <Grid item xs={12} md={6} lg={12} style={{ border: '1px solid white', borderRadius: 5, marginBottom: '12px' }}>
                     <MDTypography color='light' fontSize={15}>Amount:₹{elem.amount}</MDTypography>
@@ -220,6 +272,13 @@ export default function Wallet() {
                   </Grid>
                 )
               })}
+              {dataWd?.length>0 &&
+                <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
+                    <MDButton variant='outlined' color='warning' disabled={currentPageWd === 1 ? true : false} size="small" onClick={handlePrevPageWd}>Back</MDButton>
+                    <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Data: {mywithdrawals.length} | Page {currentPageWd} of {Math.ceil(mywithdrawals.length/perPageWd)}</MDTypography>
+                    <MDButton variant='outlined' color='warning' disabled={Math.ceil(mywithdrawals.length/perPageWd) === currentPageWd ? true : false} size="small" onClick={handleNextPageWd}>Next</MDButton>
+                </MDBox>
+               }
 
             </Grid>
           </Grid>

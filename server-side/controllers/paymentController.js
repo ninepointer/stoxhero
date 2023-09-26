@@ -6,6 +6,8 @@ const User = require("../models/User/userDetailSchema");
 const sendMail = require('../utils/emailService');
 const axios = require('axios');
 const crypto = require('crypto');
+const mongoose = require('mongoose');
+const {createUserNotification} = require('../controllers/notification/notificationController');
 
 exports.createPayment = async(req, res, next)=>{
     // console.log(req.body)
@@ -14,20 +16,22 @@ exports.createPayment = async(req, res, next)=>{
 
     // const orderId = `SHSID${amount}${transactionId}`;
     const user = await User.findOne({_id: new ObjectId(paymentBy)});
+    const session = await mongoose.startSession();
     try{
         if(await Payment.findOne({transactionId : transactionId })) return res.status(400).json({info:'This payment is already exists.'});
-        const payment = await Payment.create({paymentTime, transactionId, amount, paymentBy, currency, 
-            paymentFor, paymentMode, paymentStatus, createdBy: req.user._id, lastModifiedBy: req.user._id});
+          session.startTransaction();
+        const payment = await Payment.create([{paymentTime, transactionId, amount, paymentBy, currency, 
+            paymentFor, paymentMode, paymentStatus, createdBy: req.user._id, lastModifiedBy: req.user._id}], {session:session});
         
         const wallet = await UserWallet.findOne({userId: new ObjectId(paymentBy)});
         wallet.transactions = [...wallet.transactions, {
                 title: 'Amount Credit',
                 description: `The amount that has been credited to your wallet.`,
-                amount: (amount),
+                amount: (amount.toFixed(2)),
                 transactionId: uuid.v4(),
                 transactionType: 'Cash'
         }];
-        wallet.save();
+        wallet.save({session});
 
         if(process.env.PROD == 'true'){
             sendMail(user?.email, 'Amount Credited - StoxHero', `
@@ -115,11 +119,26 @@ exports.createPayment = async(req, res, next)=>{
             </html>
             `);
         }
+        await createUserNotification({
+            title:'Amount Credited in Your Wallet- Topup',
+            description:`₹${amount?.toFixed(2)} credited in your wallet as wallet top up`,
+            notificationType:'Individual',
+            notificationCategory:'Informational',
+            productCategory:'General',
+            user: user?._id,
+            priority:'Low',
+            channels:['App', 'Email'],
+            createdBy:'63ecbc570302e7cf0153370c',
+            lastModifiedBy:'63ecbc570302e7cf0153370c'  
+          }, session);
 
         res.status(201).json({message: 'Payment successfully.', data:payment, count:payment.length});
     }catch(error){
         console.log(error)
-    } 
+        await session.abortTransaction();
+    }finally{
+        await session.endSession();
+    }
 }
 
 exports.getPayment = async(req, res, next)=>{
@@ -348,7 +367,7 @@ exports.checkPaymentStatus = async(req,res, next) => {
         const {merchantTransactionId} = req.params;
         const merchantId = process.env.PHONEPE_MERCHANTID;
         const payment  = await Payment.findOne({merchantTransactionId});
-        console.log('payment', payment);
+        // console.log('payment', payment);
         const saltKey = process.env.PHONEPE_KEY; // This should be stored securely, not hardcoded
         const saltIndex = '1';
         const toHash = `/pg/v1/status/${merchantId}/${merchantTransactionId}`+ saltKey;
