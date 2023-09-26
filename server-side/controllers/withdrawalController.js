@@ -113,8 +113,10 @@ exports.createWithdrawal = async(req,res,next) => {
     }
     const appSettings = await Settings.findOne({});
     const userWallet = await Wallet.findOne({userId});
-    const walletBalance = userWallet?.transactions.reduce((acc, obj) => (acc + obj.amount), 0);
-    
+    // const walletBalance = userWallet?.transactions.reduce((acc, obj) => (acc + obj.amount), 0);
+    const walletBalance = userWallet?.transactions
+    .filter(transaction => transaction.transactionType === 'Cash')
+    .reduce((acc, obj) => acc + obj.amount, 0);
     if(amount>walletBalance){
         return res.status(400).json({status:'error', message:'You don\'t have enough funds for the withdrawal.'});
     }
@@ -122,8 +124,14 @@ exports.createWithdrawal = async(req,res,next) => {
     if(amount<appSettings.minWithdrawal){
         return res.status(400).json({status:'error', message:`The minimum amount that can be withdrawn is ₹${appSettings.minWithdrawal}`});
     }
-    if(amount>appSettings.maxWithdrawal){
-        return res.status(400).json({status:'error', message:`The maximum amount that can be withdrawn is ₹${appSettings.maxWithdrawal}`});
+    if(walletBalance > appSettings?.walletbalanceUpperLimit){
+        if(amount>appSettings?.maxWithdrawalHigh){
+            return res.status(400).json({status:'error', message:`The maximum amount that can be withdrawn is ₹${appSettings?.maxWithdrawalHigh}`});
+        }
+    }else{
+        if(amount>appSettings.maxWithdrawal){
+            return res.status(400).json({status:'error', message:`The maximum amount that can be withdrawn is ₹${appSettings.maxWithdrawal}`});
+        }
     }
     const transactionId = uuid.v4();
     let withdrawalCount = await Withdrawal.countDocuments({user:userId});
