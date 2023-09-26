@@ -93,7 +93,7 @@ exports.myWallet = async (req, res, next) => {
         // Since aggregation doesn't allow direct use of populate, using it separately
         const myWallet = await UserWallet.populate(wallets[0], {
             path: 'userId',
-            select: 'first_name last_name profilePhoto'
+            select: 'first_name last_name profilePhoto KYCStatus'
         });
 
         res.status(200).json({ status: 'success', data: myWallet });

@@ -13,7 +13,7 @@ import wallet from '../../../assets/images/wallet.png'
 import bonus from '../../../assets/images/bonus.png'
 import rupee from '../../../assets/images/rupee.png'
 // import referral from '../../../assets/images/referralt.png'
-import battle from '../../../assets/images/battlet.png'
+import battle from '../../../assets/images/ppic.png'
 import CashFlow from '../../../assets/images/transaction.png'
 import Empty from '../../../assets/images/void.png'
 import DefaultProfilePic from "../../../assets/images/default-profile.png";
@@ -35,6 +35,104 @@ export default function Wallet() {
   const[dataWd,setDataWd] = useState([]);
   const perPage =10;
   const perPageWd = 3;
+//   const dummyData = [
+//     {
+//         title:'Dummy Notification hai bro isko daal ke UI test karna hai',
+//         description:'Aisa isliye kyunki abhi toh notification generated nahi hai toh kaise dekhenge. Thoda lamba likhenge toh card se bahar ja raha hai ki nahi dekh lenge.',
+//         notificationTime: '2023-05-25T02:44:35.391+00:00'
+//     },
+//     {
+//         title:'Dummy Notification hai bro isko daal ke UI test karna hai',
+//         description:'Aisa isliye kyunki abhi toh notification generated nahi hai toh kaise dekhenge. Thoda lamba likhenge toh card se bahar ja raha hai ki nahi dekh lenge.',
+//         notificationTime: '2023-05-25T02:44:35.391+00:00'
+//     },
+//     {
+//         title:'Dummy Notification hai bro isko daal ke UI test karna hai',
+//         description:'Aisa isliye kyunki abhi toh notification generated nahi hai toh kaise dekhenge. Thoda lamba likhenge toh card se bahar ja raha hai ki nahi dekh lenge.',
+//         notificationTime: '2023-05-25T02:44:35.391+00:00'
+//     },
+//     {
+//         title:'Dummy Notification hai bro isko daal ke UI test karna hai',
+//         description:'Aisa isliye kyunki abhi toh notification generated nahi hai toh kaise dekhenge. Thoda lamba likhenge toh card se bahar ja raha hai ki nahi dekh lenge.',
+//         notificationTime: '2023-05-25T02:44:35.391+00:00'
+//     },
+//     {
+//         title:'Dummy Notification hai bro isko daal ke UI test karna hai',
+//         description:'Aisa isliye kyunki abhi toh notification generated nahi hai toh kaise dekhenge. Thoda lamba likhenge toh card se bahar ja raha hai ki nahi dekh lenge.',
+//         notificationTime: '2023-05-25T02:44:35.391+00:00'
+//     },
+//     {
+//         title:'Dummy Notification hai bro isko daal ke UI test karna hai',
+//         description:'Aisa isliye kyunki abhi toh notification generated nahi hai toh kaise dekhenge. Thoda lamba likhenge toh card se bahar ja raha hai ki nahi dekh lenge.',
+//         notificationTime: '2023-05-25T02:44:35.391+00:00'
+//     },
+//     {
+//         title:'Dummy Notification hai bro isko daal ke UI test karna hai',
+//         description:'Aisa isliye kyunki abhi toh notification generated nahi hai toh kaise dekhenge. Thoda lamba likhenge toh card se bahar ja raha hai ki nahi dekh lenge.',
+//         notificationTime: '2023-05-25T02:44:35.391+00:00'
+//     },
+//     {
+//         title:'Dummy Notification hai bro isko daal ke UI test karna hai',
+//         description:'Aisa isliye kyunki abhi toh notification generated nahi hai toh kaise dekhenge. Thoda lamba likhenge toh card se bahar ja raha hai ki nahi dekh lenge.',
+//         notificationTime: '2023-05-25T02:44:35.391+00:00'
+//     },
+//     {
+//         title:'Dummy Notification hai bro isko daal ke UI test karna hai',
+//         description:'Aisa isliye kyunki abhi toh notification generated nahi hai toh kaise dekhenge. Thoda lamba likhenge toh card se bahar ja raha hai ki nahi dekh lenge.',
+//         notificationTime: '2023-05-25T02:44:35.391+00:00'
+//     },
+//     {
+//         title:'Dummy Notification hai bro isko daal ke UI test karna hai',
+//         description:'Aisa isliye kyunki abhi toh notification generated nahi hai toh kaise dekhenge. Thoda lamba likhenge toh card se bahar ja raha hai ki nahi dekh lenge.',
+//         notificationTime: '2023-05-25T02:44:35.391+00:00'
+//     },
+//     {
+//         title:'Dummy Notification hai bro isko daal ke UI test karna hai',
+//         description:'Aisa isliye kyunki abhi toh notification generated nahi hai toh kaise dekhenge. Thoda lamba likhenge toh card se bahar ja raha hai ki nahi dekh lenge.',
+//         notificationTime: '2023-05-25T02:44:35.391+00:00'
+//     },
+//     {
+//         title:'Dummy Notification hai bro isko daal ke UI test karna hai',
+//         description:'Aisa isliye kyunki abhi toh notification generated nahi hai toh kaise dekhenge. Thoda lamba likhenge toh card se bahar ja raha hai ki nahi dekh lenge.',
+//         notificationTime: '2023-05-25T02:44:35.391+00:00'
+//     },
+//     {
+//         title:'Dummy Notification hai bro isko daal ke UI test karna hai',
+//         description:'Aisa isliye kyunki abhi toh notification generated nahi hai toh kaise dekhenge. Thoda lamba likhenge toh card se bahar ja raha hai ki nahi dekh lenge.',
+//         notificationTime: '2023-05-25T02:44:35.391+00:00'
+//     },
+//     {
+//         title:'Dummy Notification hai bro isko daal ke UI test karna hai',
+//         description:'Aisa isliye kyunki abhi toh notification generated nahi hai toh kaise dekhenge. Thoda lamba likhenge toh card se bahar ja raha hai ki nahi dekh lenge.',
+//         notificationTime: '2023-05-25T02:44:35.391+00:00'
+//     },
+//     {
+//         title:'Dummy Notification hai bro isko daal ke UI test karna hai',
+//         description:'Aisa isliye kyunki abhi toh notification generated nahi hai toh kaise dekhenge. Thoda lamba likhenge toh card se bahar ja raha hai ki nahi dekh lenge.',
+//         notificationTime: '2023-05-25T02:44:35.391+00:00'
+//     },
+//     {
+//         title:'Dummy Notification hai bro isko daal ke UI test karna hai',
+//         description:'Aisa isliye kyunki abhi toh notification generated nahi hai toh kaise dekhenge. Thoda lamba likhenge toh card se bahar ja raha hai ki nahi dekh lenge.',
+//         notificationTime: '2023-05-25T02:44:35.391+00:00'
+//     },
+//     {
+//         title:'Dummy Notification hai bro isko daal ke UI test karna hai',
+//         description:'Aisa isliye kyunki abhi toh notification generated nahi hai toh kaise dekhenge. Thoda lamba likhenge toh card se bahar ja raha hai ki nahi dekh lenge.',
+//         notificationTime: '2023-05-25T02:44:35.391+00:00'
+//     },
+//     {
+//         title:'Dummy Notification hai bro isko daal ke UI test karna hai',
+//         description:'Aisa isliye kyunki abhi toh notification generated nahi hai toh kaise dekhenge. Thoda lamba likhenge toh card se bahar ja raha hai ki nahi dekh lenge.',
+//         notificationTime: '2023-05-25T02:44:35.391+00:00'
+//     },
+//     {
+//         title:'Dummy Notification hai bro isko daal ke UI test karna hai',
+//         description:'Aisa isliye kyunki abhi toh notification generated nahi hai toh kaise dekhenge. Thoda lamba likhenge toh card se bahar ja raha hai ki nahi dekh lenge.',
+//         notificationTime: '2023-05-25T02:44:35.391+00:00'
+//     }
+//   ]
+const dummyData=[];
   useEffect(()=>{
       const startIndex = (currentPage - 1) * perPage;
       const slicedData = notifications?.slice(startIndex, startIndex + perPage);
@@ -75,8 +173,10 @@ export default function Wallet() {
       .then(([api1Response]) => {
         // console.log(api1Response?.data?.data);
         setNotifications(api1Response?.data?.data);
+        // setNotifications(dummyData);
         const startIndex = (currentPage - 1) * perPage;
         const slicedData = api1Response?.data?.data?.slice(startIndex, startIndex + perPage);
+        // const slicedData = dummyData?.slice(startIndex, startIndex + perPage);
         setData(slicedData);
         // setPhoto(api1Response?.data?.data?.userId?.profilePhoto?.url)
         // console.log(api1Response?.data?.data?.userId?.profilePhoto?.url)
@@ -96,17 +196,24 @@ export default function Wallet() {
         <Grid container xs={12} md={6} lg={12}>
 
           <Grid item xs={12} md={12} lg={12} mb={1}>
+          {data?.length > 0 && <Grid item xs={8} md={6} lg={12} width='80%' display="flex" alignItems="center" justifyContent="space-between">
             <MDBox mb={2}>
-              <MDTypography color="light" fontSize={18} display="flex" justifyContent="center">Notifications</MDTypography>
+              <MDTypography color="light" fontSize={18} display="flex">Recent Notifications</MDTypography>
             </MDBox>
+            <MDBox mb={2}>
+              <MDButton variant='text'>  
+                <MDTypography color="light" fontSize={18} display="flex" justifyContent="start">View All Notifications</MDTypography>
+              </MDButton>
+            </MDBox>
+            </Grid>}
             {data?.length > 0 ?
             (<>
               {data.map((elem) => {
                 // console.log("elem", elem)
                 return (
-                  <MDBox mb={1} style={{ border: '1px solid white', borderRadius: 5, padding: 4 }}>
-                    <Grid container xs={12} md={6} lg={12} spacing={1} display="flex" justifyContent="center" alignItems="center" alignContent="center">
-                      <Grid item xs={8} md={6} lg={8} display="flex" alignItems="center">
+                  <MDBox mb={1} style={{ border: '1px solid white', borderRadius: 5, padding: 4 ,width:'80%' }}>
+                    <Grid container xs={12} md={6} lg={12} spacing={1} display="flex" justifyContent="start" alignItems="center" alignContent="center">
+                      <Grid item xs={8} md={6} lg={12} display="flex" alignItems="center">
                         <MDAvatar src={battle} name={name} size="sm" />
                         <MDBox display="flex" flexDirection="column">
                           <MDTypography style={{ alignContent: 'center' }} ml={1} color="light" fontSize={15} fontWeight="bold">{elem?.title}</MDTypography>
@@ -121,7 +228,7 @@ export default function Wallet() {
                 );
               })}
                {data?.length>0 &&
-                <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
+                <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='80%'>
                     <MDButton variant='outlined' color='warning' disabled={currentPage === 1 ? true : false} size="small" onClick={handlePrevPage}>Back</MDButton>
                     <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Data: {notifications.length} | Page {currentPage} of {Math.ceil(notifications.length/perPage)}</MDTypography>
                     <MDButton variant='outlined' color='warning' disabled={Math.ceil(notifications.length/perPage) === currentPage ? true : false} size="small" onClick={handleNextPage}>Next</MDButton>
@@ -129,8 +236,8 @@ export default function Wallet() {
                }
               </>)
               :
-              <MDBox style={{ border: '1px solid white', borderRadius: 5, padding: 4, minHeight:'40vH' }} >
-                <Grid container mt={4} xs={12} md={6} lg={12} display="flex" justifyContent="center" alignItems='center'>
+              <MDBox style={{ border: '1px solid white', borderRadius: 5, padding: 4, minHeight:'45vH', marginTop:5 }} >
+                <Grid container mt={7} xs={12} md={6} lg={12} display="flex" justifyContent="center" alignItems='center'>
                   <Grid item xs={6} md={6} lg={12} display="flex" justifyContent="center" alignItems='center'>
                     <MDAvatar src={Empty} name={name} size="xxl" width={300} height={300} style={{borderRadius:'50%'}}  />
                   </Grid>

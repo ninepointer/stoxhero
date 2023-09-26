@@ -86,7 +86,7 @@ export default function Wallet() {
 
     Promise.all([call1])
       .then(([api1Response]) => {
-        // console.log(api1Response?.data?.data);
+        console.log('wallet data', api1Response?.data?.data);
         setMyWallet(api1Response?.data?.data);
         const startIndex = (currentPage - 1) * perPage;
         const slicedData = api1Response.data.data?.transactions?.slice(startIndex, startIndex + perPage);
@@ -201,7 +201,10 @@ export default function Wallet() {
 
           <Grid item xs={12} md={6} lg={5.5}>
             <MDBox>
-              <MDTypography color="light" fontSize={15} display="flex" justifyContent="center">Complete Your KYC for withdrawals.</MDTypography>
+              { myWallet?.userId?.KYCStatus == 'Approved' ?
+                <MDTypography color="light" fontSize={15} display="flex" justifyContent="center">KYC Approved. You can do withdrawals.</MDTypography>
+                :<MDTypography color="light" fontSize={15} display="flex" justifyContent="center">Complete Your KYC for withdrawals.</MDTypography>
+              }
             </MDBox>
             <Grid container mt={1} spacing={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
               <Grid item xs={12} md={6} lg={12} display="flex" justifyContent="center">
