@@ -31,7 +31,7 @@ exports.createPayment = async(req, res, next)=>{
                 transactionId: uuid.v4(),
                 transactionType: 'Cash'
         }];
-        wallet.save({session});
+        await wallet.save({session});
 
         if(process.env.PROD == 'true'){
             sendMail(user?.email, 'Amount Credited - StoxHero', `
@@ -131,7 +131,7 @@ exports.createPayment = async(req, res, next)=>{
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           }, session);
-
+        await session.commitTransaction();  
         res.status(201).json({message: 'Payment successfully.', data:payment, count:payment.length});
     }catch(error){
         console.log(error)

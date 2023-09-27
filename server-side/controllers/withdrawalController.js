@@ -124,7 +124,7 @@ exports.createWithdrawal = async(req,res,next) => {
     if(amount<appSettings.minWithdrawal){
         return res.status(400).json({status:'error', message:`The minimum amount that can be withdrawn is ₹${appSettings.minWithdrawal}`});
     }
-    if(walletBalance > appSettings?.walletbalanceUpperLimit){
+    if(walletBalance > appSettings?.walletBalanceUpperLimit){
         if(amount>appSettings?.maxWithdrawalHigh){
             return res.status(400).json({status:'error', message:`The maximum amount that can be withdrawn is ₹${appSettings?.maxWithdrawalHigh}`});
         }
