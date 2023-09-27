@@ -429,6 +429,11 @@ router.get("/instrumentDetails", authentication, async (req, res)=>{
     const from = req.params.from;
     const {role} = req.user;
     let {isNifty, isBankNifty, isFinNifty, dailyContest} = req.query;
+
+    isNifty = isNifty==="true" ?  true : false;
+    isBankNifty = isBankNifty==="true" ?  true : false;
+    isFinNifty = isFinNifty==="true" ?  true : false;
+    dailyContest = dailyContest==="true" ?  true : false;
     console.log(isNifty, isBankNifty, isFinNifty, dailyContest)
     let url;
     let roleObj;

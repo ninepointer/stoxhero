@@ -8,6 +8,7 @@ const axios = require('axios');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const {createUserNotification} = require('../controllers/notification/notificationController');
+const Setting = require('../models/settings/setting');
 
 exports.createPayment = async(req, res, next)=>{
     // console.log(req.body)
@@ -202,9 +203,9 @@ exports.getUsers = async (req, res) => {
 exports.initiatePayment = async (req, res) => {
     const {
         amount,
-        mobileNumber,
         redirectTo
     } = req.body;
+    const setting = await Setting.find();
     let merchantId = process.env.PHONEPE_MERCHANTID;
     let merchantTransactionId = generateUniqueTransactionId();
     let merchantUserId = 'MUID'+ req.user._id;
@@ -214,7 +215,8 @@ exports.initiatePayment = async (req, res) => {
     const payment = await Payment.create({
         paymentTime: new Date(),
         currency: 'INR',
-        amount: amount/4000,
+        amount: amount/100,
+        gstAmount:((amount/100) - ((amount/100)/(1+(setting[0]?.gstPercentage/100)))), 
         paymentStatus: 'initiated',
         actions:[{
             actionTitle: 'Payment Initiated',
@@ -236,12 +238,11 @@ exports.initiatePayment = async (req, res) => {
     const payload = {
         merchantId,
         merchantTransactionId,
-        amount: amount/40,
+        amount: amount,
         merchantUserId,
         redirectUrl,
         redirectMode,
         callbackUrl,
-        mobileNumber,
         paymentInstrument
     };
 
@@ -390,6 +391,8 @@ exports.checkPaymentStatus = async(req,res, next) => {
                         actionDate: new Date(),
                         actionBy: '63ecbc570302e7cf0153370c'
                     });
+                if(payment.amount)    
+                await addMoneyToWallet(payment.amount-payment?.gstAmount, payment?.paymentBy);    
             }
         }else if(resp.data.code == 'PAYMENT_ERROR'){
             if(payment.paymentStatus != 'failed'){
@@ -414,4 +417,16 @@ exports.checkPaymentStatus = async(req,res, next) => {
         console.log(e);
         res.status(500).json({status:'error', message:'Something went wrong.'});
     }
+}
+
+const addMoneyToWallet = async (amount, userId) =>{
+    const wallet = await UserWallet.findOne({userId:userId});
+    wallet.transactions.push({
+        amount: amount,
+        title: 'Amount Credit',
+        description: `The amount that has been credited to your wallet.`,
+        transactionId: uuid.v4(),
+        transactionType: 'Cash'
+    });
+    await wallet.save({validateBeforeSave: false});
 }

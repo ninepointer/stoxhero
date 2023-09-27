@@ -13,15 +13,18 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Button from '@mui/material/Button';
 // import MDSnackbar from '../../../components/MDSnackbar';
-import { Typography } from '@mui/material';
+import { TextField, Typography } from '@mui/material';
 import paymentQr from '../../../assets/images/paymentQrc.jpg';
+import Grid from '@mui/material/Grid'
+import MDTypography from '../../../components/MDTypography';
+import {apiUrl} from '../../../constants/constants';
 
 
 
 
 export default function AddMoney() {
   const [open, setOpen] = React.useState(false);
-  //   const [userWallet, setUserWallet] = useState(0);
+    const [amount, setAmount] = useState(0);
   const [setting, setSetting] = useState([]);
   //   const [messege, setMessege] = useState({
   //     lowBalanceMessage: "",
@@ -59,6 +62,16 @@ export default function AddMoney() {
     // messege.thanksMessege && setShowPay(false);
   };
 
+  const initiatePayment = async() => {
+    try{
+      const res = await axios.post(`${apiUrl}payment/initiate`,{amount:amount*100, redirectTo:window.location.href},{withCredentials: true});
+      console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
+      window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
+  }catch(e){
+      console.log(e);
+  }
+  }
+
 
   return (
 
@@ -76,27 +89,48 @@ export default function AddMoney() {
         aria-describedby="alert-dialog-description"
       >
 
-        <DialogContentText id="alert-dialog-description">
+          <>
+            <DialogContent>
 
-        <MDBox display="flex" flexDirection="column" textAlign="center" alignItems="center" >
-          <Title variant={{ xs: "h2", md: "h3" }} style={{ color: "#000", fontWeight: "bold", marginTop: "0px" }} >Add Money to Wallet</Title>
-          <Typography textAlign="center" sx={{ mt: "4px", width: "75%", mb: "4px" }} color="#000" variant="body2">
-            To add money in your wallet, please follow these steps.
-          </Typography>
-          <Typography textAlign="start" px={3} fontSize={13}>Step-1: Open any UPI app, scan the QR or enter the UPI ID {setting?.contest?.upiId}</Typography>
-          <MDBox>
-            <img src={paymentQr} width={200} height={200}/>
-          </MDBox>
-          <Typography textAlign="start" px={3} mb={0.4} fontSize={13}>Step-2: Complete the payment of your desired amount and take a screenshot.</Typography>
-          <Typography textAlign="start" px={4} fontSize={13}>Step-3: Please email {setting?.contest?.email} or WhatsApp {setting?.contest?.mobile} with your name, registered phone number, payment screenshot. Call for quicker resolution. Make sure your transactionId and amount is visible.</Typography>
 
-        </MDBox>
-        </DialogContentText>
-        <DialogActions>
-          <Button onClick={handleClose} autoFocus>
-            Close
-          </Button>
-        </DialogActions>
+              <Grid container display="flex" flexDirection="row" justifyContent="start" style={{minHeight:'25vh', minWidth:'40vw'}}>
+                <Grid container mt={0.5} xs={12} md={9} xl={12}>
+                  <MDTypography mt={4} ml={2}>Add Money To Wallet</MDTypography>
+                  <Grid item xs={12} md={6} xl={11} mt={-4} ml={2} >
+                    <TextField
+                      // disabled={((isSubmitted || battle) && (!editing || saving))}
+                      id="outlined-required"
+                      label='Amount'
+                      name='amount'
+                      fullWidth
+                      value={amount}
+                      onChange={(e) => { setAmount(e.target.value) }}
+                    />
+                  </Grid>
+                </Grid>
+
+              </Grid>
+            </DialogContent>
+
+            <DialogActions>
+              <>
+                <MDButton
+                  variant="contained"
+                  color="success"
+                  size="small"
+                  sx={{ mr: 2, ml: 2 }}
+                  // disabled={creating}
+                  onClick={(e) => { initiatePayment() }}
+                >
+                  {"Proceed"}
+
+                </MDButton>
+              </>
+
+            </DialogActions>
+
+
+          </>
       </Dialog>
     </>
   );
