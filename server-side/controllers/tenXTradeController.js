@@ -774,7 +774,7 @@ exports.autoExpireTenXSubscription = async () => {
                       transactionId: uuid.v4(),
                       transactionType: 'Cash'
                 }];
-                wallet.save({session});
+                await wallet.save({session});
 
                 if (process.env.PROD == 'true') {
                   sendMail(user?.email, 'Tenx Payout Credited - StoxHero', `

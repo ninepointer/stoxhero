@@ -2,7 +2,7 @@ import { React, useState, useEffect, useContext } from "react";
 import { userContext } from '../../../AuthContext';
 import { useNavigate, useLocation } from "react-router-dom";
 import Grid from "@mui/material/Grid";
-import ShareIcon from '@mui/icons-material/Share';
+// import ShareIcon from '@mui/icons-material/Share';
 import ReactGA from "react-ga"
 
 // Material Dashboard 2 React components
@@ -19,15 +19,15 @@ import Draggable from 'react-draggable';
 import Button from '@mui/material/Button';
 
 // Images
-import ContestCarousel from '../../../assets/images/target.png'
+// import ContestCarousel from '../../../assets/images/target.png'
 import WinnerImage from '../../../assets/images/roi.png'
 import Timer from '../timer'
-import ProgressBar from "../progressBar";
-import { HiUserGroup } from 'react-icons/hi';
+// import ProgressBar from "../progressBar";
+// import { HiUserGroup } from 'react-icons/hi';
 import { Tooltip } from "@mui/material";
 import MDSnackbar from "../../../components/MDSnackbar";
-import PopupMessage from "../data/popupMessage";
-import PopupTrading from "../data/popupTrading";
+// import PopupMessage from "../data/popupMessage";
+// import PopupTrading from "../data/popupTrading";
 import Payment from "../data/payment"
 import InfoIcon from '@mui/icons-material/Info';
 
@@ -369,7 +369,7 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                                 // variant='outlined'
                                                                 color={"success"}
                                                                 size='small'
-                                                                disabled={(particularMarginXTime[0]?.value) > 0}
+                                                                disabled={(particularMarginXTime[0]?.value)  < 0 ? false : true}
                                                                 onClick={() => {
                                                                     navigate(`/marginx/${elem?.marginXName}`, {
                                                                         state: { data: elem?._id, isNifty: elem?.isNifty, isBank: elem?.isBankNifty, isFin: elem.isFinNifty, timeDifference: timeDifference, name: elem?.contestName, endTime: elem?.endTime, entryFee: elem?.marginXTemplate?.entryFee, portfolioValue: elem?.marginXTemplate?.portfolioValue }
