@@ -243,7 +243,7 @@ router.patch("/verifyotp", async (req, res) => {
         if (referredBy) {
             
             referral?.users?.push({ userId: newuser._id, joinedOn: new Date() })
-            referral.save();
+            await referral.save();
             
             const referralProgramme = await Referral.findOneAndUpdate({ status: "Active" }, {
                 $set: {
@@ -276,7 +276,7 @@ router.patch("/verifyotp", async (req, res) => {
 
         if (campaign) {
             campaign?.users?.push({ userId: newuser._id, joinedOn: new Date() })
-            campaign.save();
+            await campaign.save();
             // const campaignData = await Campaign.findOneAndUpdate({ _id: campaign._id }, {
             //     $set: {
             //         users: campaign?.users

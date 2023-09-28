@@ -889,7 +889,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
               transactionId: uuid.v4(),
               transactionType: reward.currency == 'INR'?'Cash':'Bonus' 
           }];
-          wallet.save();
+          await wallet.save();
           }
         }
       }

@@ -566,7 +566,7 @@ exports.renewSubscription = async(req, res, next)=>{
             transactionId: uuid.v4(),
             transactionType: 'Cash'
       }];
-      wallet.save({session});
+      await wallet.save({session});
 
       const user = await User.findOneAndUpdate(
           { _id: userId },

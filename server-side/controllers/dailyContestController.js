@@ -1138,7 +1138,7 @@ exports.participateUsers = async (req, res) => {
         if (getActiveContest.length > 0) {
             if (!contest.potentialParticipants.includes(userId)) {
                 contest.potentialParticipants.push(userId);
-                contest.save();
+                await contest.save();
             }
             return res.status(404).json({ status: "error", message: "You can only participate in another contest once your current contest ends!" });
         }
@@ -1146,7 +1146,7 @@ exports.participateUsers = async (req, res) => {
         if (contest?.maxParticipants <= contest?.participants?.length) {
             if (!contest.potentialParticipants.includes(userId)) {
                 contest.potentialParticipants.push(userId);
-                contest.save();
+                await contest.save();
             }
             return res.status(404).json({ status: "error", message: "The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest." });
         }
@@ -1342,7 +1342,7 @@ exports.verifyCollageCode = async (req, res) => {
         if (contest?.maxParticipants <= contest?.participants?.length) {
             if (!contest.potentialParticipants.includes(userId)) {
                 contest.potentialParticipants.push(userId);
-                contest.save();
+                await contest.save();
             }
             return res.status(404).json({ status: "error", message: "The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest." });
         }
@@ -1352,7 +1352,7 @@ exports.verifyCollageCode = async (req, res) => {
             if (getActiveContest.length > 0) {
                 if (!contest.potentialParticipants.includes(userId)) {
                     contest.potentialParticipants.push(userId);
-                    contest.save();
+                    await contest.save();
                 }
                 return res.status(404).json({ status: "error", message: "You can only participate in another contest once your current contest ends!" });
             }
@@ -1457,7 +1457,7 @@ exports.creditAmountToWallet = async () => {
                         transactionId: uuid.v4(),
                         transactionType: 'Cash'
                     }];
-                    wallet.save();
+                    await wallet.save();
                     const user = await User.findById(userId).select('first_name last_name email')
 
                     contest[j].participants[i].payout = payoutAmount?.toFixed(2)
@@ -1726,7 +1726,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
         if (contest?.maxParticipants <= contest?.participants?.length) {
             if (!contest.potentialParticipants.includes(userId)) {
                 contest.potentialParticipants.push(userId);
-                contest.save();
+                await contest.save();
             }
             return res.status(404).json({ status: "error", message: "The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest." });
         }
@@ -1863,7 +1863,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
             transactionId: uuid.v4(),
             transactionType: 'Cash'
         }];
-        wallet.save();
+        await wallet.save();
 
         if (!result || !wallet) {
             return res.status(404).json({ status: "error", message: "Something went wrong." });

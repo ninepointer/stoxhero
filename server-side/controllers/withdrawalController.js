@@ -99,7 +99,7 @@ exports.createWithdrawal = async(req,res,next) => {
     const currentDate = new Date();
     const currentDateTime = new Date(currentDate.setDate(currentDate.getDate() - 1));
     currentDateTime.setHours(18, 30, 00, 0);
-
+    console.log('dates', tomorrowDate, currentDate);
     const withdrawals = await Withdrawal.find({
     user: user?._id,
     $and: [
@@ -107,11 +107,12 @@ exports.createWithdrawal = async(req,res,next) => {
         { withdrawalRequestDate: { $gte: currentDate } }
     ]
     });
-
+    console.log('found', withdrawals);
     if (withdrawals.length > 0) {
         return res.status(400).json({status:'error', message:'Only one withdrawal can be made in a day. Try again tomorrow.'})
     }
     const appSettings = await Settings.findOne({});
+    console.log('app settings', appSettings, appSettings?.maxWithdrawal);
     const userWallet = await Wallet.findOne({userId});
     // const walletBalance = userWallet?.transactions.reduce((acc, obj) => (acc + obj.amount), 0);
     const walletBalance = userWallet?.transactions
@@ -124,6 +125,7 @@ exports.createWithdrawal = async(req,res,next) => {
     if(amount<appSettings.minWithdrawal){
         return res.status(400).json({status:'error', message:`The minimum amount that can be withdrawn is ₹${appSettings.minWithdrawal}`});
     }
+    console.log('checking', walletBalance, appSettings?.walletBalanceUpperLimit, appSettings?.maxWithdrawalHigh, appSettings.maxWithdrawal);
     if(walletBalance > appSettings?.walletBalanceUpperLimit){
         if(amount>appSettings?.maxWithdrawalHigh){
             return res.status(400).json({status:'error', message:`The maximum amount that can be withdrawn is ₹${appSettings?.maxWithdrawalHigh}`});
@@ -381,10 +383,10 @@ exports.rejectWithdrawal = async(req,res,next) => {
         const userWallet= await Wallet.findById(withdrawal?.userWallet);
         const walletTxnId = withdrawal?.walletTransactionId;
         const walletTxnObj = userWallet?.transactions?.filter(elem=>elem?.transactionId == walletTxnId);
-        const withdrawalNo = walletTxnObj?.description?.split('#')[1];
+        const withdrawalNo = walletTxnObj[0]?.description?.split('#')[1];
         const withdrawalTransaction = userWallet?.transactions?.find((item)=>item?.transactionId == withdrawal?.walletTransactionId);
         if(withdrawalTransaction) withdrawalTransaction['transactionStatus'] = 'Failed';
-    
+        const user = await User.findById(withdrawal.user).select('email first_name last_name');
         userWallet?.transactions?.push(
             {
                 title:`Refund`, 
@@ -409,7 +411,6 @@ exports.rejectWithdrawal = async(req,res,next) => {
           }, session);
         await userWallet.save({validateBeforeSave:false, session: session});
         await withdrawal.save({validateBeforeSave:false, session:session});
-        const user = await User.findById(withdrawal.user).select('email first_name last_name');
         if(process.env.PROD == 'true'){
             await sendMail(user?.email, 'Withdrawal Rejected - StoxHero ', `
             <!DOCTYPE html>

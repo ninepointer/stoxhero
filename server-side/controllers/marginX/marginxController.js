@@ -953,7 +953,7 @@ exports.deductMarginXAmount = async (req, res, next) => {
             transactionId: uuid.v4(),
             transactionType: 'Cash'
         }];
-        wallet.save();
+        await wallet.save();
 
         if (!result || !wallet) {
             return res.status(404).json({ status: "error", message: "Something went wrong." });
