@@ -73,6 +73,7 @@ export default function AddMoney() {
   }
 
 
+  const actualAmount = amount*setting.gstPercentage/100;
   return (
 
     <>
@@ -90,13 +91,26 @@ export default function AddMoney() {
       >
 
           <>
+
+          <DialogTitle id="alert-dialog-title">
+            <MDBox display="flex" flexDirection='column' alignItems="center" justifyContent="center" >
+              <LockOutlinedIcon sx={{ color: "#000" }} />
+              <Typography textAlign="center" sx={{ width: "100%", fontWeight: 700 }} color="#000" variant="body2">Add Money To Wallet</Typography>
+            </MDBox>
+        </DialogTitle>
+
             <DialogContent>
 
+            <Typography textAlign="left" sx={{ width: "100%" }} color="#000" variant="body2">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</Typography>
+            
+            <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "15px", fontWeight: 700, fontFamily: "cursive" }} color="#000" variant="body2">Amount to add: ₹{amount ? amount : 0}</Typography>
+            <Typography textAlign="left" sx={{ width: "100%", fontSize: "15px", fontWeight: 700, fontFamily: "cursive" }} color="#000" variant="body2">GST amount: ₹{actualAmount ? actualAmount : 0}</Typography>
+            <Typography textAlign="left" sx={{ width: "100%", fontSize: "15px", fontWeight: 700, fontFamily: "cursive" }} color="#000" variant="body2">Amount will be added: ₹{actualAmount ? amount + actualAmount : 0}</Typography>
 
-              <Grid container display="flex" flexDirection="row" justifyContent="start" style={{minHeight:'25vh', minWidth:'40vw'}}>
-                <Grid container mt={0.5} xs={12} md={9} xl={12}>
-                  <MDTypography mt={4} ml={2}>Add Money To Wallet</MDTypography>
-                  <Grid item xs={12} md={6} xl={11} mt={-4} ml={2} >
+              <Grid container display="flex" flexDirection="row" justifyContent="start" >
+                <Grid container mt={0.5} xs={12} md={9} xl={12} lg={12}>
+                  {/* <MDTypography mt={4} ml={2}>Add Money To Wallet</MDTypography> */}
+                  <Grid item xs={12} md={6} xl={12} lg={12} mt={2} >
                     <TextField
                       // disabled={((isSubmitted || battle) && (!editing || saving))}
                       id="outlined-required"
@@ -122,7 +136,7 @@ export default function AddMoney() {
                   // disabled={creating}
                   onClick={(e) => { initiatePayment() }}
                 >
-                  {"Proceed"}
+                  {actualAmount ? `Proceed with ${amount + actualAmount}` : "Proceed"}
 
                 </MDButton>
               </>
