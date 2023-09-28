@@ -8,6 +8,7 @@ const uuid = require("uuid");
 const emailService = require("../../utils/emailService")
 const moment = require('moment')
 const BattleTrade = require("../../models/battle/battleTrade");
+const {createUserNotification} = require('../notification/notificationController');
 
 // Controller for creating a Battle
 exports.createBattle = async (req, res) => {
@@ -832,6 +833,18 @@ exports.processBattles = async () => {
                             emailService(recipientString, subject, message);
                             console.log("Subscription Email Sent")
                         }
+                        await createUserNotification({
+                            title:'Battle Cancellation Refund Credited',
+                            description:`₹${battle?.battleTemplate?.entryFee} credited to your wallet for battle cancellation refund`,
+                            notificationType:'Individual',
+                            notificationCategory:'Informational',
+                            productCategory:'Battle',
+                            user: userData?._id,
+                            priority:'Low',
+                            channels:['App', 'Email'],
+                            createdBy:'63ecbc570302e7cf0153370c',
+                            lastModifiedBy:'63ecbc570302e7cf0153370c'  
+                          });
                     }
                     const saved = await battle.save({validateBeforeSave:false});
 
@@ -1036,6 +1049,18 @@ exports.deductBattleAmount = async (req, res, next) => {
             emailService(recipientString, subject, message);
             console.log("Subscription Email Sent")
         }
+        await createUserNotification({
+            title:'Battle Fee Deducted',
+            description:`₹${battle?.battleTemplate?.entryFee?.toFixed(2)} fee deducted for battle ${battle?.battleName} `,
+            notificationType:'Individual',
+            notificationCategory:'Informational',
+            productCategory:'Battle',
+            user: user?._id,
+            priority:'Low',
+            channels:['App', 'Email'],
+            createdBy:'63ecbc570302e7cf0153370c',
+            lastModifiedBy:'63ecbc570302e7cf0153370c'  
+          });
 
         res.status(200).json({
             status: "success",

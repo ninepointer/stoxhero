@@ -8,6 +8,8 @@ const uuid = require('uuid');
 const { ObjectId } = require("mongodb");
 const sendMail = require('../utils/emailService');
 const moment = require('moment');
+const mongoose = require('mongoose');
+const {createUserNotification} = require('../controllers/notification/notificationController');
 
 
 exports.overallPnl = async (req, res, next) => {
@@ -534,333 +536,355 @@ exports.autoExpireTenXSubscription = async () => {
     let validity = subscription[i].validity;
     let payoutPercentage = 10;
     for (let j = 0; j < users.length; j++) {
-      let userId = users[j].userId;
-      let subscribedOn = users[j].subscribedOn;
-      let status = users[j].status;
+      const session = await mongoose.startSession();
+      try{
+        session.startTransaction();
+        let userId = users[j].userId;
+        let subscribedOn = users[j].subscribedOn;
+        let status = users[j].status;
 
-      const today = new Date();  // Get the current date
+        const today = new Date();  // Get the current date
 
-      if(status === "Live"){
-        const tradingDays = await TenXTrader.aggregate([
-          {
-            $match: {
-              trader: new ObjectId(
-                userId
-              ),
-              status: "COMPLETE",
-              subscriptionId: new ObjectId(
-                subscriptionId
-              ),
-            },
-          },
-          {
-            $lookup: {
-              from: "tenx-subscriptions",
-              localField: "subscriptionId",
-              foreignField: "_id",
-              as: "subscriptionData",
-            },
-          },
-          {
-            $group: {
-              _id: {
-                subscriptionId: "$subscriptionId",
-                users: "$subscriptionData.users",
-                validity: "$subscriptionData.validity",
-                date: "$trade_time_utc",
-              },
-            },
-          },
-          {
-            $group: {
-              _id: {
-                users: {
-                  $arrayElemAt: ["$_id.users", 0],
-                },
-                id: "$_id.subscriptionId",
-                validity: {
-                  $arrayElemAt: ["$_id.validity", 0],
-                },
-                date: "$_id.date",
-              },
-              count: {
-                $sum: 1,
-              },
-            },
-          },
-          {
-            $unwind: {
-              path: "$_id.users",
-            },
-          },
-          {
-            $match:
-        
-              {
-                "_id.users.userId": new ObjectId(
+        if(status === "Live"){
+          const tradingDays = await TenXTrader.aggregate([
+            {
+              $match: {
+                trader: new ObjectId(
                   userId
                 ),
-                "_id.users.status": "Live",
-                $expr: {
-                  $gte: [
-                    "$_id.date",
-                    "$_id.users.subscribedOn",
+                status: "COMPLETE",
+                subscriptionId: new ObjectId(
+                  subscriptionId
+                ),
+              },
+            },
+            {
+              $lookup: {
+                from: "tenx-subscriptions",
+                localField: "subscriptionId",
+                foreignField: "_id",
+                as: "subscriptionData",
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  subscriptionId: "$subscriptionId",
+                  users: "$subscriptionData.users",
+                  validity: "$subscriptionData.validity",
+                  date: "$trade_time_utc",
+                },
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  users: {
+                    $arrayElemAt: ["$_id.users", 0],
+                  },
+                  id: "$_id.subscriptionId",
+                  validity: {
+                    $arrayElemAt: ["$_id.validity", 0],
+                  },
+                  date: "$_id.date",
+                },
+                count: {
+                  $sum: 1,
+                },
+              },
+            },
+            {
+              $unwind: {
+                path: "$_id.users",
+              },
+            },
+            {
+              $match:
+          
+                {
+                  "_id.users.userId": new ObjectId(
+                    userId
+                  ),
+                  "_id.users.status": "Live",
+                  $expr: {
+                    $gte: [
+                      "$_id.date",
+                      "$_id.users.subscribedOn",
+                    ],
+                  },
+                },
+            },
+            {
+              $group: {
+                _id: {
+                  id: "$_id.id",
+                  users: "$_id.users",
+                  validity: "$_id.validity",
+                  date: {
+                    $dateToString: {
+                      format: "%Y-%m-%d",
+                      date: "$_id.date",
+                    },
+                  },
+                },
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  subscriptionId: "$_id.id",
+                  users: "$_id.users",
+                  validity: "$_id.validity",
+                },
+                count: {
+                  $count: {},
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                subscriptionId: "$_id.subscriptionId",
+                totalTradingDays: "$count",
+                actualRemainingDay: {
+                  $subtract: ["$_id.validity", "$count"],
+                },
+                actualRemainingDay: {
+                  $min: [
+                    {
+                      $subtract: [
+                        "$_id.validity",
+                        "$count",
+                      ],
+                    },
+                    {
+                      $subtract: [
+                        60,
+                        {
+                          $divide: [
+                            {
+                              $subtract: [
+                                today,
+                                {
+                                  $toDate:
+                                    "$_id.users.subscribedOn",
+                                },
+                              ],
+                            },
+                            24 * 60 * 60 * 1000, // Convert milliseconds to days
+                          ],
+                        },
+                      ],
+                    },
                   ],
                 },
               },
-          },
-          {
-            $group: {
-              _id: {
-                id: "$_id.id",
-                users: "$_id.users",
-                validity: "$_id.validity",
-                date: {
-                  $dateToString: {
-                    format: "%Y-%m-%d",
-                    date: "$_id.date",
+            },
+          ])
+    
+          let pnlDetails = await TenXTrader.aggregate([
+            {
+              $match: {
+                trade_time_utc: {
+                  $gte: new Date(subscribedOn)
+                },
+                status: "COMPLETE",
+                trader: new ObjectId(userId),
+                subscriptionId: new ObjectId(subscriptionId)
+              },
+            },
+            {
+              $group: {
+                _id: {},
+                amount: {
+                  $sum: {
+                    $multiply: ["$amount", -1],
+                  },
+                },
+                brokerage: {
+                  $sum: {
+                    $toDouble: "$brokerage",
                   },
                 },
               },
             },
-          },
-          {
-            $group: {
-              _id: {
-                subscriptionId: "$_id.id",
-                users: "$_id.users",
-                validity: "$_id.validity",
-              },
-              count: {
-                $count: {},
-              },
-            },
-          },
-          {
-            $project: {
-              _id: 0,
-              subscriptionId: "$_id.subscriptionId",
-              totalTradingDays: "$count",
-              actualRemainingDay: {
-                $subtract: ["$_id.validity", "$count"],
-              },
-              actualRemainingDay: {
-                $min: [
-                  {
-                    $subtract: [
-                      "$_id.validity",
-                      "$count",
-                    ],
+            {
+              $project:
+                {
+                  _id: 0,
+                  npnl: {
+                    $subtract: ["$amount", "$brokerage"],
                   },
-                  {
-                    $subtract: [
-                      60,
-                      {
-                        $divide: [
-                          {
-                            $subtract: [
-                              today,
-                              {
-                                $toDate:
-                                  "$_id.users.subscribedOn",
-                              },
-                            ],
-                          },
-                          24 * 60 * 60 * 1000, // Convert milliseconds to days
-                        ],
-                      },
-                    ],
-                  },
-                ],
-              },
-            },
-          },
-        ])
-  
-        let pnlDetails = await TenXTrader.aggregate([
-          {
-            $match: {
-              trade_time_utc: {
-                $gte: new Date(subscribedOn)
-              },
-              status: "COMPLETE",
-              trader: new ObjectId(userId),
-              subscriptionId: new ObjectId(subscriptionId)
-            },
-          },
-          {
-            $group: {
-              _id: {},
-              amount: {
-                $sum: {
-                  $multiply: ["$amount", -1],
                 },
-              },
-              brokerage: {
-                $sum: {
-                  $toDouble: "$brokerage",
-                },
-              },
             },
-          },
-          {
-            $project:
-              {
-                _id: 0,
-                npnl: {
-                  $subtract: ["$amount", "$brokerage"],
-                },
-              },
-          },
-        ])
+          ])
 
-        let pnl = pnlDetails[0]?.npnl * payoutPercentage/100;
-        let profitCap = subscription[i].profitCap;
-        let payoutAmount = Math.min(pnl, profitCap);
-  
+          let pnl = pnlDetails[0]?.npnl * payoutPercentage/100;
+          let profitCap = subscription[i].profitCap;
+          let payoutAmount = Math.min(pnl, profitCap);
+    
 
-        // console.log("payoutAmount", (payoutAmount > 0 && tradingDays[0]?.totalTradingDays === validity))
+          // console.log("payoutAmount", (payoutAmount > 0 && tradingDays[0]?.totalTradingDays === validity))
 
-        if (tradingDays.length && Math.floor(tradingDays[0]?.actualRemainingDay) <= 0) {
-          // console.log(pnlDetails[0]?.npnl, pnl, profitCap, payoutAmount, userId)
+          if (tradingDays.length && Math.floor(tradingDays[0]?.actualRemainingDay) <= 0) {
+            // console.log(pnlDetails[0]?.npnl, pnl, profitCap, payoutAmount, userId)
 
-          const user = await User.findOne({ _id: new ObjectId(userId), status: "Active" });
-          if(user){
+            const user = await User.findOne({ _id: new ObjectId(userId), status: "Active" });
+            if(user){
 
-            
-            let len = user.subscription.length;
-            
-            for (let k = len - 1; k >= 0; k--) {
-              if (user.subscription[k].subscriptionId?.toString() === subscription[i]._id?.toString()) {
-                user.subscription[k].status = "Expired";
-                user.subscription[k].expiredOn = new Date();
-                user.subscription[k].expiredBy = "System";
-                user.subscription[k].payout = (payoutAmount?.toFixed(2)) 
-                console.log("this is user", user)
-                await user.save();
-                break;
+              
+              let len = user.subscription.length;
+              
+              for (let k = len - 1; k >= 0; k--) {
+                if (user.subscription[k].subscriptionId?.toString() === subscription[i]._id?.toString()) {
+                  user.subscription[k].status = "Expired";
+                  user.subscription[k].expiredOn = new Date();
+                  user.subscription[k].expiredBy = "System";
+                  user.subscription[k].payout = (payoutAmount?.toFixed(2)) 
+                  console.log("this is user", user)
+                  await user.save({session});
+                  break;
+                }
               }
-            }
 
-            const subs = await Subscription.findOne({ _id: new ObjectId(subscription[i]._id) });
-            let Subslen = subs.users.length;
-            
-            for (let k = Subslen - 1; k >= 0; k--) {
-              if (subs.users[k].userId?.toString() === userId?.toString()) {
-                subs.users[k].status = "Expired";
-                subs.users[k].expiredOn = new Date();
-                subs.users[k].expiredBy = "System";
-                subs.users[k].payout = (payoutAmount?.toFixed(2));
-                console.log("this is subs", subs)
-                await subs.save();
-                break;
+              const subs = await Subscription.findOne({ _id: new ObjectId(subscription[i]._id) });
+              let Subslen = subs.users.length;
+              
+              for (let k = Subslen - 1; k >= 0; k--) {
+                if (subs.users[k].userId?.toString() === userId?.toString()) {
+                  subs.users[k].status = "Expired";
+                  subs.users[k].expiredOn = new Date();
+                  subs.users[k].expiredBy = "System";
+                  subs.users[k].payout = (payoutAmount?.toFixed(2));
+                  console.log("this is subs", subs)
+                  await subs.save({session});
+                  break;
+                }
               }
-            }
-  
-            console.log(payoutAmount, tradingDays[0]?.totalTradingDays, new ObjectId(userId));
+    
+              console.log(payoutAmount, tradingDays[0]?.totalTradingDays, new ObjectId(userId));
+              
+              if(payoutAmount > 0 && tradingDays[0]?.totalTradingDays >= validity){
+                console.log(user._id, user.first_name)
+                const wallet = await Wallet.findOne({userId: new ObjectId(userId)});
+                wallet.transactions = [...wallet.transactions, {
+                      title: 'TenX Trading Payout',
+                      description: `Amount Credited for the profit of ${subscription[i]?.plan_name} subscription`,
+                      amount: (payoutAmount?.toFixed(2)),
+                      transactionId: uuid.v4(),
+                      transactionType: 'Cash'
+                }];
+                await wallet.save({session});
+
+                if (process.env.PROD == 'true') {
+                  sendMail(user?.email, 'Tenx Payout Credited - StoxHero', `
+                  <!DOCTYPE html>
+                  <html>
+                  <head>
+                      <meta charset="UTF-8">
+                      <title>Amount Credited</title>
+                      <style>
+                      body {
+                          font-family: Arial, sans-serif;
+                          font-size: 16px;
+                          line-height: 1.5;
+                          margin: 0;
+                          padding: 0;
+                      }
             
-            if(payoutAmount > 0 && tradingDays[0]?.totalTradingDays >= validity){
-              console.log(user._id, user.first_name)
-              const wallet = await Wallet.findOne({userId: new ObjectId(userId)});
-              wallet.transactions = [...wallet.transactions, {
-                    title: 'TenX Trading Payout',
-                    description: `Amount Credited for the profit of ${subscription[i]?.plan_name} subscription`,
-                    amount: (payoutAmount?.toFixed(2)),
-                    transactionId: uuid.v4(),
-                    transactionType: 'Cash'
-              }];
-              wallet.save();
+                      .container {
+                          max-width: 600px;
+                          margin: 0 auto;
+                          padding: 20px;
+                          border: 1px solid #ccc;
+                      }
+            
+                      h1 {
+                          font-size: 24px;
+                          margin-bottom: 20px;
+                      }
+            
+                      p {
+                          margin: 0 0 20px;
+                      }
+            
+                      .userid {
+                          display: inline-block;
+                          background-color: #f5f5f5;
+                          padding: 10px;
+                          font-size: 15px;
+                          font-weight: bold;
+                          border-radius: 5px;
+                          margin-right: 10px;
+                      }
+            
+                      .password {
+                          display: inline-block;
+                          background-color: #f5f5f5;
+                          padding: 10px;
+                          font-size: 15px;
+                          font-weight: bold;
+                          border-radius: 5px;
+                          margin-right: 10px;
+                      }
+            
+                      .login-button {
+                          display: inline-block;
+                          background-color: #007bff;
+                          color: #fff;
+                          padding: 10px 20px;
+                          font-size: 18px;
+                          font-weight: bold;
+                          text-decoration: none;
+                          border-radius: 5px;
+                      }
+            
+                      .login-button:hover {
+                          background-color: #0069d9;
+                      }
+                      </style>
+                  </head>
+                  <body>
+                      <div class="container">
+                      <h1>Amount Credited</h1>
+                      <p>Hello ${user.first_name},</p>
+                      <p>Amount of ${payoutAmount?.toFixed(2)}INR has been credited in you wallet</p>
+                      <p>You can now purchase Tenx and participate in contest.</p>
+                      
+                      <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                      <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                      <br/><br/>
+                      <p>Thanks,</p>
+                      <p>StoxHero Team</p>
+            
+                      </div>
+                  </body>
+                  </html>
+                  `);
+                }
+                await createUserNotification({
+                  title:'Internship Payout Credited',
+                  description:`₹${creditAmount?.toFixed(2)} credited for your internship profit`,
+                  notificationType:'Individual',
+                  notificationCategory:'Informational',
+                  productCategory:'Internship',
+                  user: user?._id,
+                  priority:'High',
+                  channels:['App', 'Email'],
+                  createdBy:'63ecbc570302e7cf0153370c',
+                  lastModifiedBy:'63ecbc570302e7cf0153370c'  
+                }, session);
 
-              // if (process.env.PROD == 'true') {
-                sendMail(user?.email, 'Tenx Payout Credited - StoxHero', `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <title>Amount Credited</title>
-                    <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        font-size: 16px;
-                        line-height: 1.5;
-                        margin: 0;
-                        padding: 0;
-                    }
-          
-                    .container {
-                        max-width: 600px;
-                        margin: 0 auto;
-                        padding: 20px;
-                        border: 1px solid #ccc;
-                    }
-          
-                    h1 {
-                        font-size: 24px;
-                        margin-bottom: 20px;
-                    }
-          
-                    p {
-                        margin: 0 0 20px;
-                    }
-          
-                    .userid {
-                        display: inline-block;
-                        background-color: #f5f5f5;
-                        padding: 10px;
-                        font-size: 15px;
-                        font-weight: bold;
-                        border-radius: 5px;
-                        margin-right: 10px;
-                    }
-          
-                    .password {
-                        display: inline-block;
-                        background-color: #f5f5f5;
-                        padding: 10px;
-                        font-size: 15px;
-                        font-weight: bold;
-                        border-radius: 5px;
-                        margin-right: 10px;
-                    }
-          
-                    .login-button {
-                        display: inline-block;
-                        background-color: #007bff;
-                        color: #fff;
-                        padding: 10px 20px;
-                        font-size: 18px;
-                        font-weight: bold;
-                        text-decoration: none;
-                        border-radius: 5px;
-                    }
-          
-                    .login-button:hover {
-                        background-color: #0069d9;
-                    }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                    <h1>Amount Credited</h1>
-                    <p>Hello ${user.first_name},</p>
-                    <p>Amount of ${payoutAmount?.toFixed(2)}INR has been credited in you wallet</p>
-                    <p>You can now purchase Tenx and participate in contest.</p>
-                    
-                    <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-                    <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-                    <br/><br/>
-                    <p>Thanks,</p>
-                    <p>StoxHero Team</p>
-          
-                    </div>
-                </body>
-                </html>
-                `);
-              // }
-
+              }
+              await session.commitTransaction();
             }
           }
         }
+      }catch(e){
+        console.log(e);
+        await session.abortTransaction();
+      }finally{
+        await session.endSession();
       }
     }
   }

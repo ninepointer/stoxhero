@@ -8,7 +8,9 @@ const Campaign = require("../models/campaigns/campaignSchema")
 const Wallet = require("../models/UserWallet/userWalletSchema");
 const uuid = require('uuid');
 const {client, getValue} = require("../marketData/redisClient");
-const emailService = require("../utils/emailService")
+const emailService = require("../utils/emailService");
+const mongoose = require('mongoose');
+const {createUserNotification} = require('./notification/notificationController');
 
 
 const filterObj = (obj, ...allowedFields) => {
@@ -492,7 +494,9 @@ exports.renewSubscription = async(req, res, next)=>{
   const userId = req.user._id;
   let {subscriptionAmount, subscriptionName, subscriptionId} = req.body
   const today = new Date();
+  const session = await mongoose.startSession();
   try{
+      session.startTransaction();
       const tenXSubs = await TenXSubscription.findOne({_id: new ObjectId(subscriptionId)})
       subscriptionAmount = tenXSubs?.discounted_price;
       const wallet = await Wallet.findOne({userId: userId});
@@ -528,7 +532,7 @@ exports.renewSubscription = async(req, res, next)=>{
                 user.subscription[k].expiredOn = new Date();
                 user.subscription[k].expiredBy = "User";
                 // console.log("this is user", user)
-                await user.save();
+                await user.save({session});
                 break;
               }
             }
@@ -539,7 +543,7 @@ exports.renewSubscription = async(req, res, next)=>{
                 tenXSubs.users[k].expiredOn = new Date();
                 tenXSubs.users[k].expiredBy = "User";
                 // console.log("this is tenXSubs", tenXSubs)
-                await tenXSubs.save();
+                await tenXSubs.save({session});
                 break;
               }
             }
@@ -562,7 +566,7 @@ exports.renewSubscription = async(req, res, next)=>{
             transactionId: uuid.v4(),
             transactionType: 'Cash'
       }];
-      wallet.save();
+      wallet.save({session});
 
       const user = await User.findOneAndUpdate(
           { _id: userId },
@@ -576,7 +580,7 @@ exports.renewSubscription = async(req, res, next)=>{
               }
             }
           },
-          { new: true }
+          { new: true, session:session }
       );
 
       const subscription = await TenXSubscription.findOneAndUpdate(
@@ -591,7 +595,7 @@ exports.renewSubscription = async(req, res, next)=>{
             }
           }
       },
-      { new: true }
+      { new: true, session:session }
       );
 
       if(isRedisConnected){
@@ -696,12 +700,27 @@ exports.renewSubscription = async(req, res, next)=>{
         emailService(recipientString,subject,message);
         console.log("Subscription Email Sent")
       }
-      
+      await createUserNotification({
+        title:'TenX Subscription Renewed',
+        description:`₹${subscription.discounted_price} deducted for renewal of TenX plan ${subscription.plan_name}`,
+        notificationType:'Individual',
+        notificationCategory:'Informational',
+        productCategory:'TenX',
+        user: user?._id,
+        priority:'High',
+        channels:['App', 'Email'],
+        createdBy:'63ecbc570302e7cf0153370c',
+        lastModifiedBy:'63ecbc570302e7cf0153370c'  
+      }, session);
+      await session.commitTransaction();   
       res.status(201).json({status: 'success', message: 'Subscription renewed successfully.'});    
   }catch(e){
       console.log(e);
       res.status(500).json({status: 'error', message: 'Something went wrong'});
-  }     
+      await session.abortTransaction();
+    }finally{
+      await session.endSession();
+    }     
 };
 
 exports.myActiveSubsciption = async(req, res, next)=>{

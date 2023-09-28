@@ -164,7 +164,8 @@ function DashboardNavbar({ absolute, light, isMini }) {
               >
                 <Icon sx={iconsStyle}>settings</Icon>
               </IconButton> */}
-              <Tooltip title='Notifications' placement="top">  
+              <Link to="/notifications">
+              <Tooltip title='Notifications' placement="top">
                 <IconButton
                   size="small"
                   disableRipple
@@ -173,11 +174,12 @@ function DashboardNavbar({ absolute, light, isMini }) {
                   aria-controls="notification-menu"
                   aria-haspopup="true"
                   variant="contained"
-                  onClick={handleOpenMenu}
+                  // onClick={handleOpenMenu}
                 >
                   <Icon sx={iconsStyle}>notifications</Icon>
                 </IconButton>
               </Tooltip>
+              </Link>
               {renderMenu()}
               <Link to="/profile">
                 <IconButton sx={navbarIconButton} size="small" disableRipple>

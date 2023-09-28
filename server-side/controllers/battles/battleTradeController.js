@@ -11,6 +11,8 @@ const Wallet = require("../../models/UserWallet/userWalletSchema")
 const Transaction = require('../../models/Transactions/Transaction');
 const uuid = require("uuid");
 const sendMail = require('../../utils/emailService');
+const {createUserNotification} = require('../../controllers/notification/notificationController');
+const mongoose = require('mongoose');
 
 
 exports.overallPnlTrader = async (req, res, next) => {
@@ -1200,7 +1202,7 @@ async function processContestQueue() {
 
     const endTime = new Date(currentTime);
     endTime.setHours(9, 48, 0, 0);
-    if (currentTime >= startTime && currentTime <= endTime) {
+    // if (currentTime >= startTime && currentTime <= endTime) {
 
         // If the queue is empty, reset the processing flag and return
         if (contestQueue.length === 0) {
@@ -1221,7 +1223,7 @@ async function processContestQueue() {
             }
         }
 
-    }
+    // }
 }
 
 const battleLeaderBoard = async (id) => {
@@ -1465,7 +1467,7 @@ const emitLeaderboardData = async () => {
     const endTime = new Date(currentTime);
     endTime.setHours(9, 48, 0, 0);
 
-    if (currentTime >= startTime && currentTime <= endTime) {
+    // if (currentTime >= startTime && currentTime <= endTime) {
         const battle = await Battle.find({status: "Active", battleStartTime: {$lte: new Date()}});
 
         // console.log("battle", battle)
@@ -1489,7 +1491,7 @@ const emitLeaderboardData = async () => {
             }
 
         }
-   }
+//    }
 };
 
 const getRedisMyRank = async (id, employeeId) => {
@@ -1578,280 +1580,313 @@ exports.creditAmountToWalletBattle = async () => {
             console.log("rewardData", rewardData)
 
             for(let i = 0; i < userBattleWise.length; i++){
-                const preDefinedReward = rewardData.reward;
-                const wallet = await Wallet.findOne({ userId: new ObjectId(userBattleWise[i].userId) });
+                const session = await mongoose.startSession();
+                try{
+                    session.startTransaction();
+                    const preDefinedReward = rewardData.reward;
+                    const wallet = await Wallet.findOne({ userId: new ObjectId(userBattleWise[i].userId) });
 
-                if(preDefinedReward[preDefinedReward.length-1].rank >= i+1){
-                    for(const elem of preDefinedReward){
+                    if(preDefinedReward[preDefinedReward.length-1].rank >= i+1){
+                        for(const elem of preDefinedReward){
 
-                        if(elem.rank === i+1){
-                            console.log("user in top", userBattleWise[i].userId, battle[j].battleName, elem.reward, elem.rank)
-                            wallet.transactions = [...wallet.transactions, {
-                                title: 'Battle Credit',
-                                description: `Amount credited for battle ${battle[j].battleName}`,
-                                transactionDate: new Date(),
-                                amount: elem.reward?.toFixed(2),
-                                transactionId: uuid.v4(),
-                                transactionType: 'Cash'
-                            }];
-                            await wallet.save();
-    
-                            const transacation = await Transaction.create({
-                                transactionCategory: 'Debit',
-                                transactionBy: '63ecbc570302e7cf0153370c',
-                                transactionAmount: elem.reward?.toFixed(2),
-                                transactionFor: 'Battle',
-                                transactionStatus: 'Complete',
-                                transactionMode: 'Wallet',
-                                currency: 'INR',
-                                transactionType: 'Cash',
-                                wallet: wallet._id
-                            });
-    
-                            for(let subelem of battle[j]?.participants){
-                                if(subelem.userId.toString() === userBattleWise[i].userId.toString()){
-                                    subelem.reward = elem.reward?.toFixed(2);
-                                    subelem.rank = elem.rank;
+                            if(elem.rank === i+1){
+                                console.log("user in top", userBattleWise[i].userId, battle[j].battleName, elem.reward, elem.rank)
+                                wallet.transactions = [...wallet.transactions, {
+                                    title: 'Battle Credit',
+                                    description: `Amount credited for battle ${battle[j].battleName}`,
+                                    transactionDate: new Date(),
+                                    amount: elem.reward?.toFixed(2),
+                                    transactionId: uuid.v4(),
+                                    transactionType: 'Cash'
+                                }];
+                                wallet.save({session});
+        
+                                const transacation = await Transaction.create({
+                                    transactionCategory: 'Debit',
+                                    transactionBy: '63ecbc570302e7cf0153370c',
+                                    transactionAmount: elem.reward?.toFixed(2),
+                                    transactionFor: 'Battle',
+                                    transactionStatus: 'Complete',
+                                    transactionMode: 'Wallet',
+                                    currency: 'INR',
+                                    transactionType: 'Cash',
+                                    wallet: wallet._id
+                                });
+        
+                                for(let subelem of battle[j]?.participants){
+                                    if(subelem.userId.toString() === userBattleWise[i].userId.toString()){
+                                        subelem.reward = elem.reward?.toFixed(2);
+                                        subelem.rank = elem.rank;
+                                    }
                                 }
-                            }
-    
-                            await battle[j].save();
+        
+                                await battle[j].save({session});
 
-                            const user = await User.findOne({_id: new ObjectId(userBattleWise[i].userId)}).select('first_name last_name email');
+                                const user = await User.findOne({_id: new ObjectId(userBattleWise[i].userId)}).select('first_name last_name email');
 
-                            if (process.env.PROD == 'true') {
-                                sendMail(user?.email, 'Battle Reward Credited - StoxHero', `
-                                <!DOCTYPE html>
-                                <html>
-                                <head>
-                                    <meta charset="UTF-8">
-                                    <title>Amount Credited</title>
-                                    <style>
-                                    body {
-                                        font-family: Arial, sans-serif;
-                                        font-size: 16px;
-                                        line-height: 1.5;
-                                        margin: 0;
-                                        padding: 0;
-                                    }
-                          
-                                    .container {
-                                        max-width: 600px;
-                                        margin: 0 auto;
-                                        padding: 20px;
-                                        border: 1px solid #ccc;
-                                    }
-                          
-                                    h1 {
-                                        font-size: 24px;
-                                        margin-bottom: 20px;
-                                    }
-                          
-                                    p {
-                                        margin: 0 0 20px;
-                                    }
-                          
-                                    .userid {
-                                        display: inline-block;
-                                        background-color: #f5f5f5;
-                                        padding: 10px;
-                                        font-size: 15px;
-                                        font-weight: bold;
-                                        border-radius: 5px;
-                                        margin-right: 10px;
-                                    }
-                          
-                                    .password {
-                                        display: inline-block;
-                                        background-color: #f5f5f5;
-                                        padding: 10px;
-                                        font-size: 15px;
-                                        font-weight: bold;
-                                        border-radius: 5px;
-                                        margin-right: 10px;
-                                    }
-                          
-                                    .login-button {
-                                        display: inline-block;
-                                        background-color: #007bff;
-                                        color: #fff;
-                                        padding: 10px 20px;
-                                        font-size: 18px;
-                                        font-weight: bold;
-                                        text-decoration: none;
-                                        border-radius: 5px;
-                                    }
-                          
-                                    .login-button:hover {
-                                        background-color: #0069d9;
-                                    }
-                                    </style>
-                                </head>
-                                <body>
-                                    <div class="container">
-                                    <h1>Amount Credited</h1>
-                                    <p>Hello ${user.first_name},</p>
-                                    <p>Amount of ${elem.reward?.toFixed(2)}INR has been credited in your StoxHero wallet as reward for ${battle[j].battleName}</p>
-                                    <p>You can now purchase Tenx and participate in various activities on StoxHero.</p>
-                                    
-                                    <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-                                    <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-                                    <br/><br/>
-                                    <p>Thanks,</p>
-                                    <p>StoxHero Team</p>
-                          
-                                    </div>
-                                </body>
-                                </html>
-                                `);
-                            }
-                        }
-    
-                    }
-                } else{
-                    const remainingInitialRank = rewardData.remainWinnerStart;
-                    const finalRank = rewardData.totalWinner;
-                    const remainingReward = rewardData.remainingReward
-
-                    for(let k = remainingInitialRank; k <= finalRank; k++){
-                        if(k === i+1){
-
-                            console.log("users", userBattleWise[i].userId, battle[j].battleName, remainingReward)
-                            wallet.transactions = [...wallet.transactions, {
-                                title: 'Battle Credit',
-                                description: `Amount credited for battle ${battle[j].battleName}`,
-                                transactionDate: new Date(),
-                                amount: remainingReward?.toFixed(2),
-                                transactionId: uuid.v4(),
-                                transactionType: 'Cash'
-                            }];
-                            await wallet.save();
-
-                            const transacation = await Transaction.create({
-                                transactionCategory: 'Debit',
-                                transactionBy: '63ecbc570302e7cf0153370c',
-                                transactionAmount: remainingReward?.toFixed(2),
-                                transactionFor: 'Battle',
-                                transactionStatus: 'Complete',
-                                transactionMode: 'Wallet',
-                                currency: 'INR',
-                                transactionType: 'Cash',
-                                wallet: wallet._id
-                            });
-    
-                            for(let subelem of battle[j]?.participants){
-                                if(subelem.userId.toString() === userBattleWise[i].userId.toString()){
-                                    subelem.reward = remainingReward?.toFixed(2);
-                                    subelem.rank = k;
+                                if (process.env.PROD == 'true') {
+                                    sendMail(user?.email, 'Battle Reward Credited - StoxHero', `
+                                    <!DOCTYPE html>
+                                    <html>
+                                    <head>
+                                        <meta charset="UTF-8">
+                                        <title>Amount Credited</title>
+                                        <style>
+                                        body {
+                                            font-family: Arial, sans-serif;
+                                            font-size: 16px;
+                                            line-height: 1.5;
+                                            margin: 0;
+                                            padding: 0;
+                                        }
+                            
+                                        .container {
+                                            max-width: 600px;
+                                            margin: 0 auto;
+                                            padding: 20px;
+                                            border: 1px solid #ccc;
+                                        }
+                            
+                                        h1 {
+                                            font-size: 24px;
+                                            margin-bottom: 20px;
+                                        }
+                            
+                                        p {
+                                            margin: 0 0 20px;
+                                        }
+                            
+                                        .userid {
+                                            display: inline-block;
+                                            background-color: #f5f5f5;
+                                            padding: 10px;
+                                            font-size: 15px;
+                                            font-weight: bold;
+                                            border-radius: 5px;
+                                            margin-right: 10px;
+                                        }
+                            
+                                        .password {
+                                            display: inline-block;
+                                            background-color: #f5f5f5;
+                                            padding: 10px;
+                                            font-size: 15px;
+                                            font-weight: bold;
+                                            border-radius: 5px;
+                                            margin-right: 10px;
+                                        }
+                            
+                                        .login-button {
+                                            display: inline-block;
+                                            background-color: #007bff;
+                                            color: #fff;
+                                            padding: 10px 20px;
+                                            font-size: 18px;
+                                            font-weight: bold;
+                                            text-decoration: none;
+                                            border-radius: 5px;
+                                        }
+                            
+                                        .login-button:hover {
+                                            background-color: #0069d9;
+                                        }
+                                        </style>
+                                    </head>
+                                    <body>
+                                        <div class="container">
+                                        <h1>Amount Credited</h1>
+                                        <p>Hello ${user.first_name},</p>
+                                        <p>Amount of ${elem.reward?.toFixed(2)}INR has been credited in your StoxHero wallet as reward for ${battle[j].battleName}</p>
+                                        <p>You can now purchase Tenx and participate in various activities on StoxHero.</p>
+                                        
+                                        <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                                        <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                                        <br/><br/>
+                                        <p>Thanks,</p>
+                                        <p>StoxHero Team</p>
+                            
+                                        </div>
+                                    </body>
+                                    </html>
+                                    `);
                                 }
-                            }
-    
-                            await battle[j].save();
-
-                            const user = await User.findOne({_id: new ObjectId(userBattleWise[i].userId)}).select('first_name last_name email')
-
-                            if (process.env.PROD == 'true') {
-                                sendMail(user?.email, 'Battle Reward Credited - StoxHero', `
-                                <!DOCTYPE html>
-                                <html>
-                                <head>
-                                    <meta charset="UTF-8">
-                                    <title>Amount Credited</title>
-                                    <style>
-                                    body {
-                                        font-family: Arial, sans-serif;
-                                        font-size: 16px;
-                                        line-height: 1.5;
-                                        margin: 0;
-                                        padding: 0;
-                                    }
-                          
-                                    .container {
-                                        max-width: 600px;
-                                        margin: 0 auto;
-                                        padding: 20px;
-                                        border: 1px solid #ccc;
-                                    }
-                          
-                                    h1 {
-                                        font-size: 24px;
-                                        margin-bottom: 20px;
-                                    }
-                          
-                                    p {
-                                        margin: 0 0 20px;
-                                    }
-                          
-                                    .userid {
-                                        display: inline-block;
-                                        background-color: #f5f5f5;
-                                        padding: 10px;
-                                        font-size: 15px;
-                                        font-weight: bold;
-                                        border-radius: 5px;
-                                        margin-right: 10px;
-                                    }
-                          
-                                    .password {
-                                        display: inline-block;
-                                        background-color: #f5f5f5;
-                                        padding: 10px;
-                                        font-size: 15px;
-                                        font-weight: bold;
-                                        border-radius: 5px;
-                                        margin-right: 10px;
-                                    }
-                          
-                                    .login-button {
-                                        display: inline-block;
-                                        background-color: #007bff;
-                                        color: #fff;
-                                        padding: 10px 20px;
-                                        font-size: 18px;
-                                        font-weight: bold;
-                                        text-decoration: none;
-                                        border-radius: 5px;
-                                    }
-                          
-                                    .login-button:hover {
-                                        background-color: #0069d9;
-                                    }
-                                    </style>
-                                </head>
-                                <body>
-                                    <div class="container">
-                                    <h1>Amount Credited</h1>
-                                    <p>Hello ${user.first_name},</p>
-                                    <p>Amount of ${remainingReward?.toFixed(2)}INR has been credited in your StoxHero wallet as reward for ${battle[j].battleName}.</p>
-                                    <p>You can now purchase Tenx and participate in various activity on StoxHero.</p>
-                                    
-                                    <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-                                    <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-                                    <br/><br/>
-                                    <p>Thanks,</p>
-                                    <p>StoxHero Team</p>
-                          
-                                    </div>
-                                </body>
-                                </html>
-                                `);
+                                await createUserNotification({
+                                    title:'Battle Payout Credited',
+                                    description:`₹${elem.reward?.toFixed(2)} credited to your wallet for your battle reward`,
+                                    notificationType:'Individual',
+                                    notificationCategory:'Informational',
+                                    productCategory:'Battle',
+                                    user: user?._id,
+                                    priority:'Low',
+                                    channels:['App', 'Email'],
+                                    createdBy:'63ecbc570302e7cf0153370c',
+                                    lastModifiedBy:'63ecbc570302e7cf0153370c'  
+                                  }, session);
                             }
                         }
+                    } else{
+                        const remainingInitialRank = rewardData.remainWinnerStart;
+                        const finalRank = rewardData.totalWinner;
+                        const remainingReward = rewardData.remainingReward
 
-                        if (i + 1 > finalRank) {
-                            for (let subelem of battle[j]?.participants) {
-                              console.log("updating feilds")
-                              if (subelem.userId.toString() === userBattleWise[i].userId.toString()) {
-                                subelem.reward = 0;
-                                subelem.rank = i+1;
-                              }
+                        for(let k = remainingInitialRank; k <= finalRank; k++){
+                            if(k === i+1){
+
+                                console.log("users", userBattleWise[i].userId, battle[j].battleName, remainingReward)
+                                wallet.transactions = [...wallet.transactions, {
+                                    title: 'Battle Credit',
+                                    description: `Amount credited for battle ${battle[j].battleName}`,
+                                    transactionDate: new Date(),
+                                    amount: remainingReward?.toFixed(2),
+                                    transactionId: uuid.v4(),
+                                    transactionType: 'Cash'
+                                }];
+                                wallet.save({session});
+
+                                const transacation = await Transaction.create({
+                                    transactionCategory: 'Debit',
+                                    transactionBy: '63ecbc570302e7cf0153370c',
+                                    transactionAmount: remainingReward?.toFixed(2),
+                                    transactionFor: 'Battle',
+                                    transactionStatus: 'Complete',
+                                    transactionMode: 'Wallet',
+                                    currency: 'INR',
+                                    transactionType: 'Cash',
+                                    wallet: wallet._id
+                                });
+        
+                                for(let subelem of battle[j]?.participants){
+                                    if(subelem.userId.toString() === userBattleWise[i].userId.toString()){
+                                        subelem.reward = remainingReward?.toFixed(2);
+                                        subelem.rank = k;
+                                    }
+                                }
+        
+                                await battle[j].save({session});
+
+                                const user = await User.findOne({_id: new ObjectId(userBattleWise[i].userId)}).select('first_name last_name email')
+
+                                if (process.env.PROD == 'true') {
+                                    sendMail(user?.email, 'Battle Reward Credited - StoxHero', `
+                                    <!DOCTYPE html>
+                                    <html>
+                                    <head>
+                                        <meta charset="UTF-8">
+                                        <title>Amount Credited</title>
+                                        <style>
+                                        body {
+                                            font-family: Arial, sans-serif;
+                                            font-size: 16px;
+                                            line-height: 1.5;
+                                            margin: 0;
+                                            padding: 0;
+                                        }
+                            
+                                        .container {
+                                            max-width: 600px;
+                                            margin: 0 auto;
+                                            padding: 20px;
+                                            border: 1px solid #ccc;
+                                        }
+                            
+                                        h1 {
+                                            font-size: 24px;
+                                            margin-bottom: 20px;
+                                        }
+                            
+                                        p {
+                                            margin: 0 0 20px;
+                                        }
+                            
+                                        .userid {
+                                            display: inline-block;
+                                            background-color: #f5f5f5;
+                                            padding: 10px;
+                                            font-size: 15px;
+                                            font-weight: bold;
+                                            border-radius: 5px;
+                                            margin-right: 10px;
+                                        }
+                            
+                                        .password {
+                                            display: inline-block;
+                                            background-color: #f5f5f5;
+                                            padding: 10px;
+                                            font-size: 15px;
+                                            font-weight: bold;
+                                            border-radius: 5px;
+                                            margin-right: 10px;
+                                        }
+                            
+                                        .login-button {
+                                            display: inline-block;
+                                            background-color: #007bff;
+                                            color: #fff;
+                                            padding: 10px 20px;
+                                            font-size: 18px;
+                                            font-weight: bold;
+                                            text-decoration: none;
+                                            border-radius: 5px;
+                                        }
+                            
+                                        .login-button:hover {
+                                            background-color: #0069d9;
+                                        }
+                                        </style>
+                                    </head>
+                                    <body>
+                                        <div class="container">
+                                        <h1>Amount Credited</h1>
+                                        <p>Hello ${user.first_name},</p>
+                                        <p>Amount of ${remainingReward?.toFixed(2)}INR has been credited in your StoxHero wallet as reward for ${battle[j].battleName}.</p>
+                                        <p>You can now purchase Tenx and participate in various activity on StoxHero.</p>
+                                        
+                                        <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                                        <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                                        <br/><br/>
+                                        <p>Thanks,</p>
+                                        <p>StoxHero Team</p>
+                            
+                                        </div>
+                                    </body>
+                                    </html>
+                                    `);
+                                }
+                                await createUserNotification({
+                                    title:'Battle Payout Credited',
+                                    description:`₹${remainingReward?.toFixed(2)} credited to your wallet for your battle reward`,
+                                    notificationType:'Individual',
+                                    notificationCategory:'Informational',
+                                    productCategory:'Battle',
+                                    user: user?._id,
+                                    priority:'Low',
+                                    channels:['App', 'Email'],
+                                    createdBy:'63ecbc570302e7cf0153370c',
+                                    lastModifiedBy:'63ecbc570302e7cf0153370c'  
+                                  }, session);
                             }
-                
-                            await battle[j].save();
+
+                            if (i + 1 > finalRank) {
+                                for (let subelem of battle[j]?.participants) {
+                                console.log("updating feilds")
+                                if (subelem.userId.toString() === userBattleWise[i].userId.toString()) {
+                                    subelem.reward = 0;
+                                    subelem.rank = i+1;
+                                }
+                                }
+                    
+                                await battle[j].save();
+                            }
                         }
-                    }
                 }
-
+                await session.commitTransaction();
+                }catch(e){
+                    console.log(e);
+                    await session.abortTransaction();
+                }finally{
+                  await session.endSession();
+                }
+                
             }
 
             battle[j].payoutStatus = 'Completed'

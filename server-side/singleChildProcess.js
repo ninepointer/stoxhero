@@ -395,6 +395,7 @@ async function singleProcess() {
     app.use('/api/v1/battletemplates', require("./routes/battles/battleTemplateRoutes"));
     app.use('/api/v1/marginxs', require("./routes/marginx/marginxRoutes"));
     app.use('/api/v1/marginxtemplates', require("./routes/marginx/marginxTemplateRoutes"));
+    app.use('/api/v1/notifications', require("./routes/notification/notificationRoutes"));
 
 
 

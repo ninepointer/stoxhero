@@ -372,7 +372,7 @@ function Header({ toggleContest, setToggleContest, marginX, showPay, setShowPay,
                                                                 color={"success"}
                                                                 size='small'
                                                                 style={{minWidth:'95%', fontSize:9}}
-                                                                disabled={(particularMarginXTime[0]?.value) > 0}
+                                                                disabled={(particularMarginXTime[0]?.value)  < 0 ? false : true}
                                                                 onClick={() => {
                                                                     navigate(`/marginx/${elem?.marginXName}`, {
                                                                         state: { data: elem?._id, isNifty: elem?.isNifty, isBank: elem?.isBankNifty, isFin: elem.isFinNifty, timeDifference: timeDifference, name: elem?.marginXName, endTime: elem?.endTime, entryFee: elem?.marginXTemplate?.entryFee, portfolioValue: elem?.marginXTemplate?.portfolioValue }

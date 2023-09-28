@@ -5,6 +5,7 @@ const MarginXMockUser = require('../../models/marginX/marginXUserMock');
 const { ObjectId } = require('mongodb');
 const User = require('../../models/User/userDetailSchema');
 const MarginXUserMock = require("../../models/marginX/marginXUserMock");
+const {createUserNotification} = require('../notification/notificationController');
 
 const uuid = require("uuid");
 const emailService = require("../../utils/emailService");
@@ -704,7 +705,7 @@ exports.creditAmountToWallet = async () => {
                             <div class="container">
                             <h1>Amount Credited</h1>
                             <p>Hello ${user.first_name},</p>
-                            <p>Amount of ${payoutAmount?.toFixed(2)}INR has been credited in your wallet for ${marginxs[j].marginXName}.</p>
+                            <p>Amount of ₹${payoutAmount?.toFixed(2)} has been credited in your wallet for ${marginxs[j].marginXName}.</p>
                             <p>You can now purchase Tenx and participate in various activities on stoxhero.</p>
                             
                             <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
@@ -718,6 +719,18 @@ exports.creditAmountToWallet = async () => {
                         </html>
                         `);
                     }
+                    await createUserNotification({
+                        title:'MarginX Payout Credited',
+                        description:`₹${payoutAmount?.toFixed(2)} credited for your MarginX return`,
+                        notificationType:'Individual',
+                        notificationCategory:'Informational',
+                        productCategory:'MarginX',
+                        user: user?._id,
+                        priority:'Medium',
+                        channels:['App', 'Email'],
+                        createdBy:'63ecbc570302e7cf0153370c',
+                        lastModifiedBy:'63ecbc570302e7cf0153370c'  
+                      });
                     marginxs[j].participants[i].payout = payoutAmount?.toFixed(2);
                     await marginxs[j].save();
                 }
@@ -1037,6 +1050,18 @@ exports.deductMarginXAmount = async (req, res, next) => {
             emailService(recipientString,subject,message);
             console.log("Subscription Email Sent")
         }
+        await createUserNotification({
+            title:'MarginX Fee Deducted',
+            description:`₹${marginx?.marginXTemplate?.entryFee} deducted for ${marginx?.marginXName} MarginX Fee`,
+            notificationType:'Individual',
+            notificationCategory:'Informational',
+            productCategory:'MarginX',
+            user: user?._id,
+            priority:'High',
+            channels:['App', 'Email'],
+            createdBy:'63ecbc570302e7cf0153370c',
+            lastModifiedBy:'63ecbc570302e7cf0153370c'  
+          });
 
         res.status(200).json({
             status: "success",

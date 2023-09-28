@@ -14,6 +14,7 @@ const { ObjectId } = require("mongodb");
 const Role = require("../../models/User/everyoneRoleSchema");
 const sendMail = require('../../utils/emailService');
 const restrictTo = require('../../authentication/authorization');
+const {createUserNotification} = require('../../controllers/notification/notificationController');
 
 
 const storage = multer.memoryStorage();
@@ -637,7 +638,19 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
             </body>
             </html>
         
-        ` )
+        ` );
+          await createUserNotification({
+            title:'KYC Verification Request Received',
+            description:`Your KYC Verification request is received. It might take 3-5 business days to get processed.`,
+            notificationType:'Individual',
+            notificationCategory:'Informational',
+            productCategory:'General',
+            user: user?._id,
+            priority:'Low',
+            channels:['App', 'Email'],
+            createdBy:'63ecbc570302e7cf0153370c',
+            lastModifiedBy:'63ecbc570302e7cf0153370c'  
+          });
         }
         filteredBody.lastModified = new Date();
   
