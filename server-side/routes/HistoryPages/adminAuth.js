@@ -1224,8 +1224,8 @@ router.get("/data", async (req, res) => {
 
 
 router.get("/saveMissedData", async (req, res) => {
-  // await saveMissedData();
-  await saveDailyContestMissedData();
+  await saveMissedData();
+  // await saveDailyContestMissedData();
 
   res.send("ok")
 })
