@@ -1495,7 +1495,7 @@ exports.updateUserWallet = async () => {
                   transactionId: uuid.v4(),
                   transactionType: 'Cash'
                 }];
-                wallet.save({session});
+                await wallet.save({session});
               }
               await session.commitTransaction();      
           }
