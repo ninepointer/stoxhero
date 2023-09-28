@@ -863,11 +863,11 @@ exports.autoExpireTenXSubscription = async () => {
                   `);
                 }
                 await createUserNotification({
-                  title:'Internship Payout Credited',
-                  description:`₹${creditAmount?.toFixed(2)} credited for your internship profit`,
+                  title:'TenX Payout Credited',
+                  description:`₹${payoutAmount?.toFixed(2)} credited for your profit in TenX plan ${subscription[i]?.plan_name}`,
                   notificationType:'Individual',
                   notificationCategory:'Informational',
-                  productCategory:'Internship',
+                  productCategory:'TenX',
                   user: user?._id,
                   priority:'High',
                   channels:['App', 'Email'],
