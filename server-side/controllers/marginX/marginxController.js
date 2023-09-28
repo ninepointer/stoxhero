@@ -6,9 +6,10 @@ const { ObjectId } = require('mongodb');
 const User = require('../../models/User/userDetailSchema');
 const MarginXUserMock = require("../../models/marginX/marginXUserMock");
 const {createUserNotification} = require('../notification/notificationController');
-
+const Setting = require("../models/settings/setting")
 const uuid = require("uuid");
 const emailService = require("../../utils/emailService");
+const Setting = require("../models/settings/setting")
 
 exports.createMarginX = async (req, res) => {
     try {
@@ -565,6 +566,7 @@ exports.creditAmountToWallet = async () => {
         let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
         todayDate = todayDate + "T00:00:00.000Z";
         const today = new Date(todayDate);
+        const setting = await Setting.find();
 
         const marginxs = await MarginX.find({ status: "Completed", payoutStatus: null, endTime: {$gte: today} }).populate('marginXTemplate', 'portfolioValue entryFee');
 
@@ -620,6 +622,9 @@ exports.creditAmountToWallet = async () => {
                     console.log("in if ", payoutAmount)
                 }
                 if(payoutAmount >=0){
+
+                    let payoutAmount = payoutAmount - payoutAmount*setting[0]?.tdsPercentage/100;
+
                     const wallet = await Wallet.findOne({ userId: userId });
                     console.log("second if", userId, pnlDetails[0], payoutAmount);
 

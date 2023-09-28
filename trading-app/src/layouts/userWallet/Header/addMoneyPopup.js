@@ -105,7 +105,7 @@ export default function AddMoney() {
             
             <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "15px", fontWeight: 700, fontFamily: "cursive" }} color="#000" variant="body2">Amount to add: ₹{amount ? amount : 0}</Typography>
             <Typography textAlign="left" sx={{ width: "100%", fontSize: "15px", fontWeight: 700, fontFamily: "cursive" }} color="#000" variant="body2">GST amount: ₹{actualAmount ? actualAmount : 0}</Typography>
-            <Typography textAlign="left" sx={{ width: "100%", fontSize: "15px", fontWeight: 700, fontFamily: "cursive" }} color="#000" variant="body2">Amount will be added: ₹{actualAmount ? amount + actualAmount : 0}</Typography>
+            <Typography textAlign="left" sx={{ width: "100%", fontSize: "15px", fontWeight: 700, fontFamily: "cursive" }} color="#000" variant="body2">Amount will be added: ₹{actualAmount ? Number(amount) + actualAmount : 0}</Typography>
 
               <Grid container display="flex" flexDirection="row" justifyContent="start" >
                 <Grid container mt={0.5} xs={12} md={9} xl={12} lg={12}>
@@ -136,7 +136,7 @@ export default function AddMoney() {
                   // disabled={creating}
                   onClick={(e) => { initiatePayment() }}
                 >
-                  {actualAmount ? `Proceed with ${amount + actualAmount}` : "Proceed"}
+                  {actualAmount ? `Proceed with ₹${Number(amount) + actualAmount}` : "Proceed"}
 
                 </MDButton>
               </>

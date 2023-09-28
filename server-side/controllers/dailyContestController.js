@@ -14,6 +14,7 @@ const fs = require('fs');
 const path = require('path');
 const {PDFDocument} = require('pdf-lib');
 const {createUserNotification} = require('./notification/notificationController');
+const Setting = require("../models/settings/setting")
 
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
@@ -1397,7 +1398,7 @@ exports.creditAmountToWallet = async () => {
         const today = new Date(todayDate);
 
         const contest = await Contest.find({ contestStatus: "Completed", payoutStatus: null, contestEndTime: {$gte: today} });
-
+        const setting = await Setting.find();
         // console.log(contest.length, contest)
         for (let j = 0; j < contest.length; j++) {
             // if (contest[j].contestEndTime < new Date()) {
@@ -1444,7 +1445,9 @@ exports.creditAmountToWallet = async () => {
 
                 // console.log(pnlDetails[0]);
                 if (pnlDetails[0]?.npnl > 0) {
-                    const payoutAmount = pnlDetails[0]?.npnl * payoutPercentage / 100;
+                    const payoutAmountWithoutTDS = pnlDetails[0]?.npnl * payoutPercentage / 100;
+                    const payoutAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
+
                     const wallet = await Wallet.findOne({ userId: userId });
 
                     console.log(userId, pnlDetails[0]);

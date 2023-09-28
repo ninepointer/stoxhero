@@ -10,7 +10,7 @@ const sendMail = require('../utils/emailService');
 const moment = require('moment');
 const mongoose = require('mongoose');
 const {createUserNotification} = require('../controllers/notification/notificationController');
-
+const Setting = require("../models/settings/setting")
 
 exports.overallPnl = async (req, res, next) => {
   let isRedisConnected = getValue();
@@ -529,6 +529,7 @@ exports.tradingDays = async (req, res, next) => {
 exports.autoExpireTenXSubscription = async () => {
   console.log("autoExpireSubscription running");
   const subscription = await Subscription.find();
+  const setting = await Setting.find();
 
   for (let i = 0; i < subscription.length; i++) {
     let users = subscription[i].users;
@@ -721,7 +722,8 @@ exports.autoExpireTenXSubscription = async () => {
 
           let pnl = pnlDetails[0]?.npnl * payoutPercentage/100;
           let profitCap = subscription[i].profitCap;
-          let payoutAmount = Math.min(pnl, profitCap);
+          let payoutAmountWithoutTDS = Math.min(pnl, profitCap);
+          let payoutAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
     
 
           // console.log("payoutAmount", (payoutAmount > 0 && tradingDays[0]?.totalTradingDays === validity))
