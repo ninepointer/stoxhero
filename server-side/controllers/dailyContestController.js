@@ -2245,3 +2245,1500 @@ exports.downloadParticipationCertificate = async (req,res,next) => {
         res.status(500).send('Error generating certificate: ' + err.message);
     }
 }
+
+exports.getDailyFreeContestData = async (req, res) => {
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await Contest.countDocuments(
+                      {
+                        contestStatus: "Completed",
+                        entryFee: {$lte : 0},
+                        contestFor: "StoxHero"
+                      })
+    try {
+        const pipeline = 
+        [
+            {
+              $match: {
+                contestStatus: "Completed",
+                entryFee: {$lte : 0},
+                contestFor: "StoxHero"
+              },
+            },
+            {
+              $lookup: {
+                from: "user-portfolios",
+                localField: "portfolio",
+                foreignField: "_id",
+                as: "portfolio_details",
+              },
+            },
+            {
+              $project: {
+                contestName: 1,
+                contestStartTime: 1,
+                contestEndTime: 1,
+                contestType: 1,
+                entryFee: 1,
+                payoutPercentage: 1,
+                maxParticipants: 1,
+                contestStatus: 1,
+                participants: {
+                  $map: {
+                    input: "$participants",
+                    as: "participant",
+                    in: {
+                      $mergeObjects: [
+                        "$$participant",
+                        {
+                          payout: {
+                            $ifNull: [
+                              "$$participant.payout",
+                              0,
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+                portfolioValue: {
+                  $arrayElemAt: [
+                    "$portfolio_details.portfolioValue",
+                    0,
+                  ],
+                },
+                participantsCount: {
+                  $size: "$participants",
+                },
+                totalPayout: {
+                  $sum: "$participants.payout",
+                },
+                proftitableTraders: {
+                  $size: {
+                    $filter: {
+                      input: "$participants",
+                      as: "participant",
+                      cond: {
+                        $gt: ["$$participant.payout", 0],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              $addFields: {
+                averagePayout: {
+                  $cond: {
+                    if: {
+                      $eq: ["$participantsCount", 0],
+                    },
+                    // Check if participantsCount is zero
+                    then: 0,
+                    // Set the result to 0 if participantsCount is zero
+                    else: {
+                      $divide: [
+                        "$totalPayout",
+                        "$participantsCount",
+                      ],
+                    },
+                  },
+                },
+                lossMakingTraders: {
+                  $subtract: [
+                    "$participantsCount",
+                    "$proftitableTraders",
+                  ],
+                },
+                type: {
+                  $cond: {
+                    if: {
+                      $eq: ["$entryFee", 0],
+                    },
+                    then: "Free",
+                    else: "Paid",
+                  },
+                },
+              },
+            },
+            {
+              $addFields: {
+                percentageLossMakingTraders: {
+                  $cond: {
+                    if: {
+                      $eq: ["$participantsCount", 0],
+                    },
+                    // Check if participantsCount is zero
+                    then: 0,
+                    // Set the result to 0 if participantsCount is zero
+                    else: {
+                      $multiply: [
+                        {
+                          $divide: [
+                            "$lossMakingTraders",
+                            "$participantsCount",
+                          ],
+                        },
+                        100,
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+            {
+              $sort: {
+                contestStartTime: -1,
+              },
+            },
+          ];
+
+        const contestData = await Contest.aggregate(pipeline).skip(skip).limit(limit);
+
+        const response = {
+            status: "success",
+            message: "Contest Data fetched successfully",
+            data: contestData,
+            count: count
+        };
+
+        res.status(200).json(response);
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message,
+        });
+    }
+};
+
+exports.getDailyPaidContestData = async (req, res) => {
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await Contest.countDocuments(
+                      {
+                        contestStatus: "Completed",
+                        entryFee: {$gt : 0},
+                        contestFor: "StoxHero"
+                      })
+    try {
+        const pipeline = 
+        [
+            {
+              $match: {
+                contestStatus: "Completed",
+                entryFee: {$gt : 0},
+                contestFor: "StoxHero"
+              },
+            },
+            {
+              $lookup: {
+                from: "user-portfolios",
+                localField: "portfolio",
+                foreignField: "_id",
+                as: "portfolio_details",
+              },
+            },
+            {
+              $project: {
+                contestName: 1,
+                contestStartTime: 1,
+                contestEndTime: 1,
+                contestType: 1,
+                entryFee: 1,
+                payoutPercentage: 1,
+                maxParticipants: 1,
+                contestStatus: 1,
+                participants: {
+                  $map: {
+                    input: "$participants",
+                    as: "participant",
+                    in: {
+                      $mergeObjects: [
+                        "$$participant",
+                        {
+                          payout: {
+                            $ifNull: [
+                              "$$participant.payout",
+                              0,
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+                portfolioValue: {
+                  $arrayElemAt: [
+                    "$portfolio_details.portfolioValue",
+                    0,
+                  ],
+                },
+                participantsCount: {
+                  $size: "$participants",
+                },
+                totalPayout: {
+                  $sum: "$participants.payout",
+                },
+                proftitableTraders: {
+                  $size: {
+                    $filter: {
+                      input: "$participants",
+                      as: "participant",
+                      cond: {
+                        $gt: ["$$participant.payout", 0],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              $addFields: {
+                averagePayout: {
+                  $cond: {
+                    if: {
+                      $eq: ["$participantsCount", 0],
+                    },
+                    // Check if participantsCount is zero
+                    then: 0,
+                    // Set the result to 0 if participantsCount is zero
+                    else: {
+                      $divide: [
+                        "$totalPayout",
+                        "$participantsCount",
+                      ],
+                    },
+                  },
+                },
+                lossMakingTraders: {
+                  $subtract: [
+                    "$participantsCount",
+                    "$proftitableTraders",
+                  ],
+                },
+                type: {
+                  $cond: {
+                    if: {
+                      $eq: ["$entryFee", 0],
+                    },
+                    then: "Free",
+                    else: "Paid",
+                  },
+                },
+              },
+            },
+            {
+              $addFields: {
+                percentageLossMakingTraders: {
+                  $cond: {
+                    if: {
+                      $eq: ["$participantsCount", 0],
+                    },
+                    // Check if participantsCount is zero
+                    then: 0,
+                    // Set the result to 0 if participantsCount is zero
+                    else: {
+                      $multiply: [
+                        {
+                          $divide: [
+                            "$lossMakingTraders",
+                            "$participantsCount",
+                          ],
+                        },
+                        100,
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+            {
+              $sort: {
+                contestStartTime: -1,
+              },
+            },
+          ];
+
+        const contestData = await Contest.aggregate(pipeline).skip(skip).limit(limit);
+
+        const response = {
+            status: "success",
+            message: "Contest Data fetched successfully",
+            data: contestData,
+            count: count
+        };
+
+        res.status(200).json(response);
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message,
+        });
+    }
+};
+
+exports.getDailyFreeCollegeContestData = async (req, res) => {
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+    const count = await Contest.countDocuments(
+                        {
+                          contestStatus: "Completed",
+                          entryFee: {$lte : 0},
+                          contestFor: "College"
+                        })
+      try {
+          const pipeline = 
+          [
+              {
+                $match: {
+                  contestStatus: "Completed",
+                  entryFee: {$lte : 0},
+                  contestFor: "College"
+                },
+              },
+              {
+                $lookup: {
+                  from: "user-portfolios",
+                  localField: "portfolio",
+                  foreignField: "_id",
+                  as: "portfolio_details",
+                },
+              },
+              {
+                $project: {
+                  contestName: 1,
+                  contestStartTime: 1,
+                  contestEndTime: 1,
+                  contestType: 1,
+                  entryFee: 1,
+                  payoutPercentage: 1,
+                  maxParticipants: 1,
+                  contestStatus: 1,
+                  participants: {
+                    $map: {
+                      input: "$participants",
+                      as: "participant",
+                      in: {
+                        $mergeObjects: [
+                          "$$participant",
+                          {
+                            payout: {
+                              $ifNull: [
+                                "$$participant.payout",
+                                0,
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                  portfolioValue: {
+                    $arrayElemAt: [
+                      "$portfolio_details.portfolioValue",
+                      0,
+                    ],
+                  },
+                  participantsCount: {
+                    $size: "$participants",
+                  },
+                  totalPayout: {
+                    $sum: "$participants.payout",
+                  },
+                  proftitableTraders: {
+                    $size: {
+                      $filter: {
+                        input: "$participants",
+                        as: "participant",
+                        cond: {
+                          $gt: ["$$participant.payout", 0],
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              {
+                $addFields: {
+                  averagePayout: {
+                    $cond: {
+                      if: {
+                        $eq: ["$participantsCount", 0],
+                      },
+                      // Check if participantsCount is zero
+                      then: 0,
+                      // Set the result to 0 if participantsCount is zero
+                      else: {
+                        $divide: [
+                          "$totalPayout",
+                          "$participantsCount",
+                        ],
+                      },
+                    },
+                  },
+                  lossMakingTraders: {
+                    $subtract: [
+                      "$participantsCount",
+                      "$proftitableTraders",
+                    ],
+                  },
+                  type: {
+                    $cond: {
+                      if: {
+                        $eq: ["$entryFee", 0],
+                      },
+                      then: "Free",
+                      else: "Paid",
+                    },
+                  },
+                },
+              },
+              {
+                $addFields: {
+                  percentageLossMakingTraders: {
+                    $cond: {
+                      if: {
+                        $eq: ["$participantsCount", 0],
+                      },
+                      // Check if participantsCount is zero
+                      then: 0,
+                      // Set the result to 0 if participantsCount is zero
+                      else: {
+                        $multiply: [
+                          {
+                            $divide: [
+                              "$lossMakingTraders",
+                              "$participantsCount",
+                            ],
+                          },
+                          100,
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+              {
+                $sort: {
+                  contestStartTime: -1,
+                },
+              },
+            ];
+  
+          const contestData = await Contest.aggregate(pipeline).skip(skip).limit(limit);
+  
+          const response = {
+              status: "success",
+              message: "Contest Data fetched successfully",
+              data: contestData,
+              count: count
+          };
+  
+          res.status(200).json(response);
+      } catch (error) {
+          res.status(500).json({
+              status: "error",
+              message: "Something went wrong",
+              error: error.message,
+          });
+      }
+};
+
+exports.getDailyPaidCollegeContestData = async (req, res) => {
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+    const count = await Contest.countDocuments(
+                        {
+                          contestStatus: "Completed",
+                          entryFee: {$gt : 0},
+                          contestFor: "College"
+                        })
+      try {
+          const pipeline = 
+          [
+              {
+                $match: {
+                  contestStatus: "Completed",
+                  entryFee: {$gt : 0},
+                  contestFor: "College"
+                },
+              },
+              {
+                $lookup: {
+                  from: "user-portfolios",
+                  localField: "portfolio",
+                  foreignField: "_id",
+                  as: "portfolio_details",
+                },
+              },
+              {
+                $project: {
+                  contestName: 1,
+                  contestStartTime: 1,
+                  contestEndTime: 1,
+                  contestType: 1,
+                  entryFee: 1,
+                  payoutPercentage: 1,
+                  maxParticipants: 1,
+                  contestStatus: 1,
+                  participants: {
+                    $map: {
+                      input: "$participants",
+                      as: "participant",
+                      in: {
+                        $mergeObjects: [
+                          "$$participant",
+                          {
+                            payout: {
+                              $ifNull: [
+                                "$$participant.payout",
+                                0,
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                  portfolioValue: {
+                    $arrayElemAt: [
+                      "$portfolio_details.portfolioValue",
+                      0,
+                    ],
+                  },
+                  participantsCount: {
+                    $size: "$participants",
+                  },
+                  totalPayout: {
+                    $sum: "$participants.payout",
+                  },
+                  proftitableTraders: {
+                    $size: {
+                      $filter: {
+                        input: "$participants",
+                        as: "participant",
+                        cond: {
+                          $gt: ["$$participant.payout", 0],
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              {
+                $addFields: {
+                  averagePayout: {
+                    $cond: {
+                      if: {
+                        $eq: ["$participantsCount", 0],
+                      },
+                      // Check if participantsCount is zero
+                      then: 0,
+                      // Set the result to 0 if participantsCount is zero
+                      else: {
+                        $divide: [
+                          "$totalPayout",
+                          "$participantsCount",
+                        ],
+                      },
+                    },
+                  },
+                  lossMakingTraders: {
+                    $subtract: [
+                      "$participantsCount",
+                      "$proftitableTraders",
+                    ],
+                  },
+                  type: {
+                    $cond: {
+                      if: {
+                        $eq: ["$entryFee", 0],
+                      },
+                      then: "Free",
+                      else: "Paid",
+                    },
+                  },
+                },
+              },
+              {
+                $addFields: {
+                  percentageLossMakingTraders: {
+                    $cond: {
+                      if: {
+                        $eq: ["$participantsCount", 0],
+                      },
+                      // Check if participantsCount is zero
+                      then: 0,
+                      // Set the result to 0 if participantsCount is zero
+                      else: {
+                        $multiply: [
+                          {
+                            $divide: [
+                              "$lossMakingTraders",
+                              "$participantsCount",
+                            ],
+                          },
+                          100,
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+              {
+                $sort: {
+                  contestStartTime: -1,
+                },
+              },
+            ];
+  
+          const contestData = await Contest.aggregate(pipeline).skip(skip).limit(limit);
+  
+          const response = {
+              status: "success",
+              message: "Contest Data fetched successfully",
+              data: contestData,
+              count: count
+          };
+  
+          res.status(200).json(response);
+      } catch (error) {
+          res.status(500).json({
+              status: "error",
+              message: "Something went wrong",
+              error: error.message,
+          });
+      }
+};
+
+exports.downloadDailyContestData = async (req, res) => {
+    try {
+        const pipeline = 
+        [
+            {
+              $match: {
+                contestStatus: "Completed",
+              },
+            },
+            {
+              $lookup: {
+                from: "user-portfolios",
+                localField: "portfolio",
+                foreignField: "_id",
+                as: "portfolio_details",
+              },
+            },
+            {
+              $project: {
+                contestName: 1,
+                contestStartTime: 1,
+                contestEndTime: 1,
+                contestType: 1,
+                entryFee: 1,
+                payoutPercentage: 1,
+                maxParticipants: 1,
+                contestFor:1,
+                contestStatus: 1,
+                participants: {
+                  $map: {
+                    input: "$participants",
+                    as: "participant",
+                    in: {
+                      $mergeObjects: [
+                        "$$participant",
+                        {
+                          payout: {
+                            $ifNull: [
+                              "$$participant.payout",
+                              0,
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+                portfolioValue: {
+                  $arrayElemAt: [
+                    "$portfolio_details.portfolioValue",
+                    0,
+                  ],
+                },
+                participantsCount: {
+                  $size: "$participants",
+                },
+                totalPayout: {
+                  $sum: "$participants.payout",
+                },
+                proftitableTraders: {
+                  $size: {
+                    $filter: {
+                      input: "$participants",
+                      as: "participant",
+                      cond: {
+                        $gt: ["$$participant.payout", 0],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              $addFields: {
+                averagePayout: {
+                  $cond: {
+                    if: {
+                      $eq: ["$participantsCount", 0],
+                    },
+                    // Check if participantsCount is zero
+                    then: 0,
+                    // Set the result to 0 if participantsCount is zero
+                    else: {
+                      $divide: [
+                        "$totalPayout",
+                        "$participantsCount",
+                      ],
+                    },
+                  },
+                },
+                lossMakingTraders: {
+                  $subtract: [
+                    "$participantsCount",
+                    "$proftitableTraders",
+                  ],
+                },
+                type: {
+                  $cond: {
+                    if: {
+                      $eq: ["$entryFee", 0],
+                    },
+                    then: "Free",
+                    else: "Paid",
+                  },
+                },
+              },
+            },
+            {
+              $addFields: {
+                percentageLossMakingTraders: {
+                  $cond: {
+                    if: {
+                      $eq: ["$participantsCount", 0],
+                    },
+                    // Check if participantsCount is zero
+                    then: 0,
+                    // Set the result to 0 if participantsCount is zero
+                    else: {
+                      $multiply: [
+                        {
+                          $divide: [
+                            "$lossMakingTraders",
+                            "$participantsCount",
+                          ],
+                        },
+                        100,
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+            {
+              $sort: {
+                contestStartTime: -1,
+              },
+            },
+          ];
+
+        const contestData = await Contest.aggregate(pipeline);
+
+        const response = {
+            status: "success",
+            message: "Contest Data Downloaded successfully",
+            data: contestData,
+        };
+
+        res.status(200).json(response);
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message,
+        });
+    }
+};
+
+exports.paidContestUserData = async (req, res) => {
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const participants = await Contest.aggregate(
+    [
+      {
+        $match: {
+          contestStatus: "Completed",
+          entryFee: {
+            $gt: 0,
+          },
+          contestFor: "StoxHero",
+        },
+      },
+      {
+        $unwind: "$participants", // Unwind the participants array
+      },
+      {
+        $group: {
+          _id: "$participants.userId",
+          count: {
+            $sum: 1,
+          }, // Count the number of participants
+        },
+      },
+    ]);
+
+  try {
+      const pipeline = 
+      [
+        {
+          $match: {
+            contestStatus: "Completed",
+            entryFee: {
+              $gt: 0,
+            },
+            contestFor: "StoxHero",
+          },
+        },
+        {
+          $unwind: {
+            path: "$participants",
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            contestStartTime: 1,
+            participant: "$participants.userId",
+            revenue: "$entryFee",
+            payout: {
+              $ifNull: ["$participants.payout", 0],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "participant",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $arrayElemAt: ["$user", 0],
+            },
+            revenue: {
+              $sum: "$revenue",
+            },
+            payout: {
+              $sum: "$payout",
+            },
+            count: {
+              $sum: 1,
+            },
+            wins: {
+              $sum: {
+                $cond: [
+                  {
+                    $gt: ["$payout", 0],
+                  },
+                  // Check if payout is greater than 0
+                  1,
+                  // If true, add 1 to the wins count
+                  0, // If false, add 0 to the wins count
+                ],
+              },
+            },
+      
+            lastContestDate: {
+              $max: "$contestStartTime", // Calculate the maximum contest date for each user
+            },
+          },
+        },
+        {
+          $addFields: {
+            first_name: "$_id.first_name",
+            last_name: "$_id.last_name",
+            joining_date: "$_id.joining_date",
+            mobile: "$_id.mobile",
+            email: "$_id.email",
+          },
+        },
+        {
+          $addFields: {
+            today: {
+              $toDate: new Date(), // Convert today's date to a valid Date object
+            },
+      
+            lastContestDate: "$lastContestDate", // Include the last contest date in the output
+          },
+        },
+        {
+          $addFields: {
+            daysSinceLastContest: {
+              $divide: [
+                {
+                  $subtract: [
+                    "$today",
+                    "$lastContestDate",
+                  ],
+                },
+                1000 * 60 * 60 * 24, // Convert milliseconds to days
+              ],
+            },
+      
+            strikeRate: {
+              $multiply: [
+                {
+                  $divide: ["$wins", "$count"],
+                },
+                100,
+              ],
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+          },
+        },
+        {
+          $sort: {
+            revenue: -1,
+            payout: -1,
+          },
+        },
+      ]
+
+      const paidContestUserData = await Contest.aggregate(pipeline).skip(skip).limit(limit);
+
+      const response = {
+          status: "success",
+          message: "Paid Contest User Data fetched successfully",
+          data: paidContestUserData,
+          count: participants.length,
+      };
+
+      res.status(200).json(response);
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Something went wrong",
+          error: error.message,
+      });
+  }
+};
+
+exports.freeContestUserData = async (req, res) => {
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const participants = await Contest.aggregate(
+    [
+      {
+        $match: {
+          contestStatus: "Completed",
+          entryFee: {
+            $lte: 0,
+          },
+          contestFor: "StoxHero",
+        },
+      },
+      {
+        $unwind: "$participants", // Unwind the participants array
+      },
+      {
+        $group: {
+          _id: "$participants.userId",
+          count: {
+            $sum: 1,
+          }, // Count the number of participants
+        },
+      },
+    ]);
+  
+  try {
+      const pipeline = 
+      [
+        {
+          $match: {
+            contestStatus: "Completed",
+            entryFee: {
+              $lte: 0,
+            },
+            contestFor: "StoxHero",
+          },
+        },
+        {
+          $unwind: {
+            path: "$participants",
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            contestStartTime: 1,
+            participant: "$participants.userId",
+            revenue: "$entryFee",
+            payout: {
+              $ifNull: ["$participants.payout", 0],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "participant",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $arrayElemAt: ["$user", 0],
+            },
+            revenue: {
+              $sum: "$revenue",
+            },
+            payout: {
+              $sum: "$payout",
+            },
+            count: {
+              $sum: 1,
+            },
+            wins: {
+              $sum: {
+                $cond: [
+                  {
+                    $gt: ["$payout", 0],
+                  },
+                  // Check if payout is greater than 0
+                  1,
+                  // If true, add 1 to the wins count
+                  0, // If false, add 0 to the wins count
+                ],
+              },
+            },
+      
+            lastContestDate: {
+              $max: "$contestStartTime", // Calculate the maximum contest date for each user
+            },
+          },
+        },
+        {
+          $addFields: {
+            first_name: "$_id.first_name",
+            last_name: "$_id.last_name",
+            joining_date: "$_id.joining_date",
+            mobile: "$_id.mobile",
+            email: "$_id.email",
+          },
+        },
+        {
+          $addFields: {
+            today: {
+              $toDate: new Date(), // Convert today's date to a valid Date object
+            },
+      
+            lastContestDate: "$lastContestDate", // Include the last contest date in the output
+          },
+        },
+        {
+          $addFields: {
+            daysSinceLastContest: {
+              $divide: [
+                {
+                  $subtract: [
+                    "$today",
+                    "$lastContestDate",
+                  ],
+                },
+                1000 * 60 * 60 * 24, // Convert milliseconds to days
+              ],
+            },
+      
+            strikeRate: {
+              $multiply: [
+                {
+                  $divide: ["$wins", "$count"],
+                },
+                100,
+              ],
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+          },
+        },
+        {
+          $sort: {
+            revenue: -1,
+            payout: -1,
+          },
+        },
+      ]
+
+      const freeContestUserData = await Contest.aggregate(pipeline).skip(skip).limit(limit);
+
+      const response = {
+          status: "success",
+          message: "Free Contest User Data fetched successfully",
+          data: freeContestUserData,
+          count: participants.length,
+      };
+
+      res.status(200).json(response);
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Something went wrong",
+          error: error.message,
+      });
+  }
+};
+
+exports.downloadFreeContestUserData = async (req, res) => {
+  const participants = await Contest.aggregate(
+    [
+      {
+        $match: {
+          contestStatus: "Completed",
+          entryFee: {
+            $lte: 0,
+          }
+        },
+      },
+      {
+        $unwind: "$participants", // Unwind the participants array
+      },
+      {
+        $group: {
+          _id: "$participants.userId",
+          count: {
+            $sum: 1,
+          }, // Count the number of participants
+        },
+      },
+    ]);
+  
+  try {
+      const pipeline = 
+      [
+        {
+          $match: {
+            contestStatus: "Completed",
+            entryFee: {
+              $lte: 0,
+            },
+          },
+        },
+        {
+          $unwind: {
+            path: "$participants",
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            contestStartTime: 1,
+            participant: "$participants.userId",
+            revenue: "$entryFee",
+            payout: {
+              $ifNull: ["$participants.payout", 0],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "participant",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $arrayElemAt: ["$user", 0],
+            },
+            revenue: {
+              $sum: "$revenue",
+            },
+            payout: {
+              $sum: "$payout",
+            },
+            count: {
+              $sum: 1,
+            },
+            wins: {
+              $sum: {
+                $cond: [
+                  {
+                    $gt: ["$payout", 0],
+                  },
+                  // Check if payout is greater than 0
+                  1,
+                  // If true, add 1 to the wins count
+                  0, // If false, add 0 to the wins count
+                ],
+              },
+            },
+      
+            lastContestDate: {
+              $max: "$contestStartTime", // Calculate the maximum contest date for each user
+            },
+          },
+        },
+        {
+          $addFields: {
+            first_name: "$_id.first_name",
+            last_name: "$_id.last_name",
+            joining_date: "$_id.joining_date",
+            mobile: "$_id.mobile",
+            email: "$_id.email",
+          },
+        },
+        {
+          $addFields: {
+            today: {
+              $toDate: new Date(), // Convert today's date to a valid Date object
+            },
+      
+            lastContestDate: "$lastContestDate", // Include the last contest date in the output
+          },
+        },
+        {
+          $addFields: {
+            daysSinceLastContest: {
+              $divide: [
+                {
+                  $subtract: [
+                    "$today",
+                    "$lastContestDate",
+                  ],
+                },
+                1000 * 60 * 60 * 24, // Convert milliseconds to days
+              ],
+            },
+      
+            strikeRate: {
+              $multiply: [
+                {
+                  $divide: ["$wins", "$count"],
+                },
+                100,
+              ],
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+          },
+        },
+        {
+          $sort: {
+            revenue: -1,
+            payout: -1,
+          },
+        },
+      ]
+
+      const freeContestUserData = await Contest.aggregate(pipeline);
+
+      const response = {
+          status: "success",
+          message: "Free Contest User Data fetched successfully",
+          data: freeContestUserData,
+          count: participants.length,
+      };
+
+      res.status(200).json(response);
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Something went wrong",
+          error: error.message,
+      });
+  }
+};
+
+exports.downloadPaidContestUserData = async (req, res) => {
+  const participants = await Contest.aggregate(
+    [
+      {
+        $match: {
+          contestStatus: "Completed",
+          entryFee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $unwind: "$participants", // Unwind the participants array
+      },
+      {
+        $group: {
+          _id: "$participants.userId",
+          count: {
+            $sum: 1,
+          }, // Count the number of participants
+        },
+      },
+    ]);
+
+  try {
+      const pipeline = 
+      [
+        {
+          $match: {
+            contestStatus: "Completed",
+            entryFee: {
+              $gt: 0,
+            },
+          },
+        },
+        {
+          $unwind: {
+            path: "$participants",
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            contestStartTime: 1,
+            participant: "$participants.userId",
+            revenue: "$entryFee",
+            payout: {
+              $ifNull: ["$participants.payout", 0],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "participant",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $arrayElemAt: ["$user", 0],
+            },
+            revenue: {
+              $sum: "$revenue",
+            },
+            payout: {
+              $sum: "$payout",
+            },
+            count: {
+              $sum: 1,
+            },
+            wins: {
+              $sum: {
+                $cond: [
+                  {
+                    $gt: ["$payout", 0],
+                  },
+                  // Check if payout is greater than 0
+                  1,
+                  // If true, add 1 to the wins count
+                  0, // If false, add 0 to the wins count
+                ],
+              },
+            },
+      
+            lastContestDate: {
+              $max: "$contestStartTime", // Calculate the maximum contest date for each user
+            },
+          },
+        },
+        {
+          $addFields: {
+            first_name: "$_id.first_name",
+            last_name: "$_id.last_name",
+            joining_date: "$_id.joining_date",
+            mobile: "$_id.mobile",
+            email: "$_id.email",
+          },
+        },
+        {
+          $addFields: {
+            today: {
+              $toDate: new Date(), // Convert today's date to a valid Date object
+            },
+      
+            lastContestDate: "$lastContestDate", // Include the last contest date in the output
+          },
+        },
+        {
+          $addFields: {
+            daysSinceLastContest: {
+              $divide: [
+                {
+                  $subtract: [
+                    "$today",
+                    "$lastContestDate",
+                  ],
+                },
+                1000 * 60 * 60 * 24, // Convert milliseconds to days
+              ],
+            },
+      
+            strikeRate: {
+              $multiply: [
+                {
+                  $divide: ["$wins", "$count"],
+                },
+                100,
+              ],
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+          },
+        },
+        {
+          $sort: {
+            revenue: -1,
+            payout: -1,
+          },
+        },
+      ]
+
+      const paidContestUserData = await Contest.aggregate(pipeline);
+
+      const response = {
+          status: "success",
+          message: "Paid Contest User Data fetched successfully",
+          data: paidContestUserData,
+          count: participants.length,
+      };
+
+      res.status(200).json(response);
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Something went wrong",
+          error: error.message,
+      });
+  }
+};

@@ -64,14 +64,13 @@ export default function FeatureData({updatedDocument, setUpdatedDocument}) {
         </MDTypography>
       );
       featureObj.edit = (
-        <MDButton component="a" variant="caption" color="text" fontWeight="medium">
-          {/* Edit */}
+        // <MDButton size='small' component="a" variant="caption" color="text" fontWeight="medium">
           <EditFeature data={elem} setUpdatedDocument={setUpdatedDocument}/>
-        </MDButton>
+        // </MDButton>
       );
       featureObj.delete = (
-        <MDButton component="a" variant="caption" color="text" fontWeight="medium" onClick={()=>{deleteFeature(elem._id)}}>
-          <DeleteForeverIcon fontSize='small'/>
+        <MDButton size='small' component="a" variant="caption" color="text" fontWeight="medium" onClick={()=>{deleteFeature(elem._id)}}>
+          <DeleteForeverIcon/>
         </MDButton>
       );
 

@@ -342,7 +342,7 @@ export default function LabTabs() {
                       {selectedSubscription?.participants?.length}
                     </MDTypography>
                   </MDBox>
-                </Grid> 
+                </Grid>  
 
                 <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>

@@ -142,7 +142,7 @@ const renderErrorSB = (
   return (
     <div>
       <MDButton style={{padding:-2}} variant="text" color="secondary" size="small" onClick={handleClickOpen}>
-        <EditIcon fontSize='small'/>
+        <EditIcon/>
       </MDButton>
       <Dialog
         fullScreen={fullScreen}
