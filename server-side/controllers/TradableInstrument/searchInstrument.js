@@ -74,7 +74,7 @@ exports.search = async (searchString, res, req) => {
           },
           {
             status: 'Active',
-            infinityVisibility: true,
+            // infinityVisibility: true,
             // tradingsymbol: { $regex: /^(NIFTY|BANK)/i }
           },
           {

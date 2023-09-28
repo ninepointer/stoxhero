@@ -4,6 +4,8 @@ const Wallet = require('../models/UserWallet/userWalletSchema');
 const uuid = require('uuid');
 const sendMail = require('../utils/emailService');
 const Settings = require('../models/settings/setting');
+const mongoose = require('mongoose');
+const {createUserNotification} = require('../controllers/notification/notificationController');
 
 const multer = require('multer');
 const AWS = require('aws-sdk');
@@ -111,8 +113,10 @@ exports.createWithdrawal = async(req,res,next) => {
     }
     const appSettings = await Settings.findOne({});
     const userWallet = await Wallet.findOne({userId});
-    const walletBalance = userWallet?.transactions.reduce((acc, obj) => (acc + obj.amount), 0);
-    
+    // const walletBalance = userWallet?.transactions.reduce((acc, obj) => (acc + obj.amount), 0);
+    const walletBalance = userWallet?.transactions
+    .filter(transaction => transaction.transactionType === 'Cash')
+    .reduce((acc, obj) => acc + obj.amount, 0);
     if(amount>walletBalance){
         return res.status(400).json({status:'error', message:'You don\'t have enough funds for the withdrawal.'});
     }
@@ -120,10 +124,17 @@ exports.createWithdrawal = async(req,res,next) => {
     if(amount<appSettings.minWithdrawal){
         return res.status(400).json({status:'error', message:`The minimum amount that can be withdrawn is ₹${appSettings.minWithdrawal}`});
     }
-    if(amount>appSettings.maxWithdrawal){
-        return res.status(400).json({status:'error', message:`The maximum amount that can be withdrawn is ₹${appSettings.maxWithdrawal}`});
+    if(walletBalance > appSettings?.walletBalanceUpperLimit){
+        if(amount>appSettings?.maxWithdrawalHigh){
+            return res.status(400).json({status:'error', message:`The maximum amount that can be withdrawn is ₹${appSettings?.maxWithdrawalHigh}`});
+        }
+    }else{
+        if(amount>appSettings.maxWithdrawal){
+            return res.status(400).json({status:'error', message:`The maximum amount that can be withdrawn is ₹${appSettings.maxWithdrawal}`});
+        }
     }
     const transactionId = uuid.v4();
+    let withdrawalCount = await Withdrawal.countDocuments({user:userId});
     await Withdrawal.create({
         amount, user:userId, userWallet:userWallet?._id, withdrawalStatus:'Pending', 
         createdBy:userId, lastModifiedBy:userId, walletTransactionId:transactionId, actions:[{
@@ -136,7 +147,7 @@ exports.createWithdrawal = async(req,res,next) => {
 
     userWallet.transactions.push({
         title:`Withdraw`, 
-        description:`User initiated withdrawal from wallet of ₹${amount} to bank account`,
+        description:`User initiated withdrawal from wallet of ₹${amount} to bank account - Withdrawal #${withdrawalCount+1}`,
         amount: -amount,
         transactionId,
         transactionType: 'Cash',
@@ -208,7 +219,9 @@ exports.getWithdrawalsUser = async (req,res,next) => {
 
 exports.processWithdrawal = async(req,res,next) => {
     const withdrawalId = req.params.id;
+    const session = await mongoose.startSession();
     try{
+        session.startTransaction();
         const withdrawal = await Withdrawal.findById(withdrawalId);
         if(withdrawal.withdrawalStatus == 'Initiated'){
             return res.status(400).json({status:'error', message:'Already initiated'})
@@ -220,9 +233,20 @@ exports.processWithdrawal = async(req,res,next) => {
             actionBy:req.user._id,
             actionStatus:'Processing',
         });
-        await withdrawal.save({validateBeforeSave:'false'});
+        await withdrawal.save({validateBeforeSave:'false', session: session});
         const user = await User.findById(withdrawal.user); 
-        
+        await createUserNotification({
+            title:'Withdrawal Request Under Process',
+            description:`Your withdrawal request is being processed. It will take 3-5 business days to reflect in your account`,
+            notificationType:'Individual',
+            notificationCategory:'Informational',
+            productCategory:'General',
+            user: user?._id,
+            priority:'Low',
+            channels:['App', 'Email'],
+            createdBy:'63ecbc570302e7cf0153370c',
+            lastModifiedBy:'63ecbc570302e7cf0153370c'  
+          }, session);
         res.status(200).json({status:'success', message:'Withdrawal Initiated'});
         if(process.env.PROD=='true'){
             await sendMail(user?.email, 'Withdrawal Request Initiated - StoxHero', `
@@ -310,16 +334,20 @@ exports.processWithdrawal = async(req,res,next) => {
         
         ` )
         }
+        await session.commitTransaction();
     }catch(e){
         console.log(e);
         res.status(500).json({status:'error', message:'Something went wrong'});
-    }
-
+        await session.abortTransaction();
+      }finally{
+        await session.endSession();
+      }
 }
 
 exports.rejectWithdrawal = async(req,res,next) => {
+    const session = await mongoose.startSession();
     try{
-
+        session.startTransaction();
         const withdrawalId = req.params.id;
         const withdrawal = await Withdrawal.findById(withdrawalId);
         if(!withdrawal) return res.status(404).json({status:'error', message: 'No withdrawal found.'})
@@ -349,24 +377,39 @@ exports.rejectWithdrawal = async(req,res,next) => {
                 actionStatus:'Closed',
             });
         }
-    
+     //withdrawal?.walletTxnId -> userWallet?.transacations filter for txnId = withdrawal?.wallettxnId -> wallet txn object -> in title withdrawalNo-> withdrawalNo
         const userWallet= await Wallet.findById(withdrawal?.userWallet);
+        const walletTxnId = withdrawal?.walletTransactionId;
+        const walletTxnObj = userWallet?.transactions?.filter(elem=>elem?.transactionId == walletTxnId);
+        const withdrawalNo = walletTxnObj?.description?.split('#')[1];
         const withdrawalTransaction = userWallet?.transactions?.find((item)=>item?.transactionId == withdrawal?.walletTransactionId);
         if(withdrawalTransaction) withdrawalTransaction['transactionStatus'] = 'Failed';
     
         userWallet?.transactions?.push(
             {
                 title:`Refund`, 
-                description:'Withdrawal request rejected',
+                description:`Withdrawal request rejected - Withdrawal${withdrawalNo}`, //add withdrawal No.
                 amount: withdrawal?.amount,
                 transactionId: uuid.v4(),
                 transactionType: 'Cash',
                 transactionStatus:'Completed'
             }
         );
-        await userWallet.save({validateBeforeSave:false});
-        await withdrawal.save({validateBeforeSave:false});
-        const user = await User.findById(withdrawal.user);
+        await createUserNotification({
+            title:'Withdrawal Request Rejected',
+            description:`Withdrwal #${withdrawalNo} request rejected. Reason - ${req.body.rejectionReason}`,
+            notificationType:'Individual',
+            notificationCategory:'Informational',
+            productCategory:'General',
+            user: user?._id,
+            priority:'High',
+            channels:['App', 'Email'],
+            createdBy:'63ecbc570302e7cf0153370c',
+            lastModifiedBy:'63ecbc570302e7cf0153370c'  
+          }, session);
+        await userWallet.save({validateBeforeSave:false, session: session});
+        await withdrawal.save({validateBeforeSave:false, session:session});
+        const user = await User.findById(withdrawal.user).select('email first_name last_name');
         if(process.env.PROD == 'true'){
             await sendMail(user?.email, 'Withdrawal Rejected - StoxHero ', `
             <!DOCTYPE html>
@@ -453,16 +496,21 @@ exports.rejectWithdrawal = async(req,res,next) => {
         
         ` )
         }
+        await session.commitTransaction();
         res.status(200).json({status:'success', message:'Withdrawal request rejected'});
     }catch(e){
         console.log(e);
         res.status(500).json({status:'error', message:'Something went wrong'});
+        await session.abortTransaction();
+    }finally{
+      await session.endSession();
     }
 } 
 
 exports.approveWithdrawal = async(req, res, next) => {
+    const session = await mongoose.startSession();
     try{
-
+        session.startTransaction();
         const withdrawalId = req.params.id;
         // console.log('req body', req.body);
         const{transactionId, settlementMethod, settlementAccount, recipientReference} = req.body;
@@ -513,9 +561,21 @@ exports.approveWithdrawal = async(req, res, next) => {
         const withdrawalTransaction = userWallet?.transactions?.find((item)=>item?.transactionId == withdrawal?.walletTransactionId);
         if(withdrawalTransaction) withdrawalTransaction['transactionStatus'] = 'Completed';
     
-        await userWallet.save({validateBeforeSave:false});
-        await withdrawal.save({validateBeforeSave:false});
-        const user = await User.findById(withdrawal.user);
+        await userWallet.save({validateBeforeSave:false ,session:session});
+        await withdrawal.save({validateBeforeSave:false, session:session});
+        const user = await User.findById(withdrawal.user).select('email first_name last_name');
+        await createUserNotification({
+            title:'Withdrawal Approved',
+            description:`₹${withdrawal?.amount} is successfully deposited in your bank account.`,
+            notificationType:'Individual',
+            notificationCategory:'Informational',
+            productCategory:'General',
+            user: user?._id,
+            priority:'High',
+            channels:['App', 'Email'],
+            createdBy:'63ecbc570302e7cf0153370c',
+            lastModifiedBy:'63ecbc570302e7cf0153370c'  
+          }, session);
         if(process.env.PROD=='true'){
             await sendMail(user.email, 
                 "Withdrawal Approved - StoxHero",
@@ -606,9 +666,13 @@ exports.approveWithdrawal = async(req, res, next) => {
                         ` 
             )
         }
+        await session.commitTransaction();
         res.status(200).json({status:'success', message:'Withdrawal request approved'});
     }catch(e){
         console.log(e);
         res.status(500).json({status:'error', message:'Something went wrong'});
-    }
+        await session.abortTransaction();
+      }finally{
+        await session.endSession();
+      }
 }

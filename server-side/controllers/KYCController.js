@@ -5,6 +5,8 @@ const Settings = require('../models/settings/setting');
 const multer = require('multer');
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
+const {createUserNotification} = require('../controllers/notification/notificationController');
+
 const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
 console.log("File upload started");
@@ -193,6 +195,18 @@ exports.approveKYC = async(req,res,next) => {
         </html>
         `);
       }
+      await createUserNotification({
+        title:'KYC Approved',
+        description:'KYC Request approved by Admin',
+        notificationType:'Individual',
+        notificationCategory:'Informational',
+        productCategory:'General',
+        user: user?._id,
+        priotity:'High',
+        channels:['App', 'Email'],
+        createdBy:'63ecbc570302e7cf0153370c',
+        lastModifiedBy:'63ecbc570302e7cf0153370c'  
+      });
   
       res.status(200).json({status:'success', message:'KYC Approved'});
     }catch(e){
@@ -296,6 +310,19 @@ exports.rejectKYC = async(req,res,next) => {
       </html>
       `)
     }
+    await createUserNotification({
+      title:'KYC Rejected',
+      description:`KYC Request rejected by Admin. Reason-${rejectionReason}`,
+      notificationType:'Individual',
+      notificationCategory:'Informational',
+      productCategory:'General',
+      user: user?._id,
+      priotity:'High',
+      channels:['App', 'Email'],
+      createdBy:'63ecbc570302e7cf0153370c',
+      lastModifiedBy:'63ecbc570302e7cf0153370c'  
+    });
+
 
     res.status(200).json({status:'success', message:'KYC Rejected'});
 

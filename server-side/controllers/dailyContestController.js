@@ -13,6 +13,7 @@ const moment = require('moment');
 const fs = require('fs');
 const path = require('path');
 const {PDFDocument} = require('pdf-lib');
+const {createUserNotification} = require('./notification/notificationController');
 
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
@@ -29,9 +30,22 @@ exports.createContest = async (req, res) => {
                 message: "Contest is already exist with this name.",
             });
         }
+        const startTimeDate = new Date(contestStartTime);
+
+        // Set the seconds to "00"
+        startTimeDate.setSeconds(0);
+
+        // Check if startTime is valid
+        if (isNaN(startTimeDate.getTime())) {
+            return res.status(400).json({
+                status: 'error',
+                message: "Validation error: Invalid start time format",
+            });
+        }
+
 
         const contest = await Contest.create({
-            maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio, payoutType,
+            maxParticipants, contestStatus, contestEndTime, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
             contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold
         });
@@ -1533,6 +1547,18 @@ exports.creditAmountToWallet = async () => {
                         </html>
                         `);
                     }
+                    await createUserNotification({
+                        title:'Contest Reward Credited',
+                        description:`₹${payoutAmount?.toFixed(2)} credited to your wallet as your contest reward`,
+                        notificationType:'Individual',
+                        notificationCategory:'Informational',
+                        productCategory:'Contest',
+                        user: user?._id,
+                        priority:'Medium',
+                        channels:['App', 'Email'],
+                        createdBy:'63ecbc570302e7cf0153370c',
+                        lastModifiedBy:'63ecbc570302e7cf0153370c'  
+                      });
                 }
 
             }
@@ -1934,6 +1960,18 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
             emailService(recipientString,subject,message);
             console.log("Subscription Email Sent")
         }
+        await createUserNotification({
+            title:'Contest Fee Deducted',
+            description:`₹${contest.entryFee} deducted as contest fee for ${contest?.contestName}`,
+            notificationType:'Individual',
+            notificationCategory:'Informational',
+            productCategory:'Contest',
+            user: user?._id,
+            priority:'Low',
+            channels:['App', 'Email'],
+            createdBy:'63ecbc570302e7cf0153370c',
+            lastModifiedBy:'63ecbc570302e7cf0153370c'  
+          });
 
         res.status(200).json({
             status: "success",

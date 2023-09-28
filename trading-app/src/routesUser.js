@@ -82,6 +82,7 @@ import ContestScoreboard from './layouts/contestScoreboard'
 import DailyCollegeContestResultPage from "./layouts/UserDailyContestCollage/data/result-page/resultIndex"
 import BattleIcon from "./assets/images/swords.png"
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
+import Notifications from './layouts/userNotification';
 
 // import Challenge from './layouts/UserDailyChallenge'
 const routes = [
@@ -318,6 +319,11 @@ const routes = [
     key: "wallet",
     route: "/wallet",
     component: <UserWallet />,
+  },
+  {
+    key: "notifications",
+    route: "/notifications",
+    component: <Notifications />,
   },
   {
     type: "collapse",

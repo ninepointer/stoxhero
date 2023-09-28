@@ -40,6 +40,8 @@ const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
     const [amount,setAmount] = useState(200);
     const [minWithdrawal, setMinWithdrawal] = useState(200);
     const [maxWithdrawal, setMaxWithdrawal] = useState(1000);
+    const [maxWithdrawalHigh, setMaxWithdrawalHigh] = useState(15000);
+    const [walletBalanceUpperLimit, setWalletBalanceUpperLimit] = useState(15000);
   
     const [successSB, setSuccessSB] = useState(false);
     const openSuccessSB = (title,content) => {
@@ -87,6 +89,8 @@ const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
             axios.get(`${apiUrl}readsetting`).then((res)=>{
                 setMinWithdrawal(res.data[0].minWithdrawal);
                 setMaxWithdrawal(res.data[0].maxWithdrawal);
+                setMaxWithdrawalHigh(res.data[0].maxWithdrawalHigh);
+                setWalletBalanceUpperLimit(res.data[0].walletBalanceUpperLimit);
             });
         },[open])
 
@@ -105,8 +109,14 @@ const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
             if(amount<minWithdrawal){
                 return openErrorSB('Amount too low', `Minimum withdrawal amount is ₹${minWithdrawal}`);
             }
-            if(amount>maxWithdrawal){
-                return openErrorSB('Amount too high', `Maximum withdrawal amount is ₹${maxWithdrawal}`);
+            if(walletBalance>=walletBalanceUpperLimit){
+              if(amount>maxWithdrawalHigh){
+                return openErrorSB('Amount too high', `Maximum withdrawal amount is ₹${maxWithdrawalHigh}`);
+            }
+            }else{
+              if(amount>maxWithdrawal){
+                  return openErrorSB('Amount too high', `Maximum withdrawal amount is ₹${maxWithdrawal}`);
+              }
             }
             const res = await axios.post(`${apiUrl}withdrawals`, {amount}, {withCredentials: true});
             console.log(res.data, res.status, res.statusCode);
@@ -135,7 +145,7 @@ const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
         <MDTypography>Withdraw from wallet to bank account</MDTypography>
         <MDBox mt={1} style={{height:'85vh', display:'flex', flexDirection:'column'}}>
           <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Please ensure you have completed your KYC before proceeding with your withdrawal</MDTypography>  
-          <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>You can only make one withdrawal in a day. The minimum amount is ₹{minWithdrawal} and the maximum amount is ₹{maxWithdrawal}.</MDTypography>  
+          <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>You can only make one withdrawal in a day. The minimum amount is ₹{minWithdrawal} and the maximum amount is ₹{walletBalance>=walletBalanceUpperLimit ? maxWithdrawalHigh : maxWithdrawal}.</MDTypography>  
           <MDTypography style={{fontSize:'14px', marginBottom:'24px'}}>Your wallet balance: ₹{walletBalance}</MDTypography>   
           <TextField label='Amount' type= "number" value={amount} onChange={(e)=>{setAmount(e.target.value)}} outerWidth='40%'/>
           <MDBox sx={{display:'flex', justifyContent:'flex-end', marginTop:'12px' }}>

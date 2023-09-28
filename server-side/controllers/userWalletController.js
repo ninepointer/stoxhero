@@ -5,6 +5,8 @@ const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema"
 const ObjectId = require('mongodb').ObjectId;
 const uuid = require('uuid');
 const {client, getValue} = require("../marketData/redisClient");
+const mongoose = require('mongoose');
+const {createUserNotification} = require('./notification/notificationController');
 
 
 
@@ -41,31 +43,76 @@ exports.getUserWallet = async(req, res, next)=>{
     catch{(err)=>{res.status(401).json({message: "Something went wrong", error:err}); }}  
 };
 
-exports.myWallet = async(req,res,next) => {
-    const userId = req.user._id;
-    try{
-        const myWallet = await UserWallet.findOne({"userId": userId})
-        .populate('userId', { first_name: 1, last_name: 1, profilePhoto: 1 });
+// exports.myWallet = async(req,res,next) => {
+//     const userId = req.user._id;
+//     try{
+//         const myWallet = await UserWallet.findOne({"userId": userId})
+//         .populate('userId', { first_name: 1, last_name: 1, profilePhoto: 1 }).sort({transactions});
 
-        if(!myWallet){
-            return res.status(404).json({status:'error', message: 'No Wallet found'});
-        }
+//         if(!myWallet){
+//             return res.status(404).json({status:'error', message: 'No Wallet found'});
+//         }
         
-        res.status(200).json({status: 'success', data: myWallet});
+//         res.status(200).json({status: 'success', data: myWallet});
 
-    }catch(e){
+//     }catch(e){
+//         console.log(e);
+//         res.status(500).json({status: 'error', message: 'Something went wrong'});
+//     }
+// }
+exports.myWallet = async (req, res, next) => {
+    const userId = req.user._id;
+    try {
+        // Using aggregation
+        const wallets = await UserWallet.aggregate([
+            // Matching user
+            { $match: { "userId": mongoose.Types.ObjectId(userId) } },
+
+            // Unwinding the transactions to sort them
+            { $unwind: "$transactions" },
+
+            // Sorting transactions by transactionDate in descending order
+            { $sort: { "transactions.transactionDate": -1 } },
+
+            // Grouping back to original document structure
+            {
+                $group: {
+                    _id: "$_id",
+                    userId: { $first: "$userId" },
+                    transactions: { $push: "$transactions" },
+                    createdOn: { $first: "$createdOn" },
+                    createdBy: { $first: "$createdBy" }
+                }
+            }
+        ]);
+
+        if (wallets.length === 0) {
+            return res.status(404).json({ status: 'error', message: 'No Wallet found' });
+        }
+
+        // Since aggregation doesn't allow direct use of populate, using it separately
+        const myWallet = await UserWallet.populate(wallets[0], {
+            path: 'userId',
+            select: 'first_name last_name profilePhoto KYCStatus'
+        });
+
+        res.status(200).json({ status: 'success', data: myWallet });
+
+    } catch (e) {
         console.log(e);
-        res.status(500).json({status: 'error', message: 'Something went wrong'});
+        res.status(500).json({ status: 'error', message: 'Something went wrong' });
     }
-}
+};
+
 
 exports.deductSubscriptionAmount = async(req,res,next) => {
     let isRedisConnected = getValue();
     const userId = req.user._id;
     let {subscriptionAmount, subscriptionName, subscribedId} = req.body
     // console.log("all three", subscriptionAmount, subscriptionName, subscribedId)
+    const session = await mongoose.startSession();
     try{
-
+        session.startTransaction();
         const subs = await Subscription.findOne({_id: new ObjectId(subscribedId)});
         if(!subscriptionAmount){
             subscriptionAmount = subs?.discounted_price;
@@ -103,7 +150,7 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
               transactionId: uuid.v4(),
               transactionType: 'Cash'
         }];
-        wallet.save();
+        wallet.save({session});
 
         const user = await User.findOneAndUpdate(
             { _id: userId },
@@ -116,7 +163,7 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
                 }
               }
             },
-            { new: true }
+            { new: true, session: session}
         );
 
         const subscription = await Subscription.findOneAndUpdate(
@@ -130,7 +177,7 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
                 }
             }
         },
-        { new: true }
+        { new: true, session: session }
         );
 
         if(isRedisConnected){
@@ -232,11 +279,27 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
             emailService(recipientString,subject,message);
             console.log("Subscription Email Sent")
         }
+        await createUserNotification({
+            title:'TenX Subscription Deducted',
+            description:`₹${subscription?.discounted_price?.toFixed(2)} deducted for your TenX plan ${subscription.plan_name} subscription`,
+            notificationType:'Individual',
+            notificationCategory:'Informational',
+            productCategory:'TenX',
+            user: user?._id,
+            priority:'High',
+            channels:['App', 'Email'],
+            createdBy:'63ecbc570302e7cf0153370c',
+            lastModifiedBy:'63ecbc570302e7cf0153370c'  
+          }, session);
+          await session.commitTransaction();
         res.status(200).json({status: 'success', message: "Subscription purchased successfully", data: user});
 
     }catch(e){
         console.log(e);
         res.status(500).json({status: 'error', message: 'Something went wrong'});
+        await session.abortTransaction();
+    }finally{
+      await session.endSession();
     }
 }
 

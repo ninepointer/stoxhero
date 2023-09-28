@@ -10,6 +10,8 @@ const Holiday = require("../models/TradingHolidays/tradingHolidays");
 const moment = require('moment');
 const { ObjectId } = require("mongodb");
 const sendMail = require('../utils/emailService');
+const {createUserNotification} = require('./notification/notificationController');
+const mongoose = require('mongoose');
 
 
 exports.overallPnl = async (req, res, next) => {
@@ -1139,7 +1141,6 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
 
 exports.updateUserWallet = async () => {
 
-
   try {
 
     let date = new Date();
@@ -1355,31 +1356,40 @@ exports.updateUserWallet = async () => {
 
 
       for (let i = 0; i < users.length; i++) {
-        const user = await User.findOne({ _id: new ObjectId(users[i].user), status: "Active" })
-        .populate('referrals.referredUserId', 'joining_date')
-        if(user){
-          const tradingdays = await tradingDays(users[i].user, batchId);
-          const attendance = (tradingdays * 100) / (workingDays - holiday.length);
-          const referral = await referrals(user);
-          const npnl = await pnl(users[i].user, batchId);
-          const creditAmount = Math.min(npnl * payoutPercentage / 100, profitCap)
-
-          const wallet = await Wallet.findOne({ userId: new ObjectId(users[i].user) });
-
-          // console.log( users[i].user, referral, creditAmount);
-          if (creditAmount > 0) {
-            if (attendance >= attendanceLimit && referral >= referralLimit && npnl > 0) {
-
-              wallet.transactions = [...wallet.transactions, {
-                title: 'Internship Payout',
-                description: `Amount credited for your internship profit`,
-                amount: (creditAmount?.toFixed(2)),
-                transactionId: uuid.v4(),
-                transactionType: 'Cash'
-              }];
-              wallet.save();
-
-         
+      const session = await mongoose.startSession();
+      try{
+          session.startTransaction();
+          const user = await User.findOne({ _id: new ObjectId(users[i].user), status: "Active" })
+          .populate('referrals.referredUserId', 'joining_date').session(session);;
+          let eligible = false;
+          if(user){
+            const tradingdays = await tradingDays(users[i].user, batchId);
+            const attendance = (tradingdays * 100) / (workingDays - holiday.length);
+            const referral = await referrals(user);
+            const npnl = await pnl(users[i].user, batchId);
+            const creditAmount = Math.min(npnl * payoutPercentage / 100, profitCap)
+  
+            const wallet = await Wallet.findOne({ userId: new ObjectId(users[i].user) }).session(session);
+  
+            // console.log( users[i].user, referral, creditAmount);
+            if (creditAmount > 0) {
+              if (attendance >= attendanceLimit && referral >= referralLimit && npnl > 0) {
+                eligible = true;      
+                console.log("no relief", users[i].user, npnl, creditAmount);
+                }
+  
+              if (!(attendance >= attendanceLimit && referral >= referralLimit) && (attendance >= attendanceLimit || referral >= referralLimit) && npnl > 0) {
+                if (attendance < attendanceLimit && attendance >= reliefAttendanceLimit) {
+                  eligible = true;
+                  console.log("attendance relief");
+                }
+                if (referral < referralLimit && referral >= reliefReferralLimit) {
+                  eligible = true;
+                  console.log("referral relief", attendance, tradingdays, users[i].user, npnl);
+                }
+              }
+            }
+            if(eligible){
               if (process.env.PROD == 'true') {
                 sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
                 <!DOCTYPE html>
@@ -1460,20 +1470,24 @@ exports.updateUserWallet = async () => {
                     <br/><br/>
                     <p>Thanks,</p>
                     <p>StoxHero Team</p>
-          
+                    
                     </div>
-                </body>
-                </html>
-                `);
-              }
-
-              console.log("no relief", users[i].user, npnl, creditAmount);
-
-
-            }
-
-            if (!(attendance >= attendanceLimit && referral >= referralLimit) && (attendance >= attendanceLimit || referral >= referralLimit) && npnl > 0) {
-              if (attendance < attendanceLimit && attendance >= reliefAttendanceLimit) {
+                    </body>
+                    </html>
+                    `);
+                  }
+              await createUserNotification({
+                  title:'Internship Payout Credited',
+                  description:`₹${creditAmount?.toFixed(2)} credited for your internship profit`,
+                  notificationType:'Individual',
+                  notificationCategory:'Informational',
+                  productCategory:'Internship',
+                  user: user?._id,
+                  priority:'High',
+                  channels:['App', 'Email'],
+                  createdBy:'63ecbc570302e7cf0153370c',
+                  lastModifiedBy:'63ecbc570302e7cf0153370c'  
+                }, session);
                 wallet.transactions = [...wallet.transactions, {
                   title: 'Internship Payout',
                   description: `Amount credited for your internship profit`,
@@ -1481,198 +1495,18 @@ exports.updateUserWallet = async () => {
                   transactionId: uuid.v4(),
                   transactionType: 'Cash'
                 }];
-                wallet.save();
-               
-                if (process.env.PROD == 'true') {
-                  sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
-                  <!DOCTYPE html>
-                  <html>
-                  <head>
-                      <meta charset="UTF-8">
-                      <title>Amount Credited</title>
-                      <style>
-                      body {
-                          font-family: Arial, sans-serif;
-                          font-size: 16px;
-                          line-height: 1.5;
-                          margin: 0;
-                          padding: 0;
-                      }
-            
-                      .container {
-                          max-width: 600px;
-                          margin: 0 auto;
-                          padding: 20px;
-                          border: 1px solid #ccc;
-                      }
-            
-                      h1 {
-                          font-size: 24px;
-                          margin-bottom: 20px;
-                      }
-            
-                      p {
-                          margin: 0 0 20px;
-                      }
-            
-                      .userid {
-                          display: inline-block;
-                          background-color: #f5f5f5;
-                          padding: 10px;
-                          font-size: 15px;
-                          font-weight: bold;
-                          border-radius: 5px;
-                          margin-right: 10px;
-                      }
-            
-                      .password {
-                          display: inline-block;
-                          background-color: #f5f5f5;
-                          padding: 10px;
-                          font-size: 15px;
-                          font-weight: bold;
-                          border-radius: 5px;
-                          margin-right: 10px;
-                      }
-            
-                      .login-button {
-                          display: inline-block;
-                          background-color: #007bff;
-                          color: #fff;
-                          padding: 10px 20px;
-                          font-size: 18px;
-                          font-weight: bold;
-                          text-decoration: none;
-                          border-radius: 5px;
-                      }
-            
-                      .login-button:hover {
-                          background-color: #0069d9;
-                      }
-                      </style>
-                  </head>
-                  <body>
-                      <div class="container">
-                      <h1>Amount Credited</h1>
-                      <p>Hello ${user.first_name},</p>
-                      <p>Amount of ${creditAmount?.toFixed(2)}INR has been credited in you wallet</p>
-                      <p>You can now purchase Tenx and participate in contest.</p>
-                      
-                      <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-                      <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-                      <br/><br/>
-                      <p>Thanks,</p>
-                      <p>StoxHero Team</p>
-            
-                      </div>
-                  </body>
-                  </html>
-                  `);
-                }
-                console.log("attendance relief");
+                await wallet.save({session});
               }
-              if (referral < referralLimit && referral >= reliefReferralLimit) {
-                wallet.transactions = [...wallet.transactions, {
-                  title: 'Internship Payout',
-                  description: `Amount credited for your internship profit`,
-                  amount: (creditAmount?.toFixed(2)),
-                  transactionId: uuid.v4(),
-                  transactionType: 'Cash'
-                }];
-                wallet.save();
-               
-                if (process.env.PROD == 'true') {
-                  sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
-                  <!DOCTYPE html>
-                  <html>
-                  <head>
-                      <meta charset="UTF-8">
-                      <title>Amount Credited</title>
-                      <style>
-                      body {
-                          font-family: Arial, sans-serif;
-                          font-size: 16px;
-                          line-height: 1.5;
-                          margin: 0;
-                          padding: 0;
-                      }
-            
-                      .container {
-                          max-width: 600px;
-                          margin: 0 auto;
-                          padding: 20px;
-                          border: 1px solid #ccc;
-                      }
-            
-                      h1 {
-                          font-size: 24px;
-                          margin-bottom: 20px;
-                      }
-            
-                      p {
-                          margin: 0 0 20px;
-                      }
-            
-                      .userid {
-                          display: inline-block;
-                          background-color: #f5f5f5;
-                          padding: 10px;
-                          font-size: 15px;
-                          font-weight: bold;
-                          border-radius: 5px;
-                          margin-right: 10px;
-                      }
-            
-                      .password {
-                          display: inline-block;
-                          background-color: #f5f5f5;
-                          padding: 10px;
-                          font-size: 15px;
-                          font-weight: bold;
-                          border-radius: 5px;
-                          margin-right: 10px;
-                      }
-            
-                      .login-button {
-                          display: inline-block;
-                          background-color: #007bff;
-                          color: #fff;
-                          padding: 10px 20px;
-                          font-size: 18px;
-                          font-weight: bold;
-                          text-decoration: none;
-                          border-radius: 5px;
-                      }
-            
-                      .login-button:hover {
-                          background-color: #0069d9;
-                      }
-                      </style>
-                  </head>
-                  <body>
-                      <div class="container">
-                      <h1>Amount Credited</h1>
-                      <p>Hello ${user.first_name},</p>
-                      <p>Amount of ${creditAmount?.toFixed(2)}INR has been credited in you wallet</p>
-                      <p>You can now purchase Tenx and participate in contest.</p>
-                      
-                      <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-                      <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-                      <br/><br/>
-                      <p>Thanks,</p>
-                      <p>StoxHero Team</p>
-            
-                      </div>
-                  </body>
-                  </html>
-                  `);
-                }
-                console.log("referral relief", attendance, tradingdays, users[i].user, npnl);
-              }
-            }
+              await session.commitTransaction();      
           }
-        }
+        
+      }catch(e){
+        console.log(e);
+        await session.abortTransaction();
+      }finally{
+        await session.endSession();
       }
+    }
     }
   } catch (err) {
     console.log(err);

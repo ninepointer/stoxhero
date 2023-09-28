@@ -60,7 +60,7 @@ export default function MaxWidthDialog(subscription) {
         <DialogContent>
           <DialogContentText>
             <MDTypography mb={1} fontSize={12} display='flex' flexDirection='column'>
-              <span style={{fontWeight:'bold', textAlign:'center'}}>💰 Margin Money Boost</span> 
+              <span style={{fontWeight:'bold', textAlign:'center'}}>💰 Virtual Margin Money Boost</span> 
               <span style={{textAlign:'center'}}>This subscription plan provides you with a margin of 
               ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(subscription?.subscription?.portfolio?.portfolioValue)}/-,
               to enhance your F&O Intraday Options trading. This boost empowers you to take advantage of more trading opportunities.</span>

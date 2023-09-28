@@ -176,7 +176,7 @@ export default function TenXSubscriptions() {
       <MDBox bgColor="white" p={2} mb={1} borderRadius={5} boxShadow="0px 4px 10px rgba(0, 0, 0, 0.15)">
         <MDTypography fontSize={12} fontWeight='bold' color="dark">
           <span style={{fontWeight:'bold', fontSize:15}}>TenX</span> gives every trader an opportunity to make a profit with <span style={{fontWeight:'bold', fontSize:15}}>0 (Zero) capital.</span> You just have 
-          to start trading using the virtual currency (i.e. margin money) provided by StoxHero. After 
+          to start trading using the virtual currency (i.e. Virtual Margin Money) provided by StoxHero. After 
           20 days of active trading, <span style={{fontWeight:'bold', fontSize:15}}>we'll transfer 10%</span> of the net profit (the real money) to your wallet.
           And the cycle repeats. Yes, you heard it right. Don't miss out on the opportunity to learn and 
           potentially earn real money through virtual currency trading, with the ultimate goal of becoming 
