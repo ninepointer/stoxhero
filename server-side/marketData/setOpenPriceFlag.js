@@ -59,7 +59,7 @@ exports.openPrice = async () => {
   });
 
 
-  let url = `https://api.kite.trade/quote?${addUrl}`;
+  let url = `https://api.kite.trade/quote/ltp?${addUrl}`;
   const api_key = getApiKey;
   const access_token = getAccessToken;
   let auth = 'token' + api_key + ':' + access_token;

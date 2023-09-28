@@ -1200,7 +1200,7 @@ async function processContestQueue() {
 
     const endTime = new Date(currentTime);
     endTime.setHours(9, 48, 0, 0);
-    // if (currentTime >= startTime && currentTime <= endTime) {
+    if (currentTime >= startTime && currentTime <= endTime) {
 
         // If the queue is empty, reset the processing flag and return
         if (contestQueue.length === 0) {
@@ -1221,7 +1221,7 @@ async function processContestQueue() {
             }
         }
 
-    // }
+    }
 }
 
 const battleLeaderBoard = async (id) => {
@@ -1465,7 +1465,7 @@ const emitLeaderboardData = async () => {
     const endTime = new Date(currentTime);
     endTime.setHours(9, 48, 0, 0);
 
-    // if (currentTime >= startTime && currentTime <= endTime) {
+    if (currentTime >= startTime && currentTime <= endTime) {
         const battle = await Battle.find({status: "Active", battleStartTime: {$lte: new Date()}});
 
         // console.log("battle", battle)
@@ -1489,7 +1489,7 @@ const emitLeaderboardData = async () => {
             }
 
         }
-//    }
+   }
 };
 
 const getRedisMyRank = async (id, employeeId) => {
@@ -1594,7 +1594,7 @@ exports.creditAmountToWalletBattle = async () => {
                                 transactionId: uuid.v4(),
                                 transactionType: 'Cash'
                             }];
-                            wallet.save();
+                            await wallet.save();
     
                             const transacation = await Transaction.create({
                                 transactionCategory: 'Debit',
@@ -1725,7 +1725,7 @@ exports.creditAmountToWalletBattle = async () => {
                                 transactionId: uuid.v4(),
                                 transactionType: 'Cash'
                             }];
-                            wallet.save();
+                            await wallet.save();
 
                             const transacation = await Transaction.create({
                                 transactionCategory: 'Debit',

@@ -8,11 +8,11 @@ const DB = process.env.DATABASE;
 const devDB = process.env.DEVDATABASE;
 const stagingDB = process.env.STAGINGDB;
 const infinityDB = process.env.INFINITYDB;
-
+//raviranjansingh2411@gmail.com
 
     // mongoose.connect(devDB, {
-        //  mongoose.connect(DB, {
-        mongoose.connect(stagingDB, {
+         mongoose.connect(DB, {
+        // mongoose.connect(stagingDB, {
         // mongoose.connect(infinityDB, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
