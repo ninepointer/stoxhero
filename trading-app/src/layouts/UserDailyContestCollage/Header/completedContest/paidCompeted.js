@@ -133,6 +133,29 @@ function Header({ contest }) {
             })
     }
 
+    async function handleLeaderboardNavigate(id, name) {
+
+        axios.get(`${baseUrl}api/v1/dailycontest/contestleaderboard/${id}`, {
+            withCredentials: true,
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Credentials": true
+            }
+        })
+            .then((res) => {
+                if (res.data.count > 0) {
+                    navigate(`/completedcontests/${name}/leaderboard`, {
+                        state: { data: id }
+                    });
+                } else {
+                    openSuccessSB("error", "No leaderboard for this contest.")
+                }
+            }).catch((err) => {
+                return new Error(err);
+            })
+    }
+
     const [messageObj, setMessageObj] = useState({
         color: '',
         icon: '',
@@ -309,6 +332,20 @@ function Header({ contest }) {
 
 <MDBox mt={1} display='flex' justifyContent='center' alignItems='center' flexDirection='row' style={{width:'100%'}}>
                                                         <Grid container spacing={1} display='flex' justifyContent='center' alignItems='center' flexDirection='row' style={{width:'100%'}}>
+                                                        
+                                                        <Grid item mb={1} xs={12} md={12} lg={4} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
+                                                            <MDButton
+                                                                variant='outlined'
+                                                                color='warning'
+                                                                size='small'
+                                                                component={Link}
+                                                                style={{width:'100%', fontSize:'10px'}}
+                                                                onClick={() =>  { handleLeaderboardNavigate(elem?._id, elem?.contestName) }}
+                                                            >
+                                                                LEADERBOARD
+                                                            </MDButton>
+                                                        </Grid>
+
                                                         <Grid item mb={1} xs={12} md={12} lg={6} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
                                                             <MDButton
                                                                 variant='contained'
@@ -331,7 +368,7 @@ function Header({ contest }) {
                                                                 style={{width:'100%', fontSize:'10px'}}
                                                                 onClick={() => { handleDownload(elem?._id) }}
                                                             >
-                                                                <DownloadIcon /> PARTICIPATION CERTIFICATE
+                                                                <DownloadIcon /> CERTIFICATE
                                                             </MDButton>
                                                         </Grid>
                                                         </Grid>

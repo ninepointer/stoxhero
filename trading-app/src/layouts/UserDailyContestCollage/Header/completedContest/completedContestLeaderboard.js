@@ -1,10 +1,10 @@
 // Material Dashboard 2 React example components
-import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
-import Footer from "../../examples/Footer";
+import DashboardLayout from "../../../../examples/LayoutContainers/DashboardLayout";
+import DashboardNavbar from "../../../../examples/Navbars/DashboardNavbar";
+import Footer from "../../../../examples/Footer";
 import { useEffect, useContext, useState} from "react";
-import ReactGA from "react-ga"
-import DailyContestOrders from "./data/viewOrders";
+import ReactGA from "react-ga";
+import ContestLeaderboard from '../../data/completedContestLeaderboard';
 
 function Tables() {
   
@@ -16,7 +16,7 @@ function Tables() {
     <>
     <DashboardLayout>
       <DashboardNavbar />
-        <DailyContestOrders />
+        <ContestLeaderboard />
       <Footer />
     </DashboardLayout>
     </>

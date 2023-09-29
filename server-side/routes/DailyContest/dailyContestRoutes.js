@@ -17,6 +17,7 @@ router.get('/downloadcontestdata', Authenticate, restrictTo('Admin', 'SuperAdmin
 router.get('/downloadfreecontestuserdata', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.downloadFreeContestUserData);
 router.get('/downloadpaidcontestuserdata', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.downloadPaidContestUserData);
 router.get('/download/:id', Authenticate, contestController.downloadParticipationCertificate);
+router.get('/contestleaderboard/:id', Authenticate, contestController.getContestLeaderboardById);
 router.get('/contest/dailycontestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDailyContestUsers);
 router.get('/contest/dailyallcontestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDailyContestAllUsers);
 router.get('/contestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getUsers);
