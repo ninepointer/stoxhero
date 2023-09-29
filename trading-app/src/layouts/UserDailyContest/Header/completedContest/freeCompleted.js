@@ -269,7 +269,7 @@ function Header({ contest }) {
                                                                 variant='outlined'
                                                                 color='warning'
                                                                 size='small'
-                                                                style={{width:'100%', fontSize:'10px'}}
+                                                                style={{width:'90%', fontSize:'10px'}}
                                                                 component={Link}
                                                                 onClick={() => { handleLeaderboardNavigate(elem?._id, elem?.contestName) }}
                                                             >
@@ -281,7 +281,7 @@ function Header({ contest }) {
                                                                 variant='outlined'
                                                                 color='warning'
                                                                 size='small'
-                                                                style={{width:'100%', fontSize:'10px'}}
+                                                                style={{width:'90%', fontSize:'10px'}}
                                                                 component={Link}
                                                                 onClick={() => { handleNavigate(elem?._id, elem?.contestName) }}
                                                             >
