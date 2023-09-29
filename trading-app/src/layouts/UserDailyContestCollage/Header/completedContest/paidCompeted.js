@@ -346,9 +346,9 @@ function Header({ contest }) {
                                                             </MDButton>
                                                         </Grid>
 
-                                                        <Grid item mb={1} xs={12} md={12} lg={6} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
+                                                        <Grid item mb={1} xs={12} md={12} lg={4} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
                                                             <MDButton
-                                                                variant='contained'
+                                                                variant='outlined'
                                                                 color='warning'
                                                                 size='small'
                                                                 component={Link}
@@ -359,10 +359,10 @@ function Header({ contest }) {
                                                             </MDButton>
                                                         </Grid>
 
-                                                        <Grid item mb={1} xs={12} md={12} lg={6} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
+                                                        <Grid item mb={1} xs={12} md={12} lg={4} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
                                                             <MDButton
-                                                                variant='contained'
-                                                                color='success'
+                                                                variant='outlined'
+                                                                color='warning'
                                                                 size='small'
                                                                 component={Link}
                                                                 style={{width:'100%', fontSize:'10px'}}
