@@ -928,7 +928,7 @@ exports.deductBattleAmount = async (req, res, next) => {
             transactionId: uuid.v4(),
             transactionType: 'Cash'
         }];
-        wallet.save();
+        await wallet.save();
 
         const transacation = await Transaction.create({
             transactionCategory: 'Credit',

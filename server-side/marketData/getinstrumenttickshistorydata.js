@@ -84,7 +84,7 @@ const getInstrumentTicksHistoryData = async () => {
                 
             const instrumentticks_data = (new InstrumentTicksDataSchema({timestamp, symbol, instrumentToken, open, high, low, close, volume, createdOn }))
             console.log("above instrumentticks_data")
-            instrumentticks_data.save()
+            await instrumentticks_data.save()
             .then(()=>{
               console.log("saving", symbol, open, instrumentticks_data)
             }).catch((err)=> {

@@ -11,7 +11,7 @@ exports.createUserNotification = async(notificationOptions, session) => {
 
 exports.getUserNotications = async(req,res, next) => {
     try{
-        const notifications = await Notification.find({user:req.user._id, isActive:true}).populate('notificationGroup', 'name description');
+        const notifications = await Notification.find({user:req.user._id, isActive:true});
         res.status(200).json({status:'success', data:notifications});
     }catch(e){
         console.log(e);
@@ -39,7 +39,6 @@ exports.getRecentUserNotifications = async (req, res, next) => {
                 { priority: 'High' } // Notifications with 'High' priority.
             ]
         })
-        .populate('notificationGroup', 'name description')
         .sort({ createdOn: -1 }); // Sorting in descending order to ensure recent notifications come first.
 
         res.status(200).json({ status: 'success', data: notifications });

@@ -14,6 +14,12 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Button from '@mui/material/Button';
 import { Typography } from '@mui/material';
 import paymentQr from '../../../assets/images/paymentQrc.jpg';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+
 // import MDTypography from '../../../components/MDTypography';
 // import { userContext } from '../../../AuthContext';
 // import { useNavigate } from 'react-router-dom';
@@ -33,6 +39,13 @@ const Payment = ({ elem, setShowPay, showPay }) => {
     thanksMessege: "",
     error: ""
   })
+  const [value, setValue] = useState('wallet');
+
+  const handleChange = (event) => {
+    setValue(event.target.value);
+  };
+  let amount = 100;
+  let actualAmount = 128;
 
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -177,9 +190,9 @@ const Payment = ({ elem, setShowPay, showPay }) => {
             <>
               <DialogContentText id="alert-dialog-description">
 
-                <MDBox display="flex" flexDirection="column" textAlign="center" alignItems="center" >
+                <MDBox display="flex" flexDirection="column" textAlign="center" alignItems="start" >
                   <Title variant={{ xs: "h2", md: "h3" }} style={{ color: "#000", fontWeight: "bold", marginTop: "6px" }} >Choose how to pay</Title>
-                  <Typography textAlign="center" sx={{ mt: "12px", width: "75%", mb: "6px" }} color="#000" variant="body2">
+                  {/* <Typography textAlign="center" sx={{ mt: "12px", width: "75%", mb: "6px" }} color="#000" variant="body2">
                     
                     {
                     (userWallet < elem.entryFee) ?
@@ -187,18 +200,41 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                     :
                     `To add money in your wallet, please follow these steps.`
                     }
-                  </Typography>
-                  <Typography textAlign="start" px={3} fontSize={13}>Step-1: Open any UPI app, scan the QR or enter the UPI ID {setting?.contest?.upiId}</Typography>
+                  </Typography> */}
+                  {/* <Typography textAlign="start" px={3} fontSize={13}>Step-1: Open any UPI app, scan the QR or enter the UPI ID {setting?.contest?.upiId}</Typography>
                   <MDBox>
                     <img src={paymentQr} width={200} height={200}/>
                   </MDBox>
                   <Typography textAlign="start" px={3} mb={2} fontSize={13}>Step-2: Complete the payment of your desired amount and take a screenshot.</Typography>
-                  <Typography textAlign="start" px={4} fontSize={13}>Step-3: Please email {setting?.contest?.email} or WhatsApp {setting?.contest?.mobile} with your name, registered phone number, payment screenshot. Call for quicker resolution. Make sure your transactionId and amount is visible.</Typography>
+                  <Typography textAlign="start" px={4} fontSize={13}>Step-3: Please email {setting?.contest?.email} or WhatsApp {setting?.contest?.mobile} with your name, registered phone number, payment screenshot. Call for quicker resolution. Make sure your transactionId and amount is visible.</Typography> */}
+                  <FormControl>
+                    {/* <FormLabel id="payment-mode-label"></FormLabel> */}
+                    <RadioGroup
+                      aria-labelledby="payment-mode-label"
+                      defaultValue="wallet"
+                      name="radio-buttons-group"
+                      value={value}
+                      onChange={handleChange}
+                    >
+                      <FormControlLabel value="wallet" control={<Radio />} label="Pay from StoxHero Wallet" />
+                      {value == 'wallet' && <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={2} >
+                        <MDBox  >
+
+                        <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Brakdown</Typography>
+                        <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{amount ? amount : 0}</Typography>
+                      <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500,  }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{actualAmount ? actualAmount : 0}</Typography>
+                      <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500,  }} color="#808080" variant="body2">Net Transaction Amount: ₹{actualAmount ? Number(amount) + actualAmount : 0}</Typography>
+
+                        </MDBox>
+                      </MDBox>}
+                      <FormControlLabel value="bank" control={<Radio />} label="Pay from Bank Account/UPI" />
+                    </RadioGroup>
+                  </FormControl>
 
                 </MDBox>
               </DialogContentText>
 
-              <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={2} >
+              {value == 'wallet' && <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={2} >
                 <MDBox onClick={() => { buySubscription() }} border="1px solid black" borderRadius="10px" display="flex" alignItems="center" justifyContent="space-between" sx={{ height: "40px", width: { xs: "85%", md: "auto" }, "&:hover": { cursor: "pointer", border: "1px solid blue" } }} >
 
                   <MDBox display="flex" justifyContent="center">
@@ -212,7 +248,17 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                   </MDBox>
 
                 </MDBox>
-              </MDBox>
+              </MDBox>}
+              {value == 'bank' && <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={2} >
+                <MDBox  >
+
+                <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Brakdown</Typography>
+                <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{amount ? amount : 0}</Typography>
+               <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500,  }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{actualAmount ? actualAmount : 0}</Typography>
+               <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500,  }} color="#808080" variant="body2">Net Transaction Amount: ₹{actualAmount ? Number(amount) + actualAmount : 0}</Typography>
+
+                </MDBox>
+              </MDBox>}
             </>
           }
 
@@ -220,6 +266,9 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         <DialogActions>
           <Button onClick={handleClose} autoFocus>
             Close
+          </Button>
+          <Button onClick={handleClose} autoFocus>
+            Pay
           </Button>
         </DialogActions>
       </Dialog>

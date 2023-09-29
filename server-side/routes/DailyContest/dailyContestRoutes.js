@@ -7,6 +7,15 @@ const restrictTo = require('../../authentication/authorization');
 
 router.post('/contest', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.createContest);
 router.get('/livecontest', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getAllLiveContests);
+router.get('/paidcontestuserdata', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.paidContestUserData);
+router.get('/freecontestuserdata', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.freeContestUserData);
+router.get('/dailyfreecontestdata', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDailyFreeContestData);
+router.get('/dailypaidcontestdata', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDailyPaidContestData);
+router.get('/dailyfreecollegecontestdata', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDailyFreeCollegeContestData);
+router.get('/dailypaidcollegecontestdata', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDailyPaidCollegeContestData);
+router.get('/downloadcontestdata', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.downloadDailyContestData);
+router.get('/downloadfreecontestuserdata', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.downloadFreeContestUserData);
+router.get('/downloadpaidcontestuserdata', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.downloadPaidContestUserData);
 router.get('/download/:id', Authenticate, contestController.downloadParticipationCertificate);
 router.get('/contest/dailycontestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDailyContestUsers);
 router.get('/contest/dailyallcontestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDailyContestAllUsers);

@@ -5,14 +5,29 @@ import MDButton from "../../../components/MDButton"
 import MDBox from "../../../components/MDBox"
 import MDTypography from "../../../components/MDTypography"
 import Card from "@mui/material/Card";
+import moment from 'moment';
 import axios from "axios";
 
 
 export default function TenXSubscribers({tenXSubscription, subscriptionCount, setSubscriptionCount}) {
-    console.log("Subscription", tenXSubscription)
+    
     setSubscriptionCount(tenXSubscription?.users?.length)
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [tenXSubsPurchaseIntent,setTenXSubsPurchaseIntent] = React.useState([]);
+
+    function TruncatedName(name) {
+      const originalName = name;
+      const convertedName = originalName
+        .toLowerCase() // Convert the entire name to lowercase
+        .split(' ') // Split the name into words
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
+        .join(' '); // Join the words back together with a space
+    
+      // Trim the name to a maximum of 30 characters
+      const truncatedName = convertedName.length > 30 ? convertedName.substring(0, 30) + '...' : convertedName;
+    
+      return truncatedName;
+    }
    
     let columns = [
         { Header: "#", accessor: "index", align: "center" },
@@ -20,7 +35,9 @@ export default function TenXSubscribers({tenXSubscription, subscriptionCount, se
         { Header: "Email", accessor: "email", align: "center" },
         { Header: "Mobile", accessor: "mobile", align: "center" },
         { Header: "Subscribed On", accessor: "subscribedon", align: "center" },
+        { Header: "Expiring On", accessor: "expiringon", align: "center" },
         { Header: "Status", accessor: "status", align: "center" },
+        { Header: "Payout", accessor: "payout", align: "center" },
       ]
 
     let rows = []
@@ -34,7 +51,7 @@ export default function TenXSubscribers({tenXSubscription, subscriptionCount, se
   );
   featureObj.fullname = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {elem?.userId?.first_name} {elem?.userId?.last_name}
+      {TruncatedName(elem?.userId?.first_name + ' ' + elem?.userId?.last_name)}
     </MDTypography>
   );
   featureObj.email = (
@@ -49,12 +66,22 @@ export default function TenXSubscribers({tenXSubscription, subscriptionCount, se
   );
   featureObj.subscribedon = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {new Date(elem?.subscribedOn).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.subscribedOn).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}
+      {moment.utc(elem?.subscribedOn).utcOffset('+05:30').format("DD-MMM-YY hh:mm a")}
+    </MDTypography>
+  );
+  featureObj.expiringon = (
+    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      {moment.utc(elem?.subscribedOn).utcOffset('+05:30').add(elem?.expiryDays, 'days').hours(19).minutes(0).format("DD-MMM-YY hh:mm a")}
     </MDTypography>
   );
   featureObj.status = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
       {elem?.status}
+    </MDTypography>
+  );
+  featureObj.payout = (
+    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.payout ? elem?.payout : 0)}
     </MDTypography>
   );
 

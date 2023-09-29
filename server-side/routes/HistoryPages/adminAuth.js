@@ -682,7 +682,7 @@ router.get("/tenxUpdate", async (req, res) => {
           subelem.fee = 49
         }
       }
-      elem.save();
+      await elem.save();
     }
   }
 
