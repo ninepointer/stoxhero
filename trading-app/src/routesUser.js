@@ -83,7 +83,7 @@ import DailyCollegeContestResultPage from "./layouts/UserDailyContestCollage/dat
 import BattleIcon from "./assets/images/swords.png"
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import Notifications from './layouts/userNotification';
-
+import CompletedContestLeaderboard from './layouts/UserDailyContest/Header/completedContest/completedContestLeaderboard'
 // import Challenge from './layouts/UserDailyChallenge'
 const routes = [
 
@@ -106,6 +106,10 @@ const routes = [
   {
     route: "/completedcontests/:name",
     component: <DailyContestOrder />,
+  },
+  {
+    route: "/completedcontests/:name/leaderboard",
+    component: <CompletedContestLeaderboard />,
   },
   {
     route: "/completedmarginxs/:name",
