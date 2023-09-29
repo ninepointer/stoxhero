@@ -3780,3 +3780,90 @@ exports.downloadPaidContestUserData = async (req, res) => {
       });
   }
 };
+
+exports.getContestLeaderboardById = async (req, res) => {
+  const { id } = req.params;
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 5000
+  const participants = await Contest.aggregate(
+    [
+      {
+        $match: {
+          _id: new ObjectId(id),
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+        },
+      },
+    ]
+    );
+  
+  try {
+      const pipeline = 
+      [
+        [
+          {
+            $match: {
+              _id: new ObjectId(id),
+            },
+          },
+          {
+            $unwind: {
+              path: "$participants",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-personal-details",
+              localField: "participants.userId",
+              foreignField: "_id",
+              as: "user",
+            },
+          },
+          {
+            $project: {
+              userId: {
+                $arrayElemAt: ["$user._id", 0],
+              },
+              first_name: {
+                $arrayElemAt: ["$user.first_name", 0],
+              },
+              last_name: {
+                $arrayElemAt: ["$user.last_name", 0],
+              },
+              rank: {
+                $ifNull: ["$participants.rank", "-"],
+              },
+              payout: {
+                $ifNull: ["$participants.payout", 0],
+              },
+            },
+          },
+          {
+            $sort: {
+              rank: 1,
+            },
+          },
+        ]
+      ]
+
+      const contestLeaderboard = await Contest.aggregate(pipeline).skip(skip).limit(limit);
+
+      const response = {
+          status: "success",
+          message: "Contest Leaderboard fetched successfully",
+          data: contestLeaderboard,
+          count: participants.length,
+      };
+
+      res.status(200).json(response);
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Something went wrong",
+          error: error.message,
+      });
+  }
+};

@@ -10,13 +10,6 @@ import Grid from "@mui/material/Grid";
 import MDBox from "../../../components/MDBox";
 
 // Material Dashboard 2 React base styles
-
-// Images
-// import MDButton from "../../../components/MDButton";
-// import MDTypography from "../../../components/MDTypography";
-// import {InfinityTraderRole, tenxTrader} from "../../../variables";
-// import ContestCup from '../../../assets/images/candlestick-chart.png'
-// import { Divider } from "@mui/material";
 import ContestHeader from './contestHeader'
 import Contests from './contests'
 import PredictWin from '../../predictWin/data/predictWin'
@@ -37,9 +30,6 @@ function Header() {
           <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' minWidth='100%'>
             <ContestHeader/>
           </Grid>
-          {/* <Grid item xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' minWidth='100%'>
-            <PredictWin/>
-          </Grid> */}
           <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' minWidth='100%'>
             <Contests/>
           </Grid>
