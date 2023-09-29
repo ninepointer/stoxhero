@@ -46,7 +46,7 @@ export default function Dialogue({ subscription, amount, name, id, walletCash, s
   const [isLoading, setIsLoading] = useState(true)
 
   const navigate = useNavigate();
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
   // const copyText = `https://www.stoxhero.com/signup?referral=${getDetails.userDetails.myReferralCode}`
 

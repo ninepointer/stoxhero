@@ -13,7 +13,7 @@ const uuid = require("uuid");
 const sendMail = require('../../utils/emailService');
 const {createUserNotification} = require('../../controllers/notification/notificationController');
 const mongoose = require('mongoose');
-const Setting = require("../models/settings/setting")
+const Setting = require("../../models/settings/setting");
 
 
 exports.overallPnlTrader = async (req, res, next) => {
