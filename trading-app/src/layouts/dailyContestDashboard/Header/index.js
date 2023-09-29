@@ -20,7 +20,7 @@ export default function LabTabs({socket}) {
   const [isLoading,setIsLoading] = useState(false);
   const [dailyAllContestUsers, setDailyAllContestUsers] = useState();
   const [completedContest,setCompletedContest] = useState();
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 
   useEffect(()=>{
@@ -312,6 +312,42 @@ export default function LabTabs({socket}) {
                         <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
                             <MDBox display="flex" flexDirection="column">
                                 <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Create Daily Contest here!</MDTypography>
+                            </MDBox>
+                        </Grid>
+
+                        <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Free Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                        </Grid>
+
+                        <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
+                        </Grid>
+
+                    </Grid>
+                </MDButton>
+
+            </Grid>
+
+            <Grid item xs={12} md={6} lg={3}>
+
+                <MDButton
+                    variant="contained"
+                    color={"primary"}
+                    size="small"
+                    component={Link}
+                    to={{
+                        pathname: `/contestdashboard/contestanalytics`,
+                    }}
+                >
+                    <Grid container xs={12} md={12} lg={12}>
+
+                        <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
+                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Analytics</MDTypography>
+                        </Grid>
+
+                        <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
+                            <MDBox display="flex" flexDirection="column">
+                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check Contest Analytics here!</MDTypography>
                             </MDBox>
                         </Grid>
 

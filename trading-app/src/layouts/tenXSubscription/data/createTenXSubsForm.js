@@ -51,7 +51,7 @@ const [subscriptionCount,setSubscriptionCount] = useState([]);
 const [LiveTenXSubs,setLiveTenXSubs] = useState([]);
 const [ExpiredTenXSubs,setExpiredTenXSubs] = useState([]);
 
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 const [formState,setFormState] = useState({
     plan_name:'',
@@ -325,14 +325,11 @@ async function onEdit(e,formState){
                     name='plan_name'
                     fullWidth
                     value={formState?.plan_name || tenXSubs?.plan_name}
-
-                    // defaultValue={portfolioData?.portfolioName}
                     defaultValue={editing ? formState?.plan_name : tenXSubs?.plan_name}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         plan_name: e.target.value
                     }))}}
-                    // onChange={handleEdit}
                 />
             </Grid>
 
@@ -345,14 +342,11 @@ async function onEdit(e,formState){
                     type='number'
                     fullWidth
                     value={formState?.actual_price || tenXSubs?.actual_price}
-
-                    // defaultValue={portfolioData?.portfolioName}
                     defaultValue={editing ? formState?.actual_price : tenXSubs?.actual_price}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         actual_price: e.target.value
                     }))}}
-                    // onChange={handleEdit}
                 />
             </Grid>
 
@@ -365,14 +359,11 @@ async function onEdit(e,formState){
                     type='number'
                     fullWidth
                     value={formState?.discounted_price || tenXSubs?.discounted_price}
-
-                    // defaultValue={portfolioData?.portfolioName}
                     defaultValue={editing ? formState?.discounted_price : tenXSubs?.discounted_price}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         discounted_price: e.target.value
                     }))}}
-                    // onChange={handleEdit}
                 />
             </Grid>
 
@@ -385,15 +376,11 @@ async function onEdit(e,formState){
                     type='number'
                     fullWidth
                     value={formState?.profitCap || tenXSubs?.profitCap}
-
-                    // defaultValue={portfolioData?.portfolioName}
                     defaultValue={ editing ? formState?.profitCap : tenXSubs?.profitCap}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         profitCap: e.target.value
                     }))}}
-
-                    // onChange={handleEdit}
                 />
             </Grid>
 
@@ -406,15 +393,11 @@ async function onEdit(e,formState){
                     type='number'
                     fullWidth
                     value={formState?.payoutPercentage || tenXSubs?.payoutPercentage}
-
-                    // defaultValue={portfolioData?.portfolioName}
                     defaultValue={ editing ? formState?.payoutPercentage : tenXSubs?.payoutPercentage}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         payoutPercentage: e.target.value
                     }))}}
-
-                    // onChange={handleEdit}
                 />
             </Grid>
 
@@ -427,15 +410,11 @@ async function onEdit(e,formState){
                     type='number'
                     fullWidth
                     value={formState?.expiryDays || tenXSubs?.expiryDays}
-
-                    // defaultValue={portfolioData?.portfolioName}
                     defaultValue={ editing ? formState?.expiryDays : tenXSubs?.expiryDays}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         expiryDays: e.target.value
                     }))}}
-
-                    // onChange={handleEdit}
                 />
             </Grid>
 
@@ -447,7 +426,6 @@ async function onEdit(e,formState){
                     id="demo-multiple-name"
                     name='portfolio'
                     disabled={((isSubmitted || id) && (!editing || saving))}
-                    // defaultValue={id ? portfolios?.portfolio : ''}
                     value={formState?.portfolio?.name || tenXSubs?.portfolio?.portfolioName}
                     onChange={handleChange}
                     input={<OutlinedInput label="Portfolio" />}
@@ -475,14 +453,11 @@ async function onEdit(e,formState){
                     name='validity'
                     fullWidth
                     value={formState?.validity || tenXSubs?.validity}
-
-                    // defaultValue={portfolioData?.portfolioName}
                     defaultValue={editing ? formState?.validity : tenXSubs?.validity}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         validity: e.target.value
                     }))}}
-                    // onChange={handleEdit}
                 />
             </Grid>
 
@@ -494,7 +469,6 @@ async function onEdit(e,formState){
                     id="demo-simple-select-autowidth"
                     name='validityPeriod'
                     value={formState?.validityPeriod || tenXSubs?.validityPeriod}
-                    // value={oldObjectId ? contestData?.status : formState?.status}
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
@@ -518,7 +492,6 @@ async function onEdit(e,formState){
                     id="demo-simple-select-autowidth"
                     name='status'
                     value={formState?.status || tenXSubs?.status}
-                    // value={oldObjectId ? contestData?.status : formState?.status}
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
@@ -542,7 +515,6 @@ async function onEdit(e,formState){
                     id="demo-simple-select-autowidth"
                     name='allowPurchase'
                     value={formState?.allowPurchase || tenXSubs?.allowRenewal}
-                    // value={oldObjectId ? contestData?.status : formState?.status}
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
@@ -563,7 +535,6 @@ async function onEdit(e,formState){
                     id="demo-simple-select-autowidth"
                     name='allowRenewal'
                     value={formState?.allowRenewal || tenXSubs?.allowRenewal}
-                    // value={oldObjectId ? contestData?.status : formState?.status}
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
@@ -652,7 +623,6 @@ async function onEdit(e,formState){
                             label='Order No. *'
                             fullWidth
                             type="number"
-                            // value={formState?.features?.orderNo}
                             onChange={(e) => {setFormState(prevState => ({
                                 ...prevState,
                                 orderNo: e.target.value
@@ -666,7 +636,6 @@ async function onEdit(e,formState){
                             label='Description *'
                             fullWidth
                             type="text"
-                            // value={formState?.features?.description}
                             onChange={(e) => {setFormState(prevState => ({
                                 ...prevState,
                                 description: e.target.value

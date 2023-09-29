@@ -12,7 +12,7 @@ import MDButton from "../../../components/MDButton";
 
 
 function Summary({summary}) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [serverTime, setServerTime] = useState();
     const [loading, setIsLoading] = useState(true);
     const [timeDifference, setTimeDifference] = useState([]);

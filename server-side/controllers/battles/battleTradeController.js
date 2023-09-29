@@ -1602,7 +1602,7 @@ exports.creditAmountToWalletBattle = async () => {
                                     transactionId: uuid.v4(),
                                     transactionType: 'Cash'
                                 }];
-                                wallet.save({session});
+                                await wallet.save({session});
         
                                 const transacation = await Transaction.create({
                                     transactionCategory: 'Debit',
@@ -1746,7 +1746,7 @@ exports.creditAmountToWalletBattle = async () => {
                                     transactionId: uuid.v4(),
                                     transactionType: 'Cash'
                                 }];
-                                wallet.save({session});
+                                await wallet.save({session});
 
                                 const transacation = await Transaction.create({
                                     transactionCategory: 'Debit',

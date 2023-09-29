@@ -6,10 +6,10 @@ const { ObjectId } = require('mongodb');
 const User = require('../../models/User/userDetailSchema');
 const MarginXUserMock = require("../../models/marginX/marginXUserMock");
 const {createUserNotification} = require('../notification/notificationController');
-const Setting = require("../models/settings/setting")
+const Setting = require("../../models/settings/setting")
 const uuid = require("uuid");
 const emailService = require("../../utils/emailService");
-const Setting = require("../models/settings/setting")
+// const Setting = require("../../models/settings/setting")
 
 exports.createMarginX = async (req, res) => {
     try {
@@ -958,7 +958,7 @@ exports.deductMarginXAmount = async (req, res, next) => {
             transactionId: uuid.v4(),
             transactionType: 'Cash'
         }];
-        wallet.save();
+        await wallet.save();
 
         if (!result || !wallet) {
             return res.status(404).json({ status: "error", message: "Something went wrong." });

@@ -13,7 +13,7 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 export default function FeatureData({updatedDocument, setUpdatedDocument}) {
     console.log("updatedDocument", updatedDocument)
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
     let columns = [
         { Header: "Order No.", accessor: "orderNo", align: "center" },
@@ -64,14 +64,13 @@ export default function FeatureData({updatedDocument, setUpdatedDocument}) {
         </MDTypography>
       );
       featureObj.edit = (
-        <MDButton component="a" variant="caption" color="text" fontWeight="medium">
-          {/* Edit */}
+        // <MDButton size='small' component="a" variant="caption" color="text" fontWeight="medium">
           <EditFeature data={elem} setUpdatedDocument={setUpdatedDocument}/>
-        </MDButton>
+        // </MDButton>
       );
       featureObj.delete = (
-        <MDButton component="a" variant="caption" color="text" fontWeight="medium" onClick={()=>{deleteFeature(elem._id)}}>
-          <DeleteForeverIcon fontSize='small'/>
+        <MDButton size='small' component="a" variant="caption" color="text" fontWeight="medium" onClick={()=>{deleteFeature(elem._id)}}>
+          <DeleteForeverIcon/>
         </MDButton>
       );
 

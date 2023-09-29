@@ -32,7 +32,7 @@ export default function AddMoney() {
   //     error: ""
   //   })
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 
   useEffect(() => {
@@ -101,11 +101,13 @@ export default function AddMoney() {
 
             <DialogContent>
 
-            <Typography textAlign="left" sx={{ width: "100%" }} color="#000" variant="body2">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</Typography>
+            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new regulations. Thanks for understanding and adjusting your transactions accordingly! 
+            </Typography>
             
-            <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "15px", fontWeight: 700, fontFamily: "cursive" }} color="#000" variant="body2">Amount to add: ₹{amount ? amount : 0}</Typography>
-            <Typography textAlign="left" sx={{ width: "100%", fontSize: "15px", fontWeight: 700, fontFamily: "cursive" }} color="#000" variant="body2">GST amount: ₹{actualAmount ? actualAmount : 0}</Typography>
-            <Typography textAlign="left" sx={{ width: "100%", fontSize: "15px", fontWeight: 700, fontFamily: "cursive" }} color="#000" variant="body2">Amount will be added: ₹{actualAmount ? Number(amount) + actualAmount : 0}</Typography>
+            <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Brakdown</Typography>
+            <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Wallet Top-up Amount: ₹{amount ? amount : 0}</Typography>
+            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500,  }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Wallet Top-up: ₹{actualAmount ? actualAmount : 0}</Typography>
+            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500,  }} color="#808080" variant="body2">Net Transaction Amount: ₹{actualAmount ? Number(amount) + actualAmount : 0}</Typography>
 
               <Grid container display="flex" flexDirection="row" justifyContent="start" >
                 <Grid container mt={0.5} xs={12} md={9} xl={12} lg={12}>
@@ -133,10 +135,15 @@ export default function AddMoney() {
                   color="success"
                   size="small"
                   sx={{ mr: 2, ml: 2 }}
-                  // disabled={creating}
+                  disabled={!amount}
                   onClick={(e) => { initiatePayment() }}
                 >
-                  {actualAmount ? `Proceed with ₹${Number(amount) + actualAmount}` : "Proceed"}
+                  <MDBox display='flex' alignItems='center' justifyContent='center' gap={1} style={{color:'#fff'}}>
+                    
+                      {actualAmount ? `Pay ₹${Number(amount) + actualAmount} Securely ` : "Pay Securely "} 
+                
+                    <LockOutlinedIcon sx={{ color: "#fff" }} />
+                  </MDBox>
 
                 </MDButton>
               </>

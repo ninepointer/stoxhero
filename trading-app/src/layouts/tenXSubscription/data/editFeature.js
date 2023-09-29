@@ -35,7 +35,7 @@ const EditFeature = ({data, setUpdatedDocument}) => {
 
 
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const [editData, setEditData] = useState(data);
 
@@ -142,7 +142,7 @@ const renderErrorSB = (
   return (
     <div>
       <MDButton style={{padding:-2}} variant="text" color="secondary" size="small" onClick={handleClickOpen}>
-        <EditIcon fontSize='small'/>
+        <EditIcon/>
       </MDButton>
       <Dialog
         fullScreen={fullScreen}

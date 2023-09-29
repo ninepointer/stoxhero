@@ -786,8 +786,8 @@ exports.autoTradeContest = async(req, res, next) => {
       //     }
       //   );
       // })
-localhost:5001
-      let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+localhost:5000
+      let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
       const api1Response = await axios.get(`${baseUrl}api/v1/contest/${contest._id}/trades/${"leaderboard"}`)
       const rankData = api1Response.data.data;
 
@@ -889,7 +889,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
               transactionId: uuid.v4(),
               transactionType: reward.currency == 'INR'?'Cash':'Bonus' 
           }];
-          wallet.save();
+          await wallet.save();
           }
         }
       }
