@@ -48,8 +48,7 @@ export default function MessagePopUp({socket}) {
         // let weekDay = date.getDay();
      //   if (weekDay > 0 && weekDay < 6 && holiday === 0) {
     
-          const appEndTime = new Date("2023-08-07T11:24:00.400Z");
-        //   new Date(setting[0]?.time?.message);
+          const appEndTime = new Date(setting[0]?.time?.message);
 
           appEndTime.setHours(appEndTime.getHours() - 5);
           appEndTime.setMinutes(appEndTime.getMinutes() - 30);
