@@ -22,6 +22,10 @@ import MDTypography from '../../../components/MDTypography';
 // import ReactGA from "react-ga"
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
 
 
 
@@ -195,6 +199,14 @@ const Payment = ({ elem, setShowPay, showPay }) => {
       }
   }
 
+  const [value, setValue] = useState('wallet');
+
+  const handleChange = (event) => {
+    setValue(event.target.value);
+  };
+
+  const amount = elem?.entryFee;
+  const actualAmount = elem?.entryFee*setting.gstPercentage/100;
 
   return (
 
@@ -210,110 +222,118 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         </MDButton>
       </MDBox>
 
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {!messege.thanksMessege &&
+            <MDBox display="flex" alignItems="center" justifyContent="center" >
+              <LockOutlinedIcon sx={{ color: "#000" }} />
+            </MDBox>
+          }
 
-      {isCodeSubmit ?
-        <Dialog
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">
-            {!messege.thanksMessege &&
-              <MDBox display="flex" alignItems="center" justifyContent="center" >
-                <LockOutlinedIcon sx={{ color: "#000" }} />
-              </MDBox>
-            }
+        </DialogTitle>
+        <DialogContent>
+          {messege.thanksMessege ?
 
-          </DialogTitle>
-          <DialogContent>
-            {messege.thanksMessege ?
-
-              <Typography textAlign="center" sx={{ width: "100%" }} color="#000" variant="body2">{messege.thanksMessege}</Typography>
+            <Typography textAlign="center" sx={{ width: "100%" }} color="#000" variant="body2">{messege.thanksMessege}</Typography>
+            :
+            messege.error ?
+              <Typography textAlign="center" sx={{ width: "100%" }} color="#000" variant="body2">{messege.error}</Typography>
               :
-              messege.error ?
-                <Typography textAlign="center" sx={{ width: "100%" }} color="#000" variant="body2">{messege.error}</Typography>
-                :
-                <>
-                  <DialogContentText id="alert-dialog-description">
+              <>
+                <DialogContentText id="alert-dialog-description">
 
-                    <MDBox display="flex" flexDirection="column" textAlign="center" alignItems="center" >
-                      <Title variant={{ xs: "h2", md: "h3" }} style={{ color: "#000", fontWeight: "bold", marginTop: "6px" }} >Choose how to pay</Title>
-                      <Typography textAlign="center" sx={{ mt: "12px", width: "75%", mb: "6px" }} color="#000" variant="body2">
+                  <MDBox display="flex" flexDirection="column"  >
+                    <Title variant={{ xs: "h2", md: "h3" }} style={{ color: "#000", fontWeight: "bold", marginTop: "6px", display:"flex", justifyContent:'center' }} >Choose how to pay</Title>
+                    <FormControl>
+                      <RadioGroup
+                        aria-labelledby="payment-mode-label"
+                        defaultValue="wallet"
+                        name="radio-buttons-group"
+                        value={value}
+                        onChange={handleChange}
+                      >
+                        <FormControlLabel value="wallet" control={<Radio />} label="Pay from StoxHero Wallet" />
+                        {value == 'wallet' && 
+                        <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={2} >
+                          <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Brakdown</Typography>
+                          <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{amount ? amount : 0}</Typography>
+                          <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{0}</Typography>
+                          <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(amount)}</Typography>
+                        </MDBox>}
+                        <FormControlLabel value="bank" control={<Radio />} label="Pay from Bank Account/UPI" />
+                        {value == 'bank' &&
+                          <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={0} >
+                            <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new regulations. Thanks for understanding and adjusting your transactions accordingly! </Typography>
+                            <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Brakdown</Typography>
+                            <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{amount ? amount : 0}</Typography>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{actualAmount ? actualAmount : 0}</Typography>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{actualAmount ? Number(amount) + actualAmount : 0}</Typography>
+                          </MDBox>}
+                      </RadioGroup>
+                    </FormControl>
 
-                        {
-                          (userWallet < elem.entryFee) ?
-                            `Your wallet balance is low, kindly add money to your wallet. Follow the steps below.`
-                            :
-                            `To add money in your wallet, please follow these steps.`
-                        }
-                      </Typography>
-                      <Typography textAlign="start" px={3} fontSize={13}>Step-1: Open any UPI app, scan the QR or enter the UPI ID {setting?.contest?.upiId}</Typography>
-                      <MDBox>
-                        <img src={paymentQr} width={200} height={200} />
-                      </MDBox>
-                      <Typography textAlign="start" px={3} mb={2} fontSize={13}>Step-2: Complete the payment of your desired amount and take a screenshot.</Typography>
-                      <Typography textAlign="start" px={4} fontSize={13}>Step-3: Please email {setting?.contest?.email} or WhatsApp {setting?.contest?.mobile} with your name, registered phone number, payment screenshot. Call for quicker resolution. Make sure your transactionId and amount is visible.</Typography>
+                    {/* <Grid container display="flex" flexDirection="row" justifyContent="center" alignContent={"center"} gap={2} >
+                      <Grid container mt={2} xs={12} md={9} xl={12} lg={12}>
+                        <Grid item xs={12} md={6} xl={9} lg={9} >
+                          <TextField
+                            // disabled={((isSubmitted || battle) && (!editing || saving))}
+                            id="outlined-required"
+                            label='Coupen Code'
+                            name='coupenCode'
+                            fullWidth
+                            value={amount}
+                            onChange={(e) => { }}
+                          />
+                        </Grid>
 
-                    </MDBox>
-                  </DialogContentText>
+                        <Grid item xs={12} md={6} xl={3} lg={3} >
+                          <MDButton color={"success"} onClick={handleClose} autoFocus>
+                            Apply
+                          </MDButton>
+                        </Grid>
+                      </Grid>
 
-                  <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={2} >
-                    <MDBox onClick={() => { buySubscription() }} border="1px solid black" borderRadius="10px" display="flex" alignItems="center" justifyContent="space-between" sx={{ height: "40px", width: { xs: "85%", md: "auto" }, "&:hover": { cursor: "pointer", border: "1px solid blue" } }} >
+                    </Grid> */}
 
-                      <MDBox display="flex" justifyContent="center">
-                        <Typography variant="body2" color="#000" style={{ marginRight: '14px', marginLeft: "8px" }} >Stoxhero Wallet</Typography>
-                        <AccountBalanceWalletIcon sx={{ marginTop: "5px", color: "#000", marginRight: "4px" }} />
-                        <Typography variant="body2" sx={{ fontSize: "16.4px", fontWeight: "550" }} color="#000" > {`₹${userWallet}`}</Typography>
-                      </MDBox>
-
-                      <MDBox>
-                        <ArrowForwardIosIcon sx={{ mt: "8px", color: "#000", marginRight: "5px", marginLeft: "5px" }} />
-                      </MDBox>
-
-                    </MDBox>
                   </MDBox>
-                </>
-            }
+                </DialogContentText>
 
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose} autoFocus>
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
-        :
-        <Dialog
-          fullScreen={fullScreen}
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="responsive-dialog-title">
-          <DialogTitle id="responsive-dialog-title" sx={{ textAlign: 'center' }}>
-            {/* {"Option Chain"} */}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText sx={{ display: "flex", flexDirection: "column", marginLeft: 2 }}>
-              <MDBox sx={{ display: 'flex', alignItems: 'center', flexDirection: "column", marginBottom: "10px" }}>
-                <MDTypography color="dark" fontSize={15}>{data}</MDTypography>
-                {data.includes("college") && <TextField
-                  id="outlined-basic" label="College Code" variant="standard" onChange={(e) => { { setCollegeCode(e.target.value) } }}
-                  sx={{ margin: 1, padding: 1, width: "300px" }}
-                />}
+                {value == 'wallet' && 
+                <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={2}  >
+                  <MDBox onClick={() => { buySubscription() }} border="1px solid #4CAF50" borderRadius="10px" display="flex" alignItems="center" justifyContent="space-between" sx={{ height: "40px", width: { xs: "85%", md: "auto" }, "&:hover": { cursor: "pointer", border: "1px solid #fff" } }}  style={{backgroundColor: "#4CAF50"}} >
 
-                {errorMsg &&
-                  <MDTypography color="error" fontSize={10}>{errorMsg}</MDTypography>
-                }
-              </MDBox>
-            </DialogContentText>
-          </DialogContent>
-          {data.includes("college") && <DialogActions>
-            <MDButton autoFocus variant="contained" color="info" onClick={(e) => { participateUserToContest(elem) }} >
-              Submit
-            </MDButton>
-          </DialogActions>}
-        </Dialog>
-      }
+                    <MDBox display="flex" justifyContent="center">
+                      <Typography variant="body2" color="#fff" style={{ marginRight: '14px', marginLeft: "8px" }} >Stoxhero Wallet</Typography>
+                      <AccountBalanceWalletIcon sx={{ marginTop: "5px", color: "#fff", marginRight: "4px" }} />
+                      <Typography variant="body2" sx={{ fontSize: "16.4px", fontWeight: "550" }} color="#fff" > {`₹${userWallet}`}</Typography>
+                    </MDBox>
+
+                    <MDBox>
+                      <ArrowForwardIosIcon sx={{ mt: "8px", color: "#fff", marginRight: "5px", marginLeft: "5px" }} />
+                    </MDBox>
+
+                  </MDBox>
+                </MDBox>}
+
+              </>
+          }
+
+        </DialogContent>
+        {value !== 'wallet' &&
+        <DialogActions>
+          <MDButton color='error' onClick={handleClose} autoFocus>
+            Close
+          </MDButton>
+          <MDButton color={"success"} onClick={handleClose} autoFocus>
+            {`Pay ₹${actualAmount ? Number(amount) + actualAmount : 0} securly`}
+          </MDButton>
+        </DialogActions>}
+      </Dialog>
     </>
   );
 

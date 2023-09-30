@@ -9,7 +9,6 @@ const {createUserNotification} = require('../notification/notificationController
 const Setting = require("../../models/settings/setting")
 const uuid = require("uuid");
 const emailService = require("../../utils/emailService");
-// const Setting = require("../../models/settings/setting")
 
 exports.createMarginX = async (req, res) => {
     try {

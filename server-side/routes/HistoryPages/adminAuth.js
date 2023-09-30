@@ -77,7 +77,29 @@ const BattleMock = require("../../models/battle/battleTrade")
 
 
 
+router.get("/tenxSubsRemovePayout", async (req, res) => {
 
+  const subs = await TenxSubscription.find();
+  const user = await UserDetail.find();
+
+  for (elem of subs) {
+    for (subelem of elem.users) {
+      if (subelem.payout < 0) {
+        subelem.payout = 0;
+      }
+    }
+    await elem.save();
+  }
+
+  for (elem of user) {
+    for (subelem of elem.subscription) {
+      if (subelem.payout < 0) {
+        subelem.payout = 0;
+      }
+    }
+    await elem.save();
+  }
+});
 
 router.get("/updaterankandpayoutcontest", async (req, res) => {
 
@@ -1693,7 +1715,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2023-09-21T00:00:00.000+00:00"
+  let expiryDate = "2023-09-28T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(
