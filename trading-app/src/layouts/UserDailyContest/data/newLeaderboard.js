@@ -42,7 +42,7 @@ function Leaderboard({ socket, name, id, data}) {
     const [myPnl, setMyPnl] = useState();
     const getDetails = useContext(userContext);
     const [reward, setReward] = useState([]);
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     console.log('received data',data);
 
     const [loading, setIsLoading] = useState(true);

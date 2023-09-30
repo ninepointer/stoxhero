@@ -150,7 +150,7 @@ function Index() {
     console.log("Campaign Users: ",id?.users?.length)
     const [campaignUserCount, setCampaignUserCount] = useState(id?.users?.length);
     const [isSubmitted,setIsSubmitted] = useState(false);
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/api/v1/college"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/api/v1/college"
     const [isLoading,setIsLoading] = useState(id ? true : false)
     const [editing,setEditing] = useState(false)
     const [saving,setSaving] = useState(false)

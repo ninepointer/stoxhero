@@ -32,7 +32,7 @@ export default function AddMoney() {
   //     error: ""
   //   })
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
 
   useEffect(() => {
@@ -101,13 +101,13 @@ export default function AddMoney() {
 
             <DialogContent>
 
-            <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new government regulations. Thanks for understanding and adjusting your transactions accordingly! 
+            <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new government regulations. However you don't need to pay anything extra. StoxHero will be taking care of the GST on your behalf. 
             </Typography>
             
             <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
             <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Wallet Top-up Amount: ₹{amount ? amount : 0}</Typography>
             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500,  }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Wallet Top-up: ₹{actualAmount ? actualAmount : 0}</Typography>
-            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500,  }} color="#808080" variant="body2">Net Transaction Amount: ₹{actualAmount ? Number(amount) + actualAmount : 0}</Typography>
+            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500,  }} color="#808080" variant="body2">Net Transaction Amount: ₹{ Number(amount) + actualAmount}</Typography>
 
               <Grid container display="flex" flexDirection="row" justifyContent="start" >
                 <Grid container mt={0.5} xs={12} md={9} xl={12} lg={12}>

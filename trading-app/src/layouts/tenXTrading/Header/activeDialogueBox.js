@@ -44,7 +44,7 @@ export default function Dialogue({subscription ,amount, name, id, walletCash, se
   const [isLoading,setIsLoading] = useState(true)
 
   const navigate = useNavigate();
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
   const [value, setValue] = useState('wallet');
 
   const handleChange = (event) => {
@@ -303,7 +303,7 @@ export default function Dialogue({subscription ,amount, name, id, walletCash, se
                       >
                         <FormControlLabel value="wallet" control={<Radio />} label="Pay from StoxHero Wallet" />
                         {value == 'wallet' &&
-                          <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={2} >
+                          <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={2} style={{minWidth:'40vw'}} >
                             <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
                             <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{subs_amount ? subs_amount : 0}</Typography>
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{0}</Typography>
@@ -312,11 +312,11 @@ export default function Dialogue({subscription ,amount, name, id, walletCash, se
                         <FormControlLabel value="bank" control={<Radio />} label="Pay from Bank Account/UPI" />
                         {value == 'bank' &&
                           <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={0} >
-                            <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new government regulations. Thanks for understanding and adjusting your transactions accordingly! </Typography>
+                            <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new government regulations. However you don't need to pay anything extra. StoxHero will be taking care of the GST on your behalf.</Typography>
                             <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
                             <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{subs_amount ? subs_amount : 0}</Typography>
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{subs_actualAmount ? subs_actualAmount : 0}</Typography>
-                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{subs_actualAmount ? Number(subs_amount) + subs_actualAmount : 0}</Typography>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{ Number(subs_amount) + subs_actualAmount}</Typography>
                           </MDBox>}
                       </RadioGroup>
                     </FormControl>
@@ -350,7 +350,7 @@ export default function Dialogue({subscription ,amount, name, id, walletCash, se
               Close
             </MDButton>
             <MDButton color={"success"} onClick={initiatePayment} autoFocus>
-              {`Pay ₹${subs_actualAmount ? Number(subs_amount) + subs_actualAmount : 0} securely`}
+              {`Pay ₹${Number(subs_amount) + subs_actualAmount} securely`}
             </MDButton>
           </DialogActions>}
       </Dialog>

@@ -230,7 +230,7 @@ exports.initiatePayment = async (req, res) => {
         paymentTime: new Date(),
         currency: 'INR',
         amount: amount/100,
-        gstAmount:((amount/100) - ((amount/100)/(1+(setting[0]?.gstPercentage/100)))), 
+        gstAmount:((amount/100) - ((amount/100)/(1+(setting[0]?.gstPercentage==0?0:setting[0]?.gstPercentage/100)))), 
         paymentStatus: 'initiated',
         actions:[{
             actionTitle: 'Payment Initiated',

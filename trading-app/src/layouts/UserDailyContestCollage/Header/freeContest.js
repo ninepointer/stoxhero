@@ -29,7 +29,7 @@ import Payment from "../data/payment"
 // import axios from "axios";
 
 function Header({toggleContest, setToggleContest, contest, socket, setIsInterested, showPay, setShowPay }) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     // const [contest, setContest] = useState([]);
     // const [isInterested, setIsInterested] = useState(false);
     const [timeDifference, setTimeDifference] = useState([]);

@@ -19,6 +19,7 @@ const Payment = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    gstAmount:Number,
     paymentBy: {
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail'
