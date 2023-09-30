@@ -76,6 +76,32 @@ const Battle = require("../../models/battle/battle")
 const MarginX = require("../../models/marginX/marginX");
 const BattleMock = require("../../models/battle/battleTrade");
 
+// [
+//   {
+//     $unwind:
+//       {
+//         path: "$subscription",
+//       },
+//   },
+//   {
+//     $match:
+//       {
+//         "subscription.payout": {
+//           $lt: 0,
+//         },
+//       },
+//   },
+//   {
+//     $project:
+//       {
+//         name: "$name",
+//         payout: "$subscription.payout",
+//       },
+//   },
+// ]
+
+
+
 router.get("/updateproduct", async (req, res) => {
   try{
     const subs = await TenxSubscription.updateMany({}, {product: new ObjectId('6517d3803aeb2bb27d650de0')});
@@ -102,7 +128,8 @@ router.get("/tenxSubsRemovePayout", async (req, res) => {
         subelem.payout = 0;
       }
     }
-    await elem.save();
+    const data = await elem.save();
+    console.log(data);
   }
 
   for (elem of user) {
@@ -111,8 +138,12 @@ router.get("/tenxSubsRemovePayout", async (req, res) => {
         subelem.payout = 0;
       }
     }
-    await elem.save();
+
+    const data = await elem.save({validationBeforeSave: false});
+    console.log(data)
   }
+
+  res.send("ok")
 });
 
 router.get("/updaterankandpayoutcontest", async (req, res) => {

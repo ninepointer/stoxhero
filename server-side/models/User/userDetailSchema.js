@@ -41,7 +41,8 @@ const userDetailSchema = new mongoose.Schema({
     },
     last_name:{
         type: String,
-        required : true
+        // required : true
+        //todo-vijay
     },
     cohort:{
         type: String,
