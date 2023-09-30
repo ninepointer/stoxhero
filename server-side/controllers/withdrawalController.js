@@ -128,7 +128,7 @@ exports.createWithdrawal = async(req,res,next) => {
     console.log('checking', walletBalance, appSettings?.walletBalanceUpperLimit, appSettings?.maxWithdrawalHigh, appSettings.maxWithdrawal);
     if(walletBalance >= appSettings?.walletBalanceUpperLimit){
         if(amount>walletBalance - appSettings?.maxWithdrawalHigh && amount > appSettings?.maxWithdrawal){
-            return res.status(400).json({status:'error', message:`The maximum amount that can be withdrawn is ₹${Math.max(walletBalance-appSettings?.maxWithdrawalHigh, appSettings?.maxWithdrawal)}`});
+            return res.status(400).json({status:'error', message:`The maximum amount that can be withdrawn is ₹${(Math.max(walletBalance-appSettings?.maxWithdrawalHigh, appSettings?.maxWithdrawal)).toFixed(2)}`});
         }
     }else{
         if(amount>appSettings.maxWithdrawal){

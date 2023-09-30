@@ -30,7 +30,7 @@ import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader,
 
 const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, module}) => {
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const {render, setRender} = useContext(renderContext);
   const getDetails = React.useContext(userContext);
   const tradeSound = getDetails.tradeSound;

@@ -31,7 +31,7 @@ const ContestCard = () => {
   const [isLoading,setIsLoading] = useState(false);
 
   // const [objectId,setObjectId] = useState('')
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   let timerStyle = {
     textAlign: "center", 
