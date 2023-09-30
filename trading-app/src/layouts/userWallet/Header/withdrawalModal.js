@@ -110,8 +110,8 @@ const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
                 return openErrorSB('Amount too low', `Minimum withdrawal amount is ₹${minWithdrawal}`);
             }
             if(walletBalance>=walletBalanceUpperLimit){
-              if(amount>maxWithdrawalHigh){
-                return openErrorSB('Amount too high', `Maximum withdrawal amount is ₹${maxWithdrawalHigh}`);
+              if(amount>walletBalance - maxWithdrawalHigh && amount > maxWithdrawal){
+                return openErrorSB('Amount too high', `Maximum withdrawal amount is ₹${Math.max(walletBalance-maxWithdrawalHigh, maxWithdrawal)}`);
             }
             }else{
               if(amount>maxWithdrawal){

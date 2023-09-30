@@ -8,6 +8,15 @@ const axios = require('axios');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const {createUserNotification} = require('../controllers/notification/notificationController');
+const Setting = require('../models/settings/setting');
+const {handleSubscriptionDeduction} = require('./dailyContestController');
+const {handleDeductSubscriptionAmount} = require('./userWalletController');
+const {handleDeductMarginXAmount} = require('./marginX/marginxController');
+const {handleDeductBattleAmount} = require('./battles/battleController');
+const Contest = require('../models/DailyContest/dailyContest');
+const TenX = require('../models/TenXSubscription/TenXSubscriptionSchema');
+const MarginX = require('../models/marginX/marginX');
+const Battle = require('../models/battle/battle');
 
 exports.createPayment = async(req, res, next)=>{
     // console.log(req.body)
@@ -202,19 +211,22 @@ exports.getUsers = async (req, res) => {
 exports.initiatePayment = async (req, res) => {
     const {
         amount,
-        mobileNumber,
-        redirectTo
+        redirectTo,
+        productId,
+        paymentFor
     } = req.body;
-    let merchantId = process.env.PHONEPE_MERCHANTID;
+    const setting = await Setting.find();
+    let merchantId = process.env.PROD=='true' ? process.env.PHONEPE_MERCHANTID : process.env.PHONEPE_MERCHANTID_STAGING  ;
     let merchantTransactionId = generateUniqueTransactionId();
     let merchantUserId = 'MUID'+ req.user._id;
-    let redirectUrl = `https://stoxhero.com/paymenttest/status?merchantTransactionId=${merchantTransactionId}&redirectTo=${redirectTo}`;
-    let callbackUrl = 'https://stoxhero.com/api/v1/payment/callback';
+    let redirectUrl = process.env.PROD == 'true'? `https://stoxhero.com/paymenttest/status?merchantTransactionId=${merchantTransactionId}&redirectTo=${redirectTo}` : `http://43.204.7.180/paymenttest/status?merchantTransactionId=${merchantTransactionId}&redirectTo=${redirectTo}`;
+    let callbackUrl = process.env.PROD == 'true'? 'https://stoxhero.com/api/v1/payment/callback':'http://43.204.7.180/api/v1/payment/callback' ;
     let redirectMode = 'REDIRECT'
     const payment = await Payment.create({
         paymentTime: new Date(),
         currency: 'INR',
-        amount: amount/4000,
+        amount: amount/100,
+        gstAmount:((amount/100) - ((amount/100)/(1+(setting[0]?.gstPercentage/100)))), 
         paymentStatus: 'initiated',
         actions:[{
             actionTitle: 'Payment Initiated',
@@ -222,6 +234,8 @@ exports.initiatePayment = async (req, res) => {
             actionBy:req.user._id
         }],
         paymentBy:req.user?._id,
+        paymentFor,
+        productId,
         merchantTransactionId,
         createdOn: new Date(),
         createdBy: req.user._id,
@@ -236,24 +250,24 @@ exports.initiatePayment = async (req, res) => {
     const payload = {
         merchantId,
         merchantTransactionId,
-        amount: amount/40,
+        amount: amount,
         merchantUserId,
         redirectUrl,
         redirectMode,
         callbackUrl,
-        mobileNumber,
         paymentInstrument
     };
 
     const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64');
-    const saltKey = process.env.PHONEPE_KEY; // This should be stored securely, not hardcoded
+    const saltKey = process.env.PROD=='true' ? process.env.PHONEPE_KEY : process.env.PHONEPE_KEY_STAGING ; // This should be stored securely, not hardcoded
     const saltIndex = '1';
     const toHash = `${encodedPayload}/pg/v1/pay${saltKey}`;
     
     const checksum = crypto.createHash('sha256').update(toHash).digest('hex') + '###' + saltIndex;
 
     try {
-        const response = await axios.post('https://api.phonepe.com/apis/hermes/pg/v1/pay', {
+        const payUrl = process.env.PROD=='true'? 'https://api.phonepe.com/apis/hermes/pg/v1/pay':'https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay'
+        const response = await axios.post(payUrl, {
             request: encodedPayload
         }, {
             headers: {
@@ -350,7 +364,7 @@ exports.handleCallback = async (req, res, next) => {
     }
 }
 
-const SALT_KEY = process.env.PHONEPE_KEY; // You may want to keep this in a secure environment variable or secret management tool.
+const SALT_KEY = process.env.PROD=='true' ? process.env.PHONEPE_KEY : process.env.PHONEPE_KEY_STAGING  ; // You may want to keep this in a secure environment variable or secret management tool.
 const SALT_INDEX = "1"; // This too could be managed securely if it's ever meant to change.
 
 const verifyChecksum = (encodedPayload, receivedChecksum) => {
@@ -365,14 +379,15 @@ exports.checkPaymentStatus = async(req,res, next) => {
     try{
         console.log('chekcing payment status-------------------------------------------------');
         const {merchantTransactionId} = req.params;
-        const merchantId = process.env.PHONEPE_MERCHANTID;
+        const merchantId = process.env.PROD=='true' ? process.env.PHONEPE_MERCHANTID : process.env.PHONEPE_MERCHANTID_STAGING ;
         const payment  = await Payment.findOne({merchantTransactionId});
         // console.log('payment', payment);
         const saltKey = process.env.PHONEPE_KEY; // This should be stored securely, not hardcoded
         const saltIndex = '1';
         const toHash = `/pg/v1/status/${merchantId}/${merchantTransactionId}`+ saltKey;
         const checksum = crypto.createHash('sha256').update(toHash).digest('hex') + '###' + saltIndex;
-        const resp = await axios.get(`https://api.phonepe.com/apis/hermes/pg/v1/status/${merchantId}/${merchantTransactionId}`,{
+        const checkStatusUrl = process.env.PROD=='true' ? `https://api.phonepe.com/apis/hermes/pg/v1/status/${merchantId}/${merchantTransactionId}`:`https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/${merchantId}/${merchantTransactionId}`;
+        const resp = await axios.get(checkStatusUrl,{
             headers: {
                 'Content-Type': 'application/json',
                 'X-VERIFY': checksum,
@@ -390,6 +405,12 @@ exports.checkPaymentStatus = async(req,res, next) => {
                         actionDate: new Date(),
                         actionBy: '63ecbc570302e7cf0153370c'
                     });
+                if(payment.amount == resp.data.data.amount/100){
+                    await addMoneyToWallet(payment.amount-payment?.gstAmount, payment?.paymentBy);
+                    if(payment?.paymentFor && payment?.productId){
+                        await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy);
+                    }    
+                }    
             }
         }else if(resp.data.code == 'PAYMENT_ERROR'){
             if(payment.paymentStatus != 'failed'){
@@ -413,5 +434,48 @@ exports.checkPaymentStatus = async(req,res, next) => {
     }catch(e){
         console.log(e);
         res.status(500).json({status:'error', message:'Something went wrong.'});
+    }
+}
+
+const addMoneyToWallet = async (amount, userId) =>{
+    const wallet = await UserWallet.findOne({userId:userId});
+    wallet.transactions.push({
+        amount: amount,
+        title: 'Amount Credit',
+        description: `The amount that has been credited to your wallet.`,
+        transactionId: uuid.v4(),
+        transactionType: 'Cash'
+    });
+    await wallet.save({validateBeforeSave: false});
+}
+
+const participateUser = async (paymentFor, productId, paymentBy) => {
+    switch (paymentFor){
+        case 'Contest':
+            if(productId){
+                const contest = await Contest.findById(productId).select('entryFee contestName');
+                await handleSubscriptionDeduction(paymentBy, contest?.entryFee, contest?.contestName, contest?._id);
+            }
+            break;
+        case 'TenX':
+            if(productId){
+                const tenx = await TenX.findById(productId).select('discounted_price plan_name');
+                await handleDeductSubscriptionAmount(paymentBy, tenx?.discounted_price, tenx?.plan_name, tenx?._id);
+            }
+            break;
+        case 'MarginX':
+            if(productId){
+                const marginX = await MarginX.findById(productId).populate('marginXTemplate', 'entryFee');
+                await handleDeductMarginXAmount(paymentBy, marginX?.marginXTemplate?.entryFee, marginX?.marginXName, marginX?._id);
+            }
+            break;
+        case 'Battle':
+            if(productId){
+                const battle = await Battle.findById(productId).select('_id');
+                await handleDeductBattleAmount(paymentBy, battle?._id);
+            }
+            break;
+        default:
+            break;
     }
 }

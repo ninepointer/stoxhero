@@ -26,10 +26,13 @@ const Payment = new mongoose.Schema({
     paymentFor: {
         type: String,
     },
+    productId:{
+        type: Schema.Types.ObjectId
+    },
     paymentMode: {
         type: String,
         // required: true,
-        enum: ['UPI', 'Account Transfer', 'Other']
+        enum: ['UPI', 'Account Transfer', 'Other', 'CARD', 'NETBANKING']
     },
     paymentStatus:{
         type: String,

@@ -44,7 +44,9 @@ const settingSchema = new mongoose.Schema({
     minWithdrawal: Number,
     maxWithdrawal: Number,
     maxWithdrawalHigh: Number,
-    walletBalanceUpperLimit:Number,
+    walletBalanceUpperLimit: Number,
+    gstPercentage: Number,
+    tdsPercentage: Number,
     contest: {
         upiId: {type: String},
         email: {type: String},

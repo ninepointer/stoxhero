@@ -13,6 +13,7 @@ const uuid = require("uuid");
 const sendMail = require('../../utils/emailService');
 const {createUserNotification} = require('../../controllers/notification/notificationController');
 const mongoose = require('mongoose');
+const Setting = require("../../models/settings/setting")
 
 
 exports.overallPnlTrader = async (req, res, next) => {
@@ -1523,7 +1524,7 @@ exports.creditAmountToWalletBattle = async () => {
         let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
         todayDate = todayDate + "T00:00:00.000Z";
         const today = new Date(todayDate);
-
+        const setting = await Setting.find();
         const battle = await Battle.find({ status: "Completed", payoutStatus: "Not Started", battleEndTime: {$gte: today} });
 
         // console.log(battle.length, battle)
@@ -1588,6 +1589,8 @@ exports.creditAmountToWalletBattle = async () => {
 
                     if(preDefinedReward[preDefinedReward.length-1].rank >= i+1){
                         for(const elem of preDefinedReward){
+
+                            elem.reward = (elem.reward) - (elem.reward)*setting[0]?.tdsPercentage/100;
 
                             if(elem.rank === i+1){
                                 console.log("user in top", userBattleWise[i].userId, battle[j].battleName, elem.reward, elem.rank)
@@ -1727,7 +1730,9 @@ exports.creditAmountToWalletBattle = async () => {
                     } else{
                         const remainingInitialRank = rewardData.remainWinnerStart;
                         const finalRank = rewardData.totalWinner;
-                        const remainingReward = rewardData.remainingReward
+                        const remainingRewardWithoutTDS = rewardData.remainingReward
+
+                        const remainingReward = remainingRewardWithoutTDS - remainingRewardWithoutTDS*setting[0]?.tdsPercentage/100;
 
                         for(let k = remainingInitialRank; k <= finalRank; k++){
                             if(k === i+1){

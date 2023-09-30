@@ -10,7 +10,7 @@ const sendMail = require('../utils/emailService');
 const moment = require('moment');
 const mongoose = require('mongoose');
 const {createUserNotification} = require('../controllers/notification/notificationController');
-
+const Setting = require("../models/settings/setting")
 
 exports.overallPnl = async (req, res, next) => {
   let isRedisConnected = getValue();

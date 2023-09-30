@@ -73,11 +73,47 @@ const { creditAmountToWallet } = require("../../controllers/marginX/marginxContr
 const userWallet = require("../../models/UserWallet/userWalletSchema");
 const { processBattles } = require("../../controllers/battles/battleController")
 const Battle = require("../../models/battle/battle")
-const BattleMock = require("../../models/battle/battleTrade")
+const MarginX = require("../../models/marginX/marginX");
+const BattleMock = require("../../models/battle/battleTrade");
 
+router.get("/updateproduct", async (req, res) => {
+  try{
+    const subs = await TenxSubscription.updateMany({}, {product: new ObjectId('6517d3803aeb2bb27d650de0')});
+    const battles = await Battle.updateMany({}, {product: new ObjectId('6517d4623aeb2bb27d650de2')});
+    const interns = await InternBatch.updateMany({}, {product: new ObjectId('6517d46e3aeb2bb27d650de3')});
+    const contests = await DailyContest.updateMany({}, {product: new ObjectId('6517d48d3aeb2bb27d650de5')});
+    const marginx = await MarginX.updateMany({}, {product: new ObjectId('6517d40e3aeb2bb27d650de1')});
+  
+    res.send('done')
+  }catch(e){
+    console.log(e);
+    res.send('not done');
+  }
+})
 
+router.get("/tenxSubsRemovePayout", async (req, res) => {
 
+  const subs = await TenxSubscription.find();
+  const user = await UserDetail.find();
 
+  for (elem of subs) {
+    for (subelem of elem.users) {
+      if (subelem.payout < 0) {
+        subelem.payout = 0;
+      }
+    }
+    await elem.save();
+  }
+
+  for (elem of user) {
+    for (subelem of elem.subscription) {
+      if (subelem.payout < 0) {
+        subelem.payout = 0;
+      }
+    }
+    await elem.save();
+  }
+});
 
 router.get("/updaterankandpayoutcontest", async (req, res) => {
 
@@ -1224,8 +1260,8 @@ router.get("/data", async (req, res) => {
 
 
 router.get("/saveMissedData", async (req, res) => {
-  // await saveMissedData();
-  await saveDailyContestMissedData();
+  await saveMissedData();
+  // await saveDailyContestMissedData();
 
   res.send("ok")
 })
@@ -1693,7 +1729,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2023-09-21T00:00:00.000+00:00"
+  let expiryDate = "2023-09-28T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(
@@ -2195,6 +2231,9 @@ router.get("/insertDocument", async (req, res) => {
   res.send(getTrade)
 
 })
+
+
+
 
 module.exports = router;
 

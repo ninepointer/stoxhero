@@ -42,6 +42,8 @@ function PlatformSettings({settingData, setReRender, reRender}) {
   const [maxWithdrawalHigh, setMaxWithdrawalHigh] = useState(0);
   const [walletBalanceUpperLimit, setWalletBalanceUpperLimit] = useState(0);
   const [minWithdrawal, setMinWithdrawal] = useState(0);
+  const [gstPercentage, setGstPercentage] = useState(28);
+  const [tdsPercentage, setTdsPercentage] = useState(30);
   const [fund, setFund] = useState(0);
   const [usedMargin, setUsedMargin] = useState(0);
   const [accountData, setAccountData] = useState({
@@ -76,6 +78,8 @@ function PlatformSettings({settingData, setReRender, reRender}) {
       setMaxWithdrawal(settingData[0]?.maxWithdrawal)
       setMaxWithdrawalHigh(settingData[0]?.maxWithdrawalHigh)
       setWalletBalanceUpperLimit(settingData[0]?.walletBalanceUpperLimit)
+      setGstPercentage(settingData[0]?.gstPercentage)
+      setTdsPercentage(settingData[0]?.tdsPercentage)
       setMinWithdrawal(settingData[0]?.minWithdrawal)
       accountData.upiId = settingData[0]?.contest?.upiId
       accountData.email = settingData[0]?.contest?.email
@@ -157,6 +161,8 @@ function PlatformSettings({settingData, setReRender, reRender}) {
         maxWithdrawalHigh,
         walletBalanceUpperLimit,
         minWithdrawal,
+        gstPercentage,
+        tdsPercentage,
         upiId, email, mobile,
         appStartTime, timerStartTimeInStart, appEndTime, timerStartTimeInEnd
 
@@ -311,6 +317,42 @@ function PlatformSettings({settingData, setReRender, reRender}) {
           sx={{marginTop: "15px"}}
           // defaultValue={infinityPrice ? infinityPrice: settingData[0]?.infinityPrice}
           onChange={(e)=>{setMinWithdrawal(e.target.value)}}
+        />
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='Min Wallet Balance For Higher Limit'
+          fullWidth
+          type="number"
+          value={walletBalanceUpperLimit}
+          
+          sx={{marginTop: "15px"}}
+          // defaultValue={infinityPrice ? infinityPrice: settingData[0]?.infinityPrice}
+          onChange={(e)=>{setWalletBalanceUpperLimit(e.target.value)}}
+        />
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='GST Percentage'
+          fullWidth
+          type="number"
+          value={gstPercentage}
+          
+          sx={{marginTop: "15px"}}
+          // defaultValue={infinityPrice ? infinityPrice: settingData[0]?.infinityPrice}
+          onChange={(e)=>{setGstPercentage(e.target.value)}}
+        />
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='TDS Percentage'
+          fullWidth
+          type="number"
+          value={tdsPercentage}
+          
+          sx={{marginTop: "15px"}}
+          // defaultValue={infinityPrice ? infinityPrice: settingData[0]?.infinityPrice}
+          onChange={(e)=>{setTdsPercentage(e.target.value)}}
         />
         <TextField
           disabled={!editable}

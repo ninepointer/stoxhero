@@ -98,6 +98,10 @@ const TenXSubscription = new mongoose.Schema({
     allowRenewal:{
         type:Boolean,
         default: true
+    },
+    product:{
+        type: Schema.Types.ObjectId,
+        ref: 'product',
     }
 });
 
