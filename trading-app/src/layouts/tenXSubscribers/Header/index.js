@@ -140,9 +140,9 @@ return new Promise((resolve, reject) => {
     color="warning" 
     size="small"
     component={Link}
-    to='/contestdashboard'
+    to='/tenxdashboard'
     >
-        Back to Contest Dashboard
+        Back to TenX Dashboard
     </MDButton>
     
     <MDButton 
