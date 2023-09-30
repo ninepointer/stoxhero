@@ -529,12 +529,14 @@ exports.tradingDays = async (req, res, next) => {
 exports.autoExpireTenXSubscription = async () => {
   console.log("autoExpireSubscription running");
   const subscription = await Subscription.find();
+  const setting = await Setting.find();
 
   for (let i = 0; i < subscription.length; i++) {
     let users = subscription[i].users;
     let subscriptionId = subscription[i]._id
     let validity = subscription[i].validity;
-    let payoutPercentage = 10;
+    let payoutPercentage = subscription[i].payoutPercentage;
+    let expiryDays = subscription[i].expiryDays;
     for (let j = 0; j < users.length; j++) {
       const session = await mongoose.startSession();
       try{
@@ -659,7 +661,7 @@ exports.autoExpireTenXSubscription = async () => {
                     },
                     {
                       $subtract: [
-                        60,
+                        expiryDays,
                         {
                           $divide: [
                             {
@@ -721,7 +723,8 @@ exports.autoExpireTenXSubscription = async () => {
 
           let pnl = pnlDetails[0]?.npnl * payoutPercentage/100;
           let profitCap = subscription[i].profitCap;
-          let payoutAmount = Math.min(pnl, profitCap);
+          let payoutAmountWithoutTDS = Math.min(pnl, profitCap);
+          let payoutAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
     
 
           // console.log("payoutAmount", (payoutAmount > 0 && tradingDays[0]?.totalTradingDays === validity))
@@ -740,7 +743,7 @@ exports.autoExpireTenXSubscription = async () => {
                   user.subscription[k].status = "Expired";
                   user.subscription[k].expiredOn = new Date();
                   user.subscription[k].expiredBy = "System";
-                  user.subscription[k].payout = (payoutAmount?.toFixed(2)) 
+                  user.subscription[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0) 
                   console.log("this is user", user)
                   await user.save({session});
                   break;
@@ -755,7 +758,7 @@ exports.autoExpireTenXSubscription = async () => {
                   subs.users[k].status = "Expired";
                   subs.users[k].expiredOn = new Date();
                   subs.users[k].expiredBy = "System";
-                  subs.users[k].payout = (payoutAmount?.toFixed(2));
+                  subs.users[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0);
                   console.log("this is subs", subs)
                   await subs.save({session});
                   break;
