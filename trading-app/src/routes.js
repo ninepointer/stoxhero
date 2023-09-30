@@ -696,7 +696,7 @@ const routes = [
     key: "tradersMarginAllocation",
     // icon: <WalletIcon/>,
     route: "/tradersMarginAllocation",
-    component: <TradersMarginAllocation />,
+    component: <TradersMarginAllocation />
   },
   {
     type: "collapse",
