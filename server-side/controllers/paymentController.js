@@ -215,6 +215,10 @@ exports.initiatePayment = async (req, res) => {
         productId,
         paymentFor
     } = req.body;
+    console.log('all body params',amount,
+        redirectTo,
+        productId,
+        paymentFor);
     const setting = await Setting.find();
     let merchantId = process.env.PROD=='true' ? process.env.PHONEPE_MERCHANTID : process.env.PHONEPE_MERCHANTID_STAGING  ;
     let merchantTransactionId = generateUniqueTransactionId();

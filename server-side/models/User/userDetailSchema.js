@@ -341,7 +341,8 @@ const userDetailSchema = new mongoose.Schema({
     internshipBatch:[{
         type: Schema.Types.ObjectId,
         ref: "intern-batch"
-    }]
+    }],
+    gstAgreement:Boolean
 })
 
 //Adding the ninepointer id before saving

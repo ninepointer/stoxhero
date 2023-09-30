@@ -19,6 +19,7 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
+import {apiUrl} from '../../../constants/constants';
 
 // import MDTypography from '../../../components/MDTypography';
 // import { userContext } from '../../../AuthContext';
@@ -153,6 +154,15 @@ const Payment = ({ elem, setShowPay, showPay }) => {
   const amount = elem?.entryFee;
   const actualAmount = elem?.entryFee*setting.gstPercentage/100;
 
+  const initiatePayment = async() => {
+    try{
+      const res = await axios.post(`${apiUrl}payment/initiate`,{amount:Number(amount *100)+actualAmount*100, redirectTo:window.location.href, paymentFor:'Contest', productId: elem?._id},{withCredentials: true});
+      console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
+      window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
+  }catch(e){
+      console.log(e);
+  }
+  }
   return (
 
     <>
@@ -205,7 +215,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                         <FormControlLabel value="wallet" control={<Radio />} label="Pay from StoxHero Wallet" />
                         {value == 'wallet' && 
                         <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={2} >
-                          <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Brakdown</Typography>
+                          <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
                           <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{amount ? amount : 0}</Typography>
                           <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{0}</Typography>
                           <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(amount)}</Typography>
@@ -213,8 +223,8 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                         <FormControlLabel value="bank" control={<Radio />} label="Pay from Bank Account/UPI" />
                         {value == 'bank' &&
                           <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={0} >
-                            <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new regulations. Thanks for understanding and adjusting your transactions accordingly! </Typography>
-                            <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Brakdown</Typography>
+                            <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new government regulations. Thanks for understanding and adjusting your transactions accordingly! </Typography>
+                            <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
                             <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{amount ? amount : 0}</Typography>
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{actualAmount ? actualAmount : 0}</Typography>
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{actualAmount ? Number(amount) + actualAmount : 0}</Typography>
@@ -274,8 +284,8 @@ const Payment = ({ elem, setShowPay, showPay }) => {
           <MDButton color='error' onClick={handleClose} autoFocus>
             Close
           </MDButton>
-          <MDButton color={"success"} onClick={handleClose} autoFocus>
-            {`Pay ₹${actualAmount ? Number(amount) + actualAmount : 0} securly`}
+          <MDButton color={"success"} onClick={()=>initiatePayment()} autoFocus>
+            {`Pay ₹${actualAmount ? Number(amount) + actualAmount : 0} securely`}
           </MDButton>
         </DialogActions>}
       </Dialog>

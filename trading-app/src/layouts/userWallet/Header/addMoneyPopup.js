@@ -64,7 +64,7 @@ export default function AddMoney() {
 
   const initiatePayment = async() => {
     try{
-      const res = await axios.post(`${apiUrl}payment/initiate`,{amount:amount*100, redirectTo:window.location.href},{withCredentials: true});
+      const res = await axios.post(`${apiUrl}payment/initiate`,{amount: Number(amount*100) + actualAmount*100, redirectTo:window.location.href},{withCredentials: true});
       console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
       window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
   }catch(e){
@@ -101,10 +101,10 @@ export default function AddMoney() {
 
             <DialogContent>
 
-            <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new regulations. Thanks for understanding and adjusting your transactions accordingly! 
+            <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new government regulations. Thanks for understanding and adjusting your transactions accordingly! 
             </Typography>
             
-            <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Brakdown</Typography>
+            <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
             <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Wallet Top-up Amount: ₹{amount ? amount : 0}</Typography>
             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500,  }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Wallet Top-up: ₹{actualAmount ? actualAmount : 0}</Typography>
             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500,  }} color="#808080" variant="body2">Net Transaction Amount: ₹{actualAmount ? Number(amount) + actualAmount : 0}</Typography>

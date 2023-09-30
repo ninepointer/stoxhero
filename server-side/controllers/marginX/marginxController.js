@@ -909,9 +909,6 @@ exports.deductMarginXAmount = async (req, res, next) => {
 
 exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, marginXId) =>{
     try {
-        const { entryFee, marginXName, marginXId } = req.body
-        const userId = req.user._id;
-
         const marginx = await MarginX.findOne({ _id: marginXId }).populate('marginXTemplate', 'entryFee');
         const wallet = await Wallet.findOne({ userId: userId });
         const user = await User.findOne({ _id: userId });

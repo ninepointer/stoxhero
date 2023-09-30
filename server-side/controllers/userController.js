@@ -1006,3 +1006,13 @@ exports.getFilteredUsers = async(req,res,next) =>{
       });
   }
 }
+
+exports.understoodGst = async(req,res,next) =>{
+  try{
+    const user = await UserDetail.findByIdAndUpdate(req.user._id, {gstAgreement:true});
+    res.status(200).json({status:'success', message:'User understood GST Regulations'});
+  }catch(e){
+    console.log(e);
+    res.status(500).json({status:'error', message:'Something went wrong'});
+  }
+}

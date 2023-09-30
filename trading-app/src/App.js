@@ -361,7 +361,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
 
         </Routes>
-        <MessagePopUp socket={socket} />
+        <MessagePopUp socket={socket} userId={detailUser?._id} />
       </ThemeProvider>
   );
 } 

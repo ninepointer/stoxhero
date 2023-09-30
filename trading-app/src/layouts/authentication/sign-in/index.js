@@ -168,7 +168,7 @@ function Basic() {
             } 
             else if(userData.role?.roleName === userRole){
               const from = location.state?.from || "/stoxherodashboard";
-              navigate(from);
+              navigate(from,{ state: { showPopup: true } });
             }
             else if(userData.role?.roleName === InfinityTraderRole){
               navigate("/infinitytrading");

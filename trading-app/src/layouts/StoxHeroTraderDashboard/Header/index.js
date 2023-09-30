@@ -12,11 +12,12 @@ import UpcomingContest from '../data/ongoingContest'
 import DailyChallenge from '../data/dailyChallenge'
 import MDTypography from '../../../components/MDTypography';
 import MDButton from '../../../components/MDButton';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, useLocation} from 'react-router-dom';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import ContestCard from '../data/contestCard'
+import MessagePopUp from '../../../MessagePopup';
 
 
 export default function Dashboard() {
@@ -32,7 +33,10 @@ export default function Dashboard() {
   const [timeframe, setTimeframe] = useState('this month');
   const [tradeType, setTradeType] = useState('virtual');
   const [summary, setSummary] = useState();
+  const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
   const settings = {
     dots: true,
     infinite: true,
@@ -137,7 +141,13 @@ export default function Dashboard() {
   },[])
   useEffect(()=>{
     getTraderStats();
-  },[timeframe, tradeType])  
+  },[timeframe, tradeType]) 
+  
+  useEffect(() => {
+    if (location?.state && location?.state?.showPopup) {
+      setModalVisible(true);
+    }
+  }, [location.state]);
   const CarouselImages = [];
 
   carouselData.forEach((e) => {
@@ -241,7 +251,7 @@ export default function Dashboard() {
               {stats && <Performance tradingData={stats} timeframe={timeframe} setTimeframe={setTimeframe} tradeType={tradeType} setTradeType={setTradeType}/>}
             </MDBox>
           </Grid>
-
+        {modalVisible && <MessagePopUp/>}
         </Grid>
 
         </Grid>
