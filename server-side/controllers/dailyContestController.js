@@ -1703,10 +1703,26 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
     try {
         const { contestFee, contestName, contestId } = req.body
         const userId = req.user._id;
+        const result = await handleSubscriptionDeduction(userId, contestFee, contestName, contestId);
+        
+        res.status(200).json({
+            status: "success",
+            ...result
+        });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong..."
+        });
+    }
+}
 
-        const contest = await Contest.findOne({ _id: contestId });
+exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, contestId)=>{
+  const contest = await Contest.findOne({ _id: contestId });
         const wallet = await UserWallet.findOne({ userId: userId });
         const user = await User.findOne({ _id: userId });
+        
 
         const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
             return transaction.transactionType === "Cash";
@@ -1975,20 +1991,10 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           });
-
-        res.status(200).json({
-            status: "success",
+          return {
             message: "Paid successfully",
             data: result
-        });
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({
-            status: "error",
-            message: "Something went wrong",
-            error: error.message
-        });
-    }
+        };  
 }
 
 exports.getDailyContestAllUsers = async (req, res) => {

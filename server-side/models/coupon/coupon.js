@@ -6,7 +6,7 @@ const couponCodeSchema = new mongoose.Schema({
     required: true,
     unique: true,
     trim: true,
-    uppercase: true  // assuming all codes will be stored in uppercase for standardization
+    uppercase: true 
   },
   description: {
     type: String,

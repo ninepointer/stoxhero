@@ -26,6 +26,9 @@ const Payment = new mongoose.Schema({
     paymentFor: {
         type: String,
     },
+    productId:{
+        type: Schema.Types.ObjectId
+    },
     paymentMode: {
         type: String,
         // required: true,

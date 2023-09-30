@@ -106,11 +106,26 @@ exports.myWallet = async (req, res, next) => {
 
 
 exports.deductSubscriptionAmount = async(req,res,next) => {
-    let isRedisConnected = getValue();
     const userId = req.user._id;
     let {subscriptionAmount, subscriptionName, subscribedId} = req.body
+
+    try {
+        const result = await handleDeductSubscriptionAmount(userId, subscriptionAmount, subscriptionName, subscribedId);
+        res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Something went wrong...'
+        });
+    }
+}
+
+exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subscriptionName, subscribedId) => {
+    let isRedisConnected = getValue();
     // console.log("all three", subscriptionAmount, subscriptionName, subscribedId)
     const session = await mongoose.startSession();
+    let result = {};
     try{
         session.startTransaction();
         const subs = await Subscription.findOne({_id: new ObjectId(subscribedId)});
@@ -292,14 +307,23 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           }, session);
           await session.commitTransaction();
-        res.status(200).json({status: 'success', message: "Subscription purchased successfully", data: user});
+        
 
+          result = {
+            status: 'success',
+            message: "Subscription purchased successfully",
+            data: user
+        };
     }catch(e){
         console.log(e);
-        res.status(500).json({status: 'error', message: 'Something went wrong'});
+        result = {
+            status: 'error',
+            message: 'Something went wrong'
+        };
         await session.abortTransaction();
     }finally{
-      await session.endSession();
+        session.endSession();
+        return result;
     }
 }
 

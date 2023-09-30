@@ -9,6 +9,8 @@ const crypto = require('crypto');
 const mongoose = require('mongoose');
 const {createUserNotification} = require('../controllers/notification/notificationController');
 const Setting = require('../models/settings/setting');
+const {handleSubscriptionDeduction} = require('./dailyContestController');
+const Contest = require('../models/DailyContest/dailyContest');
 
 exports.createPayment = async(req, res, next)=>{
     // console.log(req.body)
@@ -203,7 +205,9 @@ exports.getUsers = async (req, res) => {
 exports.initiatePayment = async (req, res) => {
     const {
         amount,
-        redirectTo
+        redirectTo,
+        productId,
+        paymentFor
     } = req.body;
     const setting = await Setting.find();
     let merchantId = process.env.PHONEPE_MERCHANTID;
@@ -224,6 +228,8 @@ exports.initiatePayment = async (req, res) => {
             actionBy:req.user._id
         }],
         paymentBy:req.user?._id,
+        paymentFor,
+        productId,
         merchantTransactionId,
         createdOn: new Date(),
         createdBy: req.user._id,
@@ -391,8 +397,12 @@ exports.checkPaymentStatus = async(req,res, next) => {
                         actionDate: new Date(),
                         actionBy: '63ecbc570302e7cf0153370c'
                     });
-                if(payment.amount)    
-                await addMoneyToWallet(payment.amount-payment?.gstAmount, payment?.paymentBy);    
+                if(payment.amount == resp.data.data.amount/100){
+                    await addMoneyToWallet(payment.amount-payment?.gstAmount, payment?.paymentBy);
+                    if(payment?.paymentFor && payment?.productId){
+                        await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy);
+                    }    
+                }    
             }
         }else if(resp.data.code == 'PAYMENT_ERROR'){
             if(payment.paymentStatus != 'failed'){
@@ -429,4 +439,19 @@ const addMoneyToWallet = async (amount, userId) =>{
         transactionType: 'Cash'
     });
     await wallet.save({validateBeforeSave: false});
+}
+
+const participateUser = async (paymentFor, productId, paymentBy) => {
+    switch (paymentFor){
+        case 'Contest':
+            if(productId){
+                const contest = await Contest.findById(productId).select('entryFee contestName');
+                await handleSubscriptionDeduction(paymentBy, contest?.entryFee. constes?.contestName, contest?._id);
+            }
+            break;
+        case 'TenX':
+            break;
+        default:
+            break;
+    }
 }
