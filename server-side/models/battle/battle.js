@@ -88,6 +88,10 @@ const battleSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
     },
+    product:{
+        type: Schema.Types.ObjectId,
+        ref: 'product',
+    }
 })
 
 const battleData = mongoose.model("battle", battleSchema);

@@ -153,6 +153,10 @@ const contestSchema = new Schema({
         type:Boolean,
         required: true
     },
+    product:{
+        type: Schema.Types.ObjectId,
+        ref: 'product',
+    }
 
 })
 

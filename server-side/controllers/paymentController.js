@@ -210,11 +210,11 @@ exports.initiatePayment = async (req, res) => {
         paymentFor
     } = req.body;
     const setting = await Setting.find();
-    let merchantId = process.env.PHONEPE_MERCHANTID;
+    let merchantId = process.env.PROD=='true' ? process.env.PHONEPE_MERCHANTID : process.env.PHONEPE_MERCHANTID_STAGING  ;
     let merchantTransactionId = generateUniqueTransactionId();
     let merchantUserId = 'MUID'+ req.user._id;
-    let redirectUrl = `https://stoxhero.com/paymenttest/status?merchantTransactionId=${merchantTransactionId}&redirectTo=${redirectTo}`;
-    let callbackUrl = 'https://stoxhero.com/api/v1/payment/callback';
+    let redirectUrl = process.env.PROD == 'true'? `https://stoxhero.com/paymenttest/status?merchantTransactionId=${merchantTransactionId}&redirectTo=${redirectTo}` : `http://43.204.7.180/paymenttest/status?merchantTransactionId=${merchantTransactionId}&redirectTo=${redirectTo}`;
+    let callbackUrl = process.env.PROD == 'true'? 'https://stoxhero.com/api/v1/payment/callback':'http://43.204.7.180/api/v1/payment/callback' ;
     let redirectMode = 'REDIRECT'
     const payment = await Payment.create({
         paymentTime: new Date(),
@@ -253,14 +253,15 @@ exports.initiatePayment = async (req, res) => {
     };
 
     const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64');
-    const saltKey = process.env.PHONEPE_KEY; // This should be stored securely, not hardcoded
+    const saltKey = process.env.PROD=='true' ? process.env.PHONEPE_KEY : process.env.PHONEPE_KEY_STAGING ; // This should be stored securely, not hardcoded
     const saltIndex = '1';
     const toHash = `${encodedPayload}/pg/v1/pay${saltKey}`;
     
     const checksum = crypto.createHash('sha256').update(toHash).digest('hex') + '###' + saltIndex;
 
     try {
-        const response = await axios.post('https://api.phonepe.com/apis/hermes/pg/v1/pay', {
+        const payUrl = process.env.PROD=='true'? 'https://api.phonepe.com/apis/hermes/pg/v1/pay':'https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay'
+        const response = await axios.post(payUrl, {
             request: encodedPayload
         }, {
             headers: {
@@ -357,7 +358,7 @@ exports.handleCallback = async (req, res, next) => {
     }
 }
 
-const SALT_KEY = process.env.PHONEPE_KEY; // You may want to keep this in a secure environment variable or secret management tool.
+const SALT_KEY = process.env.PROD=='true' ? process.env.PHONEPE_KEY : process.env.PHONEPE_KEY_STAGING  ; // You may want to keep this in a secure environment variable or secret management tool.
 const SALT_INDEX = "1"; // This too could be managed securely if it's ever meant to change.
 
 const verifyChecksum = (encodedPayload, receivedChecksum) => {
@@ -372,14 +373,15 @@ exports.checkPaymentStatus = async(req,res, next) => {
     try{
         console.log('chekcing payment status-------------------------------------------------');
         const {merchantTransactionId} = req.params;
-        const merchantId = process.env.PHONEPE_MERCHANTID;
+        const merchantId = process.env.PROD=='true' ? process.env.PHONEPE_MERCHANTID : process.env.PHONEPE_MERCHANTID_STAGING ;
         const payment  = await Payment.findOne({merchantTransactionId});
         // console.log('payment', payment);
         const saltKey = process.env.PHONEPE_KEY; // This should be stored securely, not hardcoded
         const saltIndex = '1';
         const toHash = `/pg/v1/status/${merchantId}/${merchantTransactionId}`+ saltKey;
         const checksum = crypto.createHash('sha256').update(toHash).digest('hex') + '###' + saltIndex;
-        const resp = await axios.get(`https://api.phonepe.com/apis/hermes/pg/v1/status/${merchantId}/${merchantTransactionId}`,{
+        const checkStatusUrl = process.env.PROD=='true' ? `https://api.phonepe.com/apis/hermes/pg/v1/status/${merchantId}/${merchantTransactionId}`:`https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/${merchantId}/${merchantTransactionId}`;
+        const resp = await axios.get(checkStatusUrl,{
             headers: {
                 'Content-Type': 'application/json',
                 'X-VERIFY': checksum,
