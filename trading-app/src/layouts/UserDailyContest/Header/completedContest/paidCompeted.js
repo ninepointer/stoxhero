@@ -22,7 +22,7 @@ function Header({ contest }) {
         if (serverTime) {
             setTimeout(() => {
                 setIsLoading(false)
-            }, 1000)
+            }, 500)
         }
     }, [serverTime])
 
@@ -81,8 +81,6 @@ function Header({ contest }) {
 
     }
 
-
-
     async function handleNavigate(id, name) {
 
         axios.get(`${baseUrl}api/v1/dailycontest/trade/${id}/my/todayorders`, {
@@ -94,9 +92,6 @@ function Header({ contest }) {
             }
         })
             .then((res) => {
-                //   console.log(res.data)
-                //   setData(res.data.data);
-                // setCount(res.data.count);
                 if (res.data.count > 0) {
                     navigate(`/completedcontests/${name}`, {
                         state: { data: id }
@@ -104,12 +99,30 @@ function Header({ contest }) {
                 } else {
                     openSuccessSB("error", "You dont have any trade for this contest.")
                 }
-                //   setIsLoading(false)
             }).catch((err) => {
-                //window.alert("Server Down");
-                //   setTimeout(()=>{
-                //     setIsLoading(false)
-                //   },500) 
+                return new Error(err);
+            })
+    }
+
+    async function handleLeaderboardNavigate(id, name) {
+
+        axios.get(`${baseUrl}api/v1/dailycontest/contestleaderboard/${id}`, {
+            withCredentials: true,
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Credentials": true
+            }
+        })
+            .then((res) => {
+                if (res.data.count > 0) {
+                    navigate(`/completedcontests/${name}/leaderboard`, {
+                        state: { data: id }
+                    });
+                } else {
+                    openSuccessSB("error", "No leaderboard for this contest.")
+                }
+            }).catch((err) => {
                 return new Error(err);
             })
     }
@@ -251,9 +264,18 @@ function Header({ contest }) {
 
                                                     <Grid item mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='space-between' flexDirection='row' width='100%'>
-
-
-                                                            <MDBox display='flex' justifyContent='flex-start' width='50%'>
+                                                           
+                                                            <MDBox mt={1} display='flex' justifyContent='flex-start' width='50%'>
+                                                                <MDButton
+                                                                    variant='outlined'
+                                                                    color='warning'
+                                                                    size='small'
+                                                                    style={{width:'90%', fontSize:'10px'}}
+                                                                    component={Link}
+                                                                    onClick={() => { handleLeaderboardNavigate(elem?._id, elem?.contestName) }}
+                                                                >
+                                                                    <MDTypography color='warning' fontWeight='bold' fontSize={10}>LEADERBOARD</MDTypography>
+                                                                </MDButton>
                                                             </MDBox>
 
                                                             <MDBox mt={1} display='flex' justifyContent='flex-end' width='50%'>
@@ -261,12 +283,11 @@ function Header({ contest }) {
                                                                     variant='outlined'
                                                                     color='warning'
                                                                     size='small'
+                                                                    style={{width:'100%', fontSize:'10px'}}
                                                                     component={Link}
-
                                                                     onClick={() => { handleNavigate(elem?._id, elem?.contestName) }}
-
                                                                 >
-                                                                    <MDTypography color='warning' fontWeight='bold' fontSize={10}>VIEW ORDERS</MDTypography>
+                                                                    <MDTypography color='warning' fontWeight='bold' fontSize={10}>ORDER BOOK</MDTypography>
                                                                 </MDButton>
                                                             </MDBox>
                                                         </MDBox>

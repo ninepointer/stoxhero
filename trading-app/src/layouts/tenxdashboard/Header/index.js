@@ -5,18 +5,13 @@ import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Grid, CircularProgress, Divider} from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
-// import MDAvatar from '../../../components/MDAvatar';
-// import man from '../../../assets/images/man.png'
-// import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import { Link, useLocation } from "react-router-dom";
 import { suppressDeprecationWarnings } from 'moment';
-// import RunningPNLChart from '../data/runningpnlchart'
 
 //data
 import DailyTenXUsers from '../data/dailyTenXUsers'
 
 export default function LabTabs({socket}) {
-//   const [value, setValue] = React.useState('1');
   const [isLoading,setIsLoading] = useState(false);
   const [trackEvent, setTrackEvent] = useState({});
   const [lastTenXTradingDate, setLastTenXTradingDate] = useState("");
@@ -30,32 +25,22 @@ export default function LabTabs({socket}) {
   const [notliveTraderCount, setNotLiveTraderCount] = useState(0);
   const [notliveTraderCountYesterday, setNotLiveTraderCountYesterday] = useState(0);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-//   let liveDetailsArr = [];
   let totalTransactionCost = 0;
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
   let totalTurnover = 0;
   let totalLots = 0;
   let totalTrades = 0;
-//   let ytotalTransactionCost = 0;
-//   let ytotalGrossPnl = 0;
-//   let ytotalRunningLots = 0;
-//   let ytotalTurnover = 0;
-//   let ytotalLots = 0;
-//   let ytotalTrades = 0;
 
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/getliveprice`)
     .then((res) => {
-        //console.log("live price data", res)
         setMarketData(res.data);
-        // setDetails.setMarketData(data);
     }).catch((err) => {
         return new Error(err);
     })
 
     socket.on('tick', (data) => {
-    //   console.log("data from socket in instrument in parent in  mock", data);
       setMarketData(prevInstruments => {
         const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
         data.forEach(instrument => {
@@ -71,7 +56,6 @@ export default function LabTabs({socket}) {
 
   useEffect(()=>{
     socket.on('updatePnl', (data)=>{
-      // console.log("in the pnl event", data)
       setTimeout(()=>{
         setTrackEvent(data);
       })
@@ -83,10 +67,6 @@ export default function LabTabs({socket}) {
     axios.get(`${baseUrl}api/v1/tenxtrade/tenxoveralltraderpnltoday`)
     .then((res) => {
         setTradeData(res.data.data);
-        // setTimeout(()=>{
-        //     setIsLoading(false)
-        // },500)
-        
     }).catch((err) => {
         setIsLoading(false)
         return new Error(err);
@@ -95,10 +75,6 @@ export default function LabTabs({socket}) {
     .then((res) => {
         setNotLiveTraderCount(res.data.data[0].zeroLotsTraderCount)
         setLiveTraderCount(res.data.data[0].nonZeroLotsTraderCount)
-        // setTimeout(()=>{
-        //     setIsLoading(false)
-        // },500)
-        
     }).catch((err) => {
         setIsLoading(false)
         return new Error(err);
@@ -136,13 +112,6 @@ export default function LabTabs({socket}) {
   
     
   }, [trackEvent])
-
-
-//   useEffect(() => {
-//     return () => {
-//         socket.close();
-//     }
-//   }, [])
 
   tradeData.map((subelem, index)=>{
     totalRunningLots += Number(subelem?.lots)
@@ -403,7 +372,7 @@ export default function LabTabs({socket}) {
                         size="small" 
                         component = {Link}
                         to={{
-                            pathname: `/careerlist`,
+                            pathname: `/tenxdashboard/tenxsubscribers`,
                           }}
                       >
                           <Grid container>

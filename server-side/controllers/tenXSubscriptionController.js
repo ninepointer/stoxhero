@@ -145,8 +145,7 @@ exports.getInactiveTenXSubs = async(req, res, next)=>{
       
 };
 
-exports.
-getDraftTenXSubs = async(req, res, next)=>{
+exports.getDraftTenXSubs = async(req, res, next)=>{
   try{
       const tenXSubs = await TenXSubscription.find({status: "Draft"})
       .populate('portfolio', 'portfolioName portfolioValue')
@@ -987,6 +986,720 @@ exports.TenXLeaderboard = async(req, res, next)=>{
       res.status(201).json({status: 'success', data: tenxleaderboard});    
   }catch(e){
       console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
+exports.liveTenXSubscribers = async(req, res, next)=>{
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const subscribers = await TenXSubscription.aggregate(
+    [
+      {
+        $unwind: {
+          path: "$users",
+        },
+      },
+      {
+        $match: {
+          "users.status": "Live",
+        },
+      },
+    ]
+    );
+    
+  try{
+      const pipeline = 
+        [
+          {
+            $unwind: {
+              path: "$users",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-personal-details",
+              localField: "users.userId",
+              foreignField: "_id",
+              as: "subscriber",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-portfolios",
+              localField: "portfolio",
+              foreignField: "_id",
+              as: "portfolio_details",
+            },
+          },
+          {
+            $match: {
+              "users.status": "Live",
+            },
+          },
+          {
+            $project: {
+              _id: "$_id",
+              first_name: {
+                $arrayElemAt: [
+                  "$subscriber.first_name",
+                  0,
+                ],
+              },
+              last_name: {
+                $arrayElemAt: [
+                  "$subscriber.last_name",
+                  0,
+                ],
+              },
+              email: {
+                $arrayElemAt: [
+                  "$subscriber.email",
+                  0,
+                ],
+              },
+              mobile: {
+                $arrayElemAt: [
+                  "$subscriber.mobile",
+                  0,
+                ],
+              },
+              creationProcess: {
+                $arrayElemAt: [
+                  "$subscriber.creationProcess",
+                  0,
+                ],
+              },
+              plan_name: "$plan_name",
+              purchase_date: "$users.subscribedOn",
+              purchaseValue: "$users.fee",
+              plan_actual_price: "$actual_price",
+              plan_discounted_price: "$discounted_price",
+              portfolio: {
+                $arrayElemAt: [
+                  "$portfolio_details.portfolioValue",
+                  0,
+                ],
+              },
+              profitCap: "$profitCap",
+              validity: "$validity",
+              valodityPeriod: "$validityPeriod",
+              expiryDays: "$expiryDays",
+              payoutPercentage: "$payoutPercentage",
+              plan_status: "$status",
+            },
+          },
+          {
+            $sort : {
+              purchase_date : -1
+            }
+          }
+          ]
+      
+      const tenXSubscribers = await TenXSubscription.aggregate(pipeline).skip(skip).limit(limit);
+      const response = {
+        status: "success",
+        message: "Live TenX Subscribers Data fetched successfully",
+        data: tenXSubscribers,
+        count: subscribers.length,
+    };
+    res.status(200).json(response);
+  }catch(e){
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
+exports.expiredTenXSubscribers = async(req, res, next)=>{
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const subscribers = await TenXSubscription.aggregate(
+    [
+      {
+        $unwind: {
+          path: "$users",
+        },
+      },
+      {
+        $match: {
+          "users.status": "Expired",
+        },
+      },
+    ]
+    );
+    
+  try{
+      const pipeline = 
+        [
+          {
+            $unwind: {
+              path: "$users",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-personal-details",
+              localField: "users.userId",
+              foreignField: "_id",
+              as: "subscriber",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-portfolios",
+              localField: "portfolio",
+              foreignField: "_id",
+              as: "portfolio_details",
+            },
+          },
+          {
+            $match: {
+              "users.status": "Expired",
+            },
+          },
+          {
+            $project: {
+              _id: "$_id",
+              first_name: {
+                $arrayElemAt: [
+                  "$subscriber.first_name",
+                  0,
+                ],
+              },
+              last_name: {
+                $arrayElemAt: [
+                  "$subscriber.last_name",
+                  0,
+                ],
+              },
+              email: {
+                $arrayElemAt: [
+                  "$subscriber.email",
+                  0,
+                ],
+              },
+              mobile: {
+                $arrayElemAt: [
+                  "$subscriber.mobile",
+                  0,
+                ],
+              },
+              creationProcess: {
+                $arrayElemAt: [
+                  "$subscriber.creationProcess",
+                  0,
+                ],
+              },
+              plan_name: "$plan_name",
+              purchase_date: "$users.subscribedOn",
+              expiry_date: "$users.expiredOn",
+              payout: {$ifNull : ["$users.payout",0]},
+              purchaseValue: "$users.fee",
+              plan_actual_price: "$actual_price",
+              plan_discounted_price: "$discounted_price",
+              portfolio: {
+                $arrayElemAt: [
+                  "$portfolio_details.portfolioValue",
+                  0,
+                ],
+              },
+              profitCap: "$profitCap",
+              validity: "$validity",
+              valodityPeriod: "$validityPeriod",
+              expiryDays: "$expiryDays",
+              payoutPercentage: "$payoutPercentage",
+              plan_status: "$status",
+            },
+          },
+          {
+            $sort : {
+              expiry_date : -1
+            }
+          }
+          ]
+      
+      const tenXSubscribers = await TenXSubscription.aggregate(pipeline).skip(skip).limit(limit);
+      const response = {
+        status: "success",
+        message: "Expired TenX Subscribers Data fetched successfully",
+        data: tenXSubscribers,
+        count: subscribers.length,
+    };
+    res.status(200).json(response);
+  }catch(e){
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
+exports.downloadLiveTenXSubscribers = async(req, res, next)=>{
+    
+  try{
+      const pipeline = 
+        [
+          {
+            $unwind: {
+              path: "$users",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-personal-details",
+              localField: "users.userId",
+              foreignField: "_id",
+              as: "subscriber",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-portfolios",
+              localField: "portfolio",
+              foreignField: "_id",
+              as: "portfolio_details",
+            },
+          },
+          {
+            $match: {
+              "users.status": "Live",
+            },
+          },
+          {
+            $project: {
+              _id: "$_id",
+              first_name: {
+                $arrayElemAt: [
+                  "$subscriber.first_name",
+                  0,
+                ],
+              },
+              last_name: {
+                $arrayElemAt: [
+                  "$subscriber.last_name",
+                  0,
+                ],
+              },
+              email: {
+                $arrayElemAt: [
+                  "$subscriber.email",
+                  0,
+                ],
+              },
+              mobile: {
+                $arrayElemAt: [
+                  "$subscriber.mobile",
+                  0,
+                ],
+              },
+              creationProcess: {
+                $arrayElemAt: [
+                  "$subscriber.creationProcess",
+                  0,
+                ],
+              },
+              plan_name: "$plan_name",
+              purchase_date: "$users.subscribedOn",
+              purchaseValue: "$users.fee",
+              plan_actual_price: "$actual_price",
+              plan_discounted_price: "$discounted_price",
+              portfolio: {
+                $arrayElemAt: [
+                  "$portfolio_details.portfolioValue",
+                  0,
+                ],
+              },
+              profitCap: "$profitCap",
+              validity: "$validity",
+              valodityPeriod: "$validityPeriod",
+              expiryDays: "$expiryDays",
+              payoutPercentage: "$payoutPercentage",
+              plan_status: "$status",
+            },
+          },
+          {
+            $sort : {
+              purchase_date : -1
+            }
+          }
+          ]
+      
+      const tenXSubscribers = await TenXSubscription.aggregate(pipeline);
+      const response = {
+        status: "success",
+        message: "Live TenX Subscribers Data downloaded successfully",
+        data: tenXSubscribers,
+    };
+    res.status(200).json(response);
+  }catch(e){
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
+exports.downloadExpiredTenXSubscribers = async(req, res, next)=>{
+
+  const subscribers = await TenXSubscription.aggregate(
+    [
+      {
+        $unwind: {
+          path: "$users",
+        },
+      },
+      {
+        $match: {
+          "users.status": "Expired",
+        },
+      },
+    ]
+    );
+    
+  try{
+      const pipeline = 
+        [
+          {
+            $unwind: {
+              path: "$users",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-personal-details",
+              localField: "users.userId",
+              foreignField: "_id",
+              as: "subscriber",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-portfolios",
+              localField: "portfolio",
+              foreignField: "_id",
+              as: "portfolio_details",
+            },
+          },
+          {
+            $match: {
+              "users.status": "Expired",
+            },
+          },
+          {
+            $project: {
+              _id: "$_id",
+              first_name: {
+                $arrayElemAt: [
+                  "$subscriber.first_name",
+                  0,
+                ],
+              },
+              last_name: {
+                $arrayElemAt: [
+                  "$subscriber.last_name",
+                  0,
+                ],
+              },
+              email: {
+                $arrayElemAt: [
+                  "$subscriber.email",
+                  0,
+                ],
+              },
+              mobile: {
+                $arrayElemAt: [
+                  "$subscriber.mobile",
+                  0,
+                ],
+              },
+              creationProcess: {
+                $arrayElemAt: [
+                  "$subscriber.creationProcess",
+                  0,
+                ],
+              },
+              plan_name: "$plan_name",
+              purchase_date: "$users.subscribedOn",
+              expiry_date: "$users.expiredOn",
+              payout: {$ifNull : ["$users.payout",0]},
+              purchaseValue: "$users.fee",
+              plan_actual_price: "$actual_price",
+              plan_discounted_price: "$discounted_price",
+              portfolio: {
+                $arrayElemAt: [
+                  "$portfolio_details.portfolioValue",
+                  0,
+                ],
+              },
+              profitCap: "$profitCap",
+              validity: "$validity",
+              valodityPeriod: "$validityPeriod",
+              expiryDays: "$expiryDays",
+              payoutPercentage: "$payoutPercentage",
+              plan_status: "$status",
+            },
+          },
+          {
+            $sort : {
+              expiry_date : -1
+            }
+          }
+          ]
+      
+      const tenXSubscribers = await TenXSubscription.aggregate(pipeline);
+      const response = {
+        status: "success",
+        message: "Expired TenX Subscribers Data downloaded successfully",
+        data: tenXSubscribers,
+    };
+    res.status(200).json(response);
+  }catch(e){
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
+exports.tenXPurchaseToday = async(req, res, next)=>{
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+
+  const subscribers = await TenXSubscription.aggregate(
+    [
+      {
+        $unwind: {
+          path: "$users",
+        },
+      },
+      {
+        $match: {
+          "users.status": "Live",
+          "users.subscribedOn": {$gte : today}
+        },
+      },
+    ]
+    );
+    
+  try{
+      const pipeline = 
+        [
+          {
+            $unwind: {
+              path: "$users",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-personal-details",
+              localField: "users.userId",
+              foreignField: "_id",
+              as: "subscriber",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-portfolios",
+              localField: "portfolio",
+              foreignField: "_id",
+              as: "portfolio_details",
+            },
+          },
+          {
+            $match: {
+              "users.status": "Live",
+              "users.subscribedOn": {$gte : today}
+            },
+          },
+          {
+            $project: {
+              _id: "$_id",
+              first_name: {
+                $arrayElemAt: [
+                  "$subscriber.first_name",
+                  0,
+                ],
+              },
+              last_name: {
+                $arrayElemAt: [
+                  "$subscriber.last_name",
+                  0,
+                ],
+              },
+              email: {
+                $arrayElemAt: [
+                  "$subscriber.email",
+                  0,
+                ],
+              },
+              mobile: {
+                $arrayElemAt: [
+                  "$subscriber.mobile",
+                  0,
+                ],
+              },
+              creationProcess: {
+                $arrayElemAt: [
+                  "$subscriber.creationProcess",
+                  0,
+                ],
+              },
+              plan_name: "$plan_name",
+              purchase_date: "$users.subscribedOn",
+              purchaseValue: "$users.fee",
+              plan_actual_price: "$actual_price",
+              plan_discounted_price: "$discounted_price",
+              portfolio: {
+                $arrayElemAt: [
+                  "$portfolio_details.portfolioValue",
+                  0,
+                ],
+              },
+              profitCap: "$profitCap",
+              validity: "$validity",
+              valodityPeriod: "$validityPeriod",
+              expiryDays: "$expiryDays",
+              payoutPercentage: "$payoutPercentage",
+              plan_status: "$status",
+            },
+          },
+          {
+            $sort : {
+              purchase_date : -1
+            }
+          }
+          ]
+      
+      const tenXSubscribers = await TenXSubscription.aggregate(pipeline).skip(skip).limit(limit);
+      const response = {
+        status: "success",
+        message: "TenX Subscriptions Purchased Today Data fetched successfully",
+        data: tenXSubscribers,
+        count: subscribers.length,
+    };
+    res.status(200).json(response);
+  }catch(e){
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
+exports.tenXExpiredToday = async(req, res, next)=>{
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  const subscribers = await TenXSubscription.aggregate(
+    [
+      {
+        $unwind: {
+          path: "$users",
+        },
+      },
+      {
+        $match: {
+          "users.status": "Expired",
+          "users.expiredOn": {$gte : today}
+        },
+      },
+    ]
+    );
+    
+  try{
+      const pipeline = 
+        [
+          {
+            $unwind: {
+              path: "$users",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-personal-details",
+              localField: "users.userId",
+              foreignField: "_id",
+              as: "subscriber",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-portfolios",
+              localField: "portfolio",
+              foreignField: "_id",
+              as: "portfolio_details",
+            },
+          },
+          {
+            $match: {
+              "users.status": "Expired",
+              "users.expiredOn": {$gte : today}
+            },
+          },
+          {
+            $project: {
+              _id: "$_id",
+              first_name: {
+                $arrayElemAt: [
+                  "$subscriber.first_name",
+                  0,
+                ],
+              },
+              last_name: {
+                $arrayElemAt: [
+                  "$subscriber.last_name",
+                  0,
+                ],
+              },
+              email: {
+                $arrayElemAt: [
+                  "$subscriber.email",
+                  0,
+                ],
+              },
+              mobile: {
+                $arrayElemAt: [
+                  "$subscriber.mobile",
+                  0,
+                ],
+              },
+              creationProcess: {
+                $arrayElemAt: [
+                  "$subscriber.creationProcess",
+                  0,
+                ],
+              },
+              plan_name: "$plan_name",
+              purchase_date: "$users.subscribedOn",
+              expiry_date: "$users.expiredOn",
+              payout: {$ifNull : ["$users.payout",0]},
+              purchaseValue: "$users.fee",
+              plan_actual_price: "$actual_price",
+              plan_discounted_price: "$discounted_price",
+              portfolio: {
+                $arrayElemAt: [
+                  "$portfolio_details.portfolioValue",
+                  0,
+                ],
+              },
+              profitCap: "$profitCap",
+              validity: "$validity",
+              valodityPeriod: "$validityPeriod",
+              expiryDays: "$expiryDays",
+              payoutPercentage: "$payoutPercentage",
+              plan_status: "$status",
+            },
+          },
+          {
+            $sort : {
+              expiry_date : -1
+            }
+          }
+          ]
+      
+      const tenXSubscribers = await TenXSubscription.aggregate(pipeline).skip(skip).limit(limit);
+      const response = {
+        status: "success",
+        message: "TenX Subscription Expired Today Data fetched successfully",
+        data: tenXSubscribers,
+        count: subscribers.length,
+    };
+    res.status(200).json(response);
+  }catch(e){
       res.status(500).json({status: 'error', message: 'Something went wrong'});
   }     
 };
