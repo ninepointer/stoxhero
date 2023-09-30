@@ -451,6 +451,10 @@ const participateUser = async (paymentFor, productId, paymentBy) => {
             break;
         case 'TenX':
             break;
+        case 'MarginX':
+            break;
+        case 'Battle':
+            break;
         default:
             break;
     }
