@@ -111,7 +111,7 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
 
     try {
         const result = await handleDeductSubscriptionAmount(userId, subscriptionAmount, subscriptionName, subscribedId);
-        res.status(200).json(result);
+        res.status(result.statusCode).json(result.data);
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -141,16 +141,34 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         }
   
         if(amount < subscriptionAmount){
-          return res.status(404).json({status:'error', message: 'You do not have sufficient funds to purchase this subscription. Please add money to your wallet.'});
+            return {
+                statusCode:400,
+                data:{
+                status: "error",
+                message:"You do not have sufficient funds to purchase this subscription. Please add money to your wallet.",
+                }
+            };  
         }
         if(!subs.allowPurchase){
-            return res.status(404).json({status:'error', message: 'This subscription is no longer available for purchase or renewal. Please purchase a different plan.'});
+            return {
+                statusCode:400,
+                data:{
+                status: "error",
+                message:"This subscription is no longer available for purchase or renewal. Please purchase a different plan.",
+                }
+            };  
         }
 
         for(let i = 0; i < subs.users.length; i++){
             if(subs.users[i].userId.toString() == userId.toString() && subs.users[i].status == "Live"){
                 // console.log("getting that user")
-                return res.status(404).json({status:'error', message: 'You already have subscribed this subscription'});
+                return {
+                    statusCode:400,
+                    data:{
+                    status: "error",
+                    message:"You already have subscribed this subscription",
+                    }
+                };
                 // break;
             }
         }
@@ -200,7 +218,13 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         }
 
         if(!wallet){
-            return res.status(404).json({status:'error', message: 'No Wallet found'});
+            return {
+                statusCode:404,
+                data:{
+                status: "error",
+                message:"No Wallet found",
+                }
+            };
         } 
         let recipients = [user.email,'team@stoxhero.com'];
         let recipientString = recipients.join(",");
@@ -310,20 +334,26 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         
 
           result = {
-            status: 'success',
-            message: "Subscription purchased successfully",
-            data: user
+            statusCode:200,
+            data:{
+                status: 'success',
+                message: "Subscription purchased successfully",
+                data: user
+            }
         };
     }catch(e){
         console.log(e);
         result = {
-            status: 'error',
-            message: 'Something went wrong'
+            statusCode:200,
+            data:{
+                status: 'error',
+                message: 'Something went wrong'
+            }
         };
         await session.abortTransaction();
     }finally{
         session.endSession();
-        return result;
+        return {statusCode:200, data:result};
     }
 }
 

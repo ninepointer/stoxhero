@@ -10,7 +10,13 @@ const mongoose = require('mongoose');
 const {createUserNotification} = require('../controllers/notification/notificationController');
 const Setting = require('../models/settings/setting');
 const {handleSubscriptionDeduction} = require('./dailyContestController');
+const {handleDeductSubscriptionAmount} = require('./userWalletController');
+const {handleDeductMarginXAmount} = require('./marginX/marginxController');
+const {handleDeductBattleAmount} = require('./battles/battleController');
 const Contest = require('../models/DailyContest/dailyContest');
+const TenX = require('../models/TenXSubscription/TenXSubscriptionSchema');
+const MarginX = require('../models/marginX/marginX');
+const Battle = require('../models/battle/battle');
 
 exports.createPayment = async(req, res, next)=>{
     // console.log(req.body)
@@ -448,14 +454,26 @@ const participateUser = async (paymentFor, productId, paymentBy) => {
         case 'Contest':
             if(productId){
                 const contest = await Contest.findById(productId).select('entryFee contestName');
-                await handleSubscriptionDeduction(paymentBy, contest?.entryFee. constes?.contestName, contest?._id);
+                await handleSubscriptionDeduction(paymentBy, contest?.entryFee, contest?.contestName, contest?._id);
             }
             break;
         case 'TenX':
+            if(productId){
+                const tenx = await TenX.findById(productId).select('discounted_price plan_name');
+                await handleDeductSubscriptionAmount(paymentBy, tenx?.discounted_price, tenx?.plan_name, tenx?._id);
+            }
             break;
         case 'MarginX':
+            if(productId){
+                const marginX = await MarginX.findById(productId).populate('marginXTemplate', 'entryFee');
+                await handleDeductMarginXAmount(paymentBy, marginX?.marginXTemplate?.entryFee, marginX?.marginXName, marginX?._id);
+            }
             break;
         case 'Battle':
+            if(productId){
+                const battle = await Battle.findById(productId).select('_id');
+                await handleDeductBattleAmount(paymentBy, battle?._id);
+            }
             break;
         default:
             break;

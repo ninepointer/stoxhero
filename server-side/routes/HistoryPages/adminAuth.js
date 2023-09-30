@@ -73,9 +73,23 @@ const { creditAmountToWallet } = require("../../controllers/marginX/marginxContr
 const userWallet = require("../../models/UserWallet/userWalletSchema");
 const { processBattles } = require("../../controllers/battles/battleController")
 const Battle = require("../../models/battle/battle")
-const BattleMock = require("../../models/battle/battleTrade")
+const MarginX = require("../../models/marginX/marginX");
+const BattleMock = require("../../models/battle/battleTrade");
 
-
+router.get("/updateproduct", async (req, res) => {
+  try{
+    const subs = await TenxSubscription.updateMany({}, {product: new ObjectId('6517d3803aeb2bb27d650de0')});
+    const battles = await Battle.updateMany({}, {product: new ObjectId('6517d4623aeb2bb27d650de2')});
+    const interns = await InternBatch.updateMany({}, {product: new ObjectId('6517d46e3aeb2bb27d650de3')});
+    const contests = await DailyContest.updateMany({}, {product: new ObjectId('6517d48d3aeb2bb27d650de5')});
+    const marginx = await MarginX.updateMany({}, {product: new ObjectId('6517d40e3aeb2bb27d650de1')});
+  
+    res.send('done')
+  }catch(e){
+    console.log(e);
+    res.send('not done');
+  }
+})
 
 router.get("/tenxSubsRemovePayout", async (req, res) => {
 
@@ -2217,6 +2231,9 @@ router.get("/insertDocument", async (req, res) => {
   res.send(getTrade)
 
 })
+
+
+
 
 module.exports = router;
 

@@ -900,7 +900,14 @@ exports.participateUsers = async (req, res) => {
 };
 
 exports.deductMarginXAmount = async (req, res, next) => {
+    const userId = req.user._id;
+    const { entryFee, marginXName, marginXId } = req.body;
 
+    const result = await handleDeductMarginXAmount(userId, entryFee, marginXName, marginXId);
+    res.status(result.statusCode).json(result.data);
+}
+
+exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, marginXId) =>{
     try {
         const { entryFee, marginXName, marginXId } = req.body
         const userId = req.user._id;
@@ -918,12 +925,24 @@ exports.deductMarginXAmount = async (req, res, next) => {
         }, 0);
 
         if (totalCashAmount < marginx?.marginXTemplate?.entryFee) {
-            return res.status(404).json({ status: "error", message: "You do not have enough balance to join this marginx. Please add money to your wallet." });
+            return {
+                statusCode:400,
+                data:{
+                status: "error",
+                message:"You do not have enough balance to join this marginx. Please add money to your wallet.",
+                }
+            };
         }
 
         for (let i = 0; i < marginx?.participants?.length; i++) {
             if (marginx?.participants[i]?.userId?.toString() === userId?.toString()) {
-                return res.status(404).json({ status: "error", message: "You have already participated in this marginx" });
+                return {
+                    statusCode:400,
+                    data:{
+                    status: "error",
+                    message:"You have already participated in this marginx",
+                    }
+                };
             }
         }
 
@@ -932,7 +951,14 @@ exports.deductMarginXAmount = async (req, res, next) => {
                 marginx.potentialParticipants.push(userId);
                 marginx.save();
             }
-            return res.status(404).json({ status: "error", message: "The marginx is already full. We sincerely appreciate your enthusiasm. Please join another marginx" });
+            return {
+                statusCode:400,
+                data:{
+                status: "error",
+                message: "The marginx is already full. We sincerely appreciate your enthusiasm. Please join another marginx",
+                }
+            };
+
         }
 
         const result = await MarginX.findOne({ _id: new ObjectId(marginXId) });
@@ -960,7 +986,13 @@ exports.deductMarginXAmount = async (req, res, next) => {
         await wallet.save();
 
         if (!result || !wallet) {
-            return res.status(404).json({ status: "error", message: "Something went wrong." });
+            return {
+                statusCode:404,
+                data:{
+                status: "error",
+                message: "Not found"
+                }
+            };
         }
 
         let recipients = [user.email,'team@stoxhero.com'];
@@ -1067,20 +1099,29 @@ exports.deductMarginXAmount = async (req, res, next) => {
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           });
 
-        res.status(200).json({
-            status: "success",
-            message: "Paid successfully",
-            data: result
-        });
+          return {
+            statusCode:200,
+            data:{
+                status: "success",
+                message: "Paid successfully",
+                data: result
+            }
+        };
     } catch (error) {
-        console.log(error)
-        res.status(500).json({
+        console.log(error);
+        return {
+            statusCode:500,
+            data:{
             status: "error",
             message: "Something went wrong",
             error: error.message
-        });
+            }
+        };
     }
 }
+
+
+
 
 exports.findMarginXByName = async(req,res) => {
     try{
