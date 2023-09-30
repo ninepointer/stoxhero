@@ -51,7 +51,7 @@ export default function MessagePopUp({socket, userId}) {
     };
     const understood = async() =>{
       try{
-        const res = await axios.post(`${apiUrl}/user/understood`,{}, {withCredentials:true});
+        const res = await axios.post(`${apiUrl}user/understood`,{}, {withCredentials:true});
       }catch(e){
         console.log(e);
       }
