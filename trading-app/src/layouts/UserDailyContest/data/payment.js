@@ -193,7 +193,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                 <DialogContentText id="alert-dialog-description">
 
                   <MDBox display="flex" flexDirection="column"  >
-                    <Title variant={{ xs: "h2", md: "h3" }} style={{ color: "#000", fontWeight: "bold", marginTop: "6px" }} >Choose how to pay</Title>
+                    <Title variant={{ xs: "h2", md: "h3" }} style={{ color: "#000", fontWeight: "bold", marginTop: "6px", display:"flex", justifyContent:'center' }} >Choose how to pay</Title>
                     <FormControl>
                       <RadioGroup
                         aria-labelledby="payment-mode-label"
@@ -222,14 +222,14 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                       </RadioGroup>
                     </FormControl>
 
-                    <Grid container display="flex" flexDirection="row" justifyContent="center" alignContent={"center"} gap={2} >
+                    {/* <Grid container display="flex" flexDirection="row" justifyContent="center" alignContent={"center"} gap={2} >
                       <Grid container mt={2} xs={12} md={9} xl={12} lg={12}>
                         <Grid item xs={12} md={6} xl={9} lg={9} >
                           <TextField
                             // disabled={((isSubmitted || battle) && (!editing || saving))}
                             id="outlined-required"
-                            label='Amount'
-                            name='amount'
+                            label='Coupen Code'
+                            name='coupenCode'
                             fullWidth
                             value={amount}
                             onChange={(e) => { }}
@@ -243,7 +243,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                         </Grid>
                       </Grid>
 
-                    </Grid>
+                    </Grid> */}
 
                   </MDBox>
                 </DialogContentText>
