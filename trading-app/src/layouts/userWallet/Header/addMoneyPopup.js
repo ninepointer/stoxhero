@@ -101,7 +101,7 @@ export default function AddMoney() {
 
             <DialogContent>
 
-            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new regulations. Thanks for understanding and adjusting your transactions accordingly! 
+            <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new regulations. Thanks for understanding and adjusting your transactions accordingly! 
             </Typography>
             
             <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Brakdown</Typography>
@@ -111,7 +111,6 @@ export default function AddMoney() {
 
               <Grid container display="flex" flexDirection="row" justifyContent="start" >
                 <Grid container mt={0.5} xs={12} md={9} xl={12} lg={12}>
-                  {/* <MDTypography mt={4} ml={2}>Add Money To Wallet</MDTypography> */}
                   <Grid item xs={12} md={6} xl={12} lg={12} mt={2} >
                     <TextField
                       // disabled={((isSubmitted || battle) && (!editing || saving))}
