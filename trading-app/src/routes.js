@@ -186,6 +186,7 @@ import MarginX from "./layouts/marginX"
 import BattlePosition from "./layouts/battleTraderPosition";
 import BattleReport from "./layouts/battleReport";
 import DailyContestAnalytics from "./layouts/dailyContestAnalytics"
+import TenXSubscribers from "./layouts/tenXSubscribers"
 const routes = [
 
   {
@@ -302,6 +303,11 @@ const routes = [
     key: "dailycontestanalytics",
     route: "/contestdashboard/contestanalytics",
     component: <DailyContestAnalytics />,
+  },
+  {
+    key: "tenxsubscribers",
+    route: "/tenxdashboard/tenxsubscribers",
+    component: <TenXSubscribers />,
   },
   {
     key: "marginxreport",

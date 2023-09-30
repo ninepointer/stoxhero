@@ -160,14 +160,14 @@ const routes = [
     route: "/virtualtrading",
     component: <UserPosition />,
   },
-  {
-    type: "collapse",
-    name: "Battle Ground",
-    key: "battles",
-    icon: <LocalFireDepartmentIcon/>,
-    route: "/battles",
-    component: <Battle />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Battle Ground",
+  //   key: "battles",
+  //   icon: <LocalFireDepartmentIcon/>,
+  //   route: "/battles",
+  //   component: <Battle />,
+  // },
   {
     type: "collapse",
     name: "MarginXs",
