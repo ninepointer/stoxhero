@@ -896,7 +896,7 @@ exports.deductBattleAmount = async (req, res, next) => {
     const userId = req.user._id;
     const { battleId } = req.body;
 
-    const result = await handleDeductBattleAmount(userId, battleId);
+    const result = await exports.handleDeductBattleAmount(userId, battleId);
     res.status(result.statusCode).json(result.data);
     
 }

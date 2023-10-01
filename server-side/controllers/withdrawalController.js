@@ -484,7 +484,7 @@ exports.rejectWithdrawal = async(req,res,next) => {
                 <h1>Withdrawal Rejected</h1>
                 <p>Hello ${user.first_name},</p>
                 <p>Your withdrawal request for ₹${withdrawal.amount} is rejected by stoxhero.</p>
-                <p>Reason for rejection: <span class="userid">${rejectionReason}</span></p>
+                <p>Reason for rejection: <span class="userid">${req.body?.rejectionReason}</span></p>
                 <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
                 <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
                 <br/><br/>

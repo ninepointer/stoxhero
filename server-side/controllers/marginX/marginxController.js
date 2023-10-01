@@ -903,7 +903,7 @@ exports.deductMarginXAmount = async (req, res, next) => {
     const userId = req.user._id;
     const { entryFee, marginXName, marginXId } = req.body;
 
-    const result = await handleDeductMarginXAmount(userId, entryFee, marginXName, marginXId);
+    const result = await exports.handleDeductMarginXAmount(userId, entryFee, marginXName, marginXId);
     res.status(result.statusCode).json(result.data);
 }
 

@@ -110,7 +110,7 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
     let {subscriptionAmount, subscriptionName, subscribedId} = req.body
 
     try {
-        const result = await handleDeductSubscriptionAmount(userId, subscriptionAmount, subscriptionName, subscribedId);
+        const result = await exports.handleDeductSubscriptionAmount(userId, subscriptionAmount, subscriptionName, subscribedId);
         res.status(result.statusCode).json(result.data);
     } catch (error) {
         console.log(error);

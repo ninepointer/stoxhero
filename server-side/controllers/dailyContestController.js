@@ -1703,7 +1703,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
     try {
         const { contestFee, contestName, contestId } = req.body
         const userId = req.user._id;
-        const result = await handleSubscriptionDeduction(userId, contestFee, contestName, contestId);
+        const result = await exports.handleSubscriptionDeduction(userId, contestFee, contestName, contestId);
         
         res.status(result.stautsCode).json(result.data);
     } catch (error) {

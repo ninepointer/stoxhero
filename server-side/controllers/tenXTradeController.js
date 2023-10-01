@@ -744,6 +744,7 @@ exports.autoExpireTenXSubscription = async () => {
                   user.subscription[k].expiredOn = new Date();
                   user.subscription[k].expiredBy = "System";
                   user.subscription[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0) 
+                  user.subscription[k].tdsAmount = payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100; 
                   console.log("this is user", user)
                   await user.save({session});
                   break;
@@ -759,6 +760,7 @@ exports.autoExpireTenXSubscription = async () => {
                   subs.users[k].expiredOn = new Date();
                   subs.users[k].expiredBy = "System";
                   subs.users[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0);
+                  subs.users[k].tdsAmount = payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
                   console.log("this is subs", subs)
                   await subs.save({session});
                   break;

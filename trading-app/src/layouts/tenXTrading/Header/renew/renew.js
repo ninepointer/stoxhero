@@ -8,6 +8,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import axios from "axios";
+import { apiUrl } from '../../../../constants/constants';
 import paymentQr from '../../../../assets/images/paymentQrc.jpg';
 
 //icons
@@ -195,7 +196,16 @@ export default function Renew({amount, name, id, walletCash}) {
 
   const subs_amount = amount;
   const subs_actualAmount = amount*setting.gstPercentage/100;
-
+  const initiatePayment = async() => {
+    console.log('initiating');
+    try{
+      const res = await axios.post(`${apiUrl}payment/initiate`,{amount:Number(subs_amount*100) + subs_actualAmount*100, redirectTo:window.location.href, paymentFor:'TenX Renewal', productId:id},{withCredentials: true});
+      console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
+      window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
+  }catch(e){
+      console.log(e);
+  }
+  }
 
     return (
 
@@ -350,7 +360,7 @@ export default function Renew({amount, name, id, walletCash}) {
                       >
                         <FormControlLabel value="wallet" control={<Radio />} label="Pay from StoxHero Wallet" />
                         {value == 'wallet' &&
-                          <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={2} >
+                          <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={2} style={{minWidth:'40vw'}}>
                             <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
                             <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{subs_amount ? subs_amount : 0}</Typography>
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{0}</Typography>
@@ -363,7 +373,7 @@ export default function Renew({amount, name, id, walletCash}) {
                             <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
                             <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{subs_amount ? subs_amount : 0}</Typography>
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{subs_actualAmount ? subs_actualAmount : 0}</Typography>
-                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{subs_actualAmount ? Number(subs_amount) + subs_actualAmount : 0}</Typography>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(subs_amount) + subs_actualAmount}</Typography>
                           </MDBox>}
                       </RadioGroup>
                     </FormControl>
@@ -396,8 +406,8 @@ export default function Renew({amount, name, id, walletCash}) {
             <MDButton color='error' onClick={handleClose} autoFocus>
               Close
             </MDButton>
-            <MDButton color={"success"} onClick={handleClose} autoFocus>
-              {`Pay ₹${subs_actualAmount ? Number(subs_amount) + subs_actualAmount : 0} securely`}
+            <MDButton color={"success"} onClick={initiatePayment} autoFocus>
+              {`Pay ₹${Number(subs_amount) + subs_actualAmount} securely`}
             </MDButton>
           </DialogActions>}
       </Dialog>

@@ -13,6 +13,7 @@ const {handleSubscriptionDeduction} = require('./dailyContestController');
 const {handleDeductSubscriptionAmount} = require('./userWalletController');
 const {handleDeductMarginXAmount} = require('./marginX/marginxController');
 const {handleDeductBattleAmount} = require('./battles/battleController');
+const {handleSubscriptionRenewal} = require('./tenXSubscriptionController');
 const Contest = require('../models/DailyContest/dailyContest');
 const TenX = require('../models/TenXSubscription/TenXSubscriptionSchema');
 const MarginX = require('../models/marginX/marginX');
@@ -465,6 +466,12 @@ const participateUser = async (paymentFor, productId, paymentBy) => {
             if(productId){
                 const tenx = await TenX.findById(productId).select('discounted_price plan_name');
                 await handleDeductSubscriptionAmount(paymentBy, tenx?.discounted_price, tenx?.plan_name, tenx?._id);
+            }
+            break;
+        case 'TenX Renewal':
+            if(productId){
+                const tenx = await TenX.findById(productId).select('discounted_price plan_name');
+                await handleSubscriptionRenewal(paymentBy, tenx?.discounted_price, tenx?.plan_name, tenx?._id);
             }
             break;
         case 'MarginX':
