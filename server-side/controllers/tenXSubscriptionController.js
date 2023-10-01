@@ -809,6 +809,7 @@ exports.myActiveSubs = async(req, res, next)=>{
             plan_name: 1,
             expiryDays:1,
             features: 1,
+            discounted_price:1,
             payoutPercentage: 1,
             portfolioValue: {
               $arrayElemAt: [

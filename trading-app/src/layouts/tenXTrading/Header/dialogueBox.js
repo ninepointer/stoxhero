@@ -99,10 +99,10 @@ export default function Dialogue({ subscription, amount, name, id, walletCash, s
 
   useEffect(() => {
     let subscribed = (updatedUser?.subscription)?.filter((elem) => {
-      console.log("Return:", (elem?.subscriptionId?._id)?.toString(), (id)?.toString(), elem?.status,)
+      // console.log("Return:", (elem?.subscriptionId?._id)?.toString(), (id)?.toString(), elem?.status,)
       return (elem?.subscriptionId?._id)?.toString() === (id)?.toString() && elem?.status === "Live";
     })
-    console.log("Subscribed:", subscribed)
+    // console.log("Subscribed:", subscribed)
     if (subscribed?.length > 0) {
       setIsSubscribed(true);
     }
@@ -409,7 +409,7 @@ export default function Dialogue({ subscription, amount, name, id, walletCash, s
                             <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
                             <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{subs_amount ? subs_amount : 0}</Typography>
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{subs_actualAmount ? subs_actualAmount : 0}</Typography>
-                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{subs_actualAmount ? Number(subs_amount) + subs_actualAmount : 0}</Typography>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(subs_amount) + subs_actualAmount}</Typography>
                           </MDBox>}
                       </RadioGroup>
                     </FormControl>

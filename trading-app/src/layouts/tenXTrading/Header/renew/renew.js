@@ -38,7 +38,7 @@ export default function Renew({amount, name, id, walletCash}) {
   })
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-
+  // console.log('props', amount, name, walletCash, id);
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/loginDetail`, {
       withCredentials: true,
@@ -50,7 +50,7 @@ export default function Renew({amount, name, id, walletCash}) {
     })
     .then((res)=>{
       setUpdatedUser(res.data);
-      console.log("subscribed", res.data)
+      // console.log("subscribed", res.data)
       let subscribed = (res.data?.subscription)?.filter((elem)=>{
         return (elem?.subscriptionId?._id)?.toString() === (id)?.toString() && elem?.status === "Live";
       })
@@ -90,7 +90,7 @@ export default function Renew({amount, name, id, walletCash}) {
   };
 
   async function captureIntent(){
-    console.log(getDetails)
+    // console.log(getDetails)
     handleClickOpen();
     const res = await fetch(`${baseUrl}api/v1/tenX/capturepurchaseintent`, {
         method: "POST",
@@ -121,7 +121,7 @@ export default function Renew({amount, name, id, walletCash}) {
       })
     });
     const dataResp = await res.json();
-    console.log(dataResp);
+    // console.log(dataResp);
     if (dataResp.status === "error" || dataResp.error || !dataResp) {
         openSuccessSB("error", dataResp.message)
     } else {
@@ -196,6 +196,7 @@ export default function Renew({amount, name, id, walletCash}) {
 
   const subs_amount = amount;
   const subs_actualAmount = amount*setting.gstPercentage/100;
+  // console.log('amounts', subs_amount, amount, subs_actualAmount);
   const initiatePayment = async() => {
     console.log('initiating');
     try{
