@@ -492,11 +492,11 @@ exports.renewSubscription = async(req, res, next)=>{
   let isRedisConnected = getValue();
   const userId = req.user._id;
   const {subscriptionAmount, subscriptionName, subscriptionId} = req.body;
-  const result = await exports.handleSubscriptionRenewal(userId, subscriptionAmount, subscriptionName, subscriptionId);
+  const result = await exports.handleSubscriptionRenewal(userId, subscriptionAmount, subscriptionName, subscriptionId, isRedisConnected);
   res.status(result.statusCode).json(result.data);     
 };
 
-exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscriptionName, subscriptionId) =>{
+exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscriptionName, subscriptionId, isRedisConnected) =>{
   const today = new Date();
   const session = await mongoose.startSession();
   try{
