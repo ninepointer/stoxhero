@@ -1620,6 +1620,7 @@ exports.creditAmountToWalletBattle = async () => {
                                     if(subelem.userId.toString() === userBattleWise[i].userId.toString()){
                                         subelem.reward = elem.reward?.toFixed(2);
                                         subelem.rank = elem.rank;
+                                        subelem?.tdsAmount = (elem.reward)*setting[0]?.tdsPercentage/100;
                                     }
                                 }
         
@@ -1764,6 +1765,7 @@ exports.creditAmountToWalletBattle = async () => {
                                     if(subelem.userId.toString() === userBattleWise[i].userId.toString()){
                                         subelem.reward = remainingReward?.toFixed(2);
                                         subelem.rank = k;
+                                        subelem?.tdsAmount = remainingRewardWithoutTDS*setting[0]?.tdsPercentage/100;
                                     }
                                 }
         

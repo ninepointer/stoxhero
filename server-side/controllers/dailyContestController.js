@@ -1463,7 +1463,8 @@ exports.creditAmountToWallet = async () => {
                     await wallet.save();
                     const user = await User.findById(userId).select('first_name last_name email')
 
-                    contest[j].participants[i].payout = payoutAmount?.toFixed(2)
+                    contest[j].participants[i].payout = payoutAmount?.toFixed(2);
+                    contest[j].participants[i].tdsAmount = payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
                     if (process.env.PROD == 'true') {
                         emailService(user?.email, 'Contest Payout Credited - StoxHero', `
                         <!DOCTYPE html>

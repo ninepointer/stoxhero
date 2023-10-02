@@ -736,6 +736,7 @@ exports.creditAmountToWallet = async () => {
                         lastModifiedBy:'63ecbc570302e7cf0153370c'  
                       });
                     marginxs[j].participants[i].payout = payoutAmount?.toFixed(2);
+                    marginxs[j].participants[i].tdsAmount = payoutAmount*setting[0]?.tdsPercentage/100;
                     await marginxs[j].save();
                 }
             }
