@@ -20,6 +20,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import {apiUrl} from '../../../constants/constants';
+import MDSnackbar from '../../../components/MDSnackbar';
 
 // import MDTypography from '../../../components/MDTypography';
 // import { userContext } from '../../../AuthContext';
@@ -40,7 +41,51 @@ const Payment = ({ elem, setShowPay, showPay }) => {
     thanksMessege: "",
     error: ""
   })
+  const [title,setTitle] = useState('')
+  const [content,setContent] = useState('')
   const [value, setValue] = useState('wallet');
+  const [successSB, setSuccessSB] = useState(false);
+  const openSuccessSB = (title,content) => {
+  console.log('status success')  
+  setTitle(title)
+  setContent(content)
+  setSuccessSB(true);
+  }
+  const closeSuccessSB = () => setSuccessSB(false);
+  
+    const renderSuccessSB = (
+      <MDSnackbar
+          color="success"
+          icon="check"
+          title={title}
+          content={content}
+          open={successSB}
+          onClose={closeSuccessSB}
+          close={closeSuccessSB}
+          bgWhite="info"
+      />
+      );
+      
+      const [errorSB, setErrorSB] = useState(false);
+      const openErrorSB = (title,content) => {
+      setTitle(title)
+      setContent(content)
+      setErrorSB(true);
+      }
+      const closeErrorSB = () => setErrorSB(false);
+      
+      const renderErrorSB = (
+      <MDSnackbar
+          color="error"
+          icon="warning"
+          title={title}
+          content={content}
+          open={errorSB}
+          onClose={closeErrorSB}
+          close={closeErrorSB}
+          bgWhite
+      />
+      );
 
   const handleChange = (event) => {
     setValue(event.target.value);
@@ -122,7 +167,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
 
   const buySubscription = async () => {
     if (userWallet < elem.entryFee) {
-      return;
+      return openErrorSB('Low Balance','You don\'t have enough wallet balance for this purchase.');
     }
     const res = await fetch(`${baseUrl}api/v1/dailycontest/feededuct`, {
       method: "PATCH",
@@ -288,6 +333,8 @@ const Payment = ({ elem, setShowPay, showPay }) => {
             {`Pay ₹${ Number(amount) + actualAmount} securely`}
           </MDButton>
         </DialogActions>}
+        {renderSuccessSB}
+        {renderErrorSB}
       </Dialog>
     </>
   );

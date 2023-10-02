@@ -107,7 +107,7 @@ export default function Renew({amount, name, id, walletCash}) {
 
   const buySubscription = async () => {
     if(walletCash < amount){
-      return;
+      return openSuccessSB("error", "You don't have enough wallet balance for this purchase.");
     }
     const res = await fetch(`${baseUrl}api/v1/tenX/renew`, {
       method: "PATCH",
@@ -370,7 +370,7 @@ export default function Renew({amount, name, id, walletCash}) {
                         <FormControlLabel value="bank" control={<Radio />} label="Pay from Bank Account/UPI" />
                         {value == 'bank' &&
                           <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={0} >
-                            <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new government regulations. Thanks for understanding and adjusting your transactions accordingly! </Typography>
+                            <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new government regulations. However you don't need to pay anything extra. StoxHero will be taking care of the GST on your behalf.</Typography>
                             <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
                             <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{subs_amount ? subs_amount : 0}</Typography>
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{subs_actualAmount ? subs_actualAmount : 0}</Typography>

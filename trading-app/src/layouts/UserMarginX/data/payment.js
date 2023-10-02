@@ -19,6 +19,7 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import {apiUrl} from '../../../constants/constants';
+import MDSnackbar from '../../../components/MDSnackbar';
 
 
 const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
@@ -30,7 +31,50 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
     thanksMessege: "",
     error: ""
   })
-
+  const [title,setTitle] = useState('')
+  const [content,setContent] = useState('');
+  const [successSB, setSuccessSB] = useState(false);
+  const openSuccessSB = (title,content) => {
+  console.log('status success')  
+  setTitle(title)
+  setContent(content)
+  setSuccessSB(true);
+  }
+  const closeSuccessSB = () => setSuccessSB(false);
+  
+    const renderSuccessSB = (
+      <MDSnackbar
+          color="success"
+          icon="check"
+          title={title}
+          content={content}
+          open={successSB}
+          onClose={closeSuccessSB}
+          close={closeSuccessSB}
+          bgWhite="info"
+      />
+      );
+      
+      const [errorSB, setErrorSB] = useState(false);
+      const openErrorSB = (title,content) => {
+      setTitle(title)
+      setContent(content)
+      setErrorSB(true);
+      }
+      const closeErrorSB = () => setErrorSB(false);
+      
+      const renderErrorSB = (
+      <MDSnackbar
+          color="error"
+          icon="warning"
+          title={title}
+          content={content}
+          open={errorSB}
+          onClose={closeErrorSB}
+          close={closeErrorSB}
+          bgWhite
+      />
+      );
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
@@ -106,7 +150,7 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
 
   const buySubscription = async () => {
     if (userWallet < elem?.marginXTemplate?.entryFee) {
-      return;
+      return openErrorSB('Low Wallet Balance', 'You don\'t have enough wallet balance for this purchase');
     }
     const res = await fetch(`${baseUrl}api/v1/marginx/feededuct`, {
       method: "PATCH",
@@ -287,6 +331,8 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
               {`Pay ₹${Number(amount) + actualAmount} securely`}
             </MDButton>
           </DialogActions>}
+          {renderSuccessSB}
+          {renderErrorSB}
       </Dialog>
     </>
   );

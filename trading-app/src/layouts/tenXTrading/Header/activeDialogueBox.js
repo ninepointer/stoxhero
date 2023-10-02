@@ -31,6 +31,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 
 
+
 export default function Dialogue({subscription ,amount, name, id, walletCash, setCheckPayment, checkPayment, allowRenewal}) {
   const [open, setOpen] = React.useState(false);
   const getDetails = React.useContext(userContext);
@@ -42,6 +43,7 @@ export default function Dialogue({subscription ,amount, name, id, walletCash, se
     thanksMessege: ""
   });
   const [isLoading,setIsLoading] = useState(true)
+  
 
   const navigate = useNavigate();
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -132,7 +134,7 @@ export default function Dialogue({subscription ,amount, name, id, walletCash, se
 
   const buySubscription = async () => {
     if(walletCash < amount){
-      return;
+      return openSuccessSB("error", "You don't have enough wallet balance for this purchase.");
     }
 
     const res = await fetch(`${baseUrl}api/v1/userwallet/deduct`, {
