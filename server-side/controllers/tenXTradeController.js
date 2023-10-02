@@ -721,7 +721,10 @@ exports.autoExpireTenXSubscription = async () => {
           let pnl = pnlDetails[0]?.npnl * payoutPercentage/100;
           let profitCap = subscription[i].profitCap;
           let payoutAmountWithoutTDS = Math.min(pnl, profitCap);
-          let payoutAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
+          let payoutAmount = payoutAmountWithoutTDS;
+          if(payoutAmountWithoutTDS>users[j]?.fee){
+            payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100;
+          }
     
 
           // console.log("payoutAmount", (payoutAmount > 0 && tradingDays[0]?.totalTradingDays === validity))
@@ -741,7 +744,7 @@ exports.autoExpireTenXSubscription = async () => {
                   user.subscription[k].expiredOn = new Date();
                   user.subscription[k].expiredBy = "System";
                   user.subscription[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0) 
-                  user.subscription[k].tdsAmount = payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100; 
+                  user.subscription[k].tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0; 
                   console.log("this is user", user)
                   await user.save({session});
                   break;
@@ -757,7 +760,7 @@ exports.autoExpireTenXSubscription = async () => {
                   subs.users[k].expiredOn = new Date();
                   subs.users[k].expiredBy = "System";
                   subs.users[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0);
-                  subs.users[k].tdsAmount = payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
+                  subs.users[k].tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
                   console.log("this is subs", subs)
                   await subs.save({session});
                   break;

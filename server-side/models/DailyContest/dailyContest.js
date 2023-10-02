@@ -157,6 +157,7 @@ const contestSchema = new Schema({
     product:{
         type: Schema.Types.ObjectId,
         ref: 'product',
+        default:'6517d48d3aeb2bb27d650de5'
     }
 
 })

@@ -96,6 +96,7 @@ const marginXSchema = new Schema({
     product:{
         type: Schema.Types.ObjectId,
         ref: 'product',
+        default:'6517d40e3aeb2bb27d650de1'
     }
 })
 

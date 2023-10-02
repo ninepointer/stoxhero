@@ -1371,7 +1371,8 @@ exports.updateUserWallet = async () => {
             const referral = await referrals(user);
             const npnl = await pnl(users[i].user, batchId);
             const payoutAmountWithoutTDS = Math.min(npnl * payoutPercentage / 100, profitCap)
-            const creditAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
+            const creditAmount = payoutAmountWithoutTDS;
+            // const creditAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
 
             const wallet = await Wallet.findOne({ userId: new ObjectId(users[i].user) }).session(session);
   

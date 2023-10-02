@@ -621,8 +621,10 @@ exports.creditAmountToWallet = async () => {
                     console.log("in if ", payoutAmount)
                 }
                 if(payoutAmount >=0){
-
-                    let payoutAmount = payoutAmount - payoutAmount*setting[0]?.tdsPercentage/100;
+                    let payoutAmountAdjusted = payoutAmount;
+                    if(payoutAmount>entryFee){
+                        payoutAmountAdjusted = payoutAmount - (payoutAmount-entryFee)*setting[0]?.tdsPercentage/100;
+                    }
 
                     const wallet = await Wallet.findOne({ userId: userId });
                     console.log("second if", userId, pnlDetails[0], payoutAmount);
@@ -631,7 +633,7 @@ exports.creditAmountToWallet = async () => {
                         title: 'Marginx Credit',
                         description: `Amount credited for Marginx ${marginxs[j].marginXName}`,
                         transactionDate: new Date(),
-                        amount: payoutAmount?.toFixed(2),
+                        amount: payoutAmountAdjusted?.toFixed(2),
                         transactionId: uuid.v4(),
                         transactionType: 'Cash'
                     }];
@@ -709,7 +711,7 @@ exports.creditAmountToWallet = async () => {
                             <div class="container">
                             <h1>Amount Credited</h1>
                             <p>Hello ${user.first_name},</p>
-                            <p>Amount of ₹${payoutAmount?.toFixed(2)} has been credited in your wallet for ${marginxs[j].marginXName}.</p>
+                            <p>Amount of ₹${payoutAmountAdjusted?.toFixed(2)} has been credited in your wallet for ${marginxs[j].marginXName}.</p>
                             <p>You can now purchase Tenx and participate in various activities on stoxhero.</p>
                             
                             <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
@@ -725,7 +727,7 @@ exports.creditAmountToWallet = async () => {
                     }
                     await createUserNotification({
                         title:'MarginX Payout Credited',
-                        description:`₹${payoutAmount?.toFixed(2)} credited for your MarginX return`,
+                        description:`₹${payoutAmountAdjusted?.toFixed(2)} credited for your MarginX return`,
                         notificationType:'Individual',
                         notificationCategory:'Informational',
                         productCategory:'MarginX',
@@ -735,8 +737,8 @@ exports.creditAmountToWallet = async () => {
                         createdBy:'63ecbc570302e7cf0153370c',
                         lastModifiedBy:'63ecbc570302e7cf0153370c'  
                       });
-                    marginxs[j].participants[i].payout = payoutAmount?.toFixed(2);
-                    marginxs[j].participants[i].tdsAmount = payoutAmount*setting[0]?.tdsPercentage/100;
+                    marginxs[j].participants[i].payout = payoutAmountAdjusted?.toFixed(2);
+                    marginxs[j].participants[i].tdsAmount = payoutAmount>entryFee?((payoutAmount- entryFee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
                     await marginxs[j].save();
                 }
             }

@@ -3228,7 +3228,7 @@ exports.overallDailyContestPnlYesterday = async (req, res, next) => {
       let startTime = new Date(day.setHours(0, 0, 0, 0));
       let endTime = new Date(day.setHours(23, 59, 59, 999));
       date = startTime;
-
+      console.log('times', startTime, endTime)
       pnlDetailsData = await DailyContestLiveCompany.aggregate([
           {
               $match: {
@@ -3272,7 +3272,7 @@ exports.overallDailyContestPnlYesterday = async (req, res, next) => {
       const contest = await DailyContest.find({contestEndTime: {$gte: startTime, $lte: endTime}})
 
       if (!pnlDetailsData || pnlDetailsData.length === 0) {
-          pnlDetailsData = null;  // reset the value to ensure the while loop continues
+          pnlDetailsData = [];  // reset the value to ensure the while loop continues
           
           i++;  // increment the day counter
       }

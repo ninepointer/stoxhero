@@ -103,6 +103,7 @@ const TenXSubscription = new mongoose.Schema({
     product:{
         type: Schema.Types.ObjectId,
         ref: 'product',
+        default:'6517d3803aeb2bb27d650de0'
     }
 });
 

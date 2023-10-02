@@ -144,3 +144,31 @@ exports.verifyCouponCode = async (req, res) => {
     }
 };
 
+exports.getActiveProductCouponCodes = async(req,res,next) => {
+    try{
+        const {productId} = req.params;
+        let coupons = await Coupon.find({expiryDate:{$gte: new Date()}, status:'Active', eligibleProducts:{$in:[productId]} });
+
+        if(coupons.length == 0){
+            return res.status(404).json({
+                status: 'error',
+                message: "No coupons found for this product",
+            });
+        }
+
+        
+        if (!coupon) {
+            return res.status(404).json({
+                status: 'error',
+                message: "Coupon code not found.",
+            });
+        }
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            status: 'error',
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+}

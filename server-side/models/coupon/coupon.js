@@ -42,6 +42,17 @@ const couponCodeSchema = new mongoose.Schema({
     default: true
   },
   usedBy: [{
+    user:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user-personal-detail'
+    },
+    appliedOn:Date,
+    product:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'product'
+    },
+  }],
+  usedBySuccessful: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user-personal-detail'
   }],

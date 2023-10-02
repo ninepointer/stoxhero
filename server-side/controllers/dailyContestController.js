@@ -1446,7 +1446,10 @@ exports.creditAmountToWallet = async () => {
                 // console.log(pnlDetails[0]);
                 if (pnlDetails[0]?.npnl > 0) {
                     const payoutAmountWithoutTDS = pnlDetails[0]?.npnl * payoutPercentage / 100;
-                    const payoutAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
+                    let payoutAmount = payoutAmountWithoutTDS;
+                    if(payoutAmountWithoutTDS>contest[j].entryFee){
+                      payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-contest[j]?.entryFee)*setting[0]?.tdsPercentage/100;
+                    }
 
                     const wallet = await Wallet.findOne({ userId: userId });
 
@@ -1464,7 +1467,7 @@ exports.creditAmountToWallet = async () => {
                     const user = await User.findById(userId).select('first_name last_name email')
 
                     contest[j].participants[i].payout = payoutAmount?.toFixed(2);
-                    contest[j].participants[i].tdsAmount = payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
+                    contest[j].participants[i].tdsAmount = payoutAmountWithoutTDS-contest[j]?.entryFee>0?((payoutAmountWithoutTDS-contest[j]?.entryFee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
                     if (process.env.PROD == 'true') {
                         emailService(user?.email, 'Contest Payout Credited - StoxHero', `
                         <!DOCTYPE html>

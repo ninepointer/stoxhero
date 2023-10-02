@@ -92,6 +92,7 @@ const battleSchema = new Schema({
     product:{
         type: Schema.Types.ObjectId,
         ref: 'product',
+        default: '6517d4623aeb2bb27d650de2'
     }
 })
 

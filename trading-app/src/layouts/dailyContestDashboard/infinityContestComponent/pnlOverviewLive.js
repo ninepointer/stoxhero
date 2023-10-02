@@ -11,7 +11,7 @@ export default function PnlOverviewLive({socket}) {
     const [marketData, setMarketData] = useState([]);
     const [tradeData, setTradeData] = useState([]);
 
-    const [tradeDataYesterday, setTradeDataYesterday] = useState([]);
+    const [tradeDataYesterday, setTradeDataYesterday] = useState([{amount:0}]);
     const [tradeDataThisMonth, setTradeDataThisMonth] = useState([]);
     const [tradeDataLifetime, setTradeDataLifetime] = useState([]);
     const [liveTraderCount, setLiveTraderCount] = useState(0);
@@ -27,7 +27,7 @@ export default function PnlOverviewLive({socket}) {
     let totalTrades = 0;
     let totalAbsRunningLots = 0;
   
-
+    console.log('tradeData yesterday', tradeDataYesterday);
     useEffect(()=>{
         axios.get(`${baseUrl}api/v1/getliveprice`)
         .then((res) => {
@@ -99,7 +99,7 @@ export default function PnlOverviewLive({socket}) {
     
         axios.get(`${baseUrl}api/v1/dailycontest/live/overalltraderpnlyesterday`, {withCredentials: true})
         .then((res) => {
-            setTradeDataYesterday(res?.data?.data);
+            res?.data?.data && setTradeDataYesterday(res?.data?.data);
         }).catch((err) => {
             setIsLoading(false)
             return new Error(err);
