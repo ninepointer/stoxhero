@@ -10,7 +10,7 @@ const sendMail = require('../utils/emailService');
 const moment = require('moment');
 const mongoose = require('mongoose');
 const {createUserNotification} = require('../controllers/notification/notificationController');
-
+const Setting = require("../models/settings/setting")
 
 exports.overallPnl = async (req, res, next) => {
   let isRedisConnected = getValue();
@@ -109,9 +109,9 @@ exports.overallPnl = async (req, res, next) => {
 
 exports.myTodaysTrade = async (req, res, next) => {
 
-  let {subscription} = req.params;
-  subscription = JSON.parse(subscription);
-  let {subscriptionId} =  subscription;
+  let {subscriptionId} = req.params;
+  // subscription = JSON.parse(subscription);
+  // let {subscriptionId} =  subscription;
 
   const userId = req.user._id;
   let date = new Date();
@@ -137,10 +137,7 @@ exports.myTodaysTrade = async (req, res, next) => {
 
 exports.myHistoryTrade = async (req, res, next) => {
 
-  let {subscription, usersubscription} = req.params;
-  let {subscribedOn, expiredOn} = JSON.parse(usersubscription);
-  let {subscriptionId} = JSON.parse(subscription);
-
+  let {subscriptionId, subscribedOn, expiredOn  } = req.params;
   expiredOn = expiredOn && new Date(expiredOn);
   subscribedOn = subscribedOn && new Date(subscribedOn);
 
@@ -529,12 +526,14 @@ exports.tradingDays = async (req, res, next) => {
 exports.autoExpireTenXSubscription = async () => {
   console.log("autoExpireSubscription running");
   const subscription = await Subscription.find();
+  const setting = await Setting.find();
 
   for (let i = 0; i < subscription.length; i++) {
     let users = subscription[i].users;
     let subscriptionId = subscription[i]._id
     let validity = subscription[i].validity;
-    let payoutPercentage = 10;
+    let payoutPercentage = subscription[i].payoutPercentage;
+    let expiryDays = subscription[i].expiryDays;
     for (let j = 0; j < users.length; j++) {
       const session = await mongoose.startSession();
       try{
@@ -659,7 +658,7 @@ exports.autoExpireTenXSubscription = async () => {
                     },
                     {
                       $subtract: [
-                        60,
+                        expiryDays,
                         {
                           $divide: [
                             {
@@ -721,7 +720,8 @@ exports.autoExpireTenXSubscription = async () => {
 
           let pnl = pnlDetails[0]?.npnl * payoutPercentage/100;
           let profitCap = subscription[i].profitCap;
-          let payoutAmount = Math.min(pnl, profitCap);
+          let payoutAmountWithoutTDS = Math.min(pnl, profitCap);
+          let payoutAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
     
 
           // console.log("payoutAmount", (payoutAmount > 0 && tradingDays[0]?.totalTradingDays === validity))
@@ -740,7 +740,8 @@ exports.autoExpireTenXSubscription = async () => {
                   user.subscription[k].status = "Expired";
                   user.subscription[k].expiredOn = new Date();
                   user.subscription[k].expiredBy = "System";
-                  user.subscription[k].payout = (payoutAmount?.toFixed(2)) 
+                  user.subscription[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0) 
+                  user.subscription[k].tdsAmount = payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100; 
                   console.log("this is user", user)
                   await user.save({session});
                   break;
@@ -755,7 +756,8 @@ exports.autoExpireTenXSubscription = async () => {
                   subs.users[k].status = "Expired";
                   subs.users[k].expiredOn = new Date();
                   subs.users[k].expiredBy = "System";
-                  subs.users[k].payout = (payoutAmount?.toFixed(2));
+                  subs.users[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0);
+                  subs.users[k].tdsAmount = payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
                   console.log("this is subs", subs)
                   await subs.save({session});
                   break;

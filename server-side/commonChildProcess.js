@@ -104,6 +104,7 @@ async function commonProcess() {
     app.use('/api/v1', require("./routes/HistoryPages/adminAuth"));
     app.use('/api/v1', require("./routes/marginAllocation/marginAllocationAuth"));
     app.use('/api/v1/contest', require("./routes/contest/contestRoutes"));
+    app.use('/api/v1/pageview', require("./routes/pageView/pageView"));
     app.use('/api/v1/tradingholiday', require("./routes/tradingHoliday/tradingHolidayRoute"));
     app.use('/api/v1/contactus', require("./routes/contactUs/contactRoutes"));
     app.use('/api/v1/batch', require("./routes/stoxheroTrading/batchRoutes"));

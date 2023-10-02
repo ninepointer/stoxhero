@@ -14,6 +14,7 @@ const fs = require('fs');
 const path = require('path');
 const {PDFDocument} = require('pdf-lib');
 const {createUserNotification} = require('./notification/notificationController');
+const Setting = require("../models/settings/setting")
 
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
@@ -1397,7 +1398,7 @@ exports.creditAmountToWallet = async () => {
         const today = new Date(todayDate);
 
         const contest = await Contest.find({ contestStatus: "Completed", payoutStatus: null, contestEndTime: {$gte: today} });
-
+        const setting = await Setting.find();
         // console.log(contest.length, contest)
         for (let j = 0; j < contest.length; j++) {
             // if (contest[j].contestEndTime < new Date()) {
@@ -1444,7 +1445,9 @@ exports.creditAmountToWallet = async () => {
 
                 // console.log(pnlDetails[0]);
                 if (pnlDetails[0]?.npnl > 0) {
-                    const payoutAmount = pnlDetails[0]?.npnl * payoutPercentage / 100;
+                    const payoutAmountWithoutTDS = pnlDetails[0]?.npnl * payoutPercentage / 100;
+                    const payoutAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
+
                     const wallet = await Wallet.findOne({ userId: userId });
 
                     console.log(userId, pnlDetails[0]);
@@ -1460,7 +1463,8 @@ exports.creditAmountToWallet = async () => {
                     await wallet.save();
                     const user = await User.findById(userId).select('first_name last_name email')
 
-                    contest[j].participants[i].payout = payoutAmount?.toFixed(2)
+                    contest[j].participants[i].payout = payoutAmount?.toFixed(2);
+                    contest[j].participants[i].tdsAmount = payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
                     if (process.env.PROD == 'true') {
                         emailService(user?.email, 'Contest Payout Credited - StoxHero', `
                         <!DOCTYPE html>
@@ -1700,10 +1704,24 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
     try {
         const { contestFee, contestName, contestId } = req.body
         const userId = req.user._id;
+        const result = await exports.handleSubscriptionDeduction(userId, contestFee, contestName, contestId);
+        
+        res.status(result.stautsCode).json(result.data);
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong..."
+        });
+    }
+}
 
-        const contest = await Contest.findOne({ _id: contestId });
+exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, contestId)=>{
+  try{
+    const contest = await Contest.findOne({ _id: contestId });
         const wallet = await UserWallet.findOne({ userId: userId });
         const user = await User.findOne({ _id: userId });
+        
 
         const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
             return transaction.transactionType === "Cash";
@@ -1714,12 +1732,24 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
         }, 0);
 
         if (totalCashAmount < contest?.entryFee) {
-            return res.status(404).json({ status: "error", message: "You do not have enough balance to join this contest. Please add money to your wallet." });
+          return {
+            statusCode:400,
+            data:{
+            status: "error",
+            message:"You do not have enough balance to join this contest. Please add money to your wallet.",
+            }
+        };  
         }
 
         for (let i = 0; i < contest.participants?.length; i++) {
             if (contest.participants[i]?.userId?.toString() === userId?.toString()) {
-                return res.status(404).json({ status: "error", message: "You have already participated in this contest." });
+              return {
+                statusCode:400,
+                data:{
+                status: "error",
+                message:"You have already participated in this contest.",
+                }
+            };  
             }
         }
 
@@ -1728,7 +1758,13 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
                 contest.potentialParticipants.push(userId);
                 await contest.save();
             }
-            return res.status(404).json({ status: "error", message: "The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest." });
+            return {
+              statusCode:400,
+              data:{
+              status: "error",
+              message:"The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest.",
+              }
+          };  
         }
 
         const noOfContest = await Contest.aggregate([
@@ -1866,7 +1902,13 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
         await wallet.save();
 
         if (!result || !wallet) {
-            return res.status(404).json({ status: "error", message: "Something went wrong." });
+          return {
+            statusCode:404,
+            data:{
+            status: "error",
+            message:"Not found",
+            }
+        };  
         }
 
         let recipients = [user.email,'team@stoxhero.com'];
@@ -1972,20 +2014,24 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           });
-
-        res.status(200).json({
-            status: "success",
-            message: "Paid successfully",
-            data: result
-        });
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({
-            status: "error",
-            message: "Something went wrong",
-            error: error.message
-        });
-    }
+          return {
+            stautsCode:200,
+            data:{
+              status:'success',
+              message: "Paid successfully",
+              data: result
+            }
+        };  
+  }catch(e){
+    return {
+      stautsCode:500,
+      data:{
+        status:'error',
+        message: "Something went wrong",
+        error: e.message
+      }
+  };  
+  }
 }
 
 exports.getDailyContestAllUsers = async (req, res) => {

@@ -83,7 +83,8 @@ import DailyCollegeContestResultPage from "./layouts/UserDailyContestCollage/dat
 import BattleIcon from "./assets/images/swords.png"
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import Notifications from './layouts/userNotification';
-import CompletedContestLeaderboard from './layouts/UserDailyContest/Header/completedContest/completedContestLeaderboard'
+import CompletedContestLeaderboard from './layouts/UserDailyContest/Header/completedContest/completedContestLeaderboard';
+import PaymentStatus from "./layouts/paymentTest/paymentStatus";
 // import Challenge from './layouts/UserDailyChallenge'
 const routes = [
 
@@ -132,10 +133,6 @@ const routes = [
     route: "jobdescription",
     component: <JD />,
   },
-  // {
-  //   route: "home",
-  //   component: <Home />,
-  // },
   {
     route: "apply",
     component: <CareerForm />,
@@ -159,6 +156,14 @@ const routes = [
     icon: <MilitaryTechIcon/>,
     route: "/virtualtrading",
     component: <UserPosition />,
+  },
+  {
+    type: "collapse",
+    name: "TenX Trading",
+    key: "tenxtrading",
+    icon: <CurrencyRupeeIcon/>,
+    route: "/tenxtrading",
+    component: <TenXTrading />,
   },
   // {
   //   type: "collapse",
@@ -191,14 +196,6 @@ const routes = [
     icon: <SchoolIcon/>,
     route: "/collegecontests",
     component: <UserDailyContestCollage />,
-  },
-  {
-    type: "collapse",
-    name: "TenX Trading",
-    key: "tenxtrading",
-    icon: <CurrencyRupeeIcon/>,
-    route: "/tenxtrading",
-    component: <TenXTrading />,
   },
   {
     type: "collapse",
@@ -323,6 +320,14 @@ const routes = [
     key: "wallet",
     route: "/wallet",
     component: <UserWallet />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/paymenttest/status",
+    component: <PaymentStatus/>,
   },
   {
     key: "notifications",

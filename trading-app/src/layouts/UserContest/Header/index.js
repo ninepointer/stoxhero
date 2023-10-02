@@ -28,6 +28,23 @@ function LabTabs() {
     }, 500);
   };
 
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+    capturePageView()
+  }, []);
+  let page = 'Contest'
+  let pageLink = 'contests'
+  async function capturePageView(){
+        await fetch(`${baseUrl}api/v1/pageview/${page}/${pageLink}`, {
+        method: "POST",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+    });
+  }
+
   function history(){
     navigate("/battlestreet/history");
   }

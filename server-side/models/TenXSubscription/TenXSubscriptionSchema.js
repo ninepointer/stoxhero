@@ -68,7 +68,8 @@ const TenXSubscription = new mongoose.Schema({
         },
         isRenew: {type: Boolean},
         fee: {type: Number},
-        payout:{type:Number}
+        payout:{type:Number},
+        tdsAmount: {type: Number},
     }],
     status: {
         type: String,
@@ -98,6 +99,10 @@ const TenXSubscription = new mongoose.Schema({
     allowRenewal:{
         type:Boolean,
         default: true
+    },
+    product:{
+        type: Schema.Types.ObjectId,
+        ref: 'product',
     }
 });
 

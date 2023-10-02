@@ -893,11 +893,16 @@ const refundParticipant = async (userId, battleName, refundAmount) => {
 }
 
 exports.deductBattleAmount = async (req, res, next) => {
+    const userId = req.user._id;
+    const { battleId } = req.body;
 
+    const result = await exports.handleDeductBattleAmount(userId, battleId);
+    res.status(result.statusCode).json(result.data);
+    
+}
+
+exports.handleDeductBattleAmount = async(userId, battleId) =>{
     try {
-        const { battleId } = req.body
-        const userId = req.user._id;
-
         const battle = await Battle.findOne({ _id: new ObjectId(battleId) }).populate('battleTemplate', 'entryFee');
         const wallet = await Wallet.findOne({ userId: userId });
         const user = await User.findOne({ _id: userId });
@@ -911,12 +916,24 @@ exports.deductBattleAmount = async (req, res, next) => {
         }, 0);
 
         if (totalCashAmount < battle?.battleTemplate?.entryFee) {
-            return res.status(404).json({ status: "error", message: "You do not have enough balance to join this battle. Please add money to your wallet." });
+            return {
+                statusCode:400,
+                data:{
+                status: "error",
+                message:"You do not have enough balance to join this battle. Please add money to your wallet.",
+                }
+            };  
         }
 
         for (let i = 0; i < battle?.participants?.length; i++) {
             if (battle?.participants[i]?.userId?.toString() === userId?.toString()) {
-                return res.status(404).json({ status: "error", message: "You have already participated in this battle" });
+                return {
+                    statusCode:400,
+                    data:{
+                    status: "error",
+                    message:"You have already participated in this battle.",
+                    }
+                };  
             }
         }
 
@@ -945,7 +962,13 @@ exports.deductBattleAmount = async (req, res, next) => {
         const result = await Battle.findOne({ _id: new ObjectId(battleId) });
 
         if (!result || !wallet) {
-            return res.status(404).json({ status: "error", message: "Something went wrong." });
+            return {
+                statusCode:404,
+                data:{
+                status: "error",
+                message:"Not found",
+                }
+            };  
         }
 
         let obj = {
@@ -1061,19 +1084,24 @@ exports.deductBattleAmount = async (req, res, next) => {
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           });
-
-        res.status(200).json({
-            status: "success",
-            message: "Paid successfully",
-            data: result
-        });
+          return {
+            statusCode:200,
+            data:{
+                status: "success",
+                message: "Paid successfully",
+                data: result
+            }
+        };    
     } catch (error) {
         console.log(error)
-        res.status(500).json({
-            status: "error",
-            message: "Something went wrong",
-            error: error.message
-        });
+        return {
+            statusCode:500,
+            data:{
+                status: "error",
+                message: "Something went wrong",
+                error: error.message
+            }
+        };    
     }
 }
 

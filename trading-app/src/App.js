@@ -70,6 +70,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import { socketContext } from "./socketContext";
 import {Howl} from "howler";
 import sound from "./assets/sound/tradeSound.mp3"
+import MessagePopUp from "./MessagePopup";
 // import ContestRegistration from "./layouts/UserContest/data/ContestRegistration";
 
 
@@ -278,6 +279,7 @@ export default function App() {
             </>
           )}
         </ThemeProvider>
+        <MessagePopUp socket={socket} />
       </CacheProvider>
     
   ) : (
@@ -359,6 +361,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
 
         </Routes>
+        <MessagePopUp socket={socket} userId={detailUser?._id} />
       </ThemeProvider>
   );
 } 

@@ -41,7 +41,8 @@ const userDetailSchema = new mongoose.Schema({
     },
     last_name:{
         type: String,
-        required : true
+        // required : true
+        //todo-vijay
     },
     cohort:{
         type: String,
@@ -335,12 +336,18 @@ const userDetailSchema = new mongoose.Schema({
         },
         isRenew: {type: Boolean},
         fee: {type: Number},
-        payout:{type:Number}
+        payout:{type:Number},
+        tdsAmount:{type:Number},
     }],
     internshipBatch:[{
         type: Schema.Types.ObjectId,
         ref: "intern-batch"
-    }]
+    }],
+    gstAgreement:Boolean,
+    lastLoggedInDevice:{
+        deviceType: String,
+        deviceDetails: String
+    }
 })
 
 //Adding the ninepointer id before saving

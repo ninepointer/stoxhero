@@ -141,7 +141,7 @@ export default function TenXExpiredToday() {
             <MDTypography color="light" fontSize={10} fontWeight="bold">Purchase Value</MDTypography>
           </Grid>
           <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-            <MDTypography color="light" fontSize={10} fontWeight="bold">Portfolio</MDTypography>
+            <MDTypography color="light" fontSize={10} fontWeight="bold">Payout</MDTypography>
           </Grid>
         </Grid>
 
@@ -177,7 +177,7 @@ export default function TenXExpiredToday() {
                   <MDTypography color="light" fontSize={10} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.purchaseValue)}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDTypography color="light" fontSize={10} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio)}</MDTypography>
+                  <MDTypography color="light" fontSize={10} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.payout)}</MDTypography>
                 </Grid>
               </Grid>
 

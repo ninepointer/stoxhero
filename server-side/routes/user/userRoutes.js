@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
-const {getUsers, changePassword, editUser, deactivateUser, getdeactivateUser, getFilteredUsers} = require('../../controllers/userController');
+const {getUsers, changePassword, editUser, deactivateUser, getdeactivateUser, getFilteredUsers, understoodGst} = require('../../controllers/userController');
 
 const Authenticate = require('../../authentication/authentication');
 const restrictTo = require('../../authentication/authorization');
@@ -15,7 +15,7 @@ router.route('/').patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), editUse
 router.route('/deactivate').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), deactivateUser).get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getdeactivateUser)
 router.route('/searchuser').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getUsers);
 router.route('/filteredusers').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getFilteredUsers);
-
+router.route('/understood').post(Authenticate, understoodGst);
 router.route('/changepassword/me').patch(Authenticate, setCurrentUser, changePassword);
 router.route('/changepassword/:id').patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), changePassword);
 

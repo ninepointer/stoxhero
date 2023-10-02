@@ -12,6 +12,7 @@ const { ObjectId } = require("mongodb");
 const sendMail = require('../utils/emailService');
 const {createUserNotification} = require('./notification/notificationController');
 const mongoose = require('mongoose');
+const Setting = require("../models/settings/setting")
 
 
 exports.overallPnl = async (req, res, next) => {
@@ -1147,6 +1148,8 @@ exports.updateUserWallet = async () => {
  
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     // let todayDate = `2023-09-03`
+    const setting = await Setting.find();
+
 
     const internship = await Careers.aggregate([
       {
@@ -1367,8 +1370,9 @@ exports.updateUserWallet = async () => {
             const attendance = (tradingdays * 100) / (workingDays - holiday.length);
             const referral = await referrals(user);
             const npnl = await pnl(users[i].user, batchId);
-            const creditAmount = Math.min(npnl * payoutPercentage / 100, profitCap)
-  
+            const payoutAmountWithoutTDS = Math.min(npnl * payoutPercentage / 100, profitCap)
+            const creditAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
+
             const wallet = await Wallet.findOne({ userId: new ObjectId(users[i].user) }).session(session);
   
             // console.log( users[i].user, referral, creditAmount);

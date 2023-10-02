@@ -106,11 +106,26 @@ exports.myWallet = async (req, res, next) => {
 
 
 exports.deductSubscriptionAmount = async(req,res,next) => {
-    let isRedisConnected = getValue();
     const userId = req.user._id;
     let {subscriptionAmount, subscriptionName, subscribedId} = req.body
+
+    try {
+        const result = await exports.handleDeductSubscriptionAmount(userId, subscriptionAmount, subscriptionName, subscribedId);
+        res.status(result.statusCode).json(result.data);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Something went wrong...'
+        });
+    }
+}
+
+exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subscriptionName, subscribedId) => {
+    let isRedisConnected = getValue();
     // console.log("all three", subscriptionAmount, subscriptionName, subscribedId)
     const session = await mongoose.startSession();
+    let result = {};
     try{
         session.startTransaction();
         const subs = await Subscription.findOne({_id: new ObjectId(subscribedId)});
@@ -126,16 +141,34 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
         }
   
         if(amount < subscriptionAmount){
-          return res.status(404).json({status:'error', message: 'You do not have sufficient funds to purchase this subscription. Please add money to your wallet.'});
+            return {
+                statusCode:400,
+                data:{
+                status: "error",
+                message:"You do not have sufficient funds to purchase this subscription. Please add money to your wallet.",
+                }
+            };  
         }
         if(!subs.allowPurchase){
-            return res.status(404).json({status:'error', message: 'This subscription is no longer available for purchase or renewal. Please purchase a different plan.'});
+            return {
+                statusCode:400,
+                data:{
+                status: "error",
+                message:"This subscription is no longer available for purchase or renewal. Please purchase a different plan.",
+                }
+            };  
         }
 
         for(let i = 0; i < subs.users.length; i++){
             if(subs.users[i].userId.toString() == userId.toString() && subs.users[i].status == "Live"){
                 // console.log("getting that user")
-                return res.status(404).json({status:'error', message: 'You already have subscribed this subscription'});
+                return {
+                    statusCode:400,
+                    data:{
+                    status: "error",
+                    message:"You already have subscribed this subscription",
+                    }
+                };
                 // break;
             }
         }
@@ -185,7 +218,13 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
         }
 
         if(!wallet){
-            return res.status(404).json({status:'error', message: 'No Wallet found'});
+            return {
+                statusCode:404,
+                data:{
+                status: "error",
+                message:"No Wallet found",
+                }
+            };
         } 
         let recipients = [user.email,'team@stoxhero.com'];
         let recipientString = recipients.join(",");
@@ -292,14 +331,29 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           }, session);
           await session.commitTransaction();
-        res.status(200).json({status: 'success', message: "Subscription purchased successfully", data: user});
+        
 
+          result = {
+            statusCode:200,
+            data:{
+                status: 'success',
+                message: "Subscription purchased successfully",
+                data: user
+            }
+        };
     }catch(e){
         console.log(e);
-        res.status(500).json({status: 'error', message: 'Something went wrong'});
+        result = {
+            statusCode:200,
+            data:{
+                status: 'error',
+                message: 'Something went wrong'
+            }
+        };
         await session.abortTransaction();
     }finally{
-      await session.endSession();
+        session.endSession();
+        return {statusCode:200, data:result};
     }
 }
 
