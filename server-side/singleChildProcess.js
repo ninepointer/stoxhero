@@ -304,6 +304,7 @@ async function singleProcess() {
     app.use('/api/v1/marginx', require('./routes/marginx/marginxRoutes'));
     app.use('/api/v1/marginxtrade', require('./routes/marginx/marginxTradeRoute'));
     app.use('/api/v1/battletrade', require('./routes/battles/battleTradeRoute'));
+    app.use('/api/v1/pageview', require("./routes/pageView/pageView"));
 
     //  TODO toggle
     app.use('/api/v1/contestmaster', require("./routes/DailyContest/contestMaster"));

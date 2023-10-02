@@ -12,12 +12,14 @@ import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
 import TenXPurchaseToday from '../data/tenXPurchaseToday';
 import TenXExpiredToday from '../data/tenXExpiredToday';
+import TenXExpiredYesterday from '../data/tenXExpiredYesterday';
 import LiveTenXSubscribers from '../data/liveTenXSubscribers';
 import ExpiredTenXSubscribers from '../data/expiredTenXSubscribers';
 import moment from 'moment';
 import { saveAs } from 'file-saver';
 import { Grid } from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
+import TenXPurchasedYesterday from '../data/tenXPurchaseYesterday';
 
 export default function LabTabs() {
   const [value, setValue] = React.useState('1');
@@ -167,10 +169,10 @@ return new Promise((resolve, reject) => {
       <TabContext value={value}>
         <MDBox sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="TenX Purchased (Today)" value="1" />
-            <Tab label="Live TenX Subscribers" value="2" />
-            <Tab label="Expired TenX Subscribers" value="3" />
-            <Tab label="TenX Expired (Today)" value="4" />
+            <Tab label="TenX Subscriptions Purchased (T/Y)" value="1" />
+            <Tab label="All Live TenX Subscriptions" value="2" />
+            <Tab label="All Expired TenX Subscriptions" value="3" />
+            <Tab label="TenX Expired (T/Y)" value="4" />
           </TabList>
         </MDBox>
         <TabPanel value="1">
@@ -180,8 +182,23 @@ return new Promise((resolve, reject) => {
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <MDBox style={{minWidth:'100%'}}>
-            <TenXPurchaseToday/>
+          <MDBox>
+            <MDBox style={{minWidth:'100%'}}>
+              <MDBox mb={1} display='flex' justifyContent='center'>
+                <MDTypography fontSize={15} fontWeight='bold' color='light'>TenX Purchased Today</MDTypography>
+              </MDBox>
+              <MDBox>
+                <TenXPurchaseToday/>
+              </MDBox>
+            </MDBox>
+            <MDBox style={{minWidth:'100%'}}>
+              <MDBox mb={1} display='flex' justifyContent='center'>
+                <MDTypography fontSize={15} fontWeight='bold' color='light'>TenX Purchased Yesterday</MDTypography>
+              </MDBox>
+              <MDBox>
+                <TenXPurchasedYesterday/>
+              </MDBox>
+            </MDBox>
           </MDBox>
    
           }
@@ -219,10 +236,24 @@ return new Promise((resolve, reject) => {
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <MDBox style={{minWidth:'100%'}}>
-            <TenXExpiredToday/>
+          <MDBox>
+            <MDBox style={{minWidth:'100%'}}>
+              <MDBox mb={1} display='flex' justifyContent='center'>
+                <MDTypography fontSize={15} fontWeight='bold' color='light'>TenX Expired Today</MDTypography>
+              </MDBox>
+              <MDBox>
+                <TenXExpiredToday/>
+              </MDBox>
+            </MDBox>
+            <MDBox style={{minWidth:'100%'}}>
+              <MDBox mb={1} display='flex' justifyContent='center'>
+                <MDTypography fontSize={15} fontWeight='bold' color='light'>TenX Expired Yesterday</MDTypography>
+              </MDBox>
+              <MDBox>
+                <TenXExpiredYesterday/>
+              </MDBox>
+            </MDBox>
           </MDBox>
-   
           }
           </TabPanel>
       </TabContext>

@@ -18,6 +18,7 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import ContestCard from '../data/contestCard'
 import MessagePopUp from '../../../MessagePopup';
+import ReactGA from "react-ga"
 
 
 export default function Dashboard() {
@@ -36,6 +37,35 @@ export default function Dashboard() {
   const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+    capturePageView()
+  }, []);
+  let page = 'TraderDashboard'
+  let pageLink = window.location.pathname
+  async function capturePageView(){
+        await fetch(`${baseUrl}api/v1/pageview/${page}${pageLink}`, {
+        method: "POST",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+    });
+  }
+
+  async function captureCarouselClick(id){
+    console.log("Inside Capture Carousel Click")
+    await fetch(`${baseUrl}api/v1/carousels/carouselclick/${id}`, {
+    method: "PATCH",
+    credentials:"include",
+    headers: {
+        "content-type" : "application/json",
+        "Access-Control-Allow-Credentials": true
+    },
+});
+}
 
   const settings = {
     dots: true,
@@ -162,8 +192,8 @@ export default function Dashboard() {
 
   const handleButtonClick = (e) => {
     if (e?.clickable) {
-      console.log('/'+e?.linkToCarousel)
       navigate(`/${e?.linkToCarousel}`);
+      captureCarouselClick(e?._id);
     }
   }
 

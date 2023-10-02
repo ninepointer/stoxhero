@@ -49,10 +49,24 @@ export default function LabTabs() {
   const [dateWiseData, setDateWiseData] = useState([]);
   const[expected, setExpected] = useState([]);
   const[tradeType, setTradeType] = useState('virtual');
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
   useEffect(() => {
     ReactGA.pageview(window.location.pathname)
+    capturePageView()
   }, []);
+  let page = 'Analytics'
+  let pageLink = window.location.pathname
+  async function capturePageView(){
+        await fetch(`${baseUrl}api/v1/pageview/${page}${pageLink}`, {
+        method: "POST",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+    });
+  }
 
   let endpoint, trade ;
   if(alignment === paperTrading){
@@ -131,9 +145,7 @@ export default function LabTabs() {
       totalTradingDays +=1;
     }
   }
-  console.log(totalgpnl, totalnpnl, totalBrokerage, totalOrders, totalTradingDays, totalGreenDays, totalRedDays);
-  console.log("alignment", alignment)
-
+  
   return (
    
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>

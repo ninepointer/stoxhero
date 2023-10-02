@@ -1624,6 +1624,7 @@ exports.tenXExpiredToday = async(req, res, next)=>{
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
   let date = new Date();
+  // date.setDate(date.getDate() - 3);
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
@@ -1729,7 +1730,7 @@ exports.tenXExpiredToday = async(req, res, next)=>{
           },
           {
             $sort : {
-              expiry_date : -1
+              payout : -1
             }
           }
           ]
@@ -1738,6 +1739,269 @@ exports.tenXExpiredToday = async(req, res, next)=>{
       const response = {
         status: "success",
         message: "TenX Subscription Expired Today Data fetched successfully",
+        data: tenXSubscribers,
+        count: subscribers.length,
+    };
+    res.status(200).json(response);
+  }catch(e){
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
+exports.tenXExpiredYesterday = async(req, res, next)=>{
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  let yesterdayDate = `${(yesterday.getFullYear())}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`
+  yesterdayDate = yesterdayDate + "T00:00:00.000Z";
+  const dateyesterday = new Date(yesterdayDate)
+  const subscribers = await TenXSubscription.aggregate(
+    [
+      {
+        $unwind: {
+          path: "$users",
+        },
+      },
+      {
+        $match: {
+          "users.status": "Expired",
+          "users.expiredOn": {$gte : dateyesterday, $lt: today}
+        },
+      },
+    ]
+    );
+    
+  try{
+      const pipeline = 
+        [
+          {
+            $unwind: {
+              path: "$users",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-personal-details",
+              localField: "users.userId",
+              foreignField: "_id",
+              as: "subscriber",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-portfolios",
+              localField: "portfolio",
+              foreignField: "_id",
+              as: "portfolio_details",
+            },
+          },
+          {
+            $match: {
+              "users.status": "Expired",
+              "users.expiredOn": {$gte : dateyesterday, $lt: today}
+            },
+          },
+          {
+            $project: {
+              _id: "$_id",
+              first_name: {
+                $arrayElemAt: [
+                  "$subscriber.first_name",
+                  0,
+                ],
+              },
+              last_name: {
+                $arrayElemAt: [
+                  "$subscriber.last_name",
+                  0,
+                ],
+              },
+              email: {
+                $arrayElemAt: [
+                  "$subscriber.email",
+                  0,
+                ],
+              },
+              mobile: {
+                $arrayElemAt: [
+                  "$subscriber.mobile",
+                  0,
+                ],
+              },
+              creationProcess: {
+                $arrayElemAt: [
+                  "$subscriber.creationProcess",
+                  0,
+                ],
+              },
+              plan_name: "$plan_name",
+              purchase_date: "$users.subscribedOn",
+              expiry_date: "$users.expiredOn",
+              payout: {$ifNull : ["$users.payout",0]},
+              purchaseValue: "$users.fee",
+              plan_actual_price: "$actual_price",
+              plan_discounted_price: "$discounted_price",
+              portfolio: {
+                $arrayElemAt: [
+                  "$portfolio_details.portfolioValue",
+                  0,
+                ],
+              },
+              profitCap: "$profitCap",
+              validity: "$validity",
+              valodityPeriod: "$validityPeriod",
+              expiryDays: "$expiryDays",
+              payoutPercentage: "$payoutPercentage",
+              plan_status: "$status",
+            },
+          },
+          {
+            $sort : {
+              payout : -1
+            }
+          }
+          ]
+      
+      const tenXSubscribers = await TenXSubscription.aggregate(pipeline).skip(skip).limit(limit);
+      const response = {
+        status: "success",
+        message: "TenX Subscription Expired Yesterday Data fetched successfully",
+        data: tenXSubscribers,
+        count: subscribers.length,
+    };
+    res.status(200).json(response);
+  }catch(e){
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
+exports.tenXPurchaseYesterday = async(req, res, next)=>{
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  let yesterdayDate = `${(yesterday.getFullYear())}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`
+  yesterdayDate = yesterdayDate + "T00:00:00.000Z";
+  const dateyesterday = new Date(yesterdayDate)
+
+  const subscribers = await TenXSubscription.aggregate(
+    [
+      {
+        $unwind: {
+          path: "$users",
+        },
+      },
+      {
+        $match: {
+          "users.status": "Live",
+          "users.subscribedOn": {$gte : dateyesterday, $lt: today}
+        },
+      },
+    ]
+    );
+    
+  try{
+      const pipeline = 
+        [
+          {
+            $unwind: {
+              path: "$users",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-personal-details",
+              localField: "users.userId",
+              foreignField: "_id",
+              as: "subscriber",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-portfolios",
+              localField: "portfolio",
+              foreignField: "_id",
+              as: "portfolio_details",
+            },
+          },
+          {
+            $match: {
+              "users.status": "Live",
+              "users.subscribedOn": {$gte : dateyesterday, $lt: today}
+            },
+          },
+          {
+            $project: {
+              _id: "$_id",
+              first_name: {
+                $arrayElemAt: [
+                  "$subscriber.first_name",
+                  0,
+                ],
+              },
+              last_name: {
+                $arrayElemAt: [
+                  "$subscriber.last_name",
+                  0,
+                ],
+              },
+              email: {
+                $arrayElemAt: [
+                  "$subscriber.email",
+                  0,
+                ],
+              },
+              mobile: {
+                $arrayElemAt: [
+                  "$subscriber.mobile",
+                  0,
+                ],
+              },
+              creationProcess: {
+                $arrayElemAt: [
+                  "$subscriber.creationProcess",
+                  0,
+                ],
+              },
+              plan_name: "$plan_name",
+              purchase_date: "$users.subscribedOn",
+              purchaseValue: "$users.fee",
+              plan_actual_price: "$actual_price",
+              plan_discounted_price: "$discounted_price",
+              portfolio: {
+                $arrayElemAt: [
+                  "$portfolio_details.portfolioValue",
+                  0,
+                ],
+              },
+              profitCap: "$profitCap",
+              validity: "$validity",
+              valodityPeriod: "$validityPeriod",
+              expiryDays: "$expiryDays",
+              payoutPercentage: "$payoutPercentage",
+              plan_status: "$status",
+            },
+          },
+          {
+            $sort : {
+              purchase_date : -1
+            }
+          }
+          ]
+      
+      const tenXSubscribers = await TenXSubscription.aggregate(pipeline).skip(skip).limit(limit);
+      const response = {
+        status: "success",
+        message: "TenX Subscriptions Purchased Today Data fetched successfully",
         data: tenXSubscribers,
         count: subscribers.length,
     };

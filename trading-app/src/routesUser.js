@@ -133,10 +133,6 @@ const routes = [
     route: "jobdescription",
     component: <JD />,
   },
-  // {
-  //   route: "home",
-  //   component: <Home />,
-  // },
   {
     route: "apply",
     component: <CareerForm />,
@@ -160,6 +156,14 @@ const routes = [
     icon: <MilitaryTechIcon/>,
     route: "/virtualtrading",
     component: <UserPosition />,
+  },
+  {
+    type: "collapse",
+    name: "TenX Trading",
+    key: "tenxtrading",
+    icon: <CurrencyRupeeIcon/>,
+    route: "/tenxtrading",
+    component: <TenXTrading />,
   },
   // {
   //   type: "collapse",
@@ -192,14 +196,6 @@ const routes = [
     icon: <SchoolIcon/>,
     route: "/collegecontests",
     component: <UserDailyContestCollage />,
-  },
-  {
-    type: "collapse",
-    name: "TenX Trading",
-    key: "tenxtrading",
-    icon: <CurrencyRupeeIcon/>,
-    route: "/tenxtrading",
-    component: <TenXTrading />,
   },
   {
     type: "collapse",

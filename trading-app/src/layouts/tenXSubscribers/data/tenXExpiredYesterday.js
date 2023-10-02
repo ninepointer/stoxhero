@@ -20,10 +20,10 @@ export default function TenXExpiredToday() {
   const [count, setCount] = useState(0);
   const [isLoading,setIsLoading] = useState(false);
 
-  const [tenXExpiredToday, setTenXExpiredToday] = useState([]);
+  const [tenXExpiredYesterday, setTenXExpiredYesterday] = useState([]);
 
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/tenx/tenxexpiredtoday?skip=${skip}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/tenx/tenxexpiredyesterday?skip=${skip}&limit=${limitSetting}`,{
         withCredentials: true,
         headers: {
             Accept: "application/json",
@@ -32,7 +32,7 @@ export default function TenXExpiredToday() {
         },
     })
     .then((res) => {
-        setTenXExpiredToday(res.data.data)
+        setTenXExpiredYesterday(res.data.data)
         setCount(res.data.count)
         setTimeout(()=>{
             setIsLoading(false)
@@ -48,9 +48,9 @@ export default function TenXExpiredToday() {
         return;
     }
     setSkip(prev => prev-limitSetting);
-    setTenXExpiredToday([]);
+    setTenXExpiredYesterday([]);
     setIsLoading(true)
-    axios.get(`${baseUrl}api/v1/tenx/tenxexpiredtoday?skip=${skip-limitSetting}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/tenx/tenxexpiredyesterday?skip=${skip-limitSetting}&limit=${limitSetting}`,{
         withCredentials: true,
         headers: {
             Accept: "application/json",
@@ -59,7 +59,7 @@ export default function TenXExpiredToday() {
         },
     })
     .then((res) => {
-        setTenXExpiredToday(res.data.data)
+        setTenXExpiredYesterday(res.data.data)
         setCount(res.data.count)
         setTimeout(()=>{
             setIsLoading(false)
@@ -75,9 +75,9 @@ export default function TenXExpiredToday() {
       return;
     }
     setSkip(prev => prev+limitSetting);
-    setTenXExpiredToday([]);
+    setTenXExpiredYesterday([]);
     setIsLoading(true)
-    axios.get(`${baseUrl}api/v1/tenx/tenxexpiredtoday?skip=${skip+limitSetting}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/tenx/tenxexpiredyesterday?skip=${skip+limitSetting}&limit=${limitSetting}`,{
         withCredentials: true,
         headers: {
             Accept: "application/json",
@@ -86,7 +86,7 @@ export default function TenXExpiredToday() {
         },
     })
     .then((res) => {
-        setTenXExpiredToday(res.data.data)
+        setTenXExpiredYesterday(res.data.data)
         setCount(res.data.count)
         setTimeout(()=>{
             setIsLoading(false)
@@ -122,17 +122,17 @@ export default function TenXExpiredToday() {
           <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
             <MDTypography color="light" fontSize={10} fontWeight="bold">Subscriber Name</MDTypography>
           </Grid>
-          <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-            <MDTypography color="light" fontSize={10} fontWeight="bold">Email</MDTypography>
-          </Grid>
           <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
             <MDTypography color="light" fontSize={10} fontWeight="bold">Mobile</MDTypography>
           </Grid>
           <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
             <MDTypography color="light" fontSize={10} fontWeight="bold">Signup Method</MDTypography>
           </Grid>
-          <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+          <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
             <MDTypography color="light" fontSize={10} fontWeight="bold">Purchase Date</MDTypography>
+          </Grid>
+          <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+            <MDTypography color="light" fontSize={10} fontWeight="bold">Expiry Date</MDTypography>
           </Grid>
           <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
             <MDTypography color="light" fontSize={10} fontWeight="bold">TenX Plan</MDTypography>
@@ -147,7 +147,7 @@ export default function TenXExpiredToday() {
 
 
         {!isLoading ?
-          tenXExpiredToday?.map((elem,index) => {
+          tenXExpiredYesterday?.map((elem,index) => {
     
             return (
 
@@ -158,17 +158,17 @@ export default function TenXExpiredToday() {
                 <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDTypography color="light" fontSize={10} fontWeight="bold">{TruncatedName(elem?.first_name + ' ' + elem?.last_name)}</MDTypography>
                 </Grid>
-                <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.email}</MDTypography>
-                </Grid>
                 <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.mobile}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDTypography color={"light"} fontSize={10} fontWeight="bold">{elem?.creationProcess}</MDTypography>
                 </Grid>
-                <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDTypography color={"light"} fontSize={10} fontWeight="bold">{moment.utc(elem?.purchase_date).utcOffset('+05:30').format('DD-MMM hh:mm a')}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDTypography color={"light"} fontSize={10} fontWeight="bold">{moment.utc(elem?.expiry_date).utcOffset('+05:30').format('DD-MMM hh:mm a')}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDTypography color={"light"} fontSize={10} fontWeight="bold">{elem?.plan_name}</MDTypography>

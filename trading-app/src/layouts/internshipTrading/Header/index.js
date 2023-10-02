@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
@@ -6,11 +6,9 @@ import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { CircularProgress } from '@mui/material';
 import MDBox from '../../../components/MDBox';
+import ReactGA from "react-ga"
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
-// import ActiveBatches from '../data/activeBatches';
-// import CompletedBatches from '../data/completedBatches';
-// import InactiveBatches from '../data/inactiveBatches'
 import Internship from './internship'
 import Workshops from './workshops';
 
@@ -19,6 +17,25 @@ import Workshops from './workshops';
 export default function LabTabs() {
   const [value, setValue] = React.useState('1');
   const [isLoading,setIsLoading] = useState(false);
+
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+    capturePageView()
+  }, []);
+  let page = 'Internship'
+  let pageLink = window.location.pathname
+  async function capturePageView(){
+        await fetch(`${baseUrl}api/v1/pageview/${page}${pageLink}`, {
+        method: "POST",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+    });
+  }
 
   const handleChange = (event, newValue) => {
     setIsLoading(true)

@@ -1,6 +1,6 @@
 import React, {useState, useContext, useEffect} from "react"
 import { userContext } from "../../../AuthContext";
-
+import ReactGA from "react-ga"
 // prop-types is a library for typechecking of props.
 import PropTypes from "prop-types";
 
@@ -42,6 +42,24 @@ function ReferralHeader({ children }) {
   const [tabValue, setTabValue] = useState(0);
   const [isLoading,setIsLoading] = useState(false);
   const [thisMonthsReferral,setThisMonthsReferral] = useState();
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+    capturePageView()
+  }, []);
+  let page = 'Analytics'
+  let pageLink = window.location.pathname
+  async function capturePageView(){
+        await fetch(`${baseUrl}api/v1/pageview/${page}${pageLink}`, {
+        method: "POST",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+    });
+  }
 
   useEffect(() => {
     // A function that sets the orientation state of the tabs.

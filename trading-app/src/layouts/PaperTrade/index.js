@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef,useContext, useMemo, useReducer, use
 import { Chart } from 'chart.js/auto';
 // Chart.register(...registerables);
 import Grid from "@mui/material/Grid";
+import ReactGA from "react-ga"
 import MDBox from "../../components/MDBox";
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
@@ -22,19 +23,28 @@ import { socketContext } from "../../socketContext";
 function UserPosition() {
   const getDetails = useContext(userContext);
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
-  // let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
+  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
   const [watchList, setWatchList] = useState([]);
   const socket = useContext(socketContext);
-
-
-  // let socket;
-  // try {
-  //   socket = io.connect(`${baseUrl1}`)
-  // } catch (err) {
-  //   throw new Error(err);
-  // }
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   
-
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+    capturePageView()
+  }, []);
+  let page = 'VirtualTrading'
+  let pageLink = window.location.pathname
+  async function capturePageView(){
+        await fetch(`${baseUrl}api/v1/pageview/${page}${pageLink}`, {
+        method: "POST",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+    });
+  }
+  
 
   useEffect(() => {
     socket.emit('userId', getDetails.userDetails._id)

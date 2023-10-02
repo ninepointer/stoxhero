@@ -23,6 +23,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import DefaultCarouselImage from '../../assets/images/defaultcarousel.png'
 import OutlinedInput from '@mui/material/OutlinedInput';
+import CarouselClickedBy from './data/clickedByData'
 
 const ITEM_HEIGHT = 30;
 const ITEM_PADDING_TOP = 10;
@@ -74,7 +75,7 @@ function Index() {
           setIsLoading(false);
       },500)
 
-      axios.get(`${baseUrl}api/v1/carousels/${id}`, {withCredentials:true})
+      axios.get(`${baseUrl}api/v1/carousels/${id?._id}`, {withCredentials:true})
       .then((res)=>{
         setCarousel(res?.data?.data);
         setFormState({
@@ -514,61 +515,65 @@ function Index() {
         </Grid>
         </Grid>
 
-         <Grid container mt={2} xs={12} md={12} xl={12} >
-            <Grid item display="flex" justifyContent="flex-end" xs={12} md={6} xl={12}>
-                    {!isSubmitted && !id && (
-                    <>
-                    <MDButton 
-                        variant="contained" 
-                        color="success" 
-                        size="small" 
-                        sx={{mr:1, ml:2}} 
-                        disabled={creating} 
-                        onClick={(e)=>{onSubmit(e,formState)}}
-                        >
-                        {creating ? <CircularProgress size={20} color="inherit" /> : "Save"}
-                    </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={()=>{navigate("/carousel")}}>
-                        Cancel
-                    </MDButton>
-                    </>
-                    )}
-                    {(isSubmitted || id) && !editing && (
-                    <>
-                    <MDButton variant="contained" color="warning" size="small" sx={{mr:1, ml:2}} onClick={()=>{setEditing(true)}}>
-                        Edit
-                    </MDButton>
-                    <MDButton variant="contained" color="info" size="small" onClick={()=>{id ? navigate("/carousel") : setIsSubmitted(false)}}>
-                        Back
-                    </MDButton>
-                    </>
-                    )}
-                    {(isSubmitted || id) && editing && (
-                    <>
-                    <MDButton 
-                        variant="contained" 
-                        color="warning" 
-                        size="small" 
-                        sx={{mr:1, ml:2}} 
-                        disabled={saving} 
-                        // onClick={()=>{navigate("/carousel")}}
-                        onClick={(e)=>{onEdit(e,formState)}}
-                        >
-                        {saving ? <CircularProgress size={20} color="inherit" /> : "Save"}
-                    </MDButton>
-                    <MDButton 
-                        variant="contained" 
-                        color="error" 
-                        size="small" 
-                        disabled={saving} 
-                        onClick={()=>{setEditing(false)}}
-                        >
-                        Cancel
-                    </MDButton>
-                    </>
-                    )}
-            </Grid>
-         </Grid>
+        <Grid container mt={2} xs={12} md={12} xl={12} >
+          <Grid item display="flex" justifyContent="flex-end" xs={12} md={6} xl={12}>
+                  {!isSubmitted && !id && (
+                  <>
+                  <MDButton 
+                      variant="contained" 
+                      color="success" 
+                      size="small" 
+                      sx={{mr:1, ml:2}} 
+                      disabled={creating} 
+                      onClick={(e)=>{onSubmit(e,formState)}}
+                      >
+                      {creating ? <CircularProgress size={20} color="inherit" /> : "Save"}
+                  </MDButton>
+                  <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={()=>{navigate("/carousel")}}>
+                      Cancel
+                  </MDButton>
+                  </>
+                  )}
+                  {(isSubmitted || id) && !editing && (
+                  <>
+                  <MDButton variant="contained" color="warning" size="small" sx={{mr:1, ml:2}} onClick={()=>{setEditing(true)}}>
+                      Edit
+                  </MDButton>
+                  <MDButton variant="contained" color="info" size="small" onClick={()=>{id ? navigate("/carousel") : setIsSubmitted(false)}}>
+                      Back
+                  </MDButton>
+                  </>
+                  )}
+                  {(isSubmitted || id) && editing && (
+                  <>
+                  <MDButton 
+                      variant="contained" 
+                      color="warning" 
+                      size="small" 
+                      sx={{mr:1, ml:2}} 
+                      disabled={saving} 
+                      // onClick={()=>{navigate("/carousel")}}
+                      onClick={(e)=>{onEdit(e,formState)}}
+                      >
+                      {saving ? <CircularProgress size={20} color="inherit" /> : "Save"}
+                  </MDButton>
+                  <MDButton 
+                      variant="contained" 
+                      color="error" 
+                      size="small" 
+                      disabled={saving} 
+                      onClick={()=>{setEditing(false)}}
+                      >
+                      Cancel
+                  </MDButton>
+                  </>
+                  )}
+          </Grid>
+        </Grid>
+
+        <Grid container mt={1} xs={12} md={12} lg={12}>
+          <CarouselClickedBy carousel={carousel}/>
+        </Grid>
 
           {renderSuccessSB}
           {renderErrorSB}
