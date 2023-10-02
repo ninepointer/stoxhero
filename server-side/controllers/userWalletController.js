@@ -112,6 +112,7 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
     try {
         const result = await exports.handleDeductSubscriptionAmount(userId, subscriptionAmount, subscriptionName, subscribedId);
         res.status(result.statusCode).json(result.data);
+        console.log(result, result.statusCode, result.data);
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -353,7 +354,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         await session.abortTransaction();
     }finally{
         session.endSession();
-        return {statusCode:200, data:result};
+        return result;
     }
 }
 

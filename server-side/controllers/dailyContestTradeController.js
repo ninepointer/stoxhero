@@ -510,27 +510,12 @@ exports.myPnlAndPayout = async (req, res, next) => {
                     _id: 0,
                     contestId: "$_id.contestId",
                     rank: "$contestData.participants.rank",
+                    payoutAmount:"$contestData.participants.payout",
                     npnl: {
                         $subtract: ["$amount", "$brokerage"],
                     },
                     portfolioValue:
                         "$portfolioData.portfolioValue",
-                    payoutAmount: {
-                        $multiply: [
-                            "$contestData.payoutPercentage",
-                            {
-                                $divide: [
-                                    {
-                                        $subtract: [
-                                            "$amount",
-                                            "$brokerage",
-                                        ],
-                                    },
-                                    100,
-                                ],
-                            },
-                        ],
-                    },
                 },
             },
         ])
