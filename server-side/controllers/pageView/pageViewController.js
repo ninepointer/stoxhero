@@ -5,7 +5,6 @@ const PageView = require('../../models/pageViews/pageView');
 
 // Create a new contact
 exports.createPageView = async (req, res) => {
-    console.log(req.params)
     const page = req.params.page;
     const pageLink = req.params.pageLink;
     const userId = req.user._id;

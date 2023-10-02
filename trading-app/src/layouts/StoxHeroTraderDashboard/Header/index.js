@@ -55,6 +55,18 @@ export default function Dashboard() {
     });
   }
 
+  async function captureCarouselClick(id){
+    console.log("Inside Capture Carousel Click")
+    await fetch(`${baseUrl}api/v1/carousels/carouselclick/${id}`, {
+    method: "PATCH",
+    credentials:"include",
+    headers: {
+        "content-type" : "application/json",
+        "Access-Control-Allow-Credentials": true
+    },
+});
+}
+
   const settings = {
     dots: true,
     infinite: true,
@@ -180,8 +192,8 @@ export default function Dashboard() {
 
   const handleButtonClick = (e) => {
     if (e?.clickable) {
-      console.log('/'+e?.linkToCarousel)
       navigate(`/${e?.linkToCarousel}`);
+      captureCarouselClick(e?._id);
     }
   }
 
