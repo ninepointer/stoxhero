@@ -13,7 +13,7 @@ import MDButton from "../../../../components/MDButton";
 // Material Dashboard 2 React context
 import { useMaterialUIController } from "../../../../context";
 
-function Bill({ createdOn, name, mobile, email, vat,creditedOn,amount,color,totalCredit, noGutter }) {
+function Bill({ createdOn, name, mobile, email, vat,creditedOn,amount,color,totalCredit, noGutter, paymentStatus, paymentMode, utr }) {
   const [controller] = useMaterialUIController();
   const { darkMode } = controller;
 
@@ -23,21 +23,21 @@ function Bill({ createdOn, name, mobile, email, vat,creditedOn,amount,color,tota
       display="flex"
       justifyContent="space-between"
       alignItems="flex-start"
-      bgColor={darkMode ? "transparent" : "grey-100"}
+      bgColor={darkMode ? "transparent" : "dark"}
       borderRadius="lg"
-      p={3}
+      p={1}
       mb={noGutter ? 0 : 1}
-      mt={2}
+      mt={0.5}
     >
-      <MDBox width="100%" display="flex" flexDirection="column">
+      <MDBox p ={1} width="100%" display="flex" flexDirection="column">
         <MDBox
           display="flex"
           justifyContent="space-between"
           alignItems={{ xs: "flex-start", sm: "center" }}
           flexDirection={{ xs: "column", sm: "row" }}
-          mb={2}
+          mb={0.5}
         >
-          <MDTypography variant="button" fontWeight="medium" >
+          <MDTypography color='light' variant="button" fontWeight="medium" >
             {name} | {email} | {mobile}
           </MDTypography>
 
@@ -48,35 +48,60 @@ function Bill({ createdOn, name, mobile, email, vat,creditedOn,amount,color,tota
                 {amount}
               </MDButton>
             </MDBox>
-            <MDButton variant="text" color={darkMode ? "white" : "dark"}>
+            <MDButton variant="text" color={darkMode ? "dark" : "white"}>
               {/* <Icon>edit</Icon>&nbsp;edit */}
               {totalCredit}
             </MDButton>
           </MDBox>
         </MDBox>
         <MDBox mb={1} lineHeight={0}>
-          <MDTypography variant="caption" color="text">
+          <MDTypography variant="caption" color="light">
             Payment on:&nbsp;&nbsp;&nbsp;
-            <MDTypography variant="caption" fontWeight="medium">
+            <MDTypography variant="caption" color='light' fontWeight="medium">
               {creditedOn}
             </MDTypography>
           </MDTypography>
         </MDBox>
         <MDBox mb={1} lineHeight={0}>
-          <MDTypography variant="caption" color="text">
+          <MDTypography variant="caption" color="light">
             Created on:&nbsp;&nbsp;&nbsp;
-            <MDTypography variant="caption" fontWeight="medium">
+            <MDTypography variant="caption" color='light' fontWeight="medium">
               {createdOn}
             </MDTypography>
           </MDTypography>
         </MDBox>
-
-        <MDTypography variant="caption" color="text">
+        <MDBox mb={1} lineHeight={0}>
+        <MDTypography variant="caption" color="light">
           Transaction ID:&nbsp;&nbsp;&nbsp;
-          <MDTypography variant="caption" fontWeight="medium">
+          <MDTypography variant="caption" color='light' fontWeight="medium">
             {vat}
           </MDTypography>
         </MDTypography>
+        </MDBox>
+        <MDBox mb={1} lineHeight={0}>
+        <MDTypography variant="caption" color="light">
+          Payment Status:&nbsp;&nbsp;&nbsp;
+          <MDTypography variant="caption" color='light' fontWeight="medium">
+            {paymentStatus}
+          </MDTypography>
+        </MDTypography>
+        </MDBox>
+        <MDBox mb={1} lineHeight={0}>
+        <MDTypography variant="caption" color="light">
+          Payment Mode:&nbsp;&nbsp;&nbsp;
+          <MDTypography variant="caption" color='light' fontWeight="medium">
+            {paymentMode}
+          </MDTypography>
+        </MDTypography>
+        </MDBox>
+        <MDBox mb={1} lineHeight={0}>
+        <MDTypography variant="caption" color="light">
+          UTR Number:&nbsp;&nbsp;&nbsp;
+          <MDTypography variant="caption" color='light' fontWeight="medium">
+            {utr}
+          </MDTypography>
+        </MDTypography>
+        </MDBox>
       </MDBox>
     </MDBox>
   );
