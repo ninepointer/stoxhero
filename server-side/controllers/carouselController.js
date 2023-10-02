@@ -543,10 +543,9 @@ exports.getActiveCarousels = async (req, res, next)=>{
 exports.saveCarouselClick = async (req, res) => {
   try {
       const { id } = req.params; // ID of the Carousel 
-      console.log(id);
       const userId = req.user._id;
       const result = await Carousel.findByIdAndUpdate(
-          ObjectId(id),
+          new ObjectId(id),
           { $push: { clickedBy: { userId: userId, clickedOn: new Date() } } },
           { new: true }  // This option ensures the updated document is returned
       );
