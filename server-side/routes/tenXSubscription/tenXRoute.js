@@ -49,8 +49,8 @@ router.route('/subscribercount/:id').get(Authenticate, SubsUserCount);
 router.route('/removefeature/:id').patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), removeFeature);
 
 router.use('/:id/trade', tenXTradeRoute)
-router.route('/my/todayorders/:subscription').get(Authenticate, myTodaysTrade)
-router.route('/my/historyorders/:subscription/:usersubscription').get(Authenticate, myHistoryTrade)
+router.route('/my/todayorders/:subscriptionId').get(Authenticate, myTodaysTrade)
+router.route('/my/historyorders/:subscriptionId/:subscribedOn/:expiredOn').get(Authenticate, myHistoryTrade)
 
 
 module.exports = router;

@@ -109,14 +109,21 @@ exports.getActiveCouponCodes = async (req, res) => {
 
 exports.verifyCouponCode = async (req, res) => {
     try {
-        const { code } = req.params;
+        const { code, product } = req.body;
 
-        const coupon = await couponCodeSchema.findOne({ code: code });
+        let coupon = await Coupon.findOne({ code: code, expiryDate:{$gte: new Date()} });
 
+        
         if (!coupon) {
             return res.status(404).json({
                 status: 'error',
                 message: "Coupon code not found.",
+            });
+        }
+        if(coupon?.eligibleProducts?.length != 0 && !coupon?.eligibleProducts.includes(product)){
+            return res.status(400).json({
+                status: 'error',
+                message: "This coupon is not valid for the product you're purchasing.",
             });
         }
 

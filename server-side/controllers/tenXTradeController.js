@@ -109,9 +109,9 @@ exports.overallPnl = async (req, res, next) => {
 
 exports.myTodaysTrade = async (req, res, next) => {
 
-  let {subscription} = req.params;
-  subscription = JSON.parse(subscription);
-  let {subscriptionId} =  subscription;
+  let {subscriptionId} = req.params;
+  // subscription = JSON.parse(subscription);
+  // let {subscriptionId} =  subscription;
 
   const userId = req.user._id;
   let date = new Date();
@@ -137,10 +137,7 @@ exports.myTodaysTrade = async (req, res, next) => {
 
 exports.myHistoryTrade = async (req, res, next) => {
 
-  let {subscription, usersubscription} = req.params;
-  let {subscribedOn, expiredOn} = JSON.parse(usersubscription);
-  let {subscriptionId} = JSON.parse(subscription);
-
+  let {subscriptionId, subscribedOn, expiredOn  } = req.params;
   expiredOn = expiredOn && new Date(expiredOn);
   subscribedOn = subscribedOn && new Date(subscribedOn);
 

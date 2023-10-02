@@ -49,8 +49,7 @@ const couponCodeSchema = new mongoose.Schema({
     type: Number,
   },
   eligibleProducts:[{
-    type:'String',
-    enum:['TenX','Contest', 'College Contest', 'MarginX', 'Battle', 'Wallet', 'General']
+    type:Schema.Types.ObjectId,
   }],
   campaign:[{
     type: mongoose.Schema.Types.ObjectId,
