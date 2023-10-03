@@ -11,6 +11,8 @@ const {client, getValue} = require("../marketData/redisClient");
 const emailService = require("../utils/emailService");
 const mongoose = require('mongoose');
 const {createUserNotification} = require('./notification/notificationController');
+const Product = require('../models/Product/product');
+const {saveSuccessfulCouponUse} = require('./coupon/couponController');
 
 
 const filterObj = (obj, ...allowedFields) => {
@@ -492,11 +494,11 @@ exports.renewSubscription = async(req, res, next)=>{
   let isRedisConnected = getValue();
   const userId = req.user._id;
   const {subscriptionAmount, subscriptionName, subscriptionId} = req.body;
-  const result = await exports.handleSubscriptionRenewal(userId, subscriptionAmount, subscriptionName, subscriptionId, isRedisConnected);
+  const result = await exports.handleSubscriptionRenewal(userId, subscriptionAmount, subscriptionName, subscriptionId, isRedisConnected, coupon);
   res.status(result.statusCode).json(result.data);     
 };
 
-exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscriptionName, subscriptionId, isRedisConnected) =>{
+exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscriptionName, subscriptionId, isRedisConnected, coupon) =>{
   const today = new Date();
   const session = await mongoose.startSession();
   try{
@@ -741,6 +743,10 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
       lastModifiedBy:'63ecbc570302e7cf0153370c'  
     }, session);
     await session.commitTransaction();
+    if(coupon){
+      const product = await Product.findOne({productName:'TenX'}).select('_id');
+      await saveSuccessfulCouponUse(userId, coupon, product?._id);
+    }
     return {
       statusCode:201,
       data:{

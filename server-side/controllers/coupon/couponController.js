@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Coupon = require('../../models/coupon/coupon');
+const Product = require('../../models/Product/product');
 
 
 exports.createCouponCode = async (req, res) => {
@@ -9,7 +10,9 @@ exports.createCouponCode = async (req, res) => {
             isOneTimeUse, usedBy, maxUse, eligibleProducts, campaign
         } = req.body;
 
-        const existingCode = await couponCodeSchema.findOne({ code: code });
+        console.log('ye aaya hai', eligibleProducts);
+
+        const existingCode = await Coupon.findOne({ code: code });
 
         if (existingCode) {
             return res.status(400).json({
@@ -18,7 +21,7 @@ exports.createCouponCode = async (req, res) => {
             });
         }
 
-        const coupon = await couponCodeSchema.create({
+        const coupon = await Coupon.create({
             code, description, discountType, rewardType, discount, liveDate, expiryDate, status,
             isOneTimeUse, usedBy, maxUse, eligibleProducts, campaign,
             createdBy: req.user._id, lastModifiedBy: req.user._id
@@ -44,7 +47,7 @@ exports.editCouponCode = async (req, res) => {
         const { code } = req.params;
         const updateFields = req.body;
 
-        let coupon = await couponCodeSchema.findOne({ code: code });
+        let coupon = await Coupon.findOne({ code: code });
 
         if (!coupon) {
             return res.status(404).json({
@@ -54,7 +57,7 @@ exports.editCouponCode = async (req, res) => {
         }
 
         updateFields.lastModifiedBy = req.user._id;
-        coupon = await couponCodeSchema.findOneAndUpdate({ code: code }, updateFields, { new: true });
+        coupon = await Coupon.findOneAndUpdate({ code: code }, updateFields, { new: true });
 
         res.status(200).json({
             status: 'success',
@@ -73,7 +76,7 @@ exports.editCouponCode = async (req, res) => {
 
 exports.getAllCouponCodes = async (req, res) => {
     try {
-        const coupons = await couponCodeSchema.find();
+        const coupons = await Coupon.find();
         
         res.status(200).json({
             status: 'success',
@@ -91,7 +94,7 @@ exports.getAllCouponCodes = async (req, res) => {
 
 exports.getActiveCouponCodes = async (req, res) => {
     try {
-        const activeCoupons = await couponCodeSchema.find({ status: 'Active' });
+        const activeCoupons = await Coupon.find({ status: 'Active' });
         
         res.status(200).json({
             status: 'success',
@@ -110,7 +113,7 @@ exports.getActiveCouponCodes = async (req, res) => {
 exports.verifyCouponCode = async (req, res) => {
     try {
         const { code, product } = req.body;
-
+        const userId = req.user._id;
         let coupon = await Coupon.findOne({ code: code, expiryDate:{$gte: new Date()} });
 
         
@@ -126,12 +129,18 @@ exports.verifyCouponCode = async (req, res) => {
                 message: "This coupon is not valid for the product you're purchasing.",
             });
         }
-
+        coupon?.usedBy?.push({
+            user: userId,
+            appliedOn: new Date(),
+            product
+        });
+        await coupon.save({validateBeforeSave:false});
         res.status(200).json({
             status: 'success',
             data: {
                 discount: coupon.discount,
-                discountType: coupon.discountType
+                discountType: coupon.discountType,
+                rewardType: coupon.rewardType
             }
         });
     } catch (error) {
@@ -170,5 +179,67 @@ exports.getActiveProductCouponCodes = async(req,res,next) => {
             message: "Something went wrong",
             error: error.message
         });
+    }
+}
+
+// exports.saveSuccessfulCouponUse = async(userId, code, product)=>{
+//     const coupon = await Coupon.findOne({code}).select('usedBy usedBySuccessful');
+//     let productString = product
+//     if(product == 'TenX Renewal') productString = 'TenX';
+//     const product = await Product.findOne({productName:productString});
+//     if(!coupon){
+//         //error
+//     }
+//     //Add user to the usedBySuccessful array field
+//     coupon.usedBySuccessful.push({
+//         user:userId,
+//         appliedOn:new Date(),
+//         product: product?._id
+//     });
+
+//     //remove last user element from the usedBySuccessful array
+//     let userAppliedCoupons = coupon.usedBy.filter((item)=> item?.user == userId);
+//     //Do this and update the usedBy field in the document such that the last element of userApplied Coupons is deleted from usedBy
+
+// }
+
+exports.saveSuccessfulCouponUse = async (userId, code, product) => {
+    try {
+        const coupon = await Coupon.findOne({ code }).select('usedBy usedBySuccessful');
+        if (!coupon) {
+            throw new Error('Coupon not found');
+        }
+
+        let productString = product;
+        if (product === 'TenX Renewal') productString = 'TenX';
+
+        const productDoc = await Product.findOne({ productName: productString });
+        if (!productDoc) {
+            throw new Error('Product not found');
+        }
+
+        // Add user to the usedBySuccessful array field
+        coupon.usedBySuccessful.push({
+            user: userId,
+            appliedOn: new Date(),
+            product: productDoc._id,
+        });
+
+        // Remove the last user element from the usedBySuccessful array if exists
+        let userAppliedCoupons = coupon.usedBy.filter(item => item?.user.toString() === userId.toString());
+
+        if (userAppliedCoupons.length > 0) {
+            const lastAppliedIndex = coupon.usedBy.findIndex(item => item._id.toString() === userAppliedCoupons[userAppliedCoupons.length - 1]._id.toString());
+            if (lastAppliedIndex !== -1) {
+                coupon.usedBy.splice(lastAppliedIndex, 1);
+            }
+        }
+
+        await coupon.save({validateBeforeSave:false});
+
+    } catch (error) {
+        // Handle the error (e.g., logging, throw it further, etc.)
+        console.error(error);
+        throw error;
     }
 }

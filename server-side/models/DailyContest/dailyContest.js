@@ -95,6 +95,8 @@ const contestSchema = new Schema({
     }],
     participants:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
+        fee:Number,
+        actualPrice:Number,
         participatedOn:{type:Date},
         payout: {type: Number},
         tdsAmount: {type: Number},

@@ -14,7 +14,9 @@ const fs = require('fs');
 const path = require('path');
 const {PDFDocument} = require('pdf-lib');
 const {createUserNotification} = require('./notification/notificationController');
-const Setting = require("../models/settings/setting")
+const Setting = require("../models/settings/setting");
+const Product = require('../models/Product/product');
+const {saveSuccessfulCouponUse} = require('./coupon/couponController');
 
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
@@ -1264,6 +1266,8 @@ exports.participateUsers = async (req, res) => {
         let obj = {
             userId: userId,
             participatedOn: new Date(),
+            fee:0,
+            actualPrice:0
         }
         // Now update the isLive field based on the liveThreshold value
         if ((noOfContest[0]?.totalContestsCount < result?.liveThreshold) && result.currentLiveStatus === "Live") {
@@ -1404,6 +1408,7 @@ exports.creditAmountToWallet = async () => {
             // if (contest[j].contestEndTime < new Date()) {
             for (let i = 0; i < contest[j]?.participants?.length; i++) {
                 let userId = contest[j]?.participants[i]?.userId;
+                let fee = contest[j]?.participants[i]?.fee;
                 let payoutPercentage = contest[j]?.payoutPercentage
                 let id = contest[j]._id;
                 let pnlDetails = await DailyContestMockUser.aggregate([
@@ -1447,8 +1452,8 @@ exports.creditAmountToWallet = async () => {
                 if (pnlDetails[0]?.npnl > 0) {
                     const payoutAmountWithoutTDS = pnlDetails[0]?.npnl * payoutPercentage / 100;
                     let payoutAmount = payoutAmountWithoutTDS;
-                    if(payoutAmountWithoutTDS>contest[j].entryFee){
-                      payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-contest[j]?.entryFee)*setting[0]?.tdsPercentage/100;
+                    if(payoutAmountWithoutTDS>fee){
+                      payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100;
                     }
 
                     const wallet = await Wallet.findOne({ userId: userId });
@@ -1467,7 +1472,7 @@ exports.creditAmountToWallet = async () => {
                     const user = await User.findById(userId).select('first_name last_name email')
 
                     contest[j].participants[i].payout = payoutAmount?.toFixed(2);
-                    contest[j].participants[i].tdsAmount = payoutAmountWithoutTDS-contest[j]?.entryFee>0?((payoutAmountWithoutTDS-contest[j]?.entryFee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
+                    contest[j].participants[i].tdsAmount = payoutAmountWithoutTDS-fee>0?((payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
                     if (process.env.PROD == 'true') {
                         emailService(user?.email, 'Contest Payout Credited - StoxHero', `
                         <!DOCTYPE html>
@@ -1705,9 +1710,9 @@ exports.getDailyContestUsers = async (req, res) => {
 exports.deductSubscriptionAmount = async (req, res, next) => {
 
     try {
-        const { contestFee, contestName, contestId } = req.body
+        const { contestFee, contestName, contestId, coupon } = req.body
         const userId = req.user._id;
-        const result = await exports.handleSubscriptionDeduction(userId, contestFee, contestName, contestId);
+        const result = await exports.handleSubscriptionDeduction(userId, contestFee, contestName, contestId, coupon);
         
         res.status(result.stautsCode).json(result.data);
     } catch (error) {
@@ -1719,7 +1724,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
     }
 }
 
-exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, contestId)=>{
+exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, contestId, coupon)=>{
   try{
     const contest = await Contest.findOne({ _id: contestId });
         const wallet = await UserWallet.findOne({ userId: userId });
@@ -1734,7 +1739,7 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
             return total + transaction?.amount;
         }, 0);
 
-        if (totalCashAmount < contest?.entryFee) {
+        if (totalCashAmount < contestFee) {
           return {
             statusCode:400,
             data:{
@@ -1875,6 +1880,8 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
         let obj = {
             userId: userId,
             participatedOn: new Date(),
+            fee:contestFee,
+            actualPrice:contest?.entryFee
         }
 
         console.log(noOfContest, noOfContest[0]?.totalContestsCount, result?.liveThreshold , result.currentLiveStatus)
@@ -1995,7 +2002,7 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
                 <p>Email: <span class="password">${user.email}</span></p>
                 <p>Mobile: <span class="password">${user.mobile}</span></p>
                 <p>Contest Name: <span class="password">${contest.contestName}</span></p>
-                <p>Contest Fee: <span class="password">₹${contest.entryFee}/-</span></p>
+                <p>Contest Fee: <span class="password">₹${contestFee}/-</span></p>
                 </div>
             </body>
             </html>
@@ -2017,6 +2024,10 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           });
+          if(coupon){
+            const product = await Product.findOne({productName:'Contest'}).select('_id');
+            await saveSuccessfulCouponUse(userId, coupon, product?._id);
+          }
           return {
             stautsCode:200,
             data:{

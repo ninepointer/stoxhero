@@ -2,27 +2,30 @@ const mongoose = require('mongoose');
 
 const couponCodeSchema = new mongoose.Schema({
   code: {
-    type: String,
+    type: String,  //TextField
     required: true,
     unique: true,
     trim: true,
     uppercase: true 
   },
   description: {
-    type: String,
+    type: String,  //TextField
     default: ''
   },
   discountType: {
       type: String,
       enum:['Flat', 'Percentage'],
+      required:true
   },
   rewardType:{
     type:String,
     enum:['Cashback', 'Discount'],
+    default:'Discount'
   },
   discount: {
       type: Number,
-      default: 0
+      required:true,
+      default: 0,
   },
   liveDate:{
     type: Date,
@@ -35,11 +38,11 @@ const couponCodeSchema = new mongoose.Schema({
   status: {
     type: String,
     default: 'Active',
-    enum:['Active', 'Inactive']
+    enum:['Active', 'Inactive' ,'Draft']
   },
   isOneTimeUse: {
     type: Boolean,
-    default: true
+    default: false
   },
   usedBy: [{
     user:{
@@ -53,14 +56,21 @@ const couponCodeSchema = new mongoose.Schema({
     },
   }],
   usedBySuccessful: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'user-personal-detail'
+    user:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user-personal-detail'
+    },
+    appliedOn:Date,
+    product:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'product'
+    },
   }],
   maxUse: {
     type: Number,
   },
   eligibleProducts:[{
-    type:Schema.Types.ObjectId,
+    type:mongoose.Schema.Types.ObjectId,
   }],
   campaign:[{
     type: mongoose.Schema.Types.ObjectId,

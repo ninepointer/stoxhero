@@ -44,6 +44,8 @@ const battleSchema = new Schema({
         reward: {type: Number},
         tdsAmount: {type: Number},
         rank: {type: Number},
+        fee:Number,
+        actualPrice:Number
     }],
     potentialParticipants:[
         {type:Schema.Types.ObjectId, ref: 'user-personal-detail'},

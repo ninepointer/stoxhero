@@ -336,6 +336,7 @@ const userDetailSchema = new mongoose.Schema({
         },
         isRenew: {type: Boolean},
         fee: {type: Number},
+        actualPrice: {type: Number},
         payout:{type:Number},
         tdsAmount:{type:Number},
     }],

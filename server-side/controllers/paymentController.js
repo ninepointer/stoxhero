@@ -14,6 +14,7 @@ const {handleDeductSubscriptionAmount} = require('./userWalletController');
 const {handleDeductMarginXAmount} = require('./marginX/marginxController');
 const {handleDeductBattleAmount} = require('./battles/battleController');
 const {handleSubscriptionRenewal} = require('./tenXSubscriptionController');
+const {saveSuccessfulCouponUse} = require('./coupon/couponController');
 const Contest = require('../models/DailyContest/dailyContest');
 const TenX = require('../models/TenXSubscription/TenXSubscriptionSchema');
 const MarginX = require('../models/marginX/marginX');
@@ -214,12 +215,13 @@ exports.initiatePayment = async (req, res) => {
         amount,
         redirectTo,
         productId,
-        paymentFor
+        paymentFor,
+        coupon
     } = req.body;
     console.log('all body params',amount,
         redirectTo,
         productId,
-        paymentFor);
+        paymentFor, coupon);
     const setting = await Setting.find();
     let merchantId = process.env.PROD=='true' ? process.env.PHONEPE_MERCHANTID : process.env.PHONEPE_MERCHANTID_STAGING  ;
     let merchantTransactionId = generateUniqueTransactionId();
@@ -241,6 +243,7 @@ exports.initiatePayment = async (req, res) => {
         paymentBy:req.user?._id,
         paymentFor,
         productId,
+        coupon,
         merchantTransactionId,
         createdOn: new Date(),
         createdBy: req.user._id,
@@ -343,6 +346,13 @@ exports.handleCallback = async (req, res, next) => {
                 }    
                 console.log('Payment Successful');
                 await payment.save({validateBeforeSave: false});
+                if(payment?.coupon){
+                    if(payment?.paymentFor){
+                        await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, payment?.paymentFor);
+                    }else{
+                        await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, 'Wallet');
+                    }
+                }
                 res.status(200).json({ status:'success', message: 'Payment was successful' });
             } else if (decodedResponse.code === 'PAYMENT_ERROR') {
                 // TODO: Update the status in your database to 'FAILED'
@@ -390,9 +400,6 @@ exports.checkPaymentStatus = async(req,res, next) => {
         const {merchantTransactionId} = req.params;
         const merchantId = process.env.PROD=='true' ? process.env.PHONEPE_MERCHANTID : process.env.PHONEPE_MERCHANTID_STAGING ;
         const payment  = await Payment.findOne({merchantTransactionId});
-        if(payment.paymentStatus == 'succeeded' || payment.paymentStatus == 'failed'){
-            return;
-        }
         // console.log('payment', payment);
         const saltKey = process.env.PHONEPE_KEY; // This should be stored securely, not hardcoded
         const saltIndex = '1';
@@ -406,6 +413,13 @@ exports.checkPaymentStatus = async(req,res, next) => {
                 'X-MERCHANT-ID':merchantId
             }
         });
+        if(payment.paymentStatus == 'succeeded' || payment.paymentStatus == 'failed'){
+            return res.status(200).json({
+                status:'success',
+                message:'Payment status fetched',
+                data:resp.data
+            });
+        }
         console.log('response payment instrument', resp?.data?.data?.paymentInstrument);
         if(resp.data.code == 'PAYMENT_SUCCESS'){
             if(payment.paymentStatus != 'succeeded'){
@@ -421,6 +435,13 @@ exports.checkPaymentStatus = async(req,res, next) => {
                     await addMoneyToWallet(payment.amount-payment?.gstAmount, payment?.paymentBy);
                     if(payment?.paymentFor && payment?.productId){
                         await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy);
+                    }
+                    if(payment?.coupon){
+                        if(payment?.paymentFor){
+                            await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, payment?.paymentFor);
+                        }else{
+                            await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, 'Wallet');
+                        }
                     }    
                 }    
             }

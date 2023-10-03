@@ -38,7 +38,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
 const hpp = require("hpp")
 const { processBattles } = require("./controllers/battles/battleController")
-
+const Product = require('./models/Product/product');
 
 async function singleProcess() {
     await setIOValue()
@@ -281,18 +281,21 @@ async function singleProcess() {
     app.use(require("cookie-parser")());
     app.use(cors({
         credentials: true,
-
+        
         // origin: "http://3.7.187.183/"  // staging
         // origin: "http://3.108.76.71/"  // production
         origin: 'http://localhost:3000'
-
+        
     }));
-
+    
     app.use(mongoSanitize());
     app.use(helmet());
     app.use(xssClean());
     app.use(hpp());
-
+    app.get('/api/v1/products', async(req, res, next) => {
+        const products = await Product.find({}); 
+        res.json({ status: 'success', data: products }); 
+    })
     app.use('/api/v1', require("./routes/OpenPositions/openPositionsAuth"))
     app.use('/api/v1', require("./routes/StockIndex/addStockIndex"))
     app.use('/api/v1', require("./routes/expense/expenseAuth"))
@@ -397,6 +400,7 @@ async function singleProcess() {
     app.use('/api/v1/marginxs', require("./routes/marginx/marginxRoutes"));
     app.use('/api/v1/marginxtemplates', require("./routes/marginx/marginxTemplateRoutes"));
     app.use('/api/v1/notifications', require("./routes/notification/notificationRoutes"));
+    app.use('/api/v1/coupons', require("./routes/coupon/couponRoutes"));
 
 
 

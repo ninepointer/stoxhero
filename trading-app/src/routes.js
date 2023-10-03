@@ -66,6 +66,7 @@ import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import TryIcon from '@mui/icons-material/Try';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import CollegeDetails from './layouts/college/collegeDetails'
+import CouponDetails from './layouts/coupons/couponDetails'
 import Forward10Icon from '@mui/icons-material/Forward10';
 import MyPortfolio from './layouts/UserPortfolio'
 import VpnLockIcon from '@mui/icons-material/VpnLock';
@@ -409,6 +410,10 @@ const routes = [
   {
     route: "/collegedetails",
     component: <CollegeDetails />,
+  },
+  {
+    route: "/coupondetails",
+    component: <CouponDetails />,
   },
   {
     route: "/batchdetails",

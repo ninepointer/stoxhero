@@ -539,6 +539,7 @@ exports.autoExpireTenXSubscription = async () => {
       try{
         session.startTransaction();
         let userId = users[j].userId;
+        let fee = users[j]?.fee;
         let subscribedOn = users[j].subscribedOn;
         let status = users[j].status;
 
@@ -743,8 +744,13 @@ exports.autoExpireTenXSubscription = async () => {
                   user.subscription[k].status = "Expired";
                   user.subscription[k].expiredOn = new Date();
                   user.subscription[k].expiredBy = "System";
-                  user.subscription[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0) 
-                  user.subscription[k].tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0; 
+                  if(tradingDays[0]?.totalTradingDays >= validity){
+                    user.subscription[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0) 
+                    user.subscription[k].tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0; 
+                  }else{
+                    user.subscription[k].payout=0;
+                    user.subscription[k].tdsAmount=0;
+                  }
                   console.log("this is user", user)
                   await user.save({session});
                   break;
@@ -759,8 +765,13 @@ exports.autoExpireTenXSubscription = async () => {
                   subs.users[k].status = "Expired";
                   subs.users[k].expiredOn = new Date();
                   subs.users[k].expiredBy = "System";
-                  subs.users[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0);
-                  subs.users[k].tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
+                  if(tradingDays[0]?.totalTradingDays >= validity){
+                    subs.users[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0) 
+                    subs.users[k].tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0; 
+                  }else{
+                    subs.users[k].payout=0;
+                    subs.users[k].tdsAmount=0;
+                  }
                   console.log("this is subs", subs)
                   await subs.save({session});
                   break;

@@ -27,6 +27,7 @@ const Payment = new mongoose.Schema({
     paymentFor: {
         type: String,
     },
+    coupon:String,
     productId:{
         type: Schema.Types.ObjectId
     },
@@ -68,7 +69,8 @@ const Payment = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail'
     },
-    gatewayResponse: {}
+    gatewayResponse: {},
+    productId: Schema.Types.ObjectId
 });
 const payment = mongoose.model('payment', Payment);
 module.exports = payment;

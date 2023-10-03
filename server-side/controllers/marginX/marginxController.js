@@ -9,6 +9,8 @@ const {createUserNotification} = require('../notification/notificationController
 const Setting = require("../../models/settings/setting")
 const uuid = require("uuid");
 const emailService = require("../../utils/emailService");
+const Product = require('../../models/Product/product');
+const {saveSuccessfulCouponUse} = require('../coupon/couponController');
 
 exports.createMarginX = async (req, res) => {
     try {
@@ -576,6 +578,7 @@ exports.creditAmountToWallet = async () => {
             let entryFee = marginxs[j]?.marginXTemplate?.entryFee;
             for (let i = 0; i < marginxs[j]?.participants?.length; i++) {
                 let userId = marginxs[j]?.participants[i]?.userId;
+                let fee = marginxs[j]?.participants[i]?.fee;
                 let id = marginxs[j]._id;
                 let pnlDetails = await MarginXMockUser.aggregate([
                     {
@@ -622,8 +625,8 @@ exports.creditAmountToWallet = async () => {
                 }
                 if(payoutAmount >=0){
                     let payoutAmountAdjusted = payoutAmount;
-                    if(payoutAmount>entryFee){
-                        payoutAmountAdjusted = payoutAmount - (payoutAmount-entryFee)*setting[0]?.tdsPercentage/100;
+                    if(payoutAmount>fee){
+                        payoutAmountAdjusted = payoutAmount - (payoutAmount-fee)*setting[0]?.tdsPercentage/100;
                     }
 
                     const wallet = await Wallet.findOne({ userId: userId });
@@ -738,7 +741,7 @@ exports.creditAmountToWallet = async () => {
                         lastModifiedBy:'63ecbc570302e7cf0153370c'  
                       });
                     marginxs[j].participants[i].payout = payoutAmountAdjusted?.toFixed(2);
-                    marginxs[j].participants[i].tdsAmount = payoutAmount>entryFee?((payoutAmount- entryFee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
+                    marginxs[j].participants[i].tdsAmount = payoutAmount>fee?((payoutAmount- fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
                     await marginxs[j].save();
                 }
             }
@@ -880,6 +883,8 @@ exports.participateUsers = async (req, res) => {
         let obj = {
             userId: userId,
             boughtAt: new Date(),
+            fee:marginx?.marginXTemplate?.entryFee,
+            actualPrice:marginx?.marginXTemplate?.entryFee
         }
 
         result.participants.push(obj);
@@ -904,13 +909,13 @@ exports.participateUsers = async (req, res) => {
 
 exports.deductMarginXAmount = async (req, res, next) => {
     const userId = req.user._id;
-    const { entryFee, marginXName, marginXId } = req.body;
+    const { entryFee, marginXName, marginXId, coupon } = req.body;
 
-    const result = await exports.handleDeductMarginXAmount(userId, entryFee, marginXName, marginXId);
+    const result = await exports.handleDeductMarginXAmount(userId, entryFee, marginXName, marginXId, coupon);
     res.status(result.statusCode).json(result.data);
 }
 
-exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, marginXId) =>{
+exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, marginXId ,coupon) =>{
     try {
         const marginx = await MarginX.findOne({ _id: marginXId }).populate('marginXTemplate', 'entryFee');
         const wallet = await Wallet.findOne({ userId: userId });
@@ -924,7 +929,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
             return total + transaction?.amount;
         }, 0);
 
-        if (totalCashAmount < marginx?.marginXTemplate?.entryFee) {
+        if (totalCashAmount < entryFee) {
             return {
                 statusCode:400,
                 data:{
@@ -966,6 +971,8 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
         let obj = {
             userId: userId,
             boughtAt: new Date(),
+            fee:entryFee,
+            actualPrice:marginx?.marginXTemplate?.entryFee
         }
 
         result.participants.push(obj);
@@ -979,7 +986,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
             title: 'MarginX Fee',
             description: `Amount deducted for ${marginx?.marginXName} MarginX fee`,
             transactionDate: new Date(),
-            amount: (-marginx?.marginXTemplate?.entryFee),
+            amount: (-entryFee),
             transactionId: uuid.v4(),
             transactionType: 'Cash'
         }];
@@ -1076,7 +1083,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
                 <p>Email: <span class="password">${user.email}</span></p>
                 <p>Mobile: <span class="password">${user.mobile}</span></p>
                 <p>MarginX Name: <span class="password">${marginx?.marginXName}</span></p>
-                <p>MarginX Fee: <span class="password">₹${marginx?.marginXTemplate?.entryFee}/-</span></p>
+                <p>MarginX Fee: <span class="password">₹${entryFee}/-</span></p>
                 </div>
             </body>
             </html>
@@ -1098,7 +1105,10 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           });
-
+          if(coupon){
+            const product = await Product.findOne({productName:'MarginX'}).select('_id');
+            await saveSuccessfulCouponUse(userId, coupon, product?._id);
+          }
           return {
             statusCode:200,
             data:{

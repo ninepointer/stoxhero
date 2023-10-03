@@ -9,6 +9,8 @@ const emailService = require("../../utils/emailService")
 const moment = require('moment')
 const BattleTrade = require("../../models/battle/battleTrade");
 const {createUserNotification} = require('../notification/notificationController');
+const Product = require('../../models/Product/product');
+const {saveSuccessfulCouponUse} = require('../coupon/couponController');
 
 // Controller for creating a Battle
 exports.createBattle = async (req, res) => {
@@ -896,12 +898,12 @@ exports.deductBattleAmount = async (req, res, next) => {
     const userId = req.user._id;
     const { battleId } = req.body;
 
-    const result = await exports.handleDeductBattleAmount(userId, battleId);
+    const result = await exports.handleDeductBattleAmount(userId, battleId, coupon);
     res.status(result.statusCode).json(result.data);
     
 }
 
-exports.handleDeductBattleAmount = async(userId, battleId) =>{
+exports.handleDeductBattleAmount = async(userId, battleId, coupon) =>{
     try {
         const battle = await Battle.findOne({ _id: new ObjectId(battleId) }).populate('battleTemplate', 'entryFee');
         const wallet = await Wallet.findOne({ userId: userId });
@@ -1084,6 +1086,10 @@ exports.handleDeductBattleAmount = async(userId, battleId) =>{
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           });
+          if(coupon){
+            const product = await Product.findOne({productName:'MarginX'}).select('_id');
+            await saveSuccessfulCouponUse(userId, coupon, product?._id);
+          }
           return {
             statusCode:200,
             data:{

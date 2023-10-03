@@ -7,6 +7,8 @@ const uuid = require('uuid');
 const {client, getValue} = require("../marketData/redisClient");
 const mongoose = require('mongoose');
 const {createUserNotification} = require('./notification/notificationController');
+const Product = require('../models/Product/product');
+const {saveSuccessfulCouponUse} = require('./coupon/couponController');
 
 
 
@@ -107,10 +109,10 @@ exports.myWallet = async (req, res, next) => {
 
 exports.deductSubscriptionAmount = async(req,res,next) => {
     const userId = req.user._id;
-    let {subscriptionAmount, subscriptionName, subscribedId} = req.body
+    let {subscriptionAmount, subscriptionName, subscribedId, coupon} = req.body
 
     try {
-        const result = await exports.handleDeductSubscriptionAmount(userId, subscriptionAmount, subscriptionName, subscribedId);
+        const result = await exports.handleDeductSubscriptionAmount(userId, subscriptionAmount, subscriptionName, subscribedId, coupon);
         res.status(result.statusCode).json(result.data);
         console.log(result, result.statusCode, result.data);
     } catch (error) {
@@ -122,7 +124,7 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
     }
 }
 
-exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subscriptionName, subscribedId) => {
+exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subscriptionName, subscribedId, coupon) => {
     let isRedisConnected = getValue();
     // console.log("all three", subscriptionAmount, subscriptionName, subscribedId)
     const session = await mongoose.startSession();
@@ -180,7 +182,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         wallet.transactions = [...wallet.transactions, {
               title: 'Bought TenX Trading Subscription',
               description: `Amount deducted for the purchase of ${subscriptionName} subscription`,
-              amount: (-subscriptionAmount),
+              amount: (-subscriptionAmount?.toFixed(2)),
               transactionId: uuid.v4(),
               transactionType: 'Cash'
         }];
@@ -193,7 +195,8 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
                 subscription: {
                   subscriptionId: new ObjectId(subscribedId),
                   subscribedOn: new Date(),
-                  fee: subscriptionAmount
+                  fee: subscriptionAmount,
+                  actualPrice:subs?.discounted_price,
                 }
               }
             },
@@ -207,7 +210,8 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
                 users: {
                     userId: new ObjectId(userId),
                     subscribedOn: new Date(),
-                    fee: subscriptionAmount
+                    fee: subscriptionAmount,
+                    actualPrice:subs?.discounted_price
                 }
             }
         },
@@ -309,7 +313,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
                 <p>Mobile: <span class="password">${user.mobile}</span></p>
                 <p>Subscription Name: <span class="password">${subscription.plan_name}</span></p>
                 <p>Subscription Actual Price: <span class="password">₹${subscription.actual_price}/-</span></p>
-                <p>Subscription Discounted Price: <span class="password">₹${subscription.discounted_price}/-</span></p>  
+                <p>Subscription Discounted Price: <span class="password">₹${subscriptionAmount?.toFixed(2)}/-</span></p>  
                 </div>
             </body>
             </html>
@@ -321,7 +325,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         }
         await createUserNotification({
             title:'TenX Subscription Deducted',
-            description:`₹${subscription?.discounted_price?.toFixed(2)} deducted for your TenX plan ${subscription.plan_name} subscription`,
+            description:`₹${subscriptionAmount?.toFixed(2)} deducted for your TenX plan ${subscription.plan_name} subscription`,
             notificationType:'Individual',
             notificationCategory:'Informational',
             productCategory:'TenX',
@@ -332,8 +336,10 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           }, session);
           await session.commitTransaction();
-        
-
+          if(coupon){
+            const product = await Product.findOne({productName:'TenX'}).select('_id');
+            await saveSuccessfulCouponUse(userId, coupon, product?._id);
+          }
           result = {
             statusCode:200,
             data:{

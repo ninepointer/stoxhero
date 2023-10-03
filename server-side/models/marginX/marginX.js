@@ -28,7 +28,9 @@ const marginXSchema = new Schema({
         payout: {type: Number},
         tdsAmount: {type: Number},
         accountBlown: {type: Boolean},
-        accountBlownAt:{type:Date}
+        accountBlownAt:{type:Date},
+        fee:Number,
+        actualPrice:Number
     }],
     potentialParticipants:[
         {type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
