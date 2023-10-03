@@ -543,7 +543,6 @@ exports.getActiveCarousels = async (req, res, next)=>{
 exports.saveCarouselClick = async (req, res) => {
   try {
       const { id } = req.params; // ID of the Carousel 
-      console.log(id);
       const userId = req.user._id;
       const result = await Carousel.findByIdAndUpdate(
           new ObjectId(id),

@@ -75,7 +75,7 @@ function Index() {
           setIsLoading(false);
       },500)
 
-      axios.get(`${baseUrl}api/v1/carousels/${id?._id}`, {withCredentials:true})
+      axios.get(`${baseUrl}api/v1/carousels/${id}`, {withCredentials:true})
       .then((res)=>{
         setCarousel(res?.data?.data);
         setFormState({
@@ -249,11 +249,6 @@ function Index() {
       bgWhite
     />
   );
-
-    console.log("Saving: ",saving)
-    console.log("Editing: ",editing)
-    console.log("Loading: ",isLoading)
-    // console.log("Id:",id)
 
     return (
     <>
