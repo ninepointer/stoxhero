@@ -10,8 +10,6 @@ exports.createCouponCode = async (req, res) => {
             isOneTimeUse, usedBy, maxUse, eligibleProducts, campaign
         } = req.body;
 
-        console.log('ye aaya hai', eligibleProducts);
-
         const existingCode = await Coupon.findOne({ code: code });
 
         if (existingCode) {
@@ -209,11 +207,17 @@ exports.saveSuccessfulCouponUse = async (userId, code, product) => {
         if (!coupon) {
             throw new Error('Coupon not found');
         }
-
+        let productDoc;
         let productString = product;
         if (product === 'TenX Renewal') productString = 'TenX';
+        console.log(userId, code, product);
 
-        const productDoc = await Product.findOne({ productName: productString });
+        if(mongoose.Types.ObjectId.isValid(product)){
+            productDoc = await Product.findOne({ _id: productString });
+        }else{
+            productDoc = await Product.findOne({ productName: productString });
+        }
+
         if (!productDoc) {
             throw new Error('Product not found');
         }

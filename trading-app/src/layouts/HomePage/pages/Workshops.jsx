@@ -17,7 +17,7 @@ const Internship = ({campaignCode}) => {
     useEffect(()=>{
       setIsLoading(true)
       ReactGA.pageview(window.location.pathname)
-      axios.get(`${baseUrl}api/v1/career?type=Workshop`)
+      axios.get(`${baseUrl}api/v1/career/live?type=Workshop`)
       .then((res)=>{
         setCareer(res.data?.data);
         // console.log(career.length) 

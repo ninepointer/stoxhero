@@ -7,10 +7,10 @@ const {createCouponCode, editCouponCode, getAllCouponCodes,
 const restrictTo = require('../../authentication/authorization');
 
 router.route('/').post(Authenticate, restrictTo('Admin', 'Super Admin'), createCouponCode).get(getAllCouponCodes);
-router.route('/active').get(getActiveCouponCodes);
-router.route('/active/:productId').get(getActiveProductCouponCodes);
-router.route('/verify').post(verifyCouponCode);
-router.route('/:id').patch(editCouponCode);
+router.route('/active').get(Authenticate, getActiveCouponCodes);
+router.route('/active/:productId').get(Authenticate, getActiveProductCouponCodes);
+router.route('/verify').post(Authenticate, verifyCouponCode);
+router.route('/:id').patch(Authenticate, restrictTo('Admin', 'Super Admin'), editCouponCode);
 
 
 
