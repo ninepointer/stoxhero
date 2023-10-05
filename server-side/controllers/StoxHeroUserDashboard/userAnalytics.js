@@ -9,6 +9,11 @@ const BattleTrading = require("../../models/battle/battleTrade");
 const Wallet = require("../../models/UserWallet/userWalletSchema")
 const { ObjectId } = require('mongodb');
 const Withdrawal = require('../../models/withdrawal/withdrawal');
+const Battle = require('../../models/battle/battle')
+const Contest = require('../../models/DailyContest/dailyContest')
+const MarginX = require('../../models/marginX/marginX')
+const TenX = require('../../models/TenXSubscription/TenXSubscriptionSchema')
+
 
 
 // Controller for getting all contests
@@ -1935,3 +1940,5371 @@ exports.getSignUpAndCummSignup = async(req, res) =>{
   }
   
 }
+
+exports.getMarketingFunnelData = async (req, res) => {
+  const monthNumber = parseInt(req.params.month)
+  const yearNumber = parseInt(req.params.year)
+
+  try {
+    
+    const thisMonthSignups = await User.aggregate(
+      [
+        {
+          $addFields: {
+            adjustedJoiningDate: {
+              $add: [
+                "$joining_date",
+                5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+              ], // Adding 5 hours and 30 minutes in milliseconds
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            first_name: 1,
+            last_name: 1,
+            mobile: 1,
+            email: 1,
+            creationProcess: '$user.creationProcess',
+            referrerCode: '$user.referrerCode',
+            month: {
+              $month: "$adjustedJoiningDate",
+            },
+            year: {
+              $year: "$adjustedJoiningDate",
+            },
+          },
+        },
+        {
+          $match: {
+            month: monthNumber,
+            year: yearNumber,
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            first_name: 1,
+            last_name: 1,
+            mobile: 1,
+            email: 1,
+            creationProcess: '$user.creationProcess',
+            referrerCode: '$user.referrerCode',
+          },
+        },
+        
+      ]
+    );
+
+    const thismonthpipeline = [
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          trader: 1,
+          status: 1,
+          month: {
+            $month: "$trade_time",
+          },
+          year: {
+            $year: "$trade_time",
+          },
+          joining_month: {
+            $month: {
+              $arrayElemAt: ["$user.joining_date", 0],
+            },
+          },
+          joining_year: {
+            $year: {
+              $arrayElemAt: ["$user.joining_date", 0],
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          month: monthNumber,
+          year: yearNumber,
+          joining_month: monthNumber,
+          joining_year: yearNumber,
+          status: "COMPLETE",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: "$_id.trader",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "_id",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $project: {
+          _id : '$user._id',
+          first_name: '$user.first_name',
+          last_name: '$user.last_name',
+          mobile: '$user.mobile',
+          email: '$user.email',
+          creationProcess: '$user.creationProcess',
+          referrerCode: '$user.referrerCode',
+        }
+      }
+    ];
+
+    const paidThisMonthUserTenX = [
+      {
+        $project: {
+          _id: 0,
+          users: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$users",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "users.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $addFields: {
+          month: {
+            $month: "$users.subscribedOn",
+          },
+          year: {
+            $year: "$users.subscribedOn",
+          },
+          joining_month: {
+            $month: {
+              $arrayElemAt: ["$user.joining_date", 0],
+            },
+          },
+          joining_year: {
+            $year: {
+              $arrayElemAt: ["$user.joining_date", 0],
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          "users.fee": {
+            $gt: 0,
+          },
+          month: monthNumber,
+          year: yearNumber,
+          joining_month: monthNumber,
+          joining_year: yearNumber,
+        },
+      },
+      {
+        $project: {
+          userId: "$users.userId",
+          first_name: '$user.first_name',
+          last_name: '$user.last_name',
+          mobile: '$user.mobile',
+          email: '$user.email',
+          creationProcess: '$user.creationProcess',
+          referrerCode: '$user.referrerCode',
+          fee: "$users.fee",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+            first_name: '$first_name',
+            last_name: '$last_name',
+            mobile: '$mobile',
+            email: '$email',
+            creationProcess: '$creationProcess',
+            referrerCode: '$referrerCode',
+          },
+          totalRevenue: {
+            $sum: "$fee",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+          first_name: '$_id.first_name',
+          last_name: '$_id.last_name',
+          mobile: '$_id.mobile',
+          email: '$_id.email',
+          creationProcess: '$_id.creationProcess',
+          referrerCode: '$_id.referrerCode',
+          totalRevenue: 1,
+        },
+      },
+    ]
+
+    const paidThisMonthUserContest = [
+      {
+        $project: {
+          _id: 0,
+          participants: 1,
+          entryFee: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "participants.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $match: {
+          entryFee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $project: {
+          userId: "$participants.userId",
+          first_name: '$user.first_name',
+          last_name: '$user.last_name',
+          mobile: '$user.mobile',
+          email: '$user.email',
+          creationProcess: '$user.creationProcess',
+          referrerCode: '$user.referrerCode',
+          fee: "$entryFee",
+          month: {
+            $month: "$participants.participatedOn",
+          },
+          year: {
+            $year: "$participants.participatedOn",
+          },
+          joining_month: {
+            $month: {
+              $add: [
+                {
+                  $arrayElemAt: [
+                    "$user.joining_date",
+                    0,
+                  ],
+                },
+                5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+              ],
+            },
+          },
+          joining_year: {
+            $year: {
+              $add: [
+                {
+                  $arrayElemAt: [
+                    "$user.joining_date",
+                    0,
+                  ],
+                },
+                5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+              ],
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          fee: {
+            $gt: 0,
+          },
+          month: monthNumber,
+          year: yearNumber,
+          joining_month: monthNumber,
+          joining_year: yearNumber,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+            first_name: '$first_name',
+            last_name: '$last_name',
+            mobile: '$mobile',
+            email: '$email',
+            creationProcess: '$creationProcess',
+            referrerCode: '$referrerCode',
+          },
+          totalRevenue: {
+            $sum: "$fee",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+          first_name: '$_id.first_name',
+          last_name: '$_id.last_name',
+          mobile: '$_id.mobile',
+          email: '$_id.email',
+          creationProcess: '$_id.creationProcess',
+          referrerCode: '$_id.referrerCode',
+          totalRevenue: 1,
+        },
+      },
+    ]
+
+    const paidThisMonthUserBattle = [
+      {
+        $project: {
+          _id: 0,
+          participants: 1,
+          entryFee: 1,
+          battleTemplate: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "participants.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $lookup: {
+          from: "battle-templates",
+          localField: "battleTemplate",
+          foreignField: "_id",
+          as: "battle",
+        },
+      },
+      {
+        $addFields: {
+          entryFee: {
+            $arrayElemAt: ["$battle.entryFee", 0],
+          },
+        },
+      },
+      {
+        $match: {
+          entryFee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $project: {
+          userId: "$participants.userId",
+          first_name: '$user.first_name',
+          last_name: '$user.last_name',
+          mobile: '$user.mobile',
+          email: '$user.email',
+          creationProcess: '$user.creationProcess',
+          referrerCode: '$user.referrerCode',
+          fee: "$entryFee",
+          month: {
+            $month: "$participants.boughtAt",
+          },
+          year: {
+            $year: "$participants.boughtAt",
+          },
+          joining_month: {
+            $month: {
+              $arrayElemAt: ["$user.joining_date", 0],
+            },
+          },
+          joining_year: {
+            $year: {
+              $arrayElemAt: ["$user.joining_date", 0],
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          fee: {
+            $gt: 0,
+          },
+          month: monthNumber,
+          year: yearNumber,
+          joining_month: monthNumber,
+          joining_year: yearNumber,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+            first_name: '$first_name',
+            last_name: '$last_name',
+            mobile: '$mobile',
+            email: '$email',
+            creationProcess: '$creationProcess',
+            referrerCode: '$referrerCode',
+          },
+          totalRevenue: {
+            $sum: "$fee",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+          first_name: '$_id.first_name',
+          last_name: '$_id.last_name',
+          mobile: '$_id.mobile',
+          email: '$_id.email',
+          creationProcess: '$_id.creationProcess',
+          referrerCode: '$_id.referrerCode',
+          totalRevenue: 1,
+        },
+      },
+    ]
+
+    const paidThisMonthUserMarginX = [
+      {
+        $project: {
+          _id: 0,
+          participants: 1,
+          entryFee: 1,
+          marginXTemplate: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "participants.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $lookup: {
+          from: "marginx-templates",
+          localField: "marginXTemplate",
+          foreignField: "_id",
+          as: "marginX",
+        },
+      },
+      {
+        $addFields: {
+          entryFee: {
+            $arrayElemAt: ["$marginX.entryFee", 0],
+          },
+        },
+      },
+      {
+        $match: {
+          entryFee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $project: {
+          userId: "$participants.userId",
+          first_name: '$user.first_name',
+          last_name: '$user.last_name',
+          mobile: '$user.mobile',
+          email: '$user.email',
+          creationProcess: '$user.creationProcess',
+          referrerCode: '$user.referrerCode',
+          fee: "$entryFee",
+          month: {
+            $month: "$participants.boughtAt",
+          },
+          year: {
+            $year: "$participants.boughtAt",
+          },
+          joining_month: {
+            $month: {
+              $arrayElemAt: ["$user.joining_date", 0],
+            },
+          },
+          joining_year: {
+            $year: {
+              $arrayElemAt: ["$user.joining_date", 0],
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          fee: {
+            $gt: 0,
+          },
+          month: monthNumber,
+          year: yearNumber,
+          joining_month: monthNumber,
+          joining_year: yearNumber,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+            first_name: '$first_name',
+            last_name: '$last_name',
+            mobile: '$mobile',
+            email: '$email',
+            creationProcess: '$creationProcess',
+            referrerCode: '$referrerCode',
+          },
+          totalRevenue: {
+            $sum: "$fee",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+          first_name: '$_id.first_name',
+          last_name: '$_id.last_name',
+          mobile: '$_id.mobile',
+          email: '$_id.email',
+          creationProcess: '$_id.creationProcess',
+          referrerCode: '$_id.referrerCode',
+          totalRevenue: 1,
+        },
+      },
+    ]
+
+    const thisMonthtenXTraders = await TenXTrading.aggregate(thismonthpipeline);
+    const thisMonthvirtualTraders = await PaperTrading.aggregate(thismonthpipeline);
+    const thisMonthcontestTraders = await ContestTrading.aggregate(thismonthpipeline);
+    const thisMonthinternshipTraders = await InternshipTrading.aggregate(thismonthpipeline);
+    const thisMonthmarginXTraders = await MarginXTrading.aggregate(thismonthpipeline);
+    const thisMonthbattleTraders = await BattleTrading.aggregate(thismonthpipeline);
+
+    const paidThisMonthtenXTraders = await TenX.aggregate(paidThisMonthUserTenX);
+    const paidThisMonthcontestTraders = await Contest.aggregate(paidThisMonthUserContest);
+    const paidThisMonthmarginXTraders = await MarginX.aggregate(paidThisMonthUserMarginX);
+    const paidThisMonthbattleTraders = await Battle.aggregate(paidThisMonthUserBattle);
+
+    
+    let thisMonthallTraders = [...thisMonthtenXTraders, ...thisMonthvirtualTraders, ...thisMonthcontestTraders, ...thisMonthinternshipTraders, ...thisMonthmarginXTraders, ...thisMonthbattleTraders];
+    let paidThisMonthallTraders = [...paidThisMonthtenXTraders, ...paidThisMonthcontestTraders, ...paidThisMonthmarginXTraders, ...paidThisMonthbattleTraders];
+    
+    // Create a Set to remove duplicates
+    const thisMonthuniqueTraders = Array.from(new Set(thisMonthallTraders.map(JSON.stringify))).map(JSON.parse);
+    // const thisMonthuniqueTraders = new Set(thisMonthallTraders);
+    const paidThisMonthuniqueTraders = Array.from(new Set(paidThisMonthallTraders.map(JSON.stringify))).map(JSON.parse);
+    // const paidThisMonthuniqueTraders = new Set(paidThisMonthallTraders);
+    
+    // Convert the Set back to an array (if needed)
+    const thisMonthuniqueTradersArray = [...thisMonthuniqueTraders];
+    const processedData = thisMonthuniqueTradersArray.map(user => {
+      // Loop through the keys (field names) in each user object
+      const newUser = {};
+      for (const key in user) {
+        // Check if the value is an array with a single item
+        if (user[key].length === 1) {
+          // If it is, assign the single value to the new user object
+          newUser[key] = user[key][0];
+        } else {
+          // If it's not an array with a single item, keep it as is
+          newUser[key] = user[key];
+        }
+      }
+      return newUser;
+    });
+    const paidThisMonthuniqueTradersArray = [...paidThisMonthuniqueTraders];
+    const paidProcessedData = paidThisMonthuniqueTradersArray.map(user => {
+      // Loop through the keys (field names) in each user object
+      const newUser = {};
+      for (const key in user) {
+        // Check if the value is an array with a single item
+        if (user[key].length === 1) {
+          // If it is, assign the single value to the new user object
+          newUser[key] = user[key][0];
+        } else {
+          // If it's not an array with a single item, keep it as is
+          newUser[key] = user[key];
+        }
+      }
+      return newUser;
+    });
+    const thisMonthtotalActiveTraders = thisMonthuniqueTradersArray.length;
+    const paidThisMonthActiveTraders = paidThisMonthuniqueTradersArray.length;
+
+    let marketingFunnel = [{ 
+        thisMonthSignupsArray : thisMonthSignups,
+        thisMonthSignups : thisMonthSignups.length, 
+        thisMonthtotalActiveTradersArray: processedData,
+        thisMonthtotalActiveTraders : thisMonthtotalActiveTraders, 
+        paidThisMonthActiveTradersArray : paidProcessedData,
+        paidThisMonthActiveTraders : paidThisMonthActiveTraders,
+      }]
+    
+    const response = {
+      status: "success",
+      message: "Monthly Active Users on Platform fetched successfully",
+      data: marketingFunnel,
+    };
+    
+
+  res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.getMonthlyActiveUsersMarketingFunnel = async (req, res) => {
+  const monthNumber = parseInt(req.params.month)
+  const yearNumber = parseInt(req.params.year)
+
+  try {
+    
+
+    const thismonthpipeline = [
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $addFields: {
+          adjustedJoiningDate: {
+            $add: [
+              {
+                $arrayElemAt: [
+                  "$user.joining_date",
+                  0,
+                ],
+              },
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ], // Adding 5 hours and 30 minutes in milliseconds
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          trader: 1,
+          status: 1,
+          month: {
+            $month: "$trade_time",
+          },
+          year: {
+            $year: "$trade_time",
+          },
+          joining_date: '$adjustedJoiningDate',
+          joining_month: {
+            $month: '$adjustedJoiningDate'
+          },
+          joining_year: {
+            $year: '$adjustedJoiningDate'
+          },
+        },
+      },
+      {
+        $match: {
+          month: monthNumber,
+          year: yearNumber,
+          joining_month: monthNumber,
+          joining_year: yearNumber,
+          status: "COMPLETE",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            trader: "$trader",
+            joining_date: "$joining_date",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: "$_id.trader",
+        },
+      }
+    ];
+
+    const paidThisMonthUserTenX = [
+      {
+        $project: {
+          _id: 0,
+          users: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$users",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "users.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $addFields: {
+          adjustedJoiningDate: {
+            $add: [
+              {
+                $arrayElemAt: [
+                  "$user.joining_date",
+                  0,
+                ],
+              },
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ], // Adding 5 hours and 30 minutes in milliseconds
+          },
+          subscribedOn: {
+            $add: [
+                "$users.subscribedOn",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ], // Adding 5 hours and 30 minutes in milliseconds
+          },
+        },
+      },
+      {
+        $addFields: {
+          month: {
+            $month: "$subscribedOn",
+          },
+          year: {
+            $year: "$subscribedOn",
+          },
+          joining_month: {
+            $month: '$adjustedJoiningDate'
+          },
+          joining_year: {
+            $year: '$adjustedJoiningDate'
+          },
+        },
+      },
+      {
+        $match: {
+          "users.fee": {
+            $gt: 0,
+          },
+          month: monthNumber,
+          year: yearNumber,
+          joining_month: monthNumber,
+          joining_year: yearNumber,
+        },
+      },
+      {
+        $project: {
+          userId: "$users.userId",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+        },
+      },
+    ]
+
+    const paidThisMonthUserContest = [
+      {
+        $project: {
+          _id: 0,
+          participants: 1,
+          entryFee: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "participants.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $addFields: {
+          participatedOn: {
+            $add: [
+              {
+                $arrayElemAt: [
+                  "$participants.participatedOn",
+                  0,
+                ],
+              },
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ], // Adding 5 hours and 30 minutes in milliseconds
+          },
+        },
+      },
+      {
+        $match: {
+          entryFee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $project: {
+          userId: "$participants.userId",
+          first_name: '$user.first_name',
+          last_name: '$user.last_name',
+          mobile: '$user.mobile',
+          email: '$user.email',
+          creationProcess: '$user.creationProcess',
+          referrerCode: '$user.referrerCode',
+          fee: "$entryFee",
+          month: {
+            $month: "$participatedOn",
+          },
+          year: {
+            $year: "$participatedOn",
+          },
+          joining_month: {
+            $month: {
+              $add: [
+                {
+                  $arrayElemAt: [
+                    "$user.joining_date",
+                    0,
+                  ],
+                },
+                5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+              ],
+            },
+          },
+          joining_year: {
+            $year: {
+              $add: [
+                {
+                  $arrayElemAt: [
+                    "$user.joining_date",
+                    0,
+                  ],
+                },
+                5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+              ],
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          fee: {
+            $gt: 0,
+          },
+          month: monthNumber,
+          year: yearNumber,
+          joining_month: monthNumber,
+          joining_year: yearNumber,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+        },
+      },
+    ]
+
+    const paidThisMonthUserBattle = [
+      {
+        $project: {
+          _id: 0,
+          participants: 1,
+          entryFee: 1,
+          battleTemplate: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "participants.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $lookup: {
+          from: "battle-templates",
+          localField: "battleTemplate",
+          foreignField: "_id",
+          as: "battle",
+        },
+      },
+      {
+        $addFields: {
+          entryFee: {
+            $arrayElemAt: ["$battle.entryFee", 0],
+          },
+        },
+      },
+      {
+        $match: {
+          entryFee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $addFields: {
+          boughtAt: {
+            $add: [
+                  "$participants.boughtAt",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ], // Adding 5 hours and 30 minutes in milliseconds
+          },
+          adjustedJoiningDate: {
+            $add: [
+              {
+                $arrayElemAt: [
+                  "$user.joining_date",
+                  0,
+                ],
+              },
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ], // Adding 5 hours and 30 minutes in milliseconds
+          },
+        },
+      },
+      {
+        $project: {
+          userId: "$participants.userId",
+          first_name: '$user.first_name',
+          last_name: '$user.last_name',
+          mobile: '$user.mobile',
+          email: '$user.email',
+          creationProcess: '$user.creationProcess',
+          referrerCode: '$user.referrerCode',
+          fee: "$entryFee",
+          month: {
+            $month: "$boughtAt",
+          },
+          year: {
+            $year: "$boughtAt",
+          },
+          joining_month: {
+            $month: '$adjustedJoiningDate'
+          },
+          joining_year: {
+            $year: '$adjustedJoiningDate'
+          },
+        },
+      },
+      {
+        $match: {
+          fee: {
+            $gt: 0,
+          },
+          month: monthNumber,
+          year: yearNumber,
+          joining_month: monthNumber,
+          joining_year: yearNumber,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+        },
+      },
+    ]
+
+    const paidThisMonthUserMarginX = [
+      {
+        $project: {
+          _id: 0,
+          participants: 1,
+          entryFee: 1,
+          marginXTemplate: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "participants.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $lookup: {
+          from: "marginx-templates",
+          localField: "marginXTemplate",
+          foreignField: "_id",
+          as: "marginX",
+        },
+      },
+      {
+        $addFields: {
+          entryFee: {
+            $arrayElemAt: ["$marginX.entryFee", 0],
+          },
+        },
+      },
+      {
+        $match: {
+          entryFee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $addFields: {
+          boughtAt: {
+            $add: [
+                  "$participants.boughtAt",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ], // Adding 5 hours and 30 minutes in milliseconds
+          },
+          adjustedJoiningDate: {
+            $add: [
+              {
+                $arrayElemAt: [
+                  "$user.joining_date",
+                  0,
+                ],
+              },
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ], // Adding 5 hours and 30 minutes in milliseconds
+          },
+        },
+      },
+      {
+        $project: {
+          userId: "$participants.userId",
+          first_name: '$user.first_name',
+          last_name: '$user.last_name',
+          mobile: '$user.mobile',
+          email: '$user.email',
+          creationProcess: '$user.creationProcess',
+          referrerCode: '$user.referrerCode',
+          fee: "$entryFee",
+          month: {
+            $month: "$boughtAt",
+          },
+          year: {
+            $year: "$boughtAt",
+          },
+          joining_month: {
+            $month: '$adjustedJoiningDate'
+          },
+          joining_year: {
+            $year: '$adjustedJoiningDate'
+          },
+        },
+      },
+      {
+        $match: {
+          fee: {
+            $gt: 0,
+          },
+          month: monthNumber,
+          year: yearNumber,
+          joining_month: monthNumber,
+          joining_year: yearNumber,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+        },
+      },
+    ]
+
+    const thisMonthtenXTraders = await TenXTrading.aggregate(thismonthpipeline);
+    const thisMonthvirtualTraders = await PaperTrading.aggregate(thismonthpipeline);
+    const thisMonthcontestTraders = await ContestTrading.aggregate(thismonthpipeline);
+    const thisMonthinternshipTraders = await InternshipTrading.aggregate(thismonthpipeline);
+    const thisMonthmarginXTraders = await MarginXTrading.aggregate(thismonthpipeline);
+    const thisMonthbattleTraders = await BattleTrading.aggregate(thismonthpipeline);
+
+    const paidThisMonthtenXTraders = await TenX.aggregate(paidThisMonthUserTenX);
+    const paidThisMonthcontestTraders = await Contest.aggregate(paidThisMonthUserContest);
+    const paidThisMonthmarginXTraders = await MarginX.aggregate(paidThisMonthUserMarginX);
+    const paidThisMonthbattleTraders = await Battle.aggregate(paidThisMonthUserBattle);
+    
+    let thisMonthallTraders = [...thisMonthtenXTraders, ...thisMonthvirtualTraders, ...thisMonthcontestTraders, ...thisMonthinternshipTraders, ...thisMonthmarginXTraders, ...thisMonthbattleTraders];
+    let paidThisMonthallTraders = [...paidThisMonthtenXTraders, ...paidThisMonthcontestTraders, ...paidThisMonthmarginXTraders, ...paidThisMonthbattleTraders];
+    
+    // Create a Set to remove duplicates
+    const thisMonthuniqueTraders = Array.from(new Set(thisMonthallTraders.map(JSON.stringify))).map(JSON.parse);
+    // const thisMonthuniqueTraders = new Set(thisMonthallTraders);
+    const paidThisMonthuniqueTraders = Array.from(new Set(paidThisMonthallTraders.map(JSON.stringify))).map(JSON.parse);
+    // const paidThisMonthuniqueTraders = new Set(paidThisMonthallTraders);
+    
+    // Convert the Set back to an array (if needed)
+    const thisMonthuniqueTradersArray = [...thisMonthuniqueTraders];
+    const processedData = thisMonthuniqueTradersArray.map(user => {
+      // Loop through the keys (field names) in each user object
+      const newUser = {};
+      for (const key in user) {
+        // Check if the value is an array with a single item
+        if (user[key].length === 1) {
+          // If it is, assign the single value to the new user object
+          newUser[key] = user[key][0];
+        } else {
+          // If it's not an array with a single item, keep it as is
+          newUser[key] = user[key];
+        }
+      }
+      return newUser;
+    });
+
+    const paidThisMonthuniqueTradersArray = [...paidThisMonthuniqueTraders];
+    const paidProcessedData = paidThisMonthuniqueTradersArray.map(user => {
+      // Loop through the keys (field names) in each user object
+      const newUser = {};
+      for (const key in user) {
+        // Check if the value is an array with a single item
+        if (user[key].length === 1) {
+          // If it is, assign the single value to the new user object
+          newUser[key] = user[key][0];
+        } else {
+          // If it's not an array with a single item, keep it as is
+          newUser[key] = user[key];
+        }
+      }
+      return newUser;
+    });
+
+    const thisMonthtotalActiveTraders = thisMonthuniqueTradersArray.length;
+    const paidThisMonthActiveTraders = paidThisMonthuniqueTradersArray.length;
+    
+    const response = {
+      status: "success",
+      message: "Monthly Active Users on Platform fetched successfully",
+      activeUserData: processedData,
+      activeUserCount: thisMonthtotalActiveTraders,
+      paidUserData: paidProcessedData,
+      paidUserCount: paidThisMonthActiveTraders,
+    };
+    
+
+  res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.getMarketingFunnelDataLifetime = async (req, res) => {
+
+  try {
+    const totalSignups = await User.countDocuments();
+    
+    const pipeline = [
+      {
+        $match: {
+          status: 'COMPLETE',
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          trader: 1,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $project: {
+          _id:'$_id.trader',
+        },
+      }
+    ];
+
+    const paidTotalUserTenX = [
+      {
+        $project: {
+          _id: 0,
+          users: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$users",
+        },
+      },
+      {
+        $match: {
+          "users.fee": {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $project: {
+          userId: "$users.userId",
+          fee: "$users.fee",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+          },
+          // totalRevenue: {
+          //   $sum: "$fee",
+          // },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+          // totalRevenue: 1,
+        },
+      },
+    ]
+
+    const paidTotalUserContest = [
+      {
+        $project: {
+          _id: 0,
+          participants: 1,
+          entryFee: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+        },
+      },
+      {
+        $match: {
+          entryFee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $project: {
+          userId: "$participants.userId",
+          fee: "$entryFee",
+        },
+      },
+      {
+        $match: {
+          fee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+          },
+          // totalRevenue: {
+          //   $sum: "$fee",
+          // },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+          // totalRevenue: 1,
+        },
+      },
+    ]
+
+    const paidTotalUserBattle = [
+      {
+        $project: {
+          _id: 0,
+          participants: 1,
+          entryFee: 1,
+          battleTemplate: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+        },
+      },
+      {
+        $lookup: {
+          from: "battle-templates",
+          localField: "battleTemplate",
+          foreignField: "_id",
+          as: "battle",
+        },
+      },
+      {
+        $addFields: {
+          entryFee: {
+            $arrayElemAt: ["$battle.entryFee", 0],
+          },
+        },
+      },
+      {
+        $match: {
+          entryFee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $project: {
+          userId: "$participants.userId",
+          fee: "$entryFee",
+        },
+      },
+      {
+        $match: {
+          fee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+          },
+          // totalRevenue: {
+          //   $sum: "$fee",
+          // },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+          // totalRevenue: 1,
+        },
+      },
+    ]
+
+    const paidTotalUserMarginX = [
+      {
+        $project: {
+          _id: 0,
+          participants: 1,
+          entryFee: 1,
+          marginXTemplate: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+        },
+      },
+      {
+        $lookup: {
+          from: "marginx-templates",
+          localField: "marginXTemplate",
+          foreignField: "_id",
+          as: "marginX",
+        },
+      },
+      {
+        $addFields: {
+          entryFee: {
+            $arrayElemAt: ["$marginX.entryFee", 0],
+          },
+        },
+      },
+      {
+        $match: {
+          entryFee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $project: {
+          userId: "$participants.userId",
+          fee: "$entryFee",
+        },
+      },
+      {
+        $match: {
+          fee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+          },
+          // totalRevenue: {
+          //   $sum: "$fee",
+          // },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+          // totalRevenue: 1,
+        },
+      },
+    ]
+
+     
+    const tenXTraders = await TenXTrading.aggregate(pipeline);
+    const virtualTraders = await PaperTrading.aggregate(pipeline);
+    const contestTraders = await ContestTrading.aggregate(pipeline);
+    const internshipTraders = await InternshipTrading.aggregate(pipeline);
+    const marginXTraders = await MarginXTrading.aggregate(pipeline);
+    const battleTraders = await BattleTrading.aggregate(pipeline);
+    
+    const paidTotaltenXTraders = await TenX.aggregate(paidTotalUserTenX);
+    const paidTotalcontestTraders = await Contest.aggregate(paidTotalUserContest);
+    const paidTotalmarginXTraders = await MarginX.aggregate(paidTotalUserMarginX);
+    const paidTotalbattleTraders = await Battle.aggregate(paidTotalUserBattle);
+
+    let allTraders = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
+    let paidTotalallTraders = [...paidTotaltenXTraders, ...paidTotalcontestTraders, ...paidTotalmarginXTraders, ...paidTotalbattleTraders];
+    
+    // Create a Set to remove duplicates
+    const uniqueTraders = Array.from(new Set(allTraders.map(JSON.stringify))).map(JSON.parse);
+    // const uniqueTraders = new Set(allTraders);
+    const paidTotaluniqueTraders = Array.from(new Set(paidTotalallTraders.map(JSON.stringify))).map(JSON.parse);
+    // const paidTotaluniqueTraders = new Set(paidTotalallTraders);
+
+    // Convert the Set back to an array (if needed)
+    const uniqueTradersArray = [...uniqueTraders];
+    const paidTotaluniqueTradersArray = [...paidTotaluniqueTraders];
+    const totalActiveTraders = uniqueTradersArray.length;
+    const paidTotaltotalActiveTraders = paidTotaluniqueTradersArray.length;
+    
+    let marketingFunnel = [{
+        totalSignups : totalSignups,  
+        totalActiveTraders : totalActiveTraders, 
+        paidTotaltotalActiveTraders : paidTotaltotalActiveTraders, 
+      }]
+    const response = {
+      status: "success",
+      message: "Lifetime Active Users on Platform fetched successfully",
+      data: marketingFunnel,
+    };
+    
+
+  res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+// exports.getMarketingFunnelDataBackup = async (req, res) => {
+//   const monthNumber = req.params.month
+//   const yearNumber = req.params.year
+//   console.log(monthNumber, yearNumber)
+//   const today = new Date();
+//   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+//   console.log("Month Start:",startOfMonth)
+//   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+//   console.log("Month End:",endOfMonth)
+//   const thisMonth = today.getMonth() + 1
+//   console.log("This Month:",thisMonth)
+//   const lastMonth = today.getMonth() 
+//   console.log("Last Month:",lastMonth)
+//   const last2lastMonth = today.getMonth()-1
+//   console.log("Last2Last Month:",last2lastMonth)
+//   const startOfLastMonth = new Date(today.getFullYear(), today.getMonth()-1, 1);
+//   console.log("Last Month Start:",startOfLastMonth)
+//   const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+//   console.log("Last Month End:",endOfLastMonth)
+//   const thisYear = today.getFullYear()
+//   console.log("This Year:",thisYear)
+//   const lastYear = thisMonth === 1 ? thisYear-1 : thisMonth === 2 ? thisYear -1 : thisYear
+//   console.log("Last Year:",lastYear)
+
+//   try {
+//     const totalSignups = await User.countDocuments();
+//     console.log("Total Signups:",totalSignups)
+//     const thisMonthSignups = await User.aggregate(
+//       [
+//         {
+//           $project: {
+//             _id: 1,
+//             joining_date: 1,
+//           },
+//         },
+//         {
+//           $addFields: {
+//             adjustedJoiningDate: {
+//               $add: [
+//                 "$joining_date",
+//                 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+//               ], // Adding 5 hours and 30 minutes in milliseconds
+//             },
+//           },
+//         },
+//         {
+//           $project: {
+//             _id: 1,
+//             month: {
+//               $month: "$adjustedJoiningDate",
+//             },
+//             year: {
+//               $year: "$adjustedJoiningDate",
+//             },
+//           },
+//         },
+//         {
+//           $match: {
+//             month: thisMonth,
+//             year: thisYear,
+//           },
+//         },
+//       ]
+//     );
+//     console.log("This Month Signups:",thisMonthSignups.length)
+
+//     const lastMonthSignups = await User.aggregate(
+//       [
+//         {
+//           $project: {
+//             _id: 1,
+//             joining_date: 1,
+//           },
+//         },
+//         {
+//           $addFields: {
+//             adjustedJoiningDate: {
+//               $add: [
+//                 "$joining_date",
+//                 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+//               ], // Adding 5 hours and 30 minutes in milliseconds
+//             },
+//           },
+//         },
+//         {
+//           $project: {
+//             _id: 1,
+//             month: {
+//               $month: "$adjustedJoiningDate",
+//             },
+//             year: {
+//               $year: "$adjustedJoiningDate",
+//             },
+//           },
+//         },
+//         {
+//           $match: {
+//             month: lastMonth,
+//             year: lastYear,
+//           },
+//         },
+//       ]
+//     );
+//     console.log("Last Month Signups:",lastMonthSignups.length)
+
+//     const last2lastMonthSignups = await User.aggregate(
+//       [
+//         {
+//           $project: {
+//             _id: 1,
+//             joining_date: 1,
+//           },
+//         },
+//         {
+//           $addFields: {
+//             adjustedJoiningDate: {
+//               $add: [
+//                 "$joining_date",
+//                 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+//               ], // Adding 5 hours and 30 minutes in milliseconds
+//             },
+//           },
+//         },
+//         {
+//           $project: {
+//             _id: 1,
+//             month: {
+//               $month: "$adjustedJoiningDate",
+//             },
+//             year: {
+//               $year: "$adjustedJoiningDate",
+//             },
+//           },
+//         },
+//         {
+//           $match: {
+//             month: last2lastMonth,
+//             year: lastYear,
+//           },
+//         },
+//       ]
+//     );
+//     console.log("Last Month Signups:",last2lastMonthSignups.length)
+
+//     const pipeline = [
+//       {
+//         $project: {
+//           _id: 1,
+//           trader: 1,
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             trader: "$trader",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id:'$_id.trader',
+//         },
+//       }
+//     ];
+
+//     const thismonthpipeline = [
+//       {
+//         $lookup: {
+//           from: "user-personal-details",
+//           localField: "trader",
+//           foreignField: "_id",
+//           as: "user",
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 1,
+//           trader: 1,
+//           status: 1,
+//           month: {
+//             $month: "$trade_time",
+//           },
+//           year: {
+//             $year: "$trade_time",
+//           },
+//           joining_month: {
+//             $month: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//           joining_year: {
+//             $year: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           month: thisMonth,
+//           year: thisYear,
+//           joining_month: thisMonth,
+//           joining_year: thisYear,
+//           status: "COMPLETE",
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             trader: "$trader",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: "$_id.trader",
+//         },
+//       },
+//     ];
+
+//     const lastmonthpipeline = [
+//       {
+//         $lookup: {
+//           from: "user-personal-details",
+//           localField: "trader",
+//           foreignField: "_id",
+//           as: "user",
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 1,
+//           trader: 1,
+//           status: 1,
+//           month: {
+//             $month: "$trade_time",
+//           },
+//           year: {
+//             $year: "$trade_time",
+//           },
+//           joining_month: {
+//             $month: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//           joining_year: {
+//             $year: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           month: lastMonth,
+//           year: lastYear,
+//           joining_month: lastMonth,
+//           joining_year: lastYear,
+//           status: "COMPLETE",
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             trader: "$trader",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: "$_id.trader",
+//         },
+//       },
+//     ];
+
+//     const last2lastmonthpipeline = [
+//       {
+//         $lookup: {
+//           from: "user-personal-details",
+//           localField: "trader",
+//           foreignField: "_id",
+//           as: "user",
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 1,
+//           trader: 1,
+//           status: 1,
+//           month: {
+//             $month: "$trade_time",
+//           },
+//           year: {
+//             $year: "$trade_time",
+//           },
+//           joining_month: {
+//             $month: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//           joining_year: {
+//             $year: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           month: last2lastMonth,
+//           year: lastYear,
+//           joining_month: last2lastMonth,
+//           joining_year: lastYear,
+//           status: "COMPLETE",
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             trader: "$trader",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: "$_id.trader",
+//         },
+//       },
+//     ];
+
+//     const paidTotalUserTenX = [
+//       {
+//         $project: {
+//           _id: 0,
+//           users: 1,
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$users",
+//         },
+//       },
+//       {
+//         $match: {
+//           "users.fee": {
+//             $gt: 0,
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           userId: "$users.userId",
+//           fee: "$users.fee",
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             userId: "$userId",
+//           },
+//           totalRevenue: {
+//             $sum: "$fee",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: "$_id.userId",
+//           totalRevenue: 1,
+//         },
+//       },
+//     ]
+
+//     const paidTotalUserContest = [
+//       {
+//         $project: {
+//           _id: 0,
+//           participants: 1,
+//           entryFee: 1,
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$participants",
+//         },
+//       },
+//       {
+//         $match: {
+//           entryFee: {
+//             $gt: 0,
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           userId: "$participants.userId",
+//           fee: "$entryFee",
+//         },
+//       },
+//       {
+//         $match: {
+//           fee: {
+//             $gt: 0,
+//           },
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             userId: "$userId",
+//           },
+//           totalRevenue: {
+//             $sum: "$fee",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: "$_id.userId",
+//           totalRevenue: 1,
+//         },
+//       },
+//     ]
+
+//     const paidTotalUserBattle = [
+//       {
+//         $project: {
+//           _id: 0,
+//           participants: 1,
+//           entryFee: 1,
+//           battleTemplate: 1,
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$participants",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "battle-templates",
+//           localField: "battleTemplate",
+//           foreignField: "_id",
+//           as: "battle",
+//         },
+//       },
+//       {
+//         $addFields: {
+//           entryFee: {
+//             $arrayElemAt: ["$battle.entryFee", 0],
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           entryFee: {
+//             $gt: 0,
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           userId: "$participants.userId",
+//           fee: "$entryFee",
+//         },
+//       },
+//       {
+//         $match: {
+//           fee: {
+//             $gt: 0,
+//           },
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             userId: "$userId",
+//           },
+//           totalRevenue: {
+//             $sum: "$fee",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: "$_id.userId",
+//           totalRevenue: 1,
+//         },
+//       },
+//     ]
+
+//     const paidTotalUserMarginX = [
+//       {
+//         $project: {
+//           _id: 0,
+//           participants: 1,
+//           entryFee: 1,
+//           marginXTemplate: 1,
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$participants",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "marginx-templates",
+//           localField: "marginXTemplate",
+//           foreignField: "_id",
+//           as: "marginX",
+//         },
+//       },
+//       {
+//         $addFields: {
+//           entryFee: {
+//             $arrayElemAt: ["$marginX.entryFee", 0],
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           entryFee: {
+//             $gt: 0,
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           userId: "$participants.userId",
+//           fee: "$entryFee",
+//         },
+//       },
+//       {
+//         $match: {
+//           fee: {
+//             $gt: 0,
+//           },
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             userId: "$userId",
+//           },
+//           totalRevenue: {
+//             $sum: "$fee",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: "$_id.userId",
+//           totalRevenue: 1,
+//         },
+//       },
+//     ]
+
+//     const paidThisMonthUserTenX = [
+//       {
+//         $project: {
+//           _id: 0,
+//           users: 1,
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$users",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "user-personal-details",
+//           localField: "users.userId",
+//           foreignField: "_id",
+//           as: "user",
+//         },
+//       },
+//       {
+//         $addFields: {
+//           month: {
+//             $month: "$users.subscribedOn",
+//           },
+//           year: {
+//             $year: "$users.subscribedOn",
+//           },
+//           joining_month: {
+//             $month: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//           joining_year: {
+//             $year: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           "users.fee": {
+//             $gt: 0,
+//           },
+//           month: thisMonth,
+//           year: thisYear,
+//           joining_month: thisMonth,
+//           joining_year: thisYear,
+//         },
+//       },
+//       {
+//         $project: {
+//           userId: "$users.userId",
+//           fee: "$users.fee",
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             userId: "$userId",
+//           },
+//           totalRevenue: {
+//             $sum: "$fee",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: "$_id.userId",
+//           totalRevenue: 1,
+//         },
+//       },
+//     ]
+
+//     const paidThisMonthUserContest = [
+//       {
+//         $project: {
+//           _id: 0,
+//           participants: 1,
+//           entryFee: 1,
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$participants",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "user-personal-details",
+//           localField: "participants.userId",
+//           foreignField: "_id",
+//           as: "user",
+//         },
+//       },
+//       {
+//         $match: {
+//           entryFee: {
+//             $gt: 0,
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           userId: "$participants.userId",
+//           fee: "$entryFee",
+//           month: {
+//             $month: "$participants.participatedOn",
+//           },
+//           year: {
+//             $year: "$participants.participatedOn",
+//           },
+//           joining_month: {
+//             $month: {
+//               $add: [
+//                 {
+//                   $arrayElemAt: [
+//                     "$user.joining_date",
+//                     0,
+//                   ],
+//                 },
+//                 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+//               ],
+//             },
+//           },
+//           joining_year: {
+//             $year: {
+//               $add: [
+//                 {
+//                   $arrayElemAt: [
+//                     "$user.joining_date",
+//                     0,
+//                   ],
+//                 },
+//                 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+//               ],
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           fee: {
+//             $gt: 0,
+//           },
+//           month: thisMonth,
+//           year: thisYear,
+//           joining_month: thisMonth,
+//           joining_year: thisYear,
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             userId: "$userId",
+//           },
+//           totalRevenue: {
+//             $sum: "$fee",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: "$_id.userId",
+//           totalRevenue: 1,
+//         },
+//       },
+//     ]
+
+//     const paidThisMonthUserBattle = [
+//       {
+//         $project: {
+//           _id: 0,
+//           participants: 1,
+//           entryFee: 1,
+//           battleTemplate: 1,
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$participants",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "user-personal-details",
+//           localField: "participants.userId",
+//           foreignField: "_id",
+//           as: "user",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "battle-templates",
+//           localField: "battleTemplate",
+//           foreignField: "_id",
+//           as: "battle",
+//         },
+//       },
+//       {
+//         $addFields: {
+//           entryFee: {
+//             $arrayElemAt: ["$battle.entryFee", 0],
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           entryFee: {
+//             $gt: 0,
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           userId: "$participants.userId",
+//           fee: "$entryFee",
+//           month: {
+//             $month: "$participants.boughtAt",
+//           },
+//           year: {
+//             $year: "$participants.boughtAt",
+//           },
+//           joining_month: {
+//             $month: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//           joining_year: {
+//             $year: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           fee: {
+//             $gt: 0,
+//           },
+//           month: thisMonth,
+//           year: thisYear,
+//           joining_month: thisMonth,
+//           joining_year: thisYear,
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             userId: "$userId",
+//           },
+//           totalRevenue: {
+//             $sum: "$fee",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: "$_id.userId",
+//           totalRevenue: 1,
+//         },
+//       },
+//     ]
+
+//     const paidThisMonthUserMarginX = [
+//       {
+//         $project: {
+//           _id: 0,
+//           participants: 1,
+//           entryFee: 1,
+//           marginXTemplate: 1,
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$participants",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "user-personal-details",
+//           localField: "participants.userId",
+//           foreignField: "_id",
+//           as: "user",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "marginx-templates",
+//           localField: "marginXTemplate",
+//           foreignField: "_id",
+//           as: "marginX",
+//         },
+//       },
+//       {
+//         $addFields: {
+//           entryFee: {
+//             $arrayElemAt: ["$marginX.entryFee", 0],
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           entryFee: {
+//             $gt: 0,
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           userId: "$participants.userId",
+//           fee: "$entryFee",
+//           month: {
+//             $month: "$participants.boughtAt",
+//           },
+//           year: {
+//             $year: "$participants.boughtAt",
+//           },
+//           joining_month: {
+//             $month: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//           joining_year: {
+//             $year: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           fee: {
+//             $gt: 0,
+//           },
+//           month: thisMonth,
+//           year: thisYear,
+//           joining_month: thisMonth,
+//           joining_year: thisYear,
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             userId: "$userId",
+//           },
+//           totalRevenue: {
+//             $sum: "$fee",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: "$_id.userId",
+//           totalRevenue: 1,
+//         },
+//       },
+//     ]
+
+//     const paidLastMonthUserTenX = [
+//       {
+//         $project: {
+//           _id: 0,
+//           users: 1,
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$users",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "user-personal-details",
+//           localField: "users.userId",
+//           foreignField: "_id",
+//           as: "user",
+//         },
+//       },
+//       {
+//         $addFields: {
+//           month: {
+//             $month: "$users.subscribedOn",
+//           },
+//           year: {
+//             $year: "$users.subscribedOn",
+//           },
+//           joining_month: {
+//             $month: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//           joining_year: {
+//             $year: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           "users.fee": {
+//             $gt: 0,
+//           },
+//           month: lastMonth,
+//           year: lastYear,
+//           joining_month: lastMonth,
+//           joining_year: lastYear,
+//         },
+//       },
+//       {
+//         $project: {
+//           userId: "$users.userId",
+//           fee: "$users.fee",
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             userId: "$userId",
+//           },
+//           totalRevenue: {
+//             $sum: "$fee",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: "$_id.userId",
+//           totalRevenue: 1,
+//         },
+//       },
+//     ]
+
+//     const paidLastMonthUserContest = [
+//       {
+//         $project: {
+//           _id: 0,
+//           participants: 1,
+//           entryFee: 1,
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$participants",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "user-personal-details",
+//           localField: "participants.userId",
+//           foreignField: "_id",
+//           as: "user",
+//         },
+//       },
+//       {
+//         $match: {
+//           entryFee: {
+//             $gt: 0,
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           userId: "$participants.userId",
+//           fee: "$entryFee",
+//           month: {
+//             $month: "$participants.participatedOn",
+//           },
+//           year: {
+//             $year: "$participants.participatedOn",
+//           },
+//           joining_month: {
+//             $month: {
+//               $add: [
+//                 {
+//                   $arrayElemAt: [
+//                     "$user.joining_date",
+//                     0,
+//                   ],
+//                 },
+//                 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+//               ],
+//             },
+//           },
+//           joining_year: {
+//             $year: {
+//               $add: [
+//                 {
+//                   $arrayElemAt: [
+//                     "$user.joining_date",
+//                     0,
+//                   ],
+//                 },
+//                 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+//               ],
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           fee: {
+//             $gt: 0,
+//           },
+//           month: lastMonth,
+//           year: lastYear,
+//           joining_month: lastMonth,
+//           joining_year: lastYear,
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             userId: "$userId",
+//           },
+//           totalRevenue: {
+//             $sum: "$fee",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: "$_id.userId",
+//           totalRevenue: 1,
+//         },
+//       },
+//     ]
+
+//     const paidLastMonthUserBattle = [
+//       {
+//         $project: {
+//           _id: 0,
+//           participants: 1,
+//           entryFee: 1,
+//           battleTemplate: 1,
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$participants",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "user-personal-details",
+//           localField: "participants.userId",
+//           foreignField: "_id",
+//           as: "user",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "battle-templates",
+//           localField: "battleTemplate",
+//           foreignField: "_id",
+//           as: "battle",
+//         },
+//       },
+//       {
+//         $addFields: {
+//           entryFee: {
+//             $arrayElemAt: ["$battle.entryFee", 0],
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           entryFee: {
+//             $gt: 0,
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           userId: "$participants.userId",
+//           fee: "$entryFee",
+//           month: {
+//             $month: "$participants.boughtAt",
+//           },
+//           year: {
+//             $year: "$participants.boughtAt",
+//           },
+//           joining_month: {
+//             $month: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//           joining_year: {
+//             $year: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           fee: {
+//             $gt: 0,
+//           },
+//           month: lastMonth,
+//           year: lastYear,
+//           joining_month: lastMonth,
+//           joining_year: lastYear,
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             userId: "$userId",
+//           },
+//           totalRevenue: {
+//             $sum: "$fee",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: "$_id.userId",
+//           totalRevenue: 1,
+//         },
+//       },
+//     ]
+
+//     const paidLastMonthUserMarginX = [
+//       {
+//         $project: {
+//           _id: 0,
+//           participants: 1,
+//           entryFee: 1,
+//           marginXTemplate: 1,
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$participants",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "user-personal-details",
+//           localField: "participants.userId",
+//           foreignField: "_id",
+//           as: "user",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "marginx-templates",
+//           localField: "marginXTemplate",
+//           foreignField: "_id",
+//           as: "marginX",
+//         },
+//       },
+//       {
+//         $addFields: {
+//           entryFee: {
+//             $arrayElemAt: ["$marginX.entryFee", 0],
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           entryFee: {
+//             $gt: 0,
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           userId: "$participants.userId",
+//           fee: "$entryFee",
+//           month: {
+//             $month: "$participants.boughtAt",
+//           },
+//           year: {
+//             $year: "$participants.boughtAt",
+//           },
+//           joining_month: {
+//             $month: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//           joining_year: {
+//             $year: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           fee: {
+//             $gt: 0,
+//           },
+//           month: lastMonth,
+//           year: lastYear,
+//           joining_month: lastMonth,
+//           joining_year: lastYear,
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             userId: "$userId",
+//           },
+//           totalRevenue: {
+//             $sum: "$fee",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: "$_id.userId",
+//           totalRevenue: 1,
+//         },
+//       },
+//     ]
+
+//     const paidLast2LastMonthUserTenX = [
+//       {
+//         $project: {
+//           _id: 0,
+//           users: 1,
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$users",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "user-personal-details",
+//           localField: "users.userId",
+//           foreignField: "_id",
+//           as: "user",
+//         },
+//       },
+//       {
+//         $addFields: {
+//           month: {
+//             $month: "$users.subscribedOn",
+//           },
+//           year: {
+//             $year: "$users.subscribedOn",
+//           },
+//           joining_month: {
+//             $month: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//           joining_year: {
+//             $year: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           "users.fee": {
+//             $gt: 0,
+//           },
+//           month: last2lastMonth,
+//           year: lastYear,
+//           joining_month: last2lastMonth,
+//           joining_year: lastYear,
+//         },
+//       },
+//       {
+//         $project: {
+//           userId: "$users.userId",
+//           fee: "$users.fee",
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             userId: "$userId",
+//           },
+//           totalRevenue: {
+//             $sum: "$fee",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: "$_id.userId",
+//           totalRevenue: 1,
+//         },
+//       },
+//     ]
+
+//     const paidLast2LastMonthUserContest = [
+//       {
+//         $project: {
+//           _id: 0,
+//           participants: 1,
+//           entryFee: 1,
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$participants",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "user-personal-details",
+//           localField: "participants.userId",
+//           foreignField: "_id",
+//           as: "user",
+//         },
+//       },
+//       {
+//         $match: {
+//           entryFee: {
+//             $gt: 0,
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           userId: "$participants.userId",
+//           fee: "$entryFee",
+//           month: {
+//             $month: "$participants.participatedOn",
+//           },
+//           year: {
+//             $year: "$participants.participatedOn",
+//           },
+//           joining_month: {
+//             $month: {
+//               $add: [
+//                 {
+//                   $arrayElemAt: [
+//                     "$user.joining_date",
+//                     0,
+//                   ],
+//                 },
+//                 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+//               ],
+//             },
+//           },
+//           joining_year: {
+//             $year: {
+//               $add: [
+//                 {
+//                   $arrayElemAt: [
+//                     "$user.joining_date",
+//                     0,
+//                   ],
+//                 },
+//                 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+//               ],
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           fee: {
+//             $gt: 0,
+//           },
+//           month: last2lastMonth,
+//           year: lastYear,
+//           joining_month: last2lastMonth,
+//           joining_year: lastYear,
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             userId: "$userId",
+//           },
+//           totalRevenue: {
+//             $sum: "$fee",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: "$_id.userId",
+//           totalRevenue: 1,
+//         },
+//       },
+//     ]
+
+//     const paidLast2LastMonthUserBattle = [
+//       {
+//         $project: {
+//           _id: 0,
+//           participants: 1,
+//           entryFee: 1,
+//           battleTemplate: 1,
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$participants",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "user-personal-details",
+//           localField: "participants.userId",
+//           foreignField: "_id",
+//           as: "user",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "battle-templates",
+//           localField: "battleTemplate",
+//           foreignField: "_id",
+//           as: "battle",
+//         },
+//       },
+//       {
+//         $addFields: {
+//           entryFee: {
+//             $arrayElemAt: ["$battle.entryFee", 0],
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           entryFee: {
+//             $gt: 0,
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           userId: "$participants.userId",
+//           fee: "$entryFee",
+//           month: {
+//             $month: "$participants.boughtAt",
+//           },
+//           year: {
+//             $year: "$participants.boughtAt",
+//           },
+//           joining_month: {
+//             $month: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//           joining_year: {
+//             $year: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           fee: {
+//             $gt: 0,
+//           },
+//           month: last2lastMonth,
+//           year: lastYear,
+//           joining_month: last2lastMonth,
+//           joining_year: lastYear,
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             userId: "$userId",
+//           },
+//           totalRevenue: {
+//             $sum: "$fee",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: "$_id.userId",
+//           totalRevenue: 1,
+//         },
+//       },
+//     ]
+
+//     const paidLast2LastMonthUserMarginX = [
+//       {
+//         $project: {
+//           _id: 0,
+//           participants: 1,
+//           entryFee: 1,
+//           marginXTemplate: 1,
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$participants",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "user-personal-details",
+//           localField: "participants.userId",
+//           foreignField: "_id",
+//           as: "user",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "marginx-templates",
+//           localField: "marginXTemplate",
+//           foreignField: "_id",
+//           as: "marginX",
+//         },
+//       },
+//       {
+//         $addFields: {
+//           entryFee: {
+//             $arrayElemAt: ["$marginX.entryFee", 0],
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           entryFee: {
+//             $gt: 0,
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           userId: "$participants.userId",
+//           fee: "$entryFee",
+//           month: {
+//             $month: "$participants.boughtAt",
+//           },
+//           year: {
+//             $year: "$participants.boughtAt",
+//           },
+//           joining_month: {
+//             $month: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//           joining_year: {
+//             $year: {
+//               $arrayElemAt: ["$user.joining_date", 0],
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $match: {
+//           fee: {
+//             $gt: 0,
+//           },
+//           month: last2lastMonth,
+//           year: lastYear,
+//           joining_month: last2lastMonth,
+//           joining_year: lastYear,
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             userId: "$userId",
+//           },
+//           totalRevenue: {
+//             $sum: "$fee",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: "$_id.userId",
+//           totalRevenue: 1,
+//         },
+//       },
+//     ]
+
+    
+//     const tenXTraders = await TenXTrading.aggregate(pipeline);
+//     const virtualTraders = await PaperTrading.aggregate(pipeline);
+//     const contestTraders = await ContestTrading.aggregate(pipeline);
+//     const internshipTraders = await InternshipTrading.aggregate(pipeline);
+//     const marginXTraders = await MarginXTrading.aggregate(pipeline);
+//     const battleTraders = await BattleTrading.aggregate(pipeline);
+
+//     const thisMonthtenXTraders = await TenXTrading.aggregate(thismonthpipeline);
+//     const thisMonthvirtualTraders = await PaperTrading.aggregate(thismonthpipeline);
+//     const thisMonthcontestTraders = await ContestTrading.aggregate(thismonthpipeline);
+//     const thisMonthinternshipTraders = await InternshipTrading.aggregate(thismonthpipeline);
+//     const thisMonthmarginXTraders = await MarginXTrading.aggregate(thismonthpipeline);
+//     const thisMonthbattleTraders = await BattleTrading.aggregate(thismonthpipeline);
+
+//     const lastMonthtenXTraders = await TenXTrading.aggregate(lastmonthpipeline);
+//     const lastMonthvirtualTraders = await PaperTrading.aggregate(lastmonthpipeline);
+//     const lastMonthcontestTraders = await ContestTrading.aggregate(lastmonthpipeline);
+//     const lastMonthinternshipTraders = await InternshipTrading.aggregate(lastmonthpipeline);
+//     const lastMonthmarginXTraders = await MarginXTrading.aggregate(lastmonthpipeline);
+//     const lastMonthbattleTraders = await BattleTrading.aggregate(lastmonthpipeline);
+
+//     const last2lastMonthtenXTraders = await TenXTrading.aggregate(last2lastmonthpipeline);
+//     const last2lastMonthvirtualTraders = await PaperTrading.aggregate(last2lastmonthpipeline);
+//     const last2lastMonthcontestTraders = await ContestTrading.aggregate(last2lastmonthpipeline);
+//     const last2lastMonthinternshipTraders = await InternshipTrading.aggregate(last2lastmonthpipeline);
+//     const last2lastMonthmarginXTraders = await MarginXTrading.aggregate(last2lastmonthpipeline);
+//     const last2lastMonthbattleTraders = await BattleTrading.aggregate(last2lastmonthpipeline);
+
+//     const paidTotaltenXTraders = await TenX.aggregate(paidTotalUserTenX);
+//     const paidTotalcontestTraders = await Contest.aggregate(paidTotalUserContest);
+//     const paidTotalmarginXTraders = await MarginX.aggregate(paidTotalUserMarginX);
+//     const paidTotalbattleTraders = await Battle.aggregate(paidTotalUserBattle);
+
+//     const paidThisMonthtenXTraders = await TenX.aggregate(paidThisMonthUserTenX);
+//     const paidThisMonthcontestTraders = await Contest.aggregate(paidThisMonthUserContest);
+//     const paidThisMonthmarginXTraders = await MarginX.aggregate(paidThisMonthUserMarginX);
+//     const paidThisMonthbattleTraders = await Battle.aggregate(paidThisMonthUserBattle);
+
+//     const paidLastMonthtenXTraders = await TenX.aggregate(paidLastMonthUserTenX);
+//     const paidLastMonthcontestTraders = await Contest.aggregate(paidLastMonthUserContest);
+//     const paidLastMonthmarginXTraders = await MarginX.aggregate(paidLastMonthUserMarginX);
+//     const paidLastMonthbattleTraders = await Battle.aggregate(paidLastMonthUserBattle);
+
+//     const paidLast2LastMonthtenXTraders = await TenX.aggregate(paidLast2LastMonthUserTenX);
+//     const paidLast2LastMonthcontestTraders = await Contest.aggregate(paidLast2LastMonthUserContest);
+//     const paidLast2LastMonthmarginXTraders = await MarginX.aggregate(paidLast2LastMonthUserMarginX);
+//     const paidLast2LastMonthbattleTraders = await Battle.aggregate(paidLast2LastMonthUserBattle);
+    
+//     let allTraders = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
+//     let thisMonthallTraders = [...thisMonthtenXTraders, ...thisMonthvirtualTraders, ...thisMonthcontestTraders, ...thisMonthinternshipTraders, ...thisMonthmarginXTraders, ...thisMonthbattleTraders];
+//     let lastMonthallTraders = [...lastMonthtenXTraders, ...lastMonthvirtualTraders, ...lastMonthcontestTraders, ...lastMonthinternshipTraders, ...lastMonthmarginXTraders, ...lastMonthbattleTraders];
+//     let last2lastMonthallTraders = [...last2lastMonthtenXTraders, ...last2lastMonthvirtualTraders, ...last2lastMonthcontestTraders, ...last2lastMonthinternshipTraders, ...last2lastMonthmarginXTraders, ...last2lastMonthbattleTraders];
+//     let paidTotalallTraders = [...paidTotaltenXTraders, ...paidTotalcontestTraders, ...paidTotalmarginXTraders, ...paidTotalbattleTraders];
+//     let paidThisMonthallTraders = [...paidThisMonthtenXTraders, ...paidThisMonthcontestTraders, ...paidThisMonthmarginXTraders, ...paidThisMonthbattleTraders];
+//     let paidLastMonthallTraders = [...paidLastMonthtenXTraders, ...paidLastMonthcontestTraders, ...paidLastMonthmarginXTraders, ...paidLastMonthbattleTraders];
+//     let paidLast2LastMonthallTraders = [...paidLast2LastMonthtenXTraders, ...paidLast2LastMonthcontestTraders, ...paidLast2LastMonthmarginXTraders, ...paidLast2LastMonthbattleTraders];
+
+//     // Create a Set to remove duplicates
+//     const uniqueTraders = new Set(allTraders);
+//     const thisMonthuniqueTraders = new Set(thisMonthallTraders);
+//     const lastMonthuniqueTraders = new Set(lastMonthallTraders);
+//     const last2lastMonthuniqueTraders = new Set(last2lastMonthallTraders);
+//     const paidTotaluniqueTraders = new Set(paidTotalallTraders);
+//     const paidThisMonthuniqueTraders = new Set(paidThisMonthallTraders);
+//     const paidLastMonthuniqueTraders = new Set(paidLastMonthallTraders);
+//     const paidLast2LastMonthuniqueTraders = new Set(paidLast2LastMonthallTraders);
+
+//     // Convert the Set back to an array (if needed)
+//     const uniqueTradersArray = [...uniqueTraders];
+//     const thisMonthuniqueTradersArray = [...thisMonthuniqueTraders];
+//     const lastMonthuniqueTradersArray = [...lastMonthuniqueTraders];
+//     const last2lastMonthuniqueTradersArray = [...last2lastMonthuniqueTraders];
+//     const paidTotaluniqueTradersArray = [...paidTotaluniqueTraders];
+//     const paidThisMonthuniqueTradersArray = [...paidThisMonthuniqueTraders];
+//     const paidLastMonthuniqueTradersArray = [...paidLastMonthuniqueTraders];
+//     const paidLast2LastMonthuniqueTradersArray = [...paidLast2LastMonthuniqueTraders];
+//     const totalActiveTraders = uniqueTradersArray.length;
+//     console.log("Total Active Traders:",totalActiveTraders)
+//     const thisMonthtotalActiveTraders = thisMonthuniqueTradersArray.length;
+//     console.log("This Month Total Active Traders:",thisMonthtotalActiveTraders)
+//     const lastMonthtotalActiveTraders = lastMonthuniqueTradersArray.length;
+//     console.log("Last Month Total Active Traders:",lastMonthtotalActiveTraders)
+//     const last2lastMonthtotalActiveTraders = last2lastMonthuniqueTradersArray.length;
+//     console.log("Last2Last Month Total Active Traders:",last2lastMonthtotalActiveTraders)
+//     const paidTotaltotalActiveTraders = paidTotaluniqueTradersArray.length;
+//     console.log("Paid Total Traders:",paidTotaltotalActiveTraders)
+//     const paidThisMonthActiveTraders = paidThisMonthuniqueTradersArray.length;
+//     console.log("Paid This Month Traders:",paidThisMonthActiveTraders)
+//     const paidLastMonthActiveTraders = paidLastMonthuniqueTradersArray.length;
+//     console.log("Paid Last Month Traders:",paidLastMonthActiveTraders)
+//     const paidLast2LastMonthActiveTraders = paidLast2LastMonthuniqueTradersArray.length;
+//     console.log("Paid Last2Last Month Traders:",paidLast2LastMonthActiveTraders)
+//     let marketingFunnel = [{
+//         totalSignups : totalSignups, 
+//         thisMonthSignups : thisMonthSignups.length, 
+//         lastMonthSignups : lastMonthSignups.length,
+//         last2lastMonthSignups : last2lastMonthSignups.length,
+//         totalActiveTraders : totalActiveTraders, 
+//         thisMonthtotalActiveTraders : thisMonthtotalActiveTraders, 
+//         lastMonthtotalActiveTraders : lastMonthtotalActiveTraders,
+//         last2lastMonthtotalActiveTraders : last2lastMonthtotalActiveTraders,
+//         paidTotaltotalActiveTraders : paidTotaltotalActiveTraders, 
+//         paidThisMonthActiveTraders : paidThisMonthActiveTraders,
+//         paidLastMonthActiveTraders : paidLastMonthActiveTraders,
+//         paidLast2LastMonthActiveTraders : paidLast2LastMonthActiveTraders,
+//       }]
+//     const response = {
+//       status: "success",
+//       message: "Monthly Active Users on Platform fetched successfully",
+//       data: marketingFunnel,
+//     };
+    
+
+//   res.status(200).json(response);
+//   } catch (error) {
+//     res.status(500).json({
+//       status: "error",
+//       message: "Something went wrong",
+//       error: error.message,
+//     });
+//   }
+// };
+
+exports.getMarketingFunnelDataOptimised = async (req, res) => {
+  const today = new Date();
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  console.log("Month Start:",startOfMonth)
+  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+  console.log("Month End:",endOfMonth)
+  const thisMonth = today.getMonth() + 1
+  console.log("This Month:",thisMonth)
+  const lastMonth = today.getMonth() 
+  console.log("Last Month:",lastMonth)
+  const last2lastMonth = today.getMonth()-1
+  console.log("Last2Last Month:",last2lastMonth)
+  const startOfLastMonth = new Date(today.getFullYear(), today.getMonth()-1, 1);
+  console.log("Last Month Start:",startOfLastMonth)
+  const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  console.log("Last Month End:",endOfLastMonth)
+  const thisYear = today.getFullYear()
+  console.log("This Year:",thisYear)
+  const lastYear = thisMonth === 1 ? thisYear-1 : thisMonth === 2 ? thisYear -1 : thisYear
+  console.log("Last Year:",lastYear)
+
+  try {
+    const totalSignups = await User.countDocuments();
+    console.log("Total Signups:",totalSignups)
+    const thisMonthSignups = await User.aggregate(
+      [
+        {
+          $project: {
+            _id: 1,
+            joining_date: 1,
+          },
+        },
+        {
+          $addFields: {
+            adjustedJoiningDate: {
+              $add: [
+                "$joining_date",
+                5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+              ], // Adding 5 hours and 30 minutes in milliseconds
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            month: {
+              $month: "$adjustedJoiningDate",
+            },
+            year: {
+              $year: "$adjustedJoiningDate",
+            },
+          },
+        },
+        {
+          $match: {
+            month: thisMonth,
+            year: thisYear,
+          },
+        },
+      ]
+    );
+    console.log("This Month Signups:",thisMonthSignups.length)
+
+
+    const pipeline = [
+      {
+        $project: {
+          _id: 1,
+          trader: 1,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $project: {
+          _id:'$_id.trader',
+        },
+      }
+    ];
+
+    const monthwiseActiveUsersPipeline = [
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          trader: 1,
+          status: 1,
+          month: {
+            $month: "$trade_time",
+          },
+          year: {
+            $year: "$trade_time",
+          },
+          joining_month: {
+            $month: {
+              $arrayElemAt: ["$user.joining_date", 0],
+            },
+          },
+          joining_year: {
+            $year: {
+              $arrayElemAt: ["$user.joining_date", 0],
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          status: "COMPLETE",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            trader: "$trader",
+            month: "$month",
+            year: "$year",
+            joining_month: "$joining_month",
+            joining_year: "$joining_year",
+          },
+        },
+      },
+      {
+        $match: {
+          $expr: {
+            $and: [
+              {
+                $eq: ["$month", "$joining_month"],
+              },
+              {
+                $eq: ["$year", "$joining_year"],
+              },
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            month: "$_id.month",
+            year: "$_id.year",
+          },
+          uniqueUsers: {
+            $addToSet: {
+              $toString: "$_id.trader",
+            },
+          }, // Calculate the total number of unique active users
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          uniqueUsers: 1,
+          month: "$_id.month",
+          year: "$_id.year",
+        },
+      },
+      {
+        $sort: {
+          year: -1,
+          month: -1,
+        },
+      },
+    ]
+
+    const tenXTraders = await TenXTrading.aggregate(pipeline);
+    const virtualTraders = await PaperTrading.aggregate(pipeline);
+    const contestTraders = await ContestTrading.aggregate(pipeline);
+    const internshipTraders = await InternshipTrading.aggregate(pipeline);
+    const marginXTraders = await MarginXTrading.aggregate(pipeline);
+    const battleTraders = await BattleTrading.aggregate(pipeline);
+
+    const MWtenXTraders = await TenXTrading.aggregate(monthwiseActiveUsersPipeline);
+    const MWvirtualTraders = await PaperTrading.aggregate(monthwiseActiveUsersPipeline);
+    const MWcontestTraders = await ContestTrading.aggregate(monthwiseActiveUsersPipeline);
+    const MWinternshipTraders = await InternshipTrading.aggregate(monthwiseActiveUsersPipeline);
+    const MWmarginXTraders = await MarginXTrading.aggregate(monthwiseActiveUsersPipeline);
+    const MWbattleTraders = await BattleTrading.aggregate(monthwiseActiveUsersPipeline);
+    
+    let allTraders = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
+    let MUallTraders = [...MWtenXTraders, ...MWvirtualTraders, ...MWcontestTraders, ...MWinternshipTraders, ...MWmarginXTraders, ...MWbattleTraders];
+    console.log("MU Traders:",MUallTraders)
+
+    let monthToTradersMap = new Map();
+
+    MUallTraders.forEach(({ month, year, trader }) => {
+      if (!monthToTradersMap.has(year)) {
+        monthToTradersMap.set(year, new Map());
+      }
+    
+      const yearMap = monthToTradersMap.get(year);
+    
+      if (yearMap.has(month)) {
+        let existingTradersSet = yearMap.get(month);
+        existingTradersSet.add(trader);
+      } else {
+        yearMap.set(month, new Set([trader]));
+      }
+    });
+
+    let result = [];
+
+    monthToTradersMap.forEach((yearMap, year) => {
+      yearMap.forEach((traders, month) => {
+        console.log(month, year, traders)
+        result.push({ month, year, uniqueUsersCount: traders.size });
+      });
+    });
+
+    result.sort((a, b) => {
+      if (a.year !== b.year) {
+        return a.year - b.year; // Sort by year first
+      } else {
+        return a.month - b.month; // If years are equal, sort by month
+      }
+    });
+    
+
+    const response = {
+      status: "success",
+      message: "Monthly Active Users on Platform fetched successfully",
+      data: result.splice(result.length <= 6 ? 0 : result.length-6,result.length),
+    };
+    
+
+    res.status(200).json(response);
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: "Something went wrong",
+        error: error.message,
+      });
+    }
+};
+
+exports.downloadThisMonthSignUp = async (req, res) => {
+  const monthNumber = parseInt(req.params.month)
+  const yearNumber = parseInt(req.params.year)
+
+  try {
+    
+    const thisMonthSignups = await User.aggregate(
+      [
+        {
+          $addFields: {
+            adjustedJoiningDate: {
+              $add: [
+                "$joining_date",
+                5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+              ], // Adding 5 hours and 30 minutes in milliseconds
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "campaigns",
+            localField: "campaign",
+            foreignField: "_id",
+            as: "campaign-details",
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            first_name: 1,
+            last_name: 1,
+            mobile: 1,
+            email: 1,
+            creationProcess: "$creationProcess",
+            joining_date: "$adjustedJoiningDate",
+            referrerCode: {
+              $ifNull: ["$referrerCode", ""],
+            },
+            campaign: {
+              $ifNull: [
+                {
+                  $arrayElemAt: [
+                    "$campaign-details.campaignName",
+                    0,
+                  ],
+                },
+                "",
+              ],
+            },
+            month: {
+              $month: "$adjustedJoiningDate",
+            },
+            year: {
+              $year: "$adjustedJoiningDate",
+            },
+          },
+        },
+        {
+          $match: {
+            month: monthNumber,
+            year: yearNumber,
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            first_name: 1,
+            last_name: 1,
+            mobile: 1,
+            email: 1,
+            joining_date: {$substr : ['$joining_date',0,10]},
+            creationProcess: 1,
+            referrerCode: 1,
+            campaign: 1,
+          },
+        },
+      ]
+    );
+    
+    const response = {
+      status: "success",
+      message: "Monthly Active Users on Platform fetched successfully",
+      data: thisMonthSignups,
+    };
+    
+
+  res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.downloadThisMonthActive = async (req, res) => {
+  const monthNumber = parseInt(req.params.month)
+  const yearNumber = parseInt(req.params.year)
+
+  try {
+
+    const thismonthpipeline = [
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $lookup: {
+          from: "campaigns",
+          localField: "user.campaign",
+          foreignField: "_id",
+          as: "campaign-details",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          trader: 1,
+          status: 1,
+          first_name: {
+            $arrayElemAt: ["$user.first_name", 0],
+          },
+          last_name: {
+            $arrayElemAt: ["$user.last_name", 0],
+          },
+          email: {
+            $arrayElemAt: ["$user.email", 0],
+          },
+          mobile: {
+            $arrayElemAt: ["$user.mobile", 0],
+          },
+          referrerCode: {
+            $ifNull: [
+              {
+                $arrayElemAt: [
+                  "$user.referrerCode",
+                  0,
+                ],
+              },
+              "",
+            ],
+          },
+          creationProcess: {
+            $ifNull: [
+              {
+                $arrayElemAt: [
+                  "$user.creationProcess",
+                  0,
+                ],
+              },
+              "",
+            ],
+          },
+          campaign: {
+            $ifNull: [
+              {
+                $arrayElemAt: [
+                  "$campaign-details.campaignName",
+                  0,
+                ],
+              },
+              "",
+            ],
+          },
+          joining_date: {
+            $arrayElemAt: ["$user.joining_date", 0],
+          },
+          month: {
+            $month: "$trade_time",
+          },
+          year: {
+            $year: "$trade_time",
+          },
+          joining_month: {
+            $month: {
+              $arrayElemAt: ["$user.joining_date", 0],
+            },
+          },
+          joining_year: {
+            $year: {
+              $arrayElemAt: ["$user.joining_date", 0],
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          adjustedJoiningDate: {
+            $add: [
+              "$joining_date",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ], // Adding 5 hours and 30 minutes in milliseconds
+          },
+        },
+      },
+      {
+        $match: {
+          month: monthNumber,
+          year: yearNumber,
+          joining_month: monthNumber,
+          joining_year: yearNumber,
+          status: "COMPLETE",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          trader: 1,
+          first_name: 1,
+          last_name: 1,
+          mobile: 1,
+          email: 1,
+          creationProcess: 1,
+          joining_date: "$adjustedJoiningDate",
+          referrerCode: 1,
+          campaign: 1,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            trader: "$trader",
+            first_name: "$first_name",
+            last_name: "$last_name",
+            mobile: "$mobile",
+            email: "$email",
+            creationProcess: "$creationProcess",
+            joining_date: "$joining_date",
+            referrerCode: "$referrerCode",
+            campaign: "$campaign",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: "$_id.trader",
+          first_name: "$_id.first_name",
+          last_name: "$_id.last_name",
+          mobile: "$_id.mobile",
+          email: "$_id.email",
+          creationProcess: "$_id.creationProcess",
+          joining_date: {$substr : ["$_id.joining_date",0,10]},
+          referrerCode: "$_id.referrerCode",
+          campaign: "$_id.campaign",
+        },
+      },
+    ];
+
+    const thisMonthtenXTraders = await TenXTrading.aggregate(thismonthpipeline);
+    const thisMonthvirtualTraders = await PaperTrading.aggregate(thismonthpipeline);
+    const thisMonthcontestTraders = await ContestTrading.aggregate(thismonthpipeline);
+    const thisMonthinternshipTraders = await InternshipTrading.aggregate(thismonthpipeline);
+    const thisMonthmarginXTraders = await MarginXTrading.aggregate(thismonthpipeline);
+    const thisMonthbattleTraders = await BattleTrading.aggregate(thismonthpipeline);
+
+   
+    let thisMonthallTraders = [...thisMonthtenXTraders, ...thisMonthvirtualTraders, ...thisMonthcontestTraders, ...thisMonthinternshipTraders, ...thisMonthmarginXTraders, ...thisMonthbattleTraders];
+    
+    // Create a Set to remove duplicates
+    const thisMonthuniqueTraders = Array.from(new Set(thisMonthallTraders.map(JSON.stringify))).map(JSON.parse);
+    // const thisMonthuniqueTraders = new Set(thisMonthallTraders);
+   
+    // Convert the Set back to an array (if needed)
+    const thisMonthuniqueTradersArray = [...thisMonthuniqueTraders];
+    const processedData = thisMonthuniqueTradersArray.map(user => {
+      // Loop through the keys (field names) in each user object
+      const newUser = {};
+      for (const key in user) {
+        // Check if the value is an array with a single item
+        if (user[key].length === 1) {
+          // If it is, assign the single value to the new user object
+          newUser[key] = user[key][0];
+        } else {
+          // If it's not an array with a single item, keep it as is
+          newUser[key] = user[key];
+        }
+      }
+      return newUser;
+    });
+    
+    const response = {
+      status: "success",
+      message: "Monthly Active Users on Platform fetched successfully",
+      data: processedData,
+    };
+    
+
+  res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.downloadThisMonthPaid = async (req, res) => {
+  const monthNumber = parseInt(req.params.month)
+  const yearNumber = parseInt(req.params.year)
+
+  try {
+
+    const paidThisMonthUserTenX = [
+      {
+        $project: {
+          _id: 0,
+          users: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$users",
+        },
+      },
+      {
+        $match: {
+          "users.fee": {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $project: {
+          userId: "$users.userId",
+          fee: "$users.fee",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $lookup: {
+          from: "campaigns",
+          localField: "user.campaign",
+          foreignField: "_id",
+          as: "campaign-details",
+        },
+      },
+      {
+        $addFields: {
+          adjustedJoiningDate: {
+            $add: [
+              {
+                $arrayElemAt: [
+                  "$user.joining_date",
+                  0,
+                ],
+              },
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ], // Adding 5 hours and 30 minutes in milliseconds
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+            first_name: {
+              $arrayElemAt: ["$user.first_name", 0],
+            },
+            last_name: {
+              $arrayElemAt: ["$user.last_name", 0],
+            },
+            mobile: {
+              $arrayElemAt: ["$user.mobile", 0],
+            },
+            email: {
+              $arrayElemAt: ["$user.email", 0],
+            },
+            creationProcess: {
+              $arrayElemAt: [
+                "$user.creationProcess",
+                0,
+              ],
+            },
+            joining_date: "$adjustedJoiningDate",
+            joining_month: {
+              $month: "$adjustedJoiningDate",
+            },
+            joining_year: {
+              $year: "$adjustedJoiningDate",
+            },
+            referrerCode: {
+              $ifNull: [
+                {
+                  $arrayElemAt: [
+                    "$user.referrerCode",
+                    0,
+                  ],
+                },
+                "",
+              ],
+            },
+            campaign: {
+              $ifNull: [
+                {
+                  $arrayElemAt: [
+                    "$campaign-details.campaignName",
+                    0,
+                  ],
+                },
+                "",
+              ],
+            },
+          },
+          // totalRevenue: {
+          //   $sum: "$fee",
+          // },
+        },
+      },
+      {
+        $match: {
+          "_id.joining_month": monthNumber,
+          "_id.joining_year": yearNumber,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+          first_name: "$_id.first_name",
+          last_name: "$_id.last_name",
+          mobile: "$_id.mobile",
+          email: "$_id.email",
+          creationProcess: "$_id.creationProcess",
+          joining_date: {$substr : ["$_id.joining_date",0,10]},
+          referrerCode: "$_id.referrerCode",
+          campaign: "$_id.campaign",
+          // totalRevenue: 1,
+        },
+      },
+    ]
+
+    const paidThisMonthUserContest = [
+      {
+        $project: {
+          _id: 0,
+          participants: 1,
+          entryFee: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "participants.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $lookup: {
+          from: "campaigns",
+          localField: "user.campaign",
+          foreignField: "_id",
+          as: "campaign-details",
+        },
+      },
+      {
+        $addFields: {
+          adjustedJoiningDate: {
+            $add: [
+              {
+                $arrayElemAt: [
+                  "$user.joining_date",
+                  0,
+                ],
+              },
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ], // Adding 5 hours and 30 minutes in milliseconds
+          },
+        },
+      },
+      {
+        $match: {
+          entryFee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $project: {
+          userId: "$participants.userId",
+          fee: "$entryFee",
+          first_name: {
+            $arrayElemAt: ["$user.first_name", 0],
+          },
+          last_name: {
+            $arrayElemAt: ["$user.last_name", 0],
+          },
+          mobile: {
+            $arrayElemAt: ["$user.mobile", 0],
+          },
+          email: {
+            $arrayElemAt: ["$user.email", 0],
+          },
+          creationProcess: {
+            $arrayElemAt: [
+              "$user.creationProcess",
+              0,
+            ],
+          },
+          joining_date: "$adjustedJoiningDate",
+          joining_month: {
+            $month: "$adjustedJoiningDate",
+          },
+          joining_year: {
+            $year: "$adjustedJoiningDate",
+          },
+          referrerCode: {
+            $ifNull: [
+              {
+                $arrayElemAt: [
+                  "$user.referrerCode",
+                  0,
+                ],
+              },
+              "",
+            ],
+          },
+          campaign: {
+            $ifNull: [
+              {
+                $arrayElemAt: [
+                  "$campaign-details.campaignName",
+                  0,
+                ],
+              },
+              "",
+            ],
+          },
+        },
+      },
+      {
+        $match:
+          /**
+           * query: The query in MQL.
+           */
+          {
+            joining_month: monthNumber,
+            joining_year: yearNumber,
+          },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+            first_name: "$first_name",
+            last_name: "$last_name",
+            mobile: "$mobile",
+            email: "$email",
+            creationProcess: "$creationProcess",
+            joining_date: "$joining_date",
+            referrerCode: "$referrerCode",
+            campaign: "$campaign",
+          },
+          // totalRevenue: {
+          //   $sum: "$fee",
+          // },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+          first_name: "$_id.first_name",
+          last_name: "$_id.last_name",
+          mobile: "$_id.mobile",
+          email: "$_id.email",
+          creationProcess: "$_id.creationProcess",
+          joining_date: {$substr : ["$_id.joining_date",0,10]},
+          referrerCode: "$_id.referrerCode",
+          campaign: "$_id.campaign",
+          // totalRevenue: 1,
+        },
+      },
+    ]
+
+    const paidThisMonthUserBattle = [
+      {
+        $project: {
+          _id: 0,
+          participants: 1,
+          battleTemplate: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+        },
+      },
+      {
+        $lookup: {
+          from: "battle-templates",
+          localField: "battleTemplate",
+          foreignField: "_id",
+          as: "battle",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "participants.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $lookup: {
+          from: "campaigns",
+          localField: "user.campaign",
+          foreignField: "_id",
+          as: "campaign-details",
+        },
+      },
+      {
+        $addFields: {
+          entryFee: {
+            $arrayElemAt: ["$battle.entryFee", 0],
+          },
+          adjustedJoiningDate: {
+            $add: [
+              {
+                $arrayElemAt: [
+                  "$user.joining_date",
+                  0,
+                ],
+              },
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ], // Adding 5 hours and 30 minutes in milliseconds
+          },
+        },
+      },
+      {
+        $match: {
+          entryFee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $project: {
+          userId: "$participants.userId",
+          first_name: {
+            $arrayElemAt: ["$user.first_name", 0],
+          },
+          last_name: {
+            $arrayElemAt: ["$user.last_name", 0],
+          },
+          mobile: {
+            $arrayElemAt: ["$user.mobile", 0],
+          },
+          email: {
+            $arrayElemAt: ["$user.email", 0],
+          },
+          creationProcess: {
+            $arrayElemAt: [
+              "$user.creationProcess",
+              0,
+            ],
+          },
+          joining_date: "$adjustedJoiningDate",
+          joining_month: {
+            $month: "$adjustedJoiningDate",
+          },
+          joining_year: {
+            $year: "$adjustedJoiningDate",
+          },
+          referrerCode: {
+            $ifNull: [
+              {
+                $arrayElemAt: [
+                  "$user.referrerCode",
+                  0,
+                ],
+              },
+              "",
+            ],
+          },
+          campaign: {
+            $ifNull: [
+              {
+                $arrayElemAt: [
+                  "$campaign-details.campaignName",
+                  0,
+                ],
+              },
+              "",
+            ],
+          },
+          fee: "$entryFee",
+        },
+      },
+      {
+        $match: {
+          joining_month: monthNumber,
+          joining_year: yearNumber,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+            first_name: "$first_name",
+            last_name: "$last_name",
+            mobile: "$mobile",
+            email: "$email",
+            creationProcess: "$creationProcess",
+            joining_date: "$joining_date",
+            referrerCode: "$referrerCode",
+            campaign: "$campaign",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+          first_name: "$_id.first_name",
+          last_name: "$_id.last_name",
+          mobile: "$_id.mobile",
+          email: "$_id.email",
+          creationProcess: "$_id.creationProcess",
+          joining_date: {$substr : ["$_id.joining_date",0,10]},
+          referrerCode: "$_id.referrerCode",
+          campaign: "$_id.campaign",
+          // totalRevenue: 1,
+        },
+      },
+    ]
+
+    const paidThisMonthUserMarginX = [
+      {
+        $project: {
+          _id: 0,
+          participants: 1,
+          marginXTemplate: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+        },
+      },
+      {
+        $lookup: {
+          from: "marginx-templates",
+          localField: "marginXTemplate",
+          foreignField: "_id",
+          as: "marginX",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "participants.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $lookup: {
+          from: "campaigns",
+          localField: "user.campaign",
+          foreignField: "_id",
+          as: "campaign-details",
+        },
+      },
+      {
+        $addFields: {
+          entryFee: {
+            $arrayElemAt: ["$marginX.entryFee", 0],
+          },
+          adjustedJoiningDate: {
+            $add: [
+              {
+                $arrayElemAt: [
+                  "$user.joining_date",
+                  0,
+                ],
+              },
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ], // Adding 5 hours and 30 minutes in milliseconds
+          },
+        },
+      },
+      {
+        $match: {
+          entryFee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $project: {
+          userId: "$participants.userId",
+          first_name: {
+            $arrayElemAt: ["$user.first_name", 0],
+          },
+          last_name: {
+            $arrayElemAt: ["$user.last_name", 0],
+          },
+          mobile: {
+            $arrayElemAt: ["$user.mobile", 0],
+          },
+          email: {
+            $arrayElemAt: ["$user.email", 0],
+          },
+          creationProcess: {
+            $arrayElemAt: [
+              "$user.creationProcess",
+              0,
+            ],
+          },
+          joining_date: "$adjustedJoiningDate",
+          joining_month: {
+            $month: "$adjustedJoiningDate",
+          },
+          joining_year: {
+            $year: "$adjustedJoiningDate",
+          },
+          referrerCode: {
+            $ifNull: [
+              {
+                $arrayElemAt: [
+                  "$user.referrerCode",
+                  0,
+                ],
+              },
+              "",
+            ],
+          },
+          campaign: {
+            $ifNull: [
+              {
+                $arrayElemAt: [
+                  "$campaign-details.campaignName",
+                  0,
+                ],
+              },
+              "",
+            ],
+          },
+          fee: "$entryFee",
+        },
+      },
+      {
+        $match: {
+          joining_month: monthNumber,
+          joining_year: yearNumber,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+            first_name: "$first_name",
+            last_name: "$last_name",
+            mobile: "$mobile",
+            email: "$email",
+            creationProcess: "$creationProcess",
+            joining_date: "$joining_date",
+            referrerCode: "$referrerCode",
+            campaign: "$campaign",
+          },
+          // totalRevenue: {
+          //   $sum: "$fee",
+          // },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+          first_name: "$_id.first_name",
+          last_name: "$_id.last_name",
+          mobile: "$_id.mobile",
+          email: "$_id.email",
+          creationProcess: "$_id.creationProcess",
+          joining_date: {$substr : ["$_id.joining_date",0,10]},
+          referrerCode: "$_id.referrerCode",
+          campaign: "$_id.campaign",
+          // totalRevenue: 1,
+        },
+      },
+    ]
+
+    const paidThisMonthtenXTraders = await TenX.aggregate(paidThisMonthUserTenX);
+    const paidThisMonthcontestTraders = await Contest.aggregate(paidThisMonthUserContest);
+    const paidThisMonthmarginXTraders = await MarginX.aggregate(paidThisMonthUserMarginX);
+    const paidThisMonthbattleTraders = await Battle.aggregate(paidThisMonthUserBattle);
+
+    let paidThisMonthallTraders = [...paidThisMonthtenXTraders, ...paidThisMonthcontestTraders, ...paidThisMonthmarginXTraders, ...paidThisMonthbattleTraders];
+    
+    // Create a Set to remove duplicates
+    const paidThisMonthuniqueTraders = Array.from(new Set(paidThisMonthallTraders.map(JSON.stringify))).map(JSON.parse);
+    // const paidThisMonthuniqueTraders = new Set(paidThisMonthallTraders);
+    
+    const paidThisMonthuniqueTradersArray = [...paidThisMonthuniqueTraders];
+    const paidProcessedData = paidThisMonthuniqueTradersArray.map(user => {
+      // Loop through the keys (field names) in each user object
+      const newUser = {};
+      for (const key in user) {
+        // Check if the value is an array with a single item
+        if (user[key].length === 1) {
+          // If it is, assign the single value to the new user object
+          newUser[key] = user[key][0];
+        } else {
+          // If it's not an array with a single item, keep it as is
+          newUser[key] = user[key];
+        }
+      }
+      return newUser;
+    });
+
+    const response = {
+      status: "success",
+      message: "Monthly Active Users on Platform fetched successfully",
+      data: paidProcessedData,
+    };
+    
+
+  res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.downloadLifetimeSignUp = async (req, res) => {
+
+  try {
+    const lifetimeSignup = await User.aggregate(
+      [
+        {
+          $addFields: {
+            adjustedJoiningDate: {
+              $add: [
+                "$joining_date",
+                5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+              ], // Adding 5 hours and 30 minutes in milliseconds
+            },
+            campaign: {
+              $ifNull: ["$campaign", ""],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "campaigns",
+            localField: "campaign",
+            foreignField: "_id",
+            as: "campaign-details",
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            first_name: 1,
+            last_name: 1,
+            mobile: 1,
+            email: 1,
+            adjustedJoiningDate: 1,
+            creationProcess: 1,
+            myReferralCode: 1,
+            referrerCode: {
+              $ifNull: ["$referrerCode", ""],
+            },
+            campaign: {
+              $ifNull: [
+                {
+                  $arrayElemAt: [
+                    "$campaign-details.campaignName",
+                    0,
+                  ],
+                },
+                "",
+              ],
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            first_name: 1,
+            last_name: 1,
+            mobile: 1,
+            email: 1,
+            joining_date: {
+              $substr: ["$adjustedJoiningDate", 0, 10],
+            },
+            campaign: 1,
+            creationProcess: 1,
+            myReferralCode:1,
+            referrerCode: 1,
+          },
+        },
+      ]
+    );
+
+   
+    const response = {
+      status: "success",
+      message: "Lifetime Signup Users on Platform fetched successfully",
+      data: lifetimeSignup,
+      count: lifetimeSignup.length,
+    };
+    
+
+  res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.downloadLifetimeActive = async (req, res) => {
+
+  try {
+    
+    const pipeline = [
+      {
+        $sort: {
+          _id: -1,
+        },
+      },
+      {
+        $match: {
+          status: "COMPLETE",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $lookup: {
+          from: "campaigns",
+          localField: "user.campaign",
+          foreignField: "_id",
+          as: "campaign-details",
+        },
+      },
+      {
+        $addFields: {
+          adjustedJoiningDate: {
+            $add: [
+              {
+                $arrayElemAt: [
+                  "$user.joining_date",
+                  0,
+                ],
+              },
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ], // Adding 5 hours and 30 minutes in milliseconds
+          },
+    
+          campaign: {
+            $arrayElemAt: [
+              "$campaign-details.campaignName",
+              0,
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          trader: 1,
+          first_name: {
+            $arrayElemAt: ["$user.first_name", 0],
+          },
+          last_name: {
+            $arrayElemAt: ["$user.last_name", 0],
+          },
+          mobile: {
+            $arrayElemAt: ["$user.mobile", 0],
+          },
+          email: {
+            $arrayElemAt: ["$user.email", 0],
+          },
+          creationProcess: {
+            $arrayElemAt: [
+              "$user.creationProcess",
+              0,
+            ],
+          },
+          joining_date: "$adjustedJoiningDate",
+          referrerCode: {
+            $ifNull: [
+              {
+                $arrayElemAt: [
+                  "$user.referrerCode",
+                  0,
+                ],
+              },
+              "",
+            ],
+          },
+          campaign: {
+            $ifNull: [
+              {
+                $arrayElemAt: [
+                  "$campaign-details.campaignName",
+                  0,
+                ],
+              },
+              "",
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            trader: "$trader",
+            first_name: "$first_name",
+            last_name: "$last_name",
+            mobile: "$mobile",
+            email: "$email",
+            creationProcess: "$creationProcess",
+            joining_date: "$joining_date",
+            referrerCode: "$referrerCode",
+            campaign: "$campaign",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: "$_id.trader",
+          first_name: "$_id.first_name",
+          last_name: "$_id.last_name",
+          mobile: "$_id.mobile",
+          email: "$_id.email",
+          creationProcess: "$_id.creationProcess",
+          joining_date: {$substr : ["$_id.joining_date",0,10]},
+          referrerCode: "$_id.referrerCode",
+          campaign: "$_id.campaign",
+        },
+      },
+      // {
+      //   $match: {
+      //     first_name: {
+      //       $ne: null,
+      //     },
+      //   },
+      // },
+    ];
+
+    const tenXTraders = await TenXTrading.aggregate(pipeline);
+    const virtualTraders = await PaperTrading.aggregate(pipeline);
+    const contestTraders = await ContestTrading.aggregate(pipeline);
+    const internshipTraders = await InternshipTrading.aggregate(pipeline);
+    const marginXTraders = await MarginXTrading.aggregate(pipeline);
+    const battleTraders = await BattleTrading.aggregate(pipeline);
+
+    let allTraders = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
+    
+    // Create a Set to remove duplicates
+    const uniqueTraders = Array.from(new Set(allTraders.map(JSON.stringify))).map(JSON.parse);
+    // const uniqueTraders = new Set(allTraders);
+
+    // Convert the Set back to an array (if needed)
+    const uniqueTradersArray = [...uniqueTraders];
+    
+    const response = {
+      status: "success",
+      message: "Lifetime Active Users on Platform fetched successfully",
+      data: uniqueTradersArray,
+      count: uniqueTradersArray.length,
+    };
+    
+
+  res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.downloadLifetimePaid = async (req, res) => {
+
+  try {
+
+    const paidTotalUserTenX = [
+      {
+        $project: {
+          _id: 0,
+          users: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$users",
+        },
+      },
+      {
+        $match: {
+          "users.fee": {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $project: {
+          userId: "$users.userId",
+          fee: "$users.fee",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $lookup: {
+          from: "campaigns",
+          localField: "user.campaign",
+          foreignField: "_id",
+          as: "campaign-details",
+        },
+      },
+      {
+        $addFields: {
+          adjustedJoiningDate: {
+            $add: [
+              {
+                $arrayElemAt: [
+                  "$user.joining_date",
+                  0,
+                ],
+              },
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ], // Adding 5 hours and 30 minutes in milliseconds
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+            first_name: {
+              $arrayElemAt: ["$user.first_name", 0],
+            },
+            last_name: {
+              $arrayElemAt: ["$user.last_name", 0],
+            },
+            mobile: {
+              $arrayElemAt: ["$user.mobile", 0],
+            },
+            email: {
+              $arrayElemAt: ["$user.email", 0],
+            },
+            creationProcess: {
+              $arrayElemAt: [
+                "$user.creationProcess",
+                0,
+              ],
+            },
+            joining_date: {$substr : ["$adjustedJoiningDate",0,10]},
+            referrerCode: {
+              $ifNull: [
+                {
+                  $arrayElemAt: [
+                    "$user.referrerCode",
+                    0,
+                  ],
+                },
+                "",
+              ],
+            },
+            campaign: {
+              $ifNull: [
+                {
+                  $arrayElemAt: [
+                    "$campaign-details.campaignName",
+                    0,
+                  ],
+                },
+                "",
+              ],
+            },
+          },
+          // totalRevenue: {
+          //   $sum: "$fee",
+          // },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+          first_name: "$_id.first_name",
+          last_name: "$_id.last_name",
+          mobile: "$_id.mobile",
+          email: "$_id.email",
+          creationProcess: "$_id.creationProcess",
+          joining_date: {$substr : ["$_id.joining_date",0,10]},
+          referrerCode: "$_id.referrerCode",
+          campaign: "$_id.campaign",
+          // totalRevenue: 1,
+          // product: "TenX",
+        },
+      },
+    ]
+
+    const paidTotalUserContest = [
+      {
+        $project: {
+          _id: 0,
+          participants: 1,
+          entryFee: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "participants.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $lookup: {
+          from: "campaigns",
+          localField: "user.campaign",
+          foreignField: "_id",
+          as: "campaign-details",
+        },
+      },
+      {
+        $addFields: {
+          adjustedJoiningDate: {
+            $add: [
+              {
+                $arrayElemAt: [
+                  "$user.joining_date",
+                  0,
+                ],
+              },
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ], // Adding 5 hours and 30 minutes in milliseconds
+          },
+        },
+      },
+      {
+        $match: {
+          entryFee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $project: {
+          userId: "$participants.userId",
+          fee: "$entryFee",
+          first_name: {
+            $arrayElemAt: ["$user.first_name", 0],
+          },
+          last_name: {
+            $arrayElemAt: ["$user.last_name", 0],
+          },
+          mobile: {
+            $arrayElemAt: ["$user.mobile", 0],
+          },
+          email: {
+            $arrayElemAt: ["$user.email", 0],
+          },
+          creationProcess: {
+            $arrayElemAt: [
+              "$user.creationProcess",
+              0,
+            ],
+          },
+          joining_date: "$adjustedJoiningDate",
+          referrerCode: {
+            $ifNull: [
+              {
+                $arrayElemAt: [
+                  "$user.referrerCode",
+                  0,
+                ],
+              },
+              "",
+            ],
+          },
+          campaign: {
+            $ifNull: [
+              {
+                $arrayElemAt: [
+                  "$campaign-details.campaignName",
+                  0,
+                ],
+              },
+              "",
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+            first_name: "$first_name",
+            last_name: "$last_name",
+            mobile: "$mobile",
+            email: "$email",
+            creationProcess: "$creationProcess",
+            joining_date: {$substr : ["$joining_date",0,10]},
+            referrerCode: "$referrerCode",
+            campaign: "$campaign",
+          },
+          // totalRevenue: {
+          //   $sum: "$fee",
+          // },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+          first_name: "$_id.first_name",
+          last_name: "$_id.last_name",
+          mobile: "$_id.mobile",
+          email: "$_id.email",
+          creationProcess: "$_id.creationProcess",
+          joining_date: {$substr : ["$_id.joining_date",0,10]},
+          referrerCode: "$_id.referrerCode",
+          campaign: "$_id.campaign",
+          // totalRevenue: 1,
+          // product: "Contest",
+        },
+      },
+    ]
+
+    const paidTotalUserBattle = [
+      {
+        $project: {
+          _id: 0,
+          participants: 1,
+          battleTemplate: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+        },
+      },
+      {
+        $lookup: {
+          from: "battle-templates",
+          localField: "battleTemplate",
+          foreignField: "_id",
+          as: "battle",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "participants.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $lookup: {
+          from: "campaigns",
+          localField: "user.campaign",
+          foreignField: "_id",
+          as: "campaign-details",
+        },
+      },
+      {
+        $addFields: {
+          entryFee: {
+            $arrayElemAt: ["$battle.entryFee", 0],
+          },
+          adjustedJoiningDate: {
+            $add: [
+              {
+                $arrayElemAt: [
+                  "$user.joining_date",
+                  0,
+                ],
+              },
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ], // Adding 5 hours and 30 minutes in milliseconds
+          },
+        },
+      },
+      {
+        $match: {
+          entryFee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $project: {
+          userId: "$participants.userId",
+          first_name: {
+            $arrayElemAt: ["$user.first_name", 0],
+          },
+          last_name: {
+            $arrayElemAt: ["$user.last_name", 0],
+          },
+          mobile: {
+            $arrayElemAt: ["$user.mobile", 0],
+          },
+          email: {
+            $arrayElemAt: ["$user.email", 0],
+          },
+          creationProcess: {
+            $arrayElemAt: [
+              "$user.creationProcess",
+              0,
+            ],
+          },
+          joining_date: "$adjustedJoiningDate",
+          referrerCode: {
+            $ifNull: [
+              {
+                $arrayElemAt: [
+                  "$user.referrerCode",
+                  0,
+                ],
+              },
+              "",
+            ],
+          },
+          campaign: {
+            $ifNull: [
+              {
+                $arrayElemAt: [
+                  "$campaign-details.campaignName",
+                  0,
+                ],
+              },
+              "",
+            ],
+          },
+          fee: "$entryFee",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+            first_name: "$first_name",
+            last_name: "$last_name",
+            mobile: "$mobile",
+            email: "$email",
+            creationProcess: "$creationProcess",
+            joining_date: {$substr : ["$joining_date",0,10]},
+            referrerCode: "$referrerCode",
+            campaign: "$campaign",
+          },
+          // totalRevenue: {
+          //   $sum: "$fee",
+          // },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+          first_name: "$_id.first_name",
+          last_name: "$_id.last_name",
+          mobile: "$_id.mobile",
+          email: "$_id.email",
+          creationProcess: "$_id.creationProcess",
+          joining_date: {$substr : ["$_id.joining_date",0,10]},
+          referrerCode: "$_id.referrerCode",
+          campaign: "$_id.campaign",
+          // totalRevenue: 1,
+          // product: "Battle",
+        },
+      },
+    ]
+
+    const paidTotalUserMarginX = [
+      {
+        $project: {
+          _id: 0,
+          participants: 1,
+          marginXTemplate: 1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+        },
+      },
+      {
+        $lookup: {
+          from: "marginx-templates",
+          localField: "marginXTemplate",
+          foreignField: "_id",
+          as: "marginX",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "participants.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $lookup: {
+          from: "campaigns",
+          localField: "user.campaign",
+          foreignField: "_id",
+          as: "campaign-details",
+        },
+      },
+      {
+        $addFields: {
+          entryFee: {
+            $arrayElemAt: ["$marginX.entryFee", 0],
+          },
+          adjustedJoiningDate: {
+            $add: [
+              {
+                $arrayElemAt: [
+                  "$user.joining_date",
+                  0,
+                ],
+              },
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ], // Adding 5 hours and 30 minutes in milliseconds
+          },
+        },
+      },
+      {
+        $match: {
+          entryFee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $project: {
+          userId: "$participants.userId",
+          first_name: {
+            $arrayElemAt: ["$user.first_name", 0],
+          },
+          last_name: {
+            $arrayElemAt: ["$user.last_name", 0],
+          },
+          mobile: {
+            $arrayElemAt: ["$user.mobile", 0],
+          },
+          email: {
+            $arrayElemAt: ["$user.email", 0],
+          },
+          creationProcess: {
+            $arrayElemAt: [
+              "$user.creationProcess",
+              0,
+            ],
+          },
+          joining_date: "$adjustedJoiningDate",
+          referrerCode: {
+            $ifNull: [
+              {
+                $arrayElemAt: [
+                  "$user.referrerCode",
+                  0,
+                ],
+              },
+              "",
+            ],
+          },
+          campaign: {
+            $ifNull: [
+              {
+                $arrayElemAt: [
+                  "$campaign-details.campaignName",
+                  0,
+                ],
+              },
+              "",
+            ],
+          },
+          fee: "$entryFee",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId",
+            first_name: "$first_name",
+            last_name: "$last_name",
+            mobile: "$mobile",
+            email: "$email",
+            creationProcess: "$creationProcess",
+            joining_date: {$substr : ["$joining_date",0,10]},
+            referrerCode: "$referrerCode",
+            campaign: "$campaign",
+          },
+          // totalRevenue: {
+          //   $sum: "$fee",
+          // },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+          first_name: "$_id.first_name",
+          last_name: "$_id.last_name",
+          mobile: "$_id.mobile",
+          email: "$_id.email",
+          creationProcess: "$_id.creationProcess",
+          joining_date: {$substr : ["$_id.joining_date",0,10]},
+          referrerCode: "$_id.referrerCode",
+          campaign: "$_id.campaign",
+          // totalRevenue: 1,
+          // product: "MarginX",
+        },
+      },
+    ]
+
+    const paidTotaltenXTraders = await TenX.aggregate(paidTotalUserTenX);
+    const paidTotalcontestTraders = await Contest.aggregate(paidTotalUserContest);
+    const paidTotalmarginXTraders = await MarginX.aggregate(paidTotalUserMarginX);
+    const paidTotalbattleTraders = await Battle.aggregate(paidTotalUserBattle);
+
+    let paidTotalallTraders = [...paidTotaltenXTraders, ...paidTotalcontestTraders, ...paidTotalmarginXTraders, ...paidTotalbattleTraders];
+    
+    // Create a Set to remove duplicates
+    const paidTotaluniqueTraders = Array.from(new Set(paidTotalallTraders.map(JSON.stringify))).map(JSON.parse);
+    // const paidTotaluniqueTraders = new Set(paidTotalallTraders);
+
+    // Convert the Set back to an array (if needed)
+    const paidTotaluniqueTradersArray = [...paidTotaluniqueTraders];
+    
+    const response = {
+      status: "success",
+      message: "Lifetime Active Users on Platform fetched successfully",
+      data: paidTotaluniqueTradersArray,
+      count: paidTotaluniqueTradersArray.length,
+    };
+    
+
+  res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+
+
