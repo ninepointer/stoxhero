@@ -191,6 +191,7 @@ import BattlePosition from "./layouts/battleTraderPosition";
 import BattleReport from "./layouts/battleReport";
 import DailyContestAnalytics from "./layouts/dailyContestAnalytics"
 import TenXSubscribers from "./layouts/tenXSubscribers"
+import MarketingFunnel from "./layouts/marketingDashboard"
 const routes = [
 
   {
@@ -200,6 +201,14 @@ const routes = [
     icon: <AllInclusiveIcon/>,
     route: "/stoxherouserdashboard",
     component: <StoxHeroUserDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Marketing Dashboard",
+    key: "marketingdashboard",
+    icon: <AllInclusiveIcon/>,
+    route: "/marketingdashboard",
+    component: <MarketingFunnel />,
   },
   {
     type: "collapse",

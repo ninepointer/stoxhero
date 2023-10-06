@@ -56,7 +56,6 @@ export default function Dashboard() {
   }
 
   async function captureCarouselClick(id){
-    console.log("Inside Capture Carousel Click")
     await fetch(`${baseUrl}api/v1/carousels/carouselclick/${id}`, {
     method: "PATCH",
     credentials:"include",

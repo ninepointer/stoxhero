@@ -152,6 +152,54 @@ exports.createPayment = async(req, res, next)=>{
     }
 }
 
+exports.getSuccessfulPayment = async(req, res, next)=>{
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+
+    const count = await Payment.countDocuments({$match : {paymentStatus : 'succeeded' }});
+    const payment = await Payment.find({ paymentStatus: 'succeeded' })
+        .select('_id paymentTime transactionId amount paymentBy paymentMode paymentStatus currency createdOn gatewayResponse')
+        .populate('paymentBy', 'first_name last_name email mobile')
+        .sort({ _id: -1 })
+        .skip(skip)
+        .limit(limit);
+    
+    res.status(201).json({message: "successful payment retreived", data: payment, count: count});    
+        
+};
+
+exports.getInitiatedPayment = async(req, res, next)=>{
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+
+    const count = await Payment.countDocuments({$match : {paymentStatus : 'initiated' }});
+    const payment = await Payment.find({ paymentStatus: 'initiated' })
+        .select('_id paymentTime transactionId amount paymentBy paymentMode paymentStatus currency createdOn gatewayResponse')
+        .populate('paymentBy', 'first_name last_name email mobile')
+        .sort({ _id: -1 })
+        .skip(skip)
+        .limit(limit);
+    
+    res.status(201).json({message: "successful payment retreived", data: payment, count: count});    
+        
+};
+
+exports.getFailedPayment = async(req, res, next)=>{
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+
+    const count = await Payment.countDocuments({$match : {paymentStatus : 'failed' }});
+    const payment = await Payment.find({ paymentStatus: 'failed' })
+        .select('_id paymentTime transactionId amount paymentBy paymentMode paymentStatus currency createdOn gatewayResponse')
+        .populate('paymentBy', 'first_name last_name email mobile')
+        .sort({ _id: -1 })
+        .skip(skip)
+        .limit(limit);
+    
+    res.status(201).json({message: "successful payment retreived", data: payment, count: count});    
+        
+};
+
 exports.getPayment = async(req, res, next)=>{
     const skip = parseInt(req.query.skip) || 0;
     const limit = parseInt(req.query.limit) || 10
@@ -166,7 +214,7 @@ exports.getPayment = async(req, res, next)=>{
     res.status(201).json({message: "payment retreived", data: payment, count: count});    
         
 };
-
+ 
 exports.getUserPayment = async(req, res, next)=>{
     
     const id = req.params.id
