@@ -935,7 +935,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
                     
                 }
             }else{
-                if(couponDoc?.discountType == 'FLAT'){
+                if(couponDoc?.discountType == 'Flat'){
                     //Calculate amount and match
                     cashbackAmount = couponDoc?.discount;
                 }else{
@@ -953,7 +953,8 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
             }
         }
         const totalAmount = ((marginx?.marginXTemplate?.entryFee - discountAmount)*(1+setting[0]?.gstPercentage/100)).toFixed(2);
-        if(totalAmount != entryFee.toFixed(2)){
+        console.log('entry fee', entryFee, totalAmount);
+        if(totalAmount != entryFee){
             return {
                 statusCode:400,
                 data:{

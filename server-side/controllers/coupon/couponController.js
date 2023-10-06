@@ -175,7 +175,7 @@ exports.verifyCouponCode = async (req, res) => {
     try {
         const { code, product } = req.body;
         const userId = req.user._id;
-        let coupon = await Coupon.findOne({ code: code, expiryDate:{$gte: new Date()} });
+        let coupon = await Coupon.findOne({ code: code, expiryDate:{$gte: new Date()}, status:'Active' });
 
         
         if (!coupon) {
@@ -189,6 +189,17 @@ exports.verifyCouponCode = async (req, res) => {
                 status: 'error',
                 message: "This coupon is not valid for the product you're purchasing.",
             });
+        }
+        if(coupon?.isOneTimeUse){
+            if(coupon?.usedBySuccessful.length >0){
+                const uses = coupon?.usedBySuccessful?.filter((item)=>item?.user?.toString() == userId?.toString());
+                if(uses?.length>0){
+                    return res.status(400).json({
+                        status: 'error',
+                        message: "You've already used this coupon once. Try another code.",
+                    });
+                }
+            }
         }
         coupon?.usedBy?.push({
             user: userId,

@@ -475,7 +475,7 @@ function CreateCoupon() {
                     <MDButton sx={{ mr: 1, ml: 2 }} variant="contained" color="info" size="small" disabled={editing} onClick={() => { setEditing(true) }}>
                       Edit
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={editing} onClick={() => { navigate("/college") }}>
+                    <MDButton variant="contained" color="error" size="small" disabled={editing} onClick={() => { navigate("/coupons") }}>
                       Back
                     </MDButton>
                   </>
