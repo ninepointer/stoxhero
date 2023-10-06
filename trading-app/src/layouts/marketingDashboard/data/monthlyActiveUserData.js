@@ -14,7 +14,7 @@ import moment, { max } from 'moment';
 
 export default function LiveTenXSubscribers({monthNumber, yearNumber}) {
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
   let [page, setPage] = useState(1);
   const perPage = 10;
   const [activeUserCount, setActiveUserCount] = useState(0);
