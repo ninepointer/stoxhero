@@ -1,4 +1,4 @@
-import {useEffect} from 'react';
+import { useEffect } from 'react';
 import { useContext, useState } from "react";
 import TextField from '@mui/material/TextField';
 import Grid from "@mui/material/Grid";
@@ -23,8 +23,8 @@ import dayjs from 'dayjs';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
-import {apiUrl} from '../../constants/constants';
- 
+import { apiUrl } from '../../constants/constants';
+
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -44,7 +44,7 @@ function CreateCoupon() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const getDetails = useContext(userContext);
   const location = useLocation();
-  const id  = location?.state?.data;
+  const id = location?.state?.data;
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState([]);
   const [couponData, setCouponData] = useState(id ? id : '');
@@ -61,32 +61,33 @@ function CreateCoupon() {
     discountType: id?.discountType || 'Percentage',
     rewardType: id?.rewardType || 'Discount',
     status: id?.status || 'Active',
-    liveDate:dayjs(id?.liveDate) || dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
-    expiryDate:dayjs(id?.expiryDate) || dayjs(new Date()).set('hour', 23).set('minute', 59).set('second', 59),
-    eligibleProducts:id?.eligibleProducts || []
+    liveDate: dayjs(id?.liveDate) || dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
+    expiryDate: dayjs(id?.expiryDate) || dayjs(new Date()).set('hour', 23).set('minute', 59).set('second', 59),
+    eligibleProducts: id?.eligibleProducts || [],
+    maxDiscount: id?.maxDiscount || '',
   });
-  async function getProducts(){
-    const res = await axios.get(`${apiUrl}products`,{withCredentials:true});
-    if(res.status == 200){
-      setProducts(res?.data?.data?.filter((item)=>item?.productName != 'Internship'));
+  async function getProducts() {
+    const res = await axios.get(`${apiUrl}products`, { withCredentials: true });
+    if (res.status == 200) {
+      setProducts(res?.data?.data?.filter((item) => item?.productName != 'Internship'));
     }
   }
-  useEffect(()=>{
+  useEffect(() => {
     getProducts();
-  },[])
+  }, [])
 
   async function onSubmit(e, formState) {
     e.preventDefault()
 
     setCreating(true)
 
-    if (!formState?.code || !formState?.discount || !formState?.discountType || !formState?.liveDate || !formState?.expiryDate) {
+    if (!formState?.code || !formState?.discount || !formState?.discountType || !formState?.liveDate || !formState?.expiryDate || !formState?.maxDiscount) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500);
       return openErrorSB("Missing Field", "Please fill all the mandatory fields");
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const { code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description } = formState;
+    const { code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description, maxDiscount } = formState;
     const res = await fetch(`${apiUrl}coupons`, {
       method: "POST",
       credentials: "include",
@@ -95,7 +96,7 @@ function CreateCoupon() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description 
+        maxDiscount, code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description
       })
     });
 
@@ -115,15 +116,13 @@ function CreateCoupon() {
   async function onEdit(e, formState) {
     e.preventDefault()
     setSaving(true)
-    if (!formState?.collegeName || !formState?.zone) {
-
-      setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
-      return openErrorSB("Missing Field", "Please fill all the mandatory fields")
-
+    if (!formState?.code || !formState?.discount || !formState?.discountType || !formState?.liveDate || !formState?.expiryDate || !formState?.maxDiscount) {
+      // setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500);
+      return openErrorSB("Missing Field", "Please fill all the mandatory fields");
     }
-    setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const { collegeName, zone } = formState;
-    const res = await fetch(`${baseUrl}api/v1/college/${id?._id}`, {
+
+    const { code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description, maxDiscount } = formState;
+    const res = await fetch(`${apiUrl}coupons/${id?._id}`, {
       method: "PATCH",
       credentials: "include",
       headers: {
@@ -131,7 +130,7 @@ function CreateCoupon() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        collegeName, zone,
+        code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description, maxDiscount
       })
 
     });
@@ -139,8 +138,8 @@ function CreateCoupon() {
     const data = await res.json();
     const updatedData = data?.data
     if (updatedData || res.status === 200) {
-      openSuccessSB("College Edited", updatedData.collegeName + " | " + updatedData.zone)
-      setTimeout(()=>{setSaving(false);setEditing(false)},500)
+      openSuccessSB("Coupon Edited", updatedData.collegeName + " | " + updatedData.zone)
+      setTimeout(() => { setSaving(false); setEditing(false) }, 500)
     } else {
       openErrorSB("Error", "data.error")
     }
@@ -206,10 +205,10 @@ function CreateCoupon() {
     setSelectedProduct(selectedIds);
 
     setFormState(prevState => ({
-        ...prevState,
-        eligibleProducts: selectedIds
+      ...prevState,
+      eligibleProducts: selectedIds
     }));
-  };  
+  };
 
   return (
     <>
@@ -227,7 +226,7 @@ function CreateCoupon() {
               </MDTypography>
             </MDBox>
 
-            <Grid container spacing={1} mt={0.5}>
+            <Grid container spacing={2} mt={0.5}>
               <Grid item xs={12} md={6} xl={3}>
                 <TextField
                   disabled={((isSubmitted || id) && (!editing || saving))}
@@ -270,6 +269,23 @@ function CreateCoupon() {
                     setFormState(prevState => ({
                       ...prevState,
                       discount: e.target.value
+                    }))
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={3}>
+                <TextField
+                  disabled={((isSubmitted || id) && (!editing || saving))}
+                  id="outlined-required"
+                  type="number"
+                  label='Max Discount *'
+                  value={formState?.maxDiscount || couponData?.maxDiscount}
+                  fullWidth
+                  onChange={(e) => {
+                    setFormState(prevState => ({
+                      ...prevState,
+                      maxDiscount: e.target.value
                     }))
                   }}
                 />
@@ -374,71 +390,72 @@ function CreateCoupon() {
               </Grid>
 
               <Grid item xs={12} md={6} xl={3} mt={-1} mb={1}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DemoContainer components={['MobileDateTimePicker']}>
-                      <DemoItem>
-                        <MobileDateTimePicker
-                          label="Live Date"
-                          disabled={((isSubmitted || id) && (!editing || saving))}
-                          value={formState?.liveDate || dayjs(id?.liveDate)}
-                          onChange={(newValue) => {
-                            if (newValue && newValue.isValid()) {
-                              setFormState(prevState => ({ ...prevState, liveDate: newValue }))
-                            }
-                          }}
-                          minDateTime={null}
-                          sx={{ width: '100%' }}
-                        />
-                      </DemoItem>
-                    </DemoContainer>
-                  </LocalizationProvider>
-                </Grid>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DemoContainer components={['MobileDateTimePicker']}>
+                    <DemoItem>
+                      <MobileDateTimePicker
+                        label="Live Date"
+                        disabled={((isSubmitted || id) && (!editing || saving))}
+                        value={formState?.liveDate || dayjs(id?.liveDate)}
+                        onChange={(newValue) => {
+                          if (newValue && newValue.isValid()) {
+                            setFormState(prevState => ({ ...prevState, liveDate: newValue }))
+                          }
+                        }}
+                        minDateTime={null}
+                        sx={{ width: '100%' }}
+                      />
+                    </DemoItem>
+                  </DemoContainer>
+                </LocalizationProvider>
+              </Grid>
               <Grid item xs={12} md={6} xl={3} mt={-1} mb={1}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DemoContainer components={['MobileDateTimePicker']}>
-                      <DemoItem>
-                        <MobileDateTimePicker
-                          label="Expiry Date"
-                          disabled={((isSubmitted || id) && (!editing || saving))}
-                          value={formState?.expiryDate || dayjs(id?.expiryDate)}
-                          onChange={(newValue) => {
-                            if (newValue && newValue.isValid()) {
-                              setFormState(prevState => ({ ...prevState, expiryDate: newValue }))
-                            }
-                          }}
-                          minDateTime={null}
-                          sx={{ width: '100%' }}
-                        />
-                      </DemoItem>
-                    </DemoContainer>
-                  </LocalizationProvider>
-                </Grid>
-                <Grid item xs={12} md={6} xl={6} mt={-1} mb={1}>
-                      <FormControl sx={{ m: 1, width: 300 }}>
-                        <InputLabel id="demo-multiple-checkbox-label">Select Products</InputLabel>
-                        <Select
-                          labelId="demo-multiple-checkbox-label"
-                          id="demo-multiple-checkbox"
-                          multiple
-                          value={selectedProduct}
-                          onChange={handleChange}
-                          input={<OutlinedInput label="Tag" />}
-                          renderValue={(selectedIds) => 
-                            selectedIds.map(id => products.find(prod => prod._id === id)?.productName).join(', ')
-                        }
-                          sx={{ minHeight: "44px" }}
-                          MenuProps={MenuProps}
-                        >
-                          {products?.map((elem) => (
-                            <MenuItem key={elem?._id} value={elem?._id}>
-                              <Checkbox checked={selectedProduct.indexOf(elem?._id) > -1} />
-                              <ListItemText primary={elem?.productName} />
-                            </MenuItem>
-                          ))}
-                        </Select>
-            </FormControl>
-                </Grid>
-              
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DemoContainer components={['MobileDateTimePicker']}>
+                    <DemoItem>
+                      <MobileDateTimePicker
+                        label="Expiry Date"
+                        disabled={((isSubmitted || id) && (!editing || saving))}
+                        value={formState?.expiryDate || dayjs(id?.expiryDate)}
+                        onChange={(newValue) => {
+                          if (newValue && newValue.isValid()) {
+                            setFormState(prevState => ({ ...prevState, expiryDate: newValue }))
+                          }
+                        }}
+                        minDateTime={null}
+                        sx={{ width: '100%' }}
+                      />
+                    </DemoItem>
+                  </DemoContainer>
+                </LocalizationProvider>
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={6} mt={-1} mb={1}>
+                <FormControl sx={{ m: 1, width: 300 }}>
+                  <InputLabel id="demo-multiple-checkbox-label">Select Products</InputLabel>
+                  <Select
+                    labelId="demo-multiple-checkbox-label"
+                    id="demo-multiple-checkbox"
+                    multiple
+                    value={selectedProduct}
+                    onChange={handleChange}
+                    input={<OutlinedInput label="Tag" />}
+                    renderValue={(selectedIds) =>
+                      selectedIds.map(id => products.find(prod => prod._id === id)?.productName).join(', ')
+                    }
+                    sx={{ minHeight: "44px" }}
+                    MenuProps={MenuProps}
+                  >
+                    {products?.map((elem) => (
+                      <MenuItem key={elem?._id} value={elem?._id}>
+                        <Checkbox checked={selectedProduct.indexOf(elem?._id) > -1} />
+                        <ListItemText primary={elem?.productName} />
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+
 
 
               <Grid item display="flex" justifyContent="flex-end" alignContent="center" xs={12} md={12} xl={12}>
@@ -447,7 +464,7 @@ function CreateCoupon() {
                     <MDButton mr={1} variant="contained" color="success" size="small" sx={{ mr: 1, ml: 2 }} disabled={creating} onClick={(e) => { onSubmit(e, formState) }}>
                       {creating ? <CircularProgress size={20} color="inherit" /> : "Submit"}
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={()=>{navigate("/coupon")}}>
+                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/coupon") }}>
                       Cancel
                     </MDButton>
                   </>
@@ -455,27 +472,27 @@ function CreateCoupon() {
 
                 {(isSubmitted || id) && !editing && (
                   <>
-                    <MDButton sx={{mr:1, ml:2}} variant="contained" color="info" size="small" disabled={editing} onClick={()=>{setEditing(true)}}>
+                    <MDButton sx={{ mr: 1, ml: 2 }} variant="contained" color="info" size="small" disabled={editing} onClick={() => { setEditing(true) }}>
                       Edit
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={editing} onClick={()=>{navigate("/college")}}>
+                    <MDButton variant="contained" color="error" size="small" disabled={editing} onClick={() => { navigate("/college") }}>
                       Back
                     </MDButton>
                   </>
                 )}
 
                 {(isSubmitted || id) && editing && (
-                <>
-                <MDButton variant="contained" color="warning" size="small" sx={{mr:1, ml:2}} disabled={saving} 
-                onClick={(e)=>{onEdit(e,formState)}}
-                
-                >
-                  {saving ? <CircularProgress size={20} color="inherit" /> : "Save"}
-                </MDButton>
-                <MDButton variant="contained" color="error" size="small" disabled={saving} onClick={()=>{setEditing(false)}}>
-                    Cancel
-                </MDButton>
-                </>
+                  <>
+                    <MDButton variant="contained" color="warning" size="small" sx={{ mr: 1, ml: 2 }} disabled={saving}
+                      onClick={(e) => { onEdit(e, formState) }}
+
+                    >
+                      {saving ? <CircularProgress size={20} color="inherit" /> : "Save"}
+                    </MDButton>
+                    <MDButton variant="contained" color="error" size="small" disabled={saving} onClick={() => { setEditing(false) }}>
+                      Cancel
+                    </MDButton>
+                  </>
                 )}
               </Grid>
             </Grid>

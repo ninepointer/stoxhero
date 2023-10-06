@@ -799,7 +799,7 @@ export default function LabTabs({socket}) {
                                 size="small" 
                                 component = {Link}
                                 to={{
-                                    pathname: `/algobox`,
+                                    pathname: `/coupons`,
                                   }}
                             >
                                 Coupons

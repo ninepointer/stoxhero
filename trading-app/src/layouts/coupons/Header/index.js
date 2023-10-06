@@ -11,10 +11,10 @@ import {Link} from 'react-router-dom'
 // import ActiveBatches from '../data/activeBatches';
 // import CompletedBatches from '../data/completedBatches';
 // import InactiveBatches from '../data/inactiveBatches'
-import NorthZoneCollege from '../data/NorthZoneCollege'
-import EastZoneCollege from '../data/EastZoneCollege'
-import SouthZoneCollege from '../data/SouthZoneCollege'
-import WestZoneCollege from '../data/WestZoneCollege'
+import ActiveCoupons from '../data/ActiveCoupons'
+import DraftCoupons from '../data/DraftCoupons'
+import ExpiredCoupons from '../data/ExpiredCoupons'
+import InactiveCoupons from '../data/InactiveCoupons'
 
 //data
 
@@ -69,7 +69,7 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-            <NorthZoneCollege/>
+            <ActiveCoupons />
           </MDBox>
    
           }
@@ -80,7 +80,7 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <SouthZoneCollege/>
+          <InactiveCoupons/>
           }
         </TabPanel>
         <TabPanel value="3">
@@ -89,7 +89,7 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <EastZoneCollege/>
+          <DraftCoupons/>
           }
         </TabPanel>
         <TabPanel value="4">
@@ -98,7 +98,7 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <WestZoneCollege/>
+          <ExpiredCoupons/>
           }
         </TabPanel>
       </TabContext>

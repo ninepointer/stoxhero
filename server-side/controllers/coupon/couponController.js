@@ -7,7 +7,7 @@ exports.createCouponCode = async (req, res) => {
     try {
         const {
             code, description, discountType, rewardType, discount, liveDate, expiryDate, status,
-            isOneTimeUse, usedBy, maxUse, eligibleProducts, campaign
+            isOneTimeUse, usedBy, maxUse, eligibleProducts, campaign, maxDiscount
         } = req.body;
 
         const existingCode = await Coupon.findOne({ code: code });
@@ -21,7 +21,7 @@ exports.createCouponCode = async (req, res) => {
 
         const coupon = await Coupon.create({
             code, description, discountType, rewardType, discount, liveDate, expiryDate, status,
-            isOneTimeUse, usedBy, maxUse, eligibleProducts, campaign,
+            isOneTimeUse, usedBy, maxUse, eligibleProducts, campaign, maxDiscount, 
             createdBy: req.user._id, lastModifiedBy: req.user._id
         });
 
@@ -42,10 +42,10 @@ exports.createCouponCode = async (req, res) => {
 
 exports.editCouponCode = async (req, res) => {
     try {
-        const { code } = req.params;
+        const { id } = req.params;
         const updateFields = req.body;
 
-        let coupon = await Coupon.findOne({ code: code });
+        let coupon = await Coupon.findOne({ _id: id });
 
         if (!coupon) {
             return res.status(404).json({
@@ -55,7 +55,7 @@ exports.editCouponCode = async (req, res) => {
         }
 
         updateFields.lastModifiedBy = req.user._id;
-        coupon = await Coupon.findOneAndUpdate({ code: code }, updateFields, { new: true });
+        coupon = await Coupon.findOneAndUpdate({  _id: id }, updateFields, { new: true });
 
         res.status(200).json({
             status: 'success',
@@ -96,7 +96,8 @@ exports.getActiveCouponCodes = async (req, res) => {
         
         res.status(200).json({
             status: 'success',
-            data: activeCoupons
+            data: activeCoupons,
+            count: activeCoupons.length
         });
     } catch (error) {
         console.log(error);
@@ -107,6 +108,68 @@ exports.getActiveCouponCodes = async (req, res) => {
         });
     }
 };
+
+exports.getInActiveCouponCodes = async (req, res) => {
+    try {
+        const inactiveCoupons = await Coupon.find({ status: 'Inactive' });
+        
+        res.status(200).json({
+            status: 'success',
+            data: inactiveCoupons,
+            count: inactiveCoupons.length
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+
+
+exports.getDraftCouponCodes = async (req, res) => {
+    try {
+        const draftCoupons = await Coupon.find({ status: 'Draft' });
+        
+        res.status(200).json({
+            status: 'success',
+            data: draftCoupons,
+            count: draftCoupons.length
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+
+exports.getExpiredCouponCodes = async (req, res) => {
+    try {
+        const expiredCoupons = await Coupon.find({ status: 'Expired' });
+        
+        res.status(200).json({
+            status: 'success',
+            data: expiredCoupons,
+            count: expiredCoupons.length
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+
 
 exports.verifyCouponCode = async (req, res) => {
     try {

@@ -39,7 +39,7 @@ const couponCodeSchema = new mongoose.Schema({
   status: {
     type: String,
     default: 'Active',
-    enum:['Active', 'Inactive' ,'Draft']
+    enum:['Active', 'Inactive' ,'Draft', 'Expired']
   },
   isOneTimeUse: {
     type: Boolean,
