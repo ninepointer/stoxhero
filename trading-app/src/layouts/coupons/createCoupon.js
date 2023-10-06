@@ -196,15 +196,6 @@ function CreateCoupon() {
     />
   );
   const handleChange = (event) => {
-    // const {
-    //   target: { value },
-    // } = event;
-    // setSelectedProduct(
-    //   // On autofill we get a stringified value.
-    //   typeof value === 'string' ? value.split(',') : value,
-    // );
-
-    // console.log('string', value, selectedProduct);
     const selectedIds = event.target.value;
     setSelectedProduct(selectedIds);
 
