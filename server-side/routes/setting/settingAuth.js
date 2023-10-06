@@ -160,40 +160,49 @@ router.patch("/toggleComplete/:id", restrictTo('Admin', 'SuperAdmin'), Authentic
 router.get("/deletetxns", async (req, res)=>{
     try{
         // const contest = await Contest.findOne({_id: new ObjectId('6509843318489d6d850f9f1e')});
-        const contest = await Contest.findOne({_id: new ObjectId('65150e3ff3ef0c1ed1a36a0c')});
+        const contest = await Contest.findOne({_id: new ObjectId('6518065c3d760d2c14579be1')});
+        // console.log(contest)
         let participants = contest.participants;
         let totalPayout = 0;
     
         for (let elem of participants){
             const userWallet = await Wallet.findOne({userId: elem?.userId});
             const txns = userWallet.transactions;
-            const contestTxns = txns?.filter((item) => { return item?.title == 'Contest Credit' && new Date(item?.transactionDate)>= new Date('2023-09-29') && item?.description == 'Amount credited for contest Friday Fury Nifty'});
-            const sumPayouts = contestTxns.reduce()
+            // console.log(userWallet);
+            const contestTxns = txns?.filter((item) => { return item?.title == 'Contest Credit' && new Date(item?.transactionDate)>= new Date('2023-10-06') && item?.description == 'Amount credited for contest Wealth Warriors College Contest'});
+            // const sumPayouts = contestTxns?.reduce()
             if(contestTxns.length > 1){
                 console.log('red', elem?.userId);
             }
+            if(contestTxns.length == 1){
+                console.log('green', elem?.userId);
+            }
+            if(contestTxns.length > 2){
+                console.log('extreme', elem?.userId, contestTxns?.length);
+            }
+
             if (contestTxns.length > 0) {
                 // Calculate the sum of amount in contestTxns
-                const userAmount = contestTxns.reduce((sum, txn) => sum + (txn.amount || 0), 0);
+                const userAmount = contestTxns?.reduce((sum, txn) => sum + (txn.amount || 0), 0);
                 // console.log(`Amount for user ${elem?.userId}: ${userAmount}`);
 
                 totalPayout += userAmount; // Update the totalPayout with this user's amount
             }
-            // if(contestTxns.length == 2){
-            //     //delete the duplicate transaction from userWallet and save
-            //     if (contestTxns.length == 2) {
-            //         // To determine which one to delete, you could delete based on criteria such as creation time or ID
-            //         // Here I'm assuming you want to delete the second transaction as the duplicate
-            //         const duplicateTxn = contestTxns[1];
+            if(contestTxns.length == 2){
+                //delete the duplicate transaction from userWallet and save
+                if (contestTxns.length == 2) {
+                    // To determine which one to delete, you could delete based on criteria such as creation time or ID
+                    // Here I'm assuming you want to delete the second transaction as the duplicate
+                    const duplicateTxn = contestTxns[1];
     
-            //         // Use the pull method to remove the transaction from the user's wallet
-            //         await Wallet.updateOne(
-            //             { userId: elem?.userId }, 
-            //             { $pull: { transactions: { _id: duplicateTxn._id } } }
-            //         );
-            //     }    
-            // }
-            // console.log(`For user${elem?.userId}`, contestTxns?.length);    
+                    // Use the pull method to remove the transaction from the user's wallet
+                    await Wallet.updateOne(
+                        { userId: elem?.userId }, 
+                        { $pull: { transactions: { _id: duplicateTxn._id } } }
+                    );
+                }    
+            }
+            console.log(`For user${elem?.userId}`, contestTxns?.length);    
         }
         console.log(`Total Payout: ${totalPayout}`);
         console.log('finished')
@@ -214,13 +223,14 @@ router.get("/deletenotifs", async (req, res)=>{
             // const userWallet = await Wallet.findOne({userId: elem?.userId});
             const notifications = await Notification.find({user:elem?.userId});
             // const txns = userWallet.transactions;
-            const not = notifications?.filter((item) => { return item?.title == 'Contest Reward Credited' && new Date(item?.notificationTime)>= new Date('2023-09-29T09:51:00.485+00:00')});
+            const not = notifications?.filter((item) => { return item?.title == 'Contest Reward Credited' && new Date(item?.notificationTime)>= new Date('2023-10-06T09:49:00.485+00:00')});
             // const sumPayouts = contestTxns.reduce()
             // console.log(not.length, 'for', elem?.userId);
             if(not?.length == 2){
                 if(not[0]?.description == not[1]?.description){
                     const duplicateNot = not[1];
-                    console.log(await Notification.findByIdAndDelete(duplicateNot?._id));
+                    console.log('Deleting notification for', elem?.userId);
+                    await Notification.findByIdAndDelete(duplicateNot?._id);
                 }
             }
             // if(not.length > 1){

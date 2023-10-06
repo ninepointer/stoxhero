@@ -1729,7 +1729,7 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
     const contest = await Contest.findOne({ _id: contestId });
         const wallet = await UserWallet.findOne({ userId: userId });
         const user = await User.findOne({ _id: userId });
-        
+        let discountAmount = 0;
 
         const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
             return transaction.transactionType === "Cash";
@@ -1738,7 +1738,29 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
         const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
             return total + transaction?.amount;
         }, 0);
-
+        if(coupon){
+          const couponDoc = await Coupon.findOne({code:coupon});
+          if(couponDoc?.rewardType == 'Discount'){
+              if(couponDoc?.discountType == 'FLAT'){
+                  //Calculate amount and match
+                  discountAmount = couponDoc?.discount;
+              }else{
+                  discountAmount = Math.min(couponDoc?.discount/100*contest?.entryFee, couponDoc?.maxDiscount);
+                  
+              }
+          }
+      }
+      const setting = await Setting.find({});
+      const totalAmount = (contest?.entryFee - discountAmount)*(1+setting[0]?.gstPercentage/100)
+      if(totalAmount?.toFixed(2) != contestFee?.toFixed(2)){
+        return {
+          statusCode:400,
+          data:{
+          status: "error",
+          message:"Incorrect contest fee amount",
+          }
+        };  
+      } 
         if (totalCashAmount < contestFee) {
           return {
             statusCode:400,
@@ -1746,7 +1768,7 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
             status: "error",
             message:"You do not have enough balance to join this contest. Please add money to your wallet.",
             }
-        };  
+          };  
         }
 
         for (let i = 0; i < contest.participants?.length; i++) {

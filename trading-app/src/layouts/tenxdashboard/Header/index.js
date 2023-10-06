@@ -792,6 +792,19 @@ export default function LabTabs({socket}) {
                                 Algo Box
                             </MDButton>
                         </Grid>
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"warning"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/algobox`,
+                                  }}
+                            >
+                                Coupons
+                            </MDButton>
+                        </Grid>
                     </Grid>
                 </MDBox>
                 

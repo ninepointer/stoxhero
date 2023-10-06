@@ -11,6 +11,7 @@ const uuid = require("uuid");
 const emailService = require("../../utils/emailService");
 const Product = require('../../models/Product/product');
 const {saveSuccessfulCouponUse} = require('../coupon/couponController');
+const Coupon = require('../../models/coupon/coupon');
 
 exports.createMarginX = async (req, res) => {
     try {
@@ -920,6 +921,47 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
         const marginx = await MarginX.findOne({ _id: marginXId }).populate('marginXTemplate', 'entryFee');
         const wallet = await Wallet.findOne({ userId: userId });
         const user = await User.findOne({ _id: userId });
+        let discountAmount = 0;
+        let cashbackAmount = 0;
+        const setting = await Setting.find({});
+        if(coupon){
+            const couponDoc = await Coupon.findOne({code:coupon});
+            if(couponDoc?.rewardType == 'Discount'){
+                if(couponDoc?.discountType == 'FLAT'){
+                    //Calculate amount and match
+                    discountAmount = couponDoc?.discount;
+                }else{
+                    discountAmount = Math.min(couponDoc?.discount/100*marginx?.marginXTemplate?.entryFee, couponDoc?.maxDiscount);
+                    
+                }
+            }else{
+                if(couponDoc?.discountType == 'FLAT'){
+                    //Calculate amount and match
+                    cashbackAmount = couponDoc?.discount;
+                }else{
+                    cashbackAmount = Math.min(couponDoc?.discount/100*marginx?.marginXTemplate?.entryFee, couponDoc?.maxDiscount);
+                    
+                }
+                wallet?.transactions?.push({
+                    title: 'StoxHero CashBack',
+                    description: `Cashback of ${cashbackAmount?.toFixed(2)} - code ${coupon} used`,
+                    transactionDate: new Date(),
+                    amount:cashbackAmount?.toFixed(2),
+                    transactionId: uuid.v4(),
+                    transactionType: 'Bonus'
+                });
+            }
+        }
+        const totalAmount = ((marginx?.marginXTemplate?.entryFee - discountAmount)*(1+setting[0]?.gstPercentage/100)).toFixed(2);
+        if(totalAmount != entryFee.toFixed(2)){
+            return {
+                statusCode:400,
+                data:{
+                status: "error",
+                message:"Incorrect amount",
+                }
+            }
+        }
 
         const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
             return transaction.transactionType === "Cash";
@@ -1093,6 +1135,20 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
             emailService(recipientString,subject,message);
             console.log("Subscription Email Sent")
         }
+        if(coupon && cashbackAmount>0){
+            await createUserNotification({
+                title:'StoxHero Cashback',
+                description:`₹${cashbackAmount?.toFixed(2)} added as bonus - ${coupon} code used.`,
+                notificationType:'Individual',
+                notificationCategory:'Informational',
+                productCategory:'MarginX',
+                user: user?._id,
+                priority:'Medium',
+                channels:['App', 'Email'],
+                createdBy:'63ecbc570302e7cf0153370c',
+                lastModifiedBy:'63ecbc570302e7cf0153370c'  
+              });
+        }
         await createUserNotification({
             title:'MarginX Fee Deducted',
             description:`₹${marginx?.marginXTemplate?.entryFee} deducted for ${marginx?.marginXName} MarginX Fee`,
@@ -1100,7 +1156,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
             notificationCategory:'Informational',
             productCategory:'MarginX',
             user: user?._id,
-            priority:'High',
+            priority:'Medium',
             channels:['App', 'Email'],
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  

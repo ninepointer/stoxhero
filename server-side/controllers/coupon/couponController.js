@@ -138,7 +138,8 @@ exports.verifyCouponCode = async (req, res) => {
             data: {
                 discount: coupon.discount,
                 discountType: coupon.discountType,
-                rewardType: coupon.rewardType
+                rewardType: coupon.rewardType,
+                maxDiscount: coupon?.maxDiscount,
             }
         });
     } catch (error) {

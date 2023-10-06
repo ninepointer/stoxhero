@@ -27,6 +27,7 @@ const couponCodeSchema = new mongoose.Schema({
       required:true,
       default: 0,
   },
+  maxDiscount: Number,
   liveDate:{
     type: Date,
     required: true

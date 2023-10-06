@@ -434,8 +434,9 @@ exports.checkPaymentStatus = async(req,res, next) => {
                 if(payment.amount == resp.data.data.amount/100){
                     await addMoneyToWallet(payment.amount-payment?.gstAmount, payment?.paymentBy);
                     if(payment?.paymentFor && payment?.productId){
-                        await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy);
+                        await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy, payment?.coupon);
                     }
+                    //TODO:Remove this code
                     if(payment?.coupon){
                         if(payment?.paymentFor){
                             await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, payment?.paymentFor);
@@ -482,30 +483,30 @@ const addMoneyToWallet = async (amount, userId) =>{
     await wallet.save({validateBeforeSave: false});
 }
 
-const participateUser = async (paymentFor, productId, paymentBy) => {
+const participateUser = async (paymentFor, productId, paymentBy, coupon) => {
     switch (paymentFor){
         case 'Contest':
             if(productId){
                 const contest = await Contest.findById(productId).select('entryFee contestName');
-                await handleSubscriptionDeduction(paymentBy, contest?.entryFee, contest?.contestName, contest?._id);
+                await handleSubscriptionDeduction(paymentBy, contest?.entryFee, contest?.contestName, contest?._id, coupon);
             }
             break;
         case 'TenX':
             if(productId){
                 const tenx = await TenX.findById(productId).select('discounted_price plan_name');
-                await handleDeductSubscriptionAmount(paymentBy, tenx?.discounted_price, tenx?.plan_name, tenx?._id);
+                await handleDeductSubscriptionAmount(paymentBy, tenx?.discounted_price, tenx?.plan_name, tenx?._id, coupon);
             }
             break;
         case 'TenX Renewal':
             if(productId){
                 const tenx = await TenX.findById(productId).select('discounted_price plan_name');
-                await handleSubscriptionRenewal(paymentBy, tenx?.discounted_price, tenx?.plan_name, tenx?._id);
+                await handleSubscriptionRenewal(paymentBy, tenx?.discounted_price, tenx?.plan_name, tenx?._id, coupon);
             }
             break;
         case 'MarginX':
             if(productId){
                 const marginX = await MarginX.findById(productId).populate('marginXTemplate', 'entryFee');
-                await handleDeductMarginXAmount(paymentBy, marginX?.marginXTemplate?.entryFee, marginX?.marginXName, marginX?._id);
+                await handleDeductMarginXAmount(paymentBy, marginX?.marginXTemplate?.entryFee, marginX?.marginXName, marginX?._id, coupon);
             }
             break;
         case 'Battle':

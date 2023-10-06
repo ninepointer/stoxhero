@@ -12,6 +12,8 @@ const emailService = require("../utils/emailService");
 const mongoose = require('mongoose');
 const {createUserNotification} = require('./notification/notificationController');
 const Product = require('../models/Product/product');
+const Coupon = require('../models/coupon/coupon');
+const Setting = require('../models/settings/setting');
 const {saveSuccessfulCouponUse} = require('./coupon/couponController');
 
 
@@ -502,6 +504,7 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
   const today = new Date();
   const session = await mongoose.startSession();
   try{
+    let discountAmount =0;
     session.startTransaction();
     const tenXSubs = await TenXSubscription.findOne({_id: new ObjectId(subscriptionId)})
     subscriptionAmount = tenXSubs?.discounted_price;
@@ -512,7 +515,29 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
         amount += elem.amount;
       }
     }
-
+    if(coupon){
+      const couponDoc = await Coupon.findOne({code:coupon});
+      if(couponDoc?.rewardType == 'Discount'){
+          if(couponDoc?.discountType == 'FLAT'){
+              //Calculate amount and match
+              discountAmount = couponDoc?.discount;
+          }else{
+              discountAmount = Math.min(couponDoc?.discount/100*tenXSubs?.discounted_price, couponDoc?.maxDiscount);
+              
+          }
+      }
+  }
+  const setting = await Setting.find({});
+  const totalAmount = (tenXSubs?.discounted_price - discountAmount)*(1+setting[0]?.gstPercentage/100)
+  if(totalAmount?.toFixed(2) != subscriptionAmount?.toFixed(2)){
+    return {
+      statusCode:400,
+      data:{
+      status: "error",
+      message:"Incorrect TenX fee amount",
+      }
+    };  
+  } 
     if(amount < subscriptionAmount){
       return {
         statusCode:400,

@@ -195,7 +195,7 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
   };
 
   const amount = elem?.marginXTemplate?.entryFee;
-  const actualAmount = elem?.marginXTemplate?.entryFee*setting.gstPercentage/100;
+  const actualAmount = (elem?.marginXTemplate?.entryFee-discountAmount)*setting.gstPercentage/100;
   
 
   const initiatePayment = async() => {
@@ -207,15 +207,15 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
       console.log(e);
   }
   }
-  const calculateDiscount = (discountType, rewardType, discount) => {
+  const calculateDiscount = (discountType, rewardType, discount, maxDiscount=1000) => {
     if(rewardType =='Discount'){
       if(discountType == 'Flat'){
         setDiscountAmount(discount);
       }else if(discountType == 'Percentage'){
-        setDiscountAmount(amount*discount/100);
+        setDiscountAmount(Math.min(amount*discount/100, maxDiscount));
       }
     }else{
-      cashbackAmount = discount
+      setCashbackAmount(discount);
     }
   }
   const applyPromoCode = async () => {
@@ -224,6 +224,7 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
         setVerifiedCode('');
         setCode('');
         setInvalidCode(false);
+        setDiscountAmount(0);
         return;
       }
       const res = await axios.post(`${apiUrl}coupons/verify`, {code, product:'6517d40e3aeb2bb27d650de1'}, {withCredentials:true});
@@ -232,7 +233,7 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
         setVerifiedCode(code);
         setInvalidCode('');
         setDiscountData(res?.data?.data);
-        calculateDiscount(res?.data?.data?.discountType, res?.data?.data?.rewardType, res?.data?.data?.discount);
+        calculateDiscount(res?.data?.data?.discountType, res?.data?.data?.rewardType, res?.data?.data?.discount, res?.data?.data?.maxDiscount);
       }else{
         setInvalidCode(res?.data?.message);
       }
@@ -314,14 +315,15 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
                               <Input placeholder="Enter your promo code" disabled={verifiedCode} inputProps={ariaLabel} value={code} onChange={(e)=>{setCode(e.target.value)}} />
                               <MDButton onClick={applyPromoCode}>{verifiedCode && code? 'Remove':'Apply'}</MDButton>
                             </MDBox>
-                            {verifiedCode && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#ab1" variant="body2">Applied</Typography>}
+                            {verifiedCode && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#ab1" variant="body2">{`Applied ${verifiedCode} - ${discountData?.discountType == 'Percentage'?`(${discountData?.discount}% off)`: `(FLAT ${discountData?.discount}) off`}`}</Typography>}
+                            {verifiedCode && discountData?.rewardType == 'Cashback' && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#ab1" variant="body2">{`Applied ${verifiedCode} - ${discountData?.discountType == 'Percentage'?`(${discountData?.discount}% Cashback)`: `(FLAT ${discountData?.discount}) Cashback`}`}</Typography>}
                             {invalidCode && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#f16" variant="body2">{invalidCode}</Typography>}
                             </>
                             }
                             <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
                             <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{amount ? amount : 0}</Typography>
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{0}</Typography>
-                            {discountData && <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">{discountData?.discountType === 'Percentage' ? 
+                            {verifiedCode && <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">{discountData?.discountType === 'Percentage' ? 
                               `Discount (${discountData?.discount}%) on Fee: ₹${discountAmount}` : 
                               `Discount (FLAT ₹ ${discountData?.discount} OFF) on Fee: ₹${discountAmount}`}</Typography>}
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(amount-discountAmount).toFixed(2)}</Typography>
@@ -335,16 +337,23 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
                                 <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Have a promo code?</Typography>
                               </MDBox>
                             :
+                            <>
                             <MDBox display='flex' justifyContent='flex-start' width='100%' alignItems='flex-start' mt={1}>
-                              <Input placeholder="Enter your promo code" inputProps={ariaLabel} />
-                              <MDButton>Apply</MDButton>
+                              <Input placeholder="Enter your promo code" disabled={verifiedCode} inputProps={ariaLabel} value={code} onChange={(e)=>{setCode(e.target.value)}} />
+                              <MDButton onClick={applyPromoCode}>{verifiedCode && code? 'Remove':'Apply'}</MDButton>
                             </MDBox>
-                            
+                            {verifiedCode && discountData?.rewardType == 'Discount' && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#ab1" variant="body2">{`Applied ${verifiedCode} - ${discountData?.discountType == 'Percentage'?`(${discountData?.discount}% off)`: `(FLAT ${discountData?.discount}) off`}`}</Typography>}
+                            {verifiedCode && discountData?.rewardType == 'Cashback' && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#ab1" variant="body2">{`Applied ${verifiedCode} - ${discountData?.discountType == 'Percentage'?`(${discountData?.discount}% Cashback)`: `(FLAT ${discountData?.discount}) Cashback`}`}</Typography>}
+                            {invalidCode && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#f16" variant="body2">{invalidCode}</Typography>}
+                            </>
                             }
                             <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
                             <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{amount ? amount : 0}</Typography>
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{actualAmount ? actualAmount : 0}</Typography>
-                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(amount) + actualAmount}</Typography>
+                            {verifiedCode && <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">{discountData?.discountType === 'Percentage' ? 
+                              `Discount (${discountData?.discount}%) on Fee: ₹${discountAmount}` : 
+                              `Discount (FLAT ₹ ${discountData?.discount} OFF) on Fee: ₹${discountAmount}`}</Typography>}
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{(Number(amount-discountAmount) + actualAmount).toFixed(2)}</Typography>
                           </MDBox>}
                       </RadioGroup>
                     </FormControl>
@@ -403,7 +412,7 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
               Close
             </MDButton>
             <MDButton color={"success"} onClick={()=>initiatePayment()} autoFocus>
-              {`Pay ₹${Number(amount) + actualAmount} securely`}
+              {`Pay ₹${Number(amount-discountAmount)  + actualAmount} securely`}
             </MDButton>
           </DialogActions>}
           {renderSuccessSB}
