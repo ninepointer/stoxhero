@@ -10,7 +10,7 @@ import axios from "axios";
 
 export default function SubscriptionPurchaseIntent({tenXSubscription, purchaseIntentCount, setPurchaseIntentCount}) {
     console.log("Subscription", tenXSubscription)
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [tenXSubsPurchaseIntent,setTenXSubsPurchaseIntent] = React.useState([]);
     async function getSubscriptionPurchaseIntent(){
         let call1 = axios.get(`${baseUrl}api/v1/tenx/subscriptionpurchaseintent/${tenXSubscription}`,{

@@ -22,7 +22,7 @@ export default function TenXSubscriptions({setClicked}) {
   const [currentTenXSubs,setCurrentTenXSubs] = useState([]);
   let [checkPayment, setCheckPayment] = useState(true)
   const [isLoading, setIsLoading] = useState(false); 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/userwallet/my`,{
