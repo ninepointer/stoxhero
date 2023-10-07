@@ -160,7 +160,7 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
   }
 
   const buySubscription = async () => {
-    if (userWallet < elem?.marginXTemplate?.entryFee) {
+    if (userWallet < Number(amount-discountAmount)) {
       return openErrorSB('Low Wallet Balance', 'You don\'t have enough wallet balance for this purchase');
     }
     const res = await fetch(`${baseUrl}api/v1/marginx/feededuct`, {
@@ -185,7 +185,7 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
     } else {
       setMessege({
         ...messege,
-        thanksMessege: `Thanks for the payment of ₹${elem?.marginXTemplate?.entryFee}, your seat is booked for the MarginX - ${elem.marginXName}, please click on "Start Trading" once the MarginX starts.`
+        thanksMessege: `Thanks for the payment of ₹${(Number(amount-discountAmount) + actualAmount).toFixed(2)}, your seat is booked for the MarginX - ${elem.marginXName}, please click on "Start Trading" once the MarginX starts.`
       })
     }
   }
@@ -202,7 +202,7 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
 
   const initiatePayment = async() => {
     try{
-      const res = await axios.post(`${apiUrl}payment/initiate`,{amount:Number(amount*100)+actualAmount*100, redirectTo:window.location.href, paymentFor:'MarginX', productId: elem?._id, coupon:verifiedCode},{withCredentials: true});
+      const res = await axios.post(`${apiUrl}payment/initiate`,{amount:(Number(amount-discountAmount)*100)+actualAmount*100, redirectTo:window.location.href, paymentFor:'MarginX', productId: elem?._id, coupon:verifiedCode},{withCredentials: true});
       console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
       window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
   }catch(e){
@@ -317,8 +317,8 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
                               <Input placeholder="Enter your promo code" disabled={verifiedCode} inputProps={ariaLabel} value={code} onChange={(e)=>{setCode(e.target.value)}} />
                               <MDButton onClick={applyPromoCode}>{verifiedCode && code? 'Remove':'Apply'}</MDButton>
                             </MDBox>
-                            {verifiedCode && discountData?.rewardType == 'Discount' && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#ab1" variant="body2">{`Applied ${verifiedCode} - ${discountData?.discountType == 'Percentage'?`(${discountData?.discount}% off)`: `(FLAT ${discountData?.discount}) off`}`}</Typography>}
-                            {verifiedCode && discountData?.rewardType == 'Cashback' && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#ab1" variant="body2">{`Applied ${verifiedCode} - ${discountData?.discountType == 'Percentage'?`(${discountData?.discount}% Cashback)`: `(FLAT ${discountData?.discount}) Cashback`}`}</Typography>}
+                            {verifiedCode && discountData?.rewardType == 'Discount' && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#ab1" variant="body2">{`Applied ${verifiedCode} - ${discountData?.discountType == 'Percentage'?`(${discountData?.discount}% off ${discountData?.maxDiscount &&`upto ₹${discountData?.maxDiscount}`})`: `(FLAT ₹${discountData?.discount}) off`}`}</Typography>}
+                            {verifiedCode && discountData?.rewardType == 'Cashback' && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#ab1" variant="body2">{`Applied ${verifiedCode} - ${discountData?.discountType == 'Percentage'?`(${discountData?.discount}% Cashback ${discountData?.maxDiscount &&`upto ₹${discountData?.maxDiscount}`})`: `(FLAT ₹${discountData?.discount}) Cashback`}`}</Typography>}
                             {invalidCode && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#f16" variant="body2">{invalidCode}</Typography>}
                             </>
                             }

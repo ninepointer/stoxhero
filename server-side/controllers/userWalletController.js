@@ -133,6 +133,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
     let result = {};
     try{
         let discountAmount = 0;
+        let cashbackAmount = 0;
         session.startTransaction();
         const subs = await Subscription.findOne({_id: new ObjectId(subscribedId)});
         if(!subscriptionAmount){
@@ -149,18 +150,34 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         if(coupon){
             const couponDoc = await Coupon.findOne({code:coupon});
             if(couponDoc?.rewardType == 'Discount'){
-                if(couponDoc?.discountType == 'FLAT'){
+                if(couponDoc?.discountType == 'Flat'){
                     //Calculate amount and match
                     discountAmount = couponDoc?.discount;
                 }else{
                     discountAmount = Math.min(couponDoc?.discount/100*subs?.discounted_price, couponDoc?.maxDiscount);
                     
                 }
+            }else{
+                if(couponDoc?.discountType == 'Flat'){
+                    //Calculate amount and match
+                    cashbackAmount = couponDoc?.discount;
+                }else{
+                    cashbackAmount = Math.min(couponDoc?.discount/100*subs?.discounted_price, couponDoc?.maxDiscount);
+                    
+                }
+                wallet?.transactions?.push({
+                    title: 'StoxHero CashBack',
+                    description: `Cashback of ${cashbackAmount?.toFixed(2)} - code ${coupon} used`,
+                    transactionDate: new Date(),
+                    amount:cashbackAmount?.toFixed(2),
+                    transactionId: uuid.v4(),
+                    transactionType: 'Bonus'
+                });
             }
         }
         const setting = await Setting.find({});
         const totalAmount = (subs?.discounted_price - discountAmount)*(1+setting[0]?.gstPercentage/100)
-        if(totalAmount?.toFixed(2) != subscriptionAmount?.toFixed(2)){
+        if(Number(totalAmount) != Number(subscriptionAmount)){
           return {
             statusCode:400,
             data:{
@@ -340,7 +357,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
                 <p>Mobile: <span class="password">${user.mobile}</span></p>
                 <p>Subscription Name: <span class="password">${subscription.plan_name}</span></p>
                 <p>Subscription Actual Price: <span class="password">₹${subscription.actual_price}/-</span></p>
-                <p>Subscription Discounted Price: <span class="password">₹${subscriptionAmount?.toFixed(2)}/-</span></p>  
+                <p>Subscription Discounted Price: <span class="password">₹${subscriptionAmount}/-</span></p>  
                 </div>
             </body>
             </html>
@@ -349,6 +366,20 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         if(process.env.PROD === "true"){
             emailService(recipientString,subject,message);
             console.log("Subscription Email Sent")
+        }
+        if(coupon && cashbackAmount>0){
+            await createUserNotification({
+                title:'StoxHero Cashback',
+                description:`₹${cashbackAmount?.toFixed(2)} added as bonus - ${coupon} code used.`,
+                notificationType:'Individual',
+                notificationCategory:'Informational',
+                productCategory:'TenX',
+                user: user?._id,
+                priority:'Medium',
+                channels:['App', 'Email'],
+                createdBy:'63ecbc570302e7cf0153370c',
+                lastModifiedBy:'63ecbc570302e7cf0153370c'  
+              });
         }
         await createUserNotification({
             title:'TenX Subscription Deducted',

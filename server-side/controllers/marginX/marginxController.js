@@ -927,7 +927,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
         if(coupon){
             const couponDoc = await Coupon.findOne({code:coupon});
             if(couponDoc?.rewardType == 'Discount'){
-                if(couponDoc?.discountType == 'FLAT'){
+                if(couponDoc?.discountType == 'Flat'){
                     //Calculate amount and match
                     discountAmount = couponDoc?.discount;
                 }else{
@@ -972,7 +972,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
             return total + transaction?.amount;
         }, 0);
 
-        if (totalCashAmount < entryFee) {
+        if (totalCashAmount < (Number(entryFee))) {
             return {
                 statusCode:400,
                 data:{
@@ -1152,7 +1152,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
         }
         await createUserNotification({
             title:'MarginX Fee Deducted',
-            description:`₹${marginx?.marginXTemplate?.entryFee} deducted for ${marginx?.marginXName} MarginX Fee`,
+            description:`₹${entryFee} deducted for ${marginx?.marginXName} MarginX Fee`,
             notificationType:'Individual',
             notificationCategory:'Informational',
             productCategory:'MarginX',

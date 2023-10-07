@@ -24,7 +24,9 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
+import Input from '@mui/material/Input';
 
+const ariaLabel = { 'aria-label': 'description' };
 
 export default function Renew({amount, name, id, walletCash}) {
   const [open, setOpen] = React.useState(false);
@@ -32,6 +34,13 @@ export default function Renew({amount, name, id, walletCash}) {
   const [updatedUser, setUpdatedUser] = React.useState({});
   const [isContinue, setIsContinue] = useState(false);
   const [setting, setSetting] = useState([]);
+  const [code, setCode] = useState('');
+  const [verifiedCode, setVerifiedCode] = useState('');
+  const [invalidCode, setInvalidCode] = useState('');
+  const [discountData, setDiscountData] = useState();
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [cashbackAmount, setCashbackAmount] = useState(0);
+  const [showPromoCode, setShowPromoCode] = useState(false);
   const [messege, setMessege] = useState({
     lowBalanceMessage: "",
     thanksMessege: ""
@@ -87,6 +96,10 @@ export default function Renew({amount, name, id, walletCash}) {
 
   const handleClose = () => {
     setOpen(false);
+    setOpen(false);
+    setShowPromoCode(false);
+    setCode('');
+    setVerifiedCode('');
   };
 
   async function captureIntent(){
@@ -106,7 +119,7 @@ export default function Renew({amount, name, id, walletCash}) {
   }
 
   const buySubscription = async () => {
-    if(walletCash < amount){
+    if(walletCash < amount-discountAmount){
       return openSuccessSB("error", "You don't have enough wallet balance for this purchase.");
     }
     const res = await fetch(`${baseUrl}api/v1/tenX/renew`, {
@@ -117,7 +130,7 @@ export default function Renew({amount, name, id, walletCash}) {
           "content-type": "application/json"
       },
       body: JSON.stringify({
-        subscriptionAmount: amount, subscriptionName: name, subscriptionId: id
+        subscriptionAmount: amount-discountAmount, subscriptionName: name, subscriptionId: id
       })
     });
     const dataResp = await res.json();
@@ -200,13 +213,51 @@ export default function Renew({amount, name, id, walletCash}) {
   const initiatePayment = async() => {
     console.log('initiating');
     try{
-      const res = await axios.post(`${apiUrl}payment/initiate`,{amount:Number(subs_amount*100) + subs_actualAmount*100, redirectTo:window.location.href, paymentFor:'TenX Renewal', productId:id},{withCredentials: true});
+      const res = await axios.post(`${apiUrl}payment/initiate`,{amount:Number((subs_amount-discountAmount)*100) + subs_actualAmount*100, redirectTo:window.location.href, paymentFor:'TenX Renewal', productId:id, coupon:verifiedCode},{withCredentials: true});
       console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
       window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
   }catch(e){
       console.log(e);
   }
   }
+  const calculateDiscount = (discountType, rewardType, discount, maxDiscount=1000) => {
+    if(rewardType =='Discount'){
+      if(discountType == 'Flat'){
+        setDiscountAmount(discount);
+      }else if(discountType == 'Percentage'){
+        setDiscountAmount(Math.min(amount*discount/100, maxDiscount));
+      }
+    }else{
+      setCashbackAmount(discount);
+    }
+  }
+  const applyPromoCode = async () => {
+    try{
+      if(verifiedCode){
+        setVerifiedCode('');
+        setCode('');
+        setInvalidCode(false);
+        setDiscountAmount(0);
+        return;
+      }
+      const res = await axios.post(`${apiUrl}coupons/verify`, {code, product:'6517d3803aeb2bb27d650de0'}, {withCredentials:true});
+      console.log('verified code',res?.data?.data);
+      if(res.status == 200){
+        setVerifiedCode(code);
+        setInvalidCode('');
+        setDiscountData(res?.data?.data);
+        calculateDiscount(res?.data?.data?.discountType, res?.data?.data?.rewardType, res?.data?.data?.discount, res?.data?.data?.maxDiscount);
+      }else{
+        setInvalidCode(res?.data?.message);
+      }
+    }catch(e){
+      console.log('verified error',e);
+      if(e.name == 'AxiosError'){
+        setInvalidCode(e?.response?.data?.message);
+      }
+    }
+  }
+
 
     return (
 
@@ -362,19 +413,61 @@ export default function Renew({amount, name, id, walletCash}) {
                         <FormControlLabel value="wallet" control={<Radio />} label="Pay from StoxHero Wallet" />
                         {value == 'wallet' &&
                           <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={2} style={{minWidth:'40vw'}}>
+                            {!showPromoCode?<MDBox display='flex' justifyContent='flex-start' width='100%' mt={1} 
+                            onClick={()=>{setShowPromoCode(true)}} style={{cursor:'pointer'}}>
+                                <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Have a promo code?</Typography>
+                              </MDBox>
+                            :
+                            <>
+                            <MDBox display='flex' justifyContent='flex-start' width='100%' alignItems='flex-start' mt={1}>
+                              <Input placeholder="Enter your promo code" disabled={verifiedCode} inputProps={ariaLabel} value={code} onChange={(e)=>{setCode(e.target.value)}} />
+                              <MDButton onClick={applyPromoCode}>{verifiedCode && code? 'Remove':'Apply'}</MDButton>
+                            </MDBox>
+                            {verifiedCode && discountData?.rewardType == 'Discount' && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#ab1" variant="body2">{`Applied ${verifiedCode} - ${discountData?.discountType == 'Percentage'?`(₹${discountData?.discount}% off ${discountData?.maxDiscount &&`upto ₹${discountData?.maxDiscount}`})`: `(FLAT ₹${discountData?.discount}) off`}`}</Typography>}
+                            {verifiedCode && discountData?.rewardType == 'Cashback' && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#ab1" variant="body2">{`Applied ${verifiedCode} - ${discountData?.discountType == 'Percentage'?`(₹${discountData?.discount}% Cashback ${discountData?.maxDiscount &&`upto ₹${discountData?.maxDiscount}`})`: `(FLAT ₹${discountData?.discount}) Cashback`}`}</Typography>}
+                            {invalidCode && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#f16" variant="body2">{invalidCode}</Typography>}
+                            </>
+                            }
                             <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
                             <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{subs_amount ? subs_amount : 0}</Typography>
+                            {verifiedCode && discountData?.rewardType == 'Discount' && <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">{discountData?.discountType === 'Percentage' ? 
+                              `Discount (${discountData?.discount}%) on Fee: ₹${discountAmount}` : 
+                              `Discount (FLAT ₹ ${discountData?.discount} OFF) on Fee: ₹${discountAmount}`}</Typography>}
+                            {verifiedCode && discountData?.rewardType == 'Cashback' && <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">{discountData?.discountType === 'Percentage' ? 
+                              `Cashback (${discountData?.discount}%) on Fee: ₹${cashbackAmount}` : 
+                              `Cashback (FLAT ₹ ${discountData?.discount} Cashback) as Wallet Bonus: ₹${cashbackAmount}`}</Typography>}
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{0}</Typography>
-                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(subs_amount)}</Typography>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(subs_amount - discountAmount).toFixed(2)}</Typography>
                           </MDBox>}
                         <FormControlLabel value="bank" control={<Radio />} label="Pay from Bank Account/UPI" />
                         {value == 'bank' &&
                           <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={0} >
                             <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new government regulations. However you don't need to pay anything extra. StoxHero will be taking care of the GST on your behalf. To offset it, we've increased our pricing by a bit.</Typography>
+                            {!showPromoCode?<MDBox display='flex' justifyContent='flex-start' width='100%' mt={1} 
+                            onClick={()=>{setShowPromoCode(true)}} style={{cursor:'pointer'}}>
+                                <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Have a promo code?</Typography>
+                              </MDBox>
+                            :
+                            <>
+                            <MDBox display='flex' justifyContent='flex-start' width='100%' alignItems='flex-start' mt={1}>
+                              <Input placeholder="Enter your promo code" disabled={verifiedCode} inputProps={ariaLabel} value={code} onChange={(e)=>{setCode(e.target.value)}} />
+                              <MDButton onClick={applyPromoCode}>{verifiedCode && code? 'Remove':'Apply'}</MDButton>
+                            </MDBox>
+                            {verifiedCode && discountData?.rewardType == 'Discount' && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#ab1" variant="body2">{`Applied ${verifiedCode} - ${discountData?.discountType == 'Percentage'?`(${discountData?.discount}% off)`: `(FLAT ${discountData?.discount}) off`}`}</Typography>}
+                            {verifiedCode && discountData?.rewardType == 'Cashback' && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#ab1" variant="body2">{`Applied ${verifiedCode} - ${discountData?.discountType == 'Percentage'?`(${discountData?.discount}% Cashback)`: `(FLAT ${discountData?.discount}) Cashback`}`}</Typography>}
+                            {invalidCode && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#f16" variant="body2">{invalidCode}</Typography>}
+                            </>
+                            }
                             <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
                             <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{subs_amount ? subs_amount : 0}</Typography>
+                            {verifiedCode && discountData?.rewardType == 'Discount' && <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">{discountData?.discountType === 'Percentage' ? 
+                              `Discount (${discountData?.discount}%) on Fee: ₹${discountAmount}` : 
+                              `Discount (FLAT ₹ ${discountData?.discount} OFF) on Fee: ₹${discountAmount}`}</Typography>}
+                            {verifiedCode && discountData?.rewardType == 'Cashback' && <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">{discountData?.discountType === 'Percentage' ? 
+                              `Cashback (${discountData?.discount}%) on Fee: ₹${cashbackAmount}` : 
+                              `Cashback (FLAT ₹ ${discountData?.discount} Cashback) as Wallet Bonus: ₹${cashbackAmount}`}</Typography>}
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{subs_actualAmount ? subs_actualAmount : 0}</Typography>
-                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(subs_amount) + subs_actualAmount}</Typography>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{(Number(subs_amount-discountAmount) + subs_actualAmount).toFixed(2)}</Typography>
                           </MDBox>}
                       </RadioGroup>
                     </FormControl>
@@ -408,7 +501,7 @@ export default function Renew({amount, name, id, walletCash}) {
               Close
             </MDButton>
             <MDButton color={"success"} onClick={initiatePayment} autoFocus>
-              {`Pay ₹${Number(subs_amount) + subs_actualAmount} securely`}
+              {`Pay ₹${(Number(subs_amount-discountAmount) + subs_actualAmount).toFixed(2)} securely`}
             </MDButton>
           </DialogActions>}
       </Dialog>
