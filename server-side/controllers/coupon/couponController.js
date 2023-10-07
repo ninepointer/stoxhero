@@ -93,8 +93,8 @@ exports.getAllCouponCodes = async (req, res) => {
 exports.getActiveCouponCodes = async (req, res) => {
     try {
         const activeCoupons = await Coupon.find({ status: 'Active' })
-        .populate('usedBySuccessful.userId', 'first_name last_name email mobile creationProcess')
-        .populate('usedBy.userId', 'first_name last_name email mobile creationProcess')
+        .populate('usedBySuccessful.user', 'first_name last_name email mobile creationProcess')
+        .populate('usedBy.user', 'first_name last_name email mobile creationProcess')
 
         
         res.status(200).json({
@@ -115,8 +115,8 @@ exports.getActiveCouponCodes = async (req, res) => {
 exports.getInActiveCouponCodes = async (req, res) => {
     try {
         const inactiveCoupons = await Coupon.find({ status: 'Inactive' })
-        .populate('usedBySuccessful.userId', 'first_name last_name email mobile creationProcess')
-        .populate('usedBy.userId', 'first_name last_name email mobile creationProcess')
+        .populate('usedBySuccessful.user', 'first_name last_name email mobile creationProcess')
+        .populate('usedBy.user', 'first_name last_name email mobile creationProcess')
 
         
         res.status(200).json({
@@ -137,8 +137,8 @@ exports.getInActiveCouponCodes = async (req, res) => {
 exports.getDraftCouponCodes = async (req, res) => {
     try {
         const draftCoupons = await Coupon.find({ status: 'Draft' })
-        .populate('usedBySuccessful.userId', 'first_name last_name email mobile creationProcess')
-        .populate('usedBy.userId', 'first_name last_name email mobile creationProcess')
+        .populate('usedBySuccessful.user', 'first_name last_name email mobile creationProcess')
+        .populate('usedBy.user', 'first_name last_name email mobile creationProcess')
 
         
         res.status(200).json({
@@ -159,8 +159,8 @@ exports.getDraftCouponCodes = async (req, res) => {
 exports.getExpiredCouponCodes = async (req, res) => {
     try {
         const expiredCoupons = await Coupon.find({$or: [{status: 'Expired'}, {expiryDate: {$lt: new Date()}}]})
-        .populate('usedBySuccessful.userId', 'first_name last_name email mobile creationProcess')
-        .populate('usedBy.userId', 'first_name last_name email mobile creationProcess')
+        .populate('usedBySuccessful.user', 'first_name last_name email mobile creationProcess')
+        .populate('usedBy.user', 'first_name last_name email mobile creationProcess')
 
         
         res.status(200).json({

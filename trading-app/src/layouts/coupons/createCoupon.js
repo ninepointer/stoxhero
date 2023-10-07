@@ -142,7 +142,7 @@ function CreateCoupon() {
     const data = await res.json();
     const updatedData = data?.data
     if (updatedData || res.status === 200) {
-      openSuccessSB("Coupon Edited", updatedData.collegeName + " | " + updatedData.zone)
+      openSuccessSB("Coupon Edited", `Successfully Edited Coupon`);
       setTimeout(() => { setSaving(false); setEditing(false) }, 500)
     } else {
       openErrorSB("Error", "data.error")

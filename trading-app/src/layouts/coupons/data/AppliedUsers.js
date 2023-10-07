@@ -12,6 +12,7 @@ import MDButton from '../../../components/MDButton';
 import DownloadIcon from '@mui/icons-material/Download';
 import { saveAs } from 'file-saver';
 import html2canvas from 'html2canvas';
+import Moment from 'moment';
 
 
 
@@ -22,6 +23,7 @@ export default function AppliedUser({ couponData }) {
     { Header: "Mobile No.", accessor: "mobile", align: "center" },
     { Header: "Email", accessor: "email", align: "center" },
     { Header: "SignUp Method", accessor: "signupMethod", align: "center" },
+    { Header: "Applied On", accessor: "appliedOn", align: "center" },
   ]
 
   let rows = []
@@ -32,23 +34,28 @@ export default function AppliedUser({ couponData }) {
 
     featureObj.name = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem?.first_name} {elem?.last_name}
+        {elem?.user.first_name} {elem?.user?.last_name}
       </MDTypography>
     );
     featureObj.mobile = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem?.mobile}
+        {elem?.user?.mobile}
       </MDTypography>
     );
     featureObj.email = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem?.email}
+        {elem?.user?.email}
       </MDTypography>
     );
 
     featureObj.signupMethod = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem?.creationProcess}
+        {elem?.user?.creationProcess}
+      </MDTypography>
+    );
+    featureObj.appliedOn = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {Moment(elem?.appliedOn).format('DD-MM-YY HH:mm:ss a').toString()}
       </MDTypography>
     );
 
@@ -100,7 +107,7 @@ export default function AppliedUser({ couponData }) {
         <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
           </MDTypography>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-            Potential Users({couponData?.usedBy?.length})
+            Successful Coupon Purchases({couponData?.usedBy?.length})
           </MDTypography>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} gutterBottom >
             <Tooltip title="Download CSV"><MDBox sx={{ backgroundColor: "lightgrey", borderRadius: "2px", cursor: "pointer", marginRight: "5px" }} onClick={() => { handleDownload(pnlData, `registeredUsers-${couponData?.contestName}`) }}><DownloadIcon /></MDBox></Tooltip>

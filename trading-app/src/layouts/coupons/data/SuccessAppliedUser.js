@@ -6,7 +6,7 @@ import MDBox from "../../../components/MDBox"
 import MDTypography from "../../../components/MDTypography"
 import Card from "@mui/material/Card";
 import axios from "axios";
-// import moment from 'moment';
+import Moment from 'moment';
 
 
 export default function SuccessfullAppliedUser({couponData}) {
@@ -23,6 +23,7 @@ export default function SuccessfullAppliedUser({couponData}) {
         { Header: "Mobile No.", accessor: "mobile", align: "center" },
         { Header: "Email", accessor: "email", align: "center" },
         { Header: "SignUp Method", accessor: "signupMethod", align: "center" },
+        { Header: "Applied On", accessor: "appliedOn", align: "center" },
         // { Header: "Remove", accessor: "remove", align: "center" },
       ]
 
@@ -34,23 +35,28 @@ export default function SuccessfullAppliedUser({couponData}) {
 
     featureObj.name = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem?.userId?.first_name} {elem?.userId?.last_name}
+        {elem?.user?.first_name} {elem?.user?.last_name}
       </MDTypography>
     );
     featureObj.mobile = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem?.userId?.mobile}
+        {elem?.user?.mobile}
       </MDTypography>
     );
     featureObj.email = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem?.userId?.email}
+        {elem?.user?.email}
       </MDTypography>
     );
 
     featureObj.signupMethod = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem?.userId?.creationProcess}
+        {elem?.user?.creationProcess}
+      </MDTypography>
+    );
+    featureObj.appliedOn = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {Moment(elem?.appliedOn).format('DD-MM-YY HH:mm:ss a').toString()}
       </MDTypography>
     );
 
@@ -69,7 +75,7 @@ export default function SuccessfullAppliedUser({couponData}) {
       <MDBox display="flex" justifyContent="space-between" alignItems="left">
         <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{backgroundColor:"lightgrey",borderRadius:"2px"}}>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-            Users to be notified({couponData?.usedBySuccessful?.length})
+            Coupon Uses({couponData?.usedBySuccessful?.length})
           </MDTypography>
         </MDBox>
       </MDBox>
