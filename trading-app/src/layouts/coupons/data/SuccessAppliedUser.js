@@ -7,6 +7,11 @@ import MDTypography from "../../../components/MDTypography"
 import Card from "@mui/material/Card";
 import axios from "axios";
 import Moment from 'moment';
+import { Tooltip } from '@mui/material';
+// import axios from "axios";
+// import moment from 'moment';
+import DownloadIcon from '@mui/icons-material/Download';
+import { saveAs } from 'file-saver';
 
 
 export default function SuccessfullAppliedUser({couponData}) {
@@ -23,7 +28,9 @@ export default function SuccessfullAppliedUser({couponData}) {
         { Header: "Mobile No.", accessor: "mobile", align: "center" },
         { Header: "Email", accessor: "email", align: "center" },
         { Header: "SignUp Method", accessor: "signupMethod", align: "center" },
+        { Header: "Joining Date", accessor: "joiningDate", align: "center" },
         { Header: "Applied On", accessor: "appliedOn", align: "center" },
+        { Header: "Product", accessor: "product", align: "center" },
         // { Header: "Remove", accessor: "remove", align: "center" },
       ]
 
@@ -54,9 +61,19 @@ export default function SuccessfullAppliedUser({couponData}) {
         {elem?.user?.creationProcess}
       </MDTypography>
     );
+    featureObj.joiningDate = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {Moment(elem?.user?.joining_date).format('DD-MM-YY HH:mm:ss a').toString()}
+      </MDTypography>
+    );
     featureObj.appliedOn = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
         {Moment(elem?.appliedOn).format('DD-MM-YY HH:mm:ss a').toString()}
+      </MDTypography>
+    );
+    featureObj.product = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {elem?.product?.productName}
       </MDTypography>
     );
 
@@ -69,13 +86,66 @@ export default function SuccessfullAppliedUser({couponData}) {
 
     rows.push(featureObj)
   })
+  const handleDownload = (csvData, nameVariable) => {
+    // Create the CSV content
+    // const csvContent = csvData.map(row => row.join(',')).join('\n');
+    const csvContent = csvData?.map((row) => {
+      return row?.map((row1) => row1.join(',')).join('\n');
+    });
+    // const csvContent = 'Date,Weekday,Gross P&L(S) Gross P&L(I) Net P&L(S) Net P&L(I) Net P&L Diff(S-I)\nValue 1,Value 2,Value 3\nValue 4, Value 5, Value 6';
+
+    // Create a Blob object with the CSV content
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+
+    // Save the file using FileSaver.js
+    saveAs(blob, `${nameVariable}.csv`);
+  }
+
+  function downloadHelper(data) {
+    let csvDataFile = [[]]
+    let csvDataDailyPnl = [["NAME", "MOBILE", "EMAIL", "SIGNUP METHOD", "JOINING DATE", "APPLIED ON", "PRODUCT"]]
+    if (data) {
+      // dates = Object.keys(data)
+      let csvpnlData = Object.values(data)
+      csvDataFile = csvpnlData?.map((elem) => {
+
+        return [
+          `${elem?.user?.first_name} ${elem?.user?.last_name}`,
+          elem?.user?.mobile,
+          elem?.user?.email,
+          elem?.user?.creationProcess,
+          Moment(elem?.user?.joining_date).format('DD-MM-YY HH:MM:ss a').toString(),
+          Moment(elem?.appliedOn).format('DD-MM-YY HH:MM:ss a').toString(),
+          elem?.product?.productName
+        ]
+      })
+    }
+
+    return [[...csvDataDailyPnl, ...csvDataFile]]
+  }
+
+  const pnlData = downloadHelper(couponData?.usedBySuccessful)
+
 
   return (
     <Card>
       <MDBox display="flex" justifyContent="space-between" alignItems="left">
-        <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{backgroundColor:"lightgrey",borderRadius:"2px"}}>
+        {/* <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{backgroundColor:"lightgrey",borderRadius:"2px"}}>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-            Coupon Uses({couponData?.usedBySuccessful?.length})
+            Successful Coupon Purchases({couponData?.usedBySuccessful?.length})
+          </MDTypography>
+          <MDTypography variant="text" fontSize={12} color="black" mt={0.7} gutterBottom >
+            <Tooltip title="Download CSV"><MDBox sx={{ backgroundColor: "lightgrey", borderRadius: "2px", cursor: "pointer", marginRight: "5px" }} onClick={() => { handleDownload(pnlData, `couponPurchases-${couponData?.code}`) }}><DownloadIcon /></MDBox></Tooltip>
+          </MDTypography>
+        </MDBox> */}
+        <MDBox width="100%" display="flex" justifyContent="space-between" alignItems="center" sx={{ backgroundColor: "lightgrey", borderRadius: "2px" }}>
+        <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
+          </MDTypography>
+          <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
+          Successful Coupon Purchases({couponData?.usedBySuccessful?.length})
+          </MDTypography>
+          <MDTypography variant="text" fontSize={12} color="black" mt={0.7} gutterBottom >
+            <Tooltip title="Download CSV"><MDBox sx={{ backgroundColor: "lightgrey", borderRadius: "2px", cursor: "pointer", marginRight: "5px" }} onClick={() => { handleDownload(pnlData, `couponPurchases-${couponData?.code}`) }}><DownloadIcon /></MDBox></Tooltip>
           </MDTypography>
         </MDBox>
       </MDBox>

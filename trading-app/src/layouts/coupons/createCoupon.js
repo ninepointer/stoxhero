@@ -67,6 +67,7 @@ function CreateCoupon() {
     expiryDate: dayjs(id?.expiryDate) || dayjs(new Date()).set('hour', 23).set('minute', 59).set('second', 59),
     eligibleProducts: id?.eligibleProducts || [],
     maxDiscount: id?.maxDiscount || '',
+    minOrderValue: id?.minOrderValue || '',
   });
   async function getProducts() {
     const res = await axios.get(`${apiUrl}products`, { withCredentials: true });
@@ -425,8 +426,8 @@ function CreateCoupon() {
                 </LocalizationProvider>
               </Grid>
 
-              <Grid item xs={12} md={6} xl={6} mt={-1} mb={1}>
-                <FormControl sx={{ m: 1, width: 300 }}>
+              <Grid item xs={12} md={6} xl={4} mt={-1} mb={1}>
+                <FormControl sx={{ m: 1, width:'100%'}}>
                   <InputLabel id="demo-multiple-checkbox-label">Select Products</InputLabel>
                   <Select
                     labelId="demo-multiple-checkbox-label"
@@ -450,6 +451,22 @@ function CreateCoupon() {
                     ))}
                   </Select>
                 </FormControl>
+              </Grid>
+              <Grid item xs={12} md={6} xl={2}>
+                <TextField
+                  disabled={((isSubmitted || id) && (!editing || saving))}
+                  id="outlined-required"
+                  type="number"
+                  label='Min Order Value *'
+                  value={formState?.minOrderValue || couponData?.minOrderValue}
+                  fullWidth
+                  onChange={(e) => {
+                    setFormState(prevState => ({
+                      ...prevState,
+                      minOrderValue: e.target.value
+                    }))
+                  }}
+                />
               </Grid>
 
 

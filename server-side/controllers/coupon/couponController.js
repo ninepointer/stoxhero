@@ -7,10 +7,10 @@ exports.createCouponCode = async (req, res) => {
     try {
         const {
             code, description, discountType, rewardType, discount, liveDate, expiryDate, status,
-            isOneTimeUse, usedBy, maxUse, eligibleProducts, campaign, maxDiscount
+            isOneTimeUse, usedBy, maxUse, eligibleProducts, campaign, maxDiscount, minOrderValue
         } = req.body;
 
-        const existingCode = await Coupon.findOne({ code: code });
+        const existingCode = await Coupon.findOne({ code: code, status:'Active' });
 
         if (existingCode) {
             return res.status(400).json({
@@ -21,7 +21,7 @@ exports.createCouponCode = async (req, res) => {
 
         const coupon = await Coupon.create({
             code, description, discountType, rewardType, discount, liveDate, expiryDate, status,
-            isOneTimeUse, usedBy, maxUse, eligibleProducts, campaign, maxDiscount, 
+            isOneTimeUse, usedBy, maxUse, eligibleProducts, campaign, maxDiscount, minOrderValue,
             createdBy: req.user._id, lastModifiedBy: req.user._id
         });
 
@@ -93,8 +93,10 @@ exports.getAllCouponCodes = async (req, res) => {
 exports.getActiveCouponCodes = async (req, res) => {
     try {
         const activeCoupons = await Coupon.find({ status: 'Active', expiryDate:{$gte: new Date()} })
-        .populate('usedBySuccessful.user', 'first_name last_name email mobile creationProcess')
-        .populate('usedBy.user', 'first_name last_name email mobile creationProcess')
+        .populate('usedBySuccessful.user', 'first_name last_name email mobile joining_date creationProcess')
+        .populate('usedBy.user', 'first_name last_name email mobile creationProcess joining_date')
+        .populate('usedBy.product', 'productName')
+        .populate('usedBySuccessful.product', 'productName')
 
         
         res.status(200).json({
@@ -115,8 +117,10 @@ exports.getActiveCouponCodes = async (req, res) => {
 exports.getInActiveCouponCodes = async (req, res) => {
     try {
         const inactiveCoupons = await Coupon.find({ status: 'Inactive' })
-        .populate('usedBySuccessful.user', 'first_name last_name email mobile creationProcess')
-        .populate('usedBy.user', 'first_name last_name email mobile creationProcess')
+        .populate('usedBySuccessful.user', 'first_name last_name email mobile joining_date creationProcess')
+        .populate('usedBy.user', 'first_name last_name email mobile creationProcess joining_date')
+        .populate('usedBy.product', 'productName')
+        .populate('usedBySuccessful.product', 'productName')
 
         
         res.status(200).json({
@@ -137,8 +141,10 @@ exports.getInActiveCouponCodes = async (req, res) => {
 exports.getDraftCouponCodes = async (req, res) => {
     try {
         const draftCoupons = await Coupon.find({ status: 'Draft' })
-        .populate('usedBySuccessful.user', 'first_name last_name email mobile creationProcess')
-        .populate('usedBy.user', 'first_name last_name email mobile creationProcess')
+        .populate('usedBySuccessful.user', 'first_name last_name email mobile joining_date creationProcess')
+        .populate('usedBy.user', 'first_name last_name email mobile joining_date creationProcess')
+        .populate('usedBy.product', 'productName')
+        .populate('usedBySuccessful.product', 'productName')
 
         
         res.status(200).json({
@@ -159,8 +165,10 @@ exports.getDraftCouponCodes = async (req, res) => {
 exports.getExpiredCouponCodes = async (req, res) => {
     try {
         const expiredCoupons = await Coupon.find({$or: [{status: 'Expired'}, {expiryDate: {$lt: new Date()}}]})
-        .populate('usedBySuccessful.user', 'first_name last_name email mobile creationProcess')
-        .populate('usedBy.user', 'first_name last_name email mobile creationProcess')
+        .populate('usedBySuccessful.user', 'first_name last_name email mobile creationProcess joining_date')
+        .populate('usedBy.user', 'first_name last_name email mobile creationProcess joining_date')
+        .populate('usedBy.product', 'productName')
+        .populate('usedBySuccessful.product', 'productName')
 
         
         res.status(200).json({
@@ -180,7 +188,7 @@ exports.getExpiredCouponCodes = async (req, res) => {
 
 exports.verifyCouponCode = async (req, res) => {
     try {
-        const { code, product } = req.body;
+        const { code, product, orderValue } = req.body;
         const userId = req.user._id;
         let coupon = await Coupon.findOne({ code: code, expiryDate:{$gte: new Date()}, status:'Active' });
 
@@ -207,6 +215,12 @@ exports.verifyCouponCode = async (req, res) => {
                     });
                 }
             }
+        }
+        if(coupon?.minOrderValue && orderValue<coupon?.minOrderValue){
+            return res.status(400).json({
+                status: 'error',
+                message: `Your order is not eligible for this coupon. The minimum order value for this couon is ${coupon?.minOrderValue}`,
+            });
         }
         coupon?.usedBy?.push({
             user: userId,

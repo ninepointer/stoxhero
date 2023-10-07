@@ -23,7 +23,9 @@ export default function AppliedUser({ couponData }) {
     { Header: "Mobile No.", accessor: "mobile", align: "center" },
     { Header: "Email", accessor: "email", align: "center" },
     { Header: "SignUp Method", accessor: "signupMethod", align: "center" },
+    { Header: "Joining Date", accessor: "joiningDate", align: "center" },
     { Header: "Applied On", accessor: "appliedOn", align: "center" },
+    { Header: "Product", accessor: "product", align: "center" },
   ]
 
   let rows = []
@@ -53,9 +55,19 @@ export default function AppliedUser({ couponData }) {
         {elem?.user?.creationProcess}
       </MDTypography>
     );
+    featureObj.joiningDate = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {Moment(elem?.user?.joining_date).format('DD-MM-YY HH:mm:ss a').toString()}
+      </MDTypography>
+    );
     featureObj.appliedOn = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
         {Moment(elem?.appliedOn).format('DD-MM-YY HH:mm:ss a').toString()}
+      </MDTypography>
+    );
+    featureObj.product = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {elem?.product?.productName}
       </MDTypography>
     );
 
@@ -79,17 +91,20 @@ export default function AppliedUser({ couponData }) {
 
   function downloadHelper(data) {
     let csvDataFile = [[]]
-    let csvDataDailyPnl = [["NAME", "MOBILE", "EMAIL", "SIGNUP METHOD"]]
+    let csvDataDailyPnl = [["NAME", "MOBILE", "EMAIL", "SIGNUP METHOD", "JOINING DATE", "APPLIED ON", "PRODUCT"]]
     if (data) {
       // dates = Object.keys(data)
       let csvpnlData = Object.values(data)
       csvDataFile = csvpnlData?.map((elem) => {
 
         return [
-          `${elem?.first_name} ${elem?.last_name}`,
-          elem?.mobile,
-          elem?.email,
-          elem?.creationProcess
+          `${elem?.user?.first_name} ${elem?.user?.last_name}`,
+          elem?.user?.mobile,
+          elem?.user?.email,
+          elem?.user?.creationProcess,
+          Moment(elem?.user?.joining_date).format('DD-MM-YY HH:MM:ss a').toString(),
+          Moment(elem?.appliedOn).format('DD-MM-YY HH:MM:ss a').toString(),
+          elem?.product?.productName
         ]
       })
     }
@@ -107,10 +122,10 @@ export default function AppliedUser({ couponData }) {
         <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
           </MDTypography>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-            Successful Coupon Purchases({couponData?.usedBy?.length})
+            Coupon Uses({couponData?.usedBy?.length})
           </MDTypography>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} gutterBottom >
-            <Tooltip title="Download CSV"><MDBox sx={{ backgroundColor: "lightgrey", borderRadius: "2px", cursor: "pointer", marginRight: "5px" }} onClick={() => { handleDownload(pnlData, `registeredUsers-${couponData?.contestName}`) }}><DownloadIcon /></MDBox></Tooltip>
+            <Tooltip title="Download CSV"><MDBox sx={{ backgroundColor: "lightgrey", borderRadius: "2px", cursor: "pointer", marginRight: "5px" }} onClick={() => { handleDownload(pnlData, `couponUsedBy-${couponData?.code}`) }}><DownloadIcon /></MDBox></Tooltip>
           </MDTypography>
         </MDBox>
       </MDBox>

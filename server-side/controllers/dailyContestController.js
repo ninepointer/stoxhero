@@ -1769,7 +1769,7 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
       }
       const setting = await Setting.find({});
       const totalAmount = (contest?.entryFee - discountAmount)*(1+setting[0]?.gstPercentage/100)
-      if(Number(totalAmount)?.toFixed(2) != contestFee?.toFixed(2)){
+      if(Number(totalAmount)?.toFixed(2) != Number(contestFee)?.toFixed(2)){
         return {
           statusCode:400,
           data:{
@@ -2090,6 +2090,7 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
             }
         };  
   }catch(e){
+    console.log(e);
     return {
       stautsCode:500,
       data:{

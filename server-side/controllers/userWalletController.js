@@ -226,7 +226,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         wallet.transactions = [...wallet.transactions, {
               title: 'Bought TenX Trading Subscription',
               description: `Amount deducted for the purchase of ${subscriptionName} subscription`,
-              amount: (-subscriptionAmount?.toFixed(2)),
+              amount: (-subscriptionAmount),
               transactionId: uuid.v4(),
               transactionType: 'Cash'
         }];
@@ -383,12 +383,12 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         }
         await createUserNotification({
             title:'TenX Subscription Deducted',
-            description:`₹${subscriptionAmount?.toFixed(2)} deducted for your TenX plan ${subscription.plan_name} subscription`,
+            description:`₹${subscriptionAmount} deducted for your TenX plan ${subscription.plan_name} subscription`,
             notificationType:'Individual',
             notificationCategory:'Informational',
             productCategory:'TenX',
             user: user?._id,
-            priority:'High',
+            priority:'Meduim',
             channels:['App', 'Email'],
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
@@ -409,7 +409,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
     }catch(e){
         console.log(e);
         result = {
-            statusCode:200,
+            statusCode:500,
             data:{
                 status: 'error',
                 message: 'Something went wrong'
