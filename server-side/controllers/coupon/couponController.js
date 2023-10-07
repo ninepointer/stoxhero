@@ -92,7 +92,10 @@ exports.getAllCouponCodes = async (req, res) => {
 
 exports.getActiveCouponCodes = async (req, res) => {
     try {
-        const activeCoupons = await Coupon.find({ status: 'Active' });
+        const activeCoupons = await Coupon.find({ status: 'Active' })
+        .populate('usedBySuccessful.userId', 'first_name last_name email mobile creationProcess')
+        .populate('usedBy.userId', 'first_name last_name email mobile creationProcess')
+
         
         res.status(200).json({
             status: 'success',
@@ -111,7 +114,10 @@ exports.getActiveCouponCodes = async (req, res) => {
 
 exports.getInActiveCouponCodes = async (req, res) => {
     try {
-        const inactiveCoupons = await Coupon.find({ status: 'Inactive' });
+        const inactiveCoupons = await Coupon.find({ status: 'Inactive' })
+        .populate('usedBySuccessful.userId', 'first_name last_name email mobile creationProcess')
+        .populate('usedBy.userId', 'first_name last_name email mobile creationProcess')
+
         
         res.status(200).json({
             status: 'success',
@@ -128,11 +134,12 @@ exports.getInActiveCouponCodes = async (req, res) => {
     }
 };
 
-
-
 exports.getDraftCouponCodes = async (req, res) => {
     try {
-        const draftCoupons = await Coupon.find({ status: 'Draft' });
+        const draftCoupons = await Coupon.find({ status: 'Draft' })
+        .populate('usedBySuccessful.userId', 'first_name last_name email mobile creationProcess')
+        .populate('usedBy.userId', 'first_name last_name email mobile creationProcess')
+
         
         res.status(200).json({
             status: 'success',
@@ -149,10 +156,12 @@ exports.getDraftCouponCodes = async (req, res) => {
     }
 };
 
-
 exports.getExpiredCouponCodes = async (req, res) => {
     try {
-        const expiredCoupons = await Coupon.find({ status: 'Expired' });
+        const expiredCoupons = await Coupon.find({$or: [{status: 'Expired'}, {expiryDate: {$lt: new Date()}}]})
+        .populate('usedBySuccessful.userId', 'first_name last_name email mobile creationProcess')
+        .populate('usedBy.userId', 'first_name last_name email mobile creationProcess')
+
         
         res.status(200).json({
             status: 'success',
@@ -168,8 +177,6 @@ exports.getExpiredCouponCodes = async (req, res) => {
         });
     }
 };
-
-
 
 exports.verifyCouponCode = async (req, res) => {
     try {

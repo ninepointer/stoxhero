@@ -24,6 +24,8 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
 import { apiUrl } from '../../constants/constants';
+import SuccessfullAppliedUser from "./data/SuccessAppliedUser"
+import AppliedUser from "./data/AppliedUsers"
 
 
 const ITEM_HEIGHT = 48;
@@ -106,6 +108,8 @@ function CreateCoupon() {
     if (res.status === 200 || data) {
       openSuccessSB("Coupon Created", data.message)
       setIsSubmitted(true)
+      setCouponData(data?.data)
+      setIsObjectNew(true);
       setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
     } else {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
@@ -192,15 +196,6 @@ function CreateCoupon() {
     />
   );
   const handleChange = (event) => {
-    // const {
-    //   target: { value },
-    // } = event;
-    // setSelectedProduct(
-    //   // On autofill we get a stringified value.
-    //   typeof value === 'string' ? value.split(',') : value,
-    // );
-
-    // console.log('string', value, selectedProduct);
     const selectedIds = event.target.value;
     setSelectedProduct(selectedIds);
 
@@ -298,7 +293,7 @@ function CreateCoupon() {
                     labelId="demo-simple-select-autowidth-label"
                     id="demo-simple-select-autowidth"
                     disabled={((isSubmitted || id) && (!editing || saving))}
-                    value={formState?.isOneTimeUse || couponData?.isOneTimeUse}
+                    value={(formState?.isOneTimeUse !== undefined) || (couponData?.isOneTimeUse !== undefined)}
                     onChange={(e) => {
                       setFormState((prevState) => ({
                         ...prevState,
@@ -495,6 +490,19 @@ function CreateCoupon() {
                   </>
                 )}
               </Grid>
+
+
+              {(id || isObjectNew) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                <MDBox>
+                  <SuccessfullAppliedUser couponData={id?._id ? id : couponData} />
+                </MDBox>
+              </Grid>}
+
+              {(id || isObjectNew) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                <MDBox>
+                  <AppliedUser couponData={id?._id ? id : couponData} />
+                </MDBox>
+              </Grid>}
             </Grid>
             {renderSuccessSB}
             {renderErrorSB}
