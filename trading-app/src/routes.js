@@ -81,6 +81,9 @@ import ContestScoreboard from './layouts/contestScoreboard'
 import StoxHeroUserDashboard from './layouts/StoxHeroDashboard'
 import MarginXReport from "./layouts/marginxReport";
 
+import Coupons from './layouts/coupons'
+
+
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
 
@@ -881,6 +884,15 @@ const routes = [
     // icon: <AccountBalanceIcon/>,
     route: "/trading-accounts",
     component: <TradingAccount />,
+  },
+
+  {
+    // type: "collapse",
+    // name: "Trading Accounts",
+    key: "coupons",
+    // icon: <AccountBalanceIcon/>,
+    route: "/coupons",
+    component: <Coupons />,
   },
   {
     // type: "collapse",

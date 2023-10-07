@@ -27,6 +27,8 @@ const couponCodeSchema = new mongoose.Schema({
       required:true,
       default: 0,
   },
+  maxDiscount: Number,
+  minOrderValue:Number,
   liveDate:{
     type: Date,
     required: true
@@ -38,7 +40,7 @@ const couponCodeSchema = new mongoose.Schema({
   status: {
     type: String,
     default: 'Active',
-    enum:['Active', 'Inactive' ,'Draft']
+    enum:['Active', 'Inactive' ,'Draft', 'Expired']
   },
   isOneTimeUse: {
     type: Boolean,

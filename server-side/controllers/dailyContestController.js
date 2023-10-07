@@ -16,6 +16,7 @@ const {PDFDocument} = require('pdf-lib');
 const {createUserNotification} = require('./notification/notificationController');
 const Setting = require("../models/settings/setting");
 const Product = require('../models/Product/product');
+const Coupon = require('../models/coupon/coupon');
 const {saveSuccessfulCouponUse} = require('./coupon/couponController');
 
 // Controller for creating a contest
@@ -1729,8 +1730,8 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
     const contest = await Contest.findOne({ _id: contestId });
         const wallet = await UserWallet.findOne({ userId: userId });
         const user = await User.findOne({ _id: userId });
-        
-
+        let discountAmount = 0;
+        let cashbackAmount = 0;
         const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
             return transaction.transactionType === "Cash";
         });
@@ -1738,15 +1739,53 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
         const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
             return total + transaction?.amount;
         }, 0);
-
-        if (totalCashAmount < contestFee) {
+        if(coupon){
+          const couponDoc = await Coupon.findOne({code:coupon});
+          if(couponDoc?.rewardType == 'Discount'){
+              if(couponDoc?.discountType == 'Flat'){
+                  //Calculate amount and match
+                  discountAmount = couponDoc?.discount;
+              }else{
+                  discountAmount = Math.min(couponDoc?.discount/100*contest?.entryFee, couponDoc?.maxDiscount);
+                  
+              }
+          }else{
+            if(couponDoc?.discountType == 'Flat'){
+              //Calculate amount and match
+              cashbackAmount = couponDoc?.discount;
+          }else{
+              cashbackAmount = Math.min(couponDoc?.discount/100*contest?.entryFee, couponDoc?.maxDiscount);
+              
+          }
+          wallet?.transactions?.push({
+              title: 'StoxHero CashBack',
+              description: `Cashback of ${cashbackAmount?.toFixed(2)} - code ${coupon} used`,
+              transactionDate: new Date(),
+              amount:cashbackAmount?.toFixed(2),
+              transactionId: uuid.v4(),
+              transactionType: 'Bonus'
+          });
+          }
+      }
+      const setting = await Setting.find({});
+      const totalAmount = (contest?.entryFee - discountAmount)*(1+setting[0]?.gstPercentage/100)
+      if(Number(totalAmount)?.toFixed(2) != Number(contestFee)?.toFixed(2)){
+        return {
+          statusCode:400,
+          data:{
+          status: "error",
+          message:"Incorrect contest fee amount",
+          }
+        };  
+      } 
+        if (totalCashAmount < (Number(contestFee))) {
           return {
             statusCode:400,
             data:{
             status: "error",
             message:"You do not have enough balance to join this contest. Please add money to your wallet.",
             }
-        };  
+          };  
         }
 
         for (let i = 0; i < contest.participants?.length; i++) {
@@ -2012,9 +2051,23 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
             emailService(recipientString,subject,message);
             console.log("Subscription Email Sent")
         }
+        if(coupon && cashbackAmount>0){
+          await createUserNotification({
+              title:'StoxHero Cashback',
+              description:`₹${cashbackAmount?.toFixed(2)} added as bonus - ${coupon} code used.`,
+              notificationType:'Individual',
+              notificationCategory:'Informational',
+              productCategory:'Contest',
+              user: user?._id,
+              priority:'Medium',
+              channels:['App', 'Email'],
+              createdBy:'63ecbc570302e7cf0153370c',
+              lastModifiedBy:'63ecbc570302e7cf0153370c'  
+            });
+      }
         await createUserNotification({
             title:'Contest Fee Deducted',
-            description:`₹${contest.entryFee} deducted as contest fee for ${contest?.contestName}`,
+            description:`₹${contestFee} deducted as contest fee for ${contest?.contestName}`,
             notificationType:'Individual',
             notificationCategory:'Informational',
             productCategory:'Contest',
@@ -2037,6 +2090,7 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
             }
         };  
   }catch(e){
+    console.log(e);
     return {
       stautsCode:500,
       data:{

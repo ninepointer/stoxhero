@@ -175,7 +175,7 @@ router.patch("/verifyotp", async (req, res) => {
             first_name: first_name.trim(), last_name: last_name.trim(), designation: 'Trader', email: email.trim(),
             mobile: mobile.trim(),
             name: first_name.trim() + ' ' + last_name.trim().substring(0, 1),
-            password: password,
+            // password: password,
             status: 'Active',
             employeeid: userId, creationProcess: 'Auto SignUp',
             joining_date: user.last_modifiedOn,
@@ -186,6 +186,10 @@ router.patch("/verifyotp", async (req, res) => {
             campaign: campaign && campaign._id,
             campaignCode: campaign && referrerCode,
             referredBy: referredBy && referredBy
+        }
+        // console.log('password', password);
+        if(password){
+            obj.password = password;
         }
 
         const newuser = await User.create(obj);
@@ -417,6 +421,7 @@ router.patch("/verifyotp", async (req, res) => {
     }
     catch (error) {
         console.log(error);
+        res.status(500).json({status:'error', message:'Something wenr wrong', error: error.message})
     }
 })
 
