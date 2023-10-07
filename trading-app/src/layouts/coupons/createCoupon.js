@@ -90,7 +90,7 @@ function CreateCoupon() {
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const { code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description, maxDiscount } = formState;
+    const { code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description, maxDiscount, minOrderValue } = formState;
     const res = await fetch(`${apiUrl}coupons`, {
       method: "POST",
       credentials: "include",
@@ -99,7 +99,7 @@ function CreateCoupon() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        maxDiscount, code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description
+        maxDiscount, code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description, minOrderValue
       })
     });
 
@@ -126,7 +126,7 @@ function CreateCoupon() {
       return openErrorSB("Missing Field", "Please fill all the mandatory fields");
     }
 
-    const { code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description, maxDiscount } = formState;
+    const { code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description, maxDiscount, minOrderValue } = formState;
     const res = await fetch(`${apiUrl}coupons/${id?._id}`, {
       method: "PATCH",
       credentials: "include",
@@ -135,7 +135,7 @@ function CreateCoupon() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description, maxDiscount
+        code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description, maxDiscount, minOrderValue
       })
 
     });
