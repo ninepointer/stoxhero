@@ -92,7 +92,7 @@ exports.getAllCouponCodes = async (req, res) => {
 
 exports.getActiveCouponCodes = async (req, res) => {
     try {
-        const activeCoupons = await Coupon.find({ status: 'Active' })
+        const activeCoupons = await Coupon.find({ status: 'Active', expiryDate:{$gte: new Date()} })
         .populate('usedBySuccessful.user', 'first_name last_name email mobile creationProcess')
         .populate('usedBy.user', 'first_name last_name email mobile creationProcess')
 

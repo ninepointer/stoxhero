@@ -48,7 +48,7 @@ function CreateCoupon() {
   const location = useLocation();
   const id = location?.state?.data;
   const [products, setProducts] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(id?.eligibleProducts ? id?.eligibleProducts : []);
   const [couponData, setCouponData] = useState(id ? id : '');
   const [isObjectNew, setIsObjectNew] = useState(id ? true : false)
   const [isLoading, setIsLoading] = useState(false)
@@ -293,7 +293,7 @@ function CreateCoupon() {
                     labelId="demo-simple-select-autowidth-label"
                     id="demo-simple-select-autowidth"
                     disabled={((isSubmitted || id) && (!editing || saving))}
-                    value={(formState?.isOneTimeUse !== undefined) || (couponData?.isOneTimeUse !== undefined)}
+                    value={(formState?.isOneTimeUse) || (couponData?.isOneTimeUse)}
                     onChange={(e) => {
                       setFormState((prevState) => ({
                         ...prevState,
@@ -432,6 +432,7 @@ function CreateCoupon() {
                     labelId="demo-multiple-checkbox-label"
                     id="demo-multiple-checkbox"
                     multiple
+                    disabled={((isSubmitted || id) && (!editing || saving))}
                     value={selectedProduct}
                     onChange={handleChange}
                     input={<OutlinedInput label="Tag" />}
@@ -459,7 +460,7 @@ function CreateCoupon() {
                     <MDButton mr={1} variant="contained" color="success" size="small" sx={{ mr: 1, ml: 2 }} disabled={creating} onClick={(e) => { onSubmit(e, formState) }}>
                       {creating ? <CircularProgress size={20} color="inherit" /> : "Submit"}
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/coupon") }}>
+                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/coupons") }}>
                       Cancel
                     </MDButton>
                   </>
