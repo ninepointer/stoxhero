@@ -794,7 +794,7 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
       notificationCategory:'Informational',
       productCategory:'TenX',
       user: user?._id,
-      priority:'High',
+      priority:'Medium',
       channels:['App', 'Email'],
       createdBy:'63ecbc570302e7cf0153370c',
       lastModifiedBy:'63ecbc570302e7cf0153370c'  

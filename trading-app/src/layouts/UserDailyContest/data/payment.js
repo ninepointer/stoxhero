@@ -419,7 +419,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
             Close
           </MDButton>
           <MDButton color={"success"} onClick={()=>initiatePayment()} autoFocus>
-            {`Pay ₹${ Number(amount) + actualAmount} securely`}
+            {`Pay ₹${ Number(amount-discountAmount) + actualAmount} securely`}
           </MDButton>
         </DialogActions>}
         {renderSuccessSB}
