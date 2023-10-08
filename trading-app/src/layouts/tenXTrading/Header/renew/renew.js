@@ -240,7 +240,7 @@ export default function Renew({amount, name, id, walletCash}) {
         setDiscountAmount(0);
         return;
       }
-      const res = await axios.post(`${apiUrl}coupons/verify`, {code, product:'6517d3803aeb2bb27d650de0'}, {withCredentials:true});
+      const res = await axios.post(`${apiUrl}coupons/verify`, {code, product:'6517d3803aeb2bb27d650de0', orderValue:amount}, {withCredentials:true});
       console.log('verified code',res?.data?.data);
       if(res.status == 200){
         setVerifiedCode(code);

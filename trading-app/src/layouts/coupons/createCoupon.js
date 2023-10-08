@@ -228,7 +228,7 @@ function CreateCoupon() {
                   disabled={((isSubmitted || id) && (!editing || saving))}
                   id="outlined-required"
                   label='Code *'
-                  value={formState?.code || couponData?.code}
+                  value={formState?.code || editing ? formState?.code : couponData?.code}
                   fullWidth
                   onChange={(e) => {
                     setFormState(prevState => ({
@@ -243,7 +243,7 @@ function CreateCoupon() {
                   disabled={((isSubmitted || id) && (!editing || saving))}
                   id="outlined-required"
                   label='Description *'
-                  value={formState?.description || couponData?.description}
+                  value={formState?.description || editing ? formState?.description : couponData?.description}
                   fullWidth
                   onChange={(e) => {
                     setFormState(prevState => ({
@@ -259,7 +259,7 @@ function CreateCoupon() {
                   id="outlined-required"
                   type="number"
                   label='Discount *'
-                  value={formState?.discount || couponData?.discount}
+                  value={formState?.discount || editing ? formState?.discount : couponData?.discount}
                   fullWidth
                   onChange={(e) => {
                     setFormState(prevState => ({
@@ -276,7 +276,7 @@ function CreateCoupon() {
                   id="outlined-required"
                   type="number"
                   label='Max Discount *'
-                  value={formState?.maxDiscount || couponData?.maxDiscount}
+                  value={formState?.maxDiscount || editing ? formState?.maxDiscount : couponData?.maxDiscount}
                   fullWidth
                   onChange={(e) => {
                     setFormState(prevState => ({
@@ -458,7 +458,7 @@ function CreateCoupon() {
                   id="outlined-required"
                   type="number"
                   label='Min Order Value *'
-                  value={formState?.minOrderValue || couponData?.minOrderValue}
+                  value={formState?.minOrderValue || editing ? formState?.minOrderValue : couponData?.minOrderValue}
                   fullWidth
                   onChange={(e) => {
                     setFormState(prevState => ({

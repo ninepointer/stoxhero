@@ -238,7 +238,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         setDiscountAmount(0);
         return;
       }
-      const res = await axios.post(`${apiUrl}coupons/verify`, {code, product:'6517d48d3aeb2bb27d650de5'}, {withCredentials:true});
+      const res = await axios.post(`${apiUrl}coupons/verify`, {code, product:'6517d48d3aeb2bb27d650de5', orderValue:elem?.entryFee}, {withCredentials:true});
       console.log('verified code',res?.data?.data);
       if(res.status == 200){
         setVerifiedCode(code);
