@@ -7,12 +7,10 @@ exports.createCouponCode = async (req, res) => {
     try {
         const {
             code, description, discountType, rewardType, discount, liveDate, expiryDate, status,
-            isOneTimeUse, usedBy, maxUse, eligibleProducts, campaign
+            isOneTimeUse, usedBy, maxUse, eligibleProducts, campaign, maxDiscount, minOrderValue
         } = req.body;
 
-        console.log('ye aaya hai', eligibleProducts);
-
-        const existingCode = await Coupon.findOne({ code: code });
+        const existingCode = await Coupon.findOne({ code: code, status:'Active' });
 
         if (existingCode) {
             return res.status(400).json({
@@ -23,7 +21,7 @@ exports.createCouponCode = async (req, res) => {
 
         const coupon = await Coupon.create({
             code, description, discountType, rewardType, discount, liveDate, expiryDate, status,
-            isOneTimeUse, usedBy, maxUse, eligibleProducts, campaign,
+            isOneTimeUse, usedBy, maxUse, eligibleProducts, campaign, maxDiscount, minOrderValue,
             createdBy: req.user._id, lastModifiedBy: req.user._id
         });
 
@@ -44,10 +42,10 @@ exports.createCouponCode = async (req, res) => {
 
 exports.editCouponCode = async (req, res) => {
     try {
-        const { code } = req.params;
+        const { id } = req.params;
         const updateFields = req.body;
 
-        let coupon = await Coupon.findOne({ code: code });
+        let coupon = await Coupon.findOne({ _id: id });
 
         if (!coupon) {
             return res.status(404).json({
@@ -57,7 +55,7 @@ exports.editCouponCode = async (req, res) => {
         }
 
         updateFields.lastModifiedBy = req.user._id;
-        coupon = await Coupon.findOneAndUpdate({ code: code }, updateFields, { new: true });
+        coupon = await Coupon.findOneAndUpdate({  _id: id }, updateFields, { new: true });
 
         res.status(200).json({
             status: 'success',
@@ -94,11 +92,89 @@ exports.getAllCouponCodes = async (req, res) => {
 
 exports.getActiveCouponCodes = async (req, res) => {
     try {
-        const activeCoupons = await Coupon.find({ status: 'Active' });
+        const activeCoupons = await Coupon.find({ status: 'Active', expiryDate:{$gte: new Date()} })
+        .populate('usedBySuccessful.user', 'first_name last_name email mobile joining_date creationProcess')
+        .populate('usedBy.user', 'first_name last_name email mobile creationProcess joining_date')
+        .populate('usedBy.product', 'productName')
+        .populate('usedBySuccessful.product', 'productName')
+
         
         res.status(200).json({
             status: 'success',
-            data: activeCoupons
+            data: activeCoupons,
+            count: activeCoupons.length
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+exports.getInActiveCouponCodes = async (req, res) => {
+    try {
+        const inactiveCoupons = await Coupon.find({ status: 'Inactive' })
+        .populate('usedBySuccessful.user', 'first_name last_name email mobile joining_date creationProcess')
+        .populate('usedBy.user', 'first_name last_name email mobile creationProcess joining_date')
+        .populate('usedBy.product', 'productName')
+        .populate('usedBySuccessful.product', 'productName')
+
+        
+        res.status(200).json({
+            status: 'success',
+            data: inactiveCoupons,
+            count: inactiveCoupons.length
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+exports.getDraftCouponCodes = async (req, res) => {
+    try {
+        const draftCoupons = await Coupon.find({ status: 'Draft' })
+        .populate('usedBySuccessful.user', 'first_name last_name email mobile joining_date creationProcess')
+        .populate('usedBy.user', 'first_name last_name email mobile joining_date creationProcess')
+        .populate('usedBy.product', 'productName')
+        .populate('usedBySuccessful.product', 'productName')
+
+        
+        res.status(200).json({
+            status: 'success',
+            data: draftCoupons,
+            count: draftCoupons.length
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+exports.getExpiredCouponCodes = async (req, res) => {
+    try {
+        const expiredCoupons = await Coupon.find({$or: [{status: 'Expired'}, {expiryDate: {$lt: new Date()}}]})
+        .populate('usedBySuccessful.user', 'first_name last_name email mobile creationProcess joining_date')
+        .populate('usedBy.user', 'first_name last_name email mobile creationProcess joining_date')
+        .populate('usedBy.product', 'productName')
+        .populate('usedBySuccessful.product', 'productName')
+
+        
+        res.status(200).json({
+            status: 'success',
+            data: expiredCoupons,
+            count: expiredCoupons.length
         });
     } catch (error) {
         console.log(error);
@@ -112,9 +188,9 @@ exports.getActiveCouponCodes = async (req, res) => {
 
 exports.verifyCouponCode = async (req, res) => {
     try {
-        const { code, product } = req.body;
+        const { code, product, orderValue } = req.body;
         const userId = req.user._id;
-        let coupon = await Coupon.findOne({ code: code, expiryDate:{$gte: new Date()} });
+        let coupon = await Coupon.findOne({ code: code, expiryDate:{$gte: new Date()}, status:'Active' });
 
         
         if (!coupon) {
@@ -129,6 +205,23 @@ exports.verifyCouponCode = async (req, res) => {
                 message: "This coupon is not valid for the product you're purchasing.",
             });
         }
+        if(coupon?.isOneTimeUse){
+            if(coupon?.usedBySuccessful.length >0){
+                const uses = coupon?.usedBySuccessful?.filter((item)=>item?.user?.toString() == userId?.toString());
+                if(uses?.length>0){
+                    return res.status(400).json({
+                        status: 'error',
+                        message: "You've already used this coupon once. Try another code.",
+                    });
+                }
+            }
+        }
+        if(coupon?.minOrderValue && orderValue<coupon?.minOrderValue){
+            return res.status(400).json({
+                status: 'error',
+                message: `Your order is not eligible for this coupon. The minimum order value for this couon is ${coupon?.minOrderValue}`,
+            });
+        }
         coupon?.usedBy?.push({
             user: userId,
             appliedOn: new Date(),
@@ -140,7 +233,8 @@ exports.verifyCouponCode = async (req, res) => {
             data: {
                 discount: coupon.discount,
                 discountType: coupon.discountType,
-                rewardType: coupon.rewardType
+                rewardType: coupon.rewardType,
+                maxDiscount: coupon?.maxDiscount,
             }
         });
     } catch (error) {
@@ -209,11 +303,17 @@ exports.saveSuccessfulCouponUse = async (userId, code, product) => {
         if (!coupon) {
             throw new Error('Coupon not found');
         }
-
+        let productDoc;
         let productString = product;
         if (product === 'TenX Renewal') productString = 'TenX';
+        console.log(userId, code, product);
 
-        const productDoc = await Product.findOne({ productName: productString });
+        if(mongoose.Types.ObjectId.isValid(product)){
+            productDoc = await Product.findOne({ _id: productString });
+        }else{
+            productDoc = await Product.findOne({ productName: productString });
+        }
+
         if (!productDoc) {
             throw new Error('Product not found');
         }
