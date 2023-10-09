@@ -2120,3 +2120,169 @@ exports.emitServerTime = async () => {
         io.emit('serverTime', new Date());
     }, 1000); // Emit every second (adjust as needed)
 }
+
+exports.getContestWiseLeaderboard = async (req, res, next) => {
+    const { id } = req.params;
+    console.log("Id:",id)
+    const pipeline = [
+        {
+          $match: {
+            contestId: new ObjectId(id),
+          },
+        },
+        {
+          $lookup: {
+            from: "daily-contests",
+            localField: "contestId",
+            foreignField: "_id",
+            as: "daily-contest",
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "trader",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              trader: "$trader",
+              user: "$user",
+              daily_contest: "$daily-contest",
+            },
+            grosspnl: {
+              $sum: {
+                $multiply: ["$amount", -1],
+              },
+            },
+            brokerage: {
+              $sum: "$brokerage",
+            },
+            trades: {
+              $sum: 1,
+            },
+          },
+        },
+        {
+          $project: {
+            first_name: {
+              $arrayElemAt: ["$_id.user.first_name", 0],
+            },
+            last_name: {
+              $arrayElemAt: ["$_id.user.last_name", 0],
+            },
+            mobile: {
+              $arrayElemAt: ["$_id.user.mobile", 0],
+            },
+            email: {
+              $arrayElemAt: ["$_id.user.email", 0],
+            },
+            joining_date: {
+              $arrayElemAt: [
+                "$_id.user.joining_date",
+                0,
+              ],
+            },
+            referredBy: {
+                $arrayElemAt: [
+                  "$_id.user.referredBy",
+                  0,
+                ],
+              },
+            creationProcess: {
+              $arrayElemAt: [
+                "$_id.user.creationProcess",
+                0,
+              ],
+            },
+            grosspnl: 1,
+            brokerage: 1,
+            trades: 1,
+            payoutPercentage: {
+              $arrayElemAt: [
+                "$_id.daily_contest.payoutPercentage",
+                0,
+              ],
+            },
+          },
+        },
+        {
+          $addFields: {
+            netpnl: {
+              $subtract: ["$grosspnl", "$brokerage"],
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            first_name: 1,
+            last_name: 1,
+            mobile: 1,
+            email: 1,
+            referredBy: 1,
+            joining_date: {
+              $substr: [
+                {
+                  $add: [
+                    {
+                      $toDate: "$joining_date",
+                    },
+                    // Convert the field to a date
+                    {
+                      $multiply: [
+                        5 * 60 * 60 * 1000,
+                        1,
+                      ],
+                    },
+                    // Add 5 hours (5 * 60 * 60 * 1000 milliseconds)
+                    {
+                      $multiply: [30 * 60 * 1000, 1],
+                    }, // Add 30 minutes (30 * 60 * 1000 milliseconds)
+                  ],
+                },
+                0,
+                10,
+              ],
+            },
+            creationProcess: 1,
+            payoutPercentage: 1,
+            grosspnl: 1,
+            brokerage: 1,
+            trades: 1,
+            netpnl: 1,
+            payout: {
+              $cond: {
+                if: {
+                  $gt: ["$netpnl", 0],
+                },
+                then: {
+                  $divide: [
+                    {
+                      $multiply: [
+                        "$netpnl",
+                        "$payoutPercentage",
+                      ],
+                    },
+                    100,
+                  ],
+                },
+                else: 0, // Set to 0 if netpnl is not greater than 0
+              },
+            },
+          },
+        },
+        {
+          $sort: {
+            netpnl: -1,
+          },
+        },
+      ]
+
+    let contestLeaderboard = await DailyContestMockUser.aggregate(pipeline)
+    // console.log(id, x)
+    res.status(201).json({ message: "data received", data: contestLeaderboard });
+}

@@ -30,6 +30,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 // import User from './users';
 import PotentialUser from "./data/potentialUsers";
+import Leaderboard from "./data/contestWiseLeaderboard"
 import CollegeRegistrations from "./data/contestRegistrations";
 import Shared from "./data/shared";
 import CreateRewards from './data/reward/createReward';
@@ -936,6 +937,12 @@ function Index() {
               {(contest || newObjectId) && contest?.contestFor == 'College' && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                 <MDBox>
                   <CollegeRegistrations registrations={contestRegistrations} action={action} setAction={setAction} />
+                </MDBox>
+              </Grid>}
+
+              {((contest || newObjectId) && (contest?.contestStatus === 'Completed')) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                <MDBox>
+                  <Leaderboard dailyContest={contest?._id ? contest : dailyContest} action={action} setAction={setAction} />
                 </MDBox>
               </Grid>}
 
