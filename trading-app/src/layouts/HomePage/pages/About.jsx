@@ -35,7 +35,14 @@ const About = () => {
                         <Grid item xs={12} md={6} sx={{mt:10}}  >
                             <Stack spacing={2} sx={{ maxWidth: 480 }}>
                                 <Title variant={{ xs: 'h3', sm: 'h2', md: 'h1' }} sx={{ letterSpacing: "0.02em", mb: 1 }} style={{ color: "white" }} >StoxHero</Title>
-                                <Title variant={{ xs: 'body1', sm: 'body1', md: "body1" }} sx={{ fontWeight: 500, letterSpacing: "0.05em", mb: 6, color: "rgba(255, 255, 255, 0.6)" }} >Welcome to StoxHero.com, the ultimate trading-gamification platform designed to empower GenZ users interested in pursuing a career in the exciting world of trading. Our platform provides a unique blend of gamification and real-time trading, offering a comprehensive training experience for retail traders.</Title>
+                                <Title variant={{ xs: 'body1', sm: 'body1', md: "body1" }} sx={{ fontWeight: 500, letterSpacing: "0.05em", mb: 6, color: "rgba(255, 255, 255, 0.6)" }} >
+                                Welcome to StoxHero.com, 
+
+                                StoxHero is led by a dynamic co-founding team with second-time startup FOUNDERS and impressive educational backgrounds, 
+                                including IIT, IIM, and NIT. Their diverse expertise spans derivatives trading, stock exchanges, and leadership roles 
+                                at top tech startups like Unacademy, OLA, Mu-Sigma, JAYPEE Capital, NCDEX, and NeoStencil. All three co-founders share 
+                                a history of working as a team at Unacademy and NeoStencil and committed to one cause - to MAKE RETAIL TRADERS BETTER TRADER!
+                                </Title>
                             </Stack>
                         </Grid>
 
