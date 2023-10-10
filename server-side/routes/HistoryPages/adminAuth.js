@@ -75,7 +75,9 @@ const { processBattles } = require("../../controllers/battles/battleController")
 const Battle = require("../../models/battle/battle")
 const MarginX = require("../../models/marginX/marginX");
 const BattleMock = require("../../models/battle/battleTrade");
-
+const Holiday = require("../../models/TradingHolidays/tradingHolidays");
+const Career = require("../../models/Careers/careerSchema");
+const mongoose = require('mongoose');
 // [
 //   {
 //     $unwind:
@@ -100,6 +102,253 @@ const BattleMock = require("../../models/battle/battleTrade");
 //   },
 // ]
 
+router.get('/updateinternshipdata', async(req,res) =>{
+  let cutoffDate = new Date('2023-07-10');
+  let total = 0, batch=0;
+  const internships = await InternBatch.aggregate([
+    {
+      $lookup:{
+        from: "careers",
+        localField: "career",
+        foreignField: "_id",
+        as: "careerData",
+      }
+    },
+    
+    {
+        $match: {
+            batchStatus: "Active",
+            batchEndDate: { $lte: new Date() },
+            "careerData.listingType":"Job"
+        }
+    },
+
+    {
+        $project: {
+            _id: 0,
+            batchId: "$_id",
+            batchName:"$batchName",
+            users: "$participants",
+            startDate: "$batchStartDate",
+            endDate: "$batchEndDate",
+            attendancePercentage: "$attendancePercentage",
+            payoutPercentage: "$payoutPercentage",
+            referralCount: "$referralCount"
+        }
+    }
+]);
+console.log('internships', internships.length);
+
+  for(let elem of internships){
+    const attendanceLimit = elem.attendancePercentage;
+      const referralLimit = elem.referralCount;
+      const payoutPercentage = elem.payoutPercentage;
+      const reliefAttendanceLimit = attendanceLimit - attendanceLimit * 5 / 100
+      const reliefReferralLimit = referralLimit - referralLimit * 10 / 100
+      const workingDays = calculateWorkingDays(elem.startDate, elem.endDate);
+      const users = elem.users;
+      const batchId = elem.batchId;
+
+      const holiday = await Holiday.find({
+        holidayDate: {
+          $gte: elem.startDate,
+          $lte: elem.endDate
+        },
+        $expr: {
+          $ne: [{ $dayOfWeek: "$holidayDate" }, 1], // 1 represents Sunday
+          $ne: [{ $dayOfWeek: "$holidayDate" }, 7], // 7 represents Saturday
+        }
+      });
+
+      // console.log("holiday date" , elem.endDate, elem.startDate, holiday)
+
+      const profitCap = 15000;
+
+      const tradingDays = async (userId, batchId) => {
+        const pipeline =
+          [
+            {
+              $match: {
+                batch: new ObjectId(batchId),
+                trader: new ObjectId(userId),
+                status: "COMPLETE",
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  date: {
+                    $substr: ["$trade_time", 0, 10],
+                  },
+                },
+                count: {
+                  $count: {},
+                },
+              },
+            },
+          ]
+
+        let x = await InternTrade.aggregate(pipeline);
+
+        return x.length;
+      }
+
+      const pnl = async (userId, batchId) => {
+        let pnlDetails = await InternTrade.aggregate([
+          {
+            $match: {
+              status: "COMPLETE",
+              trader: new ObjectId(userId),
+              batch: new ObjectId(batchId)
+            },
+          },
+          {
+            $group: {
+              _id: {
+              },
+              amount: {
+                $sum: { $multiply: ["$amount", -1] },
+              },
+              brokerage: {
+                $sum: {
+                  $toDouble: "$brokerage",
+                },
+              },
+            },
+          },
+          {
+            $project:
+            /**
+             * specifications: The fields to
+             *   include or exclude.
+             */
+            {
+              _id: 0,
+              npnl: {
+                $subtract: ["$amount", "$brokerage"],
+              },
+            },
+          },
+        ])
+
+        return pnlDetails[0]?.npnl;
+      }
+
+      function calculateWorkingDays(startDate, endDate) {
+        // Convert the input strings to Date objects
+        const start = new Date(startDate);
+        let end = new Date(endDate);
+        end = end.toISOString().split('T')[0];
+        end = new Date(end)
+        end.setDate(end.getDate() + 1);
+
+        // Check if the start date is after the end date
+        if (start > end) {
+          return 0;
+        }
+
+        let workingDays = 0;
+        let currentDate = new Date(start);
+
+        // Iterate over each day between the start and end dates
+        while (currentDate <= end) {
+          // Check if the current day is a weekday (Monday to Friday)
+          if (currentDate.getDay() >= 1 && currentDate.getDay() <= 5) {
+            workingDays++;
+          }
+
+          // Move to the next day
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        return workingDays;
+      }
+
+      const referrals = async (user) => {
+        // elem.startDate, elem.endDate
+        let refCount = 0;
+        if(elem?.batchEndDate>cutoffDate){
+          for (let subelem of user?.referrals) {
+            const joiningDate = moment(subelem?.referredUserId?.joining_date);
+          
+            // console.log((moment(moment(elem.startDate).format("YYYY-MM-DD"))), joiningDate, (moment(elem.endDate).set({ hour: 19, minute: 0, second: 0, millisecond: 0 })))
+            // console.log("joiningDate", moment(moment(elem.batchStartDate).format("YYYY-MM-DD")), joiningDate ,endDate, endDate1, moment(endDate).set({ hour: 19, minute: 0, second: 0, millisecond: 0 }).format("YYYY-MM-DD HH:mm:ss"))
+            if (joiningDate.isSameOrAfter(moment(moment(elem.startDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(moment(elem.endDate).set({ hour: 19, minute: 0, second: 0, millisecond: 0 }))) {
+              // console.log("joiningDate if", batchEndDate, batchEndDate.format("YYYY-MM-DD"))
+              refCount = refCount + 1;
+              // console.log("joiningDate if")
+            }
+          }
+        }else{
+          refCount = user?.referrals?.length;
+        }
+
+        // console.log(refCount)
+        return refCount;
+        // user?.referrals?.length;
+      }
+      let totalCredit = 0;
+      for (let i = 0; i < users.length; i++) {
+        // console.log('users', users?.length);
+        const session = await mongoose.startSession();
+        try{
+            session.startTransaction();
+            const user = await UserDetail.findOne({ _id: new ObjectId(users[i].user), status: "Active" })
+            .populate('referrals.referredUserId', 'joining_date').session(session);
+            // console.log('user ye hai', users[i]?.user);
+            let eligible = false;
+            if(user){
+              const tradingdays = await tradingDays(users[i].user, batchId);
+              const attendance = (tradingdays * 100) / (workingDays - holiday.length);
+              const referral = await referrals(user);
+              const npnl = await pnl(users[i].user, batchId);
+              const payoutAmountWithoutTDS = Math.min(npnl * payoutPercentage / 100, profitCap)
+              const creditAmount = payoutAmountWithoutTDS;
+              // console.log('credit amount for user and others', users[i]?.user, creditAmount, npnl, referral, tradingdays, attendance);
+              // const creditAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
+  
+    
+              // console.log( users[i].user, referral, creditAmount);
+              if (creditAmount > 0) {
+                if (attendance >= attendanceLimit && referral >= referralLimit && npnl > 0) {
+                  eligible = true;      
+                  console.log("no relief", users[i].user, npnl, creditAmount);
+                }
+                
+                if (!(attendance >= attendanceLimit && referral >= referralLimit) && (attendance >= attendanceLimit || referral >= referralLimit) && npnl > 0) {
+                  if (attendance < attendanceLimit && attendance >= reliefAttendanceLimit) {
+                    eligible = true;
+                    console.log("attendance relief");
+                  }
+                  if (referral < referralLimit && referral >= reliefReferralLimit) {
+                    eligible = true;
+                    console.log("referral relief", attendance, tradingdays, users[i].user, npnl);
+                  }
+                }
+              }
+              if(eligible){
+                totalCredit+=creditAmount;
+                console.log('Eligible', users[i]?.user, creditAmount);
+                }
+                await session.commitTransaction();      
+            }
+          
+        }catch(e){
+          console.log(e);
+          await session.abortTransaction();
+        }finally{
+          await session.endSession();
+        }
+      }
+      // console.log('first');
+      console.log('total credit for', elem?.batchName, totalCredit);
+      if(totalCredit>0){
+        batch++;
+      }
+      total+=totalCredit;
+  }
+  console.log('finished', total, batch);
+})
 
 
 router.get("/updateproduct", async (req, res) => {

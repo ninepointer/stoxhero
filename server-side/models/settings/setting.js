@@ -57,7 +57,8 @@ const settingSchema = new mongoose.Schema({
         timerStartTimeInStart: {type: Date},
         appEndTime: {type: Date},
         timerStartTimeInEnd: {type: Date}
-    }
+    },
+    mobileAppVersion: String
 })
 
 const settingDetail = mongoose.model("setting-detail", settingSchema);
