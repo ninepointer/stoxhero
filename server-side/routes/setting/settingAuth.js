@@ -67,6 +67,23 @@ router.get("/mobileappversion", async(req,res) => {
     }
 
 })
+router.patch("/mobileappversion", async(req,res) => {
+    try{
+        const setting = await Setting.find({});
+        const {mobileAppVersion} = req.body;
+        if(!mobileAppVersion){
+            res.status(400).json({status:'error', message:"No version in payload"});
+        }
+        setting[0].mobileAppVersion = mobileAppVersion;
+        await setting[0].save({validateBeforeSave:false})
+        res.status(200).json({status:'success', message:'App version updated'});
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status:'success', message:'Something went wrong', error:e?.message});
+
+    }
+
+})
 
 router.patch("/settings/:id", Authentication, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     try{ 
