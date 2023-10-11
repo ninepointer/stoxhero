@@ -30,7 +30,11 @@ export default function SuccessfullAppliedUser({couponData}) {
         { Header: "SignUp Method", accessor: "signupMethod", align: "center" },
         { Header: "Joining Date", accessor: "joiningDate", align: "center" },
         { Header: "Applied On", accessor: "appliedOn", align: "center" },
-        { Header: "Product", accessor: "product", align: "center" },
+        { Header: "Product Type", accessor: "product", align: "center" },
+        { Header: "Product", accessor: "specificProduct", align: "center" },
+        { Header: "Price", accessor: "price", align: "center" },
+        { Header: "Discount", accessor: "discountAmount", align: "center" },
+        { Header: "Effective Price", accessor: "effectivePrice", align: "center" },
         // { Header: "Remove", accessor: "remove", align: "center" },
       ]
 
@@ -76,6 +80,26 @@ export default function SuccessfullAppliedUser({couponData}) {
         {elem?.product?.productName}
       </MDTypography>
     );
+    featureObj.specificProduct = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {elem?.specificProductDetail?.name}
+      </MDTypography>
+    );
+    featureObj.price = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {elem?.specificProductDetail?.price}
+      </MDTypography>
+    );
+    featureObj.discountAmount = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {elem?.specificProductDetail?.discountAmount?.toFixed(2)}
+      </MDTypography>
+    );
+    featureObj.effectivePrice = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {elem?.specificProductDetail?.effectivePrice?.toFixed(2)}
+      </MDTypography>
+    );
 
     // featureObj.remove = (
     //   <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
@@ -103,7 +127,7 @@ export default function SuccessfullAppliedUser({couponData}) {
 
   function downloadHelper(data) {
     let csvDataFile = [[]]
-    let csvDataDailyPnl = [["NAME", "MOBILE", "EMAIL", "SIGNUP METHOD", "JOINING DATE", "APPLIED ON", "PRODUCT"]]
+    let csvDataDailyPnl = [["NAME", "MOBILE", "EMAIL", "SIGNUP METHOD", "JOINING DATE", "APPLIED ON", "PRODUCT TYPE", "PRODUCT", "PRICE", "DISCOUNT", "EFFECTIVE PRICE"]]
     if (data) {
       // dates = Object.keys(data)
       let csvpnlData = Object.values(data)
@@ -116,7 +140,11 @@ export default function SuccessfullAppliedUser({couponData}) {
           elem?.user?.creationProcess,
           Moment(elem?.user?.joining_date).format('DD-MM-YY HH:MM:ss a').toString(),
           Moment(elem?.appliedOn).format('DD-MM-YY HH:MM:ss a').toString(),
-          elem?.product?.productName
+          elem?.product?.productName,
+          elem?.specificProductDetail?.name,
+          elem?.specificProductDetail?.price,
+          elem?.specificProductDetail?.discountAmount?.toFixed(2),
+          elem?.specificProductDetail?.effectivePrice?.toFixed(2),
         ]
       })
     }

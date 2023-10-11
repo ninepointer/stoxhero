@@ -56,6 +56,7 @@ const couponCodeSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'product'
     },
+    specificProduct:mongoose.Schema.Types.ObjectId,
   }],
   usedBySuccessful: [{
     user:{
@@ -67,6 +68,10 @@ const couponCodeSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'product'
     },
+    specificProduct:{
+      type: mongoose.Schema.Types.ObjectId,
+    },
+    discountClaimed: Number
   }],
   maxUse: {
     type: Number,
