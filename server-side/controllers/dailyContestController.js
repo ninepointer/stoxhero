@@ -2079,7 +2079,7 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
           });
           if(coupon){
             const product = await Product.findOne({productName:'Contest'}).select('_id');
-            await saveSuccessfulCouponUse(userId, coupon, product?._id);
+            await saveSuccessfulCouponUse(userId, coupon, product?._id, contest?._id);
           }
           return {
             stautsCode:200,

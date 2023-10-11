@@ -802,7 +802,7 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
     await session.commitTransaction();
     if(coupon){
       const product = await Product.findOne({productName:'TenX'}).select('_id');
-      await saveSuccessfulCouponUse(userId, coupon, product?._id);
+      await saveSuccessfulCouponUse(userId, coupon, product?._id, subscription?._id);
     }
     return {
       statusCode:201,

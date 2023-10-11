@@ -396,7 +396,7 @@ exports.handleCallback = async (req, res, next) => {
                 await payment.save({validateBeforeSave: false});
                 if(payment?.coupon){
                     if(payment?.paymentFor){
-                        await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, payment?.paymentFor);
+                        await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, payment?.paymentFor, payment?.productId);
                     }else{
                         await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, 'Wallet');
                     }
@@ -488,7 +488,7 @@ exports.checkPaymentStatus = async(req,res, next) => {
                     //TODO:Remove this code
                     if(payment?.coupon){
                         if(payment?.paymentFor){
-                            await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, payment?.paymentFor);
+                            await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, payment?.paymentFor, payment?.productId);
                         }else{
                             await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, 'Wallet');
                         }

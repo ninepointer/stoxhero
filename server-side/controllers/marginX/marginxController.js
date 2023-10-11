@@ -1164,7 +1164,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
           });
           if(coupon){
             const product = await Product.findOne({productName:'MarginX'}).select('_id');
-            await saveSuccessfulCouponUse(userId, coupon, product?._id);
+            await saveSuccessfulCouponUse(userId, coupon, product?._id, marginx?._id);
           }
           return {
             statusCode:200,

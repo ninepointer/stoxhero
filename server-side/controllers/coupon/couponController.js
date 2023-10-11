@@ -320,7 +320,7 @@ exports.getActiveProductCouponCodes = async(req,res,next) => {
 
 // }
 
-exports.saveSuccessfulCouponUse = async (userId, code, product) => {
+exports.saveSuccessfulCouponUse = async (userId, code, product, specificProduct) => {
     try {
         const coupon = await Coupon.findOne({ code }).select('usedBy usedBySuccessful');
         if (!coupon) {
@@ -346,6 +346,7 @@ exports.saveSuccessfulCouponUse = async (userId, code, product) => {
             user: userId,
             appliedOn: new Date(),
             product: productDoc._id,
+            specificProduct:specificProduct
         });
 
         // Remove the last user element from the usedBySuccessful array if exists
