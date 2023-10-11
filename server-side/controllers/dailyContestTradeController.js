@@ -1765,9 +1765,6 @@ const dailyContestLeaderBoard = async (id) => {
         let addUrl;
         let livePrices = {};
 
-
-        // console.log("in main else")
-        // const contestInstruments = await Instrument.find({ status: "Active" }).select('instrumentToken exchange symbol');
         const data = await getKiteCred.getAccess();
         uniqueDataArray.forEach((elem, index) => {
             if (index === 0) {
@@ -1790,10 +1787,6 @@ const dailyContestLeaderBoard = async (id) => {
         for (let instrument in response.data.data) {
             livePrices[response.data.data[instrument].instrument_token] = response.data.data[instrument].last_price;
         }
-
-
-
-        // console.log(ranks)
 
         for (doc of ranks) {
             if(doc){
