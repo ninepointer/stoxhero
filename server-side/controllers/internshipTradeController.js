@@ -5,6 +5,7 @@ const InternBatch = require("../models/Careers/internBatch");
 const {client, getValue} = require('../marketData/redisClient');
 const Careers = require("../models/Careers/careerSchema");
 const Wallet = require("../models/UserWallet/userWalletSchema");
+const TradingHoliday = require('../models/TradingHolidays/tradingHolidays');
 const uuid = require('uuid');
 const Holiday = require("../models/TradingHolidays/tradingHolidays");
 const moment = require('moment');
@@ -1577,6 +1578,312 @@ exports.getDailyInternshipUsers = async (req, res) => {
       status: "success",
       message: "Contest Scoreboard fetched successfully",
       data: Object.values(dateWiseDAUs),
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.downloadCompletedInternshipReport = async (req, res) => {
+  try { 
+
+    const pipeline = [
+      {
+        $match: {
+          status: "COMPLETE",
+        },
+      },
+      {
+        $lookup: {
+          from: "intern-batches",
+          localField: "batch",
+          foreignField: "_id",
+          as: "batch_details",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-portfolios",
+          localField: "batch_details.portfolio",
+          foreignField: "_id",
+          as: "portfolio",
+        },
+      },
+      {
+        $project: {
+          trade_time: {
+            $toDate: "$trade_time",
+          },
+          amount: 1,
+          brokerage: 1,
+          batchName: {
+            $arrayElemAt: [
+              "$batch_details.batchName",
+              0,
+            ],
+          },
+          payoutPercentage: {
+            $arrayElemAt: [
+              "$batch_details.payoutPercentage",
+              0,
+            ],
+          },
+          attendancePercentage: {
+            $arrayElemAt: [
+              "$batch_details.attendancePercentage",
+              0,
+            ],
+          },
+          referralCount: {
+            $arrayElemAt: [
+              "$batch_details.referralCount",
+              0,
+            ],
+          },
+          portfolioValue: {
+            $arrayElemAt: [
+              "$portfolio.portfolioValue",
+              0,
+            ],
+          },
+          first_name: {
+            $arrayElemAt: ["$user.first_name", 0],
+          },
+          last_name: {
+            $arrayElemAt: ["$user.last_name", 0],
+          },
+          email: {
+            $arrayElemAt: ["$user.email", 0],
+          },
+          mobile: {
+            $arrayElemAt: ["$user.mobile", 0],
+          },
+          referrals: {
+            $arrayElemAt: ["$user.referrals", 0],
+          },
+          creationProcess: {
+            $arrayElemAt: [
+              "$user.creationProcess",
+              0,
+            ],
+          },
+          joining_date: {
+            $add: [
+              {
+                $toDate: {
+                  $arrayElemAt: [
+                    "$user.joining_date",
+                    0,
+                  ],
+                },
+              },
+              5 * 60 * 60 * 1000,
+              // Add 5 hours (5 * 60 * 60 * 1000 milliseconds)
+              30 * 60 * 1000, // Add 30 minutes (30 * 60 * 1000 milliseconds)
+            ],
+          },
+          batchStartDate: {
+            $add: [
+              {
+                $toDate: {
+                  $arrayElemAt: [
+                    "$batch_details.batchStartDate",
+                    0,
+                  ],
+                },
+              },
+              5 * 60 * 60 * 1000,
+              // Add 5 hours (5 * 60 * 60 * 1000 milliseconds)
+              30 * 60 * 1000, // Add 30 minutes (30 * 60 * 1000 milliseconds)
+            ],
+          },
+    
+          batchEndDate: {
+            $add: [
+              {
+                $toDate: {
+                  $arrayElemAt: [
+                    "$batch_details.batchEndDate",
+                    0,
+                  ],
+                },
+              },
+              5 * 60 * 60 * 1000,
+              // Add 5 hours (5 * 60 * 60 * 1000 milliseconds)
+              30 * 60 * 1000, // Add 30 minutes (30 * 60 * 1000 milliseconds)
+            ],
+          },
+        },
+      },
+      {
+        $match: {
+          $expr: {
+            $lt: [
+              "$batchEndDate",
+              {
+                $add: [
+                  new Date(),
+                  5 * 60 * 60 * 1000,
+                  30 * 60 * 1000,
+                ], // Add 5 hours and 30 minutes
+              },
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            trade_date: {
+              $substr: ["$trade_time", 0, 10],
+            },
+            first_name: "$first_name",
+            last_name: "$last_name",
+            email: "$email",
+            mobile: "$mobile",
+            referrals: "$referrals",
+            creationProcess: "$creationProcess",
+            joining_date: "$joining_date",
+            batchStartDate: "$batchStartDate",
+            batchEndDate: "$batchEndDate",
+            batchName: "$batchName",
+            portfolio: "$portfolioValue",
+            payoutPercentage: "$payoutPercentage",
+            referralCount: "$referralCount",
+            attendancePercentage:
+              "$attendancePercentage",
+          },
+          tradeCount: {
+            $sum: 1,
+          },
+          grosspnl: {
+            $sum: {
+              $multiply: ["$amount", -1],
+            },
+          },
+          brokerage: {
+            $sum: "$brokerage",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          trade_date: "$_id.trade_date",
+          first_name: "$_id.first_name",
+          last_name: "$_id.last_name",
+          email: "$_id.email",
+          mobile: "$_id.mobile",
+          referrals:'$_id.referrals',
+          creationProcess: "$_id.creationProcess",
+          joining_date: "$_id.joining_date",
+          batchStartDate: "$_id.batchStartDate",
+          batchEndDate: "$_id.batchEndDate",
+          batchName: "$_id.batchName",
+          portfolio: "$_id.portfolio",
+          payoutPercentage: "$_id.payoutPercentage",
+          referralCount: "$_id.referralCount",
+          attendancePercentage:
+            "$_id.attendancePercentage",
+          tradeCount: 1,
+          grosspnl: 1,
+          brokerage: 1,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            first_name: "$first_name",
+            last_name: "$last_name",
+            email: "$email",
+            mobile: "$mobile",
+            referrals: "$referrals",
+            creationProcess: "$creationProcess",
+            joining_date: "$joining_date",
+            batchStartDate: "$batchStartDate",
+            batchEndDate: "$batchEndDate",
+            batchName: "$batchName",
+            portfolio: "$portfolio",
+            payoutPercentage: "$payoutPercentage",
+            referralCount: "$referralCount",
+            attendancePercentage:
+              "$attendancePercentage",
+          },
+          tradingDays: {
+            $sum: 1,
+          },
+          totalTrades: {
+            $sum: "$tradeCount",
+          },
+          grosspnl: {
+            $sum: "$grosspnl",
+          },
+          brokerage: {
+            $sum: "$brokerage",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          first_name: "$_id.first_name",
+          last_name: "$_id.last_name",
+          email: "$_id.email",
+          mobile: "$_id.mobile",
+          referrals: "$_id.referrals",
+          creationProcess: "$_id.creationProcess",
+          joining_date: {$substr : ["$_id.joining_date",0,10]},
+          batchStartDate: {$substr : ["$_id.batchStartDate",0,10]},
+          batchEndDate: {$substr : ["$_id.batchEndDate",0,10]},
+          batchName: "$_id.batchName",
+          portfolio: "$_id.portfolio",
+          payoutPercentage: "$_id.payoutPercentage",
+          referralCount: "$_id.referralCount",
+          attendancePercentage:
+            "$_id.attendancePercentage",
+          totalTrades: 1,
+          tradingDays: 1,
+          grosspnl: 1,
+          brokerage: 1,
+        },
+      },
+      {
+        $addFields: {
+          netpnl: {
+            $subtract: ["$grosspnl", "$brokerage"],
+          },
+        },
+      },
+      {
+        $sort: {
+          batchEndDate:-1,
+          batchName:-1,
+        }
+      }
+    ];
+
+    const internshipReport = await InternTrades.aggregate(pipeline);
+    console.log("Internship Report:",internshipReport)
+    // Create a date-wise mapping of DAUs for different products
+
+    const response = {
+      status: "success",
+      message: "Internship Report Downloaded Successfully",
+      data: internshipReport,
     };
 
     res.status(200).json(response);

@@ -10,7 +10,7 @@ import axios from "axios";
 
 export default function SubscriptionTutorialVideoView({tenXSubscription, tutorialVideoViewCount, setTutorialVideoViewCount}) {
     console.log("Subscription", tenXSubscription)
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const [tenXSubsTutorialView,setTenXSubsTutorialView] = React.useState([]);
     async function getSubscriptionTutorialViews(){
         let call1 = axios.get(`${baseUrl}api/v1/tenx/tutorialvideoview/${tenXSubscription}`,{
