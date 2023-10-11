@@ -12,7 +12,7 @@ import axios from "axios";
 export default function TenXSubscribers({tenXSubscription}) {
     // console.log("Subscription", tenXSubscription)
     // setSubscriptionCount(tenXSubscription?.users?.length)
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     // const [tenXSubsPurchaseIntent,setTenXSubsPurchaseIntent] = React.useState([]);
   console.log("TenX Subscribers:",tenXSubscription)
   function TruncatedName(name) {

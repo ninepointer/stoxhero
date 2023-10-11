@@ -26,7 +26,7 @@ function UserPosition() {
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
   const [watchList, setWatchList] = useState([]);
   const socket = useContext(socketContext);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   
   useEffect(() => {
     ReactGA.pageview(window.location.pathname)
