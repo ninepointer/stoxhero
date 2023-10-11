@@ -1865,12 +1865,14 @@ const dailyContestLeaderBoard = async (id) => {
         ]);
 
 
-        // console.log("ranks, ", ranks)
+        
 
         for (doc of ranks) {
             doc.rpnl = doc.lots * livePrices[doc.userId.instrumentToken];
             doc.npnl = doc.totalAmount + doc.rpnl - doc.brokerage;
         }
+
+        console.log("ranks, ", ranks)
 
 
         async function aggregateRanks(ranks) {
@@ -2042,7 +2044,8 @@ async function processContestQueue() {
     const endTime = new Date(currentTime);
     endTime.setHours(9, 48, 0, 0);
 
-    if (currentTime >= startTime && currentTime <= endTime) {
+    //todo-vijay
+   // if (currentTime >= startTime && currentTime <= endTime) {
         console.log("1st if", contestQueue.length);
 
         // If the queue is empty, reset the processing flag and return
@@ -2051,7 +2054,6 @@ async function processContestQueue() {
             isProcessingQueue = false;
             return;
         }
-
         // Process contests and emit the data
         for (const contest of contestQueue) {
             if (contest.contestStatus === "Active" && contest.contestStartTime <= new Date()) {
@@ -2062,7 +2064,7 @@ async function processContestQueue() {
             }
         }
 
-    }
+    //}
 }
 
 
