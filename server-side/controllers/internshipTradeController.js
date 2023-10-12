@@ -1001,142 +1001,210 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
 
   let { batch } = req.params
 
+  // let pipeline = [
+  //   {
+  //     $lookup: {
+  //       from: "user-personal-details",
+  //       localField: "trader",
+  //       foreignField: "_id",
+  //       as: "user",
+  //     },
+  //   },
+  //   {
+  //     $match: {
+  //       status: "COMPLETE",
+  //       batch: new ObjectId(batch),
+  //     },
+  //   },
+  //   {
+  //     $lookup: {
+  //       from: "intern-batches",
+  //       localField: "batch",
+  //       foreignField: "_id",
+  //       as: "batch",
+  //     },
+  //   },
+  //   {
+  //     $group: {
+  //       _id: {
+  //         userId: "$trader",
+  //         name: {
+  //           $concat: [
+  //             {
+  //               $arrayElemAt: [
+  //                 "$user.first_name",
+  //                 0,
+  //               ],
+  //             },
+  //             " ",
+  //             {
+  //               $arrayElemAt: [
+  //                 "$user.last_name",
+  //                 0,
+  //               ],
+  //             },
+  //           ],
+  //         },
+  //         batchStartDate: {
+  //           $arrayElemAt: [
+  //             "$batch.batchStartDate",
+  //             0,
+  //           ],
+  //         },
+  //         batchEndDate: {
+  //           $arrayElemAt: [
+  //             "$batch.batchEndDate",
+  //             0,
+  //           ],
+  //         },
+
+  //         payoutPercentage: {
+  //           $arrayElemAt: [
+  //             "$batch.payoutPercentage",
+  //             0,
+  //           ],
+  //         },
+  //         attendancePercentage: {
+  //           $arrayElemAt: [
+  //             "$batch.attendancePercentage",
+  //             0,
+  //           ],
+  //         },
+  //         referralCount: {
+  //           $arrayElemAt: [
+  //             "$batch.referralCount",
+  //             0,
+  //           ],
+  //         },
+  //       },
+  //       gpnl: {
+  //         $sum: {
+  //           $multiply: ["$amount", -1],
+  //         },
+  //       },
+  //       brokerage: {
+  //         $sum: {
+  //           $toDouble: "$brokerage",
+  //         },
+  //       },
+  //       trades: {
+  //         $count: {},
+  //       },
+  //       tradingDays: {
+  //         $addToSet: {
+  //           $dateToString: {
+  //             format: "%Y-%m-%d",
+  //             date: "$trade_time",
+  //           },
+  //         },
+  //       },
+  //     },
+  //   },
+  //   {
+  //     $project: {
+  //       _id: 0,
+  //       userId: "$_id.userId",
+  //       name: "$_id.name",
+  //       tradingDays: {
+  //         $size: "$tradingDays",
+  //       },
+  //       gpnl: 1,
+  //       brokerage: 1,
+  //       npnl: {
+  //         $subtract: ["$gpnl", "$brokerage"],
+  //       },
+  //       noOfTrade: "$trades",
+  //       batchStartDate: "$_id.batchStartDate",
+  //       batchEndDate: "$_id.batchEndDate",
+  //       payoutPercentage: "$_id.payoutPercentage",
+  //       attendancePercentage: "$_id.attendancePercentage",
+  //       referralCount: "$_id.referralCount",
+  //     },
+  //   },
+  //   {
+  //     $sort: {
+  //       npnl: -1,
+  //     },
+  //   },
+  // ]
+
   let pipeline = [
+    {
+      $match: {
+        _id: new ObjectId(batch),
+      },
+    },
+    {
+      $unwind: {
+        path: "$participants",
+      },
+    },
     {
       $lookup: {
         from: "user-personal-details",
-        localField: "trader",
+        localField: "participants.user",
         foreignField: "_id",
         as: "user",
       },
     },
     {
-      $match: {
-        status: "COMPLETE",
-        batch: new ObjectId(batch),
-      },
-    },
-    {
-      $lookup: {
-        from: "intern-batches",
-        localField: "batch",
-        foreignField: "_id",
-        as: "batch",
-      },
-    },
-    {
-      $group: {
-        _id: {
-          userId: "$trader",
-          name: {
-            $concat: [
-              {
-                $arrayElemAt: [
-                  "$user.first_name",
-                  0,
-                ],
-              },
-              " ",
-              {
-                $arrayElemAt: [
-                  "$user.last_name",
-                  0,
-                ],
-              },
-            ],
-          },
-          batchStartDate: {
-            $arrayElemAt: [
-              "$batch.batchStartDate",
-              0,
-            ],
-          },
-          batchEndDate: {
-            $arrayElemAt: [
-              "$batch.batchEndDate",
-              0,
-            ],
-          },
-
-          payoutPercentage: {
-            $arrayElemAt: [
-              "$batch.payoutPercentage",
-              0,
-            ],
-          },
-          attendancePercentage: {
-            $arrayElemAt: [
-              "$batch.attendancePercentage",
-              0,
-            ],
-          },
-          referralCount: {
-            $arrayElemAt: [
-              "$batch.referralCount",
-              0,
-            ],
-          },
-        },
-        gpnl: {
-          $sum: {
-            $multiply: ["$amount", -1],
-          },
-        },
-        brokerage: {
-          $sum: {
-            $toDouble: "$brokerage",
-          },
-        },
-        trades: {
-          $count: {},
-        },
-        tradingDays: {
-          $addToSet: {
-            $dateToString: {
-              format: "%Y-%m-%d",
-              date: "$trade_time",
-            },
-          },
-        },
-      },
-    },
-    {
       $project: {
+        name: {
+          $concat: [
+            {
+              $arrayElemAt: ["$user.first_name", 0],
+            },
+            " ",
+            {
+              $arrayElemAt: ["$user.last_name", 0],
+            },
+          ],
+        },
+        gpnl: "$participants.gpnl",
+        npnl: "$participants.npnl",
+        noOfTrade: "$participants.noOfTrade",
+        referralCount: "$participants.referral",
+        attendancePercentage:
+          "$participants.attendance",
+        payout: "$participants.payout",
+        tradingDays: "$participants.tradingdays",
+        brokerage: {
+          $abs: {
+            $subtract: [
+              "$participants.npnl",
+              "$participants.gpnl",
+            ],
+          },
+        },
+        userId: "$participants.user",
         _id: 0,
-        userId: "$_id.userId",
-        name: "$_id.name",
+      },
+    },
+    {
+      $match: {
         tradingDays: {
-          $size: "$tradingDays",
+          $gt: 0,
         },
-        gpnl: 1,
-        brokerage: 1,
-        npnl: {
-          $subtract: ["$gpnl", "$brokerage"],
-        },
-        noOfTrade: "$trades",
-        batchStartDate: "$_id.batchStartDate",
-        batchEndDate: "$_id.batchEndDate",
-        payoutPercentage: "$_id.payoutPercentage",
-        attendancePercentage: "$_id.attendancePercentage",
-        referralCount: "$_id.referralCount",
       },
     },
     {
       $sort: {
-        npnl: -1,
+        payout: -1,
+        npnl: -1, // Add more fields if needed
       },
     },
+  
   ]
 
 
-  let userData = await User.find()
-  .populate('referrals.referredUserId', 'joining_date')
-  .select("referrals")
-  let x = await InternTrades.aggregate(pipeline)
+  // let userData = await User.find()
+  // .populate('referrals.referredUserId', 'joining_date')
+  // .select("referrals")
+  let x = await InternBatch.aggregate(pipeline)
 
   // res.status(201).json(x);
 
-  res.status(201).json({ message: "data received", data: x, userData: userData });
+  res.status(201).json({ message: "data received", data: x });
 }
 
 
@@ -1172,7 +1240,7 @@ const tradingDays = async (userId, batchId) => {
 }
 
 const pnlFunc = async (userId, batchId) => {
-  let pnlDetails = await InternTrade.aggregate([
+  let pnlDetails = await InternTrades.aggregate([
     {
       $match: {
         status: "COMPLETE",
@@ -1272,16 +1340,16 @@ exports.updateUserWallet = async () => {
     let date = new Date();
 
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    // let todayDate = `2023-09-03`
+    // let todayDate = `2023-09-26`
 
     let endOfToday = todayDate + "T23:59:59.400Z"
     const setting = await Setting.find();
 
-    const internship = await InternBatch.find({batchStatus: "Active", batchStartDate: {$gte: new Date(todayDate)}, batchEndDate: { $lte: new Date(endOfToday) }})
+    const internship = await InternBatch.find({batchStatus: "Active", batchEndDate: {$gte: new Date(todayDate)}, batchEndDate: { $lte: new Date(endOfToday) }})
     .populate('career', 'listingType')
     .select('batchName participants batchStartDate batchEndDate attendancePercentage payoutPercentage referralCount')
   
-
+    console.log(internship)
 
     for (let elem of internship) {
       if (elem.career.listingType === 'Job') {
@@ -1305,13 +1373,7 @@ exports.updateUserWallet = async () => {
           }
         });
 
-        // console.log("holiday date" , elem.batchEndDate, elem.batchStartDate, holiday)
-
         const profitCap = 15000;
-
-
-
-
         for (let i = 0; i < users.length; i++) {
           const session = await mongoose.startSession();
           try {
@@ -1337,7 +1399,7 @@ exports.updateUserWallet = async () => {
                   console.log("no relief", users[i].user, pnl.npnl, creditAmount);
                 }
 
-                if (!(attendance >= attendanceLimit && referral >= referralLimit) && (attendance >= attendanceLimit || referral >= referralLimit) && npnl > 0) {
+                if (!(attendance >= attendanceLimit && referral >= referralLimit) && (attendance >= attendanceLimit || referral >= referralLimit) && pnl.npnl > 0) {
                   if (attendance < attendanceLimit && attendance >= reliefAttendanceLimit) {
                     eligible = true;
                     console.log("attendance relief");

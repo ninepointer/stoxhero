@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 const Coupon = require('../../models/coupon/coupon');
+const MarginX = require('../../models/marginX/marginX');
 const Product = require('../../models/Product/product');
+const Setting = require('../../models/settings/setting');
+const TenX = require('../../models/TenXSubscription/TenXSubscriptionSchema');
+const DailyContest = require('../../models/DailyContest/dailyContest');
+const{stringify} = require('flatted');
 
 
 exports.createCouponCode = async (req, res) => {
@@ -98,12 +103,19 @@ exports.getActiveCouponCodes = async (req, res) => {
         .populate('usedBy.product', 'productName')
         .populate('usedBySuccessful.product', 'productName')
 
+        await appendAdditionalData(activeCoupons);
+        for (let i = 0; i < activeCoupons.length; i++) {
+            // Replace each Mongoose document with a modified plain object
+            activeCoupons[i] = calculateMetrics(activeCoupons[i]);
+        }
+
         
         res.status(200).json({
             status: 'success',
             data: activeCoupons,
             count: activeCoupons.length
         });
+        console.log('response sent');
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -122,10 +134,14 @@ exports.getInActiveCouponCodes = async (req, res) => {
         .populate('usedBy.product', 'productName')
         .populate('usedBySuccessful.product', 'productName')
 
+        await appendAdditionalData(inactiveCoupons);
+        const metrics = calculateMetrics(inactiveCoupons);
+
         
         res.status(200).json({
             status: 'success',
             data: inactiveCoupons,
+            metrics,
             count: inactiveCoupons.length
         });
     } catch (error) {
@@ -146,10 +162,14 @@ exports.getDraftCouponCodes = async (req, res) => {
         .populate('usedBy.product', 'productName')
         .populate('usedBySuccessful.product', 'productName')
 
+        await appendAdditionalData(draftCoupons);
+        const metrics = calculateMetrics(draftCoupons);
+
         
         res.status(200).json({
             status: 'success',
             data: draftCoupons,
+            metrics,
             count: draftCoupons.length
         });
     } catch (error) {
@@ -170,10 +190,13 @@ exports.getExpiredCouponCodes = async (req, res) => {
         .populate('usedBy.product', 'productName')
         .populate('usedBySuccessful.product', 'productName')
 
+        await appendAdditionalData(expiredCoupons);
+        const metrics = calculateMetrics(expiredCoupons);
         
         res.status(200).json({
             status: 'success',
             data: expiredCoupons,
+            metrics,
             count: expiredCoupons.length
         });
     } catch (error) {
@@ -342,4 +365,220 @@ exports.saveSuccessfulCouponUse = async (userId, code, product) => {
         console.error(error);
         throw error;
     }
+}
+
+async function getCollectionAndData(productName, specificProduct, coupon) {
+    // Determine the collection name and field name based on the productName
+    // Replace the following logic with your own mapping of productName to collection name and field name
+    let discountAmount = 0;
+    let gstAmount =0;
+    let setting = await Setting.findOne({}).select('gstPercentage');
+    let gstPercentage = setting?.gstPercentage;
+    switch (productName) {
+        case 'TenX':
+            const subscription  = await TenX.findById(specificProduct).select('discounted_price plan_name');
+            discountAmount = calculateDiscountAmount(coupon, subscription?.discounted_price);
+            gstAmount = gstPercentage/100*(subscription?.discounted_price-discountAmount);
+            return {name: subscription?.plan_name, price: subscription?.discounted_price, discountAmount, effectivePrice: (subscription?.discounted_price- discountAmount+gstAmount)}
+        case 'MarginX':
+            const marginx = await MarginX.findById(specificProduct).populate('marginXTemplate', 'entryFee').select('marginXName marginXTemplate');
+            discountAmount = calculateDiscountAmount(coupon, marginx?.marginXTemplate?.entryFee);
+            gstAmount = gstPercentage/100*(marginx?.marginXTemplate?.entryFee-discountAmount);
+            return { name: marginx?.marginXName, price: marginx?.marginXTemplate?.entryFee, discountAmount, effectivePrice: (marginx?.marginXTemplate?.entryFee- discountAmount+gstAmount) };
+        case 'Contest':
+            const contest = await DailyContest.findById(specificProduct).select('contestName entryFee');
+            discountAmount = calculateDiscountAmount(coupon, contest?.entryFee);
+            gstAmount = gstPercentage/100*(contest?.entryFee-discountAmount);
+            return { name: contest?.contestName, price: contest?.entryFee, discountAmount, effectivePrice: (contest?.entryFee- discountAmount+gstAmount) };
+        default:
+            throw new Error(`Unknown product name: ${productName}`);
+    }
+}
+
+function calculateDiscountAmount(coupon, entryFee){
+    let discountAmount = 0;
+    if(coupon?.rewardType == 'Discount'){
+        if(coupon?.discountType == 'Flat'){
+            discountAmount = Math.min(coupon?.discount, coupon?.maxDiscount);
+        }else{
+            discountAmount = Math.min(coupon?.discount*entryFee/100, coupon?.maxDiscount)
+        }
+    }
+
+    return discountAmount;
+}
+
+async function appendAdditionalDataa(coupons) {
+    // Prepare a map to avoid fetching specificProduct more than once from the same collection
+    // const specificProductCache = new Map();
+    // Iterate through the coupons to fetch specificProduct details
+    for (let coupon of coupons) {
+        const couponObj = coupon.toObject();
+        for (let usedBySuccessful of couponObj?.usedBySuccessful) {
+            // const cacheKey = `${usedBySuccessful.product.productName}_${usedBySuccessful?.specificProduct?.toString()}`;
+            // if (specificProductCache.has(cacheKey)) {
+            //     usedBySuccessful.specificProductDetail = specificProductCache.get(cacheKey);
+            // } else {
+                // Call getCollectionAndData function to get specific product details
+                const specificProductDetail = await getCollectionAndData(
+                    usedBySuccessful.product.productName,
+                    usedBySuccessful.specificProduct,
+                    coupon
+                );
+                console.log('product detail', specificProductDetail);
+                // usedBySuccessful.specificProductDetail = specificProductDetail;
+                usedBySuccessful.specificProductDetail = specificProductDetail;
+                // specificProductCache.set(cacheKey, specificProductDetail);
+            // }
+        }
+    }
+}
+async function appendAdditionalData(coupons) {
+    try {
+        // Prepare a map to avoid fetching specificProduct more than once from the same collection
+        const specificProductCache = new Map();
+
+        // Iterate through the coupons to fetch specificProduct details
+        for (let coupon of coupons) {
+            // Convert Mongoose document to a plain object
+            const couponObj = coupon.toObject();
+
+            for (let i = 0; i < coupon.usedBySuccessful.length; i++) {
+                const usedBySuccessful = coupon.usedBySuccessful[i];
+                const cacheKey = `${usedBySuccessful.product.productName}_${usedBySuccessful?.specificProduct?.toString()}`;
+                if (specificProductCache.has(cacheKey)) {
+                    couponObj.usedBySuccessful[i].specificProductDetail = specificProductCache.get(cacheKey);
+                } else {
+                    // Call getCollectionAndData function to get specific product details
+                    const specificProductDetail = await getCollectionAndData(
+                        usedBySuccessful.product.productName,
+                        usedBySuccessful.specificProduct,
+                        coupon
+                    );
+                    couponObj.usedBySuccessful[i].specificProductDetail = specificProductDetail;
+                    specificProductCache.set(cacheKey, specificProductDetail);
+                }
+            }
+
+            // Replace the original Mongoose document with the modified plain object
+            coupons[coupons.indexOf(coupon)] = couponObj;
+        }
+    } catch (error) {
+        console.error('Error appending additional data:', error);
+    }
+}
+
+function calculateMetrics(coupon) {
+    // Convert Mongoose document to a plain object if it's not already
+    const couponObj = coupon.toObject ? coupon.toObject() : coupon;
+
+    // Initialize counters
+    let metrics = {
+        totalRevenue: 0,
+        totalDiscount: 0,
+        totalPurchases: 0,
+        tenXPurchases: 0,
+        marginXPurchases: 0,
+        contestPurchases: 0,
+        tenXRevenue: 0,
+        tenXDiscount: 0,
+        marginXRevenue: 0,
+        marginXDiscount: 0,
+        contestRevenue: 0,
+        contestDiscount: 0,
+    };
+
+    // Iterate through each usedBySuccessful entry
+    for (let usedBySuccessful of couponObj.usedBySuccessful) {
+        // Access the specificProductDetail
+        const detail = usedBySuccessful.specificProductDetail;
+
+        // Update total counters
+        metrics.totalRevenue += detail.effectivePrice;
+        metrics.totalDiscount += detail.discountAmount;
+        metrics.totalPurchases++;
+
+        // Update counters based on product type
+        switch (usedBySuccessful.product.productName) {
+            case 'TenX':
+                metrics.tenXPurchases++;
+                metrics.tenXRevenue += detail.effectivePrice;
+                metrics.tenXDiscount += detail.discountAmount;
+                break;
+            case 'MarginX':
+                metrics.marginXPurchases++;
+                metrics.marginXRevenue += detail.effectivePrice;
+                metrics.marginXDiscount += detail.discountAmount;
+                break;
+            case 'Contest':
+                metrics.contestPurchases++;
+                metrics.contestRevenue += detail.effectivePrice;
+                metrics.contestDiscount += detail.discountAmount;
+                break;
+            default:
+                console.log(`Unknown product name: ${usedBySuccessful.product.productName}`);
+                break;
+        }
+    }
+
+    // Assign metrics to the plain object
+    couponObj.metrics = metrics;
+
+    return couponObj;  // Return the modified plain object
+}
+
+function calculateMetricss(coupon) {
+    const couponObj = coupon.toObject ? coupon.toObject() : coupon;
+    // Initialize counters
+    let metrics = {
+        totalRevenue: 0,
+        totalDiscount: 0,
+        totalPurchases: 0,
+        tenXPurchases: 0,
+        marginXPurchases: 0,
+        contestPurchases: 0,
+        tenXRevenue: 0,
+        tenXDiscount: 0,
+        marginXRevenue: 0,
+        marginXDiscount: 0,
+        contestRevenue: 0,
+        contestDiscount: 0,
+    };
+
+    // Iterate through each coupon
+        // Iterate through each usedBySuccessful entry
+        for (let usedBySuccessful of coupon.usedBySuccessful) {
+            // Access the specificProductDetail
+            const detail = usedBySuccessful?.specificProductDetail;
+
+            // Update total counters
+            metrics.totalRevenue += detail?.effectivePrice;
+            metrics.totalDiscount += detail?.discountAmount;
+            metrics.totalPurchases++;
+
+            // Update counters based on product type
+            switch (usedBySuccessful?.product?.productName) {
+                case 'TenX':
+                    metrics.tenXPurchases++;
+                    metrics.tenXRevenue += detail?.effectivePrice;
+                    metrics.tenXDiscount += detail?.discountAmount;
+                    break;
+                case 'MarginX':
+                    metrics.marginXPurchases++;
+                    metrics.marginXRevenue += detail?.effectivePrice;
+                    metrics.marginXDiscount += detail?.discountAmount;
+                    break;
+                case 'Contest':
+                    metrics.contestPurchases++;
+                    metrics.contestRevenue += detail?.effectivePrice;
+                    metrics.contestDiscount += detail?.discountAmount;
+                    break;
+                default:
+                    console.log(`Unknown product name: ${usedBySuccessful?.product?.productName}`);
+                    break;
+            }
+        }
+        couponObj.metrics = metrics;
+        return couponObj;
+    
 }
