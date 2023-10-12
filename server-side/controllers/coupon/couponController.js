@@ -135,13 +135,15 @@ exports.getInActiveCouponCodes = async (req, res) => {
         .populate('usedBySuccessful.product', 'productName')
 
         await appendAdditionalData(inactiveCoupons);
-        const metrics = calculateMetrics(inactiveCoupons);
+        for (let i = 0; i < inactiveCoupons.length; i++) {
+            // Replace each Mongoose document with a modified plain object
+            inactiveCoupons[i] = calculateMetrics(inactiveCoupons[i]);
+        }
 
         
         res.status(200).json({
             status: 'success',
             data: inactiveCoupons,
-            metrics,
             count: inactiveCoupons.length
         });
     } catch (error) {
@@ -163,7 +165,10 @@ exports.getDraftCouponCodes = async (req, res) => {
         .populate('usedBySuccessful.product', 'productName')
 
         await appendAdditionalData(draftCoupons);
-        const metrics = calculateMetrics(draftCoupons);
+        for (let i = 0; i < draftCoupons.length; i++) {
+            // Replace each Mongoose document with a modified plain object
+            draftCoupons[i] = calculateMetrics(draftCoupons[i]);
+        }
 
         
         res.status(200).json({
@@ -191,7 +196,10 @@ exports.getExpiredCouponCodes = async (req, res) => {
         .populate('usedBySuccessful.product', 'productName')
 
         await appendAdditionalData(expiredCoupons);
-        const metrics = calculateMetrics(expiredCoupons);
+        for (let i = 0; i < expiredCoupons.length; i++) {
+            // Replace each Mongoose document with a modified plain object
+            expiredCoupons[i] = calculateMetrics(expiredCoupons[i]);
+        }
         
         res.status(200).json({
             status: 'success',
