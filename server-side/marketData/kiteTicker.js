@@ -53,6 +53,7 @@ const unSubscribeTokens = async(token) => {
 const getTicks = async (socket) => {
   const io = getIOValue();
   let isRedisConnected = getValue();
+  await client.PUBLISH("testing", "Yes Subscribing...")
   let indecies;
   if(isRedisConnected){
     indecies = await client.get("index")

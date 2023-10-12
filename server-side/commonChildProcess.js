@@ -10,6 +10,7 @@ const xssClean = require("xss-clean");
 const hpp = require("hpp")
 const {zerodhaAccountType} = require("./constant")
 const Product = require('./models/Product/product');
+const {tenxTradeStopLoss} = require("./PlaceStopLossOrder")
 
 
 async function commonProcess() {
@@ -26,7 +27,7 @@ async function commonProcess() {
             console.log("redis not connected", err)
         })
 
-
+        await tenxTradeStopLoss();
         app.use(express.json({ limit: "20kb" }));
         
         app.use(cors({
