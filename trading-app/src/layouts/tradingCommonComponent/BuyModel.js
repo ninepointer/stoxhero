@@ -71,7 +71,8 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
     variety: "",
     Product: "",
     Quantity: "",
-    Price: "",
+    stopLossPrice: "",
+
     OrderType: "",
     TriggerPrice: "",
     stopLoss: "",
@@ -168,7 +169,7 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
 
   async function placeOrder() {
     // console.log("exchangeInstrumentToken", exchangeInstrumentToken)
-    const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = buyFormDetails;
+    const { exchange, symbol, buyOrSell, Quantity, Product, OrderType, TriggerPrice, stopProfitPrice, stopLoss, stopLossPrice, validity, variety } = buyFormDetails;
     let endPoint 
     let paperTrade = false;
     let tenxTraderPath;
@@ -211,8 +212,8 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
             "content-type": "application/json"
         },
         body: JSON.stringify({
-          exchange, symbol, buyOrSell, Quantity, Price, contestId: module?.data, battleId: subscriptionId,
-          Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin,
+          exchange, symbol, buyOrSell, Quantity, stopLoss, contestId: module?.data, battleId: subscriptionId,
+          Product, OrderType, TriggerPrice, stopProfitPrice, stopLossPrice, uId, exchangeInstrumentToken, fromAdmin,
           validity, variety, createdBy, order_id:dummyOrderId, subscriptionId, marginxId: subscriptionId,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath
 
@@ -441,11 +442,11 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
                   </Select>
                 </FormControl>
                 <TextField
-                  id="outlined-basic" disabled="true" label="Price" variant="standard" onChange={(e) => { { buyFormDetails.Price = (e.target.value) } }}
+                  id="outlined-basic" label="StopLoss Price" variant="standard" onChange={(e) => { { buyFormDetails.stopLossPrice = (e.target.value) } }}
                   sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} />
 
                 <TextField
-                  id="outlined-basic" disabled="true" label="Trigger Price" variant="standard" onChange={(e) => { { buyFormDetails.TriggerPrice = (e.target.value) } }}
+                  id="outlined-basic" label="StopProfit Price" variant="standard" onChange={(e) => { { buyFormDetails.stopProfitPrice = (e.target.value) } }}
                   sx={{ margin: 1, padding: 1, width: "300px" }} />
               </Box>
               <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
