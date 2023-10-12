@@ -1409,7 +1409,7 @@ exports.creditAmountToWallet = async () => {
             // if (contest[j].contestEndTime < new Date()) {
             for (let i = 0; i < contest[j]?.participants?.length; i++) {
                 let userId = contest[j]?.participants[i]?.userId;
-                let fee = contest[j]?.participants[i]?.fee;
+                let fee = contest[j]?.participants[i]?.fee ?? 0;
                 let payoutPercentage = contest[j]?.payoutPercentage
                 let id = contest[j]._id;
                 let pnlDetails = await DailyContestMockUser.aggregate([
@@ -1461,14 +1461,14 @@ exports.creditAmountToWallet = async () => {
 
                     console.log(userId, pnlDetails[0]);
 
-                    wallet.transactions = [...wallet.transactions, {
+                    wallet.transactions.push({
                         title: 'Contest Credit',
                         description: `Amount credited for contest ${contest[j].contestName}`,
                         transactionDate: new Date(),
                         amount: payoutAmount?.toFixed(2),
                         transactionId: uuid.v4(),
                         transactionType: 'Cash'
-                    }];
+                    });
                     await wallet.save();
                     const user = await User.findById(userId).select('first_name last_name email')
 

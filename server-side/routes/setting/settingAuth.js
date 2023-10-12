@@ -192,7 +192,7 @@ router.patch("/toggleComplete/:id", restrictTo('Admin', 'SuperAdmin'), Authentic
 router.get("/deletetxns", async (req, res)=>{
     try{
         // const contest = await Contest.findOne({_id: new ObjectId('6509843318489d6d850f9f1e')});
-        const contest = await Contest.findOne({_id: new ObjectId('6518065c3d760d2c14579be1')});
+        const contest = await Contest.findOne({_id: new ObjectId('65147ddd8ca7517c2bffe8c7')});
         // console.log(contest)
         let participants = contest.participants;
         let totalPayout = 0;
@@ -201,7 +201,7 @@ router.get("/deletetxns", async (req, res)=>{
             const userWallet = await Wallet.findOne({userId: elem?.userId});
             const txns = userWallet.transactions;
             // console.log(userWallet);
-            const contestTxns = txns?.filter((item) => { return item?.title == 'Contest Credit' && new Date(item?.transactionDate)>= new Date('2023-10-06') && item?.description == 'Amount credited for contest Wealth Warriors College Contest'});
+            const contestTxns = txns?.filter((item) => { return item?.title == 'Contest Credit' && new Date(item?.transactionDate)>= new Date('2023-10-12') && item?.description == 'Amount credited for contest IIIT Lucknow Options Ninja (Day 2)'});
             // const sumPayouts = contestTxns?.reduce()
             if(contestTxns.length > 1){
                 console.log('red', elem?.userId);
@@ -220,6 +220,14 @@ router.get("/deletetxns", async (req, res)=>{
 
                 totalPayout += userAmount; // Update the totalPayout with this user's amount
             }
+            // if(contestTxns.length == 1){
+            //     console.log('Here\'s the amount', contestTxns[0]?._id, contestTxns[0]?.amount, contestTxns[0]?.amount*0.7);
+            //     const updatedAmount = contestTxns[0]?.amount * 0.7;
+            //     await Wallet.updateOne(
+            //         { userId: elem?.userId, "transactions._id": contestTxns[0]?._id},
+            //         { $set: { "transactions.$.amount": updatedAmount } }
+            //     )
+            // }
             if(contestTxns.length == 2){
                 //delete the duplicate transaction from userWallet and save
                 if (contestTxns.length == 2) {
@@ -228,13 +236,13 @@ router.get("/deletetxns", async (req, res)=>{
                     const duplicateTxn = contestTxns[1];
     
                     // Use the pull method to remove the transaction from the user's wallet
-                    await Wallet.updateOne(
-                        { userId: elem?.userId }, 
-                        { $pull: { transactions: { _id: duplicateTxn._id } } }
-                    );
+                    // await Wallet.updateOne(
+                    //     { userId: elem?.userId }, 
+                    //     { $pull: { transactions: { _id: duplicateTxn._id } } }
+                    // );
                 }    
             }
-            console.log(`For user${elem?.userId}`, contestTxns?.length);    
+            // console.log(`For user${elem?.userId}`, contestTxns?.length);    
         }
         console.log(`Total Payout: ${totalPayout}`);
         console.log('finished')
@@ -246,7 +254,7 @@ router.get("/deletetxns", async (req, res)=>{
 })
 router.get("/deletenotifs", async (req, res)=>{
     try{
-        const contest = await Contest.findOne({_id: new ObjectId('6509843318489d6d850f9f1e')});
+        const contest = await Contest.findOne({_id: new ObjectId('65147ddd8ca7517c2bffe8c7')});
         // const contest = await Contest.findOne({_id: new ObjectId('65150e3ff3ef0c1ed1a36a0c')});
         let participants = contest.participants;
         // let totalPayout = 0;
@@ -255,7 +263,7 @@ router.get("/deletenotifs", async (req, res)=>{
             // const userWallet = await Wallet.findOne({userId: elem?.userId});
             const notifications = await Notification.find({user:elem?.userId});
             // const txns = userWallet.transactions;
-            const not = notifications?.filter((item) => { return item?.title == 'Contest Reward Credited' && new Date(item?.notificationTime)>= new Date('2023-10-06T09:49:00.485+00:00')});
+            const not = notifications?.filter((item) => { return item?.title == 'Contest Reward Credited' && new Date(item?.notificationTime)>= new Date('2023-10-12T09:49:00.485+00:00')});
             // const sumPayouts = contestTxns.reduce()
             // console.log(not.length, 'for', elem?.userId);
             if(not?.length == 2){
