@@ -57,8 +57,9 @@ router.patch("/applive/:id", Authentication, restrictTo('Admin', 'SuperAdmin'), 
 
 router.get("/mobileappversion", async(req,res) => {
     try{
-        const setting = await Setting.find({});
+        const setting = await Setting.find({}).select('-__v -_id -name -user');
         const mobileAppVersion = setting[0]?.mobileAppVersion;
+        console.log(setting[0]);
         res.status(200).json({status:'success', data:mobileAppVersion});
     }catch(e){
         console.log(e);

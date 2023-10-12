@@ -26,6 +26,7 @@ import Checkbox from '@mui/material/Checkbox';
 import { apiUrl } from '../../constants/constants';
 import SuccessfullAppliedUser from "./data/SuccessAppliedUser"
 import AppliedUser from "./data/AppliedUsers"
+import CouponMetrics from './data/couponMetrics';
 
 
 const ITEM_HEIGHT = 48;
@@ -510,6 +511,11 @@ function CreateCoupon() {
               </Grid>
 
 
+              {(id || isObjectNew) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                <MDBox>
+                  <CouponMetrics couponData={id?._id ? id : couponData} />
+                </MDBox>
+              </Grid>}
               {(id || isObjectNew) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                 <MDBox>
                   <SuccessfullAppliedUser couponData={id?._id ? id : couponData} />
