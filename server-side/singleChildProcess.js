@@ -51,6 +51,7 @@ async function singleProcess() {
             // isRedisConnected = true ; 
             setValue(true);
             console.log("redis connected", res)
+            await client.PUBLISH("place-order", "Yes Subscribing...")
         })
         .catch((err) => {
             // isRedisConnected = false;

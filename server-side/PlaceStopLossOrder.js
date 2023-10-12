@@ -2,12 +2,17 @@ const TenxTrader = require("./models/mock-trade/tenXTraderSchema");
 const {client, getValue} = require('./marketData/redisClient');
 
 exports.tenxTradeStopLoss = async (req, res, otherData) => {
+    console.log("in function")
     try{
+
+        console.log("in function 2")
+        // await client.SUBSCRIBE("place-order", (message) => {
+        //     console.log(message); // 'message'
+        //   });
+
+          console.log("in function 3")
+
         
-        client.on("message", (channel, message) => {
-            console.log(message)
-        })
-        await client.SUBSCRIBE("testing");
     } catch(err){
         console.log(err)
     }

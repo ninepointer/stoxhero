@@ -53,7 +53,7 @@ const unSubscribeTokens = async(token) => {
 const getTicks = async (socket) => {
   const io = getIOValue();
   let isRedisConnected = getValue();
-  await client.PUBLISH("testing", "Yes Subscribing...")
+ 
   let indecies;
   if(isRedisConnected){
     indecies = await client.get("index")
@@ -68,9 +68,40 @@ const getTicks = async (socket) => {
     indecies = JSON.parse(indecies);
   }
 
+
+
   ticker?.on('ticks', async (ticks) => {
     socket.emit('tick', ticks);
 
+    
+
+    // for(let tick of ticks){
+    //   data = await client.get('stoploss-stopprofit');
+    //   if(data){
+    //     data = JSON.parse(data);
+    //     console.log("this is data")
+    //     let symbolArr = data[tick.instrument_token];
+    //     try{
+    //       for(let subelem of symbolArr){
+    //         if(subelem.type === "StopLoss" && subelem.executionPrice >= tick.last_price && subelem.buyOrSell === "SELL"){
+    //           console.log("1st if running")
+    //           await client.PUBLISH("place-order", "Yes Subscribing...")
+    //         } else if(subelem.type === "StopLoss" && subelem.executionPrice <= tick.last_price && subelem.buyOrSell === "BUY"){
+    //           console.log("2nd if running")
+    //           await client.PUBLISH("place-order", "Yes Subscribing...")
+    //         } else if(subelem.type === "StopProfit" && subelem.executionPrice <= tick.last_price && subelem.buyOrSell === "SELL"){
+    //           console.log("3rd if running")
+    //           await client.PUBLISH("place-order", "Yes Subscribing...")
+    //         } else if(subelem.type === "StopProfit" && subelem.executionPrice >= tick.last_price && subelem.buyOrSell === "BUY"){
+    //           console.log("4th if running")
+    //           await client.PUBLISH("place-order", "Yes Subscribing...")
+    //         } 
+    //       }
+    //     } catch(err){
+    //       console.log(err);
+    //     }
+    //   }
+    // }
     // socket.emit('check', ticks);
 
     let indexObj = {};
@@ -163,9 +194,68 @@ const getTicksForUserPosition = async (socket, id) => {
   }
   // console.log("indecies", indecies)
 
+  // let data = await client.get('stoploss-stopprofit');
+  // if(data){
+  //   data = JSON.parse(data);
+  //   console.log("this is data", data)
+  //   let symbolArr = data[tick.instrument_token];
+  //   try{
+  //     for(let subelem of symbolArr){
+  //       console.log("subelem", subelem)
+  //       // if(subelem.type === "StopLoss" && subelem.executionPrice >= tick.last_price && subelem.buyOrSell === "SELL"){
+  //       //   console.log("1st if running")
+  //       //   await client.PUBLISH("place-order", "Yes Subscribing...")
+  //       // } else if(subelem.type === "StopLoss" && subelem.executionPrice <= tick.last_price && subelem.buyOrSell === "BUY"){
+  //       //   console.log("2nd if running")
+  //       //   await client.PUBLISH("place-order", "Yes Subscribing...")
+  //       // } else if(subelem.type === "StopProfit" && subelem.executionPrice <= tick.last_price && subelem.buyOrSell === "SELL"){
+  //       //   console.log("3rd if running")
+  //       //   await client.PUBLISH("place-order", "Yes Subscribing...")
+  //       // } else if(subelem.type === "StopProfit" && subelem.executionPrice >= tick.last_price && subelem.buyOrSell === "BUY"){
+  //       //   console.log("4th if running")
+  //       //   await client.PUBLISH("place-order", "Yes Subscribing...")
+  //       // } 
+  //     }
+  //   } catch(err){
+  //     console.log(err);
+  //   }
+  // }
+
   try {
     // console.log("above ticks", ticker)
     ticker?.on('ticks', async (ticks) => {
+
+      for(let tick of ticks){
+        data = await client.get('stoploss-stopprofit');
+        if(data){
+          data = JSON.parse(data);
+          
+          let symbolArr = data[`${tick.instrument_token}`];
+          // console.log("this is data", symbolArr)
+          try{
+            if(symbolArr){
+              for(let subelem of symbolArr){
+                // console.log(subelem)
+                if(subelem.type === "StopLoss" && subelem.execution_price >= tick.last_price && subelem.buyOrSell === "SELL"){
+                  console.log("1st if running")
+                  await client.PUBLISH("place-order", "Yes Subscribing...")
+                } else if(subelem.type === "StopLoss" && subelem.execution_price <= tick.last_price && subelem.buyOrSell === "BUY"){
+                  console.log("2nd if running")
+                  await client.PUBLISH("place-order", "Yes Subscribing...")
+                } else if(subelem.type === "StopProfit" && subelem.execution_price <= tick.last_price && subelem.buyOrSell === "SELL"){
+                  console.log("3rd if running")
+                  await client.PUBLISH("place-order", "Yes Subscribing...")
+                } else if(subelem.type === "StopProfit" && subelem.execution_price >= tick.last_price && subelem.buyOrSell === "BUY"){
+                  console.log("4th if running")
+                  await client.PUBLISH("place-order", "Yes Subscribing...")
+                } 
+              }
+            }
+          } catch(err){
+            console.log(err);
+          }
+        }
+      }
 
       let indexObj = {};
       let now = performance.now();
