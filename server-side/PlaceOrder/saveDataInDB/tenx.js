@@ -69,7 +69,7 @@ exports.tenxTrade = async (req, res, otherData) => {
         });
 
         const pendingBuyOrSell = buyOrSell==="BUY" ? "SELL" : "BUY";
-        const pendingOrder = [];
+        let pendingOrder = [];
         if(stopProfitPrice && stopLossPrice){
           const pendingOrderStopLoss = {
             order_referance_id: tenx?._id, status:"Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: stopLossPrice, 
@@ -113,7 +113,7 @@ exports.tenxTrade = async (req, res, otherData) => {
             last_price: elem?.last_price, createdBy: elem?.createdBy, type: elem?.type, subscriptionId, order_id
           }) 
         }
-
+// {symbol: [id, price], symbol2: [id, price]}
         dataObj[`${instrumentToken}`] = dataArr;
 
         if (isRedisConnected && await client.exists('stoploss-stopprofit')) {
@@ -121,6 +121,8 @@ exports.tenxTrade = async (req, res, otherData) => {
           data = JSON.parse(data);
           if(data[`${instrumentToken}`]){
             data[`${instrumentToken}`] = data[`${instrumentToken}`].concat(dataArr);
+          } else{
+            data[`${instrumentToken}`] = dataArr;
           }
           await client.set('stoploss-stopprofit', JSON.stringify(data));
         } else {
