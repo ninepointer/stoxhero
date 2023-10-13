@@ -234,20 +234,21 @@ const getTicksForUserPosition = async (socket, id) => {
           // console.log("this is data", symbolArr)
           try{
             if(symbolArr){
-              for(let subelem of symbolArr){
+              // for(let subelem of symbolArr){
+              for(let i = 0; i < symbolArr.length; i++){
                 // console.log(subelem)
-                if(subelem.type === "StopLoss" && subelem.execution_price >= tick.last_price && subelem.buyOrSell === "SELL"){
+                if(symbolArr[i].type === "StopLoss" && symbolArr[i].execution_price >= tick.last_price && symbolArr[i].buyOrSell === "SELL"){
                   console.log("1st if running")
-                  await client.PUBLISH("place-order", "Yes Subscribing...")
-                } else if(subelem.type === "StopLoss" && subelem.execution_price <= tick.last_price && subelem.buyOrSell === "BUY"){
+                  await client.PUBLISH("place-order", JSON.stringify({data: symbolArr[i], ltp: tick.last_price, index: i}))
+                } else if(symbolArr[i].type === "StopLoss" && symbolArr[i].execution_price <= tick.last_price && symbolArr[i].buyOrSell === "BUY"){
                   console.log("2nd if running")
-                  await client.PUBLISH("place-order", "Yes Subscribing...")
-                } else if(subelem.type === "StopProfit" && subelem.execution_price <= tick.last_price && subelem.buyOrSell === "SELL"){
+                  await client.PUBLISH("place-order", JSON.stringify({data: symbolArr[i], ltp: tick.last_price, index: i}))
+                } else if(symbolArr[i].type === "StopProfit" && symbolArr[i].execution_price <= tick.last_price && symbolArr[i].buyOrSell === "SELL"){
                   console.log("3rd if running")
-                  await client.PUBLISH("place-order", "Yes Subscribing...")
-                } else if(subelem.type === "StopProfit" && subelem.execution_price >= tick.last_price && subelem.buyOrSell === "BUY"){
+                  await client.PUBLISH("place-order", JSON.stringify({data: symbolArr[i], ltp: tick.last_price, index: i}))
+                } else if(symbolArr[i].type === "StopProfit" && symbolArr[i].execution_price >= tick.last_price && symbolArr[i].buyOrSell === "BUY"){
                   console.log("4th if running")
-                  await client.PUBLISH("place-order", "Yes Subscribing...")
+                  await client.PUBLISH("place-order", JSON.stringify({data: symbolArr[i], ltp: tick.last_price, index: i}))
                 } 
               }
             }

@@ -20,6 +20,7 @@ async function commonProcess() {
             // isRedisConnected = true ; 
             setValue(true);
             // await client.SUBSCRIBE("test");
+            
             console.log("redis connected", res)
         })
         .catch((err) => {
@@ -166,16 +167,16 @@ async function commonProcess() {
 
     const PORT = process.env.PORT || 5002;
     const server = app.listen(PORT);
-    // await tenxTradeStopLoss();
+    
+    await tenxTradeStopLoss();
 
-
-    try{
-        await client.SUBSCRIBE("place-order", (message) => {
-        console.log(message);
-    });  
-    } catch(err){
-        console.log(err);
-    }
+    // try{
+    //     await client.SUBSCRIBE("place-order", (message) => {
+    //     console.log(message);
+    // });  
+    // } catch(err){
+    //     console.log(err);
+    // }
 
 }
 

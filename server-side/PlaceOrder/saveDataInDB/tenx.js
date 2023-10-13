@@ -110,7 +110,7 @@ exports.tenxTrade = async (req, res, otherData) => {
             Product: elem?.Product, buyOrSell: elem?.buyOrSell, variety: elem?.variety, validity: elem?.validity, 
             exchange: elem?.exchange, order_type: elem?.order_type, symbol: elem?.symbol, execution_time: elem?.execution_time, 
             instrumentToken: elem?.instrumentToken, exchangeInstrumentToken: elem?.exchangeInstrumentToken, 
-            last_price: elem?.last_price, createdBy: elem?.createdBy, type: elem?.type
+            last_price: elem?.last_price, createdBy: elem?.createdBy, type: elem?.type, subscriptionId, order_id
           }) 
         }
 
@@ -119,7 +119,9 @@ exports.tenxTrade = async (req, res, otherData) => {
         if (isRedisConnected && await client.exists('stoploss-stopprofit')) {
           data = await client.get('stoploss-stopprofit');
           data = JSON.parse(data);
-          data[`${instrumentToken}`] = data[`${instrumentToken}`].concat(dataArr);
+          if(data[`${instrumentToken}`]){
+            data[`${instrumentToken}`] = data[`${instrumentToken}`].concat(dataArr);
+          }
           await client.set('stoploss-stopprofit', JSON.stringify(data));
         } else {
           await client.set('stoploss-stopprofit', JSON.stringify(dataObj));

@@ -51,7 +51,6 @@ async function singleProcess() {
             // isRedisConnected = true ; 
             setValue(true);
             console.log("redis connected", res)
-            await client.PUBLISH("place-order", "Yes Subscribing...")
         })
         .catch((err) => {
             // isRedisConnected = false;
@@ -403,8 +402,6 @@ async function singleProcess() {
     app.use('/api/v1/marginxtemplates', require("./routes/marginx/marginxTemplateRoutes"));
     app.use('/api/v1/notifications', require("./routes/notification/notificationRoutes"));
     app.use('/api/v1/coupons', require("./routes/coupon/couponRoutes"));
-
-
 
 
     const PORT = process.env.PORT || 5002;
