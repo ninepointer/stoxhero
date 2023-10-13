@@ -158,14 +158,14 @@ const routes = [
     route: "/virtualtrading",
     component: <UserPosition />,
   },
-  {
-    type: "collapse",
-    name: "Paper Trading",
-    key: "papertrading",
-    icon: <MilitaryTechIcon/>,
-    route: "/papertrading",
-    component: <VirtualTrading />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Paper Trading",
+  //   key: "papertrading",
+  //   icon: <MilitaryTechIcon/>,
+  //   route: "/papertrading",
+  //   component: <VirtualTrading />,
+  // },
   {
     type: "collapse",
     name: "TenX Trading",

@@ -1,5 +1,8 @@
 const aws = require('aws-sdk');
 const otpGenerator = require('otp-generator')
+const whatsAppService = require("../../utils/whatsAppService")
+const mediaURL = "https://dmt-trade.s3.amazonaws.com/carousels/WhastAp%20Msg%20Photo/photos/1697228055934Welcome%20to%20the%20world%20of%20Virtual%20Trading%20but%20real%20earning%21.png";
+const mediaFileName = 'StoxHero'
 const {sendSMS, sendOTP} = require('../../utils/smsService');
 const CareerApplication = require("../../models/Careers/careerApplicationSchema");
 const InternBatch = require("../../models/Careers/internBatch");
@@ -25,7 +28,7 @@ const filterObj = (obj, ...allowedFields) => {
 exports.getUploadsApplication = (async(req, res, next) => {
 
 try {
-  const { firstName, lastName, email, mobile, dob, collegeName, linkedInProfileLink, priorTradingExperience, source, career, campaignCode } = req.body;
+  const { firstName, lastName, email, mobile, dob, gender, collegeName, linkedInProfileLink, priorTradingExperience, source, career, campaignCode } = req.body;
   // console.log(req.body)
   const data = await CareerApplication.create({
     first_name: firstName.trim(),
@@ -33,6 +36,7 @@ try {
     email: email.trim(),
     mobileNo: mobile.trim(),
     dob: dob,
+    gender: gender,
     collegeName: collegeName,
     linkedInProfileLink: linkedInProfileLink,
     priorTradingExperience: priorTradingExperience,
@@ -56,7 +60,7 @@ try {
 exports.generateOTP = async(req, res, next)=>{
   // console.log(req.body)
 
-  const{ firstName, lastName, email, mobile, dob, collegeName, linkedInProfileLink, priorTradingExperience, source, career, campaignCode
+  const{ firstName, lastName, email, mobile, dob, gender, collegeName, linkedInProfileLink, priorTradingExperience, source, career, campaignCode
   } = req.body
 
   const inactiveUser = await User.findOne({ $or: [{ email: email }, { mobile: mobile }], status: "Inactive" });
@@ -74,6 +78,7 @@ exports.generateOTP = async(req, res, next)=>{
       email: email.trim(),
       mobileNo: mobile.trim(),
       dob: dob,
+      gender: gender,
       collegeName: collegeName,
       linkedInProfileLink: linkedInProfileLink,
       priorTradingExperience: priorTradingExperience,
@@ -95,10 +100,12 @@ exports.generateOTP = async(req, res, next)=>{
 
 exports.confirmOTP = async(req, res, next)=>{
   
-  const{ firstName, lastName, email, mobile, campaignCode, mobile_otp
+  const{ firstName, lastName, email, mobile, campaignCode, mobile_otp, career, dob, gender,
   } = req.body
   // console.log(req.body)
   const correctOTP = await CareerApplication.findOne({$or : [{mobile: mobile}], mobile_otp: mobile_otp})
+  const careerDetails = await Career.findOne({_id:career})
+  const careerName = careerDetails.jobTitle
   // console.log(correctOTP)
   if(!correctOTP){
     return res.status(400).json({info:'Please enter the correct OTP'})
@@ -173,10 +180,12 @@ exports.confirmOTP = async(req, res, next)=>{
         joining_date:new Date(),
         myReferralCode:(await myReferralCode).toString(), 
         portfolio: portfolioArr,
+        dob: new Date(dob).setHours(0,0,0,0),
+        gender: gender,
         campaign: campaign && campaign._id,
         campaignCode: campaign && campaignCode,
     }
-
+        console.log("Obj:",obj)
         const newuser = await User.create(obj);
         const token = await newuser.generateAuthToken();
 
@@ -285,7 +294,7 @@ exports.confirmOTP = async(req, res, next)=>{
                     <div class="container">
                     <h1>Account Created</h1>
                     <p>Dear ${newuser.first_name} ${newuser.last_name},</p>
-                    <p>Welcome to StoxHero - Your Gateway to the Exciting World of Options Trading and Earning! </p>
+                    <p>Welcome to StoxHero - Your Gateway to the Exciting World of Virtual Options Trading and Earning! </p>
                     <p>StoxHero is a specialized Intraday Options Trading Platform focusing on indices such as NIFTY, BANKNIFTY & FINNIFTY.</p>
                     <p>Congratulations on joining our ever-growing community of traders and learners. We are thrilled to have you onboard and can't wait to embark on this exciting journey together. At StoxHero, we offer a range of programs designed to help you learn and excel in trading while providing you with opportunities to earn real profits from virtual currency. Let's dive into the fantastic programs that await you:</p>
                     <p>1. Virtual Trading:
@@ -326,6 +335,14 @@ exports.confirmOTP = async(req, res, next)=>{
             if(process.env.PROD=='true'){
               emailService(newuser?.email,subject,message);
             }
+
+            if(process.env.PROD == 'true'){
+              whatsAppService.sendWhatsApp({destination : newuser?.mobile, campaignName : 'career_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, careerName], tags : '', attributes : ''});
+            }
+            else {
+                whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'career_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, careerName], tags : '', attributes : ''});
+                whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'career_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, careerName], tags : '', attributes : ''});
+            }
   
   }catch(error){
     console.log(error)
@@ -342,6 +359,13 @@ exports.confirmOTP = async(req, res, next)=>{
       await campaign.save({validateBeforeSave:false});
       // console.log(campaignData)
   }
+    if(process.env.PROD == 'true'){
+      whatsAppService.sendWhatsApp({destination : existingUser?.mobile, campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName], tags : '', attributes : ''});
+    }
+    else {
+      whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName], tags : '', attributes : ''});
+      whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName], tags : '', attributes : ''});
+    }
   }
 
 }

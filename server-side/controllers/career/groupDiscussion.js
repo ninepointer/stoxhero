@@ -1,6 +1,9 @@
 const GroupDiscussion = require("../../models/Careers/groupDiscussion");
 const Batch = require("../../models/Careers/internBatch");
 const User = require("../../models/User/userDetailSchema");
+const whatsAppService = require("../../utils/whatsAppService")
+const mediaURL = "https://dmt-trade.s3.amazonaws.com/carousels/WhastAp%20Msg%20Photo/photos/1697228055934Welcome%20to%20the%20world%20of%20Virtual%20Trading%20but%20real%20earning%21.png";
+const mediaFileName = 'StoxHero'
 const mailSender = require('../../utils/emailService');
 const moment = require('moment')
 const Portfolio =require('../../models/userPortfolio/UserPortfolio');
@@ -8,6 +11,8 @@ const CareerApplication = require("../../models/Careers/careerApplicationSchema"
 const Campaign = require("../../models/campaigns/campaignSchema");
 const CareerSchema = require("../../models/Careers/careerSchema");
 const UserWallet = require("../../models/UserWallet/userWalletSchema");
+const {createUserNotification} = require('../notification/notificationController');
+
 
 exports.createGroupDiscussion = async(req, res, next)=>{
     // console.log(req.body) // batchID
@@ -145,190 +150,6 @@ exports.addUserToGd = async(req, res, next) => {
 
     const {campaignCode, mobileNo, email,first_name, last_name} = career;
     const  campaign = await Campaign.findOne({campaignCode: campaignCode});
-    // if(!user){
-    //   //create the user
-    //   async function generateUniqueReferralCode() {
-    //     const length = 8; // change this to modify the length of the referral code
-    //     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    //     let myReferralCode = '';
-    //     let codeExists = true;
-    
-    //     // Keep generating new codes until a unique one is found
-    //     while (codeExists) {
-    //         for (let i = 0; i < length; i++) {
-    //             myReferralCode += chars.charAt(Math.floor(Math.random() * chars.length));
-    //         }
-    
-    //         // Check if the generated code already exists in the database
-    //         const existingCode = await User.findOne({ myReferralCode: myReferralCode });
-    //         if (!existingCode) {
-    //         codeExists = false;
-    //         }
-    //     }
-    
-    //     return myReferralCode;
-    //     }
-      
-    //   const myReferralCode = generateUniqueReferralCode();
-    //   let userId = email.split('@')[0]
-    //   let userIds = await User.find({employeeid:userId})
-    //   // console.log("User Ids: ",userIds)
-    //     if(userIds.length > 0){
-    //         userId = userId.toString()+(userIds.length+1).toString()
-    //     }
-    
-    //   const activeFreePortfolios = await Portfolio.find({status: "Active", portfolioAccount: "Free"});
-    //   let portfolioArr = [];
-    //   for (const portfolio of activeFreePortfolios) {
-    //       let obj = {};
-    //       obj.portfolioId = portfolio._id;
-    //       obj.activationDate = new Date();
-    //       portfolioArr.push(obj);
-    //   }
-    
-    //   try{
-    //     let obj = {
-    //         first_name : first_name.trim(), 
-    //         last_name : last_name.trim(), 
-    //         designation: 'Trader', 
-    //         email : email.trim(), 
-    //         mobile : mobileNo.trim(),
-    //         name: first_name.trim() + ' ' + last_name.trim().substring(0,1), 
-    //         password: 'sh' + last_name.trim() + '@123' + mobileNo.trim().slice(1,3), 
-    //         status: 'Active', 
-    //         employeeid: userId, 
-    //         creationProcess: 'Career SignUp',
-    //         joining_date:new Date(),
-    //         myReferralCode:(await myReferralCode).toString(), 
-    //         portfolio: portfolioArr,
-    //         campaign: campaign && campaign._id,
-    //         campaignCode: campaign && campaignCode,
-    //     }
-    
-    //         const newuser = await User.create(obj);
-    //         if(newuser){
-    //           user = newuser;
-    //         }
-    //         const idOfUser = newuser._id;
-    
-    //         for (const portfolio of activeFreePortfolios) {
-    //           const portfolioValue = portfolio.portfolioValue;
-              
-    //           await Portfolio.findByIdAndUpdate(
-    //               portfolio._id,
-    //               { $push: { users: { userId: idOfUser, portfolioValue: portfolioValue } } }
-    //               );
-    //           }
-            
-    //         // console.log("Campaign: ",campaign)
-    //         if(campaign){
-    //             // console.log("Inside setting user to campaign")
-    //             campaign?.users?.push({userId:newuser._id,joinedOn: new Date()})
-    //             const campaignData = await Campaign.findOneAndUpdate({_id: campaign._id}, {
-    //                 $set:{ 
-    //                     users: campaign?.users
-    //                 }
-    //             })
-    //             // console.log(campaignData)
-    //         }
-    
-    //         await UserWallet.create(
-    //           {
-    //               userId: newuser._id,
-    //               createdOn: new Date(),
-    //               createdBy:newuser._id
-    //         })
-    
-    //         // res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
-    //             // let email = newuser.email;
-    //             let subject = "Account Created - StoxHero";
-    //             let message = 
-    //             `
-    //             <!DOCTYPE html>
-    //                 <html>
-    //                 <head>
-    //                     <meta charset="UTF-8">
-    //                     <title>Account Created</title>
-    //                     <style>
-    //                     body {
-    //                         font-family: Arial, sans-serif;
-    //                         font-size: 16px;
-    //                         line-height: 1.5;
-    //                         margin: 0;
-    //                         padding: 0;
-    //                     }
-    
-    //                     .container {
-    //                         max-width: 600px;
-    //                         margin: 0 auto;
-    //                         padding: 20px;
-    //                         border: 1px solid #ccc;
-    //                     }
-    
-    //                     h1 {
-    //                         font-size: 24px;
-    //                         margin-bottom: 20px;
-    //                     }
-    
-    //                     p {
-    //                         margin: 0 0 20px;
-    //                     }
-    
-    //                     .userid {
-    //                         display: inline-block;
-    //                         background-color: #f5f5f5;
-    //                         padding: 10px;
-    //                         font-size: 15px;
-    //                         font-weight: bold;
-    //                         border-radius: 5px;
-    //                         margin-right: 10px;
-    //                     }
-    
-    //                     .password {
-    //                         display: inline-block;
-    //                         background-color: #f5f5f5;
-    //                         padding: 10px;
-    //                         font-size: 15px;
-    //                         font-weight: bold;
-    //                         border-radius: 5px;
-    //                         margin-right: 10px;
-    //                     }
-    
-    //                     .login-button {
-    //                         display: inline-block;
-    //                         background-color: #007bff;
-    //                         color: #fff;
-    //                         padding: 10px 20px;
-    //                         font-size: 18px;
-    //                         font-weight: bold;
-    //                         text-decoration: none;
-    //                         border-radius: 5px;
-    //                     }
-    
-    //                     .login-button:hover {
-    //                         background-color: #0069d9;
-    //                     }
-    //                     </style>
-    //                 </head>
-    //                 <body>
-    //                     <div class="container">
-    //                     <h1>Account Created</h1>
-    //                     <p>Hello ${newuser.first_name},</p>
-    //                     <p>Your login details are:</p>
-    //                     <p>User ID: <span class="userid">${newuser.email}</span></p>
-    //                     <p>Password: <span class="password">sh${newuser.last_name.trim()}@123${newuser.mobile.slice(1,3)}</span></p>
-    //                     <p>Please use these credentials to log in to our website:</p>
-    //                     <a href="https://www.stoxhero.com/" class="login-button">Log In</a>
-    //                     </div>
-    //                 </body>
-    //                 </html>
-    
-    //             `
-    //             // mailSender(newuser.email,subject,message);
-    //   }catch(e){
-    //     console.log(e);
-    //   }
-    // }
     gd.participants = [...gd.participants, {user: user._id, attended: false, status: 'Shortlisted', college: collegeId}]
     // console.log(gd.participants);
     await gd.save({validateBeforeSave: false});
@@ -366,11 +187,6 @@ exports.markAttendance = async(req,res, next) => {
   // console.log(attended);
   try {
     const gd = await GroupDiscussion.findById(gdId);
-    // const career = await CareerApplication.findById(userId).select('email _id applicationStatus');
-    // console.log('career', career)
-    // const user = await User.findOne({_id: userId}).select('_id');
-    // let participants = gd.participants.filter((item)=>item.user != userId)
-    // gd.participants = [...participants, {user:user._id, attended, status: 'Shortlisted'}]
     for (participant of gd.participants){
       if (participant.user == userId){
         participant.attended = attended
@@ -392,7 +208,7 @@ exports.selectCandidate = async (req, res, next) => {
   try {
     const gd = await GroupDiscussion.findById(gdId);
     const currentbatch = await Batch.findById(gd.batch).select('_id career batchStartDate batchEndDate');
-    const career = await CareerSchema.findById(currentbatch.career).select('_id listingType');
+    const career = await CareerSchema.findById(currentbatch.career).select('_id jobTitle listingType');
     let user = await User.findById(userId);
     if(gd.participants.filter((item)=>item.user==userId)[0].attended == false){
       return res.status(203).json({status:'error', message: 'Can\'t select participant without attendance'});
@@ -450,8 +266,6 @@ exports.selectCandidate = async (req, res, next) => {
 
     user.internshipBatch = [...user.internshipBatch, gd.batch];
 
-    //Give user the intern portfolio
-    // user.portfolio = [...user.portfolio, {portfolioId: batch.portfolio, activationDate: new Date()}]
     await user.save({validateBeforeSave: false});
 
     const portfolio = await Portfolio.findById(batch.portfolio);
@@ -540,12 +354,13 @@ exports.selectCandidate = async (req, res, next) => {
     </body>
     </html>
 `
-
+    if(process.env.PROD == 'true'){
     await mailSender(user.email, 'Congratulations! You\'re selected for the internship.', message);
-    
+    }
+
     await createUserNotification({
       title:'Selected for Internship',
-      description:`Your profile is selected for Internship with batch ${batch.batchName}.`,
+      description:`Your profile is selected for Internship - Batch Name : ${batch.batchName}, batch starts : ${moment.utc(batch?.batchStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a")}.`,
       notificationType:'Individual',
       notificationCategory:'Informational',
       productCategory:'Internship',
@@ -555,8 +370,70 @@ exports.selectCandidate = async (req, res, next) => {
       createdBy:'63ecbc570302e7cf0153370c',
       lastModifiedBy:'63ecbc570302e7cf0153370c'  
     });
+   
+    if(process.env.PROD == 'true'){
+      whatsAppService.sendWhatsApp({
+          destination : user?.mobile, 
+          campaignName : 'internship_start_campaign', 
+          userName : user.first_name, 
+          source : user.creationProcess, 
+          media : {url : mediaURL, filename : mediaFileName}, 
+          templateParams : 
+            [ 
+              user.first_name, 
+              career.jobTitle, 
+              batch.batchName, 
+              moment.utc(batch?.batchStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
+              moment.utc(batch?.batchEndDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
+              moment.utc(gd.gdStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a"), 
+              gd.meetLink
+            ], 
+            tags : '', 
+            attributes : ''
+          });
+    }
+    else {
+      whatsAppService.sendWhatsApp({
+        destination : '8076284368', 
+        campaignName : 'internship_start_campaign', 
+        userName : user.first_name, 
+        source : user.creationProcess, 
+        media : {url : mediaURL, filename : mediaFileName}, 
+        templateParams : 
+          [ 
+            user.first_name, 
+            career.jobTitle, 
+            batch.batchName, 
+            moment.utc(batch?.batchStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
+            moment.utc(batch?.batchEndDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
+            moment.utc(gd.gdStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a"), 
+            gd.meetLink
+          ], 
+          tags : '', 
+          attributes : ''
+        });
+      whatsAppService.sendWhatsApp({
+        destination : '9319671094', 
+        campaignName : 'internship_start_campaign', 
+        userName : user.first_name, 
+        source : user.creationProcess, 
+        media : {url : mediaURL, filename : mediaFileName}, 
+        templateParams : 
+          [ 
+            user.first_name, 
+            career.jobTitle, 
+            batch.batchName, 
+            moment.utc(batch?.batchStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
+            moment.utc(batch?.batchEndDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
+            moment.utc(gd.gdStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
+            gd.meetLink
+          ], 
+          tags : '', 
+          attributes : ''
+        });
+    }
     //send success response
-    res.status(200).json({status: 'success', message: user.first_name + ' selected for batch & email sent to him @ ' + user.email});
+    res.status(200).json({status: 'success', message: user.first_name + ' selected for batch & WhatsApp & email sent to him @ ' + user.mobile + ' & ' + user.email});
 
   } catch (e) {
     console.log(e);
@@ -600,7 +477,7 @@ try {
     const gd = await GroupDiscussion.findById(gdId).populate('batch', 'career');
     gd.participants = gd.participants.filter((item)=>item.user != userId);
     const user = await User.findById(userId).select('_id email');
-    const careerApplicant = await CareerApplication.findOne({email: user.email, career:gd.batch.career});
+    const careerApplicant = await CareerApplication.findOne({mobileNo: user.mobile, career:gd.batch.career});
     
     // Checking careerApplicant
     if (!careerApplicant) {

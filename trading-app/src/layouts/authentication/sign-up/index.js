@@ -20,6 +20,11 @@ import TextField from '@mui/material/TextField';
 
 // Authentication layout components
 import BasicLayout from "../components/BasicLayoutSignup";
+import dayjs from 'dayjs';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 // Images
 import bgImage from "../../../assets/images/trading.jpg";
@@ -138,7 +143,7 @@ function Cover(props) {
       referrerCode,
       pincode,
     } = formstate;
-
+    console.log(formstate)
     if(mobile.length !== 10){
 
       if(mobile.length === 12 && mobile.startsWith('91')){
@@ -214,6 +219,7 @@ function Cover(props) {
         mobile: formstate.mobile,
         email: formstate.email,
         // email_otp:formstate.email_otp,
+        dob: formstate.dob,
         mobile_otp: formstate.mobile_otp,
         referrerCode: formstate.referrerCode,
         password: formstate.password
@@ -438,6 +444,19 @@ function Cover(props) {
                     />
                   </Grid>
 
+                  <Grid item xs={12} md={12} xl={12} mt={-1}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DemoContainer components={['DatePicker']}>
+                        <DatePicker
+                          label="Date of Birth"
+                          disabled={showEmailOTP}
+                          onChange={(e)=>{setformstate(prevState => ({...prevState, dob: dayjs(e)}))}}
+                          sx={{ width: '100%' }}
+                        />
+                      </DemoContainer>
+                    </LocalizationProvider>
+                  </Grid>
+
                 </Grid>
               </>
             )}
@@ -479,26 +498,6 @@ function Cover(props) {
                       />
                     </Grid>
 
-                    {/* <Grid item xs={12} md={12} xl={12} width="100%" display="flex" justifyContent="center">
-                  <MDBox display='block'>
-                  <MDTypography fontSize={14} mb={1}>Email OTP</MDTypography>
-                  <OtpInput
-                    value={formstate.email_otp}
-                    onChange={(e)=>{setformstate(prevState => ({...prevState, email_otp: e}))}}
-                    // onChange={(e)=>{console.log(e)}}
-                    numInputs={6}
-                    renderSeparator={<span>-</span>}
-                    renderInput={(props) => <input {...props} />}
-                    inputStyle={{width:40, height:40}}
-                  /> 
-                    </MDBox>
-                  </Grid>
-
-                  <Grid item xs={12} md={6} xl={12} mt={-1}>
-                  <MDButton style={{padding:'0rem', margin:'0rem', minHeight:20, width: '30%', display: 'flex', justifyContent: 'center', margin: 'auto'}} disabled={timerActive} variant="text" color="info" fullWidth onClick={()=>{resendOTP('email')}}>
-                    {timerActive ? `Resend Email OTP in ${resendTimer} seconds` : 'Resend Email OTP'}
-                    </MDButton>
-                  </Grid> */}
                     <Grid item xs={12} md={12} xl={12} width="100%" display="flex" justifyContent="center">
                       <MDBox mt={-2}>
 
