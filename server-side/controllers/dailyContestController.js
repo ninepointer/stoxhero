@@ -1409,7 +1409,7 @@ exports.creditAmountToWallet = async () => {
             // if (contest[j].contestEndTime < new Date()) {
             for (let i = 0; i < contest[j]?.participants?.length; i++) {
                 let userId = contest[j]?.participants[i]?.userId;
-                let fee = contest[j]?.participants[i]?.fee;
+                let fee = contest[j]?.participants[i]?.fee ?? 0;
                 let payoutPercentage = contest[j]?.payoutPercentage
                 let id = contest[j]._id;
                 let pnlDetails = await DailyContestMockUser.aggregate([
@@ -1458,17 +1458,23 @@ exports.creditAmountToWallet = async () => {
                     }
 
                     const wallet = await Wallet.findOne({ userId: userId });
+                    const transactionDescription = `Amount credited for contest ${contest[j].contestName}`;
+
+                    // Check if a transaction with this description already exists
+                    const existingTransaction = wallet?.transactions?.some(transaction => transaction.description === transactionDescription);
 
                     console.log(userId, pnlDetails[0]);
-
-                    wallet.transactions = [...wallet.transactions, {
-                        title: 'Contest Credit',
-                        description: `Amount credited for contest ${contest[j].contestName}`,
-                        transactionDate: new Date(),
-                        amount: payoutAmount?.toFixed(2),
-                        transactionId: uuid.v4(),
-                        transactionType: 'Cash'
-                    }];
+                    //check if wallet.transactions doesn't have an object with the particular description, then push it to wallet.transactions
+                    if(wallet?.transactions?.length == 0 || !existingTransaction){
+                      wallet.transactions.push({
+                          title: 'Contest Credit',
+                          description: `Amount credited for contest ${contest[j].contestName}`,
+                          transactionDate: new Date(),
+                          amount: payoutAmount?.toFixed(2),
+                          transactionId: uuid.v4(),
+                          transactionType: 'Cash'
+                      });
+                    }
                     await wallet.save();
                     const user = await User.findById(userId).select('first_name last_name email')
 
