@@ -26,6 +26,7 @@ import Checkbox from '@mui/material/Checkbox';
 import { apiUrl } from '../../constants/constants';
 import SuccessfullAppliedUser from "./data/SuccessAppliedUser"
 import AppliedUser from "./data/AppliedUsers"
+import CouponMetrics from './data/couponMetrics';
 
 
 const ITEM_HEIGHT = 48;
@@ -228,7 +229,7 @@ function CreateCoupon() {
                   disabled={((isSubmitted || id) && (!editing || saving))}
                   id="outlined-required"
                   label='Code *'
-                  value={formState?.code || couponData?.code}
+                  value={formState?.code || editing ? formState?.code : couponData?.code}
                   fullWidth
                   onChange={(e) => {
                     setFormState(prevState => ({
@@ -243,7 +244,7 @@ function CreateCoupon() {
                   disabled={((isSubmitted || id) && (!editing || saving))}
                   id="outlined-required"
                   label='Description *'
-                  value={formState?.description || couponData?.description}
+                  value={formState?.description || editing ? formState?.description : couponData?.description}
                   fullWidth
                   onChange={(e) => {
                     setFormState(prevState => ({
@@ -259,7 +260,7 @@ function CreateCoupon() {
                   id="outlined-required"
                   type="number"
                   label='Discount *'
-                  value={formState?.discount || couponData?.discount}
+                  value={formState?.discount || editing ? formState?.discount : couponData?.discount}
                   fullWidth
                   onChange={(e) => {
                     setFormState(prevState => ({
@@ -276,7 +277,7 @@ function CreateCoupon() {
                   id="outlined-required"
                   type="number"
                   label='Max Discount *'
-                  value={formState?.maxDiscount || couponData?.maxDiscount}
+                  value={formState?.maxDiscount || editing ? formState?.maxDiscount : couponData?.maxDiscount}
                   fullWidth
                   onChange={(e) => {
                     setFormState(prevState => ({
@@ -458,7 +459,7 @@ function CreateCoupon() {
                   id="outlined-required"
                   type="number"
                   label='Min Order Value *'
-                  value={formState?.minOrderValue || couponData?.minOrderValue}
+                  value={formState?.minOrderValue || editing ? formState?.minOrderValue : couponData?.minOrderValue}
                   fullWidth
                   onChange={(e) => {
                     setFormState(prevState => ({
@@ -510,6 +511,11 @@ function CreateCoupon() {
               </Grid>
 
 
+              {(id || isObjectNew) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                <MDBox>
+                  <CouponMetrics couponData={id?._id ? id : couponData} />
+                </MDBox>
+              </Grid>}
               {(id || isObjectNew) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                 <MDBox>
                   <SuccessfullAppliedUser couponData={id?._id ? id : couponData} />

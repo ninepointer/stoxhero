@@ -229,7 +229,7 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
         setDiscountAmount(0);
         return;
       }
-      const res = await axios.post(`${apiUrl}coupons/verify`, {code, product:'6517d40e3aeb2bb27d650de1'}, {withCredentials:true});
+      const res = await axios.post(`${apiUrl}coupons/verify`, {code, product:'6517d40e3aeb2bb27d650de1', orderValue:elem?.marginXTemplate?.entryFee}, {withCredentials:true});
       console.log('verified code',res?.data?.data);
       if(res.status == 200){
         setVerifiedCode(code);
@@ -347,8 +347,8 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
                               <Input placeholder="Enter your promo code" disabled={verifiedCode} inputProps={ariaLabel} value={code} onChange={(e)=>{setCode(e.target.value)}} />
                               <MDButton onClick={applyPromoCode}>{verifiedCode && code? 'Remove':'Apply'}</MDButton>
                             </MDBox>
-                            {verifiedCode && discountData?.rewardType == 'Discount' && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#ab1" variant="body2">{`Applied ${verifiedCode} - ${discountData?.discountType == 'Percentage'?`(${discountData?.discount}% off)`: `(FLAT ${discountData?.discount}) off`}`}</Typography>}
-                            {verifiedCode && discountData?.rewardType == 'Cashback' && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#ab1" variant="body2">{`Applied ${verifiedCode} - ${discountData?.discountType == 'Percentage'?`(${discountData?.discount}% Cashback)`: `(FLAT ${discountData?.discount}) Cashback`}`}</Typography>}
+                            {verifiedCode && discountData?.rewardType == 'Discount' && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#ab1" variant="body2">{`Applied ${verifiedCode} - ${discountData?.discountType == 'Percentage'?`(${discountData?.discount}% off)`: `(FLAT ₹${discountData?.discount}) off`}`}</Typography>}
+                            {verifiedCode && discountData?.rewardType == 'Cashback' && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#ab1" variant="body2">{`Applied ${verifiedCode} - ${discountData?.discountType == 'Percentage'?`(${discountData?.discount}% Cashback)`: `(FLAT ₹${discountData?.discount}) Cashback`}`}</Typography>}
                             {invalidCode && <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#f16" variant="body2">{invalidCode}</Typography>}
                             </>
                             }

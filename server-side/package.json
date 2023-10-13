@@ -22,6 +22,7 @@
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^6.7.0",
     "fast-two-sms": "^3.0.0",
+    "flatted": "^3.2.9",
     "helmet": "^6.0.1",
     "howler": "^2.2.3",
     "hpp": "^0.2.3",

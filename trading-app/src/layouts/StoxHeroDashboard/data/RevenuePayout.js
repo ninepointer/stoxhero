@@ -44,15 +44,15 @@ const withdrawalData = {
   
   console.log(withdrawalData);
 
-  const purchaseToday = Math.abs(overallRevenue["Contest Fee"].revenueToday + overallRevenue["Bought TenX Trading Subscription"].revenueToday)
-  const purchaseYesterday = Math.abs(overallRevenue["Contest Fee"].revenueYesterday + overallRevenue["Bought TenX Trading Subscription"].revenueYesterday)
-  const purchaseThisWeek = Math.abs(overallRevenue["Contest Fee"].revenueThisWeek + overallRevenue["Bought TenX Trading Subscription"].revenueThisWeek)
-  const purchaseLastWeek = Math.abs(overallRevenue["Contest Fee"].revenueLastWeek + overallRevenue["Bought TenX Trading Subscription"].revenueLastWeek)
-  const purchaseThisMonth = Math.abs(overallRevenue["Contest Fee"].revenueThisMonth + overallRevenue["Bought TenX Trading Subscription"].revenueThisMonth)
-  const purchaseLastMonth = Math.abs(overallRevenue["Contest Fee"].revenueLastMonth + overallRevenue["Bought TenX Trading Subscription"].revenueLastMonth)
-  const purchaseThisYear = Math.abs(overallRevenue["Contest Fee"].revenueThisYear + overallRevenue["Bought TenX Trading Subscription"].revenueThisYear)
-  const purchaseLastYear = Math.abs(overallRevenue["Contest Fee"].revenueLastYear + overallRevenue["Bought TenX Trading Subscription"].revenueLastYear)
-  const totalPurchase = Math.abs(overallRevenue["Contest Fee"].totalRevenue + overallRevenue["Bought TenX Trading Subscription"].totalRevenue)
+  const purchaseToday = Math.abs(overallRevenue["Contest Fee"].revenueToday + overallRevenue["Bought TenX Trading Subscription"].revenueToday + overallRevenue["MarginX Fee"].revenueToday + overallRevenue["Battle Fee"].revenueToday)
+  const purchaseYesterday = Math.abs(overallRevenue["Contest Fee"].revenueYesterday + overallRevenue["Bought TenX Trading Subscription"].revenueYesterday + overallRevenue["MarginX Fee"].revenueYesterday + overallRevenue["Battle Fee"].revenueYesterday)
+  const purchaseThisWeek = Math.abs(overallRevenue["Contest Fee"].revenueThisWeek + overallRevenue["Bought TenX Trading Subscription"].revenueThisWeek + overallRevenue["MarginX Fee"].revenueThisWeek + overallRevenue["Battle Fee"].revenueThisWeek)
+  const purchaseLastWeek = Math.abs(overallRevenue["Contest Fee"].revenueLastWeek + overallRevenue["Bought TenX Trading Subscription"].revenueLastWeek + overallRevenue["MarginX Fee"].revenueLastWeek + overallRevenue["Battle Fee"].revenueLastWeek)
+  const purchaseThisMonth = Math.abs(overallRevenue["Contest Fee"].revenueThisMonth + overallRevenue["Bought TenX Trading Subscription"].revenueThisMonth + overallRevenue["MarginX Fee"].revenueThisMonth + overallRevenue["Battle Fee"].revenueThisMonth)
+  const purchaseLastMonth = Math.abs(overallRevenue["Contest Fee"].revenueLastMonth + overallRevenue["Bought TenX Trading Subscription"].revenueLastMonth + overallRevenue["MarginX Fee"].revenueLastMonth + overallRevenue["Battle Fee"].revenueLastMonth)
+  const purchaseThisYear = Math.abs(overallRevenue["Contest Fee"].revenueThisYear + overallRevenue["Bought TenX Trading Subscription"].revenueThisYear + overallRevenue["MarginX Fee"].revenueThisYear + overallRevenue["Battle Fee"].revenueThisYear)
+  const purchaseLastYear = Math.abs(overallRevenue["Contest Fee"].revenueLastYear + overallRevenue["Bought TenX Trading Subscription"].revenueLastYear + overallRevenue["MarginX Fee"].revenueLastYear + overallRevenue["Battle Fee"].revenueLastYear)
+  const totalPurchase = Math.abs(overallRevenue["Contest Fee"].totalRevenue + overallRevenue["Bought TenX Trading Subscription"].totalRevenue + overallRevenue["MarginX Fee"].totalRevenue + overallRevenue["Battle Fee"].totalRevenue)
 
   const contestpurchaseToday = Math.abs(overallRevenue["Contest Fee"].revenueToday)
   const contestpurchaseYesterday = Math.abs(overallRevenue["Contest Fee"].revenueYesterday)

@@ -388,7 +388,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
             notificationCategory:'Informational',
             productCategory:'TenX',
             user: user?._id,
-            priority:'Meduim',
+            priority:'Medium',
             channels:['App', 'Email'],
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  

@@ -55,6 +55,37 @@ router.patch("/applive/:id", Authentication, restrictTo('Admin', 'SuperAdmin'), 
     }
 })
 
+router.get("/mobileappversion", async(req,res) => {
+    try{
+        const setting = await Setting.find({}).select('-__v -_id -name -user');
+        const mobileAppVersion = setting[0]?.mobileAppVersion;
+        console.log(setting[0]);
+        res.status(200).json({status:'success', data:mobileAppVersion});
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status:'success', message:'Something went wrong', error:e?.message});
+
+    }
+
+})
+router.patch("/mobileappversion", async(req,res) => {
+    try{
+        const setting = await Setting.find({});
+        const {mobileAppVersion} = req.body;
+        if(!mobileAppVersion){
+            res.status(400).json({status:'error', message:"No version in payload"});
+        }
+        setting[0].mobileAppVersion = mobileAppVersion;
+        await setting[0].save({validateBeforeSave:false})
+        res.status(200).json({status:'success', message:'App version updated'});
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status:'success', message:'Something went wrong', error:e?.message});
+
+    }
+
+})
+
 router.patch("/settings/:id", Authentication, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     try{ 
         const {id} = req.params
@@ -73,6 +104,7 @@ router.patch("/settings/:id", Authentication, restrictTo('Admin', 'SuperAdmin'),
                 minWithdrawal:req.body.minWithdrawal,
                 gstPercentage:req.body.gstPercentage,
                 tdsPercentage:req.body.tdsPercentage,
+                mobileAppVersion:req.body.mobileAppVersion,
                 "contest.upiId": req.body.upiId,
                 "contest.email": req.body.email,
                 "contest.mobile": req.body.mobile,

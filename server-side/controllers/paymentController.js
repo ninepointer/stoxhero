@@ -390,7 +390,7 @@ exports.handleCallback = async (req, res, next) => {
                 });
                 await addMoneyToWallet(payment.amount-payment?.gstAmount, payment?.paymentBy);
                 if(payment?.paymentFor && payment?.productId){
-                    await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy);
+                    await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy,payment?.amount, payment?.coupon);
                 }    
                 console.log('Payment Successful');
                 await payment.save({validateBeforeSave: false});
@@ -479,10 +479,11 @@ exports.checkPaymentStatus = async(req,res, next) => {
                         actionDate: new Date(),
                         actionBy: '63ecbc570302e7cf0153370c'
                     });
+                console.log('amount hai', payment?.amount);    
                 if(payment.amount == resp.data.data.amount/100){
                     await addMoneyToWallet(payment.amount-payment?.gstAmount, payment?.paymentBy);
                     if(payment?.paymentFor && payment?.productId){
-                        await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy, payment?.coupon);
+                        await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy, payment?.amount, payment?.coupon);
                     }
                     //TODO:Remove this code
                     if(payment?.coupon){
@@ -531,30 +532,30 @@ const addMoneyToWallet = async (amount, userId) =>{
     await wallet.save({validateBeforeSave: false});
 }
 
-const participateUser = async (paymentFor, productId, paymentBy, coupon) => {
+const participateUser = async (paymentFor, productId, paymentBy, amount, coupon) => {
     switch (paymentFor){
         case 'Contest':
             if(productId){
                 const contest = await Contest.findById(productId).select('entryFee contestName');
-                await handleSubscriptionDeduction(paymentBy, contest?.entryFee, contest?.contestName, contest?._id, coupon);
+                await handleSubscriptionDeduction(paymentBy, amount, contest?.contestName, contest?._id, coupon);
             }
             break;
         case 'TenX':
             if(productId){
                 const tenx = await TenX.findById(productId).select('discounted_price plan_name');
-                await handleDeductSubscriptionAmount(paymentBy, tenx?.discounted_price, tenx?.plan_name, tenx?._id, coupon);
+                await handleDeductSubscriptionAmount(paymentBy, amount, tenx?.plan_name, tenx?._id, coupon);
             }
             break;
         case 'TenX Renewal':
             if(productId){
                 const tenx = await TenX.findById(productId).select('discounted_price plan_name');
-                await handleSubscriptionRenewal(paymentBy, tenx?.discounted_price, tenx?.plan_name, tenx?._id, coupon);
+                await handleSubscriptionRenewal(paymentBy, amount, tenx?.plan_name, tenx?._id, coupon);
             }
             break;
         case 'MarginX':
             if(productId){
                 const marginX = await MarginX.findById(productId).populate('marginXTemplate', 'entryFee');
-                await handleDeductMarginXAmount(paymentBy, marginX?.marginXTemplate?.entryFee, marginX?.marginXName, marginX?._id, coupon);
+                await handleDeductMarginXAmount(paymentBy, amount, marginX?.marginXName, marginX?._id, coupon);
             }
             break;
         case 'Battle':
