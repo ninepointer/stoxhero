@@ -393,25 +393,25 @@ exports.selectCandidate = async (req, res, next) => {
           });
     }
     else {
-      whatsAppService.sendWhatsApp({
-        destination : '8076284368', 
-        campaignName : 'internship_start_campaign', 
-        userName : user.first_name, 
-        source : user.creationProcess, 
-        media : {url : mediaURL, filename : mediaFileName}, 
-        templateParams : 
-          [ 
-            user.first_name, 
-            career.jobTitle, 
-            batch.batchName, 
-            moment.utc(batch?.batchStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
-            moment.utc(batch?.batchEndDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
-            moment.utc(gd.gdStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a"), 
-            gd.meetLink
-          ], 
-          tags : '', 
-          attributes : ''
-        });
+      // whatsAppService.sendWhatsApp({
+      //   destination : '8076284368', 
+      //   campaignName : 'internship_start_campaign', 
+      //   userName : user.first_name, 
+      //   source : user.creationProcess, 
+      //   media : {url : mediaURL, filename : mediaFileName}, 
+      //   templateParams : 
+      //     [ 
+      //       user.first_name, 
+      //       career.jobTitle, 
+      //       batch.batchName, 
+      //       moment.utc(batch?.batchStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
+      //       moment.utc(batch?.batchEndDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
+      //       moment.utc(gd.gdStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a"), 
+      //       gd.meetLink
+      //     ], 
+      //     tags : '', 
+      //     attributes : ''
+      //   });
       whatsAppService.sendWhatsApp({
         destination : '9319671094', 
         campaignName : 'internship_start_campaign', 

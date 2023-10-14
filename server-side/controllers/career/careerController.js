@@ -341,7 +341,7 @@ exports.confirmOTP = async(req, res, next)=>{
             }
             else {
                 whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'career_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, careerName], tags : '', attributes : ''});
-                whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'career_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, careerName], tags : '', attributes : ''});
+                // whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'career_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, careerName], tags : '', attributes : ''});
             }
   
   }catch(error){
