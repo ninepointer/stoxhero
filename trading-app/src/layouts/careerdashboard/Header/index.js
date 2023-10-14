@@ -8,6 +8,8 @@ import { Link } from "react-router-dom";
 
 import DailyInternshipUsers from '../data/dailyInternshipUsers'
 import CollegeWiseData from '../data/collegeWiseData';
+import { saveAs } from 'file-saver';
+import moment from 'moment'
 
 
 export default function LabTabs({socket}) {
@@ -22,6 +24,7 @@ export default function LabTabs({socket}) {
   const [liveTraderCountYesterday, setLiveTraderCountYesterday] = useState(0);
   const [notliveTraderCount, setNotLiveTraderCount] = useState(0);
   const [notliveTraderCountYesterday, setNotLiveTraderCountYesterday] = useState(0);
+  const [downloadReady, setDownloadReady] = useState(false);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let totalTransactionCost = 0;
   let totalGrossPnl = 0;
@@ -29,6 +32,9 @@ export default function LabTabs({socket}) {
   let totalTurnover = 0;
   let totalLots = 0;
   let totalTrades = 0;
+  const [downloadingInternshipData,setDownloadingInternshipData] = useState(false)
+  const [tradingHolidays,setTradingHolidays] = useState(0);
+  const [referrals,setReferrals] = useState(0);
 
 
   useEffect(()=>{
@@ -40,7 +46,7 @@ export default function LabTabs({socket}) {
     })
 
     socket.on('tick', (data) => {
-        console.log("market socket data", data)
+        // console.log("market socket data", data)
       setMarketData(prevInstruments => {
         const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
         data.forEach(instrument => {
@@ -88,7 +94,7 @@ export default function LabTabs({socket}) {
 
     axios.get(`${baseUrl}api/v1/internship/overallinternshippnlyesterday`)
     .then((res) => {
-        console.log("Yesterday's Data:",res.data.data)
+        // console.log("Yesterday's Data:",res.data.data)
         setTradeDataYesterday(res.data.data);
         setLastInternshipTradingDate(res.data.date);
         setTimeout(()=>{
@@ -110,7 +116,7 @@ export default function LabTabs({socket}) {
 
     axios.get(`${baseUrl}api/v1/internship/liveandtotaltradercountyesterday`)
     .then((res) => {
-        console.log(res.data.data)
+        // console.log(res.data.data)
         setNotLiveTraderCountYesterday(res.data.data[0].zeroLotsTraderCount)
         setLiveTraderCountYesterday(res.data.data[0].nonZeroLotsTraderCount)
         setTimeout(()=>{
@@ -125,12 +131,174 @@ export default function LabTabs({socket}) {
     
   }, [trackEvent])
 
+function TruncatedName(name) {
+const originalName = name;
+const convertedName = originalName
+    .toLowerCase() // Convert the entire name to lowercase
+    .split(' ') // Split the name into words
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
+    .join(' '); // Join the words back together with a space
 
-//   useEffect(() => {
-//     return () => {
-//         socket.close();
-//     }
-//   }, [])
+// Trim the name to a maximum of 30 characters
+const truncatedName = convertedName.length > 30 ? convertedName.substring(0, 30) + '...' : convertedName;
+
+return truncatedName;
+}
+
+async function getReferralsCount(startDate, endDate, mobile) {
+    setDownloadReady(false)
+    axios.get(`${baseUrl}api/v1/signup/referrals/${startDate}/${endDate}/${mobile}`, {
+        withCredentials: true,
+        headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Credentials': true,
+        },
+    })
+    .then((res) => {
+        setReferrals(res.data.data)
+        setDownloadReady(true)
+        console.log("Referrals in API:",res.data.data)
+        return res.data.data
+    })
+    .catch((err) => {
+        console.log(err)
+        return 0;
+    });
+    
+};
+
+function getMarketDays(startDate, endDate) {
+        axios.get(`${baseUrl}api/v1/tradingholiday/dates/${startDate}/${endDate}`, {
+            withCredentials: true,
+            headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Credentials': true,
+            },
+        })
+        .then((res) => {
+            setTradingHolidays(res.data.data)
+        })
+        .catch((err) => {
+            console.log(err)
+        });
+        console.log("tradingHolidays:",tradingHolidays)
+        return tradingHolidays
+    };
+
+function getDaysBetweenDates(startDate, endDate) {
+    // Convert both dates to milliseconds
+    const startDateMs = new Date(startDate).getTime();
+    const endDateMs = new Date(endDate).getTime();
+    
+    // Calculate the difference in milliseconds
+    const timeDifference = endDateMs - startDateMs;
+    
+    // Calculate the number of days by dividing the time difference by the number of milliseconds in a day
+    const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+    
+    return daysDifference;
+    }
+
+const downloadCompletedInternshipData = () => {
+setDownloadingInternshipData(true)
+return new Promise((resolve, reject) => {
+    axios
+    .get(`${baseUrl}api/v1/internship/downloadinternshipreport`, {
+        withCredentials: true,
+        headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Credentials': true,
+        },
+    })
+    .then((res) => {
+        resolve(res.data.data); // Resolve the promise with the data
+        setDownloadingInternshipData(false)
+    })
+    .catch((err) => {
+        console.log(err)
+        reject(err); // Reject the promise with the error
+        setDownloadingInternshipData(false)
+    });
+});
+};
+
+const handleDownload = async (nameVariable) => {
+try {
+    // Wait for downloadContestData() to complete and return data
+    let data = [];
+    let csvData = [];
+    console.log(nameVariable)
+    if(nameVariable === 'Completed'){
+    data = await downloadCompletedInternshipData();
+    csvData = await downloadHelper(data)
+    }
+    // Create the CSV content
+    const csvContent = csvData?.map((row) => {
+    return row?.map((row1) => row1.join(',')).join('\n');
+    });
+
+    // Create a Blob object with the CSV content
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+
+    // Save the file using FileSaver.js
+    saveAs(blob, `${nameVariable}.csv`);
+} catch (error) {
+    console.error('Error downloading intenrship report:', error);
+}
+}
+
+
+  async function downloadHelper(data) {
+    let csvDataFile = [[]]
+    let csvDataDailyPnl = [["#","Full Name", "Email", "Mobile", "Signup Method","Joining Date", "Batch Name", "Batch Start", "Batch End", "Margin Money", "Percentage Payout", "Expected Attendance %", "Actual Attendance %", "Expected Referral Count", "Trading Days", "Gross P&L", "Brokerage", "Net P&L", "# of Trades", "Payout"], ]
+    if (data) {
+      // dates = Object.keys(data)
+
+      let csvpnlData = Object.values(data)
+        const mappingPromises = csvpnlData?.map(async (elem, index) => {
+        let marketDays =  getDaysBetweenDates((moment(elem?.batchStartDate).format('DD-MMM-YY')),(moment(elem?.batchEndDate).format('DD-MMM-YY'))) - getMarketDays((moment(elem?.batchStartDate).format('DD-MMM-YY')),(moment(elem?.batchEndDate).format('DD-MMM-YY')))
+        let traderAttendancePercentage = ((elem?.tradingDays/marketDays)*100-5).toFixed(0)
+        let payout = (traderAttendancePercentage <= elem?.attendancePercentage && elem?.netpnl > 0 && referrals >= elem.referralCount) ? ((elem?.netpnl*elem?.payoutPercentage)/100).toFixed(2) : 0
+        let finalPayout = payout > 15000 ? 15000 : payout
+        // let referralsCount = await getReferralsCount(elem?.batchStartDate,elem?.batchEndDate,elem?.mobile)
+        // console.log("Referrals:",referralsCount,referrals);
+        return [
+          index+1,
+          TruncatedName(elem?.first_name + ' ' + elem?.last_name),
+          elem?.email,
+          elem?.mobile,
+          elem?.creationProcess,
+          moment.utc(elem?.joining_date).utcOffset('+00:00').format('DD-MMM-YY'),
+          elem?.batchName,
+          moment.utc(elem?.batchStartDate).utcOffset('+00:00').format('DD-MMM-YY'),
+          moment.utc(elem?.batchEndDate).utcOffset('+00:00').format('DD-MMM-YY'),
+          elem?.portfolio,
+          elem?.payoutPercentage,
+          elem?.attendancePercentage,
+          traderAttendancePercentage,
+          elem?.referralCount,
+        //   referralsCount,
+        //   marketDays,
+          elem?.tradingDays,
+          parseFloat(elem?.grosspnl)?.toFixed(0),
+          parseFloat(elem?.brokerage)?.toFixed(0),
+          parseFloat(elem?.netpnl)?.toFixed(0),
+          elem?.totalTrades,
+          parseFloat(finalPayout)?.toFixed(0),
+        ]
+      })
+      // Wait for all promises to resolve
+        const results = await Promise.all(mappingPromises);
+        console.log("File Inside:",csvDataFile)
+        csvDataFile = [csvDataDailyPnl, ...results];
+    }
+    console.log("Final File:",csvDataFile)
+    return csvDataFile
+    
+  }
 
 
   tradeData.map((subelem, index)=>{
@@ -155,8 +323,37 @@ export default function LabTabs({socket}) {
 
   return (
     <MDBox bgColor="dark" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto' maxWidth='100%'>
-        <MDBox>
-            <MDTypography ml={1} mb={1} color='light' fontSize={18} fontWeight='bold'>Career Dashboard</MDTypography>
+        <MDBox display='flex' justifyContent='center' alignItems='center'>
+            <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                <Grid item xs={12} md={6} lg={6} mb={1} display='flex' justifyContent='flex-start' alignItems='center'>
+                    <MDTypography ml={1} color='light' fontSize={18} fontWeight='bold'>Career Dashboard</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={6} lg={6} mb={1} display='flex' justifyContent='flex-end' alignItems='center'>
+                
+                  <MDButton
+                    variant='contained'
+                    color='info'
+                    size='small'
+                    onClick={() => { handleDownload(`Completed`) }}
+                  >
+                    {!downloadingInternshipData ? (
+                      <MDBox display='flex' justifyContent='center' alignItems='center'>
+                        <MDTypography color='light' variant="text" style={{ marginTop: '0px' }}>
+                          Download Completed Internship Data
+                        </MDTypography>
+                      </MDBox>
+                    ) : (
+                      <MDBox display='flex' justifyContent='center' alignItems='center'>
+                        <CircularProgress size={12} thickness={4} color="primary" />
+                        <MDTypography color='light' variant="text" style={{ marginTop: '0px' }}>
+                          Downloading Data...
+                        </MDTypography>
+                      </MDBox>
+                    )}
+                  </MDButton>
+                  
+                </Grid>
+            </Grid>
         </MDBox>
 
         <Grid container lg={12}>

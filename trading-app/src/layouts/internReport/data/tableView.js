@@ -22,35 +22,6 @@ import {dailyPnlCompany, traderWisePnl, collegeWiseInfo, activeTrader, inactiveT
 export default function TableView({collegeData, holiday, whichTab, dateWiseData, userData, id, inactiveUser, activeUser }) {
   const [isLoading, setIsLoading] = useState(false);
 
-  function calculateWorkingDays(startDate, endDate) {
-    const start = moment(startDate);
-    const end = moment(endDate);
-
-    // Increase the endDate by one day
-    end.add(1, 'day');
-
-    // Check if the start date is after the end date
-    if (start.isAfter(end)) {
-      return 0;
-    }
-
-    let workingDays = 0;
-    let currentDate = start;
-
-    // Iterate over each day between the start and end dates
-    while (currentDate.isSameOrBefore(end)) {
-      // Check if the current day is a weekday (Monday to Friday)
-      if (currentDate.isoWeekday() <= 5) {
-        workingDays++;
-      }
-
-      // Move to the next day
-      currentDate = currentDate.add(1, 'day');
-    }
-
-    return workingDays;
-  }
-
   let pnlData;
 
   if(whichTab === "Daily P&L"){
@@ -76,83 +47,6 @@ export default function TableView({collegeData, holiday, whichTab, dateWiseData,
     // Save the file using FileSaver.js
     saveAs(blob, `${nameVariable}.csv`);
   }
-
-  let traderWisePnlInfo = [];
-  if(whichTab !== "Daily P&L"){
-    dateWiseData?.map((elem)=>{
-      const attendanceLimit = elem.attendancePercentage;
-      const referralLimit = elem.referralCount;
-      const payoutPercentage = elem.payoutPercentage;
-      const reliefAttendanceLimit = attendanceLimit - attendanceLimit * 5 / 100
-      const reliefReferralLimit = referralLimit - referralLimit * 10 / 100
-
-      // const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][elem?.dayOfWeek-1];
-      const referral = userData?.filter((subelem) => {
-        return subelem?._id?.toString() == elem?.userId?.toString();
-      })
-
-      const batchEndDate = moment(elem.batchEndDate);
-      const currentDate = moment();
-      const endDate = batchEndDate.isBefore(currentDate) ? batchEndDate.format("YYYY-MM-DD") : currentDate.format("YYYY-MM-DD");
-      const endDate1 = batchEndDate.isBefore(currentDate) ? batchEndDate.clone().set({ hour: 19, minute: 0, second: 0, millisecond: 0 }) : currentDate.clone().set({ hour: 19, minute: 0, second: 0, millisecond: 0 });
-      const attendance = (elem?.tradingDays * 100 / (calculateWorkingDays(elem.batchStartDate, endDate) - holiday));
-      let refCount = 0;
-      for (let subelem of referral[0]?.referrals) {
-        const joiningDate = moment(subelem?.referredUserId?.joining_date);
-      
-        console.log("joiningDate", moment(moment(elem.batchStartDate).format("YYYY-MM-DD")), joiningDate ,endDate, endDate1, moment(endDate).set({ hour: 19, minute: 0, second: 0, millisecond: 0 }).format("YYYY-MM-DD HH:mm:ss"))
-        if (joiningDate.isSameOrAfter(moment(moment(elem.batchStartDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(endDate1)) {
-          // console.log("joiningDate if", batchEndDate, batchEndDate.format("YYYY-MM-DD"))
-          refCount += 1;
-          console.log("joiningDate if")
-        }
-      }
-      // referral[0]?.referrals?.length;
-      elem.isPayout = false;
-      const profitCap = 15000;
-
-      if (attendance >= attendanceLimit && refCount >= referralLimit && elem?.npnl > 0) {
-        console.log("payout 1sr");
-        elem.isPayout = true;
-      }
-
-      if (!(attendance >= attendanceLimit && refCount >= referralLimit) && (attendance >= attendanceLimit || refCount >= referralLimit) && elem?.npnl > 0) {
-        if (attendance < attendanceLimit && attendance >= reliefAttendanceLimit) {
-          elem.isPayout = true;
-          console.log("payout relief");
-        }
-        if (refCount < referralLimit && refCount >= reliefReferralLimit) {
-          elem.isPayout = true;
-          console.log("payout relief");
-        }
-      }
-
-      elem.referral = refCount;
-      elem.payout = elem.isPayout ? Math.min((elem?.npnl * payoutPercentage / 100).toFixed(0), profitCap) : 0;
-      elem.tradeDay = (elem?.tradingDays * 100 / (calculateWorkingDays(elem.batchStartDate, endDate) - holiday)).toFixed(0)
-      elem.attendance = (elem?.tradingDays * 100 / (calculateWorkingDays(elem.batchStartDate, endDate) - holiday)).toFixed(0);
-     traderWisePnlInfo.push(elem);
-
-
-    })
-  }
-
-  traderWisePnlInfo.sort((a,b)=>{
-    if(a.payout > b.payout){
-      return -1;
-    } else if(a.payout <= b.payout){
-      if(a.npnl > b.npnl){
-        return -1;
-      } else if(a.npnl < b.npnl){
-        return 1;
-      } else{
-        return 1;
-      }
-      
-    } else{
-      return 1;
-    }
-  })
 
 
 
@@ -240,12 +134,6 @@ export default function TableView({collegeData, holiday, whichTab, dateWiseData,
         </Grid>
         :
         <Grid container spacing={1} >
-          {/* <Grid item xs={12} md={2} lg={12} mb={1} style={{ backgroundColor: "white", borderRadius: 5 }} display="flex" justifyContent="space-between" alignContent="center" alignItems="center" pr={1}>
-            <MDTypography ></MDTypography>
-            <MDTypography color="dark" fontSize={13} fontWeight="bold">{`Active User P&L`}</MDTypography>
-            <MDTypography  onClick={()=>{handleDownload(pnlData, "traderPnlIntern")}}><DownloadIcon/> </MDTypography>
-
-          </Grid> */}
 
           <Grid container p={0.5} mb={1} style={{backgroundColor:'white' ,border: '1px solid white', borderRadius: 5 }}>
             <Grid item xs={12} md={2} lg={8} pl={1} display="flex" justifyContent="flex-start" alignContent="center" alignItems="center">
@@ -290,7 +178,7 @@ export default function TableView({collegeData, holiday, whichTab, dateWiseData,
 
 
           {!isLoading ?
-            traderWisePnlInfo?.map((elem) => {
+            dateWiseData?.map((elem) => {
 
               const gpnlcolor = (elem?.gpnl) >= 0 ? "success" : "error";
               const npnlcolor = (elem?.npnl) >= 0 ? "success" : "error";
@@ -298,7 +186,7 @@ export default function TableView({collegeData, holiday, whichTab, dateWiseData,
               return (
                 <Grid container mt={1} p={1} style={{ border: '1px solid white', borderRadius: 5 }}>
                   <Grid item xs={12} md={2} lg={1.33} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.name?.length <= 16 ? elem?.name : elem?.name.slice(0, 13) + "..."}</MDTypography>
+                    <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.name?.length <= 16 ? elem?.name : elem?.name?.slice(0, 13) + "..."}</MDTypography>
                   </Grid>
 
                   <Grid item xs={12} md={2} lg={1.33} display="flex" justifyContent="center" alignContent="center" alignItems="center">
@@ -318,13 +206,13 @@ export default function TableView({collegeData, holiday, whichTab, dateWiseData,
                   </Grid>
 
                   <Grid item xs={12} md={2} lg={1.33}>
-                    <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.referral}</MDTypography>
+                    <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.referralCount}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={2} lg={1.33}>
                     <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">₹{elem?.payout}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={2} lg={1.33}>
-                    <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.attendance}%</MDTypography>
+                    <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.attendancePercentage}%</MDTypography>
                   </Grid>
                 </Grid>
               )

@@ -34,6 +34,10 @@ const CareerApplication = new mongoose.Schema({
         type: String,
         enum: ['Yes','No']
     },
+    gender:{
+        type: String,
+        enum: ['Male','Female','Other']
+    },
     collegeName:{
         type:String,
         required: true,

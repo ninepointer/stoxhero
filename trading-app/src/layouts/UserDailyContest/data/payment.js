@@ -218,8 +218,8 @@ const Payment = ({ elem, setShowPay, showPay }) => {
   }
 
   const amount = elem?.entryFee;
-  const redeemableBonus = Math.min((amount-discountAmount)*setting?.maxBonusRedemptionPercentage/(100*setting?.bonusToUnitCashRatio??1), bonusBalance/setting?.bonusToUnitCashRatio??1)??0;
-  const bonusRedemption = checked? Math.min((amount-discountAmount)*setting?.maxBonusRedemptionPercentage/(100*setting?.bonusToUnitCashRatio??1), bonusBalance/bonusBalance/setting?.bonusToUnitCashRatio??1):0;
+  const redeemableBonus = Math.min((amount-discountAmount)*setting?.maxBonusRedemptionPercentage/100, bonusBalance/setting?.bonusToUnitCashRatio??1)??0;
+  const bonusRedemption = checked? Math.min((amount-discountAmount)*setting?.maxBonusRedemptionPercentage/100, bonusBalance/bonusBalance/setting?.bonusToUnitCashRatio??1):0;
   const actualAmount = (elem?.entryFee -discountAmount - bonusRedemption)*setting.gstPercentage/100;
   console.log('amounts', amount, actualAmount, discountAmount, bonusRedemption);
 
@@ -252,7 +252,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         setDiscountAmount(0);
         return;
       }
-      const res = await axios.post(`${apiUrl}coupons/verify`, {code, product:'6517d48d3aeb2bb27d650de5', orderValue:elem?.entryFee}, {withCredentials:true});
+      const res = await axios.post(`${apiUrl}coupons/verify`, {code, product:'6517d48d3aeb2bb27d650de5', orderValue:elem?.entryFee, platform:'Web'}, {withCredentials:true});
       console.log('verified code',res?.data?.data);
       if(res.status == 200){
         setVerifiedCode(code);
@@ -348,7 +348,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                           <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(amount-discountAmount-bonusRedemption).toFixed(2)}</Typography>
                           {bonusBalance > 0 && <MDBox display='flex' justifyContent='flex-start' alignItems='center' ml={-1}>
                             <Checkbox checked={checked} onChange={()=>setChecked(!checked)}/>
-                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Use {redeemableBonus} HeroCash</Typography>      
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Use {redeemableBonus*(setting?.bonusToUnitCashRatio??1)} HeroCash (1 HeroCash = {1/(setting?.bonusToUnitCashRatio??1)}₹)</Typography>      
                           </MDBox>}
                         </MDBox>}
                         <FormControlLabel value="bank" control={<Radio />} label="Pay from Bank Account/UPI" />
@@ -382,7 +382,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{(Number(amount-discountAmount-bonusRedemption) + actualAmount).toFixed(2)}</Typography>
                             {bonusBalance > 0 && <MDBox display='flex' justifyContent='flex-start' alignItems='center' ml={-1}>
                               <Checkbox checked={checked} onChange={()=>setChecked(!checked)}/>
-                              <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Use {redeemableBonus} HeroCash</Typography>      
+                              <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Use {redeemableBonus * (setting?.bonusToUnitCashRatio??1)} HeroCash (1 HeroCash = {1/(setting?.bonusToUnitCashRatio??1)}₹)</Typography>      
                           </MDBox>}
                           </MDBox>}
                       </RadioGroup>

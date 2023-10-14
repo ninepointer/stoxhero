@@ -32,42 +32,6 @@ export function traderWisePnl(data, holiday, userData) {
       // dates = Object.keys(data)
       let csvpnlData = Object.values(data)
       csvDataFile = csvpnlData?.map((elem) => {
-
-        const attendanceLimit = elem.attendancePercentage;
-        const referralLimit = elem.referralCount;
-        const payoutPercentage = elem.payoutPercentage;
-        const reliefAttendanceLimit = attendanceLimit - attendanceLimit * 5 / 100
-        const reliefReferralLimit = referralLimit - referralLimit * 10 / 100
-
-        // const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][elem?.dayOfWeek-1];
-        const referral = userData?.filter((subelem) => {
-          return subelem?._id?.toString() == elem?.userId?.toString();
-        })
-
-        const batchEndDate = moment(elem.batchEndDate);
-        const currentDate = moment();
-        const endDate = batchEndDate.isBefore(currentDate) ? batchEndDate.format("YYYY-MM-DD") : currentDate.format("YYYY-MM-DD");
-        const attendance = (elem?.tradingDays * 100 / (calculateWorkingDays(elem.batchStartDate, endDate) - holiday));
-        let refCount = referral[0]?.referrals?.length;
-        elem.isPayout = false;
-        const profitCap = 15000;
-
-        if (attendance >= attendanceLimit && refCount >= referralLimit && elem?.npnl > 0) {
-          console.log("payout 1sr");
-          elem.isPayout = true;
-        }
-
-        if (!(attendance >= attendanceLimit && refCount >= referralLimit) && (attendance >= attendanceLimit || refCount >= referralLimit) && elem?.npnl > 0) {
-          if (attendance < attendanceLimit && attendance >= reliefAttendanceLimit) {
-            elem.isPayout = true;
-            console.log("payout relief");
-          }
-          if (refCount < referralLimit && refCount >= reliefReferralLimit) {
-            elem.isPayout = true;
-            console.log("payout relief");
-          }
-        }
-
   
         return [elem?.name,
         elem?.gpnl,
@@ -75,9 +39,9 @@ export function traderWisePnl(data, holiday, userData) {
         elem?.npnl,
         elem?.noOfTrade,
         elem?.tradingDays,
-        referral[0]?.referrals?.length,
-        elem.isPayout ? Math.min((elem?.npnl * payoutPercentage / 100).toFixed(0), profitCap) : 0,
-        (elem?.tradingDays * 100 / (calculateWorkingDays(elem.batchStartDate, endDate) - holiday)).toFixed(0)
+        elem?.referralCount,
+        elem?.payout,
+        elem?.attendancePercentage
     
     ]
       })

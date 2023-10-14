@@ -45,6 +45,8 @@ function PlatformSettings({settingData, setReRender, reRender}) {
   const [gstPercentage, setGstPercentage] = useState(28);
   const [tdsPercentage, setTdsPercentage] = useState(30);
   const [fund, setFund] = useState(0);
+  const [bonusToUnitCashRatio, setBonusToUnitCashRatio] = useState(0);
+  const [maxBonusRedemptionPercentage, setMaxBonusRedemptionPercentage] = useState(0);
   const [usedMargin, setUsedMargin] = useState(0);
   const [accountData, setAccountData] = useState({
     upiId: "",
@@ -80,6 +82,8 @@ function PlatformSettings({settingData, setReRender, reRender}) {
       setWalletBalanceUpperLimit(settingData[0]?.walletBalanceUpperLimit)
       setGstPercentage(settingData[0]?.gstPercentage)
       setTdsPercentage(settingData[0]?.tdsPercentage)
+      setMaxBonusRedemptionPercentage(settingData[0]?.maxBonusRedemptionPercentage)
+      setBonusToUnitCashRatio(settingData[0]?.bonusToUnitCashRatio)
       setMinWithdrawal(settingData[0]?.minWithdrawal)
       accountData.upiId = settingData[0]?.contest?.upiId
       accountData.email = settingData[0]?.contest?.email
@@ -164,7 +168,7 @@ function PlatformSettings({settingData, setReRender, reRender}) {
         gstPercentage,
         tdsPercentage,
         upiId, email, mobile,
-        appStartTime, timerStartTimeInStart, appEndTime, timerStartTimeInEnd
+        appStartTime, timerStartTimeInStart, appEndTime, timerStartTimeInEnd, bonusToUnitCashRatio, maxBonusRedemptionPercentage
 
       }),
   }); 
@@ -442,6 +446,28 @@ function PlatformSettings({settingData, setReRender, reRender}) {
           value={fund}
           type="number"
           onChange={(e)=>{setFund(e.target.value)}}
+        />
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='Bonus to Unit Cash Ratio'
+          fullWidth
+          // defaultValue={LeaderBoardTimming ? LeaderBoardTimming : settingData[0]?.leaderBoardTimming}
+          value={bonusToUnitCashRatio}
+          sx={{marginTop: "15px"}}
+          type="number"
+          onChange={(e)=>{setBonusToUnitCashRatio(e.target.value)}}
+        />
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='Max Bonus Redemption %'
+          fullWidth
+          // defaultValue={LeaderBoardTimming ? LeaderBoardTimming : settingData[0]?.leaderBoardTimming}
+          value={maxBonusRedemptionPercentage}
+          sx={{marginTop: "15px"}}
+          type="number"
+          onChange={(e)=>{setMaxBonusRedemptionPercentage(e.target.value)}}
         />
 
         <TextField

@@ -49,12 +49,19 @@ const batchSchema = new mongoose.Schema({
         },
         joiningDate: {
             type: Date,
-        }   
+        },
+        payout: Number,
+        tradingdays: Number,
+        attendance: Number,
+        referral: Number,
+        gpnl: Number,
+        npnl: Number,
+        noOfTrade: Number
     }],
     batchStatus:{
         type:String,
         required: true,
-        enum: ['Active','Inactive']
+        enum: ['Active','Inactive', 'Completed']
     },
     batchID:{
         type:String,
@@ -92,6 +99,9 @@ const batchSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'product',
         default:'6517d46e3aeb2bb27d650de3'
+    },
+    workingDays: {
+        type: Number
     }
 })
 

@@ -219,7 +219,7 @@ exports.getExpiredCouponCodes = async (req, res) => {
 
 exports.verifyCouponCode = async (req, res) => {
     try {
-        const { code, product, orderValue } = req.body;
+        const { code, product, orderValue, platform} = req.body;
         const userId = req.user._id;
         let coupon = await Coupon.findOne({ code: code, expiryDate:{$gte: new Date()}, status:'Active' });
 
@@ -228,6 +228,12 @@ exports.verifyCouponCode = async (req, res) => {
             return res.status(404).json({
                 status: 'error',
                 message: "Coupon code not found.",
+            });
+        }
+        if(coupon?.eligiblePlatforms?.length != 0 && !coupon?.eligiblePlatforms.includes(platform)){
+            return res.status(400).json({
+                status: 'error',
+                message: "This coupon is not valid for your device platform",
             });
         }
         if(coupon?.eligibleProducts?.length != 0 && !coupon?.eligibleProducts.includes(product)){

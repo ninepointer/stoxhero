@@ -77,7 +77,7 @@ const couponCodeSchema = new mongoose.Schema({
     type: Number,
   },
   affiliatePercentage:Number,
-  eligiblePlatform:[{
+  eligiblePlatforms:[{
     type: 'String',
     enum:['Android', 'iOS', 'Web'],
   }],

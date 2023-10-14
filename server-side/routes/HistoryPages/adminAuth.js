@@ -78,6 +78,7 @@ const BattleMock = require("../../models/battle/battleTrade");
 const Holiday = require("../../models/TradingHolidays/tradingHolidays");
 const Career = require("../../models/Careers/careerSchema");
 const mongoose = require('mongoose');
+const moment = require("moment")
 // [
 //   {
 //     $unwind:
@@ -101,58 +102,71 @@ const mongoose = require('mongoose');
 //       },
 //   },
 // ]
+//64a5b69bdbaa0c1207218c5f
+//64d7cc84e6eb301d7f21f1b3
 
 router.get('/updateinternshipdata', async(req,res) =>{
   let cutoffDate = new Date('2023-07-10');
   let total = 0, batch=0;
-  const internships = await InternBatch.aggregate([
-    {
-      $lookup:{
-        from: "careers",
-        localField: "career",
-        foreignField: "_id",
-        as: "careerData",
-      }
-    },
+  const internships = await InternBatch.find({ batchStatus: "Active", batchEndDate: { $lte: new Date() }})
+  .populate('career', 'listingType')
+  .select('batchName participants batchStartDate batchEndDate attendancePercentage payoutPercentage referralCount')
+//   const internships = await InternBatch.aggregate([
+//   //   {
+//   //     $match: {
+//   //       // batchEndDate: {$gte: new Date("2023-09-17")}
+//   //      _id:  new ObjectId("64d9dd2b3c87a3054fa7b4c9")
+//   //     }
+//   // },
+//     {
+//       $lookup:{
+//         from: "careers",
+//         localField: "career",
+//         foreignField: "_id",
+//         as: "careerData",
+//       }
+//     },
     
-    {
-        $match: {
-            batchStatus: "Active",
-            batchEndDate: { $lte: new Date() },
-            "careerData.listingType":"Job"
-        }
-    },
+//     {
+//         $match: {
+//             batchStatus: "Active",
+//             batchEndDate: { $lte: new Date() },
+//             "careerData.listingType":"Job"
+//         }
+//     },
 
-    {
-        $project: {
-            _id: 0,
-            batchId: "$_id",
-            batchName:"$batchName",
-            users: "$participants",
-            startDate: "$batchStartDate",
-            endDate: "$batchEndDate",
-            attendancePercentage: "$attendancePercentage",
-            payoutPercentage: "$payoutPercentage",
-            referralCount: "$referralCount"
-        }
-    }
-]);
+//     {
+//         $project: {
+//             _id: 0,
+//             batchId: "$_id",
+//             batchName:"$batchName",
+//             users: "$participants",
+//             startDate: "$batchStartDate",
+//             endDate: "$batchEndDate",
+//             attendancePercentage: "$attendancePercentage",
+//             payoutPercentage: "$payoutPercentage",
+//             referralCount: "$referralCount"
+//         }
+//     }
+// ]);
 console.log('internships', internships.length);
 
   for(let elem of internships){
+    if(elem.career.listingType === 'Job'){
+
     const attendanceLimit = elem.attendancePercentage;
       const referralLimit = elem.referralCount;
       const payoutPercentage = elem.payoutPercentage;
       const reliefAttendanceLimit = attendanceLimit - attendanceLimit * 5 / 100
       const reliefReferralLimit = referralLimit - referralLimit * 10 / 100
-      const workingDays = calculateWorkingDays(elem.startDate, elem.endDate);
-      const users = elem.users;
-      const batchId = elem.batchId;
+      const workingDays = calculateWorkingDays(elem.batchStartDate, elem.batchEndDate);
+      const users = elem.participants;
+      const batchId = elem._id;
 
       const holiday = await Holiday.find({
         holidayDate: {
-          $gte: elem.startDate,
-          $lte: elem.endDate
+          $gte: elem.batchStartDate,
+          $lte: elem.batchEndDate
         },
         $expr: {
           $ne: [{ $dayOfWeek: "$holidayDate" }, 1], // 1 represents Sunday
@@ -160,7 +174,7 @@ console.log('internships', internships.length);
         }
       });
 
-      // console.log("holiday date" , elem.endDate, elem.startDate, holiday)
+      // console.log("holiday date" , elem.batchEndDate, elem.batchStartDate, holiday)
 
       const profitCap = 15000;
 
@@ -193,7 +207,7 @@ console.log('internships', internships.length);
         return x.length;
       }
 
-      const pnl = async (userId, batchId) => {
+      const pnlFunc = async (userId, batchId) => {
         let pnlDetails = await InternTrade.aggregate([
           {
             $match: {
@@ -214,6 +228,7 @@ console.log('internships', internships.length);
                   $toDouble: "$brokerage",
                 },
               },
+              trades: { $count: {} },
             },
           },
           {
@@ -227,11 +242,13 @@ console.log('internships', internships.length);
               npnl: {
                 $subtract: ["$amount", "$brokerage"],
               },
+              gpnl: "$amount",
+              noOfTrade: "$trades"
             },
           },
         ])
 
-        return pnlDetails[0]?.npnl;
+        return {npnl: pnlDetails[0]?.npnl, gpnl: pnlDetails[0]?.gpnl, noOfTrade: pnlDetails[0]?.noOfTrade};
       }
 
       function calculateWorkingDays(startDate, endDate) {
@@ -265,15 +282,16 @@ console.log('internships', internships.length);
       }
 
       const referrals = async (user) => {
-        // elem.startDate, elem.endDate
+        // elem.batchStartDate, elem.batchEndDate
         let refCount = 0;
         if(elem?.batchEndDate>cutoffDate){
           for (let subelem of user?.referrals) {
             const joiningDate = moment(subelem?.referredUserId?.joining_date);
           
-            // console.log((moment(moment(elem.startDate).format("YYYY-MM-DD"))), joiningDate, (moment(elem.endDate).set({ hour: 19, minute: 0, second: 0, millisecond: 0 })))
+            // console.log("joiningDate", joiningDate)
+            // console.log((moment(moment(elem.batchStartDate).format("YYYY-MM-DD"))), joiningDate, (moment(elem.batchEndDate).set({ hour: 19, minute: 0, second: 0, millisecond: 0 })))
             // console.log("joiningDate", moment(moment(elem.batchStartDate).format("YYYY-MM-DD")), joiningDate ,endDate, endDate1, moment(endDate).set({ hour: 19, minute: 0, second: 0, millisecond: 0 }).format("YYYY-MM-DD HH:mm:ss"))
-            if (joiningDate.isSameOrAfter(moment(moment(elem.startDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(moment(elem.endDate).set({ hour: 19, minute: 0, second: 0, millisecond: 0 }))) {
+            if (joiningDate.isSameOrAfter(moment(moment(elem.batchStartDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(moment(elem.batchEndDate).set({ hour: 18, minute:59, second: 59, millisecond: 0 }))) {
               // console.log("joiningDate if", batchEndDate, batchEndDate.format("YYYY-MM-DD"))
               refCount = refCount + 1;
               // console.log("joiningDate if")
@@ -301,8 +319,8 @@ console.log('internships', internships.length);
               const tradingdays = await tradingDays(users[i].user, batchId);
               const attendance = (tradingdays * 100) / (workingDays - holiday.length);
               const referral = await referrals(user);
-              const npnl = await pnl(users[i].user, batchId);
-              const payoutAmountWithoutTDS = Math.min(npnl * payoutPercentage / 100, profitCap)
+              const pnl = await pnlFunc(users[i].user, batchId);
+              const payoutAmountWithoutTDS = Math.min(pnl.npnl * payoutPercentage / 100, profitCap)
               const creditAmount = payoutAmountWithoutTDS;
               // console.log('credit amount for user and others', users[i]?.user, creditAmount, npnl, referral, tradingdays, attendance);
               // const creditAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
@@ -310,27 +328,49 @@ console.log('internships', internships.length);
     
               // console.log( users[i].user, referral, creditAmount);
               if (creditAmount > 0) {
-                if (attendance >= attendanceLimit && referral >= referralLimit && npnl > 0) {
+                if (attendance >= attendanceLimit && referral >= referralLimit && pnl.npnl > 0) {
                   eligible = true;      
-                  console.log("no relief", users[i].user, npnl, creditAmount);
+                  // console.log("no relief", users[i].user, npnl, creditAmount, attendance, referral);
                 }
                 
-                if (!(attendance >= attendanceLimit && referral >= referralLimit) && (attendance >= attendanceLimit || referral >= referralLimit) && npnl > 0) {
+                if (!(attendance >= attendanceLimit && referral >= referralLimit) && (attendance >= attendanceLimit || referral >= referralLimit) && pnl.npnl > 0) {
                   if (attendance < attendanceLimit && attendance >= reliefAttendanceLimit) {
                     eligible = true;
                     console.log("attendance relief");
                   }
                   if (referral < referralLimit && referral >= reliefReferralLimit) {
                     eligible = true;
-                    console.log("referral relief", attendance, tradingdays, users[i].user, npnl);
+                    console.log("referral relief", attendance, tradingdays, users[i].user, pnl.npnl);
                   }
                 }
               }
               if(eligible){
+                console.log('Eligible', users[i]?.user, creditAmount, tradingdays, attendance, referral, pnl.gpnl, pnl.npnl, pnl.noOfTrade);
+
                 totalCredit+=creditAmount;
-                console.log('Eligible', users[i]?.user, creditAmount);
-                }
-                await session.commitTransaction();      
+                
+                users[i].payout = creditAmount.toFixed(2);
+                users[i].tradingdays = tradingdays;
+                users[i].attendance = attendance.toFixed(2);
+                users[i].referral = referral;
+                users[i].gpnl = pnl?.gpnl?.toFixed(2);
+                users[i].npnl = pnl?.npnl?.toFixed(2);
+                users[i].noOfTrade = pnl?.noOfTrade;
+
+                // await users.save();
+
+              } else{
+                users[i].payout = 0;
+                users[i].tradingdays = tradingdays;
+                users[i].attendance = attendance;
+                users[i].referral = referral;
+                users[i].gpnl = pnl?.gpnl?.toFixed(2);
+                users[i].npnl = pnl?.npnl?.toFixed(2);
+                users[i].noOfTrade = pnl?.noOfTrade?.toFixed(2);
+
+                // await users.save();
+              }
+              await session.commitTransaction();      
             }
           
         }catch(e){
@@ -340,12 +380,20 @@ console.log('internships', internships.length);
           await session.endSession();
         }
       }
+
+      elem.workingDays = workingDays;
+      elem.batchStatus = 'Completed';
+
+      await elem.save();
+
       // console.log('first');
       console.log('total credit for', elem?.batchName, totalCredit);
       if(totalCredit>0){
         batch++;
       }
       total+=totalCredit;
+  
+    }
   }
   console.log('finished', total, batch);
 })
@@ -2009,7 +2057,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2023-09-28T00:00:00.000+00:00"
+  let expiryDate = "2023-10-11T20:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(
