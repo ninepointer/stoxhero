@@ -50,7 +50,7 @@ function CreateCoupon() {
   const id = location?.state?.data;
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(id?.eligibleProducts ? id?.eligibleProducts : []);
-  const [selectedPlatform, setSelectedPlatform] = useState(id?.eligibleProducts ? id?.eligibleProducts : []);
+  const [selectedPlatform, setSelectedPlatform] = useState(id?.eligiblePlatforms ? id?.eligiblePlatforms : []);
   const [couponData, setCouponData] = useState(id ? id : '');
   const [isObjectNew, setIsObjectNew] = useState(id ? true : false)
   const [isLoading, setIsLoading] = useState(false)

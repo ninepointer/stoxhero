@@ -240,7 +240,11 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         setDiscountAmount(Math.min(amount*discount/100, maxDiscount));
       }
     }else{
-      setCashbackAmount(discount);
+      if(discountType == 'Flat'){
+        setCashbackAmount(discount);
+      }else{
+        setCashbackAmount (Math.min(amount*discount/100, maxDiscount));
+      }
     }
   }
   const applyPromoCode = async () => {
