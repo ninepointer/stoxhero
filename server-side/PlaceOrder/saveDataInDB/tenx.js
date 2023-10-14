@@ -110,7 +110,7 @@ exports.tenxTrade = async (req, res, otherData) => {
             Product: elem?.Product, buyOrSell: elem?.buyOrSell, variety: elem?.variety, validity: elem?.validity, 
             exchange: elem?.exchange, order_type: elem?.order_type, symbol: elem?.symbol, execution_time: elem?.execution_time, 
             instrumentToken: elem?.instrumentToken, exchangeInstrumentToken: elem?.exchangeInstrumentToken, 
-            last_price: elem?.last_price, createdBy: elem?.createdBy, type: elem?.type, subscriptionId, order_id
+            last_price: elem?.last_price, createdBy: elem?.createdBy, type: elem?.type, subscriptionId, order_id, _id: elem?._id
           }) 
         }
 // {symbol: [id, price], symbol2: [id, price]}
