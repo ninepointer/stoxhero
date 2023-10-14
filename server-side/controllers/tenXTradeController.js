@@ -2,6 +2,9 @@ const TenXTrader = require("../models/mock-trade/tenXTraderSchema");
 const User = require("../models/User/userDetailSchema");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema")
+const whatsAppService = require("../utils/whatsAppService")
+const mediaURL = "https://dmt-trade.s3.amazonaws.com/carousels/WhastAp%20Msg%20Photo/photos/1697228055934Welcome%20to%20the%20world%20of%20Virtual%20Trading%20but%20real%20earning%21.png";
+const mediaFileName = 'StoxHero'
 const { client, getValue } = require('../marketData/redisClient');
 const Wallet = require("../models/UserWallet/userWalletSchema");
 const uuid = require('uuid');
@@ -798,7 +801,7 @@ exports.autoExpireTenXSubscription = async () => {
                   <html>
                   <head>
                       <meta charset="UTF-8">
-                      <title>Amount Credited</title>
+                      <title>StoxHero - TenX Payout</title>
                       <style>
                       body {
                           font-family: Arial, sans-serif;
@@ -862,15 +865,19 @@ exports.autoExpireTenXSubscription = async () => {
                   </head>
                   <body>
                       <div class="container">
-                      <h1>Amount Credited</h1>
-                      <p>Hello ${user.first_name},</p>
-                      <p>Amount of ${payoutAmount?.toFixed(2)}INR has been credited in you wallet</p>
-                      <p>You can now purchase Tenx and participate in contest.</p>
+                      <h1>StoxHero - TenX Payout</h1>
+                      <p>Hi ${user.first_name},</p>
+                      <p>Great news! We're thrilled to inform you that your TenX Subscription 💰 payout has been processed, and ${subscription[i]?.payoutPercentage}% of the Net P&L made under this subscription has been credited to your StoxHero Wallet 🎉. Please find the details below:</p>
+                      <p>TenX Subscription: ${subscription[i]?.plan_name}</p>
+                      <p>Subscription Purchase Date: ${moment.utc(subs.users[k].subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a")}</p>
+                      <p>Amount Credited in StoxHero Wallet: ₹${payoutAmount.toLocaleString('en-IN')}</p>
+                      <p>We are delighted to have traders like you on our platform. Keep learning and earning!</p>
+                      <p>Note: 30% TDS has been deducted from your net payout amount.</p>
                       
                       <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
                       <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
                       <br/><br/>
-                      <p>Thanks,</p>
+                      <p>Thanks!</p>
                       <p>StoxHero Team</p>
             
                       </div>
@@ -878,6 +885,16 @@ exports.autoExpireTenXSubscription = async () => {
                   </html>
                   `);
                 }
+
+                if(process.env.PROD == 'true'){
+                  whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, subscription[i]?.payoutPercentage,subscription[i]?.plan_name, moment.utc(subs.users[k].subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                  whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, subscription[i]?.payoutPercentage,subscription[i]?.plan_name, moment.utc(subs.users[k].subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                }
+                else {
+                  whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, subscription[i]?.payoutPercentage,subscription[i]?.plan_name, moment.utc(subs.users[k].subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                  // whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, subscription[i]?.payoutPercentage,subscription[i]?.plan_name, moment.utc(subs.users[k].subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                }
+                
                 await createUserNotification({
                   title:'TenX Payout Credited',
                   description:`₹${payoutAmount?.toFixed(2)} credited for your profit in TenX plan ${subscription[i]?.plan_name}`,
