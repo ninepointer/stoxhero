@@ -1,7 +1,12 @@
 const emailService = require("../../utils/emailService")
+const whatsAppService = require("../../utils/whatsAppService")
 const otpGenerator = require('otp-generator')
 const express = require("express");
 const router = express.Router();
+const path = require('path');
+const mediaURL = "https://dmt-trade.s3.amazonaws.com/carousels/WhastAp%20Msg%20Photo/photos/1697228055934Welcome%20to%20the%20world%20of%20Virtual%20Trading%20but%20real%20earning%21.png";
+// const mediaURL = require("../../../trading-app/src/assets/images/signup_whatsapp.png")
+const mediaFileName = 'StoxHero'
 require("../../db/conn");
 const SignedUpUser = require("../../models/User/signedUpUser");
 const User = require("../../models/User/userDetailSchema");
@@ -20,9 +25,9 @@ const restrictTo = require('../../authentication/authorization');
 
 
 router.post("/signup", async (req, res) => {
-    const { first_name, last_name, email, mobile } = req.body;
-
-    if (!first_name || !last_name || !email || !mobile) {
+    const { first_name, last_name, email, mobile, dob } = req.body;
+    console.log(req.body)
+    if (!first_name || !last_name || !email || !mobile || !dob) {
         return res.status(400).json({ status: 'error', message: "Please fill all fields to proceed." })
     }
     const isExistingUser = await User.findOne({ $or: [{ email: email }, { mobile: mobile }] })
@@ -46,12 +51,13 @@ router.post("/signup", async (req, res) => {
             signedupuser.mobile = mobile.trim();
             signedupuser.email = email.trim();
             signedupuser.mobile_otp = mobile_otp.trim();
+            signedupuser.dob = new Date(dob).setHours(0,0,0,0);
             await signedupuser.save({ validateBeforeSave: false })
         }
         else {
             await SignedUpUser.create({
                 first_name: first_name.trim(), last_name: last_name.trim(), email: email.trim(),
-                mobile: mobile.trim(), mobile_otp: mobile_otp
+                mobile: mobile.trim(), mobile_otp: mobile_otp, dob: new Date(dob).setHours(0,0,0,0)
             });
         }
 
@@ -97,6 +103,7 @@ router.patch("/verifyotp", async (req, res) => {
         last_name,
         email,
         mobile,
+        dob,
         mobile_otp,
         referrerCode,
         password
@@ -177,7 +184,8 @@ router.patch("/verifyotp", async (req, res) => {
             name: first_name.trim() + ' ' + last_name.trim().substring(0, 1),
             // password: password,
             status: 'Active',
-            employeeid: userId, creationProcess: 'Auto SignUp',
+            dob: new Date(dob).setHours(0,0,0,0),
+            employeeid: userId,
             joining_date: user.last_modifiedOn,
             myReferralCode: (await myReferralCode).toString(),
             referrerCode: referredBy && referrerCode,
@@ -185,7 +193,8 @@ router.patch("/verifyotp", async (req, res) => {
             referralProgramme: referredBy && referral._id,
             campaign: campaign && campaign._id,
             campaignCode: campaign && referrerCode,
-            referredBy: referredBy && referredBy
+            referredBy: referredBy && referredBy,
+            creationProcess: referredBy ? 'Referral SignUp' : 'Auto SignUp',
         }
         // console.log('password', password);
         if(password){
@@ -281,20 +290,7 @@ router.patch("/verifyotp", async (req, res) => {
         if (campaign) {
             campaign?.users?.push({ userId: newuser._id, joinedOn: new Date() })
             await campaign.save();
-            // const campaignData = await Campaign.findOneAndUpdate({ _id: campaign._id }, {
-            //     $set: {
-            //         users: campaign?.users
-            //     }
-            // })
         }
-
-        // let lead = await Lead.findOne({ $or: [{ email: newuser.email }, { mobile: newuser.mobile }] });
-        // if (lead) {
-        //     lead.status = 'Joined'
-        //     lead.referralCode = newuser.referrerCode
-        //     lead.joinedOn = new Date();
-        //     await lead.save({ validateBeforeSave: false });
-        // }
 
         await UserWallet.create(
             {
@@ -417,6 +413,14 @@ router.patch("/verifyotp", async (req, res) => {
             `
         if(process.env.PROD == 'true'){
             emailService(newuser.email, subject, message);
+        }
+
+        if(process.env.PROD == 'true'){
+            whatsAppService.sendWhatsApp({destination : newuser.mobile, campaignName : 'direct_signup', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
+        }
+        else {
+            whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'direct_signup', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
+            whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'direct_signup', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
         }
     }
     catch (error) {

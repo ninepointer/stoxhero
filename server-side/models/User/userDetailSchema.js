@@ -109,7 +109,7 @@ const userDetailSchema = new mongoose.Schema({
     },
     gender:{
         type: String,
-        // required: true
+        enum: ['Male','Female','Other']
     },
     address:{
         type: String,
