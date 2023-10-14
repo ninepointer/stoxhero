@@ -11,7 +11,7 @@ const{stringify} = require('flatted');
 exports.createCouponCode = async (req, res) => {
     try {
         const {
-            code, description, discountType, rewardType, discount, liveDate, expiryDate, status,
+            code, description, discountType, rewardType, discount, liveDate, expiryDate, status, affiliatePercentage, eligiblePlatform,
             isOneTimeUse, usedBy, maxUse, eligibleProducts, campaign, maxDiscount, minOrderValue
         } = req.body;
 
@@ -25,7 +25,7 @@ exports.createCouponCode = async (req, res) => {
         }
 
         const coupon = await Coupon.create({
-            code, description, discountType, rewardType, discount, liveDate, expiryDate, status,
+            code, description, discountType, rewardType, discount, liveDate, expiryDate, status,affiliatePercentage, eligiblePlatform,
             isOneTimeUse, usedBy, maxUse, eligibleProducts, campaign, maxDiscount, minOrderValue,
             createdBy: req.user._id, lastModifiedBy: req.user._id
         });

@@ -1711,9 +1711,9 @@ exports.getDailyContestUsers = async (req, res) => {
 exports.deductSubscriptionAmount = async (req, res, next) => {
 
     try {
-        const { contestFee, contestName, contestId, coupon } = req.body
+        const { contestFee, contestName, contestId, coupon, bonusRedemption } = req.body
         const userId = req.user._id;
-        const result = await exports.handleSubscriptionDeduction(userId, contestFee, contestName, contestId, coupon);
+        const result = await exports.handleSubscriptionDeduction(userId, contestFee, contestName, contestId, coupon, bonusRedemption);
         
         res.status(result.stautsCode).json(result.data);
     } catch (error) {
@@ -1722,23 +1722,55 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
             status: "error",
             message: "Something went wrong..."
         });
+      }
     }
-}
-
-exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, contestId, coupon)=>{
-  try{
-    const contest = await Contest.findOne({ _id: contestId });
+    
+    exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, contestId, coupon, bonusRedemption)=>{
+      try{
+        const contest = await Contest.findOne({ _id: contestId });
         const wallet = await UserWallet.findOne({ userId: userId });
         const user = await User.findOne({ _id: userId });
+        const setting = await Setting.find({});
         let discountAmount = 0;
         let cashbackAmount = 0;
         const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
             return transaction.transactionType === "Cash";
         });
+        const bonusTransactions = (wallet)?.transactions?.filter((transaction) => {
+            return transaction.transactionType === "Bonus";
+        });
+
 
         const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
             return total + transaction?.amount;
         }, 0);
+        const totalBonusAmount = cashTransactions?.reduce((total, transaction) => {
+            return total + transaction?.amount;
+        }, 0);
+        
+        //Check if Bonus Redemption is valid
+        if(bonusRedemption > totalBonusAmount || bonusRedemption > contest?.entryFee*setting[0]?.maxBonusRedemptionPercentage){
+          return {
+            statusCode:400,
+            data:{
+            status: "error",
+            message:"Incorrect HeroCash Redemption",
+            }
+          }; 
+        }
+
+        if(Number(bonusRedemption)){
+          wallet?.transactions?.push({
+            title: 'StoxHero HeroCash Redeemed',
+            description: `${bonusRedemption} HeroCash used.`,
+            transactionDate: new Date(),
+            amount:-(bonusRedemption?.toFixed(2)),
+            transactionId: uuid.v4(),
+            transactionType: 'Bonus'
+        });
+        }
+
+
         if(coupon){
           const couponDoc = await Coupon.findOne({code:coupon});
           if(couponDoc?.rewardType == 'Discount'){
@@ -1767,8 +1799,7 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
           });
           }
       }
-      const setting = await Setting.find({});
-      const totalAmount = (contest?.entryFee - discountAmount)*(1+setting[0]?.gstPercentage/100)
+      const totalAmount = (contest?.entryFee - discountAmount - bonusRedemption)*(1+setting[0]?.gstPercentage/100)
       if(Number(totalAmount)?.toFixed(2) != Number(contestFee)?.toFixed(2)){
         return {
           statusCode:400,
@@ -1920,7 +1951,10 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
             userId: userId,
             participatedOn: new Date(),
             fee:contestFee,
-            actualPrice:contest?.entryFee
+            actualPrice:contest?.entryFee,
+        }
+        if(Number(bonusRedemption)){
+          obj.bonusRedemption = bonusRedemption;
         }
 
         console.log(noOfContest, noOfContest[0]?.totalContestsCount, result?.liveThreshold , result.currentLiveStatus)

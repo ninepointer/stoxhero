@@ -264,12 +264,13 @@ exports.initiatePayment = async (req, res) => {
         redirectTo,
         productId,
         paymentFor,
-        coupon
+        coupon,
+        bonusRedemption
     } = req.body;
     console.log('all body params',amount,
         redirectTo,
         productId,
-        paymentFor, coupon);
+        paymentFor, coupon, bonusRedemption);
     const setting = await Setting.find();
     let merchantId = process.env.PROD=='true' ? process.env.PHONEPE_MERCHANTID : process.env.PHONEPE_MERCHANTID_STAGING  ;
     let merchantTransactionId = generateUniqueTransactionId();
@@ -296,7 +297,8 @@ exports.initiatePayment = async (req, res) => {
         createdOn: new Date(),
         createdBy: req.user._id,
         modifiedOn: new Date(),
-        modifiedBy: req.user._id
+        modifiedBy: req.user._id,
+        bonusRedemption: bonusRedemption
     });
 
     const paymentInstrument = {
@@ -390,7 +392,7 @@ exports.handleCallback = async (req, res, next) => {
                 });
                 await addMoneyToWallet(payment.amount-payment?.gstAmount, payment?.paymentBy);
                 if(payment?.paymentFor && payment?.productId){
-                    await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy,payment?.amount, payment?.coupon);
+                    await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy,payment?.amount, payment?.coupon, payment?.bonusRedemption);
                 }    
                 console.log('Payment Successful');
                 await payment.save({validateBeforeSave: false});
@@ -532,12 +534,12 @@ const addMoneyToWallet = async (amount, userId) =>{
     await wallet.save({validateBeforeSave: false});
 }
 
-const participateUser = async (paymentFor, productId, paymentBy, amount, coupon) => {
+const participateUser = async (paymentFor, productId, paymentBy, amount, coupon, bonusRedemption) => {
     switch (paymentFor){
         case 'Contest':
             if(productId){
                 const contest = await Contest.findById(productId).select('entryFee contestName');
-                await handleSubscriptionDeduction(paymentBy, amount, contest?.contestName, contest?._id, coupon);
+                await handleSubscriptionDeduction(paymentBy, amount, contest?.contestName, contest?._id, coupon, bonusRedemption);
             }
             break;
         case 'TenX':
