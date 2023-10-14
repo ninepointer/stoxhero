@@ -887,11 +887,11 @@ exports.autoExpireTenXSubscription = async () => {
                 }
 
                 if(process.env.PROD == 'true'){
-                  whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, subscription[i]?.payoutPercentage,subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
-                  whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, subscription[i]?.payoutPercentage,subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                  whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage).toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                  whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage).toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
                 }
                 else {
-                  whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, subscription[i]?.payoutPercentage,subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                  whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage).toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
                   // whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, subscription[i]?.payoutPercentage,subscription[i]?.plan_name, moment.utc(subs.users[k].subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
                 }
                 
@@ -1604,6 +1604,7 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
         _id: {
           startDate: "$users.subscribedOn",
           endDate: "$users.expiredOn",
+          payout: "$users.payout",
           userId: "$trade.trader",
           cap: "$profitCap",
           expiredBy: "$users.expiredBy",
@@ -1658,53 +1659,7 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
           $size: "$tradingDays",
         },
         trades: 1,
-        payout: {
-          $cond: {
-            if: {
-              $eq: ["$_id.expiredBy", "User"],
-            },
-            then: 0,
-            else: {
-              $cond: {
-                if: {
-                  $gte: [
-                    {
-                      $size: "$tradingDays",
-                    },
-                    "$_id.validity",
-                  ],
-                },
-                then: {
-                  $max: [
-                    {
-                      $min: [
-                        {
-                          $divide: [
-                            {
-                              $multiply: [
-                                {
-                                  $subtract: [
-                                    "$amount",
-                                    "$brokerage",
-                                  ],
-                                },
-                                10,
-                              ],
-                            },
-                            100,
-                          ],
-                        },
-                        "$_id.cap",
-                      ],
-                    },
-                    0,
-                  ],
-                },
-                else: 0,
-              },
-            },
-          },
-        },
+        payout: "$_id.payout",
         name: {
           $concat: [
             {
