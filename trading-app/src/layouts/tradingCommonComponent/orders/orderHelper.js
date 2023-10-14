@@ -4,7 +4,7 @@ import {memo} from 'react';
 // import { InfinityTraderRole } from "../../../variables";
 
 
-function OrderHelper({from, symbol, averagePrice, amount, quantity, buyOrSell, orderid, status, time}) {
+function OrderHelper({ symbol, averagePrice, amount, quantity, buyOrSell, orderid, status, time}) {
 
 
     let styleTD = {

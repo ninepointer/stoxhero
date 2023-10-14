@@ -1,4 +1,4 @@
-import { useEffect, useContext, useState} from "react";
+import { useEffect, useState} from "react";
 import PropTypes from "prop-types";
 
 // @mui material components
@@ -11,17 +11,20 @@ import breakpoints from "../../../assets/theme/base/breakpoints";
 
 // Images
 
-import NewLeaderboard from "../data/newLeaderboard";
-import { userContext } from "../../../AuthContext";
-import { useLocation } from "react-router-dom";
+// import NewLeaderboard from "../data/newLeaderboard";
+// import { userContext } from "../../../AuthContext";
+// import { useLocation } from "react-router-dom";
 import { CircularProgress } from '@mui/material';
 import MDButton from '../../../components/MDButton';
-import NewTradingWindow from '../data/newTradingWindow';
+// import NeworderWindow from '../data/neworderWindow';
+import Orders from "./Order/Order";
+import PendingOrders from "./Order/PendingOrder";
 
 
 
-function OrderHeader({socket, data}) {
+function OrderHeader({subscriptionId}) {
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");
+  const [clicked, setClicked] = useState('order')
 
   useEffect(() => {
     // A function that sets the orientation state of the tabs.
@@ -44,12 +47,11 @@ function OrderHeader({socket, data}) {
     return () => window.removeEventListener("resize", handleTabsOrientation);
   }, [tabsOrientation]);
 
-
-  const getDetails = useContext(userContext);
-  const location = useLocation();
+//   useEffect(()=>{
+//     handleClick()
+//   }, [clicked])
 
   const [isLoading, setIsLoading] = useState(false);
-  const [clicked, setClicked] = useState('order')
 
   const handleClick = (e) => {
     console.log(e)
@@ -67,8 +69,8 @@ function OrderHeader({socket, data}) {
 
               <Grid container spacing={1} xs={12} md={12} lg={12} minWidth='100%' display='flex' justifyContent='space-around'>
                   <Grid item xs={12} md={4} lg={3} display='flex' justifyContent='center'>
-                      <MDButton bgColor='dark' color={clicked == "trading" ? "info" : "secondary"} size='small' style={{ minWidth: '100%' }}
-                          onClick={() => { handleClick("trading") }}
+                      <MDButton bgColor='dark' color={clicked == "order" ? "info" : "secondary"} size='small' style={{ minWidth: '100%' }}
+                          onClick={() => { handleClick("order") }}
                       >
                           <MDBox display='flex' justifyContent='center' alignItems='center'>
                               <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
@@ -81,8 +83,8 @@ function OrderHeader({socket, data}) {
                       </MDButton>
                   </Grid>
                   <Grid item xs={12} md={4} lg={3} display='flex' justifyContent='center'>
-                      <MDButton bgColor='dark' color={clicked == "leaderboard" ? "info" : "secondary"} size='small' style={{ minWidth: '100%' }}
-                          onClick={() => { handleClick("leaderboard") }}
+                      <MDButton bgColor='dark' color={clicked == "pendingOrder" ? "info" : "secondary"} size='small' style={{ minWidth: '100%' }}
+                          onClick={() => { handleClick("pendingOrder") }}
                       >
                           <MDBox display='flex' justifyContent='center' alignItems='center'>
                               <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
@@ -110,12 +112,12 @@ function OrderHeader({socket, data}) {
            <MDBox>
                {clicked === "order" ?
                    <>
-                     <NewTradingWindow socket={socket} data={data} setClicked={setClicked}/>
+                     <Orders subscriptionId={subscriptionId}/>
                    </>
                    :
                    clicked === "pendingOrder" ?
                        <>
-                           <NewLeaderboard socket={socket} name={data?.name} id={data?.data} data ={data} setClicked={setClicked} />
+                           <PendingOrders subscriptionId={subscriptionId} />
                        </>
                        :
                        <>

@@ -19,6 +19,7 @@ import { NetPnlContext } from '../../../PnlContext';
 import TenXTMargin from '../../tradingCommonComponent/MarginDetails/TenXMargin';
 import { tenxTrader } from '../../../variables';
 import {useNavigate} from "react-router-dom"
+import OrderHeader from '../Header/OrderHeader';
 
 export default function TenXTrading({ tradingDayData, socket, subscriptionId }) {
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
@@ -171,6 +172,9 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
 
           <Grid item xs={12} md={6} lg={12}>
             {memoizedOverallPnl}
+          </Grid>
+          <Grid item xs={12} md={6} lg={12}>
+            <OrderHeader subscriptionId={subscriptionId} />
           </Grid>
           <Grid item xs={12} md={6} lg={12}>
             <TenXTMargin availbaleMargin={availbaleMargin} subscriptionId={subscriptionId} setyesterdayData={setyesterdayData} />
