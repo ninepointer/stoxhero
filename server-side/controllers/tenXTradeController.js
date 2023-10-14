@@ -1604,6 +1604,7 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
         _id: {
           startDate: "$users.subscribedOn",
           endDate: "$users.expiredOn",
+          payout: "$users.payout",
           userId: "$trade.trader",
           cap: "$profitCap",
           expiredBy: "$users.expiredBy",
@@ -1658,53 +1659,7 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
           $size: "$tradingDays",
         },
         trades: 1,
-        payout: {
-          $cond: {
-            if: {
-              $eq: ["$_id.expiredBy", "User"],
-            },
-            then: 0,
-            else: {
-              $cond: {
-                if: {
-                  $gte: [
-                    {
-                      $size: "$tradingDays",
-                    },
-                    "$_id.validity",
-                  ],
-                },
-                then: {
-                  $max: [
-                    {
-                      $min: [
-                        {
-                          $divide: [
-                            {
-                              $multiply: [
-                                {
-                                  $subtract: [
-                                    "$amount",
-                                    "$brokerage",
-                                  ],
-                                },
-                                10,
-                              ],
-                            },
-                            100,
-                          ],
-                        },
-                        "$_id.cap",
-                      ],
-                    },
-                    0,
-                  ],
-                },
-                else: 0,
-              },
-            },
-          },
-        },
+        payout: "$_id.payout",
         name: {
           $concat: [
             {
