@@ -178,11 +178,16 @@ exports.tenxTradeStopLoss = async (req, res, otherData) => {
                 data = JSON.parse(data);
                 let symbolArr = data[`${instrumentToken}`];
                 for(let i = 0; i < symbolArr.length; i++){
+                    console.log(symbolArr[i].instrumentToken , instrumentToken , 
+                        symbolArr[i].createdBy.toString() , createdBy.toString() , 
+                        symbolArr[i].Quantity , Quantity , 
+                        symbolArr[i].buyOrSell , buyOrSell)
                     if(symbolArr[i].instrumentToken === instrumentToken && 
                        symbolArr[i].createdBy.toString() === createdBy.toString() && 
-                       symbolArr[i].Quantity === Quantity && 
+                       Math.abs(symbolArr[i].Quantity) === Math.abs(Number(Quantity)) && 
                        symbolArr[i].buyOrSell === buyOrSell)
                     {
+
                         symbolArr.splice(i, 1);
                         const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArr[i]._id)}, {
                             $set: {status: "Cancelled"}
