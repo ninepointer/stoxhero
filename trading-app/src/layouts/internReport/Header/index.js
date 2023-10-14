@@ -147,7 +147,7 @@ export default function LabTabs() {
       const res = await axios.get(`${apiUrl}${endpoint}`, {withCredentials: true});
       // console.log(res.data.data);
       setDateWiseData(prev=>res.data.data);
-      setUserData(prev=>res.data.userData);
+      // setUserData(prev=>res.data.userData);
     }
     
   }
@@ -369,7 +369,7 @@ export default function LabTabs() {
         <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1} borderRadius={4}>
             {(alignment === dailPnl || userData) &&
-              <TableView collegeData={collegeData} inactiveUser={user.inactiveUser} activeUser={user.activeUser} whichTab={alignment} dateWiseData={dateWiseData} userData={userData} batches={batches} dates={dates} holiday={holiday} id={selectedBatches?._id}/>}
+              <TableView collegeData={collegeData} inactiveUser={user.inactiveUser} activeUser={user.activeUser} whichTab={alignment} dateWiseData={dateWiseData} batches={batches} dates={dates} holiday={holiday} id={selectedBatches?._id}/>}
           </MDBox>
         </Grid>
 

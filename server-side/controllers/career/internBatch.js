@@ -138,6 +138,11 @@ exports.approveUser = async (req, res, next) => {
       if (!batch) {
         return res.status(404).json({ message: "Batch not found or not active." });
       }
+    //   const updatedUser = await User.findOneAndUpdate(
+    //     { _id: userId },
+    //     { $set: { isAlgoTrader: true } },
+    //     { new: true }
+    //   );
       const updatedBatch = await Batch.findOneAndUpdate(
         { _id: id },
         { $push: { participants: userId } },
@@ -161,100 +166,100 @@ exports.deleteBatch = async(req, res, next) => {
     res.status(200).json({ message: "Batch deleted successfully" });
 }
 
-  exports.getBatchParticipants = async(req,res,next) => {
-      const {id} = req.params;
-      
-      try{
-          const batch = await Batch.findOne({_id: id}).select('participants').
-                          populate('participants.user', 'email mobile first_name last_name').
-                          populate('participants.college', 'collegeName');
-          res.status(200).json({status:'success', data: batch});
-      }catch(e){
-          console.log(e);
-          return res.status(500).json({status:'error', message:'Something went wrong'})
-      }
-  }
+exports.getBatchParticipants = async(req,res,next) => {
+    const {id} = req.params;
+    
+    try{
+        const batch = await Batch.findOne({_id: id}).select('participants').
+                        populate('participants.user', 'email mobile first_name last_name').
+                        populate('participants.college', 'collegeName');
+        res.status(200).json({status:'success', data: batch});
+    }catch(e){
+        console.log(e);
+        return res.status(500).json({status:'error', message:'Something went wrong'})
+    }
+}
 
-  exports.removeParticipantFromBatch = async(req, res, next) => {
-      const {batchId, userId} = req.params;
-      try{
-          const batch = await Batch.findOne({_id: batchId}).select('participants portfolio');
-          if(batch.participants.length == 0){
-              return res.status(404).json({status:'error', message: 'No participants in this batch.'});
-          }
-          let participants = batch.participants.filter((item)=>item.user!=userId);
-          batch.participants = [...participants];
-          await batch.save({validateBeforeSave: false});
+exports.removeParticipantFromBatch = async(req, res, next) => {
+    const {batchId, userId} = req.params;
+    try{
+        const batch = await Batch.findOne({_id: batchId}).select('participants portfolio');
+        if(batch.participants.length == 0){
+            return res.status(404).json({status:'error', message: 'No participants in this batch.'});
+        }
+        let participants = batch.participants.filter((item)=>item.user!=userId);
+        batch.participants = [...participants];
+        await batch.save({validateBeforeSave: false});
 
-          //Find all gds with the batch id
-          const gds = await GroupDiscussion.find({batch: batchId});
+        //Find all gds with the batch id
+        const gds = await GroupDiscussion.find({batch: batchId});
 
-          for(gd of gds){
-              gd.participants = gd.participants.map((elem)=>{
-                  if(elem.user == userId){
-                      return {
-                          user: elem.user,
-                          attended: elem.attended,
-                          status:'Shortlisted',
-                          college: elem.college,
-                          _id: elem._id
-                      }
-                  }else{
-                      return {
-                          user: elem.user,
-                          attended: elem.attended,
-                          status:elem.status,
-                          college: elem.college,
-                          _id: elem._id
-                      }
-                  }
-              });
-              await gd.save({validateBeforeSave: false});
-          }
+        for(gd of gds){
+            gd.participants = gd.participants.map((elem)=>{
+                if(elem.user == userId){
+                    return {
+                        user: elem.user,
+                        attended: elem.attended,
+                        status:'Shortlisted',
+                        college: elem.college,
+                        _id: elem._id
+                    }
+                }else{
+                    return {
+                        user: elem.user,
+                        attended: elem.attended,
+                        status:elem.status,
+                        college: elem.college,
+                        _id: elem._id
+                    }
+                }
+            });
+            await gd.save({validateBeforeSave: false});
+        }
 
-          //Find the user in career application
-          const user = await User.findById(userId).select('email mobile internshipBatch');
-          // console.log('batchId', batchId, batch?.portfolio);
-          const portfolio = await Portfolio.findOne({_id: batch?.portfolio});
-          // console.log(portfolio);
-          portfolio.users = portfolio.users.filter((user)=>user?.userId != userId);
-          await portfolio.save({validateBeforeSave: false});
-          // console.log(user.internshipBatch.filter((item)=>item!=batchId));
-          user.internshipBatch = user.internshipBatch.filter((item)=>item!=batchId);
-          // console.log(user.internshipBatch);
-          const careerApplicant = await CareerApplication.findOne({mobileNo: user?.mobile});
-          careerApplicant.applicationStatus = 'Shortlisted';
-          await user.save({validateBeforeSave: false});
-          await careerApplicant.save({validateBeforeSave: false});
+        //Find the user in career application
+        const user = await User.findById(userId).select('email internshipBatch');
+        // console.log('batchId', batchId, batch?.portfolio);
+        const portfolio = await Portfolio.findOne({_id: batch?.portfolio});
+        // console.log(portfolio);
+        portfolio.users = portfolio.users.filter((user)=>user?.userId != userId);
+        await portfolio.save({validateBeforeSave: false});
+        // console.log(user.internshipBatch.filter((item)=>item!=batchId));
+        user.internshipBatch = user.internshipBatch.filter((item)=>item!=batchId);
+        // console.log(user.internshipBatch);
+        const careerApplicant = await CareerApplication.findOne({email: user.email});
+        careerApplicant.applicationStatus = 'Shortlisted';
+        await user.save({validateBeforeSave: false});
+        await careerApplicant.save({validateBeforeSave: false});
 
-          res.status(200).json({status: 'success', message:'Participant removed from batch'});
+        res.status(200).json({status: 'success', message:'Participant removed from batch'});
 
-      }catch(e){
-          console.log(e);
-          return res.status(500).json({status:'error', message:'Something went wrong'})
-      }
-  }
+    }catch(e){
+        console.log(e);
+        return res.status(500).json({status:'error', message:'Something went wrong'})
+    }
+}
 
-  exports.getAllInternshipOrders = async(req, res, next)=>{
-      // console.log("Inside Internship all orders API")
-      const skip = parseInt(req.query.skip) || 0;
-      const limit = parseInt(req.query.limit) || 10
-      const count = await InternshipOrders.countDocuments()
-      try{
-          const allinternshiporders = await InternshipOrders.find()
-          .populate('trader','employeeid first_name last_name')
-          .sort({_id: -1})
-          .skip(skip)
-          .limit(limit);
-          // console.log("All Internship Orders",allinternshiporders)
-          res.status(201).json({status: 'success', data: allinternshiporders, count: count});    
-      }catch(e){
-          console.log(e);
-          res.status(500).json({status: 'error', message: 'Something went wrong'});
-      }
-  };
+exports.getAllInternshipOrders = async(req, res, next)=>{
+    // console.log("Inside Internship all orders API")
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+    const count = await InternshipOrders.countDocuments()
+    try{
+        const allinternshiporders = await InternshipOrders.find()
+        .populate('trader','employeeid first_name last_name')
+        .sort({_id: -1})
+        .skip(skip)
+        .limit(limit);
+        // console.log("All Internship Orders",allinternshiporders)
+        res.status(201).json({status: 'success', data: allinternshiporders, count: count});    
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+};
 
-  exports.getTodaysInternshipOrders = async (req, res, next) => {
+exports.getTodaysInternshipOrders = async (req, res, next) => {
   
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -886,164 +891,318 @@ exports.deleteBatch = async(req, res, next) => {
     return res.json({status: 'success', active: activeUsers, inactive: inactiveUsers});
   }
   
-  exports.getEligibleInternshipBatch = async(req, res, next) => {
-    try {
-      const user = await User.findById(req.user._id)
-        .populate({
-          path: 'internshipBatch',
-          select: 'batchName career batchStartDate batchEndDate attendancePercentage',
-          populate: {
-            path: 'career',
-            select: 'listingType'
-          }
-        });
-      if (!user?.internshipBatch || user?.internshipBatch.length == 0) {
-        return res.status(200).json({ data: {}, result: 0, message: 'No eligible batches' });
-      }
+// exports.getEligibleInternshipBatch = async(req,res, next) => {
+//   try{
+//     const user = await User.findById(req.user._id)
+//     .populate({
+//         path: 'internshipBatch',
+//         select: 'batchName career batchStartDate batchEndDate attendancePercentage',  // select only 'batchName' and 'career' fields from 'internshipBatch'
+//         populate: {
+//             path: 'career',
+//             select: 'listingType'  // select only 'listingType' from 'career'
+//         }
+//     });
+//     if(!user?.internshipBatch || user?.internshipBatch == 0){
+//       return res.status(200).json({data:{}, result:0, message:'No eligible batches'});
+//     }
 
-      const batches = user?.internshipBatch;
-      const internshipBatches = batches.filter(batch =>
-        batch.career.listingType === 'Job' &&
-        batch.batchEndDate <= new Date()
-      );
+//     const batches = user?.internshipBatch;
+//     const internshipBatches = batches.filter(batch => 
+//       batch.career.listingType === 'Job' && 
+//       batch.batchEndDate <= new Date()
+//     );
+//     if(internshipBatches.length == 0){
+//       console.log('no bathces');
+//       return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
+//     }
+//     const lastBatch = internshipBatches[internshipBatches.length -1];
+//     console.log('lastBatch', lastBatch);
+//     const attendanceDocs = await InternshipOrders.aggregate([
+//       {
+//         $match: {
+//           status: "COMPLETE",
+//           batch: new ObjectId(lastBatch._id),
+//           trader: new ObjectId(req.user._id)
+//         },
+//       },
+//       {
+//         $group: {
+//           _id:0,
+//           tradingDays: {
+//             $addToSet: {
+//               $dateToString: {
+//                 format: "%Y-%m-%d",
+//                 date: "$trade_time",
+//               },
+//             },
+//           },
+//         }
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           tradingDays: {
+//             $size: "$tradingDays",
+//           },
+//         },
+//       },
+//     ]);
+//     console.log('attendance', attendanceDocs);
+//     if(attendanceDocs.length == 0){
+//       console.log('no attendance docs');
+//       return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
+//     }
+//     const totalMarketDays = await countTradingDays(lastBatch?.batchStartDate, lastBatch?.batchEndDate);
+//     console.log('totalMarketDays', totalMarketDays);
 
-      const eligibleBatches = []; // To hold eligible batches
+//     if((attendanceDocs[0].tradingDays/totalMarketDays)*100 <= lastBatch?.attendancePercentage -5){
+//       console.log('condition passed');
+//       return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
+//     }
+    
+//     return res.status(200).json({
+//       status:'success',
+//       message:'eligible for certificate',
+//       batch: lastBatch?._id
+//     });
 
-      for (let batch of internshipBatches) {
-        const attendanceDocs = await InternshipOrders.aggregate([
-          {
-            $match: {
-              status: "COMPLETE",
-              batch: new ObjectId(batch._id),
-              trader: new ObjectId(req.user._id)
-            },
+//   }catch(e){
+//     console.log(e);
+//     res.status(500).json({status:'error', message:'Something went wrong.'})
+//   }
+// }
+exports.getEligibleInternshipBatch = async(req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id)
+      .populate({
+        path: 'internshipBatch',
+        select: 'batchName career batchStartDate batchEndDate attendancePercentage',
+        populate: {
+          path: 'career',
+          select: 'listingType'
+        }
+      });
+    if (!user?.internshipBatch || user?.internshipBatch.length == 0) {
+      return res.status(200).json({ data: {}, result: 0, message: 'No eligible batches' });
+    }
+
+    const batches = user?.internshipBatch;
+    const internshipBatches = batches.filter(batch =>
+      batch.career.listingType === 'Job' &&
+      batch.batchEndDate <= new Date()
+    );
+
+    const eligibleBatches = []; // To hold eligible batches
+
+    for (let batch of internshipBatches) {
+      const attendanceDocs = await InternshipOrders.aggregate([
+        {
+          $match: {
+            status: "COMPLETE",
+            batch: new ObjectId(batch._id),
+            trader: new ObjectId(req.user._id)
           },
-          {
-            $group: {
-              _id: 0,
-              tradingDays: {
-                $addToSet: {
-                  $dateToString: {
-                    format: "%Y-%m-%d",
-                    date: "$trade_time",
-                  },
+        },
+        {
+          $group: {
+            _id: 0,
+            tradingDays: {
+              $addToSet: {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$trade_time",
                 },
               },
-            }
-          },
-          {
-            $project: {
-              _id: 0,
-              tradingDays: {
-                $size: "$tradingDays",
-              },
+            },
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            tradingDays: {
+              $size: "$tradingDays",
             },
           },
-        ]);
+        },
+      ]);
 
-        if (attendanceDocs.length == 0) continue; // Go to the next iteration
+      if (attendanceDocs.length == 0) continue; // Go to the next iteration
 
-        const totalMarketDays = await countTradingDays(batch?.batchStartDate, batch?.batchEndDate);
-        if ((attendanceDocs[0].tradingDays / totalMarketDays) * 100 > batch?.attendancePercentage - 5) {
-          eligibleBatches.push({
-            id: batch._id,
-            name: batch.batchName,
-            startDate: batch?.batchStartDate,
-            endDate: batch?.batchEndDate
-          });
-        }
+      const totalMarketDays = await countTradingDays(batch?.batchStartDate, batch?.batchEndDate);
+      if ((attendanceDocs[0].tradingDays / totalMarketDays) * 100 > batch?.attendancePercentage - 5) {
+        eligibleBatches.push({
+          id: batch._id,
+          name: batch.batchName,
+          startDate: batch?.batchStartDate,
+          endDate: batch?.batchEndDate
+        });
       }
-
-      if (eligibleBatches.length == 0) {
-        return res.status(200).json({ data: internshipBatches, result: 0, message: 'No eligible batches' });
-      }
-
-      return res.status(200).json({
-        status: 'success',
-        message: 'Eligible for certificate',
-        batches: eligibleBatches
-      });
-
-    } catch (e) {
-      console.log(e);
-      res.status(500).json({ status: 'error', message: 'Something went wrong.' });
     }
-  }
 
-  exports.downloadCertificate = async (req,res, next) => {
-    try {
-      // Load the existing PDF into pdf-lib
-      const batchId = req.params.id;
-      const batch = await Batch.findById(batchId).select('batchStartDate batchEndDate');
-      const userId = req.user._id;
-      const user = await User.findById(userId).select('first_name last_name');
-      const name = `${user.first_name} ${user.last_name}`;
-      console.log('this', batch?.batchStartDate);
-      const start = moment(batch?.batchStartDate).format('Do MMMM YYYY').toString();
-      const end = moment(batch?.batchEndDate).format('Do MMMM YYYY').toString();
-      console.log('start and end', start, end, batch?.batchStartDate, batch?.batchEndDate);
-      const existingPdfBytes = fs.readFileSync(path.join(__dirname, '/template.pdf'));
-      // console.log(existingPdfBytes);
-      const pdfDoc = await PDFDocument.load(existingPdfBytes);
-      //Get the first page of the document
-      const pages = pdfDoc.getPages();
-      const firstPage = pages[0];
+    if (eligibleBatches.length == 0) {
+      return res.status(200).json({ data: internshipBatches, result: 0, message: 'No eligible batches' });
+    }
 
-      // Define the coordinates and styling for the text you want to add
-      // Note: You'll have to adjust the coordinates based on where you want to place the text in your PDF
-      firstPage.drawText(name, {
-          x: 300,
-          y: 362,
-          size: 16
-      });
-      firstPage.drawText(start, {
-          x: 450,
-          y: 344,
-          size: 14
-      });
-      firstPage.drawText(end, {
-          x: 620,
-          y: 344,
-          size: 14,
-      });
-      // console.log(firstPage);
-      // Serialize the modified PDF back to bytes
-      const pdfBytes = await pdfDoc.save();
-      // console.log('file', pdfBytes);
-      const filePath = path.join(__dirname, '/certificateout.pdf');
-      fs.writeFileSync(filePath, pdfBytes);
-      res.download(path.join(__dirname, '/certificateout.pdf'));
-      // Send the PDF as a response
-      // res.setHeader('Content-Disposition', 'attachment; filename=certificate.pdf');
-      // res.setHeader('Content-Type', 'application/pdf');
-      // res.send(pdfBytes);
-    } catch (err) {
-      console.log(err);
-      res.status(500).send('Error generating certificate: ' + err.message);
-  }
-  }
-
-  async function countTradingDays(startDate, endDate) {
-    let start = moment(startDate);
-    let end = moment(endDate);
-
-    let count = 0;
-
-    // Fetch all holidays from DB
-    const holidays = await TradingHoliday.find({
-        holidayDate: { $gte: start.toDate(), $lte: end.toDate() },
-        isDeleted: false,
+    return res.status(200).json({
+      status: 'success',
+      message: 'Eligible for certificate',
+      batches: eligibleBatches
     });
-    // console.log('holidays', holidays.length);
 
-    // Convert all holiday dates to string format for easy comparison
-    const holidayDates = holidays.map(h => moment(h.holidayDate).format('YYYY-MM-DD'));
-
-    for (let m = moment(start); m.isBefore(end); m.add(1, 'days')) {
-        if (m.isoWeekday() <= 5 && !holidayDates.includes(m.format('YYYY-MM-DD'))) { // Monday to Friday are considered trading days
-            count++;
-        }
-    }
-
-    return count;
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ status: 'error', message: 'Something went wrong.' });
   }
+}
+
+
+exports.downloadCertificate = async (req,res, next) => {
+  try {
+    // Load the existing PDF into pdf-lib
+    const batchId = req.params.id;
+    const batch = await Batch.findById(batchId).select('batchStartDate batchEndDate');
+    const userId = req.user._id;
+    const user = await User.findById(userId).select('first_name last_name');
+    const name = `${user.first_name} ${user.last_name}`;
+    console.log('this', batch?.batchStartDate);
+    const start = moment(batch?.batchStartDate).format('Do MMMM YYYY').toString();
+    const end = moment(batch?.batchEndDate).format('Do MMMM YYYY').toString();
+    console.log('start and end', start, end, batch?.batchStartDate, batch?.batchEndDate);
+    const existingPdfBytes = fs.readFileSync(path.join(__dirname, '/template.pdf'));
+    // console.log(existingPdfBytes);
+    const pdfDoc = await PDFDocument.load(existingPdfBytes);
+    //Get the first page of the document
+    const pages = pdfDoc.getPages();
+    const firstPage = pages[0];
+
+    // Define the coordinates and styling for the text you want to add
+    // Note: You'll have to adjust the coordinates based on where you want to place the text in your PDF
+    firstPage.drawText(name, {
+        x: 300,
+        y: 362,
+        size: 16
+    });
+    firstPage.drawText(start, {
+        x: 450,
+        y: 344,
+        size: 14
+    });
+    firstPage.drawText(end, {
+        x: 620,
+        y: 344,
+        size: 14,
+    });
+    // console.log(firstPage);
+    // Serialize the modified PDF back to bytes
+    const pdfBytes = await pdfDoc.save();
+    // console.log('file', pdfBytes);
+    const filePath = path.join(__dirname, '/certificateout.pdf');
+    fs.writeFileSync(filePath, pdfBytes);
+    res.download(path.join(__dirname, '/certificateout.pdf'));
+    // Send the PDF as a response
+    // res.setHeader('Content-Disposition', 'attachment; filename=certificate.pdf');
+    // res.setHeader('Content-Type', 'application/pdf');
+    // res.send(pdfBytes);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Error generating certificate: ' + err.message);
+}
+}
+
+
+
+
+async function countTradingDays(startDate, endDate) {
+  let start = moment(startDate);
+  let end = moment(endDate);
+
+  let count = 0;
+
+  // Fetch all holidays from DB
+  const holidays = await TradingHoliday.find({
+      holidayDate: { $gte: start.toDate(), $lte: end.toDate() },
+      isDeleted: false,
+  });
+  // console.log('holidays', holidays.length);
+
+  // Convert all holiday dates to string format for easy comparison
+  const holidayDates = holidays.map(h => moment(h.holidayDate).format('YYYY-MM-DD'));
+
+  for (let m = moment(start); m.isBefore(end); m.add(1, 'days')) {
+      if (m.isoWeekday() <= 5 && !holidayDates.includes(m.format('YYYY-MM-DD'))) { // Monday to Friday are considered trading days
+          count++;
+      }
+  }
+
+  return count;
+}
+
+
+
+
+  // [
+  //   {
+  //     $match: {
+  //       _id: ObjectId("646f5295035caf88a30dd5da"),
+  //     },
+  //   },
+  //   {
+  //     $unwind: "$participants",
+  //   },
+  //   {
+  //     $lookup: {
+  //       from: "intern-trades",
+  //       localField: "participants.user",
+  //       foreignField: "trader",
+  //       as: "tradeData",
+  //     },
+  //   },
+  //   {
+  //     $match:
+  //       {
+  //         "participants.college": ObjectId(
+  //           "64708c99ae1d4cffe2779742"
+  //         ),
+  //       },
+  //   },
+  //   {
+  //     $lookup:
+  //       {
+  //         from: "user-personal-details",
+  //         localField: "participants.user",
+  //         foreignField: "_id",
+  //         as: "userData",
+  //       },
+  //   },
+  //   {
+  //     $project:
+  //       {
+  //         first_name: {
+  //           $arrayElemAt: [
+  //             "$userData.first_name",
+  //             0,
+  //           ],
+  //         },
+  //         last_name: {
+  //           $arrayElemAt: [
+  //             "$userData.last_name",
+  //             0,
+  //           ],
+  //         },
+  //         mobile: {
+  //           $arrayElemAt: ["$userData.mobile", 0],
+  //         },
+  //         email: {
+  //           $arrayElemAt: ["$userData.email", 0],
+  //         },
+  //         _id: 0,
+  //         tradeData: {
+  //           $size: "tradeData"
+  //         }
+  //       },
+  //   },
+  // ]
+
+  // 64708c99ae1d4cffe2779742
+  // 64709adde5ef90f4210d64d5
+  

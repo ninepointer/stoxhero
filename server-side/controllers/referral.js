@@ -253,3 +253,7 @@ exports.getMyLeaderBoardRank = async(req,res,next) => {
     }
   
   }
+
+exports.referralBetweenDate = async(req,res)=>{
+  
+}
