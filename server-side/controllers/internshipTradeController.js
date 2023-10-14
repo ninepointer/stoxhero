@@ -1239,16 +1239,21 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
       const endDate1 = batchEndDate.isBefore(currentDate) ? batchEndDate.clone().set({ hour: 19, minute: 0, second: 0, millisecond: 0 }) : currentDate.clone().set({ hour: 19, minute: 0, second: 0, millisecond: 0 });
       const attendance = (elem?.tradingDays * 100 / (calculateWorkingDays(internship.batchStartDate, endDate) - holiday.length));
       let refCount = 0;
-      for (let subelem of referral[0]?.referrals) {
-        const joiningDate = moment(subelem?.referredUserId?.joining_date);
-      
-        // console.log("joiningDate", moment(moment(internship.batchStartDate).format("YYYY-MM-DD")), joiningDate ,endDate, endDate1, moment(endDate).set({ hour: 19, minute: 0, second: 0, millisecond: 0 }).format("YYYY-MM-DD HH:mm:ss"))
-        if (joiningDate.isSameOrAfter(moment(moment(internship.batchStartDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(endDate1)) {
-          // console.log("joiningDate if", batchEndDate, batchEndDate.format("YYYY-MM-DD"))
-          refCount += 1;
-          // console.log("joiningDate if")
+      if(referral[0]?.referrals){
+        for (let subelem of referral[0]?.referrals) {
+          const joiningDate = moment(subelem?.referredUserId?.joining_date);
+        
+          // console.log("joiningDate", moment(moment(internship.batchStartDate).format("YYYY-MM-DD")), joiningDate ,endDate, endDate1, moment(endDate).set({ hour: 19, minute: 0, second: 0, millisecond: 0 }).format("YYYY-MM-DD HH:mm:ss"))
+          if (joiningDate.isSameOrAfter(moment(moment(internship.batchStartDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(endDate1)) {
+            // console.log("joiningDate if", batchEndDate, batchEndDate.format("YYYY-MM-DD"))
+            refCount += 1;
+            // console.log("joiningDate if")
+          }
         }
+      } else{
+        refCount = 0;
       }
+
       // referral[0]?.referrals?.length;
       elem.isPayout = false;
       const profitCap = 15000;
