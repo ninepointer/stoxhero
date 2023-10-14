@@ -219,7 +219,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
 
   const amount = elem?.entryFee;
   const redeemableBonus = Math.min((amount-discountAmount)*setting?.maxBonusRedemptionPercentage/100, bonusBalance/setting?.bonusToUnitCashRatio??1)??0;
-  const bonusRedemption = checked? Math.min((amount-discountAmount)*setting?.maxBonusRedemptionPercentage/100, bonusBalance/bonusBalance/setting?.bonusToUnitCashRatio??1):0;
+  const bonusRedemption = checked? Math.min((amount-discountAmount)*setting?.maxBonusRedemptionPercentage/100, bonusBalance/setting?.bonusToUnitCashRatio??1):0;
   const actualAmount = (elem?.entryFee -discountAmount - bonusRedemption)*setting.gstPercentage/100;
   console.log('amounts', amount, actualAmount, discountAmount, bonusRedemption);
 
