@@ -19,6 +19,8 @@ const Contest = require('../models/DailyContest/dailyContest');
 const TenX = require('../models/TenXSubscription/TenXSubscriptionSchema');
 const MarginX = require('../models/marginX/marginX');
 const Battle = require('../models/battle/battle');
+const Coupon = require('../models/coupon/coupon');
+
 
 exports.createPayment = async(req, res, next)=>{
     // console.log(req.body)
@@ -400,6 +402,7 @@ exports.handleCallback = async (req, res, next) => {
                     if(payment?.paymentFor){
                         await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, payment?.paymentFor, payment?.productId);
                     }else{
+                        await addCashback(payment?.amount-payment?.gstAmount, payment?.paymentBy, coupon);
                         await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, 'Wallet');
                     }
                 }
@@ -492,6 +495,7 @@ exports.checkPaymentStatus = async(req,res, next) => {
                         if(payment?.paymentFor){
                             await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, payment?.paymentFor, payment?.productId);
                         }else{
+                            await addCashback(payment?.amount-payment?.gstAmount, payment?.paymentBy, coupon);
                             await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, 'Wallet');
                         }
                     }    
@@ -534,6 +538,28 @@ const addMoneyToWallet = async (amount, userId) =>{
     await wallet.save({validateBeforeSave: false});
 }
 
+const addCashback = async(amount, userId, coupon) => {
+    const wallet = await UserWallet.findOne({userId:userId});
+    const couponDoc = await Coupon.findOne({code:coupon}).select('rewardType discountType discount maxDiscount');
+    if(couponDoc?.rewardType == 'Discount')return;
+    let cashbackAmount = 0;
+    if(couponDoc?.discountType == 'Flat'){
+        cashbackAmount = couponDoc?.discount;
+    }else{
+        cashbackAmount = Math.min(amount*couponDoc?.discount/100, couponDoc?.maxDiscount);
+    }
+    wallet.transactions.push({
+        title: 'StoxHero CashBack',
+        description: `Cashback of HeroCash ${cashbackAmount?.toFixed(2)} - code ${coupon} used`,
+        transactionDate: new Date(),
+        amount:cashbackAmount?.toFixed(2),
+        transactionId: uuid.v4(),
+        transactionType: 'Bonus'
+    });
+    await wallet.save({validateBeforeSave: false});
+
+}
+
 const participateUser = async (paymentFor, productId, paymentBy, amount, coupon, bonusRedemption) => {
     switch (paymentFor){
         case 'Contest':
@@ -545,19 +571,19 @@ const participateUser = async (paymentFor, productId, paymentBy, amount, coupon,
         case 'TenX':
             if(productId){
                 const tenx = await TenX.findById(productId).select('discounted_price plan_name');
-                await handleDeductSubscriptionAmount(paymentBy, amount, tenx?.plan_name, tenx?._id, coupon);
+                await handleDeductSubscriptionAmount(paymentBy, amount, tenx?.plan_name, tenx?._id, coupon, bonusRedemption);
             }
             break;
         case 'TenX Renewal':
             if(productId){
                 const tenx = await TenX.findById(productId).select('discounted_price plan_name');
-                await handleSubscriptionRenewal(paymentBy, amount, tenx?.plan_name, tenx?._id, coupon);
+                await handleSubscriptionRenewal(paymentBy, amount, tenx?.plan_name, tenx?._id, coupon, bonusRedemption);
             }
             break;
         case 'MarginX':
             if(productId){
                 const marginX = await MarginX.findById(productId).populate('marginXTemplate', 'entryFee');
-                await handleDeductMarginXAmount(paymentBy, amount, marginX?.marginXName, marginX?._id, coupon);
+                await handleDeductMarginXAmount(paymentBy, amount, marginX?.marginXName, marginX?._id, coupon, bonusRedemption);
             }
             break;
         case 'Battle':

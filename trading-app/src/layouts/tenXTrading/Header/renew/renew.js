@@ -25,10 +25,11 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import Input from '@mui/material/Input';
+import Checkbox from '@mui/material/Checkbox';
 
 const ariaLabel = { 'aria-label': 'description' };
 
-export default function Renew({amount, name, id, walletCash}) {
+export default function Renew({amount, name, id, walletCash, bonusCash}) {
   const [open, setOpen] = React.useState(false);
   const getDetails = React.useContext(userContext);
   const [updatedUser, setUpdatedUser] = React.useState({});
@@ -41,11 +42,12 @@ export default function Renew({amount, name, id, walletCash}) {
   const [discountAmount, setDiscountAmount] = useState(0);
   const [cashbackAmount, setCashbackAmount] = useState(0);
   const [showPromoCode, setShowPromoCode] = useState(false);
+  const[checked, setChecked] = useState(false);
   const [messege, setMessege] = useState({
     lowBalanceMessage: "",
     thanksMessege: ""
   })
-
+  console.log('bonus cash', bonusCash);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   // console.log('props', amount, name, walletCash, id);
   useEffect(()=>{
@@ -119,7 +121,7 @@ export default function Renew({amount, name, id, walletCash}) {
   }
 
   const buySubscription = async () => {
-    if(walletCash < amount-discountAmount){
+    if(walletCash < amount-discountAmount-bonusRedemption){
       return openSuccessSB("error", "You don't have enough wallet balance for this purchase.");
     }
     const res = await fetch(`${baseUrl}api/v1/tenX/renew`, {
@@ -130,7 +132,7 @@ export default function Renew({amount, name, id, walletCash}) {
           "content-type": "application/json"
       },
       body: JSON.stringify({
-        subscriptionAmount: amount-discountAmount, subscriptionName: name, subscriptionId: id
+        subscriptionAmount: Number(amount-discountAmount-bonusRedemption).toFixed(2), subscriptionName: name, subscriptionId: id, coupon: verifiedCode,bonusRedemption
       })
     });
     const dataResp = await res.json();
@@ -208,12 +210,14 @@ export default function Renew({amount, name, id, walletCash}) {
   };
 
   const subs_amount = amount;
+  const redeemableBonus = Math.min((subs_amount-discountAmount)*setting?.maxBonusRedemptionPercentage/100, bonusCash/setting?.bonusToUnitCashRatio??1)??0;
+  const bonusRedemption = checked? Math.min((subs_amount-discountAmount)*setting?.maxBonusRedemptionPercentage/100, bonusCash/setting?.bonusToUnitCashRatio??1):0;
   const subs_actualAmount = amount*setting.gstPercentage/100;
   // console.log('amounts', subs_amount, amount, subs_actualAmount);
   const initiatePayment = async() => {
     console.log('initiating');
     try{
-      const res = await axios.post(`${apiUrl}payment/initiate`,{amount:Number((subs_amount-discountAmount)*100) + subs_actualAmount*100, redirectTo:window.location.href, paymentFor:'TenX Renewal', productId:id, coupon:verifiedCode},{withCredentials: true});
+      const res = await axios.post(`${apiUrl}payment/initiate`,{amount:Number((subs_amount-discountAmount-bonusRedemption)*100) + subs_actualAmount*100, redirectTo:window.location.href, paymentFor:'TenX Renewal', productId:id, coupon:verifiedCode, bonusRedemption},{withCredentials: true});
       console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
       window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
   }catch(e){
@@ -228,7 +232,11 @@ export default function Renew({amount, name, id, walletCash}) {
         setDiscountAmount(Math.min(amount*discount/100, maxDiscount));
       }
     }else{
-      setCashbackAmount(discount);
+      if(discountType == 'Flat'){
+        setCashbackAmount(discount);
+      }else{
+        setCashbackAmount (Math.min(amount*discount/100, maxDiscount));
+      }
     }
   }
   const applyPromoCode = async () => {
@@ -240,7 +248,7 @@ export default function Renew({amount, name, id, walletCash}) {
         setDiscountAmount(0);
         return;
       }
-      const res = await axios.post(`${apiUrl}coupons/verify`, {code, product:'6517d3803aeb2bb27d650de0', orderValue:amount}, {withCredentials:true});
+      const res = await axios.post(`${apiUrl}coupons/verify`, {code, product:'6517d3803aeb2bb27d650de0', orderValue:amount, platform:'Web', paymentMode: value}, {withCredentials:true});
       console.log('verified code',res?.data?.data);
       if(res.status == 200){
         setVerifiedCode(code);
@@ -412,7 +420,7 @@ export default function Renew({amount, name, id, walletCash}) {
                       >
                         <FormControlLabel value="wallet" control={<Radio />} label="Pay from StoxHero Wallet" />
                         {value == 'wallet' &&
-                          <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={2} style={{minWidth:'40vw'}}>
+                          <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="flex-start" mt={0} mb={2} style={{minWidth:'40vw'}}>
                             {!showPromoCode?<MDBox display='flex' justifyContent='flex-start' width='100%' mt={1} 
                             onClick={()=>{setShowPromoCode(true)}} style={{cursor:'pointer'}}>
                                 <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Have a promo code?</Typography>
@@ -437,11 +445,15 @@ export default function Renew({amount, name, id, walletCash}) {
                               `Cashback (${discountData?.discount}%) on Fee: ₹${cashbackAmount}` : 
                               `Cashback (FLAT ₹ ${discountData?.discount} Cashback) as Wallet Bonus: ₹${cashbackAmount}`}</Typography>}
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{0}</Typography>
-                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(subs_amount - discountAmount).toFixed(2)}</Typography>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(subs_amount - discountAmount-bonusRedemption).toFixed(2)}</Typography>
+                            {bonusCash > 0 && <MDBox display='flex' justifyContent='flex-start' alignItems='center' ml={-1}>
+                            <Checkbox checked={checked} onChange={()=>setChecked(!checked)}/>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Use {redeemableBonus*(setting?.bonusToUnitCashRatio??1)} HeroCash (1 HeroCash = {1/(setting?.bonusToUnitCashRatio??1)}₹)</Typography>      
+                          </MDBox>}
                           </MDBox>}
                         <FormControlLabel value="bank" control={<Radio />} label="Pay from Bank Account/UPI" />
                         {value == 'bank' &&
-                          <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={0} >
+                          <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="flex-start" mt={0} mb={0} >
                             <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new government regulations. However you don't need to pay anything extra. StoxHero will be taking care of the GST on your behalf. To offset it, we've increased our pricing by a bit.</Typography>
                             {!showPromoCode?<MDBox display='flex' justifyContent='flex-start' width='100%' mt={1} 
                             onClick={()=>{setShowPromoCode(true)}} style={{cursor:'pointer'}}>
@@ -467,7 +479,11 @@ export default function Renew({amount, name, id, walletCash}) {
                               `Cashback (${discountData?.discount}%) on Fee: ₹${cashbackAmount}` : 
                               `Cashback (FLAT ₹ ${discountData?.discount} Cashback) as Wallet Bonus: ₹${cashbackAmount}`}</Typography>}
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{subs_actualAmount ? subs_actualAmount : 0}</Typography>
-                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{(Number(subs_amount-discountAmount) + subs_actualAmount).toFixed(2)}</Typography>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{(Number(subs_amount-discountAmount-bonusRedemption) + subs_actualAmount).toFixed(2)}</Typography>
+                            {bonusCash > 0 && <MDBox display='flex' justifyContent='flex-start' alignItems='center' ml={-1}>
+                            <Checkbox checked={checked} onChange={()=>setChecked(!checked)}/>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Use {redeemableBonus*(setting?.bonusToUnitCashRatio??1)} HeroCash (1 HeroCash = {1/(setting?.bonusToUnitCashRatio??1)}₹)</Typography>      
+                          </MDBox>}
                           </MDBox>}
                       </RadioGroup>
                     </FormControl>
@@ -501,7 +517,7 @@ export default function Renew({amount, name, id, walletCash}) {
               Close
             </MDButton>
             <MDButton color={"success"} onClick={initiatePayment} autoFocus>
-              {`Pay ₹${(Number(subs_amount-discountAmount) + subs_actualAmount).toFixed(2)} securely`}
+              {`Pay ₹${(Number(subs_amount-discountAmount-bonusRedemption) + subs_actualAmount).toFixed(2)} securely`}
             </MDButton>
           </DialogActions>}
       </Dialog>

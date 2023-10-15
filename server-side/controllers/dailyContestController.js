@@ -1744,7 +1744,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
         const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
             return total + transaction?.amount;
         }, 0);
-        const totalBonusAmount = cashTransactions?.reduce((total, transaction) => {
+        const totalBonusAmount = bonusTransactions?.reduce((total, transaction) => {
             return total + transaction?.amount;
         }, 0);
         

@@ -34,6 +34,7 @@ export default function SuccessfullAppliedUser({couponData}) {
         { Header: "Product", accessor: "specificProduct", align: "center" },
         { Header: "Price", accessor: "price", align: "center" },
         { Header: "Discount", accessor: "discountAmount", align: "center" },
+        { Header: "Bonus Used", accessor: "bonusAmount", align: "center" },
         { Header: "Effective Price", accessor: "effectivePrice", align: "center" },
         // { Header: "Remove", accessor: "remove", align: "center" },
       ]
@@ -95,6 +96,11 @@ export default function SuccessfullAppliedUser({couponData}) {
         {elem?.specificProductDetail?.discountAmount?.toFixed(2)}
       </MDTypography>
     );
+    featureObj.bonusAmount = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {elem?.specificProductDetail?.bonusAmount?.toFixed(2)}
+      </MDTypography>
+    );
     featureObj.effectivePrice = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
         {elem?.specificProductDetail?.effectivePrice?.toFixed(2)}
@@ -127,7 +133,7 @@ export default function SuccessfullAppliedUser({couponData}) {
 
   function downloadHelper(data) {
     let csvDataFile = [[]]
-    let csvDataDailyPnl = [["NAME", "MOBILE", "EMAIL", "SIGNUP METHOD", "JOINING DATE", "APPLIED ON", "PRODUCT TYPE", "PRODUCT", "PRICE", "DISCOUNT", "EFFECTIVE PRICE"]]
+    let csvDataDailyPnl = [["NAME", "MOBILE", "EMAIL", "SIGNUP METHOD", "JOINING DATE", "APPLIED ON", "PRODUCT TYPE", "PRODUCT", "PRICE", "DISCOUNT", "BONUS USED", "EFFECTIVE PRICE"]]
     if (data) {
       // dates = Object.keys(data)
       let csvpnlData = Object.values(data)
@@ -144,6 +150,7 @@ export default function SuccessfullAppliedUser({couponData}) {
           elem?.specificProductDetail?.name,
           elem?.specificProductDetail?.price,
           elem?.specificProductDetail?.discountAmount?.toFixed(2),
+          elem?.specificProductDetail?.bonusAmount?.toFixed(2),
           elem?.specificProductDetail?.effectivePrice?.toFixed(2),
         ]
       })
