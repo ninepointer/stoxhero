@@ -99,7 +99,7 @@ export default function AddMoney() {
         setDiscountAmount(0);
         return;
       }
-      const res = await axios.post(`${apiUrl}coupons/verify`, {code, product:'6517d48d3aeb2bb27d650de5', orderValue:amount, platform:'Web', paymentMode: 'addition'}, {withCredentials:true});
+      const res = await axios.post(`${apiUrl}coupons/verify`, {code, product:'651bdbc8da68770e8f1b8e09', orderValue:amount, platform:'Web', paymentMode: 'addition'}, {withCredentials:true});
       console.log('verified code',res?.data?.data);
       if(res.status == 200){
         setVerifiedCode(code);
