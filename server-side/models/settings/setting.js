@@ -58,7 +58,9 @@ const settingSchema = new mongoose.Schema({
         appEndTime: {type: Date},
         timerStartTimeInEnd: {type: Date}
     },
-    mobileAppVersion: String
+    mobileAppVersion: String,
+    bonusToUnitCashRatio:Number,
+    maxBonusRedemptionPercentage: Number,
 })
 
 const settingDetail = mongoose.model("setting-detail", settingSchema);

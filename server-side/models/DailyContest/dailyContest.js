@@ -101,7 +101,8 @@ const contestSchema = new Schema({
         payout: {type: Number},
         tdsAmount: {type: Number},
         isLive: {type: Boolean},
-        rank: {type: Number}
+        rank: {type: Number},
+        bonusRedemption:Number
     }],
     maxParticipants:{
         type:Number,

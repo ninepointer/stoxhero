@@ -32,7 +32,7 @@ import checklist from '../../../assets/images/checklist.png'
 import Dialogue from "../Header/dialogueBox";
 import DialogueAnalytics from "../Header/dialogueBoxAnalytics";
 
-function Header({ subscription, checkPayment, setCheckPayment, amount, name, id, walletCash, allowRenewal}) {
+function Header({ subscription, checkPayment, setCheckPayment, amount, name, id, walletCash, bonusCash, allowRenewal}) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
@@ -165,7 +165,7 @@ function Header({ subscription, checkPayment, setCheckPayment, amount, name, id,
                                 <DialogueAnalytics subscription={subscription} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={amount} name={name} id={id} walletCash={walletCash} allowRenewal={allowRenewal} />
                             </Grid>
                             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
-                                <Dialogue subscription={subscription} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={amount} name={name} id={id} walletCash={walletCash} allowRenewal={allowRenewal} />
+                                <Dialogue subscription={subscription} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={amount} name={name} id={id} walletCash={walletCash} bonusCash={bonusCash} allowRenewal={allowRenewal} />
                             </Grid>
                             </Grid>
                         </Grid>

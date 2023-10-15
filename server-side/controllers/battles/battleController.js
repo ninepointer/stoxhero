@@ -1087,8 +1087,8 @@ exports.handleDeductBattleAmount = async(userId, battleId, coupon) =>{
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           });
           if(coupon){
-            const product = await Product.findOne({productName:'MarginX'}).select('_id');
-            await saveSuccessfulCouponUse(userId, coupon, product?._id);
+            const product = await Product.findOne({productName:'Battle'}).select('_id');
+            await saveSuccessfulCouponUse(userId, coupon, product?._id, battle?._id);
           }
           return {
             statusCode:200,

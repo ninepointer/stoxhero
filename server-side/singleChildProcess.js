@@ -193,12 +193,13 @@ async function singleProcess() {
 
     //emitting leaderboard for contest.
 
-    if (process.env.PROD === "true") {
+    //todo-vijay
+   if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });
         sendLeaderboardDataBattle().then(() => { });
         sendMyRankDataBattle().then(() => { });
-    }
+   }
 
     emitServerTime().then(() => { });
 
@@ -407,8 +408,10 @@ async function singleProcess() {
 
     const PORT = process.env.PORT || 5002;
     const server = app.listen(PORT);
-    webSocketService.init(io);
 
+    if(process.env.CHART === "true"){
+        webSocketService.init(io);
+    }
 }
 
 

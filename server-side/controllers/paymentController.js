@@ -19,6 +19,8 @@ const Contest = require('../models/DailyContest/dailyContest');
 const TenX = require('../models/TenXSubscription/TenXSubscriptionSchema');
 const MarginX = require('../models/marginX/marginX');
 const Battle = require('../models/battle/battle');
+const Coupon = require('../models/coupon/coupon');
+const whatsAppService = require("../utils/whatsAppService")
 
 exports.createPayment = async(req, res, next)=>{
     // console.log(req.body)
@@ -35,6 +37,21 @@ exports.createPayment = async(req, res, next)=>{
             paymentFor, paymentMode, paymentStatus, createdBy: req.user._id, lastModifiedBy: req.user._id}], {session:session});
         
         const wallet = await UserWallet.findOne({userId: new ObjectId(paymentBy)});
+        const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
+            return transaction.transactionType === "Cash";
+        });
+
+        const bonusTransactions = (wallet)?.transactions?.filter((transaction) => {
+            return transaction.transactionType === "Bonus";
+        });
+
+        const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
+            return total + transaction?.amount;
+        }, 0);
+
+        const totalBonusAmount = bonusTransactions?.reduce((total, transaction) => {
+            return total + transaction?.amount;
+        }, 0);
         wallet.transactions = [...wallet.transactions, {
                 title: 'Amount Credit',
                 description: `The amount that has been credited to your wallet.`,
@@ -142,6 +159,14 @@ exports.createPayment = async(req, res, next)=>{
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           }, session);
+          if(process.env.PROD == 'true'){
+            whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),totalCashAmount.toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+            whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),totalCashAmount.toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+        }
+        else {
+        // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),totalCashAmount.toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+            whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'), totalCashAmount.toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+        }
         await session.commitTransaction();  
         res.status(201).json({message: 'Payment successfully.', data:payment, count:payment.length});
     }catch(error){
@@ -264,12 +289,13 @@ exports.initiatePayment = async (req, res) => {
         redirectTo,
         productId,
         paymentFor,
-        coupon
+        coupon,
+        bonusRedemption
     } = req.body;
     console.log('all body params',amount,
         redirectTo,
         productId,
-        paymentFor, coupon);
+        paymentFor, coupon, bonusRedemption);
     const setting = await Setting.find();
     let merchantId = process.env.PROD=='true' ? process.env.PHONEPE_MERCHANTID : process.env.PHONEPE_MERCHANTID_STAGING  ;
     let merchantTransactionId = generateUniqueTransactionId();
@@ -296,7 +322,8 @@ exports.initiatePayment = async (req, res) => {
         createdOn: new Date(),
         createdBy: req.user._id,
         modifiedOn: new Date(),
-        modifiedBy: req.user._id
+        modifiedBy: req.user._id,
+        bonusRedemption: bonusRedemption
     });
 
     const paymentInstrument = {
@@ -390,14 +417,15 @@ exports.handleCallback = async (req, res, next) => {
                 });
                 await addMoneyToWallet(payment.amount-payment?.gstAmount, payment?.paymentBy);
                 if(payment?.paymentFor && payment?.productId){
-                    await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy,payment?.amount, payment?.coupon);
+                    await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy,payment?.amount, payment?.coupon, payment?.bonusRedemption);
                 }    
                 console.log('Payment Successful');
                 await payment.save({validateBeforeSave: false});
                 if(payment?.coupon){
                     if(payment?.paymentFor){
-                        await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, payment?.paymentFor);
+                        await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, payment?.paymentFor, payment?.productId);
                     }else{
+                        await addCashback(payment?.amount-payment?.gstAmount, payment?.paymentBy, coupon);
                         await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, 'Wallet');
                     }
                 }
@@ -488,8 +516,9 @@ exports.checkPaymentStatus = async(req,res, next) => {
                     //TODO:Remove this code
                     if(payment?.coupon){
                         if(payment?.paymentFor){
-                            await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, payment?.paymentFor);
+                            await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, payment?.paymentFor, payment?.productId);
                         }else{
+                            await addCashback(payment?.amount-payment?.gstAmount, payment?.paymentBy, coupon);
                             await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, 'Wallet');
                         }
                     }    
@@ -532,30 +561,52 @@ const addMoneyToWallet = async (amount, userId) =>{
     await wallet.save({validateBeforeSave: false});
 }
 
-const participateUser = async (paymentFor, productId, paymentBy, amount, coupon) => {
+const addCashback = async(amount, userId, coupon) => {
+    const wallet = await UserWallet.findOne({userId:userId});
+    const couponDoc = await Coupon.findOne({code:coupon}).select('rewardType discountType discount maxDiscount');
+    if(couponDoc?.rewardType == 'Discount')return;
+    let cashbackAmount = 0;
+    if(couponDoc?.discountType == 'Flat'){
+        cashbackAmount = couponDoc?.discount;
+    }else{
+        cashbackAmount = Math.min(amount*couponDoc?.discount/100, couponDoc?.maxDiscount);
+    }
+    wallet.transactions.push({
+        title: 'StoxHero CashBack',
+        description: `Cashback of HeroCash ${cashbackAmount?.toFixed(2)} - code ${coupon} used`,
+        transactionDate: new Date(),
+        amount:cashbackAmount?.toFixed(2),
+        transactionId: uuid.v4(),
+        transactionType: 'Bonus'
+    });
+    await wallet.save({validateBeforeSave: false});
+
+}
+
+const participateUser = async (paymentFor, productId, paymentBy, amount, coupon, bonusRedemption) => {
     switch (paymentFor){
         case 'Contest':
             if(productId){
                 const contest = await Contest.findById(productId).select('entryFee contestName');
-                await handleSubscriptionDeduction(paymentBy, amount, contest?.contestName, contest?._id, coupon);
+                await handleSubscriptionDeduction(paymentBy, amount, contest?.contestName, contest?._id, coupon, bonusRedemption);
             }
             break;
         case 'TenX':
             if(productId){
                 const tenx = await TenX.findById(productId).select('discounted_price plan_name');
-                await handleDeductSubscriptionAmount(paymentBy, amount, tenx?.plan_name, tenx?._id, coupon);
+                await handleDeductSubscriptionAmount(paymentBy, amount, tenx?.plan_name, tenx?._id, coupon, bonusRedemption);
             }
             break;
         case 'TenX Renewal':
             if(productId){
                 const tenx = await TenX.findById(productId).select('discounted_price plan_name');
-                await handleSubscriptionRenewal(paymentBy, amount, tenx?.plan_name, tenx?._id, coupon);
+                await handleSubscriptionRenewal(paymentBy, amount, tenx?.plan_name, tenx?._id, coupon, bonusRedemption);
             }
             break;
         case 'MarginX':
             if(productId){
                 const marginX = await MarginX.findById(productId).populate('marginXTemplate', 'entryFee');
-                await handleDeductMarginXAmount(paymentBy, amount, marginX?.marginXName, marginX?._id, coupon);
+                await handleDeductMarginXAmount(paymentBy, amount, marginX?.marginXName, marginX?._id, coupon, bonusRedemption);
             }
             break;
         case 'Battle':
