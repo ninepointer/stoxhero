@@ -12,7 +12,7 @@ const moment = require('moment');
 exports.createCouponCode = async (req, res) => {
     try {
         const {
-            code, description, discountType, rewardType, discount, liveDate, expiryDate, status, affiliatePercentage, eligiblePlatform,
+            code, description, discountType, rewardType, discount, liveDate, expiryDate, status, affiliatePercentage, eligiblePlatforms,
             isOneTimeUse, usedBy, maxUse, eligibleProducts, campaign, maxDiscount, minOrderValue
         } = req.body;
 
@@ -26,7 +26,7 @@ exports.createCouponCode = async (req, res) => {
         }
 
         const coupon = await Coupon.create({
-            code, description, discountType, rewardType, discount, liveDate, expiryDate, status,affiliatePercentage, eligiblePlatform,
+            code, description, discountType, rewardType, discount, liveDate, expiryDate, status,affiliatePercentage, eligiblePlatforms,
             isOneTimeUse, usedBy, maxUse, eligibleProducts, campaign, maxDiscount, minOrderValue,
             createdBy: req.user._id, lastModifiedBy: req.user._id
         });
@@ -269,7 +269,7 @@ exports.verifyCouponCode = async (req, res) => {
         if(coupon?.minOrderValue && orderValue<coupon?.minOrderValue){
             return res.status(400).json({
                 status: 'error',
-                message: `Your order is not eligible for this coupon. The minimum order value for this couon is ${coupon?.minOrderValue}`,
+                message: `Your order is not eligible for this coupon. The minimum order value for this coupon is ₹${coupon?.minOrderValue}`,
             });
         }
         coupon?.usedBy?.push({
@@ -416,9 +416,9 @@ async function getCollectionAndData(productName, specificProduct, coupon, userId
             return {
                 name: subscription?.plan_name, 
                 price: participant?.actualPrice??subscription?.discounted_price, 
-                discountAmount: (participant?.actualPrice - participant?.fee)?(participant?.actualPrice - participant?.fee):discountAmount,
+                discountAmount: (participant?.actualPrice - participant?.fee +(participant?.bonusRedemption??0) )?(participant?.actualPrice - participant?.fee - (participant?.bonusRedemption??0)):discountAmount,
                 bonusAmount:(participant?.bonusRedemption ?? 0),
-                effectivePrice: (participant?.fee) - (participant?.bonusRedemption??0) + (gstAmount?gstAmount:0)
+                effectivePrice: (participant?.fee) + (gstAmount?gstAmount:0)
             }
             break;
         case 'MarginX':
@@ -433,9 +433,9 @@ async function getCollectionAndData(productName, specificProduct, coupon, userId
             return {
                 name: marginx?.marginXName, 
                 price: participant?.actualPrice??marginx?.marginXTemplate?.entryFee, 
-                discountAmount: (participant?.actualPrice - participant?.fee)?(participant?.actualPrice - participant?.fee):discountAmount,
+                discountAmount: (participant?.actualPrice - participant?.fee + participant?.bonusRedemption)?(participant?.actualPrice - participant?.fee - (participant?.bonusRedemption??0)):discountAmount,
                 bonusAmount:(participant?.bonusRedemption ?? 0),
-                effectivePrice: (participant?.fee) - (participant?.bonusRedemption??0) + (gstAmount?gstAmount:0)
+                effectivePrice: (participant?.fee) + (gstAmount?gstAmount:0)
             };
             break;
         case 'Contest':
@@ -447,13 +447,12 @@ async function getCollectionAndData(productName, specificProduct, coupon, userId
                 );
             discountAmount = calculateDiscountAmount(coupon, contest?.entryFee);
             gstAmount = gstPercentage/100*(participant?.fee - participant?.bonusRedemption??0);
-            console.log('data', participant?.fee, participant?.bonusRedemption??0, gstAmount?gstAmount:0)
             return {
                 name: contest?.contestName, 
                 price: participant?.actualPrice??contest?.entryFee, 
-                discountAmount: (participant?.actualPrice - participant?.fee)?(participant?.actualPrice - participant?.fee):discountAmount,
+                discountAmount: (participant?.actualPrice - participant?.fee + participant?.bonusRedemption)?(participant?.actualPrice - participant?.fee-(participant?.bonusRedemption??0)):discountAmount,
                 bonusAmount:(participant?.bonusRedemption ?? 0),
-                effectivePrice: (participant?.fee) - (participant?.bonusRedemption??0)+(gstAmount?gstAmount:0)
+                effectivePrice: (participant?.fee) +(gstAmount?gstAmount:0)
             };
         default:
             throw new Error(`Unknown product name: ${productName}`);

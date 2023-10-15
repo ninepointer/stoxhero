@@ -20,7 +20,7 @@ const TenX = require('../models/TenXSubscription/TenXSubscriptionSchema');
 const MarginX = require('../models/marginX/marginX');
 const Battle = require('../models/battle/battle');
 const Coupon = require('../models/coupon/coupon');
-
+const whatsAppService = require("../utils/whatsAppService")
 
 exports.createPayment = async(req, res, next)=>{
     // console.log(req.body)
@@ -37,6 +37,21 @@ exports.createPayment = async(req, res, next)=>{
             paymentFor, paymentMode, paymentStatus, createdBy: req.user._id, lastModifiedBy: req.user._id}], {session:session});
         
         const wallet = await UserWallet.findOne({userId: new ObjectId(paymentBy)});
+        const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
+            return transaction.transactionType === "Cash";
+        });
+
+        const bonusTransactions = (wallet)?.transactions?.filter((transaction) => {
+            return transaction.transactionType === "Bonus";
+        });
+
+        const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
+            return total + transaction?.amount;
+        }, 0);
+
+        const totalBonusAmount = bonusTransactions?.reduce((total, transaction) => {
+            return total + transaction?.amount;
+        }, 0);
         wallet.transactions = [...wallet.transactions, {
                 title: 'Amount Credit',
                 description: `The amount that has been credited to your wallet.`,
@@ -144,6 +159,14 @@ exports.createPayment = async(req, res, next)=>{
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           }, session);
+          if(process.env.PROD == 'true'){
+            whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),totalCashAmount.toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+            whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),totalCashAmount.toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+        }
+        else {
+        // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),totalCashAmount.toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+            whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'), totalCashAmount.toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+        }
         await session.commitTransaction();  
         res.status(201).json({message: 'Payment successfully.', data:payment, count:payment.length});
     }catch(error){
