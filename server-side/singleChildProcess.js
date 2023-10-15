@@ -412,11 +412,11 @@ async function singleProcess() {
         webSocketService.init(io);
     }
 
-    await client.SUBSCRIBE("order-notification", async (message) => {
+    // await client.SUBSCRIBE("order-notification", async (message) => {
 
-        console.log("tthi is notification data", message)
-        io?.emit(`sendResponse${JSON.parse(message)}`, Math.random()*1000000)
-    })
+    //     console.log("tthi is notification data", message)
+    //     io?.emit(`sendResponse${JSON.parse(message)}`, Math.random()*1000000)
+    // })
 }
 
 
