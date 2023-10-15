@@ -573,7 +573,7 @@ const addCashback = async(amount, userId, coupon) => {
     }
     wallet.transactions.push({
         title: 'StoxHero CashBack',
-        description: `Cashback of HeroCash ${cashbackAmount?.toFixed(2)} - code ${coupon} used`,
+        description: `Cashback of ${cashbackAmount?.toFixed(2)} HeroCash - code ${coupon} used`,
         transactionDate: new Date(),
         amount:cashbackAmount?.toFixed(2),
         transactionId: uuid.v4(),

@@ -1797,7 +1797,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
           }
           wallet?.transactions?.push({
               title: 'StoxHero CashBack',
-              description: `Cashback of ${cashbackAmount?.toFixed(2)} - code ${coupon} used`,
+              description: `Cashback of ${cashbackAmount?.toFixed(2)} HeroCash - code ${coupon} used`,
               transactionDate: new Date(),
               amount:cashbackAmount?.toFixed(2),
               transactionId: uuid.v4(),
@@ -2094,7 +2094,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
         if(coupon && cashbackAmount>0){
           await createUserNotification({
               title:'StoxHero Cashback',
-              description:`₹${cashbackAmount?.toFixed(2)} added as bonus - ${coupon} code used.`,
+              description:`${cashbackAmount?.toFixed(2)} HeroCash added as bonus - ${coupon} code used.`,
               notificationType:'Individual',
               notificationCategory:'Informational',
               productCategory:'Contest',
