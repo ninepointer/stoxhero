@@ -337,7 +337,6 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
     setSuccessSB(true);
   }
   const closeSuccessSB = () => setSuccessSB(false);
-  // console.log("no response ", successSB)
   const renderSuccessSB = (
     <MDSnackbar
       color= {messageObj.color}

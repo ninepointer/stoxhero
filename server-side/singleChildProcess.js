@@ -29,7 +29,8 @@ const { zerodhaAccountType } = require("./constant")
 const { openPrice } = require("./marketData/setOpenPriceFlag");
 const webSocketService = require('./services/chartService/chartService');
 const { updateUserWallet } = require('./controllers/internshipTradeController');
-const { EarlySubscribedInstrument } = require("./marketData/earlySubscribeInstrument")
+const { EarlySubscribedInstrument } = require("./marketData/earlySubscribeInstrument");
+const {notificationSender} = require("./notificationSender")
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -412,11 +413,7 @@ async function singleProcess() {
         webSocketService.init(io);
     }
 
-    // await client.SUBSCRIBE("order-notification", async (message) => {
-
-    //     console.log("tthi is notification data", message)
-    //     io?.emit(`sendResponse${JSON.parse(message)}`, Math.random()*1000000)
-    // })
+    notificationSender().then(()=>{});
 }
 
 

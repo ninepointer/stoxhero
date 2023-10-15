@@ -1,27 +1,17 @@
 const TenxTrader = require("./models/mock-trade/tenXTraderSchema");
-let { client2, client, getValue, clientForIORedis } = require("./marketData/redisClient");
+let { client4, client2, client, getValue, clientForIORedis } = require("./marketData/redisClient");
 const { Mutex } = require('async-mutex');
 const BrokerageDetail = require("./models/Trading Account/brokerageSchema");
 const {xtsAccountType, zerodhaAccountType} = require("./constant");
 const Setting = require("./models/settings/setting");
 const PendingOrder = require("./models/PendingOrder/pendingOrderSchema");
 const { ObjectId } = require("mongodb");
-const {getIOValue} = require('./marketData/socketio');
 
-
-
-client2.connect()
-.then(async (res) => {
-    
-    console.log("redis connected", res)
-})
-.catch((err) => {
-    console.log("redis not connected", err)
-})
 
 const mutex = new Mutex();
 exports.tenxTradeStopLoss = async () => {
-    const io = getIOValue();
+    await client2.connect();
+    await client4.connect();
 
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -197,7 +187,7 @@ exports.tenxTradeStopLoss = async () => {
                 data[`${instrumentToken}`] = symbolArr;
                 await client.set('stoploss-stopprofit', JSON.stringify(data));
                 
-                await client2.PUBLISH("order-notification", JSON.stringify(createdBy) )
+                await client4.PUBLISH("order-notification", JSON.stringify({symbol: symbol, createdBy: createdBy, Quantity: Quantity, execution_price: last_price, type: type}) )
 
                 release();
             } catch (error) {

@@ -20,6 +20,7 @@ import { renderContext } from '../../../renderContext';
 import {battle, paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest, marginX } from "../../../variables";
 import { userContext } from '../../../AuthContext';
 import { maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, lotSize_Nifty, lotSize_BankNifty, lotSize_FinNifty } from "../../../variables";
+import MDSnackbar from '../../../components/MDSnackbar';
 
 
 function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, moduleData }) {
@@ -86,7 +87,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
     })();
 
     return () => abortController.abort();
-  }, [render, trackEvent])
+  }, [render, trackEvent.data])
 
   useEffect(() => {
     socket.on(`${(getDetails.userDetails._id).toString()}autoCut`, (data) => {
@@ -98,10 +99,8 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
   }, [])
 
   useEffect(() => {
-    socket?.on(`sendResponse${(getDetails.userDetails._id).toString()}`, (data) => {
-      // render ? setRender(false) : setRender(true);
-      // openSuccessSB(data.status, data.message)
-      console.log("thi is notification data", data)
+    socket?.on(`sendOrderResponse${(getDetails.userDetails._id).toString()}`, (data) => {
+      openSuccessSB(data.status, data.message)
       setTimeout(() => {
         setTrackEvent(data);
       })
@@ -256,7 +255,41 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
   };
 
   const xFactor = moduleData?.portfolioValue/moduleData?.entryFee;
-  // const xFactor = 100000/100;
+
+
+  const [messageObj, setMessageObj] = useState({
+    color: '',
+    icon: '',
+    title: '',
+    content: ''
+  })
+  const [successSB, setSuccessSB] = useState(false);
+
+  const openSuccessSB = (value,content) => {
+    if(value === "Success"){
+        messageObj.color = 'success'
+        messageObj.icon = 'check'
+        messageObj.title = "Order Successful";
+        messageObj.content = content;
+        setSuccessSB(true);
+    };
+    setMessageObj(messageObj);
+    setSuccessSB(true);
+  }
+  const closeSuccessSB = () => setSuccessSB(false);
+  const renderSuccessSB = (
+    <MDSnackbar
+      color= {messageObj.color}
+      icon= {messageObj.icon}
+      title={messageObj.title}
+      content={messageObj.content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite="info"
+      sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto"}}
+    />
+  );
 
   return (
     <Card>
@@ -275,7 +308,6 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
           <MDButton variant="outlined" size="small" color="info" onClick={() => { setIsGetStartedClicked(true) }}>Get Started</MDButton>
         </MDBox>)
         :
-
         (<MDBox>
           <TableContainer component={Paper}>
             <table style={{ borderCollapse: "collapse", width: "100%", borderSpacing: "10px 5px" }}>
@@ -398,6 +430,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
         </MDBox>
         )
       }
+      {renderSuccessSB}
     </Card>
   );
 
