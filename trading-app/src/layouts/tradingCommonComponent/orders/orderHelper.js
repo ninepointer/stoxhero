@@ -1,7 +1,5 @@
 
 import {memo} from 'react';
-// import { AiOutlineLineChart } from 'react-icons/ai';
-// import { InfinityTraderRole } from "../../../variables";
 
 
 function OrderHelper({ symbol, averagePrice, amount, quantity, buyOrSell, orderid, status, time}) {

@@ -101,6 +101,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
     socket?.on(`sendResponse${(getDetails.userDetails._id).toString()}`, (data) => {
       // render ? setRender(false) : setRender(true);
       // openSuccessSB(data.status, data.message)
+      console.log("thi is notification data", data)
       setTimeout(() => {
         setTrackEvent(data);
       })
@@ -297,7 +298,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
 
                 {rows.map((elem, index) => {
                   return (
-                    <>
+                    <React.Fragment key={elem?.symbol?.props?.children}>
                       <tr
                         style={{ borderBottom: "1px solid #D3D3D3" }} key={elem.symbol.props.children}
                       >
@@ -345,8 +346,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
                           }
                         </Tooltip>
                       </tr>
-                    </>
-
+                    </React.Fragment>
                   )
                 })}
 

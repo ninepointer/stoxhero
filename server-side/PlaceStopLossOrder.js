@@ -6,6 +6,8 @@ const {xtsAccountType, zerodhaAccountType} = require("./constant");
 const Setting = require("./models/settings/setting");
 const PendingOrder = require("./models/PendingOrder/pendingOrderSchema");
 const { ObjectId } = require("mongodb");
+const {getIOValue} = require('./marketData/socketio');
+
 
 
 client2.connect()
@@ -18,7 +20,9 @@ client2.connect()
 })
 
 const mutex = new Mutex();
-exports.tenxTradeStopLoss = async (req, res, otherData) => {
+exports.tenxTradeStopLoss = async () => {
+    const io = getIOValue();
+
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T23:59:59.999Z";
@@ -70,18 +74,15 @@ exports.tenxTradeStopLoss = async (req, res, otherData) => {
         await client.HSET('brokerage', `sell-user`, JSON.stringify(brokerageDetailSellUser));
     }
 
-    console.log("in function")
     try {
 
-        console.log("in function 2")
         await client2.SUBSCRIBE("place-order", async (message) => {
             message = JSON.parse(message);
 
-            console.log(message)
 
             let { exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId,
                 exchangeInstrumentToken, validity, variety, order_id, instrumentToken,
-                createdBy, _id } = message.data;
+                createdBy, _id, type } = message.data;
 
             const lockKey = `${createdBy}-${symbol}`
             //  'saveDataLock';
@@ -89,7 +90,7 @@ exports.tenxTradeStopLoss = async (req, res, otherData) => {
 
             try {
                 // Try to acquire the lock
-                const lockExpiration = 5;
+                const lockExpiration = 3;
 
                 const lockAcquired = await acquireLock(lockKey, lockValue, lockExpiration);
                 // const lockAcquired = await clientForIORedis.set(lockKey, lockValue, 'NX', 'EX', 10);
@@ -127,12 +128,9 @@ exports.tenxTradeStopLoss = async (req, res, otherData) => {
                 });
 
                 tenx.save().then(async () => {
-                    // console.log("sending response");
                     if (isRedisConnected && await client.exists(`${createdBy.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)) {
-                        //console.log("in the if condition")
                         let pnl = await client.get(`${createdBy.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
                         pnl = JSON.parse(pnl);
-                        //console.log("before pnl", pnl)
                         const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenx.instrumentToken && element._id.product === tenx.Product));
 
                         // if instrument is same then just updating value
@@ -142,7 +140,6 @@ exports.tenxTradeStopLoss = async (req, res, otherData) => {
                             matchingElement.brokerage += Number(tenx.brokerage);
                             matchingElement.lastaverageprice = tenx.average_price;
                             matchingElement.lots += Number(tenx.Quantity);
-                            //console.log("matchingElement", matchingElement)
 
                         } else {
                             // Create a new element if instrument is not matching
@@ -178,20 +175,18 @@ exports.tenxTradeStopLoss = async (req, res, otherData) => {
                 data = JSON.parse(data);
                 let symbolArr = data[`${instrumentToken}`];
                 for(let i = 0; i < symbolArr.length; i++){
-                    console.log(symbolArr[i].instrumentToken , instrumentToken , 
-                        symbolArr[i].createdBy.toString() , createdBy.toString() , 
-                        symbolArr[i].Quantity , Quantity , 
-                        symbolArr[i].buyOrSell , buyOrSell)
                     if(symbolArr[i].instrumentToken === instrumentToken && 
                        symbolArr[i].createdBy.toString() === createdBy.toString() && 
                        Math.abs(symbolArr[i].Quantity) === Math.abs(Number(Quantity)) && 
-                       symbolArr[i].buyOrSell === buyOrSell)
+                       symbolArr[i].buyOrSell === buyOrSell && symbolArr[i].type !== type)
                     {
 
+
+                        const update = await PendingOrder.findOne({_id: new ObjectId(symbolArr[i]._id)})
+                        update.status = "Cancelled";
+                        await update.save();
+
                         symbolArr.splice(i, 1);
-                        const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArr[i]._id)}, {
-                            $set: {status: "Cancelled"}
-                        })
                         break;
                     }
                 }
@@ -201,6 +196,8 @@ exports.tenxTradeStopLoss = async (req, res, otherData) => {
                 })
                 data[`${instrumentToken}`] = symbolArr;
                 await client.set('stoploss-stopprofit', JSON.stringify(data));
+                
+                await client2.PUBLISH("order-notification", JSON.stringify(createdBy) )
 
                 release();
             } catch (error) {
@@ -210,15 +207,8 @@ exports.tenxTradeStopLoss = async (req, res, otherData) => {
                 await releaseLock(lockKey, lockValue);
                 console.log('Lock released.');
             }
-            // const release = await mutex.acquire();
-            // console.log(message); // 'message'
-            // message = JSON.parse(message);
-
 
         });
-
-        console.log("in function 3")
-
 
     } catch (err) {
         console.log(err)
@@ -227,11 +217,10 @@ exports.tenxTradeStopLoss = async (req, res, otherData) => {
 
 async function acquireLock(lockKey, lockValue, expiration) {
     const result = await clientForIORedis.set(lockKey, lockValue, 'NX', 'EX', expiration);
-    console.log("this is result", result)
     return result === 'OK';
-  }
-  
-  async function releaseLock(lockKey, lockValue) {
+}
+
+async function releaseLock(lockKey, lockValue) {
     const script = `
       if redis.call("get", KEYS[1]) == ARGV[1] then
         return redis.call("del", KEYS[1])
@@ -240,7 +229,7 @@ async function acquireLock(lockKey, lockValue, expiration) {
       end
     `;
     return await clientForIORedis.eval(script, 1, lockKey, lockValue);
-  }
+}
 
 function buyBrokerage(totalAmount, buyBrokerData) {
     let brokerage = Number(buyBrokerData.brokerageCharge);
@@ -265,38 +254,3 @@ function sellBrokerage(totalAmount, sellBrokerData) {
     return finalCharge
 }
 
-
-
-// if(buyOrSell === "SELL"){
-//     req.body.Quantity = "-"+Quantity;
-// }
-
-// exports.tenxTradeStopLoss = async (req, res, otherData) => {
-//   let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, 
-//       exchangeInstrumentToken, validity, variety, order_id, instrumentToken, 
-//       portfolioId, trader} = req.body 
-
-//   let {isRedisConnected, brokerageUser, last_price, secondsRemaining, trade_time} = otherData;
-
-//     TenxTrader.findOne({order_id : order_id})
-//     .then((dataExist)=>{
-//         if(dataExist){
-//             return res.status(422).json({error : "date already exist..."})
-//         }
-
-        // const tenx = new TenxTrader({
-        //     status:"COMPLETE", average_price: last_price, Quantity, Product, buyOrSell,
-        //     variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
-        //     order_id, instrumentToken, brokerage: brokerageUser, portfolioId, subscriptionId, exchangeInstrumentToken,
-        //     createdBy: createdBy,trader: trader, amount: (Number(Quantity)*last_price), trade_time:trade_time,
-            
-        // });
-
-//         // console.log("tenx tenx", tenx)
-
-
-//         //console.log("mockTradeDetails", paperTrade);
-
-    // }).catch(err => {console.log(err, "fail")});  
-
-// }

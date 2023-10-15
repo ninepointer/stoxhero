@@ -13,7 +13,7 @@ import { Card, CircularProgress, Paper, TableContainer, Typography } from "@mui/
 import { renderContext } from "../../../../renderContext";
 import { apiUrl } from "../../../../constants/constants";
 import { RiStockFill } from "react-icons/ri";
-import OrderHelper from "../../../tradingCommonComponent/orders/orderHelper";
+import OrderHelper from "../Order/PendingOrderHelper";
 // import { Grid } from "@mui/material";
 // import { useLocation, Link } from "react-router-dom";
 
@@ -38,7 +38,7 @@ export default function PendingOrders({ subscriptionId }) {
     // const getDetails = useContext(userContext);
     const { render } = useContext(renderContext);
 
-    let url =  `pendingorder/my/today/${subscriptionId}/'TenX`;
+    let url =  `pendingorder/my/today/${subscriptionId}/TenX`;
     useEffect(() => {
         setIsLoading(true)
         console.log("Inside Use Effect")
@@ -130,7 +130,7 @@ export default function PendingOrders({ subscriptionId }) {
         );
         orderObj.averagePrice = (
             <MDTypography variant="caption" color={"text"} fontWeight="medium">
-                {new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.average_price))}
+                {new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.execution_price))}
             </MDTypography>
         );
         orderObj.quantity = (
@@ -149,9 +149,9 @@ export default function PendingOrders({ subscriptionId }) {
             </MDTypography>
         );
 
-        orderObj.orderid = (
+        orderObj.type = (
             <MDTypography component="a" href="#" variant="caption" color={"text"} fontWeight="medium">
-                {elem?.order_id}
+                {elem?.type}
             </MDTypography>
         );
 
@@ -161,9 +161,15 @@ export default function PendingOrders({ subscriptionId }) {
             </MDTypography>
         );
 
+        orderObj._id = (
+            <MDTypography component="a" href="#" variant="caption" color={"text"} fontWeight="medium">
+                {elem?._id}
+            </MDTypography>
+        );
+
         orderObj.time = (
             <MDTypography component="a" href="#" variant="caption" color={"text"} fontWeight="medium">
-                {moment.utc(elem?.trade_time).utcOffset('+00:00').format('DD-MMM HH:mm:ss')}
+                {moment.utc(elem?.time).utcOffset('+00:00').format('DD-MMM HH:mm:ss')}
             </MDTypography>
         );
 
@@ -173,6 +179,7 @@ export default function PendingOrders({ subscriptionId }) {
     })
 
 
+    console.log(orderArr)
     return (
         <>
 
@@ -186,7 +193,7 @@ export default function PendingOrders({ subscriptionId }) {
                     <MDBox display="flex" justifyContent="space-between" alignItems="center" pl={2} pr={2} pt={2} pb={2}>
                         <MDBox display="flex">
                             <MDTypography variant="h6" gutterBottom>
-                                My Orders
+                                My Pending Orders
                             </MDTypography>
                             <MDBox display="flex" alignItems="center" lineHeight={0}>
                             </MDBox>
@@ -206,12 +213,13 @@ export default function PendingOrders({ subscriptionId }) {
                                         <tr style={{ borderBottom: "1px solid #D3D3D3" }}>
                                             <td style={styleTD}>SYMBOL</td>
                                             <td style={styleTD} >QUANTITY</td>
-                                            <td style={styleTD} >AVG. PRICE</td>
+                                            <td style={styleTD} >SL/SP PRICE</td>
                                             <td style={styleTD} >AMOUNT</td>
-                                            <td style={styleTD} >TRANSACTION</td>
-                                            <td style={styleTD} >ORDERID</td>
+                                            <td style={styleTD} >STOP TYPE</td>
+                                            <td style={styleTD} >TYPE</td>
                                             <td style={styleTD} >STATUS</td>
                                             <td style={styleTD} >TIME</td>
+                                            <td style={styleTD} >ACTION</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -219,7 +227,7 @@ export default function PendingOrders({ subscriptionId }) {
                                         {orderArr.map((elem, index) => {
                                             return (
                                                 <tr
-                                                    style={{ borderBottom: "1px solid #D3D3D3" }} key={elem.orderid.props.children}
+                                                    style={{ borderBottom: "1px solid #D3D3D3" }} key={elem._id.props.children}
                                                 >
                                                     <OrderHelper
                                                         symbol={elem.symbol.props.children}
@@ -227,15 +235,12 @@ export default function PendingOrders({ subscriptionId }) {
                                                         amount={elem.amount.props.children}
                                                         quantity={elem.quantity.props.children}
                                                         buyOrSell={elem.buyOrSell.props.children}
-                                                        orderid={elem.orderid.props.children}
                                                         status={elem.status.props.children}
                                                         time={elem.time.props.children}
-
-                                                        
+                                                        type={elem.type.props.children}
+                                                        id={elem._id.props.children}
                                                     />
-
                                                 </tr>
-
                                             )
                                         })}
                                     </tbody>

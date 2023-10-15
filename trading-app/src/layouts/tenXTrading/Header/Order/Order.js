@@ -161,6 +161,12 @@ export default function Orders({ subscriptionId }) {
             </MDTypography>
         );
 
+        orderObj._id = (
+            <MDTypography component="a" href="#" variant="caption" color={"text"} fontWeight="medium">
+                {elem?._id}
+            </MDTypography>
+        );
+
         orderObj.time = (
             <MDTypography component="a" href="#" variant="caption" color={"text"} fontWeight="medium">
                 {moment.utc(elem?.trade_time).utcOffset('+00:00').format('DD-MMM HH:mm:ss')}
@@ -219,7 +225,7 @@ export default function Orders({ subscriptionId }) {
                                         {orderArr.map((elem, index) => {
                                             return (
                                                 <tr
-                                                    style={{ borderBottom: "1px solid #D3D3D3" }} key={elem.orderid.props.children}
+                                                    style={{ borderBottom: "1px solid #D3D3D3" }} key={elem._id.props.children}
                                                 >
                                                     <OrderHelper
                                                         symbol={elem.symbol.props.children}

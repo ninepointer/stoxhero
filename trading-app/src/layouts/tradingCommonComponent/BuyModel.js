@@ -30,6 +30,7 @@ import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader,
 
 const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, module}) => {
 
+  console.log(from)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const {render, setRender} = useContext(renderContext);
   const getDetails = React.useContext(userContext);
@@ -297,44 +298,15 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
     }
   }
 
-  // let renderSuccessSB;
   const [successSB, setSuccessSB] = useState(false);
-  // let success = useRef(false);
-  // let message = useRef({
-  //   color: '',
-  //   icon: '',
-  //   title: '',
-  //   content: ''
-  // })
-  const openSuccessSB = (value,content) => {
-    // //console.log("Value: ",value)
-    if(value === "complete"){
 
-      // console.log("no response if")
+  const openSuccessSB = (value,content) => {
+    if(value === "complete"){
         messageObj.color = 'success'
         messageObj.icon = 'check'
         messageObj.title = "Trade Successful";
         messageObj.content = `Traded ${content.Quantity} of ${content.symbol}`;
         setSuccessSB(true);
-
-        // success.current = true;
-        // message.current.color = 'success'
-        // message.current.icon = 'check'
-        // message.current.title = "Trade Successful";
-        // message.current.content = `Traded ${content.Quantity} of ${content.symbol}`;
-        // renderSuccessSB = (
-        //   <MDSnackbar
-        //     color= "success"
-        //     icon= "check"
-        //     title="Trade Successful"
-        //     content="Trade Successful"
-        //     open={true}
-        //     onClose={closeSuccessSB}
-        //     close={closeSuccessSB}
-        //     bgWhite="info"
-        //     sx={{ borderLeft: `10px solid ${message.current.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${message.current.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto"}}
-        //   />
-        // );
     };
     if(value === "reject"){
       messageObj.color = 'error'
@@ -379,11 +351,6 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
       sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto"}}
     />
   );
-
-
-
-  // console.log("no response renderSuccessSB", success.current)
-
 
   return (
     <div>
@@ -442,11 +409,11 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
                   </Select>
                 </FormControl>
                 <TextField
-                  id="outlined-basic" label="StopLoss Price" variant="standard" onChange={(e) => { { buyFormDetails.stopLossPrice = (e.target.value) } }}
+                  id="outlined-basic" disabled={from !== "TenX Trader"} label="StopLoss Price" variant="standard" onChange={(e) => { { buyFormDetails.stopLossPrice = (e.target.value) } }}
                   sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} />
 
                 <TextField
-                  id="outlined-basic" label="StopProfit Price" variant="standard" onChange={(e) => { { buyFormDetails.stopProfitPrice = (e.target.value) } }}
+                  id="outlined-basic" disabled={from !== "TenX Trader"} label="StopProfit Price" variant="standard" onChange={(e) => { { buyFormDetails.stopProfitPrice = (e.target.value) } }}
                   sx={{ margin: 1, padding: 1, width: "300px" }} />
               </Box>
               <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>

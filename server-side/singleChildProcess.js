@@ -331,6 +331,7 @@ async function singleProcess() {
     app.use('/api/v1', require('./routes/CronJobsRouter/historyTrade'));
     app.use('/api/v1', require('./routes/AlgoBox/tradingAlgoAuth'));
     app.use('/api/v1/dailycontest', require('./routes/DailyContest/dailyContestLiveTrade'));
+    app.use('/api/v1/pendingorder', require('./routes/pendingOrder/pendingRoute'));
 
     app.use('/api/v1', require("./marketData/getRetrieveOrder"));
     app.use('/api/v1', require('./marketData/switchToRealTrade'));
@@ -410,6 +411,12 @@ async function singleProcess() {
     if(process.env.CHART === "true"){
         webSocketService.init(io);
     }
+
+    await client.SUBSCRIBE("order-notification", async (message) => {
+
+        console.log("tthi is notification data", message)
+        io?.emit(`sendResponse${JSON.parse(message)}`, Math.random()*1000000)
+    })
 }
 
 

@@ -93,7 +93,8 @@ exports.dailyContestTrade = async (req, res, otherData) => {
             io?.emit(`${trader.toString()}autoCut`, algoTrader)
         }
 
-        if (pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK" && pipelineForSet._result[3][1] === "OK") {                await session.commitTransaction();
+        if (pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK" && pipelineForSet._result[3][1] === "OK") {                
+            await session.commitTransaction();
             return res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
         } else {
             // await session.commitTransaction();

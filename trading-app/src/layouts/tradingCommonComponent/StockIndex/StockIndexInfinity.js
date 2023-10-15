@@ -91,7 +91,7 @@ function StockIndex({socket}) {
     <>
         {finalArr.map((e)=>{
             return(
-                <Grid item xs={12} md={6} lg={3}>
+                <Grid item xs={12} md={6} lg={3} key={e.instrument.props.children}>
                 <MDBox bgColor="light" borderRadius={5} p={2} display="flex" justifyContent="space-between">
                     <Grid container display="flex" justifyContent="space-around">
         
