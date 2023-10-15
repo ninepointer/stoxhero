@@ -454,6 +454,14 @@ async function getCollectionAndData(productName, specificProduct, coupon, userId
                 bonusAmount:(participant?.bonusRedemption ?? 0),
                 effectivePrice: (participant?.fee) +(gstAmount?gstAmount:0)
             };
+        case 'Wallet':
+            return {
+                name: '', 
+                price: 0, 
+                discountAmount:0,
+                bonusAmount:0,
+                effectivePrice:0
+            };    
         default:
             throw new Error(`Unknown product name: ${productName}`);
     }

@@ -186,7 +186,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
                     //Calculate amount and match
                     cashbackAmount = couponDoc?.discount;
                 }else{
-                    cashbackAmount = Math.min(couponDoc?.discount/100*subs?.discounted_price, couponDoc?.maxDiscount);
+                    cashbackAmount = Math.min(couponDoc?.discount/100*(subs?.discounted_price-bonusRedemption), couponDoc?.maxDiscount);
                     
                 }
                 wallet?.transactions?.push({

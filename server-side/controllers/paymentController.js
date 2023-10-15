@@ -425,7 +425,7 @@ exports.handleCallback = async (req, res, next) => {
                     if(payment?.paymentFor){
                         await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, payment?.paymentFor, payment?.productId);
                     }else{
-                        await addCashback(payment?.amount-payment?.gstAmount, payment?.paymentBy, coupon);
+                        await addCashback(payment?.amount-payment?.gstAmount, payment?.paymentBy, payout?.coupon);
                         await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, 'Wallet');
                     }
                 }

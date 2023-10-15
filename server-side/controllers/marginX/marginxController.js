@@ -931,7 +931,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
                     //Calculate amount and match
                     discountAmount = couponDoc?.discount;
                 }else{
-                    discountAmount = Math.min(couponDoc?.discount/100*marginx?.marginXTemplate?.entryFee, couponDoc?.maxDiscount);
+                    discountAmount = Math.min(couponDoc?.discount/100*(marginx?.marginXTemplate?.entryFee-bonusRedemption), couponDoc?.maxDiscount);
                     
                 }
             }else{

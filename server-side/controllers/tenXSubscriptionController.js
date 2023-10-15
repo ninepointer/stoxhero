@@ -555,7 +555,7 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
           //Calculate amount and match
           cashbackAmount = couponDoc?.discount;
       }else{
-          cashbackAmount = Math.min(couponDoc?.discount/100*tenXSubs?.discounted_price, couponDoc?.maxDiscount);
+          cashbackAmount = Math.min(couponDoc?.discount/100*(tenXSubs?.discounted_price-bonusRedemption), couponDoc?.maxDiscount);
           
       }
       wallet?.transactions?.push({

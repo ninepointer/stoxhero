@@ -1792,7 +1792,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
               //Calculate amount and match
               cashbackAmount = couponDoc?.discount;
           }else{
-              cashbackAmount = Math.min(couponDoc?.discount/100*contest?.entryFee, couponDoc?.maxDiscount);
+              cashbackAmount = Math.min(couponDoc?.discount/100*(contest?.entryFee-bonusRedemption), couponDoc?.maxDiscount);
               
           }
           wallet?.transactions?.push({
