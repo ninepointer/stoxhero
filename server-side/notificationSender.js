@@ -17,6 +17,6 @@ exports.notificationSender = async () => {
 
         message = JSON.parse(message);
         // console.log("this is notification data", message)
-        io?.emit(`sendOrderResponse${message.createdBy}`, {status: "Success", message: `Your ${message.type==="StopLoss" ? "Stop Loss" : "Stop Profit"} at ${message.symbol} has been hit at ${message.execution_price} rupees.`, data: Math.random() * 1000000 })
+        io?.emit(`sendOrderResponse${message.createdBy}`, {status: "Success", message: `Your ${message.type==="StopLoss" ? "Stop Loss" : "Stop Profit"} of ${message.symbol} has been executed at ₹${message.execution_price}.`, data: Math.random() * 1000000 })
     })
 }

@@ -14,11 +14,12 @@ import { renderContext } from "../../../../renderContext";
 import { apiUrl } from "../../../../constants/constants";
 import { RiStockFill } from "react-icons/ri";
 import OrderHelper from "../Order/PendingOrderHelper";
+import { userContext } from "../../../../AuthContext";
 // import { Grid } from "@mui/material";
 // import { useLocation, Link } from "react-router-dom";
 
 
-function PendingOrders({ subscriptionId }) {
+function PendingOrders({ subscriptionId, socket }) {
 
 
     let styleTD = {
@@ -37,6 +38,8 @@ function PendingOrders({ subscriptionId }) {
     const [data, setData] = useState([]);
     // const getDetails = useContext(userContext);
     const { render } = useContext(renderContext);
+    const [trackEvent, setTrackEvent] = useState({});
+    const getDetails = useContext(userContext);
 
     let url =  `pendingorder/my/todaysPending/${subscriptionId}/TenX`;
     useEffect(() => {
@@ -55,7 +58,15 @@ function PendingOrders({ subscriptionId }) {
                 }, 500)
                 return new Error(err);
             })
-    }, [render])
+    }, [render, trackEvent])
+
+    useEffect(() => {
+        socket?.on(`sendOrderResponse${(getDetails.userDetails._id).toString()}`, (data) => {
+          setTimeout(() => {
+            setTrackEvent(data);
+          })
+        })
+      }, [])
 
     function backHandler() {
         if (skip <= 0) {
@@ -172,14 +183,10 @@ function PendingOrders({ subscriptionId }) {
                 {moment.utc(elem?.time).utcOffset('+05:00').format('DD-MMM HH:mm:ss')}
             </MDTypography>
         );
-
-
-
         orderArr.push(orderObj)
     })
 
 
-    console.log(orderArr)
     return (
         <>
 

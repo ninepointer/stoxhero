@@ -34,6 +34,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
     opacity: 0.7,
   }
 
+  const tradeSound = getDetails.tradeSound;
   const { updateNetPnl, setPnlData } = useContext(NetPnlContext);
   const marketDetails = useContext(marketDataContext)
   const [exitState, setExitState] = useState(false);
@@ -101,6 +102,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
   useEffect(() => {
     socket?.on(`sendOrderResponse${(getDetails.userDetails._id).toString()}`, (data) => {
       openSuccessSB(data.status, data.message)
+      tradeSound.play();
       setTimeout(() => {
         setTrackEvent(data);
       })

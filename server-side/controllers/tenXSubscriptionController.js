@@ -495,7 +495,7 @@ exports.getProSubscription = async(req, res, next)=>{
 exports.renewSubscription = async(req, res, next)=>{
   let isRedisConnected = getValue();
   const userId = req.user._id;
-  const {subscriptionAmount, subscriptionName, subscriptionId} = req.body;
+  const {subscriptionAmount, subscriptionName, subscriptionId, coupon} = req.body;
   const result = await exports.handleSubscriptionRenewal(userId, subscriptionAmount, subscriptionName, subscriptionId, isRedisConnected, coupon);
   res.status(result.statusCode).json(result.data);     
 };

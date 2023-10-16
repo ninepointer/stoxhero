@@ -494,7 +494,10 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <MDButton disabled={(buyFormDetails.stopLossPrice && (ltp < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (ltp > buyFormDetails.stopProfitPrice))} autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
+            <MDButton 
+            //todo-vijay
+            // disabled={(buyFormDetails.stopLossPrice && (ltp < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (ltp > buyFormDetails.stopProfitPrice))} 
+            autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
               BUY
             </MDButton>
             <MDButton variant="contained" color="info" onClick={handleClose} autoFocus>
