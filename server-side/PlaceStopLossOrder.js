@@ -69,7 +69,7 @@ exports.tenxTradeStopLoss = async () => {
         await client2.SUBSCRIBE("place-order", async (message) => {
             message = JSON.parse(message);
 
-            // console.log(message)
+            // console.log(message.data)
 
             let { exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId,
                 exchangeInstrumentToken, validity, variety, order_id, instrumentToken,

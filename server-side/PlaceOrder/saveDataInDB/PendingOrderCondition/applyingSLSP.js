@@ -87,6 +87,8 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
           transformedObject[instrumentToken] = [];
         }
         // console.log(rest._doc)
+        rest._doc.subscriptionId = subscriptionId;
+        rest._doc.order_id = order_id;
         transformedObject[instrumentToken].push(rest._doc);
       });
 
