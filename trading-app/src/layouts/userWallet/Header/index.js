@@ -269,9 +269,9 @@ export default function Wallet() {
                 <Grid container spacing={1} mb={1.5} display="flex" justifyContent="space-between" alignItems="center">
                   <Grid item xs={3} md={6} lg={3} ml={1} display="flex" justifyContent="left" alignItems="center">
                     <MDAvatar src={bonus} name={name} size="sm" />
-                    <MDTypography ml={1} color="light" fontSize={15} fontWeight="bold">Bonus</MDTypography>
+                    <MDTypography ml={1} color="light" fontSize={15} fontWeight="bold">HeroCash</MDTypography>
                   </Grid>
-                  <Grid item xs={3} md={6} lg={3} display="flex" justifyContent="center" alignItems="center"><MDTypography color="light" fontSize={15} fontWeight="bold">₹{totalBonusAmount ? totalBonusAmount?.toFixed(2) : 0}</MDTypography></Grid>
+                  <Grid item xs={3} md={6} lg={3} display="flex" justifyContent="center" alignItems="center"><MDTypography color="light" fontSize={15} fontWeight="bold">{totalBonusAmount ? totalBonusAmount?.toFixed(2) : 0}</MDTypography></Grid>
                   <Grid item xs={3} md={6} lg={3} display="flex" justifyContent="center" alignItems="center" mr={1}><MDButton size="small" style={{ width: '95%' }}>Redeem</MDButton></Grid>
                 </Grid>
 

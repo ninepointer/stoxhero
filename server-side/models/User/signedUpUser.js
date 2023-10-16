@@ -11,6 +11,10 @@ const signedUpUserSchema = new mongoose.Schema({
         required: true,
         default: ()=>new Date(),
     },
+    dob:{
+        type: Date,
+        required: true,
+    },
     last_modifiedOn:{
         type: Date,
         required: true,

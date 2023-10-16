@@ -910,13 +910,13 @@ exports.participateUsers = async (req, res) => {
 
 exports.deductMarginXAmount = async (req, res, next) => {
     const userId = req.user._id;
-    const { entryFee, marginXName, marginXId, coupon } = req.body;
+    const { entryFee, marginXName, marginXId, coupon, bonusRedemption } = req.body;
 
-    const result = await exports.handleDeductMarginXAmount(userId, entryFee, marginXName, marginXId, coupon);
+    const result = await exports.handleDeductMarginXAmount(userId, entryFee, marginXName, marginXId, coupon, bonusRedemption);
     res.status(result.statusCode).json(result.data);
 }
 
-exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, marginXId ,coupon) =>{
+exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, marginXId ,coupon, bonusRedemption) =>{
     try {
         const marginx = await MarginX.findOne({ _id: marginXId }).populate('marginXTemplate', 'entryFee');
         const wallet = await Wallet.findOne({ userId: userId });
@@ -931,7 +931,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
                     //Calculate amount and match
                     discountAmount = couponDoc?.discount;
                 }else{
-                    discountAmount = Math.min(couponDoc?.discount/100*marginx?.marginXTemplate?.entryFee, couponDoc?.maxDiscount);
+                    discountAmount = Math.min(couponDoc?.discount/100*(marginx?.marginXTemplate?.entryFee-bonusRedemption), couponDoc?.maxDiscount);
                     
                 }
             }else{
@@ -944,7 +944,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
                 }
                 wallet?.transactions?.push({
                     title: 'StoxHero CashBack',
-                    description: `Cashback of ${cashbackAmount?.toFixed(2)} - code ${coupon} used`,
+                    description: `Cashback of ${cashbackAmount?.toFixed(2)} HeroCash - code ${coupon} used`,
                     transactionDate: new Date(),
                     amount:cashbackAmount?.toFixed(2),
                     transactionId: uuid.v4(),
@@ -952,7 +952,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
                 });
             }
         }
-        const totalAmount = ((marginx?.marginXTemplate?.entryFee - discountAmount)*(1+setting[0]?.gstPercentage/100)).toFixed(2);
+        const totalAmount = ((marginx?.marginXTemplate?.entryFee - discountAmount- bonusRedemption)*(1+setting[0]?.gstPercentage/100)).toFixed(2);
         console.log('entry fee', entryFee, totalAmount);
         if(totalAmount != entryFee){
             return {
@@ -968,19 +968,48 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
             return transaction.transactionType === "Cash";
         });
 
+        const bonusTransactions = (wallet)?.transactions?.filter((transaction) => {
+            return transaction.transactionType === "Bonus";
+        });
+
         const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
             return total + transaction?.amount;
         }, 0);
 
+        const totalBonusAmount = bonusTransactions?.reduce((total, transaction) => {
+            return total + transaction?.amount;
+        }, 0);
+
+        
         if (totalCashAmount < (Number(entryFee))) {
             return {
                 statusCode:400,
                 data:{
-                status: "error",
-                message:"You do not have enough balance to join this marginx. Please add money to your wallet.",
+                    status: "error",
+                    message:"You do not have enough balance to join this marginx. Please add money to your wallet.",
                 }
             };
         }
+        if(bonusRedemption > totalBonusAmount || bonusRedemption > marginx?.marginXTemplate?.entryFee*setting[0]?.maxBonusRedemptionPercentage){
+            return {
+              statusCode:400,
+              data:{
+              status: "error",
+              message:"Incorrect HeroCash Redemption",
+              }
+            }; 
+          }
+  
+          if(Number(bonusRedemption)){
+            wallet?.transactions?.push({
+              title: 'StoxHero HeroCash Redeemed',
+              description: `${bonusRedemption} HeroCash used.`,
+              transactionDate: new Date(),
+              amount:-(bonusRedemption?.toFixed(2)),
+              transactionId: uuid.v4(),
+              transactionType: 'Bonus'
+          });
+          }  
 
         for (let i = 0; i < marginx?.participants?.length; i++) {
             if (marginx?.participants[i]?.userId?.toString() === userId?.toString()) {
@@ -1017,6 +1046,10 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
             fee:entryFee,
             actualPrice:marginx?.marginXTemplate?.entryFee
         }
+        if(Number(bonusRedemption)){
+            obj.bonusRedemption = bonusRedemption;
+          }
+  
 
         result.participants.push(obj);
 
@@ -1139,7 +1172,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
         if(coupon && cashbackAmount>0){
             await createUserNotification({
                 title:'StoxHero Cashback',
-                description:`₹${cashbackAmount?.toFixed(2)} added as bonus - ${coupon} code used.`,
+                description:`${cashbackAmount?.toFixed(2)} HeroCash added as bonus - ${coupon} code used.`,
                 notificationType:'Individual',
                 notificationCategory:'Informational',
                 productCategory:'MarginX',
@@ -1164,7 +1197,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
           });
           if(coupon){
             const product = await Product.findOne({productName:'MarginX'}).select('_id');
-            await saveSuccessfulCouponUse(userId, coupon, product?._id);
+            await saveSuccessfulCouponUse(userId, coupon, product?._id, marginx?._id);
           }
           return {
             statusCode:200,

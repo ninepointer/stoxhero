@@ -39,6 +39,7 @@ const CareerForm = () => {
     email: "",
     mobile: "",
     dob: "",
+    gender: "",
     collegeName: "",
     linkedInProfileLink: "",
     priorTradingExperience: "",
@@ -68,6 +69,7 @@ const CareerForm = () => {
       email,
       mobile,
       dob,
+      gender,
       collegeName,
       linkedInProfileLink,
       priorTradingExperience,
@@ -94,6 +96,7 @@ const CareerForm = () => {
         source:source,
         career:career,
         dob:dob,  
+        gender:gender,
         priorTradingExperience: priorTradingExperience,
         campaignCode:campaignCode,
         mobile_otp: mobile_otp,
@@ -122,6 +125,7 @@ const CareerForm = () => {
       email,
       mobile,
       dob,
+      gender,
       collegeName,
       linkedInProfileLink,
       priorTradingExperience,
@@ -135,7 +139,7 @@ const CareerForm = () => {
       //     setOTPGenerated(false)
       //     return openSuccessSB("Invalid mobile Number","Enter 10 digit mobile number","Error")
       //   }
-      if(!firstName || !lastName || !email || !mobile || !dob || !collegeName || !linkedInProfileLink || !priorTradingExperience || !source){
+      if(!firstName || !lastName || !email || !mobile || !dob || !gender || !collegeName || !linkedInProfileLink || !priorTradingExperience || !source){
         return openSuccessSB("Data Incomplete", "Please fill all the required fields", "Error"); 
       }
       if(mobile.length !== 10){
@@ -169,6 +173,7 @@ const CareerForm = () => {
         source:source,
         career:career,
         dob:dob,  
+        gender: gender,
         priorTradingExperience: priorTradingExperience,
         campaignCode:campaignCode,
       })
@@ -360,7 +365,7 @@ const CareerForm = () => {
                       </FormControl>
                     </Grid>
 
-                    <Grid item xs={12} md={6} lg={12}>
+                    <Grid item xs={12} md={6} lg={6}>
                     <TextField
                         required
                         disabled={otpGenerated}
@@ -370,6 +375,26 @@ const CareerForm = () => {
                         fullWidth
                         onChange={(e)=>{setDetails(prevState => ({...prevState, linkedInProfileLink: e.target.value}))}}
                       />
+                    </Grid>
+
+                    <Grid item xs={12} md={6} xl={6}>
+                      <FormControl sx={{width: "100%" }}>
+                        <InputLabel id="demo-simple-select-autowidth-label">Gender *</InputLabel>
+                        <Select
+                        labelId="demo-simple-select-autowidth-label"
+                        id="demo-simple-select-autowidth"
+                        // value={formState?.jobType}
+                        // value={oldObjectId ? contestData?.status : formState?.status}
+                        disabled={otpGenerated}
+                        onChange={(e)=>{setDetails(prevState => ({...prevState, gender: e.target.value}))}}
+                        label="Gender"
+                        sx={{ minHeight:43 }}
+                        >
+                        <MenuItem value="Male">Male</MenuItem>
+                        <MenuItem value="Female">Female</MenuItem>
+                        <MenuItem value="Other">Other</MenuItem>
+                        </Select>
+                      </FormControl>
                     </Grid>
 
                     {!otpGenerated && <Grid item xs={12} md={6} lg={12}>

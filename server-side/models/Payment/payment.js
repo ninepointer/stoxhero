@@ -70,7 +70,8 @@ const Payment = new mongoose.Schema({
         ref: 'user-personal-detail'
     },
     gatewayResponse: {},
-    productId: Schema.Types.ObjectId
+    productId: Schema.Types.ObjectId,
+    bonusRedemption:Number,
 });
 const payment = mongoose.model('payment', Payment);
 module.exports = payment;

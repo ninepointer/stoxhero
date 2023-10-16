@@ -109,7 +109,7 @@ const userDetailSchema = new mongoose.Schema({
     },
     gender:{
         type: String,
-        // required: true
+        enum: ['Male','Female','Other']
     },
     address:{
         type: String,
@@ -336,6 +336,7 @@ const userDetailSchema = new mongoose.Schema({
         isRenew: {type: Boolean},
         fee: {type: Number},
         actualPrice: {type: Number},
+        bonusRedemption:Number,
         payout:{type:Number},
         tdsAmount:{type:Number},
     }],

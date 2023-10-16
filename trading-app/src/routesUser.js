@@ -19,6 +19,7 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AutoFixNormalIcon from '@mui/icons-material/AutoFixNormal';
 import MarginIcon from '@mui/icons-material/Margin';
+import VirtualTrading from './layouts/VirtualTrading'
 //page routes
 import Tnc from "./layouts/terms/tnc";
 import UserOrders from "./layouts/userorders";
@@ -157,6 +158,14 @@ const routes = [
     route: "/virtualtrading",
     component: <UserPosition />,
   },
+  // {
+  //   type: "collapse",
+  //   name: "Paper Trading",
+  //   key: "papertrading",
+  //   icon: <MilitaryTechIcon/>,
+  //   route: "/papertrading",
+  //   component: <VirtualTrading />,
+  // },
   {
     type: "collapse",
     name: "TenX Trading",

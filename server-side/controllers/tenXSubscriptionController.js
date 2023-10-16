@@ -495,12 +495,12 @@ exports.getProSubscription = async(req, res, next)=>{
 exports.renewSubscription = async(req, res, next)=>{
   let isRedisConnected = getValue();
   const userId = req.user._id;
-  const {subscriptionAmount, subscriptionName, subscriptionId} = req.body;
-  const result = await exports.handleSubscriptionRenewal(userId, subscriptionAmount, subscriptionName, subscriptionId, isRedisConnected, coupon);
+  const {subscriptionAmount, subscriptionName, subscriptionId, coupon, bonusRedemption} = req.body;
+  const result = await exports.handleSubscriptionRenewal(userId, subscriptionAmount, subscriptionName, subscriptionId, isRedisConnected, coupon, bonusRedemption);
   res.status(result.statusCode).json(result.data);     
 };
 
-exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscriptionName, subscriptionId, isRedisConnected, coupon) =>{
+exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscriptionName, subscriptionId, isRedisConnected, coupon, bonusRedemption) =>{
   const today = new Date();
   const session = await mongoose.startSession();
   try{
@@ -509,13 +509,37 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
     session.startTransaction();
     const tenXSubs = await TenXSubscription.findOne({_id: new ObjectId(subscriptionId)})
     subscriptionAmount = tenXSubs?.discounted_price;
+    const setting = await Setting.find({});
     const wallet = await Wallet.findOne({userId: userId});
     let amount = 0;
+    let bonusAmount = 0;
     for(elem of wallet.transactions){
       if(elem?.transactionType == 'Cash'){
         amount += elem.amount;
       }
+      else if(elem?.transactionType == 'Bonus'){
+        bonusAmount += elem.amount;  
+      }  
     }
+    if(bonusRedemption > bonusAmount || bonusRedemption > tenXSubs?.discounted_price*setting[0]?.maxBonusRedemptionPercentage){
+      return {
+        statusCode:400,
+        data:{
+        status: "error",
+        message:"Incorrect HeroCash Redemption",
+        }
+      }; 
+    }
+    if(Number(bonusRedemption)){
+      wallet?.transactions?.push({
+          title: 'StoxHero HeroCash Redeemed',
+          description: `${bonusRedemption} HeroCash used.`,
+          transactionDate: new Date(),
+          amount:-(bonusRedemption?.toFixed(2)),
+          transactionId: uuid.v4(),
+          transactionType: 'Bonus'
+      });
+    }  
     if(coupon){
       const couponDoc = await Coupon.findOne({code:coupon});
       if(couponDoc?.rewardType == 'Discount'){
@@ -531,12 +555,12 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
           //Calculate amount and match
           cashbackAmount = couponDoc?.discount;
       }else{
-          cashbackAmount = Math.min(couponDoc?.discount/100*tenXSubs?.discounted_price, couponDoc?.maxDiscount);
+          cashbackAmount = Math.min(couponDoc?.discount/100*(tenXSubs?.discounted_price-bonusRedemption), couponDoc?.maxDiscount);
           
       }
       wallet?.transactions?.push({
           title: 'StoxHero CashBack',
-          description: `Cashback of ${cashbackAmount?.toFixed(2)} - code ${coupon} used`,
+          description: `Cashback of ${cashbackAmount?.toFixed(2)} HeroCash - code ${coupon} used`,
           transactionDate: new Date(),
           amount:cashbackAmount?.toFixed(2),
           transactionId: uuid.v4(),
@@ -545,8 +569,7 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
     }
   }
 
-  const setting = await Setting.find({});
-  const totalAmount = (tenXSubs?.discounted_price - discountAmount)*(1+setting[0]?.gstPercentage/100)
+  const totalAmount = (tenXSubs?.discounted_price - discountAmount -bonusRedemption)*(1+setting[0]?.gstPercentage/100)
   if(Number(totalAmount) != Number(subscriptionAmount)){
     return {
       statusCode:400,
@@ -643,7 +666,8 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
               subscriptionId: new ObjectId(subscriptionId),
               subscribedOn: new Date(),
               isRenew: true,
-              fee: subscriptionAmount
+              fee: subscriptionAmount,
+              bonusRedemption: bonusRedemption??0
             }
           }
         },
@@ -658,7 +682,8 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
               userId: new ObjectId(userId),
               subscribedOn: new Date(),
               isRenew: true,
-              fee: subscriptionAmount
+              fee: subscriptionAmount,
+              bonusRedemption: bonusRedemption ?? 0
           }
         }
     },
@@ -776,7 +801,7 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
     if(coupon && cashbackAmount>0){
       await createUserNotification({
           title:'StoxHero Cashback',
-          description:`₹${cashbackAmount?.toFixed(2)} added as bonus - ${coupon} code used.`,
+          description:`${cashbackAmount?.toFixed(2)}HeroCash added as bonus - ${coupon} code used.`,
           notificationType:'Individual',
           notificationCategory:'Informational',
           productCategory:'TenX',
@@ -802,7 +827,7 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
     await session.commitTransaction();
     if(coupon){
       const product = await Product.findOne({productName:'TenX'}).select('_id');
-      await saveSuccessfulCouponUse(userId, coupon, product?._id);
+      await saveSuccessfulCouponUse(userId, coupon, product?._id, subscription?._id);
     }
     return {
       statusCode:201,
