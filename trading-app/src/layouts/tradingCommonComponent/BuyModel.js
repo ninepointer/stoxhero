@@ -23,7 +23,7 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { renderContext } from "../../renderContext";
 import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader, marginX, battle } from "../../variables";
 
@@ -56,6 +56,8 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
   }
 
   const [buttonClicked, setButtonClicked] = useState(false);
+  const [errorMessageStopLoss, setErrorMessageStopLoss] = useState("");
+  const [errorMessageStopProfit, setErrorMessageStopProfit] = useState("");
 
   const [open, setOpen] = React.useState(buyState);
   const theme = useTheme();
@@ -134,6 +136,25 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
     setBuyState(false);
     setButtonClicked(false);
   };
+
+  const stopLoss = async (e) => {
+    setErrorMessageStopLoss("")
+    buyFormDetails.stopLossPrice = e.target.value
+    if(Number(ltp) < Number(e.target.value)){//errorMessage
+      const text  = "Stop Loss price should be less then LTP.";
+
+      setErrorMessageStopLoss(text)
+    }
+  }
+
+
+  const stopProfit = async (e) => {
+    setErrorMessageStopProfit("")
+    buyFormDetails.stopProfitPrice = e.target.value
+    if(Number(ltp) > Number(e.target.value)){
+      setErrorMessageStopProfit("Stop Profit price should be greater then LTP.")
+    }
+  }
 
   async function buyFunction(e, uId) {
     //console.log("caseStudy 1: buy")
@@ -408,13 +429,20 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
                   </Select>
                 </FormControl>
                 <TextField
-                  id="outlined-basic" disabled={from !== "TenX Trader"} label="StopLoss Price" variant="standard" onChange={(e) => { { buyFormDetails.stopLossPrice = (e.target.value) } }}
-                  sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} />
-
+                  id="outlined-basic" disabled={from !== "TenX Trader"} label="StopLoss Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
+                  sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
+               
                 <TextField
-                  id="outlined-basic" disabled={from !== "TenX Trader"} label="StopProfit Price" variant="standard" onChange={(e) => { { buyFormDetails.stopProfitPrice = (e.target.value) } }}
-                  sx={{ margin: 1, padding: 1, width: "300px" }} />
+                  id="outlined-basic" disabled={from !== "TenX Trader"} label="StopProfit Price" variant="standard" onChange={(e) => { { stopProfit(e) } }}
+                  sx={{ margin: 1, padding: 1, width: "300px" }} type="number" />
+                  
               </Box>
+
+              <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center", gap: "10px" }}>
+                  <Typography fontSize={15} color={"error"}> {buyFormDetails.stopLossPrice && errorMessageStopLoss && errorMessageStopLoss}</Typography>
+                  <Typography fontSize={15} color={"error"}>{buyFormDetails.stopProfitPrice && errorMessageStopProfit && errorMessageStopProfit}</Typography>
+              </Box>
+
               <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
                 <FormControl  >
                   <FormLabel id="demo-controlled-radio-buttons-group" ></FormLabel>
@@ -463,7 +491,7 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <MDButton autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
+            <MDButton disabled={(buyFormDetails.stopLossPrice && (ltp < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (ltp > buyFormDetails.stopProfitPrice))} autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
               BUY
             </MDButton>
             <MDButton variant="contained" color="info" onClick={handleClose} autoFocus>

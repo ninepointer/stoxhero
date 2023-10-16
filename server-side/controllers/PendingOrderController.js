@@ -145,6 +145,10 @@ exports.cancelOrder = async (req, res, next) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
+    if (updatedOrder.status !== "Pending") {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
     data = await client.get('stoploss-stopprofit');
     data = JSON.parse(data);
     let symbolArr = data[`${updatedOrder.instrumentToken}`];
