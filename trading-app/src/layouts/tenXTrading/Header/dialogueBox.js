@@ -37,7 +37,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 
 
-export default function Dialogue({ subscription, amount, name, id, walletCash, setCheckPayment, checkPayment, allowRenewal }) {
+export default function Dialogue({ subscription, amount, name, id, walletCash, bonusCash, setCheckPayment, checkPayment, allowRenewal }) {
   // console.log("props", amount, name, id, walletCash)
   const [open, setOpen] = React.useState(false);
   const getDetails = React.useContext(userContext);
@@ -248,7 +248,7 @@ export default function Dialogue({ subscription, amount, name, id, walletCash, s
               <MDButton variant="contained" color="success" sx={{ fontSize: "10px", width: '100%' }} onClick={() => { navigate(`/tenxtrading/${name}`, { state: { subscriptionId: id } }) }} size='small'>Start Trading</MDButton>
             </Grid>
             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ width: '100%' }}>
-              {allowRenewal && <Renew amount={amount} name={name} id={id} walletCash={walletCash} />}
+              {allowRenewal && <Renew amount={amount} name={name} id={id} walletCash={walletCash} bonusCash={bonusCash} />}
             </Grid>
           </Grid>
         </MDBox>

@@ -21,6 +21,7 @@ import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import {apiUrl} from '../../../constants/constants';
 import MDSnackbar from '../../../components/MDSnackbar';
+import Checkbox from '@mui/material/Checkbox';
 import Input from '@mui/material/Input';
 // import MDTypography from '../../../components/MDTypography';
 // import { userContext } from '../../../AuthContext';
@@ -35,6 +36,7 @@ const ariaLabel = { 'aria-label': 'description' };
 const Payment = ({ elem, setShowPay, showPay }) => {
   const [open, setOpen] = React.useState(false);
   const [userWallet, setUserWallet] = useState(0);
+  const [bonusBalance, setBonusBalance] = useState(0);
   const [setting, setSetting] = useState([]);
   const [code, setCode] = useState('');
   const [verifiedCode, setVerifiedCode] = useState('');
@@ -43,6 +45,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
   const [discountAmount, setDiscountAmount] = useState(0);
   const [cashbackAmount, setCashbackAmount] = useState(0);
   const [showPromoCode, setShowPromoCode] = useState(false);
+  const [checked, setChecked] = useState(false);
   const [messege, setMessege] = useState({
     lowBalanceMessage: "",
     thanksMessege: "",
@@ -118,12 +121,20 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         const cashTransactions = (res.data.data)?.transactions?.filter((transaction) => {
           return transaction.transactionType === "Cash";
         });
+        const bonusTransactions = (res.data.data)?.transactions?.filter((transaction) => {
+          return transaction.transactionType === "Bonus";
+        });
         // console.log((res.data.data)?.transactions);
   
         const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
           return total + transaction?.amount;
         }, 0);
-  
+
+        const totalBonusAmount = bonusTransactions?.reduce((total, transaction) => {
+          return total + transaction?.amount;
+        }, 0);
+
+        setBonusBalance(totalBonusAmount.toFixed(2));
         setUserWallet(totalCashAmount.toFixed(2));
         // console.log("totalCashAmount", totalCashAmount)
   
@@ -176,7 +187,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
   }
 
   const buySubscription = async () => {
-    if (userWallet < Number(amount-discountAmount)) {
+    if (userWallet < Number(amount-discountAmount-bonusRedemption)) {
       return openErrorSB('Low Balance','You don\'t have enough wallet balance for this purchase.');
     }
     const res = await fetch(`${baseUrl}api/v1/dailycontest/feededuct`, {
@@ -187,7 +198,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         "content-type": "application/json"
       },
       body: JSON.stringify({
-        contestFee: Number(amount-discountAmount).toFixed(2), contestName: elem?.contestName, contestId: elem?._id, coupon:verifiedCode
+        contestFee: Number(amount-discountAmount-bonusRedemption).toFixed(2), contestName: elem?.contestName, contestId: elem?._id, coupon:verifiedCode, bonusRedemption 
       })
     });
     const dataResp = await res.json();
@@ -201,17 +212,20 @@ const Payment = ({ elem, setShowPay, showPay }) => {
     } else {
       setMessege({
         ...messege,
-        thanksMessege: `Thanks for the payment of ₹${(Number(amount-discountAmount) + actualAmount).toFixed(2)}, your seat is booked for the contest - ${elem.contestName}, please click on "Start Trading" once the contest starts.`
+        thanksMessege: `Thanks for the payment of ₹${(Number(amount-discountAmount - bonusRedemption) + actualAmount).toFixed(2)} , your seat is booked for the contest - ${elem.contestName}, please click on "Start Trading" once the contest starts.`
       })
     }
   }
 
   const amount = elem?.entryFee;
-  const actualAmount = (elem?.entryFee -discountAmount)*setting.gstPercentage/100;
+  const redeemableBonus = Math.min((amount-discountAmount)*setting?.maxBonusRedemptionPercentage/100, bonusBalance/setting?.bonusToUnitCashRatio??1)??0;
+  const bonusRedemption = checked? Math.min((amount-discountAmount)*setting?.maxBonusRedemptionPercentage/100, bonusBalance/setting?.bonusToUnitCashRatio??1):0;
+  const actualAmount = (elem?.entryFee -discountAmount - bonusRedemption)*setting.gstPercentage/100;
+  console.log('amounts', amount, actualAmount, discountAmount, bonusRedemption);
 
   const initiatePayment = async() => {
     try{
-      const res = await axios.post(`${apiUrl}payment/initiate`,{amount:Number((amount-discountAmount) *100)+actualAmount*100, redirectTo:window.location.href, paymentFor:'Contest', productId: elem?._id, coupon:verifiedCode},{withCredentials: true});
+      const res = await axios.post(`${apiUrl}payment/initiate`,{amount:Number((amount-discountAmount-bonusRedemption) *100)+actualAmount*100, redirectTo:window.location.href, paymentFor:'Contest', productId: elem?._id, coupon:verifiedCode, bonusRedemption},{withCredentials: true});
       console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
       window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
   }catch(e){
@@ -226,7 +240,11 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         setDiscountAmount(Math.min(amount*discount/100, maxDiscount));
       }
     }else{
-      setCashbackAmount(discount);
+      if(discountType == 'Flat'){
+        setCashbackAmount(discount);
+      }else{
+        setCashbackAmount (Math.min(amount*discount/100, maxDiscount));
+      }
     }
   }
   const applyPromoCode = async () => {
@@ -238,7 +256,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         setDiscountAmount(0);
         return;
       }
-      const res = await axios.post(`${apiUrl}coupons/verify`, {code, product:'6517d48d3aeb2bb27d650de5', orderValue:elem?.entryFee}, {withCredentials:true});
+      const res = await axios.post(`${apiUrl}coupons/verify`, {code, product:'6517d48d3aeb2bb27d650de5', orderValue:elem?.entryFee, platform:'Web', paymentMode: value}, {withCredentials:true});
       console.log('verified code',res?.data?.data);
       if(res.status == 200){
         setVerifiedCode(code);
@@ -306,7 +324,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                       >
                         <FormControlLabel value="wallet" control={<Radio />} label="Pay from StoxHero Wallet" />
                         {value == 'wallet' && 
-                        <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={2} style={{minWidth:'40vw'}}  >
+                        <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="flex-start" mt={0} mb={2} style={{minWidth:'40vw'}}  >
                           {!showPromoCode?<MDBox display='flex' justifyContent='flex-start' width='100%' mt={1} 
                             onClick={()=>{setShowPromoCode(true)}} style={{cursor:'pointer'}}>
                                 <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Have a promo code?</Typography>
@@ -331,11 +349,15 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                             {verifiedCode && discountData?.rewardType == 'Cashback' && <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">{discountData?.discountType === 'Percentage' ? 
                               `Cashback (${discountData?.discount}%) on Fee: ₹${cashbackAmount}` : 
                               `Cashback (FLAT ₹ ${discountData?.discount} Cashback) as Wallet Bonus: ₹${cashbackAmount}`}</Typography>}
-                          <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(amount-discountAmount).toFixed(2)}</Typography>
+                          <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(amount-discountAmount-bonusRedemption).toFixed(2)}</Typography>
+                          {bonusBalance > 0 && <MDBox display='flex' justifyContent='flex-start' alignItems='center' ml={-1}>
+                            <Checkbox checked={checked} onChange={()=>setChecked(!checked)}/>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Use {redeemableBonus*(setting?.bonusToUnitCashRatio??1)} HeroCash (1 HeroCash = {1/(setting?.bonusToUnitCashRatio??1)}₹)</Typography>      
+                          </MDBox>}
                         </MDBox>}
                         <FormControlLabel value="bank" control={<Radio />} label="Pay from Bank Account/UPI" />
                         {value == 'bank' &&
-                          <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={0} >
+                          <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="flex-start" mt={0} mb={0} >
                             <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new government regulations. However you don't need to pay anything extra. StoxHero will be taking care of the GST on your behalf. To offset it, we've increased our pricing by a bit. </Typography>
                             {!showPromoCode?<MDBox display='flex' justifyContent='flex-start' width='100%' mt={1} 
                             onClick={()=>{setShowPromoCode(true)}} style={{cursor:'pointer'}}>
@@ -361,7 +383,11 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                             {verifiedCode && discountData?.rewardType == 'Cashback' && <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">{discountData?.discountType === 'Percentage' ? 
                               `Cashback (${discountData?.discount}%) on Fee: ₹${cashbackAmount}` : 
                               `Cashback (FLAT ₹ ${discountData?.discount} Cashback) as Wallet Bonus: ₹${cashbackAmount}`}</Typography>}  
-                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{(Number(amount-discountAmount) + actualAmount).toFixed(2)}</Typography>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{(Number(amount-discountAmount-bonusRedemption) + actualAmount).toFixed(2)}</Typography>
+                            {bonusBalance > 0 && <MDBox display='flex' justifyContent='flex-start' alignItems='center' ml={-1}>
+                              <Checkbox checked={checked} onChange={()=>setChecked(!checked)}/>
+                              <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Use {redeemableBonus * (setting?.bonusToUnitCashRatio??1)} HeroCash (1 HeroCash = {1/(setting?.bonusToUnitCashRatio??1)}₹)</Typography>      
+                          </MDBox>}
                           </MDBox>}
                       </RadioGroup>
                     </FormControl>
@@ -391,7 +417,6 @@ const Payment = ({ elem, setShowPay, showPay }) => {
 
                   </MDBox>
                 </DialogContentText>
-
                 {value == 'wallet' && 
                 <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={2}  >
                   <MDBox onClick={() => { buySubscription() }} border="1px solid #4CAF50" borderRadius="10px" display="flex" alignItems="center" justifyContent="space-between" sx={{ height: "40px", width: { xs: "85%", md: "auto" }, "&:hover": { cursor: "pointer", border: "1px solid #fff" } }}  style={{backgroundColor: "#4CAF50"}} >
@@ -419,7 +444,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
             Close
           </MDButton>
           <MDButton color={"success"} onClick={()=>initiatePayment()} autoFocus>
-            {`Pay ₹${ Number(amount-discountAmount) + actualAmount} securely`}
+            {`Pay ₹${ Number(amount-discountAmount -bonusRedemption) + actualAmount} securely`}
           </MDButton>
         </DialogActions>}
         {renderSuccessSB}

@@ -25,6 +25,7 @@ const marginXSchema = new Schema({
     participants:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         boughtAt:{type:Date},
+        bonusRedemption:Number,
         payout: {type: Number},
         tdsAmount: {type: Number},
         accountBlown: {type: Boolean},

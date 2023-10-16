@@ -50,6 +50,7 @@ function CreateCoupon() {
   const id = location?.state?.data;
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(id?.eligibleProducts ? id?.eligibleProducts : []);
+  const [selectedPlatform, setSelectedPlatform] = useState(id?.eligiblePlatforms ? id?.eligiblePlatforms : []);
   const [couponData, setCouponData] = useState(id ? id : '');
   const [isObjectNew, setIsObjectNew] = useState(id ? true : false)
   const [isLoading, setIsLoading] = useState(false)
@@ -67,8 +68,10 @@ function CreateCoupon() {
     liveDate: dayjs(id?.liveDate) || dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
     expiryDate: dayjs(id?.expiryDate) || dayjs(new Date()).set('hour', 23).set('minute', 59).set('second', 59),
     eligibleProducts: id?.eligibleProducts || [],
+    eligiblePlatforms: id?.eligiblePlatforms || [],
     maxDiscount: id?.maxDiscount || '',
     minOrderValue: id?.minOrderValue || '',
+    affiliatePercentage: id?.affiliatePercentage || '',
   });
   async function getProducts() {
     const res = await axios.get(`${apiUrl}products`, { withCredentials: true });
@@ -85,13 +88,13 @@ function CreateCoupon() {
 
     setCreating(true)
 
-    if (!formState?.code || !formState?.discount || !formState?.discountType || !formState?.liveDate || !formState?.expiryDate || !formState?.maxDiscount) {
+    if (!formState?.code || !formState?.discount || !formState?.discountType || !formState?.liveDate || !formState?.expiryDate || !formState?.maxDiscount || !formState?.eligiblePlatforms.length || !formState?.eligiblePlatforms.length) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500);
       return openErrorSB("Missing Field", "Please fill all the mandatory fields");
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const { code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description, maxDiscount, minOrderValue } = formState;
+    const { code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description, maxDiscount, minOrderValue, eligiblePlatforms, affiliatePercentage } = formState;
     const res = await fetch(`${apiUrl}coupons`, {
       method: "POST",
       credentials: "include",
@@ -100,7 +103,7 @@ function CreateCoupon() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        maxDiscount, code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description, minOrderValue
+        maxDiscount, code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description, minOrderValue, eligiblePlatforms, affiliatePercentage
       })
     });
 
@@ -127,7 +130,7 @@ function CreateCoupon() {
       return openErrorSB("Missing Field", "Please fill all the mandatory fields");
     }
 
-    const { code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description, maxDiscount, minOrderValue } = formState;
+    const { code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description, maxDiscount, minOrderValue, eligiblePlatforms,affiliatePercentage } = formState;
     const res = await fetch(`${apiUrl}coupons/${id?._id}`, {
       method: "PATCH",
       credentials: "include",
@@ -136,7 +139,7 @@ function CreateCoupon() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description, maxDiscount, minOrderValue
+        code, discount, discountType, rewardType, liveDate, expiryDate, status, eligibleProducts, isOneTimeUse, description, maxDiscount, minOrderValue, eligiblePlatforms, affiliatePercentage
       })
 
     });
@@ -204,6 +207,15 @@ function CreateCoupon() {
     setFormState(prevState => ({
       ...prevState,
       eligibleProducts: selectedIds
+    }));
+  };
+  const handlePlatformChange = (event) => {
+    const selectedIds = event.target.value;
+    setSelectedPlatform(selectedIds);
+
+    setFormState(prevState => ({
+      ...prevState,
+      eligiblePlatforms: selectedIds
     }));
   };
 
@@ -469,6 +481,55 @@ function CreateCoupon() {
                   }}
                 />
               </Grid>
+              <Grid item xs={12} md={6} xl={3}>
+                <TextField
+                  disabled={((isSubmitted || id) && (!editing || saving))}
+                  id="outlined-required"
+                  type="number"
+                  label='Affiliate Percentage'
+                  value={formState?.affiliatePercentage || editing ? formState?.affiliatePercentage : couponData?.affiliatePercentage}
+                  fullWidth
+                  onChange={(e) => {
+                    setFormState(prevState => ({
+                      ...prevState,
+                      affiliatePercentage: e.target.value
+                    }))
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6} xl={4} mt={-1} mb={1}>
+                <FormControl sx={{ m: 1, width:'100%'}}>
+                  <InputLabel id="demo-multiple-checkbox-label">Eligible Platforms</InputLabel>
+                  <Select
+                    labelId="demo-multiple-checkbox-label"
+                    id="demo-multiple-checkbox"
+                    multiple
+                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    value={selectedPlatform}
+                    onChange={handlePlatformChange}
+                    input={<OutlinedInput label="Tag" />}
+                    renderValue={(selectedIds) =>
+                      selectedIds.map(id => id).join(', ')
+                      // console.log(selectedIds)
+                    }
+                    sx={{ minHeight: "44px" }}
+                    MenuProps={MenuProps}
+                  >
+                    <MenuItem key={1} value='Web'>
+                        <Checkbox checked={selectedPlatform.indexOf('Web') > -1} />
+                        <ListItemText primary={'Web'} />
+                      </MenuItem>
+                      <MenuItem key={2} value='Android'>
+                        <Checkbox checked={selectedPlatform.indexOf('Android') > -1} />
+                        <ListItemText primary={'Android'} />
+                      </MenuItem>
+                      <MenuItem key={3} value='iOS'>
+                        <Checkbox checked={selectedPlatform.indexOf('iOS') > -1} />
+                        <ListItemText primary={'iOS'} />
+                      </MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid> 
 
 
 

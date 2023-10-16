@@ -1409,7 +1409,7 @@ exports.creditAmountToWallet = async () => {
             // if (contest[j].contestEndTime < new Date()) {
             for (let i = 0; i < contest[j]?.participants?.length; i++) {
                 let userId = contest[j]?.participants[i]?.userId;
-                let fee = contest[j]?.participants[i]?.fee;
+                let fee = contest[j]?.participants[i]?.fee ?? 0;
                 let payoutPercentage = contest[j]?.payoutPercentage
                 let id = contest[j]._id;
                 let pnlDetails = await DailyContestMockUser.aggregate([
@@ -1458,17 +1458,23 @@ exports.creditAmountToWallet = async () => {
                     }
 
                     const wallet = await Wallet.findOne({ userId: userId });
+                    const transactionDescription = `Amount credited for contest ${contest[j].contestName}`;
+
+                    // Check if a transaction with this description already exists
+                    const existingTransaction = wallet?.transactions?.some(transaction => transaction.description === transactionDescription);
 
                     console.log(userId, pnlDetails[0]);
-
-                    wallet.transactions = [...wallet.transactions, {
-                        title: 'Contest Credit',
-                        description: `Amount credited for contest ${contest[j].contestName}`,
-                        transactionDate: new Date(),
-                        amount: payoutAmount?.toFixed(2),
-                        transactionId: uuid.v4(),
-                        transactionType: 'Cash'
-                    }];
+                    //check if wallet.transactions doesn't have an object with the particular description, then push it to wallet.transactions
+                    if(wallet?.transactions?.length == 0 || !existingTransaction){
+                      wallet.transactions.push({
+                          title: 'Contest Credit',
+                          description: `Amount credited for contest ${contest[j].contestName}`,
+                          transactionDate: new Date(),
+                          amount: payoutAmount?.toFixed(2),
+                          transactionId: uuid.v4(),
+                          transactionType: 'Cash'
+                      });
+                    }
                     await wallet.save();
                     const user = await User.findById(userId).select('first_name last_name email')
 
@@ -1711,9 +1717,9 @@ exports.getDailyContestUsers = async (req, res) => {
 exports.deductSubscriptionAmount = async (req, res, next) => {
 
     try {
-        const { contestFee, contestName, contestId, coupon } = req.body
+        const { contestFee, contestName, contestId, coupon, bonusRedemption } = req.body
         const userId = req.user._id;
-        const result = await exports.handleSubscriptionDeduction(userId, contestFee, contestName, contestId, coupon);
+        const result = await exports.handleSubscriptionDeduction(userId, contestFee, contestName, contestId, coupon, bonusRedemption);
         
         res.status(result.stautsCode).json(result.data);
     } catch (error) {
@@ -1722,23 +1728,55 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
             status: "error",
             message: "Something went wrong..."
         });
+      }
     }
-}
-
-exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, contestId, coupon)=>{
-  try{
-    const contest = await Contest.findOne({ _id: contestId });
+    
+    exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, contestId, coupon, bonusRedemption)=>{
+      try{
+        const contest = await Contest.findOne({ _id: contestId });
         const wallet = await UserWallet.findOne({ userId: userId });
         const user = await User.findOne({ _id: userId });
+        const setting = await Setting.find({});
         let discountAmount = 0;
         let cashbackAmount = 0;
         const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
             return transaction.transactionType === "Cash";
         });
+        const bonusTransactions = (wallet)?.transactions?.filter((transaction) => {
+            return transaction.transactionType === "Bonus";
+        });
+
 
         const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
             return total + transaction?.amount;
         }, 0);
+        const totalBonusAmount = bonusTransactions?.reduce((total, transaction) => {
+            return total + transaction?.amount;
+        }, 0);
+        
+        //Check if Bonus Redemption is valid
+        if(bonusRedemption > totalBonusAmount || bonusRedemption > contest?.entryFee*setting[0]?.maxBonusRedemptionPercentage){
+          return {
+            statusCode:400,
+            data:{
+            status: "error",
+            message:"Incorrect HeroCash Redemption",
+            }
+          }; 
+        }
+
+        if(Number(bonusRedemption)){
+          wallet?.transactions?.push({
+            title: 'StoxHero HeroCash Redeemed',
+            description: `${bonusRedemption} HeroCash used.`,
+            transactionDate: new Date(),
+            amount:-(bonusRedemption?.toFixed(2)),
+            transactionId: uuid.v4(),
+            transactionType: 'Bonus'
+        });
+        }
+
+
         if(coupon){
           const couponDoc = await Coupon.findOne({code:coupon});
           if(couponDoc?.rewardType == 'Discount'){
@@ -1754,12 +1792,12 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
               //Calculate amount and match
               cashbackAmount = couponDoc?.discount;
           }else{
-              cashbackAmount = Math.min(couponDoc?.discount/100*contest?.entryFee, couponDoc?.maxDiscount);
+              cashbackAmount = Math.min(couponDoc?.discount/100*(contest?.entryFee-bonusRedemption), couponDoc?.maxDiscount);
               
           }
           wallet?.transactions?.push({
               title: 'StoxHero CashBack',
-              description: `Cashback of ${cashbackAmount?.toFixed(2)} - code ${coupon} used`,
+              description: `Cashback of ${cashbackAmount?.toFixed(2)} HeroCash - code ${coupon} used`,
               transactionDate: new Date(),
               amount:cashbackAmount?.toFixed(2),
               transactionId: uuid.v4(),
@@ -1767,8 +1805,7 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
           });
           }
       }
-      const setting = await Setting.find({});
-      const totalAmount = (contest?.entryFee - discountAmount)*(1+setting[0]?.gstPercentage/100)
+      const totalAmount = (contest?.entryFee - discountAmount - bonusRedemption)*(1+setting[0]?.gstPercentage/100)
       if(Number(totalAmount)?.toFixed(2) != Number(contestFee)?.toFixed(2)){
         return {
           statusCode:400,
@@ -1920,7 +1957,10 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
             userId: userId,
             participatedOn: new Date(),
             fee:contestFee,
-            actualPrice:contest?.entryFee
+            actualPrice:contest?.entryFee,
+        }
+        if(Number(bonusRedemption)){
+          obj.bonusRedemption = bonusRedemption;
         }
 
         console.log(noOfContest, noOfContest[0]?.totalContestsCount, result?.liveThreshold , result.currentLiveStatus)
@@ -2054,7 +2094,7 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
         if(coupon && cashbackAmount>0){
           await createUserNotification({
               title:'StoxHero Cashback',
-              description:`₹${cashbackAmount?.toFixed(2)} added as bonus - ${coupon} code used.`,
+              description:`${cashbackAmount?.toFixed(2)} HeroCash added as bonus - ${coupon} code used.`,
               notificationType:'Individual',
               notificationCategory:'Informational',
               productCategory:'Contest',
@@ -2079,7 +2119,7 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
           });
           if(coupon){
             const product = await Product.findOne({productName:'Contest'}).select('_id');
-            await saveSuccessfulCouponUse(userId, coupon, product?._id);
+            await saveSuccessfulCouponUse(userId, coupon, product?._id, contest?._id);
           }
           return {
             stautsCode:200,
