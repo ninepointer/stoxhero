@@ -13,16 +13,16 @@ function OrderHelper({ symbol, averagePrice, amount, quantity, buyOrSell, type, 
       fontColor: "grey",
       color: "#7b809a",
       fontWeight: "600",
-      paddingTop: "4px",
-      paddingBottom: "4px"
+      paddingTop: "2.5px",
+      paddingBottom: "2.5px"
     }
 
   return (
     <>
       <td style={styleTD} >{symbol}</td>
       <td style={styleTD} >{quantity}</td>
-      <td style={styleTD} >{averagePrice}</td>
-      <td style={styleTD} >{amount}</td>
+      <td style={styleTD} >₹{averagePrice}</td>
+      <td style={styleTD} >₹{amount}</td>
       <td style={styleTD} >{type}</td>
       <td style={{...styleTD, color: `${buyOrSell === "BUY" ? "green" : "red"}`}} >{buyOrSell}</td>
       {update?.status ?

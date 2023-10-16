@@ -157,8 +157,16 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
   }
 
   async function buyFunction(e, uId) {
-    //console.log("caseStudy 1: buy")
-    // console.log("buttonClicked inside", buttonClicked)
+    if(!buyFormDetails.Quantity){
+      openSuccessSB('error', "Please select quantity for trade.");
+      return;
+    }
+
+    if(buyFormDetails.OrderType === "SL/SP-M" && (!buyFormDetails.stopLossPrice && !buyFormDetails.stopProfitPrice)){
+      openSuccessSB('error', "Please enter stop loss or stop profit price.");
+      return;
+    }
+
     if(buttonClicked){
       // setButtonClicked(false);
       return;
@@ -428,12 +436,17 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
                     }
                   </Select>
                 </FormControl>
+
                 <TextField
-                  id="outlined-basic" disabled={from !== "TenX Trader"} label="StopLoss Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
+                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "SL/SP-M"} label="Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
+                  sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
+
+                <TextField
+                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT"} label="StopLoss Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
                   sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
                
                 <TextField
-                  id="outlined-basic" disabled={from !== "TenX Trader"} label="StopProfit Price" variant="standard" onChange={(e) => { { stopProfit(e) } }}
+                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT"} label="StopProfit Price" variant="standard" onChange={(e) => { { stopProfit(e) } }}
                   sx={{ margin: 1, padding: 1, width: "300px" }} type="number" />
                   
               </Box>
@@ -453,20 +466,10 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
                     onChange={marketHandleChange}
                     sx={{ display: "flex", flexDirection: "row" }}
                   >
-                    <FormControlLabel  disabled="true" value="MARKET" control={<Radio />} label="MARKET" />
-                    <FormControlLabel disabled="true" value="LIMIT" control={<Radio />} label="LIMIT" />
-                  </RadioGroup>
-                </FormControl>
-                <FormControl  >
-                  <FormLabel id="demo-controlled-radio-buttons-group" ></FormLabel>
-                  <RadioGroup
-                    aria-labelledby="demo-controlled-radio-buttons-group"
-                    name="controlled-radio-buttons-group"
-                    onChange={(e) => { { buyFormDetails.stopLoss = (e.target.value) } }}
-                    sx={{ display: "flex", flexDirection: "row" }}
-                  >
-                    <FormControlLabel disabled="true" value="SL" control={<Radio />} label="SL" />
-                    <FormControlLabel disabled="true" value="SLM" control={<Radio />} label="SL-M" />
+                    <FormControlLabel value="MARKET" control={<Radio />} label="MARKET" />
+                    <FormControlLabel disabled="false" value="LIMIT" control={<Radio />} label="LIMIT" />
+                    <FormControlLabel value="SL/SP-M" control={<Radio />} label="SL/SP-M" />
+
                   </RadioGroup>
                 </FormControl>
 

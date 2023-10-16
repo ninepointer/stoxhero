@@ -146,7 +146,7 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
     setErrorMessageStopLoss("")
     sellFormDetails.stopLossPrice = e.target.value
     if(Number(ltp) > Number(e.target.value)){//errorMessage
-      const text  = "Stop Loss price should be less then LTP.";
+      const text  = "Stop Loss price should be greater then LTP.";
 
       setErrorMessageStopLoss(text)
     }
@@ -157,16 +157,25 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
     setErrorMessageStopProfit("")
     sellFormDetails.stopProfitPrice = e.target.value
     if(Number(ltp) < Number(e.target.value)){
-      setErrorMessageStopProfit("Stop Profit price should be greater then LTP.")
+      setErrorMessageStopProfit("Stop Profit price should be less then LTP.")
     }
   }
 
 
 
-  async function sellFunction(e, uId) {
+  async function sellFunction(e) {
+
+      if(!sellFormDetails.Quantity){
+        openSuccessSB('error', "Please select quantity for trade.");
+        return;
+      }
+
+      if(sellFormDetails.OrderType === "SL/SP-M" && (!sellFormDetails.stopLossPrice && !sellFormDetails.stopProfitPrice)){
+        openSuccessSB('error', "Please enter stop loss or stop profit price.");
+        return;
+      }
 
       if(buttonClicked){
-        // setButtonClicked(false);
         return;
       }
       setButtonClicked(true);
@@ -387,15 +396,10 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
 
   return (
     <div>
-      {/* {fromSearchInstrument ? 
-      <MDBox color="light" onClick={handleClickOpen}>
-        S
-      </MDBox>
-      :  */}
+
       <MDButton size="small" sx={{marginRight:0.5,minWidth:2,minHeight:3}} color="error" onClick={handleClickOpen} >
         S
       </MDButton>
-      {/* } */}
       <Dialog
         fullScreen={fullScreen}
         open={open}
@@ -424,71 +428,67 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
             </FormControl>
 
             <Box sx={{ display: "flex", flexDirection: "row" }}>
-                <FormControl variant="standard" sx={{ m: 1, minWidth: 120, }}>
-                  <InputLabel id="demo-simple-select-standard-label">Quantity</InputLabel>
-                  <Select
-                    labelId="demo-simple-select-standard-label"
-                    id="demo-simple-select-standard"
-                    label="Quantity"
-                    onChange={(e) => { { sellFormDetails.Quantity = (e.target.value) } }}
-                    sx={{ margin: 1, padding: 0.5, }}
-                  >
-                    {/* <MenuItem value="100">100</MenuItem>
+              <FormControl variant="standard" sx={{ m: 1, minWidth: 120, }}>
+                <InputLabel id="demo-simple-select-standard-label">Quantity</InputLabel>
+                <Select
+                  labelId="demo-simple-select-standard-label"
+                  id="demo-simple-select-standard"
+                  label="Quantity"
+                  onChange={(e) => { { sellFormDetails.Quantity = (e.target.value) } }}
+                  sx={{ margin: 1, padding: 0.5, }}
+                >
+                  {/* <MenuItem value="100">100</MenuItem>
                     <MenuItem value="150">150</MenuItem> */}
-                    {optionData.map((elem)=>{
-                      // //console.log("optionData", elem)
-                        return(
-                            <MenuItem value={elem.props.value}>
-                            {elem.props.children}
-                            </MenuItem>
-                        )
-                    }) 
-                    }
-                  </Select>
-                </FormControl>
-                <TextField
-                  id="outlined-basic" disabled={from !== "TenX Trader"} label="StopLoss Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
-                  sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
-               
-                <TextField
-                  id="outlined-basic" disabled={from !== "TenX Trader"} label="StopProfit Price" variant="standard" onChange={(e) => { { stopProfit(e) } }}
-                  sx={{ margin: 1, padding: 1, width: "300px" }} type="number" />
-                  
-              </Box>
+                  {optionData.map((elem) => {
+                    // //console.log("optionData", elem)
+                    return (
+                      <MenuItem value={elem.props.value}>
+                        {elem.props.children}
+                      </MenuItem>
+                    )
+                  })
+                  }
+                </Select>
+              </FormControl>
+
+              <TextField
+                id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "SL/SP-M"} label="Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
+                sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
+
+              <TextField
+                id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "LIMIT"} label="StopLoss Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
+                sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
+
+              <TextField
+                id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "LIMIT"} label="StopProfit Price" variant="standard" onChange={(e) => { { stopProfit(e) } }}
+                sx={{ margin: 1, padding: 1, width: "300px" }} type="number" />
+
+            </Box>
 
             <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center", gap: "10px" }}>
                   <Typography fontSize={15} color={"error"}> {sellFormDetails.stopLossPrice && errorMessageStopLoss && errorMessageStopLoss}</Typography>
                   <Typography fontSize={15} color={"error"}>{sellFormDetails.stopProfitPrice && errorMessageStopProfit && errorMessageStopProfit}</Typography>
               </Box>
 
-            <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
-              <FormControl  >
-                <FormLabel id="demo-controlled-radio-buttons-group" ></FormLabel>
-                <RadioGroup
-                  aria-labelledby="demo-controlled-radio-buttons-group"
-                  name="controlled-radio-buttons-group"
-                  value={market}
-                  onChange={marketHandleChange}
-                  sx={{ display: "flex", flexDirection: "row" }}
-                >
-                  <FormControlLabel value="MARKET" disabled="true" control={<Radio />} label="MARKET" />
-                  <FormControlLabel value="LIMIT" disabled="true" control={<Radio />} label="LIMIT" />
-                </RadioGroup>
-              </FormControl>
-              <FormControl  >
-                <FormLabel id="demo-controlled-radio-buttons-group" ></FormLabel>
-                <RadioGroup
-                  aria-labelledby="demo-controlled-radio-buttons-group"
-                  name="controlled-radio-buttons-group"
-                  onChange={(e) => { { sellFormDetails.stopLoss = (e.target.value) } }}
-                  sx={{ display: "flex", flexDirection: "row" }}
-                >
-                  <FormControlLabel value="SL" disabled="true" control={<Radio />} label="SL" />
-                  <FormControlLabel value="SLM" disabled="true" control={<Radio />} label="SL-M" />
-                </RadioGroup>
-              </FormControl>
 
-            </Box>
+              <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
+                <FormControl  >
+                  <FormLabel id="demo-controlled-radio-buttons-group" ></FormLabel>
+                  <RadioGroup
+                    aria-labelledby="demo-controlled-radio-buttons-group"
+                    name="controlled-radio-buttons-group"
+                    value={market}
+                    onChange={marketHandleChange}
+                    sx={{ display: "flex", flexDirection: "row" }}
+                  >
+                    <FormControlLabel value="MARKET" control={<Radio />} label="MARKET" />
+                    <FormControlLabel disabled="false" value="LIMIT" control={<Radio />} label="LIMIT" />
+                    <FormControlLabel value="SL/SP-M" control={<Radio />} label="SL/SP-M" />
+
+                  </RadioGroup>
+                </FormControl>
+
+              </Box>
 
             <Box>
               <FormControl  >

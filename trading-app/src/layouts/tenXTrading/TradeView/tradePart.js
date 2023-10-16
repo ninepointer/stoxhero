@@ -20,6 +20,9 @@ import TenXTMargin from '../../tradingCommonComponent/MarginDetails/TenXMargin';
 import { tenxTrader } from '../../../variables';
 import {useNavigate} from "react-router-dom"
 import OrderHeader from '../Header/OrderHeader';
+import Order from '../Header/Order/Order';
+import PendingOrder from '../Header/Order/PendingOrder';
+import ExecutedOrders from '../Header/Order/ExecutedOrders';
 
 export default function TenXTrading({ tradingDayData, socket, subscriptionId }) {
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
@@ -173,10 +176,19 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
           <Grid item xs={12} md={6} lg={12}>
             {memoizedOverallPnl}
           </Grid>
+
           <Grid item xs={12} md={6} lg={12}>
-            <OrderHeader subscriptionId={subscriptionId} />
+            <PendingOrder subscriptionId={subscriptionId} />
+            <ExecutedOrders subscriptionId={subscriptionId} />
+            <Order subscriptionId={subscriptionId} />
+          </Grid>
+          {/* <Grid item xs={12} md={6} lg={12}>
+            <ExecutedOrders subscriptionId={subscriptionId} />
           </Grid>
           <Grid item xs={12} md={6} lg={12}>
+            <Order subscriptionId={subscriptionId} />
+          </Grid> */}
+          <Grid item xs={12} md={6} lg={12} >
             <TenXTMargin availbaleMargin={availbaleMargin} subscriptionId={subscriptionId} setyesterdayData={setyesterdayData} />
           </Grid>
         </Grid>

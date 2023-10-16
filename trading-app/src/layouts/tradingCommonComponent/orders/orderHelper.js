@@ -19,8 +19,8 @@ function OrderHelper({ symbol, averagePrice, amount, quantity, buyOrSell, orderi
     <>
       <td style={styleTD} >{symbol}</td>
       <td style={styleTD} >{quantity}</td>
-      <td style={styleTD} >{averagePrice}</td>
-      <td style={styleTD} >{amount}</td>
+      <td style={styleTD} >₹{averagePrice}</td>
+      <td style={styleTD} >₹{amount}</td>
       <td style={{...styleTD, color: `${buyOrSell === "BUY" ? "green" : "red"}`}} >{buyOrSell}</td>
       <td style={styleTD} >{orderid}</td>
       <td style={{...styleTD, color: `${status === "COMPLETE" ? "green" : "red"}`}} >{status}</td>

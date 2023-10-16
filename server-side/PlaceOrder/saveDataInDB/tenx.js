@@ -31,6 +31,24 @@ exports.tenxTrade = async (req, res, otherData) => {
 
     const save = await TenxTrader.create([tenxDoc], { session });
 
+    /*
+    matchingElement.lots === Number(tenxDoc.Quantity);
+    1. remove all stoploss of user and instrument matching also cancel in db
+    2. dont apply new stoploss
+    
+    matchingElement.lots > Number(tenxDoc.Quantity);
+    1. sustain all stoploss and dont apply new stoploss
+
+    matchingElement.lots < Number(tenxDoc.Quantity);
+    1. remove existing stoploss and cancel in db
+    */
+
+    // let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
+    // pnl = JSON.parse(pnl);
+    // const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product));
+
+    // console.log(matchingElement.lots , Number(tenxDoc.Quantity))
+
     if (isRedisConnected && await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)) {
       let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
       pnl = JSON.parse(pnl);

@@ -1,6 +1,6 @@
 import React from "react";
 import axios from "axios";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, memo } from "react";
 // import { userContext } from '../../../AuthContext';
 import moment from 'moment';
 
@@ -18,7 +18,7 @@ import OrderHelper from "../../../tradingCommonComponent/orders/orderHelper";
 // import { useLocation, Link } from "react-router-dom";
 
 
-export default function Orders({ subscriptionId }) {
+function Orders({ subscriptionId }) {
 
 
     let styleTD = {
@@ -169,7 +169,7 @@ export default function Orders({ subscriptionId }) {
 
         orderObj.time = (
             <MDTypography component="a" href="#" variant="caption" color={"text"} fontWeight="medium">
-                {moment.utc(elem?.trade_time).utcOffset('+00:00').format('DD-MMM HH:mm:ss')}
+                {moment.utc(elem?.trade_time_utc).utcOffset('+05:30').format('DD-MMM HH:mm:ss')}
             </MDTypography>
         );
 
@@ -187,7 +187,7 @@ export default function Orders({ subscriptionId }) {
                     <CircularProgress color='light' />
                 </MDBox>
                 :
-                <Card>
+                <Card sx={{borderTopRightRadius: "0px", borderTopLeftRadius: "0px"}}>
 
                     <MDBox display="flex" justifyContent="space-between" alignItems="center" pl={2} pr={2} pt={2} pb={2}>
                         <MDBox display="flex">
@@ -268,3 +268,5 @@ export default function Orders({ subscriptionId }) {
 
     );
 }
+
+export default memo(Orders)

@@ -1,6 +1,6 @@
 import React from "react";
 import axios from "axios";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, memo } from "react";
 // import { userContext } from '../../../AuthContext';
 import moment from 'moment';
 
@@ -18,7 +18,7 @@ import OrderHelper from "../Order/PendingOrderHelper";
 // import { useLocation, Link } from "react-router-dom";
 
 
-export default function PendingOrders({ subscriptionId }) {
+function PendingOrders({ subscriptionId }) {
 
 
     let styleTD = {
@@ -38,7 +38,7 @@ export default function PendingOrders({ subscriptionId }) {
     // const getDetails = useContext(userContext);
     const { render } = useContext(renderContext);
 
-    let url =  `pendingorder/my/today/${subscriptionId}/TenX`;
+    let url =  `pendingorder/my/todaysPending/${subscriptionId}/TenX`;
     useEffect(() => {
         setIsLoading(true)
         console.log("Inside Use Effect")
@@ -169,7 +169,7 @@ export default function PendingOrders({ subscriptionId }) {
 
         orderObj.time = (
             <MDTypography component="a" href="#" variant="caption" color={"text"} fontWeight="medium">
-                {moment.utc(elem?.time).utcOffset('+00:00').format('DD-MMM HH:mm:ss')}
+                {moment.utc(elem?.time).utcOffset('+05:00').format('DD-MMM HH:mm:ss')}
             </MDTypography>
         );
 
@@ -188,9 +188,11 @@ export default function PendingOrders({ subscriptionId }) {
                     <CircularProgress color='light' />
                 </MDBox>
                 :
-                <Card>
+                <Card 
+                sx={{borderBottomRightRadius: "0px", borderBottomLeftRadius: "0px", backgroundColor: "light"}}
+                >
 
-                    <MDBox display="flex" justifyContent="space-between" alignItems="center" pl={2} pr={2} pt={2} pb={2}>
+                    <MDBox display="flex" justifyContent="space-between" alignItems="center" pl={2} pr={2} pt={2} pb={2} mb={-1}>
                         <MDBox display="flex">
                             <MDTypography variant="h6" gutterBottom>
                                 My Pending Orders
@@ -267,3 +269,5 @@ export default function PendingOrders({ subscriptionId }) {
 
     );
 }
+
+export default memo(PendingOrders)
