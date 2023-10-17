@@ -3987,6 +3987,9 @@ exports.getContestLeaderboardById = async (req, res) => {
               last_name: {
                 $arrayElemAt: ["$user.last_name", 0],
               },
+              image:{
+                $arrayElemAt: ["$user.profilePhoto.url", 0]
+              },
               rank: {
                 $ifNull: ["$participants.rank", "-"],
               },
