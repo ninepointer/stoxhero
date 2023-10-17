@@ -7,10 +7,12 @@ import Tooltip from '@mui/material/Tooltip';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import { apiUrl } from '../../../../constants/constants';
+import EditPriceModal from './editPriceModal';
 
 
 export default function AccountMenu({id, setUpdate}) {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [openEditModal, setOpenEditModal] = useState(false);
   const open = Boolean(anchorEl);
 
   const handleClick = (event) => {
@@ -98,7 +100,11 @@ export default function AccountMenu({id, setUpdate}) {
         <MenuItem onClick={cancelOrder} >
           <HighlightOffIcon sx={{ mr: 2 }} /> Cancle Order
         </MenuItem>
+        <MenuItem onClick={()=>setOpenEditModal(true)} >
+          <HighlightOffIcon sx={{ mr: 2 }} /> Edit Price
+        </MenuItem>
       </Menu>
+      <EditPriceModal openEditModal = {openEditModal} setOpenEditModal={setOpenEditModal}/>
     </React.Fragment>
   );
 }
