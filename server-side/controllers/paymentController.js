@@ -431,9 +431,12 @@ exports.handleCallback = async (req, res, next) => {
                     }else{
                         await addCashback(payment?.amount-payment?.gstAmount, payment?.paymentBy, payout?.coupon);
                         await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, 'Wallet');
-                        await sendWhatsAppNotification(payment);
                     }
                 }
+                if(!payment?.paymentFor){
+                    await sendWhatsAppNotification(payment);
+                }
+
                 res.status(200).json({ status:'success', message: 'Payment was successful' });
             } else if (decodedResponse.code === 'PAYMENT_ERROR') {
                 // TODO: Update the status in your database to 'FAILED'
@@ -504,6 +507,7 @@ exports.checkPaymentStatus = async(req,res, next) => {
         console.log('response payment instrument', resp?.data?.data?.paymentInstrument);
         if(resp.data.code == 'PAYMENT_SUCCESS'){
             if(payment.paymentStatus != 'succeeded'){
+                console.log('updating payment status');
                 payment.paymentStatus = 'succeeded';
                 payment.transactionId = resp?.data?.data?.transactionId;
                 payment.paymentMode = resp?.data?.data?.paymentInstrument?.type;
@@ -525,8 +529,10 @@ exports.checkPaymentStatus = async(req,res, next) => {
                         }else{
                             await addCashback(payment?.amount-payment?.gstAmount, payment?.paymentBy, payment?.coupon);
                             await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, 'Wallet');
-                            await sendWhatsAppNotification(payment);
                         }
+                    }
+                    if(!payment?.paymentFor){
+                        await sendWhatsAppNotification(payment);
                     }    
                 }    
             }
