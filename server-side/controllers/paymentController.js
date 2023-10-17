@@ -617,12 +617,12 @@ const sendWhatsAppNotification = async(payment) => {
 
     try{
         if(process.env.PROD == 'true'){
-          whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),(totalCashAmount+amount).toLocaleString('en-IN'), (totalBonusAmount+(bonusRedemption??0)).toLocaleString('en-IN')], tags : '', attributes : ''});
-          whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),(totalCashAmount+amount).toLocaleString('en-IN'), (totalBonusAmount+(bonusRedemption??0)).toLocaleString('en-IN')], tags : '', attributes : ''});
+          whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),(totalCashAmount).toLocaleString('en-IN'), (totalBonusAmount).toLocaleString('en-IN')], tags : '', attributes : ''});
+          whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),(totalCashAmount).toLocaleString('en-IN'), (totalBonusAmount).toLocaleString('en-IN')], tags : '', attributes : ''});
       }
       else {
       // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),totalCashAmount.toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
-          whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'), (totalCashAmount+amount).toLocaleString('en-IN'), (totalBonusAmount+(bonusRedemption??0)).toLocaleString('en-IN')], tags : '', attributes : ''});
+          whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'), (totalCashAmount).toLocaleString('en-IN'), (totalBonusAmount).toLocaleString('en-IN')], tags : '', attributes : ''});
       }
     }catch(e){
       console.log(e);
