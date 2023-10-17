@@ -1,7 +1,8 @@
 const TenxTrader = require("../../models/mock-trade/tenXTraderSchema");
 const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema")
 const mongoose = require('mongoose')
-
+const {applyingSLSP} = require("./PendingOrderCondition/applyingSLSP")
+const {reverseTradeCondition} = require("./PendingOrderCondition/reverseTradeCondition");
 
 exports.tenxTrade = async (req, res, otherData) => {
   let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, 
@@ -20,7 +21,6 @@ exports.tenxTrade = async (req, res, otherData) => {
 
     session.startTransaction();
     let pnlRedis = "";
-    let pendingOrderRedis = "";
 
     const tenxDoc = {
       status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
@@ -32,6 +32,72 @@ exports.tenxTrade = async (req, res, otherData) => {
     const save = await TenxTrader.create([tenxDoc], { session });
 
     /*
+    1. equal
+    2. greater
+    3. less
+
+    100 buy 19800CE @ rs. 10
+    Stoploss : 8  StopProfit: 12
+
+    1. 100 sell
+    1.a Sell me stoploss nhi h
+    Remove existing stploss or stopprofit(redis and db)
+    1.b sell me stoploss h
+    Remove existing stploss or stopprofit(redis and db)
+    Koi stoploss ya stopprofit order na create ho
+
+    2. 150 sell (greater wala)
+    2.a Sell me stoploss nhi h
+    Remove existing stploss or stopprofit(redis and db)
+    2.b sell me stoploss h
+    (100-150) quantity pe stoploss ya stopprofit lgana h
+
+    3. 50 sell (less wala)
+    3.a Sell me stoploss nhi h
+    (100-50) quantity update ho jaegi redis and db me
+
+
+
+
+    50 buy 19800CE @ rs. 10 , 50 buy 19800CE @ rs. 10
+    Stoploss : 8  StopProfit: 12   Stoploss : 9  StopProfit: 11
+
+    1. 100 sell
+    1.a Sell me stoploss nhi h
+    Remove existing stploss or stopprofit(redis and db), loop lgana pdega
+    1.b sell me stoploss h
+    Remove existing stploss or stopprofit(redis and db)
+    Koi stoploss ya stopprofit order na create ho
+
+    2. 150 sell (greater wala)
+    2.a Sell me stoploss nhi h
+    Remove existing stploss or stopprofit(redis and db)
+    2.b sell me stoploss h
+    (100-150) quantity pe stoploss ya stopprofit lgana h
+
+    3. 50 sell (less wala)
+    3.a Sell me stoploss nhi h
+    (100-50) quantity update ho jaegi redis and db me, make sure quantity is in +ve
+
+
+
+    -------------------------------------------------------------
+
+    Quantity Update
+
+    Actual quantity 100 @10 of 19800CE
+    Stoploss @ 8 of 100 quantity
+    StopProfit @ 12 of 100 quantity
+
+
+    1. Stoploss @ 8 of 50 quantity
+      1.a Stoploss Hit
+        x. 
+
+
+
+    --------------------------------------------------------------
+
     matchingElement.lots === Number(tenxDoc.Quantity);
     1. remove all stoploss of user and instrument matching also cancel in db
     2. dont apply new stoploss
@@ -43,11 +109,19 @@ exports.tenxTrade = async (req, res, otherData) => {
     1. remove existing stoploss and cancel in db
     */
 
-    // let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
-    // pnl = JSON.parse(pnl);
-    // const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product));
+    let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
+    pnl = JSON.parse(pnl);
+    const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product));
+    const matchingElementBuyOrSell = matchingElement?.lots > 0 ? "BUY" : "SELL";
+    let reverseTradeConditionData;
+    if(matchingElement?.lots !== 0 && (matchingElementBuyOrSell !== tenxDoc.buyOrSell)){
+      reverseTradeConditionData = await reverseTradeCondition(req.user._id, subscriptionId, tenxDoc, stopLossPrice, stopProfitPrice, save[0]?._id, originalLastPriceUser);
+    }
 
-    // console.log(matchingElement.lots , Number(tenxDoc.Quantity))
+    if(reverseTradeConditionData === 0){
+      stopLossPrice = 0;
+      stopProfitPrice = 0;
+    }
 
     if (isRedisConnected && await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)) {
       let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
@@ -61,7 +135,6 @@ exports.tenxTrade = async (req, res, otherData) => {
         matchingElement.brokerage += Number(tenxDoc.brokerage);
         matchingElement.lastaverageprice = tenxDoc.average_price;
         matchingElement.lots += Number(tenxDoc.Quantity);
-        //console.log("matchingElement", matchingElement)
 
       } else {
         // Create a new element if instrument is not matching
@@ -89,87 +162,13 @@ exports.tenxTrade = async (req, res, otherData) => {
     }
 
 
-
-    const pendingBuyOrSell = buyOrSell === "BUY" ? "SELL" : "BUY";
-    let pendingOrder = [];
-    if (stopProfitPrice && stopLossPrice) {
-      const pendingOrderStopLoss = {
-        order_referance_id: save[0]?._id, status: "Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: stopLossPrice,
-        Quantity, Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: OrderType, symbol,
-        execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: originalLastPriceUser,
-        createdBy: req.user._id, type: "StopLoss"
-      }
-
-      const pendingOrderStopProfit = {
-        order_referance_id: save[0]?._id, status: "Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: stopProfitPrice,
-        Quantity, Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: OrderType, symbol,
-        execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: originalLastPriceUser,
-        createdBy: req.user._id, type: "StopProfit"
-      }
-
-      pendingOrder.push(pendingOrderStopLoss);
-      pendingOrder.push(pendingOrderStopProfit);
-    } else if (stopProfitPrice || stopLossPrice) {
-      let executionPrice = stopProfitPrice ? stopProfitPrice : stopLossPrice;
-      let type = stopProfitPrice ? "StopProfit" : "StopLoss";
-      pendingOrder = [{
-        order_referance_id: save[0]?._id, status: "Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: executionPrice,
-        Quantity, Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: OrderType, symbol,
-        execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: originalLastPriceUser,
-        createdBy: req.user._id, type
-      }]
+    let pendingOrderRedis;
+    if(stopLossPrice || stopProfitPrice){
+      pendingOrderRedis = await applyingSLSP(req, {ltp: originalLastPriceUser}, session, save[0]?._id);
+    } else{
+      pendingOrderRedis = "OK";
     }
-
-    const order = await PendingOrder.create(pendingOrder, { session });
-    // console.log(order)
-
-    let dataObj = {};
-    let dataArr = [];
-
-    for (let elem of order) {
-      dataArr.push({
-        product_type: elem?.product_type, execution_price: elem?.execution_price, Quantity: elem?.Quantity,
-        Product: elem?.Product, buyOrSell: elem?.buyOrSell, variety: elem?.variety, validity: elem?.validity,
-        exchange: elem?.exchange, order_type: elem?.order_type, symbol: elem?.symbol, execution_time: elem?.execution_time,
-        instrumentToken: elem?.instrumentToken, exchangeInstrumentToken: elem?.exchangeInstrumentToken,
-        last_price: elem?.last_price, createdBy: elem?.createdBy, type: elem?.type, subscriptionId, order_id, _id: elem?._id
-      })
-    }
-
-    dataObj[`${instrumentToken}`] = dataArr;
-
-    // console.log("dataObj",dataObj)
-
-    if (isRedisConnected && await client.exists('stoploss-stopprofit')) {
-      const order = await PendingOrder.find({status: "Pending"});
-      const transformedObject = {};
-
-      order.forEach(item => {
-        const { instrumentToken, ...rest } = item;
-        
-        if (!transformedObject[instrumentToken]) {
-          transformedObject[instrumentToken] = [];
-        }
-        // console.log(rest._doc)
-        transformedObject[instrumentToken].push(rest._doc);
-      });
-
-      pendingOrderRedis = await client.set('stoploss-stopprofit', JSON.stringify(transformedObject));
-    }
-
-    if (isRedisConnected && await client.exists('stoploss-stopprofit')) {
-      data = await client.get('stoploss-stopprofit');
-      data = JSON.parse(data);
-      if (data[`${instrumentToken}`]) {
-        data[`${instrumentToken}`] = data[`${instrumentToken}`].concat(dataArr);
-      } else {
-        data[`${instrumentToken}`] = dataArr;
-      }
-      pendingOrderRedis = await client.set('stoploss-stopprofit', JSON.stringify(data));
-    } else {
-      pendingOrderRedis = await client.set('stoploss-stopprofit', JSON.stringify(dataObj));
-    }
-
+    
     console.log(pendingOrderRedis, pnlRedis)
     if (pendingOrderRedis === "OK" && pnlRedis === "OK") {
       await session.commitTransaction();
@@ -183,9 +182,4 @@ exports.tenxTrade = async (req, res, otherData) => {
   } finally {
     session.endSession();
   }
-
-
-
-        //todo-vijay: if redis fail...handle this case also
-        //also apply transaction here
 }

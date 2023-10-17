@@ -178,8 +178,8 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
           </Grid>
 
           <Grid item xs={12} md={6} lg={12}>
-            <PendingOrder subscriptionId={subscriptionId} />
-            <ExecutedOrders subscriptionId={subscriptionId} />
+            <PendingOrder socket={socket} subscriptionId={subscriptionId} />
+            <ExecutedOrders socket={socket} subscriptionId={subscriptionId} />
             <Order subscriptionId={subscriptionId} />
           </Grid>
           {/* <Grid item xs={12} md={6} lg={12}>

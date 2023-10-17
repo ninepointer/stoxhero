@@ -6,7 +6,6 @@ function OrderHelper({ symbol, averagePrice, amount, quantity, buyOrSell, type, 
 
   const [update, setUpdate] = useState();
 
-  console.log(update)
     let styleTD = {
       textAlign: "center",
       fontSize: ".75rem",

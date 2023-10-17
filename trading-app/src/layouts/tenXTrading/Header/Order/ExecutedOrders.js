@@ -14,9 +14,10 @@ import { renderContext } from "../../../../renderContext";
 import { apiUrl } from "../../../../constants/constants";
 import { RiStockFill } from "react-icons/ri";
 import OrderHelper from "../Order/PendingOrderHelper";
+import { userContext } from "../../../../AuthContext";
 
 
-function ExecutedOrders({ subscriptionId }) {
+function ExecutedOrders({ subscriptionId, socket }) {
 
 
     let styleTD = {
@@ -35,6 +36,8 @@ function ExecutedOrders({ subscriptionId }) {
     const [data, setData] = useState([]);
     // const getDetails = useContext(userContext);
     const { render } = useContext(renderContext);
+    const [trackEvent, setTrackEvent] = useState({});
+    const getDetails = useContext(userContext);
 
     let url =  `pendingorder/my/todaysProcessed/${subscriptionId}/TenX`;
     useEffect(() => {
@@ -53,7 +56,15 @@ function ExecutedOrders({ subscriptionId }) {
                 }, 500)
                 return new Error(err);
             })
-    }, [render])
+    }, [render, trackEvent])
+
+    useEffect(() => {
+        socket?.on(`sendOrderResponse${(getDetails.userDetails._id).toString()}`, (data) => {
+          setTimeout(() => {
+            setTrackEvent(data);
+          })
+        })
+      }, [])
 
     function backHandler() {
         if (skip <= 0) {

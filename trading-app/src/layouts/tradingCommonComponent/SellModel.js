@@ -208,7 +208,7 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
 
   async function placeOrder() {
 
-    const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = sellFormDetails;
+    const {stopProfitPrice, stopLossPrice, exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = sellFormDetails;
     let endPoint 
     let paperTrade = false;
     let tenxTraderPath;
@@ -252,7 +252,7 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
         body: JSON.stringify({
             
           exchange, symbol, buyOrSell, Quantity, Price, subscriptionId, contestId: module?.data,
-          Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin,
+          Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin, stopProfitPrice, stopLossPrice,
           validity, variety, createdBy, order_id:dummyOrderId, internPath, marginxId: subscriptionId,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, battleId: subscriptionId
 
@@ -284,7 +284,9 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
             openSuccessSB('else', dataResp.message)
         }
     }
-    render ? setRender(false) : setRender(true)
+
+    setsellFormDetails({});
+    render ? setRender(false) : setRender(true);
   }
 
   async function addInstrument(){

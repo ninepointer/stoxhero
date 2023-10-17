@@ -250,28 +250,16 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
         })
     });
     const dataResp = await res.json();
-    // console.log("dataResp", dataResp, res)
     if (dataResp.status === 422 || dataResp.error || !dataResp) {
-        // console.log("dataResp if")
-        // window.alert(dataResp.error);
         openSuccessSB('error', dataResp.error)
-        //////console.log("Failed to Trade");
     } else {
-      // console.log("dataResp else")
-      //console.log("caseStudy 3: place resp")
       tradeSound.play();
         if(dataResp.message === "COMPLETE"){
-            // //console.log(dataResp);
             openSuccessSB('complete', {symbol, Quantity})
-            // window.alert("Trade Succesfull Completed");
         } else if(dataResp.message === "REJECTED"){
-            // //console.log(dataResp);
             openSuccessSB('reject', "Trade is Rejected due to Insufficient Fund")
-            // window.alert("Trade is Rejected due to Insufficient Fund");
         } else if(dataResp.message === "AMO REQ RECEIVED"){
-            // //console.log(dataResp);
             openSuccessSB('amo', "AMO Request Recieved")
-            // window.alert("AMO Request Recieved");
         } else if(dataResp.message === "Live"){
         } else{
             openSuccessSB('else', dataResp.message)
@@ -494,7 +482,10 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <MDButton disabled={(buyFormDetails.stopLossPrice && (ltp < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (ltp > buyFormDetails.stopProfitPrice))} autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
+            <MDButton 
+            //todo-vijay
+            // disabled={(buyFormDetails.stopLossPrice && (ltp < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (ltp > buyFormDetails.stopProfitPrice))} 
+            autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
               BUY
             </MDButton>
             <MDButton variant="contained" color="info" onClick={handleClose} autoFocus>
