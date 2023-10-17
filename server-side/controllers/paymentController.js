@@ -159,14 +159,18 @@ exports.createPayment = async(req, res, next)=>{
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           }, session);
-          if(process.env.PROD == 'true'){
-            whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),totalCashAmount.toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
-            whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),totalCashAmount.toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
-        }
-        else {
-        // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),totalCashAmount.toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
-            whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'), totalCashAmount.toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
-        }
+          try{
+              if(process.env.PROD == 'true'){
+                whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),(totalCashAmount+amount).toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),(totalCashAmount+amount).toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+            }
+            else {
+            // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),totalCashAmount.toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'), (totalCashAmount+amount).toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+            }
+          }catch(e){
+            console.log(e);
+          }
         await session.commitTransaction();  
         res.status(201).json({message: 'Payment successfully.', data:payment, count:payment.length});
     }catch(error){
@@ -427,6 +431,7 @@ exports.handleCallback = async (req, res, next) => {
                     }else{
                         await addCashback(payment?.amount-payment?.gstAmount, payment?.paymentBy, payout?.coupon);
                         await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, 'Wallet');
+                        await sendWhatsAppNotification(payment);
                     }
                 }
                 res.status(200).json({ status:'success', message: 'Payment was successful' });
@@ -518,8 +523,9 @@ exports.checkPaymentStatus = async(req,res, next) => {
                         if(payment?.paymentFor){
                             await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, payment?.paymentFor, payment?.productId);
                         }else{
-                            await addCashback(payment?.amount-payment?.gstAmount, payment?.paymentBy, coupon);
+                            await addCashback(payment?.amount-payment?.gstAmount, payment?.paymentBy, payment?.coupon);
                             await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, 'Wallet');
+                            await sendWhatsAppNotification(payment);
                         }
                     }    
                 }    
@@ -581,6 +587,40 @@ const addCashback = async(amount, userId, coupon) => {
     });
     await wallet.save({validateBeforeSave: false});
 
+}
+
+const sendWhatsAppNotification = async(payment) => {
+    const {paymentBy, amount, bonusRedemption} = payment;
+    const user = await User.findOne({_id: new ObjectId(paymentBy)}).select('first_name creationProcess last_name mobile');
+    const wallet = await UserWallet.findOne({userId:new ObjectId(paymentBy)});
+    const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
+        return transaction.transactionType === "Cash";
+    });
+
+    const bonusTransactions = (wallet)?.transactions?.filter((transaction) => {
+        return transaction.transactionType === "Bonus";
+    });
+
+    const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
+        return total + transaction?.amount;
+    }, 0);
+
+    const totalBonusAmount = bonusTransactions?.reduce((total, transaction) => {
+        return total + transaction?.amount;
+    }, 0);
+
+    try{
+        if(process.env.PROD == 'true'){
+          whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),(totalCashAmount+amount).toLocaleString('en-IN'), (totalBonusAmount+(bonusRedemption??0)).toLocaleString('en-IN')], tags : '', attributes : ''});
+          whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),(totalCashAmount+amount).toLocaleString('en-IN'), (totalBonusAmount+(bonusRedemption??0)).toLocaleString('en-IN')], tags : '', attributes : ''});
+      }
+      else {
+      // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),totalCashAmount.toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+          whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'), (totalCashAmount+amount).toLocaleString('en-IN'), (totalBonusAmount+(bonusRedemption??0)).toLocaleString('en-IN')], tags : '', attributes : ''});
+      }
+    }catch(e){
+      console.log(e);
+    }
 }
 
 const participateUser = async (paymentFor, productId, paymentBy, amount, coupon, bonusRedemption) => {
