@@ -14,7 +14,7 @@ exports.myTodaysProcessedTrade = async (req, res, next) => {
     const today = new Date(todayDate);
     const skip = parseInt(req.query.skip) || 0;
     const limit = parseInt(req.query.limit) || 10
-    let count;
+    let count = [];
     let myTodaysTrade = [];
     try {
 
@@ -128,7 +128,7 @@ exports.myTodaysProcessedTrade = async (req, res, next) => {
             }
           ])
         }
-        res.status(200).json({ status: 'success', data: myTodaysTrade, count: count[0].count });
+        res.status(200).json({ status: 'success', data: myTodaysTrade, count: count[0]?.count ? count[0]?.count : 0 });
     } catch (e) {
         console.log(e);
         res.status(500).json({ status: 'error', message: 'Something went wrong' });
@@ -146,7 +146,7 @@ exports.myTodaysPendingTrade = async (req, res, next) => {
   const today = new Date(todayDate);
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  let count;
+  let count = [];
   let myTodaysTrade = [];
   try {
 
@@ -164,6 +164,7 @@ exports.myTodaysPendingTrade = async (req, res, next) => {
               createdOn: {
                 $gte: today,
               },
+              status: "Pending"
             },
           },
           {
@@ -259,7 +260,7 @@ exports.myTodaysPendingTrade = async (req, res, next) => {
           }
         ])
       }
-      res.status(200).json({ status: 'success', data: myTodaysTrade, count: count[0].count });
+      res.status(200).json({ status: 'success', data: myTodaysTrade, count: count[0]?.count ? count[0]?.count : 0 });
   } catch (e) {
       console.log(e);
       res.status(500).json({ status: 'error', message: 'Something went wrong' });

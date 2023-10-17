@@ -66,7 +66,7 @@ function PendingOrders({ subscriptionId, socket }) {
             setTrackEvent(data);
           })
         })
-      }, [])
+    }, [])
 
     function backHandler() {
         if (skip <= 0) {

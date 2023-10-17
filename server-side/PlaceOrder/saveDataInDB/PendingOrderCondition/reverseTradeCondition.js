@@ -1,4 +1,3 @@
-// const TenxTrader = require("../../../models/mock-trade/tenXTraderSchema");
 const PendingOrder = require("../../../models/PendingOrder/pendingOrderSchema")
 // const mongoose = require('mongoose')
 const {applyingSLSP} = require("./applyingSLSP")
@@ -13,7 +12,6 @@ exports.reverseTradeCondition = async (userId, id, doc, stopProfitPrice, stopLos
     const matchingElement = pnl.find((element) => (element._id.instrumentToken === doc.instrumentToken && element._id.product === doc.Product));
     const actualQuantity = Math.abs(Number(matchingElement?.lots));
     const newQuantity = Math.abs(Number(doc.Quantity));
-    console.log("reverseTradeCondition", actualQuantity , newQuantity)
     if(Math.abs(actualQuantity) === Math.abs(newQuantity)){
         data = await client.get('stoploss-stopprofit');
         data = JSON.parse(data);
@@ -21,14 +19,12 @@ exports.reverseTradeCondition = async (userId, id, doc, stopProfitPrice, stopLos
             let symbolArray = data[`${doc.instrumentToken}`];
             let indicesToRemove = [];
             for(let i = symbolArray.length-1; i >= 0; i--){
-                console.log(symbolArray[i].createdBy.toString() , userId.toString() , symbolArray[i].symbol , doc.symbol)
                 if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol){
                     // remove this element
                     indicesToRemove.push(i);
                     const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id), status: "Pending", symbol: symbolArray[i].symbol},{
                         $set: {status: "Cancelled"}
                     })
-                    console.log(update)
                 }
             }
 
@@ -40,17 +36,13 @@ exports.reverseTradeCondition = async (userId, id, doc, stopProfitPrice, stopLos
 
         return 0;
     } else if(Math.abs(actualQuantity) < Math.abs(newQuantity)){
-        console.log(stopProfitPrice, stopLossPrice)
         if(stopProfitPrice || stopLossPrice){
             data = await client.get('stoploss-stopprofit');
             data = JSON.parse(data);
-            console.log("in data", data, data[`${doc.instrumentToken}`]);
             if (data && data[`${doc.instrumentToken}`]) {
                 let symbolArray = data[`${doc.instrumentToken}`];
                 let indicesToRemove = [];
-                console.log("in if data")
                 for(let i = symbolArray.length-1; i >= 0; i--){
-                    console.log("in if", symbolArray[i].createdBy.toString() , userId.toString() , symbolArray[i].symbol , doc.symbol)
 
                     if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol){
                         // remove this element

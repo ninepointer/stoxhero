@@ -10,7 +10,6 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, 
         exchangeInstrumentToken, validity, variety, order_id, instrumentToken, 
         stopProfitPrice, stopLossPrice, createdBy, order_type } = req.body ? req.body : req 
-        console.log("stopProfitPrice && stopLossPrice", req.body ? req.body : req)
 
     let originalLastPriceUser;
     if(Object.keys(otherData).length > 0){
@@ -20,12 +19,10 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
         originalLastPriceUser = otherData.ltp;
     }
 
-    console.log("originalLastPriceUser", originalLastPriceUser)
   
     let pendingOrderRedis = "";
     const pendingBuyOrSell = buyOrSell === "BUY" ? "SELL" : "BUY";
     let pendingOrder = [];
-    console.log("stopProfitPrice && stopLossPrice", stopProfitPrice , stopLossPrice)
     if (stopProfitPrice && stopLossPrice) {
       const pendingOrderStopLoss = {
         order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: stopLossPrice,

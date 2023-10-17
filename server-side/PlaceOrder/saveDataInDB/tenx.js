@@ -113,7 +113,6 @@ exports.tenxTrade = async (req, res, otherData) => {
     pnl = JSON.parse(pnl);
     const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product));
     const matchingElementBuyOrSell = matchingElement?.lots > 0 ? "BUY" : "SELL";
-    console.log(stopLossPrice, stopProfitPrice)
     let reverseTradeConditionData;
     if(matchingElement?.lots !== 0 && (matchingElementBuyOrSell !== tenxDoc.buyOrSell)){
       reverseTradeConditionData = await reverseTradeCondition(req.user._id, subscriptionId, tenxDoc, stopLossPrice, stopProfitPrice, save[0]?._id, originalLastPriceUser);
@@ -136,7 +135,6 @@ exports.tenxTrade = async (req, res, otherData) => {
         matchingElement.brokerage += Number(tenxDoc.brokerage);
         matchingElement.lastaverageprice = tenxDoc.average_price;
         matchingElement.lots += Number(tenxDoc.Quantity);
-        //console.log("matchingElement", matchingElement)
 
       } else {
         // Create a new element if instrument is not matching
@@ -166,7 +164,6 @@ exports.tenxTrade = async (req, res, otherData) => {
 
     let pendingOrderRedis;
     if(stopLossPrice || stopProfitPrice){
-      console.log("in if", stopLossPrice , stopProfitPrice)
       pendingOrderRedis = await applyingSLSP(req, {ltp: originalLastPriceUser}, session, save[0]?._id);
     } else{
       pendingOrderRedis = "OK";
