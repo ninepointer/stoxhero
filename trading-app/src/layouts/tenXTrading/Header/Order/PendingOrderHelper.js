@@ -2,7 +2,7 @@ import {memo, useState} from 'react';
 import AccountMenu from './PendingOrderMenu';
 
 
-function OrderHelper({ symbol, averagePrice, amount, quantity, buyOrSell, type, status, time, id}) {
+function OrderHelper({from, symbol, averagePrice, amount, quantity, buyOrSell, type, status, time, id}) {
 
   const [update, setUpdate] = useState();
 
@@ -30,7 +30,9 @@ function OrderHelper({ symbol, averagePrice, amount, quantity, buyOrSell, type, 
       <td style={{...styleTD, color: `${status === "Pending" ? "grey" : status === "Executed" ? "green" : "red"}`}} >{status}</td>
       }
       <td style={styleTD} >{time}</td>
-      <td style={styleTD} ><AccountMenu setUpdate={setUpdate} id={id} /> </td>
+      {from !=="ExecutedOrder" &&
+        <td style={styleTD} ><AccountMenu setUpdate={setUpdate} id={id} /> </td>
+      }
     </>
   );
 }

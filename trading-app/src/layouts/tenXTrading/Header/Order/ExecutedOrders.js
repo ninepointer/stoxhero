@@ -226,7 +226,7 @@ function ExecutedOrders({ subscriptionId, socket }) {
                                             <td style={styleTD} >TYPE</td>
                                             <td style={styleTD} >STATUS</td>
                                             <td style={styleTD} >TIME</td>
-                                            <td style={styleTD} >ACTION</td>
+                                            {/* <td style={styleTD} >ACTION</td> */}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -246,6 +246,7 @@ function ExecutedOrders({ subscriptionId, socket }) {
                                                         time={elem.time.props.children}
                                                         type={elem.type.props.children}
                                                         id={elem._id.props.children}
+                                                        from={"ExecutedOrder"}
                                                     />
                                                 </tr>
                                             )
