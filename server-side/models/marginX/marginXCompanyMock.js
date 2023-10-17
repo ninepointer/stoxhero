@@ -113,6 +113,10 @@ const marginxSchema = new mongoose.Schema({
     marginxId: {
         type: Schema.Types.ObjectId,
         ref: 'marginX',
+    },
+    deviceDetails:{
+        deviceType: { type: String },
+        platformType: { type: String }
     }
 })
 

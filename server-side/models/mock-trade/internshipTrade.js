@@ -86,6 +86,10 @@ const internshipTradeSchema = new mongoose.Schema({
     batch:{
         type: Schema.Types.ObjectId,
         ref: 'intern-batch',
+    },
+    deviceDetails:{
+        deviceType: { type: String },
+        platformType: { type: String }
     }
 
 })

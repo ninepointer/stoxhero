@@ -4,7 +4,7 @@ const TenxTrader = require("../../models/mock-trade/tenXTraderSchema");
 exports.tenxTrade = async (req, res, otherData) => {
   let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, 
       exchangeInstrumentToken, validity, variety, order_id, instrumentToken, 
-      portfolioId, trader} = req.body 
+      portfolioId, trader, deviceDetails} = req.body 
 
   let {isRedisConnected, brokerageUser, originalLastPriceUser, secondsRemaining, trade_time} = otherData;
 
@@ -19,7 +19,7 @@ exports.tenxTrade = async (req, res, otherData) => {
             variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
             order_id, instrumentToken, brokerage: brokerageUser, portfolioId, subscriptionId, exchangeInstrumentToken,
             createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
-            
+            deviceDetails: {deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType}
         });
 
         // console.log("tenx tenx", tenx)
