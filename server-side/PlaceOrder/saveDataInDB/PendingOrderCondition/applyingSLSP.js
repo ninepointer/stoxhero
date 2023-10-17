@@ -9,7 +9,7 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
     let isRedisConnected = await getValue();
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, 
         exchangeInstrumentToken, validity, variety, order_id, instrumentToken, 
-        stopProfitPrice, stopLossPrice, createdBy, order_type } = req.body ? req.body : req 
+        stopProfitPrice, stopLossPrice, createdBy, order_type, deviceDetails } = req.body ? req.body : req 
 
     let originalLastPriceUser;
     if(Object.keys(otherData).length > 0){
