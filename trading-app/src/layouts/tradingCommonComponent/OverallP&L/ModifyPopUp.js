@@ -28,7 +28,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import MDBox from '../../../components/MDBox';
 
 
-function ModifyPopUp() {
+function ModifyPopUp({symbolName, ltp}) {
 
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
@@ -73,7 +73,7 @@ console.log("anchorEl, anchorEl", anchorEl, open)
               </DialogTitle>
               <DialogContent>
                 <DialogContentText sx={{ display: "flex", flexDirection: "column", marginLeft: 2 }}>
-                  {/* <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center", margin: 2 }}><Box sx={{ backgroundColor: "#ccccb3", fontWeight: 600, padding:"5px", borderRadius:"5px" }}>{symbolName}</Box> &nbsp; &nbsp; &nbsp; <Box sx={{ backgroundColor: "#ccccb3", fontWeight: 600, padding:"5px", borderRadius:"5px" }}>₹{ltp}</Box></Box> */}
+                  <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center", margin: 2 }}><Box sx={{ backgroundColor: "#ccccb3", fontWeight: 600, padding:"5px", borderRadius:"5px" }}>{symbolName}</Box> &nbsp; &nbsp; &nbsp; <Box sx={{ backgroundColor: "#ccccb3", fontWeight: 600, padding:"5px", borderRadius:"5px" }}>{ltp}</Box></Box>
 
     
                   <Box sx={{ display: "flex", flexDirection: "row" }}>
@@ -112,18 +112,16 @@ console.log("anchorEl, anchorEl", anchorEl, open)
                       <Typography fontSize={15} color={"error"}>{buyFormDetails.stopProfitPrice && errorMessageStopProfit && errorMessageStopProfit}</Typography>
                   </Box> */}
     
-                  <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
+                  <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-start" }}>
                     <FormControl  >
                       <FormLabel id="demo-controlled-radio-buttons-group" ></FormLabel>
                       <RadioGroup
                         aria-labelledby="demo-controlled-radio-buttons-group"
                         name="controlled-radio-buttons-group"
-                        // value={market}
+                        value="SL/SP-M"
                         // onChange={marketHandleChange}
                         sx={{ display: "flex", flexDirection: "row" }}
                       >
-                        {/* <FormControlLabel value="MARKET" control={<Radio />} label="MARKET" />
-                        <FormControlLabel disabled="false" value="LIMIT" control={<Radio />} label="LIMIT" /> */}
                         <FormControlLabel disabled="false" value="SL/SP-M" control={<Radio />} label="SL/SP-M" />
     
                       </RadioGroup>
