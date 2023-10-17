@@ -26,14 +26,14 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
     if (stopProfitPrice && stopLossPrice) {
       const pendingOrderStopLoss = {
         order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: stopLossPrice,
-        Quantity, Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: OrderType ? OrderType : order_type, symbol,
+        Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: OrderType ? OrderType : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: originalLastPriceUser,
         createdBy: req?.user?._id ? req?.user?._id : createdBy, type: "StopLoss"
       }
 
       const pendingOrderStopProfit = {
         order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: stopProfitPrice,
-        Quantity, Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: OrderType ? OrderType : order_type, symbol,
+        Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: OrderType ? OrderType : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: originalLastPriceUser,
         createdBy: req?.user?._id ? req?.user?._id : createdBy, type: "StopProfit"
       }
@@ -45,7 +45,7 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
       let type = stopProfitPrice ? "StopProfit" : "StopLoss";
       pendingOrder = [{
         order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: executionPrice,
-        Quantity, Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: OrderType ? OrderType : order_type, symbol,
+        Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: OrderType ? OrderType : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: originalLastPriceUser,
         createdBy: req?.user?._id ? req?.user?._id : createdBy, type
       }]
@@ -73,7 +73,7 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
 
     dataObj[`${instrumentToken}`] = dataArr;
 
-    if (isRedisConnected && await client.exists('stoploss-stopprofit')) {
+    if (isRedisConnected && !await client.exists('stoploss-stopprofit')) {
       const order = await PendingOrder.find({status: "Pending"});
       const transformedObject = {};
 
@@ -100,8 +100,11 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
       } else {
         data[`${instrumentToken}`] = dataArr;
       }
+      console.log("dataObj", data)
       pendingOrderRedis = await client.set('stoploss-stopprofit', JSON.stringify(data));
     } else {
+
+      console.log("dataObj", dataObj)
       pendingOrderRedis = await client.set('stoploss-stopprofit', JSON.stringify(dataObj));
     }
 

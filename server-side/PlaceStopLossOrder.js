@@ -85,12 +85,13 @@ exports.tenxTradeStopLoss = async () => {
                 const lockExpiration = 10;
 
                 const lockAcquired = await acquireLock(lockKey, lockValue, lockExpiration);
-                // const lockAcquired = await clientForIORedis.set(lockKey, lockValue, 'NX', 'EX', 10);
 
                 if (!lockAcquired) {
                     // console.log('Another process is already saving data.');
                     return;
                 }
+
+                console.log("lockAcquired", lockAcquired)
 
                 let last_price = message.ltp;
                 let index = message.index;
@@ -167,6 +168,7 @@ exports.tenxTradeStopLoss = async () => {
                 data = JSON.parse(data);
                 let index2;
                 let symbolArr = data[`${instrumentToken}`];
+                console.log("symbolArr", symbolArr)
                 for (let i = 0; i < symbolArr.length; i++) {
                     if (symbolArr[i].instrumentToken === instrumentToken &&
                         symbolArr[i].createdBy.toString() === createdBy.toString() &&
