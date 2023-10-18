@@ -77,6 +77,8 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
       const order = await PendingOrder.find({status: "Pending"});
       const transformedObject = {};
 
+      console.log(order.length)
+
       order.forEach(item => {
         const { instrumentToken, ...rest } = item;
         
@@ -89,13 +91,14 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
         transformedObject[instrumentToken].push(rest._doc);
       });
 
+      console.log(transformedObject)
       pendingOrderRedis = await client.set('stoploss-stopprofit', JSON.stringify(transformedObject));
     }
-
+    
     if (isRedisConnected && await client.exists('stoploss-stopprofit')) {
       data = await client.get('stoploss-stopprofit');
       data = JSON.parse(data);
-      if (data[`${instrumentToken}`]) {
+      if (data && data[`${instrumentToken}`]) {
         data[`${instrumentToken}`] = data[`${instrumentToken}`].concat(dataArr);
       } else {
         data[`${instrumentToken}`] = dataArr;
@@ -103,7 +106,6 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
       console.log("dataObj", data)
       pendingOrderRedis = await client.set('stoploss-stopprofit', JSON.stringify(data));
     } else {
-
       console.log("dataObj", dataObj)
       pendingOrderRedis = await client.set('stoploss-stopprofit', JSON.stringify(dataObj));
     }
