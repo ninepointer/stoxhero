@@ -425,7 +425,7 @@ const CareerForm = () => {
         </MDBox>
         {renderSuccessSB}
         </ThemeProvider>
-    </div>
+    </div> 
   )
 }
 
