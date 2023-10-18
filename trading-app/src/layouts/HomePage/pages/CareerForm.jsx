@@ -420,12 +420,12 @@ const CareerForm = () => {
 
         </MDBox>
         <MDBox bgColor="black" sx={{marginTop:2}}>
-
+ 
         <Footer/>
         </MDBox>
         {renderSuccessSB}
         </ThemeProvider>
-    </div> 
+    </div>
   )
 }
 
