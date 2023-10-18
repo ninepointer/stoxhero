@@ -293,6 +293,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
     />
   );
 
+  //validity, variety, exchange, buyOrSell, subscriptionId
   return (
     <Card>
       <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
@@ -386,7 +387,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
                           }
                         </Tooltip>
                         {from===tenxTrader &&
-                          <PnlMenu symbolName={elem?.symbol?.props?.children} ltp={elem?.last_price?.props?.children} />
+                          <PnlMenu data={elem} />
                         }
                       </tr>
                     </React.Fragment>

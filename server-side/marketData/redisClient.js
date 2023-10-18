@@ -35,7 +35,7 @@
 
     // const clientForIORedis = new ioredis("redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com");
 
-    // module.exports = {client, isRedisConnected, setValue, getValue, clientForIORedis}
+    // module.exports = {client4, client3, client2, client, isRedisConnected, setValue, getValue, clientForIORedis}
 
 // }
 // else if(process.env.STAGE){
@@ -70,7 +70,7 @@
 
     // const ioredis = require('ioredis');
     // const clientForIORedis = new ioredis(`redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`);
-    // module.exports = {client, isRedisConnected, setValue, getValue, clientForIORedis}
+    // module.exports = {client4, client3, client2, client, isRedisConnected, setValue, getValue, clientForIORedis}
 
 // }
 // else{

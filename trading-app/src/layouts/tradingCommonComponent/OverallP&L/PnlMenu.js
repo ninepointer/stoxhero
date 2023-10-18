@@ -10,7 +10,7 @@ import ModifyPopUp from './ModifyPopUp';
 
 
 
-export default function PnlMenu({ltp, symbolName}) {
+export default function PnlMenu({ltp, symbolName, change, lots, data}) {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -98,7 +98,7 @@ export default function PnlMenu({ltp, symbolName}) {
       >
         <MenuItem  >
           {/* <EditIcon sx={{ mr: 2 }} /> Modify Order */}
-          <ModifyPopUp symbolName={symbolName} ltp={ltp} />
+          <ModifyPopUp data={data} />
         </MenuItem>
       </Menu>
     </React.Fragment>
