@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
-import { apiUrl } from '../../../constants/constants';
 import ModifyPopUp from './ModifyPopUp';
 
 
 
-export default function PnlMenu({ltp, symbolName, change, lots, data}) {
+export default function PnlMenu({id, data}) {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -98,7 +97,7 @@ export default function PnlMenu({ltp, symbolName, change, lots, data}) {
       >
         <MenuItem  >
           {/* <EditIcon sx={{ mr: 2 }} /> Modify Order */}
-          <ModifyPopUp data={data} />
+          <ModifyPopUp data={data} id={id}/>
         </MenuItem>
       </Menu>
     </React.Fragment>

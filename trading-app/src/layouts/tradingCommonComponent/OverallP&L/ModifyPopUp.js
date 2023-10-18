@@ -1,10 +1,10 @@
 import React, { useContext, useState, memo, useEffect } from 'react'
 // import axios from "axios";
-import { userContext } from '../../../AuthContext';
+// import { userContext } from '../../../AuthContext';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 // import uniqid from "uniqid"
-import MDSnackbar from '../../../components/MDSnackbar';
+// import MDSnackbar from '../../../components/MDSnackbar';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -12,25 +12,28 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import FormControl from '@mui/material/FormControl';
 import MDButton from '../../../components/MDButton';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormLabel from '@mui/material/FormLabel';
+// import Radio from '@mui/material/Radio';
+// import RadioGroup from '@mui/material/RadioGroup';
+// import FormControlLabel from '@mui/material/FormControlLabel';
+// import FormLabel from '@mui/material/FormLabel';
 import { Box, Checkbox, TextField, Typography } from '@mui/material';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
-import { renderContext } from '../../../renderContext';
-import { Howl } from "howler";
-import sound from "../../../assets/sound/tradeSound.mp3"
-import { marginX, paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest, battle } from "../../../variables";
-import { maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, lotSize_BankNifty, lotSize_FinNifty, lotSize_Nifty } from "../../../variables";
+// import { renderContext } from '../../../renderContext';
+// import { Howl } from "howler";
+// import sound from "../../../assets/sound/tradeSound.mp3"
+// import { marginX, paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest, battle } from "../../../variables";
+import { lotSize_BankNifty, lotSize_FinNifty, lotSize_Nifty } from "../../../variables";
 
 import EditIcon from '@mui/icons-material/Edit';
 import MDBox from '../../../components/MDBox';
+import { renderContext } from '../../../renderContext';
+import { userContext } from '../../../AuthContext';
+import { apiUrl } from '../../../constants/constants';
+import MDSnackbar from '../../../components/MDSnackbar';
 
-
-function ModifyPopUp({data}) {
+function ModifyPopUp({data, id}) {
 
     const lots=data?.Quantity?.props?.children;
     const symbolName=data?.symbol?.props?.children;
@@ -42,6 +45,15 @@ function ModifyPopUp({data}) {
     const open = Boolean(anchorEl);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const {render, setRender} = useContext(renderContext);
+    const getDetails = React.useContext(userContext);
+    const tradeSound = getDetails.tradeSound;
+    const [messageObj, setMessageObj] = useState({
+      color: '',
+      icon: '',
+      title: '',
+      content: ''
+    })
     const [modifyData, setModifyData] = useState({
       Quantity: 0,
       stopLossPrice: 0,
@@ -66,11 +78,11 @@ function ModifyPopUp({data}) {
     };
 
     const stopLoss = (e) => {
-      // setModifyData(prev => {...prev, prev.stopLossPrice: e.target.value})
+      setModifyData(prev => ({...prev, stopLossPrice: e.target.value}))
     };
 
-    const stopProfit = () => {
-        
+    const stopProfit = (e) => {
+      setModifyData(prev => ({...prev, stopProfitPrice: e.target.value}))
     };
 
     const handleRadioChange = (event) => {
@@ -84,8 +96,100 @@ function ModifyPopUp({data}) {
       name: 'size-radio-button-demo',
       inputProps: { 'aria-label': item },
     });
-    
 
+  const modifyOrder = async () => {
+    const { Quantity, stopLossPrice, stopProfitPrice } = modifyData;
+    const type = data?.Quantity?.props?.children > 0 ? "BUY" : "SELL"
+    const res = await fetch(`${apiUrl}pendingorder/modify`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        exchange: data?.exchange?.props?.children, symbol: data?.symbol?.props?.children,
+        buyOrSell: type, Quantity, id: id, Product: data?.Product?.props?.children,
+        OrderType: "SL/SP-M", stopProfitPrice, stopLossPrice,
+        exchangeInstrumentToken: data?.exchangeInstrumentToken?.props?.children,
+        validity: data?.validity?.props?.children, variety: data?.variety?.props?.children,
+        instrumentToken: data?.instrumentToken?.props?.children, last_price: data?.last_price?.props?.children
+
+      })
+    });
+    const dataResp = await res.json();
+    if (dataResp.status === 422 || dataResp.error || !dataResp) {
+      openSuccessSB('error', dataResp.error)
+    } else {
+      tradeSound.play();
+      if (dataResp.message === "COMPLETE") {
+        // openSuccessSB('complete', {symbol, Quantity})
+      } else if (dataResp.message === "REJECTED") {
+        openSuccessSB('reject', "Trade is Rejected due to Insufficient Fund")
+      } else if (dataResp.message === "AMO REQ RECEIVED") {
+        openSuccessSB('amo', "AMO Request Recieved")
+      } else if (dataResp.message === "Live") {
+      } else {
+        openSuccessSB('else', dataResp.message)
+      }
+    }
+    setModifyData({});
+    render ? setRender(false) : setRender(true)
+
+
+  }
+    
+  const [successSB, setSuccessSB] = useState(false);
+
+  const openSuccessSB = (value,content) => {
+    if(value === "complete"){
+        messageObj.color = 'success'
+        messageObj.icon = 'check'
+        messageObj.title = "Trade Successful";
+        messageObj.content = `Traded ${content.Quantity} of ${content.symbol}`;
+        setSuccessSB(true);
+    };
+    if(value === "reject"){
+      messageObj.color = 'error'
+      messageObj.icon = 'error'
+      messageObj.title = "REJECTED";
+      messageObj.content = content;
+    };
+    if(value === "amo"){
+      messageObj.color = 'info'
+      messageObj.icon = 'warning'
+      messageObj.title = "AMO Requested";
+      messageObj.content = content;
+    };
+    if(value === "else"){
+      messageObj.color = 'error'
+      messageObj.icon = 'error'
+      messageObj.title = "REJECTED";
+      messageObj.content = content;
+    };
+    if(value === "error"){
+      messageObj.color = 'error'
+      messageObj.icon = 'error'
+      messageObj.title = "Error";
+      messageObj.content = content;
+    };
+
+    setMessageObj(messageObj);
+    setSuccessSB(true);
+  }
+  const closeSuccessSB = () => setSuccessSB(false);
+  const renderSuccessSB = (
+    <MDSnackbar
+      color= {messageObj.color}
+      icon= {messageObj.icon}
+      title={messageObj.title}
+      content={messageObj.content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite="info"
+      sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto"}}
+    />
+  );
 
   return (
     <div>
@@ -144,7 +248,7 @@ function ModifyPopUp({data}) {
                     labelId="demo-simple-select-standard-label"
                     id="outlined-select-currency"
                     label={<Typography >Quantity</Typography> }
-                    // onChange={(e) => { { buyFormDetails.Quantity = (e.target.value) } }}
+                    onChange={(e) => { setModifyData(prev => ({...prev, Quantity: e.target.value})) }}
                     sx={{ 
                        minHeight: 43 }}
                   >
@@ -201,7 +305,7 @@ function ModifyPopUp({data}) {
             </MDButton>
             <MDButton
               // disabled={(buyFormDetails.stopLossPrice && (ltp < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (ltp > buyFormDetails.stopProfitPrice))} 
-              autoFocus variant="contained" color="warning" onClick={handleClose} sx={{fontSize: "10px"}}>
+              autoFocus variant="contained" color="warning" onClick={modifyOrder} sx={{fontSize: "10px"}}>
               MODIFY
             </MDButton>
 

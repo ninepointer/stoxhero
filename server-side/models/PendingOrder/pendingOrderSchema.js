@@ -4,7 +4,7 @@ const {Schema} = mongoose
 const pendingOrderSchema = new Schema({
     order_referance_id:{
         type: Schema.Types.ObjectId,
-        required: true
+        // required: true
     },
     product_type:{
         type: Schema.Types.ObjectId,
@@ -80,6 +80,10 @@ const pendingOrderSchema = new Schema({
     createdBy:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
+        required: true
+    },
+    sub_product_id: {
+        type: Schema.Types.ObjectId,
         required: true
     }
 

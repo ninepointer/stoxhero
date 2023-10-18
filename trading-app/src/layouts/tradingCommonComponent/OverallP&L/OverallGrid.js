@@ -145,6 +145,36 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
       </MDTypography>
     );
 
+    obj.instrumentToken = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.instrumentToken)}
+      </MDTypography>
+    );
+
+    obj.exchangeInstrumentToken = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.exchangeInstrumentToken)}
+      </MDTypography>
+    );
+
+    obj.exchange = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.exchange)}
+      </MDTypography>
+    );
+
+    obj.validity = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.validity)}
+      </MDTypography>
+    );
+
+    obj.variety = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.variety)}
+      </MDTypography>
+    );
+
     obj.symbol = (
       <MDTypography component="a" variant="caption" color={instrumentcolor} fontWeight="medium">
         {(subelem._id.symbol)}
@@ -293,7 +323,6 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
     />
   );
 
-  //validity, variety, exchange, buyOrSell, subscriptionId
   return (
     <Card>
       <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
@@ -387,7 +416,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
                           }
                         </Tooltip>
                         {from===tenxTrader &&
-                          <PnlMenu data={elem} />
+                          <PnlMenu data={elem} id={subscriptionId} />
                         }
                       </tr>
                     </React.Fragment>

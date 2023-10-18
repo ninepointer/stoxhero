@@ -1,6 +1,7 @@
 const { ObjectId } = require("mongodb");
 const PendingOrder = require("../models/PendingOrder/pendingOrderSchema")
 let { client } = require("../marketData/redisClient");
+const {applyingSLSP} = require("../PlaceOrder/saveDataInDB/PendingOrderCondition/applyingSLSP")
 
 
 exports.myTodaysProcessedTrade = async (req, res, next) => {
@@ -304,5 +305,45 @@ exports.cancelOrder = async (req, res, next) => {
     return res.status(200).json({status: "Success", data: updatedOrder});
   } catch (error) {
     return res.status(500).json({ error: error.message });
+  }
+};
+
+exports.modifyOrder = async (req, res, next) => {
+  try{
+    console.log(req.body)
+    const {instrumentToken} = req.body;
+    data = await client.get('stoploss-stopprofit');
+    data = JSON.parse(data);
+    console.log("1st")
+    if (data && data[`${instrumentToken}`]) {
+        let symbolArray = data[`${instrumentToken}`];
+        let indicesToRemove = [];
+        console.log("2st")
+        for(let i = symbolArray.length-1; i >= 0; i--){
+            if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol){
+                // remove this element
+                console.log("3st")
+                indicesToRemove.push(i);
+                const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id), status: "Pending", symbol: symbolArray[i].symbol},{
+                    $set: {status: "Cancelled"}
+                })
+            }
+        }
+  
+        console.log("4st")
+        // Remove elements after the loop
+        indicesToRemove.forEach(index => symbolArray.splice(index, 1));
+    }
+  
+    console.log("5st")
+    await client.set('stoploss-stopprofit', JSON.stringify(data));
+    const result = await applyingSLSP(req, {}, undefined);
+  
+    console.log("result", result)
+    return res.status(200).json({status: "Success", message: `Your SL/SP-M order placed for ${req.body.symbol}`});
+  
+  } catch(err){
+    return res.status(200).json({status: "Error", message: "Something went wrong."});
+
   }
 };
