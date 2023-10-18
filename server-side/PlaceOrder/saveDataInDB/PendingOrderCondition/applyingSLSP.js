@@ -82,7 +82,7 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
     dataObj[`${instrumentToken}`] = dataArr;
 
     console.log("dataObj", dataObj)
-    if (isRedisConnected && !await client.exists('stoploss-stopprofit') && !JSON.parse(await client.get('stoploss-stopprofit')) ) {
+    if (isRedisConnected && (!await client.exists('stoploss-stopprofit') || !JSON.parse(await client.get('stoploss-stopprofit')) )) {
       const order = await PendingOrder.find({status: "Pending"});
       const transformedObject = {};
 

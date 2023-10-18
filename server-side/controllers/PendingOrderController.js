@@ -21,46 +21,61 @@ exports.myTodaysProcessedTrade = async (req, res, next) => {
 
         if (from === "TenX") {
 
-          count = await PendingOrder.aggregate([
-            {
-              $match: {
-                product_type: new ObjectId(
-                  "6517d3803aeb2bb27d650de0"
-                ),
-                createdBy: new ObjectId(
-                  userId
-                ),
-                createdOn: {
-                  $gte: today,
-                },
-                status: {$ne: "Pending"}
-              },
+          // count = await PendingOrder.aggregate([
+          //   {
+          //     $match: {
+          //       product_type: new ObjectId(
+          //         "6517d3803aeb2bb27d650de0"
+          //       ),
+          //       createdBy: new ObjectId(
+          //         userId
+          //       ),
+          //       createdOn: {
+          //         $gte: today,
+          //       },
+          //       status: {$ne: "Pending"}
+          //     },
+          //   },
+          //   {
+          //     $lookup: {
+          //       from: "tenx-trade-users",
+          //       localField: "order_referance_id",
+          //       foreignField: "_id",
+          //       as: "result",
+          //     },
+          //   },
+          //   {
+          //     $unwind: {
+          //       path: "$result",
+          //     },
+          //   },
+          //   {
+          //     $match: {
+          //       "result.subscriptionId": new ObjectId(
+          //         id
+          //       ),
+          //     },
+          //   },
+          //   {
+          //     $count:
+          //       "count",
+          //   },
+          // ])
+
+          count = await PendingOrder.countDocuments({
+            product_type: new ObjectId(
+              "6517d3803aeb2bb27d650de0"
+            ),
+            createdBy: new ObjectId(
+              userId
+            ),
+            createdOn: {
+              $gte: today,
             },
-            {
-              $lookup: {
-                from: "tenx-trade-users",
-                localField: "order_referance_id",
-                foreignField: "_id",
-                as: "result",
-              },
-            },
-            {
-              $unwind: {
-                path: "$result",
-              },
-            },
-            {
-              $match: {
-                "result.subscriptionId": new ObjectId(
-                  id
-                ),
-              },
-            },
-            {
-              $count:
-                "count",
-            },
-          ])
+            status: {$ne: "Pending"},
+            sub_product_id: new ObjectId(id)
+          })
+
           myTodaysTrade = await PendingOrder.aggregate([
             {
               $match: {
@@ -73,29 +88,30 @@ exports.myTodaysProcessedTrade = async (req, res, next) => {
                 createdOn: {
                   $gte: today,
                 },
-                status: {$ne: "Pending"}
+                status: {$ne: "Pending"},
+                sub_product_id: new ObjectId(id)
               },
             },
-            {
-              $lookup: {
-                from: "tenx-trade-users",
-                localField: "order_referance_id",
-                foreignField: "_id",
-                as: "result",
-              },
-            },
-            {
-              $unwind: {
-                path: "$result",
-              },
-            },
-            {
-              $match: {
-                "result.subscriptionId": new ObjectId(
-                  id
-                ),
-              },
-            },
+            // {
+            //   $lookup: {
+            //     from: "tenx-trade-users",
+            //     localField: "order_referance_id",
+            //     foreignField: "_id",
+            //     as: "result",
+            //   },
+            // },
+            // {
+            //   $unwind: {
+            //     path: "$result",
+            //   },
+            // },
+            // {
+            //   $match: {
+            //     "result.subscriptionId": new ObjectId(
+            //       id
+            //     ),
+            //   },
+            // },
             {
               $project: {
                 symbol: 1,
@@ -152,47 +168,60 @@ exports.myTodaysPendingTrade = async (req, res, next) => {
   try {
 
       if (from === "TenX") {
+        count = await PendingOrder.countDocuments({
+          product_type: new ObjectId(
+            "6517d3803aeb2bb27d650de0"
+          ),
+          createdBy: new ObjectId(
+            userId
+          ),
+          createdOn: {
+            $gte: today,
+          },
+          status: "Pending",
+          sub_product_id: new ObjectId(id)
+        })
+        // count = await PendingOrder.aggregate([
+        //   {
+        //     $match: {
+        //       product_type: new ObjectId(
+        //         "6517d3803aeb2bb27d650de0"
+        //       ),
+        //       createdBy: new ObjectId(
+        //         userId
+        //       ),
+        //       createdOn: {
+        //         $gte: today,
+        //       },
+        //       status: "Pending"
+        //     },
+        //   },
+        //   {
+        //     $lookup: {
+        //       from: "tenx-trade-users",
+        //       localField: "order_referance_id",
+        //       foreignField: "_id",
+        //       as: "result",
+        //     },
+        //   },
+        //   {
+        //     $unwind: {
+        //       path: "$result",
+        //     },
+        //   },
+        //   {
+        //     $match: {
+        //       "result.subscriptionId": new ObjectId(
+        //         id
+        //       ),
+        //     },
+        //   },
+        //   {
+        //     $count:
+        //       "count",
+        //   },
+        // ])
 
-        count = await PendingOrder.aggregate([
-          {
-            $match: {
-              product_type: new ObjectId(
-                "6517d3803aeb2bb27d650de0"
-              ),
-              createdBy: new ObjectId(
-                userId
-              ),
-              createdOn: {
-                $gte: today,
-              },
-              status: "Pending"
-            },
-          },
-          {
-            $lookup: {
-              from: "tenx-trade-users",
-              localField: "order_referance_id",
-              foreignField: "_id",
-              as: "result",
-            },
-          },
-          {
-            $unwind: {
-              path: "$result",
-            },
-          },
-          {
-            $match: {
-              "result.subscriptionId": new ObjectId(
-                id
-              ),
-            },
-          },
-          {
-            $count:
-              "count",
-          },
-        ])
         myTodaysTrade = await PendingOrder.aggregate([
           {
             $match: {
@@ -205,29 +234,30 @@ exports.myTodaysPendingTrade = async (req, res, next) => {
               createdOn: {
                 $gte: today,
               },
-              status: "Pending"
+              status: "Pending",
+              sub_product_id: new ObjectId(id)
             },
           },
-          {
-            $lookup: {
-              from: "tenx-trade-users",
-              localField: "order_referance_id",
-              foreignField: "_id",
-              as: "result",
-            },
-          },
-          {
-            $unwind: {
-              path: "$result",
-            },
-          },
-          {
-            $match: {
-              "result.subscriptionId": new ObjectId(
-                id
-              ),
-            },
-          },
+          // {
+          //   $lookup: {
+          //     from: "tenx-trade-users",
+          //     localField: "order_referance_id",
+          //     foreignField: "_id",
+          //     as: "result",
+          //   },
+          // },
+          // {
+          //   $unwind: {
+          //     path: "$result",
+          //   },
+          // },
+          // {
+          //   $match: {
+          //     "result.subscriptionId": new ObjectId(
+          //       id
+          //     ),
+          //   },
+          // },
           {
             $project: {
               symbol: 1,
@@ -311,16 +341,18 @@ exports.cancelOrder = async (req, res, next) => {
 exports.modifyOrder = async (req, res, next) => {
   try{
     console.log(req.body)
-    const {instrumentToken} = req.body;
+    const {instrumentToken, symbol} = req.body;
+    const userId = req.user._id
     data = await client.get('stoploss-stopprofit');
     data = JSON.parse(data);
     console.log("1st")
     if (data && data[`${instrumentToken}`]) {
         let symbolArray = data[`${instrumentToken}`];
         let indicesToRemove = [];
-        console.log("2st")
+        console.log("2st", symbolArray.length)
         for(let i = symbolArray.length-1; i >= 0; i--){
-            if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol){
+          console.log(symbolArray[i].createdBy.toString() , userId.toString() , symbolArray[i].symbol , symbol)
+            if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === symbol){
                 // remove this element
                 console.log("3st")
                 indicesToRemove.push(i);
@@ -343,6 +375,7 @@ exports.modifyOrder = async (req, res, next) => {
     return res.status(200).json({status: "Success", message: `Your SL/SP-M order placed for ${req.body.symbol}`});
   
   } catch(err){
+    console.log(err)
     return res.status(200).json({status: "Error", message: "Something went wrong."});
 
   }

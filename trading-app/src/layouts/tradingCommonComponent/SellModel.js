@@ -147,7 +147,6 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
     sellFormDetails.stopLossPrice = e.target.value
     if(Number(ltp) > Number(e.target.value)){//errorMessage
       const text  = "Stop Loss price should be greater then LTP.";
-
       setErrorMessageStopLoss(text)
     }
   }

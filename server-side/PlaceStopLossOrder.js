@@ -116,7 +116,7 @@ exports.tenxTradeStopLoss = async () => {
                 const tenx = new TenxTrader({
                     status: "COMPLETE", average_price: last_price, Quantity, Product, buyOrSell,
                     variety, validity, exchange, order_type, symbol, placed_by: "stoxhero",
-                    order_id, instrumentToken, brokerage: brokerageUser, sub_product_id, exchangeInstrumentToken,
+                    order_id, instrumentToken, brokerage: brokerageUser, subscriptionId: sub_product_id, exchangeInstrumentToken,
                     createdBy: "63ecbc570302e7cf0153370c", trader: createdBy, amount: (Number(Quantity) * last_price), trade_time: trade_time_zerodha,
                 });
 

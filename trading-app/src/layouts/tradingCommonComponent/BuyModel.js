@@ -30,7 +30,8 @@ import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader,
 
 const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, module}) => {
 
-  console.log(from)
+  const newLtp = ltp;
+  // ltp?.include("₹") ? parseFloat(ltp?.slice(1)) : ltp;
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const {render, setRender} = useContext(renderContext);
   const getDetails = React.useContext(userContext);
@@ -140,7 +141,7 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
   const stopLoss = async (e) => {
     setErrorMessageStopLoss("")
     buyFormDetails.stopLossPrice = e.target.value
-    if(Number(ltp) < Number(e.target.value)){//errorMessage
+    if(Number(newLtp) < Number(e.target.value)){//errorMessage
       const text  = "Stop Loss price should be less then LTP.";
 
       setErrorMessageStopLoss(text)
@@ -151,7 +152,7 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
   const stopProfit = async (e) => {
     setErrorMessageStopProfit("")
     buyFormDetails.stopProfitPrice = e.target.value
-    if(Number(ltp) > Number(e.target.value)){
+    if(Number(newLtp) > Number(e.target.value)){
       setErrorMessageStopProfit("Stop Profit price should be greater then LTP.")
     }
   }

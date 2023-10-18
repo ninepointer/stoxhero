@@ -38,8 +38,12 @@ function ModifyPopUp({data, id}) {
     const lots=data?.Quantity?.props?.children;
     const symbolName=data?.symbol?.props?.children;
     const ltp=data?.last_price?.props?.children;
+    const newLtp = parseFloat(ltp.slice(1))
     const change=data?.change?.props?.children;
+    const type = data?.Quantity?.props?.children > 0 ? "BUY" : "SELL"
 
+    const [errorMessageStopLoss, setErrorMessageStopLoss] = useState("");
+    const [errorMessageStopProfit, setErrorMessageStopProfit] = useState("");  
     const [anchorEl, setAnchorEl] = useState(null);
     const [selectedValue, setSelectedValue] = React.useState('a');
     const open = Boolean(anchorEl);
@@ -56,8 +60,8 @@ function ModifyPopUp({data, id}) {
     })
     const [modifyData, setModifyData] = useState({
       Quantity: 0,
-      stopLossPrice: 0,
-      stopProfitPrice: 0
+      stopLossPrice: "",
+      stopProfitPrice: ""
     });
     let index = symbolName.includes("BANK") ? "BANKNIFTY" : symbolName.includes("FIN") ? 'FINNIFTY' : "NIFTY";
     let lotSize = symbolName.includes("BANK") ? lotSize_BankNifty : symbolName.includes("FIN") ? lotSize_FinNifty : lotSize_Nifty;
@@ -68,20 +72,41 @@ function ModifyPopUp({data, id}) {
         optionData.push( <MenuItem value={i * lotSize}>{ i * lotSize}</MenuItem>)      
     }
     const handleClick = (event) => {
-        console.log("in open")
         setAnchorEl(event.currentTarget);
       };
 
     const handleClose = () => {
-        console.log("in close")
         setAnchorEl(null);
     };
 
     const stopLoss = (e) => {
+      setErrorMessageStopLoss("")
+      if(type === "BUY"){
+        if(Number(newLtp) < Number(e.target.value)){//errorMessage
+          const text  = "Stop Loss price should be less then LTP.";
+          setErrorMessageStopLoss(text)
+        }
+      } else{
+        if(Number(newLtp) > Number(e.target.value)){//errorMessage
+          const text  = "Stop Loss price should be greater then LTP.";
+          setErrorMessageStopLoss(text)
+        }
+      }
+
       setModifyData(prev => ({...prev, stopLossPrice: e.target.value}))
     };
 
     const stopProfit = (e) => {
+      setErrorMessageStopProfit("")
+      if(type === "BUY"){
+        if(Number(newLtp) > Number(e.target.value)){
+          setErrorMessageStopProfit("Stop Profit price should be greater then LTP.")
+        }
+      } else{
+        if(Number(newLtp) < Number(e.target.value)){
+          setErrorMessageStopProfit("Stop Profit price should be less then LTP.")
+        }
+      }
       setModifyData(prev => ({...prev, stopProfitPrice: e.target.value}))
     };
 
@@ -99,7 +124,6 @@ function ModifyPopUp({data, id}) {
 
   const modifyOrder = async () => {
     const { Quantity, stopLossPrice, stopProfitPrice } = modifyData;
-    const type = data?.Quantity?.props?.children > 0 ? "BUY" : "SELL"
     const res = await fetch(`${apiUrl}pendingorder/modify`, {
       method: "POST",
       credentials: "include",
@@ -121,50 +145,22 @@ function ModifyPopUp({data, id}) {
       openSuccessSB('error', dataResp.error)
     } else {
       tradeSound.play();
-      if (dataResp.message === "COMPLETE") {
-        // openSuccessSB('complete', {symbol, Quantity})
-      } else if (dataResp.message === "REJECTED") {
-        openSuccessSB('reject', "Trade is Rejected due to Insufficient Fund")
-      } else if (dataResp.message === "AMO REQ RECEIVED") {
-        openSuccessSB('amo', "AMO Request Recieved")
-      } else if (dataResp.message === "Live") {
-      } else {
-        openSuccessSB('else', dataResp.message)
-      }
+      openSuccessSB(dataResp.status, dataResp.message)
     }
     setModifyData({});
     render ? setRender(false) : setRender(true)
-
-
+    handleClose();
   }
     
   const [successSB, setSuccessSB] = useState(false);
 
   const openSuccessSB = (value,content) => {
-    if(value === "complete"){
+    if(value === "Success"){
         messageObj.color = 'success'
         messageObj.icon = 'check'
-        messageObj.title = "Trade Successful";
-        messageObj.content = `Traded ${content.Quantity} of ${content.symbol}`;
+        messageObj.title = "Successful";
+        messageObj.content = content;
         setSuccessSB(true);
-    };
-    if(value === "reject"){
-      messageObj.color = 'error'
-      messageObj.icon = 'error'
-      messageObj.title = "REJECTED";
-      messageObj.content = content;
-    };
-    if(value === "amo"){
-      messageObj.color = 'info'
-      messageObj.icon = 'warning'
-      messageObj.title = "AMO Requested";
-      messageObj.content = content;
-    };
-    if(value === "else"){
-      messageObj.color = 'error'
-      messageObj.icon = 'error'
-      messageObj.title = "REJECTED";
-      messageObj.content = content;
     };
     if(value === "error"){
       messageObj.color = 'error'
@@ -217,7 +213,7 @@ function ModifyPopUp({data, id}) {
           </DialogTitle>
           <DialogContent>
             <DialogContentText sx={{ display: "flex", flexDirection: "column", justifyContent: "center", width: "300px" }}>
-              <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between"  }}>
+              <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between",  }} mb={1}>
                 <Box sx={{color: "#FFFFFF", backgroundColor: "#1A72E5", fontWeight: 600, padding: "5px", borderRadius: "5px", fontSize: "11px" }}>
                   <Box>
                   {`Symbol : ${(symbolName)?.slice(-7)}`}
@@ -249,8 +245,7 @@ function ModifyPopUp({data, id}) {
                     id="outlined-select-currency"
                     label={<Typography >Quantity</Typography> }
                     onChange={(e) => { setModifyData(prev => ({...prev, Quantity: e.target.value})) }}
-                    sx={{ 
-                       minHeight: 43 }}
+                    sx={{ minHeight: 43 }}
                   >
                     {optionData.map((elem)=>{
                         return(
@@ -283,10 +278,10 @@ function ModifyPopUp({data, id}) {
 
               </Box>
 
-              {/* <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center", gap: "10px" }}>
-                      <Typography fontSize={15} color={"error"}> {buyFormDetails.stopLossPrice && errorMessageStopLoss && errorMessageStopLoss}</Typography>
-                      <Typography fontSize={15} color={"error"}>{buyFormDetails.stopProfitPrice && errorMessageStopProfit && errorMessageStopProfit}</Typography>
-                  </Box> */}
+              <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center", gap: "10px" }}>
+                <Typography fontSize={13} color={"error"}> {modifyData.stopLossPrice && errorMessageStopLoss && errorMessageStopLoss}</Typography>
+                <Typography fontSize={13} color={"error"}>{modifyData.stopProfitPrice && errorMessageStopProfit && errorMessageStopProfit}</Typography>
+              </Box>
 
               <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", marginLeft: "-9px" }}>
                 <Checkbox {...controlProps('a')} size='small' />
@@ -304,7 +299,12 @@ function ModifyPopUp({data, id}) {
               CANCEL
             </MDButton>
             <MDButton
-              // disabled={(buyFormDetails.stopLossPrice && (ltp < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (ltp > buyFormDetails.stopProfitPrice))} 
+              disabled={
+                type==="BUY" ?
+                (modifyData.stopLossPrice && (newLtp < modifyData.stopLossPrice)) || (modifyData.stopProfitPrice && (newLtp > modifyData.stopProfitPrice))
+                :
+                (modifyData.stopLossPrice && (newLtp > modifyData.stopLossPrice)) || (modifyData.stopProfitPrice && (newLtp < modifyData.stopProfitPrice))
+              } 
               autoFocus variant="contained" color="warning" onClick={modifyOrder} sx={{fontSize: "10px"}}>
               MODIFY
             </MDButton>
@@ -312,7 +312,7 @@ function ModifyPopUp({data, id}) {
           </DialogActions>
         </Dialog>
       </div >
-      {/* {renderSuccessSB} */}
+      {renderSuccessSB}
     </div >
   );
 
