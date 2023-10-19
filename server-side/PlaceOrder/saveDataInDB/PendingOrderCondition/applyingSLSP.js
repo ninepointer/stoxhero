@@ -14,7 +14,8 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
         stopProfitPrice, stopLossPrice, createdBy, order_type, deviceDetails, id } = req.body ? req.body : req 
 
         console.log("in slsps", stopProfitPrice , stopLossPrice, req.body)
-    last_price = last_price.includes("₹") && last_price.slice(1);
+    last_price = last_price?.includes("₹") && last_price?.slice(1);
+    id = id ? id : subscriptionId;
     if(Object.keys(otherData).length > 0){
         Quantity = otherData.quantity ? otherData.quantity : Quantity;
         stopProfitPrice = otherData.stopProfitPrice ? otherData.stopProfitPrice : stopProfitPrice;

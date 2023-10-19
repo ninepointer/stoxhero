@@ -96,7 +96,7 @@ export default function AccountMenu({id, setUpdate}) {
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         <MenuItem onClick={cancelOrder} >
-          <HighlightOffIcon sx={{ mr: 2 }} /> Cancle Order
+          <HighlightOffIcon sx={{ mr: 2 }} /> Cancel Order
         </MenuItem>
       </Menu>
     </React.Fragment>

@@ -124,6 +124,15 @@ function ModifyPopUp({data, id}) {
 
   const modifyOrder = async () => {
     const { Quantity, stopLossPrice, stopProfitPrice } = modifyData;
+    if(!Quantity){
+      openSuccessSB('error', "Please select quantity for trade.");
+      return;
+    }
+
+    if((!stopLossPrice && !stopProfitPrice)){
+      openSuccessSB('error', "Please enter stop loss or stop profit price.");
+      return;
+    }
     const res = await fetch(`${apiUrl}pendingorder/modify`, {
       method: "POST",
       credentials: "include",

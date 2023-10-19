@@ -14,11 +14,12 @@ import { renderContext } from "../../../../renderContext";
 import { apiUrl } from "../../../../constants/constants";
 import { RiStockFill } from "react-icons/ri";
 import OrderHelper from "../../../tradingCommonComponent/orders/orderHelper";
+import { userContext } from "../../../../AuthContext";
 // import { Grid } from "@mui/material";
 // import { useLocation, Link } from "react-router-dom";
 
 
-function Orders({ subscriptionId }) {
+function Orders({ subscriptionId, socket, updatePendingOrder }) {
 
 
     let styleTD = {
@@ -35,8 +36,10 @@ function Orders({ subscriptionId }) {
     const [isLoading, setIsLoading] = useState(true);
 
     const [data, setData] = useState([]);
-    // const getDetails = useContext(userContext);
     const { render } = useContext(renderContext);
+    const [trackEvent, setTrackEvent] = useState({});
+    const getDetails = useContext(userContext);
+
 
     let url =  `tenX/my/todayorders/${subscriptionId}`;
     useEffect(() => {
@@ -55,7 +58,17 @@ function Orders({ subscriptionId }) {
                 }, 500)
                 return new Error(err);
             })
-    }, [render])
+    }, [render, trackEvent, updatePendingOrder])
+
+    useEffect(() => {
+        if(socket){
+            socket?.on(`sendOrderResponse${(getDetails.userDetails._id).toString()}`, (data) => {
+                setTimeout(() => {
+                    setTrackEvent(data);
+                })
+            })
+        }
+    }, [])
 
     function backHandler() {
         if (skip <= 0) {

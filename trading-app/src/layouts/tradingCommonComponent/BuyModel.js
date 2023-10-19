@@ -143,8 +143,10 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
     buyFormDetails.stopLossPrice = e.target.value
     if(Number(newLtp) < Number(e.target.value)){//errorMessage
       const text  = "Stop Loss price should be less then LTP.";
-
       setErrorMessageStopLoss(text)
+    }
+    if(e.target.value === ""){
+      buyFormDetails.stopLossPrice = false;
     }
   }
 
@@ -154,6 +156,9 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
     buyFormDetails.stopProfitPrice = e.target.value
     if(Number(newLtp) > Number(e.target.value)){
       setErrorMessageStopProfit("Stop Profit price should be greater then LTP.")
+    }
+    if(e.target.value === ""){
+      buyFormDetails.stopProfitPrice = false;
     }
   }
 
@@ -484,12 +489,12 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
           </DialogContent>
           <DialogActions>
             <MDButton 
-            disabled={(buyFormDetails.stopLossPrice && (ltp < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (ltp > buyFormDetails.stopProfitPrice))} 
+            disabled={(buyFormDetails.stopLossPrice && (Number(ltp) < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (Number(ltp) > buyFormDetails.stopProfitPrice))} 
             autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
               BUY
             </MDButton>
             <MDButton variant="contained" color="info" onClick={handleClose} autoFocus>
-              Close
+              Cancel
             </MDButton>
           </DialogActions>
         </Dialog>

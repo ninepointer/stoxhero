@@ -19,7 +19,7 @@ import { userContext } from "../../../../AuthContext";
 // import { useLocation, Link } from "react-router-dom";
 
 
-function PendingOrders({ subscriptionId, socket }) {
+function PendingOrders({ subscriptionId, socket, setUpdatePendingOrder, updatePendingOrder }) {
 
 
     let styleTD = {
@@ -58,7 +58,7 @@ function PendingOrders({ subscriptionId, socket }) {
                 }, 500)
                 return new Error(err);
             })
-    }, [render, trackEvent])
+    }, [render, trackEvent, updatePendingOrder])
 
     useEffect(() => {
         socket?.on(`sendOrderResponse${(getDetails.userDetails._id).toString()}`, (data) => {
@@ -248,6 +248,7 @@ function PendingOrders({ subscriptionId, socket }) {
                                                         time={elem.time.props.children}
                                                         type={elem.type.props.children}
                                                         id={elem._id.props.children}
+                                                        setUpdatePendingOrder={setUpdatePendingOrder}
                                                     />
                                                 </tr>
                                             )
