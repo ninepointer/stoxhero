@@ -11,7 +11,8 @@ const User = require("../../models/User/userDetailSchema")
 const PortFolio = require("../../models/userPortfolio/UserPortfolio")
 const Campaign = require("../../models/campaigns/campaignSchema")
 const UserWallet = require("../../models/UserWallet/userWalletSchema");
-const emailService = require("../../utils/emailService")
+const emailService = require("../../utils/emailService");
+const { ObjectId } = require('mongodb');
 
 const s3 = new aws.S3();
 
@@ -369,7 +370,36 @@ exports.confirmOTP = async(req, res, next)=>{
   }
 
 }
-  
+
+exports.applyForCareer = async(req,res, next) => {
+
+  const{ campaignCode, career, dob, linkedInProfileLink, priorTradingExperience, source, gender, collegeName
+  } = req.body
+  const user = await User.findById(req.user._id).select('first_name last_name email mobile');
+  try{
+    const data = await CareerApplication.create({
+      first_name: user?.first_name.trim(),
+      last_name: user?.last_name.trim(),
+      email: user?.email.trim(),
+      mobileNo: user?.mobile.trim(),
+      dob: dob,
+      gender: gender,
+      collegeName: collegeName,
+      linkedInProfileLink: linkedInProfileLink,
+      priorTradingExperience: priorTradingExperience,
+      source: source.trim(),
+      career: career,
+      campaignCode: campaignCode?.trim(),
+      status: 'OTP Verified',
+      applicationStatus: 'Applied'
+    });
+    res.status(201).json({status:"success", message:"Application Submitted Successfully."});
+
+  }catch(e){
+    console.log(e);
+    res.status(500).json({status:"error", message:"Something went wrong"});
+  }
+}
 
 exports.createCareer = async(req, res, next)=>{
     // console.log(req.body)
