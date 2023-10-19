@@ -331,7 +331,6 @@ exports.confirmOTP = async(req, res, next)=>{
                     </div>
                 </body>
                 </html>
-
             `
             if(process.env.PROD=='true'){
               emailService(newuser?.email,subject,message);

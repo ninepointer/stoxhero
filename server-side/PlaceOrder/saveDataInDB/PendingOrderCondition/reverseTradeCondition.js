@@ -22,9 +22,11 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
                 if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol){
                     // remove this element
                     indicesToRemove.push(i);
-                    const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id), status: "Pending", symbol: symbolArray[i].symbol},{
+                    const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id)},{
                         $set: {status: "Cancelled"}
                     })
+                    //, status: "Pending", symbol: symbolArray[i].symbol
+
                 }
             }
 
@@ -48,9 +50,10 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
                     if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol){
                         // remove this element
                         indicesToRemove.push(i);
-                        const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id), status: "Pending", symbol: symbolArray[i].symbol},{
+                        const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id)},{
                             $set: {status: "Cancelled"}
                         })
+                        //, status: "Pending", symbol: symbolArray[i].symbol
                     }
                 }
     
@@ -82,9 +85,11 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
                     if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol){
                         // remove this element
                         indicesToRemove.push(i);
-                        const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id), status: "Pending", symbol: symbolArray[i].symbol},{
+                        const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id)},{
                             $set: {status: "Cancelled"}
                         })
+                        //, status: "Pending", symbol: symbolArray[i].symbol
+
                     }
                 }
     
@@ -103,9 +108,8 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
             let symbolArray = data[`${doc.instrumentToken}`];
             // let indicesToRemove = [];
             for(let i = symbolArray.length-1; i >= 0; i--){
-                if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol){
+                if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol && (Number(symbolArray[i].Quantity) > quantity)){
                     // remove this element
-                    // indicesToRemove.push(i);
                     symbolArray[i].Quantity = quantity;
                     const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id), status: "Pending", symbol: symbolArray[i].symbol},{
                         $set: {Quantity: quantity}
