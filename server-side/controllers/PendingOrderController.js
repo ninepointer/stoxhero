@@ -34,6 +34,8 @@ exports.myTodaysProcessedTrade = async (req, res, next) => {
             sub_product_id: new ObjectId(id)
           })
 
+          console.log("count", count)
+
           myTodaysTrade = await PendingOrder.aggregate([
             {
               $match: {
@@ -83,7 +85,7 @@ exports.myTodaysProcessedTrade = async (req, res, next) => {
             }
           ])
         }
-        res.status(200).json({ status: 'success', data: myTodaysTrade, count: count[0]?.count ? count[0]?.count : 0 });
+        res.status(200).json({ status: 'success', data: myTodaysTrade, count: count ? count : 0 });
     } catch (e) {
         console.log(e);
         res.status(500).json({ status: 'error', message: 'Something went wrong' });
@@ -169,7 +171,7 @@ exports.myTodaysPendingTrade = async (req, res, next) => {
           }
         ])
       }
-      res.status(200).json({ status: 'success', data: myTodaysTrade, count: count[0]?.count ? count[0]?.count : 0 });
+      res.status(200).json({ status: 'success', data: myTodaysTrade, count: count ? count : 0 });
   } catch (e) {
       console.log(e);
       res.status(500).json({ status: 'error', message: 'Something went wrong' });
@@ -196,10 +198,8 @@ exports.cancelOrder = async (req, res, next) => {
     data = JSON.parse(data);
     let symbolArr = data[`${updatedOrder.instrumentToken}`];
     for(let i = 0; i < symbolArr.length; i++){
-        if(symbolArr[i].instrumentToken === updatedOrder.instrumentToken && 
-           symbolArr[i].createdBy.toString() === updatedOrder.createdBy.toString() && 
-           Math.abs(symbolArr[i].Quantity) === Math.abs(Number(updatedOrder.Quantity)) && 
-           symbolArr[i].buyOrSell === updatedOrder.buyOrSell && symbolArr[i].type !== updatedOrder.type)
+        if(symbolArr[i]._id.toString() === id.toString() && 
+           symbolArr[i].createdBy.toString() === updatedOrder.createdBy.toString())
         {
             updatedOrder.status = "Cancelled";
             const doc = await updatedOrder.save({new: true});
@@ -232,11 +232,16 @@ exports.modifyOrder = async (req, res, next) => {
           console.log(symbolArray[i].createdBy.toString() , userId.toString() , symbolArray[i].symbol , symbol)
             if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === symbol){
                 // remove this element
-                console.log("3st")
+                console.log("3st", symbolArray[i]._id)
                 indicesToRemove.push(i);
-                const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id), status: "Pending", symbol: symbolArray[i].symbol},{
-                    $set: {status: "Cancelled"}
-                })
+                // const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id), status: "Pending", symbol: symbolArray[i].symbol},{
+                //     $set: {status: "Cancelled"}
+                // })
+                const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id)},{
+                  $set: {status: "Cancelled"}
+              })
+              //, status: "Pending", symbol: symbolArray[i].symbol
+
             }
         }
   

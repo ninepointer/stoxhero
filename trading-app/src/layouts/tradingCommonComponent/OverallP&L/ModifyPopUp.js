@@ -66,7 +66,7 @@ function ModifyPopUp({data, id}) {
     let index = symbolName.includes("BANK") ? "BANKNIFTY" : symbolName.includes("FIN") ? 'FINNIFTY' : "NIFTY";
     let lotSize = symbolName.includes("BANK") ? lotSize_BankNifty : symbolName.includes("FIN") ? lotSize_FinNifty : lotSize_Nifty;
 
-    let finalLot = lots/lotSize;
+    let finalLot = Math.abs(lots)/lotSize;
     let optionData = [];
     for(let i =1; i<= finalLot; i++){
         optionData.push( <MenuItem value={i * lotSize}>{ i * lotSize}</MenuItem>)      
