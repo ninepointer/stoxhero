@@ -147,6 +147,8 @@ exports.tenxTrade = async (req, res, otherData) => {
             instrumentToken: tenxDoc.instrumentToken,
             exchangeInstrumentToken: tenxDoc.exchangeInstrumentToken,
             exchange: tenxDoc.exchange,
+            validity: tenxDoc.validity,
+            variety: tenxDoc.variety
           },
           amount: (tenxDoc.amount * -1),
           brokerage: Number(tenxDoc.brokerage),
