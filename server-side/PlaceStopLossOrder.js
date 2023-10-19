@@ -71,7 +71,7 @@ exports.tenxTradeStopLoss = async () => {
 
             // console.log(message.data)
 
-            let { exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId,
+            let { exchange, symbol, buyOrSell, Quantity, Product, order_type, sub_product_id,
                 exchangeInstrumentToken, validity, variety, order_id, instrumentToken,
                 createdBy, _id, type } = message.data;
 
@@ -85,12 +85,13 @@ exports.tenxTradeStopLoss = async () => {
                 const lockExpiration = 10;
 
                 const lockAcquired = await acquireLock(lockKey, lockValue, lockExpiration);
-                // const lockAcquired = await clientForIORedis.set(lockKey, lockValue, 'NX', 'EX', 10);
 
                 if (!lockAcquired) {
                     // console.log('Another process is already saving data.');
                     return;
                 }
+
+                console.log("lockAcquired", lockAcquired)
 
                 let last_price = message.ltp;
                 let index = message.index;
@@ -115,13 +116,13 @@ exports.tenxTradeStopLoss = async () => {
                 const tenx = new TenxTrader({
                     status: "COMPLETE", average_price: last_price, Quantity, Product, buyOrSell,
                     variety, validity, exchange, order_type, symbol, placed_by: "stoxhero",
-                    order_id, instrumentToken, brokerage: brokerageUser, subscriptionId, exchangeInstrumentToken,
+                    order_id, instrumentToken, brokerage: brokerageUser, subscriptionId: sub_product_id, exchangeInstrumentToken,
                     createdBy: "63ecbc570302e7cf0153370c", trader: createdBy, amount: (Number(Quantity) * last_price), trade_time: trade_time_zerodha,
                 });
 
                 tenx.save().then(async () => {
-                    if (isRedisConnected && await client.exists(`${createdBy.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)) {
-                        let pnl = await client.get(`${createdBy.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
+                    if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`)) {
+                        let pnl = await client.get(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`)
                         pnl = JSON.parse(pnl);
                         const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenx.instrumentToken && element._id.product === tenx.Product));
 
@@ -150,12 +151,12 @@ exports.tenxTradeStopLoss = async () => {
                             });
                         }
 
-                        await client.set(`${createdBy.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(pnl))
+                        await client.set(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`, JSON.stringify(pnl))
 
                     }
 
                     if (isRedisConnected) {
-                        await client.expire(`${createdBy.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, secondsRemaining);
+                        await client.expire(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`, secondsRemaining);
                     }
                     // res.status(201).json({status: 'Complete', message: 'COMPLETE'});
                 }).catch((err) => {
@@ -167,6 +168,7 @@ exports.tenxTradeStopLoss = async () => {
                 data = JSON.parse(data);
                 let index2;
                 let symbolArr = data[`${instrumentToken}`];
+                console.log("symbolArr", symbolArr)
                 for (let i = 0; i < symbolArr.length; i++) {
                     if (symbolArr[i].instrumentToken === instrumentToken &&
                         symbolArr[i].createdBy.toString() === createdBy.toString() &&

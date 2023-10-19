@@ -194,22 +194,23 @@ router.patch("/toggleComplete/:id", restrictTo('Admin', 'SuperAdmin'), Authentic
 router.get("/deletetxns", async (req, res)=>{
     try{
         // const contest = await Contest.findOne({_id: new ObjectId('6509843318489d6d850f9f1e')});
-        const contest = await Contest.findOne({_id: new ObjectId('65147e3872e48e8f9e4fd9a1')});
+        const contest = await Contest.findOne({_id: new ObjectId('652c0cd8921a308fe75aafe5')});
         // console.log(contest)
-        let participants = contest.participants;
+        let participants = contest?.participants;
+        // console.log(participants);
         let totalPayout = 0;
     
         for (let elem of participants){
             const userWallet = await Wallet.findOne({userId: elem?.userId});
             const txns = userWallet.transactions;
             // console.log(userWallet);
-            const contestTxns = txns?.filter((item) => { return item?.title == 'Contest Credit' && new Date(item?.transactionDate)>= new Date('2023-10-13') && item?.description == 'Amount credited for contest IIIT Lucknow Options Ninja (Day 3)'});
+            const contestTxns = txns?.filter((item) => { return item?.title == 'Contest Credit' && new Date(item?.transactionDate)>= new Date('2023-10-13') && item?.description == 'Amount credited for contest College Trading Warriors (Day 2)'});
             // const sumPayouts = contestTxns?.reduce()
             if(contestTxns.length > 1){
-                console.log('red', elem?.userId);
+                console.log('red', elem?.userId, elem?.payout);
             }
             if(contestTxns.length == 1){
-                console.log('green', elem?.userId);
+                console.log('green', elem?.userId ,elem?.payout);
             }
             if(contestTxns.length > 2){
                 console.log('extreme', elem?.userId, contestTxns?.length);
@@ -256,7 +257,7 @@ router.get("/deletetxns", async (req, res)=>{
 })
 router.get("/deletenotifs", async (req, res)=>{
     try{
-        const contest = await Contest.findOne({_id: new ObjectId('65147e3872e48e8f9e4fd9a1')});
+        const contest = await Contest.findOne({_id: new ObjectId('652c0cd8921a308fe75aafe5')});
         // const contest = await Contest.findOne({_id: new ObjectId('65150e3ff3ef0c1ed1a36a0c')});
         let participants = contest.participants;
         // let totalPayout = 0;
@@ -265,7 +266,7 @@ router.get("/deletenotifs", async (req, res)=>{
             // const userWallet = await Wallet.findOne({userId: elem?.userId});
             const notifications = await Notification.find({user:elem?.userId});
             // const txns = userWallet.transactions;
-            const not = notifications?.filter((item) => { return item?.title == 'Contest Reward Credited' && new Date(item?.notificationTime)>= new Date('2023-10-12T09:49:00.485+00:00')});
+            const not = notifications?.filter((item) => { return item?.title == 'Contest Reward Credited' && new Date(item?.notificationTime)>= new Date('2023-10-19T09:49:00.485+00:00')});
             // const sumPayouts = contestTxns.reduce()
             // console.log(not.length, 'for', elem?.userId);
             if(not?.length == 2){

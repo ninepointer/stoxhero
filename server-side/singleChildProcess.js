@@ -163,9 +163,11 @@ async function singleProcess() {
                 // await positions();
                 if (setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType) {
                     await getTicksForUserPosition(socket, data);
+                    await getTicksForCompanySide(socket);
                     // await getDummyTicks(socket)
                 } else {
                     await getXTSTicksForUserPosition(socket, data);
+                    await getXTSTicksForCompanySide(socket);
                 }
 
                 // await DummyMarketData(socket);
@@ -194,7 +196,6 @@ async function singleProcess() {
 
     //emitting leaderboard for contest.
 
-    //todo-vijay
    if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });

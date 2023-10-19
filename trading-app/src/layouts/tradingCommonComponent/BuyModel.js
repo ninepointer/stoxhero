@@ -30,7 +30,8 @@ import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader,
 
 const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, module}) => {
 
-  console.log(from)
+  const newLtp = ltp;
+  // ltp?.include("₹") ? parseFloat(ltp?.slice(1)) : ltp;
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const {render, setRender} = useContext(renderContext);
   const getDetails = React.useContext(userContext);
@@ -140,10 +141,12 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
   const stopLoss = async (e) => {
     setErrorMessageStopLoss("")
     buyFormDetails.stopLossPrice = e.target.value
-    if(Number(ltp) < Number(e.target.value)){//errorMessage
+    if(Number(newLtp) < Number(e.target.value)){//errorMessage
       const text  = "Stop Loss price should be less then LTP.";
-
       setErrorMessageStopLoss(text)
+    }
+    if(e.target.value === ""){
+      buyFormDetails.stopLossPrice = false;
     }
   }
 
@@ -151,8 +154,11 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
   const stopProfit = async (e) => {
     setErrorMessageStopProfit("")
     buyFormDetails.stopProfitPrice = e.target.value
-    if(Number(ltp) > Number(e.target.value)){
+    if(Number(newLtp) > Number(e.target.value)){
       setErrorMessageStopProfit("Stop Profit price should be greater then LTP.")
+    }
+    if(e.target.value === ""){
+      buyFormDetails.stopProfitPrice = false;
     }
   }
 
@@ -483,13 +489,12 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
           </DialogContent>
           <DialogActions>
             <MDButton 
-            //todo-vijay
-            // disabled={(buyFormDetails.stopLossPrice && (ltp < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (ltp > buyFormDetails.stopProfitPrice))} 
+            disabled={(buyFormDetails.stopLossPrice && (Number(ltp) < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (Number(ltp) > buyFormDetails.stopProfitPrice))} 
             autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
               BUY
             </MDButton>
             <MDButton variant="contained" color="info" onClick={handleClose} autoFocus>
-              Close
+              Cancel
             </MDButton>
           </DialogActions>
         </Dialog>

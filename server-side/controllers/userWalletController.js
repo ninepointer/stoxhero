@@ -200,6 +200,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
             }
         }
         const totalAmount = (subs?.discounted_price - discountAmount - bonusRedemption)*(1+setting[0]?.gstPercentage/100)
+        console.log(Number(totalAmount) , Number(subscriptionAmount))
         if(Number(totalAmount) != Number(subscriptionAmount)){
           return {
             statusCode:400,

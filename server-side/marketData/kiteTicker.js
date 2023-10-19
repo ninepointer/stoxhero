@@ -168,39 +168,6 @@ const getTicksForUserPosition = async (socket, id) => {
     // console.log("above ticks", ticker)
     ticker?.on('ticks', async (ticks) => {
 
-      for(let tick of ticks){
-        data = await client.get('stoploss-stopprofit');
-        if(data){
-          data = JSON.parse(data);
-          
-          let symbolArr = data[`${tick.instrument_token}`];
-          // console.log("this is data", symbolArr)
-          try{
-            if(symbolArr){
-              // for(let subelem of symbolArr){
-              for(let i = 0; i < symbolArr.length; i++){
-                // console.log(subelem)
-                if(symbolArr[i].type === "StopLoss" && symbolArr[i].execution_price >= tick.last_price && symbolArr[i].buyOrSell === "SELL"){
-                  console.log("1st if running")
-                  await client.PUBLISH("place-order", JSON.stringify({data: symbolArr[i], ltp: tick.last_price, index: i}))
-                } else if(symbolArr[i].type === "StopLoss" && symbolArr[i].execution_price <= tick.last_price && symbolArr[i].buyOrSell === "BUY"){
-                  console.log("2nd if running")
-                  await client.PUBLISH("place-order", JSON.stringify({data: symbolArr[i], ltp: tick.last_price, index: i}))
-                } else if(symbolArr[i].type === "StopProfit" && symbolArr[i].execution_price <= tick.last_price && symbolArr[i].buyOrSell === "SELL"){
-                  console.log("3rd if running")
-                  await client.PUBLISH("place-order", JSON.stringify({data: symbolArr[i], ltp: tick.last_price, index: i}))
-                } else if(symbolArr[i].type === "StopProfit" && symbolArr[i].execution_price >= tick.last_price && symbolArr[i].buyOrSell === "BUY"){
-                  console.log("4th if running")
-                  await client.PUBLISH("place-order", JSON.stringify({data: symbolArr[i], ltp: tick.last_price, index: i}))
-                }
-              }
-            }
-          } catch(err){
-            console.log(err);
-          }
-        }
-      }
-
       let indexObj = {};
       let now = performance.now();
       // populate hash table with indexObj from indecies
@@ -282,6 +249,40 @@ const getTicksForUserPosition = async (socket, id) => {
 const getTicksForCompanySide = async (socket) => {
   ticker?.on('ticks', async (ticks) => {
     try {
+
+      for(let tick of ticks){
+        data = await client.get('stoploss-stopprofit');
+        data = JSON.parse(data);
+        if(data){          
+          let symbolArr = data[`${tick.instrument_token}`];
+          // console.log("this is data", symbolArr)
+          try{
+            if(symbolArr){
+              // for(let subelem of symbolArr){
+              for(let i = 0; i < symbolArr.length; i++){
+                // console.log(subelem)
+                if(symbolArr[i].type === "StopLoss" && symbolArr[i].execution_price >= tick.last_price && symbolArr[i].buyOrSell === "SELL"){
+                  console.log("1st if running")
+                  await client.PUBLISH("place-order", JSON.stringify({data: symbolArr[i], ltp: tick.last_price, index: i}))
+                } else if(symbolArr[i].type === "StopLoss" && symbolArr[i].execution_price <= tick.last_price && symbolArr[i].buyOrSell === "BUY"){
+                  console.log("2nd if running")
+                  await client.PUBLISH("place-order", JSON.stringify({data: symbolArr[i], ltp: tick.last_price, index: i}))
+                } else if(symbolArr[i].type === "StopProfit" && symbolArr[i].execution_price <= tick.last_price && symbolArr[i].buyOrSell === "SELL"){
+                  console.log("3rd if running")
+                  await client.PUBLISH("place-order", JSON.stringify({data: symbolArr[i], ltp: tick.last_price, index: i}))
+                } else if(symbolArr[i].type === "StopProfit" && symbolArr[i].execution_price >= tick.last_price && symbolArr[i].buyOrSell === "BUY"){
+                  console.log("4th if running")
+                  await client.PUBLISH("place-order", JSON.stringify({data: symbolArr[i], ltp: tick.last_price, index: i}))
+                }
+              }
+            }
+          } catch(err){
+            console.log(err);
+          }
+        }
+      }
+
+
       socket.emit('tick', ticks);
       ticks = null;
     } catch (err) {

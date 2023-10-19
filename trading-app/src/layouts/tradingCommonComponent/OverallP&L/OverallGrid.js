@@ -19,8 +19,9 @@ import Grid from '@mui/material/Grid'
 import { renderContext } from '../../../renderContext';
 import {battle, paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest, marginX } from "../../../variables";
 import { userContext } from '../../../AuthContext';
-import { maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, lotSize_Nifty, lotSize_BankNifty, lotSize_FinNifty } from "../../../variables";
+import {  maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, lotSize_Nifty, lotSize_BankNifty, lotSize_FinNifty } from "../../../variables";
 import MDSnackbar from '../../../components/MDSnackbar';
+import PnlMenu from './PnlMenu';
 
 
 function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, moduleData }) {
@@ -110,7 +111,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
   }, [])
 
 
-  tradeData.map((subelem, index) => {
+  tradeData.map((subelem) => {
     let obj = {};
     let liveDetail = marketDetails.marketData.filter((elem) => {
       // //console.log("elem", elem, subelem)
@@ -141,6 +142,36 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
     obj.Product = (
       <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
         {(subelem._id.product)}
+      </MDTypography>
+    );
+
+    obj.instrumentToken = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.instrumentToken)}
+      </MDTypography>
+    );
+
+    obj.exchangeInstrumentToken = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.exchangeInstrumentToken)}
+      </MDTypography>
+    );
+
+    obj.exchange = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.exchange)}
+      </MDTypography>
+    );
+
+    obj.validity = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.validity)}
+      </MDTypography>
+    );
+
+    obj.variety = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.variety)}
       </MDTypography>
     );
 
@@ -258,7 +289,6 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
 
   const xFactor = moduleData?.portfolioValue/moduleData?.entryFee;
 
-
   const [messageObj, setMessageObj] = useState({
     color: '',
     icon: '',
@@ -325,10 +355,16 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
                   <td style={styleTD} >CHANGE(%)</td>
                   <td style={styleTD} >EXIT</td>
                   <td style={styleTD} >BUY</td>
-                  <td style={{ ...styleTD, paddingRight: "20px" }} >SELL</td>
+                  <td style={styleTD} >SELL</td>
+                  {from===tenxTrader &&
+                    <td style={{ ...styleTD, paddingRight: "20px" }} >ACTION</td>
+                  }
+
+
                 </tr>
               </thead>
               <tbody>
+                
 
                 {rows.map((elem, index) => {
                   return (
@@ -345,6 +381,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
                           grossPnl={elem?.grossPnl?.props?.children}
                           netPnl={elem?.netPnl?.props?.children}
                           change={elem?.change?.props?.children}
+                          from={from}
                         />
                         <Tooltip title="Exit Your Position" placement="top">
                           {elem.exitState ?
@@ -379,6 +416,9 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
                             </td>
                           }
                         </Tooltip>
+                        {from===tenxTrader &&
+                          <PnlMenu data={elem} id={subscriptionId} />
+                        }
                       </tr>
                     </React.Fragment>
                   )

@@ -11,7 +11,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import FormControl from '@mui/material/FormControl';
-import MDButton from '../../../../components/MDButton';
+import MDButton from '../../../components/MDButton';
 // import Radio from '@mui/material/Radio';
 // import RadioGroup from '@mui/material/RadioGroup';
 // import FormControlLabel from '@mui/material/FormControlLabel';
@@ -24,24 +24,23 @@ import InputLabel from '@mui/material/InputLabel';
 // import { Howl } from "howler";
 // import sound from "../../../assets/sound/tradeSound.mp3"
 // import { marginX, paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest, battle } from "../../../variables";
-import { lotSize_BankNifty, lotSize_FinNifty, lotSize_Nifty } from "../../../../variables";
+import { lotSize_BankNifty, lotSize_FinNifty, lotSize_Nifty } from "../../../variables";
 
 import EditIcon from '@mui/icons-material/Edit';
-import MDBox from '../../../../components/MDBox';
-import { renderContext } from '../../../../renderContext';
-import { userContext } from '../../../../AuthContext';
-import { apiUrl } from '../../../../constants/constants';
-import MDSnackbar from '../../../../components/MDSnackbar';
+import MDBox from '../../../components/MDBox';
+import { renderContext } from '../../../renderContext';
+import { userContext } from '../../../AuthContext';
+import { apiUrl } from '../../../constants/constants';
+import MDSnackbar from '../../../components/MDSnackbar';
 
-function ModifyPopUp({id}) {
+function ModifyPopUp({data, id}) {
 
-    // const lots=data?.Quantity?.props?.children;
-    // const symbolName=data?.symbol?.props?.children;
-    // const ltp=data?.last_price?.props?.children;
-    // const newLtp = parseFloat(ltp.slice(1))
-    // const change=data?.change?.props?.children;
-    // const type = data?.Quantity?.props?.children > 0 ? "BUY" : "SELL";
-    let type = '', newLtp =0, index='', symbolName='', lots=0, change=0, ltp=0;
+    const lots=data?.Quantity?.props?.children;
+    const symbolName=data?.symbol?.props?.children;
+    const ltp=data?.last_price?.props?.children;
+    const newLtp = parseFloat(ltp.slice(1))
+    const change=data?.change?.props?.children;
+    const type = data?.Quantity?.props?.children > 0 ? "BUY" : "SELL"
 
     const [errorMessageStopLoss, setErrorMessageStopLoss] = useState("");
     const [errorMessageStopProfit, setErrorMessageStopProfit] = useState("");  
@@ -64,14 +63,14 @@ function ModifyPopUp({id}) {
       stopLossPrice: "",
       stopProfitPrice: ""
     });
-    // let index = symbolName.includes("BANK") ? "BANKNIFTY" : symbolName.includes("FIN") ? 'FINNIFTY' : "NIFTY";
-    // let lotSize = symbolName.includes("BANK") ? lotSize_BankNifty : symbolName.includes("FIN") ? lotSize_FinNifty : lotSize_Nifty;
+    let index = symbolName.includes("BANK") ? "BANKNIFTY" : symbolName.includes("FIN") ? 'FINNIFTY' : "NIFTY";
+    let lotSize = symbolName.includes("BANK") ? lotSize_BankNifty : symbolName.includes("FIN") ? lotSize_FinNifty : lotSize_Nifty;
 
-    // let finalLot = lots/lotSize;
+    let finalLot = lots/lotSize;
     let optionData = [];
-    // for(let i =1; i<= finalLot; i++){
-    //     optionData.push( <MenuItem value={i * lotSize}>{ i * lotSize}</MenuItem>)      
-    // }
+    for(let i =1; i<= finalLot; i++){
+        optionData.push( <MenuItem value={i * lotSize}>{ i * lotSize}</MenuItem>)      
+    }
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
       };
@@ -83,10 +82,10 @@ function ModifyPopUp({id}) {
     const stopLoss = (e) => {
       setErrorMessageStopLoss("")
       if(type === "BUY"){
-        // if(Number(newLtp) < Number(e.target.value)){//errorMessage
-        //   const text  = "Stop Loss price should be less then LTP.";
-        //   setErrorMessageStopLoss(text)
-        // }
+        if(Number(newLtp) < Number(e.target.value)){//errorMessage
+          const text  = "Stop Loss price should be less then LTP.";
+          setErrorMessageStopLoss(text)
+        }
       } else{
         if(Number(newLtp) > Number(e.target.value)){//errorMessage
           const text  = "Stop Loss price should be greater then LTP.";
@@ -141,12 +140,12 @@ function ModifyPopUp({id}) {
         "content-type": "application/json"
       },
       body: JSON.stringify({
-        // exchange: data?.exchange?.props?.children, symbol: data?.symbol?.props?.children,
-        // buyOrSell: type, Quantity, id: id, Product: data?.Product?.props?.children,
-        // OrderType: "SL/SP-M", stopProfitPrice, stopLossPrice,
-        // exchangeInstrumentToken: data?.exchangeInstrumentToken?.props?.children,
-        // validity: data?.validity?.props?.children, variety: data?.variety?.props?.children,
-        // instrumentToken: data?.instrumentToken?.props?.children, last_price: data?.last_price?.props?.children
+        exchange: data?.exchange?.props?.children, symbol: data?.symbol?.props?.children,
+        buyOrSell: type, Quantity, id: id, Product: data?.Product?.props?.children,
+        OrderType: "SL/SP-M", stopProfitPrice, stopLossPrice,
+        exchangeInstrumentToken: data?.exchangeInstrumentToken?.props?.children,
+        validity: data?.validity?.props?.children, variety: data?.variety?.props?.children,
+        instrumentToken: data?.instrumentToken?.props?.children, last_price: data?.last_price?.props?.children
 
       })
     });
@@ -214,7 +213,7 @@ function ModifyPopUp({id}) {
             </Box>
 
             <Box sx={{fontSize: "17px"}} >
-              Edit Price
+              Modify Order
             </Box>
 
             <Box sx={{color: "#FFFFFF", backgroundColor: "#FB8C00", fontWeight: 600, borderRadius: "5px", fontSize: "11px", textAlign: "center", padding: "2px", paddingTop: "7px" }}>
@@ -233,7 +232,7 @@ function ModifyPopUp({id}) {
                   </Box>
                 </Box> 
                 
-                <Box sx={{color: "#FFFFFF", backgroundColor: "#00D100", fontWeight: 600, padding: "5px", borderRadius: "5px", fontSize: "11px" }}>
+                <Box sx={{color: "#FFFFFF", backgroundColor: change.includes("-") ? "#FF0000" : "#00D100", fontWeight: 600, padding: "5px", borderRadius: "5px", fontSize: "11px" }}>
                   <Box>
                   {`LTP : ${ltp}`}
                   </Box>

@@ -17,7 +17,7 @@ import OrderHelper from "../Order/PendingOrderHelper";
 import { userContext } from "../../../../AuthContext";
 
 
-function ExecutedOrders({ subscriptionId, socket }) {
+function ExecutedOrders({ subscriptionId, socket, updatePendingOrder }) {
 
 
     let styleTD = {
@@ -56,7 +56,7 @@ function ExecutedOrders({ subscriptionId, socket }) {
                 }, 500)
                 return new Error(err);
             })
-    }, [render, trackEvent])
+    }, [render, trackEvent, updatePendingOrder])
 
     useEffect(() => {
         socket?.on(`sendOrderResponse${(getDetails.userDetails._id).toString()}`, (data) => {
@@ -226,7 +226,7 @@ function ExecutedOrders({ subscriptionId, socket }) {
                                             <td style={styleTD} >TYPE</td>
                                             <td style={styleTD} >STATUS</td>
                                             <td style={styleTD} >TIME</td>
-                                            <td style={styleTD} >ACTION</td>
+                                            {/* <td style={styleTD} >ACTION</td> */}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -246,6 +246,7 @@ function ExecutedOrders({ subscriptionId, socket }) {
                                                         time={elem.time.props.children}
                                                         type={elem.type.props.children}
                                                         id={elem._id.props.children}
+                                                        from={"ExecutedOrder"}
                                                     />
                                                 </tr>
                                             )

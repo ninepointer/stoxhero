@@ -6,7 +6,7 @@ const { client } = require('../../../marketData/redisClient');
 
 
 
-exports.reverseTradeCondition = async (userId, id, doc, stopProfitPrice, stopLossPrice, docId, ltp) => {
+exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfitPrice, docId, ltp) => {
     let pnl = await client.get(`${userId.toString()}${id.toString()}: overallpnlTenXTrader`)
     pnl = JSON.parse(pnl);
     const matchingElement = pnl.find((element) => (element._id.instrumentToken === doc.instrumentToken && element._id.product === doc.Product));
@@ -39,6 +39,7 @@ exports.reverseTradeCondition = async (userId, id, doc, stopProfitPrice, stopLos
         if(stopProfitPrice || stopLossPrice){
             data = await client.get('stoploss-stopprofit');
             data = JSON.parse(data);
+            console.log("inside 1st if")
             if (data && data[`${doc.instrumentToken}`]) {
                 let symbolArray = data[`${doc.instrumentToken}`];
                 let indicesToRemove = [];
@@ -54,9 +55,11 @@ exports.reverseTradeCondition = async (userId, id, doc, stopProfitPrice, stopLos
                 }
     
                 // Remove elements after the loop
+                console.log("indicesToRemove", indicesToRemove)
                 indicesToRemove.forEach(index => symbolArray.splice(index, 1));
             }
 
+            console.log("data", data);
             await client.set('stoploss-stopprofit', JSON.stringify(data));
 
             const otherData = {
@@ -65,6 +68,8 @@ exports.reverseTradeCondition = async (userId, id, doc, stopProfitPrice, stopLos
                 stopLossPrice: stopLossPrice,
                 ltp: ltp
             }
+
+            console.log("going for apply slsp")
             await applyingSLSP(doc, otherData, undefined, docId);
             return 0;
         } else{

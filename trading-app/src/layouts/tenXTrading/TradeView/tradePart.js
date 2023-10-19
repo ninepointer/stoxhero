@@ -19,7 +19,6 @@ import { NetPnlContext } from '../../../PnlContext';
 import TenXTMargin from '../../tradingCommonComponent/MarginDetails/TenXMargin';
 import { tenxTrader } from '../../../variables';
 import {useNavigate} from "react-router-dom"
-import OrderHeader from '../Header/OrderHeader';
 import Order from '../Header/Order/Order';
 import PendingOrder from '../Header/Order/PendingOrder';
 import ExecutedOrders from '../Header/Order/ExecutedOrders';
@@ -32,6 +31,8 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
   const [availbaleMargin, setAvailbleMargin] = useState([]);
   const navigate = useNavigate();
   const [watchList, setWatchList] = useState([]);
+  const [updatePendingOrder, setUpdatePendingOrder] = useState();
+
 
 
   const memoizedStockIndex = useMemo(() => {
@@ -79,7 +80,7 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
   let openingBalance = yesterdayData?.openingBalance ? (yesterdayData?.openingBalance) : yesterdayData.totalFund;
   let fundChangePer = openingBalance ? ((openingBalance + pnl.netPnl - openingBalance) * 100 / openingBalance) : 0;
 
-  console.log("fundDetail", fundChangePer, openingBalance)
+  // console.log("fundDetail", fundChangePer, openingBalance)
   return (
     <>
       <MDBox bgColor="dark" color="light" mt={2} mb={0} p={2} borderRadius={10} >
@@ -176,18 +177,12 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
           <Grid item xs={12} md={6} lg={12}>
             {memoizedOverallPnl}
           </Grid>
+          <Grid item xs={12} md={6} lg={12}>
+            <PendingOrder socket={socket} subscriptionId={subscriptionId} setUpdatePendingOrder={setUpdatePendingOrder} updatePendingOrder={updatePendingOrder} />
+            <ExecutedOrders socket={socket} subscriptionId={subscriptionId} updatePendingOrder={updatePendingOrder} />
+            <Order subscriptionId={subscriptionId} updatePendingOrder={updatePendingOrder} />
+          </Grid>
 
-          <Grid item xs={12} md={6} lg={12}>
-            <PendingOrder socket={socket} subscriptionId={subscriptionId} />
-            <ExecutedOrders socket={socket} subscriptionId={subscriptionId} />
-            <Order subscriptionId={subscriptionId} />
-          </Grid>
-          {/* <Grid item xs={12} md={6} lg={12}>
-            <ExecutedOrders subscriptionId={subscriptionId} />
-          </Grid>
-          <Grid item xs={12} md={6} lg={12}>
-            <Order subscriptionId={subscriptionId} />
-          </Grid> */}
           <Grid item xs={12} md={6} lg={12} >
             <TenXTMargin availbaleMargin={availbaleMargin} subscriptionId={subscriptionId} setyesterdayData={setyesterdayData} />
           </Grid>

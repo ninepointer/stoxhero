@@ -11,7 +11,7 @@ exports.dailyContestTrade = async (req, res, otherData) => {
     const io = getIOValue();
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, exchangeInstrumentToken, fromAdmin,
         validity, variety, algoBoxId, order_id, instrumentToken, contestId,
-        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader } = req.body 
+        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, deviceDetails } = req.body 
 
         let {secondsRemaining, isRedisConnected, brokerageCompany, brokerageUser, originalLastPriceUser, originalLastPriceCompany, trade_time} = otherData;
 
@@ -33,7 +33,7 @@ exports.dailyContestTrade = async (req, res, otherData) => {
             symbol: realSymbol, placed_by: "stoxhero", algoBox:algoBoxId, order_id, 
             instrumentToken: real_instrument_token, brokerage: brokerageCompany, createdBy: req.user._id,
             trader : trader, isRealTrade: false, amount: (Number(realQuantity)*originalLastPriceCompany), 
-            trade_time:trade_time, exchangeInstrumentToken, contestId
+            trade_time:trade_time, exchangeInstrumentToken, contestId, deviceDetails: {deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType}
         }
 
         const traderDoc = {
@@ -41,6 +41,7 @@ exports.dailyContestTrade = async (req, res, otherData) => {
             variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", contestId,
             isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, exchangeInstrumentToken,
             createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
+            deviceDetails: {deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType}
         }
 
         const mockTradeDetails = await DailyContestMockCompany.create([companyDoc], { session });

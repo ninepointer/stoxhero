@@ -147,8 +147,10 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
     sellFormDetails.stopLossPrice = e.target.value
     if(Number(ltp) > Number(e.target.value)){//errorMessage
       const text  = "Stop Loss price should be greater then LTP.";
-
       setErrorMessageStopLoss(text)
+    }
+    if(e.target.value === ""){
+      sellFormDetails.stopLossPrice = false;
     }
   }
 
@@ -158,6 +160,9 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
     sellFormDetails.stopProfitPrice = e.target.value
     if(Number(ltp) < Number(e.target.value)){
       setErrorMessageStopProfit("Stop Profit price should be less then LTP.")
+    }
+    if(e.target.value === ""){
+      sellFormDetails.stopProfitPrice = false;
     }
   }
 
@@ -511,11 +516,11 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <MDButton disabled={(sellFormDetails.stopLossPrice && (ltp > sellFormDetails.stopLossPrice)) || (sellFormDetails.stopProfitPrice && (ltp < sellFormDetails.stopProfitPrice))} autoFocus variant="contained" color="error" onClick={(e) => { sellFunction(e) }}>
+          <MDButton disabled={(sellFormDetails.stopLossPrice && (Number(ltp) > sellFormDetails.stopLossPrice)) || (sellFormDetails.stopProfitPrice && (Number(ltp) < sellFormDetails.stopProfitPrice))} autoFocus variant="contained" color="error" onClick={(e) => { sellFunction(e) }}>
             Sell
           </MDButton>
           <MDButton variant="contained" color="error" onClick={handleClose} autoFocus>
-            Close
+            Cancel
           </MDButton>
         </DialogActions>
 

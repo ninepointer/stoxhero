@@ -105,6 +105,10 @@ const marginxUserSchema = new Schema({
     marginxId: {
         type: Schema.Types.ObjectId,
         ref: 'marginX',
+    },
+    deviceDetails:{
+        deviceType: { type: String },
+        platformType: { type: String }
     }
 
 })

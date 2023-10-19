@@ -10,7 +10,7 @@ const {lastTradeDataMockMarginX, traderWiseMockPnlCompanyMarginX, overallMockPnl
 exports.marginxTrade = async (req, res, otherData) => {
     const io = getIOValue();
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, exchangeInstrumentToken, fromAdmin,
-        validity, variety, algoBoxId, order_id, instrumentToken, marginxId,
+        validity, variety, algoBoxId, order_id, instrumentToken, marginxId, deviceDetails,
         realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader } = req.body 
 
         // let marginxId = subscriptionId;
@@ -34,7 +34,8 @@ exports.marginxTrade = async (req, res, otherData) => {
             symbol: realSymbol, placed_by: "stoxhero", algoBox:algoBoxId, order_id, 
             instrumentToken: real_instrument_token, brokerage: brokerageCompany, createdBy: req.user._id,
             trader : trader, isRealTrade: false, amount: (Number(realQuantity)*originalLastPriceCompany), 
-            trade_time:trade_time, exchangeInstrumentToken, marginxId
+            trade_time:trade_time, exchangeInstrumentToken, marginxId,
+            deviceDetails: {deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType}
         }
 
         const traderDoc = {
@@ -42,6 +43,7 @@ exports.marginxTrade = async (req, res, otherData) => {
             variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", marginxId,
             isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, exchangeInstrumentToken,
             createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
+            deviceDetails: {deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType}
         }
 
         const mockTradeDetails = await MarginXMockCompany.create([companyDoc], { session });
