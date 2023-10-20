@@ -155,6 +155,8 @@ exports.myTodaysPendingTrade = async (req, res, next) => {
               status: 1,
               symbol: 1,
               time: "$createdOn",
+              instrumentToken: 1,
+              exchangeInstrumentToken: 1
             },
           },
           {
@@ -237,14 +239,12 @@ exports.editPrice = async (req, res, next) => {
     data = JSON.parse(data);
     let symbolArr = data[`${updatedOrder.instrumentToken}`];
     for(let i = 0; i < symbolArr.length; i++){
-        if(symbolArr[i].instrumentToken === updatedOrder.instrumentToken && 
-           symbolArr[i].createdBy.toString() === updatedOrder.createdBy.toString() && 
-           Math.abs(symbolArr[i].Quantity) === Math.abs(Number(updatedOrder.Quantity)) && 
-           symbolArr[i].buyOrSell === updatedOrder.buyOrSell && symbolArr[i].type !== updatedOrder.type)
+        if(symbolArr[i]._id.toString() === id.toString() && 
+           symbolArr[i].createdBy.toString() === updatedOrder.createdBy.toString())
         {
             updatedOrder.execution_price = execution_price;
             const doc = await updatedOrder.save({new: true});
-            symbolArr[i].execution_price = price;
+            symbolArr[i].execution_price = execution_price;
             await client.set('stoploss-stopprofit', JSON.stringify(data));
 
             break;
