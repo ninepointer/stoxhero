@@ -234,7 +234,7 @@ function PendingOrders({ subscriptionId, socket, setUpdatePendingOrder, updatePe
                                             <td style={styleTD}>SYMBOL</td>
                                             <td style={styleTD} >QUANTITY</td>
                                             <td style={styleTD} >SL/SP PRICE</td>
-                                            <td style={styleTD} >AMOUNT</td>
+                                            <td style={styleTD} >LTP</td>
                                             <td style={styleTD} >STOP TYPE</td>
                                             <td style={styleTD} >TYPE</td>
                                             <td style={styleTD} >STATUS</td>

@@ -103,6 +103,7 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
         }
       });
 
+      console.log(transformedObject)
       pendingOrderRedis = await client.set('stoploss-stopprofit', JSON.stringify(transformedObject));
     }
     

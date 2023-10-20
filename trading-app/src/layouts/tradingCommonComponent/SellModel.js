@@ -29,6 +29,7 @@ import { renderContext } from "../../renderContext";
 import {Howl} from "howler";
 import sound from "../../assets/sound/tradeSound.mp3"
 import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader, marginX, battle } from "../../variables";
+import { NetPnlContext } from "../../PnlContext";
 
 
 const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState, module}) => {
@@ -40,6 +41,16 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
   //   src : [sound],
   //   html5 : true
   // })
+
+  const { pnlData } = useContext(NetPnlContext);
+  // console.log("pnlData", pnlData)
+  // let runningLotsSymbol = 0;
+  const runningLotsSymbol = pnlData.reduce((total, acc) => {
+    if (acc?._id?.symbol === symbol) {
+      return total + acc.lots;
+    }
+    return total; // return the accumulator if the condition is false
+  }, 0);
   
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
@@ -398,8 +409,11 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
     />
   );
 
-
-
+  const [checkQuantity, setChaeckQuantity] = useState();
+    function handleQuantity(e){
+      sellFormDetails.Quantity = e.target.value;
+      setChaeckQuantity(e.target.value);
+    }
 
   return (
     <div>
@@ -441,7 +455,9 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
                   labelId="demo-simple-select-standard-label"
                   id="demo-simple-select-standard"
                   label="Quantity"
-                  onChange={(e) => { { sellFormDetails.Quantity = (e.target.value) } }}
+                  // { sellFormDetails.Quantity = (e.target.value) }
+                  // sellFormDetails(prev => ({...prev, Quantity: e.target.value}))
+                  onChange={(e) => { handleQuantity(e)  }}
                   sx={{ margin: 1, padding: 0.5, }}
                 >
                   {/* <MenuItem value="100">100</MenuItem>
@@ -463,11 +479,11 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
                 sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
 
               <TextField
-                id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "LIMIT"} label="StopLoss Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
+                id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "LIMIT" || checkQuantity <= runningLotsSymbol} label="StopLoss Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
                 sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
 
               <TextField
-                id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "LIMIT"} label="StopProfit Price" variant="standard" onChange={(e) => { { stopProfit(e) } }}
+                id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "LIMIT" || checkQuantity <= runningLotsSymbol} label="StopProfit Price" variant="standard" onChange={(e) => { { stopProfit(e) } }}
                 sx={{ margin: 1, padding: 1, width: "300px" }} type="number" />
 
             </Box>

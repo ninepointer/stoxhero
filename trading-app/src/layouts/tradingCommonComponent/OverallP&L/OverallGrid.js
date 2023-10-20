@@ -417,7 +417,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
                           }
                         </Tooltip>
                         {from===tenxTrader &&
-                          <PnlMenu data={elem} id={subscriptionId} />
+                          <PnlMenu data={elem} id={subscriptionId} />                            
                         }
                       </tr>
                     </React.Fragment>

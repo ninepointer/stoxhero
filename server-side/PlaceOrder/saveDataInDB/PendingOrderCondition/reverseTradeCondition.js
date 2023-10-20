@@ -106,7 +106,38 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
         data = JSON.parse(data);
         if (data && data[`${doc.instrumentToken}`]) {
             let symbolArray = data[`${doc.instrumentToken}`];
-            // let indicesToRemove = [];
+
+            /*
+            550 and ltp is 10 = 300
+
+            stoplosses
+            50   50   50   50   100 250
+            9    8    9.5  7    6   5
+
+            stoptargets
+            50    50   100  250
+            10.5  10   11   11.5
+
+            if exit 250
+
+            1. loop lgake quantity calaculate krni hogi both side sl and sp
+            2. if quantity greater aati h then 
+            */
+
+            // let stoplossQuantity = 0;
+            // let stopProfitQuantity = 0;
+            // let newArr = [];
+            // for(let i = symbolArray.length-1; i >= 0; i--){
+            //     if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol){
+            //         if(symbolArray[i].type === "StopLoss"){
+            //             stoplossQuantity += Number(symbolArray[i].Quantity)
+            //         } else{
+            //             stopProfitQuantity += Number(symbolArray[i].Quantity)
+            //         }
+            //     }
+            // }
+
+
             for(let i = symbolArray.length-1; i >= 0; i--){
                 if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol && (Number(symbolArray[i].Quantity) > quantity)){
                     // remove this element

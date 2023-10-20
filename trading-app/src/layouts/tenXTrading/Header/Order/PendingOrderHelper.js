@@ -20,7 +20,11 @@ function OrderHelper({ltp, from, symbol, averagePrice, amount, quantity, buyOrSe
       <td style={styleTD} >{symbol}</td>
       <td style={styleTD} >{quantity}</td>
       <td style={styleTD} >₹{averagePrice}</td>
+      {from =="ExecutedOrder" ?
       <td style={styleTD} >₹{amount}</td>
+      :
+      <td style={styleTD} >{ltp}</td>
+      }
       <td style={styleTD} >{type}</td>
       <td style={{...styleTD, color: `${buyOrSell === "BUY" ? "green" : "red"}`}} >{buyOrSell}</td>
       <td style={{...styleTD, color: `${status === "Pending" ? "grey" : status === "Executed" ? "green" : "red"}`}} >{status}</td>

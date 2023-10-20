@@ -74,6 +74,8 @@ exports.tenxTradeStopLoss = async () => {
                 exchangeInstrumentToken, validity, variety, order_id, instrumentToken,
                 createdBy, _id, type } = message.data;
 
+                // console.log("rhis is _id", _id)
+
             const lockKey = `${createdBy}-${symbol}-${Quantity}`
             const lockValue = Date.now().toString() + Math.random * 1000;
             const release = await mutex.acquire();
@@ -171,7 +173,9 @@ exports.tenxTradeStopLoss = async () => {
                     if (symbolArr[i].instrumentToken === instrumentToken &&
                         symbolArr[i].createdBy.toString() === createdBy.toString() &&
                         Math.abs(symbolArr[i].Quantity) === Math.abs(Number(Quantity)) &&
-                        symbolArr[i].buyOrSell === buyOrSell && symbolArr[i].type !== type) {
+                        symbolArr[i].buyOrSell === buyOrSell && 
+                        symbolArr[i]._id.toString() === _id.toString() && 
+                        symbolArr[i].type !== type) {
 
                         const update = await PendingOrder.findOne({ _id: new ObjectId(symbolArr[i]._id) })
                         update.status = "Cancelled";
@@ -182,7 +186,7 @@ exports.tenxTradeStopLoss = async () => {
                     }
                 }
 
-                console.log("value of index2", index2)
+                console.log("value of index2", index2, index)
                 if (index2 !== undefined) {
                     console.log("value of in if index2", index2)
                     symbolArr.splice(Math.max(index2, index), 1);
