@@ -34,7 +34,6 @@ exports.myTodaysProcessedTrade = async (req, res, next) => {
             sub_product_id: new ObjectId(id)
           })
 
-          console.log("count", count)
 
           myTodaysTrade = await PendingOrder.aggregate([
             {
@@ -259,43 +258,31 @@ exports.editPrice = async (req, res, next) => {
 
 exports.modifyOrder = async (req, res, next) => {
   try{
-    console.log(req.body)
     const {instrumentToken, symbol} = req.body;
     const userId = req.user._id
     data = await client.get('stoploss-stopprofit');
     data = JSON.parse(data);
-    console.log("1st")
     if (data && data[`${instrumentToken}`]) {
         let symbolArray = data[`${instrumentToken}`];
         let indicesToRemove = [];
-        console.log("2st", symbolArray.length)
         for(let i = symbolArray.length-1; i >= 0; i--){
-          console.log(symbolArray[i].createdBy.toString() , userId.toString() , symbolArray[i].symbol , symbol)
             if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === symbol){
                 // remove this element
-                console.log("3st", symbolArray[i]._id)
                 indicesToRemove.push(i);
-                // const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id), status: "Pending", symbol: symbolArray[i].symbol},{
-                //     $set: {status: "Cancelled"}
-                // })
                 const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id)},{
                   $set: {status: "Cancelled"}
               })
-              //, status: "Pending", symbol: symbolArray[i].symbol
 
             }
         }
   
-        console.log("4st")
         // Remove elements after the loop
         indicesToRemove.forEach(index => symbolArray.splice(index, 1));
     }
   
-    console.log("5st")
     await client.set('stoploss-stopprofit', JSON.stringify(data));
     const result = await applyingSLSP(req, {}, undefined);
   
-    console.log("result", result)
     return res.status(200).json({status: "Success", message: `Your SL/SP-M order placed for ${req.body.symbol}`});
   
   } catch(err){

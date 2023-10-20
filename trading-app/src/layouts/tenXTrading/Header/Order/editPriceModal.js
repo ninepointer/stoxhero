@@ -144,7 +144,7 @@ function ModifyPopUp({id, lots, symbol, type, buyOrSell, ltp}) {
   return (
     <div>
       <MDBox onClick={handleClick}>
-        <EditIcon sx={{ mr: 2 }} /> Modify Order
+        <EditIcon sx={{ mr: 2 }} /> Modify Price
       </MDBox>
       <div>
         <Dialog
@@ -214,15 +214,6 @@ function ModifyPopUp({id, lots, symbol, type, buyOrSell, ltp}) {
                 <Typography fontSize={13} color={"error"}>{(price && errorMessageStopProfit) && errorMessageStopProfit}</Typography>
               }
               </Box>
-
-              {/* <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", marginLeft: "-9px" }}>
-                <Checkbox {...controlProps('a')} size='small' />
-                <Typography sx={{ fontSize: "11px", display: "flex" }} >SL/SP-M</Typography>
-              </Box> */}
-
-              {/* <Typography fontSize={12} mt={1} color={"black"}>
-                <b>Note:</b> After modifying this order, all existing pending stop loss orders will be cancelled.
-              </Typography> */}
 
             </DialogContentText>
           </DialogContent>

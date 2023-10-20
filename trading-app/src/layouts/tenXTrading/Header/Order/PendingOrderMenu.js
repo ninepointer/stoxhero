@@ -49,7 +49,7 @@ export default function AccountMenu({id, setUpdate, lots, symbol, type, buyOrSel
   return (
     <React.Fragment>
       <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
-        <Tooltip title="Account settings">
+        {/* <Tooltip title="Account settings"> */}
           <IconButton
             onClick={handleClick}
             size="small"
@@ -60,7 +60,7 @@ export default function AccountMenu({id, setUpdate, lots, symbol, type, buyOrSel
           >
             <MoreVertTwoToneIcon  />
           </IconButton>
-        </Tooltip>
+        {/* </Tooltip> */}
       </Box>
       <Menu
         anchorEl={anchorEl}

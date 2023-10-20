@@ -69,14 +69,12 @@ exports.tenxTradeStopLoss = async () => {
         await client2.SUBSCRIBE("place-order", async (message) => {
             message = JSON.parse(message);
 
-            // console.log(message.data)
 
             let { exchange, symbol, buyOrSell, Quantity, Product, order_type, sub_product_id,
                 exchangeInstrumentToken, validity, variety, order_id, instrumentToken,
                 createdBy, _id, type } = message.data;
 
             const lockKey = `${createdBy}-${symbol}-${Quantity}`
-            //  'saveDataLock';
             const lockValue = Date.now().toString() + Math.random * 1000;
             const release = await mutex.acquire();
 
@@ -168,7 +166,7 @@ exports.tenxTradeStopLoss = async () => {
                 data = JSON.parse(data);
                 let index2;
                 let symbolArr = data[`${instrumentToken}`];
-                console.log("symbolArr", symbolArr)
+                console.log("first index2", index2)
                 for (let i = 0; i < symbolArr.length; i++) {
                     if (symbolArr[i].instrumentToken === instrumentToken &&
                         symbolArr[i].createdBy.toString() === createdBy.toString() &&
@@ -178,13 +176,15 @@ exports.tenxTradeStopLoss = async () => {
                         const update = await PendingOrder.findOne({ _id: new ObjectId(symbolArr[i]._id) })
                         update.status = "Cancelled";
                         await update.save();
-
+                            console.log("in if index2", index2)
                         index2 = i;
                         break;
                     }
                 }
 
-                if (index2 !== undefined || index2 !== null || index2 !== NaN) {
+                console.log("value of index2", index2)
+                if (index2 !== undefined) {
+                    console.log("value of in if index2", index2)
                     symbolArr.splice(Math.max(index2, index), 1);
                     symbolArr.splice(Math.min(index2, index), 1);
                 } else {
@@ -205,7 +205,6 @@ exports.tenxTradeStopLoss = async () => {
                 // Release the lock
                 release();
                 // await releaseLock(lockKey, lockValue);
-                // console.log('Lock released.');
             }
 
         });

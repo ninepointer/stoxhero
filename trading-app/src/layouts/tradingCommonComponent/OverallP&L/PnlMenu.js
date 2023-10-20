@@ -47,7 +47,7 @@ export default function PnlMenu({id, data}) {
   return (
     <React.Fragment>
       <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
-        <Tooltip title="Account settings">
+        {/* <Tooltip title="Account settings"> */}
           <IconButton
             onClick={handleClick}
             size="small"
@@ -58,7 +58,7 @@ export default function PnlMenu({id, data}) {
           >
             <MoreVertTwoToneIcon />
           </IconButton>
-        </Tooltip>
+        {/* </Tooltip> */}
       </Box>
       <Menu
         anchorEl={anchorEl}

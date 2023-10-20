@@ -191,7 +191,7 @@ function PendingOrders({ subscriptionId, socket, setUpdatePendingOrder, updatePe
 
         orderObj.time = (
             <MDTypography component="a" href="#" variant="caption" color={"text"} fontWeight="medium">
-                {moment.utc(elem?.time).utcOffset('+05:00').format('DD-MMM HH:mm:ss')}
+                {moment.utc(elem?.time).utcOffset('+05:30').format('DD-MMM HH:mm:ss')}
             </MDTypography>
         );
         orderArr.push(orderObj)
