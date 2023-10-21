@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
-const {myTodaysPendingTrade, myTodaysProcessedTrade, cancelOrder, modifyOrder} = require('../../controllers/PendingOrderController');
+const {myTodaysPendingTrade, myTodaysProcessedTrade, cancelOrder, modifyOrder, editPrice} = require('../../controllers/PendingOrderController');
 const Authenticate = require('../../authentication/authentication');
 
 
