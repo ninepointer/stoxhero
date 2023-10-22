@@ -44,7 +44,9 @@ const settingSchema = new mongoose.Schema({
     minWithdrawal: Number,
     maxWithdrawal: Number,
     maxWithdrawalHigh: Number,
-    walletBalanceUpperLimit:Number,
+    walletBalanceUpperLimit: Number,
+    gstPercentage: Number,
+    tdsPercentage: Number,
     contest: {
         upiId: {type: String},
         email: {type: String},
@@ -55,7 +57,10 @@ const settingSchema = new mongoose.Schema({
         timerStartTimeInStart: {type: Date},
         appEndTime: {type: Date},
         timerStartTimeInEnd: {type: Date}
-    }
+    },
+    mobileAppVersion: String,
+    bonusToUnitCashRatio:Number,
+    maxBonusRedemptionPercentage: Number,
 })
 
 const settingDetail = mongoose.model("setting-detail", settingSchema);

@@ -81,6 +81,33 @@ function Breadcrumbs({ icon, title, route, light }) {
   } else if(title === "stoxherouserdashboard"){
     title = "StoxHero Dashboard"
   } 
+  else if(title === "marginxs"){
+    title = "MarginX"
+  } 
+  else if(title === "collegecontests"){
+    title = "College Contests"
+  } 
+  else if(title === "tenxsubscribers"){
+    title = "TenX Subscribers"
+  } 
+  else if(title === "Tenxdashboard"){
+    title = "TenX Dashboard"
+  }
+  else if(title === "marginxdashboard"){
+    title = "MarginX Dashboard"
+  } 
+  else if(title === "challengedashboard"){
+    title = "Challenge Dashboard"
+  }
+  else if(title === "battledashboard"){
+    title = "Battle Dashboard"
+  } 
+  else if(title === "walletpayment"){
+    title = "Wallet Payment"
+  }
+  else if(title === "signupanalytics"){
+    title = "SignUp Analytics"
+  }  
   
   
   

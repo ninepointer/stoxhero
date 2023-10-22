@@ -80,7 +80,6 @@ return new Promise((resolve, reject) => {
 
 const downloadFreeContestUserData = () => {
 return new Promise((resolve, reject) => {
-    console.log("Download Contest Data Called");
     axios
     .get(`${baseUrl}api/v1/dailycontest/downloadfreecontestuserdata`, {
         withCredentials: true,
@@ -91,7 +90,6 @@ return new Promise((resolve, reject) => {
         },
     })
     .then((res) => {
-        console.log(res.data.data);
         resolve(res.data.data); // Resolve the promise with the data
     })
     .catch((err) => {

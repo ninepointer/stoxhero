@@ -109,6 +109,10 @@ const dailyContestSchema = new mongoose.Schema({
     contestId: {
         type: Schema.Types.ObjectId,
         ref: 'daily-contest',
+    },
+    deviceDetails:{
+        deviceType: { type: String },
+        platformType: { type: String }
     }
 })
 

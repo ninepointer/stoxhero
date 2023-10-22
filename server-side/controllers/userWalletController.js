@@ -7,6 +7,10 @@ const uuid = require('uuid');
 const {client, getValue} = require("../marketData/redisClient");
 const mongoose = require('mongoose');
 const {createUserNotification} = require('./notification/notificationController');
+const Product = require('../models/Product/product');
+const {saveSuccessfulCouponUse} = require('./coupon/couponController');
+const Setting = require('../models/settings/setting');
+const Coupon = require('../models/coupon/coupon');
 
 
 
@@ -106,36 +110,135 @@ exports.myWallet = async (req, res, next) => {
 
 
 exports.deductSubscriptionAmount = async(req,res,next) => {
-    let isRedisConnected = getValue();
     const userId = req.user._id;
-    let {subscriptionAmount, subscriptionName, subscribedId} = req.body
+    let {subscriptionAmount, subscriptionName, subscribedId, coupon, bonusRedemption} = req.body
+
+    try {
+        const result = await exports.handleDeductSubscriptionAmount(userId, subscriptionAmount, subscriptionName, subscribedId, coupon, bonusRedemption);
+        res.status(result.statusCode).json(result.data);
+        console.log(result, result.statusCode, result.data);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Something went wrong...'
+        });
+    }
+}
+
+exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subscriptionName, subscribedId, coupon, bonusRedemption) => {
+    let isRedisConnected = getValue();
     // console.log("all three", subscriptionAmount, subscriptionName, subscribedId)
     const session = await mongoose.startSession();
+    let result = {};
     try{
+        let discountAmount = 0;
+        let cashbackAmount = 0;
         session.startTransaction();
         const subs = await Subscription.findOne({_id: new ObjectId(subscribedId)});
+        const setting = await Setting.find({});
         if(!subscriptionAmount){
             subscriptionAmount = subs?.discounted_price;
         }
         const wallet = await UserWallet.findOne({userId: userId});
         let amount = 0;
+        let bonusAmount = 0;
         for(elem of wallet.transactions){
           if(elem?.transactionType == 'Cash'){
-              amount += elem.amount;
+            amount += elem.amount;
+          }else if(elem?.transactionType == 'Bonus'){
+            bonusAmount += elem.amount;  
           }  
         }
+
+        if(bonusRedemption > bonusAmount || bonusRedemption > subs?.discounted_price*setting[0]?.maxBonusRedemptionPercentage){
+            return {
+              statusCode:400,
+              data:{
+              status: "error",
+              message:"Incorrect HeroCash Redemption",
+              }
+            }; 
+          }
+        if(Number(bonusRedemption)){
+        wallet?.transactions?.push({
+            title: 'StoxHero HeroCash Redeemed',
+            description: `${bonusRedemption} HeroCash used.`,
+            transactionDate: new Date(),
+            amount:-(bonusRedemption?.toFixed(2)),
+            transactionId: uuid.v4(),
+            transactionType: 'Bonus'
+        });
+        }  
+
+        if(coupon){
+            const couponDoc = await Coupon.findOne({code:coupon});
+            if(couponDoc?.rewardType == 'Discount'){
+                if(couponDoc?.discountType == 'Flat'){
+                    //Calculate amount and match
+                    discountAmount = couponDoc?.discount;
+                }else{
+                    discountAmount = Math.min(couponDoc?.discount/100*subs?.discounted_price, couponDoc?.maxDiscount);
+                    
+                }
+            }else{
+                if(couponDoc?.discountType == 'Flat'){
+                    //Calculate amount and match
+                    cashbackAmount = couponDoc?.discount;
+                }else{
+                    cashbackAmount = Math.min(couponDoc?.discount/100*(subs?.discounted_price-bonusRedemption), couponDoc?.maxDiscount);
+                    
+                }
+                wallet?.transactions?.push({
+                    title: 'StoxHero CashBack',
+                    description: `Cashback of ${cashbackAmount?.toFixed(2)} HeroCash - code ${coupon} used`,
+                    transactionDate: new Date(),
+                    amount:cashbackAmount?.toFixed(2),
+                    transactionId: uuid.v4(),
+                    transactionType: 'Bonus'
+                });
+            }
+        }
+        const totalAmount = (subs?.discounted_price - discountAmount - bonusRedemption)*(1+setting[0]?.gstPercentage/100)
+        if(Number(totalAmount) != Number(subscriptionAmount)){
+          return {
+            statusCode:400,
+            data:{
+            status: "error",
+            message:"Incorrect TenX fee amount",
+            }
+          };  
+        } 
   
         if(amount < subscriptionAmount){
-          return res.status(404).json({status:'error', message: 'You do not have sufficient funds to purchase this subscription. Please add money to your wallet.'});
+            return {
+                statusCode:400,
+                data:{
+                status: "error",
+                message:"You do not have sufficient funds to purchase this subscription. Please add money to your wallet.",
+                }
+            };  
         }
         if(!subs.allowPurchase){
-            return res.status(404).json({status:'error', message: 'This subscription is no longer available for purchase or renewal. Please purchase a different plan.'});
+            return {
+                statusCode:400,
+                data:{
+                status: "error",
+                message:"This subscription is no longer available for purchase or renewal. Please purchase a different plan.",
+                }
+            };  
         }
 
         for(let i = 0; i < subs.users.length; i++){
             if(subs.users[i].userId.toString() == userId.toString() && subs.users[i].status == "Live"){
                 // console.log("getting that user")
-                return res.status(404).json({status:'error', message: 'You already have subscribed this subscription'});
+                return {
+                    statusCode:400,
+                    data:{
+                    status: "error",
+                    message:"You already have subscribed this subscription",
+                    }
+                };
                 // break;
             }
         }
@@ -159,7 +262,9 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
                 subscription: {
                   subscriptionId: new ObjectId(subscribedId),
                   subscribedOn: new Date(),
-                  fee: subscriptionAmount
+                  fee: subscriptionAmount,
+                  bonusRedemption:bonusRedemption??0,
+                  actualPrice:subs?.discounted_price,
                 }
               }
             },
@@ -173,7 +278,9 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
                 users: {
                     userId: new ObjectId(userId),
                     subscribedOn: new Date(),
-                    fee: subscriptionAmount
+                    fee: subscriptionAmount,
+                    actualPrice:subs?.discounted_price,
+                    bonusRedemption:bonusRedemption??0,
                 }
             }
         },
@@ -185,7 +292,13 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
         }
 
         if(!wallet){
-            return res.status(404).json({status:'error', message: 'No Wallet found'});
+            return {
+                statusCode:404,
+                data:{
+                status: "error",
+                message:"No Wallet found",
+                }
+            };
         } 
         let recipients = [user.email,'team@stoxhero.com'];
         let recipientString = recipients.join(",");
@@ -269,7 +382,7 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
                 <p>Mobile: <span class="password">${user.mobile}</span></p>
                 <p>Subscription Name: <span class="password">${subscription.plan_name}</span></p>
                 <p>Subscription Actual Price: <span class="password">₹${subscription.actual_price}/-</span></p>
-                <p>Subscription Discounted Price: <span class="password">₹${subscription.discounted_price}/-</span></p>  
+                <p>Subscription Discounted Price: <span class="password">₹${subscriptionAmount}/-</span></p>  
                 </div>
             </body>
             </html>
@@ -279,27 +392,58 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
             emailService(recipientString,subject,message);
             console.log("Subscription Email Sent")
         }
+        if(coupon && cashbackAmount>0){
+            await createUserNotification({
+                title:'StoxHero Cashback',
+                description:`${cashbackAmount?.toFixed(2)} HeroCash added as bonus - ${coupon} code used.`,
+                notificationType:'Individual',
+                notificationCategory:'Informational',
+                productCategory:'TenX',
+                user: user?._id,
+                priority:'Medium',
+                channels:['App', 'Email'],
+                createdBy:'63ecbc570302e7cf0153370c',
+                lastModifiedBy:'63ecbc570302e7cf0153370c'  
+              });
+        }
         await createUserNotification({
             title:'TenX Subscription Deducted',
-            description:`₹${subscription?.discounted_price?.toFixed(2)} deducted for your TenX plan ${subscription.plan_name} subscription`,
+            description:`₹${subscriptionAmount} deducted for your TenX plan ${subscription.plan_name} subscription`,
             notificationType:'Individual',
             notificationCategory:'Informational',
             productCategory:'TenX',
             user: user?._id,
-            priority:'High',
+            priority:'Medium',
             channels:['App', 'Email'],
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           }, session);
           await session.commitTransaction();
-        res.status(200).json({status: 'success', message: "Subscription purchased successfully", data: user});
-
+          if(coupon){
+            const product = await Product.findOne({productName:'TenX'}).select('_id');
+            await saveSuccessfulCouponUse(userId, coupon, product?._id, subscription?._id);
+          }
+          result = {
+            statusCode:200,
+            data:{
+                status: 'success',
+                message: "Subscription purchased successfully",
+                data: user
+            }
+        };
     }catch(e){
         console.log(e);
-        res.status(500).json({status: 'error', message: 'Something went wrong'});
+        result = {
+            statusCode:500,
+            data:{
+                status: 'error',
+                message: 'Something went wrong'
+            }
+        };
         await session.abortTransaction();
     }finally{
-      await session.endSession();
+        session.endSession();
+        return result;
     }
 }
 

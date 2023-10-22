@@ -18,6 +18,7 @@ import WinnerImage from '../../../assets/images/TenXHeader.png'
 
 export default function TenXSubscriptions({setClicked}) {
   const [cashBalance, setCashBalance] = React.useState(0);
+  const [bonusBalance, setBonusBalance] = React.useState(0);
   const [activeTenXSubs,setActiveTenXSubs] = useState([]);
   const [currentTenXSubs,setCurrentTenXSubs] = useState([]);
   let [checkPayment, setCheckPayment] = useState(true)
@@ -38,10 +39,17 @@ export default function TenXSubscriptions({setClicked}) {
       const cashTransactions = (api1Response?.data?.data)?.transactions?.filter((transaction) => {
         return transaction.transactionType === "Cash";
       });
+      const bonusTransactions = (api1Response?.data?.data)?.transactions?.filter((transaction) => {
+        return transaction.transactionType === "Bonus";
+      });
       const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
         return total + transaction?.amount;
       }, 0);
+      const totalBonusAmount = bonusTransactions?.reduce((total, transaction) => {
+        return total + transaction?.amount;
+      }, 0);
       setCashBalance(totalCashAmount);
+      setBonusBalance(totalBonusAmount);
     })
   }, [])
 
@@ -91,7 +99,7 @@ export default function TenXSubscriptions({setClicked}) {
             activeTenXSubs?.map((elem,index)=>(
                 <Grid item key={elem._id} xs={12} md={6} lg={4}>
                 <MDBox>
-                    <SubscriptionCard subscription={elem} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={elem.discounted_price} name={elem.plan_name} id={elem._id} walletCash={cashBalance} allowRenewal={elem.allowRenewal}/>
+                    <SubscriptionCard subscription={elem} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={elem.discounted_price} name={elem.plan_name} id={elem._id} walletCash={cashBalance} bonusCash={bonusBalance} allowRenewal={elem.allowRenewal}/>
                 </MDBox>
                 </Grid>
             ))

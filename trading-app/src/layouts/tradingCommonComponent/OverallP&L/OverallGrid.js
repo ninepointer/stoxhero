@@ -294,6 +294,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
                 </tr>
               </thead>
               <tbody>
+                
 
                 {rows.map((elem, index) => {
                   return (

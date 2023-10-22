@@ -109,7 +109,7 @@ const userDetailSchema = new mongoose.Schema({
     },
     gender:{
         type: String,
-        // required: true
+        enum: ['Male','Female','Other']
     },
     address:{
         type: String,
@@ -161,7 +161,7 @@ const userDetailSchema = new mongoose.Schema({
     creationProcess:{
         type: String,
         // required: true,
-        enum: ['Auto SignUp','By Admin','Career SignUp', 'College Contest SignUp']
+        enum: ['Auto SignUp','By Admin','Career SignUp', 'College Contest SignUp', 'Referral SignUp']
     },
     employeeid:{
         type: String,
@@ -335,12 +335,20 @@ const userDetailSchema = new mongoose.Schema({
         },
         isRenew: {type: Boolean},
         fee: {type: Number},
-        payout:{type:Number}
+        actualPrice: {type: Number},
+        bonusRedemption:Number,
+        payout:{type:Number},
+        tdsAmount:{type:Number},
     }],
     internshipBatch:[{
         type: Schema.Types.ObjectId,
         ref: "intern-batch"
-    }]
+    }],
+    gstAgreement:Boolean,
+    lastLoggedInDevice:{
+        deviceType: String,
+        deviceDetails: String
+    }
 })
 
 //Adding the ninepointer id before saving

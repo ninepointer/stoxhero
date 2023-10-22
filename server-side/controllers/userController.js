@@ -1006,3 +1006,83 @@ exports.getFilteredUsers = async(req,res,next) =>{
       });
   }
 }
+
+exports.understoodGst = async(req,res,next) =>{
+  try{
+    const user = await UserDetail.findByIdAndUpdate(req.user._id, {gstAgreement:true});
+    res.status(200).json({status:'success', message:'User understood GST Regulations'});
+  }catch(e){
+    console.log(e);
+    res.status(500).json({status:'error', message:'Something went wrong'});
+  }
+}
+
+exports.getReferralsBetweenDates = async (req, res, next) => {
+  // console.log("Inside overall virtual pnl")
+  let {startDate, endDate, mobile} = req.params;
+  startDate = new Date(startDate);
+  endDate = new Date(endDate)
+  endDate.setUTCHours(0, 0, 0, 0);
+  endDate.setUTCHours(18, 59, 59, 999); // set the time to start of day in UTC
+  console.log(startDate,endDate)
+
+  const pipeline = [
+    {
+      $project: {
+        _id: 0,
+        mobile: 1,
+        referrals: 1,
+      },
+    },
+    {
+      $match: {
+        mobile: mobile,
+      },
+    },
+    {
+      $unwind: {
+        path: "$referrals",
+      },
+    },
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "referrals.referredUserId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+      $project: {
+        mobile: 1,
+        referral_date: {
+          $add: [
+            {
+              $toDate: {
+                $arrayElemAt: [
+                  "$user.joining_date",
+                  0,
+                ],
+              },
+            },
+            5 * 60 * 60 * 1000,
+            // Add 5 hours (5 * 60 * 60 * 1000 milliseconds)
+            30 * 60 * 1000, // Add 30 minutes (30 * 60 * 1000 milliseconds)
+          ],
+        },
+      },
+    },
+    {
+      $match: {
+        referral_date: {
+          $gte: startDate,
+          $lte: endDate,
+        },
+      },
+    },
+  ]
+ 
+  const referrals = await UserDetail.aggregate(pipeline)
+  console.log("Referrals",referrals.length)
+  res.status(201).json({ message: "Referrals Recieved", data: referrals.length });
+}

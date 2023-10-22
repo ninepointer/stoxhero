@@ -14,7 +14,12 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Button from '@mui/material/Button';
 import { Grid, Typography } from '@mui/material';
 import paymentQr from '../../../assets/images/paymentQrc.jpg';
-
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import {apiUrl} from '../../../constants/constants';
+import MDSnackbar from '../../../components/MDSnackbar';
 
 const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
   const [open, setOpen] = React.useState(false);
@@ -24,7 +29,51 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
     lowBalanceMessage: "",
     thanksMessege: "",
     error: ""
-  })
+  });
+   const [title,setTitle] = useState('')
+  const [content,setContent] = useState('');
+  const [successSB, setSuccessSB] = useState(false);
+  const openSuccessSB = (title,content) => {
+  console.log('status success')  
+  setTitle(title)
+  setContent(content)
+  setSuccessSB(true);
+  }
+  const closeSuccessSB = () => setSuccessSB(false);
+  
+    const renderSuccessSB = (
+      <MDSnackbar
+          color="success"
+          icon="check"
+          title={title}
+          content={content}
+          open={successSB}
+          onClose={closeSuccessSB}
+          close={closeSuccessSB}
+          bgWhite="info"
+      />
+      );
+      
+      const [errorSB, setErrorSB] = useState(false);
+      const openErrorSB = (title,content) => {
+      setTitle(title)
+      setContent(content)
+      setErrorSB(true);
+      }
+      const closeErrorSB = () => setErrorSB(false);
+      
+      const renderErrorSB = (
+      <MDSnackbar
+          color="error"
+          icon="warning"
+          title={title}
+          content={content}
+          open={errorSB}
+          onClose={closeErrorSB}
+          close={closeErrorSB}
+          bgWhite
+      />
+      );
 
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -130,6 +179,25 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
     }
   }
 
+  const [value, setValue] = useState('wallet');
+
+  const handleChange = (event) => {
+    setValue(event.target.value);
+  };
+
+  const amount = elem?.entryFee;
+  const actualAmount = elem?.entryFee*setting.gstPercentage/100;
+  
+  const initiatePayment = async() => {
+    try{
+      const res = await axios.post(`${apiUrl}payment/initiate`,{amount:Number(amount*100) + actualAmount*100, redirectTo:window.location.href, paymentFor:'Battle', productId: elem?._id},{withCredentials: true});
+      console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
+      window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
+  }catch(e){
+      console.log(e);
+  }
+  }
+
   return (
 
     <>
@@ -153,7 +221,7 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
       </MDBox>
 }
 
-      <Dialog
+      {/* <Dialog
         open={open}
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
@@ -223,6 +291,121 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
             Close
           </Button>
         </DialogActions>
+      </Dialog> */}
+
+<Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {!messege.thanksMessege &&
+            <MDBox display="flex" alignItems="center" justifyContent="center" >
+              <LockOutlinedIcon sx={{ color: "#000" }} />
+            </MDBox>
+          }
+
+        </DialogTitle>
+        <DialogContent>
+          {messege.thanksMessege ?
+
+            <Typography textAlign="center" sx={{ width: "100%" }} color="#000" variant="body2">{messege.thanksMessege}</Typography>
+            :
+            messege.error ?
+              <Typography textAlign="center" sx={{ width: "100%" }} color="#000" variant="body2">{messege.error}</Typography>
+              :
+              <>
+                <DialogContentText id="alert-dialog-description">
+
+                  <MDBox display="flex" flexDirection="column"  >
+                    <Title variant={{ xs: "h2", md: "h3" }} style={{ color: "#000", fontWeight: "bold", marginTop: "6px", display:"flex", justifyContent:'center' }} >Choose how to pay</Title>
+                    <FormControl>
+                      <RadioGroup
+                        aria-labelledby="payment-mode-label"
+                        defaultValue="wallet"
+                        name="radio-buttons-group"
+                        value={value}
+                        onChange={handleChange}
+                      >
+                        <FormControlLabel value="wallet" control={<Radio />} label="Pay from StoxHero Wallet" />
+                        {value == 'wallet' &&
+                          <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={2} style={{minWidth:'40vw'}} >
+                            <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
+                            <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{amount ? amount : 0}</Typography>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{0}</Typography>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(amount)}</Typography>
+                          </MDBox>}
+                        <FormControlLabel value="bank" control={<Radio />} label="Pay from Bank Account/UPI" />
+                        {value == 'bank' &&
+                          <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={0} >
+                            <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new government regulations. However you don't need to pay anything extra. StoxHero will be taking care of the GST on your behalf. To offset it, we've increased our pricing by a bit. </Typography>
+                            <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
+                            <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{amount ? amount : 0}</Typography>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{actualAmount ? actualAmount : 0}</Typography>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(amount) + actualAmount}</Typography>
+                          </MDBox>}
+                      </RadioGroup>
+                    </FormControl>
+
+                    {/* <Grid container display="flex" flexDirection="row" justifyContent="center" alignContent={"center"} gap={2} >
+                      <Grid container mt={2} xs={12} md={9} xl={12} lg={12}>
+                        <Grid item xs={12} md={6} xl={9} lg={9} >
+                          <TextField
+                            // disabled={((isSubmitted || battle) && (!editing || saving))}
+                            id="outlined-required"
+                            label='Coupen Code'
+                            name='coupenCode'
+                            fullWidth
+                            value={amount}
+                            onChange={(e) => { }}
+                          />
+                        </Grid>
+
+                        <Grid item xs={12} md={6} xl={3} lg={3} >
+                          <MDButton color={"success"} onClick={handleClose} autoFocus>
+                            Apply
+                          </MDButton>
+                        </Grid>
+                      </Grid>
+
+                    </Grid> */}
+
+                  </MDBox>
+                </DialogContentText>
+
+                {value == 'wallet' &&
+                  <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={2}  >
+                    <MDBox onClick={() => { buySubscription() }} border="1px solid #4CAF50" borderRadius="10px" display="flex" alignItems="center" justifyContent="space-between" sx={{ height: "40px", width: { xs: "85%", md: "auto" }, "&:hover": { cursor: "pointer", border: "1px solid #fff" } }} style={{ backgroundColor: "#4CAF50" }} >
+
+                      <MDBox display="flex" justifyContent="center">
+                        <Typography variant="body2" color="#fff" style={{ marginRight: '14px', marginLeft: "8px" }} >Stoxhero Wallet</Typography>
+                        <AccountBalanceWalletIcon sx={{ marginTop: "5px", color: "#fff", marginRight: "4px" }} />
+                        <Typography variant="body2" sx={{ fontSize: "16.4px", fontWeight: "550" }} color="#fff" > {`₹${userWallet}`}</Typography>
+                      </MDBox>
+
+                      <MDBox>
+                        <ArrowForwardIosIcon sx={{ mt: "8px", color: "#fff", marginRight: "5px", marginLeft: "5px" }} />
+                      </MDBox>
+
+                    </MDBox>
+                  </MDBox>}
+
+              </>
+          }
+
+        </DialogContent>
+        {value !== 'wallet' &&
+          <DialogActions>
+            <MDButton color='error' onClick={handleClose} autoFocus>
+              Close
+            </MDButton>
+            <MDButton color={"success"} onClick={initiatePayment} autoFocus>
+              {`Pay ₹${Number(amount) + actualAmount} securely`}
+            </MDButton>
+          </DialogActions>}
+          {renderErrorSB}
+          {renderSuccessSB}
       </Dialog>
     </>
   );

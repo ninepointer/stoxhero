@@ -24,7 +24,7 @@ exports.mockTrade = async (req, res) => {
 
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType,
         validity, variety, instrumentToken, tenxTraderPath, internPath, battle,
-        realBuyOrSell, realQuantity, isAlgoTrader, paperTrade, dailyContest, marginx } = req.body 
+        realBuyOrSell, realQuantity, isAlgoTrader, paperTrade, dailyContest, marginx, deviceDetails } = req.body 
 
     if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
         return res.status(422).json({error : "Something went wrong"})

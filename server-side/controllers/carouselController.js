@@ -1,5 +1,6 @@
 const UserRole = require("../models/User/everyoneRoleSchema");
 const Carousel = require('../models/carousel/carouselSchema');
+const { ObjectId } = require('mongodb');
 
 const multer = require('multer');
 const AWS = require('aws-sdk');
@@ -134,7 +135,10 @@ exports.createCarousel =async (req, res, next) => {
 
 exports.getCarousels = async (req, res, next)=>{
   try{
-    const carousels = await Carousel.find({isDeleted: false}).populate('objectId').sort({carouselEndDate:-1});
+    const carousels = await Carousel.find({isDeleted: false})
+    .populate('objectId')
+    .populate('clickedBy.userId', 'first_name last_name mobile email joining_date creationProcess')
+    .sort({carouselEndDate:-1});
   
   
       if(!carousels) return res.json({status:'error', message:'No carousels found.'});
@@ -159,6 +163,7 @@ exports.getDraftCarousels = async(req, res, next)=>{
                             {
                               status: 'Draft'
                             })
+                            .populate('clickedBy.userId', 'first_name last_name mobile email joining_date creationProcess')
                             .skip(skip)
                             .limit(limit);
       res.status(201).json({status: 'success', data: liveCarousels, count: count});    
@@ -180,6 +185,7 @@ exports.getPastCarousels = async(req, res, next)=>{
                             {
                               carouselEndDate: {$lt: new Date()}
                             })
+                            .populate('clickedBy.userId', 'first_name last_name mobile email joining_date creationProcess')
                             .skip(skip)
                             .limit(limit);
       res.status(201).json({status: 'success', data: liveCarousels, count: count});    
@@ -209,6 +215,7 @@ exports.getUpcomingCarousels = async(req, res, next)=>{
                               ],
                               status: 'Live'
                             })
+                            .populate('clickedBy.userId', 'first_name last_name mobile email joining_date creationProcess')
                             .skip(skip)
                             .limit(limit);
       res.status(201).json({status: 'success', data: liveCarousels, count: count});    
@@ -238,6 +245,7 @@ exports.getLiveCarousels = async(req, res, next)=>{
                               ],
                               status: 'Live'
                             })
+                            .populate('clickedBy.userId', 'first_name last_name mobile email joining_date creationProcess')
                             .skip(skip)
                             .limit(limit);
       res.status(201).json({status: 'success', data: liveCarousels, count: count});    
@@ -278,6 +286,7 @@ exports.getInfinityLiveCarousels = async(req, res, next)=>{
           ]
         })
       .sort({carouselPosition:1})
+      .populate('clickedBy.userId', 'first_name last_name mobile email joining_date creationProcess')
       .skip(skip)
       .limit(limit);
     
@@ -319,6 +328,7 @@ exports.getStoxHeroLiveCarousels = async(req, res, next)=>{
           ]
         })
       .sort({carouselPosition:1})
+      .populate('clickedBy.userId', 'first_name last_name mobile email joining_date creationProcess')
       .skip(skip)
       .limit(limit);
     
@@ -360,6 +370,7 @@ exports.getUpcomingInfinityCarousels = async(req, res, next)=>{
           ]
         })
       .sort({carouselPosition:1})
+      .populate('clickedBy.userId', 'first_name last_name mobile email joining_date creationProcess')
       .skip(skip)
       .limit(limit);
     
@@ -401,6 +412,7 @@ exports.getUpcomingStoxHeroCarousels = async(req, res, next)=>{
           ]
         })
       .sort({carouselPosition:1})
+      .populate('clickedBy.userId', 'first_name last_name mobile email joining_date creationProcess')
       .skip(skip)
       .limit(limit);
     
@@ -469,9 +481,11 @@ exports.deleteCarousel = async (req, res, next) => {
 
 exports.getCarousel = async (req, res, next) => {
     const id = req.params.id;
+    console.log("Carousel Id:",req.params.id)
     try{
-      const carousel = await Carousel.findOne({_id: id, isDeleted: false}).select('-__v -password').
-      populate('objectId');
+      const carousel = await Carousel.findOne({_id: id, isDeleted: false}).select('-__v -password')
+      // .populate('objectId')
+      .populate('clickedBy.userId', 'first_name last_name joining_date creationProcess');
   
       if(!carousel) return res.status(404).json({status: 'error', message: 'No such carousel found.'});
       
@@ -516,10 +530,40 @@ exports.editCarousel = async (req, res, next) => {
 exports.getActiveCarousels = async (req, res, next)=>{
   let date = new Date();
   const carousels = await Carousel.find({isDeleted: false, carouselStartDate : {$gte : date}, endDate :{$lte : date}})
-  .populate('objectId').sort({endDate:-1});
+  .populate('objectId')
+  .populate('clickedBy.userId', 'first_name last_name mobile email joining_date creationProcess')
+  .sort({endDate:-1});
 
   if(!carousels) return res.status(404).json({status: 'error' ,message:'No carousels found.'});
   
   res.status(200).json({status:"success", data: carousels, results: carousels.length});
 
+};
+
+exports.saveCarouselClick = async (req, res) => {
+  try {
+      const { id } = req.params; // ID of the Carousel 
+      const userId = req.user._id;
+      const result = await Carousel.findByIdAndUpdate(
+          new ObjectId(id),
+          { $push: { clickedBy: { userId: userId, clickedOn: new Date() } } },
+          { new: true }  // This option ensures the updated document is returned
+      );
+
+      if (!result) {
+          return res.status(404).json({ status: "error", message: "Something went wrong." });
+      }
+
+      res.status(200).json({
+          status: "success",
+          message: "Carousel Click Saved successfully",
+          data: result
+      });
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Something went wrong",
+          error: error.message
+      });
+  }
 };

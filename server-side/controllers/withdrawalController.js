@@ -126,9 +126,9 @@ exports.createWithdrawal = async(req,res,next) => {
         return res.status(400).json({status:'error', message:`The minimum amount that can be withdrawn is ₹${appSettings.minWithdrawal}`});
     }
     console.log('checking', walletBalance, appSettings?.walletBalanceUpperLimit, appSettings?.maxWithdrawalHigh, appSettings.maxWithdrawal);
-    if(walletBalance > appSettings?.walletBalanceUpperLimit){
-        if(amount>appSettings?.maxWithdrawalHigh){
-            return res.status(400).json({status:'error', message:`The maximum amount that can be withdrawn is ₹${appSettings?.maxWithdrawalHigh}`});
+    if(walletBalance >= appSettings?.walletBalanceUpperLimit){
+        if(amount>walletBalance - appSettings?.maxWithdrawalHigh && amount > appSettings?.maxWithdrawal){
+            return res.status(400).json({status:'error', message:`The maximum amount that can be withdrawn is ₹${(Math.max(walletBalance-appSettings?.maxWithdrawalHigh, appSettings?.maxWithdrawal)).toFixed(2)}`});
         }
     }else{
         if(amount>appSettings.maxWithdrawal){
@@ -484,7 +484,7 @@ exports.rejectWithdrawal = async(req,res,next) => {
                 <h1>Withdrawal Rejected</h1>
                 <p>Hello ${user.first_name},</p>
                 <p>Your withdrawal request for ₹${withdrawal.amount} is rejected by stoxhero.</p>
-                <p>Reason for rejection: <span class="userid">${rejectionReason}</span></p>
+                <p>Reason for rejection: <span class="userid">${req.body?.rejectionReason}</span></p>
                 <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
                 <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
                 <br/><br/>

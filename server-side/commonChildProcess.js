@@ -9,6 +9,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
 const hpp = require("hpp")
 const {zerodhaAccountType} = require("./constant")
+const Product = require('./models/Product/product');
 
 
 async function commonProcess() {
@@ -26,38 +27,41 @@ async function commonProcess() {
         })
 
 
-    app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
-    app.use(express.json({ limit: "20kb" }));
-
-    app.use(cors({
-        credentials: true,
-
-        // origin: "http://3.7.187.183/"  // staging
-        // origin: "http://3.108.76.71/"  // production
-        origin: 'http://localhost:3000'
-
-    }));
-    app.use(require("cookie-parser")());
-
-    app.use(mongoSanitize());
-    app.use(helmet());
-    app.use(xssClean());
-    app.use(hpp());
-
-    Setting.find()
-    .then((res) => {
-        // setting = res[0].toggle;
-        if (res[0]?.toggle?.ltp == zerodhaAccountType || res[0]?.toggle?.complete == zerodhaAccountType) {
-            app.use('/api/v1', require("./marketData/livePrice"));
-        } else {
-            app.use('/api/v1', require("./services/xts/xtsHelper/xtsLivePrice"));
-        }
-    })
-
-    app.use('/api/v1', require("./routes/OpenPositions/openPositionsAuth"))
-    app.use('/api/v1', require("./routes/StockIndex/addStockIndex"))
-    app.use('/api/v1', require("./routes/expense/expenseAuth"))
-    app.use('/api/v1', require("./routes/user/signedUpUser"))
+        app.use(express.json({ limit: "20kb" }));
+        
+        app.use(cors({
+            credentials: true,
+            
+            // origin: "http://3.7.187.183/"  // staging
+            // origin: "http://3.108.76.71/"  // production
+            origin: 'http://localhost:3000'
+            
+        }));
+        app.use(require("cookie-parser")());
+        
+        app.use(mongoSanitize());
+        app.use(helmet());
+        app.use(xssClean());
+        app.use(hpp());
+        
+        Setting.find()
+        .then((res) => {
+            // setting = res[0].toggle;
+            if (res[0]?.toggle?.ltp == zerodhaAccountType || res[0]?.toggle?.complete == zerodhaAccountType) {
+                app.use('/api/v1', require("./marketData/livePrice"));
+            } else {
+                app.use('/api/v1', require("./services/xts/xtsHelper/xtsLivePrice"));
+            }
+        })
+        app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
+        app.get('/api/v1/products', async(req, res, next) => {
+            const products = await Product.find({}); 
+            res.status(200).json({ status: 'success', data: products }); 
+        })
+        app.use('/api/v1', require("./routes/OpenPositions/openPositionsAuth"))
+        app.use('/api/v1', require("./routes/StockIndex/addStockIndex"))
+        app.use('/api/v1', require("./routes/expense/expenseAuth"))
+        app.use('/api/v1', require("./routes/user/signedUpUser"))
     app.use('/api/v1', require("./routes/expense/categoryAuth"))
     app.use('/api/v1', require("./routes/setting/settingAuth"))
     app.use('/api/v1', require("./routes/DailyPnlData/dailyPnlDataRoute"))
@@ -104,6 +108,7 @@ async function commonProcess() {
     app.use('/api/v1', require("./routes/HistoryPages/adminAuth"));
     app.use('/api/v1', require("./routes/marginAllocation/marginAllocationAuth"));
     app.use('/api/v1/contest', require("./routes/contest/contestRoutes"));
+    app.use('/api/v1/pageview', require("./routes/pageView/pageView"));
     app.use('/api/v1/tradingholiday', require("./routes/tradingHoliday/tradingHolidayRoute"));
     app.use('/api/v1/contactus', require("./routes/contactUs/contactRoutes"));
     app.use('/api/v1/batch', require("./routes/stoxheroTrading/batchRoutes"));
@@ -155,6 +160,7 @@ async function commonProcess() {
     app.use('/api/v1/marginxs', require("./routes/marginx/marginxRoutes"));
     app.use('/api/v1/marginxtemplates', require("./routes/marginx/marginxTemplateRoutes"));
     app.use('/api/v1/notifications', require("./routes/notification/notificationRoutes"));
+    app.use('/api/v1/coupons', require("./routes/coupon/couponRoutes"));
 
     const PORT = process.env.PORT || 5002;
     const server = app.listen(PORT);

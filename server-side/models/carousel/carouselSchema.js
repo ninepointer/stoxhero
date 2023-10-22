@@ -47,6 +47,12 @@ const carouselSchema = new mongoose.Schema({
         type:String,
         required: true,
     },
+    clickedBy: [
+        {
+            userId:{type:Schema.Types.ObjectId,ref: 'user-personal-detail'},
+            clickedOn:{type:Date, default: ()=>new Date()}
+        }
+    ],
     createdOn:{
         type: Date,
         required : true,

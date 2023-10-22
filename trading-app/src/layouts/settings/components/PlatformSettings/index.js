@@ -42,7 +42,11 @@ function PlatformSettings({settingData, setReRender, reRender}) {
   const [maxWithdrawalHigh, setMaxWithdrawalHigh] = useState(0);
   const [walletBalanceUpperLimit, setWalletBalanceUpperLimit] = useState(0);
   const [minWithdrawal, setMinWithdrawal] = useState(0);
+  const [gstPercentage, setGstPercentage] = useState(28);
+  const [tdsPercentage, setTdsPercentage] = useState(30);
   const [fund, setFund] = useState(0);
+  const [bonusToUnitCashRatio, setBonusToUnitCashRatio] = useState(0);
+  const [maxBonusRedemptionPercentage, setMaxBonusRedemptionPercentage] = useState(0);
   const [usedMargin, setUsedMargin] = useState(0);
   const [accountData, setAccountData] = useState({
     upiId: "",
@@ -76,6 +80,10 @@ function PlatformSettings({settingData, setReRender, reRender}) {
       setMaxWithdrawal(settingData[0]?.maxWithdrawal)
       setMaxWithdrawalHigh(settingData[0]?.maxWithdrawalHigh)
       setWalletBalanceUpperLimit(settingData[0]?.walletBalanceUpperLimit)
+      setGstPercentage(settingData[0]?.gstPercentage)
+      setTdsPercentage(settingData[0]?.tdsPercentage)
+      setMaxBonusRedemptionPercentage(settingData[0]?.maxBonusRedemptionPercentage)
+      setBonusToUnitCashRatio(settingData[0]?.bonusToUnitCashRatio)
       setMinWithdrawal(settingData[0]?.minWithdrawal)
       accountData.upiId = settingData[0]?.contest?.upiId
       accountData.email = settingData[0]?.contest?.email
@@ -157,8 +165,10 @@ function PlatformSettings({settingData, setReRender, reRender}) {
         maxWithdrawalHigh,
         walletBalanceUpperLimit,
         minWithdrawal,
+        gstPercentage,
+        tdsPercentage,
         upiId, email, mobile,
-        appStartTime, timerStartTimeInStart, appEndTime, timerStartTimeInEnd
+        appStartTime, timerStartTimeInStart, appEndTime, timerStartTimeInEnd, bonusToUnitCashRatio, maxBonusRedemptionPercentage
 
       }),
   }); 
@@ -324,6 +334,42 @@ function PlatformSettings({settingData, setReRender, reRender}) {
           // defaultValue={infinityPrice ? infinityPrice: settingData[0]?.infinityPrice}
           onChange={(e)=>{setWalletBalanceUpperLimit(e.target.value)}}
         />
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='GST Percentage'
+          fullWidth
+          type="number"
+          value={gstPercentage}
+          
+          sx={{marginTop: "15px"}}
+          // defaultValue={infinityPrice ? infinityPrice: settingData[0]?.infinityPrice}
+          onChange={(e)=>{setGstPercentage(e.target.value)}}
+        />
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='TDS Percentage'
+          fullWidth
+          type="number"
+          value={tdsPercentage}
+          
+          sx={{marginTop: "15px"}}
+          // defaultValue={infinityPrice ? infinityPrice: settingData[0]?.infinityPrice}
+          onChange={(e)=>{setTdsPercentage(e.target.value)}}
+        />
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='Min Wallet Balance For Higher Limit'
+          fullWidth
+          type="number"
+          value={walletBalanceUpperLimit}
+          
+          sx={{marginTop: "15px"}}
+          // defaultValue={infinityPrice ? infinityPrice: settingData[0]?.infinityPrice}
+          onChange={(e)=>{setWalletBalanceUpperLimit(e.target.value)}}
+        />
 
         <MDBox>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -400,6 +446,28 @@ function PlatformSettings({settingData, setReRender, reRender}) {
           value={fund}
           type="number"
           onChange={(e)=>{setFund(e.target.value)}}
+        />
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='Bonus to Unit Cash Ratio'
+          fullWidth
+          // defaultValue={LeaderBoardTimming ? LeaderBoardTimming : settingData[0]?.leaderBoardTimming}
+          value={bonusToUnitCashRatio}
+          sx={{marginTop: "15px"}}
+          type="number"
+          onChange={(e)=>{setBonusToUnitCashRatio(e.target.value)}}
+        />
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='Max Bonus Redemption %'
+          fullWidth
+          // defaultValue={LeaderBoardTimming ? LeaderBoardTimming : settingData[0]?.leaderBoardTimming}
+          value={maxBonusRedemptionPercentage}
+          sx={{marginTop: "15px"}}
+          type="number"
+          onChange={(e)=>{setMaxBonusRedemptionPercentage(e.target.value)}}
         />
 
         <TextField

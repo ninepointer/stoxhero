@@ -14,6 +14,10 @@ const fs = require('fs');
 const path = require('path');
 const {PDFDocument} = require('pdf-lib');
 const {createUserNotification} = require('./notification/notificationController');
+const Setting = require("../models/settings/setting");
+const Product = require('../models/Product/product');
+const Coupon = require('../models/coupon/coupon');
+const {saveSuccessfulCouponUse} = require('./coupon/couponController');
 
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
@@ -1263,6 +1267,8 @@ exports.participateUsers = async (req, res) => {
         let obj = {
             userId: userId,
             participatedOn: new Date(),
+            fee:0,
+            actualPrice:0
         }
         // Now update the isLive field based on the liveThreshold value
         if ((noOfContest[0]?.totalContestsCount < result?.liveThreshold) && result.currentLiveStatus === "Live") {
@@ -1397,12 +1403,13 @@ exports.creditAmountToWallet = async () => {
         const today = new Date(todayDate);
 
         const contest = await Contest.find({ contestStatus: "Completed", payoutStatus: null, contestEndTime: {$gte: today} });
-
+        const setting = await Setting.find();
         // console.log(contest.length, contest)
         for (let j = 0; j < contest.length; j++) {
             // if (contest[j].contestEndTime < new Date()) {
             for (let i = 0; i < contest[j]?.participants?.length; i++) {
                 let userId = contest[j]?.participants[i]?.userId;
+                let fee = contest[j]?.participants[i]?.fee ?? 0;
                 let payoutPercentage = contest[j]?.payoutPercentage
                 let id = contest[j]._id;
                 let pnlDetails = await DailyContestMockUser.aggregate([
@@ -1444,23 +1451,35 @@ exports.creditAmountToWallet = async () => {
 
                 // console.log(pnlDetails[0]);
                 if (pnlDetails[0]?.npnl > 0) {
-                    const payoutAmount = pnlDetails[0]?.npnl * payoutPercentage / 100;
+                    const payoutAmountWithoutTDS = pnlDetails[0]?.npnl * payoutPercentage / 100;
+                    let payoutAmount = payoutAmountWithoutTDS;
+                    if(payoutAmountWithoutTDS>fee){
+                      payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100;
+                    }
+
                     const wallet = await Wallet.findOne({ userId: userId });
+                    const transactionDescription = `Amount credited for contest ${contest[j].contestName}`;
+
+                    // Check if a transaction with this description already exists
+                    const existingTransaction = wallet?.transactions?.some(transaction => transaction.description === transactionDescription);
 
                     console.log(userId, pnlDetails[0]);
-
-                    wallet.transactions = [...wallet.transactions, {
-                        title: 'Contest Credit',
-                        description: `Amount credited for contest ${contest[j].contestName}`,
-                        transactionDate: new Date(),
-                        amount: payoutAmount?.toFixed(2),
-                        transactionId: uuid.v4(),
-                        transactionType: 'Cash'
-                    }];
+                    //check if wallet.transactions doesn't have an object with the particular description, then push it to wallet.transactions
+                    if(wallet?.transactions?.length == 0 || !existingTransaction){
+                      wallet.transactions.push({
+                          title: 'Contest Credit',
+                          description: `Amount credited for contest ${contest[j].contestName}`,
+                          transactionDate: new Date(),
+                          amount: payoutAmount?.toFixed(2),
+                          transactionId: uuid.v4(),
+                          transactionType: 'Cash'
+                      });
+                    }
                     await wallet.save();
                     const user = await User.findById(userId).select('first_name last_name email')
 
-                    contest[j].participants[i].payout = payoutAmount?.toFixed(2)
+                    contest[j].participants[i].payout = payoutAmount?.toFixed(2);
+                    contest[j].participants[i].tdsAmount = payoutAmountWithoutTDS-fee>0?((payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
                     if (process.env.PROD == 'true') {
                         emailService(user?.email, 'Contest Payout Credited - StoxHero', `
                         <!DOCTYPE html>
@@ -1698,28 +1717,123 @@ exports.getDailyContestUsers = async (req, res) => {
 exports.deductSubscriptionAmount = async (req, res, next) => {
 
     try {
-        const { contestFee, contestName, contestId } = req.body
+        const { contestFee, contestName, contestId, coupon, bonusRedemption } = req.body
         const userId = req.user._id;
-
+        const result = await exports.handleSubscriptionDeduction(userId, contestFee, contestName, contestId, coupon, bonusRedemption);
+        
+        res.status(result.stautsCode).json(result.data);
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong..."
+        });
+      }
+    }
+    
+    exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, contestId, coupon, bonusRedemption)=>{
+      try{
         const contest = await Contest.findOne({ _id: contestId });
         const wallet = await UserWallet.findOne({ userId: userId });
         const user = await User.findOne({ _id: userId });
-
+        const setting = await Setting.find({});
+        let discountAmount = 0;
+        let cashbackAmount = 0;
         const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
             return transaction.transactionType === "Cash";
         });
+        const bonusTransactions = (wallet)?.transactions?.filter((transaction) => {
+            return transaction.transactionType === "Bonus";
+        });
+
 
         const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
             return total + transaction?.amount;
         }, 0);
+        const totalBonusAmount = bonusTransactions?.reduce((total, transaction) => {
+            return total + transaction?.amount;
+        }, 0);
+        
+        //Check if Bonus Redemption is valid
+        if(bonusRedemption > totalBonusAmount || bonusRedemption > contest?.entryFee*setting[0]?.maxBonusRedemptionPercentage){
+          return {
+            statusCode:400,
+            data:{
+            status: "error",
+            message:"Incorrect HeroCash Redemption",
+            }
+          }; 
+        }
 
-        if (totalCashAmount < contest?.entryFee) {
-            return res.status(404).json({ status: "error", message: "You do not have enough balance to join this contest. Please add money to your wallet." });
+        if(Number(bonusRedemption)){
+          wallet?.transactions?.push({
+            title: 'StoxHero HeroCash Redeemed',
+            description: `${bonusRedemption} HeroCash used.`,
+            transactionDate: new Date(),
+            amount:-(bonusRedemption?.toFixed(2)),
+            transactionId: uuid.v4(),
+            transactionType: 'Bonus'
+        });
+        }
+
+
+        if(coupon){
+          const couponDoc = await Coupon.findOne({code:coupon});
+          if(couponDoc?.rewardType == 'Discount'){
+              if(couponDoc?.discountType == 'Flat'){
+                  //Calculate amount and match
+                  discountAmount = couponDoc?.discount;
+              }else{
+                  discountAmount = Math.min(couponDoc?.discount/100*contest?.entryFee, couponDoc?.maxDiscount);
+                  
+              }
+          }else{
+            if(couponDoc?.discountType == 'Flat'){
+              //Calculate amount and match
+              cashbackAmount = couponDoc?.discount;
+          }else{
+              cashbackAmount = Math.min(couponDoc?.discount/100*(contest?.entryFee-bonusRedemption), couponDoc?.maxDiscount);
+              
+          }
+          wallet?.transactions?.push({
+              title: 'StoxHero CashBack',
+              description: `Cashback of ${cashbackAmount?.toFixed(2)} HeroCash - code ${coupon} used`,
+              transactionDate: new Date(),
+              amount:cashbackAmount?.toFixed(2),
+              transactionId: uuid.v4(),
+              transactionType: 'Bonus'
+          });
+          }
+      }
+      const totalAmount = (contest?.entryFee - discountAmount - bonusRedemption)*(1+setting[0]?.gstPercentage/100)
+      if(Number(totalAmount)?.toFixed(2) != Number(contestFee)?.toFixed(2)){
+        return {
+          statusCode:400,
+          data:{
+          status: "error",
+          message:"Incorrect contest fee amount",
+          }
+        };  
+      } 
+        if (totalCashAmount < (Number(contestFee))) {
+          return {
+            statusCode:400,
+            data:{
+            status: "error",
+            message:"You do not have enough balance to join this contest. Please add money to your wallet.",
+            }
+          };  
         }
 
         for (let i = 0; i < contest.participants?.length; i++) {
             if (contest.participants[i]?.userId?.toString() === userId?.toString()) {
-                return res.status(404).json({ status: "error", message: "You have already participated in this contest." });
+              return {
+                statusCode:400,
+                data:{
+                status: "error",
+                message:"You have already participated in this contest.",
+                }
+            };  
             }
         }
 
@@ -1728,7 +1842,13 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
                 contest.potentialParticipants.push(userId);
                 await contest.save();
             }
-            return res.status(404).json({ status: "error", message: "The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest." });
+            return {
+              statusCode:400,
+              data:{
+              status: "error",
+              message:"The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest.",
+              }
+          };  
         }
 
         const noOfContest = await Contest.aggregate([
@@ -1836,6 +1956,11 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
         let obj = {
             userId: userId,
             participatedOn: new Date(),
+            fee:contestFee,
+            actualPrice:contest?.entryFee,
+        }
+        if(Number(bonusRedemption)){
+          obj.bonusRedemption = bonusRedemption;
         }
 
         console.log(noOfContest, noOfContest[0]?.totalContestsCount, result?.liveThreshold , result.currentLiveStatus)
@@ -1866,7 +1991,13 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
         await wallet.save();
 
         if (!result || !wallet) {
-            return res.status(404).json({ status: "error", message: "Something went wrong." });
+          return {
+            statusCode:404,
+            data:{
+            status: "error",
+            message:"Not found",
+            }
+        };  
         }
 
         let recipients = [user.email,'team@stoxhero.com'];
@@ -1950,7 +2081,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
                 <p>Email: <span class="password">${user.email}</span></p>
                 <p>Mobile: <span class="password">${user.mobile}</span></p>
                 <p>Contest Name: <span class="password">${contest.contestName}</span></p>
-                <p>Contest Fee: <span class="password">₹${contest.entryFee}/-</span></p>
+                <p>Contest Fee: <span class="password">₹${contestFee}/-</span></p>
                 </div>
             </body>
             </html>
@@ -1960,9 +2091,23 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
             emailService(recipientString,subject,message);
             console.log("Subscription Email Sent")
         }
+        if(coupon && cashbackAmount>0){
+          await createUserNotification({
+              title:'StoxHero Cashback',
+              description:`${cashbackAmount?.toFixed(2)} HeroCash added as bonus - ${coupon} code used.`,
+              notificationType:'Individual',
+              notificationCategory:'Informational',
+              productCategory:'Contest',
+              user: user?._id,
+              priority:'Medium',
+              channels:['App', 'Email'],
+              createdBy:'63ecbc570302e7cf0153370c',
+              lastModifiedBy:'63ecbc570302e7cf0153370c'  
+            });
+      }
         await createUserNotification({
             title:'Contest Fee Deducted',
-            description:`₹${contest.entryFee} deducted as contest fee for ${contest?.contestName}`,
+            description:`₹${contestFee} deducted as contest fee for ${contest?.contestName}`,
             notificationType:'Individual',
             notificationCategory:'Informational',
             productCategory:'Contest',
@@ -1972,20 +2117,29 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           });
-
-        res.status(200).json({
-            status: "success",
-            message: "Paid successfully",
-            data: result
-        });
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({
-            status: "error",
-            message: "Something went wrong",
-            error: error.message
-        });
-    }
+          if(coupon){
+            const product = await Product.findOne({productName:'Contest'}).select('_id');
+            await saveSuccessfulCouponUse(userId, coupon, product?._id, contest?._id);
+          }
+          return {
+            stautsCode:200,
+            data:{
+              status:'success',
+              message: "Paid successfully",
+              data: result
+            }
+        };  
+  }catch(e){
+    console.log(e);
+    return {
+      stautsCode:500,
+      data:{
+        status:'error',
+        message: "Something went wrong",
+        error: e.message
+      }
+  };  
+  }
 }
 
 exports.getDailyContestAllUsers = async (req, res) => {
@@ -3832,6 +3986,9 @@ exports.getContestLeaderboardById = async (req, res) => {
               },
               last_name: {
                 $arrayElemAt: ["$user.last_name", 0],
+              },
+              image:{
+                $arrayElemAt: ["$user.profilePhoto.url", 0]
               },
               rank: {
                 $ifNull: ["$participants.rank", "-"],

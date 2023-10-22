@@ -19,6 +19,7 @@ const Payment = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    gstAmount:Number,
     paymentBy: {
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail'
@@ -26,10 +27,14 @@ const Payment = new mongoose.Schema({
     paymentFor: {
         type: String,
     },
+    coupon:String,
+    productId:{
+        type: Schema.Types.ObjectId
+    },
     paymentMode: {
         type: String,
         // required: true,
-        enum: ['UPI', 'Account Transfer', 'Other']
+        enum: ['UPI', 'Account Transfer', 'Other', 'CARD', 'NETBANKING']
     },
     paymentStatus:{
         type: String,
@@ -64,7 +69,9 @@ const Payment = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail'
     },
-    gatewayResponse: {}
+    gatewayResponse: {},
+    productId: Schema.Types.ObjectId,
+    bonusRedemption:Number,
 });
 const payment = mongoose.model('payment', Payment);
 module.exports = payment;

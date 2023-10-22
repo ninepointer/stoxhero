@@ -43,28 +43,6 @@ export default function RegisteredUsers({ dailyContest }) {
 
   let rows = []
 
-
-  // useEffect(()=>{
-  //   let call1 = axios.get(`${baseUrl}api/v1/dailycontest/contests/adminupcoming`,{
-  //               withCredentials: true,
-  //               headers: {
-  //                   Accept: "application/json",
-  //                   "Content-Type": "application/json",
-  //                   "Access-Control-Allow-Credentials": true
-  //                 },
-  //               })
-  //   Promise.all([call1])
-  //   .then(([api1Response]) => {
-  //     // Process the responses here
-  //     console.log(api1Response.data.data);
-  //     setDailyContest(api1Response.data.data)
-  //   })
-  //   .catch((error) => {
-  //     // Handle errors here
-  //     console.error(error);
-  //   });
-  // },[updateSwitch])
-
   async function switchUser(userId, isLive) {
     const res = await fetch(`${baseUrl}api/v1/dailycontest/switchUser/${dailyContest?._id}`, {
       method: "PATCH",

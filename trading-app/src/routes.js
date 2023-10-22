@@ -66,6 +66,7 @@ import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import TryIcon from '@mui/icons-material/Try';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import CollegeDetails from './layouts/college/collegeDetails'
+import CouponDetails from './layouts/coupons/couponDetails'
 import Forward10Icon from '@mui/icons-material/Forward10';
 import MyPortfolio from './layouts/UserPortfolio'
 import VpnLockIcon from '@mui/icons-material/VpnLock';
@@ -79,6 +80,9 @@ import PaymentTest from './layouts/paymentTest/index'
 import ContestScoreboard from './layouts/contestScoreboard'
 import StoxHeroUserDashboard from './layouts/StoxHeroDashboard'
 import MarginXReport from "./layouts/marginxReport";
+
+import Coupons from './layouts/coupons'
+
 
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
@@ -186,6 +190,8 @@ import MarginX from "./layouts/marginX"
 import BattlePosition from "./layouts/battleTraderPosition";
 import BattleReport from "./layouts/battleReport";
 import DailyContestAnalytics from "./layouts/dailyContestAnalytics"
+import TenXSubscribers from "./layouts/tenXSubscribers"
+import MarketingFunnel from "./layouts/marketingDashboard"
 const routes = [
 
   {
@@ -195,6 +201,14 @@ const routes = [
     icon: <AllInclusiveIcon/>,
     route: "/stoxherouserdashboard",
     component: <StoxHeroUserDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Marketing Dashboard",
+    key: "marketingdashboard",
+    icon: <AllInclusiveIcon/>,
+    route: "/marketingdashboard",
+    component: <MarketingFunnel />,
   },
   {
     type: "collapse",
@@ -304,6 +318,11 @@ const routes = [
     component: <DailyContestAnalytics />,
   },
   {
+    key: "tenxsubscribers",
+    route: "/tenxdashboard/tenxsubscribers",
+    component: <TenXSubscribers />,
+  },
+  {
     key: "marginxreport",
     route: "/marginxdashboard/marginxreport",
     component: <MarginXReport />,
@@ -403,6 +422,10 @@ const routes = [
   {
     route: "/collegedetails",
     component: <CollegeDetails />,
+  },
+  {
+    route: "/coupondetails",
+    component: <CouponDetails />,
   },
   {
     route: "/batchdetails",
@@ -690,7 +713,7 @@ const routes = [
     key: "tradersMarginAllocation",
     // icon: <WalletIcon/>,
     route: "/tradersMarginAllocation",
-    component: <TradersMarginAllocation />,
+    component: <TradersMarginAllocation />
   },
   {
     type: "collapse",
@@ -861,6 +884,15 @@ const routes = [
     // icon: <AccountBalanceIcon/>,
     route: "/trading-accounts",
     component: <TradingAccount />,
+  },
+
+  {
+    // type: "collapse",
+    // name: "Trading Accounts",
+    key: "coupons",
+    // icon: <AccountBalanceIcon/>,
+    route: "/coupons",
+    component: <Coupons />,
   },
   {
     // type: "collapse",

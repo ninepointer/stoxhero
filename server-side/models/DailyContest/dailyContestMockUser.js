@@ -101,6 +101,10 @@ const dailyContestUserSchema = new Schema({
     contestId: {
         type: Schema.Types.ObjectId,
         ref: 'daily-contest',
+    },
+    deviceDetails:{
+        deviceType: { type: String },
+        platformType: { type: String }
     }
 
 })

@@ -2,6 +2,9 @@ const TenXTrader = require("../models/mock-trade/tenXTraderSchema");
 const User = require("../models/User/userDetailSchema");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema")
+const whatsAppService = require("../utils/whatsAppService")
+const mediaURL = "https://dmt-trade.s3.amazonaws.com/carousels/WhastAp%20Msg%20Photo/photos/1697228055934Welcome%20to%20the%20world%20of%20Virtual%20Trading%20but%20real%20earning%21.png";
+const mediaFileName = 'StoxHero'
 const { client, getValue } = require('../marketData/redisClient');
 const Wallet = require("../models/UserWallet/userWalletSchema");
 const uuid = require('uuid');
@@ -10,7 +13,7 @@ const sendMail = require('../utils/emailService');
 const moment = require('moment');
 const mongoose = require('mongoose');
 const {createUserNotification} = require('../controllers/notification/notificationController');
-
+const Setting = require("../models/settings/setting")
 
 exports.overallPnl = async (req, res, next) => {
   let isRedisConnected = getValue();
@@ -109,9 +112,9 @@ exports.overallPnl = async (req, res, next) => {
 
 exports.myTodaysTrade = async (req, res, next) => {
 
-  let {subscription} = req.params;
-  subscription = JSON.parse(subscription);
-  let {subscriptionId} =  subscription;
+  let {subscriptionId} = req.params;
+  // subscription = JSON.parse(subscription);
+  // let {subscriptionId} =  subscription;
 
   const userId = req.user._id;
   let date = new Date();
@@ -137,10 +140,7 @@ exports.myTodaysTrade = async (req, res, next) => {
 
 exports.myHistoryTrade = async (req, res, next) => {
 
-  let {subscription, usersubscription} = req.params;
-  let {subscribedOn, expiredOn} = JSON.parse(usersubscription);
-  let {subscriptionId} = JSON.parse(subscription);
-
+  let {subscriptionId, subscribedOn, expiredOn  } = req.params;
   expiredOn = expiredOn && new Date(expiredOn);
   subscribedOn = subscribedOn && new Date(subscribedOn);
 
@@ -529,17 +529,20 @@ exports.tradingDays = async (req, res, next) => {
 exports.autoExpireTenXSubscription = async () => {
   console.log("autoExpireSubscription running");
   const subscription = await Subscription.find();
+  const setting = await Setting.find();
 
   for (let i = 0; i < subscription.length; i++) {
     let users = subscription[i].users;
     let subscriptionId = subscription[i]._id
     let validity = subscription[i].validity;
-    let payoutPercentage = 10;
+    let payoutPercentage = subscription[i].payoutPercentage;
+    let expiryDays = subscription[i].expiryDays;
     for (let j = 0; j < users.length; j++) {
       const session = await mongoose.startSession();
       try{
         session.startTransaction();
         let userId = users[j].userId;
+        let fee = users[j]?.fee;
         let subscribedOn = users[j].subscribedOn;
         let status = users[j].status;
 
@@ -659,7 +662,7 @@ exports.autoExpireTenXSubscription = async () => {
                     },
                     {
                       $subtract: [
-                        60,
+                        expiryDays,
                         {
                           $divide: [
                             {
@@ -721,7 +724,11 @@ exports.autoExpireTenXSubscription = async () => {
 
           let pnl = pnlDetails[0]?.npnl * payoutPercentage/100;
           let profitCap = subscription[i].profitCap;
-          let payoutAmount = Math.min(pnl, profitCap);
+          let payoutAmountWithoutTDS = Math.min(pnl, profitCap);
+          let payoutAmount = payoutAmountWithoutTDS;
+          if(payoutAmountWithoutTDS>users[j]?.fee){
+            payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100;
+          }
     
 
           // console.log("payoutAmount", (payoutAmount > 0 && tradingDays[0]?.totalTradingDays === validity))
@@ -732,7 +739,7 @@ exports.autoExpireTenXSubscription = async () => {
             const user = await User.findOne({ _id: new ObjectId(userId), status: "Active" });
             if(user){
 
-              
+
               let len = user.subscription.length;
               
               for (let k = len - 1; k >= 0; k--) {
@@ -740,24 +747,37 @@ exports.autoExpireTenXSubscription = async () => {
                   user.subscription[k].status = "Expired";
                   user.subscription[k].expiredOn = new Date();
                   user.subscription[k].expiredBy = "System";
-                  user.subscription[k].payout = (payoutAmount?.toFixed(2)) 
-                  console.log("this is user", user)
-                  await user.save({session});
+                  if(tradingDays[0]?.totalTradingDays >= validity){
+                    user.subscription[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0) 
+                    user.subscription[k].tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
+                  }else{
+                    user.subscription[k].payout=0;
+                    user.subscription[k].tdsAmount=0;
+                  }
+                  // console.log("this is user", user)
+                  await user.save({session, validateBeforeSave:false});
                   break;
                 }
               }
 
               const subs = await Subscription.findOne({ _id: new ObjectId(subscription[i]._id) });
               let Subslen = subs.users.length;
-              
+              let subscribedOn;
               for (let k = Subslen - 1; k >= 0; k--) {
                 if (subs.users[k].userId?.toString() === userId?.toString()) {
                   subs.users[k].status = "Expired";
                   subs.users[k].expiredOn = new Date();
                   subs.users[k].expiredBy = "System";
-                  subs.users[k].payout = (payoutAmount?.toFixed(2));
-                  console.log("this is subs", subs)
-                  await subs.save({session});
+                  if(tradingDays[0]?.totalTradingDays >= validity){
+                    subs.users[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0) 
+                    subs.users[k].tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0; 
+                    subscribedOn = subs.users[k]?.subscribedOn;
+                  }else{
+                    subs.users[k].payout=0;
+                    subs.users[k].tdsAmount=0;
+                  }
+                  // console.log("this is subs", subs)
+                  await subs.save({session, validateBeforeSave:false});
                   break;
                 }
               }
@@ -774,7 +794,7 @@ exports.autoExpireTenXSubscription = async () => {
                       transactionId: uuid.v4(),
                       transactionType: 'Cash'
                 }];
-                await wallet.save({session});
+                await wallet.save({session, validateBeforeSave:false});
 
                 if (process.env.PROD == 'true') {
                   sendMail(user?.email, 'Tenx Payout Credited - StoxHero', `
@@ -782,7 +802,7 @@ exports.autoExpireTenXSubscription = async () => {
                   <html>
                   <head>
                       <meta charset="UTF-8">
-                      <title>Amount Credited</title>
+                      <title>StoxHero - TenX Payout</title>
                       <style>
                       body {
                           font-family: Arial, sans-serif;
@@ -846,15 +866,19 @@ exports.autoExpireTenXSubscription = async () => {
                   </head>
                   <body>
                       <div class="container">
-                      <h1>Amount Credited</h1>
-                      <p>Hello ${user.first_name},</p>
-                      <p>Amount of ${payoutAmount?.toFixed(2)}INR has been credited in you wallet</p>
-                      <p>You can now purchase Tenx and participate in contest.</p>
+                      <h1>StoxHero - TenX Payout</h1>
+                      <p>Hi ${user.first_name},</p>
+                      <p>Great news! We're thrilled to inform you that your TenX Subscription 💰 payout has been processed, and ${subscription[i]?.payoutPercentage}% of the Net P&L made under this subscription has been credited to your StoxHero Wallet 🎉. Please find the details below:</p>
+                      <p>TenX Subscription: ${subscription[i]?.plan_name}</p>
+                      <p>Subscription Purchase Date: ${moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a")}</p>
+                      <p>Amount Credited in StoxHero Wallet: ₹${payoutAmount.toLocaleString('en-IN')}</p>
+                      <p>We are delighted to have traders like you on our platform. Keep learning and earning!</p>
+                      <p>Note: 30% TDS has been deducted from your net payout amount.</p>
                       
                       <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
                       <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
                       <br/><br/>
-                      <p>Thanks,</p>
+                      <p>Thanks!</p>
                       <p>StoxHero Team</p>
             
                       </div>
@@ -862,6 +886,16 @@ exports.autoExpireTenXSubscription = async () => {
                   </html>
                   `);
                 }
+
+                if(process.env.PROD == 'true'){
+                  whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage).toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                  whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage).toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                }
+                else {
+                  whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage).toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                  // whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, subscription[i]?.payoutPercentage,subscription[i]?.plan_name, moment.utc(subs.users[k].subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                }
+                
                 await createUserNotification({
                   title:'TenX Payout Credited',
                   description:`₹${payoutAmount?.toFixed(2)} credited for your profit in TenX plan ${subscription[i]?.plan_name}`,
@@ -1571,6 +1605,7 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
         _id: {
           startDate: "$users.subscribedOn",
           endDate: "$users.expiredOn",
+          payout: "$users.payout",
           userId: "$trade.trader",
           cap: "$profitCap",
           expiredBy: "$users.expiredBy",
@@ -1625,53 +1660,7 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
           $size: "$tradingDays",
         },
         trades: 1,
-        payout: {
-          $cond: {
-            if: {
-              $eq: ["$_id.expiredBy", "User"],
-            },
-            then: 0,
-            else: {
-              $cond: {
-                if: {
-                  $gte: [
-                    {
-                      $size: "$tradingDays",
-                    },
-                    "$_id.validity",
-                  ],
-                },
-                then: {
-                  $max: [
-                    {
-                      $min: [
-                        {
-                          $divide: [
-                            {
-                              $multiply: [
-                                {
-                                  $subtract: [
-                                    "$amount",
-                                    "$brokerage",
-                                  ],
-                                },
-                                10,
-                              ],
-                            },
-                            100,
-                          ],
-                        },
-                        "$_id.cap",
-                      ],
-                    },
-                    0,
-                  ],
-                },
-                else: 0,
-              },
-            },
-          },
-        },
+        payout: "$_id.payout",
         name: {
           $concat: [
             {

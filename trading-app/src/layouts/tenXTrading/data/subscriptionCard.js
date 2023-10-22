@@ -24,7 +24,7 @@ import checklist from '../../../assets/images/checklist.png'
 import ActiveDialogue from "../Header/activeDialogueBox";
 import DialogueKnowMore from "../Header/dialogueBoxKnowMore";
 
-function Header({ subscription, checkPayment, setCheckPayment, amount, name, id, walletCash, allowRenewal}) {
+function Header({ subscription, checkPayment, setCheckPayment, amount, name, id, walletCash, bonusCash, allowRenewal}) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
@@ -195,7 +195,7 @@ function Header({ subscription, checkPayment, setCheckPayment, amount, name, id,
                                 <DialogueKnowMore subscription={subscription}/>
                             </Grid>
                             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
-                                <ActiveDialogue subscription={subscription} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={amount} name={name} id={id} walletCash={walletCash} allowRenewal={allowRenewal} />
+                                <ActiveDialogue subscription={subscription} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={amount} name={name} id={id} walletCash={walletCash} bonusCash={bonusCash} allowRenewal={allowRenewal} />
                             </Grid>
                             <Grid item xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
                                 <MDButton varaint='contained' color='error' size='small' style={{fontSize:'10px',width:'88%'}} onClick={captureTutorialViews}>Watch Video</MDButton>

@@ -95,10 +95,14 @@ const contestSchema = new Schema({
     }],
     participants:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
+        fee:Number,
+        actualPrice:Number,
         participatedOn:{type:Date},
         payout: {type: Number},
+        tdsAmount: {type: Number},
         isLive: {type: Boolean},
-        rank: {type: Number}
+        rank: {type: Number},
+        bonusRedemption:Number
     }],
     maxParticipants:{
         type:Number,
@@ -153,6 +157,11 @@ const contestSchema = new Schema({
         type:Boolean,
         required: true
     },
+    product:{
+        type: Schema.Types.ObjectId,
+        ref: 'product',
+        default:'6517d48d3aeb2bb27d650de5'
+    }
 
 })
 

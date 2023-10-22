@@ -13,12 +13,30 @@ import MDBox from "../../../components/MDBox";
 
 import TenXHeader from './TenXHeader'
 import TenX from './TenX'
+import { TbCapture } from "react-icons/tb";
 
 
 function Header() {
+  
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  
   useEffect(() => {
     ReactGA.pageview(window.location.pathname)
+    capturePageView()
   }, []);
+  let page = 'TenXTrading'
+  let pageLink = 'tenxtrading'
+  async function capturePageView(){
+        console.log("Page:",page)
+        await fetch(`${baseUrl}api/v1/pageview/${page}/${pageLink}`, {
+        method: "POST",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+    });
+  }
 
   return (
     

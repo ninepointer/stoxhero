@@ -8,6 +8,19 @@ const axios = require('axios');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const {createUserNotification} = require('../controllers/notification/notificationController');
+const Setting = require('../models/settings/setting');
+const {handleSubscriptionDeduction} = require('./dailyContestController');
+const {handleDeductSubscriptionAmount} = require('./userWalletController');
+const {handleDeductMarginXAmount} = require('./marginX/marginxController');
+const {handleDeductBattleAmount} = require('./battles/battleController');
+const {handleSubscriptionRenewal} = require('./tenXSubscriptionController');
+const {saveSuccessfulCouponUse} = require('./coupon/couponController');
+const Contest = require('../models/DailyContest/dailyContest');
+const TenX = require('../models/TenXSubscription/TenXSubscriptionSchema');
+const MarginX = require('../models/marginX/marginX');
+const Battle = require('../models/battle/battle');
+const Coupon = require('../models/coupon/coupon');
+const whatsAppService = require("../utils/whatsAppService")
 
 exports.createPayment = async(req, res, next)=>{
     // console.log(req.body)
@@ -24,6 +37,21 @@ exports.createPayment = async(req, res, next)=>{
             paymentFor, paymentMode, paymentStatus, createdBy: req.user._id, lastModifiedBy: req.user._id}], {session:session});
         
         const wallet = await UserWallet.findOne({userId: new ObjectId(paymentBy)});
+        const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
+            return transaction.transactionType === "Cash";
+        });
+
+        const bonusTransactions = (wallet)?.transactions?.filter((transaction) => {
+            return transaction.transactionType === "Bonus";
+        });
+
+        const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
+            return total + transaction?.amount;
+        }, 0);
+
+        const totalBonusAmount = bonusTransactions?.reduce((total, transaction) => {
+            return total + transaction?.amount;
+        }, 0);
         wallet.transactions = [...wallet.transactions, {
                 title: 'Amount Credit',
                 description: `The amount that has been credited to your wallet.`,
@@ -131,6 +159,18 @@ exports.createPayment = async(req, res, next)=>{
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           }, session);
+          try{
+              if(process.env.PROD == 'true'){
+                whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),(totalCashAmount+amount).toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),(totalCashAmount+amount).toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+            }
+            else {
+            // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),totalCashAmount.toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'), (totalCashAmount+amount).toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+            }
+          }catch(e){
+            console.log(e);
+          }
         await session.commitTransaction();  
         res.status(201).json({message: 'Payment successfully.', data:payment, count:payment.length});
     }catch(error){
@@ -140,6 +180,54 @@ exports.createPayment = async(req, res, next)=>{
         await session.endSession();
     }
 }
+
+exports.getSuccessfulPayment = async(req, res, next)=>{
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+
+    const count = await Payment.countDocuments({$match : {paymentStatus : 'succeeded' }});
+    const payment = await Payment.find({ paymentStatus: 'succeeded' })
+        .select('_id paymentTime transactionId amount paymentBy paymentMode paymentStatus currency createdOn gatewayResponse')
+        .populate('paymentBy', 'first_name last_name email mobile')
+        .sort({ _id: -1 })
+        .skip(skip)
+        .limit(limit);
+    
+    res.status(201).json({message: "successful payment retreived", data: payment, count: count});    
+        
+};
+
+exports.getInitiatedPayment = async(req, res, next)=>{
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+
+    const count = await Payment.countDocuments({$match : {paymentStatus : 'initiated' }});
+    const payment = await Payment.find({ paymentStatus: 'initiated' })
+        .select('_id paymentTime transactionId amount paymentBy paymentMode paymentStatus currency createdOn gatewayResponse')
+        .populate('paymentBy', 'first_name last_name email mobile')
+        .sort({ _id: -1 })
+        .skip(skip)
+        .limit(limit);
+    
+    res.status(201).json({message: "successful payment retreived", data: payment, count: count});    
+        
+};
+
+exports.getFailedPayment = async(req, res, next)=>{
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+
+    const count = await Payment.countDocuments({$match : {paymentStatus : 'failed' }});
+    const payment = await Payment.find({ paymentStatus: 'failed' })
+        .select('_id paymentTime transactionId amount paymentBy paymentMode paymentStatus currency createdOn gatewayResponse')
+        .populate('paymentBy', 'first_name last_name email mobile')
+        .sort({ _id: -1 })
+        .skip(skip)
+        .limit(limit);
+    
+    res.status(201).json({message: "successful payment retreived", data: payment, count: count});    
+        
+};
 
 exports.getPayment = async(req, res, next)=>{
     const skip = parseInt(req.query.skip) || 0;
@@ -155,7 +243,7 @@ exports.getPayment = async(req, res, next)=>{
     res.status(201).json({message: "payment retreived", data: payment, count: count});    
         
 };
-
+ 
 exports.getUserPayment = async(req, res, next)=>{
     
     const id = req.params.id
@@ -202,19 +290,28 @@ exports.getUsers = async (req, res) => {
 exports.initiatePayment = async (req, res) => {
     const {
         amount,
-        mobileNumber,
-        redirectTo
+        redirectTo,
+        productId,
+        paymentFor,
+        coupon,
+        bonusRedemption
     } = req.body;
-    let merchantId = process.env.PHONEPE_MERCHANTID;
+    console.log('all body params',amount,
+        redirectTo,
+        productId,
+        paymentFor, coupon, bonusRedemption);
+    const setting = await Setting.find();
+    let merchantId = process.env.PROD=='true' ? process.env.PHONEPE_MERCHANTID : process.env.PHONEPE_MERCHANTID_STAGING  ;
     let merchantTransactionId = generateUniqueTransactionId();
     let merchantUserId = 'MUID'+ req.user._id;
-    let redirectUrl = `https://stoxhero.com/paymenttest/status?merchantTransactionId=${merchantTransactionId}&redirectTo=${redirectTo}`;
-    let callbackUrl = 'https://stoxhero.com/api/v1/payment/callback';
+    let redirectUrl = process.env.PROD == 'true'? `https://stoxhero.com/paymenttest/status?merchantTransactionId=${merchantTransactionId}&redirectTo=${redirectTo}` : `http://43.204.7.180/paymenttest/status?merchantTransactionId=${merchantTransactionId}&redirectTo=${redirectTo}`;
+    let callbackUrl = process.env.PROD == 'true'? 'https://stoxhero.com/api/v1/payment/callback':'http://43.204.7.180/api/v1/payment/callback' ;
     let redirectMode = 'REDIRECT'
     const payment = await Payment.create({
         paymentTime: new Date(),
         currency: 'INR',
-        amount: amount/4000,
+        amount: amount/100,
+        gstAmount:((amount/100) - ((amount/100)/(1+(setting[0]?.gstPercentage==0?0:setting[0]?.gstPercentage/100)))), 
         paymentStatus: 'initiated',
         actions:[{
             actionTitle: 'Payment Initiated',
@@ -222,11 +319,15 @@ exports.initiatePayment = async (req, res) => {
             actionBy:req.user._id
         }],
         paymentBy:req.user?._id,
+        paymentFor,
+        productId,
+        coupon,
         merchantTransactionId,
         createdOn: new Date(),
         createdBy: req.user._id,
         modifiedOn: new Date(),
-        modifiedBy: req.user._id
+        modifiedBy: req.user._id,
+        bonusRedemption: bonusRedemption
     });
 
     const paymentInstrument = {
@@ -236,24 +337,24 @@ exports.initiatePayment = async (req, res) => {
     const payload = {
         merchantId,
         merchantTransactionId,
-        amount: amount/40,
+        amount: amount,
         merchantUserId,
         redirectUrl,
         redirectMode,
         callbackUrl,
-        mobileNumber,
         paymentInstrument
     };
 
     const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64');
-    const saltKey = process.env.PHONEPE_KEY; // This should be stored securely, not hardcoded
+    const saltKey = process.env.PROD=='true' ? process.env.PHONEPE_KEY : process.env.PHONEPE_KEY_STAGING ; // This should be stored securely, not hardcoded
     const saltIndex = '1';
     const toHash = `${encodedPayload}/pg/v1/pay${saltKey}`;
     
     const checksum = crypto.createHash('sha256').update(toHash).digest('hex') + '###' + saltIndex;
 
     try {
-        const response = await axios.post('https://api.phonepe.com/apis/hermes/pg/v1/pay', {
+        const payUrl = process.env.PROD=='true'? 'https://api.phonepe.com/apis/hermes/pg/v1/pay':'https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay'
+        const response = await axios.post(payUrl, {
             request: encodedPayload
         }, {
             headers: {
@@ -300,9 +401,9 @@ exports.handleCallback = async (req, res, next) => {
 
         } else {
             // Validate checksum
-            if (!verifyChecksum(decodedResponse, req.headers['X-VERIFY'])) {
-                return res.status(400).json({ status:'error', message: 'Checksum validation failed' });
-            }
+            // if (!verifyChecksum(decodedResponse, req.headers['X-VERIFY'])) {
+            //     return res.status(400).json({ status:'error', message: 'Checksum validation failed' });
+            // }
 
             // Validate amount
             if (decodedResponse.data.amount !== payment.amount*100) {
@@ -318,8 +419,24 @@ exports.handleCallback = async (req, res, next) => {
                     actionDate: new Date(),
                     actionBy: '63ecbc570302e7cf0153370c'
                 });
+                await addMoneyToWallet(payment.amount-payment?.gstAmount, payment?.paymentBy);
+                if(payment?.paymentFor && payment?.productId){
+                    await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy,payment?.amount, payment?.coupon, payment?.bonusRedemption);
+                }    
                 console.log('Payment Successful');
                 await payment.save({validateBeforeSave: false});
+                if(payment?.coupon){
+                    if(payment?.paymentFor){
+                        await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, payment?.paymentFor, payment?.productId);
+                    }else{
+                        await addCashback(payment?.amount-payment?.gstAmount, payment?.paymentBy, payout?.coupon);
+                        await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, 'Wallet');
+                    }
+                }
+                if(!payment?.paymentFor){
+                    await sendWhatsAppNotification(payment);
+                }
+
                 res.status(200).json({ status:'success', message: 'Payment was successful' });
             } else if (decodedResponse.code === 'PAYMENT_ERROR') {
                 // TODO: Update the status in your database to 'FAILED'
@@ -350,7 +467,7 @@ exports.handleCallback = async (req, res, next) => {
     }
 }
 
-const SALT_KEY = process.env.PHONEPE_KEY; // You may want to keep this in a secure environment variable or secret management tool.
+const SALT_KEY = process.env.PROD=='true' ? process.env.PHONEPE_KEY : process.env.PHONEPE_KEY_STAGING  ; // You may want to keep this in a secure environment variable or secret management tool.
 const SALT_INDEX = "1"; // This too could be managed securely if it's ever meant to change.
 
 const verifyChecksum = (encodedPayload, receivedChecksum) => {
@@ -365,23 +482,32 @@ exports.checkPaymentStatus = async(req,res, next) => {
     try{
         console.log('chekcing payment status-------------------------------------------------');
         const {merchantTransactionId} = req.params;
-        const merchantId = process.env.PHONEPE_MERCHANTID;
+        const merchantId = process.env.PROD=='true' ? process.env.PHONEPE_MERCHANTID : process.env.PHONEPE_MERCHANTID_STAGING ;
         const payment  = await Payment.findOne({merchantTransactionId});
         // console.log('payment', payment);
         const saltKey = process.env.PHONEPE_KEY; // This should be stored securely, not hardcoded
         const saltIndex = '1';
         const toHash = `/pg/v1/status/${merchantId}/${merchantTransactionId}`+ saltKey;
         const checksum = crypto.createHash('sha256').update(toHash).digest('hex') + '###' + saltIndex;
-        const resp = await axios.get(`https://api.phonepe.com/apis/hermes/pg/v1/status/${merchantId}/${merchantTransactionId}`,{
+        const checkStatusUrl = process.env.PROD=='true' ? `https://api.phonepe.com/apis/hermes/pg/v1/status/${merchantId}/${merchantTransactionId}`:`https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/${merchantId}/${merchantTransactionId}`;
+        const resp = await axios.get(checkStatusUrl,{
             headers: {
                 'Content-Type': 'application/json',
                 'X-VERIFY': checksum,
                 'X-MERCHANT-ID':merchantId
             }
         });
+        if(payment.paymentStatus == 'succeeded' || payment.paymentStatus == 'failed'){
+            return res.status(200).json({
+                status:'success',
+                message:'Payment status fetched',
+                data:resp.data
+            });
+        }
         console.log('response payment instrument', resp?.data?.data?.paymentInstrument);
         if(resp.data.code == 'PAYMENT_SUCCESS'){
             if(payment.paymentStatus != 'succeeded'){
+                console.log('updating payment status');
                 payment.paymentStatus = 'succeeded';
                 payment.transactionId = resp?.data?.data?.transactionId;
                 payment.paymentMode = resp?.data?.data?.paymentInstrument?.type;
@@ -390,6 +516,25 @@ exports.checkPaymentStatus = async(req,res, next) => {
                         actionDate: new Date(),
                         actionBy: '63ecbc570302e7cf0153370c'
                     });
+                console.log('amount hai', payment?.amount);    
+                if(payment.amount == resp.data.data.amount/100){
+                    await addMoneyToWallet(payment.amount-payment?.gstAmount, payment?.paymentBy);
+                    if(payment?.paymentFor && payment?.productId){
+                        await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy, payment?.amount, payment?.coupon);
+                    }
+                    //TODO:Remove this code
+                    if(payment?.coupon){
+                        if(payment?.paymentFor){
+                            await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, payment?.paymentFor, payment?.productId);
+                        }else{
+                            await addCashback(payment?.amount-payment?.gstAmount, payment?.paymentBy, payment?.coupon);
+                            await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, 'Wallet');
+                        }
+                    }
+                    if(!payment?.paymentFor){
+                        await sendWhatsAppNotification(payment);
+                    }    
+                }    
             }
         }else if(resp.data.code == 'PAYMENT_ERROR'){
             if(payment.paymentStatus != 'failed'){
@@ -413,5 +558,110 @@ exports.checkPaymentStatus = async(req,res, next) => {
     }catch(e){
         console.log(e);
         res.status(500).json({status:'error', message:'Something went wrong.'});
+    }
+}
+
+const addMoneyToWallet = async (amount, userId) =>{
+    const wallet = await UserWallet.findOne({userId:userId});
+    wallet.transactions.push({
+        amount: amount,
+        title: 'Amount Credit',
+        description: `The amount that has been credited to your wallet.`,
+        transactionId: uuid.v4(),
+        transactionType: 'Cash'
+    });
+    await wallet.save({validateBeforeSave: false});
+}
+
+const addCashback = async(amount, userId, coupon) => {
+    const wallet = await UserWallet.findOne({userId:userId});
+    const couponDoc = await Coupon.findOne({code:coupon}).select('rewardType discountType discount maxDiscount');
+    if(couponDoc?.rewardType == 'Discount')return;
+    let cashbackAmount = 0;
+    if(couponDoc?.discountType == 'Flat'){
+        cashbackAmount = couponDoc?.discount;
+    }else{
+        cashbackAmount = Math.min(amount*couponDoc?.discount/100, couponDoc?.maxDiscount);
+    }
+    wallet.transactions.push({
+        title: 'StoxHero CashBack',
+        description: `Cashback of ${cashbackAmount?.toFixed(2)} HeroCash - code ${coupon} used`,
+        transactionDate: new Date(),
+        amount:cashbackAmount?.toFixed(2),
+        transactionId: uuid.v4(),
+        transactionType: 'Bonus'
+    });
+    await wallet.save({validateBeforeSave: false});
+
+}
+
+const sendWhatsAppNotification = async(payment) => {
+    const {paymentBy, amount, bonusRedemption} = payment;
+    const user = await User.findOne({_id: new ObjectId(paymentBy)}).select('first_name creationProcess last_name mobile');
+    const wallet = await UserWallet.findOne({userId:new ObjectId(paymentBy)});
+    const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
+        return transaction.transactionType === "Cash";
+    });
+
+    const bonusTransactions = (wallet)?.transactions?.filter((transaction) => {
+        return transaction.transactionType === "Bonus";
+    });
+
+    const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
+        return total + transaction?.amount;
+    }, 0);
+
+    const totalBonusAmount = bonusTransactions?.reduce((total, transaction) => {
+        return total + transaction?.amount;
+    }, 0);
+
+    try{
+        if(process.env.PROD == 'true'){
+          whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),(totalCashAmount).toLocaleString('en-IN'), (totalBonusAmount).toLocaleString('en-IN')], tags : '', attributes : ''});
+          whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),(totalCashAmount).toLocaleString('en-IN'), (totalBonusAmount).toLocaleString('en-IN')], tags : '', attributes : ''});
+      }
+      else {
+      // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),totalCashAmount.toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+          whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'), (totalCashAmount).toLocaleString('en-IN'), (totalBonusAmount).toLocaleString('en-IN')], tags : '', attributes : ''});
+      }
+    }catch(e){
+      console.log(e);
+    }
+}
+
+const participateUser = async (paymentFor, productId, paymentBy, amount, coupon, bonusRedemption) => {
+    switch (paymentFor){
+        case 'Contest':
+            if(productId){
+                const contest = await Contest.findById(productId).select('entryFee contestName');
+                await handleSubscriptionDeduction(paymentBy, amount, contest?.contestName, contest?._id, coupon, bonusRedemption);
+            }
+            break;
+        case 'TenX':
+            if(productId){
+                const tenx = await TenX.findById(productId).select('discounted_price plan_name');
+                await handleDeductSubscriptionAmount(paymentBy, amount, tenx?.plan_name, tenx?._id, coupon, bonusRedemption);
+            }
+            break;
+        case 'TenX Renewal':
+            if(productId){
+                const tenx = await TenX.findById(productId).select('discounted_price plan_name');
+                await handleSubscriptionRenewal(paymentBy, amount, tenx?.plan_name, tenx?._id, coupon, bonusRedemption);
+            }
+            break;
+        case 'MarginX':
+            if(productId){
+                const marginX = await MarginX.findById(productId).populate('marginXTemplate', 'entryFee');
+                await handleDeductMarginXAmount(paymentBy, amount, marginX?.marginXName, marginX?._id, coupon, bonusRedemption);
+            }
+            break;
+        case 'Battle':
+            if(productId){
+                const battle = await Battle.findById(productId).select('_id');
+                await handleDeductBattleAmount(paymentBy, battle?._id);
+            }
+            break;
+        default:
+            break;
     }
 }

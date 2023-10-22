@@ -4,7 +4,8 @@ const multer = require('multer');
 const aws = require('aws-sdk');
 const {getDraftCareers, getRejectedCareers, getUploadsApplication, createCareer, 
       getCareers, editCareer, getCareer, getCareerApplicantions, 
-      generateOTP, confirmOTP, getSelectedCareerApplicantions, getRejectedApplications, rejectApplication, fetchCareers} = require("../../controllers/career/careerController");
+      generateOTP, confirmOTP, getSelectedCareerApplicantions, getRejectedApplications, 
+      rejectApplication, fetchCareers, applyForCareer} = require("../../controllers/career/careerController");
 const authentication = require("../../authentication/authentication");
 const restrictTo = require('../../authentication/authorization')
 const internBatchRoute = require("./internBatchRoute");
@@ -31,6 +32,7 @@ router.route('/draft').get(getDraftCareers);
 router.route('/reject').get(getRejectedCareers);
 router.route('/generateotp').post(generateOTP);
 router.route('/confirmotp').post(confirmOTP);
+router.route('/apply').post(authentication, applyForCareer);
 router.route('/userDetail').post(upload.array("files"), getUploadsApplication);
 router.route('/create').post(authentication, restrictTo('Admin', 'Super Admin'), createCareer);
 router.route('/reject/:id').patch(authentication, restrictTo('Admin', 'Super Admin'), rejectApplication);

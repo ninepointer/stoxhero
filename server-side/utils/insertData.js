@@ -21,8 +21,8 @@ const saveMissedData = async () => {
         {
             $match: {
                 order_timestamp: {
-                    $gte: new Date("2023-08-08"),
-                    $lt: new Date("2023-08-09"),
+                    $gte: new Date("2023-09-27"),
+                    $lt: new Date("2023-09-28"),
                 },
                 status: "COMPLETE"
             },
@@ -245,8 +245,8 @@ const saveDailyContestMissedData = async () => {
         {
             $match: {
                 order_timestamp: {
-                    $gte: new Date("2023-08-25"),
-                    $lt: new Date("2023-08-26"),
+                    $gte: new Date("2023-09-27"),
+                    $lt: new Date("2023-09-28"),
                 },
                 status: "COMPLETE"
             },

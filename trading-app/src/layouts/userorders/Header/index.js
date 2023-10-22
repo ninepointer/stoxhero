@@ -57,15 +57,15 @@ function Header() {
 
   const [data, setData] = useState([]);
   const getDetails = useContext(userContext);
-  // console.log("getDetails", getDetails)
+  console.log("selected", selectedSubscription, userSubs);
   let todayColor = (view === 'today' ? 'warning' : 'light')
   let historyColor = (view === 'history' ? 'warning' : 'light')
   let todayInfinityColor = (infinityView === 'today' ? 'warning' : 'light')
   let historyInfinityColor = (infinityView === 'history' ? 'warning' : 'light')
   let todayInternshipColor = (internshipView === 'today' ? 'warning' : 'light')
   let historyInternshipColor = (internshipView === 'history' ? 'warning' : 'light')
-  let url1 = (getDetails.userDetails.role.roleName == InfinityTraderRole ) ? 'my/todayorders' : `my/todayorders/${JSON.stringify(selectedSubscription)}`
-  let url2 = (getDetails.userDetails.role.roleName == InfinityTraderRole ) ? 'my/historyorders' : `my/historyorders/${JSON.stringify(selectedSubscription)}/${JSON.stringify(userSubs)}`
+  let url1 = (getDetails.userDetails.role.roleName == InfinityTraderRole ) ? 'my/todayorders' : `my/todayorders/${selectedSubscription?.subscriptionId}`
+  let url2 = (getDetails.userDetails.role.roleName == InfinityTraderRole ) ? 'my/historyorders' : `my/historyorders/${selectedSubscription?.subscriptionId}/${userSubs?.subscribedOn}/${userSubs?.expiredOn}`
   let url = (view === 'today' ? url1 : url2)
   let paperurl1 = 'my/todayorders'
   let paperurl2 = 'my/historyorders';

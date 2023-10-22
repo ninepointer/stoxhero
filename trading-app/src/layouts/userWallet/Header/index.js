@@ -7,6 +7,7 @@ import MDAvatar from '../../../components/MDAvatar';
 import MDButton from '../../../components/MDButton'
 import { Link } from 'react-router-dom'
 import moment from 'moment';
+import ReactGA from "react-ga"
 
 
 import wallet from '../../../assets/images/wallet.png'
@@ -24,6 +25,7 @@ import AddMoney from './addMoneyPopup';
 
 export default function Wallet() {
   let name = 'Prateek Pawan'
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const [photo, setPhoto] = useState(DefaultProfilePic)
   const [myWallet, setMyWallet] = useState([]);
   const [mywithdrawals, setMyWithdrawals] = useState([]);
@@ -34,6 +36,24 @@ export default function Wallet() {
   const[dataWd,setDataWd] = useState([]);
   const perPage =10;
   const perPageWd = 3;
+
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+    capturePageView()
+  }, []);
+  let page = 'Wallet'
+  let pageLink = window.location.pathname
+  async function capturePageView(){
+        await fetch(`${baseUrl}api/v1/pageview/${page}${pageLink}`, {
+        method: "POST",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+    });
+  }
+
   useEffect(()=>{
       const startIndex = (currentPage - 1) * perPage;
       const slicedData = myWallet?.transactions?.slice(startIndex, startIndex + perPage);
@@ -70,7 +90,7 @@ export default function Wallet() {
   const handleOpen = () => {
     setOpen(true);
   };
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  
   const getDetails = useContext(userContext)
 
   useEffect(() => {
@@ -249,9 +269,9 @@ export default function Wallet() {
                 <Grid container spacing={1} mb={1.5} display="flex" justifyContent="space-between" alignItems="center">
                   <Grid item xs={3} md={6} lg={3} ml={1} display="flex" justifyContent="left" alignItems="center">
                     <MDAvatar src={bonus} name={name} size="sm" />
-                    <MDTypography ml={1} color="light" fontSize={15} fontWeight="bold">Bonus</MDTypography>
+                    <MDTypography ml={1} color="light" fontSize={15} fontWeight="bold">HeroCash</MDTypography>
                   </Grid>
-                  <Grid item xs={3} md={6} lg={3} display="flex" justifyContent="center" alignItems="center"><MDTypography color="light" fontSize={15} fontWeight="bold">₹{totalBonusAmount ? totalBonusAmount?.toFixed(2) : 0}</MDTypography></Grid>
+                  <Grid item xs={3} md={6} lg={3} display="flex" justifyContent="center" alignItems="center"><MDTypography color="light" fontSize={15} fontWeight="bold">{totalBonusAmount ? totalBonusAmount?.toFixed(2) : 0}</MDTypography></Grid>
                   <Grid item xs={3} md={6} lg={3} display="flex" justifyContent="center" alignItems="center" mr={1}><MDButton size="small" style={{ width: '95%' }}>Redeem</MDButton></Grid>
                 </Grid>
 

@@ -42,7 +42,10 @@ const battleSchema = new Schema({
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         boughtAt:{type:Date},
         reward: {type: Number},
-        rank: {type: Number}
+        tdsAmount: {type: Number},
+        rank: {type: Number},
+        fee:Number,
+        actualPrice:Number
     }],
     potentialParticipants:[
         {type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
@@ -88,6 +91,11 @@ const battleSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
     },
+    product:{
+        type: Schema.Types.ObjectId,
+        ref: 'product',
+        default: '6517d4623aeb2bb27d650de2'
+    }
 })
 
 const battleData = mongoose.model("battle", battleSchema);
