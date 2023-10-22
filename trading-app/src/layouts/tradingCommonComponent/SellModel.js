@@ -51,6 +51,9 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
     }
     return total; // return the accumulator if the condition is false
   }, 0);
+
+  const type = "SELL";
+
   
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
@@ -479,11 +482,11 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
                 sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
 
               <TextField
-                id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "LIMIT" || checkQuantity <= runningLotsSymbol} label="StopLoss Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
+                id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "LIMIT" || (runningLotsSymbol > 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="StopLoss Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
                 sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
 
               <TextField
-                id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "LIMIT" || checkQuantity <= runningLotsSymbol} label="StopProfit Price" variant="standard" onChange={(e) => { { stopProfit(e) } }}
+                id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "LIMIT" || (runningLotsSymbol > 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="StopProfit Price" variant="standard" onChange={(e) => { { stopProfit(e) } }}
                 sx={{ margin: 1, padding: 1, width: "300px" }} type="number" />
 
             </Box>

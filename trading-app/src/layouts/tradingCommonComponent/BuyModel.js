@@ -457,11 +457,11 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
                   sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
 
                 <TextField
-                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || (type!=="BUY" && checkQuantity <= Math.abs(runningLotsSymbol))} label="StopLoss Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
+                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || (runningLotsSymbol < 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="StopLoss Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
                   sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
                
                 <TextField
-                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || (type!=="BUY" && checkQuantity <= Math.abs(runningLotsSymbol))} label="StopProfit Price" variant="standard" onChange={(e) => { { stopProfit(e) } }}
+                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || (runningLotsSymbol < 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="StopProfit Price" variant="standard" onChange={(e) => { { stopProfit(e) } }}
                   sx={{ margin: 1, padding: 1, width: "300px" }} type="number" />
                   
               </Box>
