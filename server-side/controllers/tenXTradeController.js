@@ -755,7 +755,7 @@ exports.autoExpireTenXSubscription = async () => {
                     user.subscription[k].tdsAmount=0;
                   }
                   // console.log("this is user", user)
-                  // await user.save({session});
+                  await user.save({session, validateBeforeSave:false});
                   break;
                 }
               }
@@ -777,7 +777,7 @@ exports.autoExpireTenXSubscription = async () => {
                     subs.users[k].tdsAmount=0;
                   }
                   // console.log("this is subs", subs)
-                  // await subs.save({session});
+                  await subs.save({session, validateBeforeSave:false});
                   break;
                 }
               }
@@ -794,7 +794,7 @@ exports.autoExpireTenXSubscription = async () => {
                       transactionId: uuid.v4(),
                       transactionType: 'Cash'
                 }];
-                // await wallet.save({session});
+                await wallet.save({session, validateBeforeSave:false});
 
                 if (process.env.PROD == 'true') {
                   sendMail(user?.email, 'Tenx Payout Credited - StoxHero', `

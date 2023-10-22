@@ -511,7 +511,7 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
     if(!subscriptionAmount){
       subscriptionAmount = tenXSubs?.discounted_price;
     }
-    //subscriptionAmount = tenXSubs?.discounted_price;
+    // subscriptionAmount = tenXSubs?.discounted_price;
     const setting = await Setting.find({});
     const wallet = await Wallet.findOne({userId: userId});
     let amount = 0;
