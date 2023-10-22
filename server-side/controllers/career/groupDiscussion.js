@@ -374,7 +374,7 @@ exports.selectCandidate = async (req, res, next) => {
     if(process.env.PROD == 'true'){
       whatsAppService.sendWhatsApp({
           destination : user?.mobile, 
-          campaignName : 'internship_start_campaign', 
+          campaignName : 'intern_batch_start_campaign', 
           userName : user.first_name, 
           source : user.creationProcess, 
           media : {url : mediaURL, filename : mediaFileName}, 
@@ -385,7 +385,7 @@ exports.selectCandidate = async (req, res, next) => {
               batch.batchName, 
               moment.utc(batch?.batchStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
               moment.utc(batch?.batchEndDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
-              moment.utc(gd.gdStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a"), 
+              moment.utc(batch?.orientationDate).utcOffset('+05:30').format("DD-MMM hh:mm a"), 
               gd.meetLink
             ], 
             tags : '', 
@@ -414,7 +414,7 @@ exports.selectCandidate = async (req, res, next) => {
       //   });
       whatsAppService.sendWhatsApp({
         destination : '9319671094', 
-        campaignName : 'internship_start_campaign', 
+        campaignName : 'intern_batch_start_campaign', 
         userName : user.first_name, 
         source : user.creationProcess, 
         media : {url : mediaURL, filename : mediaFileName}, 
@@ -425,7 +425,7 @@ exports.selectCandidate = async (req, res, next) => {
             batch.batchName, 
             moment.utc(batch?.batchStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
             moment.utc(batch?.batchEndDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
-            moment.utc(gd.gdStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
+            moment.utc(batch?.orientationDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
             gd.meetLink
           ], 
           tags : '', 
