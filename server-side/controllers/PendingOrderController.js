@@ -197,6 +197,7 @@ exports.cancelOrder = async (req, res, next) => {
 
     data = await client.get('stoploss-stopprofit');
     data = JSON.parse(data);
+    console.log(data)
     let symbolArr = data[`${updatedOrder.instrumentToken}`];
     for(let i = 0; i < symbolArr.length; i++){
         if(symbolArr[i]._id.toString() === id.toString() && 
@@ -213,6 +214,7 @@ exports.cancelOrder = async (req, res, next) => {
 
     return res.status(200).json({status: "Success", data: updatedOrder});
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ error: error.message });
   }
 };

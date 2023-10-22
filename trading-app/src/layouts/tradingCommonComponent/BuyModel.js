@@ -42,6 +42,8 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
     return total; // return the accumulator if the condition is false
   }, 0);
 
+  const type = "BUY";
+
   console.log(runningLotsSymbol)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const {render, setRender} = useContext(renderContext);
@@ -455,11 +457,11 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
                   sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
 
                 <TextField
-                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || checkQuantity <= Math.abs(runningLotsSymbol)} label="StopLoss Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
+                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || (type!=="BUY" && checkQuantity <= Math.abs(runningLotsSymbol))} label="StopLoss Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
                   sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
                
                 <TextField
-                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || checkQuantity <= Math.abs(runningLotsSymbol)} label="StopProfit Price" variant="standard" onChange={(e) => { { stopProfit(e) } }}
+                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || (type!=="BUY" && checkQuantity <= Math.abs(runningLotsSymbol))} label="StopProfit Price" variant="standard" onChange={(e) => { { stopProfit(e) } }}
                   sx={{ margin: 1, padding: 1, width: "300px" }} type="number" />
                   
               </Box>
