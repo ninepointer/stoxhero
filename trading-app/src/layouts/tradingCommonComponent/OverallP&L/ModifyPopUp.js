@@ -33,7 +33,7 @@ import { userContext } from '../../../AuthContext';
 import { apiUrl } from '../../../constants/constants';
 import MDSnackbar from '../../../components/MDSnackbar';
 
-function ModifyPopUp({data, id}) {
+function ModifyPopUp({data, id, handleCloseMenu, setMsg}) {
 
     const lots=data?.Quantity?.props?.children;
     const symbolName=data?.symbol?.props?.children;
@@ -52,12 +52,7 @@ function ModifyPopUp({data, id}) {
     const {render, setRender} = useContext(renderContext);
     const getDetails = React.useContext(userContext);
     const tradeSound = getDetails.tradeSound;
-    const [messageObj, setMessageObj] = useState({
-      color: '',
-      icon: '',
-      title: '',
-      content: ''
-    })
+
     const [modifyData, setModifyData] = useState({
       Quantity: 0,
       stopLossPrice: "",
@@ -151,16 +146,25 @@ function ModifyPopUp({data, id}) {
     });
     const dataResp = await res.json();
     if (dataResp.status === 422 || dataResp.error || !dataResp) {
-      openSuccessSB('error', dataResp.error)
+      setMsg(prev => ({...prev, error: dataResp.error}))
+      // openSuccessSB('error', dataResp.error)
     } else {
       tradeSound.play();
-      openSuccessSB(dataResp.status, dataResp.message)
+      setMsg(prev => ({...prev, success: dataResp.message}))
+      // openSuccessSB(dataResp.status, dataResp.message)
     }
     setModifyData({});
     render ? setRender(false) : setRender(true)
     handleClose();
+    handleCloseMenu();
   }
     
+  const [messageObj, setMessageObj] = useState({
+    color: '',
+    icon: '',
+    title: '',
+    content: ''
+  })
   const [successSB, setSuccessSB] = useState(false);
 
   const openSuccessSB = (value,content) => {
@@ -208,8 +212,8 @@ function ModifyPopUp({data, id}) {
           onClose={handleClose}
           aria-labelledby="responsive-dialog-title">
           <DialogTitle id="responsive-dialog-title" sx={{ textAlign: 'center', display: "flex", justifyContent: "space-between" }}>
-            <Box >
-              &nbsp; &nbsp; &nbsp; &nbsp;
+          <Box sx={{color: "#FFFFFF", backgroundColor: "#FB8C00", fontWeight: 600, borderRadius: "5px", fontSize: "11px", textAlign: "center", padding: "2px", paddingTop: "7px" }}>
+              {index}
             </Box>
 
             <Box sx={{fontSize: "17px"}} >
@@ -217,7 +221,7 @@ function ModifyPopUp({data, id}) {
             </Box>
 
             <Box sx={{color: "#FFFFFF", backgroundColor: "#FB8C00", fontWeight: 600, borderRadius: "5px", fontSize: "11px", textAlign: "center", padding: "2px", paddingTop: "7px" }}>
-              {index}
+              {type}
             </Box>
           </DialogTitle>
           <DialogContent>

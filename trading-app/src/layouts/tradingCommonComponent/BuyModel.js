@@ -26,12 +26,23 @@ import FormLabel from '@mui/material/FormLabel';
 import { Box, Typography } from '@mui/material';
 import { renderContext } from "../../renderContext";
 import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader, marginX, battle } from "../../variables";
+import { NetPnlContext } from "../../PnlContext";
 
 
 const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, module}) => {
 
   const newLtp = ltp;
-  // ltp?.include("₹") ? parseFloat(ltp?.slice(1)) : ltp;
+  const { pnlData } = useContext(NetPnlContext);
+  // console.log("pnlData", pnlData)
+  // let runningLotsSymbol = 0;
+  const runningLotsSymbol = pnlData.reduce((total, acc) => {
+    if (acc?._id?.symbol === symbol) {
+      return total + acc.lots;
+    }
+    return total; // return the accumulator if the condition is false
+  }, 0);
+
+  console.log(runningLotsSymbol)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const {render, setRender} = useContext(renderContext);
   const getDetails = React.useContext(userContext);
@@ -374,6 +385,12 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
     />
   );
 
+  const [checkQuantity, setChaeckQuantity] = useState();
+    function handleQuantity(e){
+      buyFormDetails.Quantity = e.target.value;
+      setChaeckQuantity(e.target.value);
+    }
+
   return (
     <div>
 
@@ -414,7 +431,9 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
                     labelId="demo-simple-select-standard-label"
                     id="demo-simple-select-standard"
                     label="Quantity"
-                    onChange={(e) => { { buyFormDetails.Quantity = (e.target.value) } }}
+                    // { buyFormDetails.Quantity = (e.target.value) }
+                    // setBuyFormDetails(prev => ({...prev, Quantity: e.target.value}))
+                    onChange={(e) => { handleQuantity(e) }}
                     sx={{ margin: 1, padding: 0.5, }}
                   >
                     {/* <MenuItem value="100">100</MenuItem>
@@ -436,11 +455,11 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
                   sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
 
                 <TextField
-                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT"} label="StopLoss Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
+                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || checkQuantity <= Math.abs(runningLotsSymbol)} label="StopLoss Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
                   sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
                
                 <TextField
-                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT"} label="StopProfit Price" variant="standard" onChange={(e) => { { stopProfit(e) } }}
+                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || checkQuantity <= Math.abs(runningLotsSymbol)} label="StopProfit Price" variant="standard" onChange={(e) => { { stopProfit(e) } }}
                   sx={{ margin: 1, padding: 1, width: "300px" }} type="number" />
                   
               </Box>

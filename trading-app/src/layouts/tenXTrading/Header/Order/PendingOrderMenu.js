@@ -10,9 +10,9 @@ import { apiUrl } from '../../../../constants/constants';
 import EditPriceModal from './editPriceModal';
 
 
-export default function AccountMenu({id, setUpdate}) {
+export default function AccountMenu({id, setUpdate, lots, symbol, type, buyOrSell, ltp}) {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [openEditModal, setOpenEditModal] = useState(false);
+  // const [openEditModal, setOpenEditModal] = useState(false);
   const open = Boolean(anchorEl);
 
   const handleClick = (event) => {
@@ -49,25 +49,25 @@ export default function AccountMenu({id, setUpdate}) {
   return (
     <React.Fragment>
       <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
-        <Tooltip title="Account settings">
+        {/* <Tooltip title="Account settings"> */}
           <IconButton
             onClick={handleClick}
             size="small"
-            sx={{ ml: 2 }}
+            sx={{ ml: 3 }}
             aria-controls={open ? 'account-menu' : undefined}
             aria-haspopup="true"
             aria-expanded={open ? 'true' : undefined}
           >
-            <MoreVertTwoToneIcon />
+            <MoreVertTwoToneIcon  />
           </IconButton>
-        </Tooltip>
+        {/* </Tooltip> */}
       </Box>
       <Menu
         anchorEl={anchorEl}
         id="account-menu"
         open={open}
         onClose={handleClose}
-        onClick={handleClose}
+        // onClick={handleClose}
         PaperProps={{
           elevation: 0,
           sx: {
@@ -101,7 +101,7 @@ export default function AccountMenu({id, setUpdate}) {
           <HighlightOffIcon sx={{ mr: 2 }} /> Cancel Order
         </MenuItem>
         <MenuItem>
-          <EditPriceModal id={id} />
+          <EditPriceModal id={id} lots={lots} symbol={symbol} type={type} buyOrSell={buyOrSell} ltp={ltp} />
         </MenuItem>
       </Menu>
       {/* <EditPriceModal openEditModal = {openEditModal} setOpenEditModal={setOpenEditModal}/> */}

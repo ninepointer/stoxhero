@@ -15,6 +15,7 @@ import { apiUrl } from "../../../../constants/constants";
 import { RiStockFill } from "react-icons/ri";
 import OrderHelper from "../Order/PendingOrderHelper";
 import { userContext } from "../../../../AuthContext";
+import { marketDataContext } from "../../../../MarketDataContext";
 // import { Grid } from "@mui/material";
 // import { useLocation, Link } from "react-router-dom";
 
@@ -36,7 +37,7 @@ function PendingOrders({ subscriptionId, socket, setUpdatePendingOrder, updatePe
     const [isLoading, setIsLoading] = useState(true);
 
     const [data, setData] = useState([]);
-    // const getDetails = useContext(userContext);
+    const marketDetails = useContext(marketDataContext)
     const { render } = useContext(renderContext);
     const [trackEvent, setTrackEvent] = useState({});
     const getDetails = useContext(userContext);
@@ -134,6 +135,16 @@ function PendingOrders({ subscriptionId, socket, setUpdatePendingOrder, updatePe
 
         let orderObj = {}
 
+        let liveDetail = marketDetails.marketData.filter((subelem) => {
+            return (elem?.instrumentToken == subelem?.instrument_token) || (elem?.exchangeInstrumentToken == subelem?.instrument_token)
+        })
+
+        orderObj.last_price = (
+            <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+              {"₹" + (liveDetail[0]?.last_price)?.toFixed(2)}
+            </MDTypography>
+        );
+
         orderObj.symbol = (
             <MDTypography variant="caption" color={"text"} fontWeight="medium">
                 {elem?.symbol}
@@ -180,7 +191,7 @@ function PendingOrders({ subscriptionId, socket, setUpdatePendingOrder, updatePe
 
         orderObj.time = (
             <MDTypography component="a" href="#" variant="caption" color={"text"} fontWeight="medium">
-                {moment.utc(elem?.time).utcOffset('+05:00').format('DD-MMM HH:mm:ss')}
+                {moment.utc(elem?.time).utcOffset('+05:30').format('DD-MMM HH:mm:ss')}
             </MDTypography>
         );
         orderArr.push(orderObj)
@@ -223,7 +234,7 @@ function PendingOrders({ subscriptionId, socket, setUpdatePendingOrder, updatePe
                                             <td style={styleTD}>SYMBOL</td>
                                             <td style={styleTD} >QUANTITY</td>
                                             <td style={styleTD} >SL/SP PRICE</td>
-                                            <td style={styleTD} >AMOUNT</td>
+                                            <td style={styleTD} >LTP</td>
                                             <td style={styleTD} >STOP TYPE</td>
                                             <td style={styleTD} >TYPE</td>
                                             <td style={styleTD} >STATUS</td>
@@ -249,6 +260,7 @@ function PendingOrders({ subscriptionId, socket, setUpdatePendingOrder, updatePe
                                                         type={elem.type.props.children}
                                                         id={elem._id.props.children}
                                                         setUpdatePendingOrder={setUpdatePendingOrder}
+                                                        ltp={elem.last_price.props.children}
                                                     />
                                                 </tr>
                                             )

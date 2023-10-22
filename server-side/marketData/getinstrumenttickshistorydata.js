@@ -1,17 +1,8 @@
 const axios = require("axios")
 const InstrumentTicksDataSchema = require("../models/InstrumentHistoricalData/InstrumentHistoricalData");
 const express = require("express");
-const router = express.Router();
-const ActiveInstruments = require("../models/Instruments/instrumentSchema");
 const HistoryData = require("../models/InstrumentHistoricalData/InstrumentHistoricalData");
 const getKiteCred = require('../marketData/getKiteCred'); 
-const nodemailer = require('nodemailer');
-const dailyPnlDataController = require("../controllers/dailyPnlDataController")
-const traderwiseDailyPnlController = require("../controllers/traderwiseDailyPnlController")
-const DailyPNLData = require("../models/InstrumentHistoricalData/DailyPnlDataSchema")
-const TraderDailyPnlData = require("../models/InstrumentHistoricalData/TraderDailyPnlDataSchema");
-const dbBackup = require("../Backup/mongoDbBackUp")
-const RetreiveOrder = require("../controllers/retreiveOrder")
 const MockTradeDetails = require("../models/mock-trade/infinityTradeCompany");
 const sendMail = require('../utils/emailService');
 
@@ -113,28 +104,6 @@ const getInstrumentTicksHistoryData = async () => {
 };
 
 function mailSender(length){
-  // let transporter = nodemailer.createTransport({
-  //   service: 'gmail',
-  //   auth: {
-  //           user: 'vvv201214@gmail.com',   //put your mail here
-  //           pass: process.env.PASSWORD              //password here
-  //         }
-  // });
-  
-  // const mailOptions = { 
-  //               from: 'team@stoxhero.com',       // sender address
-  //               to: 'vvv201214@gmail.com, prateek@ninepointer.com',        // reciever address 
-  //               subject: `History Data cronjob records inserted : ${length}`,  
-  //               html: '<p>CronJob is done for history data, please check database</p>'// plain text body
-  // };
-
-  // transporter.sendMail(mailOptions, function (err, info) {
-  //   if(err) 
-  //     console.log("err in sending mail");
-  //   else
-  //     console.log("mail sent");
-  // });
-
   sendMail("vvv201214@gmail.com", 'History Data - StoxHero', `
   <!DOCTYPE html>
   <html>

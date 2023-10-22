@@ -6,11 +6,16 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import ModifyPopUp from './ModifyPopUp';
+import MDSnackbar from '../../../components/MDSnackbar';
 
 
 
 export default function PnlMenu({id, data}) {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [msg, setMsg] = useState({
+    error: "",
+    success: ""
+  })
   const open = Boolean(anchorEl);
 
   const handleClick = (event) => {
@@ -21,44 +26,71 @@ export default function PnlMenu({id, data}) {
     setAnchorEl(null);
   };
 
-//   const cancelOrder = async () => {
-//     const res = await fetch(`${apiUrl}pendingorder/${id}`, {
-//         method: "PATCH",
-//         credentials: "include",
-//         headers: {
-//             "Accept": "application/json",
-//             "content-type": "application/json"
-//         },
-//         // body: JSON.stringify({
-//         //     marginDeduction
-//         // })
-//     });
-//     const dataResp = await res.json();
-//     if (dataResp.status === 500 || dataResp.error || !dataResp) {
+  const [messageObj, setMessageObj] = useState({
+    color: '',
+    icon: '',
+    title: '',
+    content: ''
+  })
+  const [successSB, setSuccessSB] = useState(false);
 
-//     } else {
-//         const data = dataResp.data;
-//         setUpdate(data);
-//     }
+  const openSuccessSB = (value,content) => {
+    if(value === "Success"){
+        messageObj.color = 'success'
+        messageObj.icon = 'check'
+        messageObj.title = "Successful";
+        messageObj.content = content;
+        setSuccessSB(true);
+    };
+    if(value === "error"){
+      messageObj.color = 'error'
+      messageObj.icon = 'error'
+      messageObj.title = "Error";
+      messageObj.content = content;
+    };
 
-//     handleClose();
-//   }
+    setMessageObj(messageObj);
+    setSuccessSB(true);
+  }
 
+
+  const closeSuccessSB = () => setSuccessSB(false);
+  const renderSuccessSB = (
+    <MDSnackbar
+      color= {messageObj.color}
+      icon= {messageObj.icon}
+      title={messageObj.title}
+      content={messageObj.content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite="info"
+      sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto"}}
+    />
+  );
+
+  if(msg.error){
+    openSuccessSB("error", msg.error);
+    setMsg({});
+  } else if(msg.success){
+    openSuccessSB("Success", msg.success);
+    setMsg({});
+  }
   return (
     <React.Fragment>
       <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
-        <Tooltip title="Account settings">
+        {/* <Tooltip title="Account settings"> */}
           <IconButton
             onClick={handleClick}
             size="small"
-            sx={{ ml: 2 }}
+            sx={{ ml: 3 }}
             aria-controls={open ? 'account-menu' : undefined}
             aria-haspopup="true"
             aria-expanded={open ? 'true' : undefined}
           >
             <MoreVertTwoToneIcon />
           </IconButton>
-        </Tooltip>
+        {/* </Tooltip> */}
       </Box>
       <Menu
         anchorEl={anchorEl}
@@ -96,10 +128,10 @@ export default function PnlMenu({id, data}) {
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         <MenuItem  >
-          {/* <EditIcon sx={{ mr: 2 }} /> Modify Order */}
-          <ModifyPopUp data={data} id={id}/>
+          <ModifyPopUp data={data} id={id} handleCloseMenu={handleClose} setMsg={setMsg}/>
         </MenuItem>
       </Menu>
+      {renderSuccessSB}
     </React.Fragment>
   );
 }

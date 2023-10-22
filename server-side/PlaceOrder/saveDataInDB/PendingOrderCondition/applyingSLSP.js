@@ -13,7 +13,6 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
         exchangeInstrumentToken, validity, variety, order_id, instrumentToken, last_price,
         stopProfitPrice, stopLossPrice, createdBy, order_type, deviceDetails, id } = req.body ? req.body : req 
 
-        console.log("in slsps", stopProfitPrice , stopLossPrice, req.body)
     last_price = last_price?.includes("₹") && last_price?.slice(1);
     id = id ? id : subscriptionId;
     if(Object.keys(otherData).length > 0){
@@ -57,7 +56,6 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
 
     let order = [];
 
-    console.log("pendingOrder", pendingOrder.length)
     if(session){
         order = await PendingOrder.create(pendingOrder, { session });
     } else{
@@ -67,7 +65,6 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
     let dataObj = {};
     let dataArr = [];
 
-    console.log("order", order.length)
 
     for (let elem of order) {
       dataArr.push({
@@ -77,18 +74,14 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
         instrumentToken: elem?.instrumentToken, exchangeInstrumentToken: elem?.exchangeInstrumentToken,
         last_price: elem?.last_price, createdBy: elem?.createdBy, type: elem?.type, sub_product_id: id, order_id, _id: elem?._id
       })
-      console.log("in for loop")
     }
 
     dataObj[`${instrumentToken}`] = dataArr;
 
-    console.log("dataObj", dataObj)
-    console.log("orders data", await PendingOrder.find({status: "Pending"}))
     if (isRedisConnected && (!await client.exists('stoploss-stopprofit') || !JSON.parse(await client.get('stoploss-stopprofit')) )) {
       const neworder = await PendingOrder.find({status: "Pending"});
       const transformedObject = {};
 
-      console.log("neworder", neworder.length)
 
       neworder.forEach(item => {
         let flag = true;
@@ -110,28 +103,23 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
         }
       });
 
-      console.log("transformedObject", transformedObject)
+      console.log(transformedObject)
       pendingOrderRedis = await client.set('stoploss-stopprofit', JSON.stringify(transformedObject));
     }
     
-    console.log("check dta", await client.get('stoploss-stopprofit') );
     if (isRedisConnected && await client.exists('stoploss-stopprofit')) {
       data = await client.get('stoploss-stopprofit');
       data = JSON.parse(data);
-      console.log("data", data)
       if (data && data[`${instrumentToken}`]) {
         data[`${instrumentToken}`] = data[`${instrumentToken}`].concat(dataArr);
       } else {
         data[`${instrumentToken}`] = dataArr;
       }
-      console.log("dataObj", data)
       pendingOrderRedis = await client.set('stoploss-stopprofit', JSON.stringify(data));
     } else {
-      console.log("dataObj", dataObj)
       pendingOrderRedis = await client.set('stoploss-stopprofit', JSON.stringify(dataObj));
     }
 
-    console.log("pendingOrderRedis", pendingOrderRedis)
     return pendingOrderRedis;
 
   } catch(err){
