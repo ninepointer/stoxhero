@@ -107,6 +107,8 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
         if (data && data[`${doc.instrumentToken}`]) {
             let symbolArray = data[`${doc.instrumentToken}`];
 
+            await processOrder(symbolArray, newQuantity)
+
             /*
             550 and ltp is 10 = 300
 
@@ -155,5 +157,64 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
         }
 
         return 0;
+    }
+}
+
+async function processOrder(symbolArr, quantity) {
+    // Adjust the pending orders
+    adjustPendingOrders(symbolArr, quantity, 'stoploss', 'desc');
+    adjustPendingOrders(symbolArr, quantity, 'stopprofit', 'asc');
+}
+
+async function adjustPendingOrders(symbolArr, quantity, stopOrderType, sortOrder) {
+
+    if (symbolArr) {
+        symbolArr = JSON.parse(symbolArr);
+
+        // Sort the stop orders based on sortOrder
+        if (sortOrder === 'desc') {
+            symbolArr.sort((a, b) => b.price - a.price);
+        } else {
+            symbolArr.sort((a, b) => a.price - b.price);
+        }
+
+        for (let i = 0; i < symbolArr.length && quantity > 0; i++) {
+            if (symbolArr[i].orderType === stopOrderType) {
+                if (quantity >= symbolArr[i].quantity) {
+                    quantity -= symbolArr[i].quantity;
+
+                    // Update the status of the pending order in the database to 'cancelled'
+                    await PendingOrder.findOneAndUpdate({
+                        userId,
+                        instrument,
+                        orderType: stopOrderType,
+                        price: symbolArr[i].price
+                    }, {
+                        status: 'cancelled'
+                    });
+
+                    // Remove from Redis array
+                    symbolArr.splice(i, 1);
+                    i--; // Adjust index due to array modification
+                } else {
+                    symbolArr[i].quantity -= quantity;
+
+                    // Update the quantity of the pending order in the database
+                    await PendingOrder.findOneAndUpdate({
+                        userId,
+                        instrument,
+                        orderType: stopOrderType,
+                        price: symbolArr[i].price
+                    }, {
+                        quantity: symbolArr[i].quantity
+                    });
+
+                    quantity = 0;
+                }
+            }
+        }
+
+        // Update Redis
+        await redisClient.set(key, JSON.stringify(symbolArr));
     }
 }
