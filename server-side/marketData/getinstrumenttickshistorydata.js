@@ -8,99 +8,108 @@ const sendMail = require('../utils/emailService');
 
 
 const getInstrumentTicksHistoryData = async () => {
-  getKiteCred.getAccess().then(async (data)=>{
-    console.log("in ticks")
-    let date = new Date();
-    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    let todayDate1 = todayDate + "T00:00:00.000Z";
-    const matchingDate = new Date(todayDate1);
-
-    let instrumentDetail = await MockTradeDetails.aggregate([
-      {
-        $match: {
-                trade_time:{
-                    $gte: matchingDate
-                },
-          status: "COMPLETE",
-        },
-      },
-      {
-        $group: {
-          _id: {
-            symbol: "$symbol",
-            instrumentToken: "$instrumentToken",
-            exchangeInstrumentToken: "$exchangeInstrumentToken",
+  return new Promise(async (resolve, reject) => { 
+    try{
+      const data = await getKiteCred.getAccess();
+      console.log("in ticks")
+      let date = new Date();
+      let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+      let todayDate1 = todayDate + "T00:00:00.000Z";
+      const matchingDate = new Date(todayDate1);
+  
+      let instrumentDetail = await MockTradeDetails.aggregate([
+        {
+          $match: {
+                  trade_time:{
+                      $gte: matchingDate
+                  },
+            status: "COMPLETE",
           },
+        },
+        {
+          $group: {
+            _id: {
+              symbol: "$symbol",
+              instrumentToken: "$instrumentToken",
+              exchangeInstrumentToken: "$exchangeInstrumentToken",
+            },
+            
+          },
+        },
+        
+      ])
+  
+      for(let i = 0; i < instrumentDetail.length; i++){
+        let {instrumentToken, symbol} = instrumentDetail[i]._id;
+  
+        const historyData = await HistoryData.find({instrumentToken: instrumentToken, timestamp: {$regex:todayDate}})
+        console.log("above if")
+        if(historyData.length === 0){
+          console.log("in if")
+          const api_key = data.getApiKey;
+          const access_token = data.getAccessToken;
+          let auth = 'token' + api_key + ':' + access_token;
+  
           
-        },
-      },
+          const url = `https://api.kite.trade/instruments/historical/${instrumentToken}/minute?from=${todayDate}+09:15:00&to=${todayDate}+15:30:00`;
+          
       
-    ])
-
-    for(let i = 0; i < instrumentDetail.length; i++){
-      let {instrumentToken, symbol} = instrumentDetail[i]._id;
-
-      const historyData = await HistoryData.find({instrumentToken: instrumentToken, timestamp: {$regex:todayDate}})
-      console.log("above if")
-      if(historyData.length === 0){
-        console.log("in if")
-        const api_key = data.getApiKey;
-        const access_token = data.getAccessToken;
-        let auth = 'token' + api_key + ':' + access_token;
-
-        
-        const url = `https://api.kite.trade/instruments/historical/${instrumentToken}/minute?from=${todayDate}+09:15:00&to=${todayDate}+15:30:00`;
-        
-    
-        let authOptions = {
-          headers: {
-            'X-Kite-Version': '3',
-            Authorization: auth,
-          },
-        };
-    
-
-        try{
-          const response = await axios.get(url, authOptions);
-          const instrumentticks = (response.data).data;
-          console.log("instrumentticks", instrumentticks, response)
-          let len = instrumentticks.candles.length;
-          let instrumentticksdata;
-          for(let j = len-1; j >= 0; j--){
-            instrumentticksdata = JSON.parse(JSON.stringify(instrumentticks.candles[j]));
-    
-            let [timestamp, open, high, low, close, volume] = instrumentticksdata
-            let runtime = new Date()
-            let createdOn = `${String(runtime.getDate()).padStart(2, '0')}-${String(runtime.getMonth() + 1).padStart(2, '0')}-${(runtime.getFullYear())}`;
-                
-            const instrumentticks_data = (new InstrumentTicksDataSchema({timestamp, symbol, instrumentToken, open, high, low, close, volume, createdOn }))
-            console.log("above instrumentticks_data")
-            await instrumentticks_data.save()
-            .then(()=>{
-              console.log("saving", symbol, open, instrumentticks_data)
-            }).catch((err)=> {
-              console.log(err)
-                  mailSender("Fail to enter data")
-              // res.status(500).json({error:"Failed to enter data"});
-            })
+          let authOptions = {
+            headers: {
+              'X-Kite-Version': '3',
+              Authorization: auth,
+            },
+          };
+      
+  
+          try{
+            const response = await axios.get(url, authOptions);
+            const instrumentticks = (response.data).data;
+            console.log("instrumentticks", instrumentticks, response)
+            let len = instrumentticks.candles.length;
+            let instrumentticksdata;
+            for(let j = len-1; j >= 0; j--){
+              instrumentticksdata = JSON.parse(JSON.stringify(instrumentticks.candles[j]));
+      
+              let [timestamp, open, high, low, close, volume] = instrumentticksdata
+              let runtime = new Date()
+              let createdOn = `${String(runtime.getDate()).padStart(2, '0')}-${String(runtime.getMonth() + 1).padStart(2, '0')}-${(runtime.getFullYear())}`;
+                  
+              const instrumentticks_data = (new InstrumentTicksDataSchema({timestamp, symbol, instrumentToken, open, high, low, close, volume, createdOn }))
+              console.log("above instrumentticks_data")
+              await instrumentticks_data.save()
+              .then(()=>{
+                console.log("saving", symbol, open, instrumentticks_data)
+              }).catch((err)=> {
+                console.log(err)
+                    mailSender("Fail to enter data")
+                // res.status(500).json({error:"Failed to enter data"});
+              })
+            }
+  
+          } catch (err){
+            console.log(err)
+              return new Error(err);
           }
-
-        } catch (err){
-          console.log(err)
-            return new Error(err);
+      
+        } else{
+  
+          const historyDataforLen = await HistoryData.find({timestamp: {$regex:todayDate}})
+  
+          let length = historyDataforLen.length;
+          let message = length + " data already present"
+          mailSender(message)
         }
     
-      } else{
+      } 
+      resolve();
+    } catch(err){
+      console.log("in err history", err)
+      reject(err);
+    }
 
-        const historyDataforLen = await HistoryData.find({timestamp: {$regex:todayDate}})
-
-        let length = historyDataforLen.length;
-        let message = length + " data already present"
-        mailSender(message)
-      }
-  
-    } 
   });
+
 };
 
 function mailSender(length){
