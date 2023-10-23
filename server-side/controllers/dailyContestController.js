@@ -1437,14 +1437,20 @@ exports.creditAmountToWallet = async () => {
                                     $toDouble: "$brokerage",
                                 },
                             },
+                            trades: {
+                              $count: {},
+                            }
                         },
                     },
                     {
                         $project:
                         {
-                            npnl: {
-                                $subtract: ["$amount", "$brokerage"],
-                            },
+                          npnl: {
+                              $subtract: ["$amount", "$brokerage"],
+                          },
+                          gpnl: "$amount",
+                          brokerage: "$brokerage",
+                          trades: 1
                         },
                     },
                 ])
@@ -1479,6 +1485,10 @@ exports.creditAmountToWallet = async () => {
                     const user = await User.findById(userId).select('first_name last_name email')
 
                     contest[j].participants[i].payout = payoutAmount?.toFixed(2);
+                    contest[j].participants[i].npnl = pnlDetails[0]?.npnl;
+                    contest[j].participants[i].gpnl = pnlDetails[0]?.gpnl;
+                    contest[j].participants[i].trades = pnlDetails[0]?.trades;
+                    contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
                     contest[j].participants[i].tdsAmount = payoutAmountWithoutTDS-fee>0?((payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
                     if (process.env.PROD == 'true') {
                         emailService(user?.email, 'Contest Payout Credited - StoxHero', `
@@ -1578,6 +1588,11 @@ exports.creditAmountToWallet = async () => {
                         createdBy:'63ecbc570302e7cf0153370c',
                         lastModifiedBy:'63ecbc570302e7cf0153370c'  
                       });
+                } else{
+                  contest[j].participants[i].npnl = pnlDetails[0]?.npnl;
+                  contest[j].participants[i].gpnl = pnlDetails[0]?.gpnl;
+                  contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
+                  contest[j].participants[i].trades = pnlDetails[0]?.trades;
                 }
 
             }
