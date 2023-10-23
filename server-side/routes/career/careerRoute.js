@@ -32,7 +32,7 @@ router.route('/draft').get(getDraftCareers);
 router.route('/reject').get(getRejectedCareers);
 router.route('/generateotp').post(generateOTP);
 router.route('/confirmotp').post(confirmOTP);
-router.route('/apply').post(applyForCareer);
+router.route('/apply').post(authentication, applyForCareer);
 router.route('/userDetail').post(upload.array("files"), getUploadsApplication);
 router.route('/create').post(authentication, restrictTo('Admin', 'Super Admin'), createCareer);
 router.route('/reject/:id').patch(authentication, restrictTo('Admin', 'Super Admin'), rejectApplication);
