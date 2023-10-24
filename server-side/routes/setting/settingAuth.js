@@ -8,6 +8,7 @@ const {ObjectId} = require('mongodb');
 const Contest = require('../../models/DailyContest/dailyContest');
 const Wallet = require('../../models/UserWallet/userWalletSchema');
 const Notification = require('../../models/notifications/notification');
+const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema");
 
 
 router.get("/leaderboardSetting", Authentication, async (req, res)=>{
@@ -310,6 +311,24 @@ router.get("/deletenotifs", async (req, res)=>{
     res.status(500).send("Internal Server Error");
 }
 })    
+
+exports.cancelPendingOrders = async(req,res,next) => {
+    const today = new Date().setHours(0,0,0,0);
+    try{
+        const updates = await PendingOrder.updateMany(
+            {
+                status:'Pending', createdOn:{$gte: new Date(today)}
+            },{
+                    $set: {
+                        status: "Cancelled"
+                    }
+            }
+        )
+    }catch(e){
+        console.log(e);
+    }
+}
+
 
 module.exports = router;
 
