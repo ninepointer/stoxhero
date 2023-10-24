@@ -175,7 +175,6 @@ exports.getDraftCouponCodes = async (req, res) => {
         res.status(200).json({
             status: 'success',
             data: draftCoupons,
-            metrics,
             count: draftCoupons.length
         });
     } catch (error) {
@@ -205,7 +204,6 @@ exports.getExpiredCouponCodes = async (req, res) => {
         res.status(200).json({
             status: 'success',
             data: expiredCoupons,
-            metrics,
             count: expiredCoupons.length
         });
     } catch (error) {
