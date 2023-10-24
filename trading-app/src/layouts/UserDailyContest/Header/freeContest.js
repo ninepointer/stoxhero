@@ -209,7 +209,7 @@ function Header({toggleContest, setToggleContest, contest, socket, setIsInterest
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                                 <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Reward</MDTypography></MDBox>
-                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "dark" }}>{elem?.payoutPercentage}% of the net P&L{elem?.payoutCapPercentage?`(upto ₹${elem?.portfolio?.portfolioValue * (elem?.payoutCapPercentage??10)/100})`:''}</MDTypography></MDBox>
+                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "dark" }}>{elem?.payoutPercentage}% of the net P&L{elem?.payoutCapPercentage?`(upto ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue * (elem?.payoutCapPercentage??10)/100)})`:''}</MDTypography></MDBox>
                                                             </MDBox>
                                                         </MDBox>
                                                     </Grid>
