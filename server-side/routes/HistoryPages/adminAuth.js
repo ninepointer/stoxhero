@@ -79,6 +79,7 @@ const Holiday = require("../../models/TradingHolidays/tradingHolidays");
 const Career = require("../../models/Careers/careerSchema");
 const mongoose = require('mongoose');
 const moment = require("moment")
+const {mail} = require("../../controllers/dailyReportMail")
 // [
 //   {
 //     $unwind:
@@ -2311,6 +2312,10 @@ router.get("/cronjob", async (req, res) => {
   await cronjob();
   // }
 
+})
+
+router.get("/mail", async (req, res) => {
+  await mail();
 })
 
 router.get("/dbbackup", async (req, res) => {

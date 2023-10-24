@@ -40,6 +40,7 @@ const xssClean = require("xss-clean");
 const hpp = require("hpp")
 const { processBattles } = require("./controllers/battles/battleController")
 const Product = require('./models/Product/product');
+const {mail} = require("./controllers/dailyReportMail")
 
 async function singleProcess() {
     await setIOValue()
@@ -271,9 +272,9 @@ async function singleProcess() {
                 subscribeTokens();
             });
         }
-        const autoExpire = nodeCron.schedule(`0 30 13 * * *`, autoExpireTenXSubscription);
-        const internshipPayout = nodeCron.schedule(`0 30 13 * * *`, updateUserWallet);
-
+        const autoExpire = nodeCron.schedule(`0 30 10 * * *`, autoExpireTenXSubscription);
+        const internshipPayout = nodeCron.schedule(`0 30 17 * * *`, updateUserWallet);
+        const reportMail = nodeCron.schedule(`0 0 18 * * *`, mail);
     }
     const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
     // const battle = nodeCron.schedule(`56 5 * * *`, processBattles);

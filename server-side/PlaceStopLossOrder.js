@@ -19,7 +19,7 @@ exports.tenxTradeStopLoss = async () => {
     const today = new Date(todayDate);
     const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
-    const setting = await Setting.find().select('toggle');
+    const setting = await getSetting();
     let accountType;
     if (setting.ltp == xtsAccountType || setting.complete == xtsAccountType) {
         accountType = xtsAccountType;
@@ -27,42 +27,11 @@ exports.tenxTradeStopLoss = async () => {
         accountType = zerodhaAccountType;
     }
     let isRedisConnected = getValue();
-    let brokerageDetailBuy;
-    let brokerageDetailSell;
-    let brokerageDetailBuyUser;
-    let brokerageDetailSellUser;
+    // let brokerageDetailBuy = await buyBrokerageCompany(accountType, isRedisConnected);
+    // let brokerageDetailSell = await sellBrokerageCompany(accountType, isRedisConnected);
+    let brokerageDetailBuyUser = await buyBrokerageUser(zerodhaAccountType, isRedisConnected);
+    let brokerageDetailSellUser = await sellBrokerageUser(zerodhaAccountType, isRedisConnected);
 
-    if (isRedisConnected && await client.HEXISTS('brokerage', `buy-company`)) {
-        brokerageDetailBuy = await client.HGET('brokerage', `buy-company`);
-        brokerageDetailBuy = JSON.parse(brokerageDetailBuy);
-    } else {
-        brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY", accountType: accountType });
-        await client.HSET('brokerage', `buy-company`, JSON.stringify(brokerageDetailBuy));
-    }
-
-    if (isRedisConnected && await client.HEXISTS('brokerage', `sell-company`)) {
-        brokerageDetailSell = await client.HGET('brokerage', `sell-company`);
-        brokerageDetailSell = JSON.parse(brokerageDetailSell);
-    } else {
-        brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL", accountType: accountType });
-        await client.HSET('brokerage', `sell-company`, JSON.stringify(brokerageDetailSell));
-    }
-
-    if (isRedisConnected && await client.HEXISTS('brokerage', `buy-user`)) {
-        brokerageDetailBuyUser = await client.HGET('brokerage', `buy-user`);
-        brokerageDetailBuyUser = JSON.parse(brokerageDetailBuyUser);
-    } else {
-        brokerageDetailBuyUser = await BrokerageDetail.find({ transaction: "BUY", accountType: zerodhaAccountType });
-        await client.HSET('brokerage', `buy-user`, JSON.stringify(brokerageDetailBuyUser));
-    }
-
-    if (isRedisConnected && await client.HEXISTS('brokerage', `sell-user`)) {
-        brokerageDetailSellUser = await client.HGET('brokerage', `sell-user`);
-        brokerageDetailSellUser = JSON.parse(brokerageDetailSellUser);
-    } else {
-        brokerageDetailSellUser = await BrokerageDetail.find({ transaction: "SELL", accountType: zerodhaAccountType });
-        await client.HSET('brokerage', `sell-user`, JSON.stringify(brokerageDetailSellUser));
-    }
 
     try {
 
@@ -73,8 +42,6 @@ exports.tenxTradeStopLoss = async () => {
             let { exchange, symbol, buyOrSell, Quantity, Product, order_type, sub_product_id,
                 exchangeInstrumentToken, validity, variety, order_id, instrumentToken,
                 createdBy, _id, type } = message.data;
-
-                // console.log("rhis is _id", _id)
 
             const lockKey = `${createdBy}-${symbol}-${Quantity}`
             const lockValue = Date.now().toString() + Math.random * 1000;
@@ -170,11 +137,11 @@ exports.tenxTradeStopLoss = async () => {
                 let symbolArr = data[`${instrumentToken}`];
                 console.log("first index2", index2)
                 for (let i = 0; i < symbolArr.length; i++) {
+
                     if (symbolArr[i].instrumentToken === instrumentToken &&
                         symbolArr[i].createdBy.toString() === createdBy.toString() &&
                         Math.abs(symbolArr[i].Quantity) === Math.abs(Number(Quantity)) &&
                         symbolArr[i].buyOrSell === buyOrSell && 
-                        symbolArr[i]._id.toString() === _id.toString() && 
                         symbolArr[i].type !== type) {
 
                         const update = await PendingOrder.findOne({ _id: new ObjectId(symbolArr[i]._id) })
@@ -245,3 +212,61 @@ function sellBrokerage(totalAmount, sellBrokerData) {
 
     return finalCharge
 }
+
+async function getSetting() {
+    const setting = await Setting.find().select('toggle');
+    return setting;
+}
+
+async function buyBrokerageCompany(accountType, isRedisConnected) {
+    let brokerageDetailBuy;
+    if (isRedisConnected && await client.HEXISTS('brokerage', `buy-company`)) {
+        brokerageDetailBuy = await client.HGET('brokerage', `buy-company`);
+        brokerageDetailBuy = JSON.parse(brokerageDetailBuy);
+    } else {
+        brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY", accountType: accountType });
+        await client.HSET('brokerage', `buy-company`, JSON.stringify(brokerageDetailBuy));
+    }
+
+    return brokerageDetailBuy;
+}
+
+async function sellBrokerageCompany(accountType, isRedisConnected) {
+    let brokerageDetailSell;
+    if (isRedisConnected && await client.HEXISTS('brokerage', `sell-company`)) {
+        brokerageDetailSell = await client.HGET('brokerage', `sell-company`);
+        brokerageDetailSell = JSON.parse(brokerageDetailSell);
+    } else {
+        brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL", accountType: accountType });
+        await client.HSET('brokerage', `sell-company`, JSON.stringify(brokerageDetailSell));
+    }
+
+    return brokerageDetailSell;
+}
+
+async function sellBrokerageUser(zerodhaAccountType, isRedisConnected) {
+    let brokerageDetailSellUser;
+    if (isRedisConnected && await client.HEXISTS('brokerage', `sell-user`)) {
+        brokerageDetailSellUser = await client.HGET('brokerage', `sell-user`);
+        brokerageDetailSellUser = JSON.parse(brokerageDetailSellUser);
+    } else {
+        brokerageDetailSellUser = await BrokerageDetail.find({ transaction: "SELL", accountType: zerodhaAccountType });
+        await client.HSET('brokerage', `sell-user`, JSON.stringify(brokerageDetailSellUser));
+    }
+
+    return brokerageDetailSellUser;
+}
+
+async function buyBrokerageUser(zerodhaAccountType, isRedisConnected) {
+    let brokerageDetailBuyUser;
+    if (isRedisConnected && await client.HEXISTS('brokerage', `buy-user`)) {
+        brokerageDetailBuyUser = await client.HGET('brokerage', `buy-user`);
+        brokerageDetailBuyUser = JSON.parse(brokerageDetailBuyUser);
+    } else {
+        brokerageDetailBuyUser = await BrokerageDetail.find({ transaction: "BUY", accountType: zerodhaAccountType });
+        await client.HSET('brokerage', `buy-user`, JSON.stringify(brokerageDetailBuyUser));
+    }
+
+    return brokerageDetailBuyUser;
+}
+
