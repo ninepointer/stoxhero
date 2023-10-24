@@ -490,7 +490,7 @@ exports.getTenXTradersOverview = async(req,res,next) => {
               $sum: {
                 $cond: [
                   {
-                    $gte: ['$trade_time', yesterday], // Filter for past month's data
+                    $gte: ['$trade_time_utc', yesterday], // Filter for past month's data
                   },
                   {
                     $multiply: ["$amount", -1],
@@ -503,7 +503,7 @@ exports.getTenXTradersOverview = async(req,res,next) => {
               $sum: {
                 $cond: [
                   {
-                    $gte: ['$trade_time', yesterday], // Filter for past month's data
+                    $gte: ['$trade_time_utc', yesterday], // Filter for past month's data
                   },
                   '$brokerage',
                   0,
@@ -514,7 +514,7 @@ exports.getTenXTradersOverview = async(req,res,next) => {
               $sum: {
                 $cond: [
                   {
-                    $gte: ['$trade_time', pastMonth] // Filter for past month's data
+                    $gte: ['$trade_time_utc', pastMonth] // Filter for past month's data
                   },
                   {
                     $multiply: ["$amount", -1],
@@ -527,7 +527,7 @@ exports.getTenXTradersOverview = async(req,res,next) => {
               $sum: {
                 $cond: [
                   {
-                    $gte: ['$trade_time', pastMonth], // Filter for past month's data
+                    $gte: ['$trade_time_utc', pastMonth], // Filter for past month's data
                   },
                    '$brokerage',
                   0,
@@ -538,7 +538,7 @@ exports.getTenXTradersOverview = async(req,res,next) => {
               $sum: {
                 $cond: [
                   {
-                    $gte: ['$trade_time', pastYear], // Filter for past year's data
+                    $gte: ['$trade_time_utc', pastYear], // Filter for past year's data
                   },
                   {
                     $multiply: ["$amount", -1],
@@ -551,7 +551,7 @@ exports.getTenXTradersOverview = async(req,res,next) => {
               $sum: {
                 $cond: [
                   {
-                    $gte: ['$trade_time', pastYear], // Filter for past year's data
+                    $gte: ['$trade_time_utc', pastYear], // Filter for past year's data
                   },
                    '$brokerage',
                   0,
@@ -665,13 +665,13 @@ exports.getTenXTradersDateWiseStats = async(req, res)=>{
     toDate.setHours(23, 59, 59, 999);
     
     let pnlDetails = await TenXTrader.aggregate([
-        { $match: { trade_time: {$gte : fromDate, $lte : toDate}, trader: new ObjectId(id), status: "COMPLETE"} },
+        { $match: { trade_time_utc: {$gte : fromDate, $lte : toDate}, trader: new ObjectId(id), status: "COMPLETE"} },
         
         { $group: {_id: {
-            "date": {$substr: [ "$trade_time", 0, 10 ]},
+            "date": {$substr: [ "$trade_time_utc", 0, 10 ]},
            },
                     // buyOrSell: "$buyOrSell",
-                    // date: {$substr:["$trade_time", 0, 10]},
+                    // date: {$substr:["$trade_time_utc", 0, 10]},
                     gpnl:{
                         $sum:{$multiply: ["$amount", -1]},
                     },       
@@ -773,13 +773,13 @@ exports.getTenXTradersMonthlyPnlData= async(req,res,next) => {
     pastYear.setFullYear(today.getFullYear()-1);
     // console.log(pastYear,today);
     let pnlDetails = await TenXTrader.aggregate([
-        { $match: { trade_time: {$gte : pastYear, $lte : today}, trader: new ObjectId(id), status: "COMPLETE"} },
+        { $match: { trade_time_utc: {$gte : pastYear, $lte : today}, trader: new ObjectId(id), status: "COMPLETE"} },
         
         { $group: {_id: {
-            "date": {$substr: [ "$trade_time", 0, 7 ]},
+            "date": {$substr: [ "$trade_time_utc", 0, 7 ]},
            },
                     // buyOrSell: "$buyOrSell",
-                    // date: {$substr:["$trade_time", 0, 10]},
+                    // date: {$substr:["$trade_time_utc", 0, 10]},
                     gpnl:{
                         $sum:{$multiply: ["$amount", -1]},
                     },       
