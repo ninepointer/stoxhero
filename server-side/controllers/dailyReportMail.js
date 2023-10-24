@@ -424,155 +424,155 @@ exports.mail = async () => {
         const signup = await signupusersdata();
         // console.log(revenue, dau, signup);
 
-        // await emailService('vvv201214@gmail.com', `Daily report(${todayDate}) - StoxHero`, `
-        // <!DOCTYPE html>
-        // <html>
+        await emailService('team@stoxhero.com', `Daily report(${todayDate}) - StoxHero`, `
+        <!DOCTYPE html>
+        <html>
         
-        // <head>
-        // <meta charset="UTF-8">
-        // <title>Daily Report (${todayDate})</title>
-        // <style>
-        // body {
-        //     font-family: Arial, sans-serif;
-        //     font-size: 16px;
-        //     line-height: 1.5;
-        //     margin: 0;
-        //     padding: 0;
-        // }
+        <head>
+        <meta charset="UTF-8">
+        <title>Daily Report (${todayDate})</title>
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+        }
         
-        // .container {
-        //     max-width: 900px;
-        //     margin: 0 auto;
-        //     padding: 20px;
-        //     border: 1px solid #ccc;
-        // }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
         
-        // h1 {
-        //     font-size: 24px;
-        //     margin-bottom: 20px;
-        //     text-align: center;
-        // }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
         
-        // p {
-        //     margin: 0 0 20px;
-        // }
+        p {
+            margin: 0 0 20px;
+        }
         
-        // table {
-        //     font-family: arial, sans-serif;
-        //     border-collapse: collapse;
-        //     width: 100%;
-        //     margin-bottom: 15px;
-        // }
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 15px;
+        }
         
-        // td,
-        // th {
-        //     border: 1px solid #dddddd;
-        //     text-align: left;
-        //     padding: 8px;
-        // }
+        td,
+        th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
         
-        // th {
-        //     font-size: small;
-        // }
+        th {
+            font-size: small;
+        }
         
-        // .module {
-        //     border: 1px solid #dddddd;
-        //     text-align: center;
-        // }
-        // </style>
-        // </head>
+        .module {
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+        </style>
+        </head>
         
-        // <body>
-        // <div class="container">
-        // <h1>Daily Report (${todayDate})</h1>
+        <body>
+        <div class="container">
+        <h1>Daily Report (${todayDate})</h1>
         
-        // <!-- revenue -->
+        <!-- revenue -->
         
-        // <table>
-        //     <tr class="module">Revenue Details</tr>
-        //     <tr>
-        //         <th></th>
-        //         <th>Tenx</th>
-        //         <th>MarginX</th>
-        //         <th>Contest</th>
-        //     </tr>
-        //     <tr>
-        //         <td>Today</td>
-        //         <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueToday.toFixed(2))}</td>
-        //         <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueToday.toFixed(2))}</td>
-        //         <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueToday.toFixed(2))}</td>
-        //     </tr>
-        //     <tr>
-        //         <td>Yesterday</td>
-        //         <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueYesterday.toFixed(2))}</td>
-        //         <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueYesterday.toFixed(2))}</td>
-        //         <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueYesterday.toFixed(2))}</td>
-        //     </tr>
-        //     <tr>
-        //         <td>This Week</td>
-        //         <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueThisWeek.toFixed(2))}</td>
-        //         <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueThisWeek.toFixed(2))}</td>
-        //         <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueThisWeek.toFixed(2))}</td>
-        //     </tr>
-        //     <tr>
-        //         <td>Last Week</td>
-        //         <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueLastWeek.toFixed(2))}</td>
-        //         <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueLastWeek.toFixed(2))}</td>
-        //         <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueLastWeek.toFixed(2))}</td>
-        //     </tr>
-        //     <tr>
-        //         <td>This Month</td>
-        //         <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueThisMonth.toFixed(2))}</td>
-        //         <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueThisMonth.toFixed(2))}</td>
-        //         <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueThisMonth.toFixed(2))}</td>
-        //     </tr>
-        //     <tr>
-        //         <td>Last Month</td>
-        //         <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueLastMonth.toFixed(2))}</td>
-        //         <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueLastMonth.toFixed(2))}</td>
-        //         <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueLastMonth.toFixed(2))}</td>
-        //     </tr>
-        //     <tr>
-        //         <td>This Year</td>
-        //         <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueThisYear.toFixed(2))}</td>
-        //         <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueThisYear.toFixed(2))}</td>
-        //         <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueThisYear.toFixed(2))}</td>
-        //     </tr>
-        //     <tr>
-        //         <td>Last Year</td>
-        //         <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueLastYear.toFixed(2))}</td>
-        //         <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueLastYear.toFixed(2))}</td>
-        //         <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueLastYear.toFixed(2))}</td>
-        //     </tr>
-        //     <tr>
-        //         <td>Total</td>
-        //         <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.totalRevenue.toFixed(2))}</td>
-        //         <td>₹${Math.abs(revenue[`MarginX Fee`]?.totalRevenue.toFixed(2))}</td>
-        //         <td>₹${Math.abs(revenue[`Contest Fee`]?.totalRevenue.toFixed(2))}</td>
-        //     </tr>
-        // </table>
+        <table>
+            <tr class="module">Revenue Details</tr>
+            <tr>
+                <th></th>
+                <th>Tenx</th>
+                <th>MarginX</th>
+                <th>Contest</th>
+            </tr>
+            <tr>
+                <td>Today</td>
+                <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueToday.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueToday.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueToday.toFixed(2))}</td>
+            </tr>
+            <tr>
+                <td>Yesterday</td>
+                <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueYesterday.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueYesterday.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueYesterday.toFixed(2))}</td>
+            </tr>
+            <tr>
+                <td>This Week</td>
+                <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueThisWeek.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueThisWeek.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueThisWeek.toFixed(2))}</td>
+            </tr>
+            <tr>
+                <td>Last Week</td>
+                <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueLastWeek.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueLastWeek.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueLastWeek.toFixed(2))}</td>
+            </tr>
+            <tr>
+                <td>This Month</td>
+                <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueThisMonth.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueThisMonth.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueThisMonth.toFixed(2))}</td>
+            </tr>
+            <tr>
+                <td>Last Month</td>
+                <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueLastMonth.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueLastMonth.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueLastMonth.toFixed(2))}</td>
+            </tr>
+            <tr>
+                <td>This Year</td>
+                <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueThisYear.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueThisYear.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueThisYear.toFixed(2))}</td>
+            </tr>
+            <tr>
+                <td>Last Year</td>
+                <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueLastYear.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueLastYear.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueLastYear.toFixed(2))}</td>
+            </tr>
+            <tr>
+                <td>Total</td>
+                <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.totalRevenue.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`MarginX Fee`]?.totalRevenue.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`Contest Fee`]?.totalRevenue.toFixed(2))}</td>
+            </tr>
+        </table>
         
-        // <!-- user detail -->
+        <!-- user detail -->
         
-        // <table>
-        //     <tr class="module">User Details</tr>
-        //     <tr>
-        //         <td>New Signup</td>
-        //         <td>${signup}</td>
-        //     </tr>
-        //     <tr>
-        //         <td>DAU's</td>
-        //         <td>${dau}</td>
-        //     </tr>
-        // </table>
+        <table>
+            <tr class="module">User Details</tr>
+            <tr>
+                <td>New Signup</td>
+                <td>${signup}</td>
+            </tr>
+            <tr>
+                <td>DAU's</td>
+                <td>${dau}</td>
+            </tr>
+        </table>
         
-        // </div>
-        // </body>
+        </div>
+        </body>
         
-        // </html>        
-        // `, [tenxAttachment, internAttachment, contestAttachment, marginxAttachment]);
+        </html>        
+        `, [tenxAttachment, internAttachment, contestAttachment, marginxAttachment]);
 
-        whatsAppService.sendWhatsApp({destination : "7976671752", campaignName : 'wallet_credited_campaign', userName : "Vijay Verma", source : "Admin", media: {url: 'tenx_payout.csv', filename: 'tenx_payout.csv'}, templateParams : ["vv", "234","334", "556"], tags : '', attributes : ''});
+        // whatsAppService.sendWhatsApp({destination : "7976671752", campaignName : 'wallet_credited_campaign', userName : "Vijay Verma", source : "Admin", media: {url: 'tenx_payout.csv', filename: 'tenx_payout.csv'}, templateParams : ["vv", "234","334", "556"], tags : '', attributes : ''});
 
 
         fs.unlinkSync('tenx_payout.csv');
