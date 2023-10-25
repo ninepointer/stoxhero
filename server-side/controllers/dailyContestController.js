@@ -1466,8 +1466,8 @@ exports.creditAmountToWallet = async () => {
 
                 // console.log(pnlDetails[0]);
                 if (pnlDetails[0]?.npnl > 0) {
-                    const payoutAmountWithoutTDS = pnlDetails[0]?.npnl * payoutPercentage / 100;
-                    let payoutAmount = math.min(payoutAmountWithoutTDS, maxPayout);
+                    const payoutAmountWithoutTDS = Math.min(pnlDetails[0]?.npnl * payoutPercentage / 100, maxPayout);
+                    let payoutAmount = payoutAmountWithoutTDS;
                     if(payoutAmountWithoutTDS>fee){
                       payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100;
                     }
