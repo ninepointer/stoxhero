@@ -487,7 +487,6 @@ exports.fetchCareers = async (req,res, next) => {
     console.log(e);
   }
 } 
-
 exports.getRejectedCareers = async(req, res, next)=>{
   const type = req.query.type;
   const cond = !type? {}:{listingType:type}

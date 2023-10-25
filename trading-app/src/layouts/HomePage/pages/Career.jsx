@@ -31,7 +31,6 @@ const App = (props) => {
       setIsLoading(false)
     }, 500);
   };
-
   useEffect(()=>{
     setCampaignCode(location.search.split('=')[1]??props.location?.search?.split('=')[1]??'');
     ReactGA.pageview(window.location.pathname)

@@ -739,7 +739,6 @@ exports.autoExpireTenXSubscription = async () => {
             const user = await User.findOne({ _id: new ObjectId(userId), status: "Active" });
             if(user){
 
-              
               let len = user.subscription.length;
               
               for (let k = len - 1; k >= 0; k--) {
@@ -749,20 +748,20 @@ exports.autoExpireTenXSubscription = async () => {
                   user.subscription[k].expiredBy = "System";
                   if(tradingDays[0]?.totalTradingDays >= validity){
                     user.subscription[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0) 
-                    user.subscription[k].tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0; 
+                    user.subscription[k].tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
                   }else{
                     user.subscription[k].payout=0;
                     user.subscription[k].tdsAmount=0;
                   }
-                  console.log("this is user", user)
-                  await user.save({session});
+                  // console.log("this is user", user)
+                  await user.save({session, validateBeforeSave:false});
                   break;
                 }
               }
 
               const subs = await Subscription.findOne({ _id: new ObjectId(subscription[i]._id) });
               let Subslen = subs.users.length;
-              
+              let subscribedOn;
               for (let k = Subslen - 1; k >= 0; k--) {
                 if (subs.users[k].userId?.toString() === userId?.toString()) {
                   subs.users[k].status = "Expired";
@@ -771,12 +770,13 @@ exports.autoExpireTenXSubscription = async () => {
                   if(tradingDays[0]?.totalTradingDays >= validity){
                     subs.users[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0) 
                     subs.users[k].tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0; 
+                    subscribedOn = subs.users[k]?.subscribedOn;
                   }else{
                     subs.users[k].payout=0;
                     subs.users[k].tdsAmount=0;
                   }
-                  console.log("this is subs", subs)
-                  await subs.save({session});
+                  // console.log("this is subs", subs)
+                  await subs.save({session, validateBeforeSave:false});
                   break;
                 }
               }
@@ -793,7 +793,7 @@ exports.autoExpireTenXSubscription = async () => {
                       transactionId: uuid.v4(),
                       transactionType: 'Cash'
                 }];
-                await wallet.save({session});
+                await wallet.save({session, validateBeforeSave:false});
 
                 if (process.env.PROD == 'true') {
                   sendMail(user?.email, 'Tenx Payout Credited - StoxHero', `
@@ -869,7 +869,7 @@ exports.autoExpireTenXSubscription = async () => {
                       <p>Hi ${user.first_name},</p>
                       <p>Great news! We're thrilled to inform you that your TenX Subscription 💰 payout has been processed, and ${subscription[i]?.payoutPercentage}% of the Net P&L made under this subscription has been credited to your StoxHero Wallet 🎉. Please find the details below:</p>
                       <p>TenX Subscription: ${subscription[i]?.plan_name}</p>
-                      <p>Subscription Purchase Date: ${moment.utc(subs.users[k].subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a")}</p>
+                      <p>Subscription Purchase Date: ${moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a")}</p>
                       <p>Amount Credited in StoxHero Wallet: ₹${payoutAmount.toLocaleString('en-IN')}</p>
                       <p>We are delighted to have traders like you on our platform. Keep learning and earning!</p>
                       <p>Note: 30% TDS has been deducted from your net payout amount.</p>
