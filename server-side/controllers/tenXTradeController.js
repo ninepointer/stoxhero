@@ -143,8 +143,8 @@ exports.myTodaysTrade = async (req, res, next) => {
 exports.myHistoryTrade = async (req, res, next) => {
 
   let {subscriptionId, subscribedOn, expiredOn  } = req.params;
-  expiredOn = expiredOn && new Date(expiredOn);
-  subscribedOn = subscribedOn && new Date(subscribedOn);
+  expiredOn = expiredOn ? new Date(expiredOn) : new Date();
+  subscribedOn = subscribedOn ? new Date(subscribedOn): new Date();
 
   const userId = req.user._id;
   let date = new Date();
@@ -160,7 +160,7 @@ exports.myHistoryTrade = async (req, res, next) => {
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
   const count = await TenXTrader.countDocuments({subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time_utc: {$gte: subscribedOn, $lt: expiredOn } })
-  // console.log("Under my today orders", userId, today)
+  console.log("Under my today orders", subscriptionId, subscribedOn, expiredOn, userId)
   try {
     const myHistoryTrade = await TenXTrader.find({subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time_utc: {$gte: subscribedOn, $lt: expiredOn } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time_utc': 1, 'order_id': 1, 'subscriptionId': 1 }).populate('subscriptionId', 'plan_name')
       .sort({ _id: -1 })

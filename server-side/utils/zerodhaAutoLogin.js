@@ -33,6 +33,7 @@ async function zerodhaLogin(ApiKey,SecretKey,UserId,Password, req, resp) {
         await page.type("input[type=password]", Password);
         await page.keyboard.press("Enter");
         await sleep(2000);
+        await page.waitForSelector("input[type=text]",{visible:true});
         await page.focus("input[type=text]").then((value) => console.log(value));
         await page.keyboard.type(totp(HASH_CODE));
         await page.keyboard.press("Enter");
