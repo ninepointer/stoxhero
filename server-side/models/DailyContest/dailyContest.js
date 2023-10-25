@@ -101,6 +101,10 @@ const contestSchema = new Schema({
         payout: {type: Number},
         tdsAmount: {type: Number},
         isLive: {type: Boolean},
+        npnl: {type: Number},
+        gpnl: {type: Number},
+        trades: {type: Number},
+        brokerage: {type: Number},
         rank: {type: Number},
         bonusRedemption:Number
     }],
@@ -161,6 +165,9 @@ const contestSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'product',
         default:'6517d48d3aeb2bb27d650de5'
+    },
+    payoutCapPercentage:{
+        type:Number
     }
 
 })
