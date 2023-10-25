@@ -74,6 +74,7 @@ router.post('/phonelogin', async (req,res, next)=>{
         console.log(process.env.PROD, mobile_otp, 'sending');
         if(process.env.PROD!=='true'){
             sendOTP("8076284368", mobile_otp)
+            sendOTP("9319671094", mobile_otp)
         }
     
         res.status(200).json({status: 'Success', message: `OTP sent to ${mobile}. OTP is valid for 30 minutes.`});
@@ -158,7 +159,7 @@ router.post("/resendmobileotp", async(req, res)=>{
 
 router.get("/loginDetail", authentication, async (req, res)=>{
     const id = req.user._id;
-    console.log("ID:",id)
+    // console.log("ID:",id)
     
     const user = await UserDetail.findOne({_id: id, status: "Active"})
     .populate('role', 'roleName')
