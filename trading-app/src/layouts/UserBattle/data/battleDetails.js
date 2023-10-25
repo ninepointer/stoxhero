@@ -47,7 +47,7 @@ function Header() {
             // setState(res?.data?.data)
             setWhichTab(res?.data?.data?.battleStatus);
 
-            console.log("state, tab", state, whichTab)
+            // console.log("state, tab", state, whichTab)
         } catch (e) {
             console.log(e);
         }

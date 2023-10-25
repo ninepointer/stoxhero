@@ -75,8 +75,8 @@ export default function TableView({liveUser, expiredUser, whichTab, dateWiseData
   csvDataFile1 = csvpnlData?.map((elem)=>{
      
   return [elem?.name,
-      elem?.grossPnl.toFixed(0),
-      elem?.brokerage.toFixed(0),
+      elem?.grossPnl?.toFixed(0),
+      elem?.brokerage?.toFixed(0),
       elem?.npnl?.toFixed(0),
       elem?.trades,
       elem?.tradingDays,
