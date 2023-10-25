@@ -977,3 +977,35 @@ const createMarginxFile = async (data) => {
 
     return attachment;
 }
+
+
+
+
+
+/*
+500 of 19500 and margin: 1 lakh
+
+1. adding more like +300
+2. release some margin like -300
+3. square off all like -500
+4. squareoff and add more like -700
+
+
+trade db me save kr diya margin: 100000
+
+1st find out case, case konsa h ? by running lots and new quantity
+
+case 1. next trade me wo add krne aaya to i findout last trade on that symbol and got margin, margin is 100000
+and new magin for 300 lot is 50,000 then i add and total margin is 1,50,000 and saved it
+
+case 2. similar i findout last symbol or margin that is 100000 and not i calculated quantity percentage if squaring off
+like 300 * 100/500 = 60% quantity i am squaring off so that release 60% margin
+100000*60/100 = 60,000 margin released, remaininig margin is 100000-60000 = 40,000
+save new margin of 40,000
+
+case 3. if square off all quantity then release all 100% margin should release
+and margin is 0 now
+
+case 4. in this square off 500 quantity and add 200 quantity more also calculate margin accroding 
+new quantity
+*/

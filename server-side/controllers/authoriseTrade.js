@@ -352,8 +352,13 @@ exports.fundCheckPaperTrade = async (req, res, next) => {
             if (element.lots < 0) {
                 element.amount = -element.amount;
             }
+            if(element.lots > 0){
+
+            }
             totalAmount += (element.amount - element.brokerage);
         }
+        console.log("totalAmount", totalAmount)
+        console.log("todayPnlData", todayPnlData)
         if (isRedisConnected && await client.exists(`${req.user._id.toString()} openingBalanceAndMarginPaper`)) {
             let pnl = await client.get(`${req.user._id.toString()} openingBalanceAndMarginPaper`)
             pnl = JSON.parse(pnl);
@@ -363,6 +368,8 @@ exports.fundCheckPaperTrade = async (req, res, next) => {
                 userNetPnl = totalAmount
             }
         }
+
+        console.log("userNetPnl", userNetPnl)
 
         console.log(userFunds, userNetPnl, zerodhaMargin)
         console.log((userFunds + userNetPnl - zerodhaMargin))
@@ -1400,4 +1407,75 @@ exports.fundCheckBattle = async (req, res, next) => {
         }
     });
 }
+
+const calculateNetPnl = async (req, pnlData, data) => {
+    let addUrl;
+    pnlData.forEach((elem, index) => {
+        if (index === 0) {
+            addUrl = ('i=' + elem._id.exchange + ':' + elem._id.symbol);
+        } else {
+            addUrl += ('&i=' + elem._id.exchange + ':' + elem._id.symbol);
+        }
+    });
+
+    let url = `https://api.kite.trade/quote/ltp?${addUrl}`;
+    const api_key = data.getApiKey;
+    const access_token = data.getAccessToken;
+    let auth = 'token' + api_key + ':' + access_token;
+    let authOptions = {
+        headers: {
+            'X-Kite-Version': '3',
+            Authorization: auth,
+        },
+    };
+
+    const arr = [];
+    try {
+        const response = await axios.get(url, authOptions);
+
+        for (let instrument in response.data.data) {
+            let obj = {};
+            obj.last_price = response.data.data[instrument].last_price;
+            obj.instrument_token = response.data.data[instrument].instrument_token;
+            arr.push(obj);
+        }
+
+        let totalNetPnl;
+        let totalBrokerage;
+        let totalGrossPnl;
+        for (let elem of pnlData) {
+
+            const ltp = arr.filter((subelem) => {
+                return subelem?.instrument_token == elem?._id?.instrumentToken;
+            })
+
+            if (elem?._id?.symbol === req.body.symbol) {
+                req.body.last_price = ltp[0]?.last_price;
+            }
+
+            let grossPnl = (elem?.amount + (elem?.lots) * ltp[0]?.last_price);
+            totalGrossPnl += grossPnl;
+            totalBrokerage += Number(subelem.brokerage);
+            totalNetPnl = totalGrossPnl - totalBrokerage;
+        }
+
+        return totalNetPnl;
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+// {
+//     _id: {
+//       symbol: 'NIFTY23OCT19500PE',
+//       product: 'NRML',
+//       instrumentToken: 17229058,
+//       exchangeInstrumentToken: 67301,
+//       exchange: 'NFO'
+//     },
+//     amount: -1615,
+//     brokerage: 82.2971807,
+//     lots: 0,
+//     lastaverageprice: 356.75
+//   }
 

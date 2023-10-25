@@ -24,7 +24,7 @@ exports.createContest = async (req, res) => {
     try {
         const { liveThreshold, currentLiveStatus, contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
             contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
-            maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, payoutType } = req.body;
+            maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, payoutType, payoutCapPercentage } = req.body;
 
         const getContest = await Contest.findOne({ contestName: contestName });
 
@@ -51,7 +51,7 @@ exports.createContest = async (req, res) => {
         const contest = await Contest.create({
             maxParticipants, contestStatus, contestEndTime, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
-            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold
+            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage
         });
 
         // console.log(contest)
@@ -1402,10 +1402,22 @@ exports.creditAmountToWallet = async () => {
         todayDate = todayDate + "T00:00:00.000Z";
         const today = new Date(todayDate);
 
-        const contest = await Contest.find({ contestStatus: "Completed", payoutStatus: null, contestEndTime: {$gte: today} });
+        const contest = await Contest.find({ contestStatus: "Completed", payoutStatus: null, contestEndTime: {$gte: today} }).populate('portfolio', 'portfolioValue');
         const setting = await Setting.find();
-        // console.log(contest.length, contest)
         for (let j = 0; j < contest.length; j++) {
+          let maxPayout = 10000;
+          //setting max payout for free contest
+          console.log(contest[j])
+          console.log("contest data", contest[j]?.portfolio?.portfolioValue, contest[j]?.payoutCapPercentage, contest[j]?.entryFee )
+
+          if(contest[j]?.entryFee == 0){
+            maxPayout = contest[j]?.portfolio?.portfolioValue * (contest[j]?.payoutCapPercentage ?? 100)/100;
+          }else{
+            //setting maxPayout for paid contest[j]
+            maxPayout = contest[j]?.entryFee * (contest[j]?.payoutCapPercentage ?? 10000)/100; 
+
+          }
+          //setting max payout for paid contest 
             // if (contest[j].contestEndTime < new Date()) {
             for (let i = 0; i < contest[j]?.participants?.length; i++) {
                 let userId = contest[j]?.participants[i]?.userId;
@@ -1457,10 +1469,13 @@ exports.creditAmountToWallet = async () => {
 
                 // console.log(pnlDetails[0]);
                 if (pnlDetails[0]?.npnl > 0) {
-                    const payoutAmountWithoutTDS = pnlDetails[0]?.npnl * payoutPercentage / 100;
+                    const payoutAmountWithoutTDS = Math.min(pnlDetails[0]?.npnl * payoutPercentage / 100, maxPayout);
                     let payoutAmount = payoutAmountWithoutTDS;
+                    console.log("payoutAmountWithoutTDS", payoutAmountWithoutTDS, pnlDetails[0]?.npnl, payoutPercentage, maxPayout)
                     if(payoutAmountWithoutTDS>fee){
+                      console.log("in if")
                       payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100;
+                      console.log("after", fee, setting[0]?.tdsPercentage )
                     }
 
                     const wallet = await Wallet.findOne({ userId: userId });
@@ -1469,7 +1484,7 @@ exports.creditAmountToWallet = async () => {
                     // Check if a transaction with this description already exists
                     const existingTransaction = wallet?.transactions?.some(transaction => transaction.description === transactionDescription);
 
-                    console.log(userId, pnlDetails[0]);
+                    console.log(userId, payoutAmount);
                     //check if wallet.transactions doesn't have an object with the particular description, then push it to wallet.transactions
                     if(wallet?.transactions?.length == 0 || !existingTransaction){
                       wallet.transactions.push({
@@ -1490,8 +1505,9 @@ exports.creditAmountToWallet = async () => {
                     contest[j].participants[i].trades = pnlDetails[0]?.trades;
                     contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
                     contest[j].participants[i].tdsAmount = payoutAmountWithoutTDS-fee>0?((payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
-                    if (process.env.PROD == 'true') {
-                        emailService(user?.email, 'Contest Payout Credited - StoxHero', `
+                    // if (process.env.PROD == 'true') {
+                        try{
+                          emailService(user?.email, 'Contest Payout Credited - StoxHero', `
                         <!DOCTYPE html>
                         <html>
                         <head>
@@ -1575,7 +1591,10 @@ exports.creditAmountToWallet = async () => {
                         </body>
                         </html>
                         `);
-                    }
+                        } catch(err){
+                          console.log("err");
+                        }
+                    // }
                     await createUserNotification({
                         title:'Contest Reward Credited',
                         description:`₹${payoutAmount?.toFixed(2)} credited to your wallet as your contest reward`,
