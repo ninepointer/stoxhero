@@ -10,7 +10,11 @@ const affiliateTransactionSchema = new mongoose.Schema({
         type:String,
         required: true,
     },
-    walletTransactionId:{
+    affiliateWalletTId:{
+        type:String,
+        required: true,
+    },
+    userWalletTId:{
         type:String,
         required: true,
     },
