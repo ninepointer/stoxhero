@@ -106,6 +106,14 @@ exports.addAffiliateUser = async (req, res) => {
             return res.status(400).json({ status: "success", message: "Invalid contest ID or user ID" });
         }
 
+        const checkUser = await Affiliate.find({"affiliates.userId": new ObjectId(userId)});
+        if(checkUser.length > 0){
+            res.status(500).json({
+                status: "error",
+                message: "User already added in another affiliate programme.",
+            });
+        }
+
         const result = await Affiliate.findByIdAndUpdate(
           id,
           {
