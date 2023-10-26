@@ -439,6 +439,7 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId)=>{
       matchingElement.brokerage += Number(pnlData.brokerage);
       matchingElement.lastaverageprice = pnlData.average_price;
       matchingElement.lots += Number(pnlData.Quantity);
+      matchingElement.margin = pnlData.margin;
 
     } else {
       // Create a new element if instrument is not matching
@@ -454,6 +455,8 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId)=>{
         brokerage: Number(pnlData.brokerage),
         lots: Number(pnlData.Quantity),
         lastaverageprice: pnlData.average_price,
+        margin: pnlData.margin
+
       });
     }
     // settingRedis = await client.set(`${trader.toString()} overallpnl`, JSON.stringify(pnl))
@@ -495,6 +498,9 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId)=>{
           },
           lastaverageprice: {
             $last: "$average_price",
+          },
+          margin: {
+            $last: "$margin",
           },
         },
       },
@@ -854,6 +860,7 @@ exports.overallpnlMarginX = async (pnlData, trader, data, marginxId)=>{
       matchingElement.brokerage += Number(pnlData.brokerage);
       matchingElement.lastaverageprice = pnlData.average_price;
       matchingElement.lots += Number(pnlData.Quantity);
+      matchingElement.margin = pnlData.margin;
 
     } else {
       // Create a new element if instrument is not matching
@@ -869,6 +876,7 @@ exports.overallpnlMarginX = async (pnlData, trader, data, marginxId)=>{
         brokerage: Number(pnlData.brokerage),
         lots: Number(pnlData.Quantity),
         lastaverageprice: pnlData.average_price,
+        margin: pnlData.margin
       });
     }
     // settingRedis = await client.set(`${trader.toString()} overallpnl`, JSON.stringify(pnl))
@@ -912,6 +920,9 @@ exports.overallpnlMarginX = async (pnlData, trader, data, marginxId)=>{
           },
           lastaverageprice: {
             $last: "$average_price",
+          },
+          margin: {
+            $last: "$margin",
           },
         },
       },

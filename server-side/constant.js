@@ -1,3 +1,9 @@
 exports.xtsAccountType = "XTS";
 exports.zerodhaAccountType = "ZERODHA";
 exports.infinityTrader = "Infinity Trader";
+exports.tenx = "TenX";
+exports.marginx = "MarginX";
+exports.dailyContest = "Daily Contest";
+exports.internship = "InternShip";
+exports.virtual = "Virtual";
+exports.battle = "Battle";
