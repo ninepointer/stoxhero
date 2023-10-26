@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const User = require("../../models/User/userDetailSchema");
 const { ObjectId } = require('mongodb');
 const Affiliate = require("../../models/affiliateProgram/affiliateProgram");
+const AffiliateTransactions = require("../../models/affiliateProgram/affiliateTransactions");
 const whatsAppService = require("../../utils/whatsAppService")
 const moment = require('moment');
 
@@ -258,6 +259,26 @@ exports.removeAffiliateUser = async (req, res) => {
             message: "User removed from affiliate successfully",
             data: affiliate
         });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+exports.getAffiliateProgramTransactions = async (req, res) => {
+    const {id} = req.params;
+    try {
+        const result = await AffiliateTransactions.findOne({affiliateProgram: id})
+        
+        res.status(200).json({
+            status: "success",
+            message: "Affiliate Transactions fetched successfully",
+            data: result
+        });
+        
     } catch (error) {
         res.status(500).json({
             status: "error",

@@ -27,6 +27,7 @@ import { apiUrl } from '../../constants/constants';
 import { BiFontSize } from 'react-icons/bi';
 import Users from './data/User';
 import AffiliateGrid from './data/affiliatesGrid';
+import AffiliateTransactions from './data/affiliateTransactions'
 
 
 const ITEM_HEIGHT = 48;
@@ -524,6 +525,14 @@ function CreateAffiliateProgram() {
               <Grid item xs={12} md={12} xl={12} mb={2}>
                 <MDBox>
                   <AffiliateGrid data={updated ? updated: id} />
+                </MDBox>
+              </Grid>
+              }
+
+            {(id || isObjectNew) && 
+              <Grid item xs={12} md={12} xl={12} mb={2}>
+                <MDBox>
+                  <AffiliateTransactions data={id} />
                 </MDBox>
               </Grid>
               }
