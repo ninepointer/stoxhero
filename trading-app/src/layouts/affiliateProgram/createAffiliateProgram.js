@@ -79,7 +79,7 @@ function CreateAffiliateProgram() {
 
   async function onSubmit(e, formState) {
     e.preventDefault()
-
+    console.log(formState)
     setCreating(true)
 
     if (!formState?.affiliateProgramName || !formState?.discountPercentage || !formState?.commissionPercentage || !formState?.status || !formState?.startDate || !formState?.endDate || !formState?.eligibleProducts.length || !formState?.eligiblePlatforms.length) {
@@ -97,14 +97,14 @@ function CreateAffiliateProgram() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        affiliateProgramName, discountPercentage, commissionPercentage, status, startDate, endDate, eligibleProducts, description, minOrderValue, eligiblePlatforms
+        affiliateProgramName, discountPercentage, commissionPercentage, status, startDate, endDate, eligibleProducts, description, maxDiscount, minOrderValue, eligiblePlatforms
       })
     });
 
 
     const data = await res.json();
 
-    if (res.status === 200 || data) {
+    if (res.status === 201 || data) {
       openSuccessSB("Affiliate Program Created", data.message)
       setIsSubmitted(true)
       setAffiliateProgramData(data?.data)
@@ -241,7 +241,7 @@ function CreateAffiliateProgram() {
                   onChange={(e) => {
                     setFormState(prevState => ({
                       ...prevState,
-                      code: e.target.value
+                      affiliateProgramName: e.target.value
                     }))
                   }}
                 />
@@ -330,7 +330,7 @@ function CreateAffiliateProgram() {
                   onChange={(e) => {
                     setFormState(prevState => ({
                       ...prevState,
-                      affiliatePercentage: e.target.value
+                      commissionPercentage: e.target.value
                     }))
                   }}
                 />
@@ -348,7 +348,7 @@ function CreateAffiliateProgram() {
                   onChange={(e) => {
                     setFormState(prevState => ({
                       ...prevState,
-                      discount: e.target.value
+                      discountPercentage: e.target.value
                     }))
                   }}
                 />
