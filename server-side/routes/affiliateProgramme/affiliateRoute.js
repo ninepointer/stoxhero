@@ -9,7 +9,7 @@ router.route('/').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createAf
 router.route('/:id').put(Authenticate, restrictTo('Admin', 'SuperAdmin'), editAffiliate).
     get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getAffiliateById);
 
-router.get('/:id/:userId', Authenticate, addAffiliateUser);
+router.patch('/:id/:userId', Authenticate, addAffiliateUser);
 
 
 module.exports = router;

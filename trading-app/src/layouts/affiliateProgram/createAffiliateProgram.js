@@ -25,6 +25,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
 import { apiUrl } from '../../constants/constants';
 import { BiFontSize } from 'react-icons/bi';
+import Users from './data/User';
 
 
 const ITEM_HEIGHT = 48;
@@ -508,6 +509,14 @@ function CreateAffiliateProgram() {
                   </>
                 )}
               </Grid>
+
+              {(id || isObjectNew) && 
+              <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                <MDBox>
+                  <Users id={id ? id?._id : affiliateProgramData?._id}/>
+                </MDBox>
+              </Grid>
+              }
 
             </Grid>
             {renderSuccessSB}
