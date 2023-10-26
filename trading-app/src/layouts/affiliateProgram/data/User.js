@@ -10,6 +10,7 @@ import TextField from '@mui/material/TextField';
 import { RxCross2 } from 'react-icons/rx';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { apiUrl } from '../../../constants/constants';
+import MDSnackbar from "../../../components/MDSnackbar";
 
 const initialState = {
   userData: [],
@@ -123,10 +124,56 @@ function Users({setUpdated, id}) {
         if (updatedData || res.status === 200) {
             setUpdated(data.data)
         } else {
-          
+
         }
     
   }
+
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+
+  const [successSB, setSuccessSB] = useState(false);
+  const openSuccessSB = (title, content) => {
+    setTitle(title)
+    setContent(content)
+    setSuccessSB(true);
+  }
+  const closeSuccessSB = () => setSuccessSB(false);
+
+
+  const renderSuccessSB = (
+    <MDSnackbar
+      color="success"
+      icon="check"
+      title={title}
+      content={content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite="info"
+    />
+  );
+
+  const [errorSB, setErrorSB] = useState(false);
+  const openErrorSB = (title, content) => {
+    setTitle(title)
+    setContent(content)
+    setErrorSB(true);
+  }
+  const closeErrorSB = () => setErrorSB(false);
+
+  const renderErrorSB = (
+    <MDSnackbar
+      color="error"
+      icon="warning"
+      title={title}
+      content={content}
+      open={errorSB}
+      onClose={closeErrorSB}
+      close={closeErrorSB}
+      bgWhite
+    />
+  );
 
   return (
     <MDBox sx={{ backgroundColor: "white", display: "flex", borderRadius: 2, marginBottom: 2 }}>

@@ -56,7 +56,7 @@ function CreateAffiliateProgram() {
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [creating, setCreating] = useState(false)
-  const [updated, setUpdated] = useState({});
+  const [updated, setUpdated] = useState();
   const [formState, setFormState] = useState({
     affiliateProgramName: id?.affiliateProgramName || '',
     description: id?.description || '',
@@ -523,7 +523,7 @@ function CreateAffiliateProgram() {
             {(id || isObjectNew) && 
               <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                 <MDBox>
-                  <AffiliateGrid data={id ? id: updated} />
+                  <AffiliateGrid data={updated ? updated: id} />
                 </MDBox>
               </Grid>
               }
