@@ -26,6 +26,7 @@ import Checkbox from '@mui/material/Checkbox';
 import { apiUrl } from '../../constants/constants';
 import { BiFontSize } from 'react-icons/bi';
 import Users from './data/User';
+import AffiliateGrid from './data/affiliatesGrid';
 
 
 const ITEM_HEIGHT = 48;
@@ -55,6 +56,7 @@ function CreateAffiliateProgram() {
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [creating, setCreating] = useState(false)
+  const [updated, setUpdated] = useState({});
   const [formState, setFormState] = useState({
     affiliateProgramName: id?.affiliateProgramName || '',
     description: id?.description || '',
@@ -513,7 +515,15 @@ function CreateAffiliateProgram() {
               {(id || isObjectNew) && 
               <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                 <MDBox>
-                  <Users id={id ? id?._id : affiliateProgramData?._id}/>
+                  <Users id={id ? id?._id : affiliateProgramData?._id} setUpdated={setUpdated}/>
+                </MDBox>
+              </Grid>
+              }
+
+            {(id || isObjectNew) && 
+              <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                <MDBox>
+                  <AffiliateGrid data={id ? id: updated} />
                 </MDBox>
               </Grid>
               }

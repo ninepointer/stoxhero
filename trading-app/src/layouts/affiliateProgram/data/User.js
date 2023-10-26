@@ -53,7 +53,7 @@ function reducer(state, action) {
 }
 
 
-function Users({setReRender, reRender, id}) {
+function Users({setUpdated, id}) {
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let textRef = useRef(null);
@@ -106,7 +106,7 @@ function Users({setReRender, reRender, id}) {
   async function addAffiliate(elem){
 
         const res = await fetch(`${apiUrl}affiliate/${id}/${elem._id}`, {
-          method: "PUT",
+          method: "PATCH",
           credentials: "include",
           headers: {
             "content-type": "application/json",
@@ -118,14 +118,13 @@ function Users({setReRender, reRender, id}) {
     
         });
     
-        // const data = await res.json();
-        // const updatedData = data?.data
-        // if (updatedData || res.status === 200) {
-        //   openSuccessSB("Affiliate Program Edited", `Successfully Edited Affiliate Program`);
-        //   setTimeout(() => { setSaving(false); setEditing(false) }, 500)
-        // } else {
-        //   openErrorSB("Error", "data.error")
-        // }
+        const data = await res.json();
+        const updatedData = data?.data
+        if (updatedData || res.status === 200) {
+            setUpdated(data.data)
+        } else {
+          
+        }
     
   }
 
