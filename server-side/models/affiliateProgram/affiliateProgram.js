@@ -26,6 +26,14 @@ const affiliateProgramSchema = new mongoose.Schema({
         type:Number,
         required: true
     },
+    maxDiscount:{
+        type:Number,
+        required: true
+    },
+    minOrderValue:{
+        type:Number,
+        required: true
+    },
     affiliates: [
         {
             userId:{type:Schema.Types.ObjectId,ref: 'user-personal-detail'},
