@@ -513,7 +513,7 @@ function CreateAffiliateProgram() {
               </Grid>
 
               {(id || isObjectNew) && 
-              <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+              <Grid item xs={12} md={12} xl={12} mt={1}>
                 <MDBox>
                   <Users id={id ? id?._id : affiliateProgramData?._id} setUpdated={setUpdated}/>
                 </MDBox>
@@ -521,7 +521,7 @@ function CreateAffiliateProgram() {
               }
 
             {(id || isObjectNew) && 
-              <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+              <Grid item xs={12} md={12} xl={12} mb={2}>
                 <MDBox>
                   <AffiliateGrid data={updated ? updated: id} />
                 </MDBox>

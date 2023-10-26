@@ -123,8 +123,9 @@ function Users({setUpdated, id}) {
         const updatedData = data?.data
         if (updatedData || res.status === 200) {
             setUpdated(data.data)
+            openSuccessSB("User Added to Affiliate Program", data.message)
         } else {
-
+            openErrorSB("Notification", data.message)
         }
     
   }
@@ -183,7 +184,7 @@ function Users({setUpdated, id}) {
           // label="Click here to search any symbol and add them in your watchlist to start trading" 
           variant="outlined"
           type="text"
-          placeholder="Search user for deactivation."
+          placeholder="Add user to affiliate program"
           value={state.text}
           inputRef={textRef}
           InputProps={{
@@ -245,6 +246,8 @@ function Users({setUpdated, id}) {
             }))
           }
         </MDBox>
+          {renderSuccessSB}
+          {renderErrorSB}
       </MDBox>
     </MDBox>
   )
