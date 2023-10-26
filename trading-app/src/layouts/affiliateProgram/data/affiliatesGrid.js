@@ -12,6 +12,11 @@ export default function AffiliateGrid({data}) {
 
     const [newData, setNewData] = useState(data);
 
+    useEffect(()=>{
+        setNewData(data)
+    }, [data])
+
+
     let columns = [
         { Header: "Action", accessor: "remove", align: "center" },
         { Header: "Name", accessor: "name", align: "center" },
