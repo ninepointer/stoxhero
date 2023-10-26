@@ -82,7 +82,7 @@ exports.getAffiliates = async (req, res) => {
 exports.getActiveAffiliatePrograms = async (req, res) => {
     try {
         const affiliates = await Affiliate.find({status:'Active'})
-        
+
         res.status(200).json({
             status: "success",
             message: "affiliates fetched successfully",
@@ -210,6 +210,34 @@ exports.addAffiliateUser = async (req, res) => {
         });
     } catch (error) {
         console.log(error)
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+exports.removeAffiliateUser = async (req, res) => {
+    try {
+        const { id, userId } = req.params; // ID of the contest and the user to remove
+
+        if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ status: "success", message: "Invalid affiliate ID or user ID" });
+        }
+
+        const affiliate = await Affiliate.findOne({ _id: id });
+        let participants = affiliate?.affiliates?.filter((item) => (item.userId).toString() != userId.toString());
+        affiliate.affiliates = [...participants];
+        // console.log(affiliate.allowedUsers, userId)
+        await affiliate.save({ validateBeforeSave: false });
+
+        res.status(200).json({
+            status: "success",
+            message: "User removed from affiliate successfully",
+            data: affiliate
+        });
+    } catch (error) {
         res.status(500).json({
             status: "error",
             message: "Something went wrong",
