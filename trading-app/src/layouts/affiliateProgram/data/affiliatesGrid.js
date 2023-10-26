@@ -10,6 +10,7 @@ import Card from "@mui/material/Card";
 export default function AffiliateGrid({data}) {
 
     let columns = [
+        { Header: "Action", accessor: "remove", align: "center" },
         { Header: "Name", accessor: "name", align: "center" },
         { Header: "Mobile No.", accessor: "mobile", align: "center" },
         { Header: "Email", accessor: "email", align: "center" },
@@ -22,6 +23,11 @@ export default function AffiliateGrid({data}) {
     data?.affiliates?.map((elem, index) => {
     let featureObj = {}
 
+    featureObj.remove = (
+      <MDButton size='small' variant='contained'>
+        Remove
+      </MDButton>
+    );
     featureObj.name = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
         {elem?.userId?.first_name} {elem?.userId?.last_name}

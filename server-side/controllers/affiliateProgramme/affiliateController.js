@@ -158,6 +158,7 @@ exports.getAffiliateById = async (req, res) => {
     const {id} = req.params;
     try {
         const result = await Affiliate.findOne({_id: id})
+        
 
         res.status(200).json({
             status: "success",
@@ -179,6 +180,14 @@ exports.addAffiliateUser = async (req, res) => {
         const {myReferralCode} = req.body;
         if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({ status: "success", message: "Invalid contest ID or user ID" });
+        }
+
+        const checkUser = await Affiliate.find({"affiliates.userId": new ObjectId(userId)});
+        if(checkUser.length > 0){
+            return  res.status(500).json({
+                    status: "error",
+                    message: "User already added in this or another affiliate programme.",
+            });
         }
 
         const result = await Affiliate.findByIdAndUpdate(
