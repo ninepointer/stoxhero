@@ -81,7 +81,9 @@ exports.getAffiliates = async (req, res) => {
 
 exports.getActiveAffiliatePrograms = async (req, res) => {
     try {
-        const affiliates = await Affiliate.find({status:'Active'})
+        const affiliates = (await Affiliate.find({status:'Active'})
+        .populate('affiliates.userId', 'first_name last_name email mobile creationProcess myReferralCode'))
+        
         res.status(200).json({
             status: "success",
             message: "affiliates fetched successfully",
@@ -133,7 +135,7 @@ exports.getInactiveAffiliatePrograms = async (req, res) => {
     }
 };
 
-exports.getExpiredCouponCodes = async (req, res) => {
+exports.getExpiredAffiliatePrograms = async (req, res) => {
     try {
         const expiredAffiliatePrograms = await Affiliate.find({$or: [{status: 'Expired'}, {endDate: {$lt: new Date()}}]})
         
