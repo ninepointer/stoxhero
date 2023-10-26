@@ -68,9 +68,6 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={12} display={"flex"} justifyContent={"center"} alignItems={"center"}>
-                                <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>Discount Percentage: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.discountPercentage}</span></MDTypography>
-                                </Grid>
 
                                 <Grid item xs={12} md={6} lg={4} mb={1} display="flex" justifyContent="center">
                                   <MDTypography fontSize={9} style={{ color: "black" }}>Start Date: <span style={{ fontSize: 11, fontWeight: 700 }}>{moment.utc(e?.startDate).utcOffset('+05:30').format('DD-MMM-YY')}</span></MDTypography>
@@ -81,7 +78,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                                 </Grid>
 
                                 <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>Discount %: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.discountPercentage}%</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{ color: "black" }}>Discount Percentage: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.discountPercentage}%</span></MDTypography>
                                 </Grid>
 
                                 <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="center">
@@ -110,7 +107,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
           :
          <Grid container spacing={1} xs={12} md={6} lg={12}>
           <Grid item mt={2} xs={6} md={3} lg={12} display="flex" justifyContent="center">
-            <MDTypography color="light">No Active Coupon(s)</MDTypography>
+            <MDTypography color="light">No Active Affiliate Program(s)</MDTypography>
           </Grid>
          </Grid>
          } 

@@ -271,7 +271,7 @@ exports.removeAffiliateUser = async (req, res) => {
 exports.getAffiliateProgramTransactions = async (req, res) => {
     const {id} = req.params;
     try {
-        const result = await AffiliateTransactions.findOne({affiliateProgram: id})
+        const result = await AffiliateTransactions.find({affiliateProgram: id})
         
         res.status(200).json({
             status: "success",
