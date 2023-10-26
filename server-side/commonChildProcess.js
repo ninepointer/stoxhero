@@ -74,6 +74,7 @@ async function commonProcess() {
     app.use('/api/v1/marginxtrade', require('./routes/marginx/marginxTradeRoute'));
     app.use('/api/v1/battletrade', require('./routes/battles/battleTradeRoute'));
     app.use('/api/v1/pendingorder', require('./routes/pendingOrder/pendingRoute'));
+    app.use('/api/v1/affiliate', require("./routes/affiliateProgramme/affiliateRoute"));
 
     //  TODO toggle
     app.use('/api/v1/contestmaster', require("./routes/DailyContest/contestMaster"));
