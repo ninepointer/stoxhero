@@ -12,6 +12,8 @@ const emailService = require("../../utils/emailService");
 const Product = require('../../models/Product/product');
 const {saveSuccessfulCouponUse} = require('../coupon/couponController');
 const Coupon = require('../../models/coupon/coupon');
+const AffiliateProgram = require('../../models/affiliateProgram/affiliateProgram');
+const{creditAffiliateAmount} = require('../affiliateProgramme/affiliateController');
 
 exports.createMarginX = async (req, res) => {
     try {
@@ -918,6 +920,7 @@ exports.deductMarginXAmount = async (req, res, next) => {
 
 exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, marginXId ,coupon, bonusRedemption) =>{
     try {
+        let affiliate, affiliateProgram;
         const marginx = await MarginX.findOne({ _id: marginXId }).populate('marginXTemplate', 'entryFee');
         const wallet = await Wallet.findOne({ userId: userId });
         const user = await User.findOne({ _id: userId });
@@ -926,6 +929,19 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
         const setting = await Setting.find({});
         if(coupon){
             const couponDoc = await Coupon.findOne({code:coupon});
+            if(!couponDoc){
+                const affiliatePrograms = await AffiliateProgram.find({status:'Active'});
+                if(affiliatePrograms.length != 0)
+                    for(program of affiliatePrograms){
+                        let match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
+                        if(match){
+                            affiliate = match;
+                            affiliateProgram = program;
+                            couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: program?.discount, maxDiscount:program?.maxDiscount }
+                        }
+                    }
+
+            }
             if(couponDoc?.rewardType == 'Discount'){
                 if(couponDoc?.discountType == 'Flat'){
                     //Calculate amount and match
@@ -1198,6 +1214,9 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
           if(coupon){
             const product = await Product.findOne({productName:'MarginX'}).select('_id');
             await saveSuccessfulCouponUse(userId, coupon, product?._id, marginx?._id);
+            if(affiliate){
+                await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, marginx?._id, marginx?.marginXTemplate?.entryFee, userId);
+            }
           }
           return {
             statusCode:200,

@@ -69,6 +69,9 @@ const affiliateProgramSchema = new mongoose.Schema({
         ref: 'user-personal-detail',
         // required : true
     },
+    maxDiscount: {
+        type: Number
+    }
 })
 
 affiliateProgramSchema.pre('save', async function(next){

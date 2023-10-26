@@ -8,7 +8,6 @@ const affiliateTransactionSchema = new mongoose.Schema({
     },
     transactionId:{
         type:String,
-        required: true,
     },
     affiliateWalletTId:{
         type:String,

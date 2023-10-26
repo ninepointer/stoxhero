@@ -15,6 +15,8 @@ const Product = require('../models/Product/product');
 const Coupon = require('../models/coupon/coupon');
 const Setting = require('../models/settings/setting');
 const {saveSuccessfulCouponUse} = require('./coupon/couponController');
+const AffiliateProgram = require('../models/affiliateProgram/affiliateProgram');
+const{creditAffiliateAmount} = require('./affiliateProgramme/affiliateController');
 
 
 const filterObj = (obj, ...allowedFields) => {
@@ -504,6 +506,7 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
   const today = new Date();
   const session = await mongoose.startSession();
   try{
+    let affiliate, affiliateProgram;
     let discountAmount =0;
     let cashbackAmount =0;
     session.startTransaction();
@@ -545,6 +548,19 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
     }  
     if(coupon){
       const couponDoc = await Coupon.findOne({code:coupon});
+      if(!couponDoc){
+        const affiliatePrograms = await AffiliateProgram.find({status:'Active'});
+        if(affiliatePrograms.length != 0)
+            for(program of affiliatePrograms){
+                let match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
+                if(match){
+                    affiliate = match;
+                    affiliateProgram = program;
+                    couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: program?.discount, maxDiscount:program?.maxDiscount }
+                }
+            }
+
+    }
       if(couponDoc?.rewardType == 'Discount'){
           if(couponDoc?.discountType == 'Flat'){
               //Calculate amount and match
@@ -832,6 +848,9 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
     if(coupon){
       const product = await Product.findOne({productName:'TenX'}).select('_id');
       await saveSuccessfulCouponUse(userId, coupon, product?._id, subscription?._id);
+      if(affiliate){
+        await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, subscription?._id, subscription?.discounted_price, userId);
+    }
     }
     return {
       statusCode:201,
