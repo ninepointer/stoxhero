@@ -79,6 +79,79 @@ exports.getAffiliates = async (req, res) => {
     }
 };
 
+exports.getActiveAffiliatePrograms = async (req, res) => {
+    try {
+        const affiliates = await Affiliate.find({status:'Active'})
+        res.status(200).json({
+            status: "success",
+            message: "affiliates fetched successfully",
+            data: affiliates,
+            count: affiliates.length
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+exports.getDraftAffiliatePrograms = async (req, res) => {
+    try {
+        const affiliates = await Affiliate.find({status:'Draft'})
+        res.status(200).json({
+            status: "success",
+            message: "affiliates fetched successfully",
+            data: affiliates,
+            count: affiliates.length
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+exports.getInactiveAffiliatePrograms = async (req, res) => {
+    try {
+        const affiliates = await Affiliate.find({status:'Inactive'})
+        res.status(200).json({
+            status: "success",
+            message: "affiliates fetched successfully",
+            data: affiliates,
+            count: affiliates.length
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+exports.getExpiredCouponCodes = async (req, res) => {
+    try {
+        const expiredAffiliatePrograms = await Affiliate.find({$or: [{status: 'Expired'}, {endDate: {$lt: new Date()}}]})
+        
+        res.status(200).json({
+            status: 'success',
+            data: expiredAffiliatePrograms,
+            count: expiredAffiliatePrograms.length
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
 exports.getAffiliateById = async (req, res) => {
     const {id} = req.params;
     try {

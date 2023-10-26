@@ -477,7 +477,7 @@ function CreateAffiliateProgram() {
                     <MDButton mr={1} variant="contained" color="success" size="small" sx={{ mr: 1, ml: 2 }} disabled={creating} onClick={(e) => { onSubmit(e, formState) }}>
                       {creating ? <CircularProgress size={20} color="inherit" /> : "Submit"}
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/coupons") }}>
+                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/affiliateprograms") }}>
                       Cancel
                     </MDButton>
                   </>
@@ -488,7 +488,7 @@ function CreateAffiliateProgram() {
                     <MDButton sx={{ mr: 1, ml: 2 }} variant="contained" color="info" size="small" disabled={editing} onClick={() => { setEditing(true) }}>
                       Edit
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={editing} onClick={() => { navigate("/coupons") }}>
+                    <MDButton variant="contained" color="error" size="small" disabled={editing} onClick={() => { navigate("/affiliateprograms") }}>
                       Back
                     </MDButton>
                   </>
