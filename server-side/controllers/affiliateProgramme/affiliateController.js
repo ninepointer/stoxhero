@@ -187,7 +187,7 @@ exports.addAffiliateUser = async (req, res) => {
             }
           },
           { new: true } // This option ensures the updated document is returned
-        );
+        ).populate('affiliates.userId', 'first_name last_name mobile email creationProcess myReferralCode');
 
         if (!result) {
             return res.status(404).json({ status: "error", message: "Affiliate not found" });
