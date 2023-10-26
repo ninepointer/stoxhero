@@ -1805,16 +1805,16 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
 
 
         if(coupon){
-          const couponDoc = await Coupon.findOne({code:coupon});
+          let couponDoc = await Coupon.findOne({code:coupon});
           if(!couponDoc){
             const affiliatePrograms = await AffiliateProgram.find({status:'Active'});
             if(affiliatePrograms.length != 0)
-                for(program of affiliatePrograms){
+                for(let program of affiliatePrograms){
                     let match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
                     if(match){
                         affiliate = match;
                         affiliateProgram = program;
-                        couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: program?.discount, maxDiscount:program?.maxDiscount }
+                        couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: program?.discountPercentage, maxDiscount:program?.maxDiscount }
                     }
                 }
 
@@ -2159,10 +2159,11 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
           });
           if(coupon){
             const product = await Product.findOne({productName:'Contest'}).select('_id');
-            await saveSuccessfulCouponUse(userId, coupon, product?._id, contest?._id);
             if(affiliate){
               await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, contest?._id, contest?.entryFee, userId);
-          }
+            }else{
+              await saveSuccessfulCouponUse(userId, coupon, product?._id, contest?._id);
+            }
           }
           return {
             stautsCode:200,

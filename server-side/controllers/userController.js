@@ -513,7 +513,7 @@ exports.getUsers = async (req, res) => {
                   status: 'Active',
               },
           ]
-      }).select('first_name last_name email mobile _id')
+      }).select('first_name last_name email mobile _id myReferralCode')
       res.status(200).json({
           status: "success",
           message: "Getting User successfully",

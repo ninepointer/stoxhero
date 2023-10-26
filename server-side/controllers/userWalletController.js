@@ -178,12 +178,12 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
             if(!couponDoc){
                 const affiliatePrograms = await AffiliateProgram.find({status:'Active'});
                 if(affiliatePrograms.length != 0)
-                    for(program of affiliatePrograms){
+                    for(let program of affiliatePrograms){
                         let match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
                         if(match){
                             affiliate = match;
                             affiliateProgram = program;
-                            couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: program?.discount, maxDiscount:program?.maxDiscount }
+                            couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: program?.discountPercentage, maxDiscount:program?.maxDiscount }
                         }
                     }
 
@@ -437,9 +437,10 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
           await session.commitTransaction();
           if(coupon){
             const product = await Product.findOne({productName:'TenX'}).select('_id');
-            await saveSuccessfulCouponUse(userId, coupon, product?._id, subscription?._id);
             if(affiliate){
                 await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, subs?._id, subs?.discounted_price, userId);
+            }else{
+                await saveSuccessfulCouponUse(userId, coupon, product?._id, subscription?._id);
             }
           }
           result = {

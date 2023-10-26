@@ -547,16 +547,16 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
       });
     }  
     if(coupon){
-      const couponDoc = await Coupon.findOne({code:coupon});
+      let couponDoc = await Coupon.findOne({code:coupon});
       if(!couponDoc){
         const affiliatePrograms = await AffiliateProgram.find({status:'Active'});
         if(affiliatePrograms.length != 0)
-            for(program of affiliatePrograms){
+            for(let program of affiliatePrograms){
                 let match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
                 if(match){
                     affiliate = match;
                     affiliateProgram = program;
-                    couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: program?.discount, maxDiscount:program?.maxDiscount }
+                    couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: program?.discountPercentage, maxDiscount:program?.maxDiscount }
                 }
             }
 
@@ -847,10 +847,11 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
     await session.commitTransaction();
     if(coupon){
       const product = await Product.findOne({productName:'TenX'}).select('_id');
-      await saveSuccessfulCouponUse(userId, coupon, product?._id, subscription?._id);
       if(affiliate){
         await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, subscription?._id, subscription?.discounted_price, userId);
-    }
+      }else{
+        await saveSuccessfulCouponUse(userId, coupon, product?._id, subscription?._id);
+      }
     }
     return {
       statusCode:201,
