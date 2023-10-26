@@ -24,7 +24,7 @@ exports.createContest = async (req, res) => {
     try {
         const { liveThreshold, currentLiveStatus, contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
             contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
-            maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, payoutType } = req.body;
+            maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, payoutType, payoutCapPercentage } = req.body;
 
         const getContest = await Contest.findOne({ contestName: contestName });
 
@@ -51,7 +51,7 @@ exports.createContest = async (req, res) => {
         const contest = await Contest.create({
             maxParticipants, contestStatus, contestEndTime, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
-            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold
+            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage
         });
 
         // console.log(contest)
@@ -1402,10 +1402,19 @@ exports.creditAmountToWallet = async () => {
         todayDate = todayDate + "T00:00:00.000Z";
         const today = new Date(todayDate);
 
-        const contest = await Contest.find({ contestStatus: "Completed", payoutStatus: null, contestEndTime: {$gte: today} });
+        const contest = await Contest.find({ contestStatus: "Completed", payoutStatus: null, contestEndTime: {$gte: today} }).populate('portfolio', 'portfoliValue');
         const setting = await Setting.find();
         // console.log(contest.length, contest)
         for (let j = 0; j < contest.length; j++) {
+          let maxPayout = 10000;
+          //setting max payout for free contest
+          if(contest?.entryFee == 0){
+            maxPayout = contest?.portfolio?.portfolioValue * (contest?.payoutCapPercentage ?? 100)/100;
+          }else{
+            //setting maxPayout for paid contest
+            maxPayout = contest?.entryFee * (contest?.payoutCapPercentage ?? 10000)/100; 
+          }
+          //setting max payout for paid contest 
             // if (contest[j].contestEndTime < new Date()) {
             for (let i = 0; i < contest[j]?.participants?.length; i++) {
                 let userId = contest[j]?.participants[i]?.userId;
@@ -1437,14 +1446,20 @@ exports.creditAmountToWallet = async () => {
                                     $toDouble: "$brokerage",
                                 },
                             },
+                            trades: {
+                              $count: {},
+                            }
                         },
                     },
                     {
                         $project:
                         {
-                            npnl: {
-                                $subtract: ["$amount", "$brokerage"],
-                            },
+                          npnl: {
+                              $subtract: ["$amount", "$brokerage"],
+                          },
+                          gpnl: "$amount",
+                          brokerage: "$brokerage",
+                          trades: 1
                         },
                     },
                 ])
@@ -1452,7 +1467,7 @@ exports.creditAmountToWallet = async () => {
                 // console.log(pnlDetails[0]);
                 if (pnlDetails[0]?.npnl > 0) {
                     const payoutAmountWithoutTDS = pnlDetails[0]?.npnl * payoutPercentage / 100;
-                    let payoutAmount = payoutAmountWithoutTDS;
+                    let payoutAmount = math.min(payoutAmountWithoutTDS, maxPayout);
                     if(payoutAmountWithoutTDS>fee){
                       payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100;
                     }
@@ -1479,6 +1494,10 @@ exports.creditAmountToWallet = async () => {
                     const user = await User.findById(userId).select('first_name last_name email')
 
                     contest[j].participants[i].payout = payoutAmount?.toFixed(2);
+                    contest[j].participants[i].npnl = pnlDetails[0]?.npnl;
+                    contest[j].participants[i].gpnl = pnlDetails[0]?.gpnl;
+                    contest[j].participants[i].trades = pnlDetails[0]?.trades;
+                    contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
                     contest[j].participants[i].tdsAmount = payoutAmountWithoutTDS-fee>0?((payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
                     if (process.env.PROD == 'true') {
                         emailService(user?.email, 'Contest Payout Credited - StoxHero', `
@@ -1578,6 +1597,11 @@ exports.creditAmountToWallet = async () => {
                         createdBy:'63ecbc570302e7cf0153370c',
                         lastModifiedBy:'63ecbc570302e7cf0153370c'  
                       });
+                } else{
+                  contest[j].participants[i].npnl = pnlDetails[0]?.npnl;
+                  contest[j].participants[i].gpnl = pnlDetails[0]?.gpnl;
+                  contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
+                  contest[j].participants[i].trades = pnlDetails[0]?.trades;
                 }
 
             }
@@ -3952,7 +3976,7 @@ exports.getContestLeaderboardById = async (req, res) => {
         },
       },
     ]
-    );
+  );
   
   try {
       const pipeline = 
@@ -3987,8 +4011,8 @@ exports.getContestLeaderboardById = async (req, res) => {
               last_name: {
                 $arrayElemAt: ["$user.last_name", 0],
               },
-              image:{
-                $arrayElemAt: ["$user.profilePhoto.url", 0]
+              image: {
+                $arrayElemAt: ["$user.profilePhoto.url", 0],
               },
               rank: {
                 $ifNull: ["$participants.rank", "-"],

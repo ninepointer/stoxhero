@@ -23,13 +23,28 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { renderContext } from "../../renderContext";
 import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader, marginX, battle } from "../../variables";
+import { NetPnlContext } from "../../PnlContext";
 
 
 const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, module}) => {
 
+  const newLtp = ltp;
+  const { pnlData } = useContext(NetPnlContext);
+  // console.log("pnlData", pnlData)
+  // let runningLotsSymbol = 0;
+  const runningLotsSymbol = pnlData.reduce((total, acc) => {
+    if (acc?._id?.symbol === symbol) {
+      return total + acc.lots;
+    }
+    return total; // return the accumulator if the condition is false
+  }, 0);
+
+  const type = "BUY";
+
+  console.log(runningLotsSymbol)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const {render, setRender} = useContext(renderContext);
   const getDetails = React.useContext(userContext);
@@ -55,6 +70,8 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
   }
 
   const [buttonClicked, setButtonClicked] = useState(false);
+  const [errorMessageStopLoss, setErrorMessageStopLoss] = useState("");
+  const [errorMessageStopProfit, setErrorMessageStopProfit] = useState("");
 
   const [open, setOpen] = React.useState(buyState);
   const theme = useTheme();
@@ -71,7 +88,8 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
     variety: "",
     Product: "",
     Quantity: "",
-    Price: "",
+    stopLossPrice: "",
+
     OrderType: "",
     TriggerPrice: "",
     stopLoss: "",
@@ -133,9 +151,41 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
     setButtonClicked(false);
   };
 
+  const stopLoss = async (e) => {
+    setErrorMessageStopLoss("")
+    buyFormDetails.stopLossPrice = e.target.value
+    if(Number(newLtp) < Number(e.target.value)){//errorMessage
+      const text  = "Stop Loss price should be less then LTP.";
+      setErrorMessageStopLoss(text)
+    }
+    if(e.target.value === ""){
+      buyFormDetails.stopLossPrice = false;
+    }
+  }
+
+
+  const stopProfit = async (e) => {
+    setErrorMessageStopProfit("")
+    buyFormDetails.stopProfitPrice = e.target.value
+    if(Number(newLtp) > Number(e.target.value)){
+      setErrorMessageStopProfit("Stop Profit price should be greater then LTP.")
+    }
+    if(e.target.value === ""){
+      buyFormDetails.stopProfitPrice = false;
+    }
+  }
+
   async function buyFunction(e, uId) {
-    //console.log("caseStudy 1: buy")
-    // console.log("buttonClicked inside", buttonClicked)
+    if(!buyFormDetails.Quantity){
+      openSuccessSB('error', "Please select quantity for trade.");
+      return;
+    }
+
+    if(buyFormDetails.OrderType === "SL/SP-M" && (!buyFormDetails.stopLossPrice && !buyFormDetails.stopProfitPrice)){
+      openSuccessSB('error', "Please enter stop loss or stop profit price.");
+      return;
+    }
+
     if(buttonClicked){
       // setButtonClicked(false);
       return;
@@ -168,7 +218,7 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
 
   async function placeOrder() {
     // console.log("exchangeInstrumentToken", exchangeInstrumentToken)
-    const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = buyFormDetails;
+    const { exchange, symbol, buyOrSell, Quantity, Product, OrderType, TriggerPrice, stopProfitPrice, stopLoss, stopLossPrice, validity, variety } = buyFormDetails;
     let endPoint 
     let paperTrade = false;
     let tenxTraderPath;
@@ -211,36 +261,24 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
             "content-type": "application/json"
         },
         body: JSON.stringify({
-          exchange, symbol, buyOrSell, Quantity, Price, contestId: module?.data, battleId: subscriptionId,
-          Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin,
+          exchange, symbol, buyOrSell, Quantity, stopLoss, contestId: module?.data, battleId: subscriptionId,
+          Product, OrderType, TriggerPrice, stopProfitPrice, stopLossPrice, uId, exchangeInstrumentToken, fromAdmin,
           validity, variety, createdBy, order_id:dummyOrderId, subscriptionId, marginxId: subscriptionId,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath
 
         })
     });
     const dataResp = await res.json();
-    // console.log("dataResp", dataResp, res)
     if (dataResp.status === 422 || dataResp.error || !dataResp) {
-        // console.log("dataResp if")
-        // window.alert(dataResp.error);
         openSuccessSB('error', dataResp.error)
-        //////console.log("Failed to Trade");
     } else {
-      // console.log("dataResp else")
-      //console.log("caseStudy 3: place resp")
       tradeSound.play();
         if(dataResp.message === "COMPLETE"){
-            // //console.log(dataResp);
             openSuccessSB('complete', {symbol, Quantity})
-            // window.alert("Trade Succesfull Completed");
         } else if(dataResp.message === "REJECTED"){
-            // //console.log(dataResp);
             openSuccessSB('reject', "Trade is Rejected due to Insufficient Fund")
-            // window.alert("Trade is Rejected due to Insufficient Fund");
         } else if(dataResp.message === "AMO REQ RECEIVED"){
-            // //console.log(dataResp);
             openSuccessSB('amo', "AMO Request Recieved")
-            // window.alert("AMO Request Recieved");
         } else if(dataResp.message === "Live"){
         } else{
             openSuccessSB('else', dataResp.message)
@@ -296,44 +334,15 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
     }
   }
 
-  // let renderSuccessSB;
   const [successSB, setSuccessSB] = useState(false);
-  // let success = useRef(false);
-  // let message = useRef({
-  //   color: '',
-  //   icon: '',
-  //   title: '',
-  //   content: ''
-  // })
-  const openSuccessSB = (value,content) => {
-    // //console.log("Value: ",value)
-    if(value === "complete"){
 
-      // console.log("no response if")
+  const openSuccessSB = (value,content) => {
+    if(value === "complete"){
         messageObj.color = 'success'
         messageObj.icon = 'check'
         messageObj.title = "Trade Successful";
         messageObj.content = `Traded ${content.Quantity} of ${content.symbol}`;
         setSuccessSB(true);
-
-        // success.current = true;
-        // message.current.color = 'success'
-        // message.current.icon = 'check'
-        // message.current.title = "Trade Successful";
-        // message.current.content = `Traded ${content.Quantity} of ${content.symbol}`;
-        // renderSuccessSB = (
-        //   <MDSnackbar
-        //     color= "success"
-        //     icon= "check"
-        //     title="Trade Successful"
-        //     content="Trade Successful"
-        //     open={true}
-        //     onClose={closeSuccessSB}
-        //     close={closeSuccessSB}
-        //     bgWhite="info"
-        //     sx={{ borderLeft: `10px solid ${message.current.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${message.current.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto"}}
-        //   />
-        // );
     };
     if(value === "reject"){
       messageObj.color = 'error'
@@ -364,7 +373,6 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
     setSuccessSB(true);
   }
   const closeSuccessSB = () => setSuccessSB(false);
-  // console.log("no response ", successSB)
   const renderSuccessSB = (
     <MDSnackbar
       color= {messageObj.color}
@@ -379,10 +387,11 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
     />
   );
 
-
-
-  // console.log("no response renderSuccessSB", success.current)
-
+  const [checkQuantity, setChaeckQuantity] = useState();
+    function handleQuantity(e){
+      buyFormDetails.Quantity = e.target.value;
+      setChaeckQuantity(e.target.value);
+    }
 
   return (
     <div>
@@ -424,7 +433,9 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
                     labelId="demo-simple-select-standard-label"
                     id="demo-simple-select-standard"
                     label="Quantity"
-                    onChange={(e) => { { buyFormDetails.Quantity = (e.target.value) } }}
+                    // { buyFormDetails.Quantity = (e.target.value) }
+                    // setBuyFormDetails(prev => ({...prev, Quantity: e.target.value}))
+                    onChange={(e) => { handleQuantity(e) }}
                     sx={{ margin: 1, padding: 0.5, }}
                   >
                     {/* <MenuItem value="100">100</MenuItem>
@@ -440,14 +451,26 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
                     }
                   </Select>
                 </FormControl>
-                <TextField
-                  id="outlined-basic" disabled="true" label="Price" variant="standard" onChange={(e) => { { buyFormDetails.Price = (e.target.value) } }}
-                  sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} />
 
                 <TextField
-                  id="outlined-basic" disabled="true" label="Trigger Price" variant="standard" onChange={(e) => { { buyFormDetails.TriggerPrice = (e.target.value) } }}
-                  sx={{ margin: 1, padding: 1, width: "300px" }} />
+                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "SL/SP-M"} label="Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
+                  sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
+
+                <TextField
+                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || (runningLotsSymbol < 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="StopLoss Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
+                  sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
+               
+                <TextField
+                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || (runningLotsSymbol < 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="StopProfit Price" variant="standard" onChange={(e) => { { stopProfit(e) } }}
+                  sx={{ margin: 1, padding: 1, width: "300px" }} type="number" />
+                  
               </Box>
+
+              <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center", gap: "10px" }}>
+                  <Typography fontSize={15} color={"error"}> {buyFormDetails.stopLossPrice && errorMessageStopLoss && errorMessageStopLoss}</Typography>
+                  <Typography fontSize={15} color={"error"}>{buyFormDetails.stopProfitPrice && errorMessageStopProfit && errorMessageStopProfit}</Typography>
+              </Box>
+
               <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
                 <FormControl  >
                   <FormLabel id="demo-controlled-radio-buttons-group" ></FormLabel>
@@ -458,20 +481,10 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
                     onChange={marketHandleChange}
                     sx={{ display: "flex", flexDirection: "row" }}
                   >
-                    <FormControlLabel  disabled="true" value="MARKET" control={<Radio />} label="MARKET" />
-                    <FormControlLabel disabled="true" value="LIMIT" control={<Radio />} label="LIMIT" />
-                  </RadioGroup>
-                </FormControl>
-                <FormControl  >
-                  <FormLabel id="demo-controlled-radio-buttons-group" ></FormLabel>
-                  <RadioGroup
-                    aria-labelledby="demo-controlled-radio-buttons-group"
-                    name="controlled-radio-buttons-group"
-                    onChange={(e) => { { buyFormDetails.stopLoss = (e.target.value) } }}
-                    sx={{ display: "flex", flexDirection: "row" }}
-                  >
-                    <FormControlLabel disabled="true" value="SL" control={<Radio />} label="SL" />
-                    <FormControlLabel disabled="true" value="SLM" control={<Radio />} label="SL-M" />
+                    <FormControlLabel value="MARKET" control={<Radio />} label="MARKET" />
+                    <FormControlLabel disabled="false" value="LIMIT" control={<Radio />} label="LIMIT" />
+                    <FormControlLabel value="SL/SP-M" control={<Radio />} label="SL/SP-M" />
+
                   </RadioGroup>
                 </FormControl>
 
@@ -496,11 +509,13 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <MDButton autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
+            <MDButton 
+            disabled={(buyFormDetails.stopLossPrice && (Number(ltp) < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (Number(ltp) > buyFormDetails.stopProfitPrice))} 
+            autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
               BUY
             </MDButton>
             <MDButton variant="contained" color="info" onClick={handleClose} autoFocus>
-              Close
+              Cancel
             </MDButton>
           </DialogActions>
         </Dialog>

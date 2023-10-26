@@ -1,11 +1,11 @@
 import React, { useContext, useState } from "react";
 import { useEffect, memo } from 'react';
-import axios from "axios"
+// import axios from "axios"
 import uniqid from "uniqid"
 import { userContext } from "../../AuthContext";
 import MDSnackbar from '../../components/MDSnackbar';
 
-import Button from '@mui/material/Button';
+// import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -24,11 +24,12 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 // import MDBox from '../../components/MDBox';
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { renderContext } from "../../renderContext";
 import {Howl} from "howler";
 import sound from "../../assets/sound/tradeSound.mp3"
 import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader, marginX, battle } from "../../variables";
+import { NetPnlContext } from "../../PnlContext";
 
 
 const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState, module}) => {
@@ -40,6 +41,19 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
   //   src : [sound],
   //   html5 : true
   // })
+
+  const { pnlData } = useContext(NetPnlContext);
+  // console.log("pnlData", pnlData)
+  // let runningLotsSymbol = 0;
+  const runningLotsSymbol = pnlData.reduce((total, acc) => {
+    if (acc?._id?.symbol === symbol) {
+      return total + acc.lots;
+    }
+    return total; // return the accumulator if the condition is false
+  }, 0);
+
+  const type = "SELL";
+
   
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
@@ -82,6 +96,8 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
 
   const [regularSwitch, setRegularSwitch] = React.useState(true);
   const [buttonClicked, setButtonClicked] = useState(false);
+  const [errorMessageStopLoss, setErrorMessageStopLoss] = useState("");
+  const [errorMessageStopProfit, setErrorMessageStopProfit] = useState("");
 
   const [sellFormDetails, setsellFormDetails] = React.useState({
     exchange: "",
@@ -140,12 +156,45 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
     setButtonClicked(false);
   };
 
+  const stopLoss = async (e) => {
+    setErrorMessageStopLoss("")
+    sellFormDetails.stopLossPrice = e.target.value
+    if(Number(ltp) > Number(e.target.value)){//errorMessage
+      const text  = "Stop Loss price should be greater then LTP.";
+      setErrorMessageStopLoss(text)
+    }
+    if(e.target.value === ""){
+      sellFormDetails.stopLossPrice = false;
+    }
+  }
 
 
-  async function sellFunction(e, uId) {
+  const stopProfit = async (e) => {
+    setErrorMessageStopProfit("")
+    sellFormDetails.stopProfitPrice = e.target.value
+    if(Number(ltp) < Number(e.target.value)){
+      setErrorMessageStopProfit("Stop Profit price should be less then LTP.")
+    }
+    if(e.target.value === ""){
+      sellFormDetails.stopProfitPrice = false;
+    }
+  }
+
+
+
+  async function sellFunction(e) {
+
+      if(!sellFormDetails.Quantity){
+        openSuccessSB('error', "Please select quantity for trade.");
+        return;
+      }
+
+      if(sellFormDetails.OrderType === "SL/SP-M" && (!sellFormDetails.stopLossPrice && !sellFormDetails.stopProfitPrice)){
+        openSuccessSB('error', "Please enter stop loss or stop profit price.");
+        return;
+      }
 
       if(buttonClicked){
-        // setButtonClicked(false);
         return;
       }
       setButtonClicked(true);
@@ -178,7 +227,7 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
 
   async function placeOrder() {
 
-    const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = sellFormDetails;
+    const {stopProfitPrice, stopLossPrice, exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = sellFormDetails;
     let endPoint 
     let paperTrade = false;
     let tenxTraderPath;
@@ -222,7 +271,7 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
         body: JSON.stringify({
             
           exchange, symbol, buyOrSell, Quantity, Price, subscriptionId, contestId: module?.data,
-          Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin,
+          Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin, stopProfitPrice, stopLossPrice,
           validity, variety, createdBy, order_id:dummyOrderId, internPath, marginxId: subscriptionId,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, battleId: subscriptionId
 
@@ -254,7 +303,9 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
             openSuccessSB('else', dataResp.message)
         }
     }
-    render ? setRender(false) : setRender(true)
+
+    setsellFormDetails({});
+    render ? setRender(false) : setRender(true);
   }
 
   async function addInstrument(){
@@ -361,20 +412,18 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
     />
   );
 
-
-
+  const [checkQuantity, setChaeckQuantity] = useState();
+    function handleQuantity(e){
+      sellFormDetails.Quantity = e.target.value;
+      setChaeckQuantity(e.target.value);
+    }
 
   return (
     <div>
-      {/* {fromSearchInstrument ? 
-      <MDBox color="light" onClick={handleClickOpen}>
-        S
-      </MDBox>
-      :  */}
+
       <MDButton size="small" sx={{marginRight:0.5,minWidth:2,minHeight:3}} color="error" onClick={handleClickOpen} >
         S
       </MDButton>
-      {/* } */}
       <Dialog
         fullScreen={fullScreen}
         open={open}
@@ -409,53 +458,63 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
                   labelId="demo-simple-select-standard-label"
                   id="demo-simple-select-standard"
                   label="Quantity"
-                  onChange={(e) => { { sellFormDetails.Quantity = (e.target.value) } }}
+                  // { sellFormDetails.Quantity = (e.target.value) }
+                  // sellFormDetails(prev => ({...prev, Quantity: e.target.value}))
+                  onChange={(e) => { handleQuantity(e)  }}
                   sx={{ margin: 1, padding: 0.5, }}
                 >
-                    {optionData.map((elem)=>{
-                        return(
-                            <MenuItem value={elem.props.value}>{elem.props.children}</MenuItem>
-                        )
-                    }) 
-                    }
+                  {/* <MenuItem value="100">100</MenuItem>
+                    <MenuItem value="150">150</MenuItem> */}
+                  {optionData.map((elem) => {
+                    // //console.log("optionData", elem)
+                    return (
+                      <MenuItem value={elem.props.value}>
+                        {elem.props.children}
+                      </MenuItem>
+                    )
+                  })
+                  }
                 </Select>
               </FormControl>
-              <TextField
-                id="outlined-basic" disabled="true" label="Price" variant="standard" onChange={(e) => { { sellFormDetails.Price = (e.target.value) } }}
-                sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} />
 
               <TextField
-                id="outlined-basic" disabled="true" label="Trigger Price" variant="standard" onChange={(e) => { { sellFormDetails.TriggerPrice = (e.target.value) } }}
-                sx={{ margin: 1, padding: 1, width: "300px" }} />
-            </Box>
-            <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
-              <FormControl  >
-                <FormLabel id="demo-controlled-radio-buttons-group" ></FormLabel>
-                <RadioGroup
-                  aria-labelledby="demo-controlled-radio-buttons-group"
-                  name="controlled-radio-buttons-group"
-                  value={market}
-                  onChange={marketHandleChange}
-                  sx={{ display: "flex", flexDirection: "row" }}
-                >
-                  <FormControlLabel value="MARKET" disabled="true" control={<Radio />} label="MARKET" />
-                  <FormControlLabel value="LIMIT" disabled="true" control={<Radio />} label="LIMIT" />
-                </RadioGroup>
-              </FormControl>
-              <FormControl  >
-                <FormLabel id="demo-controlled-radio-buttons-group" ></FormLabel>
-                <RadioGroup
-                  aria-labelledby="demo-controlled-radio-buttons-group"
-                  name="controlled-radio-buttons-group"
-                  onChange={(e) => { { sellFormDetails.stopLoss = (e.target.value) } }}
-                  sx={{ display: "flex", flexDirection: "row" }}
-                >
-                  <FormControlLabel value="SL" disabled="true" control={<Radio />} label="SL" />
-                  <FormControlLabel value="SLM" disabled="true" control={<Radio />} label="SL-M" />
-                </RadioGroup>
-              </FormControl>
+                id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "SL/SP-M"} label="Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
+                sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
+
+              <TextField
+                id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "LIMIT" || (runningLotsSymbol > 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="StopLoss Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
+                sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
+
+              <TextField
+                id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "LIMIT" || (runningLotsSymbol > 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="StopProfit Price" variant="standard" onChange={(e) => { { stopProfit(e) } }}
+                sx={{ margin: 1, padding: 1, width: "300px" }} type="number" />
 
             </Box>
+
+            <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center", gap: "10px" }}>
+                  <Typography fontSize={15} color={"error"}> {sellFormDetails.stopLossPrice && errorMessageStopLoss && errorMessageStopLoss}</Typography>
+                  <Typography fontSize={15} color={"error"}>{sellFormDetails.stopProfitPrice && errorMessageStopProfit && errorMessageStopProfit}</Typography>
+              </Box>
+
+
+              <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
+                <FormControl  >
+                  <FormLabel id="demo-controlled-radio-buttons-group" ></FormLabel>
+                  <RadioGroup
+                    aria-labelledby="demo-controlled-radio-buttons-group"
+                    name="controlled-radio-buttons-group"
+                    value={market}
+                    onChange={marketHandleChange}
+                    sx={{ display: "flex", flexDirection: "row" }}
+                  >
+                    <FormControlLabel value="MARKET" control={<Radio />} label="MARKET" />
+                    <FormControlLabel disabled="false" value="LIMIT" control={<Radio />} label="LIMIT" />
+                    <FormControlLabel value="SL/SP-M" control={<Radio />} label="SL/SP-M" />
+
+                  </RadioGroup>
+                </FormControl>
+
+              </Box>
 
             <Box>
               <FormControl  >
@@ -476,11 +535,11 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <MDButton autoFocus variant="contained" color="error" onClick={(e) => { sellFunction(e) }}>
+          <MDButton disabled={(sellFormDetails.stopLossPrice && (Number(ltp) > sellFormDetails.stopLossPrice)) || (sellFormDetails.stopProfitPrice && (Number(ltp) < sellFormDetails.stopProfitPrice))} autoFocus variant="contained" color="error" onClick={(e) => { sellFunction(e) }}>
             Sell
           </MDButton>
           <MDButton variant="contained" color="error" onClick={handleClose} autoFocus>
-            Close
+            Cancel
           </MDButton>
         </DialogActions>
 

@@ -24,7 +24,7 @@ exports.overallPnl = async (req, res, next) => {
   let timeElem = subs.users.filter((elem)=>{
     return (elem.userId.toString() === userId.toString() && elem.status === "Live");
   })
-  const time = timeElem[0].subscribedOn;
+  const time = timeElem[0]?.subscribedOn;
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
@@ -68,7 +68,9 @@ exports.overallPnl = async (req, res, next) => {
               product: "$Product",
               instrumentToken: "$instrumentToken",
               exchangeInstrumentToken: "$exchangeInstrumentToken",
-              exchange: "$exchange"
+              exchange: "$exchange",
+              validity: "$validity",
+              variety: "$variety"
             },
             amount: {
               $sum: { $multiply: ["$amount", -1] },
@@ -126,7 +128,7 @@ exports.myTodaysTrade = async (req, res, next) => {
   const count = await TenXTrader.countDocuments({ subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time_utc: { $gte: today } })
   // console.log("Under my today orders", userId, today)
   try {
-    const myTodaysTrade = await TenXTrader.find({ subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time_utc: { $gte: today } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time_utc': 1, 'order_id': 1, 'subscriptionId': 1 }).populate('subscriptionId', 'plan_name')
+    const myTodaysTrade = await TenXTrader.find({ subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time_utc: { $gte: today } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time_utc': 1, 'order_id': 1, 'subscriptionId': 1, '_id': 1 }).populate('subscriptionId', 'plan_name')
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);

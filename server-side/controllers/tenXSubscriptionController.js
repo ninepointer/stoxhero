@@ -511,7 +511,7 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
     if(!subscriptionAmount){
       subscriptionAmount = tenXSubs?.discounted_price;
     }
-    // subscriptionAmount = tenXSubs?.discounted_price;
+    
     const setting = await Setting.find({});
     const wallet = await Wallet.findOne({userId: userId});
     let amount = 0;
@@ -573,6 +573,7 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
   }
 
   const totalAmount = (tenXSubs?.discounted_price - discountAmount -bonusRedemption)*(1+setting[0]?.gstPercentage/100)
+  console.log(Number(totalAmount) , Number(subscriptionAmount))
   if(Number(totalAmount) != Number(subscriptionAmount)){
     return {
       statusCode:400,

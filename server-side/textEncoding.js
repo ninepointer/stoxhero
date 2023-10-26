@@ -16,3 +16,4 @@ const textDecoder = new TextDecoder();
 const decodedData = textDecoder.decode(binaryData);
 
 console.log(decodedData); 
+

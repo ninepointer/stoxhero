@@ -19,7 +19,9 @@ import Grid from '@mui/material/Grid'
 import { renderContext } from '../../../renderContext';
 import {battle, paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest, marginX } from "../../../variables";
 import { userContext } from '../../../AuthContext';
-import { maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, lotSize_Nifty, lotSize_BankNifty, lotSize_FinNifty } from "../../../variables";
+import {  maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, lotSize_Nifty, lotSize_BankNifty, lotSize_FinNifty } from "../../../variables";
+import MDSnackbar from '../../../components/MDSnackbar';
+import PnlMenu from './PnlMenu';
 
 
 function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, moduleData }) {
@@ -33,6 +35,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
     opacity: 0.7,
   }
 
+  const tradeSound = getDetails.tradeSound;
   const { updateNetPnl, setPnlData } = useContext(NetPnlContext);
   const marketDetails = useContext(marketDataContext)
   const [exitState, setExitState] = useState(false);
@@ -86,7 +89,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
     })();
 
     return () => abortController.abort();
-  }, [render, trackEvent])
+  }, [render, trackEvent.data])
 
   useEffect(() => {
     socket.on(`${(getDetails.userDetails._id).toString()}autoCut`, (data) => {
@@ -98,9 +101,9 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
   }, [])
 
   useEffect(() => {
-    socket?.on(`sendResponse${(getDetails.userDetails._id).toString()}`, (data) => {
-      // render ? setRender(false) : setRender(true);
-      // openSuccessSB(data.status, data.message)
+    socket?.on(`sendOrderResponse${(getDetails.userDetails._id).toString()}`, (data) => {
+      openSuccessSB(data.status, data.message)
+      tradeSound.play();
       setTimeout(() => {
         setTrackEvent(data);
       })
@@ -108,7 +111,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
   }, [])
 
 
-  tradeData.map((subelem, index) => {
+  tradeData.map((subelem) => {
     let obj = {};
     let liveDetail = marketDetails.marketData.filter((elem) => {
       // //console.log("elem", elem, subelem)
@@ -139,6 +142,36 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
     obj.Product = (
       <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
         {(subelem._id.product)}
+      </MDTypography>
+    );
+
+    obj.instrumentToken = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.instrumentToken)}
+      </MDTypography>
+    );
+
+    obj.exchangeInstrumentToken = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.exchangeInstrumentToken)}
+      </MDTypography>
+    );
+
+    obj.exchange = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.exchange)}
+      </MDTypography>
+    );
+
+    obj.validity = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.validity)}
+      </MDTypography>
+    );
+
+    obj.variety = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.variety)}
       </MDTypography>
     );
 
@@ -255,7 +288,40 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
   };
 
   const xFactor = moduleData?.portfolioValue/moduleData?.entryFee;
-  // const xFactor = 100000/100;
+
+  const [messageObj, setMessageObj] = useState({
+    color: '',
+    icon: '',
+    title: '',
+    content: ''
+  })
+  const [successSB, setSuccessSB] = useState(false);
+
+  const openSuccessSB = (value,content) => {
+    if(value === "Success"){
+        messageObj.color = 'success'
+        messageObj.icon = 'check'
+        messageObj.title = "Order Successful";
+        messageObj.content = content;
+        setSuccessSB(true);
+    };
+    setMessageObj(messageObj);
+    setSuccessSB(true);
+  }
+  const closeSuccessSB = () => setSuccessSB(false);
+  const renderSuccessSB = (
+    <MDSnackbar
+      color= {messageObj.color}
+      icon= {messageObj.icon}
+      title={messageObj.title}
+      content={messageObj.content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite="info"
+      sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto"}}
+    />
+  );
 
   return (
     <Card>
@@ -274,7 +340,6 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
           <MDButton variant="outlined" size="small" color="info" onClick={() => { setIsGetStartedClicked(true) }}>Get Started</MDButton>
         </MDBox>)
         :
-
         (<MDBox>
           <TableContainer component={Paper}>
             <table style={{ borderCollapse: "collapse", width: "100%", borderSpacing: "10px 5px" }}>
@@ -290,7 +355,12 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
                   <td style={styleTD} >CHANGE(%)</td>
                   <td style={styleTD} >EXIT</td>
                   <td style={styleTD} >BUY</td>
-                  <td style={{ ...styleTD, paddingRight: "20px" }} >SELL</td>
+                  <td style={styleTD} >SELL</td>
+                  {from===tenxTrader &&
+                    <td style={{ ...styleTD, paddingRight: "20px" }} >ACTION</td>
+                  }
+
+
                 </tr>
               </thead>
               <tbody>
@@ -298,7 +368,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
 
                 {rows.map((elem, index) => {
                   return (
-                    <>
+                    <React.Fragment key={elem?.symbol?.props?.children}>
                       <tr
                         style={{ borderBottom: "1px solid #D3D3D3" }} key={elem.symbol.props.children}
                       >
@@ -311,6 +381,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
                           grossPnl={elem?.grossPnl?.props?.children}
                           netPnl={elem?.netPnl?.props?.children}
                           change={elem?.change?.props?.children}
+                          from={from}
                         />
                         <Tooltip title="Exit Your Position" placement="top">
                           {elem.exitState ?
@@ -345,9 +416,11 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
                             </td>
                           }
                         </Tooltip>
+                        {from===tenxTrader &&
+                          <PnlMenu data={elem} id={subscriptionId} />                            
+                        }
                       </tr>
-                    </>
-
+                    </React.Fragment>
                   )
                 })}
 
@@ -399,6 +472,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
         </MDBox>
         )
       }
+      {renderSuccessSB}
     </Card>
   );
 

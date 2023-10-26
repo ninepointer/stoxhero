@@ -29,7 +29,8 @@ const { zerodhaAccountType } = require("./constant")
 const { openPrice } = require("./marketData/setOpenPriceFlag");
 const webSocketService = require('./services/chartService/chartService');
 const { updateUserWallet } = require('./controllers/internshipTradeController');
-const { EarlySubscribedInstrument } = require("./marketData/earlySubscribeInstrument")
+const { EarlySubscribedInstrument } = require("./marketData/earlySubscribeInstrument");
+const {notificationSender} = require("./notificationSender")
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -39,6 +40,7 @@ const xssClean = require("xss-clean");
 const hpp = require("hpp")
 const { processBattles } = require("./controllers/battles/battleController")
 const Product = require('./models/Product/product');
+const {mail} = require("./controllers/dailyReportMail")
 
 async function singleProcess() {
     await setIOValue()
@@ -162,9 +164,11 @@ async function singleProcess() {
                 // await positions();
                 if (setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType) {
                     await getTicksForUserPosition(socket, data);
+                    await getTicksForCompanySide(socket);
                     // await getDummyTicks(socket)
                 } else {
                     await getXTSTicksForUserPosition(socket, data);
+                    await getXTSTicksForCompanySide(socket);
                 }
 
                 // await DummyMarketData(socket);
@@ -193,7 +197,6 @@ async function singleProcess() {
 
     //emitting leaderboard for contest.
 
-    //todo-vijay
    if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });
@@ -269,9 +272,9 @@ async function singleProcess() {
                 subscribeTokens();
             });
         }
-        const autoExpire = nodeCron.schedule(`0 30 13 * * *`, autoExpireTenXSubscription);
-        const internshipPayout = nodeCron.schedule(`0 30 13 * * *`, updateUserWallet);
-
+        const autoExpire = nodeCron.schedule(`0 30 10 * * *`, autoExpireTenXSubscription);
+        const internshipPayout = nodeCron.schedule(`0 30 17 * * *`, updateUserWallet);
+        const reportMail = nodeCron.schedule(`0 0 18 * * *`, mail);
     }
     const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
     // const battle = nodeCron.schedule(`56 5 * * *`, processBattles);
@@ -331,6 +334,7 @@ async function singleProcess() {
     app.use('/api/v1', require('./routes/CronJobsRouter/historyTrade'));
     app.use('/api/v1', require('./routes/AlgoBox/tradingAlgoAuth'));
     app.use('/api/v1/dailycontest', require('./routes/DailyContest/dailyContestLiveTrade'));
+    app.use('/api/v1/pendingorder', require('./routes/pendingOrder/pendingRoute'));
 
     app.use('/api/v1', require("./marketData/getRetrieveOrder"));
     app.use('/api/v1', require('./marketData/switchToRealTrade'));
@@ -404,14 +408,14 @@ async function singleProcess() {
     app.use('/api/v1/coupons', require("./routes/coupon/couponRoutes"));
 
 
-
-
     const PORT = process.env.PORT || 5002;
     const server = app.listen(PORT);
 
     if(process.env.CHART === "true"){
         webSocketService.init(io);
     }
+
+    notificationSender().then(()=>{});
 }
 
 
