@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const User = require("../../models/User/userDetailSchema");
 const { ObjectId } = require('mongodb');
 const Affiliate = require("../../models/affiliateProgram/affiliateProgram");
+const whatsAppService = require("../../utils/whatsAppService")
 
 
 // Controller for creating a affiliate
@@ -81,7 +82,7 @@ exports.getAffiliates = async (req, res) => {
 
 exports.getActiveAffiliatePrograms = async (req, res) => {
     try {
-        const affiliates = (await Affiliate.find({status:'Active'})
+        const affiliates = (await Affiliate.find({$or: [{status: 'Active'}, {endDate: {$gte: new Date()}}]})
         .populate('affiliates.userId', 'first_name last_name email mobile creationProcess myReferralCode'))
         
         res.status(200).json({
@@ -202,6 +203,21 @@ exports.addAffiliateUser = async (req, res) => {
 
         if (!result) {
             return res.status(404).json({ status: "error", message: "Affiliate not found" });
+        }
+
+        let user = await User.findOne({_id: new ObjectId(userId)});
+
+        try{
+            if(process.env.PROD == 'true'){
+              whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),(totalCashAmount+amount).toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+              whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),(totalCashAmount+amount).toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+          }
+          else {
+          // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),totalCashAmount.toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+              whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'), (totalCashAmount+amount).toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+          }
+        }catch(e){
+          console.log(e);
         }
 
         res.status(200).json({

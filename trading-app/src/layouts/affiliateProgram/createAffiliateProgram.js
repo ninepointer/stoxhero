@@ -261,7 +261,7 @@ function CreateAffiliateProgram() {
                         value={formState?.startDate || dayjs(id?.startDate)}
                         onChange={(newValue) => {
                           if (newValue && newValue.isValid()) {
-                            setFormState(prevState => ({ ...prevState, startDate: newValue }))
+                            setFormState(prevState => ({ ...prevState, startDate: newValue.startOf('day') }))
                           }
                         }}
                         minDateTime={null}
@@ -283,7 +283,7 @@ function CreateAffiliateProgram() {
                         value={formState?.endDate || dayjs(id?.endDate)}
                         onChange={(newValue) => {
                           if (newValue && newValue.isValid()) {
-                            setFormState(prevState => ({ ...prevState, endDate: newValue }))
+                            setFormState(prevState => ({ ...prevState, endDate: newValue.endOf('day') }))
                           }
                         }}
                         minDateTime={null}
