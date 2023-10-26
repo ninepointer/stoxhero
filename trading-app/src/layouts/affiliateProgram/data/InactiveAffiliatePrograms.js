@@ -12,13 +12,13 @@ import { Link, useLocation } from "react-router-dom";
 import moment from 'moment';
 
 
-const InactiveCoupons = () => {
+const ActiveAffiliateProgram = ({type}) => {
 // const [registeredUserCount, setRegisteredUserCount] = useState(0);
-const [inactiveCoupons,setInactiveCoupons] = useState([]);
+const [activeAffiliateProgram,setActiveAffiliateProgram] = useState([]);
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
-    let call1 = axios.get(`${baseUrl}api/v1/coupons/inactive`,{
+    let call1 = axios.get(`${baseUrl}api/v1/affiliate/inactive`,{
                 withCredentials: true,
                 headers: {
                     Accept: "application/json",
@@ -30,7 +30,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
     .then(([api1Response]) => {
       // Process the responses here
       console.log(api1Response.data.data);
-      setInactiveCoupons(api1Response.data.data)
+      setActiveAffiliateProgram(api1Response.data.data)
     })
     .catch((error) => {
       // Handle errors here
@@ -40,11 +40,11 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
   
     return (
       <>
-      {inactiveCoupons.length > 0 ?
+      {activeAffiliateProgram.length > 0 ?
         
           <MDBox>
             <Grid container spacing={2} bgColor="dark">
-              {inactiveCoupons?.map((e)=>{
+              {activeAffiliateProgram?.map((e)=>{
 
                     return (
                       
@@ -57,54 +57,46 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                         component = {Link}
                         style={{minWidth:'100%'}}
                         to={{
-                            pathname: `/coupondetails`,
+                            pathname: `/affiliateprogramdetails`,
                           }}
                         state={{data: e}}
                       >
                             <Grid container>
 
                               <Grid item xs={12} md={6} lg={12} mt={1} mb={1} display="flex" justifyContent="left" >
-                                <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>Coupon Code: {e?.code}</MDTypography>
+                                <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>Affiliate Program Name: {e?.affiliateProgramName}</MDTypography>
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={12} display={"flex"} justifyContent={"center"} alignItems={"center"}>
                                 <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>Discount Type: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.discountType}</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{ color: "black" }}>Discount Percentage: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.discountPercentage}</span></MDTypography>
+                                </Grid>
+
+                                <Grid item xs={12} md={6} lg={4} mb={1} display="flex" justifyContent="center">
+                                  <MDTypography fontSize={9} style={{ color: "black" }}>Start Date: <span style={{ fontSize: 11, fontWeight: 700 }}>{moment.utc(e?.startDate).utcOffset('+05:30').format('DD-MMM-YY')}</span></MDTypography>
+                                </Grid>
+
+                                <Grid item xs={12} md={6} lg={4} mb={1} display="flex" justifyContent="center">
+                                  <MDTypography fontSize={9} style={{ color: "black" }}>End Date: <span style={{ fontSize: 11, fontWeight: 700 }}>{moment.utc(e?.endDate).utcOffset('+05:30').format('DD-MMM-YY')}</span></MDTypography>
                                 </Grid>
 
                                 <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>Reward Type : <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.rewardType}</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{ color: "black" }}>Discount %: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.discountPercentage}%</span></MDTypography>
                                 </Grid>
 
                                 <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>Discount: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.discount}</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{ color: "black" }}>% Commission: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.commissionPercentage}%</span></MDTypography>
                                 </Grid>
 
                                 <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="center">
                                   <MDTypography fontSize={9} style={{ color: "black" }}>Max Discount: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.maxDiscount}</span></MDTypography>
                                 </Grid>
 
-
-
+                                <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="center">
+                                  <MDTypography fontSize={9} style={{ color: "black" }}>Min Order Value: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.minOrderValue}</span></MDTypography>
                                 </Grid>
 
-                                <Grid item xs={12} md={6} lg={12} display={"flex"} justifyContent={"center"} alignItems={"center"} textAlign={"center"}>
-
-                                <Grid item xs={12} md={6} lg={4} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>Status: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.status}</span></MDTypography>
                                 </Grid>
-
-                                <Grid item xs={12} md={6} lg={4} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>Live Date: <span style={{ fontSize: 11, fontWeight: 700 }}>{moment.utc(e?.liveDate).utcOffset('+05:30').format('DD-MMM-YY')}</span></MDTypography>
-                                </Grid>
-
-                                <Grid item xs={12} md={6} lg={4} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>Expiry Date: <span style={{ fontSize: 11, fontWeight: 700 }}>{moment.utc(e?.expiryDate).utcOffset('+05:30').format('DD-MMM-YY')}</span></MDTypography>
-                                </Grid>
-
-
-
-                              </Grid>
 
                             </Grid>
                       </MDButton>
@@ -118,7 +110,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
           :
          <Grid container spacing={1} xs={12} md={6} lg={12}>
           <Grid item mt={2} xs={6} md={3} lg={12} display="flex" justifyContent="center">
-            <MDTypography color="light">No Inactive Coupon(s)</MDTypography>
+            <MDTypography color="light">No Inactive Affiliate Program(s)</MDTypography>
           </Grid>
          </Grid>
          } 
@@ -128,21 +120,4 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
 
 
 
-export default InactiveCoupons;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export default ActiveAffiliateProgram;
