@@ -10,11 +10,11 @@ const affiliateProgramSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    affiliateProgramStartDate:{
+    startDate:{
         type: Date,
         required: true
     },
-    affiliateProgramEndDate:{
+    endDate:{
         type:Date,
         required: true
     },
@@ -32,6 +32,13 @@ const affiliateProgramSchema = new mongoose.Schema({
             joinedOn:{type:Date, default: ()=>new Date()}
         }
     ],
+    eligiblePlatforms:[{
+        type: 'String',
+        enum:['Android', 'iOS', 'Web'],
+    }],
+    eligibleProducts:[{
+        type:mongoose.Schema.Types.ObjectId,
+    }],
     description:{
         type:String,
         required:true
@@ -61,12 +68,6 @@ const affiliateProgramSchema = new mongoose.Schema({
         ref: 'user-personal-detail',
         // required : true
     },
-    users: [
-        {
-            userId:{type:Schema.Types.ObjectId,ref: 'user-personal-detail'},
-            joinedOn:Date
-        }
-    ],
 })
 
 affiliateProgramSchema.pre('save', async function(next){
