@@ -82,6 +82,7 @@ exports.getAffiliates = async (req, res) => {
 exports.getActiveAffiliatePrograms = async (req, res) => {
     try {
         const affiliates = await Affiliate.find({status:'Active'})
+        
         res.status(200).json({
             status: "success",
             message: "affiliates fetched successfully",
@@ -156,6 +157,7 @@ exports.getAffiliateById = async (req, res) => {
     const {id} = req.params;
     try {
         const result = await Affiliate.findOne({_id: id})
+        
 
         res.status(200).json({
             status: "success",
