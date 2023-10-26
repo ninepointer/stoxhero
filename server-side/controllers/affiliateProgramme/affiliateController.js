@@ -247,7 +247,6 @@ exports.removeAffiliateUser = async (req, res) => {
         .populate('affiliates.userId', 'first_name last_name email mobile creationProcess myReferralCode');
 
         let participants = affiliate?.affiliates?.filter((item) => {
-            console.log(item?.userId?._id, userId)
             return  item.userId._id.toString() !== userId.toString()
         })
 
