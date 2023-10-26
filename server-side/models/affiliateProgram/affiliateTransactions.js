@@ -14,9 +14,9 @@ const affiliateTransactionSchema = new mongoose.Schema({
         type:String,
         required: true,
     },
-    userWalletTId:{
+    buyerWalletTId:{
         type:String,
-        required: true,
+        // required: true,
     },
     product:{
         type: mongoose.Schema.Types.ObjectId,
@@ -36,6 +36,10 @@ const affiliateTransactionSchema = new mongoose.Schema({
     affiliatePayout:{
         type:Number,
         required: true,
+    },
+    buyer:{
+        type: Schema.Types.ObjectId,
+        ref: 'user-personal-detail',
     },
     affiliate:{
         type: Schema.Types.ObjectId,
