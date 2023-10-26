@@ -7,18 +7,18 @@ const Affiliate = require("../../models/affiliateProgram/affiliateProgram");
 // Controller for creating a affiliate
 exports.createAffiliate = async (req, res) => {
     try {
-        const { affiliateProgramName ,startDate ,endDate ,commissionPercentage ,discountPercentage, 
+        const { affiliateProgramName ,startDate ,endDate ,commissionPercentage, maxDiscount, minOrderValue ,discountPercentage, 
             eligiblePlatforms, eligibleProducts, description, status  } = req.body;
 
         const affiliate = await Affiliate.create({
             affiliateProgramName ,startDate ,endDate ,commissionPercentage ,discountPercentage, 
-            eligiblePlatforms, eligibleProducts, description, status,
+            eligiblePlatforms, eligibleProducts, description, status, maxDiscount, minOrderValue,
             createdBy: req.user._id, lastModifiedBy: req.user._id,
         });
 
         res.status(201).json({
             status: 'success',
-            message: "Affiliate programme created successfully",
+            message: "Affiliate programe created successfully",
             data: affiliate
         });
     } catch (error) {
@@ -49,7 +49,7 @@ exports.editAffiliate = async (req, res) => {
 
         res.status(200).json({
             status: 'success',
-            message: "Affiliate updated successfully",
+            message: "Affiliate Program updated successfully",
         });
     } catch (error) {
         res.status(500).json({
