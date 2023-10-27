@@ -2257,7 +2257,7 @@ router.get("/Tradable", authentication, async (req, res, next) => {
 })
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2023-08-03T00:00:00.000+00:00"
+  let expiryDate = "2023-10-28T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   // let instrument = await Instrument.find({status: "Active"})
