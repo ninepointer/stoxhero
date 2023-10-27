@@ -1660,7 +1660,7 @@ const takeRejectedTrade = async(req, res, from)=>{
                 status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
                 variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                 order_id: order_id, instrumentToken, brokerage: 0, createdBy: req.user._id, exchangeInstrumentToken,
-                trader: trader, amount: 0, trade_time: myDate, subscriptionId
+                trader: trader, amount: 0, trade_time: myDate, subscriptionId, margin: 0
 
             });
             console.log("margincall saving")
@@ -1681,7 +1681,7 @@ const takeRejectedTrade = async(req, res, from)=>{
                 status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
                 variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                 order_id: order_id, instrumentToken, brokerage: 0, createdBy: req.user._id, exchangeInstrumentToken,
-                trader: trader, amount: 0, trade_time: myDate, batch: subscriptionId
+                trader: trader, amount: 0, trade_time: myDate, batch: subscriptionId, margin: 0
 
             });
             console.log("margincall saving")
@@ -1704,7 +1704,7 @@ const takeRejectedTrade = async(req, res, from)=>{
                 Product, buyOrSell: realBuyOrSell, variety, validity, exchange, order_type: OrderType, symbol: realSymbol,
                 placed_by: "stoxhero", algoBox: algoBoxId, order_id, instrumentToken: real_instrument_token, marginxId,
                 brokerage: 0, createdBy: req.user._id, trader: trader, isRealTrade: false, amount: 0,
-                trade_time: myDate, exchangeInstrumentToken
+                trade_time: myDate, exchangeInstrumentToken, margin: 0
             });
             await mockTradeCompany.save();
 
@@ -1712,7 +1712,7 @@ const takeRejectedTrade = async(req, res, from)=>{
                 status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
                 variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                 order_id: req.body.order_id, instrumentToken, brokerage: 0, marginxId, exchangeInstrumentToken,
-                createdBy: req.user._id, trader: req.user._id, amount: 0, trade_time: myDate,
+                createdBy: req.user._id, trader: req.user._id, amount: 0, trade_time: myDate, margin: 0
 
             });
             console.log("margincall saving")
@@ -1735,7 +1735,7 @@ const takeRejectedTrade = async(req, res, from)=>{
                 Product, buyOrSell: realBuyOrSell, variety, validity, exchange, order_type: OrderType, symbol: realSymbol,
                 placed_by: "stoxhero", algoBox: algoBoxId, order_id, instrumentToken: real_instrument_token, contestId,
                 brokerage: 0, createdBy: req.user._id, trader: trader, isRealTrade: false, amount: 0,
-                trade_time: myDate, exchangeInstrumentToken
+                trade_time: myDate, exchangeInstrumentToken, margin: 0
             });
             await mockTradeCompany.save();
 
@@ -1743,7 +1743,7 @@ const takeRejectedTrade = async(req, res, from)=>{
                 status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
                 variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                 order_id: req.body.order_id, instrumentToken, brokerage: 0, contestId, exchangeInstrumentToken,
-                createdBy: req.user._id, trader: req.user._id, amount: 0, trade_time: myDate,
+                createdBy: req.user._id, trader: req.user._id, amount: 0, trade_time: myDate, margin: 0
 
             });
             console.log("margincall saving")
@@ -1766,7 +1766,7 @@ const takeRejectedTrade = async(req, res, from)=>{
                 status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
                 variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                 order_id: req.body.order_id, instrumentToken, brokerage: 0, battleId, exchangeInstrumentToken,
-                createdBy: req.user._id, trader: req.user._id, amount: 0, trade_time: myDate,
+                createdBy: req.user._id, trader: req.user._id, amount: 0, trade_time: myDate, margin: 0
 
             });
             console.log("margincall saving")

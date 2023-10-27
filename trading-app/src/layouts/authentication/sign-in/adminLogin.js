@@ -34,7 +34,7 @@ import { adminRole } from '../../../variables';
 import { userRole } from '../../../variables';
 import { InfinityTraderRole } from '../../../variables';
 
-function Basic() {
+function AdminLogin() {
   // console.log('Rendering sign in');
   // const [rememberMe, setRememberMe] = useState(false);
   const [userId, setEmail] = useState(false);
@@ -474,4 +474,4 @@ function Basic() {
   );
 }
 
-export default Basic;
+export default AdminLogin;
