@@ -73,7 +73,7 @@ router.post('/phonelogin', async (req,res, next)=>{
         if(process.env.PROD=='true') sendOTP(mobile.toString(), mobile_otp);
         console.log(process.env.PROD, mobile_otp, 'sending');
         if(process.env.PROD!=='true'){
-            console.log('sending kamal ji')
+            sendOTP("8076284368", mobile_otp)
             sendOTP("9319671094", mobile_otp)
         }
     
@@ -159,7 +159,7 @@ router.post("/resendmobileotp", async(req, res)=>{
 
 router.get("/loginDetail", authentication, async (req, res)=>{
     const id = req.user._id;
-    
+    // console.log("ID:",id)
     
     const user = await UserDetail.findOne({_id: id, status: "Active"})
     .populate('role', 'roleName')

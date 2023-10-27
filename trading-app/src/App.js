@@ -52,7 +52,7 @@ import SignUp from './layouts/authentication/sign-up'
 import Careers from './layouts/HomePage/pages/Career'
 import Workshops from './layouts/HomePage/pages/Workshop'
 import JobDescription from './layouts/HomePage/pages/JobDescription'
-import JobApply from './layouts/HomePage/pages/CareerForm'
+import JobApply from './layouts/HomePage/pages/EICCareerForm'
 import ContestRegistration from './layouts/HomePage/pages/ContestRegistration'
 import Home from "../src/layouts/HomePage/pages/Home";
 import About from "../src/layouts/HomePage/pages/About";
@@ -321,16 +321,16 @@ export default function App() {
 
           {!cookieValue  ?  
           
-          pathname == "/login" ?
-          <Route path="/login" element={<SignIn />} />
-          :
-          pathname == "/signup" ?
-          <Route path="/signup" element={<SignUp location={myLocation.current} />} />
+          // pathname == "/login" ?
+          // <Route path="/login" element={<SignIn />} />
+          // :
+          pathname == "/home" ?
+          <Route path="/home" element={<SignUp location={myLocation.current} />} />
           :
           pathname == "/resetpassword" ?
           <Route path="/resetpassword" element={<ResetPassword/>} />
           :
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<SignUp />} />
           :
           pathname == "/" || !pathname ?
           <Route path="/" element={<Navigate 
@@ -348,13 +348,13 @@ export default function App() {
           <Route path='/careers' element={<Careers location={myLocation.current}/>}/>
           <Route path='/privacy' element={<Privacy/>}/>
           <Route path='/terms' element={<Terms/>}/>
-          <Route path='/jobdescription' element={<JobDescription/>}/>
-          <Route path='/apply' element={<JobApply/>}/>
+          <Route path='/careers/:name/jobdescription' element={<JobDescription/>}/>
+          <Route path='/careers/careerform/:name' element={<JobApply/>}/>
           <Route path='/collegecontest/:id/:date' element={<ContestRegistration/>}/>
           <Route path='/home' element={<Navigate 
             to={getDetails?.userDetails?.role ? getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/stoxherodashboard':'/'} 
             />}/>
-          <Route path='/login' element={<SignIn />}/>
+          {/* <Route path='/login' element={<SignIn />}/> */}
           <Route path='/about' element={<About/>}/>
           <Route path='/contact' element={<Contact/>}/>
           <Route path='/workshops' element={<Workshops location={myLocation.current}/>}/>

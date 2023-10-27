@@ -29,8 +29,8 @@ const filterObj = (obj, ...allowedFields) => {
 exports.getUploadsApplication = (async(req, res, next) => {
 
 try {
-  const { firstName, lastName, email, mobile, dob, gender, collegeName, linkedInProfileLink, priorTradingExperience, source, career, campaignCode } = req.body;
-  // console.log(req.body)
+  const { firstName, lastName, email, mobile, dob, gender, college, collegeName, course, passingoutyear, linkedInProfileLink, priorTradingExperience, source, career, campaignCode } = req.body;
+  console.log(req.body)
   const data = await CareerApplication.create({
     first_name: firstName.trim(),
     last_name: lastName.trim(),
@@ -38,7 +38,10 @@ try {
     mobileNo: mobile.trim(),
     dob: dob,
     gender: gender,
+    college: college,
     collegeName: collegeName,
+    course: course,
+    passingoutyear: passingoutyear,
     linkedInProfileLink: linkedInProfileLink,
     priorTradingExperience: priorTradingExperience,
     source: source,
@@ -46,7 +49,7 @@ try {
     career: career,
     campaignCode: campaignCode.trim(),
     });
-    // console.log(data)
+    console.log(data)
     res.status(201).json({message: "Your application has been submitted successfully!"});
 
 
@@ -59,9 +62,9 @@ try {
 });
 
 exports.generateOTP = async(req, res, next)=>{
-  // console.log(req.body)
+  console.log(req.body)
 
-  const{ firstName, lastName, email, mobile, dob, gender, collegeName, linkedInProfileLink, priorTradingExperience, source, career, campaignCode
+  const{ firstName, lastName, email, mobile, dob, gender, college, collegeName, course, passingoutyear, linkedInProfileLink, priorTradingExperience, source, career, campaignCode
   } = req.body
 
   const inactiveUser = await User.findOne({ $or: [{ email: email }, { mobile: mobile }], status: "Inactive" });
@@ -80,7 +83,10 @@ exports.generateOTP = async(req, res, next)=>{
       mobileNo: mobile.trim(),
       dob: dob,
       gender: gender,
+      college: college,
       collegeName: collegeName,
+      course: course,
+      passingoutyear: passingoutyear,
       linkedInProfileLink: linkedInProfileLink,
       priorTradingExperience: priorTradingExperience,
       source: source.trim(),
@@ -90,7 +96,7 @@ exports.generateOTP = async(req, res, next)=>{
       status: 'OTP Verification Pending',
       applicationStatus: 'Applied'
       });
-      // console.log(data)
+      console.log(data)
       if(process.env.PROD == 'true')sendOTP(mobile.toString(), mobile_otp);
      if(process.env.PROD!=='true')sendOTP("9319671094", mobile_otp);
       res.status(201).json({info: "OTP Sent on your mobile number!"}); 
@@ -101,7 +107,7 @@ exports.generateOTP = async(req, res, next)=>{
 
 exports.confirmOTP = async(req, res, next)=>{
   
-  const{ firstName, lastName, email, mobile, campaignCode, mobile_otp, career, dob, gender,
+  const{ firstName, lastName, email, mobile, campaignCode, mobile_otp, career, college, collegeName, course, passingoutyear, dob, gender,
   } = req.body
   // console.log(req.body)
   const correctOTP = await CareerApplication.findOne({$or : [{mobile: mobile}], mobile_otp: mobile_otp})
@@ -116,9 +122,6 @@ exports.confirmOTP = async(req, res, next)=>{
   await correctOTP.save({validateBeforeSave:false})
   res.status(201).json({info:"Application Submitted Successfully."})
   const existingUser = await User.findOne({mobile: mobile})
-  // if(existingUser){
-  //   return res.status(400).json({info:"User Already Exists"})
-  // }
 
   let campaign;
     if(campaignCode){
@@ -176,6 +179,9 @@ exports.confirmOTP = async(req, res, next)=>{
         name: firstName.trim() + ' ' + lastName.trim().substring(0,1), 
         password: 'sh' + lastName.trim() + '@123' + mobile.trim().slice(1,3), 
         status: 'Active', 
+        college: college,
+        degree: course,
+        passingoutyear: passingoutyear,
         employeeid: userId, 
         creationProcess: 'Career SignUp',
         joining_date:new Date(),
@@ -186,7 +192,7 @@ exports.confirmOTP = async(req, res, next)=>{
         campaign: campaign && campaign._id,
         campaignCode: campaign && campaignCode,
     }
-        console.log("Obj:",obj)
+        // console.log("Obj:",obj)
         const newuser = await User.create(obj);
         const token = await newuser.generateAuthToken();
 
@@ -340,13 +346,13 @@ exports.confirmOTP = async(req, res, next)=>{
               whatsAppService.sendWhatsApp({destination : newuser?.mobile, campaignName : 'career_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, careerName], tags : '', attributes : ''});
             }
             else {
-                whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'career_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, careerName], tags : '', attributes : ''});
-                // whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'career_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, careerName], tags : '', attributes : ''});
+                // whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'career_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, careerName], tags : '', attributes : ''});
+                whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'career_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, careerName], tags : '', attributes : ''});
             }
   
-  }catch(error){
-    console.log(error)
-  }
+        }catch(error){
+          console.log(error)
+        }
   }else{
     if(campaign){
       // console.log("Inside setting user to campaign")
@@ -359,13 +365,13 @@ exports.confirmOTP = async(req, res, next)=>{
       await campaign.save({validateBeforeSave:false});
       // console.log(campaignData)
   }
-    if(process.env.PROD == 'true'){
-      whatsAppService.sendWhatsApp({destination : existingUser?.mobile, campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName], tags : '', attributes : ''});
-    }
-    else {
-      whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName], tags : '', attributes : ''});
-      whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName], tags : '', attributes : ''});
-    }
+      if(process.env.PROD == 'true'){
+        whatsAppService.sendWhatsApp({destination : existingUser?.mobile, campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName], tags : '', attributes : ''});
+      }
+      else {
+        // whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName], tags : '', attributes : ''});
+        whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName], tags : '', attributes : ''});
+      }
   }
 
 }
@@ -403,11 +409,11 @@ exports.applyForCareer = async(req,res, next) => {
 exports.createCareer = async(req, res, next)=>{
     // console.log(req.body)
     const{
-        jobTitle, jobDescription, rolesAndResponsibilities, jobType, jobLocation,
+        jobTitle, jobDescription, rolesAndResponsibilities, jobType, jobLocation, activelyRecruiting,
         status, listingType } = req.body;
     if(await Career.findOne({jobTitle, status: "Live" })) return res.status(400).json({info:'This job post is already live.'});
 
-    const career = await Career.create({jobTitle: jobTitle.trim(), jobDescription, rolesAndResponsibilities, jobType, jobLocation,
+    const career = await Career.create({jobTitle: jobTitle.trim(), jobDescription, rolesAndResponsibilities, jobType, jobLocation, activelyRecruiting,
         status, createdBy: req.user._id, lastModifiedBy: req.user._id, listingType});
     // console.log("Career: ",career)
     res.status(201).json({message: 'Career post successfully created.', data:career});
@@ -419,7 +425,7 @@ exports.editCareer = async(req, res, next) => {
     // console.log("id is ,", id)
     const career = await Career.findById(id);
 
-    const filteredBody = filterObj(req.body, "jobTitle", "jobDescription", "jobType", "jobLocation", "status");
+    const filteredBody = filterObj(req.body, "jobTitle", "jobDescription", "jobType", "activelyRecruiting", "jobLocation", "status");
     if(req.body.rolesAndResponsibilities)filteredBody.rolesAndResponsibilities=[...career.rolesAndResponsibilities,
         {orderNo:req.body.rolesAndResponsibilities.orderNo,
             description:req.body.rolesAndResponsibilities.description,}]
@@ -459,6 +465,7 @@ exports.getCareers = async(req, res, next)=>{
             jobType: 1,
             jobLocation: 1,
             status: 1,
+            activelyRecruiting: 1,
             applicants: 1,
             rolesAndResponsibilities: 1,
             listingType: 1
@@ -468,6 +475,7 @@ exports.getCareers = async(req, res, next)=>{
     )
     res.status(201).json({message: 'success', data:career});
 }
+
 exports.fetchCareers = async (req,res, next) => {
   try{
     const type = req.query.type;
@@ -507,6 +515,7 @@ exports.getRejectedCareers = async(req, res, next)=>{
           jobLocation: 1,
           status: 1,
           applicants: 1,
+          activelyRecruiting:1,
           rolesAndResponsibilities: 1,
           listingType: 1
         },
@@ -545,6 +554,7 @@ exports.getDraftCareers = async(req, res, next)=>{
           jobLocation: 1,
           status: 1,
           applicants: 1,
+          activelyRecruiting:1,
           rolesAndResponsibilities: 1,
           listingType: 1
         },
@@ -578,6 +588,13 @@ exports.getCareerApplications = async(req, res, next)=>{
                               .select('first_name last_name mobileNo email collegeName dob appliedOn priorTradingExperience source campaignCode applicationStatus linkedInProfileLink')
   res.status(201).json({message: 'success', data:careerApplications, count:careerApplications.length});
 }
+
+exports.getCareerApplicationCount = async(req, res, next)=>{
+  const {id} = req.params;
+  const careerApplications = await CareerApplication.find({career: id})
+  res.status(201).json({message: 'success', count:careerApplications.length});
+}
+
 exports.getCareerApplicantions = async(req, res, next) => {
   const { id } = req.params;
   const careerApplications = await CareerApplication.find({career: id, applicationStatus: 'Applied', status:'OTP Verified'})
@@ -665,7 +682,6 @@ const completedBatches = result[0]?.completedBatches;
   res.status(200).json({ message: 'success', data: combinedData, count: combinedData.length });
 }
 
-
 exports.getSelectedCareerApplicantions = async(req, res, next)=>{
   const {id} = req.params;
   const careerApplications = await CareerApplication.find({career: id, $or:[
@@ -698,5 +714,27 @@ exports.getRejectedApplications = async(req, res, next)=>{
   }catch(e){
     console.log(e);
     res.status(500).json({status:'error', message:'Something went wrong.'});
+  }
+}
+
+exports.findCareerByName = async(req,res,next)=>{
+  try{
+      const {name} = req.query;
+      const result = await Career.findOne({jobTitle: name, status: 'Live'})
+      // console.log(result)
+      if(!result){
+          return res.status(404).json({
+              status: "error",
+              message: "No Career found",
+          });
+      }
+      res.status(200).json({data:result, status:'success'});
+  }catch(e){
+      console.log(e);
+      res.status(500).json({
+          status: "error",
+          message: "Something went wrong",
+          error: e.message
+      });
   }
 }

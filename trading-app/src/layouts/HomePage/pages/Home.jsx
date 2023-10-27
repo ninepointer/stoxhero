@@ -33,12 +33,8 @@ const Home = () => {
 
   return (
     <div>
-
-      {/* Navbar */}
       <ThemeProvider theme={theme}>
       <Navbar/>
-
-      {/* Section */}
       <Section1/>
       <Section2 data ={data}/>
       <Box sx={{ height:{sx:"4000px"},width:"100%", bgcolor:"#06070A", position: "relative" }}>

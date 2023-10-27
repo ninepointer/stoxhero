@@ -26,6 +26,18 @@ const CareerApplication = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'career'
     },
+    college:{
+        type: Schema.Types.ObjectId,
+        ref: 'college'
+    },
+    course: {
+        type: String,
+        required: true,
+    },
+    passingoutyear: {
+        type: String,
+        required: true,
+    },
     resume:{
         type:String,
         // required:true,

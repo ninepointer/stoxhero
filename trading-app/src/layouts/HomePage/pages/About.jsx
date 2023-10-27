@@ -1,24 +1,45 @@
-import { Box, Container, Grid, Stack } from '@mui/material'
+import { Container, Grid, Stack } from '@mui/material'
 import { ThemeProvider } from 'styled-components';
 import { useEffect } from 'react';
 import ReactGA from "react-ga";
 import Title from '../components/Title/index'
 import React from 'react'
 import ServiceCard from '../components/Cards/ServiceCard'
-import useMeasure from 'react-use-measure'
-import Footer from '../components/Footers/Footer'
 import Navbar from '../components/Navbars/Navbar'
 import theme from '../utils/theme/index'
+import Footer from '../../../layouts/authentication/components/Footer'
+
 
 // IMages for about 
-
+import aboutuspage from '../../../assets/images/aboutuspage.png'
+import cofounder_prateek from '../../../assets/images/cofounder_prateek.png'
+import cofounder_kush from '../../../assets/images/cofounder_kush.png'
+import cofounder_manish from '../../../assets/images/cofounder_manish.png'
 import about1 from '../assets/images/About/about1.png'
 import about2 from '../assets/images/About/about2.png'
 import about3 from '../assets/images/About/about3.webp'
 import about4 from '../assets/images/About/about4.png'
 import about5 from '../assets/images/About/about5.webp'
+import MDAvatar from '../../../components/MDAvatar';
+import MDTypography from '../../../components/MDTypography';
+import MDBox from '../../../components/MDBox';
+import LinkedInIcon from "@mui/icons-material/LinkedIn"
 
-
+const LinkButton = ({ children, ...props }) => (
+    <Stack
+      direction="row"
+      alignItems="center"
+      spacing={0.2}
+      sx={{
+        cursor: "pointer",
+        color: "#315c45",
+        "&:hover": { color: '#65BA0D'},
+      }}
+      {...props}
+    >
+      {children}
+    </Stack>
+  );
 
 const About = () => {
     console.log(theme);
@@ -29,59 +50,114 @@ const About = () => {
     return (
         <ThemeProvider theme={theme}>
             <Navbar />
-            <Box bgcolor="#06070A" sx={{mt:{xs:-10,lg:-15}}} >
-                <Container >
-                    <Grid container spacing={10} flexWrap="wrap-reverse" justifyContent="center" alignItems="center" sx={{ mt: { xs: 10, md: 15, } }}>
-                        <Grid item xs={12} md={6} sx={{mt:10}}  >
-                            <Stack spacing={2} sx={{ maxWidth: 480 }}>
-                                <Title variant={{ xs: 'h3', sm: 'h2', md: 'h1' }} sx={{ letterSpacing: "0.02em", mb: 1 }} style={{ color: "white" }} >StoxHero</Title>
-                                <Title variant={{ xs: 'body1', sm: 'body1', md: "body1" }} sx={{ fontWeight: 500, letterSpacing: "0.05em", mb: 6, color: "rgba(255, 255, 255, 0.6)" }} >
-                                Welcome to StoxHero.com, 
+            <MDBox bgcolor="white" mt={7} mb={5}>
+                {/* <Container> */}
+                    <Grid container xs={12} md={12} lg={12} style={{ minWidth:'auto'}} display='flex' flexWrap="wrap-reverse" justifyContent="center" alignItems="flex-start">
 
-                                StoxHero is led by a dynamic co-founding team with second-time startup FOUNDERS and impressive educational backgrounds, 
-                                including IIT, IIM, and NIT. Their diverse expertise spans derivatives trading, stock exchanges, and leadership roles 
-                                at top tech startups like Unacademy, OLA, Mu-Sigma, JAYPEE Capital, NCDEX, and NeoStencil. All three co-founders share 
-                                a history of working as a team at Unacademy and NeoStencil and committed to one cause - to MAKE RETAIL TRADERS BETTER TRADER!
+                        <Grid item xs={12} md={12} lg={12} style={{minWidth:'100%', textAlign:'center'}}>
+                            <img src={aboutuspage} style={{ maxWidth: "100%", maxHeight:"50%" }} alt="" />
+                        </Grid>
+
+                    </Grid>
+                {/* </Container> */}
+                <Container sx={{ height: "1200" }} display='flex' justifyContent='center' alignItems='flex-start'>
+                    <Grid container xs={12} md={6} lg={12} spacing={2} display='flex' justifyContent='center' alignItems="flex-start">
+                        <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems="flex-start">
+                            <Stack>
+                                <Title fontSize={20} sx={{ letterSpacing: "0.02em", mb: 1, textAlign:'center' }} style={{ color:'#315c45'}} >The goal of a successful trader is to make the best trades. Money is secondary.</Title>
+                                <Title fontSize={15} sx={{ letterSpacing: "0.02em", mb: 1, textAlign:'center' }} style={{ color:'grey'}} >At StoxHero, our mission is to reduce the number of individual traders incurring losses in the equity F&O segment, striving for a more successful trading community.</Title>
+                                <Title fontSize={20} sx={{ letterSpacing: "0.02em", mb: 1, textAlign:'center' }} style={{ color:'#315c45'}} >The Team</Title>
+                                <Title fontSize={15} sx={{ fontWeight: 400, letterSpacing: "0.05em", mb: 6, textAlign:'center', color: "black" }} >
+                                StoxHero is led by a dynamic co-founding team with second-time startup founders and impressive educational backgrounds, 
+                                including <span style={{color:'#65BA0D', fontWeight:'bold'}}>IIT, IIM, and NIT</span>. Their diverse expertise spans derivatives trading, stock exchanges, and leadership roles 
+                                at top tech startups like <span style={{color:'#65BA0D', fontWeight:'bold'}}>Unacademy, OLA, Mu-Sigma, JAYPEE Capital, NCDEX, and NeoStencil</span>. All three co-founders share 
+                                a history of working as a team at Unacademy and NeoStencil and committed to one cause - to make individual traders better traders!
                                 </Title>
                             </Stack>
                         </Grid>
 
-                        <Grid item xs={12} md={6} sx={{mt:10}} >
-                            <img src={about1} style={{ width: "100%", objectFit: "contain" }} alt="" />
+                        <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='flex-start'>
+                            
+                            <Grid container style={{ minHeight:'20vH'}} spacing={8} xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='flex-start'>
+                                <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center' alignItems='flex-start' style={{ width: '100%' }}>
+                                    <MDBox display='flex' justifyContent='center' flexDirection='column' alignItems='flex-start' style={{ width: '100%' }}>
+                                    <MDBox display='flex' justifyContent='center' alignItems='flex-start' style={{ width: '100%' }}>
+                                        <MDAvatar alt="Kush Beejal" src={cofounder_kush} sx={{ width: 100, height: 100 }} />
+                                    </MDBox>
+                                    <MDBox display='flex' justifyContent='center' alignItems='flex-start' style={{ width: '100%' }}>
+                                        <MDTypography fontWeight='bold' sx={{ letterSpacing: "0.02em", textAlign: 'center', color: '#315c45' }} >Kush Beejal</MDTypography>
+                                    </MDBox>
+                                    <MDBox display='flex' justifyContent='center' alignItems='flex-start' style={{ width: '100%' }}>
+                                        <a href="https://www.linkedin.com/in/kushbeejal/" target="_blank">
+                                            <LinkButton>
+                                                <LinkedInIcon style={{height:30, width:30}}/>
+                                            </LinkButton>
+                                        </a>
+                                    </MDBox>
+                                    <MDBox display='flex' justifyContent='center' alignItems='flex-start'>
+                                        <MDTypography fontSize={13} sx={{ letterSpacing: "0.02em", textAlign: 'justify', color: '#315c45' }} >
+                                            StoxHero is my 2nd startup having previously built NeoStencil, a successful and profitable edtech platform acquired by India’s leading edtech company Unacademy in 2020. As VP, Business at Unacademy, I launched new business segments. In earlier roles, I worked as a Derivatives Trader for a leading prop-trading desk for 2.5 years. I hold degrees from IIT Bombay & IIM Calcutta.
+                                        </MDTypography>
+                                    </MDBox>
+                                    </MDBox>
+                                </Grid>
+
+                                <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center' alignItems='flex-start' style={{ width: '100%' }}>
+                                    <MDBox display='flex' justifyContent='center' flexDirection='column' alignItems='flex-start' style={{ width: '100%' }}>
+                                    <MDBox display='flex' justifyContent='center' alignItems='flex-start' style={{ width: '100%' }}>
+                                        <MDAvatar alt="Prateek Pawan" src={cofounder_prateek} sx={{ width: 100, height: 100 }} />
+                                    </MDBox>
+                                    <MDBox display='flex' justifyContent='center' alignItems='flex-start' style={{ width: '100%' }}>
+                                        <MDTypography fontWeight='bold' sx={{ letterSpacing: "0.02em", textAlign: 'center', color: '#315c45' }} >Prateek Pawan</MDTypography>
+                                    </MDBox>
+                                    <MDBox display='flex' justifyContent='center' alignItems='flex-start' style={{ width: '100%' }}>
+                                        <a href="https://www.linkedin.com/in/prateekpawan/" target="_blank">
+                                            <LinkButton>
+                                                <LinkedInIcon style={{height:30, width:30}}/>
+                                            </LinkButton>
+                                        </a>
+                                    </MDBox>
+                                    <MDBox display='flex' justifyContent='center' alignItems='flex-start'>
+                                        <MDTypography fontSize={13} sx={{ letterSpacing: "0.02em", textAlign: 'justify', color: '#315c45' }} >
+                                            StoxHero is my 2nd startup. I previously built a food-tech startup MBL Foods Services, a leading chain in terms of orders for North Indian food on Zomato & Swiggy in Bangalore region. I have worked with Unacademy to set up new business lines. At Ninjacart, I handled operations in Delhi region, and prior to that, I worked as a Data Analyst with MuSigma & TCS. I am a Computer Science Engineer from NIT Rourkela.
+                                        </MDTypography>
+                                    </MDBox>
+                                    </MDBox>
+                                </Grid>
+
+                                <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center' alignItems='flex-start' style={{ width: '100%' }}>
+                                    <MDBox display='flex' justifyContent='center' flexDirection='column' alignItems='flex-start' style={{ width: '100%' }}>
+                                    <MDBox display='flex' justifyContent='center' alignItems='flex-start' style={{ width: '100%' }}>
+                                        <MDAvatar alt="Manish Nair" src={cofounder_manish} sx={{ width: 100, height: 100 }} />
+                                    </MDBox>
+                                    <MDBox display='flex' justifyContent='center' alignItems='flex-start' style={{ width: '100%' }}>
+                                        <MDTypography fontWeight='bold' sx={{ letterSpacing: "0.02em", textAlign: 'center', color: '#315c45' }} >Manish Nair</MDTypography>
+                                    </MDBox>
+                                    <MDBox display='flex' justifyContent='center' alignItems='flex-start' style={{ width: '100%' }}>
+                                        <a href="https://www.linkedin.com/in/i-manishnair/" target="_blank">
+                                        <LinkButton>
+                                            <LinkedInIcon style={{height:30, width:30}}/>
+                                        </LinkButton>
+                                        </a>
+                                    </MDBox>
+                                    <MDBox display='flex' justifyContent='center' alignItems='flex-start'>
+                                        <MDTypography fontSize={13} sx={{ letterSpacing: "0.02em", textAlign: 'justify', color: '#315c45' }} >
+                                            Boasting a rich decade in startups, I've excelled in business development, operations, and strategy. My journey includes thriving in online advertising, marketplace, and edtech sectors, collaborating with IndiaMart, OLA, NeoStencil, and Unacademy. My enduring commitment drives me to redefine success.
+                                        </MDTypography>
+                                    </MDBox>
+                                    </MDBox>
+                                </Grid>
+                                </Grid>
+
+                            
                         </Grid>
+
                     </Grid>
                 </Container>
-
-                <Container sx={{ height: "1200" }} >
-                    <Grid container spacing={10} flexWrap="wrap-reverse" alignItems="center" sx={{ mt: { xs: 10, md: 15 } }}>
-                        <Grid item xs={12} md={6}  >
-                            <Stack spacing={2} sx={{ maxWidth: 480 }}>
-
-                                <Title variant={{ xs: 'h3', sm: 'h2', md: 'h1' }} sx={{ letterSpacing: "0.02em", mb: 1 }} style={{ color: "white" }} >Idea</Title>
-                                <Title variant={{ xs: 'body1', sm: 'body1', md: "body1" }} sx={{ fontWeight: 500, letterSpacing: "0.05em", mb: 6, color: "rgba(255, 255, 255, 0.6)" }} >At StoxHero, we understand the importance of practice and learning in mastering the art of trading. That's why we have created a cutting-edge platform that combines the thrill of gamification with the dynamics of intra-day trading. Our daily contests on real-time contracts provide users with the perfect opportunity to test their skills, implement different strategies, and stay ahead in the competitive stock market environment..</Title>
-
-                            </Stack>
-                        </Grid>
-
-                        <Grid item xs={12} md={6}>
-                            <img src={about2} style={{ width: "100%", objectFit: "contain" }} />
-                        </Grid>
-
-                    </Grid>
-                </Container>
-
-                <Container sx={{ height: "100%", mt: 20, mb: 20 }}>
-
-                    <Stack spacing={4} >
-                        <ServiceCard image={about3} title="Community" subtitle="StoxHero's Smart Reports are a game-changer, offering user-specific trading insights and analysis. These reports provide invaluable guidance to help traders evolve and make informed decisions. Our goal is to empower users to choose trading as a viable career option while continuing to trade on StoxHero with real money." />
-                        <ServiceCard image={about4} title="Gamified" subtitle="Whether you're a beginner looking to explore the world of trading or an experienced trader seeking to enhance your skills, StoxHero is your go-to platform. Our gamified trading approach, coupled with user-specific insights, helps you maximize your potential and increase your income." />
-                        <ServiceCard image={about5} title="Program" subtitle="Join StoxHero.com today and embark on an exhilarating journey towards success in the stock market. Experience the power of gamification, practice your strategies in the virtual trading section, and unlock a world of opportunities. With StoxHero, you have the tools, knowledge, and support you need to excel in intra-day trading and beyond." />
-                    </Stack>
-
-                </Container>
-
-                <Footer />
-            </Box>
+            </MDBox>
+            <MDBox>
+                <Footer/>
+            </MDBox>
 
         </ThemeProvider>
     )

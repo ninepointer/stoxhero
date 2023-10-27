@@ -5,9 +5,15 @@ import PropTypes from "prop-types";
 import Container from "@mui/material/Container";
 import Link from "@mui/material/Link";
 import Icon from "@mui/material/Icon";
+import FacebookIcon from "@mui/icons-material/Facebook";
+import TwitterIcon from "@mui/icons-material/Twitter";
+import InstagramIcon from "@mui/icons-material/Instagram"
+import LinkedInIcon from "@mui/icons-material/LinkedIn"
+import YoutubeIcon from "@mui/icons-material/YouTube"
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
+import { Divider, Grid } from "@mui/material";
 import MDTypography from "../../../../components/MDTypography";
 
 // Material Dashboard 2 React base styles
@@ -17,102 +23,136 @@ function Footer({ light }) {
   const { size } = typography;
 
   return (
-    <MDBox position="absolute" width="100%" bottom={0} py={4}>
-      <Container>
-        <MDBox
-          width="100%"
-          display="flex"
-          flexDirection={{ xs: "column", lg: "row" }}
-          justifyContent="space-between"
-          alignItems="center"
-          px={1.5}
-        >
-          <MDBox
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            flexWrap="wrap"
-            color={light ? "white" : "text"}
-            fontSize={size.sm}
-          >
-            &copy; {new Date().getFullYear()}, made with
-            <MDBox fontSize={size.md} color={light ? "white" : "dark"} mb={-0.5} mx={0.25}>
-              <Icon color="inherit" fontSize="inherit">
-                favorite
-              </Icon>
-            </MDBox>
-            by
-            <Link href="https://www.stoxhero.com/" target="_blank">
-              <MDTypography variant="button" fontWeight="medium" color={light ? "white" : "dark"}>
-                &nbsp;StoxHero&nbsp;
-              </MDTypography>
-            </Link>
-            for a better trading experience.
-          </MDBox>
-          <MDBox
-            component="ul"
-            sx={({ breakpoints }) => ({
-              display: "flex",
-              flexWrap: "wrap",
-              alignItems: "center",
-              justifyContent: "center",
-              listStyle: "none",
-              mt: 3,
-              mb: 0,
-              p: 0,
+    <MDBox width="100%" bottom={0} py={2} style={{backgroundColor:'#315c45'}}>
+      <Grid container xs={12} md={12} lg={12}>
 
-              [breakpoints.up("lg")]: {
-                mt: 0,
-              },
-            })}
-          >
-            <MDBox component="li" pr={2} lineHeight={1}>
+          <Grid item xs={12} md={12} lg={4} mt={1}>
+            <MDBox
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              flexWrap="wrap"
+              color={light ? "text" : "white"}
+              fontSize={size.sm}
+            >
+              &copy; {new Date().getFullYear()}, made with
+              <MDBox fontSize={size.md} color={light ? "dark" : "white"} mb={-0.5} mx={0.25}>
+                <Icon color="inherit" fontSize="inherit">
+                  favorite
+                </Icon>
+              </MDBox>
+              by
               <Link href="https://www.stoxhero.com/" target="_blank">
+                <MDTypography variant="button" fontWeight="medium" color={light ? "dark" : "white"}>
+                  &nbsp;StoxHero&nbsp;
+                </MDTypography>
+              </Link>
+              for a better trading experience.
+            </MDBox>
+          </Grid>
+
+          <Grid item xs={12} md={12} lg={4} mt={1} display='flex' justifyContent='center' alignItems='center'>
+            <MDBox lineHeight={1}>
+              <Link href="https://www.youtube.com/@stoxhero_official" target="_blank">
+                <YoutubeIcon color='white'/>
+              </Link>
+            </MDBox>
+            <MDBox pl={2} lineHeight={1}>
+              <Link href="https://www.linkedin.com/company/stoxhero" target="_blank">
+                <LinkedInIcon color='white'/>
+              </Link>
+            </MDBox>
+            <MDBox pl={2} lineHeight={1}>
+              <Link href="https://www.instagram.com/stoxhero_official/" target="_blank">
+                <InstagramIcon color='white'/>
+              </Link>
+            </MDBox>
+            <MDBox pl={2} lineHeight={1}>
+              <Link href="https://www.facebook.com/stoxhero" target="_blank">
+                <FacebookIcon color='white'/>
+              </Link>
+            </MDBox>
+          </Grid>
+
+          <Grid item xs={12} md={12} lg={4} mt={1} display='flex' justifyContent='center'>
+            <MDBox lineHeight={1}>
+              <Link href="https://www.stoxhero.com/about" target="_blank">
                 <MDTypography
                   variant="button"
                   fontWeight="regular"
-                  color={light ? "white" : "dark"}
+                  color={light ? "dark" : "white"}
                 >
-                  
+                  About
                 </MDTypography>
               </Link>
             </MDBox>
-            <MDBox component="li" px={2} lineHeight={1}>
-              <Link href="https://www.stoxhero.com" target="_blank">
+            <MDBox pl={2} lineHeight={1}>
+              <Link href="https://www.stoxhero.com/contact" target="_blank">
                 <MDTypography
                   variant="button"
                   fontWeight="regular"
-                  color={light ? "white" : "dark"}
+                  color={light ? "dark" : "white"}
                 >
-                  About Us
+                  Contact Us
                 </MDTypography>
               </Link>
             </MDBox>
-            <MDBox component="li" px={2} lineHeight={1}>
-              <Link href="https://www.stoxhero.com" target="_blank">
+            <MDBox pl={2} lineHeight={1}>
+              <Link href="https://www.stoxhero.com/terms" target="_blank">
                 <MDTypography
                   variant="button"
                   fontWeight="regular"
-                  color={light ? "white" : "dark"}
+                  color={light ? "dark" : "white"}
                 >
-                  Blog
+                  Terms of Usage
                 </MDTypography>
               </Link>
             </MDBox>
-            <MDBox component="li" pl={2} lineHeight={1}>
-              <Link href="https://www.stoxhero.com" target="_blank">
-                <MDTypography
-                  variant="button"
-                  fontWeight="regular"
-                  color={light ? "white" : "dark"}
-                >
-                  License
-                </MDTypography>
-              </Link>
+          </Grid>
+
+          <Grid item xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='center' alignItems='center'>
+            <MDBox
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              flexWrap="wrap"
+              color={light ? "text" : "white"}
+              fontSize={size.sm}
+              // style={{textDecoration:'underline'}}
+            >
+              For support: support@stoxhero.com
             </MDBox>
-          </MDBox>
-        </MDBox>
-      </Container>
+          </Grid>
+
+          <Grid item xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='center' alignItems='center'>
+            <MDBox
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              flexWrap="wrap"
+              color={light ? "text" : "white"}
+              fontSize={size.sm}
+              style={{textAlign:'center'}}
+            >
+              © 2023, STOXHERO GAMES TECHNOLOGIES PRIVATE LIMITED. All rights reserved.
+            </MDBox>
+          </Grid>
+
+          <Grid item xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='center' alignItems='center'>
+            <MDBox
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              flexWrap="wrap"
+              color={light ? "text" : "white"}
+              fontSize={size.sm}
+              style={{textAlign:'center'}}
+            >
+              S-77, NRI Colony, Sec-24, Pratap Nagar, Sanganer, Pratap Nagar Housing Board, Jaipur-302033
+            </MDBox>
+          </Grid>
+
+      </Grid>
     </MDBox>
   );
 }
