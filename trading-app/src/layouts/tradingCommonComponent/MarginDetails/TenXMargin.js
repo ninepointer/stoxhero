@@ -8,7 +8,7 @@ import DefaultInfoCard from "../../../examples/Cards/InfoCards/DefaultInfoCard";
 import { renderContext } from '../../../renderContext';
 
 const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
-  const { netPnl, pnlData } = useContext(NetPnlContext);
+  const { netPnl, totalRunningLots, pnlData } = useContext(NetPnlContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [fundDetail, setFundDetail] = useState({});
   const {render} = useContext(renderContext);

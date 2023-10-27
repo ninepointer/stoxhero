@@ -1,4 +1,3 @@
-const TenxTrader = require("./models/mock-trade/tenXTraderSchema");
 let { client4, client2, client, getValue, clientForIORedis } = require("./marketData/redisClient");
 const { Mutex } = require('async-mutex');
 const BrokerageDetail = require("./models/Trading Account/brokerageSchema");
@@ -6,6 +5,14 @@ const {xtsAccountType, zerodhaAccountType} = require("./constant");
 const Setting = require("./models/settings/setting");
 const PendingOrder = require("./models/PendingOrder/pendingOrderSchema");
 const { ObjectId } = require("mongodb");
+const TenXTrader = require("./models/mock-trade/tenXTraderSchema");
+const PaperTrade = require("./models/mock-trade/paperTrade");
+const InternshipTrade = require("./models/mock-trade/internshipTrade");
+const MarginXMockUser = require("./models/marginX/marginXUserMock");
+const BattleMockUser = require("./models/battle/battleTrade");
+const DailyContestMockUser = require("./models/DailyContest/dailyContestMockUser");
+const {virtual, internship, dailyContest, marginx, tenx, battle} = require("./constant")
+const getKiteCred = require('./marketData/getKiteCred'); 
 
 
 const mutex = new Mutex();
@@ -27,8 +34,6 @@ exports.tenxTradeStopLoss = async () => {
         accountType = zerodhaAccountType;
     }
     let isRedisConnected = getValue();
-    // let brokerageDetailBuy = await buyBrokerageCompany(accountType, isRedisConnected);
-    // let brokerageDetailSell = await sellBrokerageCompany(accountType, isRedisConnected);
     let brokerageDetailBuyUser = await buyBrokerageUser(zerodhaAccountType, isRedisConnected);
     let brokerageDetailSellUser = await sellBrokerageUser(zerodhaAccountType, isRedisConnected);
 
@@ -58,7 +63,47 @@ exports.tenxTradeStopLoss = async () => {
                     return;
                 }
 
+                let todayPnlData;
+                let fundDetail;
+                try {
+                    if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`)) {
+                        todayPnlData = await client.get(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`)
+                        todayPnlData = JSON.parse(todayPnlData);
+                    }
+            
+                    if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()} openingBalanceAndMarginTenx`)) {
+                        fundDetail = await client.get(`${createdBy.toString()}${sub_product_id.toString()} openingBalanceAndMarginTenx`)
+                        fundDetail = JSON.parse(fundDetail);
+                    }
+                } catch (e) {
+                    console.log("errro fetching pnl 2", e);
+                }
+
                 console.log("lockAcquired", lockAcquired)
+                const kiteData = await getKiteCred.getAccess();
+                // const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
+                const marginAndCase = getLastTradeMarginAndCaseNumber(message.data, todayPnlData, tenx);
+                const caseNumber = (await marginAndCase).caseNumber;
+                const margin = (await marginAndCase).margin; 
+                const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
+            
+                switch (caseNumber) {
+                    case 0:
+                        await marginZeroCase(message.data, availableMargin, tenx, kiteData)
+                        break;
+                    case 1:
+                        await marginFirstCase(message.data, availableMargin, margin, tenx, kiteData)
+                        break;
+                    case 2:
+                        await marginSecondCase(message.data, margin, runningLotForSymbol)
+                        break;
+                    case 3:
+                        await marginThirdCase(message.data)
+                        break;
+                    case 4:
+                        // await marginFourthCase(message.data, availableMargin, runningLotForSymbol, tenx, kiteData)
+                        break;
+                }
 
                 let last_price = message.ltp;
                 let index = message.index;
@@ -80,41 +125,44 @@ exports.tenxTradeStopLoss = async () => {
                     Quantity = "-" + Quantity;
                 }
 
-                const tenx = new TenxTrader({
+                const tenxDoc = new TenXTrader({
                     status: "COMPLETE", average_price: last_price, Quantity, Product, buyOrSell,
                     variety, validity, exchange, order_type, symbol, placed_by: "stoxhero",
                     order_id, instrumentToken, brokerage: brokerageUser, subscriptionId: sub_product_id, exchangeInstrumentToken,
                     createdBy: "63ecbc570302e7cf0153370c", trader: createdBy, amount: (Number(Quantity) * last_price), trade_time: trade_time_zerodha,
+                    margin: message.data.margin
                 });
 
-                tenx.save().then(async () => {
+                tenxDoc.save().then(async () => {
                     if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`)) {
                         let pnl = await client.get(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`)
                         pnl = JSON.parse(pnl);
-                        const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenx.instrumentToken && element._id.product === tenx.Product));
+                        const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product));
 
                         // if instrument is same then just updating value
                         if (matchingElement) {
                             // Update the values of the matching element with the values of the first document
-                            matchingElement.amount += (tenx.amount * -1);
-                            matchingElement.brokerage += Number(tenx.brokerage);
-                            matchingElement.lastaverageprice = tenx.average_price;
-                            matchingElement.lots += Number(tenx.Quantity);
+                            matchingElement.amount += (tenxDoc.amount * -1);
+                            matchingElement.brokerage += Number(tenxDoc.brokerage);
+                            matchingElement.lastaverageprice = tenxDoc.average_price;
+                            matchingElement.lots += Number(tenxDoc.Quantity);
+                            matchingElement.margin = message.data.margin;
 
                         } else {
                             // Create a new element if instrument is not matching
                             pnl.push({
                                 _id: {
-                                    symbol: tenx.symbol,
-                                    product: tenx.Product,
-                                    instrumentToken: tenx.instrumentToken,
-                                    exchangeInstrumentToken: tenx.exchangeInstrumentToken,
-                                    exchange: tenx.exchange,
+                                    symbol: tenxDoc.symbol,
+                                    product: tenxDoc.Product,
+                                    instrumentToken: tenxDoc.instrumentToken,
+                                    exchangeInstrumentToken: tenxDoc.exchangeInstrumentToken,
+                                    exchange: tenxDoc.exchange,
                                 },
-                                amount: (tenx.amount * -1),
-                                brokerage: Number(tenx.brokerage),
-                                lots: Number(tenx.Quantity),
-                                lastaverageprice: tenx.average_price,
+                                amount: (tenxDoc.amount * -1),
+                                brokerage: Number(tenxDoc.brokerage),
+                                lots: Number(tenxDoc.Quantity),
+                                lastaverageprice: tenxDoc.average_price,
+                                margin: message.data.margin
                             });
                         }
 
@@ -269,4 +317,207 @@ async function buyBrokerageUser(zerodhaAccountType, isRedisConnected) {
 
     return brokerageDetailBuyUser;
 }
+
+const getLastTradeMarginAndCaseNumber = async (data, pnlData, from) => {
+    const mySymbol = pnlData.filter((elem)=>{
+        return elem?._id?.symbol === data.symbol;
+    })
+
+    const runningLotForSymbol = mySymbol[0]?.lots;
+    const transactionTypeForSymbol = mySymbol[0]?.lots >= 0 ? "BUY" : mySymbol[0]?.lots < 0 && "SELL";
+    const quantity = data.Quantity;
+    const transaction_type = data.buyOrSell;
+    const symbol = mySymbol[0]?.symbol;
+    let margin = 0;
+    let caseNumber = 0;
+
+    const DataBase = from===virtual ? PaperTrade : 
+                    from===internship ? InternshipTrade : 
+                    from===dailyContest ? DailyContestMockUser : 
+                    from===marginx ? MarginXMockUser :
+                    from===tenx && TenXTrader;
+
+    
+    if(pnlData?.length > 0){
+        margin = mySymbol[0]?.margin;
+    } else{
+        const lastTradeData = await DataBase.findOne({symbol: symbol, trader: new ObjectId(createdBy), trade_time: {$gte: new Date()}})
+        .sort({ _id: -1 })
+        .limit(1)
+        margin = lastTradeData && lastTradeData.margin;
+    }
+
+    if(Math.abs(runningLotForSymbol) > Math.abs(quantity) && transactionTypeForSymbol !== transaction_type){
+        caseNumber = 2;
+    } else if(Math.abs(runningLotForSymbol) < Math.abs(quantity) && transactionTypeForSymbol !== transaction_type){
+        caseNumber = 4;
+    } else if(Math.abs(runningLotForSymbol) === Math.abs(quantity) && transactionTypeForSymbol !== transaction_type){
+        caseNumber = 3;
+    } else if(transactionTypeForSymbol === transaction_type){
+        caseNumber = 1;
+    } else{
+        caseNumber = 0;
+    }
+
+    return {margin: margin, caseNumber: caseNumber, runningLotForSymbol: runningLotForSymbol}
+}
+
+const calculateNetPnl = async (tradeData, pnlData, data) => {
+    let addUrl = 'i=' + tradeData.exchange + ':' + tradeData.symbol;
+    pnlData.forEach((elem, index) => {
+        addUrl += ('&i=' + elem._id.exchange + ':' + elem._id.symbol);
+    });
+
+    let url = `https://api.kite.trade/quote/ltp?${addUrl}`;
+    const api_key = data.getApiKey;
+    const access_token = data.getAccessToken;
+    let auth = 'token' + api_key + ':' + access_token;
+    let authOptions = {
+        headers: {
+            'X-Kite-Version': '3',
+            Authorization: auth,
+        },
+    };
+
+    const arr = [];
+    try {
+        const response = await axios.get(url, authOptions);
+
+        for (let instrument in response.data.data) {
+            let obj = {};
+            obj.last_price = response.data.data[instrument].last_price;
+            obj.instrument_token = response.data.data[instrument].instrument_token;
+            arr.push(obj);
+        }
+
+        let totalNetPnl = 0
+        let totalBrokerage = 0
+        let totalGrossPnl = 0
+
+        
+        const ltp = arr.filter((subelem) => {
+            return subelem?.instrument_token == tradeData?.instrumentToken;
+        })
+
+        tradeData.last_price = ltp[0]?.last_price;
+
+
+        for (let elem of pnlData) {
+            let grossPnl = (elem?.amount + (elem?.lots) * ltp[0]?.last_price);
+            totalGrossPnl += grossPnl;
+            totalBrokerage += Number(elem?.brokerage);
+        }
+
+        totalNetPnl = totalGrossPnl - totalBrokerage;
+
+        return totalNetPnl;
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+const marginZeroCase = async (tradeData, availableMargin, from, data) => {
+    const requiredMargin = await calculateRequiredMargin(tradeData, tradeData.Quantity, data);
+    console.log("0th case", availableMargin, requiredMargin);
+
+    if((availableMargin-requiredMargin) > 0){
+        tradeData.margin = requiredMargin;
+        return;
+    } else{
+        // await takeRejectedTrade(req, res, from);
+    }
+}
+
+const marginFirstCase = async (tradeData, availableMargin, prevMargin, from, data) => {
+    const requiredMargin = await calculateRequiredMargin(tradeData, tradeData.Quantity, data);
+    console.log("1st case", availableMargin, prevMargin, requiredMargin);
+
+    if((availableMargin-requiredMargin) > 0){
+        tradeData.margin = requiredMargin+prevMargin;
+        return;
+    } else{
+        // await takeRejectedTrade(req, res, from);
+    }
+}
+
+const marginSecondCase = async (tradeData, prevMargin, prevQuantity) => {
+    const quantityPer = Math.abs(tradeData.Quantity) * 100 / Math.abs(prevQuantity);
+    const marginReleased = prevMargin*quantityPer/100;
+    tradeData.margin = prevMargin-marginReleased;
+    console.log("2nd case", quantityPer, marginReleased);
+
+    return;
+}
+
+const marginThirdCase = async (tradeData) => {
+    tradeData.margin = 0;
+    console.log("3rd case");
+
+    return;
+}
+
+const marginFourthCase = async (tradeData, availableMargin, prevQuantity, from, data) => {
+    const quantityForTrade = Math.abs(Math.abs(tradeData.Quantity) - Math.abs(prevQuantity));
+    const requiredMargin = await calculateRequiredMargin(tradeData, quantityForTrade, data);
+
+    if((availableMargin-requiredMargin) > 0){
+        tradeData.margin = requiredMargin;
+        return;
+    } else{
+        // await takeRejectedTrade(req, res, from);
+    }
+}
+
+const calculateRequiredMargin = async (tradeData, Quantity, data) => {
+    const { exchange, symbol, buyOrSell, variety, Product, OrderType, last_price} = tradeData;
+    let auth = 'token ' + data.getApiKey + ':' + data.getAccessToken;
+    let headers = {
+        'X-Kite-Version': '3',
+        'Authorization': auth,
+        "content-type": "application/json"
+    }
+    let orderData = [{
+        "exchange": exchange,
+        "tradingsymbol": symbol,
+        "transaction_type": buyOrSell,
+        "variety": variety,
+        "product": Product,
+        "order_type": OrderType,
+        "quantity": Quantity,
+        "price": 0,
+        "trigger_price": 0
+    }]
+
+    try{
+        if(buyOrSell === "SELL"){
+            const marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers })
+            const zerodhaMargin = marginData.data.data.orders[0].total;
+    
+            return zerodhaMargin;    
+        } else{
+            return (last_price * Math.abs(Quantity));
+        }
+    }catch(err){
+        console.log(err);
+    }
+    
+}
+
+const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
+
+    const openingBalance = fundDetail?.openingBalance ? fundDetail?.openingBalance : fundDetail?.totalFund;
+    if(!pnlData.length){
+        return openingBalance;
+    }
+
+    const totalMargin = pnlData.reduce((total, acc)=>{
+        return total + acc.margin;
+    }, 0)
+    console.log("availble margin", totalMargin, openingBalance, npnl)
+    if(npnl < 0)
+    return openingBalance-totalMargin-npnl;
+    else
+    return openingBalance-totalMargin;
+}
+
 

@@ -74,7 +74,7 @@ exports.getActiveBatches = async(req, res, next)=>{
 exports.getCompletedBatches = async(req, res, next)=>{
     // console.log("inside CompletedBatches")
     try {
-        const batch = await Batch.find({ batchEndDate: { $lt: new Date() }, batchStatus: 'Active' })
+        const batch = await Batch.find({ batchEndDate: { $lt: new Date() }, batchStatus: 'Completed' })
                                 .populate('career','jobTitle')
                                 .populate('portfolio','portfolioName portfolioValue');; 
         res.status(201).json({status: 'success', data: batch, results: batch.length}); 
