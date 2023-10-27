@@ -25,9 +25,9 @@ const restrictTo = require('../../authentication/authorization');
 
 
 router.post("/signup", async (req, res) => {
-    const { first_name, last_name, email, mobile, dob } = req.body;
-    console.log(req.body)
-    if (!first_name || !last_name || !email || !mobile || !dob) {
+    const { first_name, last_name, email, mobile } = req.body;
+    // console.log(req.body)
+    if (!first_name || !last_name || !email || !mobile) {
         return res.status(400).json({ status: 'error', message: "Please fill all fields to proceed." })
     }
     const isExistingUser = await User.findOne({ $or: [{ email: email }, { mobile: mobile }] })
@@ -51,13 +51,12 @@ router.post("/signup", async (req, res) => {
             signedupuser.mobile = mobile.trim();
             signedupuser.email = email.trim();
             signedupuser.mobile_otp = mobile_otp.trim();
-            signedupuser.dob = new Date(dob).setHours(0,0,0,0);
             await signedupuser.save({ validateBeforeSave: false })
         }
         else {
             await SignedUpUser.create({
                 first_name: first_name.trim(), last_name: last_name.trim(), email: email.trim(),
-                mobile: mobile.trim(), mobile_otp: mobile_otp, dob: new Date(dob).setHours(0,0,0,0)
+                mobile: mobile.trim(), mobile_otp: mobile_otp
             });
         }
 
@@ -103,10 +102,8 @@ router.patch("/verifyotp", async (req, res) => {
         last_name,
         email,
         mobile,
-        dob,
         mobile_otp,
         referrerCode,
-        password
     } = req.body
 
 
@@ -182,9 +179,7 @@ router.patch("/verifyotp", async (req, res) => {
             first_name: first_name.trim(), last_name: last_name.trim(), designation: 'Trader', email: email.trim(),
             mobile: mobile.trim(),
             name: first_name.trim() + ' ' + last_name.trim().substring(0, 1),
-            // password: password,
             status: 'Active',
-            dob: new Date(dob).setHours(0,0,0,0),
             employeeid: userId,
             joining_date: user.last_modifiedOn,
             myReferralCode: (await myReferralCode).toString(),
@@ -197,9 +192,9 @@ router.patch("/verifyotp", async (req, res) => {
             creationProcess: referredBy ? 'Referral SignUp' : 'Auto SignUp',
         }
         // console.log('password', password);
-        if(password){
-            obj.password = password;
-        }
+        // if(password){
+        //     obj.password = password;
+        // }
 
         const newuser = await User.create(obj);
         const populatedUser = await User.findById(newuser._id).populate('role', 'roleName')
@@ -236,10 +231,14 @@ router.patch("/verifyotp", async (req, res) => {
         .select('pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
         const token = await newuser.generateAuthToken();
 
+        console.log("Token:",token)
+
         res.cookie("jwtoken", token, {
             expires: new Date(Date.now() + 25892000000),
         });    
-        res.status(201).json({ status: "Success", data: populatedUser, message: "Welcome! Your account is created, please login with your credentials.", token });
+       
+        console.log("res:",res)
+        res.status(201).json({ status: "Success", data: populatedUser, message: "Welcome! Your account is created, please login with your credentials.", token: token });
         
         // now inserting userId in free portfolio's
         const idOfUser = newuser._id;
@@ -298,7 +297,6 @@ router.patch("/verifyotp", async (req, res) => {
                 createdOn: new Date(),
                 createdBy: newuser._id
         })
-
 
         if (!newuser) return res.status(400).json({ status: 'error', message: 'Something went wrong' });
 

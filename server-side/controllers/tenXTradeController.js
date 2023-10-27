@@ -739,7 +739,6 @@ exports.autoExpireTenXSubscription = async () => {
             const user = await User.findOne({ _id: new ObjectId(userId), status: "Active" });
             if(user){
 
-
               let len = user.subscription.length;
               
               for (let k = len - 1; k >= 0; k--) {

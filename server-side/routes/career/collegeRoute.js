@@ -14,6 +14,7 @@ router.route('/south').get(Authenticate, restrictTo('Admin', 'Super Admin'), get
 router.route('/east').get(Authenticate, restrictTo('Admin', 'Super Admin'), getEastZoneColleges);
 router.route('/west').get(Authenticate, restrictTo('Admin', 'Super Admin'), getWestZoneColleges);
 router.route('/collegeName').get(Authenticate, restrictTo('Admin', 'Super Admin'), getCollegeName);
+router.route('/collegeList').get(getCollegeName);
 
 router.route('/:id').patch(Authenticate, restrictTo('Admin', 'Super Admin'), editCollege).get(Authenticate, restrictTo('Admin', 'Super Admin'), getCollege);
 router.route('/delete/:id').patch(Authenticate, restrictTo('Admin', 'Super Admin'), deleteCollege);

@@ -35,6 +35,10 @@ const Career = new mongoose.Schema({
         required: true,
         enum: ['Live','Draft', 'Rejected']
     },
+    activelyRecruiting:{
+        type: Boolean,
+        default : true
+    },
     listingType:{
         type: String,
         enum: ['Job', 'Workshop']

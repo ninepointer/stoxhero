@@ -22,6 +22,14 @@ const ContestRegistration = new mongoose.Schema({
         type: Date,
         required: true,
     },
+    gender: {
+        type: String,
+        required: true,
+    },
+    college:{
+        type: Schema.Types.ObjectId,
+        ref: 'college'
+    },
     contest:{
         type: Schema.Types.ObjectId,
         ref: 'daily-contest'
@@ -29,6 +37,18 @@ const ContestRegistration = new mongoose.Schema({
     collegeName:{
         type:String,
         required: true,
+    },
+    passingoutyear:{
+        type:String,
+        required: true,
+    },
+    course:{
+        type:String,
+        required: true,
+    },
+    linkedinProfileLink:{
+        type:String,
+        // required: true,
     },
     appliedOn: {
         type: Date,

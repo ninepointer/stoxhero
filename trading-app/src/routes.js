@@ -125,6 +125,7 @@ import UserAnalytics from "./layouts/userAnalytics";
 import UserWallet from "./layouts/userWallet"
 import About from './layouts/HomePage/pages/About'
 import Careers from './layouts/HomePage/pages/Career'
+import JobForm from './layouts/HomePage/pages/EICCareerForm'
 import Workshops from './layouts/HomePage/pages/Workshop'
 import Home from './layouts/HomePage/pages/Home'
 import JD from './layouts/HomePage/pages/JobDescription'
@@ -210,6 +211,14 @@ const routes = [
     route: "/marketingdashboard",
     component: <MarketingFunnel />,
   },
+  // {
+  //   type: "collapse",
+  //   name: "Contests",
+  //   key: "contests",
+  //   icon: <WalletIcon/>,
+  //   route: "/contests",
+  //   component: <Contests />,
+  // },
   {
     type: "collapse",
     name: "TenX Dashboard",
@@ -250,22 +259,22 @@ const routes = [
     route: "/marginxdashboard",
     component: <MarginXDashboard />,
   },
-  {
-    type: "collapse",
-    name: "Challenge Dashboard",
-    key: "challengedashboard",
-    icon: <EmojiEventsIcon/>,
-    route: "/challengedashboard",
-    component: <ChallengeDashboard />,
-  },
-  {
-    type: "collapse",
-    name: "Battle Dashboard",
-    key: "battledashboard",
-    icon: <SportsKabaddiIcon/>,
-    route: "/battledashboard",
-    component: <BattleDashboard />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Challenge Dashboard",
+  //   key: "challengedashboard",
+  //   icon: <EmojiEventsIcon/>,
+  //   route: "/challengedashboard",
+  //   component: <ChallengeDashboard />,
+  // },
+  // {
+  //   type: "collapse",
+  //   name: "Battle Dashboard",
+  //   key: "battledashboard",
+  //   icon: <SportsKabaddiIcon/>,
+  //   route: "/battledashboard",
+  //   component: <BattleDashboard />,
+  // },
   {
     type: "collapse",
     name: "Contest Scoreboard",
@@ -274,15 +283,15 @@ const routes = [
     route: "/contestscoreboard",
     component: <ContestScoreboard />,
   },
-  {
-    type: "collapse",
-    name: "Dashboard",
-    key: "stoxherodashboard",
-    // icon: <Icon fontSize="small">person</Icon>,
-    icon: <BusinessIcon/>,
-    route: "/stoxherodashboard",
-    component: <StoxHeroDashboard />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Dashboard",
+  //   key: "stoxherodashboard",
+  //   // icon: <Icon fontSize="small">person</Icon>,
+  //   icon: <BusinessIcon/>,
+  //   route: "/stoxherodashboard",
+  //   component: <StoxHeroDashboard />,
+  // },
   {
     // type: "collapse",
     // name: "Company Dashboard",
@@ -448,7 +457,7 @@ const routes = [
     // name: "Arena",
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "/jobdescription",
+    route: "/careers/:name/jobdescription",
     component: <JD />,
   },
   // {
@@ -516,20 +525,17 @@ const routes = [
     component: <Careers />,
   },
   {
-    // type: "collapse",
-    // name: "Arena",
     key: "workshops",
-    // icon: <BusinessIcon/>,
     route: "/workshops",
     component: <Workshops />,
   },
   {
-    // type: "collapse",
-    // name: "Arena",
-    // key: "arena",
-    // icon: <BusinessIcon/>,
     route: "/apply",
     component: <CareerForm />,
+  },
+  {
+    route: "careers/careerform/:name",
+    component: <JobForm />,
   },
   {
     route: "/contact",
