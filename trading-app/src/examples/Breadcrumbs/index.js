@@ -107,7 +107,10 @@ function Breadcrumbs({ icon, title, route, light }) {
   }
   else if(title === "signupanalytics"){
     title = "SignUp Analytics"
-  }  
+  }
+  else if(title === "affiliateprograms"){
+    title = "Affiliate Programs"
+  }   
   
   
   
