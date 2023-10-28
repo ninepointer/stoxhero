@@ -107,7 +107,7 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
     variety: "",
     Product: "",
     Quantity: "",
-    Price: "",
+    price: "",
     OrderType: "",
     TriggerPrice: "",
     stopLoss: "",
@@ -227,7 +227,7 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
 
   async function placeOrder() {
 
-    const {stopProfitPrice, stopLossPrice, exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = sellFormDetails;
+    const {stopProfitPrice, stopLossPrice, exchange, symbol, buyOrSell, Quantity, price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = sellFormDetails;
     let endPoint 
     let paperTrade = false;
     let tenxTraderPath;
@@ -270,7 +270,7 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
         },
         body: JSON.stringify({
             
-          exchange, symbol, buyOrSell, Quantity, Price, subscriptionId, contestId: module?.data,
+          exchange, symbol, buyOrSell, Quantity, price, subscriptionId, contestId: module?.data,
           Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin, stopProfitPrice, stopLossPrice,
           validity, variety, createdBy, order_id:dummyOrderId, internPath, marginxId: subscriptionId,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, battleId: subscriptionId
@@ -418,6 +418,10 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
       setChaeckQuantity(e.target.value);
     }
 
+    const priceChange = async(e)=>{
+      sellFormDetails.price = e.target.value;
+    }
+
   return (
     <div>
 
@@ -478,7 +482,7 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
               </FormControl>
 
               <TextField
-                id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "SL/SP-M"} label="Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
+                id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "SL/SP-M"} label="Price" variant="standard" onChange={(e) => { { priceChange(e) } }}
                 sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
 
               <TextField
@@ -508,7 +512,7 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
                     sx={{ display: "flex", flexDirection: "row" }}
                   >
                     <FormControlLabel value="MARKET" control={<Radio />} label="MARKET" />
-                    <FormControlLabel disabled="false" value="LIMIT" control={<Radio />} label="LIMIT" />
+                    <FormControlLabel value="LIMIT" control={<Radio />} label="LIMIT" />
                     <FormControlLabel value="SL/SP-M" control={<Radio />} label="SL/SP-M" />
 
                   </RadioGroup>
