@@ -68,6 +68,10 @@ const pendingOrderSchema = new Schema({
         type: Number,
         required : true
     },
+    margin:{
+        type: Number,
+        required : true
+    },
     execution_time:{
         type: Date,
         required: true

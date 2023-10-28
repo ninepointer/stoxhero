@@ -276,6 +276,9 @@ const getTicksForCompanySide = async (socket) => {
                 } else if (symbolArr[i].type === "StopProfit" && symbolArr[i].execution_price >= tick.last_price && symbolArr[i].buyOrSell === "BUY") {
                   console.log("4th if running")
                   await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
+                } else if (symbolArr[i].type === "Limit" && symbolArr[i].execution_price <= tick.last_price) {
+                  console.log("5th if running")
+                  await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
                 }
               }
             }

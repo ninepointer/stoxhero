@@ -13,8 +13,6 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
   const [fundDetail, setFundDetail] = useState({});
   const {render} = useContext(renderContext);
 
- 
-
   const todayMargin = pnlData.reduce((total, acc) => {
     return total + (acc.margin ? acc.margin : 0);
   }, 0);
@@ -38,9 +36,9 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
   const totalCreditString = fundDetail?.totalFund ? fundDetail?.totalFund >= 0 ? "+₹" + fundDetail?.totalFund?.toLocaleString() : "-₹" + ((-fundDetail?.totalFund)?.toLocaleString()): "+₹0"
   const runningPnl = Number(netPnl?.toFixed(0));
   const openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
-  const openingBalanceString = openingBalance >= 0 ? "₹" + Number(openingBalance)?.toLocaleString() : "₹" + (-Number(openingBalance))?.toLocaleString()
+  // const openingBalanceString = openingBalance >= 0 ? "₹" + Number(openingBalance)?.toLocaleString() : "₹" + (-Number(openingBalance))?.toLocaleString()
   // const availableMargin = openingBalance ? (totalRunningLots === 0 ? Number(openingBalance)+runningPnl : Number(openingBalance)-todayAmount) : fundDetail?.totalFund;
-  const availableMargin = (runningPnl < 0) ? (openingBalance-todayMargin+runningPnl) : openingBalance-todayMargin;
+  const availableMargin = (runningPnl < 0) ? totalRunningLots===0 ? (openingBalance-todayMargin+runningPnl) : openingBalance-todayMargin : openingBalance-todayMargin;
   const availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹0"
   const usedMargin = runningPnl >= 0 ? 0 : runningPnl
   const usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin)?.toLocaleString() : "₹" + (-Number(usedMargin))?.toLocaleString()
@@ -84,9 +82,9 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
                 <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     // icon={<AccountBalanceWalletIcon/>}
-                    title="opening balance"
-                    description="Cash available at the beginning of the day"
-                    value={openingBalanceString}
+                    title="unrealised pnl"
+                    description="Increased value of your investment"
+                    value={unrealisedPnlString}
                   />
                 </Grid>
               </Grid>

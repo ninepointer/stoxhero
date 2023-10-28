@@ -70,7 +70,8 @@ exports.overallPnl = async (req, res, next) => {
               exchangeInstrumentToken: "$exchangeInstrumentToken",
               exchange: "$exchange",
               validity: "$validity",
-              variety: "$variety"
+              variety: "$variety",
+              // order_type: "$order_type"
             },
             amount: {
               $sum: { $multiply: ["$amount", -1] },

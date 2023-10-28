@@ -7,7 +7,7 @@ import MDBox from '../../../components/MDBox';
 import DefaultInfoCard from "../../../examples/Cards/InfoCards/DefaultInfoCard";
 import { renderContext } from '../../../renderContext';
 
-const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
+const TenxMarginGrid = ({subscriptionId, setyesterdayData}) => {
   const { netPnl, totalRunningLots, pnlData } = useContext(NetPnlContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [fundDetail, setFundDetail] = useState({});
@@ -37,9 +37,7 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
 
   const runningPnl = Number(netPnl?.toFixed(0));
   const openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
-  // const openingBalanceString = openingBalance >= 0 ? "₹" + Number(openingBalance)?.toLocaleString() : "₹" + (-Number(openingBalance))?.toLocaleString()
-
-  const availableMargin = (runningPnl < 0) ? (openingBalance-todayMargin+runningPnl) : openingBalance-todayMargin;
+  const availableMargin = (runningPnl < 0) ? totalRunningLots===0 ? (openingBalance-todayMargin+runningPnl) : openingBalance-todayMargin : openingBalance-todayMargin;
   const availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹0"
   const usedMargin = runningPnl >= 0 ? 0 : runningPnl
   const usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin)?.toLocaleString() : "₹" + (-Number(usedMargin))?.toLocaleString()
@@ -96,4 +94,4 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
     )
 }
 
-export default memo(InfinityMarginGrid);
+export default memo(TenxMarginGrid);

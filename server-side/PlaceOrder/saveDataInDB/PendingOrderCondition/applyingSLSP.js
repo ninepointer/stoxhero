@@ -1,7 +1,6 @@
-// const TenxTrader = require("../../../models/mock-trade/tenXTraderSchema");
 const PendingOrder = require("../../../models/PendingOrder/pendingOrderSchema")
-const { ObjectId } = require("mongodb");
 const { client, getValue } = require('../../../marketData/redisClient');
+const getKiteCred = require('../../../marketData/getKiteCred'); 
 
 
 
@@ -11,9 +10,8 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
     let isRedisConnected = await getValue();
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, 
         exchangeInstrumentToken, validity, variety, order_id, instrumentToken, last_price,
-        stopProfitPrice, stopLossPrice, createdBy, order_type, deviceDetails, id } = req.body ? req.body : req 
+        stopProfitPrice, stopLossPrice, createdBy, order_type, deviceDetails, id, margin, price } = req.body ? req.body : req 
 
-        console.log("last_price", last_price)
     last_price = last_price && String(last_price)?.includes("₹") && last_price?.slice(1);
     id = id ? id : subscriptionId;
     if(Object.keys(otherData).length > 0){
@@ -32,14 +30,14 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
         order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: stopLossPrice,
         Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: OrderType ? OrderType : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price,
-        createdBy: req?.user?._id ? req?.user?._id : createdBy, type: "StopLoss", sub_product_id: id
+        createdBy: req?.user?._id ? req?.user?._id : createdBy, type: "StopLoss", sub_product_id: id, margin
       }
 
       const pendingOrderStopProfit = {
         order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: stopProfitPrice,
         Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: OrderType ? OrderType : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price,
-        createdBy: req?.user?._id ? req?.user?._id : createdBy, type: "StopProfit", sub_product_id: id
+        createdBy: req?.user?._id ? req?.user?._id : createdBy, type: "StopProfit", sub_product_id: id, margin
       }
 
       pendingOrder.push(pendingOrderStopLoss);
@@ -50,7 +48,18 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
       pendingOrder = [{
         order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: executionPrice,
         Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: OrderType ? OrderType : order_type, symbol,
-        execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price,
+        execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, margin,
+        createdBy: req?.user?._id ? req?.user?._id : createdBy, type, sub_product_id: id
+      }]
+    } else if(price){
+      let executionPrice = price;
+      let type = "Limit";
+      // const data = await getKiteCred.getAccess(); 
+      // const margin = await limitOrderMargin(req, data);
+      pendingOrder = [{
+        order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: executionPrice,
+        Quantity: Math.abs(Quantity), Product, buyOrSell: buyOrSell, variety, validity, exchange, order_type: OrderType ? OrderType : order_type, symbol,
+        execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, margin,
         createdBy: req?.user?._id ? req?.user?._id : createdBy, type, sub_product_id: id
       }]
     }
@@ -73,7 +82,8 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
         Product: elem?.Product, buyOrSell: elem?.buyOrSell, variety: elem?.variety, validity: elem?.validity,
         exchange: elem?.exchange, order_type: elem?.order_type, symbol: elem?.symbol, execution_time: elem?.execution_time,
         instrumentToken: elem?.instrumentToken, exchangeInstrumentToken: elem?.exchangeInstrumentToken,
-        last_price: elem?.last_price, createdBy: elem?.createdBy, type: elem?.type, sub_product_id: id, order_id, _id: elem?._id
+        last_price: elem?.last_price, createdBy: elem?.createdBy, type: elem?.type, sub_product_id: id, order_id, _id: elem?._id,
+        margin: elem?.margin
       })
     }
 
@@ -128,3 +138,37 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
   }
 
 }
+
+// const limitOrderMargin = async(req, data)=>{
+//   const { exchange, symbol, buyOrSell, variety, Product, OrderType, last_price, price, Quantity} =  req.body ? req.body : req;
+//   let auth = 'token ' + data.getApiKey + ':' + data.getAccessToken;
+//   let headers = {
+//       'X-Kite-Version': '3',
+//       'Authorization': auth,
+//       "content-type": "application/json"
+//   }
+//   let orderData = [{
+//       "exchange": exchange,
+//       "tradingsymbol": symbol,
+//       "transaction_type": buyOrSell,
+//       "variety": variety,
+//       "product": Product,
+//       "order_type": OrderType,
+//       "quantity": Quantity,
+//       "price": price,
+//       "trigger_price": 0
+//   }]
+
+//   try{
+//       if(buyOrSell === "SELL"){
+//           const marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers })
+//           const zerodhaMargin = marginData.data.data.orders[0].total;
+  
+//           return zerodhaMargin;    
+//       } else{
+//           return (Number(last_price) * Math.abs(Quantity));
+//       }
+//   }catch(err){
+//       console.log(err);
+//   }
+// }

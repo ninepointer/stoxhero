@@ -13,7 +13,7 @@ const BattleMockUser = require("./models/battle/battleTrade");
 const DailyContestMockUser = require("./models/DailyContest/dailyContestMockUser");
 const {virtual, internship, dailyContest, marginx, tenx, battle} = require("./constant")
 const getKiteCred = require('./marketData/getKiteCred'); 
-
+const axios = require('axios');
 
 const mutex = new Mutex();
 exports.tenxTradeStopLoss = async () => {
@@ -81,7 +81,8 @@ exports.tenxTradeStopLoss = async () => {
 
                 console.log("lockAcquired", lockAcquired)
                 const kiteData = await getKiteCred.getAccess();
-                // const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
+                const netPnl = await calculateNetPnl(message.data, todayPnlData, kiteData);
+                const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
                 const marginAndCase = getLastTradeMarginAndCaseNumber(message.data, todayPnlData, tenx);
                 const caseNumber = (await marginAndCase).caseNumber;
                 const margin = (await marginAndCase).margin; 

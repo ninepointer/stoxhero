@@ -3,11 +3,12 @@ const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema")
 const mongoose = require('mongoose')
 const {applyingSLSP} = require("./PendingOrderCondition/applyingSLSP")
 const {reverseTradeCondition} = require("./PendingOrderCondition/reverseTradeCondition");
+const { client } = require("../../marketData/redisClient");
 
 exports.tenxTrade = async (req, res, otherData) => {
   let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, 
       exchangeInstrumentToken, validity, variety, order_id, instrumentToken, 
-      portfolioId, trader, stopProfitPrice, stopLossPrice, deviceDetails, margin } = req.body 
+      portfolioId, trader, stopProfitPrice, stopLossPrice, deviceDetails, margin, price } = req.body 
 
   let {isRedisConnected, brokerageUser, originalLastPriceUser, secondsRemaining, trade_time} = otherData;
 
@@ -31,7 +32,7 @@ exports.tenxTrade = async (req, res, otherData) => {
       margin
     }
 
-    const save = await TenxTrader.create([tenxDoc], { session });
+    const save = (OrderType !== "LIMIT") && await TenxTrader.create([tenxDoc], { session });
 
     /*
     1. equal
@@ -134,6 +135,7 @@ exports.tenxTrade = async (req, res, otherData) => {
       // if instrument is same then just updating value
       if (matchingElement) {
         // Update the values of the matching element with the values of the first document
+        matchingElement._id.order_type = tenxDoc.order_type;
         matchingElement.amount += (tenxDoc.amount * -1);
         matchingElement.brokerage += Number(tenxDoc.brokerage);
         matchingElement.lastaverageprice = tenxDoc.average_price;
@@ -149,7 +151,8 @@ exports.tenxTrade = async (req, res, otherData) => {
             exchangeInstrumentToken: tenxDoc.exchangeInstrumentToken,
             exchange: tenxDoc.exchange,
             validity: tenxDoc.validity,
-            variety: tenxDoc.variety
+            variety: tenxDoc.variety,
+            order_type: tenxDoc.order_type
           },
           amount: (tenxDoc.amount * -1),
           brokerage: Number(tenxDoc.brokerage),
@@ -158,9 +161,7 @@ exports.tenxTrade = async (req, res, otherData) => {
           margin: margin
         });
       }
-
       pnlRedis = await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(pnl))
-
     }
 
     if (isRedisConnected) {
@@ -169,23 +170,59 @@ exports.tenxTrade = async (req, res, otherData) => {
 
 
     let pendingOrderRedis;
-    if(stopLossPrice || stopProfitPrice){
+    if(stopLossPrice || stopProfitPrice || price){
       pendingOrderRedis = await applyingSLSP(req, {ltp: originalLastPriceUser}, session, save[0]?._id);
     } else{
       pendingOrderRedis = "OK";
     }
     
     console.log(pendingOrderRedis, pnlRedis)
-    if (pendingOrderRedis === "OK" && pnlRedis === "OK") {
+    //todo-vijay
+    // if (pendingOrderRedis === "OK" && pnlRedis === "OK") {
       await session.commitTransaction();
       res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
-    }
+    // }
   } catch (err) {
+    await client.del('stoploss-stopprofit');
     await client.del(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
     await session.abortTransaction();
     console.error('Transaction failed, documents not saved:', err);
     res.status(201).json({status: 'error', message: 'Something went wrong. Please try again.'});
   } finally {
     session.endSession();
+  }
+}
+
+const limitOrderMargin = async(req, data)=>{
+  const { exchange, symbol, buyOrSell, variety, Product, OrderType, last_price, price, Quantity} = req.body;
+  let auth = 'token ' + data.getApiKey + ':' + data.getAccessToken;
+  let headers = {
+      'X-Kite-Version': '3',
+      'Authorization': auth,
+      "content-type": "application/json"
+  }
+  let orderData = [{
+      "exchange": exchange,
+      "tradingsymbol": symbol,
+      "transaction_type": buyOrSell,
+      "variety": variety,
+      "product": Product,
+      "order_type": OrderType,
+      "quantity": Quantity,
+      "price": price,
+      "trigger_price": 0
+  }]
+
+  try{
+      if(buyOrSell === "SELL"){
+          const marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers })
+          const zerodhaMargin = marginData.data.data.orders[0].total;
+  
+          return zerodhaMargin;    
+      } else{
+          return (last_price * Math.abs(Quantity));
+      }
+  }catch(err){
+      console.log(err);
   }
 }

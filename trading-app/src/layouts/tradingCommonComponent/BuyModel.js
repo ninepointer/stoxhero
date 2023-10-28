@@ -89,7 +89,7 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
     Product: "",
     Quantity: "",
     stopLossPrice: "",
-
+    price: "",
     OrderType: "",
     TriggerPrice: "",
     stopLoss: "",
@@ -218,7 +218,7 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
 
   async function placeOrder() {
     // console.log("exchangeInstrumentToken", exchangeInstrumentToken)
-    const { exchange, symbol, buyOrSell, Quantity, Product, OrderType, TriggerPrice, stopProfitPrice, stopLoss, stopLossPrice, validity, variety } = buyFormDetails;
+    const { exchange, symbol, buyOrSell, Quantity, Product, OrderType, TriggerPrice, stopProfitPrice, stopLoss, stopLossPrice, validity, variety, price } = buyFormDetails;
     let endPoint 
     let paperTrade = false;
     let tenxTraderPath;
@@ -264,7 +264,7 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
           exchange, symbol, buyOrSell, Quantity, stopLoss, contestId: module?.data, battleId: subscriptionId,
           Product, OrderType, TriggerPrice, stopProfitPrice, stopLossPrice, uId, exchangeInstrumentToken, fromAdmin,
           validity, variety, createdBy, order_id:dummyOrderId, subscriptionId, marginxId: subscriptionId,
-          userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath
+          userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath, price
 
         })
     });
@@ -393,6 +393,10 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
       setChaeckQuantity(e.target.value);
     }
 
+    const priceChange = async(e)=>{
+      buyFormDetails.price = e.target.value;
+    }
+
   return (
     <div>
 
@@ -453,7 +457,7 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
                 </FormControl>
 
                 <TextField
-                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "SL/SP-M"} label="Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
+                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "SL/SP-M"} label="Price" variant="standard" onChange={(e) => { { priceChange(e) } }}
                   sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
 
                 <TextField
@@ -482,7 +486,7 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
                     sx={{ display: "flex", flexDirection: "row" }}
                   >
                     <FormControlLabel value="MARKET" control={<Radio />} label="MARKET" />
-                    <FormControlLabel disabled="false" value="LIMIT" control={<Radio />} label="LIMIT" />
+                    <FormControlLabel value="LIMIT" control={<Radio />} label="LIMIT" />
                     <FormControlLabel value="SL/SP-M" control={<Radio />} label="SL/SP-M" />
 
                   </RadioGroup>
