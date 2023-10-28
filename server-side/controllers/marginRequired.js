@@ -1228,3 +1228,41 @@ exports.traderMarginHistoryLive = async (req, res)=>{
   }
 
 }
+
+exports.marginRequiredForTrade = async (req, res)=>{
+  const data = await getKiteCred.getAccess();
+  const { exchange, symbol, buyOrSell, variety, Product, OrderType, Quantity, price, last_price} = req.body;
+  let auth = 'token ' + data.getApiKey + ':' + data.getAccessToken;
+  let headers = {
+      'X-Kite-Version': '3',
+      'Authorization': auth,
+      "content-type": "application/json"
+  }
+  let orderData = [{
+      "exchange": exchange,
+      "tradingsymbol": symbol,
+      "transaction_type": buyOrSell,
+      "variety": variety,
+      "product": Product,
+      "order_type": OrderType,
+      "quantity": Quantity,
+      "price": price ? price : 0,
+      "trigger_price": 0
+  }]
+
+  try{
+      if(buyOrSell === "SELL"){
+          const marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers })
+          const zerodhaMargin = marginData.data.data.orders[0].total;
+          return res.status(200).json({ status: 'success', margin: zerodhaMargin });
+      } else{
+        if(OrderType === "LIMIT"){
+          return res.status(200).json({ status: 'success', margin: (price * Math.abs(Quantity)) });
+        } else{
+          return res.status(200).json({ status: 'success', margin: (last_price * Math.abs(Quantity)) });
+        }
+      }
+  }catch(err){
+      console.log(err);
+  }
+}
