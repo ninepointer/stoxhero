@@ -923,6 +923,7 @@ exports.myActiveSubs = async(req, res, next)=>{
             features: 1,
             discounted_price:1,
             payoutPercentage: 1,
+            validity:1,
             portfolioValue: {
               $arrayElemAt: [
                 "$portfolio_details.portfolioValue",
@@ -1007,6 +1008,7 @@ exports.myExpiredSubsciption = async(req, res, next)=>{
               expiryDays:1,
               payoutPercentage:1,
               features: 1,
+              validity:1,
               portfolioValue: {
                 $arrayElemAt: [
                   "$portfolio_details.portfolioValue",
