@@ -123,7 +123,7 @@ export default function TenXSubscriptions({setClicked}) {
         <Grid container spacing={1} mb={1}>
             {
             filteredData?.map((elem,index)=>(
-                <Grid item key={elem._id} xs={12} md={6} lg={4} display='flex' justifyContent='flex-start'>
+                <Grid item key={elem._id} xs={12} md={6} lg={3} display='flex' justifyContent='flex-start'>
                 <MDBox>
                     <ExpiredSubscriptionCard subscription={elem} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={elem.discounted_price} name={elem.plan_name} id={elem._id} walletCash={cashBalance} allowRenewal={elem.allowRenewal}/>
                 </MDBox>

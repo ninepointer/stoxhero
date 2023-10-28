@@ -271,9 +271,10 @@ export default function Renew({amount, name, id, walletCash, bonusCash}) {
 
         <>
 
-            <MDBox style={{width:'100%'}}>
-                <MDButton variant="contained" color="error" style={{fontSize: "10px",width:"100%"}} onClick={captureIntent} size='small'>Renew Subscription</MDButton>
-            </MDBox>
+            {/* <MDBox style={{width:'100%'}}> */}
+            {/* <button variant="contained" color="warning" style={{ fontSize: "10px",width:'100%', padding:2, border: 'none', fontWeight:'bold', textDecoration:'under-line', cursor: 'pointer'}} size='small' onClick={handleClickOpen}>💡 Click to know more</button> */}
+                <button variant="contained" color="warning" style={{fontSize: "10px",width:"100%", padding:2, border: 'none', fontWeight:'bold', textDecoration:'under-line', cursor: 'pointer'}} onClick={captureIntent} size='small'>Renew Subscription</button>
+            {/* </MDBox> */}
 
             {/* <Dialog
                 open={open}

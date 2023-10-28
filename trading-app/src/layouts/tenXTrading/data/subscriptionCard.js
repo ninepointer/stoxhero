@@ -126,8 +126,8 @@ function Header({ subscription, checkPayment, setCheckPayment, amount, name, id,
                                 textAlign='center'
                                 style={{padding:'2px 4px 2px 4px', borderRadius:5}}
                             >
-                                {/* {subscription?.plan_name} */}
-                                TenX Beginner - 20 Trading Days
+                                {subscription?.plan_name}
+                                {/* TenX Beginner - 20 Trading Days */}
                             </MDTypography>
                         </Grid>
 
