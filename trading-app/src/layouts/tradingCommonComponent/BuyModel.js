@@ -1,4 +1,4 @@
-import React, { useRef, useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {  memo } from 'react';
 // import axios from "axios"
 import uniqid from "uniqid"
@@ -13,36 +13,30 @@ import DialogTitle from '@mui/material/DialogTitle';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
-import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
 import MDButton from '../../components/MDButton';
 import MDSnackbar from '../../components/MDSnackbar';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormLabel from '@mui/material/FormLabel';
 import { Box, Typography } from '@mui/material';
 import { renderContext } from "../../renderContext";
 import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader, marginX, battle } from "../../variables";
 import { NetPnlContext } from "../../PnlContext";
-
+import MDTypography from "../../components/MDTypography";
+import MDBox from "../../components/MDBox";
+import SellModel from "./SellModel";
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, module}) => {
 
   const newLtp = ltp;
   const { pnlData } = useContext(NetPnlContext);
-  // console.log("pnlData", pnlData)
-  // let runningLotsSymbol = 0;
   const runningLotsSymbol = pnlData.reduce((total, acc) => {
     if (acc?._id?.symbol === symbol) {
       return total + acc.lots;
     }
     return total; // return the accumulator if the condition is false
   }, 0);
-
-  const type = "BUY";
 
   console.log(runningLotsSymbol)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -51,10 +45,8 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
   const tradeSound = getDetails.tradeSound;
   let uId = uniqid();
   let date = new Date();
-  // let createdOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
   let createdBy = getDetails.userDetails.name;
   let userId = getDetails.userDetails.email;
-  // let tradeBy = getDetails.userDetails.name;
   let trader = getDetails.userDetails._id;
   let dummyOrderId = `${date.getFullYear()-2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000+ Math.random() * 900000000)}`
   const [messageObj, setMessageObj] = useState({
@@ -72,24 +64,22 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
   const [buttonClicked, setButtonClicked] = useState(false);
   const [errorMessageStopLoss, setErrorMessageStopLoss] = useState("");
   const [errorMessageStopProfit, setErrorMessageStopProfit] = useState("");
+  const [errorMessageQuantity, setErrorMessageQuantity] = useState("");
 
   const [open, setOpen] = React.useState(buyState);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-
   const [regularSwitch, setRegularSwitch] = React.useState(true);
-  // const [appLive, setAppLive] = useState([]);
-
   const [buyFormDetails, setBuyFormDetails] = React.useState({
     exchange: "",
     symbol: "",
     ceOrPe: "",
     buyOrSell: "",
-    variety: "",
+    variety: "regular",
     Product: "",
-    Quantity: "",
+    Quantity: lotSize,
     stopLossPrice: "",
-
+    price: "",
     OrderType: "",
     TriggerPrice: "",
     stopLoss: "",
@@ -106,31 +96,34 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
 
   const [value, setValue] = React.useState('NRML');
   buyFormDetails.Product = value;
-  const handleChange = (event) => {
-    setValue(event.target.value);
-    buyFormDetails.Product = event.target.value;
+  // const handleChange = (event) => {
+  //   setValue(event.target.value);
+  //   buyFormDetails.Product = event.target.value;
 
-  };
+  // };
 
-  const [market, setMarket] = React.useState('MARKET');
-  buyFormDetails.OrderType = market;
-  const marketHandleChange = (event) => {
-    setMarket(event.target.value);
-    buyFormDetails.OrderType = event.target.value;
+  const [ordertype, setOrdertype] = React.useState('MARKET');
+  buyFormDetails.OrderType = ordertype;
+  const marketHandleChange = (value) => {
+    setOrdertype(value);
+    buyFormDetails.OrderType = value;
   };
   const [validity, setValidity] = React.useState('DAY');
   buyFormDetails.validity = validity;
-  const validityhandleChange = (event) => {
-    setValidity(event.target.value);
-    buyFormDetails.validity = event.target.value;
-  };
+  // const validityhandleChange = (event) => {
+  //   setValidity(event.target.value);
+  //   buyFormDetails.validity = event.target.value;
+  // };
 
   const handleClickOpen = async () => {
     if(fromSearchInstrument){
       addInstrument();
       render ? setRender(false) : setRender(true);
     }
-    
+
+    buyFormDetails.Quantity = lotSize;
+    await checkMargin();
+    setOrdertype("MARKET")
     setButtonClicked(false);
     setOpen(true);
 
@@ -147,6 +140,14 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
         setOpenOptionChain(false) 
     }
     
+    setMessageObj({});
+    setErrorMessageStopLoss("");
+    setErrorMessageStopProfit("");
+    setErrorMessageQuantity("");
+    setBuyFormDetails({});
+    setOrdertype("");
+    // setCheckQuantity(null);
+    setMargin(null);
     setBuyState(false);
     setButtonClicked(false);
   };
@@ -178,6 +179,19 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
   async function buyFunction(e, uId) {
     if(!buyFormDetails.Quantity){
       openSuccessSB('error', "Please select quantity for trade.");
+      return;
+    }
+
+    if(buyFormDetails.Quantity > maxLot){
+      setErrorMessageQuantity(`Quantity must be lower than max limit: ${maxLot}`)
+      return;
+    }
+    if(buyFormDetails.Quantity % lotSize !== 0){
+      setErrorMessageQuantity(`The quantity should be a multiple of ${lotSize}. Try again with ${parseInt(buyFormDetails.Quantity/lotSize) * lotSize} or ${parseInt(buyFormDetails.Quantity/lotSize + 1) * lotSize}.`)
+      return;
+    }
+    if(buyFormDetails.Quantity < lotSize){
+      setErrorMessageQuantity(`Quantity must be greater than min limit: ${lotSize}`)
       return;
     }
 
@@ -218,7 +232,7 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
 
   async function placeOrder() {
     // console.log("exchangeInstrumentToken", exchangeInstrumentToken)
-    const { exchange, symbol, buyOrSell, Quantity, Product, OrderType, TriggerPrice, stopProfitPrice, stopLoss, stopLossPrice, validity, variety } = buyFormDetails;
+    const { exchange, symbol, buyOrSell, Quantity, Product, OrderType, TriggerPrice, stopProfitPrice, stopLoss, stopLossPrice, validity, variety, price } = buyFormDetails;
     let endPoint 
     let paperTrade = false;
     let tenxTraderPath;
@@ -264,7 +278,7 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
           exchange, symbol, buyOrSell, Quantity, stopLoss, contestId: module?.data, battleId: subscriptionId,
           Product, OrderType, TriggerPrice, stopProfitPrice, stopLossPrice, uId, exchangeInstrumentToken, fromAdmin,
           validity, variety, createdBy, order_id:dummyOrderId, subscriptionId, marginxId: subscriptionId,
-          userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath
+          userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath, price
 
         })
     });
@@ -387,10 +401,81 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
     />
   );
 
-  const [checkQuantity, setChaeckQuantity] = useState();
-    function handleQuantity(e){
-      buyFormDetails.Quantity = e.target.value;
-      setChaeckQuantity(e.target.value);
+    const [checkQuantity, setCheckQuantity] = useState(lotSize);
+    const [margin, setMargin] = useState();
+
+    async function handleQuantity(e){
+      e.preventDefault();
+      buyFormDetails.Quantity = Math.abs(e.target.value);
+      setCheckQuantity(e.target.value);
+
+      setMargin(null);
+      setErrorMessageQuantity("")
+      if((e.target.value > maxLot) || (e.target.value % lotSize !== 0) || (e.target.value < lotSize)){
+        return;
+      }
+
+      if(buyFormDetails.OrderType==="LIMIT" && buyFormDetails.price){
+        await checkMargin();
+      }
+      if(buyFormDetails.OrderType!=="LIMIT"){
+        await checkMargin();
+      }
+      
+    }
+
+    const priceChange = async(e)=>{
+      buyFormDetails.price = e.target.value;
+      if(buyFormDetails.Quantity){
+        await checkMargin();
+      }
+    }
+
+    const checkMargin = async()=>{
+      const { Quantity, Product, OrderType, validity, variety, price } = buyFormDetails;
+
+      const response = await fetch(`${baseUrl}api/v1/marginrequired`, {
+        method: "PATCH",
+        credentials:"include",
+        headers: {
+            "Accept": "application/json",
+            "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          exchange, symbol, buyOrSell: "BUY", Quantity, Product, OrderType, validity, variety, price, last_price: newLtp
+        })
+      });
+
+      const data = await response.json();
+      setMargin(data?.margin);
+      // console.log("response", data)
+    }
+
+    async function removeQuantity(){
+      if(buyFormDetails.Quantity % lotSize !== 0){
+        setCheckQuantity(parseInt(buyFormDetails.Quantity/lotSize) * lotSize)
+        buyFormDetails.Quantity  = parseInt(buyFormDetails.Quantity/lotSize) * lotSize
+      } else{
+        buyFormDetails.Quantity -= lotSize
+        setCheckQuantity(prev => prev-lotSize)
+      }
+
+      await checkMargin();
+      setErrorMessageQuantity("")
+    }
+
+
+    async function addQuantity(){
+      if(buyFormDetails.Quantity % lotSize !== 0){
+        setCheckQuantity(parseInt(buyFormDetails.Quantity/lotSize + 1) * lotSize)
+        buyFormDetails.Quantity  = parseInt(buyFormDetails.Quantity/lotSize + 1) * lotSize
+      } else{
+        buyFormDetails.Quantity += lotSize
+        setCheckQuantity(prev => prev+lotSize)
+      }
+
+      await checkMargin();
+      setErrorMessageQuantity("")
     }
 
   return (
@@ -405,107 +490,121 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
           open={open}
           onClose={handleClose}
           aria-labelledby="responsive-dialog-title">
-          <DialogTitle id="responsive-dialog-title" sx={{ textAlign: 'center' }}>
-            {"Regular"}
-          </DialogTitle>
+          {/* <DialogTitle >
+            <MDBox sx={{display: "flex", justifyContent: 'center', textAlign: "center"}}>
+                <MDBox sx={{backgroundColor: "#1A73E8", color: "#ffffff", minHeight: "2px", width: "160px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}>
+                  Buy
+                </MDBox>
+                <MDBox onClick={()=>{setOpen(false)}} sx={{backgroundColor: "#F44335", color: "#ffffff", minHeight: "2px", width: "160px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}>
+                   <SellModel />
+                </MDBox>
+              </MDBox>
+          </DialogTitle> */}
           <DialogContent>
-            <DialogContentText sx={{ display: "flex", flexDirection: "column", marginLeft: 2 }}>
-              <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center", margin: 2 }}><Box sx={{ backgroundColor: "#ccccb3", fontWeight: 600, padding:"5px", borderRadius:"5px" }}>{symbolName}</Box> &nbsp; &nbsp; &nbsp; <Box sx={{ backgroundColor: "#ccccb3", fontWeight: 600, padding:"5px", borderRadius:"5px" }}>₹{ltp}</Box></Box>
-              <FormControl >
+            <DialogContentText sx={{ display: "flex", flexDirection: "column", marginLeft: 2, justifyContent: "center" , width: "320px"}}>
 
-                <FormLabel id="demo-controlled-radio-buttons-group" sx={{ width: "300px" }}></FormLabel>
-                <RadioGroup
-                  aria-labelledby="demo-controlled-radio-buttons-group"
-                  name="controlled-radio-buttons-group"
-                  value={value}
-                  onChange={handleChange}
-                  sx={{ display: "flex", flexDirection: "row" }}
-                >
-                  <FormControlLabel disabled="true" value="MIS" control={<Radio />} label="Intraday (MIS)" />
-                  <FormControlLabel value="NRML" control={<Radio />} label="Overnight (NRML)" />
-                </RadioGroup>
-              </FormControl>
+              <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center" }}>
+                <MDBox sx={{ backgroundColor: "#ffffff", color: "#8D91A8", width: "150px", borderRadius: "5px", fontWeight: 600, fontSize: "13px", textAlign: "left" }}>
+                  Variety : Regular
+                </MDBox>
+                <MDBox sx={{ backgroundColor: "#ffffff", color: "#8D91A8", width: "150px", borderRadius: "5px", fontWeight: 600, fontSize: "13px", textAlign: "right"  }}>
+                  Symbol : {symbolName}
+                </MDBox>
+              </MDBox>
+              <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center", marginBottom: "20px" }}>
+                <MDBox sx={{ backgroundColor: "#ffffff", color: "#8D91A8", width: "150px", borderRadius: "5px", fontWeight: 600, fontSize: "13px", textAlign: "left"  }}>
+                  Exchange : NFO
+                </MDBox>
+                <MDBox sx={{ backgroundColor: "#ffffff", color: "#8D91A8", width: "150px", borderRadius: "5px", fontWeight: 600, fontSize: "13px", textAlign: "right"  }}>
+                  LTP : ₹{ltp}
+                </MDBox>
+              </MDBox>
 
-              <Box sx={{ display: "flex", flexDirection: "row" }}>
-                <FormControl variant="standard" sx={{ m: 1, minWidth: 120, }}>
-                  <InputLabel id="demo-simple-select-standard-label">Quantity</InputLabel>
-                  <Select
-                    labelId="demo-simple-select-standard-label"
-                    id="demo-simple-select-standard"
-                    label="Quantity"
-                    // { buyFormDetails.Quantity = (e.target.value) }
-                    // setBuyFormDetails(prev => ({...prev, Quantity: e.target.value}))
-                    onChange={(e) => { handleQuantity(e) }}
-                    sx={{ margin: 1, padding: 0.5, }}
-                  >
-                    {/* <MenuItem value="100">100</MenuItem>
-                    <MenuItem value="150">150</MenuItem> */}
-                    {optionData.map((elem)=>{
-                      // //console.log("optionData", elem)
-                        return(
-                            <MenuItem value={elem.props.value}>
-                            {elem.props.children}
-                            </MenuItem>
-                        )
-                    }) 
-                    }
-                  </Select>
-                </FormControl>
+              <MDBox sx={{display: "flex", justifyContent: 'space-between', textAlign: "center"}}>
+                <MDBox sx={{backgroundColor: "#1A73E8", color: "#ffffff", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}>
+                  Intraday (Same day)
+                </MDBox>
+                <MDBox sx={{color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
+                  Delivery (Longterm)
+                </MDBox>
+              </MDBox>
+
+              <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center", marginTop: "10px" }}>
+                <MDBox sx={{ display: "flex", justifyContent: "space-between", alignContent: "center", alignItems: "center", width: "140px", borderRadius: "5px", cursor: "pointer", border: "0.5px solid #D2D6DA" }}>
+                  <MDBox>
+                  <RemoveIcon  onClick={(checkQuantity !== lotSize && checkQuantity > lotSize) ? removeQuantity : ()=>{}} sx={{marginLeft: "2px", marginTop: "5px", disabled: true}}  />
+                  </MDBox>
+
+                  <MDBox>
+                    <input onChange={(e)=>{handleQuantity(e)}} style={{  width: "70px", height: "35px", border: "none", outline: "none", fontSize: "15px", textAlign: "center" }} value={checkQuantity}></input>
+                  </MDBox>
+
+                  <MDBox>
+                    
+                    <AddIcon onClick={(checkQuantity !== maxLot && checkQuantity < maxLot) ? addQuantity : ()=>{}} sx={{marginRight: "2px", marginTop: "5px"}} />
+                  </MDBox>
+
+
+                </MDBox>
 
                 <TextField
-                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "SL/SP-M"} label="Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
-                  sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
+                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "SL/SP-M"} label="Price" variant="outlined" onChange={(e) => { { priceChange(e) } }}
+                  sx={{ width: "140px", innerHeight: "1px" }} type="number" />
+              </MDBox>
 
-                <TextField
-                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || (runningLotsSymbol < 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="StopLoss Price" variant="standard" onChange={(e) => { { stopLoss(e) } }}
-                  sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }} type="number" />
-               
-                <TextField
-                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || (runningLotsSymbol < 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="StopProfit Price" variant="standard" onChange={(e) => { { stopProfit(e) } }}
-                  sx={{ margin: 1, padding: 1, width: "300px" }} type="number" />
-                  
-              </Box>
+              {ordertype === "SL/SP-M" &&
+                <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center" }}>
+                  <TextField
+                    id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || (runningLotsSymbol < 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="SL price" variant="outlined" onChange={(e) => { { stopLoss(e) } }}
+                    sx={{ width: "140px", marginTop: "20px", innerHeight: "1px" }} type="number" />
 
-              <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center", gap: "10px" }}>
+                  <TextField
+                    id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || (runningLotsSymbol < 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="SP price" variant="outlined" onChange={(e) => { { stopProfit(e) } }}
+                    sx={{ width: "140px", marginTop: "20px", innerHeight: "1px" }} type="number" />
+                </MDBox>}
+
+
+              <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", alignContent: "center" }}>
                   <Typography fontSize={15} color={"error"}> {buyFormDetails.stopLossPrice && errorMessageStopLoss && errorMessageStopLoss}</Typography>
                   <Typography fontSize={15} color={"error"}>{buyFormDetails.stopProfitPrice && errorMessageStopProfit && errorMessageStopProfit}</Typography>
+                  <Typography fontSize={15} color={"error"}>{errorMessageQuantity && errorMessageQuantity}</Typography>
               </Box>
 
-              <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
-                <FormControl  >
-                  <FormLabel id="demo-controlled-radio-buttons-group" ></FormLabel>
-                  <RadioGroup
-                    aria-labelledby="demo-controlled-radio-buttons-group"
-                    name="controlled-radio-buttons-group"
-                    value={market}
-                    onChange={marketHandleChange}
-                    sx={{ display: "flex", flexDirection: "row" }}
-                  >
-                    <FormControlLabel value="MARKET" control={<Radio />} label="MARKET" />
-                    <FormControlLabel disabled="false" value="LIMIT" control={<Radio />} label="LIMIT" />
-                    <FormControlLabel value="SL/SP-M" control={<Radio />} label="SL/SP-M" />
+              <MDBox sx={{display: "flex", justifyContent: 'space-between', textAlign: "center", gap: "5px", marginTop: "20px"}}>
+                <MDBox onClick={()=>{marketHandleChange("MARKET")}} sx={{backgroundColor: ordertype==="MARKET" ? "#1A73E8" : "#FFFFFF", color: ordertype==="MARKET" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype!=="MARKET" && ".5px solid #8D91A8" }}>
+                  Market
+                </MDBox>
 
-                  </RadioGroup>
-                </FormControl>
+                <MDBox onClick={()=>{marketHandleChange("LIMIT")}} sx={{backgroundColor: ordertype==="LIMIT" ? "#1A73E8" : "#FFFFFF", color: ordertype==="LIMIT" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype!=="LIMIT" && ".5px solid #8D91A8" }}>
+                  Limit
+                </MDBox>
 
-              </Box>
+                <MDBox onClick={()=>{marketHandleChange("SL/SP-M")}} sx={{backgroundColor: ordertype==="SL/SP-M" ? "#1A73E8" : "#FFFFFF", color: ordertype==="SL/SP-M" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype!=="SL/SP-M" && ".5px solid #8D91A8" }}>
+                 SL/SP-M
+                </MDBox>
+              </MDBox>
 
-              <Box>
-                <FormControl  >
-                  <FormLabel id="demo-controlled-radio-buttons-group" >Validity</FormLabel>
-                  <RadioGroup
-                    aria-labelledby="demo-controlled-radio-buttons-group"
-                    name="controlled-radio-buttons-group"
-                    value={validity}
-                    onChange={validityhandleChange}
-                    sx={{ display: "flex", flexDirection: "column" }}
-                  >
-                    <FormControlLabel value="DAY" disabled="true" control={<Radio />} label="DAY" />
-                    <FormControlLabel value="IMMEDIATE" disabled="true" control={<Radio />} label="IMMEDIATE" />
-                    <FormControlLabel value="MINUTES" disabled="true" control={<Radio />} label="MINUTES" />
-                  </RadioGroup>
-                </FormControl>
-              </Box>
+              <MDBox sx={{display: "flex", justifyContent: 'space-between', textAlign: "center", gap: "5px", marginTop: "20px"}}>
+                <MDBox sx={{backgroundColor: "#1A73E8", color: "#ffffff", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}>
+                  Day
+                </MDBox>
+
+                <MDBox sx={{color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
+                  Immediate
+                </MDBox>
+
+                <MDBox sx={{color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
+                 Minute
+                </MDBox>
+              </MDBox>
+
+              {margin &&
+              <MDBox sx={{display: "flex", justifyContent: "left", alignContent: "center", alignItems: "center", marginTop: "5px"}}>
+                <MDTypography sx={{fontSize: "14px", color: "#000000", fontWeight: 500 }}>Margin required:</MDTypography>
+                <MDTypography sx={{fontSize: "14px", color: "#000000", fontWeight: 500 ,marginLeft: "4px"}}> <b>₹{margin}</b></MDTypography>
+                <MDTypography sx={{fontSize: "14px", color: "#000000", fontWeight: 500, marginTop: "4px", marginLeft: "4px" }}> <span><RefreshIcon onClick={async ()=>{await checkMargin()}} sx={{cursor: "pointer"}} /></span> </MDTypography>
+              </MDBox>}
+              
             </DialogContentText>
           </DialogContent>
           <DialogActions>

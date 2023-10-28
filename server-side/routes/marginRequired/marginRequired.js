@@ -6,7 +6,7 @@ const {traderMarginHistoryLive, compnayMarginHistoryLive, traderMarginTodayLive,
 const Authenticate = require('../../authentication/authentication');
 const restrictTo = require('../../authentication/authorization');
 
-router.route('/').get(Authenticate, marginRequiredForTrade);
+router.route('/').patch(Authenticate, marginRequiredForTrade);
 router.route('/mock/companymargintoday').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), companyMarginTodayMock);
 router.route('/mock/companymarginhistory').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), compnayMarginHistoryMock);
 router.route('/mock/tradermargintoday').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), traderMarginTodayMock)
