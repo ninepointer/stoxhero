@@ -294,21 +294,18 @@ export default function Dialogue({subscription ,amount, name, id, walletCash, bo
         
         <MDBox display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
           <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' flexDirection='row' style={{width:'100%'}}>
-            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
+            <Grid item xs={isSubscribed ? 12 : 0} md={isSubscribed ? 12 : 0} lg={isSubscribed ? 12 : 0} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
               <MDButton disabled variant="contained" color="success" sx={{ fontSize: "10px",width:'100%'}} size='small'>Already Subscribed</MDButton>
             </Grid>
-            {/* <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
-              {allowRenewal && <Renew amount={amount} name={name} id={id} walletCash={walletCash}/>}
-            </Grid> */}
           </Grid>
         </MDBox>
         
         :
         messege.thanksMessege ?
         <MDBox display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
-          <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' flexDirection='row' style={{width:'100%'}}>
+          <Grid container spacing={1} xs={messege.thanksMessege ? 12 : 0} md={messege.thanksMessege ? 12 : 0} lg={messege.thanksMessege ? 12 : 0} display='flex' justifyContent='center' alignItems='center' flexDirection='row' style={{width:'100%'}}>
             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
-              <MDButton variant="contained" color="success" sx={{ fontSize: "10px",width:'100%'}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
+              <MDButton variant="contained" color="success" sx={{ fontSize: "9px",width:'100%'}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
             </Grid>
             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
               {allowRenewal && <Renew amount={amount} name={name} id={id} walletCash={walletCash} bonusCash={bonusCash} />}
@@ -317,9 +314,9 @@ export default function Dialogue({subscription ,amount, name, id, walletCash, bo
         </MDBox>
         :
         <MDBox display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
-          <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' flexDirection='row' style={{width:'100%'}}>
+          <Grid container spacing={1} xs={!messege.thanksMessege ? 12 : 0} md={!messege.thanksMessege ? 12 : 0} lg={!messege.thanksMessege ? 12 : 0} display='flex' justifyContent='center' alignItems='center' flexDirection='row' style={{width:'100%'}}>
             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
-              <MDButton variant="contained" color="success" sx={{fontSize: "10px",width:'100%'}} onClick={captureIntent} size='small'>Subscribe</MDButton>
+              <MDButton variant="contained" color="success" sx={{fontSize: "9px", width:'100%'}} onClick={captureIntent} size='small'>Subscribe Now: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount)}/-</MDButton>
             </Grid>
           </Grid>
         </MDBox>

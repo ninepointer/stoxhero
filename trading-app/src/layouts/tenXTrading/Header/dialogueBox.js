@@ -245,10 +245,10 @@ export default function Dialogue({ subscription, amount, name, id, walletCash, b
         <MDBox display='flex' justifyContent='center' alignItems='center' style={{ width: '100%' }}>
           <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' flexDirection='row' style={{ width: '100%' }}>
             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ width: '100%' }}>
-              <MDButton variant="contained" color="success" sx={{ fontSize: "10px", width: '100%' }} onClick={() => { navigate(`/tenxtrading/${name}`, { state: { subscriptionId: id } }) }} size='small'>Start Trading</MDButton>
+              {allowRenewal && <Renew amount={amount} name={name} id={id} walletCash={walletCash} bonusCash={bonusCash} />}
             </Grid>
             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ width: '100%' }}>
-              {allowRenewal && <Renew amount={amount} name={name} id={id} walletCash={walletCash} bonusCash={bonusCash} />}
+              <MDButton variant="contained" color="success" sx={{ fontSize: "10px", width: '100%' }} onClick={() => { navigate(`/tenxtrading/${name}`, { state: { subscriptionId: id } }) }} size='small'>Start Trading</MDButton>
             </Grid>
           </Grid>
         </MDBox>

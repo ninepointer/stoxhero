@@ -79,6 +79,7 @@ const Holiday = require("../../models/TradingHolidays/tradingHolidays");
 const Career = require("../../models/Careers/careerSchema");
 const mongoose = require('mongoose');
 const moment = require("moment")
+const {mail} = require("../../controllers/dailyReportMail")
 // [
 //   {
 //     $unwind:
@@ -2057,7 +2058,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2023-10-11T20:00:00.000+00:00"
+  let expiryDate = "2023-10-20T20:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(
@@ -2311,6 +2312,10 @@ router.get("/cronjob", async (req, res) => {
   await cronjob();
   // }
 
+})
+
+router.get("/mail", async (req, res) => {
+  await mail();
 })
 
 router.get("/dbbackup", async (req, res) => {

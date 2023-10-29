@@ -375,12 +375,9 @@ function ExitPosition({ module, maxLot, lotSize, traderId, socket, subscriptionI
                     onChange={(e) => { quantityChange(e) }}
                     sx={{ margin: 1, padding: 1, width: "300px", marginRight: 1, marginLeft: 1 }}
                   >
-                    {/* <MenuItem value="100">100</MenuItem>
-                    <MenuItem value="150">150</MenuItem> */}
                     {optionData.map((elem) => {
-                      // ////console.log("optionData", elem, filledQuantity)
                       return (
-                        <MenuItem value={elem.props.value}>
+                        <MenuItem value={elem.props.value} key={elem.props.children}>
                           {elem.props.children}
                         </MenuItem>
                       )

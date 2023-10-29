@@ -95,7 +95,7 @@ function StockIndexDailyContest({ socket }) {
         <>
             {finalArr.map((e) => {
                 return (
-                    <Grid item xs={12} md={6} lg={3}>
+                    <Grid item xs={12} md={6} lg={3} key={e.instrument.props.children}>
                         <MDButton style={{ minWidth: '100%' }}>
                             <MDBox display='flex' alignItems='center'>
                                 <MDBox display='flex' justifyContent='flex-start'><img src={e.instrument.props.children === "FINNIFTY" ? FNifty : e.instrument.props.children === "BANK NIFTY" ? BNifty : e.instrument.props.children === "NIFTY 50" && Nifty} width='40px' height='40px' /></MDBox>

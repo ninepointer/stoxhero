@@ -525,7 +525,7 @@ exports.checkPaymentStatus = async(req,res, next) => {
                     //TODO:Remove this code
                     if(payment?.coupon){
                         if(payment?.paymentFor){
-                            await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, payment?.paymentFor, payment?.productId);
+                            // await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, payment?.paymentFor, payment?.productId);
                         }else{
                             await addCashback(payment?.amount-payment?.gstAmount, payment?.paymentBy, payment?.coupon);
                             await saveSuccessfulCouponUse(payment?.paymentBy, payment?.coupon, 'Wallet');

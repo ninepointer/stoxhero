@@ -2020,3 +2020,14 @@ exports.downloadCompletedInternshipReport = async (req, res) => {
     });
   }
 };
+
+exports.getReferralCount = async(req,res) => {
+  const {id} = req.params;
+  const user = await User.findById(req.user._id)
+  .populate('referrals.referredUserId', 'joining_date')
+  .select("referrals");
+  const elem = await InternBatch.findOne({_id: new ObjectId(id)})
+  .select('batchStatus batchStartDate batchEndDate attendancePercentage referralCount payoutPercentage')
+  const count = await referrals(user, elem);
+  res.status(200).json({status:'success', data:count});
+}

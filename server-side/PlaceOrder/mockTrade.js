@@ -32,7 +32,7 @@ exports.mockTrade = async (req, res) => {
 
     req.body.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
 
-    console.log("caseStudy 8: mocktrade", req.body)
+    // console.log("caseStudy 8: mocktrade", req.body)
 
     if(exchange === "NFO"){
         exchangeSegment = 2;

@@ -84,6 +84,9 @@ import MarginXReport from "./layouts/marginxReport";
 import Coupons from './layouts/coupons'
 import Blogs from './layouts/blog'
 import BlogDetails from './layouts/blog/blogDetails'
+import AffiliateProgram from './layouts/affiliateProgram'
+import AffiliateProgramDetails from './layouts/affiliateProgram/AffiliateProgramDetails'
+
 
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
@@ -440,6 +443,10 @@ const routes = [
   {
     route: "/blogdetails",
     component: <BlogDetails />,
+  },
+  {  
+    route: "/affiliateprogramdetails",
+    component: <AffiliateProgramDetails />,
   },
   {
     route: "/batchdetails",
@@ -889,46 +896,27 @@ const routes = [
     component: <AlgoBox />,
   },
   {
-    // type: "collapse",
-    // name: "Trading Accounts",
-    key: "trading-accounts",
-    // icon: <AccountBalanceIcon/>,
     route: "/trading-accounts",
     component: <TradingAccount />,
   },
-
   {
-    // type: "collapse",
-    // name: "Trading Accounts",
     key: "coupons",
-    // icon: <AccountBalanceIcon/>,
     route: "/coupons",
     component: <Coupons />,
   },
   {
-    // type: "collapse",
-    // name: "App Settings",
-    key: "setting",
-    // icon: <SettingsIcon/>,
+    route: "/affiliateprograms",
+    component: <AffiliateProgram />,
+  },
+  {
     route: "/setting",
     component: <Setting />,
   },
   {
-    // type: "collapse",
-    // name: "Portfolio",
     key: "portfolio",
-    // icon: <Shop2Icon/>,
     route: "/portfolio",
     component: <Portfolio />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Daily P&L Chart",
-  //   key: "DailyPnlData",
-  //   icon: <QueryStatsIcon/>,
-  //   route: "/DailyPnlData",
-  //   component: <DailyPNLData />,
-  // },
   {
     type: "collapse",
     name: "Users",

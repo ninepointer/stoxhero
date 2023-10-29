@@ -18,6 +18,8 @@ const Setting = require("../models/settings/setting");
 const Product = require('../models/Product/product');
 const Coupon = require('../models/coupon/coupon');
 const {saveSuccessfulCouponUse} = require('./coupon/couponController');
+const {creditAffiliateAmount} = require('./affiliateProgramme/affiliateController');
+const AffiliateProgram = require('../models/affiliateProgram/affiliateProgram');
 
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
@@ -1402,17 +1404,17 @@ exports.creditAmountToWallet = async () => {
         todayDate = todayDate + "T00:00:00.000Z";
         const today = new Date(todayDate);
 
-        const contest = await Contest.find({ contestStatus: "Completed", payoutStatus: null, contestEndTime: {$gte: today} }).populate('portfolio', 'portfoliValue');
+        const contest = await Contest.find({ contestStatus: "Completed", payoutStatus: null, contestEndTime: {$gte: today} }).populate('portfolio', 'portfolioValue');
         const setting = await Setting.find();
         // console.log(contest.length, contest)
         for (let j = 0; j < contest.length; j++) {
           let maxPayout = 10000;
           //setting max payout for free contest
-          if(contest?.entryFee == 0){
-            maxPayout = contest?.portfolio?.portfolioValue * (contest?.payoutCapPercentage ?? 100)/100;
+          if(contest[j]?.entryFee == 0){
+            maxPayout = contest[j]?.portfolio?.portfolioValue * (contest[j]?.payoutCapPercentage ?? 100)/100;
           }else{
-            //setting maxPayout for paid contest
-            maxPayout = contest?.entryFee * (contest?.payoutCapPercentage ?? 10000)/100; 
+            //setting maxPayout for paid contest[j]
+            maxPayout = contest[j]?.entryFee * (contest[j]?.payoutCapPercentage ?? 10000)/100; 
           }
           //setting max payout for paid contest 
             // if (contest[j].contestEndTime < new Date()) {
@@ -1446,22 +1448,28 @@ exports.creditAmountToWallet = async () => {
                                     $toDouble: "$brokerage",
                                 },
                             },
+                            trades: {
+                              $count: {},
+                            }
                         },
                     },
                     {
                         $project:
                         {
-                            npnl: {
-                                $subtract: ["$amount", "$brokerage"],
-                            },
+                          npnl: {
+                              $subtract: ["$amount", "$brokerage"],
+                          },
+                          gpnl: "$amount",
+                          brokerage: "$brokerage",
+                          trades: 1
                         },
                     },
                 ])
 
                 // console.log(pnlDetails[0]);
                 if (pnlDetails[0]?.npnl > 0) {
-                    const payoutAmountWithoutTDS = pnlDetails[0]?.npnl * payoutPercentage / 100;
-                    let payoutAmount = math.min(payoutAmountWithoutTDS, maxPayout);
+                    const payoutAmountWithoutTDS = Math.min(pnlDetails[0]?.npnl * payoutPercentage / 100, maxPayout);
+                    let payoutAmount = payoutAmountWithoutTDS;
                     if(payoutAmountWithoutTDS>fee){
                       payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100;
                     }
@@ -1488,6 +1496,10 @@ exports.creditAmountToWallet = async () => {
                     const user = await User.findById(userId).select('first_name last_name email')
 
                     contest[j].participants[i].payout = payoutAmount?.toFixed(2);
+                    contest[j].participants[i].npnl = pnlDetails[0]?.npnl;
+                    contest[j].participants[i].gpnl = pnlDetails[0]?.gpnl;
+                    contest[j].participants[i].trades = pnlDetails[0]?.trades;
+                    contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
                     contest[j].participants[i].tdsAmount = payoutAmountWithoutTDS-fee>0?((payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
                     if (process.env.PROD == 'true') {
                         emailService(user?.email, 'Contest Payout Credited - StoxHero', `
@@ -1587,6 +1599,11 @@ exports.creditAmountToWallet = async () => {
                         createdBy:'63ecbc570302e7cf0153370c',
                         lastModifiedBy:'63ecbc570302e7cf0153370c'  
                       });
+                } else{
+                  contest[j].participants[i].npnl = pnlDetails[0]?.npnl;
+                  contest[j].participants[i].gpnl = pnlDetails[0]?.gpnl;
+                  contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
+                  contest[j].participants[i].trades = pnlDetails[0]?.trades;
                 }
 
             }
@@ -1742,6 +1759,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
     
     exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, contestId, coupon, bonusRedemption)=>{
       try{
+        let affiliate, affiliateProgram;
         const contest = await Contest.findOne({ _id: contestId });
         const wallet = await UserWallet.findOne({ userId: userId });
         const user = await User.findOne({ _id: userId });
@@ -1787,7 +1805,20 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
 
 
         if(coupon){
-          const couponDoc = await Coupon.findOne({code:coupon});
+          let couponDoc = await Coupon.findOne({code:coupon});
+          if(!couponDoc){
+            const affiliatePrograms = await AffiliateProgram.find({status:'Active'});
+            if(affiliatePrograms.length != 0)
+                for(let program of affiliatePrograms){
+                    let match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
+                    if(match){
+                        affiliate = match;
+                        affiliateProgram = program;
+                        couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: program?.discountPercentage, maxDiscount:program?.maxDiscount }
+                    }
+                }
+
+        }
           if(couponDoc?.rewardType == 'Discount'){
               if(couponDoc?.discountType == 'Flat'){
                   //Calculate amount and match
@@ -2128,7 +2159,11 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
           });
           if(coupon){
             const product = await Product.findOne({productName:'Contest'}).select('_id');
-            await saveSuccessfulCouponUse(userId, coupon, product?._id, contest?._id);
+            if(affiliate){
+              await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, contest?._id, contest?.entryFee, userId);
+            }else{
+              await saveSuccessfulCouponUse(userId, coupon, product?._id, contest?._id);
+            }
           }
           return {
             stautsCode:200,
@@ -3961,7 +3996,7 @@ exports.getContestLeaderboardById = async (req, res) => {
         },
       },
     ]
-    );
+  );
   
   try {
       const pipeline = 
@@ -3996,8 +4031,8 @@ exports.getContestLeaderboardById = async (req, res) => {
               last_name: {
                 $arrayElemAt: ["$user.last_name", 0],
               },
-              image:{
-                $arrayElemAt: ["$user.profilePhoto.url", 0]
+              image: {
+                $arrayElemAt: ["$user.profilePhoto.url", 0],
               },
               rank: {
                 $ifNull: ["$participants.rank", "-"],
