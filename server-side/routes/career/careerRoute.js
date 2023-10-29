@@ -3,7 +3,7 @@ const router = express.Router({mergeParams: true});
 const multer = require('multer');
 const aws = require('aws-sdk');
 const {getDraftCareers, getRejectedCareers, getUploadsApplication, createCareer, 
-      getCareers, editCareer, getCareer, getCareerApplicantions, 
+      getCareers, editCareer, getCareer, getCareerApplicantions, findCareerByName, getCareerApplicationCount,
       generateOTP, confirmOTP, getSelectedCareerApplicantions, getRejectedApplications, 
       rejectApplication, fetchCareers, applyForCareer} = require("../../controllers/career/careerController");
 const authentication = require("../../authentication/authentication");
@@ -32,9 +32,11 @@ router.route('/draft').get(getDraftCareers);
 router.route('/reject').get(getRejectedCareers);
 router.route('/generateotp').post(generateOTP);
 router.route('/confirmotp').post(confirmOTP);
-router.route('/apply').post(authentication, applyForCareer);
+router.route('/findbyname').get(findCareerByName);
+router.route('/apply').post(applyForCareer);
 router.route('/userDetail').post(upload.array("files"), getUploadsApplication);
 router.route('/create').post(authentication, restrictTo('Admin', 'Super Admin'), createCareer);
+router.route('/careerapplicationcount/:id').get(getCareerApplicationCount);
 router.route('/reject/:id').patch(authentication, restrictTo('Admin', 'Super Admin'), rejectApplication);
 router.route('/careerapplications/selected/:id').get(authentication, restrictTo('Admin', 'Super Admin'), getSelectedCareerApplicantions);
 router.route('/careerapplications/rejected/:id').get(authentication, restrictTo('Admin', 'Super Admin'), getRejectedApplications);

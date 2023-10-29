@@ -50,6 +50,7 @@ function Index() {
     const [updatedDocument, setUpdatedDocument] = useState([]);
     const [career,setCareer] = useState([]);
     const [action, setAction] = useState(false);
+    let Url = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"
 
     const [formState,setFormState] = useState({
         jobTitle:'' || id?.jobTitle,
@@ -190,55 +191,55 @@ function Index() {
       setContent(content)
       setSuccessSB(true);
     }
-  const closeSuccessSB = () => setSuccessSB(false);
-  // console.log("Title, Content, Time: ",title,content,time)
+
+    const closeSuccessSB = () => setSuccessSB(false);
+    // console.log("Title, Content, Time: ",title,content,time)
 
 
-  const renderSuccessSB = (
-    <MDSnackbar
-      color="success"
-      icon="check"
-      title={title}
-      content={content}
-      open={successSB}
-      onClose={closeSuccessSB}
-      close={closeSuccessSB}
-      bgWhite="info"
-    />
-  );
+    const renderSuccessSB = (
+        <MDSnackbar
+        color="success"
+        icon="check"
+        title={title}
+        content={content}
+        open={successSB}
+        onClose={closeSuccessSB}
+        close={closeSuccessSB}
+        bgWhite="info"
+        />
+    );
 
-  const [errorSB, setErrorSB] = useState(false);
-  const openErrorSB = (title,content) => {
-    setTitle(title)
-    setContent(content)
-    setErrorSB(true);
-  }
-  const closeErrorSB = () => setErrorSB(false);
-
-  const renderErrorSB = (
-    <MDSnackbar
-      color="error"
-      icon="warning"
-      title={title}
-      content={content}
-      open={errorSB}
-      onClose={closeErrorSB}
-      close={closeErrorSB}
-      bgWhite
-    />
-  );
-
-
-console.log(id)
-const handleChange = (e) => {
-    const {name,value} = e.target;
-    if (!formState[name]?.includes(e.target.value)) {
-      setFormState(prevState => ({
-        ...prevState,
-       [name] : value,
-      }));
+    const [errorSB, setErrorSB] = useState(false);
+    const openErrorSB = (title,content) => {
+        setTitle(title)
+        setContent(content)
+        setErrorSB(true);
     }
-  };
+    const closeErrorSB = () => setErrorSB(false);
+
+    const renderErrorSB = (
+        <MDSnackbar
+        color="error"
+        icon="warning"
+        title={title}
+        content={content}
+        open={errorSB}
+        onClose={closeErrorSB}
+        close={closeErrorSB}
+        bgWhite
+        />
+    );
+
+
+    const handleChange = (e) => {
+        const {name,value} = e.target;
+        if (!formState[name]?.includes(e.target.value)) {
+        setFormState(prevState => ({
+            ...prevState,
+        [name] : value,
+        }));
+        }
+    };
 
     return (
     <>
@@ -254,10 +255,14 @@ const handleChange = (e) => {
         <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
           Fill Career Details
         </MDTypography>
+        <MDTypography variant="caption" fontWeight="bold" color="text">
+          Link: {Url+'careers/careerform/'+id?.jobTitle.replace(/\s/g, '%20')}
+        </MDTypography>
         </MDBox>
 
         <Grid container display="flex" flexDirection="row" justifyContent="space-between">
         <Grid container spacing={1} mt={0.5} mb={0} xs={12} md={9} xl={12}>
+          
           <Grid item xs={12} md={6} xl={3}>
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}

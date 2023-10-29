@@ -79,6 +79,10 @@ const userDetailSchema = new mongoose.Schema({
         type: String,
         // required: true
     },
+    college:{
+        type: Schema.Types.ObjectId,
+        ref: 'college',
+    },
     stayingWith:{
         type: String,
         // required: true
@@ -145,6 +149,9 @@ const userDetailSchema = new mongoose.Schema({
     },
     joining_date:{
         type: Date,
+    },
+    passingoutyear:{
+        type: String,
     },
     purpose_of_joining:{
         type: String,

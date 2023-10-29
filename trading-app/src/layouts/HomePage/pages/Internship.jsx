@@ -7,92 +7,116 @@ import { CircularProgress, formLabelClasses } from "@mui/material";
 import React, {useEffect, useState} from 'react'
 import { Link } from 'react-router-dom';
 import axios from "axios";
-
+import {apiUrl} from '../../../constants/constants';
 
 const Internship = ({campaignCode}) => {
   const [isLoading,setIsLoading] = useState(false);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [career, setCareer] = useState([]);
+  const [careerApplicationCounts, setCareerApplicationCounts] = useState([]);
     useEffect(()=>{
       setIsLoading(true)
       ReactGA.pageview(window.location.pathname)
-      axios.get(`${baseUrl}api/v1/career/live?type=Job`)
+      axios.get(`${apiUrl}career/live?type=Job`)
       .then((res)=>{
         setCareer(res.data?.data);
         setTimeout(()=>{
           setIsLoading(false);
-        },500) 
+        },200) 
       })
     }, [])
 
+    useEffect(() => {
+      async function fetchData() {
+        const counts = await Promise.all(
+          career.map(async (elem) => {
+            try {
+              const res = await axios.get(`${apiUrl}career/careerapplicationcount/${elem?._id}`);
+              return res?.data?.count;
+            } catch (error) {
+              console.log(error);
+              return 0; // You can handle the error gracefully
+            }
+          })
+        );
+        setCareerApplicationCounts(counts);
+      }
+      fetchData();
+    }, [career]);
+
     return (
-      <Box p={2} mt={0} >
+      <Box mt={2} style={{width:'100%'}}>
         <Grid container flexDirection="column" spacing={2}>
         {!isLoading ?
         <>
           {career.length > 0 ? (
-            career.map((elem) => (
-              <Grid key={elem._id} item xs={16} md={15} lg={20}>
-                <MDBox style={{ borderRadius: 4 }}>
-                  <Tooltip title="Click me!">
-                    <MDButton
-                      variant="contained"
-                      color="light"
-                      size="small"
-                      style={{ minWidth: "100%" }}
-                      component={Link}
-                      to={{
-                        pathname: `/jobdescription`,
-                      }}
-                      state={{ data: elem, campaignCode: campaignCode }}
-                    >
-                      <Grid
-                        item
-                        xs={12}
-                        md={6}
-                        lg={12}
-                        mb={1}
-                        display="flex"
-                        alignContent="center"
-                        alignItems="center"
-                        justifyContent="center"
-                      >
-                        <Grid container display="flex" justifyContent="center" alignItems="center" minWidth='40vH'>
-                          {/* <Grid item lg={2} display="flex" justifyContent="left" alignItems="center">
-                            <MDAvatar src={jobs} size="xl" />
-                          </Grid> */}
-                          <Grid item lg={12} display="flex" justifyContent="center">
-                            <MDBox>
-                              <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="center" style={{ color: "black" }}>
-                                {elem?.jobTitle}
-                              </MDTypography>
-                              <MDTypography color='info' fontSize={15} fontWeight="bold" display="flex" justifyContent="center">
-                                {elem?.jobType}
-                              </MDTypography>
-                              <MDTypography fontSize={15} fontWeight="bold" display="flex" justifyContent="center" style={{ color: "black" }}>
-                                Job Location: {elem?.jobLocation}
-                              </MDTypography>
-                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="center" style={{ color: "black" }}>
-                                Click Here to Apply!
-                              </MDTypography>
-                          </MDBox>
+            career.map((elem, index) => (
+                  <Grid key={elem._id} item xs={12} md={12} lg={12}>
+                    <MDBox style={{ borderRadius: 4 }}>
+                      <Tooltip title="Click me!">
+                        <MDButton
+                          variant="contained"
+                          color="secondary"
+                          size="small"
+                          style={{minWidth: "100%", backgroundColor:'#315c45', color:'white'}}
+                          component={Link}
+                          to={{
+                            pathname: `/careers/${elem?.jobTitle}/jobdescription`,
+                          }}
+                          state={{ data: elem, campaignCode: campaignCode }}
+                        >
+                          <Grid
+                            item
+                            xs={12}
+                            md={6}
+                            lg={12}
+                            mb={1}
+                            display="flex"
+                            alignContent="center"
+                            alignItems="center"
+                            justifyContent="center"
+                          >
+                            <Grid container xs={12} md={12} lg={12} display="flex" justifyContent="center" alignItems="center" style={{ width: "100%" }}>
+                              
+                              <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center" style={{ width: "100%" }}>
+                                
+                                <MDBox display="flex" justifyContent="center" style={{ width: "100%" }}>
+                                  
+                                  <Grid container xs={12} md={12} lg={12} display="flex" justifyContent="center" style={{ width: "100%" }}>
+                                    <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="left" style={{ width: "100%" }}>
+                                      <MDTypography fontSize={18} fontWeight="bold" style={{ color: "white" }}>
+                                        {elem?.jobTitle}
+                                      </MDTypography>
+                                    </Grid>
+            
+                                    <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="left" style={{ width: "100%" }}>
+                                      <MDTypography fontSize={14} style={{ color: "#f4f1bb" }}>
+                                        {elem?.jobType} | {elem?.jobLocation === "WFH" ? "Remote" : "In-Office"} 
+                                      </MDTypography>
+                                    </Grid>
+            
+                                    <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="left" style={{ width: "100%" }}>
+                                      <MDTypography fontWeight='bold' fontSize={12} style={{ color: "white" }}>
+                                       👩🏻‍💻 {(careerApplicationCounts[index])?.toLocaleString()} applicants {elem?.activelyRecruiting === true ? " | 👨‍💼👩‍💼 Actively recruiting" : ""} 
+                                      </MDTypography>
+                                    </Grid>
+            
+                                  </Grid>
+                                </MDBox>
+                              </Grid>
+                            </Grid>
                           </Grid>
-                        </Grid>
-                      </Grid>
-                    </MDButton>
-                  </Tooltip>
-                </MDBox>
-              </Grid>
-            ))
+                        </MDButton>
+                      </Tooltip>
+                    </MDBox>
+                  </Grid>
+                )
+            )
           ) : (
 
             <Grid container spacing={10} flexWrap="wrap-reverse" alignItems="center">
         
               <Grid item border="1px solid transparent" xs={12} md={6}>
                 <Stack border="1px solid transparent" spacing={2} sx={{ maxWidth: 480 }}>
-
-                
-                  
               < Typography variant="h5" color="#fff" sx={{ pb: 2 }}>
                 Thank you for showing interest! 
               </Typography>
@@ -117,9 +141,9 @@ const Internship = ({campaignCode}) => {
           )}
         </>
         :
-
-        <CircularProgress size={100} color="light" />
-                  
+        <MDBox minHeight="66.5vH" width="100%" display='flex' justifyContent='center' alignItems='center'>
+          <CircularProgress size={100} color="light" />
+        </MDBox>        
         }
         </Grid>
       </Box>

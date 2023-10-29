@@ -1,8 +1,10 @@
 const ContestRegistration  =require('../../models/DailyContest/contestRegistration');
 const otpGenerator = require('otp-generator');
+const whatsAppService = require("../../utils/whatsAppService")
+const mediaURL = "https://dmt-trade.s3.amazonaws.com/carousels/WhastAp%20Msg%20Photo/photos/1697228055934Welcome%20to%20the%20world%20of%20Virtual%20Trading%20but%20real%20earning%21.png";
+const mediaFileName = 'StoxHero'
+const moment = require('moment');
 const {sendSMS, sendOTP} = require('../../utils/smsService');
-const InternBatch = require("../../models/Careers/internBatch");
-const Career = require("../../models/Careers/careerSchema");
 const User = require("../../models/User/userDetailSchema")
 const PortFolio = require("../../models/userPortfolio/UserPortfolio")
 const Campaign = require("../../models/campaigns/campaignSchema")
@@ -11,25 +13,27 @@ const emailService = require("../../utils/emailService");
 const DailyContest = require('../../models/DailyContest/dailyContest');
 const ReferralProgram = require('../../models/campaigns/referralProgram');
 const uuid = require('uuid');
+const dailyContest = require('../../models/DailyContest/dailyContestMockUser');
+const ObjectId = require('mongodb').ObjectId;
 
 
 
 exports.generateOTP = async(req, res, next)=>{
     console.log(req.body)   
   
-    const{ firstName, lastName, email, mobile, dob, collegeName, source, contest, campaignCode, referrerCode
+    const{ firstName, lastName, email, mobile, dob, gender, college, collegeName, course, passingoutyear, source, contest, campaignCode, referrerCode, linkedInProfileLink
     } = req.body
-    console.log('ref',referrerCode);
+    
     if(!contest){
         return res.status(400).json({
-            message: "Contest doesn't exist",
+            message: "This College Contest doesn't exist!",
             status: 'error'
           });
     }
     const dailyContest = await DailyContest.findById(contest).select('contestEndTime');
     if(dailyContest?.contestEndTime<new Date()){
         return res.status(400).json({
-            message: "Contest has ended",
+            message: "This Contest has already ended",
             status: 'error'
           });
     }
@@ -55,7 +59,12 @@ exports.generateOTP = async(req, res, next)=>{
         email: email.trim(),
         mobileNo: mobile.trim(),
         dob: dob,
+        gender:gender,
+        college:college,
         collegeName: collegeName,
+        course: course,
+        passingoutyear: passingoutyear,
+        linkedInProfileLink: linkedInProfileLink,
         source: source.trim(),
         contest: contest,
         campaignCode: campaignCode?.trim(),
@@ -76,7 +85,7 @@ exports.generateOTP = async(req, res, next)=>{
 exports.confirmOTP = async(req, res, next)=>{
 
 
-const{ firstName, lastName, email, mobile, campaignCode, mobile_otp, contest, referrerCode
+const{ firstName, lastName, email, mobile, gender, college, course, passingoutyear, campaignCode, mobile_otp, contest, referrerCode
 } = req.body
 console.log(req.body)
 const correctOTP = await ContestRegistration.findOne({$and : [{mobileNo: mobile}], mobile_otp: mobile_otp}).select('status');
@@ -85,21 +94,20 @@ if(!correctOTP){
     return res.status(400).json({message:'Please enter the correct OTP'})
 }
 
-if(referrerCode && !await User.findOne({myReferralCode:referrerCode})){
-    return res.status(404).json({status:'error', message:'The referral code doesn\'t exist. Please check again'});
-}
+// if(referrerCode && !await User.findOne({myReferralCode:referrerCode})){
+//     return res.status(404).json({status:'error', message:'The referral code doesn\'t exist. Please check again'});
+// }
 
-if(campaignCode && !await Campaign.findOne({campaignCode})){
-    return res.status(404).json({status:'error', message:'The campaign code doesn\'t exist. Please check again'});
-}
+// if(campaignCode && !await Campaign.findOne({campaignCode})){
+//     return res.status(404).json({status:'error', message:'The campaign code doesn\'t exist. Please check again'});
+// }
 
 correctOTP.status = 'OTP Verified'
 await correctOTP.save({validateBeforeSave:false});
 res.status(201).json({info:"Application Submitted Successfully."})
 const existingUser = await User.findOne({mobile: mobile})
-// if(existingUser){
-//   return res.status(400).json({info:"User Already Exists"})
-// }
+
+
 
 let campaign;
     if(campaignCode){
@@ -110,7 +118,6 @@ if(!existingUser){
     const myReferralCode = generateUniqueReferralCode();
     let userId = email.split('@')[0]
     let userIds = await User.find({employeeid:userId})
-    // console.log("User Ids: ",userIds)
     if(userIds.length > 0)
     {
         userId = userId?.toString()+(userIds?.length+1).toString()
@@ -133,6 +140,10 @@ if(!existingUser){
             designation: 'Trader', 
             email : email, 
             mobile : mobile,
+            gender: gender,
+            college:college,
+            passingoutyear:passingoutyear,
+            degree:course,
             name: firstName.trim() + ' ' + lastName.trim().substring(0,1), 
             password: 'sh' + lastName.trim() + '@123' + mobile.trim().slice(1,3), 
             status: 'Active', 
@@ -161,16 +172,13 @@ if(!existingUser){
                 );
             }
             
-            // console.log("Campaign: ",campaign)
             if(campaign){
-                // console.log("Inside setting user to campaign")
                 campaign?.users?.push({userId:newuser._id,joinedOn: new Date()})
                 const campaignData = await Campaign.findOneAndUpdate({_id: campaign._id}, {
                     $set:{ 
                         users: campaign?.users
                     }
                 })
-                // console.log(campaignData)
             }
 
             await UserWallet.create(
@@ -180,7 +188,9 @@ if(!existingUser){
                 createdBy:newuser._id
             });
 
-            const dailyContest = await DailyContest.findById(contest).select('potentialParticipants');
+            const dailyContest = await DailyContest.findById(contest).select('_id contestName entryFee contestStartDate contestEndDate payoutPercentage potentialParticipants portfolio').populate('portfolio','portfolioValue');
+            // let dailyContest = await DailyContest.findOne({_id: new ObjectId(contest)}).select('_id contestName entryFee contestStartDate contestEndDate payoutPercentage').populate('portfolio','portfolioValue')
+            // const dcontest = dailyContest;
             dailyContest.potentialParticipants.push(newuser._id);
             await dailyContest.save({validateBeforeSave:false});
             if(referrerCode){
@@ -210,8 +220,6 @@ if(!existingUser){
                 if(referralUserWallet) await referralUserWallet.save({validateBeforeSave:false});
             }
 
-            // res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
-                // let email = newuser.email;
                 let subject = "Welcome to StoxHero - Learn, Trade, and Earn!";
                 let message =
                 `
@@ -324,28 +332,78 @@ if(!existingUser){
 
                 `
                 if(process.env.PROD=='true'){
-                emailService(newuser?.email,subject,message);
+                    emailService(newuser?.email,subject,message);
                 }
+
+                if(process.env.PROD == 'true'){
+                    whatsAppService.sendWhatsApp({destination : newuser?.mobile, campaignName : 'college_contest_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, contest?.contestName, contest?.contestName, contest?.contestStartTime, contest?.contestEndTime, contest?.portfolio?.portfolioValue, contest?.payoutPercentage, contest?.entryFee], tags : '', attributes : ''});
+                  }
+                  else {
+                      // whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'college_contest_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, contest?.contestName, contest?.contestName, contest?.contestStartTime, contest?.contestEndTime, contest?.portfolio?.portfolioValue, contest?.payoutPercentage, contest?.entryFee], tags : '', attributes : ''});
+                      whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'college_contest_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, contest?.contestName, contest?.contestName, contest?.contestStartTime, contest?.contestEndTime, contest?.portfolio?.portfolioValue, contest?.payoutPercentage, contest?.entryFee], tags : '', attributes : ''});
+                  }
 
     }catch(error){
         console.log(error)
     }
 }else{
     if(campaign){
-        // console.log("Inside setting user to campaign")
         campaign?.users?.push({userId:existingUser._id,joinedOn: new Date()});
-        // const campaignData = await Campaign.findOneAndUpdate({_id: campaign._id}, {
-        //     $set:{ 
-        //         users: campaign?.users
-        //     }
-        // })
         await campaign.save({validateBeforeSave:false});
-        // console.log(campaignData)
       }
         const dailyContest = await DailyContest.findById(contest).select('potentialParticipants');
+        // const dailyContest = await DailyContest.findById(contest).select('_id contestName entryFee contestStartDate contestEndDate payoutPercentage potentialParticipants portfolio').populate('portfolio','portfolioValue');
         dailyContest.potentialParticipants.push(existingUser._id);
         await dailyContest.save({validateBeforeSave:false});
     }
+    const dailyContest = await DailyContest.findById(contest).select('_id contestName entryFee contestStartTime contestEndTime payoutPercentage potentialParticipants portfolio').populate('portfolio','portfolioValue');
+    console.log("Daily Contest:",dailyContest)
+    if(process.env.PROD == 'true'){
+        whatsAppService.sendWhatsApp(
+            {
+                destination : existingUser?.mobile, 
+                campaignName : 'col_contest_signup_campaign', 
+                userName : existingUser.first_name, 
+                source : existingUser.creationProcess, 
+                media : {url : mediaURL, filename : mediaFileName}, 
+                templateParams : [
+                        existingUser.first_name, 
+                        dailyContest?.contestName, 
+                        dailyContest?.contestName, 
+                        moment.utc(dailyContest?.contestStartTime).utcOffset('+05:30').format("DD-MMM hh:mm a"), 
+                        moment.utc(dailyContest?.contestEndTime).utcOffset('+05:30').format("DD-MMM hh:mm a"), 
+                        (dailyContest?.portfolio?.portfolioValue).toLocaleString('en-IN'), 
+                        (dailyContest?.payoutPercentage).toLocaleString('en-IN'), 
+                        (dailyContest?.entryFee).toLocaleString('en-IN')
+                    ], 
+                tags : '', 
+                attributes : ''
+            });
+      }
+      else {
+        // whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'college_contest_signup_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, contest?.contestName, contest?.contestName, contest?.contestStartTime, contest?.contestEndTime, contest?.portfolio?.portfolioValue, contest?.payoutPercentage, contest?.entryFee], tags : '', attributes : ''});
+        // whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'college_contest_signup_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, contest?.contestName, contest?.contestName, contest?.contestStartTime, contest?.contestEndTime, contest?.portfolio?.portfolioValue, contest?.payoutPercentage, contest?.entryFee], tags : '', attributes : ''});
+        whatsAppService.sendWhatsApp(
+            {
+                destination : '8076284368', 
+                campaignName : 'col_contest_signup_campaign', 
+                userName : existingUser.first_name, 
+                source : existingUser.creationProcess, 
+                media : {url : mediaURL, filename : mediaFileName}, 
+                templateParams : [
+                        existingUser.first_name, 
+                        dailyContest?.contestName, 
+                        dailyContest?.contestName, 
+                        moment.utc(dailyContest?.contestStartTime).utcOffset('+05:30').format("DD-MMM hh:mm a"), 
+                        moment.utc(dailyContest?.contestEndTime).utcOffset('+05:30').format("DD-MMM hh:mm a"), 
+                        (dailyContest?.portfolio?.portfolioValue).toLocaleString('en-IN'), 
+                        (dailyContest?.payoutPercentage).toLocaleString('en-IN'), 
+                        (dailyContest?.entryFee).toLocaleString('en-IN')
+                    ], 
+                tags : '', 
+                attributes : ''
+            });
+      }
 
 }
 
