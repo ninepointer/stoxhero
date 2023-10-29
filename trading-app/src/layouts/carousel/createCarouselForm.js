@@ -58,7 +58,7 @@ function Index() {
         carouselName:'' || id?.carouselName,
         description:'' || id?.description,
         carouselStartDate: dayjs(id?.carouselStartDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
-        carouselEndDate: dayjs(id?.carouselEndDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
+         carouselEndDate: dayjs(id?.carouselEndDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
         carouselImage:'' || id?.carouselImage,
         status:'' || id?.status,
         clickable: '' || id?.clickable,
@@ -108,7 +108,8 @@ function Index() {
           const formData = new FormData();
           Object.keys(data).forEach((key) => {
             console.log("data to be appended")
-            formData.append(key, data[key])
+            formData.append('blogContent', data[key])
+            // formData.append('blogContent', JSON.stringify(childFormState.blogContent));
             console.log("data appended",formData)
             console.log("formState",formState)
           });
@@ -122,7 +123,7 @@ function Index() {
               setCreating(false);
               return openErrorSB("Error","Please fill the mandatory fields.")
             }
-          console.log("Calling API")
+          
           const res = await fetch(`${baseUrl}api/v1/carousels`, {
   
             method: "POST",

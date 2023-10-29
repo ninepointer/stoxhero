@@ -402,6 +402,7 @@ async function singleProcess() {
     app.use('/api/v1/marginxtemplates', require("./routes/marginx/marginxTemplateRoutes"));
     app.use('/api/v1/notifications', require("./routes/notification/notificationRoutes"));
     app.use('/api/v1/coupons', require("./routes/coupon/couponRoutes"));
+    app.use('/api/v1/blogs', require("./routes/blog/blogRoutes"));
 
 
 
