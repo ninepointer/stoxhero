@@ -100,7 +100,7 @@ exports.getActiveTenXSubs = async(req, res, next)=>{
     try{
         const tenXSubs = await TenXSubscription.find({status: "Active"}).select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features allowPurchase allowRenewal expiryDays payoutPercentage')
         .populate('portfolio', 'portfolioName portfolioValue')
-        .sort({discounted_price: 1, validity:1})
+        .sort({ validity:1, discounted_price: 1})
         
         res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
     }catch(e){
