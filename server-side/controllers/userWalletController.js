@@ -11,7 +11,8 @@ const Product = require('../models/Product/product');
 const {saveSuccessfulCouponUse} = require('./coupon/couponController');
 const Setting = require('../models/settings/setting');
 const Coupon = require('../models/coupon/coupon');
-
+const {creditAffiliateAmount}= require('./affiliateProgramme/affiliateController');
+const AffiliateProgram = require('../models/affiliateProgram/affiliateProgram');
 
 
 exports.createUserWallet = async(req, res, next)=>{
@@ -132,6 +133,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
     const session = await mongoose.startSession();
     let result = {};
     try{
+        let affiliate, affiliateProgram;
         let discountAmount = 0;
         let cashbackAmount = 0;
         session.startTransaction();
@@ -172,7 +174,20 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         }  
 
         if(coupon){
-            const couponDoc = await Coupon.findOne({code:coupon});
+            let couponDoc = await Coupon.findOne({code:coupon});
+            if(!couponDoc){
+                const affiliatePrograms = await AffiliateProgram.find({status:'Active'});
+                if(affiliatePrograms.length != 0)
+                    for(let program of affiliatePrograms){
+                        let match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
+                        if(match){
+                            affiliate = match;
+                            affiliateProgram = program;
+                            couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: program?.discountPercentage, maxDiscount:program?.maxDiscount }
+                        }
+                    }
+
+            }
             if(couponDoc?.rewardType == 'Discount'){
                 if(couponDoc?.discountType == 'Flat'){
                     //Calculate amount and match
@@ -422,7 +437,11 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
           await session.commitTransaction();
           if(coupon){
             const product = await Product.findOne({productName:'TenX'}).select('_id');
-            await saveSuccessfulCouponUse(userId, coupon, product?._id, subscription?._id);
+            if(affiliate){
+                await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, subs?._id, subs?.discounted_price, userId);
+            }else{
+                await saveSuccessfulCouponUse(userId, coupon, product?._id, subscription?._id);
+            }
           }
           result = {
             statusCode:200,

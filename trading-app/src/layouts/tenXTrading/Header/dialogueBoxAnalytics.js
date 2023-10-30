@@ -39,9 +39,11 @@ export default function MaxWidthDialog() {
     <React.Fragment>
       <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' flexDirection='row' style={{width:'100%'}}>
         <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
-          <MDButton variant="contained" sx={{fontSize: "10px",width:'90%'}} size='small' color='primary' onClick={handleClickOpen}>
-            Analytics
-          </MDButton>
+          {/* <MDButton variant="contained" sx={{fontSize: "10px",width:'90%'}} size='small' color='primary' onClick={handleClickOpen}> */}
+          <button variant="contained" color="warning" style={{ fontSize: "10px",width:'100%', padding:2, border: 'none', fontWeight:'bold', textDecoration:'under-line', cursor: 'pointer'}} size='small' onClick={handleClickOpen}>
+              Analytics
+          </button>
+          {/* </MDButton> */}
         </Grid>
         <Grid item xs={12} md={12} lg={0} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
           <></>

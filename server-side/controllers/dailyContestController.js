@@ -18,6 +18,8 @@ const Setting = require("../models/settings/setting");
 const Product = require('../models/Product/product');
 const Coupon = require('../models/coupon/coupon');
 const {saveSuccessfulCouponUse} = require('./coupon/couponController');
+const {creditAffiliateAmount} = require('./affiliateProgramme/affiliateController');
+const AffiliateProgram = require('../models/affiliateProgram/affiliateProgram');
 
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
@@ -1402,17 +1404,17 @@ exports.creditAmountToWallet = async () => {
         todayDate = todayDate + "T00:00:00.000Z";
         const today = new Date(todayDate);
 
-        const contest = await Contest.find({ contestStatus: "Completed", payoutStatus: null, contestEndTime: {$gte: today} }).populate('portfolio', 'portfoliValue');
+        const contest = await Contest.find({ contestStatus: "Completed", payoutStatus: null, contestEndTime: {$gte: today} }).populate('portfolio', 'portfolioValue');
         const setting = await Setting.find();
         // console.log(contest.length, contest)
         for (let j = 0; j < contest.length; j++) {
           let maxPayout = 10000;
           //setting max payout for free contest
-          if(contest?.entryFee == 0){
-            maxPayout = contest?.portfolio?.portfolioValue * (contest?.payoutCapPercentage ?? 100)/100;
+          if(contest[j]?.entryFee == 0){
+            maxPayout = contest[j]?.portfolio?.portfolioValue * (contest[j]?.payoutCapPercentage ?? 100)/100;
           }else{
-            //setting maxPayout for paid contest
-            maxPayout = contest?.entryFee * (contest?.payoutCapPercentage ?? 10000)/100; 
+            //setting maxPayout for paid contest[j]
+            maxPayout = contest[j]?.entryFee * (contest[j]?.payoutCapPercentage ?? 10000)/100; 
           }
           //setting max payout for paid contest 
             // if (contest[j].contestEndTime < new Date()) {
@@ -1757,6 +1759,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
     
     exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, contestId, coupon, bonusRedemption)=>{
       try{
+        let affiliate, affiliateProgram;
         const contest = await Contest.findOne({ _id: contestId });
         const wallet = await UserWallet.findOne({ userId: userId });
         const user = await User.findOne({ _id: userId });
@@ -1802,7 +1805,20 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
 
 
         if(coupon){
-          const couponDoc = await Coupon.findOne({code:coupon});
+          let couponDoc = await Coupon.findOne({code:coupon});
+          if(!couponDoc){
+            const affiliatePrograms = await AffiliateProgram.find({status:'Active'});
+            if(affiliatePrograms.length != 0)
+                for(let program of affiliatePrograms){
+                    let match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
+                    if(match){
+                        affiliate = match;
+                        affiliateProgram = program;
+                        couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: program?.discountPercentage, maxDiscount:program?.maxDiscount }
+                    }
+                }
+
+        }
           if(couponDoc?.rewardType == 'Discount'){
               if(couponDoc?.discountType == 'Flat'){
                   //Calculate amount and match
@@ -2143,7 +2159,11 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
           });
           if(coupon){
             const product = await Product.findOne({productName:'Contest'}).select('_id');
-            await saveSuccessfulCouponUse(userId, coupon, product?._id, contest?._id);
+            if(affiliate){
+              await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, contest?._id, contest?.entryFee, userId);
+            }else{
+              await saveSuccessfulCouponUse(userId, coupon, product?._id, contest?._id);
+            }
           }
           return {
             stautsCode:200,
