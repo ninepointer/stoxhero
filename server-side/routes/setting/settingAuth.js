@@ -9,6 +9,14 @@ const Contest = require('../../models/DailyContest/dailyContest');
 const Wallet = require('../../models/UserWallet/userWalletSchema');
 const Notification = require('../../models/notifications/notification');
 const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema");
+const TenXTrade = require("../../models/mock-trade/tenXTraderSchema");
+const InternshipTrade = require("../../models/mock-trade/internshipTrade");
+const VirtualTrade = require("../../models/mock-trade/paperTrade");
+const ContestTrade = require("../../models/DailyContest/dailyContestMockUser");
+const MarginXTrade = require("../../models/marginX/marginXUserMock");
+const User = require("../../models/User/userDetailSchema");
+const ContestRegistration = require("../../models/DailyContest/contestRegistration");
+const moment = require('moment');
 
 
 router.get("/leaderboardSetting", Authentication, async (req, res)=>{
@@ -328,6 +336,84 @@ exports.cancelPendingOrders = async(req,res,next) => {
         console.log(e);
     }
 }
+
+router.get('/uniqueactivated', async(req,res) => {
+        const contest1 = await Contest.findById('652c0af86365ad15659986ed').select('participants potentialParticipants');
+        const contest2 = await Contest.findById('652c0cd8921a308fe75aafe5').select('participants potentialParticipants');
+        const contest3 = await Contest.findById('652c0d87d565747ad90bfd1b').select('participants potentialParticipants');
+
+        const participants1= contest1?.participants;
+        const potentialParticipants1= contest1?.potentialParticipants;
+        const participants2= contest2?.participants;
+        const potentialParticipants2= contest2?.potentialParticipants;
+        const participants3= contest3?.participants;
+        const potentialParticipants3= contest3?.potentialParticipants;
+        const combined = [...participants1, ...participants2, ...participants3, ...potentialParticipants1, ...potentialParticipants2, ...potentialParticipants3];
+        const uniqueList = [...new Set(combined)];
+
+        console.log(uniqueList?.length);
+        const collections = [TenXTrade, MarginXTrade, VirtualTrade, InternshipTrade, ContestTrade];
+        let activatedUsers = [];
+        const cutoffDate = new Date('2023-10-18');
+
+        let activatedUsersSet = new Set();  // Use a set for efficient lookups
+        let tradersBeforeCutoffSet = new Set();  // Track traders with trades before cutoff
+    
+        for (let Model of collections) {
+            const postCutoffTraders = await Model.find({ 
+                trader: { $in: uniqueList },
+                trade_time: { $gte: cutoffDate, $lte: new Date('2023-10-20')}
+            }).distinct('trader');
+    
+            for (let traderId of postCutoffTraders) {
+                const countBeforeCutoff = await Model.countDocuments({
+                    trader: traderId,
+                    trade_time: { $lt: cutoffDate }
+                });
+                const existsInContest = await ContestTrade.findOne({
+                    trader:traderId,
+                    trade_time: { $gte: cutoffDate, $lte:new Date('2023-10-20')}
+                }) 
+    
+                if (countBeforeCutoff > 0 || !existsInContest) {
+                    tradersBeforeCutoffSet.add(traderId.toString());  // Add trader to exclusion set
+                } else {
+                    activatedUsersSet.add(traderId.toString());  // Potentially activated user
+                }
+            }
+        }
+    
+        // Remove traders from the activated set if they're in the exclusion set
+        for (let traderId of tradersBeforeCutoffSet) {
+            activatedUsersSet.delete(traderId);
+        }
+    
+        const newActivatedUsers =  Array.from(new Set(activatedUsersSet));
+        console.log(newActivatedUsers?.length);
+        let detailedArray = [];
+
+        const users = await User.find({ _id: { $in: newActivatedUsers } }, 
+                                    'first_name last_name mobile email campaignCode joining_date creationProcess');
+
+        for (let user of users) {
+            const contestRegistration = await ContestRegistration.findOne({ mobileNo: user.mobile }, 'collegeName campaignCode');
+
+            let detailedObject = {
+                Name: user?.first_name +' '+user?.last_name, 
+                Mobile: user?.mobile,
+                Email: user?.email,
+                'Joining Date': moment(user?.joining_date).add(330, 'minutes').format('DD-MM-YY hh:mm:ss a'),
+                'Creation Process': user?.creationProcess,
+                'User Campaign Code': user?.campaignCode,
+                College: contestRegistration ? contestRegistration?.collegeName : null,
+                'Registration Campaign Code': contestRegistration ? contestRegistration?.campaignCode : null
+            };
+
+            detailedArray.push(detailedObject);
+        }
+        res.json(detailedArray);
+    }
+)
 
 
 module.exports = router;
