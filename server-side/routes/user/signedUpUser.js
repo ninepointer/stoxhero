@@ -134,7 +134,7 @@ router.patch("/verifyotp", async (req, res) => {
     let campaign;
     if (referrerCode) {
         const referrerCodeMatch = await User.findOne({ myReferralCode: referrerCode });
-        const campaignCodeMatch = await Campaign.findOne({ campaignCode: referrerCode })
+        const campaignCodeMatch = await Campaign.findOne({ campaignCode: referrerCode });
         
         if (!referrerCodeMatch && !campaignCodeMatch) {
             return res.status(404).json({ status: 'error', message: "No such referrer code exists. Please enter a valid referrer code" });
@@ -144,7 +144,7 @@ router.patch("/verifyotp", async (req, res) => {
         user.last_modifiedOn = new Date()
         await user.save({validateBeforeSave: false});
         if (referrerCodeMatch) { referredBy = referrerCodeMatch?._id; }
-        if (campaignCodeMatch) { campaign = campaignCodeMatch }
+        if (campaignCodeMatch) { campaign = campaignCodeMatch; referrerCode=''}
     }
     user.status = 'OTP Verified';
     user.last_modifiedOn = new Date();
@@ -272,6 +272,9 @@ router.patch("/verifyotp", async (req, res) => {
                     referralEarning: referralProgramme.rewardPerReferral,
                     referralCurrency: referralProgramme.currency,
                 }];
+                if(referralProgramme?.referrralSignupBonus?.amount){
+                    await addSignupBonus(newuser?._id, referralProgramme?.referralSignupBonus?.amount, referralProgramme?.referralSignupBonus?.currency);
+                }
                 await referrerCodeMatch.save({ validateBeforeSave: false });
                 const wallet = await UserWallet.findOne({ userId: referrerCodeMatch._id });
                 wallet.transactions = [...wallet.transactions, {
@@ -289,6 +292,9 @@ router.patch("/verifyotp", async (req, res) => {
         if (campaign) {
             campaign?.users?.push({ userId: newuser._id, joinedOn: new Date() })
             await campaign.save();
+            if(campaign?.campaignType == 'Invite'){
+                await addSignupBonus(newuser?._id, campaign?.campaignSignupBonus?.amount ?? 90, campaign?.campaignSignupBonus?.currency ?? 'INR');
+            }
         }
 
         await UserWallet.create(
@@ -410,11 +416,11 @@ router.patch("/verifyotp", async (req, res) => {
 
             `
         if(process.env.PROD == 'true'){
-            emailService(newuser.email, subject, message);
+            await emailService(newuser.email, subject, message);
         }
 
         if(process.env.PROD == 'true'){
-            whatsAppService.sendWhatsApp({destination : newuser.mobile, campaignName : 'direct_signup', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
+            await whatsAppService.sendWhatsApp({destination : newuser.mobile, campaignName : 'direct_signup', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
         }
         else {
             whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'direct_signup', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
@@ -426,6 +432,23 @@ router.patch("/verifyotp", async (req, res) => {
         res.status(500).json({status:'error', message:'Something wenr wrong', error: error.message})
     }
 })
+
+const addSignupBonus = async (userId, amount, currency) => {
+    const wallet = await UserWallet.findOne({userId:userId});
+    try{
+        wallet.transactions?.push({
+            title: 'Sign up Bonus',
+            description: `Amount credited for as sign up bonus.`,
+            amount: amount,
+            transactionId: uuid.v4(),
+            transactionDate: new Date(),
+            transactionType: currency
+        });
+        await wallet.save({validateBeforeSave:false});
+    }catch(e){
+        console.log(e);
+    }
+}
 
 router.patch("/resendotp", async (req, res)=>{
     const {email, mobile, type} = req.body

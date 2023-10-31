@@ -61,6 +61,7 @@ const settingSchema = new mongoose.Schema({
     mobileAppVersion: String,
     bonusToUnitCashRatio:Number,
     maxBonusRedemptionPercentage: Number,
+    minWalletBalance:Number
 })
 
 const settingDetail = mongoose.model("setting-detail", settingSchema);
