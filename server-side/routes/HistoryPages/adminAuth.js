@@ -2058,7 +2058,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2023-10-20T20:00:00.000+00:00"
+  let expiryDate = "2023-10-27T20:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(
@@ -2255,26 +2255,26 @@ router.get("/Tradable", authentication, async (req, res, next) => {
   // await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-18"}}, {$set: {status: "Inactive"}});
   await TradableInstrument.tradableInstrument(req, res, next);
 })
-router.get("/updateInstrumentStatus", async (req, res) => {
-  let date = new Date();
-  let expiryDate = "2023-08-03T00:00:00.000+00:00"
-  expiryDate = new Date(expiryDate);
+// router.get("/updateInstrumentStatus", async (req, res) => {
+//   let date = new Date();
+//   let expiryDate = "2023-10-28T00:00:00.000+00:00"
+//   expiryDate = new Date(expiryDate);
 
-  // let instrument = await Instrument.find({status: "Active"})
-  // res.send(instrument)
-  let instrument = await Instrument.updateMany(
-    { contractDate: { $lte: expiryDate }, status: "Active" },
-    { $set: { status: "Inactive" } }
-  )
+//   // let instrument = await Instrument.find({status: "Active"})
+//   // res.send(instrument)
+//   let instrument = await Instrument.updateMany(
+//     { contractDate: { $lte: expiryDate }, status: "Active" },
+//     { $set: { status: "Inactive" } }
+//   )
 
-  let infinityInstrument = await InfinityInstrument.updateMany(
-    { contractDate: { $lte: expiryDate }, status: "Active" },
-    { $set: { status: "Inactive" } }
-  )
+//   let infinityInstrument = await InfinityInstrument.updateMany(
+//     { contractDate: { $lte: expiryDate }, status: "Active" },
+//     { $set: { status: "Inactive" } }
+//   )
 
-  // await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
-  res.send({ message: "updated", data: instrument })
-})
+//   // await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
+//   res.send({ message: "updated", data: instrument, data1: infinityInstrument })
+// })
 router.get("/updateName", async (req, res) => {
   let data = await UserDetail.updateMany(
     {},

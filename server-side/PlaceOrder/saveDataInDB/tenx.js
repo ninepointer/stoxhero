@@ -7,7 +7,7 @@ const {reverseTradeCondition} = require("./PendingOrderCondition/reverseTradeCon
 exports.tenxTrade = async (req, res, otherData) => {
   let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, 
       exchangeInstrumentToken, validity, variety, order_id, instrumentToken, 
-      portfolioId, trader, stopProfitPrice, stopLossPrice, deviceDetails } = req.body 
+      portfolioId, trader, stopProfitPrice, stopLossPrice, deviceDetails, margin } = req.body 
 
   let {isRedisConnected, brokerageUser, originalLastPriceUser, secondsRemaining, trade_time} = otherData;
 
@@ -27,10 +27,95 @@ exports.tenxTrade = async (req, res, otherData) => {
       variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
       order_id, instrumentToken, brokerage: brokerageUser, portfolioId, subscriptionId, exchangeInstrumentToken,
       createdBy: req.user._id, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
-      deviceDetails: {deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType}
+      deviceDetails: {deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType},
+      margin
     }
 
     const save = await TenxTrader.create([tenxDoc], { session });
+
+    let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
+    pnl = JSON.parse(pnl);
+    const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product));
+    const matchingElementBuyOrSell = matchingElement?.lots > 0 ? "BUY" : "SELL";
+    let reverseTradeConditionData;
+    if(matchingElement?.lots !== 0 && (matchingElementBuyOrSell !== tenxDoc.buyOrSell)){
+      reverseTradeConditionData = await reverseTradeCondition(req.user._id, subscriptionId, tenxDoc, stopLossPrice, stopProfitPrice, save[0]?._id, originalLastPriceUser);
+    }
+
+    if(reverseTradeConditionData === 0){
+      console.log("from reverse trade")
+      stopLossPrice = 0;
+      stopProfitPrice = 0;
+    }
+
+    if (isRedisConnected && await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)) {
+      let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
+      pnl = JSON.parse(pnl);
+      const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product));
+
+      // if instrument is same then just updating value
+      if (matchingElement) {
+        // Update the values of the matching element with the values of the first document
+        matchingElement.amount += (tenxDoc.amount * -1);
+        matchingElement.brokerage += Number(tenxDoc.brokerage);
+        matchingElement.lastaverageprice = tenxDoc.average_price;
+        matchingElement.lots += Number(tenxDoc.Quantity);
+        matchingElement.margin = margin;
+      } else {
+        // Create a new element if instrument is not matching
+        pnl.push({
+          _id: {
+            symbol: tenxDoc.symbol,
+            product: tenxDoc.Product,
+            instrumentToken: tenxDoc.instrumentToken,
+            exchangeInstrumentToken: tenxDoc.exchangeInstrumentToken,
+            exchange: tenxDoc.exchange,
+            validity: tenxDoc.validity,
+            variety: tenxDoc.variety
+          },
+          amount: (tenxDoc.amount * -1),
+          brokerage: Number(tenxDoc.brokerage),
+          lots: Number(tenxDoc.Quantity),
+          lastaverageprice: tenxDoc.average_price,
+          margin: margin
+        });
+      }
+
+      pnlRedis = await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(pnl))
+
+    }
+
+    if (isRedisConnected) {
+      await client.expire(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, secondsRemaining);
+    }
+
+
+    let pendingOrderRedis;
+    if(stopLossPrice || stopProfitPrice){
+      pendingOrderRedis = await applyingSLSP(req, {ltp: originalLastPriceUser}, session, save[0]?._id);
+    } else{
+      pendingOrderRedis = "OK";
+    }
+    
+    console.log(pendingOrderRedis, pnlRedis)
+    if (pendingOrderRedis === "OK" && pnlRedis === "OK") {
+      await session.commitTransaction();
+      res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
+    }
+  } catch (err) {
+    await client.del(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
+    await session.abortTransaction();
+    console.error('Transaction failed, documents not saved:', err);
+    res.status(201).json({status: 'error', message: 'Something went wrong. Please try again.'});
+  } finally {
+    session.endSession();
+  }
+}
+
+
+
+
+
 
     /*
     1. equal
@@ -101,89 +186,12 @@ exports.tenxTrade = async (req, res, otherData) => {
 
     matchingElement.lots === Number(tenxDoc.Quantity);
     1. remove all stoploss of user and instrument matching also cancel in db
-    2. dont apply new stoploss
+    2. do not apply new stoploss
     
     matchingElement.lots > Number(tenxDoc.Quantity);
-    1. sustain all stoploss and dont apply new stoploss
+    1. sustain all stoploss and do not apply new stoploss
 
     matchingElement.lots < Number(tenxDoc.Quantity);
     1. remove existing stoploss and cancel in db
     */
 
-    let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
-    pnl = JSON.parse(pnl);
-    const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product));
-    const matchingElementBuyOrSell = matchingElement?.lots > 0 ? "BUY" : "SELL";
-    let reverseTradeConditionData;
-    if(matchingElement?.lots !== 0 && (matchingElementBuyOrSell !== tenxDoc.buyOrSell)){
-      reverseTradeConditionData = await reverseTradeCondition(req.user._id, subscriptionId, tenxDoc, stopLossPrice, stopProfitPrice, save[0]?._id, originalLastPriceUser);
-    }
-
-    if(reverseTradeConditionData === 0){
-      console.log("from reverse trade")
-      stopLossPrice = 0;
-      stopProfitPrice = 0;
-    }
-
-    if (isRedisConnected && await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)) {
-      let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
-      pnl = JSON.parse(pnl);
-      const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product));
-
-      // if instrument is same then just updating value
-      if (matchingElement) {
-        // Update the values of the matching element with the values of the first document
-        matchingElement.amount += (tenxDoc.amount * -1);
-        matchingElement.brokerage += Number(tenxDoc.brokerage);
-        matchingElement.lastaverageprice = tenxDoc.average_price;
-        matchingElement.lots += Number(tenxDoc.Quantity);
-
-      } else {
-        // Create a new element if instrument is not matching
-        pnl.push({
-          _id: {
-            symbol: tenxDoc.symbol,
-            product: tenxDoc.Product,
-            instrumentToken: tenxDoc.instrumentToken,
-            exchangeInstrumentToken: tenxDoc.exchangeInstrumentToken,
-            exchange: tenxDoc.exchange,
-            validity: tenxDoc.validity,
-            variety: tenxDoc.variety
-          },
-          amount: (tenxDoc.amount * -1),
-          brokerage: Number(tenxDoc.brokerage),
-          lots: Number(tenxDoc.Quantity),
-          lastaverageprice: tenxDoc.average_price,
-        });
-      }
-
-      pnlRedis = await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(pnl))
-
-    }
-
-    if (isRedisConnected) {
-      await client.expire(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, secondsRemaining);
-    }
-
-
-    let pendingOrderRedis;
-    if(stopLossPrice || stopProfitPrice){
-      pendingOrderRedis = await applyingSLSP(req, {ltp: originalLastPriceUser}, session, save[0]?._id);
-    } else{
-      pendingOrderRedis = "OK";
-    }
-    
-    console.log(pendingOrderRedis, pnlRedis)
-    if (pendingOrderRedis === "OK" && pnlRedis === "OK") {
-      await session.commitTransaction();
-      res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
-    }
-  } catch (err) {
-    await client.del(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
-    await session.abortTransaction();
-    console.error('Transaction failed, documents not saved:', err);
-    res.status(201).json({status: 'error', message: 'Something went wrong. Please try again.'});
-  } finally {
-    session.endSession();
-  }
-}

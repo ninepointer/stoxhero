@@ -13,7 +13,8 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
         exchangeInstrumentToken, validity, variety, order_id, instrumentToken, last_price,
         stopProfitPrice, stopLossPrice, createdBy, order_type, deviceDetails, id } = req.body ? req.body : req 
 
-    last_price = last_price?.includes("₹") && last_price?.slice(1);
+        console.log("last_price", last_price)
+    last_price = last_price && String(last_price)?.includes("₹") && last_price?.slice(1);
     id = id ? id : subscriptionId;
     if(Object.keys(otherData).length > 0){
         Quantity = otherData.quantity ? otherData.quantity : Quantity;

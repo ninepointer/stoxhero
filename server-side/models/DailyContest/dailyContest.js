@@ -101,6 +101,10 @@ const contestSchema = new Schema({
         payout: {type: Number},
         tdsAmount: {type: Number},
         isLive: {type: Boolean},
+        npnl: {type: Number},
+        gpnl: {type: Number},
+        trades: {type: Number},
+        brokerage: {type: Number},
         rank: {type: Number},
         bonusRedemption:Number
     }],

@@ -10,8 +10,8 @@ const stagingDB = process.env.STAGINGDB;
 const infinityDB = process.env.INFINITYDB;
 
     // mongoose.connect(devDB, {
-         mongoose.connect(DB, {
-        // mongoose.connect(stagingDB, {
+        //  mongoose.connect(DB, {
+        mongoose.connect(stagingDB, {
         // mongoose.connect(infinityDB, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -27,3 +27,9 @@ const infinityDB = process.env.INFINITYDB;
 
 
 
+/*
+1. unrealised pnl
+2. margin required
+3. sell side margin block
+4. Used margin me block amount ko dikhana h.
+*/

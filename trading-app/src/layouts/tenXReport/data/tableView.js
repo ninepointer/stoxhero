@@ -50,15 +50,15 @@ export default function TableView({liveUser, expiredUser, whichTab, dateWiseData
   csvDataFile = csvpnlData?.map((elem)=>{
      
   return [elem?.name,
-      elem?.grossPnl.toFixed(0),
-      elem?.brokerage.toFixed(0),
-      elem?.npnl.toFixed(0),
+      elem?.grossPnl?.toFixed(0),
+      elem?.brokerage?.toFixed(0),
+      elem?.npnl?.toFixed(0),
       elem?.trades,
       elem?.tradingDays,
       moment.utc(new Date(elem?.startDate)).utcOffset('+00:00').format('DD-MMM-YYYY'),
       moment.utc(new Date(elem?.startDate)).utcOffset('+00:00').add(60, 'days').format('DD-MMM-YYYY'),
       // moment.utc(new Date(elem?.endDate)).utcOffset('+00:00').format('DD-MMM-YYYY'),
-      elem?.payout.toFixed(0)
+      elem?.payout?.toFixed(0)
       ]
   })
   }
@@ -75,15 +75,15 @@ export default function TableView({liveUser, expiredUser, whichTab, dateWiseData
   csvDataFile1 = csvpnlData?.map((elem)=>{
      
   return [elem?.name,
-      elem?.grossPnl.toFixed(0),
-      elem?.brokerage.toFixed(0),
-      elem?.npnl.toFixed(0),
+      elem?.grossPnl?.toFixed(0),
+      elem?.brokerage?.toFixed(0),
+      elem?.npnl?.toFixed(0),
       elem?.trades,
       elem?.tradingDays,
       moment.utc(new Date(elem?.startDate)).utcOffset('+00:00').format('DD-MMM-YYYY'),
       moment.utc(new Date(elem?.endDate)).utcOffset('+00:00').format('DD-MMM-YYYY'),
       // moment.utc(new Date(elem?.endDate)).utcOffset('+00:00').format('DD-MMM-YYYY'),
-      elem?.payout.toFixed(0)
+      elem?.payout?.toFixed(0)
       ]
   })
   }

@@ -11,7 +11,7 @@ exports.marginxTrade = async (req, res, otherData) => {
     const io = getIOValue();
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, exchangeInstrumentToken, fromAdmin,
         validity, variety, algoBoxId, order_id, instrumentToken, marginxId, deviceDetails,
-        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader } = req.body 
+        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, margin } = req.body 
 
         // let marginxId = subscriptionId;
         let {secondsRemaining, isRedisConnected, brokerageCompany, brokerageUser, originalLastPriceUser, originalLastPriceCompany, trade_time} = otherData;
@@ -43,7 +43,8 @@ exports.marginxTrade = async (req, res, otherData) => {
             variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", marginxId,
             isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, exchangeInstrumentToken,
             createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
-            deviceDetails: {deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType}
+            deviceDetails: {deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType},
+            margin
         }
 
         const mockTradeDetails = await MarginXMockCompany.create([companyDoc], { session });

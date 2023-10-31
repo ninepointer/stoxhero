@@ -6,12 +6,12 @@ import MDBox from "../../../components/MDBox"
 import MDTypography from "../../../components/MDTypography"
 import Card from "@mui/material/Card";
 import { Tooltip } from '@mui/material';
-import MDButton from '../../../components/MDButton';
+// import MDButton from '../../../components/MDButton';
 // import axios from "axios";
 // import moment from 'moment';
 import DownloadIcon from '@mui/icons-material/Download';
 import { saveAs } from 'file-saver';
-import html2canvas from 'html2canvas';
+// import html2canvas from 'html2canvas';
 
 
 

@@ -4,7 +4,7 @@ const PaperTrade = require("../../models/mock-trade/paperTrade");
 exports.virtualTrade = async (req, res, otherData) => {
   let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, exchangeInstrumentToken,
     validity, variety, order_id, instrumentToken, portfolioId,
-    trader, deviceDetails} = req.body 
+    trader, deviceDetails, margin} = req.body 
 
   let {isRedisConnected, brokerageUser, originalLastPriceUser, secondsRemaining, trade_time} = otherData;
 
@@ -19,7 +19,8 @@ exports.virtualTrade = async (req, res, otherData) => {
             variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
             order_id, instrumentToken, brokerage: brokerageUser, portfolioId, exchangeInstrumentToken,
             createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
-            deviceDetails: {deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType}
+            deviceDetails: {deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType},
+            margin
         });
 
         // console.log("mockTradeDetails", paperTrade);
@@ -39,6 +40,7 @@ exports.virtualTrade = async (req, res, otherData) => {
                   matchingElement.brokerage += Number(paperTrade.brokerage);
                   matchingElement.lastaverageprice = paperTrade.average_price;
                   matchingElement.lots += Number(paperTrade.Quantity);
+                  matchingElement.margin = margin;
                   //console.log("matchingElement", matchingElement)
       
                 } else {
@@ -55,6 +57,7 @@ exports.virtualTrade = async (req, res, otherData) => {
                     brokerage: Number(paperTrade.brokerage),
                     lots: Number(paperTrade.Quantity),
                     lastaverageprice: paperTrade.average_price,
+                    margin: margin
                   });
                 }
                 

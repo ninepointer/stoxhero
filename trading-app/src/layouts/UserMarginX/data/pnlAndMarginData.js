@@ -23,14 +23,10 @@ const PnlAndMarginData = ({marginxId}) => {
 
  
 
-  const todayAmount = pnlData.reduce((total, acc) => {
-    if (acc.lots !== 0) {
-      return total + Math.abs(acc.amount);
-    }
-    return total; // return the accumulator if the condition is false
+  const todayMargin = pnlData.reduce((total, acc) => {
+    return total + (acc.margin ? acc.margin : 0);
   }, 0);
 
-//   console.log("margin", todayAmount)
 
   useEffect(() => {
     axios.get(`${baseUrl}api/v1/marginxtrade/${marginxId}/myPnlandCreditData`,{
@@ -47,18 +43,17 @@ const PnlAndMarginData = ({marginxId}) => {
       
   }, [render, marginxId]);
 
-//   console.log("fundDetail", Number(netPnl?.toFixed(0)), fundDetail)
 
-  let totalCreditString = fundDetail?.totalFund ? fundDetail?.totalFund >= 0 ? "+₹" + fundDetail?.totalFund?.toLocaleString() : "-₹" + ((-fundDetail?.totalFund)?.toLocaleString()): "+₹0"
+  const totalCreditString = fundDetail?.totalFund ? fundDetail?.totalFund >= 0 ? "+₹" + fundDetail?.totalFund?.toLocaleString() : "-₹" + ((-fundDetail?.totalFund)?.toLocaleString()): "+₹0"
+  const runningPnl = Number(netPnl?.toFixed(0));
+  const openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
+  const availableMargin = (runningPnl < 0) ? totalRunningLots===0 ? (openingBalance-todayMargin+runningPnl) : openingBalance-todayMargin : openingBalance-todayMargin;
+  const availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹" + (-Number(availableMargin))?.toLocaleString()
+  const usedMargin = runningPnl >= 0 ? 0 : runningPnl
+  const usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin)?.toLocaleString() : "₹" + (-Number(usedMargin))?.toLocaleString()
+  const unrealisedPnl = runningPnl >= 0 ? runningPnl : 0
+  const unrealisedPnlString = unrealisedPnl >= 0 ? "₹" + Number(unrealisedPnl)?.toLocaleString() : "₹" + (-Number(unrealisedPnl))?.toLocaleString()
 
-  let runningPnl = Number(netPnl?.toFixed(0));
-  let openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
-//   let openingBalanceString = openingBalance >= 0 ? "₹" + Number(openingBalance)?.toLocaleString() : "₹" + (-Number(openingBalance))?.toLocaleString()
-  let availableMargin = openingBalance ? (totalRunningLots === 0 ? Number(openingBalance)+runningPnl : Number(openingBalance)-todayAmount) : fundDetail?.totalFund;
-  let availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹" + (-Number(availableMargin))?.toLocaleString()
-  let usedMargin = runningPnl >= 0 ? 0 : runningPnl
-  let usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin)?.toLocaleString() : "₹" + (-Number(usedMargin))?.toLocaleString()
-  
     
     return (
         <Grid container spacing={1} xs={12} md={12} lg={12}>
@@ -84,8 +79,8 @@ const PnlAndMarginData = ({marginxId}) => {
                 <MDButton style={{ minWidth: '100%' }}>
                     <MDBox display='flex' alignItems='center'>
                         <MDBox display='flex' justifyContent='flex-start'><img src={Profit} width='40px' height='40px' /></MDBox>
-                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>Gross Profit:</MDTypography></MDBox>
-                        <MDBox><MDTypography ml={1} fontSize={11}> {(pnl?.grossPnlAndBrokerage?.grossPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnl?.grossPnlAndBrokerage?.grossPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnl?.grossPnlAndBrokerage?.grossPnl))}</MDTypography></MDBox>
+                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>UnRealised Pnl:</MDTypography></MDBox>
+                        <MDBox><MDTypography ml={1} fontSize={11}> {unrealisedPnlString}</MDTypography></MDBox>
                     </MDBox>
                 </MDButton>
             </Grid>

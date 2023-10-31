@@ -136,6 +136,10 @@ async function onEdit(e,formState){
         setTimeout(()=>{setSaving(false);setEditing(true)},500)
         return openErrorSB("Missing Field","Please fill all the mandatory fields")
     }
+
+    if(Number(formState.validity) > Number(formState.expiryDays)){
+        return openErrorSB("Error","Expiry days should be greater then validity.")
+    }
     const { plan_name, actual_price, isRecommended, discounted_price, validity, validityPeriod, status, portfolio, profitCap, allowPurchase, allowRenewal, payoutPercentage, expiryDays } = formState;
 
     const res = await fetch(`${baseUrl}api/v1/tenX/${id}`, {
@@ -179,9 +183,12 @@ async function onEdit(e,formState){
   async function onSubmit(e,formState){
     e.preventDefault()
     if(!formState.plan_name || !formState.profitCap || !formState.portfolio || !formState.actual_price || !formState.discounted_price || !formState.validity || !formState.validityPeriod || !formState.status){
-    
         setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
         return openErrorSB("Missing Field","Please fill all the mandatory fields")
+    }
+
+    if(Number(formState.validity) > Number(formState.expiryDays)){
+        return openErrorSB("Error","Expiry days should be greater then validity.")
     }
     setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
     const {plan_name, actual_price, isRecommended, discounted_price, validity, validityPeriod, status, portfolio, profitCap, allowPurchase, allowRenewal, payoutPercentage, expiryDays } = formState;
