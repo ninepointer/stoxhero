@@ -17,8 +17,9 @@ exports.createCampaign = async(req, res, next)=>{
     const{
         campaignName, description, campaignFor, campaignLink, campaignCost, campaignCode, maxUsers, campaignSignupBonus, isDefault, campaignType,
         status } = req.body;
+        console.log(isDefault);
     try{
-        if(await Campaign.findOne({$or:[{campaignCode: campaignCode}, {isDefault:true}] })) return res.status(400).json({info:'This campaign code already exists.'});
+        if(await Campaign.findOne({$or:[{campaignCode: campaignCode}, {isDefault:true}] })) return res.status(400).json({info:'This campaign code already exists or there is a default code already.'});
         const campaign = await Campaign.create({campaignName:campaignName.trim(), description, campaignFor, campaignLink, campaignCost, campaignCode:campaignCode.trim(),
             status, createdBy: req.user._id, lastModifiedBy: req.user._id, maxUsers, campaignSignupBonus:{amount: campaignSignupBonus?.amount, currency:campaignSignupBonus?.currency}, isDefault, campaignType,});
         // console.log("Campaign: ",campaign)
@@ -86,7 +87,7 @@ exports.getCampaign = async (req,res,next) => {
 
 exports.getDefaultInvite = async (req,res,next) => {
   try{
-    const campaign = await Campaign.findOne({isDefault:true}).select('campaignCode campaignSignUpBonus');
+    const campaign = await Campaign.findOne({isDefault:true}).select('campaignCode campaignSignupBonus');
     return res.status(200).json({ status: 'success', message: 'Successful', data: campaign });
   }catch(e){
     console.log(e);

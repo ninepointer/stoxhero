@@ -192,6 +192,12 @@ exports.confirmOTP = async(req, res, next)=>{
     }
         // console.log("Obj:",obj)
         const newuser = await User.create(obj);
+        await UserWallet.create(
+          {
+              userId: newuser._id,
+              createdOn: new Date(),
+              createdBy:newuser._id
+        })
         const token = await newuser.generateAuthToken();
 
         const idOfUser = newuser._id;
@@ -220,12 +226,7 @@ exports.confirmOTP = async(req, res, next)=>{
             // console.log(campaignData)
         }
 
-        await UserWallet.create(
-          {
-              userId: newuser._id,
-              createdOn: new Date(),
-              createdBy:newuser._id
-        })
+      
 
         // res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
             // let email = newuser.email;

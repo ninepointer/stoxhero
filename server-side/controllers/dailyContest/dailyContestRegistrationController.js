@@ -159,6 +159,12 @@ if(!existingUser){
         }
 
             const newuser = await User.create(obj);
+            await UserWallet.create(
+                {
+                    userId: newuser._id,
+                    createdOn: new Date(),
+                    createdBy:newuser._id
+                });
             const token = await newuser.generateAuthToken();
 
             const idOfUser = newuser._id;
@@ -184,12 +190,6 @@ if(!existingUser){
                 }
             }
 
-            await UserWallet.create(
-            {
-                userId: newuser._id,
-                createdOn: new Date(),
-                createdBy:newuser._id
-            });
 
             const dailyContest = await DailyContest.findById(contest).select('_id contestName entryFee contestStartDate contestEndDate payoutPercentage potentialParticipants portfolio').populate('portfolio','portfolioValue');
             // let dailyContest = await DailyContest.findOne({_id: new ObjectId(contest)}).select('_id contestName entryFee contestStartDate contestEndDate payoutPercentage').populate('portfolio','portfolioValue')

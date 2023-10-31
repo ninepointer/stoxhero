@@ -69,6 +69,7 @@ function Cover(props) {
   let [invalidDetail, setInvalidDetail] = useState();
   const [data, setData] = useState();
   const [earnings,setEarnings] = useState([]);
+  const[defaultInvite, setDefaultInvite] = useState('');
   const [messageObj, setMessageObj] = useState({
     color: '',
     icon: '',
@@ -79,7 +80,7 @@ function Cover(props) {
   console.log('home page');
   const getMetrics = async()=>{
     const res = await axios.get(`${apiUrl}newappmetrics`);
-    console.log("New App Metrics:",res.data.data)
+    // console.log("New App Metrics:",res.data.data)
     setData(res.data.data);
   }
 
@@ -87,6 +88,12 @@ function Cover(props) {
     const res = await axios.get(`${apiUrl}contestscoreboard/earnings`);
     console.log("Earnings:",res.data.data)
     setEarnings(res.data.data);
+  }
+
+  const getDefaultInvite = async() => {
+    const res = await axios.get(`${apiUrl}campaign/defaultinvite`);
+    console.log('defaultInvite',res.data?.data);
+    setDefaultInvite(res.data.data);
   }
 
   const handleSUClick = () => {
@@ -158,7 +165,9 @@ function Cover(props) {
       } catch(err){
       }
     }  
-
+  useEffect(()=>{
+    getDefaultInvite();
+  },[]);  
   async function formSubmit() {
     setSubmitClicked(true)
     setformstate(formstate);
@@ -716,7 +725,7 @@ function Cover(props) {
                         <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                           {signup ?
                             <MDTypography fontSize={12} style={{color:'#65BA0D', textAlign:'center'}} fontWeight='bold'>
-                            Unlock your welcome bonus! Use code STOXHERO & grab ₹100 in your StoxHero wallet!
+                            Unlock your welcome bonus! Use code {defaultInvite?.campaignCode} & grab ₹{defaultInvite?.campaignSignupBonus?.amount} in your StoxHero wallet!
                           </MDTypography>
                           :
                           <MDBox ml={6} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width: '100%', minWidth: '100%'}}>

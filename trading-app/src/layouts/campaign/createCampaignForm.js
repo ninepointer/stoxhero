@@ -76,8 +76,8 @@ function Index() {
               campaignType:res.data.data?.campaignType || "",
               maxUsers:res.data.data?.maxUsers ||  "",
               amount:res.data.data?.amount ||  "",
-              currency:res.data.data?.currency ||  ""
-
+              currency:res.data.data?.currency ||  "",
+              isDefault:res.data.data?.isDefault || ""
             });
               setTimeout(()=>{setIsLoading(false)},500) 
       }).catch((err)=>{
@@ -96,7 +96,7 @@ function Index() {
       }
       // console.log("Is Submitted before State Update: ",isSubmitted)
       setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-      const {currency, campaignType, maxUsers, amount, campaignName, description, campaignCode, campaignFor, campaignLink, campaignCost, status } = formState;
+      const {currency, campaignType, maxUsers, amount, campaignName, description, campaignCode, campaignFor, campaignLink, campaignCost, status, isDefault } = formState;
       const res = await fetch(`${baseUrl}api/v1/campaign/create`, {
           method: "POST",
           credentials:"include",
@@ -105,7 +105,7 @@ function Index() {
               "Access-Control-Allow-Credentials": true
           },
           body: JSON.stringify({
-            campaignSignupBonus:{amount: amount, currency: currency} , campaignType, maxUsers, campaignName, description, campaignCode, campaignFor, campaignLink, campaignCost, status
+            campaignSignupBonus:{amount: amount, currency: currency} , campaignType, maxUsers, campaignName, description, campaignCode, campaignFor, campaignLink, campaignCost, status, isDefault
           })
       });
       
@@ -133,7 +133,7 @@ function Index() {
           setTimeout(()=>{setSaving(false);setEditing(true)},500)
           return openErrorSB("Missing Field","Please fill all the mandatory fields")
       }
-      const { currency, campaignType, maxUsers, amount, campaignName, description, campaignFor, campaignLink, campaignCode, campaignCost, status } = formState;
+      const { currency, campaignType, maxUsers, amount, campaignName, description, campaignFor, campaignLink, campaignCode, campaignCost, status, isDefault } = formState;
   
       const res = await fetch(`${baseUrl}api/v1/campaign/${id._id}`, {
           method: "PATCH",
@@ -143,7 +143,7 @@ function Index() {
               "Access-Control-Allow-Credentials": true
           },
           body: JSON.stringify({
-            campaignSignupBonus:{amount: amount, currency: currency} , campaignType, maxUsers, campaignName, description, campaignFor, campaignLink, campaignCost, campaignCode, status, 
+            campaignSignupBonus:{amount: amount, currency: currency} , campaignType, maxUsers, campaignName, description, campaignFor, campaignLink, campaignCost, campaignCode, status, isDefault 
           })
       });
   
