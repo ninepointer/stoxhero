@@ -40,7 +40,7 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
   const openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
   const openingBalanceString = openingBalance >= 0 ? "₹" + Number(openingBalance)?.toLocaleString() : "₹" + (-Number(openingBalance))?.toLocaleString()
   // const availableMargin = openingBalance ? (totalRunningLots === 0 ? Number(openingBalance)+runningPnl : Number(openingBalance)-todayAmount) : fundDetail?.totalFund;
-  const availableMargin = (runningPnl < 0) ? (openingBalance-todayMargin+runningPnl) : openingBalance-todayMargin;
+  const availableMargin = (runningPnl < 0) ? totalRunningLots===0 ? (openingBalance-todayMargin+runningPnl) : openingBalance-todayMargin : openingBalance-todayMargin;
   const availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹0"
   const usedMargin = runningPnl >= 0 ? 0 : runningPnl
   const usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin)?.toLocaleString() : "₹" + (-Number(usedMargin))?.toLocaleString()

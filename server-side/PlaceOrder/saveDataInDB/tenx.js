@@ -102,10 +102,10 @@ exports.tenxTrade = async (req, res, otherData) => {
 
     matchingElement.lots === Number(tenxDoc.Quantity);
     1. remove all stoploss of user and instrument matching also cancel in db
-    2. dont apply new stoploss
+    2. do not apply new stoploss
     
     matchingElement.lots > Number(tenxDoc.Quantity);
-    1. sustain all stoploss and dont apply new stoploss
+    1. sustain all stoploss and do not apply new stoploss
 
     matchingElement.lots < Number(tenxDoc.Quantity);
     1. remove existing stoploss and cancel in db

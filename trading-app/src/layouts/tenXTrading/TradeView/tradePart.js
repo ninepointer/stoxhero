@@ -184,7 +184,7 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
           </Grid>
 
           <Grid item xs={12} md={6} lg={12} >
-            <TenXTMargin availbaleMargin={availbaleMargin} subscriptionId={subscriptionId} setyesterdayData={setyesterdayData} />
+            <TenXTMargin subscriptionId={subscriptionId} setyesterdayData={setyesterdayData} />
           </Grid>
         </Grid>
 

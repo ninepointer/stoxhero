@@ -7,7 +7,7 @@ import MDBox from '../../../components/MDBox';
 import DefaultInfoCard from "../../../examples/Cards/InfoCards/DefaultInfoCard";
 
 const MarginGrid = () => {
-  const { netPnl, pnlData  } = useContext(NetPnlContext);
+  const { netPnl, pnlData, totalRunningLots  } = useContext(NetPnlContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [fundDetail, setFundDetail] = useState({});
 
@@ -38,7 +38,7 @@ const MarginGrid = () => {
   const runningPnl = Number(netPnl?.toFixed(0));
   const openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
 
-  const availableMargin = (runningPnl < 0) ? (openingBalance-todayMargin+runningPnl) : openingBalance-todayMargin;
+  const availableMargin = (runningPnl < 0) ? totalRunningLots===0 ? (openingBalance-todayMargin+runningPnl) : openingBalance-todayMargin : openingBalance-todayMargin;
   const availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹0"
 
   const usedMargin = runningPnl >= 0 ? 0 : runningPnl

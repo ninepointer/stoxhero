@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import {  memo } from 'react';
+import { memo } from 'react';
 // import axios from "axios"
 import uniqid from "uniqid"
 import { userContext } from "../../AuthContext";
@@ -18,16 +18,15 @@ import MDButton from '../../components/MDButton';
 import MDSnackbar from '../../components/MDSnackbar';
 import { Box, Typography } from '@mui/material';
 import { renderContext } from "../../renderContext";
-import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader, marginX, battle } from "../../variables";
+import { dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader, marginX, battle } from "../../variables";
 import { NetPnlContext } from "../../PnlContext";
 import MDTypography from "../../components/MDTypography";
 import MDBox from "../../components/MDBox";
-import SellModel from "./SellModel";
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
-const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, module}) => {
+const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, module }) => {
 
   const newLtp = ltp;
   const { pnlData } = useContext(NetPnlContext);
@@ -38,9 +37,9 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
     return total; // return the accumulator if the condition is false
   }, 0);
 
-  console.log(runningLotsSymbol)
+  console.log(runningLotsSymbol, "runningLotsSymbol")
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  const {render, setRender} = useContext(renderContext);
+  const { render, setRender } = useContext(renderContext);
   const getDetails = React.useContext(userContext);
   const tradeSound = getDetails.tradeSound;
   let uId = uniqid();
@@ -48,17 +47,17 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
   let createdBy = getDetails.userDetails.name;
   let userId = getDetails.userDetails.email;
   let trader = getDetails.userDetails._id;
-  let dummyOrderId = `${date.getFullYear()-2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000+ Math.random() * 900000000)}`
+  let dummyOrderId = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
   const [messageObj, setMessageObj] = useState({
     color: '',
     icon: '',
     title: '',
     content: ''
   })
-  let finalLot = maxLot/lotSize;
+  let finalLot = maxLot / lotSize;
   let optionData = [];
-  for(let i =1; i<= finalLot; i++){
-      optionData.push( <MenuItem value={i * lotSize}>{ i * lotSize}</MenuItem>)      
+  for (let i = 1; i <= finalLot; i++) {
+    optionData.push(<MenuItem value={i * lotSize}>{i * lotSize}</MenuItem>)
   }
 
   const [buttonClicked, setButtonClicked] = useState(false);
@@ -86,8 +85,8 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
     validity: "",
   })
 
-  useEffect(()=>{
-    socket?.on(`sendResponse${trader.toString()}`, (data)=>{
+  useEffect(() => {
+    socket?.on(`sendResponse${trader.toString()}`, (data) => {
       // render ? setRender(false) : setRender(true);
       openSuccessSB(data.status, data.message)
     })
@@ -116,37 +115,43 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
   // };
 
   const handleClickOpen = async () => {
-    if(fromSearchInstrument){
+    if (fromSearchInstrument) {
       addInstrument();
       render ? setRender(false) : setRender(true);
     }
 
     buyFormDetails.Quantity = lotSize;
-    await checkMargin();
+    setCheckQuantity(lotSize)
+    if (Math.abs(runningLotsSymbol) && runningLotsSymbol < 0) {
+      setMargin("0.00");
+    } else {
+      await checkMargin();
+    }
+
     setOrdertype("MARKET")
     setButtonClicked(false);
     setOpen(true);
 
-  }; 
+  };
 
   const handleClose = async (e) => {
-    if(fromSearchInstrument){
+    if (fromSearchInstrument) {
       removeInstrument();
       render ? setRender(false) : setRender(true);
     }
-    
+
     setOpen(false);
-    if(isOption){
-        setOpenOptionChain(false) 
+    if (isOption) {
+      setOpenOptionChain(false)
     }
-    
+
     setMessageObj({});
     setErrorMessageStopLoss("");
     setErrorMessageStopProfit("");
     setErrorMessageQuantity("");
     setBuyFormDetails({});
     setOrdertype("");
-    // setCheckQuantity(null);
+    setCheckQuantity(null);
     setMargin(null);
     setBuyState(false);
     setButtonClicked(false);
@@ -155,11 +160,11 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
   const stopLoss = async (e) => {
     setErrorMessageStopLoss("")
     buyFormDetails.stopLossPrice = e.target.value
-    if(Number(newLtp) < Number(e.target.value)){//errorMessage
-      const text  = "Stop Loss price should be less then LTP.";
+    if (Number(newLtp) < Number(e.target.value)) {//errorMessage
+      const text = "Stop Loss price should be less then LTP.";
       setErrorMessageStopLoss(text)
     }
-    if(e.target.value === ""){
+    if (e.target.value === "") {
       buyFormDetails.stopLossPrice = false;
     }
   }
@@ -168,46 +173,46 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
   const stopProfit = async (e) => {
     setErrorMessageStopProfit("")
     buyFormDetails.stopProfitPrice = e.target.value
-    if(Number(newLtp) > Number(e.target.value)){
+    if (Number(newLtp) > Number(e.target.value)) {
       setErrorMessageStopProfit("Stop Profit price should be greater then LTP.")
     }
-    if(e.target.value === ""){
+    if (e.target.value === "") {
       buyFormDetails.stopProfitPrice = false;
     }
   }
 
   async function buyFunction(e, uId) {
-    if(!buyFormDetails.Quantity){
+    if (!buyFormDetails.Quantity) {
       openSuccessSB('error', "Please select quantity for trade.");
       return;
     }
 
-    if(buyFormDetails.Quantity > maxLot){
+    if (buyFormDetails.Quantity > maxLot) {
       setErrorMessageQuantity(`Quantity must be lower than max limit: ${maxLot}`)
       return;
     }
-    if(buyFormDetails.Quantity % lotSize !== 0){
-      setErrorMessageQuantity(`The quantity should be a multiple of ${lotSize}. Try again with ${parseInt(buyFormDetails.Quantity/lotSize) * lotSize} or ${parseInt(buyFormDetails.Quantity/lotSize + 1) * lotSize}.`)
+    if (buyFormDetails.Quantity % lotSize !== 0) {
+      setErrorMessageQuantity(`The quantity should be a multiple of ${lotSize}. Try again with ${parseInt(buyFormDetails.Quantity / lotSize) * lotSize} or ${parseInt(buyFormDetails.Quantity / lotSize + 1) * lotSize}.`)
       return;
     }
-    if(buyFormDetails.Quantity < lotSize){
+    if (buyFormDetails.Quantity < lotSize) {
       setErrorMessageQuantity(`Quantity must be greater than min limit: ${lotSize}`)
       return;
     }
 
-    if(buyFormDetails.OrderType === "SL/SP-M" && (!buyFormDetails.stopLossPrice && !buyFormDetails.stopProfitPrice)){
+    if (buyFormDetails.OrderType === "SL/SP-M" && (!buyFormDetails.stopLossPrice && !buyFormDetails.stopProfitPrice)) {
       openSuccessSB('error', "Please enter stop loss or stop profit price.");
       return;
     }
 
-    if(buttonClicked){
+    if (buttonClicked) {
       // setButtonClicked(false);
       return;
     }
     setButtonClicked(true);
     e.preventDefault()
     setOpen(false);
-    if(isOption){
+    if (isOption) {
       setOpenOptionChain(false)
     }
     setBuyState(false);
@@ -233,107 +238,107 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
   async function placeOrder() {
     // console.log("exchangeInstrumentToken", exchangeInstrumentToken)
     const { exchange, symbol, buyOrSell, Quantity, Product, OrderType, TriggerPrice, stopProfitPrice, stopLoss, stopLossPrice, validity, variety, price } = buyFormDetails;
-    let endPoint 
+    let endPoint
     let paperTrade = false;
     let tenxTraderPath;
-    let internPath ;
-    let fromAdmin ;
-    if(from === paperTrader){
+    let internPath;
+    let fromAdmin;
+    if (from === paperTrader) {
       endPoint = 'paperTrade';
       paperTrade = true;
-    } else if(from === infinityTrader){
+    } else if (from === infinityTrader) {
       endPoint = 'placingOrder';
       paperTrade = false;
-    } else if(from === tenxTrader){
+    } else if (from === tenxTrader) {
       endPoint = 'tenxPlacingOrder';
       tenxTraderPath = true;
-    }else if(from === internshipTrader){
+    } else if (from === internshipTrader) {
       endPoint = 'internPlacingOrder';
       internPath = true;
-    }else if(from === "Admin"){
+    } else if (from === "Admin") {
       endPoint = 'placingOrder'
       paperTrade = false;
       trader = traderId;
       fromAdmin = true;
-    }else if(from === dailyContest){
-      if(module?.currentLiveStatus==="Live"){
+    } else if (from === dailyContest) {
+      if (module?.currentLiveStatus === "Live") {
         endPoint = 'placingLiveOrderDailyContest';
-      } else{
+      } else {
         endPoint = 'placingOrderDailyContest';
       }
-    }else if(from === marginX){
+    } else if (from === marginX) {
       endPoint = 'placingOrderMarginx';
-    }else if(from === battle){
+    } else if (from === battle) {
       endPoint = 'battleTrade';
     }
 
     console.log("module", module)
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
-        method: "POST",
-        credentials:"include",
-        headers: {
-            "content-type": "application/json"
-        },
-        body: JSON.stringify({
-          exchange, symbol, buyOrSell, Quantity, stopLoss, contestId: module?.data, battleId: subscriptionId,
-          Product, OrderType, TriggerPrice, stopProfitPrice, stopLossPrice, uId, exchangeInstrumentToken, fromAdmin,
-          validity, variety, createdBy, order_id:dummyOrderId, subscriptionId, marginxId: subscriptionId,
-          userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath, price
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        exchange, symbol, buyOrSell, Quantity, stopLoss, contestId: module?.data, battleId: subscriptionId,
+        Product, OrderType, TriggerPrice, stopProfitPrice, stopLossPrice, uId, exchangeInstrumentToken, fromAdmin,
+        validity, variety, createdBy, order_id: dummyOrderId, subscriptionId, marginxId: subscriptionId,
+        userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath, price
 
-        })
+      })
     });
     const dataResp = await res.json();
     if (dataResp.status === 422 || dataResp.error || !dataResp) {
-        openSuccessSB('error', dataResp.error)
+      openSuccessSB('error', dataResp.error)
     } else {
       tradeSound.play();
-        if(dataResp.message === "COMPLETE"){
-            openSuccessSB('complete', {symbol, Quantity})
-        } else if(dataResp.message === "REJECTED"){
-            openSuccessSB('reject', "Trade is Rejected due to Insufficient Fund")
-        } else if(dataResp.message === "AMO REQ RECEIVED"){
-            openSuccessSB('amo', "AMO Request Recieved")
-        } else if(dataResp.message === "Live"){
-        } else{
-            openSuccessSB('else', dataResp.message)
-        }
+      if (dataResp.message === "COMPLETE") {
+        openSuccessSB('complete', { symbol, Quantity })
+      } else if (dataResp.message === "REJECTED") {
+        openSuccessSB('reject', "Trade is Rejected due to Insufficient Fund")
+      } else if (dataResp.message === "AMO REQ RECEIVED") {
+        openSuccessSB('amo', "AMO Request Recieved")
+      } else if (dataResp.message === "Live") {
+      } else {
+        openSuccessSB('else', dataResp.message)
+      }
     }
     setBuyFormDetails({});
     render ? setRender(false) : setRender(true)
   }
 
-  async function addInstrument(){
+  async function addInstrument() {
     const res = await fetch(`${baseUrl}api/v1/addInstrument`, {
       method: "POST",
-      credentials:"include",
+      credentials: "include",
       headers: {
-          "content-type" : "application/json",
-          "Access-Control-Allow-Credentials": true
+        "content-type": "application/json",
+        "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        instrument: symbolName, exchange, status: "Active", 
+        instrument: symbolName, exchange, status: "Active",
         symbol, lotSize, instrumentToken, from, chartInstrument,
         uId, contractDate: expiry, maxLot, notInWatchList: true,
-        exchangeSegment, exchangeInstrumentToken, 
+        exchangeSegment, exchangeInstrumentToken,
       })
     });
-  
+
     const data = await res.json();
-    if(data.status === 422 || data.error || !data){
-        window.alert(data.error);
-    }else{
+    if (data.status === 422 || data.error || !data) {
+      window.alert(data.error);
+    } else {
       // openSuccessSB();
       //console.log(data.message)
     }
   }
 
-  async function removeInstrument(){
+  async function removeInstrument() {
     const response = await fetch(`${baseUrl}api/v1/inactiveInstrument/${instrumentToken}`, {
       method: "PATCH",
-      credentials:"include",
+      credentials: "include",
       headers: {
-          "Accept": "application/json",
-          "content-type": "application/json"
+        "Accept": "application/json",
+        "content-type": "application/json"
       },
       body: JSON.stringify({
         isAddedWatchlist: false, from
@@ -343,40 +348,40 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
     const permissionData = await response.json();
     //console.log("remove", permissionData)
     if (permissionData.status === 422 || permissionData.error || !permissionData) {
-        window.alert(permissionData.error);
-    }else {
+      window.alert(permissionData.error);
+    } else {
     }
   }
 
   const [successSB, setSuccessSB] = useState(false);
 
-  const openSuccessSB = (value,content) => {
-    if(value === "complete"){
-        messageObj.color = 'success'
-        messageObj.icon = 'check'
-        messageObj.title = "Trade Successful";
-        messageObj.content = `Traded ${content.Quantity} of ${content.symbol}`;
-        setSuccessSB(true);
+  const openSuccessSB = (value, content) => {
+    if (value === "complete") {
+      messageObj.color = 'success'
+      messageObj.icon = 'check'
+      messageObj.title = "Trade Successful";
+      messageObj.content = `Traded ${content.Quantity} of ${content.symbol}`;
+      setSuccessSB(true);
     };
-    if(value === "reject"){
+    if (value === "reject") {
       messageObj.color = 'error'
       messageObj.icon = 'error'
       messageObj.title = "REJECTED";
       messageObj.content = content;
     };
-    if(value === "amo"){
+    if (value === "amo") {
       messageObj.color = 'info'
       messageObj.icon = 'warning'
       messageObj.title = "AMO Requested";
       messageObj.content = content;
     };
-    if(value === "else"){
+    if (value === "else") {
       messageObj.color = 'error'
       messageObj.icon = 'error'
       messageObj.title = "REJECTED";
       messageObj.content = content;
     };
-    if(value === "error"){
+    if (value === "error") {
       messageObj.color = 'error'
       messageObj.icon = 'error'
       messageObj.title = "Error";
@@ -389,99 +394,111 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
   const closeSuccessSB = () => setSuccessSB(false);
   const renderSuccessSB = (
     <MDSnackbar
-      color= {messageObj.color}
-      icon= {messageObj.icon}
+      color={messageObj.color}
+      icon={messageObj.icon}
       title={messageObj.title}
       content={messageObj.content}
       open={successSB}
       onClose={closeSuccessSB}
       close={closeSuccessSB}
       bgWhite="info"
-      sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto"}}
+      sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto" }}
     />
   );
 
-    const [checkQuantity, setCheckQuantity] = useState(lotSize);
-    const [margin, setMargin] = useState();
+  const [checkQuantity, setCheckQuantity] = useState(lotSize);
+  const [margin, setMargin] = useState();
 
-    async function handleQuantity(e){
-      e.preventDefault();
-      buyFormDetails.Quantity = Math.abs(e.target.value);
-      setCheckQuantity(e.target.value);
+  async function handleQuantity(e) {
+    e.preventDefault();
+    buyFormDetails.Quantity = Math.abs(e.target.value);
+    setCheckQuantity(e.target.value);
 
-      setMargin(null);
-      setErrorMessageQuantity("")
-      if((e.target.value > maxLot) || (e.target.value % lotSize !== 0) || (e.target.value < lotSize)){
-        return;
-      }
+    setMargin(null);
+    setErrorMessageQuantity("")
 
-      if(buyFormDetails.OrderType==="LIMIT" && buyFormDetails.price){
-        await checkMargin();
-      }
-      if(buyFormDetails.OrderType!=="LIMIT"){
-        await checkMargin();
-      }
-      
+    if (e.target.value <= Math.abs(runningLotsSymbol) && runningLotsSymbol < 0) {
+      return setMargin("0.00");
     }
 
-    const priceChange = async(e)=>{
-      buyFormDetails.price = e.target.value;
-      if(buyFormDetails.Quantity){
-        await checkMargin();
-      }
+    if ((e.target.value > maxLot) || (e.target.value % lotSize !== 0) || (e.target.value < lotSize)) {
+      return;
     }
 
-    const checkMargin = async()=>{
-      const { Quantity, Product, OrderType, validity, variety, price } = buyFormDetails;
-
-      const response = await fetch(`${baseUrl}api/v1/marginrequired`, {
-        method: "PATCH",
-        credentials:"include",
-        headers: {
-            "Accept": "application/json",
-            "content-type": "application/json"
-        },
-        body: JSON.stringify({
-          exchange, symbol, buyOrSell: "BUY", Quantity, Product, OrderType, validity, variety, price, last_price: newLtp
-        })
-      });
-
-      const data = await response.json();
-      setMargin(data?.margin);
-      // console.log("response", data)
-    }
-
-    async function removeQuantity(){
-      if(buyFormDetails.Quantity % lotSize !== 0){
-        setCheckQuantity(parseInt(buyFormDetails.Quantity/lotSize) * lotSize)
-        buyFormDetails.Quantity  = parseInt(buyFormDetails.Quantity/lotSize) * lotSize
-      } else{
-        buyFormDetails.Quantity -= lotSize
-        setCheckQuantity(prev => prev-lotSize)
-      }
-
+    if (buyFormDetails.OrderType === "LIMIT" && buyFormDetails.price && checkQuantity) {
       await checkMargin();
-      setErrorMessageQuantity("")
     }
-
-
-    async function addQuantity(){
-      if(buyFormDetails.Quantity % lotSize !== 0){
-        setCheckQuantity(parseInt(buyFormDetails.Quantity/lotSize + 1) * lotSize)
-        buyFormDetails.Quantity  = parseInt(buyFormDetails.Quantity/lotSize + 1) * lotSize
-      } else{
-        buyFormDetails.Quantity += lotSize
-        setCheckQuantity(prev => prev+lotSize)
-      }
-
+    if (buyFormDetails.OrderType !== "LIMIT" && checkQuantity) {
       await checkMargin();
-      setErrorMessageQuantity("")
     }
+
+  }
+
+  const priceChange = async (e) => {
+    buyFormDetails.price = e.target.value;
+    if (buyFormDetails.Quantity && buyFormDetails.price) {
+      await checkMargin();
+    }
+  }
+
+  const checkMargin = async () => {
+    const { Quantity, Product, OrderType, validity, variety, price } = buyFormDetails;
+
+    const response = await fetch(`${baseUrl}api/v1/marginrequired`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Accept": "application/json",
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        exchange, symbol, buyOrSell: "BUY", Quantity: runningLotsSymbol < 0 ? Quantity - Math.abs(runningLotsSymbol) : Quantity, Product, OrderType, validity, variety, price, last_price: Number(newLtp)
+      })
+    });
+
+    const data = await response.json();
+    setMargin(data?.margin);
+    // console.log("response", data)
+  }
+
+  async function removeQuantity() {
+    if (buyFormDetails.Quantity % lotSize !== 0) {
+      setCheckQuantity(parseInt(buyFormDetails.Quantity / lotSize) * lotSize)
+      buyFormDetails.Quantity = parseInt(buyFormDetails.Quantity / lotSize) * lotSize
+    } else {
+      buyFormDetails.Quantity -= lotSize
+      setCheckQuantity(prev => prev - lotSize)
+    }
+
+    if (buyFormDetails.Quantity <= Math.abs(runningLotsSymbol) && runningLotsSymbol < 0) {
+      return setMargin("0.00");
+    }
+
+    await checkMargin();
+    setErrorMessageQuantity("")
+  }
+
+  async function addQuantity() {
+    if (buyFormDetails.Quantity % lotSize !== 0) {
+      setCheckQuantity(parseInt(buyFormDetails.Quantity / lotSize + 1) * lotSize)
+      buyFormDetails.Quantity = parseInt(buyFormDetails.Quantity / lotSize + 1) * lotSize
+    } else {
+      buyFormDetails.Quantity += lotSize
+      setCheckQuantity(prev => prev + lotSize)
+    }
+
+    if (buyFormDetails.Quantity <= Math.abs(runningLotsSymbol) && runningLotsSymbol < 0) {
+      return setMargin("0.00");
+    }
+
+    await checkMargin();
+    setErrorMessageQuantity("")
+  }
 
   return (
     <div>
 
-      <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={handleClickOpen} >
+      <MDButton size="small" color="info" sx={{ marginRight: 0.5, minWidth: 2, minHeight: 3 }} onClick={handleClickOpen} >
         B
       </MDButton>
       <div>
@@ -490,41 +507,31 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
           open={open}
           onClose={handleClose}
           aria-labelledby="responsive-dialog-title">
-          {/* <DialogTitle >
-            <MDBox sx={{display: "flex", justifyContent: 'center', textAlign: "center"}}>
-                <MDBox sx={{backgroundColor: "#1A73E8", color: "#ffffff", minHeight: "2px", width: "160px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}>
-                  Buy
-                </MDBox>
-                <MDBox onClick={()=>{setOpen(false)}} sx={{backgroundColor: "#F44335", color: "#ffffff", minHeight: "2px", width: "160px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}>
-                   <SellModel />
-                </MDBox>
-              </MDBox>
-          </DialogTitle> */}
           <DialogContent>
-            <DialogContentText sx={{ display: "flex", flexDirection: "column", marginLeft: 2, justifyContent: "center" , width: "320px"}}>
+            <DialogContentText sx={{ display: "flex", flexDirection: "column", marginLeft: 2, justifyContent: "center", width: "320px" }}>
 
               <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center" }}>
                 <MDBox sx={{ backgroundColor: "#ffffff", color: "#8D91A8", width: "150px", borderRadius: "5px", fontWeight: 600, fontSize: "13px", textAlign: "left" }}>
                   Variety : Regular
                 </MDBox>
-                <MDBox sx={{ backgroundColor: "#ffffff", color: "#8D91A8", width: "150px", borderRadius: "5px", fontWeight: 600, fontSize: "13px", textAlign: "right"  }}>
+                <MDBox sx={{ backgroundColor: "#ffffff", color: "#8D91A8", width: "150px", borderRadius: "5px", fontWeight: 600, fontSize: "13px", textAlign: "right" }}>
                   Symbol : {symbolName}
                 </MDBox>
               </MDBox>
               <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center", marginBottom: "20px" }}>
-                <MDBox sx={{ backgroundColor: "#ffffff", color: "#8D91A8", width: "150px", borderRadius: "5px", fontWeight: 600, fontSize: "13px", textAlign: "left"  }}>
+                <MDBox sx={{ backgroundColor: "#ffffff", color: "#8D91A8", width: "150px", borderRadius: "5px", fontWeight: 600, fontSize: "13px", textAlign: "left" }}>
                   Exchange : NFO
                 </MDBox>
-                <MDBox sx={{ backgroundColor: "#ffffff", color: "#8D91A8", width: "150px", borderRadius: "5px", fontWeight: 600, fontSize: "13px", textAlign: "right"  }}>
+                <MDBox sx={{ backgroundColor: "#ffffff", color: "#8D91A8", width: "150px", borderRadius: "5px", fontWeight: 600, fontSize: "13px", textAlign: "right" }}>
                   LTP : ₹{ltp}
                 </MDBox>
               </MDBox>
 
-              <MDBox sx={{display: "flex", justifyContent: 'space-between', textAlign: "center"}}>
-                <MDBox sx={{backgroundColor: "#1A73E8", color: "#ffffff", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}>
+              <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center" }}>
+                <MDBox sx={{ backgroundColor: "#1A73E8", color: "#ffffff", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}>
                   Intraday (Same day)
                 </MDBox>
-                <MDBox sx={{color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
+                <MDBox sx={{ color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
                   Delivery (Longterm)
                 </MDBox>
               </MDBox>
@@ -532,16 +539,16 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
               <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center", marginTop: "10px" }}>
                 <MDBox sx={{ display: "flex", justifyContent: "space-between", alignContent: "center", alignItems: "center", width: "140px", borderRadius: "5px", cursor: "pointer", border: "0.5px solid #D2D6DA" }}>
                   <MDBox>
-                  <RemoveIcon  onClick={(checkQuantity !== lotSize && checkQuantity > lotSize) ? removeQuantity : ()=>{}} sx={{marginLeft: "2px", marginTop: "5px", disabled: true}}  />
+                    <RemoveIcon onClick={(checkQuantity !== lotSize && checkQuantity > lotSize) ? removeQuantity : () => { }} sx={{ marginLeft: "2px", marginTop: "5px", disabled: true }} />
                   </MDBox>
 
                   <MDBox>
-                    <input onChange={(e)=>{handleQuantity(e)}} style={{  width: "70px", height: "35px", border: "none", outline: "none", fontSize: "15px", textAlign: "center" }} value={checkQuantity}></input>
+                    <input onChange={(e) => { handleQuantity(e) }} style={{ width: "70px", height: "35px", border: "none", outline: "none", fontSize: "15px", textAlign: "center" }} value={checkQuantity}></input>
                   </MDBox>
 
                   <MDBox>
-                    
-                    <AddIcon onClick={(checkQuantity !== maxLot && checkQuantity < maxLot) ? addQuantity : ()=>{}} sx={{marginRight: "2px", marginTop: "5px"}} />
+
+                    <AddIcon onClick={(checkQuantity !== maxLot && checkQuantity < maxLot) ? addQuantity : () => { }} sx={{ marginRight: "2px", marginTop: "5px" }} />
                   </MDBox>
 
 
@@ -565,57 +572,58 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
 
 
               <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", alignContent: "center" }}>
-                  <Typography fontSize={15} color={"error"}> {buyFormDetails.stopLossPrice && errorMessageStopLoss && errorMessageStopLoss}</Typography>
-                  <Typography fontSize={15} color={"error"}>{buyFormDetails.stopProfitPrice && errorMessageStopProfit && errorMessageStopProfit}</Typography>
-                  <Typography fontSize={15} color={"error"}>{errorMessageQuantity && errorMessageQuantity}</Typography>
+                <Typography fontSize={15} color={"error"}> {buyFormDetails.stopLossPrice && errorMessageStopLoss && errorMessageStopLoss}</Typography>
+                <Typography fontSize={15} color={"error"}>{buyFormDetails.stopProfitPrice && errorMessageStopProfit && errorMessageStopProfit}</Typography>
+                <Typography fontSize={15} color={"error"}>{errorMessageQuantity && errorMessageQuantity}</Typography>
               </Box>
 
-              <MDBox sx={{display: "flex", justifyContent: 'space-between', textAlign: "center", gap: "5px", marginTop: "20px"}}>
-                <MDBox onClick={()=>{marketHandleChange("MARKET")}} sx={{backgroundColor: ordertype==="MARKET" ? "#1A73E8" : "#FFFFFF", color: ordertype==="MARKET" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype!=="MARKET" && ".5px solid #8D91A8" }}>
+              <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center", gap: "5px", marginTop: "20px" }}>
+                <MDBox onClick={() => { marketHandleChange("MARKET") }} sx={{ backgroundColor: ordertype === "MARKET" ? "#1A73E8" : "#FFFFFF", color: ordertype === "MARKET" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "MARKET" && ".5px solid #8D91A8" }}>
                   Market
                 </MDBox>
-
-                <MDBox onClick={()=>{marketHandleChange("LIMIT")}} sx={{backgroundColor: ordertype==="LIMIT" ? "#1A73E8" : "#FFFFFF", color: ordertype==="LIMIT" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype!=="LIMIT" && ".5px solid #8D91A8" }}>
+                {/* onClick={()=>{marketHandleChange("LIMIT")}} */}
+                <MDBox sx={{ backgroundColor: ordertype === "LIMIT" ? "#1A73E8" : "#FFFFFF", color: ordertype === "LIMIT" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "LIMIT" && ".5px solid #8D91A8" }}>
                   Limit
                 </MDBox>
 
-                <MDBox onClick={()=>{marketHandleChange("SL/SP-M")}} sx={{backgroundColor: ordertype==="SL/SP-M" ? "#1A73E8" : "#FFFFFF", color: ordertype==="SL/SP-M" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype!=="SL/SP-M" && ".5px solid #8D91A8" }}>
-                 SL/SP-M
+                <MDBox onClick={from === "TenX Trader" ? () => { marketHandleChange("SL/SP-M") } : () => { }} sx={{ backgroundColor: ordertype === "SL/SP-M" ? "#1A73E8" : "#FFFFFF", color: ordertype === "SL/SP-M" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "SL/SP-M" && ".5px solid #8D91A8" }}>
+                  SL/SP-M
                 </MDBox>
               </MDBox>
 
-              <MDBox sx={{display: "flex", justifyContent: 'space-between', textAlign: "center", gap: "5px", marginTop: "20px"}}>
-                <MDBox sx={{backgroundColor: "#1A73E8", color: "#ffffff", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}>
+              <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center", gap: "5px", marginTop: "20px" }}>
+                <MDBox sx={{ backgroundColor: "#1A73E8", color: "#ffffff", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}>
                   Day
                 </MDBox>
 
-                <MDBox sx={{color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
+                <MDBox sx={{ color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
                   Immediate
                 </MDBox>
 
-                <MDBox sx={{color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
-                 Minute
+                <MDBox sx={{ color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
+                  Minute
                 </MDBox>
               </MDBox>
 
               {margin &&
-              <MDBox sx={{display: "flex", justifyContent: "left", alignContent: "center", alignItems: "center", marginTop: "5px"}}>
-                <MDTypography sx={{fontSize: "14px", color: "#000000", fontWeight: 500 }}>Margin required:</MDTypography>
-                <MDTypography sx={{fontSize: "14px", color: "#000000", fontWeight: 500 ,marginLeft: "4px"}}> <b>₹{margin}</b></MDTypography>
-                <MDTypography sx={{fontSize: "14px", color: "#000000", fontWeight: 500, marginTop: "4px", marginLeft: "4px" }}> <span><RefreshIcon onClick={async ()=>{await checkMargin()}} sx={{cursor: "pointer"}} /></span> </MDTypography>
-              </MDBox>}
-              
+                <MDBox sx={{ display: "flex", justifyContent: "left", alignContent: "center", alignItems: "center", marginTop: "5px" }}>
+                  <MDTypography sx={{ fontSize: "14px", color: "#000000", fontWeight: 500 }}>Margin required:</MDTypography>
+                  <MDTypography sx={{ fontSize: "14px", color: "#000000", fontWeight: 500, marginLeft: "4px" }}> <b>₹{margin}</b></MDTypography>
+                  <MDTypography sx={{ fontSize: "14px", color: "#000000", fontWeight: 500, marginTop: "4px", marginLeft: "4px" }}> <span><RefreshIcon onClick={async () => { await checkMargin() }} sx={{ cursor: "pointer" }} /></span> </MDTypography>
+                </MDBox>}
+
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <MDButton 
-            disabled={(buyFormDetails.stopLossPrice && (Number(ltp) < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (Number(ltp) > buyFormDetails.stopProfitPrice))} 
-            autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
-              BUY
-            </MDButton>
             <MDButton variant="contained" color="info" onClick={handleClose} autoFocus>
               Cancel
             </MDButton>
+            <MDButton
+              disabled={(buyFormDetails.stopLossPrice && (Number(ltp) < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (Number(ltp) > buyFormDetails.stopProfitPrice))}
+              autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
+              BUY
+            </MDButton>
+
           </DialogActions>
         </Dialog>
       </div >

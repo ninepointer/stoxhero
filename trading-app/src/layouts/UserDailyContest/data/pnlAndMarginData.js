@@ -42,7 +42,7 @@ const PnlAndMarginData = ({contestId}) => {
   const totalCreditString = fundDetail?.totalFund ? fundDetail?.totalFund >= 0 ? "+₹" + fundDetail?.totalFund?.toLocaleString() : "-₹" + ((-fundDetail?.totalFund)?.toLocaleString()): "+₹0"
   const runningPnl = Number(netPnl?.toFixed(0));
   const openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
-  const availableMargin = (runningPnl < 0) ? (openingBalance-todayMargin+runningPnl).toFixed(0) : (openingBalance-todayMargin).toFixed(0) ;
+  const availableMargin = (runningPnl < 0) ? totalRunningLots===0 ? (openingBalance-todayMargin+runningPnl) : openingBalance-todayMargin : openingBalance-todayMargin;
   const availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹" + (-Number(availableMargin))?.toLocaleString()
   const usedMargin = runningPnl >= 0 ? 0 : runningPnl
   const usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin)?.toLocaleString() : "₹" + (-Number(usedMargin))?.toLocaleString()
