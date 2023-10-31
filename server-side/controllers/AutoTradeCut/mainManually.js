@@ -12,9 +12,20 @@ const MarginX = require("../../models/marginX/marginX");
 const BattleTrade = require("../../models/battle/battleTrade");
 const Battle = require("../../models/battle/battle");
 const { creditAmountToWalletBattle } = require("../../controllers/battles/battleTradeController");
-
+const {client} = require("../../marketData/redisClient");
+const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema");
 
 const autoCutMainManually = async () => {
+    const updates = await PendingOrder.updateMany(
+        {
+            status:'Pending'
+        },{
+            $set: {
+                status: "Cancelled"
+            }
+        }
+    )
+    await client.del(`stoploss-stopprofit`);
     await infinityTradeLive();
     await contestTradeLive();
 }
@@ -170,6 +181,7 @@ const changeStatus = async () => {
 
     await changeStatus();
 }
+
 const changeMarginXStatus = async () => {
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -281,6 +293,7 @@ const creditAmount = async () => {
 
     await creditAmount();
 }
+
 const creditAmountMarginX = async () => {
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -334,6 +347,7 @@ const changeContestStatus = async () => {
 
     });
 }
+
 const changeMarginXDocStatus = async () => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -360,7 +374,6 @@ const changeMarginXDocStatus = async () => {
 
     });
 }
-
 
 const changeBattleStatus = async () => {
     let date = new Date();

@@ -194,6 +194,7 @@ exports.tenxTradeStopLoss = async () => {
 
                         const update = await PendingOrder.findOne({ _id: new ObjectId(symbolArr[i]._id) })
                         update.status = "Cancelled";
+                        update.execution_time = new Date();
                         await update.save();
                             console.log("in if index2", index2)
                         index2 = i;
@@ -211,7 +212,10 @@ exports.tenxTradeStopLoss = async () => {
                 }
 
                 const update = await PendingOrder.updateOne({ _id: new ObjectId(_id) }, {
-                    $set: { status: "Executed" }
+                    $set: {
+                         status: "Executed",
+                         execution_time: new Date()
+                         }
                 })
                 data[`${instrumentToken}`] = symbolArr;
                 const myDAta = await client.set('stoploss-stopprofit', JSON.stringify(data));

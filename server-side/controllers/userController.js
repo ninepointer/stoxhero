@@ -1086,3 +1086,9 @@ exports.getReferralsBetweenDates = async (req, res, next) => {
   console.log("Referrals",referrals.length)
   res.status(201).json({ message: "Referrals Recieved", data: referrals.length });
 }
+
+exports.checkUserExist = async(req, res)=>{
+  const {mobile} = req.params;
+  const findUser = await UserDetail.findOne({mobile: mobile});
+  res.status(201).json({ status: "success", data: findUser ? true : false});
+}
