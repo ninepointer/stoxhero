@@ -22,6 +22,13 @@ const referralProgramSchema = new mongoose.Schema({
         type:Number,
         required: true
     },
+    referralSignupBonus:{
+        amount: Number,
+        currency: {
+            type: String,
+            enum:['Cash', 'Bonus']
+        }
+    },
     currency:{
         type:String,
         required: true,

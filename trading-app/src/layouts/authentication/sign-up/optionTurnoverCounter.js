@@ -33,7 +33,7 @@ function SignupCounter({ initialCount }) {
           <MDTypography fontSize={25} fontWeight='bold' style={{color:'#65BA0D'}}>₹{Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(signups)}</MDTypography>
         </Grid>
         <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
-          <MDTypography fontSize={15} fontWeight='bold' style={{fontFamily:'Lucida Sans', color:'#315c45'}}>F&O Turnover</MDTypography>
+          <MDTypography fontSize={15} fontWeight='bold' style={{fontFamily:'Lucida Sans', color:'#315c45'}}>Total Trade Turnover</MDTypography>
         </Grid>
       </Grid>
     </MDBox>

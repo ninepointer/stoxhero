@@ -109,11 +109,9 @@ exports.confirmOTP = async(req, res, next)=>{
   
   const{ firstName, lastName, email, mobile, campaignCode, mobile_otp, career, college, collegeName, course, passingoutyear, dob, gender,
   } = req.body
-  // console.log(req.body)
   const correctOTP = await CareerApplication.findOne({$or : [{mobile: mobile}], mobile_otp: mobile_otp})
   const careerDetails = await Career.findOne({_id:career})
-  const careerName = careerDetails.jobTitle
-  // console.log(correctOTP)
+  const careerName = careerDetails?.jobTitle
   if(!correctOTP){
     return res.status(400).json({info:'Please enter the correct OTP'})
   }
@@ -154,7 +152,7 @@ exports.confirmOTP = async(req, res, next)=>{
   const myReferralCode = generateUniqueReferralCode();
   let userId = email.split('@')[0]
   let userIds = await User.find({employeeid:userId})
-  // console.log("User Ids: ",userIds)
+  console.log("User Ids: ",userIds)
     if(userIds.length > 0)
     {
         userId = userId?.toString()+(userIds?.length+1).toString()
@@ -365,13 +363,17 @@ exports.confirmOTP = async(req, res, next)=>{
       await campaign.save({validateBeforeSave:false});
       // console.log(campaignData)
   }
+  try{
       if(process.env.PROD == 'true'){
-        whatsAppService.sendWhatsApp({destination : existingUser?.mobile, campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName], tags : '', attributes : ''});
+        whatsAppService.sendWhatsApp({destination : existingUser?.mobile, campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName.toString()], tags : '', attributes : ''});
       }
       else {
         // whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName], tags : '', attributes : ''});
-        whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName], tags : '', attributes : ''});
+        whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName.toString()], tags : '', attributes : ''});
       }
+    }catch(e){
+      console.log(e)
+    }
   }
 
 }
