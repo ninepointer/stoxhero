@@ -21,6 +21,16 @@ export default function TenXSubscriptions({setClicked}) {
   const [expiredTenXSubs,setExpiredTenXSubs] = useState([]);
   let [checkPayment, setCheckPayment] = useState(true);
   const [isLoading,setIsLoading] = useState(false)
+  const [selectedValidity, setSelectedValidity] = useState(null);
+  
+  // Filter data based on validity
+  const filteredData = selectedValidity 
+    ? expiredTenXSubs.filter(item => item.validity === selectedValidity) 
+    : expiredTenXSubs;
+
+  // Generate unique validity values for chips
+  const uniqueValidities = [...new Set(expiredTenXSubs.map(item => item.validity))];
+  console.log('unique', uniqueValidities);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
@@ -75,10 +85,45 @@ export default function TenXSubscriptions({setClicked}) {
         :
     <>
     {expiredTenXSubs?.length > 0 ?
+      <>
+        <MDBox mb={2}>
+            <span style={{color:'white', fontSize:'16px'}}>Validity:</span>
+            <button onClick={() => setSelectedValidity(null)} 
+              style={{
+                  backgroundColor: selectedValidity == null ? '#1c7fca' : 'white',
+                  color: selectedValidity == null ? 'white' : 'black',
+                  borderRadius:'12px',
+                  border:'none',
+                  padding:'4px',
+                  marginLeft: '5px',
+                  cursor:'pointer',
+                  width: '60px'
+                }}>
+              All
+              </button>
+            {uniqueValidities.map(validity => (
+              <button 
+                key={validity}
+                onClick={() => setSelectedValidity(validity)}
+                style={{
+                  borderRadius:'12px',
+                  border:'none',
+                  padding:'4px',
+                  marginLeft: '5px',
+                  cursor:'pointer',
+                  backgroundColor: selectedValidity == validity ? '#1c7fca' : 'white',
+                  color: selectedValidity == validity ? 'white' : 'black',
+                  width: '60px'
+                }}
+              >
+                {validity} days
+              </button>
+            ))}
+          </MDBox>  
         <Grid container spacing={1} mb={1}>
             {
-            expiredTenXSubs?.map((elem,index)=>(
-                <Grid item key={elem._id} xs={12} md={6} lg={4} display='flex' justifyContent='flex-start'>
+            filteredData?.map((elem,index)=>(
+                <Grid item key={elem._id} xs={12} md={6} lg={3} display='flex' justifyContent='flex-start'>
                 <MDBox>
                     <ExpiredSubscriptionCard subscription={elem} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={elem.discounted_price} name={elem.plan_name} id={elem._id} walletCash={cashBalance} allowRenewal={elem.allowRenewal}/>
                 </MDBox>
@@ -86,6 +131,7 @@ export default function TenXSubscriptions({setClicked}) {
             ))
             }
         </Grid>
+      </>
         :
         <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
             <img src={WinnerImage} width={50} height={50}/>

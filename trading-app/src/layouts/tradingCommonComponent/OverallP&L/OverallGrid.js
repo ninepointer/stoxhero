@@ -235,7 +235,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
       );
     }
     obj.exit = (
-      < ExitPosition module={moduleData} maxLot={maxLot} lotSize={lotSize} socket={socket} exchangeInstrumentToken={subelem._id.exchangeInstrumentToken} subscriptionId={subscriptionId} from={from} render={render} setRender={setRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity={subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange} setExitState={setExitState} exitState={exitState} />
+      < ExitPosition ltp={(liveDetail[0]?.last_price)?.toFixed(2)} module={moduleData} maxLot={maxLot} lotSize={lotSize} socket={socket} exchangeInstrumentToken={subelem._id.exchangeInstrumentToken} subscriptionId={subscriptionId} from={from} render={render} setRender={setRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity={subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange} setExitState={setExitState} exitState={exitState} />
     );
     obj.buy = (
       <Buy module={moduleData} socket={socket} exchangeInstrumentToken={subelem._id.exchangeInstrumentToken} subscriptionId={subscriptionId} from={from} render={render} setRender={setRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol)?.slice(-7)} lotSize={lotSize} maxLot={maxLot} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState} buyState={buyState} />

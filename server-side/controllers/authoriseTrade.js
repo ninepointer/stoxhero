@@ -218,7 +218,7 @@ exports.fundCheck = async (req, res, next) => {
                 }
 
                 //console.log("sending response from authorise trade");
-                return res.status(401).json({ status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.' });
+                return res.status(401).json({ status: 'Failed', message: 'You do not have sufficient funds to take this trade. Please try with smaller lot size.' });
             }
             else {
                 console.log("if user have enough funds")
@@ -403,7 +403,7 @@ exports.contestFundCheck = async (req, res, next) => {
         // if(( !runningLots[0]?.runningLots || ((runningLots[0]?._id?.symbol !== symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) && Number(contestFunds + userNetPnl - zerodhaMargin)  < 0){
         // if(( !runningLots[0]?.runningLots || (((runningLots[0]?._id?.symbol !== symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) || ((runningLots[0]?._id?.symbol !== symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot == buyOrSell))) && Number(contestFunds + userNetPnl - zerodhaMargin)  < 0){   
         // //console.log("in if")
-        // return res.status(401).json({status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.'});
+        // return res.status(401).json({status: 'Failed', message: 'You do not have sufficient funds to take this trade. Please try with smaller lot size.'});
         if (Number(contestFunds + userNetPnl) >= 0 && ((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) {
             console.log("user wants square off")
             return next();
@@ -438,7 +438,7 @@ exports.contestFundCheck = async (req, res, next) => {
                 }
 
                 //console.log("sending response from authorise trade");
-                return res.status(401).json({ status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.' });
+                return res.status(401).json({ status: 'Failed', message: 'You do not have sufficient funds to take this trade. Please try with smaller lot size.' });
             }
 
 
@@ -679,7 +679,7 @@ const takeRejectedTrade = async(req, res, from)=>{
         } catch (e) {
             console.log("error saving margin call", e);
         }
-        return res.status(401).json({ status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.' });
+        return res.status(401).json({ status: 'Failed', message: 'You do not have sufficient funds to take this trade. Please try with smaller lot size.' });
     }
     if(from === tenx){
         let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, validity, variety, createdBy,
@@ -700,7 +700,7 @@ const takeRejectedTrade = async(req, res, from)=>{
             console.log("error saving margin call", e);
         }
 
-        return res.status(401).json({ status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.' });
+        return res.status(401).json({ status: 'Failed', message: 'You do not have sufficient funds to take this trade. Please try with smaller lot size.' });
     }
     if(from === internship){
         let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, validity, variety, createdBy,
@@ -721,7 +721,7 @@ const takeRejectedTrade = async(req, res, from)=>{
             console.log("error saving margin call", e);
         }
 
-        return res.status(401).json({ status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.' });
+        return res.status(401).json({ status: 'Failed', message: 'You do not have sufficient funds to take this trade. Please try with smaller lot size.' });
     }
     if(from === marginx){
         let { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType,
@@ -752,7 +752,7 @@ const takeRejectedTrade = async(req, res, from)=>{
             console.log("error saving margin call", e);
         }
 
-        return res.status(401).json({ status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.' });
+        return res.status(401).json({ status: 'Failed', message: 'You do not have sufficient funds to take this trade. Please try with smaller lot size.' });
     }
     if(from === dailyContest){
         let { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType,
@@ -784,7 +784,7 @@ const takeRejectedTrade = async(req, res, from)=>{
         }
 
         //console.log("sending response from authorise trade");
-        return res.status(401).json({ status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.' });
+        return res.status(401).json({ status: 'Failed', message: 'You do not have sufficient funds to take this trade. Please try with smaller lot size.' });
     }
     if(from === battle){
         let { exchange, symbol, buyOrSell, Quantity, Product, OrderType,
@@ -806,7 +806,7 @@ const takeRejectedTrade = async(req, res, from)=>{
             console.log("error saving margin call", e);
         }
 
-        return res.status(401).json({ status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.' });
+        return res.status(401).json({ status: 'Failed', message: 'You do not have sufficient funds to take this trade. Please try with smaller lot size.' });
     }
 }
 

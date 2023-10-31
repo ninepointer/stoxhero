@@ -57,7 +57,7 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
                 <Grid item xs={16} md={6} xl={3}>
                   <DefaultInfoCard
                     // icon={<CreditCardIcon/>}
-                    title="Portfolio value"
+                    title="Virtual Margin Money"
                     description="Total funds added by StoxHero in your Account"
                     value={totalCreditString}
                   />
@@ -65,7 +65,7 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
                 <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     // icon={<AvailableIcon/>}
-                    title="available margin"
+                    title="Virtual available margin"
                     description="Funds that you can used to trade today"
                     value={availableMarginpnlstring}
                   />
@@ -73,7 +73,7 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
                 <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     // icon={<ShoppingCartIcon/>}
-                    title="used margin"
+                    title="Virtual used margin"
                     description="Net funds utilized for your executed trades"
                     value={usedMarginString}
                   />
@@ -82,7 +82,7 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
                 <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     // icon={<AccountBalanceWalletIcon/>}
-                    title="unrealised pnl"
+                    title="Virtual unrealised pnl"
                     description="Increased value of your investment"
                     value={unrealisedPnlString}
                   />

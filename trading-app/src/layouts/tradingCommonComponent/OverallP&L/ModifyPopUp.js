@@ -67,6 +67,9 @@ function ModifyPopUp({data, id, handleCloseMenu, setMsg}) {
         optionData.push( <MenuItem value={i * lotSize}>{ i * lotSize}</MenuItem>)      
     }
     const handleClick = (event) => {
+      if(data?.Quantity?.props?.children === 0){
+        return openSuccessSB("error", "You do not have any open position for modify.")
+      }
         setAnchorEl(event.currentTarget);
       };
 

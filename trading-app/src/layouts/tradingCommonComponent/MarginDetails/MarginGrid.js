@@ -56,14 +56,14 @@ const MarginGrid = () => {
 
                 <Grid item xs={16} >
                   <DefaultInfoCard
-                    title={`Portfolio Details(${portfolioName})`}
+                    title={`Virtual Margin Details(${portfolioName})`}
                     description="Below is a summary of the total funds and their intended uses"
                     value={
                       <MDBox display='flex' justifyContent='space-between'>
-                        <MDBox sx={{ backgroundColor: "#d3d3d3", borderRadius: "5px", padding: "10px", color: "#000000" }} fontSize='17px' >{`Portfolio Value: ${totalCreditString}`}</MDBox>
-                        <MDBox sx={{ backgroundColor: "#d3d3d3", borderRadius: "5px", padding: "10px", color: "#000000" }} fontSize='17px' >{`Available Margin: ${availableMarginpnlstring}`}</MDBox>
-                        <MDBox sx={{ backgroundColor: "#d3d3d3", borderRadius: "5px", padding: "10px", color: "#000000" }} fontSize='17px' >{`Used Margin: ${usedMarginString}`}</MDBox>
-                        <MDBox sx={{ backgroundColor: "#d3d3d3", borderRadius: "5px", padding: "10px", color: "#000000" }} fontSize='17px' >{`UnRealised P&L: ${unrealisedPnlString}`}</MDBox>
+                        <MDBox sx={{ backgroundColor: "#d3d3d3", borderRadius: "5px", padding: "10px", color: "#000000" }} fontSize='15px' >{`Virtual Margin Money: ${totalCreditString}`}</MDBox>
+                        <MDBox sx={{ backgroundColor: "#d3d3d3", borderRadius: "5px", padding: "10px", color: "#000000" }} fontSize='15px' >{`Virtual Available Margin: ${availableMarginpnlstring}`}</MDBox>
+                        <MDBox sx={{ backgroundColor: "#d3d3d3", borderRadius: "5px", padding: "10px", color: "#000000" }} fontSize='15px' >{`Virtual Used Margin: ${usedMarginString}`}</MDBox>
+                        <MDBox sx={{ backgroundColor: "#d3d3d3", borderRadius: "5px", padding: "10px", color: "#000000" }} fontSize='15px' >{`Virtual Unrealised P&L: ${unrealisedPnlString}`}</MDBox>
                       </MDBox>}
                   />
                 </Grid>

@@ -55,7 +55,7 @@ function Header({ marginX }) {
                         state: { data: res.data.data }
                     });
                 } else {
-                    openSuccessSB("error", "You dont have any trade for this contest.")
+                    openSuccessSB("error", "You do not have any trade for this contest.")
                 }
             }).catch((err) => {
                 return new Error(err);

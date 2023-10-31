@@ -6,6 +6,7 @@ import MDBox from "../../../components/MDBox"
 import MDTypography from "../../../components/MDTypography"
 import Card from "@mui/material/Card";
 import { apiUrl } from '../../../constants/constants';
+import moment from 'moment';
 
 
 export default function AffiliateGrid({data}) {
@@ -44,6 +45,7 @@ export default function AffiliateGrid({data}) {
           const data = await res.json();
           const updatedData = data?.data
           if (updatedData || res.status === 200) {
+              console.log('new data is', data?.data);
               setNewData(data.data)
           } else {
   
@@ -57,25 +59,25 @@ export default function AffiliateGrid({data}) {
 
     featureObj.index = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {index}
+        {index+1}
       </MDTypography>
     );
 
     featureObj.name = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem?.userId?.first_name} {elem?.userId?.last_name}
+        {elem?.affiliate?.first_name} {elem?.affiliate?.last_name}
       </MDTypography>
     );
 
     featureObj.mobile = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem?.userId?.mobile}
+        {elem?.affiliate?.mobile}
       </MDTypography>
     );
 
     featureObj.code = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem?.userId?.myReferralCode}
+        {elem?.affiliate?.myReferralCode}
       </MDTypography>
     );
 
@@ -93,7 +95,7 @@ export default function AffiliateGrid({data}) {
 
     featureObj.boughtat = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem?.transactionDate}
+        {moment(elem?.transactionDate).format('DD-MM-YY HH:mm:ss a')}
       </MDTypography>
     );
 

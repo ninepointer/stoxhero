@@ -7,6 +7,7 @@ const TenX = require('../../models/TenXSubscription/TenXSubscriptionSchema');
 const DailyContest = require('../../models/DailyContest/dailyContest');
 const{stringify} = require('flatted');
 const moment = require('moment');
+const AffiliateProgram = require('../../models/affiliateProgram/affiliateProgram');
 
 
 exports.createCouponCode = async (req, res) => {
@@ -222,6 +223,40 @@ exports.verifyCouponCode = async (req, res) => {
         const userId = req.user._id;
         let coupon = await Coupon.findOne({ code: code, expiryDate:{$gte: new Date()}, status:'Active' });
 
+        if(!coupon){
+            const affiliatePrograms = await AffiliateProgram.find({status:'Active'});
+            if(affiliatePrograms.length != 0){
+                for(program of affiliatePrograms){
+                    let match = program?.affiliates?.some(item => item?.affiliateCode.toString() == code?.toString());
+                    if(match){
+                        console.log('match', match, program?.maxDiscount);
+                        //check for eligible platforms
+                        if(program?.eligiblePlatforms?.length != 0 && !program?.eligiblePlatforms.includes(platform)){
+                            return res.status(400).json({
+                                status: 'error',
+                                message: "This coupon is not valid for your device platform",
+                            });
+                        }
+                        //check for eligible products
+                        if(program?.eligibleProducts?.length != 0 && !program?.eligibleProducts.includes(product)){
+                            return res.status(400).json({
+                                status: 'error',
+                                message: "This coupon is not valid for the product you're purchasing.",
+                            });
+                        }
+                        return res.status(200).json({
+                            status: 'success',
+                            data: {
+                                discount: program?.discountPercentage,
+                                discountType: 'Percentage',
+                                rewardType: 'Discount',
+                                maxDiscount: program?.maxDiscount
+                            }
+                        })
+                    }
+                }
+            }    
+        }
         
         if (!coupon) {
             return res.status(404).json({

@@ -54,7 +54,7 @@ const TenxMarginGrid = ({subscriptionId, setyesterdayData}) => {
 
                 <Grid item xs={16} md={6} xl={3}>
                   <DefaultInfoCard
-                    title="Portfolio Value"
+                    title="Virtual Margin Money"
                     description="Total funds added by StoxHero in your Account"
                     value={totalCreditString}
                     style={{ fontSize: '1px' }}
@@ -63,7 +63,7 @@ const TenxMarginGrid = ({subscriptionId, setyesterdayData}) => {
                 <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     // icon={<AvailableIcon/>}
-                    title="available margin"
+                    title="Virtual available margin"
                     description="Funds that you can used to trade today"
                     value={availableMarginpnlstring}
                   />
@@ -71,7 +71,7 @@ const TenxMarginGrid = ({subscriptionId, setyesterdayData}) => {
                 <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     // icon={<ShoppingCartIcon/>}
-                    title="used margin"
+                    title="Virtual used margin"
                     description="Net funds utilized for your executed trades"
                     value={usedMarginString}
                   />
@@ -80,7 +80,7 @@ const TenxMarginGrid = ({subscriptionId, setyesterdayData}) => {
                 <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     // icon={<ShoppingCartIcon/>}
-                    title="unrealised pnl"
+                    title="Virtual unrealised pnl"
                     description="Increased value of your investment"
                     value={unrealisedPnlString}
                   />
