@@ -10,6 +10,7 @@ import LaunchButton from '../Buttons/LaunchButton'
 import { useTheme } from 'styled-components'
 import MDTypography from '../../../../components/MDTypography';
 import theme from '../../utils/theme/index';
+import { Link } from 'react-router-dom';
 
 const NAVBAR_HIEGHT = 58;
 const LinkButton = ({ children, ...props }) => (
@@ -75,14 +76,12 @@ const Navbar = () => {
             <a href="/careers">
             <LinkButton>
               <Typography fontWeight="bold" variant="body2">Careers</Typography>
-              
             </LinkButton>
             </a>
 
             <a href="/workshops">
             <LinkButton>
               <Typography fontWeight="bold" variant="body2">Workshops</Typography>
-              
             </LinkButton>
             </a>
 
@@ -101,7 +100,6 @@ const Navbar = () => {
             <a href="/about">
             <LinkButton spacing={0.5}>
               <Typography fontWeight="bold" variant="body2">About Us</Typography>
-              
             </LinkButton>
             </a>
           </Stack>)}
@@ -186,8 +184,8 @@ const Navbar = () => {
               <Typography variant="body2">EN</Typography>
             </LinkButton>
 
-            <a href="/login">
-            <LaunchButton sx={{ borderRadius: 3, color:'light' }} />
+            <a href="https://play.google.com/store/apps/details?id=com.stoxhero.app" target='_blank'>
+              <LaunchButton sx={{ borderRadius: 3, color: 'light' }} />
             </a>
           </Stack>)
           }
