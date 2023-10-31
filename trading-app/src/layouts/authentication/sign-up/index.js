@@ -234,11 +234,13 @@ function Cover(props) {
       })
     });
     const data = await res.json();
+    console.log("Data after account creation:",data)
     if (data.status === "Success") {
       setDetails.setUserDetail(data.data);
       console.log(setDetails)
       setShowConfirmation(false);
       const userData = await userDetail();
+      console.log("User Details:",userData)
       if(userData?.role?.roleName === adminRole){
         const from = location.state?.from || "/tenxdashboard";
         navigate(from);
