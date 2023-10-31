@@ -342,11 +342,11 @@ router.get('/uniqueactivated', async(req,res) => {
         const contest2 = await Contest.findById('652c0cd8921a308fe75aafe5').select('participants potentialParticipants');
         const contest3 = await Contest.findById('652c0d87d565747ad90bfd1b').select('participants potentialParticipants');
 
-        const participants1= contest1?.participants;
+        const participants1= contest1?.participants?.map(item=>item?.userId);
         const potentialParticipants1= contest1?.potentialParticipants;
-        const participants2= contest2?.participants;
+        const participants2= contest2?.participants?.map(item=>item?.userId);
         const potentialParticipants2= contest2?.potentialParticipants;
-        const participants3= contest3?.participants;
+        const participants3= contest3?.participants?.map(item=>item?.userId);
         const potentialParticipants3= contest3?.potentialParticipants;
         const combined = [...participants1, ...participants2, ...participants3, ...potentialParticipants1, ...potentialParticipants2, ...potentialParticipants3];
         const uniqueList = [...new Set(combined)];
@@ -358,50 +358,71 @@ router.get('/uniqueactivated', async(req,res) => {
 
         let activatedUsersSet = new Set();  // Use a set for efficient lookups
         let tradersBeforeCutoffSet = new Set();  // Track traders with trades before cutoff
-    
+        let totalSet = new Set();
+        console.log('scanning models');
         for (let Model of collections) {
+            console.log('model', Model);
             const postCutoffTraders = await Model.find({ 
                 trader: { $in: uniqueList },
                 trade_time: { $gte: cutoffDate, $lte: new Date('2023-10-20')}
-            }).distinct('trader');
-    
-            for (let traderId of postCutoffTraders) {
-                const countBeforeCutoff = await Model.countDocuments({
-                    trader: traderId,
-                    trade_time: { $lt: cutoffDate }
+            }).select('trader trade_time').sort({trade_time:1});
+            for (let trade of postCutoffTraders) {
+                const countBeforeCutoff = await Model.findOne({
+                    trader: trade?.trader,
+                    trade_time: { $lt: new Date('2023-10-21')}
+                }).select('trade_time trader');
+                totalSet.add({
+                    trader: trade?.trader,
+                    first_trade:countBeforeCutoff?.trade_time
                 });
-                const existsInContest = await ContestTrade.findOne({
-                    trader:traderId,
-                    trade_time: { $gte: cutoffDate, $lte:new Date('2023-10-20')}
-                }) 
-    
-                if (countBeforeCutoff > 0 || !existsInContest) {
-                    tradersBeforeCutoffSet.add(traderId.toString());  // Add trader to exclusion set
-                } else {
-                    activatedUsersSet.add(traderId.toString());  // Potentially activated user
+                for (let obj of totalSet) {
+                    if (obj?.trader?.toString() === countBeforeCutoff?.trader?.toString() && countBeforeCutoff?.trade_time < obj?.trade_time) {
+                        obj.trade_time = countBeforeCutoff?.trade_time;
+                    }
                 }
+                //     const existsInContest = await ContestTrade.findOne({
+            //         trader:traderId,
+            //         trade_time: { $gte: cutoffDate, $lte:new Date('2023-10-20')}
+            //     }) 
+    
+            //     if (countBeforeCutoff > 0 || !existsInContest) {
+            //         tradersBeforeCutoffSet.add(traderId.toString());  // Add trader to exclusion set
+            //     } else {
+            //         activatedUsersSet.add(traderId.toString());  // Potentially activated user
+            //     }
             }
         }
     
         // Remove traders from the activated set if they're in the exclusion set
-        for (let traderId of tradersBeforeCutoffSet) {
-            activatedUsersSet.delete(traderId);
-        }
-    
+        // for (let traderId of tradersBeforeCutoffSet) {
+        //     activatedUsersSet.delete(traderId);
+        // }
+        console.log('data population now');
         const newActivatedUsers =  Array.from(new Set(activatedUsersSet));
-        console.log(newActivatedUsers?.length);
+        const allUsers =  Array.from(new Set(totalSet));
+        console.log(allUsers[0]);
+        const allUserIds = allUsers.map(item=>item?.trader);
+        // console.log(newActivatedUsers?.length);
         let detailedArray = [];
 
-        const users = await User.find({ _id: { $in: newActivatedUsers } }, 
+        const users = await User.find({ _id: { $in: allUserIds } }, 
                                     'first_name last_name mobile email campaignCode joining_date creationProcess');
 
         for (let user of users) {
             const contestRegistration = await ContestRegistration.findOne({ mobileNo: user.mobile }, 'collegeName campaignCode');
-
+            const tradeDoc = allUsers.find((item)=> item?.trader?.toString() ==user?._id?.toString());
+            let firstTrade = '';
+            if(tradeDoc!=-1){
+                firstTrade = tradeDoc?.first_trade;
+                console.log('first trade', firstTrade)
+            }else{
+                console.log('not found', user?.userId);
+            }
             let detailedObject = {
                 Name: user?.first_name +' '+user?.last_name, 
                 Mobile: user?.mobile,
                 Email: user?.email,
+                'First Trade': moment(firstTrade).add(330, 'minutes').format('DD-MM-YY hh:mm:ss a'),
                 'Joining Date': moment(user?.joining_date).add(330, 'minutes').format('DD-MM-YY hh:mm:ss a'),
                 'Creation Process': user?.creationProcess,
                 'User Campaign Code': user?.campaignCode,
@@ -414,6 +435,256 @@ router.get('/uniqueactivated', async(req,res) => {
         res.json(detailedArray);
     }
 )
+
+router.get('/collegecontestusers', async(req,res) => {
+    console.log('starting pipeline');
+    const pipeline = [
+        {
+          $match: {
+            _id: {
+              $in: [
+                new ObjectId("652c0d87d565747ad90bfd1b"),
+                new ObjectId("652c0cd8921a308fe75aafe5"),
+                new ObjectId("652c0af86365ad15659986ed"),
+                // Add more ObjectId values as needed
+              ],
+            },
+          },
+        },
+        {
+          $project: {
+            combinedIDs: {
+              $setUnion: [
+                {
+                  $ifNull: [
+                    "$potentialParticipants",
+                    [],
+                  ],
+                },
+                // Potential Participants (Array of IDs)
+                {
+                  $map: {
+                    input: "$participants",
+                    as: "p",
+                    in: "$$p.userId",
+                  },
+                }, // Extract userId from participants
+              ],
+            },
+          },
+        },
+        {
+          $unwind: {
+            path: "$combinedIDs",
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            // Group all documents into one group
+            uniqueCombinedIDs: {
+              $addToSet: "$combinedIDs", // Collect all combinedIDs in an array
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            // Exclude the default _id field
+            uniqueCombinedIDs: 1, // Include the array of unique combinedIDs
+          },
+        },
+        {
+          $unwind: {
+            path: "$uniqueCombinedIDs",
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "uniqueCombinedIDs",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $unwind: {
+            path: "$user",
+          },
+        },
+        {
+          $project: {
+            userId: "$user._id",
+            first_name: "$user.first_name",
+            last_name: "$user.last_name",
+            mobile: "$user.mobile",
+            email: "$user.email",
+            joining_date: {
+              $dateToString: {
+                date: {
+                  $add: [
+                    {
+                      $toDate: "$user.joining_date",
+                    },
+                    // Convert to date
+                    19800000, // Add 5 hours and 30 minutes in milliseconds (5 * 60 * 60 * 1000 + 30 * 60 * 1000)
+                  ],
+                },
+      
+                format: "%Y-%m-%d", // Specify the desired date format
+              },
+            },
+      
+            signup_method: "$user.creationProcess",
+            signupCampaignCode: {
+              $ifNull: ["$campaignCode", ""],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "contest-registrations",
+            localField: "mobile",
+            foreignField: "mobileNo",
+            as: "contestRegistration",
+          },
+        },
+        {
+          $unwind: {
+            path: "$contestRegistration",
+          },
+        },
+        {
+          $addFields: {
+            registrationCampaignCode:
+              "$contestRegistration.campaignCode",
+          },
+        },
+        {
+          $lookup: {
+            from: "paper-trades",
+            localField: "userId",
+            foreignField: "trader",
+            as: "paper-trades",
+          },
+        },
+        {
+          $lookup: {
+            from: "intern-trades",
+            localField: "userId",
+            foreignField: "trader",
+            as: "intern-trades",
+          },
+        },
+        {
+          $lookup: {
+            from: "dailyContest-mock-users",
+            localField: "userId",
+            foreignField: "trader",
+            as: "contest-trades",
+          },
+        },
+        {
+          $lookup: {
+            from: "marginx-mock-users",
+            localField: "userId",
+            foreignField: "trader",
+            as: "marginx-trades",
+          },
+        },
+        {
+          $lookup: {
+            from: "tenx-trade-users",
+            localField: "userId",
+            foreignField: "trader",
+            as: "tenx-trades",
+          },
+        },
+        {
+          $project: {
+            userId: 1,
+            first_name: 1,
+            last_name: 1,
+            mobile: 1,
+            email: 1,
+            joining_date: 1,
+            signup_method: 1,
+            signupCampaignCode: 1,
+            registrationCampaignCode: 1,
+            allTrades: {
+              $concatArrays: [
+                "$paper-trades",
+                "$intern-trades",
+                "$tenx-trades",
+                "$marginx-trades",
+              ],
+            },
+          },
+        },
+        {
+          $unwind: {
+            path: "$allTrades",
+          },
+        },
+        {
+          $match: {
+            "allTrades.status": "COMPLETE",
+          },
+        },
+        {
+          $project: {
+            userId: 1,
+            first_name: 1,
+            last_name: 1,
+            mobile: 1,
+            email: 1,
+            joining_date: 1,
+            signup_method: 1,
+            signupCampaignCode: 1,
+            registrationCampaignCode: 1,
+            trade_time: {
+              $substr: ["$allTrades.trade_time", 0, 10],
+            },
+          },
+        },
+      ];
+    
+      const data = await Contest.aggregate(pipeline);
+
+console.log(data?.length);
+
+// Correcting the sort logic
+let newData = data.sort((a, b) => new Date(a.trade_time) - new Date(b.trade_time));
+
+console.log(newData.length);
+
+let finalData = [];
+
+let uniqueUsers = new Set(); // To keep track of unique users
+
+for (let item of newData) {
+    if (!uniqueUsers.has(item.userId.toString())) {
+        uniqueUsers.add(item.userId.toString());
+
+        finalData.push({
+            userId: item.userId,
+            first_name: item.first_name,
+            last_name: item.last_name,
+            mobile: item.mobile,
+            email: item.email,
+            joining_date: item.joining_date,
+            signup_method: item.signup_method,
+            signupCampaignCode: item.signupCampaignCode,
+            registrationCampaignCode: item.registrationCampaignCode,
+            first_trade: item.trade_time
+        });
+    }
+}
+
+console.log(finalData.length);
+res.json(finalData);
+
+});
 
 
 module.exports = router;
