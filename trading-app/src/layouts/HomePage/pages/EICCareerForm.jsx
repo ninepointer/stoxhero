@@ -576,10 +576,9 @@ const App = (props) => {
                           <MDButton 
                             onClick={generateOTP} 
                             variant="gradient" 
-                            color="warning"
-                            style={{width:'90%'}}
+                            style={{backgroundColor:'#65BA0D', color:'white',width:'90%'}}
                           >
-                            <MDTypography fontSize={13} fontWeight='bold' color='white'>Get OTP to Apply</MDTypography>
+                            <MDTypography fontSize={13} fontWeight='bold' color='white'>Get Mobile OTP to Apply</MDTypography>
                           </MDButton>
                         </MDBox>
                         </Grid>

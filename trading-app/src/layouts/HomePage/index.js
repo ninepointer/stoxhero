@@ -21,7 +21,7 @@ const App = () => {
       <ThemeProvider theme={theme}>
         <Navbar/>
       <Routes>
-        <Route path="/home" element={<Home/>}/>
+        <Route path="/" element={<Home/>}/>
         <Route path="/swap" element={<Swap/>}/>
         <Route path="/about" element={<About/>}/>
         <Route path="/careers" element={<Careers/>}/>

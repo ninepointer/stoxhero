@@ -325,8 +325,8 @@ export default function App() {
           // pathname == "/login" ?
           // <Route path="/login" element={<SignIn />} />
           // :
-          pathname == "/home" ?
-          <Route path="/home" element={<SignUp location={myLocation.current} />} />
+          pathname == "/" ?
+          <Route path="/" element={<SignUp location={myLocation.current} />} />
           :
           pathname == "/resetpassword" ?
           <Route path="/resetpassword" element={<ResetPassword/>} />
@@ -352,7 +352,7 @@ export default function App() {
           <Route path='/careers/:name/jobdescription' element={<JobDescription/>}/>
           <Route path='/careers/careerform/:name' element={<JobApply/>}/>
           <Route path='/collegecontest/:id/:date' element={<ContestRegistration/>}/>
-          <Route path='/home' element={<Navigate 
+          <Route path='/' element={<Navigate 
             to={getDetails?.userDetails?.role ? getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/stoxherodashboard':'/'} 
             />}/>
           <Route path='/adminlogin' element={<AdminLogin />}/>
