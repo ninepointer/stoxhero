@@ -150,11 +150,12 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
     setButtonClicked(false);
   };
 
+
   const stopLoss = async (e) => {
     setErrorMessageStopLoss("")
     sellFormDetails.stopLossPrice = e.target.value
-    if (Number(newLtp) < Number(e.target.value)) {//errorMessage
-      const text = "Stop Loss price should be less then LTP.";
+    if (Number(ltp) > Number(e.target.value)) {//errorMessage
+      const text = "Stop Loss price should be greater then LTP.";
       setErrorMessageStopLoss(text)
     }
     if (e.target.value === "") {
@@ -166,15 +167,15 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
   const stopProfit = async (e) => {
     setErrorMessageStopProfit("")
     sellFormDetails.stopProfitPrice = e.target.value
-    if (Number(newLtp) > Number(e.target.value)) {
-      setErrorMessageStopProfit("Stop Profit price should be greater then LTP.")
+    if (Number(ltp) < Number(e.target.value)) {
+      setErrorMessageStopProfit("Stop Profit price should be less then LTP.")
     }
     if (e.target.value === "") {
       sellFormDetails.stopProfitPrice = false;
     }
   }
 
-  async function buyFunction(e, uId) {
+  async function sellFunction(e, uId) {
     if (!sellFormDetails.Quantity) {
       openSuccessSB('error', "Please select quantity for trade.");
       return;
@@ -555,11 +556,11 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
               {ordertype === "SL/SP-M" &&
                 <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center" }}>
                   <TextField
-                    id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "LIMIT" || (runningLotsSymbol < 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="SL price" variant="outlined" onChange={(e) => { { stopLoss(e) } }}
+                    id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "LIMIT" || (runningLotsSymbol > 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="SL price" variant="outlined" onChange={(e) => { { stopLoss(e) } }}
                     sx={{ width: "140px", marginTop: "20px", innerHeight: "1px" }} type="number" />
 
                   <TextField
-                    id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "LIMIT" || (runningLotsSymbol < 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="SP price" variant="outlined" onChange={(e) => { { stopProfit(e) } }}
+                    id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "LIMIT" || (runningLotsSymbol > 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="SP price" variant="outlined" onChange={(e) => { { stopProfit(e) } }}
                     sx={{ width: "140px", marginTop: "20px", innerHeight: "1px" }} type="number" />
                 </MDBox>}
 
@@ -611,10 +612,8 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
             <MDButton variant="contained" color="error" onClick={handleClose} autoFocus>
               Cancel
             </MDButton>
-            <MDButton
-              disabled={(sellFormDetails.stopLossPrice && (Number(ltp) < sellFormDetails.stopLossPrice)) || (sellFormDetails.stopProfitPrice && (Number(ltp) > sellFormDetails.stopProfitPrice))}
-              autoFocus variant="contained" color="error" onClick={(e) => { buyFunction(e) }}>
-              SELL
+            <MDButton disabled={(sellFormDetails.stopLossPrice && (Number(ltp) > sellFormDetails.stopLossPrice)) || (sellFormDetails.stopProfitPrice && (Number(ltp) < sellFormDetails.stopProfitPrice))} autoFocus variant="contained" color="error" onClick={(e) => { sellFunction(e) }}>
+              Sell
             </MDButton>
 
           </DialogActions>
