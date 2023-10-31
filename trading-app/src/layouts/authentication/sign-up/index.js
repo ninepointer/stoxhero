@@ -70,6 +70,7 @@ function Cover(props) {
   const [data, setData] = useState();
   const [earnings,setEarnings] = useState([]);
   const[defaultInvite, setDefaultInvite] = useState('');
+  let referrerCodeString = location.search?.split('=')[1]??props.location?.search?.split('=')[1]??''
   const [messageObj, setMessageObj] = useState({
     color: '',
     icon: '',
@@ -77,16 +78,12 @@ function Cover(props) {
     content: ''
   })
 
-  console.log('home page');
   const getMetrics = async()=>{
     const res = await axios.get(`${apiUrl}newappmetrics`);
     // console.log("New App Metrics:",res.data.data)
     setData(res.data.data);
-  }
-
   const getEarnings = async()=>{
     const res = await axios.get(`${apiUrl}contestscoreboard/earnings`);
-    console.log("Earnings:",res.data.data)
     setEarnings(res.data.data);
   }
 
@@ -116,7 +113,7 @@ function Cover(props) {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   
   useEffect(()=>{
-    setformstate(prevState => ({...prevState, referrerCode: location.search?.split('=')[1]??props.location?.search?.split('=')[1]??''}));
+    setformstate(prevState => ({...prevState, referrerCode: referrerCodeString}));
     getMetrics();
     getEarnings();
     ReactGA.pageview(window.location.pathname)
@@ -245,11 +242,13 @@ function Cover(props) {
       })
     });
     const data = await res.json();
+    console.log("Data after account creation:",data)
     if (data.status === "Success") {
       setDetails.setUserDetail(data.data);
       console.log(setDetails)
       setShowConfirmation(false);
       const userData = await userDetail();
+      console.log("User Details:",userData)
       if(userData?.role?.roleName === adminRole){
         const from = location.state?.from || "/tenxdashboard";
         navigate(from);
@@ -818,7 +817,7 @@ function Cover(props) {
                         <>
                               <Grid item xs={12} md={12} lg={6} mb={.5} display="flex" justifyContent="center">
                                 <TextField
-                                  disabled={formstate.referrerCode}
+                                  disabled={referrerCodeString}
                                   type="text"
                                   id="outlined-required"
                                   label={formstate.referrerCode ? '' : "Referrer/Invite Code"}

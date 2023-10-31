@@ -97,7 +97,7 @@ async function generateUniqueReferralCode() {
 }
 
 router.patch("/verifyotp", async (req, res) => {
-    const {
+    let {
         first_name,
         last_name,
         email,
@@ -144,7 +144,7 @@ router.patch("/verifyotp", async (req, res) => {
         user.last_modifiedOn = new Date()
         await user.save({validateBeforeSave: false});
         if (referrerCodeMatch) { referredBy = referrerCodeMatch?._id; }
-        if (campaignCodeMatch) { campaign = campaignCodeMatch; referrerCode=''}
+        if (campaignCodeMatch) { campaign = campaignCodeMatch; referrerCode=referrerCode}
     }
     user.status = 'OTP Verified';
     user.last_modifiedOn = new Date();
@@ -197,6 +197,12 @@ router.patch("/verifyotp", async (req, res) => {
         // }
 
         const newuser = await User.create(obj);
+        await UserWallet.create(
+            {
+                userId: newuser._id,
+                createdOn: new Date(),
+                createdBy: newuser._id
+        })
         const populatedUser = await User.findById(newuser._id).populate('role', 'roleName')
         .populate('portfolio.portfolioId','portfolioName portfolioValue portfolioType portfolioAccount')
         .populate({
@@ -296,13 +302,6 @@ router.patch("/verifyotp", async (req, res) => {
                 await addSignupBonus(newuser?._id, campaign?.campaignSignupBonus?.amount ?? 90, campaign?.campaignSignupBonus?.currency ?? 'INR');
             }
         }
-
-        await UserWallet.create(
-            {
-                userId: newuser._id,
-                createdOn: new Date(),
-                createdBy: newuser._id
-        })
 
         if (!newuser) return res.status(400).json({ status: 'error', message: 'Something went wrong' });
 
@@ -435,8 +434,9 @@ router.patch("/verifyotp", async (req, res) => {
 
 const addSignupBonus = async (userId, amount, currency) => {
     const wallet = await UserWallet.findOne({userId:userId});
+    console.log("Wallet, Amount, Currency:",wallet, userId, amount, currency)
     try{
-        wallet.transactions?.push({
+        wallet?.transactions?.push({
             title: 'Sign up Bonus',
             description: `Amount credited for as sign up bonus.`,
             amount: amount,
@@ -444,7 +444,8 @@ const addSignupBonus = async (userId, amount, currency) => {
             transactionDate: new Date(),
             transactionType: currency
         });
-        await wallet.save({validateBeforeSave:false});
+        await wallet?.save({validateBeforeSave:false});
+        console.log("Saved Wallet:",wallet)
     }catch(e){
         console.log(e);
     }
