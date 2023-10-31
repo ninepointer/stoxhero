@@ -235,6 +235,24 @@ function Index() {
 
         <Grid container display="flex" flexDirection="row" justifyContent="space-between">
         <Grid container spacing={1} mt={0.5} mb={0} xs={12} md={9} xl={12}>
+          {/* <Grid item xs={12} md={6} xl={3} mt={2}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
+                name="campaignName"
+                label='Campaign Name *'
+                fullWidth
+                // value={formState?.campaignName || id?.campaignName}
+                // onChange={(e) => {setFormState(prevState => ({
+                //     ...prevState,
+                //     campaignName: e.target.value
+                //   }))}}
+
+                defaultValue={editing ? formState.campaignName:id?.campaignName}
+                onChange={handleChange}
+              />
+          </Grid> */}
+
           <Grid item xs={12} md={6} xl={3} mt={2}>
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
@@ -253,25 +271,20 @@ function Index() {
               />
           </Grid>
 
-
-
-
-
-
           <Grid item xs={12} md={6} xl={3} mt={2}>
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
-                name="campaignName"
-                label='Campaign Name *'
+                name="campaignCode"
+                label='Campaign Code *'
                 fullWidth
-                // value={formState?.campaignName || id?.campaignName}
+                // value={formState?.campaignCode || id?.campaignCode}
                 // onChange={(e) => {setFormState(prevState => ({
                 //     ...prevState,
-                //     campaignName: e.target.value
+                //     campaignCode: e.target.value
                 //   }))}}
 
-                defaultValue={editing ? formState.campaignName:id?.campaignName}
+                defaultValue={editing ? formState.campaignCode:id?.campaignCode}
                 onChange={handleChange}
               />
           </Grid>
@@ -293,8 +306,8 @@ function Index() {
                 label="Job Type"
                 sx={{ minHeight:43 }}
                 >
-                <MenuItem value="Cash">Cash</MenuItem>
-                <MenuItem value="Bonus">Bonus</MenuItem>
+                <MenuItem value="Campaign">Campaign</MenuItem>
+                <MenuItem value="Invite">Invite</MenuItem>
                 </Select>
               </FormControl>
           </Grid>
