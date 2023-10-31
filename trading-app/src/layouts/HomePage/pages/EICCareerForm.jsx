@@ -57,6 +57,7 @@ const App = (props) => {
     try {
         const res = await axios.get(`${apiUrl}career/findbyname?name=${name}`);
         setCareerDetails(res?.data?.data);
+        console.log(res?.data?.data)
         setDetails((prev)=>({...prev, contest: res?.data?.data?._id}));
     } catch (e) {
         console.log(e);
@@ -67,6 +68,7 @@ const App = (props) => {
     if(!career){
       const url = location?.pathname?.split('/');
       const name = decodeURIComponent(url[3]);
+      console.log(name)
       getCareerDetails(name);
     }
     ReactGA.pageview(window.location.pathname)
@@ -139,7 +141,7 @@ const App = (props) => {
         passingoutyear: passingoutyear,
         linkedInProfileLink: linkedInProfileLink,
         source:source,
-        career:career,
+        career:career || careerDetails?._id,
         dob:dob,  
         gender:gender,
         priorTradingExperience: priorTradingExperience,
@@ -215,7 +217,7 @@ const App = (props) => {
         passingoutyear: passingoutyear,
         linkedInProfileLink: linkedInProfileLink,
         source:source,
-        career:career,
+        career:career || careerDetails?._id,
         dob:dob,  
         gender: gender,
         priorTradingExperience: priorTradingExperience,
