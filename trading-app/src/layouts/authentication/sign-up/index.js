@@ -82,6 +82,7 @@ function Cover(props) {
     const res = await axios.get(`${apiUrl}newappmetrics`);
     // console.log("New App Metrics:",res.data.data)
     setData(res.data.data);
+  }
   const getEarnings = async()=>{
     const res = await axios.get(`${apiUrl}contestscoreboard/earnings`);
     setEarnings(res.data.data);
