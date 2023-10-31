@@ -13,6 +13,7 @@ const Campaign = require("../../models/campaigns/campaignSchema")
 const UserWallet = require("../../models/UserWallet/userWalletSchema");
 const emailService = require("../../utils/emailService");
 const { ObjectId } = require('mongodb');
+const uuid = require('uuid')
 
 const s3 = new aws.S3();
 
