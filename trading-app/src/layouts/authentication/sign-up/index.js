@@ -30,11 +30,22 @@ import TextField from '@mui/material/TextField';
 
 // Authentication layout components
 import Carousel from './carousel'
+import SignUps from './signupCounter'
+import Trades from './tradesCounter'
+import TradeVolume from './tradeVolumeCounter'
+import Withdrawals from './withdrawalsCounter'
+import FNOTurnover from './optionTurnoverCounter'
+import CollegeContest from './collegeContestCounter'
+import TotalContest from './totalContestCounter'
+import Rewards from './rewardsCounter'
+import Subscription from './subscriptionsBought'
+import Interns from './internCounter'
 // Images
 import axios from 'axios';
 import { adminRole, userRole } from '../../../variables';
 import { userContext } from '../../../AuthContext';
 import Footer from "../components/Footer";
+import { apiUrl } from '../../../constants/constants';
 
 
 
@@ -55,12 +66,20 @@ function Cover(props) {
   const [timerActiveSi, setTimerActiveSi] = useState(false);
   const [mobileOtp, setMobileOtp]=useState('');
   let [invalidDetail, setInvalidDetail] = useState();
+  const [data, setData] = useState();
   const [messageObj, setMessageObj] = useState({
     color: '',
     icon: '',
     title: '',
     content: ''
   })
+
+  console.log('home page');
+  const getMetrics = async()=>{
+    const res = await axios.get(`${apiUrl}newappmetrics`);
+    console.log("New App Metrics:",res.data.data)
+    setData(res.data.data);
+  }
 
   const handleSUClick = () => {
     // Set the state to true when the link is clicked
@@ -83,6 +102,7 @@ function Cover(props) {
   
   useEffect(()=>{
     setformstate(prevState => ({...prevState, referrerCode: location.search?.split('=')[1]??props.location?.search?.split('=')[1]??''}));
+    getMetrics();
     ReactGA.pageview(window.location.pathname)
   },[]);
 
@@ -481,181 +501,181 @@ function Cover(props) {
 
   return (
     <>
-      <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{backgroundColor:'white', minHeight:'auto', height: 'auto', width: 'auto', minWidth:'100vW'}}>
+      <MDBox mt={-1} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{backgroundColor:'white', minHeight:'auto', height: 'auto', width: 'auto', minWidth:'100vW'}}>
       <ThemeProvider theme={theme}>
       <Navbar/>
       
-      <Grid container mt={10} mb={6} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-        <Grid item xs={12} md={12} lg={8} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-        <Grid spacing={2} container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
+      <Grid container mt={10} mb={6} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start'>
+        <Grid item xs={12} md={12} lg={8} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start'>
+          <Grid spacing={2} container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='flex-start' alignItems='center' style={{width:'100%'}}>
           
-          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDBox component="form" role="form" borderRadius={10}
-                style={{
-                  backgroundColor: 'white',
-                  width: '90%',
-                  boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)' // Add box shadow
-                }}
-                display='flex' justifyContent='center' alignContent='center' alignItems='center'
-              >
-                <Grid container xs={12} md={12} lg={12} pt={1} pb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'90%'}}>
-                  <Grid item xs={12} md={12} lg={12} mt={0.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                    <MDTypography fontSize={15} fontColor='dark' fontWeight='bold'>
-                      Get ready, your F&O journey starts here!
-                    </MDTypography>
-                  </Grid>
-                  
-                  <Grid item xs={12} md={12} lg={12} mt={0.25} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                    <MDTypography fontSize={12} color='text' fontWeight='bold'>
-                      Here how it starts!
-                    </MDTypography>
-                  </Grid>
-
-                  <Grid item xs={12} md={4} lg={4} mt={0.25} display='flex' justifyContent='center' flexDirection='column' alignContent='center' alignItems='center'>
-                    <img src={register} style={{ maxWidth: '80%', maxHeight: '80%', width: 'auto', height: 'auto' }}/>
-                    <MDTypography color='text' fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>Register with StoxHero!</MDTypography>
-                  </Grid>
-
-                  <Grid item xs={12} md={4} lg={4} mt={0.25} display='flex' justifyContent='center' flexDirection='column' alignContent='center' alignItems='center'>
-                    <img src={virtualcurrency} style={{ maxWidth: '80%', maxHeight: '80%', width: 'auto', height: 'auto' }}/>
-                    <MDTypography color='text' fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>Get ₹10 lakh virtual currency!</MDTypography>
-                  </Grid>
-
-                  <Grid item xs={12} md={4} lg={4} mt={0.25} display='flex' justifyContent='center' flexDirection='column' alignContent='center' alignItems='center'>
-                    <img src={protrader} style={{ maxWidth: '80%', maxHeight: '80%', width: 'auto', height: 'auto' }}/>
-                    <MDTypography color='text' fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>Become an ace trader!</MDTypography>
-                  </Grid>
-                </Grid>
-            </MDBox>
-          </Grid>
-
-          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDBox component="form" role="form" borderRadius={10}
-                style={{
-                  backgroundColor: 'white',
-                  width: '90%',
-                  boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)' // Add box shadow
-                }}
-                display='flex' justifyContent='center' alignContent='center' alignItems='center'
-              >
-                <Grid container spacing={2} xs={12} md={12} lg={12} pt={1} pb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'90%'}}>
-                  <Grid item xs={12} md={12} lg={12} mt={0.5} mb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                    <MDTypography fontSize={15} fontColor='dark' fontWeight='bold'>
-                      One platform, multiple benefits!
-                    </MDTypography>
-                  </Grid>
-
-                  <Grid item xs={12} md={4} lg={4} mt={0.25} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                    <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                      <MDAvatar
-                          src={zerorisk}
-                          alt={"zero risk"}
-                          size="lg"
-                        />
-                      </Grid>
-                    <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                      <MDTypography color='text' fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>Zero Money Loss</MDTypography>
-                    </Grid>
-                    </Grid>
-                  </Grid>
-
-                  <Grid item xs={12} md={4} lg={4} mt={0.25} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                    <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                      <MDAvatar
-                          src={lives}
-                          alt={"real-time simulation"}
-                          size="lg"
-                        />
-                      </Grid>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                      <MDTypography color='text' fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>Real-time simulation</MDTypography>
-                    </Grid>
-                    </Grid>
-                  </Grid>
-
-                  <Grid item xs={12} md={4} lg={4} mt={0.25} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                    <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                      <MDAvatar
-                          src={analytics}
-                          alt={"analytics"}
-                          size="lg"
-                        />
-                      </Grid>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                      <MDTypography color='text' fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>Analytics to help you succeed</MDTypography>
-                    </Grid>
-                    </Grid>
-                  </Grid>
-
-                  <Grid item xs={12} md={4} lg={4} mt={0.25} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                    <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                      <MDAvatar
-                          src={earnings}
-                          alt={"signup"}
-                          size="lg"
-                        />
-                      </Grid>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                      <MDTypography color='text' fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>TenX/Contests for regular earnings</MDTypography>
-                    </Grid>
-                    </Grid>
-                  </Grid>
-
-                  <Grid item xs={12} md={4} lg={4} mt={0.25} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                    <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                      <MDAvatar
-                          src={internship}
-                          alt={"internship"}
-                          size="lg"
-                        />
-                      </Grid>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                      <MDTypography color='text' fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>Internship Opportunities</MDTypography>
-                    </Grid>
-                    </Grid>
-                  </Grid>
-
-                  <Grid item xs={12} md={4} lg={4} mt={0.25} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                    <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                      <MDAvatar
-                          src={certification}
-                          alt={"certification"}
-                          size="lg"
-                        />
-                      </Grid>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                      <MDTypography color='text' fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>Trading Certifications</MDTypography>
-                    </Grid>
-                    </Grid>
-                  </Grid>
-
-                </Grid>
-            </MDBox>
-          </Grid>
-
-        </Grid>
-        </Grid>
-
-        <Grid item xs={12} md={12} lg={4} display='flex' flexDirection='column' justifyContent='center' alignContent='center' alignItems='center'>
-        
-          <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>  
-            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'90%'}} >
+            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='flex-start' alignItems='center'>
               <MDBox component="form" role="form" borderRadius={10}
                   style={{
                     backgroundColor: 'white',
-                    // height: '100vh',
-                    width: '90%',
+                    width: '95%',
                     boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)' // Add box shadow
                   }}
                   display='flex' justifyContent='center' alignContent='center' alignItems='center'
                 >
-                  <Grid container pt={1} pb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'90%'}}>
+                  <Grid container xs={12} md={12} lg={12} pt={1} pb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'90%'}}>
+                    <Grid item xs={12} md={12} lg={12} mt={0.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                      <MDTypography fontSize={15} style={{color:'#315c45'}} fontWeight='bold'>
+                        Get ready, your F&O journey starts here!
+                      </MDTypography>
+                    </Grid>
+                    
+                    <Grid item xs={12} md={12} lg={12} mt={0.25} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                      <MDTypography fontSize={12} color='text' fontWeight='bold'>
+                        Here how it starts!
+                      </MDTypography>
+                    </Grid>
+
+                    <Grid item xs={4} md={4} lg={4} mt={0.25} display='flex' justifyContent='center' flexDirection='column' alignContent='center' alignItems='center'>
+                      <img src={register} style={{ maxWidth: '60%', maxHeight: '60%', width: 'auto', height: 'auto' }}/>
+                      <MDTypography color='text' fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>Register with StoxHero!</MDTypography>
+                    </Grid>
+
+                    <Grid item xs={4} md={4} lg={4} mt={0.25} display='flex' justifyContent='center' flexDirection='column' alignContent='center' alignItems='center'>
+                      <img src={virtualcurrency} style={{ maxWidth: '60%', maxHeight: '60%', width: 'auto', height: 'auto' }}/>
+                      <MDTypography color='text' fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>Get ₹10 lakh virtual currency!</MDTypography>
+                    </Grid>
+
+                    <Grid item xs={4} md={4} lg={4} mt={0.25} display='flex' justifyContent='center' flexDirection='column' alignContent='center' alignItems='center'>
+                      <img src={protrader} style={{ maxWidth: '60%', maxHeight: '60%', width: 'auto', height: 'auto' }}/>
+                      <MDTypography color='text' fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>Become an ace trader!</MDTypography>
+                    </Grid>
+                  </Grid>
+              </MDBox>
+            </Grid>
+
+            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+              <MDBox component="form" role="form" borderRadius={10}
+                  style={{
+                    backgroundColor: 'white',
+                    width: '95%',
+                    boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)' // Add box shadow
+                  }}
+                  display='flex' justifyContent='center' alignContent='center' alignItems='center'
+                >
+                  <Grid container spacing={2} xs={12} md={12} lg={12} pt={0.5} pb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'90%'}}>
+                    <Grid item xs={12} md={12} lg={12} mt={0.5} mb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                      <MDTypography fontSize={15} style={{color:'#315c45'}} fontWeight='bold'>
+                        One platform, multiple benefits!
+                      </MDTypography>
+                    </Grid>
+
+                    <Grid item xs={4} md={4} lg={4} mt={0.25} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                      <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                        <MDAvatar
+                            src={zerorisk}
+                            alt={"zero risk"}
+                            size="lg"
+                          />
+                        </Grid>
+                      <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                        <MDTypography color='text' fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>Zero Money Loss</MDTypography>
+                      </Grid>
+                      </Grid>
+                    </Grid>
+
+                    <Grid item xs={4} md={4} lg={4} mt={0.25} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                      <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                        <MDAvatar
+                            src={lives}
+                            alt={"real-time simulation"}
+                            size="lg"
+                          />
+                        </Grid>
+                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                        <MDTypography color='text' fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>Real-time simulation</MDTypography>
+                      </Grid>
+                      </Grid>
+                    </Grid>
+
+                    <Grid item xs={4} md={4} lg={4} mt={0.25} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                      <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                        <MDAvatar
+                            src={analytics}
+                            alt={"analytics"}
+                            size="lg"
+                          />
+                        </Grid>
+                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                        <MDTypography color='text' fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>Trading Analytics</MDTypography>
+                      </Grid>
+                      </Grid>
+                    </Grid>
+
+                    <Grid item xs={4} md={4} lg={4} mt={0.25} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                      <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                        <MDAvatar
+                            src={earnings}
+                            alt={"signup"}
+                            size="lg"
+                          />
+                        </Grid>
+                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                        <MDTypography color='text' fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>Daily Contests</MDTypography>
+                      </Grid>
+                      </Grid>
+                    </Grid>
+
+                    <Grid item xs={4} md={4} lg={4} mt={0.25} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                      <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                        <MDAvatar
+                            src={internship}
+                            alt={"internship"}
+                            size="lg"
+                          />
+                        </Grid>
+                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                        <MDTypography color='text' fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>Internship Opportunities</MDTypography>
+                      </Grid>
+                      </Grid>
+                    </Grid>
+
+                    <Grid item xs={4} md={4} lg={4} mt={0.25} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                      <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                        <MDAvatar
+                            src={certification}
+                            alt={"certification"}
+                            size="lg"
+                          />
+                        </Grid>
+                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                        <MDTypography color='text' fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>Trading Certifications</MDTypography>
+                      </Grid>
+                      </Grid>
+                    </Grid>
+
+                  </Grid>
+              </MDBox>
+            </Grid>
+
+          </Grid>
+        </Grid>
+
+        <Grid item xs={12} md={12} lg={4} display='flex' flexDirection='column' justifyContent='center' alignContent='center' alignItems='center'>
+          <Grid spacing={2} container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='flex-start' alignItems='center' style={{width:'100%'}}>  
+            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='flex-start' alignItems='center'>
+              <MDBox component="form" role="form" borderRadius={10}
+                  style={{
+                    backgroundColor: 'white',
+                    // height: '100vh',
+                    width: '95%',
+                    padding:20,
+                    boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)' // Add box shadow
+                  }}
+                  display='flex' justifyContent='center' alignContent='center' alignItems='center'
+                >
+                  <Grid container xs={12} md={12} lg={12} pt={1} pb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'90%'}}>
 
                     <Grid item xs={12} md={12} lg={12} ml={6} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width: '100%', minWidth: '100%'}}>
                         <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width: '100%', minWidth: '100%'}}>
@@ -878,17 +898,54 @@ function Cover(props) {
               </MDBox>
             </Grid>
           </Grid>
-        
+        </Grid>
+
+        <Grid item xs={12} md={12} lg={12} mt={1} display='flex' flexDirection='column' justifyContent='center' alignContent='center' alignItems='center'>
           <Grid container xs={12} md={12} lg={12} mt={2} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                <MDTypography fontSize={15} color='text' fontWeight='bold'>Download the App Now</MDTypography>
-              </Grid>
-              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                <MDButton style={{ maxWidth: '50%', maxHeight: '20%', width: 'auto', height: 'auto' }} component="a" href="https://play.google.com/store/apps/details?id=com.stoxhero.app" target="_blank">
-                  <img src={playstore} style={{ maxWidth: '100%', maxHeight: '20%', width: 'auto', height: 'auto' }}/>
-                </MDButton>
-              </Grid>    
+            <Grid item xs={12} md={12} lg={2.4} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+              <TotalContest initialCount={data?.totalContestConducted || 0}/>
+            </Grid>
+            <Grid item xs={12} md={12} lg={2.4} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+              <CollegeContest initialCount={data?.collegeContestConducted || 0}/>
+            </Grid>
+            <Grid item xs={12} md={12} lg={2.4} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+              <Subscription initialCount={data?.tenxSubscriptionsBought || 0}/>
+            </Grid>
+            <Grid item xs={12} md={12} lg={2.4} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+              <Interns initialCount={data?.internsCount || 0}/>
+            </Grid>
+            <Grid item xs={12} md={12} lg={2.4} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+              <Rewards initialCount={data?.payouts || 0}/>
+            </Grid>
+            <Grid item xs={12} md={12} lg={2.4} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+              <SignUps initialCount={data?.totalSignups || 0}/>
+            </Grid>
+            <Grid item xs={12} md={12} lg={2.4} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+              <Trades initialCount={data?.totalTrades || 0}/>
+            </Grid>
+            <Grid item xs={12} md={12} lg={2.4} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+              <TradeVolume initialCount={data?.totalTradedVolume || 0}/>
+            </Grid>
+            <Grid item xs={12} md={12} lg={2.4} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+              <FNOTurnover initialCount={data?.totalTradedTurnover || 0}/>
+            </Grid>
+            <Grid item xs={12} md={12} lg={2.4} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+              <Withdrawals initialCount={data?.withdrawalProcessedAmount || 0}/>
+            </Grid>
           </Grid>
+        </Grid>
+
+        <Grid item xs={12} md={12} lg={12} display='flex' flexDirection='column' justifyContent='center' alignContent='center' alignItems='center'>
+        <Grid container xs={12} md={12} lg={12} mt={2} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+              <MDTypography fontSize={15} color='text' fontWeight='bold'>Download the App Now</MDTypography>
+            </Grid>
+            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+              <MDButton style={{ maxWidth: '50%', maxHeight: '20%', width: 'auto', height: 'auto' }} component="a" href="https://play.google.com/store/apps/details?id=com.stoxhero.app" target="_blank">
+                <img src={playstore} style={{ maxWidth: '60%', maxHeight: '20%', width: 'auto', height: 'auto' }}/>
+              </MDButton>
+            </Grid>    
+        </Grid>
         </Grid>
       </Grid>
       {renderSuccessSB}

@@ -72,20 +72,6 @@ const Navbar = () => {
             flexWrap="wrap"
             color="white"
           >
-            {/* <a href="/login">
-            <LinkButton>
-              <Typography fontWeight="bold" variant="body2">Login</Typography>
-              
-            </LinkButton>
-            </a> */}
-
-            {/* <a href="/signup">
-            <LinkButton>
-              <Typography fontWeight="bold" variant="body2">Signup</Typography>
-              
-            </LinkButton>
-            </a> */}
-
             <a href="/careers">
             <LinkButton>
               <Typography fontWeight="bold" variant="body2">Careers</Typography>
@@ -127,7 +113,7 @@ const Navbar = () => {
             alignItems="center"
             justifyContent="flex-start"
             spacing={4}
-            sx={{ flex: 1, background:"rgb(3,2,22)",width:"100%",height:"100vh"}}
+            sx={{ flex: 1, background:"#315c45",width:"100%",height:"100vh"}}
             flexWrap="wrap"
             position="absolute"
             top="0"

@@ -390,6 +390,7 @@ async function singleProcess() {
     app.use('/api/v1/instrumentpnl', require("./routes/instrumentPNL/instrumentPNL"));
     app.use('/api/v1/analytics', require("./routes/analytics/analytics"));
     app.use('/api/v1/appmetrics', require("./routes/appMetrics/appMetricsRoutes"));
+    app.use('/api/v1/newappmetrics', require("./routes/appMetrics/newAppMetricesRoutes"));
     app.use('/api/v1/infinitymining', require("./routes/infinityMining/infinityMiningRoutes"));
     app.use('/api/v1/virtualtradingperformance', require("./routes/performance/virtualTradingRoute"));
     app.use('/api/v1/user', require("./routes/user/userRoutes"));
@@ -408,6 +409,7 @@ async function singleProcess() {
     app.use('/api/v1/notifications', require("./routes/notification/notificationRoutes"));
     app.use('/api/v1/coupons', require("./routes/coupon/couponRoutes"));
     app.use('/api/v1/blogs', require("./routes/blog/blogRoutes"));
+    app.use('/api/v1/alltradeview', require("./routes/viewRoutes/allTradesViewRoute"));
 
 
     const PORT = process.env.PORT || 5002;

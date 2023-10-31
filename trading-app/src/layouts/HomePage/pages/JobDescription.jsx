@@ -92,7 +92,7 @@ const App = () => {
 
                 <Grid item xs={12} md={12} lg={12} mt={2} display='flex' justifyContent='center'>
                   <MDTypography fontSize={18} fontWeight="bold" style={{textDecoration:'underline'}}>
-                    Role & Responsibilities
+                    Roles & Responsibilities
                   </MDTypography>
                 </Grid>
                 
