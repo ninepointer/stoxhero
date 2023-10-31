@@ -214,6 +214,9 @@ exports.confirmOTP = async(req, res, next)=>{
                     users: campaign?.users
                 }
             })
+            if(campaign?.campaignSignupBonus?.amount){
+              await addSignupBonus(newuser?._id, campaign?.campaignSignupBonus?.amount, campaign?.campaignSignupBonus?.currency);
+          }
             // console.log(campaignData)
         }
 
@@ -376,6 +379,23 @@ exports.confirmOTP = async(req, res, next)=>{
     }
   }
 
+}
+
+const addSignupBonus = async (userId, amount, currency) => {
+  const wallet = await UserWallet.findOne({userId:userId});
+  try{
+      wallet.transactions?.push({
+          title: 'Sign up Bonus',
+          description: `Amount credited for as sign up bonus.`,
+          amount: amount,
+          transactionId: uuid.v4(),
+          transactionDate: new Date(),
+          transactionType: currency
+      });
+      await wallet.save({validateBeforeSave:false});
+  }catch(e){
+      console.log(e);
+  }
 }
 
 exports.applyForCareer = async(req,res, next) => {

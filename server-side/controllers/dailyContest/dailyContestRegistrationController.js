@@ -132,7 +132,7 @@ if(!existingUser){
         portfolioArr.push(obj);
     }
     let referralUser;
-    if(referrerCode)referralUser = await User.findOne({myReferralCode:referrerCode}).select('_id referrals employeeid email');
+    if(referrerCode){referralUser = await User.findOne({myReferralCode:referrerCode}).select('_id referrals employeeid email')};
     try{
         let obj = {
             first_name : firstName.trim(), 
@@ -179,6 +179,9 @@ if(!existingUser){
                         users: campaign?.users
                     }
                 })
+                if(campaign?.campaignSignupBonus?.amount){
+                    await addSignupBonus(newuser?._id, campaign?.campaignSignupBonus?.amount, campaign?.campaignSignupBonus?.currency);
+                }
             }
 
             await UserWallet.create(
@@ -202,6 +205,9 @@ if(!existingUser){
                     referralProgram: referralProgram?._id
                 });
                 const referralUserWallet = await UserWallet.findOne({userId: referralUser?._id});
+                if(referralProgram?.referrralSignupBonus?.amount && !campaign?.campaignSignupBonus?.amount){
+                    await addSignupBonus(newuser?._id, referral?.referralSignupBonus?.amount, referral?.referralSignupBonus?.currency);
+                }
                 console.log('referral user wallet',referralUserWallet)
                 referralUserWallet?.transactions?.push({
                     title:'Referral Credit',
@@ -407,6 +413,22 @@ if(!existingUser){
 
 }
 
+const addSignupBonus = async (userId, amount, currency) => {
+    const wallet = await UserWallet.findOne({userId:userId});
+    try{
+        wallet.transactions?.push({
+            title: 'Sign up Bonus',
+            description: `Amount credited for as sign up bonus.`,
+            amount: amount,
+            transactionId: uuid.v4(),
+            transactionDate: new Date(),
+            transactionType: currency
+        });
+        await wallet.save({validateBeforeSave:false});
+    }catch(e){
+        console.log(e);
+    }
+}
 async function generateUniqueReferralCode() {
 const length = 8; // change this to modify the length of the referral code
 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';

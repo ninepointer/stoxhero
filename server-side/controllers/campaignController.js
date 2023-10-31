@@ -20,7 +20,7 @@ exports.createCampaign = async(req, res, next)=>{
     try{
         if(await Campaign.findOne({$or:[{campaignCode: campaignCode}, {isDefault:true}] })) return res.status(400).json({info:'This campaign code already exists.'});
         const campaign = await Campaign.create({campaignName:campaignName.trim(), description, campaignFor, campaignLink, campaignCost, campaignCode:campaignCode.trim(),
-            status, createdBy: req.user._id, lastModifiedBy: req.user._id, maxUsers, campaignSignupBonus, isDefault, campaignType,});
+            status, createdBy: req.user._id, lastModifiedBy: req.user._id, maxUsers, campaignSignupBonus:{amount: campaignSignupBonus?.amount, currency:campaignSignupBonus?.currency}, isDefault, campaignType,});
         // console.log("Campaign: ",campaign)
         res.status(201).json({message: 'Campaign created successfully.', data:campaign, count:campaign.length});
     }catch(error){
@@ -34,8 +34,14 @@ exports.editCampaign = async(req, res, next) => {
     // console.log("id is ,", id)
     const tenx = await Campaign.findById(id);
 
-    const filteredBody = filterObj(req.body, "campaignName", "description", "campaignFor", "campaignLink", "campaignCost", "campaignCode", "status", "maxUsers", "campaignSignupBonus", "isDefault", "campaignType");
-    filteredBody.lastModifiedBy = req.user._id;    
+    let filteredBody = filterObj(req.body, "campaignName", "description", "campaignFor", "campaignLink", "campaignCost", "campaignCode", "status", "maxUsers", "isDefault", "campaignType");
+    filteredBody.lastModifiedBy = req.user._id;
+    if(req.body?.campaignSignupBonus?.amount){
+      filteredBody.campaignSignupBonus.amount = req.body?.campaignSignupBonus?.amount;
+    }    
+    if(req.body?.campaignSignupBonus?.currency){
+      filteredBody.campaignSignupBonus.currency = req.body?.campaignSignupBonus?.currency;
+    }    
 
     // console.log(filteredBody)
     const updated = await Campaign.findByIdAndUpdate(id, filteredBody, { new: true });
@@ -80,7 +86,7 @@ exports.getCampaign = async (req,res,next) => {
 
 exports.getDefaultInvite = async (req,res,next) => {
   try{
-    const campaign = await campaign.findOne({isDefault:true});
+    const campaign = await Campaign.findOne({isDefault:true}).select('campaignCode campaignSignUpBonus');
     return res.status(200).json({ status: 'success', message: 'Successful', data: campaign });
   }catch(e){
     console.log(e);
