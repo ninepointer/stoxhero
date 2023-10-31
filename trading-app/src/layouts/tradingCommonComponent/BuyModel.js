@@ -387,6 +387,12 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
       messageObj.title = "Error";
       messageObj.content = content;
     };
+    if (value === "notAvailable") {
+      messageObj.color = 'warning' 
+      messageObj.icon = 'warning'
+      messageObj.title = "Warning";
+      messageObj.content = content;
+    };
 
     setMessageObj(messageObj);
     setSuccessSB(true);
@@ -401,8 +407,8 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
       open={successSB}
       onClose={closeSuccessSB}
       close={closeSuccessSB}
-      bgWhite="info"
-      sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto" }}
+      bgWhite={messageObj.color}
+      sx={{ borderLeft: `10px solid ${messageObj.color==="success" ? "#4CAF50" : messageObj.color==="error" ? "#F44335" : "#FB8C00"}`, borderRight: `10px solid ${messageObj.color==="success" ? "#4CAF50" : messageObj.color==="error" ? "#F44335" : "#FB8C00"}`, borderRadius: "15px", width: "auto" }}
     />
   );
 
@@ -411,17 +417,17 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
 
   async function handleQuantity(e) {
     e.preventDefault();
-    buyFormDetails.Quantity = Math.abs(e.target.value);
-    setCheckQuantity(e.target.value);
+    buyFormDetails.Quantity = Number(e.target.value);
+    setCheckQuantity(Number(e.target.value));
 
     setMargin(null);
     setErrorMessageQuantity("")
 
-    if (e.target.value <= Math.abs(runningLotsSymbol) && runningLotsSymbol < 0) {
+    if (Number(e.target.value) <= Math.abs(runningLotsSymbol) && runningLotsSymbol < 0) {
       return setMargin("0.00");
     }
 
-    if ((e.target.value > maxLot) || (e.target.value % lotSize !== 0) || (e.target.value < lotSize)) {
+    if ((Number(e.target.value) > maxLot) || (Number(e.target.value) % lotSize !== 0) || (Number(e.target.value) < lotSize)) {
       return;
     }
 
@@ -435,7 +441,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
   }
 
   const priceChange = async (e) => {
-    buyFormDetails.price = e.target.value;
+    buyFormDetails.price = Number(e.target.value);
     if (buyFormDetails.Quantity && buyFormDetails.price) {
       await checkMargin();
     }
@@ -495,6 +501,10 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
     setErrorMessageQuantity("")
   }
 
+  function notAvailable(){
+    openSuccessSB('notAvailable', "This feature is not available on stoxhero currently.");
+  }
+
   return (
     <div>
 
@@ -508,7 +518,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
           onClose={handleClose}
           aria-labelledby="responsive-dialog-title">
           <DialogContent>
-            <DialogContentText sx={{ display: "flex", flexDirection: "column", marginLeft: 2, justifyContent: "center", width: "320px" }}>
+            <DialogContentText sx={{ display: "flex", flexDirection: "column", justifyContent: "center", width: "320px" }}>
 
               <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center" }}>
                 <MDBox sx={{ backgroundColor: "#ffffff", color: "#8D91A8", width: "150px", borderRadius: "5px", fontWeight: 600, fontSize: "13px", textAlign: "left" }}>
@@ -531,7 +541,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
                 <MDBox sx={{ backgroundColor: "#1A73E8", color: "#ffffff", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}>
                   Intraday (Same day)
                 </MDBox>
-                <MDBox sx={{ color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
+                <MDBox onClick={notAvailable} sx={{ color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
                   Delivery (Longterm)
                 </MDBox>
               </MDBox>
@@ -543,7 +553,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
                   </MDBox>
 
                   <MDBox>
-                    <input onChange={(e) => { handleQuantity(e) }} style={{ width: "70px", height: "35px", border: "none", outline: "none", fontSize: "15px", textAlign: "center" }} value={checkQuantity}></input>
+                    <input onChange={(e) => { handleQuantity(e) }} type="number" style={{ width: "70px", height: "35px", border: "none", outline: "none", fontSize: "15px", textAlign: "center" }} value={checkQuantity}></input>
                   </MDBox>
 
                   <MDBox>
@@ -581,12 +591,12 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
                 <MDBox onClick={() => { marketHandleChange("MARKET") }} sx={{ backgroundColor: ordertype === "MARKET" ? "#1A73E8" : "#FFFFFF", color: ordertype === "MARKET" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "MARKET" && ".5px solid #8D91A8" }}>
                   Market
                 </MDBox>
-                {/* onClick={()=>{marketHandleChange("LIMIT")}} */}
-                <MDBox sx={{ backgroundColor: ordertype === "LIMIT" ? "#1A73E8" : "#FFFFFF", color: ordertype === "LIMIT" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "LIMIT" && ".5px solid #8D91A8" }}>
+
+                <MDBox onClick={notAvailable} sx={{ backgroundColor: ordertype === "LIMIT" ? "#1A73E8" : "#FFFFFF", color: ordertype === "LIMIT" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "LIMIT" && ".5px solid #8D91A8" }}>
                   Limit
                 </MDBox>
 
-                <MDBox onClick={from === "TenX Trader" ? () => { marketHandleChange("SL/SP-M") } : () => { }} sx={{ backgroundColor: ordertype === "SL/SP-M" ? "#1A73E8" : "#FFFFFF", color: ordertype === "SL/SP-M" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "SL/SP-M" && ".5px solid #8D91A8" }}>
+                <MDBox onClick={from === "TenX Trader" ? () => { marketHandleChange("SL/SP-M") } : () => { notAvailable() }} sx={{ backgroundColor: ordertype === "SL/SP-M" ? "#1A73E8" : "#FFFFFF", color: ordertype === "SL/SP-M" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "SL/SP-M" && ".5px solid #8D91A8" }}>
                   SL/SP-M
                 </MDBox>
               </MDBox>
@@ -596,30 +606,31 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
                   Day
                 </MDBox>
 
-                <MDBox sx={{ color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
+                <MDBox onClick={notAvailable} sx={{ color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
                   Immediate
                 </MDBox>
 
-                <MDBox sx={{ color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
+                <MDBox onClick={notAvailable} sx={{ color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
                   Minute
                 </MDBox>
               </MDBox>
 
               {margin &&
                 <MDBox sx={{ display: "flex", justifyContent: "left", alignContent: "center", alignItems: "center", marginTop: "5px" }}>
-                  <MDTypography sx={{ fontSize: "14px", color: "#000000", fontWeight: 500 }}>Margin required:</MDTypography>
+                  <MDTypography sx={{ fontSize: "14px", color: "#000000", fontWeight: 500 }}>Virtual margin required:</MDTypography>
                   <MDTypography sx={{ fontSize: "14px", color: "#000000", fontWeight: 500, marginLeft: "4px" }}> <b>₹{margin}</b></MDTypography>
-                  <MDTypography sx={{ fontSize: "14px", color: "#000000", fontWeight: 500, marginTop: "4px", marginLeft: "4px" }}> <span><RefreshIcon onClick={async () => { await checkMargin() }} sx={{ cursor: "pointer" }} /></span> </MDTypography>
+                  <MDTypography sx={{ fontSize: "14px", color: "#000000", fontWeight: 500, marginTop: "4px", marginLeft: "4px" }}> <span><RefreshIcon onClick={buyFormDetails.Quantity <= Math.abs(runningLotsSymbol) && runningLotsSymbol < 0 ? ()=>{} : async () => { await checkMargin() }} sx={{ cursor: "pointer" }} /></span> </MDTypography>
                 </MDBox>}
 
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <MDButton variant="contained" color="info" onClick={handleClose} autoFocus>
+            <MDButton size='small' variant="contained" color="info" onClick={handleClose} autoFocus>
               Cancel
             </MDButton>
             <MDButton
-              disabled={(buyFormDetails.stopLossPrice && (Number(ltp) < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (Number(ltp) > buyFormDetails.stopProfitPrice))}
+              size='small'
+              // disabled={(buyFormDetails.stopLossPrice && (Number(ltp) < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (Number(ltp) > buyFormDetails.stopProfitPrice))}
               autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
               BUY
             </MDButton>

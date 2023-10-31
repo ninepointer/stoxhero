@@ -281,13 +281,12 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
 
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = (value, content) => {
-    // //console.log("Value: ",value)
     if (value === "complete") {
       messageObj.color = 'success'
       messageObj.icon = 'check'
       messageObj.title = "Trade Successful";
       messageObj.content = `Traded ${content.Quantity} of ${content.symbol}`;
-
+      setSuccessSB(true);
     };
     if (value === "reject") {
       messageObj.color = 'error'
@@ -313,14 +312,17 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
       messageObj.title = "Error";
       messageObj.content = content;
     };
+    if (value === "notAvailable") {
+      messageObj.color = 'warning' 
+      messageObj.icon = 'warning'
+      messageObj.title = "Warning";
+      messageObj.content = content;
+    };
 
     setMessageObj(messageObj);
     setSuccessSB(true);
   }
   const closeSuccessSB = () => setSuccessSB(false);
-  // //console.log("Title, Content, Time: ",title,content,time)
-
-
   const renderSuccessSB = (
     <MDSnackbar
       color={messageObj.color}
@@ -330,8 +332,8 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
       open={successSB}
       onClose={closeSuccessSB}
       close={closeSuccessSB}
-      bgWhite="info"
-      sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: `auto` }}
+      bgWhite={messageObj.color}
+      sx={{ borderLeft: `10px solid ${messageObj.color==="success" ? "#4CAF50" : messageObj.color==="error" ? "#F44335" : "#FB8C00"}`, borderRight: `10px solid ${messageObj.color==="success" ? "#4CAF50" : messageObj.color==="error" ? "#F44335" : "#FB8C00"}`, borderRadius: "15px", width: "auto" }}
     />
   );
 
@@ -393,8 +395,6 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
     setErrorMessageQuantity("")
   }
 
-
-
   async function addQuantity(){
     if(exitPositionFormDetails.Quantity % lotSize !== 0){
       setFilledQuantity(parseInt(exitPositionFormDetails.Quantity/lotSize + 1) * lotSize)
@@ -412,6 +412,10 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
     setErrorMessageQuantity("")
   }
 
+  function notAvailable(){
+    openSuccessSB('notAvailable', "This feature is not available on stoxhero currently.");
+  }
+
   return (
     <div>
 
@@ -427,7 +431,7 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
           {/* <DialogTitle id="responsive-dialog-title" sx={{ textAlign: 'center' }}>
           </DialogTitle> */}
           <DialogContent>
-            <DialogContentText sx={{ display: "flex", flexDirection: "column", marginLeft: 2, justifyContent: "center" , width: "320px"}}>
+            <DialogContentText sx={{ display: "flex", flexDirection: "column", justifyContent: "center" , width: "320px"}}>
 
               <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center" }}>
                 <MDBox sx={{ backgroundColor: "#ffffff", color: "#8D91A8", width: "150px", borderRadius: "5px", fontWeight: 600, fontSize: "13px", textAlign: "left" }}>
@@ -461,7 +465,7 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
                 <MDBox sx={{backgroundColor: "#FB8C00", color: "#ffffff", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}>
                   Intraday (Same day)
                 </MDBox>
-                <MDBox sx={{color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
+                <MDBox onClick={notAvailable} sx={{color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
                   Delivery (Longterm)
                 </MDBox>
               </MDBox>
@@ -500,28 +504,28 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
                   Day
                 </MDBox>
 
-                <MDBox sx={{color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
+                <MDBox onClick={notAvailable} sx={{color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
                   Immediate
                 </MDBox>
 
-                <MDBox sx={{color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
+                <MDBox onClick={notAvailable} sx={{color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
                  Minute
                 </MDBox>
               </MDBox>
 
               {margin &&
               <MDBox sx={{display: "flex", justifyContent: "left", alignContent: "center", alignItems: "center", marginTop: "5px"}}>
-                <MDTypography sx={{fontSize: "14px", color: "#000000", fontWeight: 500 }}>Margin required:</MDTypography>
+                <MDTypography sx={{fontSize: "14px", color: "#000000", fontWeight: 500 }}>Virtual margin required:</MDTypography>
                 <MDTypography sx={{fontSize: "14px", color: "#000000", fontWeight: 500 ,marginLeft: "4px"}}> <b>₹{margin}</b></MDTypography>
-                <MDTypography sx={{fontSize: "14px", color: "#000000", fontWeight: 500, marginTop: "4px", marginLeft: "4px" }}> <span><RefreshIcon onClick={async ()=>{await checkMargin()}} sx={{cursor: "pointer"}} /></span> </MDTypography>
+                <MDTypography sx={{fontSize: "14px", color: "#000000", fontWeight: 500, marginTop: "4px", marginLeft: "4px" }}> <span><RefreshIcon onClick={exitPositionFormDetails.Quantity <= Math.abs(quantity) ? ()=>{} : async ()=>{await checkMargin()}} sx={{cursor: "pointer"}} /></span> </MDTypography>
               </MDBox>}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-          <MDButton variant="contained" color="warning" onClick={handleClose} autoFocus>
+            <MDButton size="small" variant="contained" color="warning" onClick={handleClose} autoFocus>
               Cancel
             </MDButton>
-            <MDButton autoFocus variant="contained" color="warning" onClick={(e) => { exitPosition(e) }}>
+            <MDButton size="small" autoFocus variant="contained" color="warning" onClick={(e) => { exitPosition(e) }}>
               EXIT
             </MDButton>
           </DialogActions>
