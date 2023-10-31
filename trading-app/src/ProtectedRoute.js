@@ -9,7 +9,7 @@ const ProtectedRoute = ({children }) => {
     
     if (!isAuthenticated) {
       setTimeout(() => {
-        navigate('/home', { state: { from: location } });
+        navigate('/', { state: { from: location } });
      }, 400);
       return null;
     }

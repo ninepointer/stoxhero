@@ -61,7 +61,7 @@ const Navbar = () => {
         <Stack direction='row' justifyContent='space-between' alignItems="center" flexWrap="wrap"  alignContent='center' >
           {/* Logo */}
 
-          <a href="/home"><img src={logo} style={{ objectFit: "contain", height: "40px", marginTop: "8px" }} /></a>
+          <a href="/"><img src={logo} style={{ objectFit: "contain", height: "40px", marginTop: "8px" }} /></a>
 
 
           {!isMobile && (<Stack
