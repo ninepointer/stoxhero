@@ -121,6 +121,9 @@ exports.createWithdrawal = async(req,res,next) => {
     if(amount>walletBalance){
         return res.status(400).json({status:'error', message:'You don\'t have enough funds for the withdrawal.'});
     }
+    if(walletBalance-amount < (appSettings?.minWalletBalance ??200)){
+        return res.status(400).json({status:'error', message:`Your minimum wallet balance should be ${appSettings?.minWalletBalance}`});
+    }
 
     if(amount<appSettings.minWithdrawal){
         return res.status(400).json({status:'error', message:`The minimum amount that can be withdrawn is ₹${appSettings.minWithdrawal}`});

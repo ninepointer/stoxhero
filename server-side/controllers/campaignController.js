@@ -15,12 +15,12 @@ const filterObj = (obj, ...allowedFields) => {
 exports.createCampaign = async(req, res, next)=>{
     // console.log(req.body)
     const{
-        campaignName, description, campaignFor, campaignLink, campaignCost, campaignCode,
+        campaignName, description, campaignFor, campaignLink, campaignCost, campaignCode, maxUsers, campaignSignupBonus, isDefault, campaignType,
         status } = req.body;
     try{
-        if(await Campaign.findOne({campaignCode: campaignCode })) return res.status(400).json({info:'This campaign code already exists.'});
+        if(await Campaign.findOne({$or:[{campaignCode: campaignCode}, {isDefault:true}] })) return res.status(400).json({info:'This campaign code already exists.'});
         const campaign = await Campaign.create({campaignName:campaignName.trim(), description, campaignFor, campaignLink, campaignCost, campaignCode:campaignCode.trim(),
-            status, createdBy: req.user._id, lastModifiedBy: req.user._id});
+            status, createdBy: req.user._id, lastModifiedBy: req.user._id, maxUsers, campaignSignupBonus, isDefault, campaignType,});
         // console.log("Campaign: ",campaign)
         res.status(201).json({message: 'Campaign created successfully.', data:campaign, count:campaign.length});
     }catch(error){
@@ -34,7 +34,7 @@ exports.editCampaign = async(req, res, next) => {
     // console.log("id is ,", id)
     const tenx = await Campaign.findById(id);
 
-    const filteredBody = filterObj(req.body, "campaignName", "description", "campaignFor", "campaignLink", "campaignCost", "campaignCode", "status");
+    const filteredBody = filterObj(req.body, "campaignName", "description", "campaignFor", "campaignLink", "campaignCost", "campaignCode", "status", "maxUsers", "campaignSignupBonus", "isDefault", "campaignType");
     filteredBody.lastModifiedBy = req.user._id;    
 
     // console.log(filteredBody)
@@ -44,7 +44,7 @@ exports.editCampaign = async(req, res, next) => {
 }
 
 exports.getCampaigns = async(req, res, next)=>{
-    const campaign = await Campaign.find().select('campaignName description campaignFor campaignLink campaignCost campaignCode status users')
+    const campaign = await Campaign.find().select('campaignName description campaignFor campaignLink campaignCost campaignCode status users maxUsers campaignSignupBonus isDefault campaignType')
     res.status(201).json({message: 'success', data:campaign});
 }
 
@@ -56,7 +56,7 @@ exports.getCampaignsName = async(req, res, next)=>{
 
 exports.getCampaignsByStatus = async(req, res, next)=>{
   const {status} = req.params;
-  const campaign = await Campaign.find({status:status}).select('campaignName description campaignFor campaignLink campaignCost campaignCode status users')
+  const campaign = await Campaign.find({status:status}).select('campaignName description campaignFor campaignLink campaignCost campaignCode status users maxUsers campaignSignupBonus isDefault campaignType')
   res.status(201).json({message: 'success', data:campaign});
 }
 
@@ -76,4 +76,14 @@ exports.getCampaign = async (req,res,next) => {
       console.log(e);
       res.status(500).json({ status: 'error', message: 'Something went wrong' });
     }
+}
+
+exports.getDefaultInvite = async (req,res,next) => {
+  try{
+    const campaign = await campaign.findOne({isDefault:true});
+    return res.status(200).json({ status: 'success', message: 'Successful', data: campaign });
+  }catch(e){
+    console.log(e);
+    res.status(500).json({ status: 'error', message: 'Something went wrong', error:e.message});
+  }
 }

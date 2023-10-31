@@ -204,6 +204,7 @@ exports.cancelOrder = async (req, res, next) => {
            symbolArr[i].createdBy.toString() === updatedOrder.createdBy.toString())
         {
             updatedOrder.status = "Cancelled";
+            updatedOrder.execution_time = new Date();
             const doc = await updatedOrder.save({new: true});
             symbolArr.splice(i, 1);
             await client.set('stoploss-stopprofit', JSON.stringify(data));

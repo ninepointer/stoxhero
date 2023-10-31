@@ -1,12 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const {getCampaignsName, createCampaign, editCampaign, getCampaigns, getCampaign, getCampaignsByStatus} = require('../../controllers/campaignController');
+const {getCampaignsName, createCampaign, editCampaign, getCampaigns, getCampaign, getCampaignsByStatus, getDefaultInvite} = require('../../controllers/campaignController');
 const Authenticate = require('../../authentication/authentication');
 const restrictTo = require('../../authentication/authorization');
 
 
 
 router.route('/create').post(Authenticate, restrictTo('Admin', 'Super Admin'), createCampaign)
+router.route('/defaultinvite').get(getDefaultInvite);
 router.route('/').get(Authenticate, getCampaigns);
 router.route('/name').get(Authenticate, restrictTo('Admin', 'Super Admin'), getCampaignsName);
 
