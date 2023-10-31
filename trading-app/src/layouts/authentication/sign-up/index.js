@@ -69,6 +69,7 @@ function Cover(props) {
   let [invalidDetail, setInvalidDetail] = useState();
   const [data, setData] = useState();
   const [earnings,setEarnings] = useState([]);
+  let referrerCodeString = location.search?.split('=')[1]??props.location?.search?.split('=')[1]??''
   const [messageObj, setMessageObj] = useState({
     color: '',
     icon: '',
@@ -76,16 +77,13 @@ function Cover(props) {
     content: ''
   })
 
-  console.log('home page');
   const getMetrics = async()=>{
     const res = await axios.get(`${apiUrl}newappmetrics`);
-    console.log("New App Metrics:",res.data.data)
     setData(res.data.data);
   }
 
   const getEarnings = async()=>{
     const res = await axios.get(`${apiUrl}contestscoreboard/earnings`);
-    console.log("Earnings:",res.data.data)
     setEarnings(res.data.data);
   }
 
@@ -109,7 +107,7 @@ function Cover(props) {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   
   useEffect(()=>{
-    setformstate(prevState => ({...prevState, referrerCode: location.search?.split('=')[1]??props.location?.search?.split('=')[1]??''}));
+    setformstate(prevState => ({...prevState, referrerCode: referrerCodeString}));
     getMetrics();
     getEarnings();
     ReactGA.pageview(window.location.pathname)
@@ -809,7 +807,7 @@ function Cover(props) {
                         <>
                               <Grid item xs={12} md={12} lg={6} mb={.5} display="flex" justifyContent="center">
                                 <TextField
-                                  disabled={formstate.referrerCode}
+                                  disabled={referrerCodeString}
                                   type="text"
                                   id="outlined-required"
                                   label={formstate.referrerCode ? '' : "Referrer/Invite Code"}
