@@ -304,6 +304,20 @@ const App = (props) => {
     }
   }, [open]);
 
+
+  const [checkUserExist, setCheckUserExist] = useState(true);
+  async function handleMobile(e){
+    setDetails(prevState => ({...prevState, mobile: e.target.value}))
+    if((e.target.value).length >= 10){
+      axios.get(`${apiUrl}user/exist/${e.target.value}`)
+      .then((res)=>{
+        setCheckUserExist(res?.data?.data);
+      }).catch((err)=>{
+          return new Error(err)
+      }) 
+    }
+  }
+
   return (
     
     <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{backgroundColor:'white', minHeight:'100vH', height: 'auto', width: 'auto', minWidth:'100vW'}}>
@@ -386,7 +400,7 @@ const App = (props) => {
                             label="Mobile(OTP will be sent on this number)"
                             type="text"
                             fullWidth
-                            onChange={(e)=>{setDetails(prevState => ({...prevState, mobile: e.target.value}))}}
+                            onChange={(e)=>{handleMobile(e)}}
                           />
                         </Grid>
 
@@ -571,9 +585,10 @@ const App = (props) => {
                         </Grid>
                         }
 
-                        <Grid item xs={12} md={12} lg={12} p={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                        <MDTypography fontSize={15} fontWeight='bold'>Looks like you haven't signed up yet 😀</MDTypography>
-                        </Grid>
+                        {!checkUserExist &&
+                          <Grid item xs={12} md={12} lg={12} p={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                            <MDTypography fontSize={15} fontWeight='bold'>Looks like you haven't signed up yet 😀</MDTypography>
+                          </Grid>}
 
 
                         {otpGenerated && 

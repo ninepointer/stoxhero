@@ -131,7 +131,7 @@ function Header({ e }) {
                     state: { data: id }
                 });
             } else {
-                openSuccessSB("error", "You dont have any trade for this contest.")
+                openSuccessSB("error", "You do not have any trade for this contest.")
             }
             //   setIsLoading(false)
         }).catch((err) => {

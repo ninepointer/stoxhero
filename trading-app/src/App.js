@@ -71,6 +71,7 @@ import { socketContext } from "./socketContext";
 import {Howl} from "howler";
 import sound from "./assets/sound/tradeSound.mp3"
 import MessagePopUp from "./MessagePopup";
+import AdminLogin from "./layouts/authentication/sign-in/adminLogin";
 // import ContestRegistration from "./layouts/UserContest/data/ContestRegistration";
 
 
@@ -354,7 +355,7 @@ export default function App() {
           <Route path='/home' element={<Navigate 
             to={getDetails?.userDetails?.role ? getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/stoxherodashboard':'/'} 
             />}/>
-          {/* <Route path='/login' element={<SignIn />}/> */}
+          <Route path='/adminlogin' element={<AdminLogin />}/>
           <Route path='/about' element={<About/>}/>
           <Route path='/contact' element={<Contact/>}/>
           <Route path='/workshops' element={<Workshops location={myLocation.current}/>}/>

@@ -246,97 +246,97 @@ const getTicksForUserPosition = async (socket, id) => {
 
 }
 
-// const getTicksForCompanySide = async (socket) => {
-//   ticker?.on('ticks', async (ticks) => {
-//     try {
-//       socket?.emit('tick', ticks);
-//       data = await client.get('stoploss-stopprofit');
-//       data = JSON.parse(data);
-
-//       if (data) {
-//         for (let tick of ticks) {
-
-//           let symbolArr = data[`${tick.instrument_token}`];
-//           // console.log("this is symbolArr", symbolArr, Boolean(symbolArr))
-//           try {
-//             if (symbolArr?.length > 0) {
-//               // for(let subelem of symbolArr){
-//               const length = symbolArr?.length
-//               for (let i = 0; i < length; i++) {
-//                 // publish(take trade) only when 
-//                 if (symbolArr[i].type === "StopLoss" && symbolArr[i].execution_price >= tick.last_price && symbolArr[i].buyOrSell === "SELL") {
-//                   console.log("1st if running")
-//                   await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
-//                 } else if (symbolArr[i].type === "StopLoss" && symbolArr[i].execution_price <= tick.last_price && symbolArr[i].buyOrSell === "BUY") {
-//                   console.log("2nd if running")
-//                   await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
-//                 } else if (symbolArr[i].type === "StopProfit" && symbolArr[i].execution_price <= tick.last_price && symbolArr[i].buyOrSell === "SELL") {
-//                   console.log("3rd if running")
-//                   await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
-//                 } else if (symbolArr[i].type === "StopProfit" && symbolArr[i].execution_price >= tick.last_price && symbolArr[i].buyOrSell === "BUY") {
-//                   console.log("4th if running")
-//                   await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
-//                 }
-//               }
-//             }
-//           } catch (err) {
-//             console.log(err);
-//           }
-//         }
-//       }
-
-
-
-//       ticks = null;
-//     } catch (err) {
-//       console.log(err)
-//     }
-//   });
-// }
-
 const getTicksForCompanySide = async (socket) => {
   ticker?.on('ticks', async (ticks) => {
     try {
-      socket.emit('tick', ticks);
+      socket?.emit('tick', ticks);
+      let data = await client.get('stoploss-stopprofit');
+      data = JSON.parse(data);
 
-      const data = await client.get('stoploss-stopprofit');
-      const parsedData = JSON.parse(data) || {};
+      if (data) {
+        for (let tick of ticks) {
 
-      for (const tick of ticks) {
-        const symbolArr = parsedData[tick.instrument_token] || [];
-        const length = symbolArr?.length;
-        if(length > 0){
-          for (let i = 0; i < length; i++) {
-            const currentSymbol = symbolArr[i];
-            const shouldExecute = (
-              (currentSymbol.type === "StopLoss" &&
-                ((currentSymbol.execution_price >= tick.last_price && currentSymbol.buyOrSell === "SELL") ||
-                 (currentSymbol.execution_price <= tick.last_price && currentSymbol.buyOrSell === "BUY"))) ||
-              (currentSymbol.type === "StopProfit" &&
-                ((currentSymbol.execution_price <= tick.last_price && currentSymbol.buyOrSell === "SELL") ||
-                 (currentSymbol.execution_price >= tick.last_price && currentSymbol.buyOrSell === "BUY")))
-            );
-  
-            if (shouldExecute) {
-              const publishData = {
-                data: currentSymbol,
-                ltp: tick.last_price,
-                index: i
-              };
-  
-              await client.PUBLISH("place-order", JSON.stringify(publishData));
-              console.log(`${i}th if running`);
+          let symbolArr = data[`${tick.instrument_token}`];
+          // console.log("this is symbolArr", symbolArr, Boolean(symbolArr))
+          try {
+            if (symbolArr?.length > 0) {
+              // for(let subelem of symbolArr){
+              const length = symbolArr?.length
+              for (let i = 0; i < length; i++) {
+                // publish(take trade) only when 
+                if (symbolArr[i].type === "StopLoss" && symbolArr[i].execution_price >= tick.last_price && symbolArr[i].buyOrSell === "SELL") {
+                  console.log("1st if running")
+                  await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
+                } else if (symbolArr[i].type === "StopLoss" && symbolArr[i].execution_price <= tick.last_price && symbolArr[i].buyOrSell === "BUY") {
+                  console.log("2nd if running")
+                  await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
+                } else if (symbolArr[i].type === "StopProfit" && symbolArr[i].execution_price <= tick.last_price && symbolArr[i].buyOrSell === "SELL") {
+                  console.log("3rd if running")
+                  await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
+                } else if (symbolArr[i].type === "StopProfit" && symbolArr[i].execution_price >= tick.last_price && symbolArr[i].buyOrSell === "BUY") {
+                  console.log("4th if running")
+                  await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
+                }
+              }
             }
+          } catch (err) {
+            console.log(err);
           }
         }
-
-
       }
+
+
+
+      ticks = null;
     } catch (err) {
-      console.error(err);
+      console.log(err)
     }
   });
 }
+
+// const getTicksForCompanySide = async (socket) => {
+//   ticker?.on('ticks', async (ticks) => {
+//     try {
+//       socket.emit('tick', ticks);
+
+//       const data = await client.get('stoploss-stopprofit');
+//       const parsedData = JSON.parse(data) || {};
+
+//       for (const tick of ticks) {
+//         const symbolArr = parsedData[tick.instrument_token] || [];
+//         const length = symbolArr?.length;
+//         if(length > 0){
+//           for (let i = 0; i < length; i++) {
+//             const currentSymbol = symbolArr[i];
+//             const shouldExecute = (
+//               (currentSymbol.type === "StopLoss" &&
+//                 ((currentSymbol.execution_price >= tick.last_price && currentSymbol.buyOrSell === "SELL") ||
+//                  (currentSymbol.execution_price <= tick.last_price && currentSymbol.buyOrSell === "BUY"))) ||
+//               (currentSymbol.type === "StopProfit" &&
+//                 ((currentSymbol.execution_price <= tick.last_price && currentSymbol.buyOrSell === "SELL") ||
+//                  (currentSymbol.execution_price >= tick.last_price && currentSymbol.buyOrSell === "BUY")))
+//             );
+  
+//             if (shouldExecute) {
+//               const publishData = {
+//                 data: currentSymbol,
+//                 ltp: tick.last_price,
+//                 index: i
+//               };
+  
+//               await client.PUBLISH("place-order", JSON.stringify(publishData));
+//               console.log(`${i}th if running`);
+//             }
+//           }
+//         }
+
+
+//       }
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   });
+// }
 
 
 const onError = ()=>{
