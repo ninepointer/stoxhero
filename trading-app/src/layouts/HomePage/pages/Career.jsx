@@ -49,7 +49,7 @@ const App = (props) => {
                 <Grid container xs={12} md={12} lg={12} style={{width:'100%'}}>
                   <Grid item xs={12} md={12} lg={12} style={{width:'100%'}}>
                     <MDBox  display='flex' justifyContent='flex-start' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                      <MDTypography fontSize={18} fontWeight="bold">Jobs & Intenrships</MDTypography>
+                      <MDTypography fontSize={18} fontWeight="bold">Jobs & Internships</MDTypography>
                     </MDBox>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} style={{width:'100%'}}>
