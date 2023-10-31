@@ -138,7 +138,7 @@ function ReferralHeader({ children }) {
                             %0A%0A👉 Get 10,00,000 virtual currency in your account to start option trading using my referral code.
                             %0A%0A👉 Join the community of ace traders and learn real-time options trading.
                             %0A%0A👉 Participate in free options trading contests to sharpen your trading skills.
-                            %0A%0A📲 Visit https://www.stoxhero.com/signup
+                            %0A%0A📲 Visit https://www.stoxhero.com
                             %0A%0AUse my below invitation code 👇 and get virtual currency of ₹10,00,000 in your wallet and start trading.
                             %0A%0AMy Referral Code to join the StoxHero: *${getDetails.userDetails.myReferralCode}*`}
                             target="_blank">
