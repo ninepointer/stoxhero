@@ -40,6 +40,11 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
     // const [newObjectId,setNewObjectId] = useState()
     const navigate = useNavigate();
 
+    const [referralSignupBonus, setreferralSignupBonus] = useState({
+      amount: "",
+      currency: ""
+    })
+
     async function onEdit(e,formState){
         e.preventDefault()
         setSaving(true)
@@ -48,8 +53,7 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
             setTimeout(()=>{setSaving(false);setEditing(true)},500)
             return openErrorSB("Missing Field","Please fill all the mandatory fields")
         }
-        const { referralProgramName, referralProgramStartDate, referralProgramEndDate, rewardPerReferral, currency, status, description } = formState;
-
+        const {  referralProgramName, referralProgramStartDate, referralProgramEndDate, rewardPerReferral, currency, status, description } = formState;
         const res = await fetch(`${baseUrl}api/v1/referrals`, {
             method: "PATCH",
             credentials:"include",
@@ -58,7 +62,7 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
                 "Access-Control-Allow-Credentials": true
             },
             body: JSON.stringify({
-                referralProgramName, referralProgramStartDate, referralProgramEndDate, rewardPerReferral, currency, status, description})
+              referralSignupBonus, referralProgramName, referralProgramStartDate, referralProgramEndDate, rewardPerReferral, currency, status, description})
             });
 
         const data = await res.json();
@@ -81,7 +85,7 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
             setTimeout(()=>{setSaving(false)},500)
             return openErrorSB("Missing Field","Please fill all the mandatory fields")
         }
-        const { referralProgramName, referralProgramStartDate, referralProgramEndDate, rewardPerReferral, currency, status, description } = formState;
+        const {  referralProgramName, referralProgramStartDate, referralProgramEndDate, rewardPerReferral, currency, status, description } = formState;
         const res = await fetch(`${baseUrl}api/v1/referrals`, {
             method: "POST",
             credentials:"include",
@@ -90,7 +94,7 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
                 "Access-Control-Allow-Credentials": true
             },
             body: JSON.stringify({
-                referralProgramName, referralProgramStartDate, referralProgramEndDate, rewardPerReferral, currency, status, description
+              referralSignupBonus, referralProgramName, referralProgramStartDate, referralProgramEndDate, rewardPerReferral, currency, status, description
             })
         });
   
@@ -262,6 +266,43 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
                 >
                 <MenuItem value="INR">INR</MenuItem>
                 <MenuItem value="CREDOS">CREDOS</MenuItem>
+                </Select>
+              </FormControl>
+          </Grid>
+
+          <Grid item xs={12} md={6} xl={3}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
+                label='Amount *'
+                type="number"
+                defaultValue={referralSignupBonus?.amount}
+                fullWidth 
+                onChange={(e) => {setreferralSignupBonus(prevState => ({
+                  ...prevState,
+                  amount: e.target.value
+              }))}}
+              />
+          </Grid>
+
+          <Grid item xs={12} md={6} xl={3}>
+              <FormControl sx={{width: "100%" }}>
+                <InputLabel id="demo-simple-select-autowidth-label">Bonus currency *</InputLabel>
+                <Select
+                labelId="demo-simple-select-autowidth-label"
+                id="demo-simple-select-autowidth"
+                // value={oldObjectId ? contestData?.portfolioType : formState?.portfolioType}
+                value={referralSignupBonus?.currency}
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                onChange={(e) => {setreferralSignupBonus(prevState => ({
+                  ...prevState,
+                  currency: e.target.value
+              }))}}
+                label="Bonus Currency"
+                sx={{ minHeight:43 }}
+                >
+                <MenuItem value="Cash">Cash</MenuItem>
+                <MenuItem value="Bonus">Bonus</MenuItem>
                 </Select>
               </FormControl>
           </Grid>

@@ -180,7 +180,7 @@ exports.nextTradingDay = async (req, res, next) => {
             // // End of tomorrow
             // const endOfTomorrow = new Date(tomorrowDate);
             // endOfTomorrow.setHours(23, 59, 59, 999);
-            console.log( date, endOfTomorrow, new Date(date.toISOString().split("T")[0]), new Date(`${endOfTomorrow.toISOString().split("T")[0]}T23:59:00.000Z`) )
+            // console.log( date, endOfTomorrow, new Date(date.toISOString().split("T")[0]), new Date(`${endOfTomorrow.toISOString().split("T")[0]}T23:59:00.000Z`) )
             const holiday = await TradingHoliday.find({
                 holidayDate: {
                     $gte: new Date(date.toISOString().split("T")[0]),

@@ -14,7 +14,7 @@ const filterObj = (obj, ...allowedFields) => {
 
 exports.createReferral = async(req, res, next)=>{
     // console.log(req.body);
-    const{referralProgramName, referralProgramStartDate, 
+    const{referralSignupBonus, referralProgramName, referralProgramStartDate, 
         referralProgramEndDate, rewardPerReferral, currency,
         description, status
     } = req.body;
@@ -26,7 +26,7 @@ exports.createReferral = async(req, res, next)=>{
     }
     const referral = await Referral.create({referralProgramName: referralProgramName.trim(), referralProgramStartDate, 
         referralProgramEndDate, rewardPerReferral, currency, 
-        description, lastModifiedOn: new Date(), 
+        description, lastModifiedOn: new Date(), referralSignupBonus,
         status, createdBy: req.user._id, lastModifiedBy: req.user._id});
     
     res.status(201).json({message: 'Referral Program successfully created.', data:referral});    
