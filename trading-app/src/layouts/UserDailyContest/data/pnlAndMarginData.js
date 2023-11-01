@@ -43,7 +43,7 @@ const PnlAndMarginData = ({contestId}) => {
   const runningPnl = Number(netPnl?.toFixed(0));
   const openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
   const availableMargin = (runningPnl < 0) ? totalRunningLots===0 ? (openingBalance-todayMargin+runningPnl) : openingBalance-todayMargin : openingBalance-todayMargin;
-  const availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹" + (-Number(availableMargin))?.toLocaleString()
+  const availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin?.toFixed(0))?.toLocaleString() : "₹" + (-Number(availableMargin?.toFixed(0)))?.toLocaleString()
   const usedMargin = runningPnl >= 0 ? 0 : runningPnl
   const usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin)?.toLocaleString() : "₹" + (-Number(usedMargin))?.toLocaleString()
   const unrealisedPnl = runningPnl >= 0 ? runningPnl : 0
@@ -56,7 +56,7 @@ const PnlAndMarginData = ({contestId}) => {
                 <MDButton style={{ minWidth: '100%' }}>
                     <MDBox display='flex' alignItems='center'>
                         <MDBox display='flex' justifyContent='flex-start'><img src={AMargin} width='40px' height='40px' /></MDBox>
-                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>Portfolio:</MDTypography></MDBox>
+                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>Virtual Money:</MDTypography></MDBox>
                         <MDBox><MDTypography ml={1} fontSize={11}>{totalCreditString}</MDTypography></MDBox>
                     </MDBox>
                 </MDButton>

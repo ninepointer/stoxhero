@@ -76,7 +76,7 @@ function Footer({ light }) {
 
           <Grid item xs={12} md={12} lg={4} mt={1} display='flex' justifyContent='center'>
             <MDBox lineHeight={1}>
-              <Link href="https://www.stoxhero.com/about" target="_blank">
+              <Link href="/about" target="_blank">
                 <MDTypography
                   variant="button"
                   fontWeight="regular"
@@ -87,7 +87,7 @@ function Footer({ light }) {
               </Link>
             </MDBox>
             <MDBox pl={2} lineHeight={1}>
-              <Link href="https://www.stoxhero.com/contact" target="_blank">
+              <Link href="/contact" target="_blank">
                 <MDTypography
                   variant="button"
                   fontWeight="regular"
@@ -98,7 +98,7 @@ function Footer({ light }) {
               </Link>
             </MDBox>
             <MDBox pl={2} lineHeight={1}>
-              <Link href="https://www.stoxhero.com/terms" target="_blank">
+              <Link href="/terms" target="_blank">
                 <MDTypography
                   variant="button"
                   fontWeight="regular"
@@ -120,7 +120,7 @@ function Footer({ light }) {
               fontSize={size.sm}
               // style={{textDecoration:'underline'}}
             >
-              For support: support@stoxhero.com
+              For support: team@stoxhero.com
             </MDBox>
           </Grid>
 

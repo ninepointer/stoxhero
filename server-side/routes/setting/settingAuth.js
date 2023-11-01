@@ -103,6 +103,7 @@ router.patch("/settings/:id", Authentication, restrictTo('Admin', 'SuperAdmin'),
                 maxWithdrawalHigh:req.body.maxWithdrawalHigh,
                 walletBalanceUpperLimit:req.body.walletBalanceUpperLimit,
                 minWithdrawal:req.body.minWithdrawal,
+                minWalletBalance:req.body.minWalletBalance,
                 gstPercentage:req.body.gstPercentage,
                 tdsPercentage:req.body.tdsPercentage,
                 mobileAppVersion:req.body.mobileAppVersion,
@@ -312,16 +313,16 @@ router.get("/deletenotifs", async (req, res)=>{
 }
 })    
 
-exports.cancelPendingOrders = async(req,res,next) => {
+exports.cancelPendingOrders = async() => {
     const today = new Date().setHours(0,0,0,0);
     try{
         const updates = await PendingOrder.updateMany(
             {
                 status:'Pending', createdOn:{$gte: new Date(today)}
             },{
-                    $set: {
-                        status: "Cancelled"
-                    }
+                $set: {
+                    status: "Cancelled"
+                }
             }
         )
     }catch(e){

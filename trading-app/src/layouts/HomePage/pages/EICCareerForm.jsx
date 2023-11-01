@@ -57,6 +57,7 @@ const App = (props) => {
     try {
         const res = await axios.get(`${apiUrl}career/findbyname?name=${name}`);
         setCareerDetails(res?.data?.data);
+        console.log(res?.data?.data)
         setDetails((prev)=>({...prev, contest: res?.data?.data?._id}));
     } catch (e) {
         console.log(e);
@@ -67,6 +68,7 @@ const App = (props) => {
     if(!career){
       const url = location?.pathname?.split('/');
       const name = decodeURIComponent(url[3]);
+      console.log(name)
       getCareerDetails(name);
     }
     ReactGA.pageview(window.location.pathname)
@@ -139,7 +141,7 @@ const App = (props) => {
         passingoutyear: passingoutyear,
         linkedInProfileLink: linkedInProfileLink,
         source:source,
-        career:career,
+        career:career || careerDetails?._id,
         dob:dob,  
         gender:gender,
         priorTradingExperience: priorTradingExperience,
@@ -215,7 +217,7 @@ const App = (props) => {
         passingoutyear: passingoutyear,
         linkedInProfileLink: linkedInProfileLink,
         source:source,
-        career:career,
+        career:career || careerDetails?._id,
         dob:dob,  
         gender: gender,
         priorTradingExperience: priorTradingExperience,
@@ -302,6 +304,20 @@ const App = (props) => {
     }
   }, [open]);
 
+
+  const [checkUserExist, setCheckUserExist] = useState(true);
+  async function handleMobile(e){
+    setDetails(prevState => ({...prevState, mobile: e.target.value}))
+    if((e.target.value).length >= 10){
+      axios.get(`${apiUrl}user/exist/${e.target.value}`)
+      .then((res)=>{
+        setCheckUserExist(res?.data?.data);
+      }).catch((err)=>{
+          return new Error(err)
+      }) 
+    }
+  }
+
   return (
     
     <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{backgroundColor:'white', minHeight:'100vH', height: 'auto', width: 'auto', minWidth:'100vW'}}>
@@ -384,7 +400,7 @@ const App = (props) => {
                             label="Mobile(OTP will be sent on this number)"
                             type="text"
                             fullWidth
-                            onChange={(e)=>{setDetails(prevState => ({...prevState, mobile: e.target.value}))}}
+                            onChange={(e)=>{handleMobile(e)}}
                           />
                         </Grid>
 
@@ -560,18 +576,18 @@ const App = (props) => {
                           <MDButton 
                             onClick={generateOTP} 
                             variant="gradient" 
-                            color="warning"
-                            style={{width:'90%'}}
+                            style={{backgroundColor:'#65BA0D', color:'white',width:'90%'}}
                           >
-                            <MDTypography fontSize={13} fontWeight='bold' color='white'>Get OTP to Apply</MDTypography>
+                            <MDTypography fontSize={13} fontWeight='bold' color='white'>Get Mobile OTP to Apply</MDTypography>
                           </MDButton>
                         </MDBox>
                         </Grid>
                         }
 
-                        <Grid item xs={12} md={12} lg={12} p={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                        <MDTypography fontSize={15} fontWeight='bold'>Looks like you haven't signed up yet 😀</MDTypography>
-                        </Grid>
+                        {!checkUserExist &&
+                          <Grid item xs={12} md={12} lg={12} p={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                            <MDTypography fontSize={15} fontWeight='bold'>Looks like you haven't signed up yet 😀</MDTypography>
+                          </Grid>}
 
 
                         {otpGenerated && 

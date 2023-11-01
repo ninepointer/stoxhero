@@ -42,6 +42,7 @@ const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
     const [maxWithdrawal, setMaxWithdrawal] = useState(1000);
     const [maxWithdrawalHigh, setMaxWithdrawalHigh] = useState(15000);
     const [walletBalanceUpperLimit, setWalletBalanceUpperLimit] = useState(15000);
+    const [minWalletBalance, setMinWalletBalance] = useState(200);
   
     const [successSB, setSuccessSB] = useState(false);
     const openSuccessSB = (title,content) => {
@@ -91,6 +92,7 @@ const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
                 setMaxWithdrawal(res.data[0].maxWithdrawal);
                 setMaxWithdrawalHigh(res.data[0].maxWithdrawalHigh);
                 setWalletBalanceUpperLimit(res.data[0].walletBalanceUpperLimit);
+                setMinWalletBalance(res.data[0].minWalletBalance);
             });
         },[open])
 
@@ -117,6 +119,9 @@ const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
               if(amount>maxWithdrawal){
                   return openErrorSB('Amount too high', `Maximum withdrawal amount is ₹${maxWithdrawal}`);
               }
+            }
+            if(walletBalance-amount<minWalletBalance){
+              return openErrorSB('Amount too high', `Your minimum wallet balance should be ₹${minWalletBalance}`);
             }
             const res = await axios.post(`${apiUrl}withdrawals`, {amount}, {withCredentials: true});
             console.log(res.data, res.status, res.statusCode);

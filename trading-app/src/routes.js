@@ -82,6 +82,8 @@ import StoxHeroUserDashboard from './layouts/StoxHeroDashboard'
 import MarginXReport from "./layouts/marginxReport";
 
 import Coupons from './layouts/coupons'
+import Blogs from './layouts/blog'
+import BlogDetails from './layouts/blog/blogDetails'
 import AffiliateProgram from './layouts/affiliateProgram'
 import AffiliateProgramDetails from './layouts/affiliateProgram/AffiliateProgramDetails'
 
@@ -261,14 +263,14 @@ const routes = [
     route: "/marginxdashboard",
     component: <MarginXDashboard />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Challenge Dashboard",
-  //   key: "challengedashboard",
-  //   icon: <EmojiEventsIcon/>,
-  //   route: "/challengedashboard",
-  //   component: <ChallengeDashboard />,
-  // },
+  {
+    type: "collapse",
+    name: "Blogs",
+    key: "allblogs",
+    icon: <EmojiEventsIcon/>,
+    route: "/allblogs",
+    component: <Blogs />,
+  },
   // {
   //   type: "collapse",
   //   name: "Battle Dashboard",
@@ -439,6 +441,10 @@ const routes = [
     component: <CouponDetails />,
   },
   {
+    route: "/blogdetails",
+    component: <BlogDetails />,
+  },
+  {  
     route: "/affiliateprogramdetails",
     component: <AffiliateProgramDetails />,
   },

@@ -2398,11 +2398,14 @@ exports.getDailyContestAllUsers = async (req, res) => {
 exports.findContestByName = async(req,res,next)=>{
     try{
         const {name, date} = req.query;
+        console.log("Body:",req.query)
         let dateString = date.includes('-') ? date.split('-').join('') : date.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
+        console.log(new Date(dateString))
         const result = await Contest.findOne({contestName: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'College'}).
         populate('portfolio', 'portfolioValue portfolioName').
             select('_id contestName contestStartTime contestEndTime payoutPercentage entryFee');
-        if(!result){
+        console.log(result)
+            if(!result){
             return res.status(404).json({
                 status: "error",
                 message: "No contests found",
