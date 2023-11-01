@@ -9,7 +9,7 @@ import register from '../../../assets/images/register.png'
 import virtualcurrency from '../../../assets/images/virtualcurrency.png'
 import protrader from '../../../assets/images/protrader.png'
 import zerorisk from '../../../assets/images/zerorisk.png'
-import earnings from '../../../assets/images/earnings.png'
+import earningsimage from '../../../assets/images/earnings.png'
 import lives from '../../../assets/images/lives.png'
 import analytics from '../../../assets/images/analytics.png'
 import internship from '../../../assets/images/internship.png'
@@ -69,6 +69,8 @@ function Cover(props) {
   let [invalidDetail, setInvalidDetail] = useState();
   const [data, setData] = useState();
   const [earnings,setEarnings] = useState([]);
+  const[defaultInvite, setDefaultInvite] = useState('');
+  let referrerCodeString = location.search?.split('=')[1]??props.location?.search?.split('=')[1]??''
   const [messageObj, setMessageObj] = useState({
     color: '',
     icon: '',
@@ -76,17 +78,20 @@ function Cover(props) {
     content: ''
   })
 
-  console.log('home page');
   const getMetrics = async()=>{
     const res = await axios.get(`${apiUrl}newappmetrics`);
-    console.log("New App Metrics:",res.data.data)
+    // console.log("New App Metrics:",res.data.data)
     setData(res.data.data);
   }
-
   const getEarnings = async()=>{
     const res = await axios.get(`${apiUrl}contestscoreboard/earnings`);
-    console.log("Earnings:",res.data.data)
     setEarnings(res.data.data);
+  }
+
+  const getDefaultInvite = async() => {
+    const res = await axios.get(`${apiUrl}campaign/defaultinvite`);
+    console.log('defaultInvite',res.data?.data);
+    setDefaultInvite(res.data.data);
   }
 
   const handleSUClick = () => {
@@ -109,7 +114,7 @@ function Cover(props) {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   
   useEffect(()=>{
-    setformstate(prevState => ({...prevState, referrerCode: location.search?.split('=')[1]??props.location?.search?.split('=')[1]??''}));
+    setformstate(prevState => ({...prevState, referrerCode: referrerCodeString}));
     getMetrics();
     getEarnings();
     ReactGA.pageview(window.location.pathname)
@@ -158,7 +163,9 @@ function Cover(props) {
       } catch(err){
       }
     }  
-
+  useEffect(()=>{
+    getDefaultInvite();
+  },[]);  
   async function formSubmit() {
     setSubmitClicked(true)
     setformstate(formstate);
@@ -235,17 +242,14 @@ function Cover(props) {
         referrerCode: formstate.referrerCode,
       })
     });
-
-
     const data = await res.json();
-    console.log("Data:",data)
+    console.log("Data after account creation:",data)
     if (data.status === "Success") {
       setDetails.setUserDetail(data.data);
       console.log(setDetails)
       setShowConfirmation(false);
       const userData = await userDetail();
       console.log("User Details:",userData)
-      console.log("Role:",userData?.role?.roleName)
       if(userData?.role?.roleName === adminRole){
         const from = location.state?.from || "/tenxdashboard";
         navigate(from);
@@ -298,38 +302,44 @@ function Cover(props) {
 
   async function phoneLogin(e){
     e.preventDefault();
-    if(mobile.length<10){
-      return setInvalidDetail(`Please enter a valid mobile number`);
-    }
-    const res = await fetch(`${baseUrl}api/v1/phonelogin`, {
-      method: "POST",
-      credentials:"include",
-      headers: {
-          "content-type" : "application/json",
-          "Access-Control-Allow-Credentials": true
-      },
-      body: JSON.stringify({
-          mobile
-      })
-  });
-  const data = await res.json();
-      if(data.status === 422 || data.error || !data){
-          if(data.error === "deactivated"){
-            setInvalidDetail(data?.message)
-          } else{
-            setInvalidDetail(`Mobile number incorrect`);
-          }
-
-      }else{
-        if(res.status == 200 || res.status == 201){
-            openSuccessSBSI("otp sent", data.message);
-            setInvalidDetail('')
-            setOtpGen(true);
-          }
-          else{
-            openSuccessSBSI("error", data.message);
-          }
+    try{
+      if(mobile.length<10){
+        return setInvalidDetail(`Please enter a valid mobile number`);
       }
+      const res = await fetch(`${baseUrl}api/v1/phonelogin`, {
+        method: "POST",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+        body: JSON.stringify({
+            mobile
+        })
+    });
+    const data = await res.json();
+    console.log("Error on otp verification:",data,data.message,data.error)
+        if(data.status === 422 || data.error || !data){
+            if(data.error === "deactivated"){
+              setInvalidDetail(data?.message)
+            } else{
+              setInvalidDetail(`Mobile number incorrect`);
+            }
+
+        }else{
+          if(res.status == 200 || res.status == 201){
+              openSuccessSBSI("otp sent", data.message);
+              setInvalidDetail('')
+              setOtpGen(true);
+            }
+            else{
+              setInvalidDetail(data.message)
+              openSuccessSBSI("error", data.message);
+            }
+        }
+    }catch(e){
+      console.log(e)
+    }
 
   }
 
@@ -339,33 +349,38 @@ function Cover(props) {
 
   async function otpConfirmationSi(e){
     e.preventDefault();
-    if(mobile.length<10){
-      return setInvalidDetail(`Mobile number incorrect`);
-    }
-    const res = await fetch(`${baseUrl}api/v1/verifyphonelogin`, {
-      method: "POST",
-      credentials:"include",
-      headers: {
-          "content-type" : "application/json",
-          "Access-Control-Allow-Credentials": true
-      },
-      body: JSON.stringify({
-          mobile, mobile_otp:mobileOtp
-      })
-  });
-  const data = await res.json();
-      if(data.status === 422 || data.error || !data){
-          setInvalidDetail(`OTP incorrect`);
-      }else{
-        let userData = await userDetail();
-        if(userData?.role?.roleName === adminRole){
-          const from = location.state?.from || "/tenxdashboard";
-          navigate(from);
+    try{
+        if(mobile.length<10){
+          return setInvalidDetail(`Mobile number incorrect`);
         }
-        else if(userData?.role?.roleName === userRole){
-          const from = location.state?.from || "/stoxherodashboard";
-            navigate(from);
-        }
+        const res = await fetch(`${baseUrl}api/v1/verifyphonelogin`, {
+          method: "POST",
+          credentials:"include",
+          headers: {
+              "content-type" : "application/json",
+              "Access-Control-Allow-Credentials": true
+          },
+          body: JSON.stringify({
+              mobile, mobile_otp:mobileOtp
+          })
+      });
+      const data = await res.json();
+      console.log(data)
+          if(data.status === 'error' || data.error || !data){
+              setInvalidDetail(data.message);
+          }else{
+            let userData = await userDetail();
+            if(userData?.role?.roleName === adminRole){
+              const from = location.state?.from || "/tenxdashboard";
+              navigate(from);
+            }
+            else if(userData?.role?.roleName === userRole){
+              const from = location.state?.from || "/stoxherodashboard";
+                navigate(from);
+            }
+          }
+      }catch(e){
+        console.log(e)
       }
 
   }
@@ -374,27 +389,29 @@ function Cover(props) {
     setTimerActiveSi(true);
     // console.log("Active timer set to true")
     setResendTimerSi(30);
-  
-    const res = await fetch(`${baseUrl}api/v1/resendmobileotp`, {
-      
-      method: "POST",
-      // credentials:"include",
-      headers: {
-          "content-type" : "application/json",
-          "Access-Control-Allow-Credentials": false
-      },
-      body: JSON.stringify({
-        mobile:mobile,
-      })
-    })
-    const data = await res.json();
-    // console.log(data.status);
-    if(data.status === 200 || data.status === 201){ 
-        // openSuccessSB("OTP Sent",data.message);
-    }else{
-
-      openSuccessSBSI('resent otp', data.message)
-        // openInfoSB("Something went wrong",data.mesaage);
+    try{
+        const res = await fetch(`${baseUrl}api/v1/resendmobileotp`, {
+          
+          method: "POST",
+          // credentials:"include",
+          headers: {
+              "content-type" : "application/json",
+              "Access-Control-Allow-Credentials": false
+          },
+          body: JSON.stringify({
+            mobile:mobile,
+          })
+        })
+        const data = await res.json();
+        console.log(data);
+        if(data.status === 200 || data.status === 201){ 
+            // openSuccessSB("OTP Sent",data.message);
+        }else{
+          openSuccessSBSI('resent otp', data.message)
+            // openInfoSB("Something went wrong",data.mesaage);
+        }
+    }catch(e){
+      console.log(e)
     }
   }
 
@@ -623,7 +640,7 @@ function Cover(props) {
                       <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                       <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                         <MDAvatar
-                            src={earnings}
+                            src={earningsimage}
                             alt={"signup"}
                             size="lg"
                           />
@@ -708,7 +725,7 @@ function Cover(props) {
                         <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                           {signup ?
                             <MDTypography fontSize={12} style={{color:'#65BA0D', textAlign:'center'}} fontWeight='bold'>
-                            Unlock your welcome bonus! Use code STOXHERO & grab ₹100 in your StoxHero wallet!
+                            Unlock your welcome bonus! Use code {defaultInvite?.campaignCode} & grab ₹{defaultInvite?.campaignSignupBonus?.amount} in your StoxHero wallet!
                           </MDTypography>
                           :
                           <MDBox ml={6} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width: '100%', minWidth: '100%'}}>
@@ -801,7 +818,7 @@ function Cover(props) {
                         <>
                               <Grid item xs={12} md={12} lg={6} mb={.5} display="flex" justifyContent="center">
                                 <TextField
-                                  disabled={formstate.referrerCode}
+                                  disabled={referrerCodeString}
                                   type="text"
                                   id="outlined-required"
                                   label={formstate.referrerCode ? '' : "Referrer/Invite Code"}
@@ -867,7 +884,7 @@ function Cover(props) {
                           }
                         </Grid>
 
-                        <Grid item xs={12} md={12} lg={12} mb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                        <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                           <TextField
                             required
                             disabled={showEmailOTP}
@@ -879,11 +896,13 @@ function Cover(props) {
                           />
                         </Grid>
 
-                        {invalidDetail && <Grid item xs={12} md={12} lg={12}>
-                          <MDTypography variant="button" color={invalidDetail && "error"}>
+                        {invalidDetail && 
+                        <Grid item xs={12} md={12} lg={12} mb={.25} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                          <MDTypography fontSize={12} variant="button" color={invalidDetail && "error"}>
                             {invalidDetail && invalidDetail}
                           </MDTypography>
-                        </Grid>}
+                        </Grid>
+                        }
 
                         {!otpGen &&
                           <Grid item xs={12} md={12} lg={12}>

@@ -13,6 +13,7 @@ const Campaign = require("../../models/campaigns/campaignSchema")
 const UserWallet = require("../../models/UserWallet/userWalletSchema");
 const emailService = require("../../utils/emailService");
 const { ObjectId } = require('mongodb');
+const uuid = require('uuid')
 
 const s3 = new aws.S3();
 
@@ -192,6 +193,12 @@ exports.confirmOTP = async(req, res, next)=>{
     }
         // console.log("Obj:",obj)
         const newuser = await User.create(obj);
+        await UserWallet.create(
+          {
+              userId: newuser._id,
+              createdOn: new Date(),
+              createdBy:newuser._id
+        })
         const token = await newuser.generateAuthToken();
 
         const idOfUser = newuser._id;
@@ -214,15 +221,13 @@ exports.confirmOTP = async(req, res, next)=>{
                     users: campaign?.users
                 }
             })
+            if(campaign?.campaignSignupBonus?.amount){
+              await addSignupBonus(newuser?._id, campaign?.campaignSignupBonus?.amount, campaign?.campaignSignupBonus?.currency);
+          }
             // console.log(campaignData)
         }
 
-        await UserWallet.create(
-          {
-              userId: newuser._id,
-              createdOn: new Date(),
-              createdBy:newuser._id
-        })
+      
 
         // res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
             // let email = newuser.email;
@@ -376,6 +381,23 @@ exports.confirmOTP = async(req, res, next)=>{
     }
   }
 
+}
+
+const addSignupBonus = async (userId, amount, currency) => {
+  const wallet = await UserWallet.findOne({userId:userId});
+  try{
+      wallet.transactions?.push({
+          title: 'Sign up Bonus',
+          description: `Amount credited for as sign up bonus.`,
+          amount: amount,
+          transactionId: uuid.v4(),
+          transactionDate: new Date(),
+          transactionType: currency
+      });
+      await wallet.save({validateBeforeSave:false});
+  }catch(e){
+      console.log(e);
+  }
 }
 
 exports.applyForCareer = async(req,res, next) => {
