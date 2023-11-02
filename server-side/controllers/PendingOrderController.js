@@ -279,7 +279,7 @@ exports.editPrice = async (req, res, next) => {
 
 exports.modifyOrder = async (req, res, next) => {
   try{
-    const {instrumentToken, symbol} = req.body;
+    const {instrumentToken, symbol, from} = req.body;
     const userId = req.user._id
     data = await client.get('stoploss-stopprofit');
     data = JSON.parse(data);
@@ -302,7 +302,7 @@ exports.modifyOrder = async (req, res, next) => {
     }
   
     await client.set('stoploss-stopprofit', JSON.stringify(data));
-    const result = await applyingSLSP(req, {}, undefined);
+    const result = await applyingSLSP(req, {}, undefined, from);
   
     return res.status(200).json({status: "Success", message: `Your SL/SP-M order placed for ${req.body.symbol}`});
   

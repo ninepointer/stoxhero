@@ -9,7 +9,7 @@ const {lastTradeDataMockMarginX, traderWiseMockPnlCompanyMarginX, overallMockPnl
 
 exports.marginxTrade = async (req, res, otherData) => {
     const io = getIOValue();
-    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, exchangeInstrumentToken, fromAdmin,
+    let {exchange, symbol, buyOrSell, Quantity, Product, order_type, exchangeInstrumentToken, fromAdmin,
         validity, variety, algoBoxId, order_id, instrumentToken, marginxId, deviceDetails,
         realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, margin } = req.body 
 
@@ -30,7 +30,7 @@ exports.marginxTrade = async (req, res, otherData) => {
 
         const companyDoc = {
             status:"COMPLETE", average_price: originalLastPriceCompany, Quantity: realQuantity, 
-            Product, buyOrSell:realBuyOrSell, variety, validity, exchange, order_type: OrderType, 
+            Product, buyOrSell:realBuyOrSell, variety, validity, exchange, order_type: order_type, 
             symbol: realSymbol, placed_by: "stoxhero", algoBox:algoBoxId, order_id, 
             instrumentToken: real_instrument_token, brokerage: brokerageCompany, createdBy: req.user._id,
             trader : trader, isRealTrade: false, amount: (Number(realQuantity)*originalLastPriceCompany), 
@@ -40,7 +40,7 @@ exports.marginxTrade = async (req, res, otherData) => {
 
         const traderDoc = {
             status:"COMPLETE",  average_price: originalLastPriceUser, Quantity, Product, buyOrSell, 
-            variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", marginxId,
+            variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero", marginxId,
             isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, exchangeInstrumentToken,
             createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
             deviceDetails: {deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType},

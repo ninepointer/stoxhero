@@ -15,7 +15,7 @@ exports.liveTrade = async (reqBody, res) => {
     let responseMsg;
     let responseErr;
 
-    let {exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType,
+    let {exchange, symbol, buyOrSell, Quantity, Price, Product, order_type,
         TriggerPrice, validity, variety, createdBy,trader,
          createdOn, uId, algoBox, instrumentToken, realTrade, realBuyOrSell, realQuantity, apiKey, 
          accessToken, userId, real_instrument_token, realSymbol, switching, dontSendResp, tradeBy} = reqBody
@@ -51,7 +51,7 @@ exports.liveTrade = async (reqBody, res) => {
             "tradingsymbol":realSymbol,
             "exchange":exchange,
             "transaction_type":realBuyOrSell,
-            "order_type":OrderType,
+            "order_type":order_type,
             "quantity":realQuantity,
             "product":Product,
             "validity":validity,
@@ -63,7 +63,7 @@ exports.liveTrade = async (reqBody, res) => {
             "tradingsymbol":realSymbol,
             "exchange":exchange,
             "transaction_type":realBuyOrSell,
-            "order_type":OrderType,
+            "order_type":order_type,
             "quantity":realQuantity,
             "product":Product,
             "validity":validity
@@ -314,7 +314,7 @@ exports.liveTrade = async (reqBody, res) => {
                             disclosed_quantity, price, filled_quantity, pending_quantity, cancelled_quantity, market_protection, guid,
                             status, uId, createdBy, average_price: originalLastPriceUser, Quantity: Quantity, 
                             Product:Product, buyOrSell:buyOrSell, order_timestamp: new_order_timestamp,
-                            variety, validity, exchange, order_type: OrderType, symbol:symbol, placed_by: placed_by, userId,
+                            variety, validity, exchange, order_type: order_type, symbol:symbol, placed_by: placed_by, userId,
                             order_id, instrumentToken, brokerage: brokerageUser,
                             tradeBy: createdBy, isRealTrade: true, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
                             order_req_time: createdOn, order_save_time: order_save_time, exchange_order_id, exchange_timestamp, isMissed
@@ -385,7 +385,7 @@ exports.liveTrade = async (reqBody, res) => {
         
                             status, uId, createdBy, average_price: originalLastPriceUser, Quantity: Quantity, 
                             Product:Product, buyOrSell:buyOrSell, order_timestamp: new_order_timestamp,
-                            variety, validity, exchange, order_type: OrderType, symbol:symbol, placed_by: placed_by, userId,
+                            variety, validity, exchange, order_type: order_type, symbol:symbol, placed_by: placed_by, userId,
                             order_id, instrumentToken, brokerage: brokerageUser,
                             tradeBy: createdBy, trader: trader, isRealTrade: false, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
                             order_req_time: createdOn, order_save_time: order_save_time, exchange_order_id, exchange_timestamp, isMissed
@@ -700,7 +700,7 @@ exports.liveTrade = async (reqBody, res) => {
                     disclosed_quantity, price, filled_quantity, pending_quantity, cancelled_quantity, market_protection, guid,
                     status, uId, createdBy, average_price: originalLastPriceUser, Quantity: Quantity, 
                     Product:Product, buyOrSell:buyOrSell, order_timestamp: new_order_timestamp,
-                    variety, validity, exchange, order_type: OrderType, symbol:symbol, placed_by: placed_by, userId,
+                    variety, validity, exchange, order_type: order_type, symbol:symbol, placed_by: placed_by, userId,
                     order_id, instrumentToken, brokerage: brokerageUser,
                     tradeBy: createdBy, trader: trader, isRealTrade: true, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
                     order_req_time: createdOn, order_save_time: order_save_time, exchange_order_id, exchange_timestamp, isMissed
@@ -771,7 +771,7 @@ exports.liveTrade = async (reqBody, res) => {
 
                     status, uId, createdBy, average_price: originalLastPriceUser, Quantity: Quantity, 
                     Product:Product, buyOrSell:buyOrSell, order_timestamp: new_order_timestamp,
-                    variety, validity, exchange, order_type: OrderType, symbol:symbol, placed_by: placed_by, userId,
+                    variety, validity, exchange, order_type: order_type, symbol:symbol, placed_by: placed_by, userId,
                     order_id, instrumentToken, brokerage: brokerageUser,
                     tradeBy: createdBy, trader: trader, isRealTrade: false, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
                     order_req_time: createdOn, order_save_time: order_save_time, exchange_order_id, exchange_timestamp, isMissed
@@ -823,7 +823,7 @@ exports.liveTrade = async (reqBody, res) => {
                 "tradingsymbol":realSymbol,
                 "exchange":exchange,
                 "transaction_type":transactionType,
-                "order_type":OrderType,
+                "order_type":order_type,
                 "quantity":realQuantity,
                 "product":Product,
                 "validity":validity,
@@ -835,7 +835,7 @@ exports.liveTrade = async (reqBody, res) => {
                 "tradingsymbol":realSymbol,
                 "exchange":exchange,
                 "transaction_type":transactionType,
-                "order_type":OrderType,
+                "order_type":order_type,
                 "quantity":realQuantity,
                 "product":Product,
                 "validity":validity

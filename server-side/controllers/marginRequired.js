@@ -1160,7 +1160,7 @@ exports.traderMarginHistoryLive = async (req, res)=>{
 
 exports.marginRequiredForTrade = async (req, res)=>{
   const data = await getKiteCred.getAccess();
-  const { exchange, symbol, buyOrSell, variety, Product, OrderType, Quantity, price, last_price} = req.body;
+  const { exchange, symbol, buyOrSell, variety, Product, order_type, Quantity, price, last_price} = req.body;
 
   // console.log(req.body)
   let auth = 'token ' + data.getApiKey + ':' + data.getAccessToken;
@@ -1175,7 +1175,7 @@ exports.marginRequiredForTrade = async (req, res)=>{
       "transaction_type": buyOrSell,
       "variety": variety,
       "product": Product,
-      "order_type": OrderType,
+      "order_type": order_type,
       "quantity": Quantity,
       "price": price ? Number(price) : 0,
       "trigger_price": 0
@@ -1188,7 +1188,7 @@ exports.marginRequiredForTrade = async (req, res)=>{
 
           return res.status(200).json({ status: 'success', margin: zerodhaMargin.toFixed(2) });
       } else{
-        if(OrderType === "LIMIT"){
+        if(order_type === "LIMIT"){
           return res.status(200).json({ status: 'success', margin: (price * Math.abs(Quantity)).toFixed(2) });
         } else{
           return res.status(200).json({ status: 'success', margin: (last_price * Math.abs(Quantity)).toFixed(2) });

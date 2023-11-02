@@ -175,14 +175,6 @@ async function commonProcess() {
     
     await tenxTradeStopLoss();
 
-    // try{
-    //     await client.SUBSCRIBE("place-order", (message) => {
-    //     console.log(message);
-    // });  
-    // } catch(err){
-    //     console.log(err);
-    // }
-
 }
 
 module.exports = { commonProcess }
