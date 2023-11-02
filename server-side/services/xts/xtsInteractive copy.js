@@ -79,7 +79,7 @@
 //     try{
 //       if (orderData.OrderStatus === "Rejected" || orderData.OrderStatus === "Filled") {
 
-//         let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
+//         let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, order_type, ProductType,
 //           TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
 //           ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason, ExchangeTransactTimeAPI, OrderUniqueIdentifier } = orderData;
 
@@ -95,7 +95,7 @@
 //             appOrderId: AppOrderID, order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${AppOrderID}`, status: (OrderStatus === "Filled" ? "COMPLETE" : "REJECTED"), average_price: OrderAverageTradedPrice,
 //             quantity: OrderQuantity, product: ProductType, transaction_type: OrderSide,
 //             exchange_order_id: ExchangeOrderID, order_timestamp: LastUpdateDateTime, validity: TimeInForce,
-//             exchange_timestamp: ExchangeTransactTime, order_type: OrderType, price: OrderPrice,
+//             exchange_timestamp: ExchangeTransactTime, order_type: order_type, price: OrderPrice,
 //             disclosed_quantity: OrderDisclosedQuantity, placed_by: ClientID, status_message: CancelRejectReason,
 //             instrument_token: ExchangeInstrumentID, exchange_update_timestamp: new Date(utcDate), guid: `${ExchangeOrderID}${AppOrderID}`,
 //             exchangeInstrumentToken: ExchangeInstrumentID, orderUniqueIdentifier: OrderUniqueIdentifier
@@ -123,7 +123,7 @@
 //   let date = new Date();
 //   // console.log("inside placedOrderDataHelper")
 //   let {OrderSide, buyOrSell, ExchangeInstrumentID, ProductType,
-//         OrderType, TimeInForce, OrderQuantity} = orderData;
+//         order_type, TimeInForce, OrderQuantity} = orderData;
 //   let traderData = {};
 //   if (Date.now() - initialTime >= 2000) {
 //     let exchangeSegment;
@@ -144,7 +144,7 @@
 //       exchangeSegment: exchangeSegment,
 //       exchangeInstrumentID: ExchangeInstrumentID,
 //       productType: ProductType,
-//       orderType: OrderType,
+//       orderType: order_type,
 //       orderSide: buyOrSell,
 //       timeInForce: TimeInForce,
 //       disclosedQuantity: 0,
@@ -206,7 +206,7 @@
 //   exchangeSegment: exchangeSegment,
 //   exchangeInstrumentID: obj.exchangeInstrumentToken,
 //   productType: obj.Product,
-//   orderType: obj.OrderType,
+//   orderType: obj.order_type,
 //   orderSide: obj.buyOrSell,
 //   timeInForce: obj.validity,
 //   disclosedQuantity: 0,
@@ -221,7 +221,7 @@
 //       exchangeSegment: exchangeSegment,
 //       exchangeInstrumentID: obj.exchangeInstrumentToken,
 //       productType: obj.Product,
-//       orderType: obj.OrderType,
+//       orderType: obj.order_type,
 //       orderSide: obj.buyOrSell,
 //       timeInForce: obj.validity,
 //       disclosedQuantity: 0,
@@ -250,7 +250,7 @@
 //       tradedBy: req.user._id,
 //       uniqueId: `${req.user.first_name}${req.user.mobile}`,
 //     //   marginData: req.body.marginData,
-//     //   OrderType: req.body.OrderType,
+//     //   order_type: req.body.order_type,
 //     //   Product: req.body.Product
 //     }
 
@@ -298,7 +298,7 @@
 //     let orders = response.data?.result;
 //     for(let i = 0; i < orders.length; i++){
 
-//       let { ExchangeInstrumentID, OrderSide, OrderType, ProductType,
+//       let { ExchangeInstrumentID, OrderSide, order_type, ProductType,
 //         TimeInForce, OrderQuantity, ExchangeSegment } = orders[i];
     
 //       let uniqueIdentifier = JSON.parse(orders[i].OrderUniqueIdentifier);
@@ -312,7 +312,7 @@
 //           exchangeSegment: ExchangeSegment,
 //           exchangeInstrumentID: ExchangeInstrumentID,
 //           productType: ProductType,
-//           orderType: OrderType,
+//           orderType: order_type,
 //           orderSide: OrderSide,
 //           timeInForce: TimeInForce,
 //           disclosedQuantity: 0,
@@ -357,7 +357,7 @@
 //     let openTrade = orders.filter((elem1) => !liveCompany.some((elem2) => elem1.AppOrderID == elem2.appOrderId));
 
 //     for(let i = 0; i < openTrade.length; i++){
-//       let { ExchangeInstrumentID, OrderSide, OrderType, ProductType,
+//       let { ExchangeInstrumentID, OrderSide, order_type, ProductType,
 //         TimeInForce, OrderQuantity, ExchangeSegment } = openTrade[i]
   
 //       if(OrderSide === "Buy"){
@@ -372,7 +372,7 @@
 //         exchangeSegment: ExchangeSegment,
 //         exchangeInstrumentID: ExchangeInstrumentID,
 //         productType: ProductType,
-//         orderType: OrderType,
+//         orderType: order_type,
 //         orderSide: OrderSide,
 //         timeInForce: TimeInForce,
 //         disclosedQuantity: 0,
@@ -399,7 +399,7 @@
 //         exchangeInstrumentToken,
 //         exchange,
 //         validity,
-//         OrderType,
+//         order_type,
 //         variety,
 //         buyOrSell,
 //         realBuyOrSell,
@@ -434,7 +434,7 @@
 //         exchangeSegment: exchangeSegment,
 //         exchangeInstrumentID: exchangeInstrumentToken,
 //         productType: Product,
-//         orderType: OrderType,
+//         orderType: order_type,
 //         orderSide: realBuyOrSell,
 //         timeInForce: validity,
 //         disclosedQuantity: 0,
@@ -461,7 +461,7 @@
 //         autoTrade: autoTrade,
 //         singleUser: singleUser,
 //         // marginData: marginData,
-//         // OrderType: OrderType,
+//         // order_type: order_type,
 //         // Product: Product
 //       }
 
@@ -494,7 +494,7 @@
 //   let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
 //     instrumentToken, dontSendResp, tradedBy, autoTrade, marginData, userQuantity } = traderData
 
-//   let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
+//   let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, order_type, ProductType,
 //     TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
 //     ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason, ExchangeTransactTimeAPI } = orderData;
 
@@ -522,7 +522,7 @@
 //       exchangeSegment: exchangeSegment,
 //       exchangeInstrumentID: ExchangeInstrumentID,
 //       productType: ProductType,
-//       orderType: OrderType,
+//       orderType: order_type,
 //       orderSide: buyOrSell,
 //       timeInForce: TimeInForce,
 //       disclosedQuantity: 0,
@@ -587,7 +587,7 @@
 //       Quantity = 0 - Quantity;
 //     }
 
-//     if(OrderType === "Market"){
+//     if(order_type === "Market"){
 //       order_type = "MARKET";
 //     }
 
@@ -834,7 +834,7 @@
 //   let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
 //     instrumentToken, dontSendResp, tradedBy, autoTrade, singleUser } = traderData
 
-//   let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
+//   let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, order_type, ProductType,
 //     TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
 //     ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason, ExchangeTransactTimeAPI } = orderData;
 
@@ -861,7 +861,7 @@
 //       exchangeSegment: exchangeSegment,
 //       exchangeInstrumentID: ExchangeInstrumentID,
 //       productType: ProductType,
-//       orderType: OrderType,
+//       orderType: order_type,
 //       orderSide: buyOrSell,
 //       timeInForce: TimeInForce,
 //       disclosedQuantity: 0,
@@ -929,7 +929,7 @@
 //       Quantity = 0 - Quantity;
 //     }
 
-//     if(OrderType === "Market"){
+//     if(order_type === "Market"){
 //       order_type = "MARKET";
 //     }
 

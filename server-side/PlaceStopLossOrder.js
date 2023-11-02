@@ -496,7 +496,7 @@ const marginFourthCase = async (tradeData, availableMargin, prevQuantity, from, 
 }
 
 const calculateRequiredMargin = async (tradeData, Quantity, data) => {
-    const { exchange, symbol, buyOrSell, variety, Product, OrderType, last_price} = tradeData;
+    const { exchange, symbol, buyOrSell, variety, Product, order_type, last_price} = tradeData;
     let auth = 'token ' + data.getApiKey + ':' + data.getAccessToken;
     let headers = {
         'X-Kite-Version': '3',
@@ -509,7 +509,7 @@ const calculateRequiredMargin = async (tradeData, Quantity, data) => {
         "transaction_type": buyOrSell,
         "variety": variety,
         "product": Product,
-        "order_type": OrderType,
+        "order_type": order_type,
         "quantity": Quantity,
         "price": 0,
         "trigger_price": 0

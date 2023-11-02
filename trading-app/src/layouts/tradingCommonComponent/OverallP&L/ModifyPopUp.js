@@ -140,7 +140,7 @@ function ModifyPopUp({data, id, handleCloseMenu, setMsg}) {
       body: JSON.stringify({
         exchange: data?.exchange?.props?.children, symbol: data?.symbol?.props?.children,
         buyOrSell: type, Quantity, id: id, Product: data?.Product?.props?.children,
-        OrderType: "SL/SP-M", stopProfitPrice, stopLossPrice,
+        order_type: "SL/SP-M", stopProfitPrice, stopLossPrice,
         exchangeInstrumentToken: data?.exchangeInstrumentToken?.props?.children,
         validity: data?.validity?.props?.children, variety: data?.variety?.props?.children,
         instrumentToken: data?.instrumentToken?.props?.children, last_price: data?.last_price?.props?.children

@@ -80,7 +80,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
     Quantity: lotSize,
     stopLossPrice: "",
     price: "",
-    OrderType: "",
+    order_type: "",
     TriggerPrice: "",
     stopLoss: "",
     validity: "",
@@ -104,10 +104,10 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
   // };
 
   const [ordertype, setOrdertype] = React.useState('MARKET');
-  buyFormDetails.OrderType = ordertype;
+  buyFormDetails.order_type = ordertype;
   const marketHandleChange = (value) => {
     setOrdertype(value);
-    buyFormDetails.OrderType = value;
+    buyFormDetails.order_type = value;
   };
   const [validity, setValidity] = React.useState('DAY');
   buyFormDetails.validity = validity;
@@ -202,7 +202,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
       return;
     }
 
-    if (buyFormDetails.OrderType === "SL/SP-M" && (!buyFormDetails.stopLossPrice && !buyFormDetails.stopProfitPrice)) {
+    if (buyFormDetails.order_type === "SL/SP-M" && (!buyFormDetails.stopLossPrice && !buyFormDetails.stopProfitPrice)) {
       openSuccessSB('error', "Please enter stop loss or stop profit price.");
       return;
     }
@@ -239,7 +239,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
 
   async function placeOrder() {
     // console.log("exchangeInstrumentToken", exchangeInstrumentToken)
-    const { exchange, symbol, buyOrSell, Quantity, Product, OrderType, TriggerPrice, stopProfitPrice, stopLoss, stopLossPrice, validity, variety, price } = buyFormDetails;
+    const { exchange, symbol, buyOrSell, Quantity, Product, order_type, TriggerPrice, stopProfitPrice, stopLoss, stopLossPrice, validity, variety, price } = buyFormDetails;
     let endPoint
     let paperTrade = false;
     let tenxTraderPath;
@@ -283,7 +283,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
       },
       body: JSON.stringify({
         exchange, symbol, buyOrSell, Quantity, stopLoss, contestId: module?.data, battleId: subscriptionId,
-        Product, OrderType, TriggerPrice, stopProfitPrice, stopLossPrice, uId, exchangeInstrumentToken, fromAdmin,
+        Product, order_type, TriggerPrice, stopProfitPrice, stopLossPrice, uId, exchangeInstrumentToken, fromAdmin,
         validity, variety, createdBy, order_id: dummyOrderId, subscriptionId, marginxId: subscriptionId,
         userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath, price
 
@@ -433,10 +433,10 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
       return;
     }
 
-    if (buyFormDetails.OrderType === "LIMIT" && buyFormDetails.price && checkQuantity) {
+    if (buyFormDetails.order_type === "LIMIT" && buyFormDetails.price && checkQuantity) {
       await checkMargin();
     }
-    if (buyFormDetails.OrderType !== "LIMIT" && checkQuantity) {
+    if (buyFormDetails.order_type !== "LIMIT" && checkQuantity) {
       await checkMargin();
     }
 
@@ -454,7 +454,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
   }
 
   const checkMargin = async () => {
-    const { Quantity, Product, OrderType, validity, variety, price } = buyFormDetails;
+    const { Quantity, Product, order_type, validity, variety, price } = buyFormDetails;
 
     const response = await fetch(`${baseUrl}api/v1/marginrequired`, {
       method: "PATCH",
@@ -464,7 +464,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
         "content-type": "application/json"
       },
       body: JSON.stringify({
-        exchange, symbol, buyOrSell: "BUY", Quantity: runningLotsSymbol < 0 ? Quantity - Math.abs(runningLotsSymbol) : Quantity, Product, OrderType, validity, variety, price, last_price: Number(newLtp)
+        exchange, symbol, buyOrSell: "BUY", Quantity: runningLotsSymbol < 0 ? Quantity - Math.abs(runningLotsSymbol) : Quantity, Product, order_type, validity, variety, price, last_price: Number(newLtp)
       })
     });
 
@@ -571,18 +571,18 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
                 </MDBox>
 
                 <TextField
-                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "SL/SP-M"} label="Price" variant="outlined" onChange={(e) => { { priceChange(e) } }}
+                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.order_type === "MARKET" || buyFormDetails.order_type === "SL/SP-M"} label="Price" variant="outlined" onChange={(e) => { { priceChange(e) } }}
                   sx={{ width: "140px", innerHeight: "1px" }} type="number" />
               </MDBox>
 
               {ordertype === "SL/SP-M" &&
                 <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center" }}>
                   <TextField
-                    id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || (runningLotsSymbol < 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="SL price" variant="outlined" onChange={(e) => { { stopLoss(e) } }}
+                    id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.order_type === "MARKET" || buyFormDetails.order_type === "LIMIT" || (runningLotsSymbol < 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="SL price" variant="outlined" onChange={(e) => { { stopLoss(e) } }}
                     sx={{ width: "140px", marginTop: "20px", innerHeight: "1px" }} type="number" />
 
                   <TextField
-                    id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || (runningLotsSymbol < 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="SP price" variant="outlined" onChange={(e) => { { stopProfit(e) } }}
+                    id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.order_type === "MARKET" || buyFormDetails.order_type === "LIMIT" || (runningLotsSymbol < 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="SP price" variant="outlined" onChange={(e) => { { stopProfit(e) } }}
                     sx={{ width: "140px", marginTop: "20px", innerHeight: "1px" }} type="number" />
                 </MDBox>}
 

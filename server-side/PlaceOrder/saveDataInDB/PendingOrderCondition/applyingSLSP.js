@@ -8,9 +8,9 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
 
   try{
     let isRedisConnected = await getValue();
-    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, 
+    let {exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId, 
         exchangeInstrumentToken, validity, variety, order_id, instrumentToken, last_price,
-        stopProfitPrice, stopLossPrice, createdBy, order_type, deviceDetails, id, margin, price } = req.body ? req.body : req 
+        stopProfitPrice, stopLossPrice, createdBy, deviceDetails, id, margin, price } = req.body ? req.body : req 
 
     last_price = last_price && String(last_price)?.includes("₹") && last_price?.slice(1);
     id = id ? id : subscriptionId;
@@ -28,14 +28,14 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
     if (stopProfitPrice && stopLossPrice) {
       const pendingOrderStopLoss = {
         order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: stopLossPrice,
-        Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: OrderType ? OrderType : order_type, symbol,
+        Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: order_type ? order_type : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, price: stopLossPrice,
         createdBy: req?.user?._id ? req?.user?._id : createdBy, type: "StopLoss", sub_product_id: id, margin
       }
 
       const pendingOrderStopProfit = {
         order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: stopProfitPrice,
-        Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: OrderType ? OrderType : order_type, symbol,
+        Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: order_type ? order_type : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, price: stopProfitPrice,
         createdBy: req?.user?._id ? req?.user?._id : createdBy, type: "StopProfit", sub_product_id: id, margin
       }
@@ -47,7 +47,7 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
       let type = stopProfitPrice ? "StopProfit" : "StopLoss";
       pendingOrder = [{
         order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0",  price: executionPrice,
-        Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: OrderType ? OrderType : order_type, symbol,
+        Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: order_type ? order_type : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, margin,
         createdBy: req?.user?._id ? req?.user?._id : createdBy, type, sub_product_id: id
       }]
@@ -58,7 +58,7 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
       // const margin = await limitOrderMargin(req, data);
       pendingOrder = [{
         order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0",  price: executionPrice,
-        Quantity: Math.abs(Quantity), Product, buyOrSell: buyOrSell, variety, validity, exchange, order_type: OrderType ? OrderType : order_type, symbol,
+        Quantity: Math.abs(Quantity), Product, buyOrSell: buyOrSell, variety, validity, exchange, order_type: order_type ? order_type : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, margin,
         createdBy: req?.user?._id ? req?.user?._id : createdBy, type, sub_product_id: id
       }]
@@ -140,7 +140,7 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
 }
 
 // const limitOrderMargin = async(req, data)=>{
-//   const { exchange, symbol, buyOrSell, variety, Product, OrderType, last_price, price, Quantity} =  req.body ? req.body : req;
+//   const { exchange, symbol, buyOrSell, variety, Product, order_type, last_price, price, Quantity} =  req.body ? req.body : req;
 //   let auth = 'token ' + data.getApiKey + ':' + data.getAccessToken;
 //   let headers = {
 //       'X-Kite-Version': '3',
@@ -153,7 +153,7 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
 //       "transaction_type": buyOrSell,
 //       "variety": variety,
 //       "product": Product,
-//       "order_type": OrderType,
+//       "order_type": order_type,
 //       "quantity": Quantity,
 //       "price": price,
 //       "trigger_price": 0

@@ -3,7 +3,7 @@ const InternshipTrade = require("../../models/mock-trade/internshipTrade");
 
 
 exports.internTrade = async (req, res, otherData) => {
-  let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, 
+  let {exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId, 
       exchangeInstrumentToken, validity, variety, order_id, instrumentToken, 
       portfolioId, trader, deviceDetails, margin} = req.body 
 
@@ -17,7 +17,7 @@ exports.internTrade = async (req, res, otherData) => {
 
         const internship = new InternshipTrade({
             status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
-            variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+            variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
             order_id, instrumentToken, brokerage: brokerageUser, portfolioId, batch: subscriptionId, exchangeInstrumentToken,
             createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
             deviceDetails: {deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType},

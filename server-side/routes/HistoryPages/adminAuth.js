@@ -1969,7 +1969,7 @@ router.get("/placeOrder", async (req, res) => {
     exchange: 'NFO',
     instrumentToken: 46292,
     Product: 'NRML',
-    OrderType: 'MARKET',
+    order_type: 'MARKET',
     buyOrSell: 'BUY',
     validity: 'DAY',
     disclosedQuantity: 0,

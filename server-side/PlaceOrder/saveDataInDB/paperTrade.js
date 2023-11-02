@@ -2,7 +2,7 @@ const PaperTrade = require("../../models/mock-trade/paperTrade");
 
 
 exports.virtualTrade = async (req, res, otherData) => {
-  let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, exchangeInstrumentToken,
+  let {exchange, symbol, buyOrSell, Quantity, Product, order_type, exchangeInstrumentToken,
     validity, variety, order_id, instrumentToken, portfolioId,
     trader, deviceDetails, margin} = req.body 
 
@@ -16,7 +16,7 @@ exports.virtualTrade = async (req, res, otherData) => {
 
         const paperTrade = new PaperTrade({
             status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
-            variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+            variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
             order_id, instrumentToken, brokerage: brokerageUser, portfolioId, exchangeInstrumentToken,
             createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
             deviceDetails: {deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType},

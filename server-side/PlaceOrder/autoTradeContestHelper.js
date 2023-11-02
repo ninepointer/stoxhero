@@ -20,7 +20,7 @@ exports.autoTradeHelper = async (data, contestId) => {
         Obj.real_instrument_token = data[i]._id.instrumentToken ;
         Obj.exchange = data[i]._id.exchange ;
         Obj.validity = data[i]._id.validity ;
-        Obj.OrderType = data[i]._id.order_type ;
+        Obj.order_type = data[i]._id.order_type ;
         Obj.variety = data[i]._id.variety ;
         Obj.buyOrSell = buyOrSell ;
         Obj.trader = data[i]._id.trader ;
