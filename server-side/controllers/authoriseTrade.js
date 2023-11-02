@@ -493,9 +493,11 @@ const calculateNetPnl = async (req, pnlData, data) => {
 
 
         for (let elem of pnlData) {
-            let grossPnl = (elem?.amount + (elem?.lots) * ltp[0]?.last_price);
-            totalGrossPnl += grossPnl;
-            totalBrokerage += Number(elem?.brokerage);
+            if(!elem._id.isLimit){
+                let grossPnl = (elem?.amount + (elem?.lots) * ltp[0]?.last_price);
+                totalGrossPnl += grossPnl;
+                totalBrokerage += Number(elem?.brokerage);    
+            }
         }
 
         totalNetPnl = totalGrossPnl - totalBrokerage;
@@ -507,8 +509,11 @@ const calculateNetPnl = async (req, pnlData, data) => {
 }
 
 const getLastTradeMarginAndCaseNumber = async (req, pnlData, from) => {
+    // if(req.body.OrderType === "LIMIT"){
+    //     return {caseNumber: 0}
+    // }
     const mySymbol = pnlData.filter((elem)=>{
-        return elem?._id?.symbol === req.body.symbol;
+        return elem?._id?.symbol === req.body.symbol && !elem?._id?.isLimit;
     })
 
     const runningLotForSymbol = mySymbol[0]?.lots;
@@ -552,7 +557,7 @@ const getLastTradeMarginAndCaseNumber = async (req, pnlData, from) => {
 
 const marginZeroCase = async (req, res, next, availableMargin, from, data) => {
     const requiredMargin = await calculateRequiredMargin(req, req.body.Quantity, data);
-    console.log("0th case", availableMargin, requiredMargin);
+    // console.log("0th case", availableMargin, requiredMargin);
 
     if((availableMargin-requiredMargin) > 0){
         req.body.margin = requiredMargin;
@@ -564,7 +569,7 @@ const marginZeroCase = async (req, res, next, availableMargin, from, data) => {
 
 const marginFirstCase = async (req, res, next, availableMargin, prevMargin, from, data) => {
     const requiredMargin = await calculateRequiredMargin(req, req.body.Quantity, data);
-    console.log("1st case", availableMargin, prevMargin, requiredMargin);
+    // console.log("1st case", availableMargin, prevMargin, requiredMargin);
 
     if((availableMargin-requiredMargin) > 0){
         req.body.margin = requiredMargin+prevMargin;
@@ -578,7 +583,7 @@ const marginSecondCase = async (req, res, next, prevMargin, prevQuantity) => {
     const quantityPer = Math.abs(req.body.Quantity) * 100 / Math.abs(prevQuantity);
     const marginReleased = prevMargin*quantityPer/100;
     req.body.margin = prevMargin-marginReleased;
-    console.log("2nd case", quantityPer, marginReleased);
+    // console.log("2nd case", quantityPer, marginReleased);
 
     return next();
 }
@@ -647,7 +652,7 @@ const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
     const totalMargin = pnlData.reduce((total, acc)=>{
         return total + acc.margin;
     }, 0)
-    console.log("availble margin", totalMargin, openingBalance, npnl)
+    // console.log("availble margin", totalMargin, openingBalance, npnl)
     if(npnl < 0)
     return openingBalance-totalMargin-npnl;
     else

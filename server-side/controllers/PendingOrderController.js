@@ -58,9 +58,11 @@ exports.myTodaysProcessedTrade = async (req, res, next) => {
                 buyOrSell: 1,
                 Quantity: 1,
                 execution_price: 1,
+                price: 1,
+                execution_time: 1,
                 amount: {
                   $multiply: [
-                    "$execution_price",
+                    "$price",
                     "$Quantity",
                   ],
                 },
@@ -144,9 +146,11 @@ exports.myTodaysPendingTrade = async (req, res, next) => {
               buyOrSell: 1,
               Quantity: 1,
               execution_price: 1,
+              price: 1,
+              execution_time: 1,
               amount: {
                 $multiply: [
-                  "$execution_price",
+                  "$price",
                   "$Quantity",
                 ],
               },
@@ -205,10 +209,22 @@ exports.cancelOrder = async (req, res, next) => {
         {
             updatedOrder.status = "Cancelled";
             updatedOrder.execution_time = new Date();
+            updatedOrder.execution_price = 0;
             const doc = await updatedOrder.save({new: true});
-            symbolArr.splice(i, 1);
+            
             await client.set('stoploss-stopprofit', JSON.stringify(data));
-
+            let pnlData = await client.get(`${symbolArr[i].createdBy.toString()}${symbolArr[i].sub_product_id.toString()}: overallpnlTenXTrader`)
+            pnlData = JSON.parse(pnlData)
+            for(let elem of pnlData){
+              // console.log("pnl dtata", elem, pnlData)
+              const buyOrSell = elem.lots > 0 ? "BUY" : "SELL";
+              if(elem._id.symbol === symbolArr[i].symbol && elem._id.isLimit && buyOrSell === symbolArr[i].buyOrSell){
+                elem.margin = 0;
+                break;
+              }
+            }
+            await client.set(`${symbolArr[i].createdBy.toString()}${symbolArr[i].sub_product_id.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlData));
+            symbolArr.splice(i, 1);
             break;
         }
     }
@@ -223,6 +239,8 @@ exports.cancelOrder = async (req, res, next) => {
 exports.editPrice = async (req, res, next) => {
   const { id } = req.params;
   const{execution_price} = req.body;
+
+  // console.log(id, execution_price)
 
   try {
     const updatedOrder = await PendingOrder.findOne(
@@ -244,9 +262,9 @@ exports.editPrice = async (req, res, next) => {
         if(symbolArr[i]._id.toString() === id.toString() && 
            symbolArr[i].createdBy.toString() === updatedOrder.createdBy.toString())
         {
-            updatedOrder.execution_price = execution_price;
+            updatedOrder.price = execution_price;
             const doc = await updatedOrder.save({new: true});
-            symbolArr[i].execution_price = execution_price;
+            symbolArr[i].price = execution_price;
             await client.set('stoploss-stopprofit', JSON.stringify(data));
 
             break;

@@ -93,7 +93,8 @@ const internshipTradeSchema = new mongoose.Schema({
     },
     margin: {
         type: Number,
-        required: true
+        required: true,
+        default: 0
     }
 
 })

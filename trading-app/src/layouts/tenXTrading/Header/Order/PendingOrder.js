@@ -152,7 +152,7 @@ function PendingOrders({ subscriptionId, socket, setUpdatePendingOrder, updatePe
         );
         orderObj.averagePrice = (
             <MDTypography variant="caption" color={"text"} fontWeight="medium">
-                {new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.execution_price))}
+                {new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.price))}
             </MDTypography>
         );
         orderObj.quantity = (
@@ -180,6 +180,18 @@ function PendingOrders({ subscriptionId, socket, setUpdatePendingOrder, updatePe
         orderObj.status = (
             <MDTypography component="a" href="#" variant="caption" color={"text"} fontWeight="medium">
                 {elem?.status}
+            </MDTypography>
+        );
+
+        orderObj.execution_price = (
+            <MDTypography component="a" href="#" variant="caption" color={"text"} fontWeight="medium">
+                {elem?.execution_price}
+            </MDTypography>
+        );
+
+        orderObj.execution_time = (
+            <MDTypography component="a" href="#" variant="caption" color={"text"} fontWeight="medium">
+                {moment.utc(elem?.execution_time).utcOffset('+05:30').format('DD-MMM HH:mm:ss')}
             </MDTypography>
         );
 
@@ -233,12 +245,14 @@ function PendingOrders({ subscriptionId, socket, setUpdatePendingOrder, updatePe
                                         <tr style={{ borderBottom: "1px solid #D3D3D3" }}>
                                             <td style={styleTD}>SYMBOL</td>
                                             <td style={styleTD} >QUANTITY</td>
-                                            <td style={styleTD} >SL/SP PRICE</td>
+                                            <td style={styleTD} >PRICE</td>
+                                            {/* <td style={styleTD} >EXECUTION PRICE</td> */}
                                             <td style={styleTD} >LTP</td>
-                                            <td style={styleTD} >STOP TYPE</td>
                                             <td style={styleTD} >TYPE</td>
+                                            <td style={styleTD} >TRX TYPE</td>
                                             <td style={styleTD} >STATUS</td>
                                             <td style={styleTD} >TIME</td>
+                                            {/* <td style={styleTD} >EXECUTION TIME</td> */}
                                             <td style={styleTD} >ACTION</td>
                                         </tr>
                                     </thead>
@@ -251,6 +265,8 @@ function PendingOrders({ subscriptionId, socket, setUpdatePendingOrder, updatePe
                                                 >
                                                     <OrderHelper
                                                         symbol={elem.symbol.props.children}
+                                                        execution_price={elem.execution_price.props.children}
+                                                        execution_time={elem.execution_time.props.children}
                                                         averagePrice={elem.averagePrice.props.children}
                                                         amount={elem.amount.props.children}
                                                         quantity={elem.quantity.props.children}

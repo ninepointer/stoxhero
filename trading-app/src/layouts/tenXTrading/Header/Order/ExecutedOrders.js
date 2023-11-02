@@ -178,7 +178,7 @@ function ExecutedOrders({ subscriptionId, socket, updatePendingOrder }) {
 
         orderObj.time = (
             <MDTypography component="a" href="#" variant="caption" color={"text"} fontWeight="medium">
-                {moment.utc(elem?.time).utcOffset('+05:30').format('DD-MMM HH:mm:ss')}
+                {moment.utc(elem?.execution_time).utcOffset('+05:30').format('DD-MMM HH:mm:ss')}
             </MDTypography>
         );
 
@@ -220,12 +220,14 @@ function ExecutedOrders({ subscriptionId, socket, updatePendingOrder }) {
                                         <tr style={{ borderBottom: "1px solid #D3D3D3" }}>
                                             <td style={styleTD}>SYMBOL</td>
                                             <td style={styleTD} >QUANTITY</td>
-                                            <td style={styleTD} >SL/SP PRICE</td>
-                                            <td style={styleTD} >AMOUNT</td>
-                                            <td style={styleTD} >STOP TYPE</td>
+                                            {/* <td style={styleTD} >PRICE</td> */}
+                                            <td style={styleTD} >EXECUTION PRICE</td>
+                                            <td style={styleTD} >LTP</td>
                                             <td style={styleTD} >TYPE</td>
+                                            <td style={styleTD} >TRX TYPE</td>
                                             <td style={styleTD} >STATUS</td>
-                                            <td style={styleTD} >TIME</td>
+                                            {/* <td style={styleTD} >TIME</td> */}
+                                            <td style={styleTD} >EXECUTION TIME</td>
                                             {/* <td style={styleTD} >ACTION</td> */}
                                         </tr>
                                     </thead>

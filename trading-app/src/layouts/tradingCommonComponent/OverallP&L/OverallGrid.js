@@ -112,7 +112,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
 
 
   tradeData.map((subelem) => {
-    if(subelem?._id?.order_type !== "LIMIT"){
+    if(!subelem?._id?.isLimit){
     let obj = {};
     let liveDetail = marketDetails.marketData.filter((elem) => {
       // //console.log("elem", elem, subelem)

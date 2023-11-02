@@ -22,6 +22,10 @@ const pendingOrderSchema = new Schema({
     },
     execution_price:{
         type: Number,
+        // required: true,
+    },
+    price:{
+        type: Number,
         required: true,
     },
     last_price:{

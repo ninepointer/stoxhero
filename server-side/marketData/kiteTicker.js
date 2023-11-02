@@ -264,22 +264,26 @@ const getTicksForCompanySide = async (socket) => {
               const length = symbolArr?.length
               for (let i = 0; i < length; i++) {
                 // publish(take trade) only when 
-                if (symbolArr[i].type === "StopLoss" && symbolArr[i].execution_price >= tick.last_price && symbolArr[i].buyOrSell === "SELL") {
+                if (symbolArr[i].type === "StopLoss" && symbolArr[i].price >= tick.last_price && symbolArr[i].buyOrSell === "SELL") {
                   console.log("1st if running")
                   await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
-                } else if (symbolArr[i].type === "StopLoss" && symbolArr[i].execution_price <= tick.last_price && symbolArr[i].buyOrSell === "BUY") {
+                } else if (symbolArr[i].type === "StopLoss" && symbolArr[i].price <= tick.last_price && symbolArr[i].buyOrSell === "BUY") {
                   console.log("2nd if running")
                   await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
-                } else if (symbolArr[i].type === "StopProfit" && symbolArr[i].execution_price <= tick.last_price && symbolArr[i].buyOrSell === "SELL") {
+                } else if (symbolArr[i].type === "StopProfit" && symbolArr[i].price <= tick.last_price && symbolArr[i].buyOrSell === "SELL") {
                   console.log("3rd if running")
                   await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
-                } else if (symbolArr[i].type === "StopProfit" && symbolArr[i].execution_price >= tick.last_price && symbolArr[i].buyOrSell === "BUY") {
+                } else if (symbolArr[i].type === "StopProfit" && symbolArr[i].price >= tick.last_price && symbolArr[i].buyOrSell === "BUY") {
                   console.log("4th if running")
                   await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
-                } else if (symbolArr[i].type === "Limit" && symbolArr[i].execution_price <= tick.last_price) {
+                } else if (symbolArr[i].type === "Limit" && symbolArr[i].price >= tick.last_price && symbolArr[i].buyOrSell === "BUY") {
                   console.log("5th if running")
                   await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
+                } else if (symbolArr[i].type === "Limit" && symbolArr[i].price <= tick.last_price && symbolArr[i].buyOrSell === "SELL") {
+                  console.log("6th if running")
+                  await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
                 }
+
               }
             }
           } catch (err) {
@@ -313,11 +317,11 @@ const getTicksForCompanySide = async (socket) => {
 //             const currentSymbol = symbolArr[i];
 //             const shouldExecute = (
 //               (currentSymbol.type === "StopLoss" &&
-//                 ((currentSymbol.execution_price >= tick.last_price && currentSymbol.buyOrSell === "SELL") ||
-//                  (currentSymbol.execution_price <= tick.last_price && currentSymbol.buyOrSell === "BUY"))) ||
+//                 ((currentSymbol.price >= tick.last_price && currentSymbol.buyOrSell === "SELL") ||
+//                  (currentSymbol.price <= tick.last_price && currentSymbol.buyOrSell === "BUY"))) ||
 //               (currentSymbol.type === "StopProfit" &&
-//                 ((currentSymbol.execution_price <= tick.last_price && currentSymbol.buyOrSell === "SELL") ||
-//                  (currentSymbol.execution_price >= tick.last_price && currentSymbol.buyOrSell === "BUY")))
+//                 ((currentSymbol.price <= tick.last_price && currentSymbol.buyOrSell === "SELL") ||
+//                  (currentSymbol.price >= tick.last_price && currentSymbol.buyOrSell === "BUY")))
 //             );
   
 //             if (shouldExecute) {

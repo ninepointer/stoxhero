@@ -33,7 +33,7 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
   const newLtp = ltp;
   const { pnlData } = useContext(NetPnlContext);
   const runningLotsSymbol = pnlData.reduce((total, acc) => {
-    if (acc?._id?.symbol === symbol) {
+    if (acc?._id?.symbol === symbol && !acc?._id?.isLimit) {
       return total + acc.lots;
     }
     return total; // return the accumulator if the condition is false
@@ -66,6 +66,7 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
   const [errorMessageStopLoss, setErrorMessageStopLoss] = useState("");
   const [errorMessageStopProfit, setErrorMessageStopProfit] = useState("");
   const [errorMessageQuantity, setErrorMessageQuantity] = useState("");
+  const [errorMessagePrice, setErrorMessagePrice] = useState("");
 
   const [open, setOpen] = React.useState(buyState);
   const theme = useTheme();
@@ -435,6 +436,10 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
 
   const priceChange = async (e) => {
     sellFormDetails.price = Number(e.target.value);
+    setErrorMessagePrice("");
+    if(Number(e.target.value) < ltp){
+      return setErrorMessagePrice("Price should be greater then LTP.")
+    }
     if (sellFormDetails.Quantity && sellFormDetails.price) {
       await checkMargin();
     }
@@ -578,6 +583,7 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
                 <Typography fontSize={15} color={"error"}> {sellFormDetails.stopLossPrice && errorMessageStopLoss && errorMessageStopLoss}</Typography>
                 <Typography fontSize={15} color={"error"}>{sellFormDetails.stopProfitPrice && errorMessageStopProfit && errorMessageStopProfit}</Typography>
                 <Typography fontSize={15} color={"error"}>{errorMessageQuantity && errorMessageQuantity}</Typography>
+                <Typography fontSize={15} color={"error"}>{errorMessagePrice && errorMessagePrice}</Typography>
               </Box>
 
               <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center", gap: "5px", marginTop: "20px" }}>
@@ -585,7 +591,7 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
                   Market
                 </MDBox>
 
-                <MDBox onClick={notAvailable} sx={{ backgroundColor: ordertype === "LIMIT" ? "#F44335" : "#FFFFFF", color: ordertype === "LIMIT" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "LIMIT" && ".5px solid #8D91A8" }}>
+                <MDBox onClick={from === "TenX Trader" ? () => { marketHandleChange("LIMIT") } : () => { notAvailable() }} sx={{ backgroundColor: ordertype === "LIMIT" ? "#F44335" : "#FFFFFF", color: ordertype === "LIMIT" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "LIMIT" && ".5px solid #8D91A8" }}>
                   Limit
                 </MDBox>
 
@@ -621,7 +627,7 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
             <MDButton size="small" variant="contained" color="error" onClick={handleClose} autoFocus>
               Cancel
             </MDButton>
-            <MDButton size="small" disabled={(sellFormDetails.stopLossPrice && (Number(ltp) > sellFormDetails.stopLossPrice)) || (sellFormDetails.stopProfitPrice && (Number(ltp) < sellFormDetails.stopProfitPrice))} autoFocus variant="contained" color="error" onClick={(e) => { sellFunction(e) }}>
+            <MDButton size="small" disabled={(sellFormDetails.stopLossPrice && (Number(ltp) > sellFormDetails.stopLossPrice)) || (sellFormDetails.stopProfitPrice && (Number(ltp) < sellFormDetails.stopProfitPrice)) || (sellFormDetails.price && (sellFormDetails.price < Number(ltp)))} autoFocus variant="contained" color="error" onClick={(e) => { sellFunction(e) }}>
               Sell
             </MDButton>
 

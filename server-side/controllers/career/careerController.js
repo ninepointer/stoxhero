@@ -402,7 +402,7 @@ const addSignupBonus = async (userId, amount, currency) => {
 
 exports.applyForCareer = async(req,res, next) => {
 
-  const{ campaignCode, career, dob, linkedInProfileLink, priorTradingExperience, source, gender, collegeName
+  const{ campaignCode, career, dob, linkedInProfileLink, priorTradingExperience, source, gender, collegeName, course, passingoutyear
   } = req.body
   const user = await User.findById(req.user._id).select('first_name last_name email mobile');
   try{
@@ -420,7 +420,10 @@ exports.applyForCareer = async(req,res, next) => {
       career: career,
       campaignCode: campaignCode?.trim(),
       status: 'OTP Verified',
-      applicationStatus: 'Applied'
+      applicationStatus: 'Applied',
+      course: course,
+      passingoutyear: passingoutyear,
+
     });
     res.status(201).json({status:"success", message:"Application Submitted Successfully."});
 

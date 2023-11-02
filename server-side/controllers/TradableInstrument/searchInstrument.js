@@ -141,12 +141,12 @@ exports.search = async (searchString, res, req) => {
             // {
             //   tradingsymbol: { $regex: /^(NIFTY|BANK)/i }
             // },
-            {
-              expiry: {
-                $gte: todayDate, // expiry is greater than or equal to today's date
-                $lte: fromLessThen
-              }
-            },
+            // {
+            //   expiry: {
+            //     $gte: todayDate, // expiry is greater than or equal to today's date
+            //     $lte: fromLessThen
+            //   }
+            // },
           ]
         })
           .sort({ expiry: 1 })

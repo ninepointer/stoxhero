@@ -31,7 +31,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
   const newLtp = ltp;
   const { pnlData } = useContext(NetPnlContext);
   const runningLotsSymbol = pnlData.reduce((total, acc) => {
-    if (acc?._id?.symbol === symbol) {
+    if (acc?._id?.symbol === symbol && !acc?._id?.isLimit) {
       return total + acc.lots;
     }
     return total; // return the accumulator if the condition is false
@@ -64,6 +64,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
   const [errorMessageStopLoss, setErrorMessageStopLoss] = useState("");
   const [errorMessageStopProfit, setErrorMessageStopProfit] = useState("");
   const [errorMessageQuantity, setErrorMessageQuantity] = useState("");
+  const [errorMessagePrice, setErrorMessagePrice] = useState("");
 
   const [open, setOpen] = React.useState(buyState);
   const theme = useTheme();
@@ -93,6 +94,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
   }, [])
 
 
+  console.log(buyFormDetails.price , Number(ltp))
   const [value, setValue] = React.useState('NRML');
   buyFormDetails.Product = value;
   // const handleChange = (event) => {
@@ -441,7 +443,11 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
   }
 
   const priceChange = async (e) => {
+    setErrorMessagePrice("");
     buyFormDetails.price = Number(e.target.value);
+    if(Number(e.target.value) > ltp){
+      return setErrorMessagePrice("Price should be less then LTP.")
+    }
     if (buyFormDetails.Quantity && buyFormDetails.price) {
       await checkMargin();
     }
@@ -585,6 +591,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
                 <Typography fontSize={15} color={"error"}> {buyFormDetails.stopLossPrice && errorMessageStopLoss && errorMessageStopLoss}</Typography>
                 <Typography fontSize={15} color={"error"}>{buyFormDetails.stopProfitPrice && errorMessageStopProfit && errorMessageStopProfit}</Typography>
                 <Typography fontSize={15} color={"error"}>{errorMessageQuantity && errorMessageQuantity}</Typography>
+                <Typography fontSize={15} color={"error"}>{errorMessagePrice && errorMessagePrice}</Typography>
               </Box>
 
               <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center", gap: "5px", marginTop: "20px" }}>
@@ -592,7 +599,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
                   Market
                 </MDBox>
 
-                <MDBox onClick={notAvailable} sx={{ backgroundColor: ordertype === "LIMIT" ? "#1A73E8" : "#FFFFFF", color: ordertype === "LIMIT" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "LIMIT" && ".5px solid #8D91A8" }}>
+                <MDBox onClick={from === "TenX Trader" ? () => { marketHandleChange("LIMIT") } : () => { notAvailable() }}  sx={{ backgroundColor: ordertype === "LIMIT" ? "#1A73E8" : "#FFFFFF", color: ordertype === "LIMIT" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "LIMIT" && ".5px solid #8D91A8" }}>
                   Limit
                 </MDBox>
 
@@ -630,7 +637,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
             </MDButton>
             <MDButton
               size='small'
-              disabled={(buyFormDetails.stopLossPrice && (Number(ltp) < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (Number(ltp) > buyFormDetails.stopProfitPrice))}
+              disabled={(buyFormDetails.stopLossPrice && (Number(ltp) < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (Number(ltp) > buyFormDetails.stopProfitPrice)) || (buyFormDetails.price && (buyFormDetails.price > Number(ltp)))}
               autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
               BUY
             </MDButton>

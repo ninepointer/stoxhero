@@ -10,6 +10,7 @@ exports.tenxTrade = async (req, res, otherData) => {
       exchangeInstrumentToken, validity, variety, order_id, instrumentToken, 
       portfolioId, trader, stopProfitPrice, stopLossPrice, deviceDetails, margin, price } = req.body 
 
+      console.log(req.body)
   let {isRedisConnected, brokerageUser, originalLastPriceUser, secondsRemaining, trade_time} = otherData;
 
   const session = await mongoose.startSession();
@@ -21,7 +22,7 @@ exports.tenxTrade = async (req, res, otherData) => {
     }
 
     session.startTransaction();
-    let pnlRedis = "";
+    // let pnlRedis = "";
 
     const tenxDoc = {
       status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
@@ -39,7 +40,7 @@ exports.tenxTrade = async (req, res, otherData) => {
     const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product));
     const matchingElementBuyOrSell = matchingElement?.lots > 0 ? "BUY" : "SELL";
     let reverseTradeConditionData;
-    if(matchingElement?.lots !== 0 && (matchingElementBuyOrSell !== tenxDoc.buyOrSell)){
+    if(matchingElement?.lots !== 0 && (matchingElementBuyOrSell !== tenxDoc.buyOrSell) && (OrderType !== "LIMIT")){
       reverseTradeConditionData = await reverseTradeCondition(req.user._id, subscriptionId, tenxDoc, stopLossPrice, stopProfitPrice, save[0]?._id, originalLastPriceUser);
     }
 
@@ -49,42 +50,44 @@ exports.tenxTrade = async (req, res, otherData) => {
       stopProfitPrice = 0;
     }
 
-    if (isRedisConnected && await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)) {
-      let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
-      pnl = JSON.parse(pnl);
-      const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product));
+    // if (isRedisConnected && await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)) {
+    //   let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
+    //   pnl = JSON.parse(pnl);
+    //   const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product && OrderType !== "LIMIT"  ));
 
-      // if instrument is same then just updating value
-      if (matchingElement) {
-        // Update the values of the matching element with the values of the first document
-        matchingElement._id.order_type = tenxDoc.order_type;
-        matchingElement.amount += (tenxDoc.amount * -1);
-        matchingElement.brokerage += Number(tenxDoc.brokerage);
-        matchingElement.lastaverageprice = tenxDoc.average_price;
-        matchingElement.lots += Number(tenxDoc.Quantity);
-        matchingElement.margin = margin;
-      } else {
-        // Create a new element if instrument is not matching
-        pnl.push({
-          _id: {
-            symbol: tenxDoc.symbol,
-            product: tenxDoc.Product,
-            instrumentToken: tenxDoc.instrumentToken,
-            exchangeInstrumentToken: tenxDoc.exchangeInstrumentToken,
-            exchange: tenxDoc.exchange,
-            validity: tenxDoc.validity,
-            variety: tenxDoc.variety,
-            order_type: tenxDoc.order_type
-          },
-          amount: (tenxDoc.amount * -1),
-          brokerage: Number(tenxDoc.brokerage),
-          lots: Number(tenxDoc.Quantity),
-          lastaverageprice: tenxDoc.average_price,
-          margin: margin
-        });
-      }
-      pnlRedis = await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(pnl))
-    }
+    //   // if instrument is same then just updating value
+    //   if (matchingElement) {
+    //     // Update the values of the matching element with the values of the first document
+    //     matchingElement._id.isLimit = OrderType==='LIMIT' ? true : false;
+    //     matchingElement.amount += (tenxDoc.amount * -1);
+    //     matchingElement.brokerage += Number(tenxDoc.brokerage);
+    //     matchingElement.lastaverageprice = tenxDoc.average_price;
+    //     matchingElement.lots += Number(tenxDoc.Quantity);
+    //     matchingElement.margin = margin;
+    //   } else {
+    //     // Create a new element if instrument is not matching
+    //     pnl.push({
+    //       _id: {
+    //         symbol: tenxDoc.symbol,
+    //         product: tenxDoc.Product,
+    //         instrumentToken: tenxDoc.instrumentToken,
+    //         exchangeInstrumentToken: tenxDoc.exchangeInstrumentToken,
+    //         exchange: tenxDoc.exchange,
+    //         validity: tenxDoc.validity,
+    //         variety: tenxDoc.variety,
+    //         isLimit: OrderType==='LIMIT' ? true : false
+    //       },
+    //       amount: (tenxDoc.amount * -1),
+    //       brokerage: Number(tenxDoc.brokerage),
+    //       lots: Number(tenxDoc.Quantity),
+    //       lastaverageprice: tenxDoc.average_price,
+    //       margin: margin
+    //     });
+    //   }
+    //   pnlRedis = await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(pnl))
+    // }
+
+    const pnlRedis = saveInRedis(req, tenxDoc, subscriptionId);
 
     if (isRedisConnected) {
       await client.expire(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, secondsRemaining);
@@ -146,6 +149,78 @@ const limitOrderMargin = async(req, data)=>{
       }
   }catch(err){
       console.log(err);
+  }
+}
+
+const saveInRedis = async (req, tenxDoc, subscriptionId)=>{
+  const {margin, OrderType} = req.body;
+
+  console.log('ordertypes', OrderType, tenxDoc)
+  if (await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)) {
+    let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
+    pnl = JSON.parse(pnl);
+
+    if(OrderType === "LIMIT"){
+      const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product && tenxDoc.OrderType === "LIMIT"  ));
+      if (matchingElement) {
+        // Update the values of the matching element with the values of the first document
+        matchingElement._id.isLimit = true;
+        matchingElement.amount += (tenxDoc.amount * -1);
+        matchingElement.brokerage += Number(tenxDoc.brokerage);
+        matchingElement.lastaverageprice = tenxDoc.average_price;
+        matchingElement.lots += Number(tenxDoc.Quantity);
+        matchingElement.margin += margin;
+      } else {
+        // Create a new element if instrument is not matching
+        pnl.push({
+          _id: {
+            symbol: tenxDoc.symbol,
+            product: tenxDoc.Product,
+            instrumentToken: tenxDoc.instrumentToken,
+            exchangeInstrumentToken: tenxDoc.exchangeInstrumentToken,
+            exchange: tenxDoc.exchange,
+            validity: tenxDoc.validity,
+            variety: tenxDoc.variety,
+            isLimit: true
+          },
+          amount: (tenxDoc.amount * -1),
+          brokerage: Number(tenxDoc.brokerage),
+          lots: Number(tenxDoc.Quantity),
+          lastaverageprice: tenxDoc.average_price,
+          margin: margin
+        });
+      }
+    } else{
+      const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product && tenxDoc.OrderType !== "LIMIT"  ));
+      if (matchingElement) {
+        // Update the values of the matching element with the values of the first document
+        matchingElement.amount += (tenxDoc.amount * -1);
+        matchingElement.brokerage += Number(tenxDoc.brokerage);
+        matchingElement.lastaverageprice = tenxDoc.average_price;
+        matchingElement.lots += Number(tenxDoc.Quantity);
+        matchingElement.margin = margin;
+      } else {
+        // Create a new element if instrument is not matching
+        pnl.push({
+          _id: {
+            symbol: tenxDoc.symbol,
+            product: tenxDoc.Product,
+            instrumentToken: tenxDoc.instrumentToken,
+            exchangeInstrumentToken: tenxDoc.exchangeInstrumentToken,
+            exchange: tenxDoc.exchange,
+            validity: tenxDoc.validity,
+            variety: tenxDoc.variety,
+          },
+          amount: (tenxDoc.amount * -1),
+          brokerage: Number(tenxDoc.brokerage),
+          lots: Number(tenxDoc.Quantity),
+          lastaverageprice: tenxDoc.average_price,
+          margin: margin
+        });
+      }
+    }
+    pnlRedis = await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(pnl))
+    return pnlRedis;
   }
 }
 

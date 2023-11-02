@@ -20,13 +20,14 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
             let symbolArray = data[`${doc.instrumentToken}`];
             let indicesToRemove = [];
             for(let i = symbolArray.length-1; i >= 0; i--){
-                if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol ){
+                if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol && symbolArray[i].order_type !== "LIMIT" ){
                     // remove this element
                     indicesToRemove.push(i);
                     const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id)},{
                         $set: {
                             status: "Cancelled",
-                            execution_time: new Date()
+                            execution_time: new Date(),
+                            execution_price: 0
                         }
                     })
                     //, status: "Pending", symbol: symbolArray[i].symbol
@@ -55,13 +56,14 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
                 let indicesToRemove = [];
                 for(let i = symbolArray.length-1; i >= 0; i--){
 
-                    if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol){
+                    if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol && symbolArray[i].order_type !== "LIMIT"){
                         // remove this element
                         indicesToRemove.push(i);
                         const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id)},{
                             $set: {
                                 status: "Cancelled",
-                                execution_time: new Date()
+                                execution_time: new Date(),
+                                execution_price: 0
                             }
                         })
                         //, status: "Pending", symbol: symbolArray[i].symbol
@@ -93,13 +95,14 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
                 let symbolArray = data[`${doc.instrumentToken}`];
                 let indicesToRemove = [];
                 for(let i = symbolArray.length-1; i >= 0; i--){
-                    if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol){
+                    if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol && symbolArray[i].order_type !== "LIMIT"){
                         // remove this element
                         indicesToRemove.push(i);
                         const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id)},{
                             $set: {
                                 status: "Cancelled",
-                                execution_time: new Date()
+                                execution_time: new Date(),
+                                execution_price: 0
                             }
                         })
                         //, status: "Pending", symbol: symbolArray[i].symbol
@@ -189,20 +192,20 @@ async function adjustPendingOrders(symbolArr, quantity, stopOrderType, sortOrder
         if (sortOrder === 'desc') {
             // symbolArr.sort((a, b) => {
             //     if (a.type === "StopLoss" && b.type === "StopLoss") {
-            //       return Math.abs(ltp - a.execution_price) - Math.abs(ltp - b.execution_price);
+            //       return Math.abs(ltp - a.price) - Math.abs(ltp - b.price);
             //     }
             //     return 0; // If both elements are not StopLoss, leave them in their current order
             //   });
 
-            symbolArr.sort((a, b) => b.execution_price - a.execution_price);
+            symbolArr.sort((a, b) => b.price - a.price);
         } else {
             // symbolArr.sort((a, b) => {
             //     if (a.type === "StopLoss" && b.type === "StopLoss") {
-            //       return Math.abs(ltp - b.execution_price) - Math.abs(ltp - a.execution_price);
+            //       return Math.abs(ltp - b.price) - Math.abs(ltp - a.price);
             //     }
             //     return 0; // If both elements are not StopLoss, leave them in their current order
             //   });
-            symbolArr.sort((a, b) => a.execution_price - b.execution_price);
+            symbolArr.sort((a, b) => a.price - b.price);
         }
 
         // console.log(stopOrderType, symbolArr)
@@ -222,7 +225,8 @@ async function adjustPendingOrders(symbolArr, quantity, stopOrderType, sortOrder
                         _id: new ObjectId(symbolArr[i]?._id)
                     }, {
                         status: 'Cancelled',
-                        execution_time: new Date()
+                        execution_time: new Date(),
+                        execution_price: 0
                     });
 
                     // Remove from Redis array

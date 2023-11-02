@@ -184,7 +184,7 @@ exports.tenxTradeStopLoss = async () => {
                 data = JSON.parse(data);
                 let index2;
                 let symbolArr = data[`${instrumentToken}`];
-                console.log("first index2", index2)
+                // console.log("first index2", index2)
                 for (let i = 0; i < symbolArr.length; i++) {
 
                     if (symbolArr[i].instrumentToken === instrumentToken &&
@@ -195,17 +195,18 @@ exports.tenxTradeStopLoss = async () => {
 
                         const update = await PendingOrder.findOne({ _id: new ObjectId(symbolArr[i]._id) })
                         update.status = "Cancelled";
+                        update.execution_price = 0;
                         update.execution_time = new Date();
                         await update.save();
-                            console.log("in if index2", index2)
+                            // console.log("in if index2", index2)
                         index2 = i;
                         break;
                     }
                 }
 
-                console.log("value of index2", index2, index)
+                // console.log("value of index2", index2, index)
                 if (index2 !== undefined) {
-                    console.log("value of in if index2", index2)
+                    // console.log("value of in if index2", index2)
                     symbolArr.splice(Math.max(index2, index), 1);
                     symbolArr.splice(Math.min(index2, index), 1);
                 } else {
@@ -215,9 +216,23 @@ exports.tenxTradeStopLoss = async () => {
                 const update = await PendingOrder.updateOne({ _id: new ObjectId(_id) }, {
                     $set: {
                          status: "Executed",
-                         execution_time: new Date()
-                         }
+                         execution_time: new Date(),
+                         execution_price: last_price
+                    }
                 })
+
+                let pnlData = await client.get(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`)
+                pnlData = JSON.parse(pnlData)
+                for(let elem of pnlData){
+                  // console.log("pnl dtata", elem, pnlData)
+                  const buyOrSell = elem.lots > 0 ? "BUY" : "SELL";
+                  if(elem._id.symbol === symbol && elem._id.isLimit && buyOrSell === buyOrSell){
+                    elem.margin = 0;
+                    break;
+                  }
+                }
+                await client.set(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlData));
+    
                 data[`${instrumentToken}`] = symbolArr;
                 const myDAta = await client.set('stoploss-stopprofit', JSON.stringify(data));
                 await client4.PUBLISH("order-notification", JSON.stringify({ symbol: symbol, createdBy: createdBy, Quantity: Quantity, execution_price: last_price, type: type }))
@@ -353,12 +368,16 @@ const getLastTradeMarginAndCaseNumber = async (data, pnlData, from) => {
     }
 
     if(Math.abs(runningLotForSymbol) > Math.abs(quantity) && transactionTypeForSymbol !== transaction_type){
+        // if squaring of some quantity
         caseNumber = 2;
     } else if(Math.abs(runningLotForSymbol) < Math.abs(quantity) && transactionTypeForSymbol !== transaction_type){
+        // if squaring of all quantity and adding more in reverse direction (square off more quantity)
         caseNumber = 4;
     } else if(Math.abs(runningLotForSymbol) === Math.abs(quantity) && transactionTypeForSymbol !== transaction_type){
+        // if squaring off all quantity
         caseNumber = 3;
     } else if(transactionTypeForSymbol === transaction_type){
+        // if adding more quantity
         caseNumber = 1;
     } else{
         caseNumber = 0;
@@ -423,7 +442,7 @@ const calculateNetPnl = async (tradeData, pnlData, data) => {
 
 const marginZeroCase = async (tradeData, availableMargin, from, data) => {
     const requiredMargin = await calculateRequiredMargin(tradeData, tradeData.Quantity, data);
-    console.log("0th case", availableMargin, requiredMargin);
+    // console.log("0th case", availableMargin, requiredMargin);
 
     if((availableMargin-requiredMargin) > 0){
         tradeData.margin = requiredMargin;
@@ -435,7 +454,7 @@ const marginZeroCase = async (tradeData, availableMargin, from, data) => {
 
 const marginFirstCase = async (tradeData, availableMargin, prevMargin, from, data) => {
     const requiredMargin = await calculateRequiredMargin(tradeData, tradeData.Quantity, data);
-    console.log("1st case", availableMargin, prevMargin, requiredMargin);
+    // console.log("1st case", availableMargin, prevMargin, requiredMargin);
 
     if((availableMargin-requiredMargin) > 0){
         tradeData.margin = requiredMargin+prevMargin;
@@ -449,7 +468,7 @@ const marginSecondCase = async (tradeData, prevMargin, prevQuantity) => {
     const quantityPer = Math.abs(tradeData.Quantity) * 100 / Math.abs(prevQuantity);
     const marginReleased = prevMargin*quantityPer/100;
     tradeData.margin = prevMargin-marginReleased;
-    console.log("2nd case", quantityPer, marginReleased);
+    // console.log("2nd case", quantityPer, marginReleased);
 
     return;
 }
@@ -518,7 +537,7 @@ const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
     const totalMargin = pnlData.reduce((total, acc)=>{
         return total + acc.margin;
     }, 0)
-    console.log("availble margin", totalMargin, openingBalance, npnl)
+    // console.log("availble margin", totalMargin, openingBalance, npnl)
     if(npnl < 0)
     return openingBalance-totalMargin-npnl;
     else

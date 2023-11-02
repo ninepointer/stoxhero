@@ -14,6 +14,7 @@ const moment = require('moment');
 const mongoose = require('mongoose');
 const {createUserNotification} = require('../controllers/notification/notificationController');
 const Setting = require("../models/settings/setting")
+const PendingOrder = require("../models/PendingOrder/pendingOrderSchema")
 
 exports.overallPnl = async (req, res, next) => {
   let isRedisConnected = getValue();
@@ -50,7 +51,7 @@ exports.overallPnl = async (req, res, next) => {
 
     } else {
 
-      let pnlDetails = await TenXTrader.aggregate([
+      const pnlDetails = await TenXTrader.aggregate([
         {
           $match: {
             trade_time_utc: {
@@ -100,12 +101,87 @@ exports.overallPnl = async (req, res, next) => {
           },
         },
       ])
+
+      const limitMargin = await PendingOrder.aggregate([
+        {
+          $match: {
+            createdBy: new ObjectId(
+              userId
+            ),
+            type: "Limit",
+            status: "Pending",
+            createdOn: {
+              $gte: today,
+            },
+          },
+        },
+        {
+          $group:
+          {
+            _id: {
+              symbol: "$symbol",
+              product: "$Product",
+              instrumentToken: "$instrumentToken",
+              exchangeInstrumentToken: "$exchangeInstrumentToken",
+              exchange: "$exchange",
+              validity: "$validity",
+              variety: "$variety",
+              // order_type: "$order_type"
+            },
+            amount: {
+              $sum: { $multiply: ["$amount", -1] },
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$brokerage",
+              },
+            },
+            lots: {
+              $sum: {
+                $toInt: "$Quantity",
+              },
+            },
+            margin: {
+              $last: "$margin",
+            },
+          }
+        }
+      ])
+
+      const arr = [];
+      for(let elem of limitMargin){
+        // for(let subelem of pnlDetails){
+        //   if((elem?._id?.symbol === subelem?._id?.symbol) && subelem?._id?.isLimit){
+        //     elem.margin = elem.margin + subelem?.margin;
+        //   } else if(subelem?._id?.isLimit){
+            arr.push({
+              _id: {
+                symbol: elem._id.symbol,
+                product: elem._id.Product,
+                instrumentToken: elem._id.instrumentToken,
+                exchangeInstrumentToken: elem._id.exchangeInstrumentToken,
+                exchange: elem._id.exchange,
+                validity: elem._id.validity,
+                variety: elem._id.variety,
+                isLimit: true
+              },
+              // amount: (tenxDoc.amount * -1),
+              // brokerage: Number(tenxDoc.brokerage),
+              lots: Number(elem.lots),
+              // lastaverageprice: tenxDoc.average_price,
+              margin: elem.margin
+            });
+        //   }
+        // }
+      }
+
+      const newPnl = pnlDetails.concat(arr);
       if (isRedisConnected) {
-        await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlDetails))
+        await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(newPnl))
         await client.expire(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, secondsRemaining);
       }
 
-      res.status(201).json({ message: "pnl received", data: pnlDetails });
+      res.status(201).json({ message: "pnl received", data: newPnl });
     }
 
   } catch (e) {

@@ -29,14 +29,14 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
       const pendingOrderStopLoss = {
         order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: stopLossPrice,
         Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: OrderType ? OrderType : order_type, symbol,
-        execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price,
+        execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, price: stopLossPrice,
         createdBy: req?.user?._id ? req?.user?._id : createdBy, type: "StopLoss", sub_product_id: id, margin
       }
 
       const pendingOrderStopProfit = {
         order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: stopProfitPrice,
         Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: OrderType ? OrderType : order_type, symbol,
-        execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price,
+        execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, price: stopProfitPrice,
         createdBy: req?.user?._id ? req?.user?._id : createdBy, type: "StopProfit", sub_product_id: id, margin
       }
 
@@ -46,7 +46,7 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
       let executionPrice = stopProfitPrice ? stopProfitPrice : stopLossPrice;
       let type = stopProfitPrice ? "StopProfit" : "StopLoss";
       pendingOrder = [{
-        order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: executionPrice,
+        order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0",  price: executionPrice,
         Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: OrderType ? OrderType : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, margin,
         createdBy: req?.user?._id ? req?.user?._id : createdBy, type, sub_product_id: id
@@ -57,7 +57,7 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
       // const data = await getKiteCred.getAccess(); 
       // const margin = await limitOrderMargin(req, data);
       pendingOrder = [{
-        order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: executionPrice,
+        order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0",  price: executionPrice,
         Quantity: Math.abs(Quantity), Product, buyOrSell: buyOrSell, variety, validity, exchange, order_type: OrderType ? OrderType : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, margin,
         createdBy: req?.user?._id ? req?.user?._id : createdBy, type, sub_product_id: id
@@ -78,7 +78,7 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
 
     for (let elem of order) {
       dataArr.push({
-        product_type: elem?.product_type, execution_price: elem?.execution_price, Quantity: elem?.Quantity,
+        product_type: elem?.product_type, price: elem?.price, Quantity: elem?.Quantity,
         Product: elem?.Product, buyOrSell: elem?.buyOrSell, variety: elem?.variety, validity: elem?.validity,
         exchange: elem?.exchange, order_type: elem?.order_type, symbol: elem?.symbol, execution_time: elem?.execution_time,
         instrumentToken: elem?.instrumentToken, exchangeInstrumentToken: elem?.exchangeInstrumentToken,
