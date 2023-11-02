@@ -10,7 +10,7 @@ exports.tenxTrade = async (req, res, otherData) => {
       exchangeInstrumentToken, validity, variety, order_id, instrumentToken, 
       portfolioId, trader, stopProfitPrice, stopLossPrice, deviceDetails, margin, price } = req.body 
 
-      console.log(req.body)
+      // console.log(req.body)
   let {isRedisConnected, brokerageUser, originalLastPriceUser, secondsRemaining, trade_time} = otherData;
 
   const session = await mongoose.startSession();

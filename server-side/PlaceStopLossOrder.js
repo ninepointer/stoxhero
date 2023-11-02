@@ -138,8 +138,9 @@ exports.tenxTradeStopLoss = async () => {
                     if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`)) {
                         let pnl = await client.get(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`)
                         pnl = JSON.parse(pnl);
-                        const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product));
-
+                        console.log("pnl", pnl);
+                        const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product && !element._id.isLimit));
+                        console.log("matchingElement", matchingElement);
                         // if instrument is same then just updating value
                         if (matchingElement) {
                             // Update the values of the matching element with the values of the first document
@@ -150,6 +151,7 @@ exports.tenxTradeStopLoss = async () => {
                             matchingElement.margin = message.data.margin;
 
                         } else {
+                            console.log("in else saving data");
                             // Create a new element if instrument is not matching
                             pnl.push({
                                 _id: {
@@ -167,7 +169,8 @@ exports.tenxTradeStopLoss = async () => {
                             });
                         }
 
-                        await client.set(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`, JSON.stringify(pnl))
+                        const data = await client.set(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`, JSON.stringify(pnl));
+                        console.log(data)
 
                     }
 
