@@ -138,37 +138,3 @@ exports.applyingSLSP = async (req, otherData, session, docId) => {
   }
 
 }
-
-// const limitOrderMargin = async(req, data)=>{
-//   const { exchange, symbol, buyOrSell, variety, Product, order_type, last_price, price, Quantity} =  req.body ? req.body : req;
-//   let auth = 'token ' + data.getApiKey + ':' + data.getAccessToken;
-//   let headers = {
-//       'X-Kite-Version': '3',
-//       'Authorization': auth,
-//       "content-type": "application/json"
-//   }
-//   let orderData = [{
-//       "exchange": exchange,
-//       "tradingsymbol": symbol,
-//       "transaction_type": buyOrSell,
-//       "variety": variety,
-//       "product": Product,
-//       "order_type": order_type,
-//       "quantity": Quantity,
-//       "price": price,
-//       "trigger_price": 0
-//   }]
-
-//   try{
-//       if(buyOrSell === "SELL"){
-//           const marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers })
-//           const zerodhaMargin = marginData.data.data.orders[0].total;
-  
-//           return zerodhaMargin;    
-//       } else{
-//           return (Number(last_price) * Math.abs(Quantity));
-//       }
-//   }catch(err){
-//       console.log(err);
-//   }
-// }

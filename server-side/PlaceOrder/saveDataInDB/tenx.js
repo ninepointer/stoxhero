@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const {applyingSLSP} = require("./PendingOrderCondition/applyingSLSP")
 const {reverseTradeCondition} = require("./PendingOrderCondition/reverseTradeCondition");
 const { client } = require("../../marketData/redisClient");
+const {tenx} = require("../../constant");
 
 exports.tenxTrade = async (req, res, otherData) => {
   let {exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId, 
@@ -16,9 +17,9 @@ exports.tenxTrade = async (req, res, otherData) => {
   const session = await mongoose.startSession();
 
   try {
-    const tenx = await TenxTrader.findOne({ order_id: order_id });
-    if (tenx) {
-      return res.status(422).json({ message: "data already exist", error: "Fail to trade" })
+    const tenxCheck = await TenxTrader.findOne({ order_id: order_id });
+    if (tenxCheck) {
+      return res.status(422).json({ status: "error", message: "something went wrong." })
     }
 
     session.startTransaction();
@@ -38,12 +39,11 @@ exports.tenxTrade = async (req, res, otherData) => {
     let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
     pnl = JSON.parse(pnl);
     let reverseTradeConditionData;
-    const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product));
-
+    const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product && !element._id.isLimit));
     if(matchingElement){
       const matchingElementBuyOrSell = matchingElement?.lots > 0 ? "BUY" : "SELL";
       if(matchingElement?.lots !== 0 && (matchingElementBuyOrSell !== tenxDoc.buyOrSell) && (order_type !== "LIMIT")){
-        reverseTradeConditionData = await reverseTradeCondition(req.user._id, subscriptionId, tenxDoc, stopLossPrice, stopProfitPrice, save[0]?._id, originalLastPriceUser);
+        reverseTradeConditionData = await reverseTradeCondition(req.user._id, subscriptionId, tenxDoc, stopLossPrice, stopProfitPrice, save[0]?._id, originalLastPriceUser, pnl, tenx);
       }
     }
 
@@ -53,44 +53,7 @@ exports.tenxTrade = async (req, res, otherData) => {
       stopProfitPrice = 0;
     }
 
-    // if (isRedisConnected && await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)) {
-    //   let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
-    //   pnl = JSON.parse(pnl);
-    //   const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product && order_type !== "LIMIT"  ));
-
-    //   // if instrument is same then just updating value
-    //   if (matchingElement) {
-    //     // Update the values of the matching element with the values of the first document
-    //     matchingElement._id.isLimit = order_type==='LIMIT' ? true : false;
-    //     matchingElement.amount += (tenxDoc.amount * -1);
-    //     matchingElement.brokerage += Number(tenxDoc.brokerage);
-    //     matchingElement.lastaverageprice = tenxDoc.average_price;
-    //     matchingElement.lots += Number(tenxDoc.Quantity);
-    //     matchingElement.margin = margin;
-    //   } else {
-    //     // Create a new element if instrument is not matching
-    //     pnl.push({
-    //       _id: {
-    //         symbol: tenxDoc.symbol,
-    //         product: tenxDoc.Product,
-    //         instrumentToken: tenxDoc.instrumentToken,
-    //         exchangeInstrumentToken: tenxDoc.exchangeInstrumentToken,
-    //         exchange: tenxDoc.exchange,
-    //         validity: tenxDoc.validity,
-    //         variety: tenxDoc.variety,
-    //         isLimit: order_type==='LIMIT' ? true : false
-    //       },
-    //       amount: (tenxDoc.amount * -1),
-    //       brokerage: Number(tenxDoc.brokerage),
-    //       lots: Number(tenxDoc.Quantity),
-    //       lastaverageprice: tenxDoc.average_price,
-    //       margin: margin
-    //     });
-    //   }
-    //   pnlRedis = await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(pnl))
-    // }
-
-    const pnlRedis = saveInRedis(req, tenxDoc, subscriptionId);
+    const pnlRedis = await saveInRedis(req, tenxDoc, subscriptionId);
 
     if (isRedisConnected) {
       await client.expire(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, secondsRemaining);
@@ -99,17 +62,16 @@ exports.tenxTrade = async (req, res, otherData) => {
 
     let pendingOrderRedis;
     if(stopLossPrice || stopProfitPrice || price){
-      pendingOrderRedis = await applyingSLSP(req, {ltp: originalLastPriceUser}, session, save[0]?._id);
+      pendingOrderRedis = await applyingSLSP(req, {ltp: originalLastPriceUser}, session, save[0]?._id, tenx);
     } else{
       pendingOrderRedis = "OK";
     }
     
     console.log(pendingOrderRedis, pnlRedis)
-    //todo-vijay
-    // if (pendingOrderRedis === "OK" && pnlRedis === "OK") {
+    if (pendingOrderRedis === "OK" && pnlRedis === "OK") {
       await session.commitTransaction();
       res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
-    // }
+    }
   } catch (err) {
     await client.del('stoploss-stopprofit');
     await client.del(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
@@ -118,40 +80,6 @@ exports.tenxTrade = async (req, res, otherData) => {
     res.status(201).json({status: 'error', message: 'Something went wrong. Please try again.'});
   } finally {
     session.endSession();
-  }
-}
-
-const limitOrderMargin = async(req, data)=>{
-  const { exchange, symbol, buyOrSell, variety, Product, order_type, last_price, price, Quantity} = req.body;
-  let auth = 'token ' + data.getApiKey + ':' + data.getAccessToken;
-  let headers = {
-      'X-Kite-Version': '3',
-      'Authorization': auth,
-      "content-type": "application/json"
-  }
-  let orderData = [{
-      "exchange": exchange,
-      "tradingsymbol": symbol,
-      "transaction_type": buyOrSell,
-      "variety": variety,
-      "product": Product,
-      "order_type": order_type,
-      "quantity": Quantity,
-      "price": price,
-      "trigger_price": 0
-  }]
-
-  try{
-      if(buyOrSell === "SELL"){
-          const marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers })
-          const zerodhaMargin = marginData.data.data.orders[0].total;
-  
-          return zerodhaMargin;    
-      } else{
-          return (last_price * Math.abs(Quantity));
-      }
-  }catch(err){
-      console.log(err);
   }
 }
 
@@ -164,7 +92,7 @@ const saveInRedis = async (req, tenxDoc, subscriptionId)=>{
     pnl = JSON.parse(pnl);
 
     if(order_type === "LIMIT"){
-      const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product && tenxDoc.order_type === "LIMIT"  ));
+      const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product && tenxDoc.order_type === "LIMIT" && element._id.isLimit  ));
       if (matchingElement) {
         // Update the values of the matching element with the values of the first document
         matchingElement._id.isLimit = true;
@@ -195,7 +123,7 @@ const saveInRedis = async (req, tenxDoc, subscriptionId)=>{
       }
     } else{
       const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product && !element._id.isLimit  ));
-      console.log("matchingElement", matchingElement , tenxDoc.instrumentToken,  tenxDoc.Product , tenxDoc.order_type)
+      // console.log("matchingElement", matchingElement , tenxDoc.instrumentToken,  tenxDoc.Product , tenxDoc.order_type)
       if (matchingElement) {
         // Update the values of the matching element with the values of the first document
         matchingElement.amount += (tenxDoc.amount * -1);
