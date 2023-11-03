@@ -634,7 +634,12 @@ const calculateRequiredMargin = async (req, Quantity, data) => {
     
             return zerodhaMargin;    
         } else{
-            return (last_price * Math.abs(Quantity));
+            if(order_type === "LIMIT"){
+                return (price * Math.abs(Quantity));
+            } else{
+                return (last_price * Math.abs(Quantity));
+            }
+            
         }
     }catch(err){
         console.log(err);

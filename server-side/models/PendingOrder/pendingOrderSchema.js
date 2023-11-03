@@ -70,11 +70,12 @@ const pendingOrderSchema = new Schema({
     },
     exchangeInstrumentToken:{
         type: Number,
-        required : true
+        required : true,
     },
     margin:{
         type: Number,
-        required : true
+        required : true,
+        default: 0
     },
     execution_time:{
         type: Date,
