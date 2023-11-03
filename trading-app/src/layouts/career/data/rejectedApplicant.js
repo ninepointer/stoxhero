@@ -7,6 +7,10 @@ import MDTypography from "../../../components/MDTypography"
 import Card from "@mui/material/Card";
 import axios from "axios";
 import AddApplicantModal from '../AddApplicantModal';
+import { saveAs } from 'file-saver';
+import { Tooltip } from '@mui/material';
+import DownloadIcon from '@mui/icons-material/Download';
+import moment from 'moment';
 
 
 export default function Applicants({career, action, setAction}) {
@@ -125,13 +129,70 @@ export default function Applicants({career, action, setAction}) {
 
   rows.push(featureObj)
 })
+const handleDownload = (csvData, nameVariable) => {
+  // Create the CSV content
+  // const csvContent = csvData.map(row => row.join(',')).join('\n');
+  const csvContent = csvData?.map((row) => {
+    return row?.map((row1) => row1.join(',')).join('\n');
+  });
+  // const csvContent = 'Date,Weekday,Gross P&L(S) Gross P&L(I) Net P&L(S) Net P&L(I) Net P&L Diff(S-I)\nValue 1,Value 2,Value 3\nValue 4, Value 5, Value 6';
+
+  // Create a Blob object with the CSV content
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+
+  // Save the file using FileSaver.js
+  saveAs(blob, `${nameVariable}.csv`);
+}
+
+function downloadHelper(data) {
+  let csvDataFile = [[]]
+  let csvDataDailyPnl = [["NAME", "DOB", "EMAIL","MOBILE", "IN ACTIVE BATCH", "COMPLETED", "PRIOR EXP", "SOURCE", "STATUS", "LINKEDIN", "APPLIED ON", "COLLEGE NAME"]]
+  if (data) {
+    // dates = Object.keys(data)
+    let csvpnlData = Object.values(data)
+    csvDataFile = csvpnlData?.map((elem) => {
+
+      return [
+        `${elem?.first_name} ${elem?.last_name}`,
+        moment(elem?.dob).format('DD-MM-YY HH:mm:ss a'),
+        elem?.email,
+        elem?.mobileNo,
+        elem?.inActiveBatch,
+        elem?.completed,
+        elem?.priorTradingExperience,
+        elem?.source,
+        elem?.applicationStatus,
+        elem?.linkedInProfileLink,
+        moment(elem?.appliedOn).format('DD-MM-YY HH:mm:ss a'),
+        elem?.collegeName,
+      ]
+    })
+  }
+
+  return [[...csvDataDailyPnl, ...csvDataFile]]
+}
+
+const pnlData = downloadHelper(careerApplications)
+
 
   return (
     <Card>
-      <MDBox display="flex" justifyContent="space-between" alignItems="left">
+      {/* <MDBox display="flex" justifyContent="space-between" alignItems="left">
         <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{backgroundColor:"lightgrey",borderRadius:"2px"}}>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
             Rejected Applications({applicationCount})
+          </MDTypography>
+        </MDBox>
+      </MDBox> */}
+       <MDBox display="flex" justifyContent="space-between" alignItems="left">
+        <MDBox width="100%" display="flex" justifyContent="space-between" alignItems="center" sx={{ backgroundColor: "lightgrey", borderRadius: "2px" }}>
+          <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
+          </MDTypography>
+          <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
+            Rejected Applications({applicationCount})
+          </MDTypography>
+          <MDTypography variant="text" fontSize={12} color="black" mt={0.7} gutterBottom >
+            <Tooltip title="Download CSV"><MDBox sx={{ backgroundColor: "lightgrey", borderRadius: "2px", cursor: "pointer", marginRight: "5px" }} onClick={() => { handleDownload(pnlData, `rejected-applicants`) }}><DownloadIcon /></MDBox></Tooltip>
           </MDTypography>
         </MDBox>
       </MDBox>
