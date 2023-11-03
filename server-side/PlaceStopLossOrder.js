@@ -228,10 +228,17 @@ exports.tenxTradeStopLoss = async () => {
                 pnlData = JSON.parse(pnlData)
                 for(let elem of pnlData){
                   // console.log("pnl dtata", elem, pnlData)
-                  const buyOrSell = elem.lots > 0 ? "BUY" : "SELL";
-                  if(elem._id.symbol === symbol && elem._id.isLimit && buyOrSell === buyOrSell){
-                    elem.margin = 0;
-                    break;
+                  const buyOrSellPnl = elem.lots > 0 ? "BUY" : "SELL";
+                  if(elem._id.symbol === symbol && elem._id.isLimit && buyOrSellPnl === buyOrSell){
+                    if(Math.abs(elem.lots) > Math.abs(Quantity)){
+                        elem.margin = elem.margin - (elem.margin * Math.abs(Quantity)/Math.abs(elem.lots));
+                        elem.lots = Math.abs(elem.lots) - Math.abs(Quantity)
+                        break;
+                      } else if(Math.abs(elem.lots) === Math.abs(Quantity)){
+                        elem.margin = 0;
+                        elem.lots = Math.abs(elem.lots) - Math.abs(Quantity)
+                        break;
+                      }
                   }
                 }
                 await client.set(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlData));

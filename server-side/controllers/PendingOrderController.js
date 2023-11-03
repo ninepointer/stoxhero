@@ -219,8 +219,15 @@ exports.cancelOrder = async (req, res, next) => {
               // console.log("pnl dtata", elem, pnlData)
               const buyOrSell = elem.lots > 0 ? "BUY" : "SELL";
               if(elem._id.symbol === symbolArr[i].symbol && elem._id.isLimit && buyOrSell === symbolArr[i].buyOrSell){
-                elem.margin = 0;
-                break;
+                if(Math.abs(elem.lots) > Math.abs(symbolArr[i].Quantity)){
+                  elem.margin = elem.margin - (elem.margin * Math.abs(symbolArr[i].Quantity)/Math.abs(elem.lots));
+                  elem.lots = Math.abs(elem.lots) - Math.abs(symbolArr[i].Quantity);
+                  break;
+                } else if(Math.abs(elem.lots) === Math.abs(symbolArr[i].Quantity)){
+                  elem.margin = 0;
+                  elem.lots = Math.abs(elem.lots) - Math.abs(symbolArr[i].Quantity);
+                  break;
+                }
               }
             }
             await client.set(`${symbolArr[i].createdBy.toString()}${symbolArr[i].sub_product_id.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlData));
