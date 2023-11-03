@@ -157,7 +157,7 @@ exports.overallPnl = async (req, res, next) => {
             arr.push({
               _id: {
                 symbol: elem._id.symbol,
-                product: elem._id.Product,
+                product: elem._id.product,
                 instrumentToken: elem._id.instrumentToken,
                 exchangeInstrumentToken: elem._id.exchangeInstrumentToken,
                 exchange: elem._id.exchange,
