@@ -10,7 +10,7 @@ const xssClean = require("xss-clean");
 const hpp = require("hpp")
 const { zerodhaAccountType } = require("./constant")
 const Product = require('./models/Product/product');
-const { tenxTradeStopLoss } = require("./PlaceStopLossOrder")
+const { pendingOrderMain } = require("./PlaceStopLossOrder")
 
 
 async function commonProcess() {
@@ -173,7 +173,7 @@ async function commonProcess() {
     const PORT = process.env.PORT || 5002;
     const server = app.listen(PORT);
     
-    await tenxTradeStopLoss();
+    await pendingOrderMain();
 
 }
 

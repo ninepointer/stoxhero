@@ -1,10 +1,23 @@
 const PendingOrder = require("../../../models/PendingOrder/pendingOrderSchema")
 const { client, getValue } = require('../../../marketData/redisClient');
 const getKiteCred = require('../../../marketData/getKiteCred'); 
-
+const {tenx, marginx, dailyContest, internship, virtual} = require("../../../constant")
 
 
 exports.applyingSLSP = async (req, otherData, session, docId, from) => {
+
+  let product_type;
+  if(from === tenx){
+    product_type = "6517d3803aeb2bb27d650de0"
+  } else if(from === marginx){
+    product_type = "6517d40e3aeb2bb27d650de1"
+  } else if(from === dailyContest){
+    product_type = "6517d48d3aeb2bb27d650de5"
+  } else if(from === internship){
+    product_type = "6517d46e3aeb2bb27d650de3"
+  } else if(from === virtual){
+    product_type = "65449ee06932ba3a403a681a"
+  }
 
   try{
     let isRedisConnected = await getValue();
@@ -27,14 +40,14 @@ exports.applyingSLSP = async (req, otherData, session, docId, from) => {
     let pendingOrder = [];
     if (stopProfitPrice && stopLossPrice) {
       const pendingOrderStopLoss = {
-        order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: stopLossPrice,
+        order_referance_id: docId, status: "Pending", product_type: product_type, execution_price: stopLossPrice,
         Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: order_type ? order_type : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, price: stopLossPrice,
         createdBy: req?.user?._id ? req?.user?._id : createdBy, type: "StopLoss", sub_product_id: id, margin
       }
 
       const pendingOrderStopProfit = {
-        order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0", execution_price: stopProfitPrice,
+        order_referance_id: docId, status: "Pending", product_type: product_type, execution_price: stopProfitPrice,
         Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: order_type ? order_type : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, price: stopProfitPrice,
         createdBy: req?.user?._id ? req?.user?._id : createdBy, type: "StopProfit", sub_product_id: id, margin
@@ -46,7 +59,7 @@ exports.applyingSLSP = async (req, otherData, session, docId, from) => {
       let executionPrice = stopProfitPrice ? stopProfitPrice : stopLossPrice;
       let type = stopProfitPrice ? "StopProfit" : "StopLoss";
       pendingOrder = [{
-        order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0",  price: executionPrice,
+        order_referance_id: docId, status: "Pending", product_type: product_type,  price: executionPrice,
         Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: order_type ? order_type : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, margin,
         createdBy: req?.user?._id ? req?.user?._id : createdBy, type, sub_product_id: id
@@ -57,7 +70,7 @@ exports.applyingSLSP = async (req, otherData, session, docId, from) => {
       // const data = await getKiteCred.getAccess(); 
       // const margin = await limitOrderMargin(req, data);
       pendingOrder = [{
-        order_referance_id: docId, status: "Pending", product_type: "6517d3803aeb2bb27d650de0",  price: executionPrice,
+        order_referance_id: docId, status: "Pending", product_type: product_type,  price: executionPrice,
         Quantity: Math.abs(Quantity), Product, buyOrSell: buyOrSell, variety, validity, exchange, order_type: order_type ? order_type : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, margin,
         createdBy: req?.user?._id ? req?.user?._id : createdBy, type, sub_product_id: id
