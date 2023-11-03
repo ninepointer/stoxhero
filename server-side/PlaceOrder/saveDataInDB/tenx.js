@@ -194,7 +194,8 @@ const saveInRedis = async (req, tenxDoc, subscriptionId)=>{
         });
       }
     } else{
-      const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product && tenxDoc.order_type !== "LIMIT"  ));
+      const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product && !element._id.isLimit  ));
+      console.log("matchingElement", matchingElement , tenxDoc.instrumentToken,  tenxDoc.Product , tenxDoc.order_type)
       if (matchingElement) {
         // Update the values of the matching element with the values of the first document
         matchingElement.amount += (tenxDoc.amount * -1);
