@@ -300,7 +300,6 @@ exports.modifyOrder = async (req, res, next) => {
                 const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id)},{
                   $set: {status: "Cancelled"}
               })
-
             }
         }
   
