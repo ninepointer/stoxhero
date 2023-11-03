@@ -8,9 +8,9 @@ exports.applyingSLSP = async (req, otherData, session, docId, from) => {
 
   try{
     let isRedisConnected = await getValue();
-    let {exchange, symbol, buyOrSell, Quantity, Product, subscriptionId, 
+    let {exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId, 
         exchangeInstrumentToken, validity, variety, order_id, instrumentToken, last_price,
-        stopProfitPrice, stopLossPrice, createdBy, order_type, deviceDetails, id, margin, price } = req.body ? req.body : req 
+        stopProfitPrice, stopLossPrice, createdBy, deviceDetails, id, margin, price } = req.body ? req.body : req 
 
     last_price = last_price && String(last_price)?.includes("₹") && last_price?.slice(1);
     id = id ? id : subscriptionId;

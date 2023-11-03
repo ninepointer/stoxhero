@@ -88,7 +88,7 @@ const saveInRedis = async (req, internDoc, subscriptionId)=>{
     pnl = JSON.parse(pnl);
 
     if(order_type === "LIMIT"){
-      const matchingElement = pnl.find((element) => (element._id.instrumentToken === internDoc.instrumentToken && element._id.product === internDoc.Product && internDoc.order_type === "LIMIT"  ));
+      const matchingElement = pnl.find((element) => (element._id.instrumentToken === internDoc.instrumentToken && element._id.product === internDoc.Product && internDoc.order_type === "LIMIT" && element._id.isLimit  ));
       if (matchingElement) {
         // Update the values of the matching element with the values of the first document
         matchingElement._id.isLimit = true;
@@ -118,7 +118,7 @@ const saveInRedis = async (req, internDoc, subscriptionId)=>{
         });
       }
     } else{
-      const matchingElement = pnl.find((element) => (element._id.instrumentToken === internDoc.instrumentToken && element._id.product === internDoc.Product && internDoc.order_type !== "LIMIT"  ));
+      const matchingElement = pnl.find((element) => (element._id.instrumentToken === internDoc.instrumentToken && element._id.product === internDoc.Product && internDoc.order_type !== "LIMIT" && !element._id.isLimit  ));
       if (matchingElement) {
         // Update the values of the matching element with the values of the first document
         matchingElement.amount += (internDoc.amount * -1);
