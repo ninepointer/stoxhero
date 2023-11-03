@@ -146,7 +146,7 @@ const handleDownload = (csvData, nameVariable) => {
 
 function downloadHelper(data) {
   let csvDataFile = [[]]
-  let csvDataDailyPnl = [["NAME", "DOB", "EMAIL","MOBILE", "IN ACTIVE BATCH", "COMPLETED", "PRIOR EXP", "SOURCE", "STATUS", "LINKEDIN", "APPLIED ON", "COLLEGE NAME"]]
+  let csvDataDailyPnl = [["NAME", "DOB", "EMAIL","MOBILE", "PRIOR EXP", "SOURCE", "STATUS", "LINKEDIN", "APPLIED ON", "COLLEGE NAME"]]
   if (data) {
     // dates = Object.keys(data)
     let csvpnlData = Object.values(data)
@@ -157,8 +157,6 @@ function downloadHelper(data) {
         moment(elem?.dob).format('DD-MM-YY HH:mm:ss a'),
         elem?.email,
         elem?.mobileNo,
-        elem?.inActiveBatch,
-        elem?.completed,
         elem?.priorTradingExperience,
         elem?.source,
         elem?.applicationStatus,
