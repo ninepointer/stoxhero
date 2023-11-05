@@ -267,19 +267,24 @@ const getTicksForCompanySide = async (socket) => {
                 if (symbolArr[i].type === "StopLoss" && symbolArr[i].price >= tick.last_price && symbolArr[i].buyOrSell === "SELL") {
                   console.log("1st if running")
                   await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
-                } else if (symbolArr[i].type === "StopLoss" && symbolArr[i].price <= tick.last_price && symbolArr[i].buyOrSell === "BUY") {
+                }
+                if (symbolArr[i].type === "StopLoss" && symbolArr[i].price <= tick.last_price && symbolArr[i].buyOrSell === "BUY") {
                   console.log("2nd if running")
                   await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
-                } else if (symbolArr[i].type === "StopProfit" && symbolArr[i].price <= tick.last_price && symbolArr[i].buyOrSell === "SELL") {
+                }
+                if (symbolArr[i].type === "StopProfit" && symbolArr[i].price <= tick.last_price && symbolArr[i].buyOrSell === "SELL") {
                   console.log("3rd if running")
                   await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
-                } else if (symbolArr[i].type === "StopProfit" && symbolArr[i].price >= tick.last_price && symbolArr[i].buyOrSell === "BUY") {
+                }
+                if (symbolArr[i].type === "StopProfit" && symbolArr[i].price >= tick.last_price && symbolArr[i].buyOrSell === "BUY") {
                   console.log("4th if running")
                   await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
-                } else if (symbolArr[i].type === "Limit" && symbolArr[i].price >= tick.last_price && symbolArr[i].buyOrSell === "BUY") {
+                }
+                if (symbolArr[i].type === "Limit" && symbolArr[i].price >= tick.last_price && symbolArr[i].buyOrSell === "BUY") {
                   console.log("5th if running")
                   await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
-                } else if (symbolArr[i].type === "Limit" && symbolArr[i].price <= tick.last_price && symbolArr[i].buyOrSell === "SELL") {
+                }
+                if (symbolArr[i].type === "Limit" && symbolArr[i].price <= tick.last_price && symbolArr[i].buyOrSell === "SELL") {
                   console.log("6th if running")
                   await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
                 }

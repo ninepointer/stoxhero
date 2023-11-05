@@ -19,9 +19,9 @@ import { NetPnlContext } from '../../../PnlContext';
 import TenXTMargin from '../../tradingCommonComponent/MarginDetails/TenXMargin';
 import { tenxTrader } from '../../../variables';
 import {useNavigate} from "react-router-dom"
-import Order from '../Header/Order/Order';
-import PendingOrder from '../Header/Order/PendingOrder';
-import ExecutedOrders from '../Header/Order/ExecutedOrders';
+import Order from '../../tradingCommonComponent/Order/Order';
+import PendingOrder from '../../tradingCommonComponent/Order/PendingOrder';
+import ExecutedOrders from '../../tradingCommonComponent/Order/ExecutedOrders';
 
 export default function TenXTrading({ tradingDayData, socket, subscriptionId }) {
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
@@ -177,9 +177,9 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
             {memoizedOverallPnl}
           </Grid>
           <Grid item xs={12} md={6} lg={12}>
-            <PendingOrder socket={socket} subscriptionId={subscriptionId} setUpdatePendingOrder={setUpdatePendingOrder} updatePendingOrder={updatePendingOrder} />
-            <ExecutedOrders socket={socket} subscriptionId={subscriptionId} updatePendingOrder={updatePendingOrder} />
-            <Order subscriptionId={subscriptionId} updatePendingOrder={updatePendingOrder} />
+            <PendingOrder from={tenxTrader} socket={socket} id={subscriptionId} setUpdatePendingOrder={setUpdatePendingOrder} updatePendingOrder={updatePendingOrder} />
+            <ExecutedOrders from={tenxTrader} socket={socket} id={subscriptionId} updatePendingOrder={updatePendingOrder} />
+            <Order from={tenxTrader} id={subscriptionId} updatePendingOrder={updatePendingOrder} />
           </Grid>
 
           <Grid item xs={12} md={6} lg={12} >

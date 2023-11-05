@@ -839,6 +839,7 @@ exports.fundCheckPaperTrade = async (req, res, next) => {
         console.log("errro fetching pnl 2", e);
     }
 
+    console.log(todayPnlData)
     const data = await getKiteCred.getAccess();
     const netPnl = await calculateNetPnl(req, todayPnlData, data );
     const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);

@@ -94,7 +94,11 @@ const pendingOrderSchema = new Schema({
     sub_product_id: {
         type: Schema.Types.ObjectId,
         required: true
-    }
+    },
+    deviceDetails:{
+        deviceType: { type: String },
+        platformType: { type: String }
+    },
 
 })
 

@@ -113,6 +113,7 @@ exports.overallPnl = async (req, res, next) => {
             createdOn: {
               $gte: today,
             },
+            product_type: new ObjectId("6517d3803aeb2bb27d650de0")
           },
         },
         {
@@ -150,29 +151,23 @@ exports.overallPnl = async (req, res, next) => {
 
       const arr = [];
       for(let elem of limitMargin){
-        // for(let subelem of pnlDetails){
-        //   if((elem?._id?.symbol === subelem?._id?.symbol) && subelem?._id?.isLimit){
-        //     elem.margin = elem.margin + subelem?.margin;
-        //   } else if(subelem?._id?.isLimit){
-            arr.push({
-              _id: {
-                symbol: elem._id.symbol,
-                product: elem._id.product,
-                instrumentToken: elem._id.instrumentToken,
-                exchangeInstrumentToken: elem._id.exchangeInstrumentToken,
-                exchange: elem._id.exchange,
-                validity: elem._id.validity,
-                variety: elem._id.variety,
-                isLimit: true
-              },
-              // amount: (tenxDoc.amount * -1),
-              // brokerage: Number(tenxDoc.brokerage),
-              lots: Number(elem.lots),
-              // lastaverageprice: tenxDoc.average_price,
-              margin: elem.margin
-            });
-        //   }
-        // }
+        arr.push({
+          _id: {
+            symbol: elem._id.symbol,
+            product: elem._id.product,
+            instrumentToken: elem._id.instrumentToken,
+            exchangeInstrumentToken: elem._id.exchangeInstrumentToken,
+            exchange: elem._id.exchange,
+            validity: elem._id.validity,
+            variety: elem._id.variety,
+            isLimit: true
+          },
+          // amount: (tenxDoc.amount * -1),
+          // brokerage: Number(tenxDoc.brokerage),
+          lots: Number(elem.lots),
+          // lastaverageprice: tenxDoc.average_price,
+          margin: elem.margin
+        });
       }
 
       const newPnl = pnlDetails.concat(arr);
@@ -1332,7 +1327,7 @@ exports.overallTenXPnlYesterday = async (req, res, next) => {
 
   res.status(201).json({
     message: "pnl received", 
-    data: pnlDetailsData, 
+    data: pnlDetailsData ? pnlDetailsData : [], 
     results: pnlDetailsData ? pnlDetailsData.length : 0, 
     date: date
   });

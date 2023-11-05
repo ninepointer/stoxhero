@@ -92,7 +92,14 @@ const saveInRedis = async (req, tenxDoc, subscriptionId)=>{
     pnl = JSON.parse(pnl);
 
     if(order_type === "LIMIT"){
-      const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product && tenxDoc.order_type === "LIMIT" && element._id.isLimit  ));
+
+      const matchingElement = pnl.find((element) => 
+      {
+        const type = element.lots >= 0 ? "BUY" : "SELL"
+        return (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product && tenxDoc.order_type === "LIMIT" && element._id.isLimit && type===tenxDoc.buyOrSell  )
+
+      });
+      // const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenxDoc.instrumentToken && element._id.product === tenxDoc.Product && tenxDoc.order_type === "LIMIT" && element._id.isLimit  ));
       if (matchingElement) {
         // Update the values of the matching element with the values of the first document
         matchingElement._id.isLimit = true;
