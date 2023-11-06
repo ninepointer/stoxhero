@@ -8,7 +8,7 @@ const axios = require('axios');
 // avg price, instrument token and amount
 router.post("/mockOtmtradecompany", async (req, res)=>{
 
-    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType,
+    let {exchange, symbol, buyOrSell, Quantity, Product, order_type,
           validity, variety, createdBy, userId, uId, algoBox, order_id, instrumentToken,  
           realBuyOrSell, realQuantity, otm, otm_quantity, otm_token} = req.body 
 
@@ -21,8 +21,8 @@ router.post("/mockOtmtradecompany", async (req, res)=>{
         const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL"});
 
 
-    if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety || !algoName || !transactionChange || !instrumentChange || !exchangeChange || !lotMultipler || !productChange || !tradingAccount){
-        //console.log(Boolean(exchange)); //console.log(Boolean(symbol)); //console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
+    if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety || !algoName || !transactionChange || !instrumentChange || !exchangeChange || !lotMultipler || !productChange || !tradingAccount){
+        //console.log(Boolean(exchange)); //console.log(Boolean(symbol)); //console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(order_type)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
         //console.log("data nhi h pura");
         return res.status(422).json({error : "please fill all the feilds..."})
     }
@@ -122,7 +122,7 @@ router.post("/mockOtmtradecompany", async (req, res)=>{
         const otmMock = new OtmMock({
             status:"COMPLETE", uId, createdBy, average_price: otmLastPrice, Quantity: otm_quantity, 
             Product, buyOrSell, order_timestamp: newTimeStamp,
-            variety, validity, exchange, order_type: OrderType, symbol: otm, placed_by: "ninepointer", userId,
+            variety, validity, exchange, order_type: order_type, symbol: otm, placed_by: "ninepointer", userId,
                 algoBox:{algoName, transactionChange, instrumentChange, exchangeChange, 
             lotMultipler, productChange, tradingAccount}, order_id, instrumentToken: otm_token, brokerage: brokerageCompany,
             tradeBy: createdBy, isRealTrade: false, amount: (Number(otm_quantity)*otmLastPrice), trade_time:trade_time,

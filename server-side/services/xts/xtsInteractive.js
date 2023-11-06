@@ -89,7 +89,7 @@ const placedOrderData = async () => {
     try{
       if (orderData.OrderStatus === "Rejected" || orderData.OrderStatus === "Filled") {
 
-        let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
+        let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, order_type, ProductType,
           TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
           ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason, ExchangeTransactTimeAPI, OrderUniqueIdentifier } = orderData;
 
@@ -105,7 +105,7 @@ const placedOrderData = async () => {
             appOrderId: AppOrderID, order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${AppOrderID}`, status: (OrderStatus === "Filled" ? "COMPLETE" : "REJECTED"), average_price: OrderAverageTradedPrice,
             quantity: OrderQuantity, product: ProductType, transaction_type: OrderSide,
             exchange_order_id: ExchangeOrderID, order_timestamp: LastUpdateDateTime, validity: TimeInForce,
-            exchange_timestamp: ExchangeTransactTime, order_type: OrderType, price: OrderPrice,
+            exchange_timestamp: ExchangeTransactTime, order_type: order_type, price: OrderPrice,
             disclosed_quantity: OrderDisclosedQuantity, placed_by: ClientID, status_message: CancelRejectReason,
             instrument_token: ExchangeInstrumentID, exchange_update_timestamp: new Date(utcDate), guid: `${ExchangeOrderID}${AppOrderID}`,
             exchangeInstrumentToken: ExchangeInstrumentID, orderUniqueIdentifier: OrderUniqueIdentifier
@@ -134,7 +134,7 @@ const placedOrderDataHelper = async(initialTime, orderData) => {
   let date = new Date();
   // console.log("inside placedOrderDataHelper")
   let {OrderSide, buyOrSell, ExchangeInstrumentID, ProductType,
-        OrderType, TimeInForce, OrderQuantity} = orderData;
+        order_type, TimeInForce, OrderQuantity} = orderData;
   let traderData = {};
   if (Date.now() - initialTime >= 2000) {
     let exchangeSegment;
@@ -166,7 +166,7 @@ const placedOrderDataHelper = async(initialTime, orderData) => {
       exchangeSegment: exchangeSegment,
       exchangeInstrumentID: ExchangeInstrumentID,
       productType: ProductType,
-      orderType: OrderType,
+      orderType: order_type,
       orderSide: buyOrSell,
       timeInForce: TimeInForce,
       disclosedQuantity: 0,
@@ -277,7 +277,7 @@ const placeOrder = async (obj, req, res) => {
       exchangeSegment: exchangeSegment,
       exchangeInstrumentID: obj.exchangeInstrumentToken,
       productType: obj.Product,
-      orderType: obj.OrderType,
+      orderType: obj.order_type,
       orderSide: obj.buyOrSell,
       timeInForce: obj.validity,
       disclosedQuantity: 0,
@@ -320,7 +320,7 @@ const placeOrder = async (obj, req, res) => {
       tradedBy: req.user._id,
       uniqueId: `${req.user.first_name}${req.user.mobile}`,
       marginData: req.body.marginData,
-      OrderType: req.body.OrderType,
+      order_type: req.body.order_type,
       Product: req.body.Product,
       dailyContestId: req.body.contestId
     }
@@ -367,7 +367,7 @@ const ifNoResponseFromXTS = async (uniqueId) => {
     let orders = response.data?.result;
     for(let i = 0; i < orders.length; i++){
 
-      let { ExchangeInstrumentID, OrderSide, OrderType, ProductType,
+      let { ExchangeInstrumentID, OrderSide, order_type, ProductType,
         TimeInForce, OrderQuantity, ExchangeSegment } = orders[i];
     
       let uniqueIdentifier = JSON.parse(orders[i].OrderUniqueIdentifier);
@@ -392,7 +392,7 @@ const ifNoResponseFromXTS = async (uniqueId) => {
           exchangeSegment: ExchangeSegment,
           exchangeInstrumentID: ExchangeInstrumentID,
           productType: ProductType,
-          orderType: OrderType,
+          orderType: order_type,
           orderSide: OrderSide,
           timeInForce: TimeInForce,
           disclosedQuantity: 0,
@@ -446,7 +446,7 @@ const ifServerCrashAfterOrder = async () => {
     let openTrade = orders.filter((elem1) => !liveCompany.some((elem2) => elem1.AppOrderID == elem2.appOrderId));
 
     for(let i = 0; i < openTrade.length; i++){
-      let { ExchangeInstrumentID, OrderSide, OrderType, ProductType,
+      let { ExchangeInstrumentID, OrderSide, order_type, ProductType,
         TimeInForce, OrderQuantity, ExchangeSegment } = openTrade[i]
   
       if(OrderSide === "Buy"){
@@ -471,7 +471,7 @@ const ifServerCrashAfterOrder = async () => {
         exchangeSegment: ExchangeSegment,
         exchangeInstrumentID: ExchangeInstrumentID,
         productType: ProductType,
-        orderType: OrderType,
+        orderType: order_type,
         orderSide: OrderSide,
         timeInForce: TimeInForce,
         disclosedQuantity: 0,
@@ -507,7 +507,7 @@ const autoPlaceOrder = (obj, res) => {
         exchangeInstrumentToken,
         exchange,
         validity,
-        OrderType,
+        order_type,
         variety,
         buyOrSell,
         realBuyOrSell,
@@ -564,7 +564,7 @@ const autoPlaceOrder = (obj, res) => {
         exchangeSegment: exchangeSegment,
         exchangeInstrumentID: exchangeInstrumentToken,
         productType: Product,
-        orderType: OrderType,
+        orderType: order_type,
         orderSide: realBuyOrSell,
         timeInForce: validity,
         disclosedQuantity: 0,
@@ -604,7 +604,7 @@ const autoPlaceOrder = (obj, res) => {
         autoTrade: autoTrade,
         singleUser: singleUser,
         marginData: marginData,
-        OrderType: OrderType,
+        order_type: order_type,
         Product: Product,
         dailyContestId: contestId
       }
@@ -640,7 +640,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
   let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
     instrumentToken, dontSendResp, tradedBy, autoTrade, marginData, userQuantity } = traderData
 
-  let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
+  let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, order_type, ProductType,
     TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
     ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason, ExchangeTransactTimeAPI } = orderData;
 
@@ -678,7 +678,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       exchangeSegment: exchangeSegment,
       exchangeInstrumentID: ExchangeInstrumentID,
       productType: ProductType,
-      orderType: OrderType,
+      orderType: order_type,
       orderSide: buyOrSell,
       timeInForce: TimeInForce,
       disclosedQuantity: 0,
@@ -753,7 +753,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       Quantity = 0 - Quantity;
     }
 
-    if(OrderType === "Market"){
+    if(order_type === "Market"){
       order_type = "MARKET";
     }
 
@@ -989,7 +989,7 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
   let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
     instrumentToken, dontSendResp, tradedBy, autoTrade, singleUser, marginData } = traderData
 
-  let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
+  let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, order_type, ProductType,
     TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
     ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason } = orderData;
 
@@ -1025,7 +1025,7 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
       exchangeSegment: exchangeSegment,
       exchangeInstrumentID: ExchangeInstrumentID,
       productType: ProductType,
-      orderType: OrderType,
+      orderType: order_type,
       orderSide: buyOrSell,
       timeInForce: TimeInForce,
       disclosedQuantity: 0,
@@ -1103,7 +1103,7 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
       Quantity = 0 - Quantity;
     }
 
-    if(OrderType === "Market"){
+    if(order_type === "Market"){
       order_type = "MARKET";
     }
 
@@ -1230,7 +1230,7 @@ const saveToMockSwitchContest = async (orderData, traderData, startTime, res) =>
   let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
     instrumentToken, dontSendResp, tradedBy, autoTrade, singleUser, marginData, dailyContestId } = traderData
 
-  let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
+  let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, order_type, ProductType,
     TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
     ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason } = orderData;
 
@@ -1266,7 +1266,7 @@ const saveToMockSwitchContest = async (orderData, traderData, startTime, res) =>
       exchangeSegment: exchangeSegment,
       exchangeInstrumentID: ExchangeInstrumentID,
       productType: ProductType,
-      orderType: OrderType,
+      orderType: order_type,
       orderSide: buyOrSell,
       timeInForce: TimeInForce,
       disclosedQuantity: 0,
@@ -1344,7 +1344,7 @@ const saveToMockSwitchContest = async (orderData, traderData, startTime, res) =>
       Quantity = 0 - Quantity;
     }
 
-    if(OrderType === "Market"){
+    if(order_type === "Market"){
       order_type = "MARKET";
     }
 

@@ -72,7 +72,7 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
     Product: product,
     Quantity: (Math.abs(quantity) > maxLot) ? maxLot : Math.abs(quantity),
     Price: "",
-    OrderType: "",
+    order_type: "",
     TriggerPrice: "",
     stopLoss: "",
     validity: "",
@@ -95,10 +95,10 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
 
 
   const [market, setMarket] = React.useState('MARKET');
-  exitPositionFormDetails.OrderType = market;
+  exitPositionFormDetails.order_type = market;
   const marketHandleChange = (event) => {
     setMarket(event.target.value);
-    exitPositionFormDetails.OrderType = event.target.value;
+    exitPositionFormDetails.order_type = event.target.value;
   };
   const [validity, setValidity] = React.useState('DAY');
   exitPositionFormDetails.validity = validity;
@@ -198,7 +198,7 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
 
   async function placeOrder() {
 
-    const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = exitPositionFormDetails;
+    const { exchange, symbol, buyOrSell, Quantity, Price, Product, order_type, TriggerPrice, stopLoss, validity, variety } = exitPositionFormDetails;
 
     let endPoint
     let paperTrade = false;
@@ -243,7 +243,7 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
       body: JSON.stringify({
 
         exchange, symbol, buyOrSell, Quantity, Price, contestId: module?.data, battleId: subscriptionId,
-        Product, OrderType, TriggerPrice, stopLoss, internPath, marginxId: subscriptionId,
+        Product, order_type, TriggerPrice, stopLoss, internPath, marginxId: subscriptionId,
         validity, variety, order_id: dummyOrderId, subscriptionId, exchangeInstrumentToken, fromAdmin,
         userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath
 
@@ -368,7 +368,7 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
           "content-type": "application/json"
       },
       body: JSON.stringify({
-        exchange, symbol, buyOrSell: checkBuyOrSell==="BUY" ? "SELL" : "BUY", Quantity: Number(exitPositionFormDetails.Quantity), Product, OrderType: "MARKET", validity, variety, price, last_price: Number(ltp)
+        exchange, symbol, buyOrSell: checkBuyOrSell==="BUY" ? "SELL" : "BUY", Quantity: Number(exitPositionFormDetails.Quantity), Product, order_type: "MARKET", validity, variety, price, last_price: Number(ltp)
       })
     });
 

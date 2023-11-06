@@ -22,13 +22,17 @@ import StockIndexDailyContest from "../../tradingCommonComponent/StockIndex/Stoc
 // import DailyContestMyRank from '../data/dailyContestMyRank'
 import {useNavigate} from "react-router-dom"
 import PnlAndMarginData from "./pnlAndMarginData";
-import Order from "../../tradingCommonComponent/orders/Order";
+// import Order from "../../tradingCommonComponent/orders/Order";
+import Order from '../../tradingCommonComponent/Order/Order';
+import PendingOrder from '../../tradingCommonComponent/Order/PendingOrder';
+import ExecutedOrders from '../../tradingCommonComponent/Order/ExecutedOrders';
 
 
 function Header({ socket, data }) {
     const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
     const [watchList, setWatchList] = useState([]);
     const navigate = useNavigate();
+    const [updatePendingOrder, setUpdatePendingOrder] = useState();
     // const marginxId = "64f2c081250ef784218c57b2";
     // let endTime = "2023-09-02T04:56:03.136+00:00";
     const marginxId = data?.data;
@@ -135,9 +139,16 @@ function Header({ socket, data }) {
                     </Grid>
                 </Grid>
 
-                <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
+                {/* <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
                     <Grid item xs={12} md={6} lg={12} >
                         {memoizedOrder}
+                    </Grid>
+                </Grid> */}
+                <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
+                    <Grid item xs={12} md={6} lg={12}>
+                        <PendingOrder from={marginX} socket={socket} id={marginxId} setUpdatePendingOrder={setUpdatePendingOrder} updatePendingOrder={updatePendingOrder} />
+                        <ExecutedOrders from={marginX} socket={socket} id={marginxId} updatePendingOrder={updatePendingOrder} />
+                        <Order from={marginX} id={marginxId} updatePendingOrder={updatePendingOrder} />
                     </Grid>
                 </Grid>
             </MDBox>

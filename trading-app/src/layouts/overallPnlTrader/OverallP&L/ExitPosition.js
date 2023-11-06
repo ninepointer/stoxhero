@@ -74,7 +74,7 @@ function ExitPosition({subscriptionId, from, isFromHistory, product, symbol, qua
     Product: product,
     Quantity: "",
     Price: "",
-    OrderType: "",
+    order_type: "",
     TriggerPrice: "",
     stopLoss: "",
     validity: "",
@@ -97,10 +97,10 @@ function ExitPosition({subscriptionId, from, isFromHistory, product, symbol, qua
 
 
   const [market, setMarket] = React.useState('MARKET');
-  exitPositionFormDetails.OrderType = market;
+  exitPositionFormDetails.order_type = market;
   const marketHandleChange = (event) => {
     setMarket(event.target.value);
-    exitPositionFormDetails.OrderType = event.target.value;
+    exitPositionFormDetails.order_type = event.target.value;
   };
   const [validity, setValidity] = React.useState('DAY');
   exitPositionFormDetails.validity = validity;
@@ -178,7 +178,7 @@ console.log("lotSize", lotSize, maxLot)
 
   async function placeOrder() {
 
-    const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = exitPositionFormDetails;
+    const { exchange, symbol, buyOrSell, Quantity, Price, Product, order_type, TriggerPrice, stopLoss, validity, variety } = exitPositionFormDetails;
 
     let endPoint 
     let paperTrade = false;
@@ -206,7 +206,7 @@ console.log("lotSize", lotSize, maxLot)
       body: JSON.stringify({
 
         exchange, symbol, buyOrSell, Quantity, Price,
-        Product, OrderType, TriggerPrice, stopLoss, internPath,
+        Product, order_type, TriggerPrice, stopLoss, internPath,
         validity, variety, order_id: dummyOrderId, subscriptionId,
         userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath
 

@@ -88,7 +88,7 @@ export default function AllowedUsers({ registrations }) {
 
         return [
           `${elem?.first_name} ${elem?.last_name}`,
-          elem?.mobile,
+          elem?.mobileNo,
           elem?.email,
           elem?.referrerCode,
           elem?.campaignCode,

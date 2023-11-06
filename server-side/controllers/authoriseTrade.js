@@ -23,7 +23,7 @@ exports.fundCheck = async (req, res, next) => {
     let isRedisConnected = getValue();
 
     const { exchange, symbol, buyOrSell, variety,
-        Product, OrderType, Quantity } = req.body;
+        Product, order_type, Quantity } = req.body;
 
     getKiteCred.getAccess().then(async (data) => {
 
@@ -45,7 +45,7 @@ exports.fundCheck = async (req, res, next) => {
             "transaction_type": buyOrSell,
             "variety": variety,
             "product": Product,
-            "order_type": OrderType,
+            "order_type": order_type,
             "quantity": Quantity,
             "price": 0,
             "trigger_price": 0
@@ -180,7 +180,7 @@ exports.fundCheck = async (req, res, next) => {
         } else {
             // console.log("in else", Boolean(!userFunds))
             if (!userFunds || (userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin) < 0 : Number(userFunds - zerodhaMargin) < 0)) {
-                let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, exchangeInstrumentToken,
+                let { exchange, symbol, buyOrSell, Quantity, Product, order_type, exchangeInstrumentToken,
                     validity, variety, algoBoxId, instrumentToken,
                     realBuyOrSell, realQuantity,
                     real_instrument_token, realSymbol, trader, order_id } = req.body;
@@ -197,7 +197,7 @@ exports.fundCheck = async (req, res, next) => {
 
                         const mockTradeCompany = new InfinityTradeCompany({
                             status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity: realQuantity,
-                            Product, buyOrSell: realBuyOrSell, variety, validity, exchange, order_type: OrderType, symbol: realSymbol,
+                            Product, buyOrSell: realBuyOrSell, variety, validity, exchange, order_type: order_type, symbol: realSymbol,
                             placed_by: "stoxhero", algoBox: algoBoxId, order_id, instrumentToken: real_instrument_token, exchangeInstrumentToken,
                             brokerage: 0, createdBy: req.user._id, trader: trader, isRealTrade: false, amount: 0,
                             trade_time: myDate,
@@ -206,7 +206,7 @@ exports.fundCheck = async (req, res, next) => {
                     }
                     const algoTrader = new InfinityTrader({
                         status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
-                        variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+                        variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
                         order_id: req.body.order_id, instrumentToken, brokerage: 0, exchangeInstrumentToken,
                         createdBy: req.user._id, trader: req.user._id, amount: 0, trade_time: myDate,
 
@@ -232,7 +232,7 @@ exports.fundCheck = async (req, res, next) => {
 exports.contestFundCheck = async (req, res, next) => {
 
     const { exchange, symbol, buyOrSell, variety,
-        Product, OrderType, Quantity, portfolioId } = req.body;
+        Product, order_type, Quantity, portfolioId } = req.body;
 
     const contestId = req.params.id;
     const userId = req.user._id;
@@ -261,7 +261,7 @@ exports.contestFundCheck = async (req, res, next) => {
             "transaction_type": buyOrSell,
             "variety": variety,
             "product": Product,
-            "order_type": OrderType,
+            "order_type": order_type,
             "quantity": Quantity,
             "price": 0,
             "trigger_price": 0
@@ -411,7 +411,7 @@ exports.contestFundCheck = async (req, res, next) => {
             // console.log("in else")
             if (userNetPnl !== undefined ? Number(contestFunds + userNetPnl - zerodhaMargin) < 0 : Number(contestFunds - zerodhaMargin) < 0) {
                 let uid = uuidv4();
-                let { exchange, symbol, buyOrSell, Quantity, Product, OrderType,
+                let { exchange, symbol, buyOrSell, Quantity, Product, order_type,
                     validity, variety, instrumentToken, realSymbol, trader } = req.body;
 
                     let myDate = new Date();
@@ -424,7 +424,7 @@ exports.contestFundCheck = async (req, res, next) => {
 
                     const mockTradeContest = new MockTradeContest({
                         status: "REJECTED", status_message: "insufficient fund", average_price: null, Quantity, Product, buyOrSell,
-                        variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+                        variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
                         order_id: req.body.order_id, instrumentToken, brokerage: null, contestId: req.params.id, exchangeInstrumentToken,
                         createdBy: req.user._id, trader: trader, amount: null, trade_time: myDate, portfolioId: req.body.portfolioId
 
@@ -493,9 +493,11 @@ const calculateNetPnl = async (req, pnlData, data) => {
 
 
         for (let elem of pnlData) {
-            let grossPnl = (elem?.amount + (elem?.lots) * ltp[0]?.last_price);
-            totalGrossPnl += grossPnl;
-            totalBrokerage += Number(elem?.brokerage);
+            if(!elem._id.isLimit){
+                let grossPnl = (elem?.amount + (elem?.lots) * ltp[0]?.last_price);
+                totalGrossPnl += grossPnl;
+                totalBrokerage += Number(elem?.brokerage);    
+            }
         }
 
         totalNetPnl = totalGrossPnl - totalBrokerage;
@@ -507,8 +509,11 @@ const calculateNetPnl = async (req, pnlData, data) => {
 }
 
 const getLastTradeMarginAndCaseNumber = async (req, pnlData, from) => {
+    // if(req.body.order_type === "LIMIT"){
+    //     return {caseNumber: 0}
+    // }
     const mySymbol = pnlData.filter((elem)=>{
-        return elem?._id?.symbol === req.body.symbol;
+        return elem?._id?.symbol === req.body.symbol && !elem?._id?.isLimit;
     })
 
     const runningLotForSymbol = mySymbol[0]?.lots;
@@ -552,7 +557,7 @@ const getLastTradeMarginAndCaseNumber = async (req, pnlData, from) => {
 
 const marginZeroCase = async (req, res, next, availableMargin, from, data) => {
     const requiredMargin = await calculateRequiredMargin(req, req.body.Quantity, data);
-    console.log("0th case", availableMargin, requiredMargin);
+    // console.log("0th case", availableMargin, requiredMargin);
 
     if((availableMargin-requiredMargin) > 0){
         req.body.margin = requiredMargin;
@@ -564,7 +569,7 @@ const marginZeroCase = async (req, res, next, availableMargin, from, data) => {
 
 const marginFirstCase = async (req, res, next, availableMargin, prevMargin, from, data) => {
     const requiredMargin = await calculateRequiredMargin(req, req.body.Quantity, data);
-    console.log("1st case", availableMargin, prevMargin, requiredMargin);
+    // console.log("1st case", availableMargin, prevMargin, requiredMargin);
 
     if((availableMargin-requiredMargin) > 0){
         req.body.margin = requiredMargin+prevMargin;
@@ -578,7 +583,7 @@ const marginSecondCase = async (req, res, next, prevMargin, prevQuantity) => {
     const quantityPer = Math.abs(req.body.Quantity) * 100 / Math.abs(prevQuantity);
     const marginReleased = prevMargin*quantityPer/100;
     req.body.margin = prevMargin-marginReleased;
-    console.log("2nd case", quantityPer, marginReleased);
+    // console.log("2nd case", quantityPer, marginReleased);
 
     return next();
 }
@@ -603,7 +608,7 @@ const marginFourthCase = async (req, res, next, availableMargin, prevQuantity, f
 }
 
 const calculateRequiredMargin = async (req, Quantity, data) => {
-    const { exchange, symbol, buyOrSell, variety, Product, OrderType, last_price} = req.body;
+    const { exchange, symbol, buyOrSell, variety, Product, order_type, last_price, price} = req.body;
     let auth = 'token ' + data.getApiKey + ':' + data.getAccessToken;
     let headers = {
         'X-Kite-Version': '3',
@@ -616,9 +621,9 @@ const calculateRequiredMargin = async (req, Quantity, data) => {
         "transaction_type": buyOrSell,
         "variety": variety,
         "product": Product,
-        "order_type": OrderType,
+        "order_type": order_type,
         "quantity": Quantity,
-        "price": 0,
+        "price": price ? price : 0,
         "trigger_price": 0
     }]
 
@@ -629,7 +634,12 @@ const calculateRequiredMargin = async (req, Quantity, data) => {
     
             return zerodhaMargin;    
         } else{
-            return (last_price * Math.abs(Quantity));
+            if(order_type === "LIMIT"){
+                return (price * Math.abs(Quantity));
+            } else{
+                return (last_price * Math.abs(Quantity));
+            }
+            
         }
     }catch(err){
         console.log(err);
@@ -640,14 +650,15 @@ const calculateRequiredMargin = async (req, Quantity, data) => {
 const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
 
     const openingBalance = fundDetail?.openingBalance ? fundDetail?.openingBalance : fundDetail?.totalFund;
-    if(!pnlData.length){
+    const withoutLimitData = pnlData.filter((elem) => !elem._id.isLimit);
+    if (!withoutLimitData.length) {
         return openingBalance;
     }
 
     const totalMargin = pnlData.reduce((total, acc)=>{
         return total + acc.margin;
     }, 0)
-    console.log("availble margin", totalMargin, openingBalance, npnl)
+    // console.log("availble margin", totalMargin, openingBalance, npnl)
     if(npnl < 0)
     return openingBalance-totalMargin-npnl;
     else
@@ -662,14 +673,14 @@ const takeRejectedTrade = async(req, res, from)=>{
     myDate.setMinutes(myDate.getMinutes() + 30); // Add 30 minutes
 
     if(from === virtual) {
-        let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, validity, variety, createdBy,
+        let { exchange, symbol, buyOrSell, Quantity, Product, order_type, validity, variety, createdBy,
             instrumentToken, trader, order_id, exchangeInstrumentToken, portfolioId } = req.body;
 
         try {
 
             const paperTrade = new PaperTrade({
                 status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
-                variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", exchangeInstrumentToken,
+                variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero", exchangeInstrumentToken,
                 order_id: order_id, instrumentToken, brokerage: 0, createdBy: req.user._id,
                 trader: trader, amount: 0, trade_time: myDate, portfolioId: portfolioId, margin: 0
 
@@ -682,14 +693,14 @@ const takeRejectedTrade = async(req, res, from)=>{
         return res.status(401).json({ status: 'Failed', message: 'You do not have sufficient funds to take this trade. Please try with smaller lot size.' });
     }
     if(from === tenx){
-        let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, validity, variety, createdBy,
+        let { exchange, symbol, buyOrSell, Quantity, Product, order_type, validity, variety, createdBy,
             instrumentToken, trader, order_id, exchangeInstrumentToken, subscriptionId } = req.body;
 
         try {
 
             const tenXTrade = new TenXTrader({
                 status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
-                variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+                variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
                 order_id: order_id, instrumentToken, brokerage: 0, createdBy: req.user._id, exchangeInstrumentToken,
                 trader: trader, amount: 0, trade_time: myDate, subscriptionId, margin: 0
 
@@ -703,14 +714,14 @@ const takeRejectedTrade = async(req, res, from)=>{
         return res.status(401).json({ status: 'Failed', message: 'You do not have sufficient funds to take this trade. Please try with smaller lot size.' });
     }
     if(from === internship){
-        let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, validity, variety, createdBy,
+        let { exchange, symbol, buyOrSell, Quantity, Product, order_type, validity, variety, createdBy,
             instrumentToken, trader, order_id, exchangeInstrumentToken } = req.body;
 
         try {
 
             const internshipTrade = new InternshipTrade({
                 status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
-                variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+                variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
                 order_id: order_id, instrumentToken, brokerage: 0, createdBy: req.user._id, exchangeInstrumentToken,
                 trader: trader, amount: 0, trade_time: myDate, batch: subscriptionId, margin: 0
 
@@ -724,7 +735,7 @@ const takeRejectedTrade = async(req, res, from)=>{
         return res.status(401).json({ status: 'Failed', message: 'You do not have sufficient funds to take this trade. Please try with smaller lot size.' });
     }
     if(from === marginx){
-        let { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType,
+        let { exchange, symbol, buyOrSell, Quantity, Price, Product, order_type,
             TriggerPrice, validity, variety, createdBy, algoBoxId, instrumentToken, 
             realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, order_id, marginxId, exchangeInstrumentToken } = req.body;
             
@@ -732,7 +743,7 @@ const takeRejectedTrade = async(req, res, from)=>{
 
             const mockTradeCompany = new MarginXMockCompany({
                 status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity: realQuantity,
-                Product, buyOrSell: realBuyOrSell, variety, validity, exchange, order_type: OrderType, symbol: realSymbol,
+                Product, buyOrSell: realBuyOrSell, variety, validity, exchange, order_type: order_type, symbol: realSymbol,
                 placed_by: "stoxhero", algoBox: algoBoxId, order_id, instrumentToken: real_instrument_token, marginxId,
                 brokerage: 0, createdBy: req.user._id, trader: trader, isRealTrade: false, amount: 0,
                 trade_time: myDate, exchangeInstrumentToken, margin: 0
@@ -741,7 +752,7 @@ const takeRejectedTrade = async(req, res, from)=>{
 
             const algoTrader = new MarginXMockUser({
                 status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
-                variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+                variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
                 order_id: req.body.order_id, instrumentToken, brokerage: 0, marginxId, exchangeInstrumentToken,
                 createdBy: req.user._id, trader: req.user._id, amount: 0, trade_time: myDate, margin: 0
 
@@ -755,7 +766,7 @@ const takeRejectedTrade = async(req, res, from)=>{
         return res.status(401).json({ status: 'Failed', message: 'You do not have sufficient funds to take this trade. Please try with smaller lot size.' });
     }
     if(from === dailyContest){
-        let { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType,
+        let { exchange, symbol, buyOrSell, Quantity, Price, Product, order_type,
             TriggerPrice, validity, variety, createdBy, algoBoxId, instrumentToken, 
             realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, order_id, contestId, exchangeInstrumentToken } = req.body;
             
@@ -763,7 +774,7 @@ const takeRejectedTrade = async(req, res, from)=>{
 
             const mockTradeCompany = new DailyContestMockCompany({
                 status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity: realQuantity,
-                Product, buyOrSell: realBuyOrSell, variety, validity, exchange, order_type: OrderType, symbol: realSymbol,
+                Product, buyOrSell: realBuyOrSell, variety, validity, exchange, order_type: order_type, symbol: realSymbol,
                 placed_by: "stoxhero", algoBox: algoBoxId, order_id, instrumentToken: real_instrument_token, contestId,
                 brokerage: 0, createdBy: req.user._id, trader: trader, isRealTrade: false, amount: 0,
                 trade_time: myDate, exchangeInstrumentToken, margin: 0
@@ -772,7 +783,7 @@ const takeRejectedTrade = async(req, res, from)=>{
 
             const algoTrader = new DailyContestMockUser({
                 status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
-                variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+                variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
                 order_id: req.body.order_id, instrumentToken, brokerage: 0, contestId, exchangeInstrumentToken,
                 createdBy: req.user._id, trader: req.user._id, amount: 0, trade_time: myDate, margin: 0
 
@@ -787,7 +798,7 @@ const takeRejectedTrade = async(req, res, from)=>{
         return res.status(401).json({ status: 'Failed', message: 'You do not have sufficient funds to take this trade. Please try with smaller lot size.' });
     }
     if(from === battle){
-        let { exchange, symbol, buyOrSell, Quantity, Product, OrderType,
+        let { exchange, symbol, buyOrSell, Quantity, Product, order_type,
             validity, variety, instrumentToken, 
             order_id, battleId, exchangeInstrumentToken } = req.body;
             
@@ -795,7 +806,7 @@ const takeRejectedTrade = async(req, res, from)=>{
 
             const algoTrader = new BattleMockUser({
                 status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
-                variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+                variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
                 order_id: req.body.order_id, instrumentToken, brokerage: 0, battleId, exchangeInstrumentToken,
                 createdBy: req.user._id, trader: req.user._id, amount: 0, trade_time: myDate, margin: 0
 
@@ -829,6 +840,7 @@ exports.fundCheckPaperTrade = async (req, res, next) => {
         console.log("errro fetching pnl 2", e);
     }
 
+    console.log(todayPnlData)
     const data = await getKiteCred.getAccess();
     const netPnl = await calculateNetPnl(req, todayPnlData, data );
     const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);

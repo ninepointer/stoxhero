@@ -23,11 +23,15 @@ import DailyContestMyRank from '../data/newMyRank';
 import {useNavigate} from "react-router-dom"
 import PnlAndMarginData from "./pnlAndMarginData";
 import TradingHeader from '../Header/TradingHeader';
+import Order from '../../tradingCommonComponent/Order/Order';
+import PendingOrder from '../../tradingCommonComponent/Order/PendingOrder';
+import ExecutedOrders from '../../tradingCommonComponent/Order/ExecutedOrders';
 
 
 function Header({ socket, data }) {
     const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
     const [watchList, setWatchList] = useState([]);
+    const [updatePendingOrder, setUpdatePendingOrder] = useState();
     const navigate = useNavigate();
     let contestId = data?.data;
     let endTime = data?.endTime;
@@ -123,9 +127,17 @@ function Header({ socket, data }) {
                     
                 </Grid>
 
-                <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
+                {/* <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}> */}
                     <Grid item xs={12} md={6} lg={12} >
                         <TradingHeader socket={socket} data={data}/>
+                    </Grid>
+                {/* </Grid> */}
+
+                <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
+                    <Grid item xs={12} md={6} lg={12}>
+                        <PendingOrder from={dailyContest} socket={socket} id={contestId} setUpdatePendingOrder={setUpdatePendingOrder} updatePendingOrder={updatePendingOrder} />
+                        <ExecutedOrders from={dailyContest} socket={socket} id={contestId} updatePendingOrder={updatePendingOrder} />
+                        <Order from={dailyContest} id={contestId} updatePendingOrder={updatePendingOrder} />
                     </Grid>
                 </Grid>
             </MDBox>

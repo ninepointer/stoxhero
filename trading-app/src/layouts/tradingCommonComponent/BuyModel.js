@@ -25,19 +25,21 @@ import MDBox from "../../components/MDBox";
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import RefreshIcon from '@mui/icons-material/Refresh';
+// import {internshipTrader, tenxTrader, dailyContest, marginX, paperTrader } from "../../variables";
+
 
 const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, module }) => {
 
   const newLtp = ltp;
   const { pnlData } = useContext(NetPnlContext);
   const runningLotsSymbol = pnlData.reduce((total, acc) => {
-    if (acc?._id?.symbol === symbol) {
+    if (acc?._id?.symbol === symbol && !acc?._id?.isLimit) {
       return total + acc.lots;
     }
     return total; // return the accumulator if the condition is false
   }, 0);
 
-  console.log(runningLotsSymbol, "runningLotsSymbol")
+  // console.log(runningLotsSymbol, "runningLotsSymbol")
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const { render, setRender } = useContext(renderContext);
   const getDetails = React.useContext(userContext);
@@ -64,6 +66,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
   const [errorMessageStopLoss, setErrorMessageStopLoss] = useState("");
   const [errorMessageStopProfit, setErrorMessageStopProfit] = useState("");
   const [errorMessageQuantity, setErrorMessageQuantity] = useState("");
+  const [errorMessagePrice, setErrorMessagePrice] = useState("");
 
   const [open, setOpen] = React.useState(buyState);
   const theme = useTheme();
@@ -79,7 +82,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
     Quantity: lotSize,
     stopLossPrice: "",
     price: "",
-    OrderType: "",
+    order_type: "",
     TriggerPrice: "",
     stopLoss: "",
     validity: "",
@@ -93,6 +96,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
   }, [])
 
 
+  console.log(buyFormDetails.price , Number(ltp))
   const [value, setValue] = React.useState('NRML');
   buyFormDetails.Product = value;
   // const handleChange = (event) => {
@@ -102,10 +106,20 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
   // };
 
   const [ordertype, setOrdertype] = React.useState('MARKET');
-  buyFormDetails.OrderType = ordertype;
+  buyFormDetails.order_type = ordertype;
   const marketHandleChange = (value) => {
+    if (value === "SL/SP-M") {
+      setBuyFormDetails({ ...buyFormDetails, price: "" });
+    }
+    if (value === "LIMIT") {
+      setBuyFormDetails({ ...buyFormDetails, stopLossPrice: "", stopProfitPrice: "" });
+    }
+    if(value === "MARKET"){
+      setBuyFormDetails({ ...buyFormDetails, stopLossPrice: "", stopProfitPrice: "" });
+      setBuyFormDetails({ ...buyFormDetails, price: "" });
+    }
     setOrdertype(value);
-    buyFormDetails.OrderType = value;
+    buyFormDetails.order_type = value;
   };
   const [validity, setValidity] = React.useState('DAY');
   buyFormDetails.validity = validity;
@@ -158,6 +172,12 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
   };
 
   const stopLoss = async (e) => {
+    setBuyFormDetails({ ...buyFormDetails, stopLossPrice: Number(e.target.value) });
+    const inputPrice = Number(e.target.value);
+    if (inputPrice < 0) {
+      setBuyFormDetails({ ...buyFormDetails, stopLossPrice: "" });
+      return;
+    }
     setErrorMessageStopLoss("")
     buyFormDetails.stopLossPrice = e.target.value
     if (Number(newLtp) < Number(e.target.value)) {//errorMessage
@@ -169,8 +189,13 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
     }
   }
 
-
   const stopProfit = async (e) => {
+    setBuyFormDetails({ ...buyFormDetails, stopProfitPrice: Number(e.target.value) });
+    const inputPrice = Number(e.target.value);
+    if (inputPrice < 0) {
+      setBuyFormDetails({ ...buyFormDetails, stopProfitPrice: "" });
+      return;
+    }
     setErrorMessageStopProfit("")
     buyFormDetails.stopProfitPrice = e.target.value
     if (Number(newLtp) > Number(e.target.value)) {
@@ -200,8 +225,13 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
       return;
     }
 
-    if (buyFormDetails.OrderType === "SL/SP-M" && (!buyFormDetails.stopLossPrice && !buyFormDetails.stopProfitPrice)) {
+    if (buyFormDetails.order_type === "SL/SP-M" && (!buyFormDetails.stopLossPrice && !buyFormDetails.stopProfitPrice)) {
       openSuccessSB('error', "Please enter stop loss or stop profit price.");
+      return;
+    }
+
+    if (buyFormDetails.order_type === "LIMIT" && (!buyFormDetails.price)) {
+      openSuccessSB('error', "Please enter price.");
       return;
     }
 
@@ -237,7 +267,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
 
   async function placeOrder() {
     // console.log("exchangeInstrumentToken", exchangeInstrumentToken)
-    const { exchange, symbol, buyOrSell, Quantity, Product, OrderType, TriggerPrice, stopProfitPrice, stopLoss, stopLossPrice, validity, variety, price } = buyFormDetails;
+    const { exchange, symbol, buyOrSell, Quantity, Product, order_type, TriggerPrice, stopProfitPrice, stopLoss, stopLossPrice, validity, variety, price } = buyFormDetails;
     let endPoint
     let paperTrade = false;
     let tenxTraderPath;
@@ -281,7 +311,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
       },
       body: JSON.stringify({
         exchange, symbol, buyOrSell, Quantity, stopLoss, contestId: module?.data, battleId: subscriptionId,
-        Product, OrderType, TriggerPrice, stopProfitPrice, stopLossPrice, uId, exchangeInstrumentToken, fromAdmin,
+        Product, order_type, TriggerPrice, stopProfitPrice, stopLossPrice, uId, exchangeInstrumentToken, fromAdmin,
         validity, variety, createdBy, order_id: dummyOrderId, subscriptionId, marginxId: subscriptionId,
         userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath, price
 
@@ -431,24 +461,35 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
       return;
     }
 
-    if (buyFormDetails.OrderType === "LIMIT" && buyFormDetails.price && checkQuantity) {
+    if (buyFormDetails.order_type === "LIMIT" && buyFormDetails.price && checkQuantity) {
       await checkMargin();
     }
-    if (buyFormDetails.OrderType !== "LIMIT" && checkQuantity) {
+    if (buyFormDetails.order_type !== "LIMIT" && checkQuantity) {
       await checkMargin();
     }
 
   }
 
   const priceChange = async (e) => {
+    setBuyFormDetails({ ...buyFormDetails, price: Number(e.target.value) });
+    const inputPrice = Number(e.target.value);
+    if (inputPrice < 0) {
+      setBuyFormDetails({ ...buyFormDetails, price: "" });
+      return;
+    }
+    setErrorMessagePrice("");
     buyFormDetails.price = Number(e.target.value);
+    if(Number(e.target.value) > ltp){
+      return setErrorMessagePrice("Price should be less then LTP.")
+    }
     if (buyFormDetails.Quantity && buyFormDetails.price) {
       await checkMargin();
     }
+
   }
 
   const checkMargin = async () => {
-    const { Quantity, Product, OrderType, validity, variety, price } = buyFormDetails;
+    const { Quantity, Product, order_type, validity, variety, price } = buyFormDetails;
 
     const response = await fetch(`${baseUrl}api/v1/marginrequired`, {
       method: "PATCH",
@@ -458,7 +499,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
         "content-type": "application/json"
       },
       body: JSON.stringify({
-        exchange, symbol, buyOrSell: "BUY", Quantity: runningLotsSymbol < 0 ? Quantity - Math.abs(runningLotsSymbol) : Quantity, Product, OrderType, validity, variety, price, last_price: Number(newLtp)
+        exchange, symbol, buyOrSell: "BUY", Quantity: runningLotsSymbol < 0 ? Quantity - Math.abs(runningLotsSymbol) : Quantity, Product, order_type, validity, variety, price, last_price: Number(newLtp)
       })
     });
 
@@ -565,19 +606,19 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
                 </MDBox>
 
                 <TextField
-                  id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "SL/SP-M"} label="Price" variant="outlined" onChange={(e) => { { priceChange(e) } }}
-                  sx={{ width: "140px", innerHeight: "1px" }} type="number" />
+                  id="outlined-basic" disabled={ buyFormDetails.order_type === "MARKET" || buyFormDetails.order_type === "SL/SP-M"} label="Price" variant="outlined" onChange={(e) => { { priceChange(e) } }}
+                  sx={{ width: "140px", innerHeight: "1px" }} type="number" value={buyFormDetails.price===0?"":buyFormDetails.price} />
               </MDBox>
 
               {ordertype === "SL/SP-M" &&
                 <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center" }}>
                   <TextField
-                    id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || (runningLotsSymbol < 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="SL price" variant="outlined" onChange={(e) => { { stopLoss(e) } }}
-                    sx={{ width: "140px", marginTop: "20px", innerHeight: "1px" }} type="number" />
+                    id="outlined-basic" disabled={ buyFormDetails.order_type === "MARKET" || buyFormDetails.order_type === "LIMIT" || (runningLotsSymbol < 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="SL price" variant="outlined" onChange={(e) => { { stopLoss(e) } }}
+                    sx={{ width: "140px", marginTop: "20px", innerHeight: "1px" }} type="number" value={buyFormDetails.stopLossPrice===0?"":buyFormDetails.stopLossPrice}/>
 
                   <TextField
-                    id="outlined-basic" disabled={from !== "TenX Trader" || buyFormDetails.OrderType === "MARKET" || buyFormDetails.OrderType === "LIMIT" || (runningLotsSymbol < 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="SP price" variant="outlined" onChange={(e) => { { stopProfit(e) } }}
-                    sx={{ width: "140px", marginTop: "20px", innerHeight: "1px" }} type="number" />
+                    id="outlined-basic" disabled={ buyFormDetails.order_type === "MARKET" || buyFormDetails.order_type === "LIMIT" || (runningLotsSymbol < 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="SP price" variant="outlined" onChange={(e) => { { stopProfit(e) } }}
+                    sx={{ width: "140px", marginTop: "20px", innerHeight: "1px" }} type="number" value={buyFormDetails.stopProfitPrice===0?"":buyFormDetails.stopProfitPrice} />
                 </MDBox>}
 
 
@@ -585,6 +626,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
                 <Typography fontSize={15} color={"error"}> {buyFormDetails.stopLossPrice && errorMessageStopLoss && errorMessageStopLoss}</Typography>
                 <Typography fontSize={15} color={"error"}>{buyFormDetails.stopProfitPrice && errorMessageStopProfit && errorMessageStopProfit}</Typography>
                 <Typography fontSize={15} color={"error"}>{errorMessageQuantity && errorMessageQuantity}</Typography>
+                <Typography fontSize={15} color={"error"}>{errorMessagePrice && errorMessagePrice}</Typography>
               </Box>
 
               <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center", gap: "5px", marginTop: "20px" }}>
@@ -592,11 +634,13 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
                   Market
                 </MDBox>
 
-                <MDBox onClick={notAvailable} sx={{ backgroundColor: ordertype === "LIMIT" ? "#1A73E8" : "#FFFFFF", color: ordertype === "LIMIT" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "LIMIT" && ".5px solid #8D91A8" }}>
+                {/* <MDBox onClick={(from === tenxTrader || from === internshipTrader || from === dailyContest) ? () => { marketHandleChange("LIMIT") } : () => { notAvailable() }}  sx={{ backgroundColor: ordertype === "LIMIT" ? "#1A73E8" : "#FFFFFF", color: ordertype === "LIMIT" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "LIMIT" && ".5px solid #8D91A8" }}> */}
+                <MDBox onClick={() => { marketHandleChange("LIMIT") }}  sx={{ backgroundColor: ordertype === "LIMIT" ? "#1A73E8" : "#FFFFFF", color: ordertype === "LIMIT" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "LIMIT" && ".5px solid #8D91A8" }}>
                   Limit
                 </MDBox>
 
-                <MDBox onClick={from === "TenX Trader" ? () => { marketHandleChange("SL/SP-M") } : () => { notAvailable() }} sx={{ backgroundColor: ordertype === "SL/SP-M" ? "#1A73E8" : "#FFFFFF", color: ordertype === "SL/SP-M" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "SL/SP-M" && ".5px solid #8D91A8" }}>
+                {/* <MDBox onClick={(from === tenxTrader || from === internshipTrader || from === dailyContest) ? () => { marketHandleChange("SL/SP-M") } : () => { notAvailable() }} sx={{ backgroundColor: ordertype === "SL/SP-M" ? "#1A73E8" : "#FFFFFF", color: ordertype === "SL/SP-M" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "SL/SP-M" && ".5px solid #8D91A8" }}> */}
+                <MDBox onClick={() => { marketHandleChange("SL/SP-M") }} sx={{ backgroundColor: ordertype === "SL/SP-M" ? "#1A73E8" : "#FFFFFF", color: ordertype === "SL/SP-M" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "SL/SP-M" && ".5px solid #8D91A8" }}>
                   SL/SP-M
                 </MDBox>
               </MDBox>
@@ -630,7 +674,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
             </MDButton>
             <MDButton
               size='small'
-              disabled={(buyFormDetails.stopLossPrice && (Number(ltp) < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (Number(ltp) > buyFormDetails.stopProfitPrice))}
+              disabled={(buyFormDetails.stopLossPrice && (Number(ltp) < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (Number(ltp) > buyFormDetails.stopProfitPrice)) || (buyFormDetails.price && (buyFormDetails.price > Number(ltp)))}
               autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
               BUY
             </MDButton>
@@ -644,3 +688,6 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
 }
 
 export default memo(BuyModel);
+
+
+// (from !== tenxTrader && from !== internshipTrader && from !== dailyContest) ||

@@ -7,7 +7,7 @@ import MDBox from '../../../components/MDBox';
 import DefaultInfoCard from "../../../examples/Cards/InfoCards/DefaultInfoCard";
 import { renderContext } from '../../../renderContext';
 
-const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
+const TenxMarginGrid = ({subscriptionId, setyesterdayData}) => {
   const { netPnl, totalRunningLots, pnlData } = useContext(NetPnlContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [fundDetail, setFundDetail] = useState({});
@@ -37,8 +37,6 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
 
   const runningPnl = Number(netPnl?.toFixed(0));
   const openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
-  // const openingBalanceString = openingBalance >= 0 ? "₹" + Number(openingBalance)?.toLocaleString() : "₹" + (-Number(openingBalance))?.toLocaleString()
-
   const availableMargin = (runningPnl < 0) ? totalRunningLots===0 ? (openingBalance-todayMargin+runningPnl) : openingBalance-todayMargin : openingBalance-todayMargin;
   const availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹0"
   const usedMargin = runningPnl >= 0 ? 0 : runningPnl
@@ -56,7 +54,7 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
 
                 <Grid item xs={16} md={6} xl={3}>
                   <DefaultInfoCard
-                    title="Portfolio Value"
+                    title="Virtual Margin Money"
                     description="Total funds added by StoxHero in your Account"
                     value={totalCreditString}
                     style={{ fontSize: '1px' }}
@@ -65,7 +63,7 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
                 <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     // icon={<AvailableIcon/>}
-                    title="available margin"
+                    title="Virtual available margin"
                     description="Funds that you can used to trade today"
                     value={availableMarginpnlstring}
                   />
@@ -73,7 +71,7 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
                 <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     // icon={<ShoppingCartIcon/>}
-                    title="used margin"
+                    title="Virtual used margin"
                     description="Net funds utilized for your executed trades"
                     value={usedMarginString}
                   />
@@ -82,7 +80,7 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
                 <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     // icon={<ShoppingCartIcon/>}
-                    title="unrealised pnl"
+                    title="Virtual unrealised pnl"
                     description="Increased value of your investment"
                     value={unrealisedPnlString}
                   />
@@ -96,4 +94,4 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
     )
 }
 
-export default memo(InfinityMarginGrid);
+export default memo(TenxMarginGrid);

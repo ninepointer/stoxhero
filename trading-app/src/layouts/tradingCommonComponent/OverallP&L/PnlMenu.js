@@ -10,7 +10,7 @@ import MDSnackbar from '../../../components/MDSnackbar';
 
 
 
-export default function PnlMenu({id, data}) {
+export default function PnlMenu({id, data, from}) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [msg, setMsg] = useState({
     error: "",
@@ -128,7 +128,7 @@ export default function PnlMenu({id, data}) {
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         <MenuItem  >
-          <ModifyPopUp data={data} id={id} handleCloseMenu={handleClose} setMsg={setMsg}/>
+          <ModifyPopUp data={data} id={id} handleCloseMenu={handleClose} setMsg={setMsg} from={from}/>
         </MenuItem>
       </Menu>
       {renderSuccessSB}

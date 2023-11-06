@@ -130,7 +130,7 @@
 //                     instrumentToken: tradeDetail[i]._id.instrumentToken,
 //                     exchange: tradeDetail[i]._id.exchange,
 //                     validity: tradeDetail[i]._id.validity,
-//                     OrderType: tradeDetail[i]._id.order_type,
+//                     order_type: tradeDetail[i]._id.order_type,
 //                     variety: tradeDetail[i]._id.variety,
 //                     buyOrSell: transaction_type,
 //                     // Quantity: quantity,
@@ -179,7 +179,7 @@
 //                     instrumentToken: liveTradeDetail[i]._id.instrumentToken,
 //                     exchange: liveTradeDetail[i]._id.exchange,
 //                     validity: liveTradeDetail[i]._id.validity,
-//                     OrderType: liveTradeDetail[i]._id.order_type,
+//                     order_type: liveTradeDetail[i]._id.order_type,
 //                     variety: liveTradeDetail[i]._id.variety,
 //                     buyOrSell: transaction_type,
 //                     // Quantity: quantity,
@@ -219,7 +219,7 @@
 // // onChange={() => props.handleSwitchChange(user.id)}
 //     const placeLiveOrder = async (algoBox, detailObj, apiKeyArr, accessTokenArr, transaction_type, quantity)=>{
   
-//         const { exchange, symbol, buyOrSell, Product, OrderType, validity, variety, instrumentToken, tradeBy } = detailObj;
+//         const { exchange, symbol, buyOrSell, Product, order_type, validity, variety, instrumentToken, tradeBy } = detailObj;
 //         const { algoName, transactionChange, instrumentChange, exchangeChange, lotMultipler, productChange, tradingAccount, _id, marginDeduction, isDefault } = algoBox;
   
 //         const { apiKey } = apiKeyArr[0];
@@ -234,7 +234,7 @@
 //             body: JSON.stringify({
                 
 //                 apiKey, accessToken, tradeBy,
-//                 exchange, symbol, buyOrSell: transaction_type, realBuyOrSell: transaction_type, Quantity: quantity, realQuantity: quantity, Product, OrderType, 
+//                 exchange, symbol, buyOrSell: transaction_type, realBuyOrSell: transaction_type, Quantity: quantity, realQuantity: quantity, Product, order_type, 
 //                 validity, variety, createdBy, userId, createdOn, uId, 
 //                 algoBox: {algoName, transactionChange, instrumentChange, exchangeChange, lotMultipler, 
 //                 productChange, tradingAccount, _id, marginDeduction, isDefault}, instrumentToken

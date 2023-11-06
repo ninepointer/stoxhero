@@ -49,9 +49,9 @@ exports.tradableInstrument = async (req,res,next) => {
                 const existingInstrument = await TradableInstrument.findOne({ tradingsymbol: row.tradingsymbol, status: "Active" });
                 console.log("existingInstrument", existingInstrument)
                 if (!existingInstrument) {
-                  if((row.name == "NIFTY" || row.name == "BANKNIFTY" || row.name == "FINNIFTY") && row.segment == "NFO-OPT"){
+                  if( row.segment == "NFO-OPT"){
                     
-
+                    // (row.name == "NIFTY" || row.name == "BANKNIFTY" || row.name == "FINNIFTY") &&
                     row.lastModifiedBy = userId;
                     row.createdBy = userId;
                     let date = changeDate(row.expiry);

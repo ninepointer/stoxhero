@@ -25,7 +25,7 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
 
       console.log('contest ids', dailyContestId, contestId);
   
-    let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
+    let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, order_type, ProductType,
       TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
       ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason, ExchangeTransactTimeAPI } = orderData;
   
@@ -63,7 +63,7 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
         exchangeSegment: exchangeSegment,
         exchangeInstrumentID: ExchangeInstrumentID,
         productType: ProductType,
-        orderType: OrderType,
+        orderType: order_type,
         orderSide: buyOrSell,
         timeInForce: TimeInForce,
         disclosedQuantity: 0,
@@ -169,7 +169,7 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
         Quantity = 0 - Quantity;
       }
   
-      if(OrderType === "Market"){
+      if(order_type === "Market"){
         order_type = "MARKET";
       }
   

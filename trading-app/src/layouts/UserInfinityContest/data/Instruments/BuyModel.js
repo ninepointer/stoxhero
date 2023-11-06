@@ -72,7 +72,7 @@ const BuyModel = ({setBuyState, exchange, symbol, instrumentToken, symbolName, l
     Product: "",
     Quantity: "",
     Price: "",
-    OrderType: "",
+    order_type: "",
     TriggerPrice: "",
     stopLoss: "",
     validity: "",
@@ -90,10 +90,10 @@ const BuyModel = ({setBuyState, exchange, symbol, instrumentToken, symbolName, l
   };
 
   const [market, setMarket] = React.useState('MARKET');
-  buyFormDetails.OrderType = market;
+  buyFormDetails.order_type = market;
   const marketHandleChange = (event) => {
     setMarket(event.target.value);
-    buyFormDetails.OrderType = event.target.value;
+    buyFormDetails.order_type = event.target.value;
   };
   const [validity, setValidity] = React.useState('DAY');
   buyFormDetails.validity = validity;
@@ -159,7 +159,7 @@ const BuyModel = ({setBuyState, exchange, symbol, instrumentToken, symbolName, l
 
   async function placeOrder() {
     console.log("buyFormDetails", buyFormDetails)
-    const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = buyFormDetails;
+    const { exchange, symbol, buyOrSell, Quantity, Price, Product, order_type, TriggerPrice, stopLoss, validity, variety } = buyFormDetails;
 
     const res = await fetch(`${baseUrl}api/v1/contest/${contestId}/trades/`, {
         method: "POST",
@@ -170,7 +170,7 @@ const BuyModel = ({setBuyState, exchange, symbol, instrumentToken, symbolName, l
         body: JSON.stringify({
           
           exchange, symbol, buyOrSell, Quantity, Price, 
-          Product, OrderType, TriggerPrice, stopLoss,
+          Product, order_type, TriggerPrice, stopLoss,
           validity, variety, order_id:dummyOrderId,
           instrumentToken, trader, portfolioId
 
