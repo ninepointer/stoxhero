@@ -665,3 +665,44 @@ const participateUser = async (paymentFor, productId, paymentBy, amount, coupon,
             break;
     }
 }
+
+exports.makePayment = async() => {
+    const {
+        amount,
+        productId,
+        paymentFor,
+        coupon,
+        bonusRedemption
+    } = req.body;
+    try{
+        const setting = await Setting.find();
+        let merchantTransactionId = generateUniqueTransactionId();
+        let merchantUserId = 'MUID'+ req.user._id;
+        const payment = await Payment.create({
+            paymentTime: new Date(),
+            currency: 'INR',
+            amount: amount/100,
+            gstAmount:((amount/100) - ((amount/100)/(1+(setting[0]?.gstPercentage==0?0:setting[0]?.gstPercentage/100)))), 
+            paymentStatus: 'initiated',
+            actions:[{
+                actionTitle: 'Payment Initiated',
+                actionDate: new Date(),
+                actionBy:req.user._id
+            }],
+            paymentBy:req.user?._id,
+            paymentFor,
+            productId,
+            coupon,
+            merchantTransactionId,
+            createdOn: new Date(),
+            createdBy: req.user._id,
+            modifiedOn: new Date(),
+            modifiedBy: req.user._id,
+            bonusRedemption: bonusRedemption
+        });
+        res.status(200).json({status:'success', message:'Payment Initiated', data:payment});
+    }catch(e){
+        console.error('Error initiating payment:', error);
+        res.status(500).json({status:'Error', message:'Something went wrong'});
+    }
+}

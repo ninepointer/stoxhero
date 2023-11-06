@@ -146,7 +146,7 @@ const handleDownload = (csvData, nameVariable) => {
 
 function downloadHelper(data) {
   let csvDataFile = [[]]
-  let csvDataDailyPnl = [["NAME", "DOB", "EMAIL","MOBILE", "PRIOR EXP", "SOURCE", "STATUS", "LINKEDIN", "APPLIED ON", "COLLEGE NAME"]]
+  let csvDataDailyPnl = [["NAME", "DOB", "EMAIL", "MOBILE", "PRIOR EXP", "SOURCE", "STATUS", "LINKEDIN", "APPLIED ON", "COLLEGE NAME"]]
   if (data) {
     // dates = Object.keys(data)
     let csvpnlData = Object.values(data)
