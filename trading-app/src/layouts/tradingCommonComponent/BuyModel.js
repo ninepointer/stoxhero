@@ -418,9 +418,9 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
       messageObj.content = content;
     };
     if (value === "notAvailable") {
-      messageObj.color = 'warning' 
+      messageObj.color = 'info' 
       messageObj.icon = 'warning'
-      messageObj.title = "Warning";
+      messageObj.title = "Information";
       messageObj.content = content;
     };
 
@@ -438,7 +438,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
       onClose={closeSuccessSB}
       close={closeSuccessSB}
       bgWhite={messageObj.color}
-      sx={{ borderLeft: `10px solid ${messageObj.color==="success" ? "#4CAF50" : messageObj.color==="error" ? "#F44335" : "#FB8C00"}`, borderRight: `10px solid ${messageObj.color==="success" ? "#4CAF50" : messageObj.color==="error" ? "#F44335" : "#FB8C00"}`, borderRadius: "15px", width: "auto" }}
+      sx={{ borderLeft: `10px solid ${messageObj.color==="success" ? "#4CAF50" : messageObj.color==="error" ? "#F44335" : "#1A73E8"}`, borderRight: `10px solid ${messageObj.color==="success" ? "#4CAF50" : messageObj.color==="error" ? "#F44335" : "#1A73E8"}`, borderRadius: "15px", width: "auto" }}
     />
   );
 
