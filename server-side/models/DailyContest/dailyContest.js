@@ -53,6 +53,11 @@ const contestSchema = new Schema({
         type: Number,
         // required: true,
     },
+    featured:{
+        type: Boolean,
+        required: true,
+        default: false,
+    },
     payoutType:{
         type: String,
         enum: ["Reward", "Percentage"]
