@@ -21,7 +21,7 @@ const [upcomingContest,setUpcomingContest] = useState([]);
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
-    let call1 = axios.get(`${baseUrl}api/v1/dailycontest/contests/adminongoing?skip=${skip}&limit=${limitSetting}`,{
+    let call1 = axios.get(`${baseUrl}api/v1/dailycontest/contests/featuredupcoming?skip=${skip}&limit=${limitSetting}`,{
                 withCredentials: true,
                 headers: {
                     Accept: "application/json",
@@ -47,7 +47,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
     setSkip(prev => prev-limitSetting);
     setUpcomingContest([]);
     setIsLoading(true)
-    axios.get(`${baseUrl}api/v1/dailycontest/contests/adminongoing?skip=${skip-limitSetting}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/dailycontest/contests/featuredupcoming?skip=${skip-limitSetting}&limit=${limitSetting}`,{
         withCredentials: true,
         headers: {
             Accept: "application/json",
@@ -74,7 +74,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
     setSkip(prev => prev+limitSetting);
     setUpcomingContest([]);
     setIsLoading(true)
-    axios.get(`${baseUrl}api/v1/dailycontest/contests/adminongoing?skip=${skip+limitSetting}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/dailycontest/contests/featuredupcoming?skip=${skip+limitSetting}&limit=${limitSetting}`,{
         withCredentials: true,
         headers: {
             Accept: "application/json",
@@ -199,7 +199,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
           :
          <Grid container spacing={1} xs={12} md={6} lg={12}>
           <Grid item mt={2} xs={6} md={3} lg={12} display="flex" justifyContent="center">
-            <MDTypography color="light">No Ongoing StoxHero Contest(s)</MDTypography>
+            <MDTypography color="light">No Upcoming Contest(s)</MDTypography>
           </Grid>
          </Grid>
          } 
