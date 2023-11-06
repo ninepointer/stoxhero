@@ -1,5 +1,5 @@
 const InternshipTrade = require("../../models/mock-trade/internshipTrade");
-const {internship} = require("../../constant");
+const {internTrader} = require("../../constant");
 const {applyingSLSP} = require("./PendingOrderCondition/applyingSLSP")
 const {reverseTradeCondition} = require("./PendingOrderCondition/reverseTradeCondition");
 const mongoose = require('mongoose')
@@ -39,7 +39,7 @@ exports.internTrade = async (req, res, otherData) => {
     if(matchingElement){
       const matchingElementBuyOrSell = matchingElement?.lots > 0 ? "BUY" : "SELL";
       if(matchingElement?.lots !== 0 && (matchingElementBuyOrSell !== internDoc.buyOrSell) && (order_type !== "LIMIT")){
-        reverseTradeConditionData = await reverseTradeCondition(req.user._id, subscriptionId, internDoc, stopLossPrice, stopProfitPrice, save[0]?._id, originalLastPriceUser, pnl, internship);
+        reverseTradeConditionData = await reverseTradeCondition(req.user._id, subscriptionId, internDoc, stopLossPrice, stopProfitPrice, save[0]?._id, originalLastPriceUser, pnl, internTrader);
       }
     }
 
@@ -57,7 +57,7 @@ exports.internTrade = async (req, res, otherData) => {
 
     let pendingOrderRedis;
     if(stopLossPrice || stopProfitPrice || price){
-      pendingOrderRedis = await applyingSLSP(req, {ltp: originalLastPriceUser}, session, save[0]?._id, internship);
+      pendingOrderRedis = await applyingSLSP(req, {ltp: originalLastPriceUser}, session, save[0]?._id, internTrader);
     } else{
       pendingOrderRedis = "OK";
     }

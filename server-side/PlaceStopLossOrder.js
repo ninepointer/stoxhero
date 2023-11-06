@@ -17,7 +17,7 @@ const MarginXMockCompany = require("./models/marginX/marginXCompanyMock");
 const { lastTradeDataMockMarginX, traderWiseMockPnlCompanyMarginX, overallMockPnlCompanyMarginX, overallpnlMarginX } = require("./services/adminRedis/Mock");
 const { lastTradeDataMockDailyContest, traderWiseMockPnlCompanyDailyContest, overallMockPnlCompanyDailyContest, overallpnlDailyContest } = require("./services/adminRedis/Mock");
 
-const { virtualTrader, internship, dailyContest, marginx, tenx, battle } = require("./constant")
+const { virtualTrader, internTrader, dailyContest, marginx, tenxTrader, battle } = require("./constant")
 const getKiteCred = require('./marketData/getKiteCred');
 const axios = require('axios');
 const mongoose = require('mongoose')
@@ -58,17 +58,17 @@ const tenxTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDetai
         const kiteData = await getKiteCred.getAccess();
         const netPnl = await calculateNetPnl(message.data, todayPnlData, kiteData);
         const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
-        const marginAndCase = getLastTradeMarginAndCaseNumber(message.data, todayPnlData, tenx);
+        const marginAndCase = getLastTradeMarginAndCaseNumber(message.data, todayPnlData, tenxTrader);
         const caseNumber = (await marginAndCase).caseNumber;
         const margin = (await marginAndCase).margin;
         const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
 
         switch (caseNumber) {
             case 0:
-                await marginZeroCase(message.data, availableMargin, tenx, kiteData)
+                await marginZeroCase(message.data, availableMargin, tenxTrader, kiteData)
                 break;
             case 1:
-                await marginFirstCase(message.data, availableMargin, margin, tenx, kiteData)
+                await marginFirstCase(message.data, availableMargin, margin, tenxTrader, kiteData)
                 break;
             case 2:
                 await marginSecondCase(message.data, margin, runningLotForSymbol)
@@ -77,7 +77,7 @@ const tenxTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDetai
                 await marginThirdCase(message.data)
                 break;
             case 4:
-                await marginFourthCase(message.data, availableMargin, runningLotForSymbol, tenx, kiteData)
+                await marginFourthCase(message.data, availableMargin, runningLotForSymbol, tenxTrader, kiteData)
                 break;
         }
 
@@ -342,17 +342,17 @@ const internTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDet
         const kiteData = await getKiteCred.getAccess();
         const netPnl = await calculateNetPnl(message.data, todayPnlData, kiteData);
         const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
-        const marginAndCase = getLastTradeMarginAndCaseNumber(message.data, todayPnlData, tenx);
+        const marginAndCase = getLastTradeMarginAndCaseNumber(message.data, todayPnlData, tenxTrader);
         const caseNumber = (await marginAndCase).caseNumber;
         const margin = (await marginAndCase).margin;
         const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
 
         switch (caseNumber) {
             case 0:
-                await marginZeroCase(message.data, availableMargin, tenx, kiteData)
+                await marginZeroCase(message.data, availableMargin, tenxTrader, kiteData)
                 break;
             case 1:
-                await marginFirstCase(message.data, availableMargin, margin, tenx, kiteData)
+                await marginFirstCase(message.data, availableMargin, margin, tenxTrader, kiteData)
                 break;
             case 2:
                 await marginSecondCase(message.data, margin, runningLotForSymbol)
@@ -361,7 +361,7 @@ const internTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDet
                 await marginThirdCase(message.data)
                 break;
             case 4:
-                await marginFourthCase(message.data, availableMargin, runningLotForSymbol, internship, kiteData)
+                await marginFourthCase(message.data, availableMargin, runningLotForSymbol, internTrader, kiteData)
                 break;
         }
 
@@ -1127,10 +1127,10 @@ const getLastTradeMarginAndCaseNumber = async (data, pnlData, from) => {
     console.log(Math.abs(runningLotForSymbol), Math.abs(quantity), transactionTypeForSymbol, transaction_type)
 
     const DataBase = from === virtualTrader ? PaperTrade :
-        from === internship ? InternshipTrade :
+        from === internTrader ? InternshipTrade :
             from === dailyContest ? DailyContestMockUser :
                 from === marginx ? MarginXMockUser :
-                    from === tenx && TenXTrader;
+                    from === tenxTrader && TenXTrader;
 
 
     if (pnlData?.length > 0) {

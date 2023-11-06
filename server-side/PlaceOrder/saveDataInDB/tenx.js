@@ -4,7 +4,7 @@ const mongoose = require('mongoose')
 const {applyingSLSP} = require("./PendingOrderCondition/applyingSLSP")
 const {reverseTradeCondition} = require("./PendingOrderCondition/reverseTradeCondition");
 const { client } = require("../../marketData/redisClient");
-const {tenx} = require("../../constant");
+const {tenxTrader} = require("../../constant");
 
 exports.tenxTrade = async (req, res, otherData) => {
   let {exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId, 
@@ -43,7 +43,7 @@ exports.tenxTrade = async (req, res, otherData) => {
     if(matchingElement){
       const matchingElementBuyOrSell = matchingElement?.lots > 0 ? "BUY" : "SELL";
       if(matchingElement?.lots !== 0 && (matchingElementBuyOrSell !== tenxDoc.buyOrSell) && (order_type !== "LIMIT")){
-        reverseTradeConditionData = await reverseTradeCondition(req.user._id, subscriptionId, tenxDoc, stopLossPrice, stopProfitPrice, save[0]?._id, originalLastPriceUser, pnl, tenx);
+        reverseTradeConditionData = await reverseTradeCondition(req.user._id, subscriptionId, tenxDoc, stopLossPrice, stopProfitPrice, save[0]?._id, originalLastPriceUser, pnl, tenxTrader);
       }
     }
 
@@ -62,7 +62,7 @@ exports.tenxTrade = async (req, res, otherData) => {
 
     let pendingOrderRedis;
     if(stopLossPrice || stopProfitPrice || price){
-      pendingOrderRedis = await applyingSLSP(req, {ltp: originalLastPriceUser}, session, save[0]?._id, tenx);
+      pendingOrderRedis = await applyingSLSP(req, {ltp: originalLastPriceUser}, session, save[0]?._id, tenxTrader);
     } else{
       pendingOrderRedis = "OK";
     }

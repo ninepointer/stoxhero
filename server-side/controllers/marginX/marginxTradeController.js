@@ -77,6 +77,9 @@ exports.overallPnlTrader = async (req, res, next) => {
                         lastaverageprice: {
                             $last: "$average_price",
                         },
+                        margin: {
+                            $last: "$margin",
+                        },
                     },
                 },
                 {
@@ -97,7 +100,7 @@ exports.overallPnlTrader = async (req, res, next) => {
                         createdOn: {
                             $gte: today,
                         },
-                        product_type: new ObjectId("6517d46e3aeb2bb27d650de3")
+                        product_type: new ObjectId("6517d40e3aeb2bb27d650de1")
                     },
                 },
                 {
