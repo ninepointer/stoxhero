@@ -114,9 +114,7 @@ const tenxTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDetai
             if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`)) {
                 let pnl = await client.get(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`)
                 pnl = JSON.parse(pnl);
-                console.log("pnl", pnl);
                 const matchingElement = pnl.find((element) => (element._id.instrumentToken === tradeDoc.instrumentToken && element._id.product === tradeDoc.Product && !element._id.isLimit));
-                console.log("matchingElement", matchingElement);
                 // if instrument is same then just updating value
                 if (matchingElement) {
                     // Update the values of the matching element with the values of the first document
@@ -147,7 +145,6 @@ const tenxTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDetai
                     });
                 }
 
-                console.log("jha pe issue hai", pnl)
                 const data = await client.set(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`, JSON.stringify(pnl));
                 console.log(data)
 
@@ -268,7 +265,6 @@ const paperTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDeta
                     matchingElement.margin = message.data.margin;
 
                 } else {
-                    console.log("in else saving data");
                     // Create a new element if instrument is not matching
                     pnl.push({
                         _id: {
@@ -291,7 +287,6 @@ const paperTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDeta
 
                 // console.log("jha pe issue hai", pnl)
                 const data = await client.set(`${createdBy.toString()}: overallpnlPaperTrade`, JSON.stringify(pnl));
-                console.log("paper", data)
 
             }
 
@@ -433,7 +428,6 @@ const internTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDet
                 }
 
                 const data = await client.set(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlIntern`, JSON.stringify(pnl));
-                console.log(data)
 
             }
 
@@ -1124,7 +1118,6 @@ const getLastTradeMarginAndCaseNumber = async (data, pnlData, from) => {
     let margin = 0;
     let caseNumber = 0;
 
-    console.log(Math.abs(runningLotForSymbol), Math.abs(quantity), transactionTypeForSymbol, transaction_type)
 
     const DataBase = from === virtualTrader ? PaperTrade :
         from === internTrader ? InternshipTrade :
@@ -1158,7 +1151,6 @@ const getLastTradeMarginAndCaseNumber = async (data, pnlData, from) => {
         caseNumber = 0;
     }
 
-    console.log("case wala", { margin: margin, caseNumber: caseNumber, runningLotForSymbol: runningLotForSymbol });
     return { margin: margin, caseNumber: caseNumber, runningLotForSymbol: runningLotForSymbol }
 }
 
@@ -1218,7 +1210,6 @@ const calculateNetPnl = async (tradeData, pnlData, data) => {
 
 const marginZeroCase = async (tradeData, availableMargin, from, data) => {
     const requiredMargin = await calculateRequiredMargin(tradeData, tradeData.Quantity, data);
-    console.log("0th case", availableMargin, requiredMargin);
 
     if ((availableMargin - requiredMargin) > 0) {
         tradeData.margin = requiredMargin;
@@ -1230,7 +1221,6 @@ const marginZeroCase = async (tradeData, availableMargin, from, data) => {
 
 const marginFirstCase = async (tradeData, availableMargin, prevMargin, from, data) => {
     const requiredMargin = await calculateRequiredMargin(tradeData, tradeData.Quantity, data);
-    console.log("1st case", availableMargin, prevMargin, requiredMargin);
 
     if ((availableMargin - requiredMargin) > 0) {
         tradeData.margin = requiredMargin + prevMargin;
@@ -1244,14 +1234,12 @@ const marginSecondCase = async (tradeData, prevMargin, prevQuantity) => {
     const quantityPer = Math.abs(tradeData.Quantity) * 100 / Math.abs(prevQuantity);
     const marginReleased = prevMargin * quantityPer / 100;
     tradeData.margin = prevMargin - marginReleased;
-    console.log("2nd case", quantityPer, marginReleased);
 
     return;
 }
 
 const marginThirdCase = async (tradeData) => {
     tradeData.margin = 0;
-    console.log("3rd case");
 
     return;
 }
@@ -1314,7 +1302,6 @@ const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
     const totalMargin = pnlData.reduce((total, acc) => {
         return total + acc.margin;
     }, 0)
-    console.log("availble margin", totalMargin, openingBalance, npnl, fundDetail)
     if (npnl < 0)
         return openingBalance - totalMargin - npnl;
     else

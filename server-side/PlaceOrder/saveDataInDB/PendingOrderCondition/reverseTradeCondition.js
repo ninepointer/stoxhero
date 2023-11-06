@@ -36,7 +36,7 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
             }
 
             // Remove elements after the loop
-            console.log("indicesToRemove", indicesToRemove)
+            console.log("index", indicesToRemove)
             indicesToRemove.forEach(index => symbolArray.splice(index, 1, {}));
             data[`${doc.instrumentToken}`] = symbolArray;
         }
@@ -50,7 +50,6 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
         if(stopProfitPrice || stopLossPrice){
             data = await client.get('stoploss-stopprofit');
             data = JSON.parse(data);
-            console.log("inside 1st if")
             if (data && data[`${doc.instrumentToken}`]) {
                 let symbolArray = data[`${doc.instrumentToken}`];
                 let indicesToRemove = [];
@@ -71,11 +70,9 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
                 }
     
                 // Remove elements after the loop
-                console.log("indicesToRemove", indicesToRemove)
                 indicesToRemove.forEach(index => symbolArray.splice(index, 1, {}));
             }
 
-            console.log("data", data);
             await client.set('stoploss-stopprofit', JSON.stringify(data));
 
             const otherData = {
@@ -85,7 +82,6 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
                 ltp: ltp
             }
 
-            console.log("going for apply slsp")
             await applyingSLSP(doc, otherData, undefined, docId, from);
             return 0;
         } else{
@@ -185,7 +181,6 @@ async function adjustPendingOrders(symbolArr, quantity, stopOrderType, sortOrder
 
                     // Remove from Redis array
                     // indicesToRemove.push(i);
-                    console.log("index to remove in ", stopOrderType, i)
                     symbolArr.splice(i, 1, {});
                     i--; // Adjust index due to array modification
                 } else {

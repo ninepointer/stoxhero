@@ -62,7 +62,6 @@ exports.internTrade = async (req, res, otherData) => {
       pendingOrderRedis = "OK";
     }
 
-    console.log(pendingOrderRedis, pnlRedis)
     if (pendingOrderRedis === "OK" && pnlRedis === "OK") {
       await session.commitTransaction();
       res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
@@ -83,7 +82,6 @@ exports.internTrade = async (req, res, otherData) => {
 const saveInRedis = async (req, internDoc, subscriptionId)=>{
   const {margin, order_type} = req.body;
 
-  console.log('ordertypes', order_type, internDoc)
   if (await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlIntern`)) {
     let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlIntern`)
     pnl = JSON.parse(pnl);

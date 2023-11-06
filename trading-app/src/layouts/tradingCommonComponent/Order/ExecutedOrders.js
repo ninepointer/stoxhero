@@ -224,7 +224,7 @@ function ExecutedOrders({ id, socket, updatePendingOrder, from }) {
                                             <td style={styleTD} >QUANTITY</td>
                                             {/* <td style={styleTD} >PRICE</td> */}
                                             <td style={styleTD} >EXECUTION PRICE</td>
-                                            <td style={styleTD} >LTP</td>
+                                            <td style={styleTD} >AMOUNT</td>
                                             <td style={styleTD} >TYPE</td>
                                             <td style={styleTD} >TRX TYPE</td>
                                             <td style={styleTD} >STATUS</td>
