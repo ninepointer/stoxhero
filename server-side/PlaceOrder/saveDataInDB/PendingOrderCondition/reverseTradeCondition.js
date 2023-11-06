@@ -20,24 +20,24 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
             let symbolArray = data[`${doc.instrumentToken}`];
             let indicesToRemove = [];
             for(let i = symbolArray.length-1; i >= 0; i--){
-                if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol && symbolArray[i].order_type !== "LIMIT" ){
+                if(symbolArray[i]?.createdBy?.toString() === userId.toString() && symbolArray[i]?.symbol === doc.symbol && symbolArray[i]?.order_type !== "LIMIT" ){
                     // remove this element
                     indicesToRemove.push(i);
-                    const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id)},{
+                    const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]?._id)},{
                         $set: {
                             status: "Cancelled",
                             execution_time: new Date(),
                             execution_price: 0
                         }
                     })
-                    //, status: "Pending", symbol: symbolArray[i].symbol
+                    //, status: "Pending", symbol: symbolArray[i]?.symbol
 
                 }
             }
 
             // Remove elements after the loop
             console.log("indicesToRemove", indicesToRemove)
-            indicesToRemove.forEach(index => symbolArray.splice(index, 1));
+            indicesToRemove.forEach(index => symbolArray.splice(index, 1, {}));
             data[`${doc.instrumentToken}`] = symbolArray;
         }
 
@@ -56,23 +56,23 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
                 let indicesToRemove = [];
                 for(let i = symbolArray.length-1; i >= 0; i--){
 
-                    if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol && symbolArray[i].order_type !== "LIMIT"){
+                    if(symbolArray[i]?.createdBy?.toString() === userId.toString() && symbolArray[i]?.symbol === doc.symbol && symbolArray[i]?.order_type !== "LIMIT"){
                         // remove this element
                         indicesToRemove.push(i);
-                        const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id)},{
+                        const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]?._id)},{
                             $set: {
                                 status: "Cancelled",
                                 execution_time: new Date(),
                                 execution_price: 0
                             }
                         })
-                        //, status: "Pending", symbol: symbolArray[i].symbol
+                        //, status: "Pending", symbol: symbolArray[i]?.symbol
                     }
                 }
     
                 // Remove elements after the loop
                 console.log("indicesToRemove", indicesToRemove)
-                indicesToRemove.forEach(index => symbolArray.splice(index, 1));
+                indicesToRemove.forEach(index => symbolArray.splice(index, 1, {}));
             }
 
             console.log("data", data);
@@ -95,23 +95,23 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
                 let symbolArray = data[`${doc.instrumentToken}`];
                 let indicesToRemove = [];
                 for(let i = symbolArray.length-1; i >= 0; i--){
-                    if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === doc.symbol && symbolArray[i].order_type !== "LIMIT"){
+                    if(symbolArray[i]?.createdBy?.toString() === userId.toString() && symbolArray[i]?.symbol === doc.symbol && symbolArray[i]?.order_type !== "LIMIT"){
                         // remove this element
                         indicesToRemove.push(i);
-                        const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id)},{
+                        const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]?._id)},{
                             $set: {
                                 status: "Cancelled",
                                 execution_time: new Date(),
                                 execution_price: 0
                             }
                         })
-                        //, status: "Pending", symbol: symbolArray[i].symbol
+                        //, status: "Pending", symbol: symbolArray[i]?.symbol
 
                     }
                 }
     
                 // Remove elements after the loop
-                indicesToRemove.forEach(index => symbolArray.splice(index, 1));
+                indicesToRemove.forEach(index => symbolArray.splice(index, 1, {}));
             }
 
             await client.set('stoploss-stopprofit', JSON.stringify(data));
@@ -186,7 +186,7 @@ async function adjustPendingOrders(symbolArr, quantity, stopOrderType, sortOrder
                     // Remove from Redis array
                     // indicesToRemove.push(i);
                     console.log("index to remove in ", stopOrderType, i)
-                    symbolArr.splice(i, 1);
+                    symbolArr.splice(i, 1, {});
                     i--; // Adjust index due to array modification
                 } else {
                     symbolArr[i].Quantity -= quantity;

@@ -908,21 +908,21 @@ exports.pendingOrderMain = async () => {
 
 
                 let pnlData;
-                if (product_type.toString() === "6517d3803aeb2bb27d650de0") {
+                if (product_type?.toString() === "6517d3803aeb2bb27d650de0") {
                     await tenxTradeStopLoss(message, brokerageDetailBuyUser, brokerageDetailSellUser);
-                    pnlData = await client.get(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`)
-                } else if (product_type.toString() === "6517d40e3aeb2bb27d650de1") {
+                    pnlData = await client.get(`${createdBy?.toString()}${sub_product_id?.toString()}: overallpnlTenXTrader`)
+                } else if (product_type?.toString() === "6517d40e3aeb2bb27d650de1") {
                     await marginxTradeStopLoss(message, brokerageDetailBuyUser, brokerageDetailSellUser, brokerageDetailBuy, brokerageDetailSell);
-                    pnlData = await client.get(`${createdBy.toString()}${sub_product_id.toString()} overallpnlMarginX`)
-                } else if (product_type.toString() === "6517d48d3aeb2bb27d650de5") {
+                    pnlData = await client.get(`${createdBy?.toString()}${sub_product_id?.toString()} overallpnlMarginX`)
+                } else if (product_type?.toString() === "6517d48d3aeb2bb27d650de5") {
                     await dailyContestTradeStopLoss(message, brokerageDetailBuyUser, brokerageDetailSellUser, brokerageDetailBuy, brokerageDetailSell);
-                    pnlData = await client.get(`${createdBy.toString()}${sub_product_id.toString()} overallpnlDailyContest`)
-                } else if (product_type.toString() === "6517d46e3aeb2bb27d650de3") {
+                    pnlData = await client.get(`${createdBy?.toString()}${sub_product_id?.toString()} overallpnlDailyContest`)
+                } else if (product_type?.toString() === "6517d46e3aeb2bb27d650de3") {
                     await internTradeStopLoss(message, brokerageDetailBuyUser, brokerageDetailSellUser);
-                    pnlData = await client.get(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlIntern`)
-                } else if (product_type.toString() === "65449ee06932ba3a403a681a") {
+                    pnlData = await client.get(`${createdBy?.toString()}${sub_product_id?.toString()}: overallpnlIntern`)
+                } else if (product_type?.toString() === "65449ee06932ba3a403a681a") {
                     await paperTradeStopLoss(message, brokerageDetailBuyUser, brokerageDetailSellUser);
-                    pnlData = await client.get(`${createdBy.toString()}: overallpnlPaperTrade`)
+                    pnlData = await client.get(`${createdBy?.toString()}: overallpnlPaperTrade`)
                 }
 
 
@@ -934,13 +934,13 @@ exports.pendingOrderMain = async () => {
                 // console.log("first index2", index2)
                 for (let i = 0; i < symbolArr.length; i++) {
 
-                    if (symbolArr[i].instrumentToken === instrumentToken &&
-                        symbolArr[i].createdBy.toString() === createdBy.toString() &&
-                        Math.abs(symbolArr[i].Quantity) === Math.abs(Number(Quantity)) &&
-                        symbolArr[i].buyOrSell === buyOrSell &&
-                        symbolArr[i].type !== type) {
+                    if (symbolArr[i]?.instrumentToken === instrumentToken &&
+                        symbolArr[i]?.createdBy.toString() === createdBy.toString() &&
+                        Math.abs(symbolArr[i]?.Quantity) === Math.abs(Number(Quantity)) &&
+                        symbolArr[i]?.buyOrSell === buyOrSell &&
+                        symbolArr[i]?.type !== type) {
 
-                        const update = await PendingOrder.findOne({ _id: new ObjectId(symbolArr[i]._id) })
+                        const update = await PendingOrder.findOne({ _id: new ObjectId(symbolArr[i]?._id) })
                         update.status = "Cancelled";
                         update.execution_price = 0;
                         update.execution_time = new Date();
@@ -954,10 +954,11 @@ exports.pendingOrderMain = async () => {
                 // console.log("value of index2", index2, index)
                 if (index2 !== undefined) {
                     // console.log("value of in if index2", index2)
-                    symbolArr.splice(Math.max(index2, index), 1);
-                    symbolArr.splice(Math.min(index2, index), 1);
+                    symbolArr.splice(Math.max(index2, index), 1, {});
+                    symbolArr.splice(Math.min(index2, index), 1, {});
                 } else {
-                    symbolArr.splice(index, 1);
+                    // symbolArr.splice(index, 1);
+                    symbolArr.splice(index, 1, {});
                 }
 
                 const update = await PendingOrder.updateOne({ _id: new ObjectId(_id) }, {
@@ -992,16 +993,16 @@ exports.pendingOrderMain = async () => {
 
 
                 // console.log("pnlData", pnlData)
-                if (product_type.toString() === "6517d3803aeb2bb27d650de0") {
-                    await client.set(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlData))
-                } else if (product_type.toString() === "6517d40e3aeb2bb27d650de1") {
-                    await client.set(`${createdBy.toString()}${sub_product_id.toString()} overallpnlMarginX`, JSON.stringify(pnlData))
-                } else if (product_type.toString() === "6517d48d3aeb2bb27d650de5") {
-                    await client.set(`${createdBy.toString()}${sub_product_id.toString()} overallpnlDailyContest`, JSON.stringify(pnlData))
-                } else if (product_type.toString() === "6517d46e3aeb2bb27d650de3") {
-                    await client.set(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlIntern`, JSON.stringify(pnlData))
-                } else if (product_type.toString() === "65449ee06932ba3a403a681a") {
-                    await client.set(`${createdBy.toString()}: overallpnlPaperTrade`, JSON.stringify(pnlData))
+                if (product_type?.toString() === "6517d3803aeb2bb27d650de0") {
+                    await client.set(`${createdBy?.toString()}${sub_product_id?.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlData))
+                } else if (product_type?.toString() === "6517d40e3aeb2bb27d650de1") {
+                    await client.set(`${createdBy?.toString()}${sub_product_id?.toString()} overallpnlMarginX`, JSON.stringify(pnlData))
+                } else if (product_type?.toString() === "6517d48d3aeb2bb27d650de5") {
+                    await client.set(`${createdBy?.toString()}${sub_product_id?.toString()} overallpnlDailyContest`, JSON.stringify(pnlData))
+                } else if (product_type?.toString() === "6517d46e3aeb2bb27d650de3") {
+                    await client.set(`${createdBy?.toString()}${sub_product_id?.toString()}: overallpnlIntern`, JSON.stringify(pnlData))
+                } else if (product_type?.toString() === "65449ee06932ba3a403a681a") {
+                    await client.set(`${createdBy?.toString()}: overallpnlPaperTrade`, JSON.stringify(pnlData))
                 }
 
                 // console.log("symbolArr", symbolArr)

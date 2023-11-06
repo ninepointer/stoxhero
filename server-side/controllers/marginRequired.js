@@ -1196,7 +1196,7 @@ exports.marginRequiredForTrade = async (req, res)=>{
         }
       }
 
-      return res.status(200).json({ status: 'success', margin: Number(margin) ? Number(margin) : 0 });
+      return res.status(200).json({ status: 'success', margin: Number(margin) ? Number(margin) : null });
   }catch(err){
       console.log(err);
   }

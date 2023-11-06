@@ -229,8 +229,8 @@ exports.cancelOrder = async (req, res, next) => {
     console.log(data)
     let symbolArr = data[`${updatedOrder.instrumentToken}`];
     for(let i = 0; i < symbolArr.length; i++){
-        if(symbolArr[i]._id.toString() === id.toString() && 
-           symbolArr[i].createdBy.toString() === updatedOrder.createdBy.toString())
+        if(symbolArr[i]?._id?.toString() === id.toString() && 
+           symbolArr[i]?.createdBy?.toString() === updatedOrder.createdBy.toString())
         {
             updatedOrder.status = "Cancelled";
             updatedOrder.execution_time = new Date();
@@ -238,51 +238,51 @@ exports.cancelOrder = async (req, res, next) => {
             const doc = await updatedOrder.save({new: true});
             
             if(from === tenxTrader){
-              pnlData = await client.get(`${symbolArr[i].createdBy.toString()}${symbolArr[i].sub_product_id.toString()}: overallpnlTenXTrader`)
+              pnlData = await client.get(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id.toString()}: overallpnlTenXTrader`)
             } else if(from === marginx){
-              pnlData = await client.get(`${symbolArr[i].createdBy.toString()}${symbolArr[i].sub_product_id.toString()} overallpnlMarginX`)
+              pnlData = await client.get(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id.toString()} overallpnlMarginX`)
             } else if(from === dailyContest){
-              pnlData = await client.get(`${symbolArr[i].createdBy.toString()}${symbolArr[i].sub_product_id.toString()} overallpnlDailyContest`)
+              pnlData = await client.get(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id.toString()} overallpnlDailyContest`)
             } else if(from === internTrader){
-              pnlData = await client.get(`${symbolArr[i].createdBy.toString()}${symbolArr[i].sub_product_id.toString()}: overallpnlIntern`)
+              pnlData = await client.get(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id.toString()}: overallpnlIntern`)
             } else if(from === virtualTrader){
-              pnlData = await client.get(`${symbolArr[i].createdBy.toString()}: overallpnlPaperTrade`)
+              pnlData = await client.get(`${symbolArr[i]?.createdBy?.toString()}: overallpnlPaperTrade`)
             }
             pnlData = JSON.parse(pnlData)
             for(let elem of pnlData){
               console.log("pnl dtata", elem, pnlData)
               const buyOrSell = elem.lots > 0 ? "BUY" : "SELL";
-              if(elem._id.symbol === symbolArr[i].symbol && elem._id.isLimit && buyOrSell === symbolArr[i].buyOrSell){
+              if(elem._id.symbol === symbolArr[i]?.symbol && elem._id.isLimit && buyOrSell === symbolArr[i]?.buyOrSell){
 
                 console.log("in if", elem)
-                if(Math.abs(elem.lots) > Math.abs(symbolArr[i].Quantity)){
+                if(Math.abs(elem.lots) > Math.abs(symbolArr[i]?.Quantity)){
                   console.log("in if greater", elem)
-                  elem.margin = elem.margin - (elem.margin * Math.abs(symbolArr[i].Quantity)/Math.abs(elem.lots));
-                  elem.lots = Math.abs(elem.lots) - Math.abs(symbolArr[i].Quantity);
+                  elem.margin = elem.margin - (elem.margin * Math.abs(symbolArr[i]?.Quantity)/Math.abs(elem.lots));
+                  elem.lots = Math.abs(elem.lots) - Math.abs(symbolArr[i]?.Quantity);
                   elem.lots = buyOrSell==="SELL" ? -elem.lots : elem.lots;
                   break;
-                } else if(Math.abs(elem.lots) === Math.abs(symbolArr[i].Quantity)){
+                } else if(Math.abs(elem.lots) === Math.abs(symbolArr[i]?.Quantity)){
                   console.log("in if equal", elem)
                   elem.margin = 0;
-                  elem.lots = Math.abs(elem.lots) - Math.abs(symbolArr[i].Quantity);
+                  elem.lots = Math.abs(elem.lots) - Math.abs(symbolArr[i]?.Quantity);
                   break;
                 }
               }
             }
 
             if(from === tenxTrader){
-              await client.set(`${symbolArr[i].createdBy.toString()}${symbolArr[i].sub_product_id.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlData))
+              await client.set(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlData))
             } else if(from === marginx){
-              await client.set(`${symbolArr[i].createdBy.toString()}${symbolArr[i].sub_product_id.toString()} overallpnlMarginX`, JSON.stringify(pnlData))
+              await client.set(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id.toString()} overallpnlMarginX`, JSON.stringify(pnlData))
             } else if(from === dailyContest){
-              await client.set(`${symbolArr[i].createdBy.toString()}${symbolArr[i].sub_product_id.toString()} overallpnlDailyContest`, JSON.stringify(pnlData))
+              await client.set(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id.toString()} overallpnlDailyContest`, JSON.stringify(pnlData))
             } else if(from === internTrader){
-              await client.set(`${symbolArr[i].createdBy.toString()}${symbolArr[i].sub_product_id.toString()}: overallpnlIntern`, JSON.stringify(pnlData))
+              await client.set(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id.toString()}: overallpnlIntern`, JSON.stringify(pnlData))
             } else if(from === virtualTrader){
-              await client.set(`${symbolArr[i].createdBy.toString()}: overallpnlPaperTrade`, JSON.stringify(pnlData))
+              await client.set(`${symbolArr[i]?.createdBy?.toString()}: overallpnlPaperTrade`, JSON.stringify(pnlData))
             }
-            // await client.set(`${symbolArr[i].createdBy.toString()}${symbolArr[i].sub_product_id.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlData));
-            symbolArr.splice(i, 1);
+            // await client.set(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlData));
+            symbolArr.splice(i, 1, {});
             await client.set('stoploss-stopprofit', JSON.stringify(data));
             break;
         }
@@ -318,8 +318,8 @@ exports.editPrice = async (req, res, next) => {
     data = JSON.parse(data);
     let symbolArr = data[`${updatedOrder.instrumentToken}`];
     for(let i = 0; i < symbolArr.length; i++){
-        if(symbolArr[i]._id.toString() === id.toString() && 
-           symbolArr[i].createdBy.toString() === updatedOrder.createdBy.toString())
+        if(symbolArr[i]?._id.toString() === id.toString() && 
+           symbolArr[i]?.createdBy?.toString() === updatedOrder.createdBy.toString())
         {
             updatedOrder.price = execution_price;
             const doc = await updatedOrder.save({new: true});
@@ -347,10 +347,10 @@ exports.modifyOrder = async (req, res, next) => {
         let symbolArray = data[`${instrumentToken}`];
         let indicesToRemove = [];
         for(let i = symbolArray.length-1; i >= 0; i--){
-            if(symbolArray[i].createdBy.toString() === userId.toString() && symbolArray[i].symbol === symbol){
+            if(symbolArray[i]?.createdBy?.toString() === userId.toString() && symbolArray[i]?.symbol === symbol){
                 // remove this element
                 indicesToRemove.push(i);
-                const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id)},{
+                const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]?._id)},{
                   $set: {
                     status: "Cancelled",
                     execution_price: 0
@@ -360,7 +360,7 @@ exports.modifyOrder = async (req, res, next) => {
         }
   
         // Remove elements after the loop
-        indicesToRemove.forEach(index => symbolArray.splice(index, 1));
+        indicesToRemove.forEach(index => symbolArray.splice(index, 1, {}));
     }
   
     await client.set('stoploss-stopprofit', JSON.stringify(data));
