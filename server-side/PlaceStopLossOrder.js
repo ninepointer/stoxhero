@@ -136,6 +136,8 @@ const tenxTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDetai
                             instrumentToken: tradeDoc.instrumentToken,
                             exchangeInstrumentToken: tradeDoc.exchangeInstrumentToken,
                             exchange: tradeDoc.exchange,
+                            validity: tradeDoc.validity,
+                            variety: tradeDoc.variety,                
                         },
                         amount: (tradeDoc.amount * -1),
                         brokerage: Number(tradeDoc.brokerage),
@@ -275,6 +277,9 @@ const paperTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDeta
                             instrumentToken: tradeDoc.instrumentToken,
                             exchangeInstrumentToken: tradeDoc.exchangeInstrumentToken,
                             exchange: tradeDoc.exchange,
+                            validity: tradeDoc.validity,
+                            variety: tradeDoc.variety,                
+
                         },
                         amount: (tradeDoc.amount * -1),
                         brokerage: Number(tradeDoc.brokerage),
@@ -415,6 +420,9 @@ const internTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDet
                             instrumentToken: tradeDoc.instrumentToken,
                             exchangeInstrumentToken: tradeDoc.exchangeInstrumentToken,
                             exchange: tradeDoc.exchange,
+                            validity: tradeDoc.validity,
+                            variety: tradeDoc.variety,                
+
                         },
                         amount: (tradeDoc.amount * -1),
                         brokerage: Number(tradeDoc.brokerage),
@@ -883,13 +891,13 @@ exports.pendingOrderMain = async () => {
             let index = message.index;
             let last_price = message.ltp;
 
-            const lockKey = `${createdBy}-${symbol}-${Quantity}`
+            const lockKey = `${createdBy}-${symbol}-${Quantity}-${_id}`
             const lockValue = Date.now().toString() + Math.random * 1000;
             const release = await mutex.acquire();
 
             try {
                 // Try to acquire the lock
-                const lockExpiration = 10;
+                const lockExpiration = 20;
 
                 const lockAcquired = await acquireLock(lockKey, lockValue, lockExpiration);
 
@@ -970,7 +978,7 @@ exports.pendingOrderMain = async () => {
                         if (Math.abs(elem.lots) > Math.abs(Quantity)) {
                             elem.margin = elem.margin - (elem.margin * Math.abs(Quantity) / Math.abs(elem.lots));
                             elem.lots = Math.abs(elem.lots) - Math.abs(Quantity)
-                            elem.lots = buyOrSellPnl === "SELL" && -elem.lots;
+                            elem.lots = buyOrSellPnl === "SELL" ? -elem.lots : elem.lots;
                             // console.log("if elem", elem);
                             break;
                         } else if (Math.abs(elem.lots) === Math.abs(Quantity)) {

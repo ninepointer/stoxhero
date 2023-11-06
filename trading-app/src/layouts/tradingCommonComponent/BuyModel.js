@@ -114,6 +114,10 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
     if (value === "LIMIT") {
       setBuyFormDetails({ ...buyFormDetails, stopLossPrice: "", stopProfitPrice: "" });
     }
+    if(value === "MARKET"){
+      setBuyFormDetails({ ...buyFormDetails, stopLossPrice: "", stopProfitPrice: "" });
+      setBuyFormDetails({ ...buyFormDetails, price: "" });
+    }
     setOrdertype(value);
     buyFormDetails.order_type = value;
   };

@@ -650,7 +650,8 @@ const calculateRequiredMargin = async (req, Quantity, data) => {
 const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
 
     const openingBalance = fundDetail?.openingBalance ? fundDetail?.openingBalance : fundDetail?.totalFund;
-    if(!pnlData.length){
+    const withoutLimitData = pnlData.filter((elem) => !elem._id.isLimit);
+    if (!withoutLimitData.length) {
         return openingBalance;
     }
 

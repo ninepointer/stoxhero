@@ -457,6 +457,9 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId, fromPl
             instrumentToken: pnlData.instrumentToken,
             exchangeInstrumentToken: pnlData.exchangeInstrumentToken,
             exchange: pnlData.exchange,
+            validity: pnlData.validity,
+            variety: pnlData.variety,                
+
             isLimit: true
           },
           amount: (pnlData.amount * -1),
@@ -487,6 +490,8 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId, fromPl
             instrumentToken: pnlData.instrumentToken,
             exchangeInstrumentToken: pnlData.exchangeInstrumentToken,
             exchange: pnlData.exchange,
+            validity: pnlData.validity,
+            variety: pnlData.variety,   
           },
           amount: (pnlData.amount * -1),
           brokerage: Number(pnlData.brokerage),
@@ -944,6 +949,8 @@ exports.overallpnlMarginX = async (pnlData, trader, data, marginxId, fromPlaceLi
             instrumentToken: pnlData.instrumentToken,
             exchangeInstrumentToken: pnlData.exchangeInstrumentToken,
             exchange: pnlData.exchange,
+            validity: pnlData.validity,
+            variety: pnlData.variety,   
             isLimit: true
           },
           amount: (pnlData.amount * -1),
@@ -974,6 +981,8 @@ exports.overallpnlMarginX = async (pnlData, trader, data, marginxId, fromPlaceLi
             instrumentToken: pnlData.instrumentToken,
             exchangeInstrumentToken: pnlData.exchangeInstrumentToken,
             exchange: pnlData.exchange,
+            validity: pnlData.validity,
+            variety: pnlData.variety,
           },
           amount: (pnlData.amount * -1),
           brokerage: Number(pnlData.brokerage),

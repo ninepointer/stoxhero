@@ -57,7 +57,9 @@ exports.overallPnlTrader = async (req, res, next) => {
                             product: "$Product",
                             instrumentToken: "$instrumentToken",
                             exchangeInstrumentToken: "$exchangeInstrumentToken",
-                            exchange: "$exchange"
+                            exchange: "$exchange",
+                            validity: "$validity",
+                            variety: "$variety",
                         },
                         amount: {
                             $sum: { $multiply: ["$amount", -1] },

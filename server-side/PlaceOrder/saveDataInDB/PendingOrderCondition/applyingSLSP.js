@@ -19,12 +19,16 @@ exports.applyingSLSP = async (req, otherData, session, docId, from) => {
     product_type = "65449ee06932ba3a403a681a"
   }
 
+  console.log("product_type", product_type, from)
+
   try{
     let isRedisConnected = await getValue();
     let {exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId, 
         exchangeInstrumentToken, validity, variety, order_id, instrumentToken, last_price,
         stopProfitPrice, stopLossPrice, createdBy, deviceDetails, id, margin, price,
-        marginxId, contestId, portfolioId } = req.body ? req.body : req 
+        marginxId, contestId, portfolioId } = req.body ? req.body : req ;
+
+        console.log("portfolioId", portfolioId)
 
     last_price = last_price && String(last_price)?.includes("₹") && last_price?.slice(1);
     id = id ? id : from === tenx ? subscriptionId : from === marginx ? marginxId : from === dailyContest ? contestId : from === internship ? subscriptionId : from === virtualTrader && portfolioId;

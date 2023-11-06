@@ -259,7 +259,7 @@ exports.cancelOrder = async (req, res, next) => {
                   console.log("in if greater", elem)
                   elem.margin = elem.margin - (elem.margin * Math.abs(symbolArr[i].Quantity)/Math.abs(elem.lots));
                   elem.lots = Math.abs(elem.lots) - Math.abs(symbolArr[i].Quantity);
-                  elem.lots = buyOrSell==="SELL" && -elem.lots;
+                  elem.lots = buyOrSell==="SELL" ? -elem.lots : elem.lots;
                   break;
                 } else if(Math.abs(elem.lots) === Math.abs(symbolArr[i].Quantity)){
                   console.log("in if equal", elem)
@@ -340,6 +340,7 @@ exports.modifyOrder = async (req, res, next) => {
   try{
     const {instrumentToken, symbol, from} = req.body;
     const userId = req.user._id
+    console.log(req.body)
     data = await client.get('stoploss-stopprofit');
     data = JSON.parse(data);
     if (data && data[`${instrumentToken}`]) {
@@ -360,7 +361,7 @@ exports.modifyOrder = async (req, res, next) => {
     }
   
     await client.set('stoploss-stopprofit', JSON.stringify(data));
-    const result = await applyingSLSP(req, {}, undefined, from);
+    const result = await applyingSLSP(req, {}, null ,null, from);
   
     return res.status(200).json({status: "Success", message: `Your SL/SP-M order placed for ${req.body.symbol}`});
   

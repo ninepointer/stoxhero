@@ -105,6 +105,16 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
   const [ordertype, setOrdertype] = React.useState('MARKET');
   sellFormDetails.order_type = ordertype;
   const marketHandleChange = (value) => {
+    if (value === "SL/SP-M") {
+      setsellFormDetails({ ...sellFormDetails, price: "" });
+    }
+    if (value === "LIMIT") {
+      setsellFormDetails({ ...sellFormDetails, stopLossPrice: "", stopProfitPrice: "" });
+    }
+    if(value === "MARKET"){
+      setsellFormDetails({ ...sellFormDetails, stopLossPrice: "", stopProfitPrice: "" });
+      setsellFormDetails({ ...sellFormDetails, price: "" });
+    }
     setOrdertype(value);
     sellFormDetails.order_type = value;
   };
