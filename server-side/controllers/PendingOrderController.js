@@ -351,7 +351,10 @@ exports.modifyOrder = async (req, res, next) => {
                 // remove this element
                 indicesToRemove.push(i);
                 const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]._id)},{
-                  $set: {status: "Cancelled"}
+                  $set: {
+                    status: "Cancelled",
+                    execution_price: 0
+                  }
               })
             }
         }

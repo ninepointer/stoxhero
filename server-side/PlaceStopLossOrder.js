@@ -575,8 +575,8 @@ const dailyContestTradeStopLoss = async (message, brokerageDetailBuyUser, broker
                 margin: message.data.margin
             }
 
-            const mockTradeDetails = (order_type !== "LIMIT") && await DailyContestMockCompany.create([companyDoc], { session });
-            const algoTrader = (order_type !== "LIMIT") && await DailyContestMockUser.create([traderDoc], { session });
+            const mockTradeDetails =  await DailyContestMockCompany.create([companyDoc], { session });
+            const algoTrader =  await DailyContestMockUser.create([traderDoc], { session });
 
             const pipeline = clientForIORedis.pipeline();
 
@@ -781,8 +781,8 @@ const marginxTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDe
                 margin: message.data.margin
             }
 
-            const mockTradeDetails = (order_type !== "LIMIT") && await MarginXMockCompany.create([companyDoc], { session });
-            const algoTrader = (order_type !== "LIMIT") && await MarginXMockUser.create([traderDoc], { session });
+            const mockTradeDetails =  await MarginXMockCompany.create([companyDoc], { session });
+            const algoTrader =  await MarginXMockUser.create([traderDoc], { session });
 
             const pipeline = clientForIORedis.pipeline();
 
