@@ -56,10 +56,9 @@ exports.myTodaysProcessedTrade = async (req, res, next) => {
             createdBy: new ObjectId(
               userId
             ),
-            //todo-vijay
-            // createdOn: {
-            //   $gte: today,
-            // },
+            createdOn: {
+              $gte: today,
+            },
             status: {$ne: "Pending"},
             sub_product_id: new ObjectId(id)
           },
@@ -141,10 +140,9 @@ exports.myTodaysPendingTrade = async (req, res, next) => {
       createdBy: new ObjectId(
         userId
       ),
-      //todo-vijay
-      // createdOn: {
-      //   $gte: today,
-      // },
+      createdOn: {
+        $gte: today,
+      },
       status: "Pending",
       sub_product_id: new ObjectId(id)
     })
@@ -158,10 +156,9 @@ exports.myTodaysPendingTrade = async (req, res, next) => {
           createdBy: new ObjectId(
             userId
           ),
-      //todo-vijay
-      // createdOn: {
-      //   $gte: today,
-      // },
+          createdOn: {
+            $gte: today,
+          },
           status: "Pending",
           sub_product_id: new ObjectId(id)
         },

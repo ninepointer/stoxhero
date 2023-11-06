@@ -670,8 +670,7 @@ const BuyModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, soc
             </MDButton>
             <MDButton
               size='small'
-              //todo-vijay
-              // disabled={(buyFormDetails.stopLossPrice && (Number(ltp) < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (Number(ltp) > buyFormDetails.stopProfitPrice)) || (buyFormDetails.price && (buyFormDetails.price > Number(ltp)))}
+              disabled={(buyFormDetails.stopLossPrice && (Number(ltp) < buyFormDetails.stopLossPrice)) || (buyFormDetails.stopProfitPrice && (Number(ltp) > buyFormDetails.stopProfitPrice)) || (buyFormDetails.price && (buyFormDetails.price > Number(ltp)))}
               autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
               BUY
             </MDButton>

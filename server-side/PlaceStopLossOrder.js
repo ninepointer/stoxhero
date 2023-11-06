@@ -77,7 +77,7 @@ const tenxTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDetai
                 await marginThirdCase(message.data)
                 break;
             case 4:
-                // await marginFourthCase(message.data, availableMargin, runningLotForSymbol, tenx, kiteData)
+                await marginFourthCase(message.data, availableMargin, runningLotForSymbol, tenx, kiteData)
                 break;
         }
 
@@ -356,7 +356,7 @@ const internTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDet
                 await marginThirdCase(message.data)
                 break;
             case 4:
-                // await marginFourthCase(message.data, availableMargin, runningLotForSymbol, tenx, kiteData)
+                await marginFourthCase(message.data, availableMargin, runningLotForSymbol, internship, kiteData)
                 break;
         }
 
@@ -494,7 +494,7 @@ const dailyContestTradeStopLoss = async (message, brokerageDetailBuyUser, broker
                 await marginThirdCase(message.data)
                 break;
             case 4:
-                // await marginFourthCase(message.data, availableMargin, runningLotForSymbol, tenx, kiteData)
+                await marginFourthCase(message.data, availableMargin, runningLotForSymbol, dailyContest, kiteData)
                 break;
         }
 
@@ -700,7 +700,7 @@ const marginxTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDe
                 await marginThirdCase(message.data)
                 break;
             case 4:
-                // await marginFourthCase(message.data, availableMargin, runningLotForSymbol, tenx, kiteData)
+                await marginFourthCase(message.data, availableMargin, runningLotForSymbol, marginx, kiteData)
                 break;
         }
 
