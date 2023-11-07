@@ -15,6 +15,7 @@ router.route('/failed').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), get
 router.route('/users').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getUsers)
 router.route('/checkstatus/:merchantTransactionId').get(Authenticate, checkPaymentStatus);
 router.route('/user/:id').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getUserPayment);
+router.route('/makepayment').post(Authenticate, makePayment);
 
 
 module.exports = router;
