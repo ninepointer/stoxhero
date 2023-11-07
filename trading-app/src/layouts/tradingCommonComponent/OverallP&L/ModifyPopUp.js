@@ -24,7 +24,7 @@ import InputLabel from '@mui/material/InputLabel';
 // import { Howl } from "howler";
 // import sound from "../../../assets/sound/tradeSound.mp3"
 // import { marginX, paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest, battle } from "../../../variables";
-import { lotSize_BankNifty, lotSize_FinNifty, lotSize_Nifty } from "../../../variables";
+import { lotSize_BankNifty, lotSize_FinNifty, lotSize_Nifty, paperTrader } from "../../../variables";
 
 import EditIcon from '@mui/icons-material/Edit';
 import MDBox from '../../../components/MDBox';
@@ -33,7 +33,7 @@ import { userContext } from '../../../AuthContext';
 import { apiUrl } from '../../../constants/constants';
 import MDSnackbar from '../../../components/MDSnackbar';
 
-function ModifyPopUp({data, id, handleCloseMenu, setMsg}) {
+function ModifyPopUp({data, id, handleCloseMenu, setMsg, from}) {
 
     const lots=data?.Quantity?.props?.children;
     const symbolName=data?.symbol?.props?.children;
@@ -60,6 +60,7 @@ function ModifyPopUp({data, id, handleCloseMenu, setMsg}) {
     });
     let index = symbolName.includes("BANK") ? "BANKNIFTY" : symbolName.includes("FIN") ? 'FINNIFTY' : "NIFTY";
     let lotSize = symbolName.includes("BANK") ? lotSize_BankNifty : symbolName.includes("FIN") ? lotSize_FinNifty : lotSize_Nifty;
+    id = from===paperTrader ? "6433e2e5500dc2f2d20d686d" : id;
 
     let finalLot = Math.abs(lots)/lotSize;
     let optionData = [];
@@ -140,10 +141,11 @@ function ModifyPopUp({data, id, handleCloseMenu, setMsg}) {
       body: JSON.stringify({
         exchange: data?.exchange?.props?.children, symbol: data?.symbol?.props?.children,
         buyOrSell: type, Quantity, id: id, Product: data?.Product?.props?.children,
-        OrderType: "SL/SP-M", stopProfitPrice, stopLossPrice,
+        order_type: "SL/SP-M", stopProfitPrice, stopLossPrice,
         exchangeInstrumentToken: data?.exchangeInstrumentToken?.props?.children,
         validity: data?.validity?.props?.children, variety: data?.variety?.props?.children,
-        instrumentToken: data?.instrumentToken?.props?.children, last_price: data?.last_price?.props?.children
+        instrumentToken: data?.instrumentToken?.props?.children, last_price: data?.last_price?.props?.children,
+        from
 
       })
     });

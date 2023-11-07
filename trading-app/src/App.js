@@ -14,6 +14,7 @@ import MDBox from "./components/MDBox";
 
 // Material Dashboard 2 React example components
 import Sidenav from "./examples/Sidenav";
+import NewSidenav from "./examples/NewSideNav/Sidebar";
 import Configurator from "./examples/Configurator";
 
 // Material Dashboard 2 React themes
@@ -273,6 +274,7 @@ export default function App() {
                   onMouseEnter={handleOnMouseEnter}
                   onMouseLeave={handleOnMouseLeave}
                 />
+                // <NewSidenav/>
               }
               
               <Configurator />
@@ -304,6 +306,7 @@ export default function App() {
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
             />
+            // <NewSidenav/>
           }
 
             <Configurator />

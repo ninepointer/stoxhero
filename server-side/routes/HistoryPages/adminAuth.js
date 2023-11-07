@@ -79,34 +79,90 @@ const Holiday = require("../../models/TradingHolidays/tradingHolidays");
 const Career = require("../../models/Careers/careerSchema");
 const mongoose = require('mongoose');
 const moment = require("moment")
-const {mail} = require("../../controllers/dailyReportMail")
-// [
-//   {
-//     $unwind:
-//       {
-//         path: "$subscription",
-//       },
-//   },
-//   {
-//     $match:
-//       {
-//         "subscription.payout": {
-//           $lt: 0,
-//         },
-//       },
-//   },
-//   {
-//     $project:
-//       {
-//         name: "$name",
-//         payout: "$subscription.payout",
-//       },
-//   },
-// ]
-//64a5b69bdbaa0c1207218c5f
-//64d7cc84e6eb301d7f21f1b3
+const {mail} = require("../../controllers/dailyReportMail");
+const CareerApplication = require("../../models/Careers/careerApplicationSchema");
 
-router.get('/updateinternshipdata', async(req,res) =>{
+
+
+
+router.get('/careerapplication', async(req,res) =>{
+  console.log("data")
+    const c = await CareerApplication.aggregate([
+      {
+        $lookup: {
+          from: "careers",
+          localField: "career",
+          foreignField: "_id",
+          as: "career",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "mobileNo",
+          foreignField: "mobile",
+          as: "user",
+        },
+      },
+      {
+        $match:
+          /**
+           * query: The query in MQL.
+           */
+          {
+            user: {
+              $ne: [],
+            },
+          },
+      },
+      {
+        $project:
+          /**
+           * specifications: The fields to
+           *   include or exclude.
+           */
+          {
+            first_name: {
+              $arrayElemAt: ["$user.first_name", 0],
+            },
+            last_name: {
+              $arrayElemAt: ["$user.last_name", 0],
+            },
+            joining_date: {
+              $arrayElemAt: ["$user.joining_date", 0],
+            },
+            email: {
+              $arrayElemAt: ["$user.email", 0],
+            },
+            mobile: {
+              $arrayElemAt: ["$user.mobile", 0],
+            },
+            signup_process: {
+              $arrayElemAt: [
+                "$user.creationProcess",
+                0,
+              ],
+            },
+            jobRole: {
+              $arrayElemAt: ["$career.jobTitle", 0],
+            },
+            jobType: {
+              $arrayElemAt: ["$career.jobType", 0],
+            },
+            _id: 0,
+            campaignCode: 1,
+          },
+      },
+    ]
+    )
+
+    console.log(c)
+
+    res.send(c);
+})
+
+router.get('/internpayout', async(req,res) =>{
+
   let cutoffDate = new Date('2023-07-10');
   let total = 0, batch=0;
   const internships = await InternBatch.find({ batchStatus: "Active", batchEndDate: { $lte: new Date() }})
@@ -1969,7 +2025,7 @@ router.get("/placeOrder", async (req, res) => {
     exchange: 'NFO',
     instrumentToken: 46292,
     Product: 'NRML',
-    OrderType: 'MARKET',
+    order_type: 'MARKET',
     buyOrSell: 'BUY',
     validity: 'DAY',
     disclosedQuantity: 0,
@@ -2058,7 +2114,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2023-10-27T20:00:00.000+00:00"
+  let expiryDate = "2023-11-02T20:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(

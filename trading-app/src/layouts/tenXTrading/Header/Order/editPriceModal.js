@@ -74,8 +74,18 @@ function ModifyPopUp({id, lots, symbol, type, buyOrSell, ltp}) {
             setErrorMessageStopProfit("Stop Profit price should be less then LTP.")
           }
         }
+      } else if(type === "Limit"){
+        if(buyOrSell === "SELL"){
+          if(Number(newLtp) > Number(e.target.value)){
+            setErrorMessageStopProfit("price should be greater then LTP.")
+          }
+        } else{
+          if(Number(newLtp) < Number(e.target.value)){
+            setErrorMessageStopProfit("price should be less then LTP.")
+          }
+        }
       }
-      setPrice(e.target.value)
+      setPrice(Number(e.target.value))
     };
 
   const modifyOrder = async () => {
@@ -197,7 +207,7 @@ function ModifyPopUp({id, lots, symbol, type, buyOrSell, ltp}) {
                 />
 
                 <TextField
-                  id="outlined-basic" label={<Typography sx={{fontSize: "12px"}} >{type==="StopProfit" ? "SP Price" : "SL Price"}</Typography> }
+                  id="outlined-basic" label={<Typography sx={{fontSize: "12px"}} >{type==="StopProfit" ? "SP Price" : type==="StopLoss" ? "SL Price" : "Limit"}</Typography> }
                   variant="outlined" onChange={(e) => { { stopSLSP(e) } }}
                   sx={{
                     marginTop: 1,
@@ -231,6 +241,13 @@ function ModifyPopUp({id, lots, symbol, type, buyOrSell, ltp}) {
 
                 :
 
+                type==="Limit" ?
+
+                buyOrSell==="SELL" ?
+                (price && (newLtp > price))
+                :
+                (price && (newLtp < price))
+                :
                 buyOrSell==="SELL" ?
                 (price && (newLtp < price))
                 :

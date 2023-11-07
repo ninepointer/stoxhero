@@ -33,7 +33,7 @@ router.route('/reject').get(getRejectedCareers);
 router.route('/generateotp').post(generateOTP);
 router.route('/confirmotp').post(confirmOTP);
 router.route('/findbyname').get(findCareerByName);
-router.route('/apply').post(applyForCareer);
+router.route('/apply').post(authentication, applyForCareer);
 router.route('/userDetail').post(upload.array("files"), getUploadsApplication);
 router.route('/create').post(authentication, restrictTo('Admin', 'Super Admin'), createCareer);
 router.route('/careerapplicationcount/:id').get(getCareerApplicationCount);

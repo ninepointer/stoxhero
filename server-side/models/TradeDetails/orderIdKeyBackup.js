@@ -71,7 +71,7 @@ const redisBackup = new Schema({
         runningLots: {type: Number},
         zerodhaMargin: {type: Number}
     },
-    OrderType:{
+    order_type:{
         type: String,
         required: true
     },

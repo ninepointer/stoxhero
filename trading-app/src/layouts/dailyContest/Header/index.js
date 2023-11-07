@@ -12,6 +12,10 @@ import UpcomingContest from '../data/activeDailyContests';
 import CompletedContest from '../data/completedDailyContests';
 import DraftContest from '../data/draftDailyContests'
 import OngoingDailyContest from '../data/ongoingDailyContest';
+import FeaturedUpcomingContests from '../data/featuredActiveDailyContests'
+import FeaturedOngoingContests from '../data/featuredOngoingDailyContests'
+import CollegeOngoingContests from '../data/collegeOngoingDailyContests'
+import CollegeUpcomingContests from '../data/collegeUpcomingDailyContests'
 
 
 export default function LabTabs() {
@@ -51,13 +55,41 @@ export default function LabTabs() {
       <TabContext value={value}>
         <MDBox sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Ongoing Contest" value="1" />
-            <Tab label="Upcoming Contest" value="2" />
-            <Tab label="Completed Contest" value="3" />
-            <Tab label="Draft Contest" value="4" />
+            <Tab label="Featured (O)" value="1" />
+            <Tab label="Featured (U)" value="2" />
+            <Tab label="StoxHero (O)" value="3" />
+            <Tab label="College (O)" value="4" />
+            <Tab label="College (U)" value="5" />
+            <Tab label="StoxHero (U)" value="6" />
+            <Tab label="All Completed" value="7" />
+            <Tab label="All Draft" value="8" />
           </TabList>
         </MDBox>
-        <TabPanel value="1">
+          <TabPanel value="1">
+          {isLoading ? 
+          
+          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+            <CircularProgress color="info" />
+          </MDBox>
+          : 
+          <MDBox style={{minWidth:'100%'}}>
+          <FeaturedOngoingContests/>
+          </MDBox>
+          }
+          </TabPanel>
+          <TabPanel value="2">
+          {isLoading ? 
+          
+          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+            <CircularProgress color="info" />
+          </MDBox>
+          : 
+          <MDBox style={{minWidth:'100%'}}>
+          <FeaturedUpcomingContests/>
+          </MDBox>
+          }
+          </TabPanel>
+          <TabPanel value="3">
           {isLoading ? 
           
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
@@ -70,7 +102,7 @@ export default function LabTabs() {
    
           }
           </TabPanel>
-        <TabPanel value="2">
+          <TabPanel value="4">
           {isLoading ? 
           
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
@@ -78,12 +110,34 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-          <UpcomingContest/>
+          <CollegeOngoingContests/>
           </MDBox>
    
           }
           </TabPanel>
-        <TabPanel value="3">
+          <TabPanel value="5">
+          {isLoading ? 
+          
+          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+            <CircularProgress color="info" />
+          </MDBox>
+          : 
+          <MDBox style={{minWidth:'100%'}}>
+          <CollegeUpcomingContests/>
+          </MDBox>
+   
+          }
+          </TabPanel>
+          <TabPanel value="6">
+          {isLoading ? 
+          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+            <CircularProgress color="info" />
+          </MDBox>
+          : 
+          <UpcomingContest/>
+          }
+        </TabPanel>
+        <TabPanel value="7">
           {isLoading ? 
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
             <CircularProgress color="info" />
@@ -92,7 +146,7 @@ export default function LabTabs() {
           <CompletedContest/>
           }
         </TabPanel>
-        <TabPanel value="4">
+        <TabPanel value="8">
           {isLoading ? 
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
             <CircularProgress color="info" />

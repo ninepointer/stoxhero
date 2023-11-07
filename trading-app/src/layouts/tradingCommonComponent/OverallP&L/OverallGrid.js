@@ -112,6 +112,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
 
 
   tradeData.map((subelem) => {
+    if(!subelem?._id?.isLimit){
     let obj = {};
     let liveDetail = marketDetails.marketData.filter((elem) => {
       // //console.log("elem", elem, subelem)
@@ -263,7 +264,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
       countPosition.closePosition += 1;
       rows.push(obj);
     }
-
+  }
   })
 
   const handleBuyClick = (index) => {
@@ -416,9 +417,9 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
                             </td>
                           }
                         </Tooltip>
-                        {from===tenxTrader &&
-                          <PnlMenu data={elem} id={subscriptionId} />                            
-                        }
+                        {/* {from===tenxTrader && */}
+                          <PnlMenu data={elem} id={subscriptionId} from={from} />                            
+                        {/* } */}
                       </tr>
                     </React.Fragment>
                   )

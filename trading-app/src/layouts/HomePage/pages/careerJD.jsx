@@ -20,7 +20,7 @@ const App = () => {
   const location = useLocation();
   const career = location?.state?.data;
   const campaignCode = location?.state?.campaignCode;
-  console.log(location?.state?.campaignCode)
+  
   useEffect(()=>{
     ReactGA.pageview(window.location.pathname)
   }, [])

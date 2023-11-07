@@ -66,7 +66,7 @@ function ExitPosition({ isFromHistory, portfolioId, contestId, product, symbol, 
     Product: product,
     Quantity: (Math.abs(quantity) > 1800) ? 1800 : Math.abs(quantity),
     Price: "",
-    OrderType: "",
+    order_type: "",
     TriggerPrice: "",
     stopLoss: "",
     validity: "",
@@ -93,10 +93,10 @@ function ExitPosition({ isFromHistory, portfolioId, contestId, product, symbol, 
 
 
   const [market, setMarket] = React.useState('MARKET');
-  exitPositionFormDetails.OrderType = market;
+  exitPositionFormDetails.order_type = market;
   const marketHandleChange = (event) => {
     setMarket(event.target.value);
-    exitPositionFormDetails.OrderType = event.target.value;
+    exitPositionFormDetails.order_type = event.target.value;
   };
   const [validity, setValidity] = React.useState('DAY');
   exitPositionFormDetails.validity = validity;
@@ -200,7 +200,7 @@ function ExitPosition({ isFromHistory, portfolioId, contestId, product, symbol, 
   async function placeOrder() {
 
     let endpoint = contestId ? `contest/${contestId}/trades/` : `placingOrder`
-    const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = exitPositionFormDetails;
+    const { exchange, symbol, buyOrSell, Quantity, Price, Product, order_type, TriggerPrice, stopLoss, validity, variety } = exitPositionFormDetails;
 
     const res = await fetch(`${baseUrl}api/v1/${endpoint}`, {
       method: "POST",
@@ -211,7 +211,7 @@ function ExitPosition({ isFromHistory, portfolioId, contestId, product, symbol, 
       body: JSON.stringify({
 
         exchange, symbol, buyOrSell, Quantity, Price,
-        Product, OrderType, TriggerPrice, stopLoss, uId,
+        Product, order_type, TriggerPrice, stopLoss, uId,
         validity, variety, createdBy, order_id: dummyOrderId,
         userId, instrumentToken, trader, portfolioId
 

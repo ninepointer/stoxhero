@@ -164,7 +164,7 @@ async function singleProcess() {
                 // await positions();
                 if (setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType) {
                     await getTicksForUserPosition(socket, data);
-                    await getTicksForCompanySide(socket);
+                    // await getTicksForCompanySide(socket);
                     // await getDummyTicks(socket)
                 } else {
                     await getXTSTicksForUserPosition(socket, data);

@@ -2,7 +2,7 @@ const Battle = require("../../models/battle/battleTrade");
 
 
 exports.battleTrade = async (req, res, otherData) => {
-  let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, exchangeInstrumentToken,
+  let {exchange, symbol, buyOrSell, Quantity, Product, order_type, exchangeInstrumentToken,
     validity, variety, order_id, instrumentToken, battleId,
     trader} = req.body 
 
@@ -16,7 +16,7 @@ exports.battleTrade = async (req, res, otherData) => {
 
         const battle = new Battle({
             status:"COMPLETE",  average_price: originalLastPriceUser, Quantity, Product, buyOrSell, 
-            variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", battleId,
+            variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero", battleId,
             isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, exchangeInstrumentToken,
             createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
         });

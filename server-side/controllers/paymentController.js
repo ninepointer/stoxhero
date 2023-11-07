@@ -666,17 +666,17 @@ const participateUser = async (paymentFor, productId, paymentBy, amount, coupon,
     }
 }
 
-exports.makePayment = async() => {
+exports.makePayment = async(req, res) => {
     const {
         amount,
         productId,
         paymentFor,
         coupon,
-        bonusRedemption
+        bonusRedemption,
+        merchantTransactionId
     } = req.body;
     try{
         const setting = await Setting.find();
-        let merchantTransactionId = generateUniqueTransactionId();
         let merchantUserId = 'MUID'+ req.user._id;
         const payment = await Payment.create({
             paymentTime: new Date(),

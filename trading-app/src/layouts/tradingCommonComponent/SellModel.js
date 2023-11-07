@@ -27,13 +27,15 @@ import MDBox from "../../components/MDBox";
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import RefreshIcon from '@mui/icons-material/Refresh';
+// import {internshipTrader, tenxTrader, dailyContest, marginX, paperTrader } from "../../variables";
+
 
 const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setSellState, exchangeSegment, exchangeInstrumentToken, module }) => {
 
   const newLtp = ltp;
   const { pnlData } = useContext(NetPnlContext);
   const runningLotsSymbol = pnlData.reduce((total, acc) => {
-    if (acc?._id?.symbol === symbol) {
+    if (acc?._id?.symbol === symbol && !acc?._id?.isLimit) {
       return total + acc.lots;
     }
     return total; // return the accumulator if the condition is false
@@ -66,6 +68,7 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
   const [errorMessageStopLoss, setErrorMessageStopLoss] = useState("");
   const [errorMessageStopProfit, setErrorMessageStopProfit] = useState("");
   const [errorMessageQuantity, setErrorMessageQuantity] = useState("");
+  const [errorMessagePrice, setErrorMessagePrice] = useState("");
 
   const [open, setOpen] = React.useState(buyState);
   const theme = useTheme();
@@ -81,7 +84,7 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
     Quantity: lotSize,
     stopLossPrice: "",
     price: "",
-    OrderType: "",
+    order_type: "",
     TriggerPrice: "",
     stopLoss: "",
     validity: "",
@@ -100,10 +103,20 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
 
 
   const [ordertype, setOrdertype] = React.useState('MARKET');
-  sellFormDetails.OrderType = ordertype;
+  sellFormDetails.order_type = ordertype;
   const marketHandleChange = (value) => {
+    if (value === "SL/SP-M") {
+      setsellFormDetails({ ...sellFormDetails, price: "" });
+    }
+    if (value === "LIMIT") {
+      setsellFormDetails({ ...sellFormDetails, stopLossPrice: "", stopProfitPrice: "" });
+    }
+    if(value === "MARKET"){
+      setsellFormDetails({ ...sellFormDetails, stopLossPrice: "", stopProfitPrice: "" });
+      setsellFormDetails({ ...sellFormDetails, price: "" });
+    }
     setOrdertype(value);
-    sellFormDetails.OrderType = value;
+    sellFormDetails.order_type = value;
   };
   const [validity, setValidity] = React.useState('DAY');
   sellFormDetails.validity = validity;
@@ -152,6 +165,12 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
 
 
   const stopLoss = async (e) => {
+    setsellFormDetails({ ...sellFormDetails, stopLossPrice: Number(e.target.value) });
+    const inputPrice = Number(e.target.value);
+    if (inputPrice < 0) {
+      setsellFormDetails({ ...sellFormDetails, stopLossPrice: "" });
+      return;
+    }
     setErrorMessageStopLoss("")
     sellFormDetails.stopLossPrice = e.target.value
     if (Number(ltp) > Number(e.target.value)) {//errorMessage
@@ -163,8 +182,13 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
     }
   }
 
-
   const stopProfit = async (e) => {
+    setsellFormDetails({ ...sellFormDetails, stopProfitPrice: Number(e.target.value) });
+    const inputPrice = Number(e.target.value);
+    if (inputPrice < 0) {
+      setsellFormDetails({ ...sellFormDetails, stopProfitPrice: "" });
+      return;
+    }
     setErrorMessageStopProfit("")
     sellFormDetails.stopProfitPrice = e.target.value
     if (Number(ltp) < Number(e.target.value)) {
@@ -194,8 +218,13 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
       return;
     }
 
-    if (sellFormDetails.OrderType === "SL/SP-M" && (!sellFormDetails.stopLossPrice && !sellFormDetails.stopProfitPrice)) {
+    if (sellFormDetails.order_type === "SL/SP-M" && (!sellFormDetails.stopLossPrice && !sellFormDetails.stopProfitPrice)) {
       openSuccessSB('error', "Please enter stop loss or stop profit price.");
+      return;
+    }
+
+    if (sellFormDetails.order_type === "LIMIT" && (!sellFormDetails.price)) {
+      openSuccessSB('error', "Please enter price.");
       return;
     }
 
@@ -231,7 +260,7 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
 
   async function placeOrder() {
     // console.log("exchangeInstrumentToken", exchangeInstrumentToken)
-    const { exchange, symbol, buyOrSell, Quantity, Product, OrderType, TriggerPrice, stopProfitPrice, stopLoss, stopLossPrice, validity, variety, price } = sellFormDetails;
+    const { exchange, symbol, buyOrSell, Quantity, Product, order_type, TriggerPrice, stopProfitPrice, stopLoss, stopLossPrice, validity, variety, price } = sellFormDetails;
     let endPoint
     let paperTrade = false;
     let tenxTraderPath;
@@ -275,7 +304,7 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
       },
       body: JSON.stringify({
         exchange, symbol, buyOrSell, Quantity, stopLoss, contestId: module?.data, battleId: subscriptionId,
-        Product, OrderType, TriggerPrice, stopProfitPrice, stopLossPrice, uId, exchangeInstrumentToken, fromAdmin,
+        Product, order_type, TriggerPrice, stopProfitPrice, stopLossPrice, uId, exchangeInstrumentToken, fromAdmin,
         validity, variety, createdBy, order_id: dummyOrderId, subscriptionId, marginxId: subscriptionId,
         userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath, price
 
@@ -382,9 +411,9 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
       messageObj.content = content;
     };
     if (value === "notAvailable") {
-      messageObj.color = 'warning' 
+      messageObj.color = 'info' 
       messageObj.icon = 'warning'
-      messageObj.title = "Warning";
+      messageObj.title = "Information";
       messageObj.content = content;
     };
 
@@ -402,7 +431,7 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
       onClose={closeSuccessSB}
       close={closeSuccessSB}
       bgWhite={messageObj.color}
-      sx={{ borderLeft: `10px solid ${messageObj.color==="success" ? "#4CAF50" : messageObj.color==="error" ? "#F44335" : "#FB8C00"}`, borderRight: `10px solid ${messageObj.color==="success" ? "#4CAF50" : messageObj.color==="error" ? "#F44335" : "#FB8C00"}`, borderRadius: "15px", width: "auto" }}
+      sx={{ borderLeft: `10px solid ${messageObj.color==="success" ? "#4CAF50" : messageObj.color==="error" ? "#F44335" : "#1A73E8"}`, borderRight: `10px solid ${messageObj.color==="success" ? "#4CAF50" : messageObj.color==="error" ? "#F44335" : "#1A73E8"}`, borderRadius: "15px", width: "auto" }}
     />
   );
 
@@ -424,24 +453,34 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
       return;
     }
 
-    if (sellFormDetails.OrderType === "LIMIT" && sellFormDetails.price && sellFormDetails.Quantity) {
+    if (sellFormDetails.order_type === "LIMIT" && sellFormDetails.price && sellFormDetails.Quantity) {
       await checkMargin();
     }
-    if (sellFormDetails.OrderType !== "LIMIT" && sellFormDetails.Quantity) {
+    if (sellFormDetails.order_type !== "LIMIT" && sellFormDetails.Quantity) {
       await checkMargin();
     }
 
   }
 
   const priceChange = async (e) => {
+    setsellFormDetails({ ...sellFormDetails, price: Number(e.target.value) });
+    const inputPrice = Number(e.target.value);
+    if (inputPrice < 0) {
+      setsellFormDetails({ ...sellFormDetails, price: "" });
+      return;
+    }
     sellFormDetails.price = Number(e.target.value);
+    setErrorMessagePrice("");
+    if(Number(e.target.value) < ltp){
+      return setErrorMessagePrice("Price should be greater then LTP.")
+    }
     if (sellFormDetails.Quantity && sellFormDetails.price) {
       await checkMargin();
     }
   }
 
   const checkMargin = async () => {
-    const { Quantity, Product, OrderType, validity, variety, price } = sellFormDetails;
+    const { Quantity, Product, order_type, validity, variety, price } = sellFormDetails;
 
     const response = await fetch(`${baseUrl}api/v1/marginrequired`, {
       method: "PATCH",
@@ -451,7 +490,7 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
         "content-type": "application/json"
       },
       body: JSON.stringify({
-        exchange, symbol, buyOrSell: "SELL", Quantity: runningLotsSymbol > 0 ? Quantity - Math.abs(runningLotsSymbol) : Quantity, Product, OrderType, validity, variety, price, last_price: Number(newLtp)
+        exchange, symbol, buyOrSell: "SELL", Quantity: runningLotsSymbol > 0 ? Quantity - Math.abs(runningLotsSymbol) : Quantity, Product, order_type, validity, variety, price, last_price: Number(newLtp)
       })
     });
 
@@ -558,19 +597,19 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
                 </MDBox>
 
                 <TextField
-                  id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "SL/SP-M"} label="Price" variant="outlined" onChange={(e) => { { priceChange(e) } }}
-                  sx={{ width: "140px", innerHeight: "1px" }} type="number" />
+                  id="outlined-basic" disabled={sellFormDetails.order_type === "MARKET" || sellFormDetails.order_type === "SL/SP-M"} label="Price" variant="outlined" onChange={(e) => { { priceChange(e) } }}
+                  sx={{ width: "140px", innerHeight: "1px" }} type="number" value={sellFormDetails.price===0?"":sellFormDetails.price} />
               </MDBox>
 
               {ordertype === "SL/SP-M" &&
                 <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center" }}>
                   <TextField
-                    id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "LIMIT" || (runningLotsSymbol > 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="SL price" variant="outlined" onChange={(e) => { { stopLoss(e) } }}
-                    sx={{ width: "140px", marginTop: "20px", innerHeight: "1px" }} type="number" />
+                    id="outlined-basic" disabled={sellFormDetails.order_type === "MARKET" || sellFormDetails.order_type === "LIMIT" || (runningLotsSymbol > 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="SL price" variant="outlined" onChange={(e) => { { stopLoss(e) } }}
+                    sx={{ width: "140px", marginTop: "20px", innerHeight: "1px" }} type="number" value={sellFormDetails.stopLossPrice===0?"":sellFormDetails.stopLossPrice}/>
 
                   <TextField
-                    id="outlined-basic" disabled={from !== "TenX Trader" || sellFormDetails.OrderType === "MARKET" || sellFormDetails.OrderType === "LIMIT" || (runningLotsSymbol > 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="SP price" variant="outlined" onChange={(e) => { { stopProfit(e) } }}
-                    sx={{ width: "140px", marginTop: "20px", innerHeight: "1px" }} type="number" />
+                    id="outlined-basic" disabled={sellFormDetails.order_type === "MARKET" || sellFormDetails.order_type === "LIMIT" || (runningLotsSymbol > 0 && checkQuantity <= Math.abs(runningLotsSymbol))} label="SP price" variant="outlined" onChange={(e) => { { stopProfit(e) } }}
+                    sx={{ width: "140px", marginTop: "20px", innerHeight: "1px" }} type="number" value={sellFormDetails.stopProfitPrice===0?"":sellFormDetails.stopProfitPrice} />
                 </MDBox>}
 
 
@@ -578,6 +617,7 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
                 <Typography fontSize={15} color={"error"}> {sellFormDetails.stopLossPrice && errorMessageStopLoss && errorMessageStopLoss}</Typography>
                 <Typography fontSize={15} color={"error"}>{sellFormDetails.stopProfitPrice && errorMessageStopProfit && errorMessageStopProfit}</Typography>
                 <Typography fontSize={15} color={"error"}>{errorMessageQuantity && errorMessageQuantity}</Typography>
+                <Typography fontSize={15} color={"error"}>{errorMessagePrice && errorMessagePrice}</Typography>
               </Box>
 
               <MDBox sx={{ display: "flex", justifyContent: 'space-between', textAlign: "center", gap: "5px", marginTop: "20px" }}>
@@ -585,11 +625,11 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
                   Market
                 </MDBox>
 
-                <MDBox onClick={notAvailable} sx={{ backgroundColor: ordertype === "LIMIT" ? "#F44335" : "#FFFFFF", color: ordertype === "LIMIT" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "LIMIT" && ".5px solid #8D91A8" }}>
+                <MDBox onClick={() => { marketHandleChange("LIMIT") }} sx={{ backgroundColor: ordertype === "LIMIT" ? "#F44335" : "#FFFFFF", color: ordertype === "LIMIT" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "LIMIT" && ".5px solid #8D91A8" }}>
                   Limit
                 </MDBox>
 
-                <MDBox onClick={from === "TenX Trader" ? () => { marketHandleChange("SL/SP-M") } : () => { notAvailable() }} sx={{ backgroundColor: ordertype === "SL/SP-M" ? "#F44335" : "#FFFFFF", color: ordertype === "SL/SP-M" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "SL/SP-M" && ".5px solid #8D91A8" }}>
+                <MDBox onClick={() => { marketHandleChange("SL/SP-M") }} sx={{ backgroundColor: ordertype === "SL/SP-M" ? "#F44335" : "#FFFFFF", color: ordertype === "SL/SP-M" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "SL/SP-M" && ".5px solid #8D91A8" }}>
                   SL/SP-M
                 </MDBox>
               </MDBox>
@@ -621,7 +661,7 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
             <MDButton size="small" variant="contained" color="error" onClick={handleClose} autoFocus>
               Cancel
             </MDButton>
-            <MDButton size="small" disabled={(sellFormDetails.stopLossPrice && (Number(ltp) > sellFormDetails.stopLossPrice)) || (sellFormDetails.stopProfitPrice && (Number(ltp) < sellFormDetails.stopProfitPrice))} autoFocus variant="contained" color="error" onClick={(e) => { sellFunction(e) }}>
+            <MDButton size="small" disabled={(sellFormDetails.stopLossPrice && (Number(ltp) > sellFormDetails.stopLossPrice)) || (sellFormDetails.stopProfitPrice && (Number(ltp) < sellFormDetails.stopProfitPrice)) || (sellFormDetails.price && (sellFormDetails.price < Number(ltp)))} autoFocus variant="contained" color="error" onClick={(e) => { sellFunction(e) }}>
               Sell
             </MDButton>
 

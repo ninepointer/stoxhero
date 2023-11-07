@@ -26,7 +26,7 @@ exports.createContest = async (req, res) => {
     try {
         const { liveThreshold, currentLiveStatus, contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
             contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
-            maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, payoutType, payoutCapPercentage } = req.body;
+            maxParticipants, contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, payoutType, payoutCapPercentage } = req.body;
 
         const getContest = await Contest.findOne({ contestName: contestName });
 
@@ -53,7 +53,7 @@ exports.createContest = async (req, res) => {
         const contest = await Contest.create({
             maxParticipants, contestStatus, contestEndTime, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
-            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage
+            contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage
         });
 
         // console.log(contest)
@@ -82,8 +82,6 @@ exports.editContest = async (req, res) => {
             return res.status(400).json({ status: "error", message: "Invalid contest ID" });
         }
         const contest = await Contest.findById(id);
-        console.log('vals', updates?.liveThreshold, contest?.liveThreshold);
-        console.log('cond',updates?.liveThreshold && updates?.liveThreshold != contest?.liveThreshold)
         if(updates?.liveThreshold && updates?.liveThreshold != contest?.liveThreshold){
             //Check if the update is before 5 minutes of the contest start time, send error
             if(new Date()>= new Date(new Date(contest.contestStartTime.toString()).getTime() - 5 * 60 * 1000)){
@@ -93,13 +91,10 @@ exports.editContest = async (req, res) => {
             const usersNumContests = await calculateNumContestsForUsers(id);
             const userIdsInSource = new Set(usersNumContests.filter(obj => obj.totalContestsCount <= updates?.liveThreshold).map(obj => obj.userId.toString()));
             const len = contest?.participants?.length;    
-            console.log('num', usersNumContests, userIdsInSource, len);
             for (let i =0; i<len ;i++) {
                 if (userIdsInSource.has(contest?.participants[i].userId.toString())) {
-                    console.log('resetting true');
                     contest.participants[i].isLive = true;
                 }else{
-                    console.log('resetting false');
                     contest.participants[i].isLive = false;    
                 }
             }
@@ -121,7 +116,6 @@ exports.editContest = async (req, res) => {
             message: "Contest updated successfully",
         });
     } catch (error) {
-        console.log('error' ,error);
         res.status(500).json({
             status: 'error',
             message: "Error in updating contest",
@@ -381,35 +375,70 @@ exports.getUpcomingContests = async (req, res) => {
     }
 };
 
-exports.getCollegeUserUpcomingContests = async (req, res) => {
-    try {
-        const contests = await Contest.find({
-            contestStartTime: { $gt: new Date() }, contestFor: "College", contestStatus:"Active"
-        },
-        {
-            allowedUsers: 0,
-            potentialParticipants: 0,
-            contestSharedBy: 0,
-            purchaseIntent: 0
-        })
-        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
-        .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
-        .populate('portfolio', 'portfolioName _id portfolioValue')
-        .sort({ contestStartTime: 1 })
+// exports.getCollegeUserUpcomingContests = async (req, res) => {
+//     try {
+//         const contests = await Contest.find({
+//             contestStartTime: { $gt: new Date() }, contestFor: "College", contestStatus:"Active"
+//         },
+//         {
+//             allowedUsers: 0,
+//             potentialParticipants: 0,
+//             contestSharedBy: 0,
+//             purchaseIntent: 0
+//         })
+//         .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+//         .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+//         .populate('portfolio', 'portfolioName _id portfolioValue')
+//         .sort({ contestStartTime: 1 })
 
-        res.status(200).json({
-            status: "success",
-            message: "Upcoming contests fetched successfully",
-            data: contests
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: "error",
-            message: "Error in fetching upcoming contests",
-            error: error.message
-        });
-    }
+//         res.status(200).json({
+//             status: "success",
+//             message: "Upcoming contests fetched successfully",
+//             data: contests
+//         });
+//     } catch (error) {
+//         res.status(500).json({
+//             status: "error",
+//             message: "Error in fetching upcoming contests",
+//             error: error.message
+//         });
+//     }
+// };
+exports.getCollegeUserUpcomingContests = async (req, res) => {
+  try {
+      const userId = req.user._id; // Or however you get the current user's ID
+
+      const contests = await Contest.find({
+          contestStartTime: { $gte: new Date() }, 
+          contestFor: "College", 
+          contestStatus: "Active",
+          potentialParticipants: { $elemMatch: { $eq: userId } } // checks if the user is in the potentialParticipants array
+      },
+      {
+          allowedUsers: 0,
+          potentialParticipants: 0,
+          contestSharedBy: 0,
+          purchaseIntent: 0
+      })
+      .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+      .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+      .populate('portfolio', 'portfolioName _id portfolioValue')
+      .sort({ contestStartTime: 1 });
+
+      res.status(200).json({
+          status: "success",
+          message: "Upcoming contests fetched successfully",
+          data: contests
+      });
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Error in fetching upcoming contests",
+          error: error.message
+      });
+  }
 };
+
 
 exports.getUserUpcomingContests = async (req, res) => {
     try {
@@ -474,38 +503,75 @@ exports.getUserLiveContests = async (req, res) => {
     }
 };
 
-exports.getCollegeUserLiveContests = async (req, res) => {
-    try {
-        const contests = await Contest.find({
-            contestStartTime: { $lte: new Date() },
-            contestEndTime: { $gte: new Date() },
-            contestFor: "College", 
-            contestStatus:"Active"
-        },
-        {
-            allowedUsers: 0,
-            potentialParticipants: 0,
-            contestSharedBy: 0,
-            purchaseIntent: 0
-        })
-        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
-        .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
-        .populate('portfolio', 'portfolioName _id portfolioValue')
-        .sort({ contestStartTime: 1 })
+// exports.getCollegeUserLiveContests = async (req, res) => {
+//     try {
+//         const contests = await Contest.find({
+//             contestStartTime: { $lte: new Date() },
+//             contestEndTime: { $gte: new Date() },
+//             contestFor: "College", 
+//             contestStatus:"Active"
+//         },
+//         {
+//             allowedUsers: 0,
+//             potentialParticipants: 0,
+//             contestSharedBy: 0,
+//             purchaseIntent: 0
+//         })
+//         .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+//         .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+//         .populate('portfolio', 'portfolioName _id portfolioValue')
+//         .sort({ contestStartTime: 1 })
 
-        res.status(200).json({
-            status: "success",
-            message: "Upcoming contests fetched successfully",
-            data: contests
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: "error",
-            message: "Error in fetching upcoming contests",
-            error: error.message
-        });
-    }
+//         res.status(200).json({
+//             status: "success",
+//             message: "Upcoming contests fetched successfully",
+//             data: contests
+//         });
+//     } catch (error) {
+//         res.status(500).json({
+//             status: "error",
+//             message: "Error in fetching upcoming contests",
+//             error: error.message
+//         });
+//     }
+// };
+
+exports.getCollegeUserLiveContests = async (req, res) => {
+  try {
+      const userId = req.user._id; // Or however you get the current user's ID
+
+      const contests = await Contest.find({
+        contestStartTime: { $lte: new Date() },
+        contestEndTime: { $gte: new Date() },
+        contestFor: "College", 
+        contestStatus:"Active",
+        potentialParticipants: { $elemMatch: { $eq: userId } } // checks if the user is in the potentialParticipants array
+      },
+      {
+          allowedUsers: 0,
+          potentialParticipants: 0,
+          contestSharedBy: 0,
+          purchaseIntent: 0
+      })
+      .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+      .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+      .populate('portfolio', 'portfolioName _id portfolioValue')
+      .sort({ contestStartTime: 1 });
+
+      res.status(200).json({
+          status: "success",
+          message: "Upcoming contests fetched successfully",
+          data: contests
+      });
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Error in fetching upcoming contests",
+          error: error.message
+      });
+  }
 };
+
 // Controller for getting upcoming contests getAdminUpcomingContests
 exports.getOnlyUpcomingContests = async (req, res) => {
     try {
@@ -536,21 +602,25 @@ exports.getOnlyUpcomingContests = async (req, res) => {
 
 // Controller for getting upcoming contests getAdminUpcomingContests
 exports.getAdminUpcomingContests = async (req, res) => {
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await Contest.countDocuments({contestStatus:"Active", featured: false})
     try {
         const contests = await Contest.find({
-            contestStartTime: { $gt: new Date() }, contestStatus:"Active"
+            contestStartTime: { $gt: new Date() }, contestStatus:"Active", featured: false,
         }).populate('portfolio', 'portfolioName _id portfolioValue')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
             .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
             .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
             .populate('college', 'collegeName zone')
-            .sort({ contestStartTime: 1 })
+            .sort({ contestStartTime: 1 }).skip(skip).limit(limit)
 
         res.status(200).json({
             status: "success",
-            message: "Upcoming contests fetched successfully",
-            data: contests
+            message: "StoxHero Upcoming contests fetched successfully",
+            data: contests,
+            count: count
         });
     } catch (error) {
         res.status(500).json({
@@ -559,6 +629,128 @@ exports.getAdminUpcomingContests = async (req, res) => {
             error: error.message
         });
     }
+};
+
+exports.getFeaturedUpcomingContests = async (req, res) => {
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await Contest.countDocuments({contestStatus:"Active", featured:true})
+  try {
+      const contests = await Contest.find({
+          contestStartTime: { $gt: new Date() }, contestStatus:"Active", featured:true,
+      }).populate('portfolio', 'portfolioName _id portfolioValue')
+          .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+          .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
+          .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+          .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
+          .populate('college', 'collegeName zone')
+          .sort({ contestStartTime: 1 }).skip(skip).limit(limit)
+
+      res.status(200).json({
+          status: "success",
+          message: "Featured Upcoming contests fetched successfully",
+          data: contests,
+          count: count
+      });
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Error in fetching upcoming contests",
+          error: error.message
+      });
+  }
+};
+
+exports.getFeaturedOngoingContests = async (req, res) => {
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await Contest.countDocuments({contestStartTime: { $lte: new Date() }, contestEndTime: { $gte: new Date() }, featured: true})
+  try {
+      const contests = await Contest.find({
+          contestStartTime: { $lte: new Date() },
+          contestEndTime: { $gte: new Date() },
+          feeatured: true
+      },
+      {
+          allowedUsers: 0,
+          potentialParticipants: 0,
+          contestSharedBy: 0,
+          purchaseIntent: 0
+      }
+      ).sort({ contestStartTime: 1 }).skip(skip).limit(limit)
+      res.status(200).json({
+          status: "success",
+          message: "Featured Ongoing Contests fetched successfully",
+          data: contests,
+          count: count
+      });
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Error in fetching featured Ongoing Contests",
+          error: error.message
+      });
+  }
+};
+
+exports.getCollegeUpcomingContests = async (req, res) => {
+  try {
+      const contests = await Contest.find({
+          contestStartTime: { $gt: new Date() }, contestStatus:"Active", contestFor:"College",
+      }).populate('portfolio', 'portfolioName _id portfolioValue')
+          .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+          .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
+          .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+          .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
+          .populate('college', 'collegeName zone')
+          .sort({ contestStartTime: 1 })
+
+      res.status(200).json({
+          status: "success",
+          message: "Featured Upcoming contests fetched successfully",
+          data: contests
+      });
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Error in fetching upcoming contests",
+          error: error.message
+      });
+  }
+};
+
+exports.getCollegeOngoingContests = async (req, res) => {
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await Contest.countDocuments({contestStartTime: { $lte: new Date() }, contestEndTime: { $gte: new Date() }, contestFor: "College"})
+  try {
+      const contests = await Contest.find({
+          contestStartTime: { $lte: new Date() },
+          contestEndTime: { $gte: new Date() },
+          contestFor: "College"
+      },
+      {
+          allowedUsers: 0,
+          potentialParticipants: 0,
+          contestSharedBy: 0,
+          purchaseIntent: 0
+      }
+      ).populate('college', 'collegeName zone')
+      .populate('portfolio', 'portfolioName _id portfolioValue')
+      .sort({ contestStartTime: 1 }).skip(skip).limit(limit)
+      res.status(200).json({
+          status: "success",
+          message: "Ongoing College Contests fetched successfully",
+          data: contests,
+          count: count
+      });
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Error in fetching Ongoing College Contests",
+          error: error.message
+      });
+  }
 };
 
 // Controller for getting todaysContest contests getAdminUpcomingContests
@@ -591,6 +783,9 @@ exports.todaysContest = async (req, res) => {
 
 // Controller for getting ongoing contest
 exports.ongoingContest = async (req, res) => {
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+    const count = await Contest.countDocuments({contestStartTime: { $lte: new Date() }, contestEndTime: { $gte: new Date() }, contestFor: "StoxHero"})
     try {
         const contests = await Contest.find({
             contestStartTime: { $lte: new Date() },
@@ -603,11 +798,12 @@ exports.ongoingContest = async (req, res) => {
             contestSharedBy: 0,
             purchaseIntent: 0
         }
-        ).sort({ contestStartTime: 1 })
+        ).sort({ contestStartTime: 1 }).skip(skip).limit(limit)
         res.status(200).json({
             status: "success",
             message: "ongoing contests fetched successfully",
-            data: contests
+            data: contests,
+            count: count
         });
     } catch (error) {
         res.status(500).json({
@@ -674,6 +870,10 @@ exports.getUpcomingCollegeContests = async (req, res) => {
 };
 
 exports.getCommpletedContestsAdmin = async (req, res) => {
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+    const count = await Contest.countDocuments({contestStatus: 'Completed'})
+    console.log("Details:",skip,limit,count)
     try {
         const contests = await Contest.find({ contestStatus: 'Completed' })
             .populate('portfolio', 'portfolioName _id portfolioValue')
@@ -681,13 +881,15 @@ exports.getCommpletedContestsAdmin = async (req, res) => {
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
             .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
             .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
-            .sort({ contestStartTime: -1 })
+            .sort({ contestStartTime: -1 }).skip(skip).limit(limit)
         res.status(200).json({
             status: "success",
             message: "Upcoming contests fetched successfully",
-            data: contests
+            data: contests,
+            count: count,
         });
     } catch (error) {
+      console.log(error)
         res.status(500).json({
             status: "error",
             message: "Error in fetching upcoming contests",
@@ -1747,7 +1949,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
         const userId = req.user._id;
         const result = await exports.handleSubscriptionDeduction(userId, contestFee, contestName, contestId, coupon, bonusRedemption);
         
-        res.status(result.stautsCode).json(result.data);
+        res.status(result.statusCode).json(result.data);
     } catch (error) {
         console.log(error)
         res.status(500).json({
