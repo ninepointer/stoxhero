@@ -536,7 +536,7 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
         const filteredBody = filterObj(req.body, 'name', 'first_name', 'last_name', 'email', 'mobile','gender', 
         'whatsApp_number', 'dob', 'address', 'city', 'state', 'country', 'last_occupation', 'family_yearly_income',
         'employeed', 'upiId','googlePay_number','payTM_number','phonePe_number','bankName','nameAsPerBankAccount','accountNumber',
-        'ifscCode','aadhaarNumber','degree','panNumber','passportNumber','drivingLicenseNumber','pincode', 'KYCStatus'
+        'ifscCode', 'bankState','aadhaarNumber','degree','panNumber','passportNumber','drivingLicenseNumber','pincode', 'KYCStatus'
         );
         if(filteredBody.KYCStatus == 'Approved') {
           filteredBody.KYCStatus = 'Rejected';
@@ -544,10 +544,11 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
           filteredBody.KYCActionDate = new Date();
         }
         if(filteredBody.KYCStatus == 'Pending Approval'){
-          let aadhaarNumber, panNumber;
+          let aadhaarNumber, panNumber, dob;
           aadhaarNumber = filteredBody.aadhaarNumber;
           panNumber = filteredBody.panNumber;
-          const users = await UserDetail.find({KYCStatus:'Approved', $or:[{aadhaarNumber:aadhaarNumber}, {panNumber:panNumber}]});
+          dob = filteredBody.dob;
+          const users = await UserDetail.find({KYCStatus:'Approved', $or:[{aadhaarNumber:aadhaarNumber}, {panNumber:panNumber}, {dob:dob}]});
           if(users.length>1){
             filteredBody.KYCStatus = 'Rejected';
             filteredBody.rejectionReason = 'Aadhaar or PAN number is already in use.'
@@ -627,7 +628,7 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
                 <h1>KYC Verification Request Received</h1>
                 <p>Hello ${user.first_name},</p>
                 <p>Your request for KYC verification is received by stoxhero team.</p>
-                <p>We will be verifying your documents and information in the next 3-4 business days. The final KYC Status will be intimated to you via mail and it will also be reflected in your profile section.</p>
+                <p>We will be verifying your documents and information in the next 24-48 working hours. The final KYC Status will be intimated to you via mail and it will also be reflected in your profile section.</p>
                 <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
                 <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
                 <br/><br/>
@@ -714,7 +715,7 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
             filteredBody[key]=""
           }
         }
-        console.log('body',filteredBody)
+        
         const userData = await UserDetail.findByIdAndUpdate(user._id, filteredBody, {new: true});
     
         res.status(200).json({message:'Edit successful',status:'success',data: userData});

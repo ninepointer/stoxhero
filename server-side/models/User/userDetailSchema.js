@@ -202,6 +202,10 @@ const userDetailSchema = new mongoose.Schema({
         type: String,
         // required: true
     },
+    bankState:{
+        type: String,
+        // required: true
+    },
     accountNumber:{
         type: String,
         // required: true
