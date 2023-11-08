@@ -85,6 +85,126 @@ const CareerApplication = require("../../models/Careers/careerApplicationSchema"
 
 
 
+router.get('/tenxremove', async(req,res) =>{
+  const subscription = await TenxSubscription.aggregate([
+    {
+      $unwind: {
+        path: "$users",
+      },
+    },
+    {
+      $match: {
+        "users.expiredOn": {
+          $gte: new Date("2023-11-06"),
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        subscriptionId: "$_id",
+        docId: "$users._id",
+        dateDifference: {
+          $divide: [
+            {
+              $subtract: [
+                "$users.expiredOn",
+                "$users.subscribedOn",
+              ],
+            },
+            1000 * 60 * 60 * 24,
+          ],
+        },
+      },
+    },
+    {
+      $match: {
+        dateDifference: {
+          $gte: 35,
+        },
+      },
+    },
+  ])
+
+  console.log("subscription", subscription)
+
+  const user = await UserDetail.aggregate([
+    {
+      $unwind: {
+        path: "$subscription",
+      },
+    },
+    {
+      $match: {
+        "subscription.expiredOn": {
+          $gte: new Date("2023-11-06"),
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        userId: "$_id",
+        docId: "$subscription._id",
+        dateDifference: {
+          $divide: [
+            {
+              $subtract: [
+                "$subscription.expiredOn",
+                "$subscription.subscribedOn",
+              ],
+            },
+            1000 * 60 * 60 * 24,
+          ],
+        },
+      },
+    },
+    {
+      $match: {
+        dateDifference: {
+          $gte: 35,
+        },
+      },
+    },
+  ])
+
+  console.log("user", user)
+
+  for(let elem of subscription){
+    const subs = await TenxSubscription.findOne({_id: elem.subscriptionId})
+    for(let subelem of subs.users){
+      if(subelem._id.toString() === elem.docId.toString()){
+        console.log("subs", subelem)
+        subelem.payout = "",
+        subelem.expiredOn = "",
+        // subelem.expiredBy = "",
+        subelem.tdsAmount = "",
+        subelem.status = "Live"
+
+        await subs.save();
+        break;
+      }
+    }
+  }
+
+  for(let elem of user){
+    const users = await UserDetail.findOne({_id: elem.userId})
+    for(let subelem of users.subscription){
+      if(subelem._id.toString() === elem.docId.toString()){
+        console.log("user", subelem)
+        subelem.payout = "",
+        subelem.expiredOn = "",
+        // subelem.expiredBy = "",
+        subelem.tdsAmount = "",
+        subelem.status = "Live"
+
+        await users.save();
+        break;
+      }
+    }
+  }
+})
+
 router.get('/careerapplication', async(req,res) =>{
   console.log("data")
     const c = await CareerApplication.aggregate([
