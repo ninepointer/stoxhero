@@ -469,3 +469,18 @@ exports.registeredCount = async (req, res, next) => {
 
 
 }
+exports.getRegistrations = async(req,res, next) => {
+    console.log('here');
+    const {id} = req.params;
+    try{
+        const regs = await ContestRegistration.find({contest: new ObjectId(id), status:'OTP Verified'})
+        res.status(200).json({status:'success', message:'successfully fetched', data:regs});
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            status: "error",
+            message: "Error in fetching upcoming contests",
+            error: error.message
+        });
+    }
+}
