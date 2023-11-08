@@ -235,36 +235,6 @@ export default function Dashboard() {
       
         <Grid container spacing={0.75} xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='space-between' alignItems='start' flexDirection='row'>
 
-
-        {/* <Grid item xs={12} md={12} lg={3} mt={1} display='flex' justifyContent="center" alignItems="top">
-        
-          <Grid container xs={12} md={12} lg={12} mb={1} display="flex" justifyContent="center" alignItems="top">
-            
-            <Grid item xs={12} md={6} lg={12}>
-              <MDBox style={{ backgroundColor: "white", borderRadius: 5, alignItems: 'center' }}>
-                <MDTypography style={{textAlign:'center'}} fontSize={15} color='dark' fontWeight='bold'>Upcoming Contests</MDTypography>
-                <ContestCard/>
-              </MDBox>
-            </Grid>
-
-            <Grid item xs={12} md={6} lg={12}>
-              <MDBox style={{ backgroundColor: "white", borderRadius: 5, alignItems: 'center' }}>
-                <MDTypography style={{textAlign:'center'}} fontSize={15} color='dark' fontWeight='bold'>Upcoming Battles</MDTypography>
-                <ContestCard/>
-              </MDBox>
-            </Grid>
-
-            <Grid item xs={12} md={6} lg={12}>
-              <MDBox style={{ backgroundColor: "white", borderRadius: 5, alignItems: 'center' }}>
-                <MDTypography style={{textAlign:'center'}} fontSize={15} color='dark' fontWeight='bold'>Upcoming Contests</MDTypography>
-                <ContestCard/>
-              </MDBox>
-            </Grid>
-
-          </Grid>
-
-        </Grid> */}
-
         <Grid item xs={12} md={12} lg={12} display='flex' justifyContent="center" alignItems="center">
         
         <Grid container xs={12} md={12} lg={12} mb={1} display="flex" justifyContent="center" alignItems="center">

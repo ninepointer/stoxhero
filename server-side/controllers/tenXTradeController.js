@@ -14,6 +14,7 @@ const moment = require('moment');
 const mongoose = require('mongoose');
 const {createUserNotification} = require('../controllers/notification/notificationController');
 const Setting = require("../models/settings/setting")
+const PendingOrder = require("../models/PendingOrder/pendingOrderSchema")
 
 exports.overallPnl = async (req, res, next) => {
   let isRedisConnected = getValue();
@@ -24,7 +25,7 @@ exports.overallPnl = async (req, res, next) => {
   let timeElem = subs.users.filter((elem)=>{
     return (elem.userId.toString() === userId.toString() && elem.status === "Live");
   })
-  const time = timeElem[0].subscribedOn;
+  const time = timeElem[0]?.subscribedOn;
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
@@ -50,7 +51,7 @@ exports.overallPnl = async (req, res, next) => {
 
     } else {
 
-      let pnlDetails = await TenXTrader.aggregate([
+      const pnlDetails = await TenXTrader.aggregate([
         {
           $match: {
             trade_time_utc: {
@@ -68,7 +69,10 @@ exports.overallPnl = async (req, res, next) => {
               product: "$Product",
               instrumentToken: "$instrumentToken",
               exchangeInstrumentToken: "$exchangeInstrumentToken",
-              exchange: "$exchange"
+              exchange: "$exchange",
+              validity: "$validity",
+              variety: "$variety",
+              // order_type: "$order_type"
             },
             amount: {
               $sum: { $multiply: ["$amount", -1] },
@@ -86,6 +90,9 @@ exports.overallPnl = async (req, res, next) => {
             lastaverageprice: {
               $last: "$average_price",
             },
+            margin: {
+              $last: "$margin",
+            },
           },
         },
         {
@@ -94,12 +101,82 @@ exports.overallPnl = async (req, res, next) => {
           },
         },
       ])
+
+      const limitMargin = await PendingOrder.aggregate([
+        {
+          $match: {
+            createdBy: new ObjectId(
+              userId
+            ),
+            type: "Limit",
+            status: "Pending",
+            createdOn: {
+              $gte: today,
+            },
+            product_type: new ObjectId("6517d3803aeb2bb27d650de0")
+          },
+        },
+        {
+          $group:
+          {
+            _id: {
+              symbol: "$symbol",
+              product: "$Product",
+              instrumentToken: "$instrumentToken",
+              exchangeInstrumentToken: "$exchangeInstrumentToken",
+              exchange: "$exchange",
+              validity: "$validity",
+              variety: "$variety",
+              // order_type: "$order_type"
+            },
+            amount: {
+              $sum: { $multiply: ["$amount", -1] },
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$brokerage",
+              },
+            },
+            lots: {
+              $sum: {
+                $toInt: "$Quantity",
+              },
+            },
+            margin: {
+              $last: "$margin",
+            },
+          }
+        }
+      ])
+
+      const arr = [];
+      for(let elem of limitMargin){
+        arr.push({
+          _id: {
+            symbol: elem._id.symbol,
+            product: elem._id.product,
+            instrumentToken: elem._id.instrumentToken,
+            exchangeInstrumentToken: elem._id.exchangeInstrumentToken,
+            exchange: elem._id.exchange,
+            validity: elem._id.validity,
+            variety: elem._id.variety,
+            isLimit: true
+          },
+          // amount: (tenxDoc.amount * -1),
+          // brokerage: Number(tenxDoc.brokerage),
+          lots: Number(elem.lots),
+          // lastaverageprice: tenxDoc.average_price,
+          margin: elem.margin
+        });
+      }
+
+      const newPnl = pnlDetails.concat(arr);
       if (isRedisConnected) {
-        await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlDetails))
+        await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(newPnl))
         await client.expire(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, secondsRemaining);
       }
 
-      res.status(201).json({ message: "pnl received", data: pnlDetails });
+      res.status(201).json({ message: "pnl received", data: newPnl });
     }
 
   } catch (e) {
@@ -126,7 +203,7 @@ exports.myTodaysTrade = async (req, res, next) => {
   const count = await TenXTrader.countDocuments({ subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time_utc: { $gte: today } })
   // console.log("Under my today orders", userId, today)
   try {
-    const myTodaysTrade = await TenXTrader.find({ subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time_utc: { $gte: today } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time_utc': 1, 'order_id': 1, 'subscriptionId': 1 }).populate('subscriptionId', 'plan_name')
+    const myTodaysTrade = await TenXTrader.find({ subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time_utc: { $gte: today } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time_utc': 1, 'order_id': 1, 'subscriptionId': 1, '_id': 1 }).populate('subscriptionId', 'plan_name')
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
@@ -141,8 +218,8 @@ exports.myTodaysTrade = async (req, res, next) => {
 exports.myHistoryTrade = async (req, res, next) => {
 
   let {subscriptionId, subscribedOn, expiredOn  } = req.params;
-  expiredOn = expiredOn && new Date(expiredOn);
-  subscribedOn = subscribedOn && new Date(subscribedOn);
+  expiredOn = expiredOn ? new Date(expiredOn) : new Date();
+  subscribedOn = subscribedOn ? new Date(subscribedOn): new Date();
 
   const userId = req.user._id;
   let date = new Date();
@@ -158,7 +235,7 @@ exports.myHistoryTrade = async (req, res, next) => {
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
   const count = await TenXTrader.countDocuments({subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time_utc: {$gte: subscribedOn, $lt: expiredOn } })
-  // console.log("Under my today orders", userId, today)
+  console.log("Under my today orders", subscriptionId, subscribedOn, expiredOn, userId)
   try {
     const myHistoryTrade = await TenXTrader.find({subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time_utc: {$gte: subscribedOn, $lt: expiredOn } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time_utc': 1, 'order_id': 1, 'subscriptionId': 1 }).populate('subscriptionId', 'plan_name')
       .sort({ _id: -1 })
@@ -1250,7 +1327,7 @@ exports.overallTenXPnlYesterday = async (req, res, next) => {
 
   res.status(201).json({
     message: "pnl received", 
-    data: pnlDetailsData, 
+    data: pnlDetailsData ? pnlDetailsData : [], 
     results: pnlDetailsData ? pnlDetailsData.length : 0, 
     date: date
   });

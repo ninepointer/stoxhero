@@ -420,43 +420,88 @@ exports.letestTradeMock = async (pnlData) => {
 }
 
 //--------contest-------------------------
-exports.overallpnlDailyContest = async (pnlData, trader, data, contestId)=>{
-  // console.log("in overallLivePnlRedis", pnlData)
+exports.overallpnlDailyContest = async (pnlData, trader, data, contestId, fromPlaceLimit)=>{
   const isRedisConnected = getValue();
+  // console.log(pnlData)
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
   if(isRedisConnected && await client.exists(`${trader.toString()}${contestId.toString()} overallpnlDailyContest`)){
-    // let pnl = await client.get(`${trader.toString()} overallpnl`)
     pnl = JSON.parse(data);
-    // console.log("redis pnl", pnl)
-    const matchingElement = pnl.find((element) => (element._id.instrumentToken === pnlData.instrumentToken && element._id.product === pnlData.Product ));
-    // if instrument is same then just updating value
-    if (matchingElement) {
-      // Update the values of the matching element with the values of the first document
-      matchingElement.amount += (pnlData.amount * -1);
-      matchingElement.brokerage += Number(pnlData.brokerage);
-      matchingElement.lastaverageprice = pnlData.average_price;
-      matchingElement.lots += Number(pnlData.Quantity);
 
-    } else {
-      // Create a new element if instrument is not matching
-      pnl.push({
-        _id: {
-          symbol: pnlData.symbol,
-          product: pnlData.Product,
-          instrumentToken: pnlData.instrumentToken,
-          exchangeInstrumentToken: pnlData.exchangeInstrumentToken,
-          exchange: pnlData.exchange,
-        },
-        amount: (pnlData.amount * -1),
-        brokerage: Number(pnlData.brokerage),
-        lots: Number(pnlData.Quantity),
-        lastaverageprice: pnlData.average_price,
+    if(pnlData.order_type === "LIMIT" && !fromPlaceLimit){
+      // const matchingElement = pnl.find((element) => (element._id.instrumentToken === pnlData.instrumentToken && element._id.product === pnlData.Product && pnlData.order_type === "LIMIT" && element._id.isLimit ));
+      const matchingElement = pnl.find((element) => 
+      {
+        const type = element.lots >= 0 ? "BUY" : "SELL"
+        return (element._id.instrumentToken === pnlData.instrumentToken && element._id.product === pnlData.Product && pnlData.order_type === "LIMIT" && element._id.isLimit && type===pnlData.buyOrSell  )
+
       });
+      // if instrument is same then just updating value
+      if (matchingElement) {
+        // Update the values of the matching element with the values of the first document
+        matchingElement.amount += (pnlData.amount * -1);
+        matchingElement.brokerage += Number(pnlData.brokerage);
+        matchingElement.lastaverageprice = pnlData.average_price;
+        matchingElement.lots += Number(pnlData.Quantity);
+        matchingElement.margin += pnlData.margin;
+        matchingElement._id.isLimit = true;
+
+      } else {
+        // Create a new element if instrument is not matching
+        pnl.push({
+          _id: {
+            symbol: pnlData.symbol,
+            product: pnlData.Product,
+            instrumentToken: pnlData.instrumentToken,
+            exchangeInstrumentToken: pnlData.exchangeInstrumentToken,
+            exchange: pnlData.exchange,
+            validity: pnlData.validity,
+            variety: pnlData.variety,                
+
+            isLimit: true
+          },
+          amount: (pnlData.amount * -1),
+          brokerage: Number(pnlData.brokerage),
+          lots: Number(pnlData.Quantity),
+          lastaverageprice: pnlData.average_price,
+          margin: pnlData.margin
+  
+        });
+      }
+    } else{
+      const matchingElement = pnl.find((element) => (element._id.instrumentToken === pnlData.instrumentToken && element._id.product === pnlData.Product && !element._id.isLimit ));
+      // if instrument is same then just updating value
+      if (matchingElement) {
+        // Update the values of the matching element with the values of the first document
+        matchingElement.amount += (pnlData.amount * -1);
+        matchingElement.brokerage += Number(pnlData.brokerage);
+        matchingElement.lastaverageprice = pnlData.average_price;
+        matchingElement.lots += Number(pnlData.Quantity);
+        matchingElement.margin = pnlData.margin;
+  
+      } else {
+        // Create a new element if instrument is not matching
+        pnl.push({
+          _id: {
+            symbol: pnlData.symbol,
+            product: pnlData.Product,
+            instrumentToken: pnlData.instrumentToken,
+            exchangeInstrumentToken: pnlData.exchangeInstrumentToken,
+            exchange: pnlData.exchange,
+            validity: pnlData.validity,
+            variety: pnlData.variety,   
+          },
+          amount: (pnlData.amount * -1),
+          brokerage: Number(pnlData.brokerage),
+          lots: Number(pnlData.Quantity),
+          lastaverageprice: pnlData.average_price,
+          margin: pnlData.margin
+  
+        });
+      }
     }
-    // settingRedis = await client.set(`${trader.toString()} overallpnl`, JSON.stringify(pnl))
 
     return  JSON.stringify(pnl);
   } else{
@@ -495,6 +540,9 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId)=>{
           },
           lastaverageprice: {
             $last: "$average_price",
+          },
+          margin: {
+            $last: "$margin",
           },
         },
       },
@@ -835,44 +883,118 @@ exports.lastTradeDataMockDailyContest = async (pnlData, contestId) => {
 
 //----------------marginx-------------------
 
-exports.overallpnlMarginX = async (pnlData, trader, data, marginxId)=>{
-  // console.log("in overallLivePnlRedis", pnlData)
+exports.overallpnlMarginX = async (pnlData, trader, data, marginxId, fromPlaceLimit)=>{
+  console.log("in overallLivePnlRedis", pnlData)
   const isRedisConnected = getValue();
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
   if(isRedisConnected && await client.exists(`${trader.toString()}${marginxId.toString()} overallpnlMarginX`)){
-    // let pnl = await client.get(`${trader.toString()} overallpnl`)
     pnl = JSON.parse(data);
-    // console.log("redis pnl", pnl)
-    const matchingElement = pnl.find((element) => (element._id.instrumentToken === pnlData.instrumentToken && element._id.product === pnlData.Product ));
+    // const matchingElement = pnl.find((element) => (element._id.instrumentToken === pnlData.instrumentToken && element._id.product === pnlData.Product ));
     // if instrument is same then just updating value
-    if (matchingElement) {
-      // Update the values of the matching element with the values of the first document
-      matchingElement.amount += (pnlData.amount * -1);
-      matchingElement.brokerage += Number(pnlData.brokerage);
-      matchingElement.lastaverageprice = pnlData.average_price;
-      matchingElement.lots += Number(pnlData.Quantity);
+    // if (matchingElement) {
+    //   // Update the values of the matching element with the values of the first document
+    //   matchingElement.amount += (pnlData.amount * -1);
+    //   matchingElement.brokerage += Number(pnlData.brokerage);
+    //   matchingElement.lastaverageprice = pnlData.average_price;
+    //   matchingElement.lots += Number(pnlData.Quantity);
+    //   matchingElement.margin = pnlData.margin;
 
-    } else {
-      // Create a new element if instrument is not matching
-      pnl.push({
-        _id: {
-          symbol: pnlData.symbol,
-          product: pnlData.Product,
-          instrumentToken: pnlData.instrumentToken,
-          exchangeInstrumentToken: pnlData.exchangeInstrumentToken,
-          exchange: pnlData.exchange,
-        },
-        amount: (pnlData.amount * -1),
-        brokerage: Number(pnlData.brokerage),
-        lots: Number(pnlData.Quantity),
-        lastaverageprice: pnlData.average_price,
+    // } else {
+    //   // Create a new element if instrument is not matching
+    //   pnl.push({
+    //     _id: {
+    //       symbol: pnlData.symbol,
+    //       product: pnlData.Product,
+    //       instrumentToken: pnlData.instrumentToken,
+    //       exchangeInstrumentToken: pnlData.exchangeInstrumentToken,
+    //       exchange: pnlData.exchange,
+    //     },
+    //     amount: (pnlData.amount * -1),
+    //     brokerage: Number(pnlData.brokerage),
+    //     lots: Number(pnlData.Quantity),
+    //     lastaverageprice: pnlData.average_price,
+    //     margin: pnlData.margin
+    //   });
+    // }
+
+
+
+    if(pnlData.order_type === "LIMIT" && !fromPlaceLimit){
+      // const matchingElement = pnl.find((element) => (element._id.instrumentToken === pnlData.instrumentToken && element._id.product === pnlData.Product && pnlData.order_type === "LIMIT" && element._id.isLimit ));
+      // if instrument is same then just updating value
+      const matchingElement = pnl.find((element) => 
+      {
+        const type = element.lots >= 0 ? "BUY" : "SELL"
+        return (element._id.instrumentToken === pnlData.instrumentToken && element._id.product === pnlData.Product && pnlData.order_type === "LIMIT" && element._id.isLimit && type===pnlData.buyOrSell  )
+
       });
+      if (matchingElement) {
+        // Update the values of the matching element with the values of the first document
+        matchingElement.amount += (pnlData.amount * -1);
+        matchingElement.brokerage += Number(pnlData.brokerage);
+        matchingElement.lastaverageprice = pnlData.average_price;
+        matchingElement.lots += Number(pnlData.Quantity);
+        matchingElement.margin += pnlData.margin;
+        matchingElement._id.isLimit = true;
+
+      } else {
+        // Create a new element if instrument is not matching
+        pnl.push({
+          _id: {
+            symbol: pnlData.symbol,
+            product: pnlData.Product,
+            instrumentToken: pnlData.instrumentToken,
+            exchangeInstrumentToken: pnlData.exchangeInstrumentToken,
+            exchange: pnlData.exchange,
+            validity: pnlData.validity,
+            variety: pnlData.variety,   
+            isLimit: true
+          },
+          amount: (pnlData.amount * -1),
+          brokerage: Number(pnlData.brokerage),
+          lots: Number(pnlData.Quantity),
+          lastaverageprice: pnlData.average_price,
+          margin: pnlData.margin
+  
+        });
+      }
+    } else{
+      const matchingElement = pnl.find((element) => (element._id.instrumentToken === pnlData.instrumentToken && element._id.product === pnlData.Product && !element._id.isLimit ));
+      // if instrument is same then just updating value
+      if (matchingElement) {
+        // Update the values of the matching element with the values of the first document
+        matchingElement.amount += (pnlData.amount * -1);
+        matchingElement.brokerage += Number(pnlData.brokerage);
+        matchingElement.lastaverageprice = pnlData.average_price;
+        matchingElement.lots += Number(pnlData.Quantity);
+        matchingElement.margin = pnlData.margin;
+  
+      } else {
+        // Create a new element if instrument is not matching
+        pnl.push({
+          _id: {
+            symbol: pnlData.symbol,
+            product: pnlData.Product,
+            instrumentToken: pnlData.instrumentToken,
+            exchangeInstrumentToken: pnlData.exchangeInstrumentToken,
+            exchange: pnlData.exchange,
+            validity: pnlData.validity,
+            variety: pnlData.variety,
+          },
+          amount: (pnlData.amount * -1),
+          brokerage: Number(pnlData.brokerage),
+          lots: Number(pnlData.Quantity),
+          lastaverageprice: pnlData.average_price,
+          margin: pnlData.margin
+  
+        });
+      }
     }
-    // settingRedis = await client.set(`${trader.toString()} overallpnl`, JSON.stringify(pnl))
-    // console.log("pnl", pnl)
+
+
     return  JSON.stringify(pnl);
   } else{
 
@@ -912,6 +1034,9 @@ exports.overallpnlMarginX = async (pnlData, trader, data, marginxId)=>{
           },
           lastaverageprice: {
             $last: "$average_price",
+          },
+          margin: {
+            $last: "$margin",
           },
         },
       },

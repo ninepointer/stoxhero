@@ -14,7 +14,7 @@ const sendMail = require('../utils/emailService');
 const {createUserNotification} = require('./notification/notificationController');
 const mongoose = require('mongoose');
 const Setting = require("../models/settings/setting")
-
+const PendingOrder = require("../models/PendingOrder/pendingOrderSchema")
 
 exports.overallPnl = async (req, res, next) => {
   let isRedisConnected = getValue();
@@ -62,7 +62,9 @@ exports.overallPnl = async (req, res, next) => {
                 instrumentToken: "$instrumentToken",
                 exchangeInstrumentToken: "$exchangeInstrumentToken",
                 exchangeInstrumentToken: "$exchangeInstrumentToken",
-                exchange: "$exchange"
+                exchange: "$exchange",
+                validity: "$validity",
+                variety: "$variety",
               },
               amount: {
                 $sum: {$multiply : ["$amount",-1]},
@@ -80,6 +82,9 @@ exports.overallPnl = async (req, res, next) => {
               lastaverageprice: {
                 $last: "$average_price",
               },
+              margin: {
+                $last: "$margin",
+              },
             },
           },
           {
@@ -88,13 +93,84 @@ exports.overallPnl = async (req, res, next) => {
             },
           },
         ])
+
+        const limitMargin = await PendingOrder.aggregate([
+          {
+            $match: {
+              createdBy: new ObjectId(
+                userId
+              ),
+              type: "Limit",
+              status: "Pending",
+              createdOn: {
+                $gte: today,
+              },
+              product_type: new ObjectId("6517d46e3aeb2bb27d650de3")
+            },
+          },
+          {
+            $group:
+            {
+              _id: {
+                symbol: "$symbol",
+                product: "$Product",
+                instrumentToken: "$instrumentToken",
+                exchangeInstrumentToken: "$exchangeInstrumentToken",
+                exchange: "$exchange",
+                validity: "$validity",
+                variety: "$variety",
+                // order_type: "$order_type"
+              },
+              amount: {
+                $sum: { $multiply: ["$amount", -1] },
+              },
+              brokerage: {
+                $sum: {
+                  $toDouble: "$brokerage",
+                },
+              },
+              lots: {
+                $sum: {
+                  $toInt: "$Quantity",
+                },
+              },
+              margin: {
+                $last: "$margin",
+              },
+            }
+          }
+        ])
+  
+        const arr = [];
+        for(let elem of limitMargin){
+          arr.push({
+            _id: {
+              symbol: elem._id.symbol,
+              product: elem._id.product,
+              instrumentToken: elem._id.instrumentToken,
+              exchangeInstrumentToken: elem._id.exchangeInstrumentToken,
+              exchange: elem._id.exchange,
+              validity: elem._id.validity,
+              variety: elem._id.variety,
+              isLimit: true
+            },
+            // amount: (tenxDoc.amount * -1),
+            // brokerage: Number(tenxDoc.brokerage),
+            lots: Number(elem.lots),
+            // lastaverageprice: tenxDoc.average_price,
+            margin: elem.margin
+          });
+        }
+  
+        const newPnl = pnlDetails.concat(arr);
+  
         // console.log("pnlDetails in else", pnlDetails)
         if(isRedisConnected){
-          await client.set(`${req.user._id.toString()}${batch.toString()}: overallpnlIntern`, JSON.stringify(pnlDetails))
+          await client.set(`${req.user._id.toString()}${batch.toString()}: overallpnlIntern`, JSON.stringify(newPnl))
           await client.expire(`${req.user._id.toString()}${batch.toString()}: overallpnlIntern`, secondsRemaining);  
         }
 
-        res.status(201).json({message: "pnl received", data: pnlDetails});
+        res.status(201).json({message: "pnl received", data: newPnl});
       }
 
     }catch(e){
@@ -2020,3 +2096,14 @@ exports.downloadCompletedInternshipReport = async (req, res) => {
     });
   }
 };
+
+exports.getReferralCount = async(req,res) => {
+  const {id} = req.params;
+  const user = await User.findById(req.user._id)
+  .populate('referrals.referredUserId', 'joining_date')
+  .select("referrals");
+  const elem = await InternBatch.findOne({_id: new ObjectId(id)})
+  .select('batchStatus batchStartDate batchEndDate attendancePercentage referralCount payoutPercentage')
+  const count = await referrals(user, elem);
+  res.status(200).json({status:'success', data:count});
+}

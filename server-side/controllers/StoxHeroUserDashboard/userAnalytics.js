@@ -1515,7 +1515,7 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
     const pipeline = [
       {
         $match:{
-          trade_time : {$gte: new Date('2023-05-01:00:00:00'), $lt: new Date('2023-10-01:00:00:00')}
+          trade_time : {$gte: new Date('2023-05-01:00:00:00'), $lt: new Date('2023-11-01:00:00:00')}
         }
       },
       {
@@ -1571,7 +1571,7 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
         dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
       }
     });
-
+    console.log(dateWiseDAUs)
     tenXTraders.forEach(entry => {
       const { _id, traders, uniqueUsers } = entry;
       const date = _id.date;
@@ -1593,7 +1593,7 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
         dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
       }
     });
-
+    console.log(dateWiseDAUs)
     contestTraders.forEach(entry => {
       const { _id, traders, uniqueUsers } = entry;
       const date = _id.date;
@@ -1615,7 +1615,7 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
         dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
       }
     });
-
+    console.log(dateWiseDAUs)
     internshipTraders.forEach(entry => {
       const { _id, traders, uniqueUsers } = entry;
       const date = _id.date;
@@ -1637,6 +1637,7 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
         dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
       }
     });
+    console.log(dateWiseDAUs)
     marginXTraders.forEach(entry => {
       const { _id, traders, uniqueUsers } = entry;
       const date = _id.date;
@@ -1658,6 +1659,7 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
         dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
       }
     });
+    console.log(dateWiseDAUs)
     battleTraders.forEach(entry => {
       const { _id, traders, uniqueUsers } = entry;
       const date = _id.date;
@@ -1679,7 +1681,7 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
         dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
       }
     });
-
+    console.log(dateWiseDAUs)
     // Calculate the month-wise total MAUs and unique users
     Object.keys(dateWiseDAUs).forEach(date => {
       const { virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, uniqueUsers } = dateWiseDAUs[date];
@@ -1731,6 +1733,99 @@ function calculateAverageForMonth(month, data) {
 
 
 exports.getCummMonthlyActiveUsersOnPlatform = async (req, res) => {
+  try {
+    const pipeline = [
+      {
+        $project: {
+          trade_time: 1,
+          trader: 1,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            month: { $substr: ["$trade_time", 0, 7] },
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id.month",
+          uniqueUsers: { $addToSet: {$toString : "$_id.trader"} }, // Calculate the total number of unique active users
+        },
+      },
+      {
+        $match: {
+          "_id": { $ne: "1970-01" }, // Exclude year 1970
+        },
+      },
+      {
+        $project: {
+          _id:0,
+          month: "$_id",
+          uniqueUsers: 1,
+        },
+      },
+      {
+        $sort: {
+          "month": 1,
+        },
+      },
+    ];
+    
+    const tenXTraders = await TenXTrading.aggregate(pipeline);
+    const virtualTraders = await PaperTrading.aggregate(pipeline);
+    const contestTraders = await ContestTrading.aggregate(pipeline);
+    const internshipTraders = await InternshipTrading.aggregate(pipeline);
+    const marginXTraders = await MarginXTrading.aggregate(pipeline);
+    const battleTraders = await BattleTrading.aggregate(pipeline);
+    
+    let allTraders = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
+
+    let monthToTradersMap = new Map();
+
+    allTraders.forEach(({month, uniqueUsers}) => {
+        if(monthToTradersMap.has(month)) {
+            let existingTradersSet = monthToTradersMap.get(month);
+            uniqueUsers.forEach(trader => existingTradersSet.add(trader));
+        } else {
+            monthToTradersMap.set(month, new Set(uniqueUsers));
+        }
+    });
+
+    let result = Array.from(monthToTradersMap, ([month, traders]) => ({month, uniqueUsers: Array.from(traders), uniqueUsersCount: traders.size}));
+
+    result.sort((a, b) => (a.month > b.month ? 1 : b.month > a.month ? -1 : 0));
+    
+    // console.log("result", result)
+
+    let cumm_data = [];
+    let arr = [];
+    for(let elem of result){
+      arr = [...arr, ...elem.uniqueUsers]
+      cumm_data.push({month: elem.month, count: [...new Set(arr)].length})
+    }
+
+    const response = {
+      status: "success",
+      message: "Monthly Active Users on Platform fetched successfully",
+      data: cumm_data
+    };
+    
+
+
+  res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.getMonthlyPaidUsersOnPlatform = async (req, res) => {
   try {
     const pipeline = [
       {

@@ -8,7 +8,7 @@ import { Box, Grid } from '@mui/material';
 import { ThemeProvider } from 'styled-components';
 import About from './About';
 import Navbar from '../components/Navbars/Navbar';
-import Footer from '../components/Footers/Footer';
+import Footer from '../../authentication/components/Footer';
 import Internship from './Internship';
 import MDTypography from '../../../components/MDTypography';
 import MDButton from '../../../components/MDButton';
@@ -31,10 +31,11 @@ const App = () => {
   }, [])
 
   return (
+    <>
     <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{backgroundColor:'white', minHeight:'100vH', height: 'auto', width: 'auto', minWidth:'100vW'}}>
       <ThemeProvider theme={theme}>
         <Navbar/>
-        <Grid mt={10} display='flex' justifyContent='center' alignContent='center' alignItems='center' container xs={12} md={12} lg={12}>
+        <Grid mt={8} display='flex' justifyContent='center' alignContent='center' alignItems='center' container xs={12} md={12} lg={12}>
           
           <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
             <MDBox  display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
@@ -92,7 +93,7 @@ const App = () => {
 
                 <Grid item xs={12} md={12} lg={12} mt={2} display='flex' justifyContent='center'>
                   <MDTypography fontSize={18} fontWeight="bold" style={{textDecoration:'underline'}}>
-                    Role & Responsibilities
+                    Roles & Responsibilities
                   </MDTypography>
                 </Grid>
                 
@@ -100,7 +101,7 @@ const App = () => {
                   return(
                     <Grid key={elem._id} item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
                       <MDTypography fontSize={15} color="dark">➡️ &nbsp;</MDTypography>
-                      <MDTypography fontSize={15} color="dark" style={{width:'80%'}}>
+                      <MDTypography fontSize={13} color="dark" style={{width:'80%'}}>
                         {elem?.description}
                       </MDTypography>
                     </Grid>
@@ -111,7 +112,7 @@ const App = () => {
                   
                   <MDButton 
                     variant='contained' 
-                    color='warning'
+                    style={{backgroundColor:'#65BA0D', color:'white'}}
                     sx={{width:"200px",height:"30px"}}
                     component={Link} 
                     to={{
@@ -129,6 +130,10 @@ const App = () => {
       </ThemeProvider>
         
     </MDBox>
+    <MDBox>
+      <Footer/>
+    </MDBox>
+    </>
   )
 }
 

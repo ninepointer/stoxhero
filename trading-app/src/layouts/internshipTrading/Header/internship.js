@@ -252,6 +252,23 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
 
   useEffect(()=>{
     if(batchId){
+      axios.get(`${baseUrl}api/v1/internship/my/referrals/${batchId}`,{
+        withCredentials: true,
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true
+          },
+        })
+      .then((api1Response)=>{
+        // console.log(api1Response.data.data)
+        setMyReferralCount(api1Response.data.data)  
+      })
+  }
+  },[batchId])
+
+  useEffect(()=>{
+    if(batchId){
         axios.get(`${baseUrl}api/v1/internship/my/tradingDays/${batchId}`,{
           withCredentials: true,
           headers: {

@@ -15,4 +15,4 @@ const textDecoder = new TextDecoder();
 // Decode the binary data back to the original text
 const decodedData = textDecoder.decode(binaryData);
 
-console.log(decodedData); 
+console.log(decodedData);

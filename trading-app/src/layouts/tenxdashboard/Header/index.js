@@ -658,7 +658,7 @@ export default function LabTabs({socket}) {
         </Grid>
 
         <Grid container xs={12} md={12} lg={12} spacing={2} mt={1}>
-            <Grid item lg={3}>
+            <Grid item xs={12} md={5} lg={5}>
                 <MDBox p={2} bgColor='text' borderRadius={5}>
                     <MDTypography color='light' fontSize={15} fontWeight='bold'>Quick Links</MDTypography>
                     <Grid container spacing={1}>
@@ -725,6 +725,19 @@ export default function LabTabs({socket}) {
                                   }}
                             >
                                 Referral Program
+                            </MDButton>
+                        </Grid>
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"warning"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/affiliateprograms`,
+                                  }}
+                            >
+                                Affiliate Program
                             </MDButton>
                         </Grid>
                         <Grid item fullWidth>

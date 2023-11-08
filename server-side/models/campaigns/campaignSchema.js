@@ -60,6 +60,21 @@ const campignSchema = new mongoose.Schema({
             joinedOn:{type:Date, default: ()=>new Date()}
         }
     ],
+    campaignType:{
+        type:String,
+        enum:['Campaign', 'Invite']
+    },
+    maxUsers:Number,
+    campaignSignupBonus:{
+        amount: Number,
+        currency: {
+            type: String,
+            enum:['Cash', 'Bonus']
+        }
+    },
+    isDefault:{
+        type: Boolean
+    }
 })
 
 campignSchema.pre('save', async function(next){

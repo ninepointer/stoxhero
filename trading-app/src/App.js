@@ -14,6 +14,7 @@ import MDBox from "./components/MDBox";
 
 // Material Dashboard 2 React example components
 import Sidenav from "./examples/Sidenav";
+import NewSidenav from "./examples/NewSideNav/Sidebar";
 import Configurator from "./examples/Configurator";
 
 // Material Dashboard 2 React themes
@@ -71,6 +72,7 @@ import { socketContext } from "./socketContext";
 import {Howl} from "howler";
 import sound from "./assets/sound/tradeSound.mp3"
 import MessagePopUp from "./MessagePopup";
+import AdminLogin from "./layouts/authentication/sign-in/adminLogin";
 // import ContestRegistration from "./layouts/UserContest/data/ContestRegistration";
 
 
@@ -272,6 +274,7 @@ export default function App() {
                   onMouseEnter={handleOnMouseEnter}
                   onMouseLeave={handleOnMouseLeave}
                 />
+                // <NewSidenav/>
               }
               
               <Configurator />
@@ -303,6 +306,7 @@ export default function App() {
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
             />
+            // <NewSidenav/>
           }
 
             <Configurator />
@@ -324,8 +328,8 @@ export default function App() {
           // pathname == "/login" ?
           // <Route path="/login" element={<SignIn />} />
           // :
-          pathname == "/home" ?
-          <Route path="/home" element={<SignUp location={myLocation.current} />} />
+          pathname == "/" ?
+          <Route path="/" element={<SignUp location={myLocation.current} />} />
           :
           pathname == "/resetpassword" ?
           <Route path="/resetpassword" element={<ResetPassword/>} />
@@ -351,10 +355,10 @@ export default function App() {
           <Route path='/careers/:name/jobdescription' element={<JobDescription/>}/>
           <Route path='/careers/careerform/:name' element={<JobApply/>}/>
           <Route path='/collegecontest/:id/:date' element={<ContestRegistration/>}/>
-          <Route path='/home' element={<Navigate 
+          <Route path='/' element={<Navigate 
             to={getDetails?.userDetails?.role ? getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/stoxherodashboard':'/'} 
             />}/>
-          {/* <Route path='/login' element={<SignIn />}/> */}
+          <Route path='/adminlogin' element={<AdminLogin />}/>
           <Route path='/about' element={<About/>}/>
           <Route path='/contact' element={<Contact/>}/>
           <Route path='/workshops' element={<Workshops location={myLocation.current}/>}/>

@@ -22,17 +22,17 @@ exports.mockTrade = async (req, res) => {
     const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
 
-    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType,
+    let {exchange, symbol, buyOrSell, Quantity, Product, order_type,
         validity, variety, instrumentToken, tenxTraderPath, internPath, battle,
         realBuyOrSell, realQuantity, isAlgoTrader, paperTrade, dailyContest, marginx, deviceDetails } = req.body 
 
-    if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
+    if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety){
         return res.status(422).json({error : "Something went wrong"})
     }
 
     req.body.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
 
-    console.log("caseStudy 8: mocktrade", req.body)
+    // console.log("caseStudy 8: mocktrade", req.body)
 
     if(exchange === "NFO"){
         exchangeSegment = 2;

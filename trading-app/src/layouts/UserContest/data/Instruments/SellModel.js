@@ -79,7 +79,7 @@ const SellModel = ({setSellState, exchange, symbol, instrumentToken, symbolName,
     Product: "",
     Quantity: "",
     Price: "",
-    OrderType: "",
+    order_type: "",
     TriggerPrice: "",
     stopLoss: "",
     validity: "",
@@ -95,10 +95,10 @@ const SellModel = ({setSellState, exchange, symbol, instrumentToken, symbolName,
   };
 
   const [market, setMarket] = React.useState('MARKET');
-  sellFormDetails.OrderType = market;
+  sellFormDetails.order_type = market;
   const marketHandleChange = (event) => {
     setMarket(event.target.value);
-    sellFormDetails.OrderType = event.target.value;
+    sellFormDetails.order_type = event.target.value;
   };
   const [validity, setValidity] = React.useState('DAY');
   sellFormDetails.validity = validity;
@@ -168,7 +168,7 @@ const SellModel = ({setSellState, exchange, symbol, instrumentToken, symbolName,
     let date = new Date();
     let createdOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}:${String(date.getMilliseconds()).padStart(2, '0')}`
 
-    const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = sellFormDetails;
+    const { exchange, symbol, buyOrSell, Quantity, Price, Product, order_type, TriggerPrice, stopLoss, validity, variety } = sellFormDetails;
     const res = await fetch(`${baseUrl}api/v1/contest/${contestId}/trades/`, {
         method: "POST",
         credentials:"include",
@@ -178,7 +178,7 @@ const SellModel = ({setSellState, exchange, symbol, instrumentToken, symbolName,
         body: JSON.stringify({
             
           exchange, symbol, buyOrSell, Quantity, Price, 
-          Product, OrderType, TriggerPrice, stopLoss, uId,
+          Product, order_type, TriggerPrice, stopLoss, uId,
           validity, variety, createdBy, order_id:dummyOrderId,
           userId, instrumentToken, trader, portfolioId
 

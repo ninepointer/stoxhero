@@ -253,7 +253,7 @@ export default function BasicModal({invited,setInvited,referralCode,referralProg
 
                       {/* <Typography fontSize={11}>👉 Participate in free options trading contests to sharpen your trading skills.</Typography>                         */}
 
-                      <Typography fontSize={11}>📲 Visit https://www.stoxhero.com/signup?referral={referralCode}</Typography>                           
+                      <Typography fontSize={11}>📲 Visit https://www.stoxhero.com?referral={referralCode}</Typography>                           
 
                       {/* <Typography fontSize={11}>Use my below invitation code 👇 and get virtual currency of 10,000,000 in your wallet and start trading.</Typography>                              */}
 

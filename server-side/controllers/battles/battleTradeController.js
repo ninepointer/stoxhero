@@ -79,6 +79,9 @@ exports.overallPnlTrader = async (req, res, next) => {
                         lastaverageprice: {
                             $last: "$average_price",
                         },
+                        margin: {
+                            $last: "$margin",
+                        },
                     },
                 },
                 {

@@ -2,14 +2,15 @@ const express = require('express');
 const app = express();
 let { client, setValue } = require("./marketData/redisClient");
 const cors = require('cors');
-const {setIOValue} = require('./marketData/socketio');
+const { setIOValue } = require('./marketData/socketio');
 const Setting = require("./models/settings/setting");
 const helmet = require("helmet");
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
 const hpp = require("hpp")
-const {zerodhaAccountType} = require("./constant")
+const { zerodhaAccountType } = require("./constant")
 const Product = require('./models/Product/product');
+const { pendingOrderMain } = require("./PlaceStopLossOrder")
 
 
 async function commonProcess() {
@@ -18,6 +19,8 @@ async function commonProcess() {
         .then(async (res) => {
             // isRedisConnected = true ; 
             setValue(true);
+            // await client.SUBSCRIBE("test");
+            
             console.log("redis connected", res)
         })
         .catch((err) => {
@@ -26,25 +29,25 @@ async function commonProcess() {
             console.log("redis not connected", err)
         })
 
+    
+    app.use(express.json({ limit: "20kb" }));
 
-        app.use(express.json({ limit: "20kb" }));
-        
-        app.use(cors({
-            credentials: true,
-            
-            // origin: "http://3.7.187.183/"  // staging
-            // origin: "http://3.108.76.71/"  // production
-            origin: 'http://localhost:3000'
-            
-        }));
-        app.use(require("cookie-parser")());
-        
-        app.use(mongoSanitize());
-        app.use(helmet());
-        app.use(xssClean());
-        app.use(hpp());
-        
-        Setting.find()
+    app.use(cors({
+        credentials: true,
+
+        // origin: "http://3.7.187.183/"  // staging
+        // origin: "http://3.108.76.71/"  // production
+        origin: 'http://localhost:3000'
+
+    }));
+    app.use(require("cookie-parser")());
+
+    app.use(mongoSanitize());
+    app.use(helmet());
+    app.use(xssClean());
+    app.use(hpp());
+
+    Setting.find()
         .then((res) => {
             // setting = res[0].toggle;
             if (res[0]?.toggle?.ltp == zerodhaAccountType || res[0]?.toggle?.complete == zerodhaAccountType) {
@@ -53,15 +56,15 @@ async function commonProcess() {
                 app.use('/api/v1', require("./services/xts/xtsHelper/xtsLivePrice"));
             }
         })
-        app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
-        app.get('/api/v1/products', async(req, res, next) => {
-            const products = await Product.find({}); 
-            res.status(200).json({ status: 'success', data: products }); 
-        })
-        app.use('/api/v1', require("./routes/OpenPositions/openPositionsAuth"))
-        app.use('/api/v1', require("./routes/StockIndex/addStockIndex"))
-        app.use('/api/v1', require("./routes/expense/expenseAuth"))
-        app.use('/api/v1', require("./routes/user/signedUpUser"))
+    app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
+    app.get('/api/v1/products', async (req, res, next) => {
+        const products = await Product.find({});
+        res.status(200).json({ status: 'success', data: products });
+    })
+    app.use('/api/v1', require("./routes/OpenPositions/openPositionsAuth"))
+    app.use('/api/v1', require("./routes/StockIndex/addStockIndex"))
+    app.use('/api/v1', require("./routes/expense/expenseAuth"))
+    app.use('/api/v1', require("./routes/user/signedUpUser"))
     app.use('/api/v1', require("./routes/expense/categoryAuth"))
     app.use('/api/v1', require("./routes/setting/settingAuth"))
     app.use('/api/v1', require("./routes/DailyPnlData/dailyPnlDataRoute"))
@@ -70,6 +73,8 @@ async function commonProcess() {
     app.use('/api/v1/marginx', require('./routes/marginx/marginxRoutes'));
     app.use('/api/v1/marginxtrade', require('./routes/marginx/marginxTradeRoute'));
     app.use('/api/v1/battletrade', require('./routes/battles/battleTradeRoute'));
+    app.use('/api/v1/pendingorder', require('./routes/pendingOrder/pendingRoute'));
+    app.use('/api/v1/affiliate', require("./routes/affiliateProgramme/affiliateRoute"));
 
     //  TODO toggle
     app.use('/api/v1/contestmaster', require("./routes/DailyContest/contestMaster"));
@@ -144,6 +149,7 @@ async function commonProcess() {
     app.use('/api/v1', require("./PlaceOrder/switching"));
     app.use('/api/v1/analytics', require("./routes/analytics/analytics"));
     app.use('/api/v1/appmetrics', require("./routes/appMetrics/appMetricsRoutes"));
+    app.use('/api/v1/newappmetrics', require("./routes/appMetrics/newAppMetricesRoutes"));
     app.use('/api/v1/infinitymining', require("./routes/infinityMining/infinityMiningRoutes"));
     app.use('/api/v1/virtualtradingperformance', require("./routes/performance/virtualTradingRoute"));
     app.use('/api/v1/user', require("./routes/user/userRoutes"));
@@ -151,7 +157,7 @@ async function commonProcess() {
     app.use('/api/v1/KYC', require("./routes/KYCApproval/KYCRoutes"));
     app.use('/api/v1/paymenttest', require("./routes/paymentTest/paymentTestRoutes"));
     app.use('/api/v1/stoxherouserdashboard', require("./routes/StoxHeroDashboard/userAnalytics"));
-    app.use('/api/v1/marginused', require("./routes/marginUsed/marginUsed"));
+    app.use('/api/v1/marginrequired', require("./routes/marginRequired/marginRequired"));
     app.use('/api/v1/userdashboard', require('./routes/UserDashboard/dashboardRoutes'));
     app.use('/api/v1/post', require("./routes/post/postRoutes"));
     app.use('/api/v1/signup', require("./routes/UserRoute/signUpUser"));
@@ -161,9 +167,14 @@ async function commonProcess() {
     app.use('/api/v1/marginxtemplates', require("./routes/marginx/marginxTemplateRoutes"));
     app.use('/api/v1/notifications', require("./routes/notification/notificationRoutes"));
     app.use('/api/v1/coupons', require("./routes/coupon/couponRoutes"));
+    app.use('/api/v1/blogs', require("./routes/blog/blogRoutes"));
+    app.use('/api/v1/alltradeview', require("./routes/viewRoutes/allTradesViewRoute"));
 
     const PORT = process.env.PORT || 5002;
     const server = app.listen(PORT);
+    
+    await pendingOrderMain();
+
 }
 
 module.exports = { commonProcess }

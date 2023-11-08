@@ -82,6 +82,10 @@ import StoxHeroUserDashboard from './layouts/StoxHeroDashboard'
 import MarginXReport from "./layouts/marginxReport";
 
 import Coupons from './layouts/coupons'
+import Blogs from './layouts/blog'
+import BlogDetails from './layouts/blog/blogDetails'
+import AffiliateProgram from './layouts/affiliateProgram'
+import AffiliateProgramDetails from './layouts/affiliateProgram/AffiliateProgramDetails'
 
 
 
@@ -259,14 +263,14 @@ const routes = [
     route: "/marginxdashboard",
     component: <MarginXDashboard />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Challenge Dashboard",
-  //   key: "challengedashboard",
-  //   icon: <EmojiEventsIcon/>,
-  //   route: "/challengedashboard",
-  //   component: <ChallengeDashboard />,
-  // },
+  {
+    type: "collapse",
+    name: "Blogs",
+    key: "allblogs",
+    icon: <EmojiEventsIcon/>,
+    route: "/allblogs",
+    component: <Blogs />,
+  },
   // {
   //   type: "collapse",
   //   name: "Battle Dashboard",
@@ -435,6 +439,14 @@ const routes = [
   {
     route: "/coupondetails",
     component: <CouponDetails />,
+  },
+  {
+    route: "/blogdetails",
+    component: <BlogDetails />,
+  },
+  {  
+    route: "/affiliateprogramdetails",
+    component: <AffiliateProgramDetails />,
   },
   {
     route: "/batchdetails",
@@ -884,46 +896,27 @@ const routes = [
     component: <AlgoBox />,
   },
   {
-    // type: "collapse",
-    // name: "Trading Accounts",
-    key: "trading-accounts",
-    // icon: <AccountBalanceIcon/>,
     route: "/trading-accounts",
     component: <TradingAccount />,
   },
-
   {
-    // type: "collapse",
-    // name: "Trading Accounts",
     key: "coupons",
-    // icon: <AccountBalanceIcon/>,
     route: "/coupons",
     component: <Coupons />,
   },
   {
-    // type: "collapse",
-    // name: "App Settings",
-    key: "setting",
-    // icon: <SettingsIcon/>,
+    route: "/affiliateprograms",
+    component: <AffiliateProgram />,
+  },
+  {
     route: "/setting",
     component: <Setting />,
   },
   {
-    // type: "collapse",
-    // name: "Portfolio",
     key: "portfolio",
-    // icon: <Shop2Icon/>,
     route: "/portfolio",
     component: <Portfolio />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Daily P&L Chart",
-  //   key: "DailyPnlData",
-  //   icon: <QueryStatsIcon/>,
-  //   route: "/DailyPnlData",
-  //   component: <DailyPNLData />,
-  // },
   {
     type: "collapse",
     name: "Users",

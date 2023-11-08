@@ -13,6 +13,7 @@ const Campaign = require("../../models/campaigns/campaignSchema")
 const UserWallet = require("../../models/UserWallet/userWalletSchema");
 const emailService = require("../../utils/emailService");
 const { ObjectId } = require('mongodb');
+const uuid = require('uuid')
 
 const s3 = new aws.S3();
 
@@ -109,11 +110,9 @@ exports.confirmOTP = async(req, res, next)=>{
   
   const{ firstName, lastName, email, mobile, campaignCode, mobile_otp, career, college, collegeName, course, passingoutyear, dob, gender,
   } = req.body
-  // console.log(req.body)
   const correctOTP = await CareerApplication.findOne({$or : [{mobile: mobile}], mobile_otp: mobile_otp})
   const careerDetails = await Career.findOne({_id:career})
-  const careerName = careerDetails.jobTitle
-  // console.log(correctOTP)
+  const careerName = careerDetails?.jobTitle
   if(!correctOTP){
     return res.status(400).json({info:'Please enter the correct OTP'})
   }
@@ -154,7 +153,7 @@ exports.confirmOTP = async(req, res, next)=>{
   const myReferralCode = generateUniqueReferralCode();
   let userId = email.split('@')[0]
   let userIds = await User.find({employeeid:userId})
-  // console.log("User Ids: ",userIds)
+  console.log("User Ids: ",userIds)
     if(userIds.length > 0)
     {
         userId = userId?.toString()+(userIds?.length+1).toString()
@@ -194,6 +193,12 @@ exports.confirmOTP = async(req, res, next)=>{
     }
         // console.log("Obj:",obj)
         const newuser = await User.create(obj);
+        await UserWallet.create(
+          {
+              userId: newuser._id,
+              createdOn: new Date(),
+              createdBy:newuser._id
+        })
         const token = await newuser.generateAuthToken();
 
         const idOfUser = newuser._id;
@@ -216,15 +221,13 @@ exports.confirmOTP = async(req, res, next)=>{
                     users: campaign?.users
                 }
             })
+            if(campaign?.campaignSignupBonus?.amount){
+              await addSignupBonus(newuser?._id, campaign?.campaignSignupBonus?.amount, campaign?.campaignSignupBonus?.currency);
+          }
             // console.log(campaignData)
         }
 
-        await UserWallet.create(
-          {
-              userId: newuser._id,
-              createdOn: new Date(),
-              createdBy:newuser._id
-        })
+      
 
         // res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
             // let email = newuser.email;
@@ -337,7 +340,6 @@ exports.confirmOTP = async(req, res, next)=>{
                     </div>
                 </body>
                 </html>
-
             `
             if(process.env.PROD=='true'){
               emailService(newuser?.email,subject,message);
@@ -366,20 +368,41 @@ exports.confirmOTP = async(req, res, next)=>{
       await campaign.save({validateBeforeSave:false});
       // console.log(campaignData)
   }
+  try{
       if(process.env.PROD == 'true'){
-        whatsAppService.sendWhatsApp({destination : existingUser?.mobile, campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName], tags : '', attributes : ''});
+        whatsAppService.sendWhatsApp({destination : existingUser?.mobile, campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName.toString()], tags : '', attributes : ''});
       }
       else {
         // whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName], tags : '', attributes : ''});
-        whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName], tags : '', attributes : ''});
+        whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName.toString()], tags : '', attributes : ''});
       }
+    }catch(e){
+      console.log(e)
+    }
   }
 
 }
 
+const addSignupBonus = async (userId, amount, currency) => {
+  const wallet = await UserWallet.findOne({userId:userId});
+  try{
+      wallet.transactions?.push({
+          title: 'Sign up Bonus',
+          description: `Amount credited for as sign up bonus.`,
+          amount: amount,
+          transactionId: uuid.v4(),
+          transactionDate: new Date(),
+          transactionType: currency
+      });
+      await wallet.save({validateBeforeSave:false});
+  }catch(e){
+      console.log(e);
+  }
+}
+
 exports.applyForCareer = async(req,res, next) => {
 
-  const{ campaignCode, career, dob, linkedInProfileLink, priorTradingExperience, source, gender, collegeName
+  const{ campaignCode, career, dob, linkedInProfileLink, priorTradingExperience, source, gender, collegeName, course, passingoutyear
   } = req.body
   const user = await User.findById(req.user._id).select('first_name last_name email mobile');
   try{
@@ -397,7 +420,10 @@ exports.applyForCareer = async(req,res, next) => {
       career: career,
       campaignCode: campaignCode?.trim(),
       status: 'OTP Verified',
-      applicationStatus: 'Applied'
+      applicationStatus: 'Applied',
+      course: course,
+      passingoutyear: passingoutyear,
+
     });
     res.status(201).json({status:"success", message:"Application Submitted Successfully."});
 

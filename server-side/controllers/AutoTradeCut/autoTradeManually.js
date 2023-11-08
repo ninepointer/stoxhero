@@ -27,14 +27,14 @@ const takeAutoTenxTrade = async (tradeDetails) => {
     const today = new Date(todayDate);
     const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
-    let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId,
+    let { exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId,
       validity, variety, order_id, instrumentToken, portfolioId, trader, 
       dontSendResp, exchangeInstrumentToken, createdBy } = tradeDetails;
 
       const {brokerageDetailBuyUser, brokerageDetailSellUser} = await brokerage();
 
 
-    if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety) {
+    if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety) {
       
       if (!dontSendResp) {
         console.log("Please fill all fields, autotrade");
@@ -79,7 +79,7 @@ const takeAutoTenxTrade = async (tradeDetails) => {
 
         const tenx = new TenxTrader({
           status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
-          variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+          variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
           order_id, instrumentToken, brokerage: brokerageUser, portfolioId, subscriptionId, exchangeInstrumentToken,
           createdBy, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
         });
@@ -144,14 +144,14 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
     const today = new Date(todayDate);
     const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
-    let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, batch,
+    let { exchange, symbol, buyOrSell, Quantity, Product, order_type, batch,
       validity, variety, order_id, instrumentToken, portfolioId,
       trader, dontSendResp, exchangeInstrumentToken, createdBy } = tradeDetails;
 
       const {brokerageDetailBuyUser, brokerageDetailSellUser} = await brokerage();
 
 
-    if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety) {
+    if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety) {
       
       if (!dontSendResp) {
         console.log("Please fill all fields, autotrade");
@@ -198,7 +198,7 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
 
         const internship = new InternshipTrade({
           status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
-          variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+          variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
           order_id, instrumentToken, brokerage: brokerageUser, portfolioId, batch: batch, exchangeInstrumentToken,
           createdBy, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
         });
@@ -264,7 +264,7 @@ const takeAutoPaperTrade = async (tradeDetails) => {
     const today = new Date(todayDate);
     const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
-    let { exchange, symbol, buyOrSell, Quantity, Product, OrderType,
+    let { exchange, symbol, buyOrSell, Quantity, Product, order_type,
       validity, variety, order_id, instrumentToken, portfolioId,
       trader, dontSendResp, exchangeInstrumentToken, createdBy } = tradeDetails;
 
@@ -272,7 +272,7 @@ const takeAutoPaperTrade = async (tradeDetails) => {
       const {brokerageDetailBuyUser, brokerageDetailSellUser} = await brokerage();
 
 
-    if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety) {
+    if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety) {
       
       if (!dontSendResp) {
         console.log("Please fill all fields, autotrade");
@@ -318,7 +318,7 @@ const takeAutoPaperTrade = async (tradeDetails) => {
 
         const paperTrade = new PaperTrade({
           status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
-          variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+          variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
           order_id, instrumentToken, brokerage: brokerageUser, portfolioId, exchangeInstrumentToken,
           createdBy, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
 
@@ -385,14 +385,14 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
     const today = new Date(todayDate);
     const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
-    let { exchange, symbol, buyOrSell, userQuantity, Product, OrderType,
+    let { exchange, symbol, buyOrSell, userQuantity, Product, order_type,
       validity, variety, algoBoxId, order_id, instrumentToken,
       realBuyOrSell, Quantity, real_instrument_token, trader,
       dontSendResp, exchangeInstrumentToken, createdBy, marginData } = tradeDetails;
 
     const {brokerageDetailBuy, brokerageDetailSell, brokerageDetailBuyUser, brokerageDetailSellUser} = await brokerage();
 
-    if (!exchange || !symbol || !buyOrSell || !userQuantity || !Product || !OrderType || !validity || !variety) {
+    if (!exchange || !symbol || !buyOrSell || !userQuantity || !Product || !order_type || !validity || !variety) {
       
       if (!dontSendResp) {
         console.log("Please fill all fields, autotrade");
@@ -461,7 +461,7 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
 
       const companyDoc = {
         status: "COMPLETE", average_price: originalLastPriceCompany, Quantity: Quantity,
-        Product, buyOrSell: realBuyOrSell, variety, validity, exchange, order_type: OrderType,
+        Product, buyOrSell: realBuyOrSell, variety, validity, exchange, order_type: order_type,
         symbol, placed_by: "stoxhero", algoBox: algoBoxId, order_id,
         instrumentToken: real_instrument_token, brokerage: brokerageCompany, createdBy,
         trader: trader, isRealTrade: false, amount: (Number(Quantity) * originalLastPriceCompany),
@@ -470,7 +470,7 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
 
       const traderDoc = {
         status: "COMPLETE", average_price: originalLastPriceUser, Quantity: userQuantity, Product, buyOrSell,
-        variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+        variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
         isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, exchangeInstrumentToken,
         createdBy, trader: trader, amount: (Number(userQuantity) * originalLastPriceUser), trade_time: trade_time,
       }
@@ -549,7 +549,7 @@ const takeAutoDailyContestMockTrade = async (tradeDetails) => {
     const today = new Date(todayDate);
     const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
-    let { exchange, symbol, buyOrSell, userQuantity, Product, OrderType, contestId,
+    let { exchange, symbol, buyOrSell, userQuantity, Product, order_type, contestId,
       validity, variety, algoBoxId, order_id, instrumentToken,
       realBuyOrSell, Quantity, real_instrument_token, trader,
       dontSendResp, exchangeInstrumentToken, createdBy } = tradeDetails;
@@ -559,7 +559,7 @@ const takeAutoDailyContestMockTrade = async (tradeDetails) => {
       const {brokerageDetailBuy, brokerageDetailSell, brokerageDetailBuyUser, brokerageDetailSellUser} = await brokerage();
 
 
-    if (!exchange || !symbol || !buyOrSell || !userQuantity || !Product || !OrderType || !validity || !variety) {
+    if (!exchange || !symbol || !buyOrSell || !userQuantity || !Product || !order_type || !validity || !variety) {
       if (!dontSendResp) {
         console.log("Please fill all fields, autotrade");
       } else {
@@ -626,7 +626,7 @@ const takeAutoDailyContestMockTrade = async (tradeDetails) => {
 
       const companyDoc = {
         status: "COMPLETE", average_price: originalLastPriceCompany, Quantity: Quantity,
-        Product, buyOrSell: realBuyOrSell, variety, validity, exchange, order_type: OrderType,
+        Product, buyOrSell: realBuyOrSell, variety, validity, exchange, order_type: order_type,
         symbol, placed_by: "stoxhero", algoBox: algoBoxId, order_id,
         instrumentToken: real_instrument_token, brokerage: brokerageCompany, createdBy,
         trader: trader, isRealTrade: false, amount: (Number(Quantity) * originalLastPriceCompany),
@@ -635,7 +635,7 @@ const takeAutoDailyContestMockTrade = async (tradeDetails) => {
 
       const traderDoc = {
         status: "COMPLETE", average_price: originalLastPriceUser, Quantity: userQuantity, Product, buyOrSell,
-        variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", contestId,
+        variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero", contestId,
         isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, exchangeInstrumentToken,
         createdBy, trader: trader, amount: (Number(userQuantity) * originalLastPriceUser), trade_time: trade_time,
       }
@@ -851,7 +851,7 @@ const takeInternshipTrades = async(tradeObjs)=>{
 
     //     const internship = new InternshipTrade({
     //       status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
-    //       variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+    //       variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
     //       order_id, instrumentToken, brokerage: brokerageUser, portfolioId, batch: batch, exchangeInstrumentToken,
     //       createdBy, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
     //     });
@@ -1008,7 +1008,7 @@ const takeDailyContestMockTrades = async(companyTradeObjects, userTradeObjects)=
 
     //     const internship = new InternshipTrade({
     //       status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
-    //       variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+    //       variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
     //       order_id, instrumentToken, brokerage: brokerageUser, portfolioId, batch: batch, exchangeInstrumentToken,
     //       createdBy, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
     //     });
@@ -1164,7 +1164,7 @@ const takeMarginXMockTrades = async(companyTradeObjects, userTradeObjects)=>{
 
     //     const internship = new InternshipTrade({
     //       status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
-    //       variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+    //       variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
     //       order_id, instrumentToken, brokerage: brokerageUser, portfolioId, batch: batch, exchangeInstrumentToken,
     //       createdBy, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
     //     });
@@ -1300,7 +1300,7 @@ const takeBattleTrades = async(tradeObjs)=>{
 
     //     const internship = new InternshipTrade({
     //       status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
-    //       variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+    //       variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
     //       order_id, instrumentToken, brokerage: brokerageUser, portfolioId, batch: batch, exchangeInstrumentToken,
     //       createdBy, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
     //     });

@@ -53,6 +53,10 @@ const contestSchema = new Schema({
         type: Number,
         // required: true,
     },
+    featured:{
+        type: Boolean,
+        default: false,
+    },
     payoutType:{
         type: String,
         enum: ["Reward", "Percentage"]
@@ -101,6 +105,10 @@ const contestSchema = new Schema({
         payout: {type: Number},
         tdsAmount: {type: Number},
         isLive: {type: Boolean},
+        npnl: {type: Number},
+        gpnl: {type: Number},
+        trades: {type: Number},
+        brokerage: {type: Number},
         rank: {type: Number},
         bonusRedemption:Number
     }],

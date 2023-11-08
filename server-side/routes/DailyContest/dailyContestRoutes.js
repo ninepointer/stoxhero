@@ -58,6 +58,10 @@ router.get('/contests/today', Authenticate, contestController.todaysContest);
 router.get('/contests/ongoing', Authenticate, contestController.ongoingContest);
 
 router.get('/contests/adminupcoming', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getAdminUpcomingContests);
+router.get('/contests/featuredupcoming', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getFeaturedUpcomingContests);
+router.get('/contests/featuredongoing', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getFeaturedOngoingContests);
+router.get('/contests/collegeupcoming', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getCollegeUpcomingContests);
+router.get('/contests/collegeongoing', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getCollegeOngoingContests);
 router.get('/contests/adminongoing', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.ongoingContestAdmin);
 router.get('/contests/completed', Authenticate, contestController.getCompletedContests);
 

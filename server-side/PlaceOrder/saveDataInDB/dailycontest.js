@@ -4,14 +4,16 @@ const {getIOValue} = require('../../marketData/socketio');
 const mongoose = require('mongoose')
 const {clientForIORedis} = require('../../marketData/redisClient');
 const {lastTradeDataMockDailyContest, traderWiseMockPnlCompanyDailyContest, overallMockPnlCompanyDailyContest, overallpnlDailyContest} = require("../../services/adminRedis/Mock");
-
+const {dailyContest} = require("../../constant");
+const {applyingSLSP} = require("./PendingOrderCondition/applyingSLSP")
+const {reverseTradeCondition} = require("./PendingOrderCondition/reverseTradeCondition");
 
 
 exports.dailyContestTrade = async (req, res, otherData) => {
     const io = getIOValue();
-    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, exchangeInstrumentToken, fromAdmin,
-        validity, variety, algoBoxId, order_id, instrumentToken, contestId,
-        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, deviceDetails } = req.body 
+    let {exchange, symbol, buyOrSell, Quantity, Product, order_type, exchangeInstrumentToken, fromAdmin,
+        validity, variety, algoBoxId, order_id, instrumentToken, contestId, stopProfitPrice, stopLossPrice, price,
+        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, deviceDetails, margin } = req.body 
 
         let {secondsRemaining, isRedisConnected, brokerageCompany, brokerageUser, originalLastPriceUser, originalLastPriceCompany, trade_time} = otherData;
 
@@ -21,7 +23,7 @@ exports.dailyContestTrade = async (req, res, otherData) => {
         const mockCompany = await DailyContestMockCompany.findOne({order_id : order_id});
         const mockInfintyTrader = await DailyContestMockUser.findOne({order_id : order_id});
         if((mockCompany || mockInfintyTrader)){
-            return res.status(422).json({message : "data already exist", error: "Fail to trade"})
+            return res.status(422).json({status: "error", message : "something went wrong."})
         }
 
         
@@ -29,7 +31,7 @@ exports.dailyContestTrade = async (req, res, otherData) => {
 
         const companyDoc = {
             status:"COMPLETE", average_price: originalLastPriceCompany, Quantity: realQuantity, 
-            Product, buyOrSell:realBuyOrSell, variety, validity, exchange, order_type: OrderType, 
+            Product, buyOrSell:realBuyOrSell, variety, validity, exchange, order_type: order_type, 
             symbol: realSymbol, placed_by: "stoxhero", algoBox:algoBoxId, order_id, 
             instrumentToken: real_instrument_token, brokerage: brokerageCompany, createdBy: req.user._id,
             trader : trader, isRealTrade: false, amount: (Number(realQuantity)*originalLastPriceCompany), 
@@ -38,16 +40,32 @@ exports.dailyContestTrade = async (req, res, otherData) => {
 
         const traderDoc = {
             status:"COMPLETE",  average_price: originalLastPriceUser, Quantity, Product, buyOrSell, 
-            variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", contestId,
+            variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero", contestId,
             isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, exchangeInstrumentToken,
             createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
-            deviceDetails: {deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType}
+            deviceDetails: {deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType},
+            margin
         }
 
-        const mockTradeDetails = await DailyContestMockCompany.create([companyDoc], { session });
-        const algoTrader = await DailyContestMockUser.create([traderDoc], { session });
+        const mockTradeDetails = (order_type !== "LIMIT") && await DailyContestMockCompany.create([companyDoc], { session });
+        const algoTrader = (order_type !== "LIMIT") && await DailyContestMockUser.create([traderDoc], { session });
 
-        // console.log(traderDoc)
+        let pnl = await client.get(`${req.user._id.toString()}${contestId.toString()} overallpnlDailyContest`)
+        pnl = JSON.parse(pnl);
+        let reverseTradeConditionData;
+        const matchingElement = pnl.find((element) => (element._id.instrumentToken === traderDoc.instrumentToken && element._id.product === traderDoc.Product && !element._id.isLimit));
+        if(matchingElement){
+          const matchingElementBuyOrSell = matchingElement?.lots > 0 ? "BUY" : "SELL";
+          if(matchingElement?.lots !== 0 && (matchingElementBuyOrSell !== traderDoc.buyOrSell) && (order_type !== "LIMIT")){
+            reverseTradeConditionData = await reverseTradeCondition(req.user._id, contestId, traderDoc, stopLossPrice, stopProfitPrice, algoTrader[0]?._id, originalLastPriceUser, pnl, dailyContest);
+          }
+        }
+    
+        if(reverseTradeConditionData === 0){
+          console.log("from reverse trade")
+          stopLossPrice = 0;
+          stopProfitPrice = 0;
+        }
 
         const pipeline = clientForIORedis.pipeline();
 
@@ -61,10 +79,10 @@ exports.dailyContestTrade = async (req, res, otherData) => {
         const companyOverallPnl = results[1][1];
         const traderWisePnl = results[2][1];
 
-        const overallPnlUser = await overallpnlDailyContest(algoTrader[0], trader, traderOverallPnl, contestId);
-        const redisValueOverall = await overallMockPnlCompanyDailyContest(mockTradeDetails[0], companyOverallPnl, contestId);
-        const redisValueTrader = await traderWiseMockPnlCompanyDailyContest(mockTradeDetails[0], traderWisePnl, contestId);
-        const lastTradeMock = await lastTradeDataMockDailyContest(mockTradeDetails[0], contestId);
+        const overallPnlUser = await overallpnlDailyContest(traderDoc, trader, traderOverallPnl, contestId);
+        const redisValueOverall = await overallMockPnlCompanyDailyContest(companyDoc, companyOverallPnl, contestId);
+        const redisValueTrader = await traderWiseMockPnlCompanyDailyContest(companyDoc, traderWisePnl, contestId);
+        const lastTradeMock = await lastTradeDataMockDailyContest(companyDoc, contestId);
 
         const pipelineForSet = clientForIORedis.pipeline();
 
@@ -86,15 +104,23 @@ exports.dailyContestTrade = async (req, res, otherData) => {
 
             await pipeline.exec();
         }
-        // Commit the transaction
 
+        // Commit the transaction
         io?.emit("updatePnl", mockTradeDetails)
        
         if(fromAdmin){
             io?.emit(`${trader.toString()}autoCut`, algoTrader)
         }
 
-        if (pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK" && pipelineForSet._result[3][1] === "OK") {                await session.commitTransaction();
+        let pendingOrderRedis;
+        if(stopLossPrice || stopProfitPrice || price){
+          pendingOrderRedis = await applyingSLSP(req, {ltp: originalLastPriceUser}, session, algoTrader[0]?._id, dailyContest);
+        } else{
+          pendingOrderRedis = "OK";
+        }
+
+        if (pendingOrderRedis==="OK" && pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK" && pipelineForSet._result[3][1] === "OK") {                
+            await session.commitTransaction();
             return res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
         } else {
             // await session.commitTransaction();

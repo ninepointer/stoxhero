@@ -10,6 +10,7 @@ import LaunchButton from '../Buttons/LaunchButton'
 import { useTheme } from 'styled-components'
 import MDTypography from '../../../../components/MDTypography';
 import theme from '../../utils/theme/index';
+import { Link } from 'react-router-dom';
 
 const NAVBAR_HIEGHT = 58;
 const LinkButton = ({ children, ...props }) => (
@@ -60,7 +61,7 @@ const Navbar = () => {
         <Stack direction='row' justifyContent='space-between' alignItems="center" flexWrap="wrap"  alignContent='center' >
           {/* Logo */}
 
-          <a href="/home"><img src={logo} style={{ objectFit: "contain", height: "40px", marginTop: "8px" }} /></a>
+          <a href="/"><img src={logo} style={{ objectFit: "contain", height: "40px", marginTop: "8px" }} /></a>
 
 
           {!isMobile && (<Stack
@@ -72,31 +73,15 @@ const Navbar = () => {
             flexWrap="wrap"
             color="white"
           >
-            {/* <a href="/login">
-            <LinkButton>
-              <Typography fontWeight="bold" variant="body2">Login</Typography>
-              
-            </LinkButton>
-            </a> */}
-
-            {/* <a href="/signup">
-            <LinkButton>
-              <Typography fontWeight="bold" variant="body2">Signup</Typography>
-              
-            </LinkButton>
-            </a> */}
-
             <a href="/careers">
             <LinkButton>
               <Typography fontWeight="bold" variant="body2">Careers</Typography>
-              
             </LinkButton>
             </a>
 
             <a href="/workshops">
             <LinkButton>
               <Typography fontWeight="bold" variant="body2">Workshops</Typography>
-              
             </LinkButton>
             </a>
 
@@ -115,7 +100,6 @@ const Navbar = () => {
             <a href="/about">
             <LinkButton spacing={0.5}>
               <Typography fontWeight="bold" variant="body2">About Us</Typography>
-              
             </LinkButton>
             </a>
           </Stack>)}
@@ -127,7 +111,7 @@ const Navbar = () => {
             alignItems="center"
             justifyContent="flex-start"
             spacing={4}
-            sx={{ flex: 1, background:"rgb(3,2,22)",width:"100%",height:"100vh"}}
+            sx={{ flex: 1, background:"#315c45",width:"100%",height:"100vh"}}
             flexWrap="wrap"
             position="absolute"
             top="0"
@@ -200,8 +184,8 @@ const Navbar = () => {
               <Typography variant="body2">EN</Typography>
             </LinkButton>
 
-            <a href="/login">
-            <LaunchButton sx={{ borderRadius: 3, color:'light' }} />
+            <a href="https://play.google.com/store/apps/details?id=com.stoxhero.app" target='_blank'>
+              <LaunchButton sx={{ borderRadius: 3, color: 'light' }} />
             </a>
           </Stack>)
           }

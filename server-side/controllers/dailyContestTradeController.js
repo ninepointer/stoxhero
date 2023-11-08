@@ -10,7 +10,7 @@ const Instrument = require("../models/Instruments/instrumentSchema")
 const getKiteCred = require('../marketData/getKiteCred');
 const axios = require("axios")
 const { getIOValue } = require('../marketData/socketio');
-const { ConsoleMessage } = require("puppeteer");
+const PendingOrder = require("../models/PendingOrder/pendingOrderSchema")
 
 exports.overallPnlTrader = async (req, res, next) => {
     let isRedisConnected = getValue();
@@ -57,7 +57,9 @@ exports.overallPnlTrader = async (req, res, next) => {
                             product: "$Product",
                             instrumentToken: "$instrumentToken",
                             exchangeInstrumentToken: "$exchangeInstrumentToken",
-                            exchange: "$exchange"
+                            exchange: "$exchange",
+                            validity: "$validity",
+                            variety: "$variety",
                         },
                         amount: {
                             $sum: { $multiply: ["$amount", -1] },
@@ -75,6 +77,9 @@ exports.overallPnlTrader = async (req, res, next) => {
                         lastaverageprice: {
                             $last: "$average_price",
                         },
+                        margin: {
+                            $last: "$margin",
+                        },
                     },
                 },
                 {
@@ -83,15 +88,84 @@ exports.overallPnlTrader = async (req, res, next) => {
                     },
                 },
             ])
-            // //console.log("pnlDetails in else", pnlDetails)
 
+            const limitMargin = await PendingOrder.aggregate([
+                {
+                    $match: {
+                        createdBy: new ObjectId(
+                            userId
+                        ),
+                        type: "Limit",
+                        status: "Pending",
+                        createdOn: {
+                            $gte: today,
+                        },
+                        product_type: new ObjectId("6517d48d3aeb2bb27d650de5")
+                    },
+                },
+                {
+                    $group:
+                    {
+                        _id: {
+                            symbol: "$symbol",
+                            product: "$Product",
+                            instrumentToken: "$instrumentToken",
+                            exchangeInstrumentToken: "$exchangeInstrumentToken",
+                            exchange: "$exchange",
+                            validity: "$validity",
+                            variety: "$variety",
+                            // order_type: "$order_type"
+                        },
+                        amount: {
+                            $sum: { $multiply: ["$amount", -1] },
+                        },
+                        brokerage: {
+                            $sum: {
+                                $toDouble: "$brokerage",
+                            },
+                        },
+                        lots: {
+                            $sum: {
+                                $toInt: "$Quantity",
+                            },
+                        },
+                        margin: {
+                            $last: "$margin",
+                        },
+                    }
+                }
+            ])
+
+            const arr = [];
+            for (let elem of limitMargin) {
+                arr.push({
+                    _id: {
+                        symbol: elem._id.symbol,
+                        product: elem._id.product,
+                        instrumentToken: elem._id.instrumentToken,
+                        exchangeInstrumentToken: elem._id.exchangeInstrumentToken,
+                        exchange: elem._id.exchange,
+                        // validity: elem._id.validity,
+                        // variety: elem._id.variety,
+                        isLimit: true
+                    },
+                    // amount: (tenxDoc.amount * -1),
+                    // brokerage: Number(tenxDoc.brokerage),
+                    lots: Number(elem.lots),
+                    // lastaverageprice: tenxDoc.average_price,
+                    margin: elem.margin
+                });
+            }
+
+            const newPnl = pnlDetails.concat(arr);
+      
             if (isRedisConnected) {
-                await client.set(`${req.user._id.toString()}${id.toString()} overallpnlDailyContest`, JSON.stringify(pnlDetails))
+                await client.set(`${req.user._id.toString()}${id.toString()} overallpnlDailyContest`, JSON.stringify(newPnl))
                 await client.expire(`${req.user._id.toString()}${id.toString()} overallpnlDailyContest`, secondsRemaining);
             }
 
             // //console.log("pnlDetails", pnlDetails)
-            res.status(201).json({ message: "pnl received", data: pnlDetails });
+            res.status(201).json({ message: "pnl received", data: newPnl });
         }
 
     } catch (e) {
@@ -257,14 +331,14 @@ exports.myTodaysTrade = async (req, res, next) => {
     todayDate = todayDate + "T00:00:00.000Z";
     // const today = new Date(todayDate);
     const skip = parseInt(req.query.skip) || 0;
-    const limit = parseInt(req.query.limit) || 10
+    const limit = parseInt(req.query.limit) || 1000
     const count = await DailyContestMockUser.countDocuments({ trader: new ObjectId(userId), contestId: new ObjectId(id) })
     // //console.log("Under my today orders",userId, today)
     try {
         const myTodaysTrade = await DailyContestMockUser.find({ trader: new ObjectId(userId), contestId: new ObjectId(id) }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1 })
             .sort({ _id: -1 })
-        // .skip(skip)
-        // .limit(limit);
+            .skip(skip)
+            .limit(limit);
         // //console.log(myTodaysTrade)
         res.status(200).json({ status: 'success', data: myTodaysTrade, count: count });
     } catch (e) {

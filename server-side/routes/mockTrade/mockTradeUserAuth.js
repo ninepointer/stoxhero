@@ -10,15 +10,15 @@ const axios = require('axios');
 
 router.post("/mocktradeuser", async (req, res)=>{
 
-    let {exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType,
+    let {exchange, symbol, buyOrSell, Quantity, Price, Product, order_type,
          TriggerPrice, stopLoss, validity, variety, last_price, createdBy, userId,
           createdOn, uId, isRealTrade, order_id, instrumentToken} = req.body
 
           //console.log(req.body);
           //console.log("in the company auth");
 
-    if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety || !last_price || !instrumentToken){
-        //console.log(exchange); //console.log(symbol); //console.log(buyOrSell); //console.log(Quantity); //console.log(Product); //console.log(OrderType); //console.log(validity); //console.log(variety); //console.log(last_price); //console.log(instrumentToken);
+    if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety || !last_price || !instrumentToken){
+        //console.log(exchange); //console.log(symbol); //console.log(buyOrSell); //console.log(Quantity); //console.log(Product); //console.log(order_type); //console.log(validity); //console.log(variety); //console.log(last_price); //console.log(instrumentToken);
         //console.log(req.body);
         //console.log("data nhi h pura");
         return res.status(422).json({error : "please fill all the feilds..."})
