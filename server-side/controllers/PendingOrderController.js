@@ -238,13 +238,13 @@ exports.cancelOrder = async (req, res, next) => {
             const doc = await updatedOrder.save({new: true});
             
             if(from === tenxTrader){
-              pnlData = await client.get(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id.toString()}: overallpnlTenXTrader`)
+              pnlData = await client.get(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id?.toString()}: overallpnlTenXTrader`)
             } else if(from === marginx){
-              pnlData = await client.get(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id.toString()} overallpnlMarginX`)
+              pnlData = await client.get(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id?.toString()} overallpnlMarginX`)
             } else if(from === dailyContest){
-              pnlData = await client.get(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id.toString()} overallpnlDailyContest`)
+              pnlData = await client.get(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id?.toString()} overallpnlDailyContest`)
             } else if(from === internTrader){
-              pnlData = await client.get(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id.toString()}: overallpnlIntern`)
+              pnlData = await client.get(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id?.toString()}: overallpnlIntern`)
             } else if(from === virtualTrader){
               pnlData = await client.get(`${symbolArr[i]?.createdBy?.toString()}: overallpnlPaperTrade`)
             }
@@ -271,17 +271,17 @@ exports.cancelOrder = async (req, res, next) => {
             }
 
             if(from === tenxTrader){
-              await client.set(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlData))
+              await client.set(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id?.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlData))
             } else if(from === marginx){
-              await client.set(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id.toString()} overallpnlMarginX`, JSON.stringify(pnlData))
+              await client.set(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id?.toString()} overallpnlMarginX`, JSON.stringify(pnlData))
             } else if(from === dailyContest){
-              await client.set(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id.toString()} overallpnlDailyContest`, JSON.stringify(pnlData))
+              await client.set(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id?.toString()} overallpnlDailyContest`, JSON.stringify(pnlData))
             } else if(from === internTrader){
-              await client.set(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id.toString()}: overallpnlIntern`, JSON.stringify(pnlData))
+              await client.set(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id?.toString()}: overallpnlIntern`, JSON.stringify(pnlData))
             } else if(from === virtualTrader){
               await client.set(`${symbolArr[i]?.createdBy?.toString()}: overallpnlPaperTrade`, JSON.stringify(pnlData))
             }
-            // await client.set(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlData));
+            // await client.set(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id?.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlData));
             symbolArr.splice(i, 1, {});
             await client.set('stoploss-stopprofit', JSON.stringify(data));
             break;
@@ -318,7 +318,7 @@ exports.editPrice = async (req, res, next) => {
     data = JSON.parse(data);
     let symbolArr = data[`${updatedOrder.instrumentToken}`];
     for(let i = 0; i < symbolArr.length; i++){
-        if(symbolArr[i]?._id.toString() === id.toString() && 
+        if(symbolArr[i]?._id?.toString() === id.toString() && 
            symbolArr[i]?.createdBy?.toString() === updatedOrder.createdBy.toString())
         {
             updatedOrder.price = execution_price;

@@ -330,6 +330,24 @@ exports.cancelPendingOrders = async() => {
     }
 }
 
+router.get("/checkextra", async (req, res)=>{
+    const today = new Date().setHours(0,0,0,0);
+    try{
+        const contest = await Contest.findById('654240e691586db318590372');
+        const participants = contest.participants;
+        const participantIds = participants.map(item=>item.userId.toString());
+        const pot = contest.potentialParticipants.map(item=>item?.toString());
+        const potSet = new Set(pot);
+        console.log(pot, participantIds);
+        let arr = [];
+        const difference = participantIds.filter(item => !potSet.has(item.toString()));
+        console.log('only',difference);
+    }catch(e){
+        console.log(e);
+    }
+})
+
+
 
 module.exports = router;
 

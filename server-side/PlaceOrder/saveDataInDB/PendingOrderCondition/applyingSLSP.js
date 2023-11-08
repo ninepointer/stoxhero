@@ -1,19 +1,19 @@
 const PendingOrder = require("../../../models/PendingOrder/pendingOrderSchema")
 const { client, getValue } = require('../../../marketData/redisClient');
 const getKiteCred = require('../../../marketData/getKiteCred'); 
-const {tenx, marginx, dailyContest, internship, virtualTrader} = require("../../../constant")
+const {internTrader, tenxTrader, marginx, dailyContest, virtualTrader} = require("../../../constant")
 
 
 exports.applyingSLSP = async (req, otherData, session, docId, from) => {
 
   let product_type;
-  if(from === tenx){
+  if(from === tenxTrader){
     product_type = "6517d3803aeb2bb27d650de0"
   } else if(from === marginx){
     product_type = "6517d40e3aeb2bb27d650de1"
   } else if(from === dailyContest){
     product_type = "6517d48d3aeb2bb27d650de5"
-  } else if(from === internship){
+  } else if(from === internTrader){
     product_type = "6517d46e3aeb2bb27d650de3"
   } else if(from === virtualTrader){
     product_type = "65449ee06932ba3a403a681a"
@@ -31,7 +31,7 @@ exports.applyingSLSP = async (req, otherData, session, docId, from) => {
         console.log("portfolioId", portfolioId)
 
     last_price = last_price && String(last_price)?.includes("₹") && last_price?.slice(1);
-    id = id ? id : from === tenx ? subscriptionId : from === marginx ? marginxId : from === dailyContest ? contestId : from === internship ? subscriptionId : from === virtualTrader && portfolioId;
+    id = id ? id : from === tenxTrader ? subscriptionId : from === marginx ? marginxId : from === dailyContest ? contestId : from === internTrader ? subscriptionId : from === virtualTrader && portfolioId;
     if(Object.keys(otherData).length > 0){
         Quantity = otherData.quantity ? otherData.quantity : Quantity;
         stopProfitPrice = otherData.stopProfitPrice ? otherData.stopProfitPrice : stopProfitPrice;

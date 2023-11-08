@@ -35,7 +35,7 @@ exports.virtualTrade = async (req, res, otherData) => {
     let pnl = await client.get(`${req.user._id.toString()}: overallpnlPaperTrade`)
     pnl = JSON.parse(pnl);
     let reverseTradeConditionData;
-    const matchingElement = pnl.find((element) => (element._id.instrumentToken === paperDoc.instrumentToken && element._id.product === paperDoc.Product && element._id.isLimit));
+    const matchingElement = pnl.find((element) => (element._id.instrumentToken === paperDoc.instrumentToken && element._id.product === paperDoc.Product && !element._id.isLimit));
     if(matchingElement){
       const matchingElementBuyOrSell = matchingElement?.lots > 0 ? "BUY" : "SELL";
       if(matchingElement?.lots !== 0 && (matchingElementBuyOrSell !== paperDoc.buyOrSell) && (order_type !== "LIMIT")){
@@ -44,7 +44,6 @@ exports.virtualTrade = async (req, res, otherData) => {
     }
 
     if(reverseTradeConditionData === 0){
-      console.log("from reverse trade")
       stopLossPrice = 0;
       stopProfitPrice = 0;
     }
@@ -149,7 +148,6 @@ exports.virtualTrade = async (req, res, otherData) => {
 const saveInRedis = async (req, paperDoc, portfolioId)=>{
   const {margin, order_type} = req.body;
 
-  console.log('ordertypes', order_type, paperDoc)
   if (await client.exists(`${req.user._id.toString()}: overallpnlPaperTrade`)) {
     let pnl = await client.get(`${req.user._id.toString()}: overallpnlPaperTrade`)
     pnl = JSON.parse(pnl);

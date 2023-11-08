@@ -55,7 +55,6 @@ const contestSchema = new Schema({
     },
     featured:{
         type: Boolean,
-        required: true,
         default: false,
     },
     payoutType:{
