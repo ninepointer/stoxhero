@@ -46,7 +46,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
   const [editableKYC, setEditableKYC] = useState(false);
   const getDetails = useContext(userContext);
 
-  // console.log('rendering',getDetails?.userDetails?.degree);
+  console.log('rendering',getDetails?.userDetails);
 
   const blankImageUrl = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%' height='130px'%3E%3Crect width='100%' height='130px' fill='lightgrey'/%3E%3Ctext x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='15px' fill='black'%3EDocument Preview%3C/text%3E%3C/svg%3E`;
 
@@ -83,6 +83,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
       phonePe_number:getDetails?.userDetails?.phonePe_number || "",
       payTM_number:getDetails?.userDetails?.payTM_number || "",
       nameAsPerBankAccount:getDetails?.userDetails?.nameAsPerBankAccount || "",
+      bankState:getDetails?.userDetails?.bankState || "",
       bankName:getDetails?.userDetails?.bankName || "",
       accountNumber:getDetails?.userDetails?.accountNumber || "",
       ifscCode:getDetails?.userDetails?.ifscCode || "",
@@ -155,6 +156,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
           phonePe_number:res?.data?.phonePe_number,
           payTM_number:res?.data?.payTM_number,
           nameAsPerBankAccount:res?.data?.nameAsPerBankAccount,
+          bankState:res?.data?.bankState,
           bankName:res?.data?.bankName,
           accountNumber:res?.data?.accountNumber,
           ifscCode:res?.data?.ifscCode,
@@ -207,7 +209,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
       }
       if(section==="Bank Details"){
         if(!formStateBD.nameAsPerBankAccount || !formStateBD.bankName || 
-          !formStateBD.accountNumber || !formStateBD.ifscCode 
+          !formStateBD.accountNumber || !formStateBD.ifscCode || !formStateBD.bankState
           ) return openErrorSB("Bank Details","Please fill all the required fields.")
       }
 
@@ -1014,6 +1016,21 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 onChange={(e) => {setFormStateBD(prevState => ({
                   ...prevState,
                   ifscCode: e.target.value
+                }))}}
+              />
+          </Grid>
+
+          <Grid item xs={12} md={6} xl={3}>
+              <TextField
+                required
+                disabled={!editableBD}
+                id="outlined-required"
+                label="State(Account of which State)"
+                value={formStateBD.bankState}
+                fullWidth
+                onChange={(e) => {setFormStateBD(prevState => ({
+                  ...prevState,
+                  bankState: e.target.value
                 }))}}
               />
           </Grid>

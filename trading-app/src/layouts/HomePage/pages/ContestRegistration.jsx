@@ -638,10 +638,9 @@ const CareerForm = () => {
                       <MDButton 
                         onClick={generateOTP} 
                         variant="gradient" 
-                        color="warning"
-                        style={{width:'90%'}}
+                        style={{backgroundColor:'#65BA0D', color:'white',width:'90%'}}
                       >
-                        <MDTypography fontSize={13} fontWeight='bold' color='white'>Get OTP to Registration</MDTypography>
+                        <MDTypography fontSize={13} fontWeight='bold' color='white'>Get Mobile OTP</MDTypography>
                       </MDButton>
                     </MDBox>
                     </Grid>

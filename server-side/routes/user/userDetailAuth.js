@@ -536,7 +536,7 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
         const filteredBody = filterObj(req.body, 'name', 'first_name', 'last_name', 'email', 'mobile','gender', 
         'whatsApp_number', 'dob', 'address', 'city', 'state', 'country', 'last_occupation', 'family_yearly_income',
         'employeed', 'upiId','googlePay_number','payTM_number','phonePe_number','bankName','nameAsPerBankAccount','accountNumber',
-        'ifscCode','aadhaarNumber','degree','panNumber','passportNumber','drivingLicenseNumber','pincode', 'KYCStatus'
+        'ifscCode', 'bankState','aadhaarNumber','degree','panNumber','passportNumber','drivingLicenseNumber','pincode', 'KYCStatus'
         );
         if(filteredBody.KYCStatus == 'Approved') {
           filteredBody.KYCStatus = 'Rejected';
@@ -714,7 +714,7 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
             filteredBody[key]=""
           }
         }
-        console.log('body',filteredBody)
+        
         const userData = await UserDetail.findByIdAndUpdate(user._id, filteredBody, {new: true});
     
         res.status(200).json({message:'Edit successful',status:'success',data: userData});
