@@ -9,6 +9,7 @@ import { userContext } from "../../AuthContext";
 import ReactGA from "react-ga"
 import { useLocation } from "react-router-dom";
 import { socketContext } from "../../socketContext";
+import MuhurtContestTradingView from "./data/muhurtTradingWindow";
 
 function Tables() {
 
@@ -25,11 +26,15 @@ function Tables() {
     ReactGA.pageview(window.location.pathname)
   }, []);
 
+  console.log("trading window", location.state)
   return (
     <>
     <DashboardLayout>
       <DashboardNavbar />
-      <ContestTradingView socket={socket} data={location.state}/>
+      {location.state.name.includes("muhurat") ?
+      <MuhurtContestTradingView socket={socket} data={location.state} />
+      :
+      <ContestTradingView socket={socket} data={location.state}/>}
       <Footer />
     </DashboardLayout>
     </>
