@@ -86,6 +86,10 @@ const CareerApplication = require("../../models/Careers/careerApplicationSchema"
 
 
 router.get('/tenxremove', async(req,res) =>{
+  const daily = await DailyContest.findOne({_id: new ObjectId()})
+})
+
+router.get('/tenxremove', async(req,res) =>{
   const subscription = await TenxSubscription.aggregate([
     {
       $unwind: {

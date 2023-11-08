@@ -168,7 +168,7 @@ function Header({ subscription, checkPayment, setCheckPayment, amount, name, id,
                                     <MDTypography fontSize={10} fontWeight='bold'>{moment.utc(subscription?.subscribedOn).utcOffset('+05:30').format("DD-MMM-YY hh:mm a")}</MDTypography>
                                 </Grid>
                                 <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center'>
-                                    <MDTypography fontSize={10} fontWeight='bold'>{moment.utc(subscription?.subscribedOn).utcOffset('+05:30').add(subscription?.expiryDays, 'days').hours(16).minutes(0).format("DD-MMM-YY hh:mm a")}</MDTypography>
+                                    <MDTypography fontSize={10} fontWeight='bold'>{moment.utc(subscription?.subscribedOn).utcOffset('+05:30').add(subscription?.expiryDays-1, 'days').hours(16).minutes(0).format("DD-MMM-YY hh:mm a")}</MDTypography>
                                 </Grid>
                             </Grid>
                         </Grid>    

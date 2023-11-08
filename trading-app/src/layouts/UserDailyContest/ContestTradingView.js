@@ -26,12 +26,12 @@ function Tables() {
     ReactGA.pageview(window.location.pathname)
   }, []);
 
-  console.log("trading window", location.state)
+  console.log("trading window", location.state, location.state.name.includes("muhurat"))
   return (
     <>
     <DashboardLayout>
       <DashboardNavbar />
-      {location.state.name.includes("muhurat") ?
+      {location.state.name.toLowerCase().includes("muhurat") ?
       <MuhurtContestTradingView socket={socket} data={location.state} />
       :
       <ContestTradingView socket={socket} data={location.state}/>}

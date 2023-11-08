@@ -106,7 +106,7 @@ function Header({ socket, data }) {
     return (
         <>
             <MDBox color="dark" mt={2} mb={1} borderRadius={10} minHeight='80vH'>
-                <img src={DiwaliBG} />
+                <img src={DiwaliBG} minHeight='80vH' width='100%' style={{borderRadius: "10px"}} />
                 <MDBox bgColor="lightgrey" display='flex' p={1} borderRadius={10}>
                     <MDBox width='100%' minHeight='auto' display='flex' justifyContent='center'>
                         <PnlAndMarginData contestId={contestId} />
@@ -141,12 +141,9 @@ function Header({ socket, data }) {
                     </Grid>
                 </Grid>
 
-                {/* <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}> */}
                     <Grid item xs={12} md={6} lg={12} >
                         <TradingHeader socket={socket} data={data}/>
-                        {/* {memoizedOverallPnl} */}
                     </Grid>
-                {/* </Grid> */}
 
                 <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
                     <Grid item xs={12} md={6} lg={12}>
