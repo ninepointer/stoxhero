@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
 const {createPayment, getPayment, getUserPayment, getUsers, initiatePayment, handleCallback,
-     checkPaymentStatus, getSuccessfulPayment, getFailedPayment, getInitiatedPayment} = require('../../controllers/paymentController');
+     checkPaymentStatus, getSuccessfulPayment, getFailedPayment, getInitiatedPayment, makePayment} = require('../../controllers/paymentController');
 const Authenticate = require('../../authentication/authentication');
 const restrictTo = require('../../authentication/authorization');
 
