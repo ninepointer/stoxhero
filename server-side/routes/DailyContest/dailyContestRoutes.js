@@ -6,6 +6,7 @@ const registrationController = require('../../controllers/dailyContest/dailyCont
 const restrictTo = require('../../authentication/authorization');
 
 router.post('/contest', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.createContest);
+router.get('/userfeatured', Authenticate, contestController.getUserFeaturedContests);
 router.get('/livecontest', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getAllLiveContests);
 router.get('/paidcontestuserdata', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.paidContestUserData);
 router.get('/freecontestuserdata', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.freeContestUserData);

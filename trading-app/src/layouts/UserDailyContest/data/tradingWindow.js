@@ -33,6 +33,7 @@ function Header({ socket, data }) {
     const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
     const [watchList, setWatchList] = useState([]);
     const [updatePendingOrder, setUpdatePendingOrder] = useState();
+    const [rank, setRank] = useState();
     const navigate = useNavigate();
     let contestId = data?.data;
     let endTime = data?.endTime;
@@ -58,13 +59,13 @@ function Header({ socket, data }) {
         return <StockIndexDailyContest socket={socket} />;
       }, [socket]);
 
-      const memoizedLeaderboard = useMemo(() => {
-        return <Leaderboard socket={socket} name={data?.name} id={contestId} />;
-      }, [socket, data?.name, contestId]);
+    //   const memoizedLeaderboard = useMemo(() => {
+    //     return <Leaderboard socket={socket} name={data?.name} id={contestId} />;
+    //   }, [socket, data?.name, contestId]);
 
       const memoizedDailyContestMyRank = useMemo(() => {
-        return <DailyContestMyRank socket={socket} id={contestId} data={data} />;
-      }, [socket, contestId, data]);
+        return <DailyContestMyRank socket={socket} id={contestId} data={data} setRank={setRank} />;
+      }, [socket, contestId, data, setRank]);
 
     const memoizedTradableInstrument = useMemo(() => {
         return <TradableInstrument
@@ -89,17 +90,17 @@ function Header({ socket, data }) {
         />;
       }, [setWatchList, data, contestId, socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
     
-      const memoizedOverallPnl = useMemo(() => {
-        return <OverallPnl
-          socket={socket}
-          isGetStartedClicked={isGetStartedClicked}
-          setIsGetStartedClicked={handleSetIsGetStartedClicked}
-          from={dailyContest}
-          subscriptionId={contestId}
-        //   setAvailbleMargin={setAvailbleMargin}
-          moduleData={data}
-        />;
-      }, [data, contestId, handleSetIsGetStartedClicked, isGetStartedClicked, socket]);
+    //   const memoizedOverallPnl = useMemo(() => {
+    //     return <OverallPnl
+    //       socket={socket}
+    //       isGetStartedClicked={isGetStartedClicked}
+    //       setIsGetStartedClicked={handleSetIsGetStartedClicked}
+    //       from={dailyContest}
+    //       subscriptionId={contestId}
+    //     //   setAvailbleMargin={setAvailbleMargin}
+    //       moduleData={data}
+    //     />;
+    //   }, [data, contestId, handleSetIsGetStartedClicked, isGetStartedClicked, socket]);
     
 
     return (
@@ -141,7 +142,7 @@ function Header({ socket, data }) {
 
                 {/* <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}> */}
                     <Grid item xs={12} md={6} lg={12} >
-                        <TradingHeader socket={socket} data={data}/>
+                        <TradingHeader socket={socket} data={data} myRank={rank}/>
                         {/* {memoizedOverallPnl} */}
                     </Grid>
                 {/* </Grid> */}

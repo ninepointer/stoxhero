@@ -10,6 +10,7 @@ import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 
 // Images
+import Featured from '../../../assets/images/featured.png'
 import ContestCarousel from '../../../assets/images/target.png'
 import WinnerImage from '../../../assets/images/cup-image.png'
 import Timer from '../timer'
@@ -20,6 +21,8 @@ import MDSnackbar from "../../../components/MDSnackbar";
 import PopupMessage from "../data/popupMessage";
 import PopupTrading from "../data/popupTrading";
 import Payment from "../data/payment"
+import RewardTable from "./rewardTable";
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 
 function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, socket, setIsInterested }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -157,9 +160,7 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
                                     if (elem.isFinNifty) {
                                         contestOn.push("FINNIFTY")
                                     }
-                                    if (elem.isAllIndex) {
-                                        contestOn = ['NIFTY', 'BANKNIFTY', 'FINNIFTY']
-                                    }
+
 
                                     contestOn.push(elem.contestExpiry.toUpperCase());
 
@@ -186,8 +187,10 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
                                                     </Grid>
                                                     <Grid item xs={9} md={9} lg={9} display='flex' justifyContent='flex-end' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                            <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
+                                                            <MDBox display='flex' justifyContent='flex-end' alignContent='center' alignItems='center'>
                                                                 <MDBox display='flex' justifyContent='flex-start'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>{elem.contestName}</MDTypography></MDBox>
+                                                                <img src={Featured} width='100px' height='70px' display='flex' justifyContent='flex-end' />
+                                                                {/* <MDBox display='flex' justifyContent='flex-end' sx={{ height: "10px", width: "100px", backgroundColor: "#DBB670" }}></MDBox> */}
                                                             </MDBox>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='row' alignItems='center'>
                                                                 <MDBox mr={1} display='flex' justifyContent='flex-start'><MDTypography fontSize={10} sx={{ color: "#DBB670" }}>{changeDateFormat(elem.contestStartTime)}</MDTypography></MDBox>
@@ -209,7 +212,9 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                                 <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Reward</MDTypography></MDBox>
-                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>{elem?.payoutPercentage}% of the net P&L{elem?.payoutCapPercentage?`(upto ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.entryFee * (elem?.payoutCapPercentage??1000)/100)})`:''}</MDTypography></MDBox>
+                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>
+                                                                   {elem?.payoutType === "Percentage" ? `${elem?.payoutPercentage}% of the net P&L${elem?.payoutCapPercentage?`(upto ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.entryFee * (elem?.payoutCapPercentage??1000)/100)})`:''}` : <RewardTable reward={elem?.rewards} paid={true}/>} 
+                                                                </MDTypography></MDBox>
                                                             </MDBox>
                                                         </MDBox>
                                                     </Grid>

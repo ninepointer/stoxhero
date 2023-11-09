@@ -1,10 +1,4 @@
 import { React, useState, useEffect, useContext, useCallback, useMemo } from "react";
-// import axios from "axios";
-// import { Link } from "react-router-dom";
-// import moment from 'moment'
-// import ReactGA from "react-ga"
-
-
 // @mui material components
 import Grid from "@mui/material/Grid";
 
@@ -14,14 +8,8 @@ import MDBox from "../../../components/MDBox";
 // Material Dashboard 2 React base styles
 
 // Images
-// import MDButton from "../../../components/MDButton";
 import MDAvatar from "../../../components/MDAvatar";
 import MDTypography from "../../../components/MDTypography";
-// import AMargin from '../../../assets/images/amargin.png'
-// import logo from '../../../assets/images/logo1.jpeg'
-// import TwitterIcon from '@mui/icons-material/Twitter';
-// import FacebookIcon from '@mui/icons-material/Facebook';
-// import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { CircularProgress, Divider } from "@mui/material";
 import DefaultProfilePic from "../../../assets/images/default-profile.png";
 import { userContext } from "../../../AuthContext";
@@ -29,46 +17,42 @@ import { NetPnlContext } from "../../../PnlContext";
 import axios from "axios";
 
 
-function MyRank({ socket, id, data}) {
+function MyRank({ socket, id, data, setRank}) {
 
     const [myRank, setMyRankData] = useState();
     const getDetails = useContext(userContext);
     const pnl = useContext(NetPnlContext);
     const [loading, setIsLoading] = useState(true);
-    const [reward, setReward] = useState([]);
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-
-
-    // useEffect(() => {
-    //     axios.get(`${baseUrl}api/v1/battles/prizedetail/${id}`,{
-    //       withCredentials: true,
-    //       headers: {
-    //           Accept: "application/json",
-    //           "Content-Type": "application/json",
-    //           "Access-Control-Allow-Credentials": true
-    //       }}
-    //       ).then((res)=>{
-    //         setReward(res.data.data?.prizeDistribution);
-    //       })
-          
-    //   }, []);
+    // const [reward, setReward] = useState([]);
+    // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
     useEffect(() => {
         socket?.on(`contest-myrank${getDetails.userDetails?._id}${id}`, (data) => {
 
             console.log("leaderboard rank", data)
             setMyRankData((prev) => (data !== null ? data : prev));
+            setRank((prev) => (data !== null ? data : prev));
             setIsLoading(false);
 
         })
 
     }, [])
 
-    let myReward = pnl?.netPnl*data?.allData?.payoutPercentage/100>0?pnl?.netPnl*data?.allData?.payoutPercentage/100:0;
+    // let myReward = pnl?.netPnl*data?.allData?.payoutPercentage/100>0?pnl?.netPnl*data?.allData?.payoutPercentage/100:0;
     
-
-    console.log("myRank", myRank, myReward)
-
+    let myReward;
+    if(data?.allData?.payoutType === "Percentage"){
+        myReward = pnl?.netPnl*data?.allData?.payoutPercentage/100>0?pnl?.netPnl*data?.allData?.payoutPercentage/100:0 ;
+    } else{
+        const rewards = data?.allData?.rewards;
+        for(let elem of rewards){
+            if(Number(myRank) >= Number(elem.rankStart) && Number(myRank) <= Number(elem.rankEnd)){
+                myReward = elem.prize;
+            } else{
+                myReward = "+₹" + "0.00";
+            }
+        }
+    }
     return (
         <>
 

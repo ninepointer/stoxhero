@@ -965,6 +965,7 @@ exports.fundCheckMarginX = async (req, res, next) => {
     const isRedisConnected = getValue();
     let todayPnlData;
     let fundDetail;
+    console.log(`${req.user._id.toString()}${req.body.marginxId.toString()} overallpnlMarginX`)
     try {
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.marginxId.toString()} overallpnlMarginX`)) {
             todayPnlData = await client.get(`${req.user._id.toString()}${req.body.marginxId.toString()} overallpnlMarginX`)

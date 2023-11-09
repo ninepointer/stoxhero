@@ -23,7 +23,7 @@ exports.contestChecks = async(req,res,next) => {
             return elem?.userId?.toString() === userId?.toString()
         })
 
-        if(user.length === 0){
+        if(user?.length === 0){
             return res.status(404).json({ status: "error", message: "You have not participated in this contest."}); 
         }
 
@@ -45,12 +45,12 @@ exports.marginxChecks = async(req,res,next) => {
             return res.status(201).json({ status: 'error', message: 'This MarginX is not started yet.' });
         }
     
-        let user = marginx.participants.filter((elem)=>{
+        let user = marginx?.participants.filter((elem)=>{
             // console.log(userId, elem?.userId)
             return elem?.userId?.toString() === userId?.toString()
         })
 
-        if(user.length === 0){
+        if(user?.length === 0){
             return res.status(404).json({ status: "error", message: "You have not participated in this MarginX."}); 
         }
 

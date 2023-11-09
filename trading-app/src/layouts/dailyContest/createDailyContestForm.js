@@ -9,7 +9,7 @@ import Grid from "@mui/material/Grid";
 import MDTypography from "../../components/MDTypography";
 import MDBox from "../../components/MDBox";
 import MDButton from "../../components/MDButton"
-import { CircularProgress, formLabelClasses } from "@mui/material";
+import { Checkbox, CircularProgress, FormControlLabel, FormGroup, formLabelClasses } from "@mui/material";
 import MDSnackbar from "../../components/MDSnackbar";
 import MenuItem from '@mui/material/MenuItem';
 import { styled } from '@mui/material';
@@ -58,7 +58,7 @@ function Index() {
   const location = useLocation();
   const contest = location?.state?.data;
   const [collegeSelectedOption, setCollegeSelectedOption] = useState();
-  console.log('id hai', contest);
+  // console.log('id hai', contest);
   // const [applicationCount, setApplicationCount] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -80,11 +80,12 @@ function Index() {
 
   const [formState, setFormState] = useState({
     contestName: '' || contest?.contestName,
+    contestLiveTime: dayjs(contest?.contestLiveTime) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
     contestStartTime: dayjs(contest?.contestStartTime) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
     contestEndTime: dayjs(contest?.contestEndTime) ?? dayjs(new Date()).set('hour', 23).set('minute', 59).set('second', 59),
     allowedUsers: [{ addedOn: '', userId: '' }],
     contestStatus: '' || contest?.contestStatus,
-    contestType: '' || contest?.contestType,
+    contestType: 'Mock' || contest?.contestType,
     contestFor: '' || contest?.contestFor,
     collegeCode: '' || contest?.collegeCode,
     contestOn: '' || contest?.contestOn,
@@ -103,10 +104,12 @@ function Index() {
     isBankNifty: "" || contest?.isBankNifty,
     isFinNifty: "" || contest?.isFinNifty,
     isAllIndex: "" || contest?.isAllIndex,
-    currentLiveStatus: "" || contest?.currentLiveStatus,
+    currentLiveStatus: "Mock" || contest?.currentLiveStatus,
     payoutType: "" || contest?.payoutType,
     liveThreshold: "" || contest?.liveThreshold,
     payoutCapPercentage: "" || contest?.payoutCapPercentage,
+    // payoutType: "" || contest?.payoutType,
+    payoutPercentageType : "" || contest?.payoutPercentageType,
     registeredUsers: {
       userId: "",
       registeredOn: "",
@@ -126,7 +129,7 @@ function Index() {
   useEffect(() => {
     axios.get(`${baseUrl}api/v1/portfolio/dailycontestportfolio`, {withCredentials: true})
       .then((res) => {
-        console.log("Contest Portfolios :", res?.data?.data)
+        // console.log("Contest Portfolios :", res?.data?.data)
         setPortfolios(res?.data?.data);
       }).catch((err) => {
         return new Error(err)
@@ -134,7 +137,7 @@ function Index() {
 
     axios.get(`${baseUrl}api/v1/college`,{withCredentials: true})
     .then((res) => {
-      console.log("College Lists :", res?.data?.data)
+      // console.log("College Lists :", res?.data?.data)
       setCollege(res?.data?.data);
     }).catch((err) => {
       return new Error(err)
@@ -206,6 +209,9 @@ function Index() {
     // console.log("inside submit")
     e.preventDefault()
     console.log(formState)
+    if(formState.contestLiveTime > formState.contestStartTime){
+      return openErrorSB("Error", "Live time should be less then start time.")
+    }
     if(formState.contestStartTime > formState.contestEndTime){
       return openErrorSB("Error", "Date range is not valid.")
     }
@@ -215,7 +221,7 @@ function Index() {
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const { liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage } = formState;
+    const {contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage } = formState;
     const res = await fetch(`${baseUrl}api/v1/dailycontest/contest`, {
       method: "POST",
       credentials: "include",
@@ -224,7 +230,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage
+        contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage
       })
     });
 
@@ -251,6 +257,11 @@ function Index() {
     setSaving(true)
     console.log("formstate", formState)
 
+    if(new Date(formState.contestLiveTime).toISOString() > new Date(formState.contestStartTime).toISOString()){
+      setTimeout(() => { setSaving(false); setEditing(true) }, 500)
+      return openErrorSB("Error", "Live time should be less then start time.")
+    }
+
     if(new Date(formState.contestStartTime).toISOString() > new Date(formState.contestEndTime).toISOString()){
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Error", "Date range is not valid.")
@@ -260,7 +271,7 @@ function Index() {
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const { liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, featured, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage } = formState;
+    const { contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, featured, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage } = formState;
 
     const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${contest?._id}`, {
       method: "PUT",
@@ -270,7 +281,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage
+        contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage
       })
     });
 
@@ -396,6 +407,27 @@ function Index() {
                     <DemoContainer components={['MobileDateTimePicker']}>
                       <DemoItem>
                         <MobileDateTimePicker
+                          label="Contest Live Time"
+                          disabled={((isSubmitted || contest) && (!editing || saving))}
+                          value={formState?.contestLiveTime || dayjs(dailyContest?.contestLiveTime)}
+                          onChange={(newValue) => {
+                            if (newValue && newValue.isValid()) {
+                              setFormState(prevState => ({ ...prevState, contestLiveTime: newValue }))
+                            }
+                          }}
+                          minDateTime={null}
+                          sx={{ width: '100%' }}
+                        />
+                      </DemoItem>
+                    </DemoContainer>
+                  </LocalizationProvider>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3} mt={-1} mb={1}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer components={['MobileDateTimePicker']}>
+                      <DemoItem>
+                        <MobileDateTimePicker
                           label="Contest Start Time"
                           disabled={((isSubmitted || contest) && (!editing || saving))}
                           value={formState?.contestStartTime || dayjs(dailyContest?.contestStartTime)}
@@ -411,7 +443,6 @@ function Index() {
                     </DemoContainer>
                   </LocalizationProvider>
                 </Grid>
-
 
                 <Grid item xs={12} md={6} xl={3} mt={-1} mb={1}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -523,7 +554,7 @@ function Index() {
                   </>
                 }
 
-                <Grid item xs={12} md={6} xl={3}>
+                {/* <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width:'100%' }}>
                     <InputLabel id="demo-multiple-name-label">Contest Type</InputLabel>
                     <Select
@@ -556,7 +587,7 @@ function Index() {
                       </MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
+                </Grid> */}
                 
                 <Grid item xs={12} md={6} xl={3} mb={2}>
                   <TextField
@@ -581,25 +612,6 @@ function Index() {
                   <TextField
                     disabled={((isSubmitted || contest) && (!editing || saving))}
                     id="outlined-required"
-                    label='Payout Percentage *'
-                    name='payoutPercentage'
-                    fullWidth
-                    type='number'
-                    defaultValue={editing ? formState?.payoutPercentage : contest?.payoutPercentage}
-                    // onChange={handleChange}
-                    onChange={(e) => {
-                      setFormState(prevState => ({
-                        ...prevState,
-                        payoutPercentage: (e.target.value)
-                      }))
-                    }}
-                  />
-                </Grid>
-
-                <Grid item xs={12} md={6} xl={3} mb={2}>
-                  <TextField
-                    disabled={((isSubmitted || contest) && (!editing || saving))}
-                    id="outlined-required"
                     label='Entry Fee *'
                     name='entryFee'
                     fullWidth
@@ -615,7 +627,7 @@ function Index() {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6} xl={3} mb={2}>
+                {/* <Grid item xs={12} md={6} xl={3} mb={2}>
                   <TextField
                     disabled={((isSubmitted || contest) && (!editing || saving))}
                     id="outlined-required"
@@ -632,9 +644,79 @@ function Index() {
                       }))
                     }}
                   />
+                </Grid> */}
+
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormControl sx={{ width: "100%" }}>
+                    <InputLabel id="demo-simple-select-autowidth-label">Payout Type *</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-autowidth-label"
+                      id="demo-simple-select-autowidth"
+                      name='payoutType'
+                      value={formState?.payoutType || contest?.payoutType}
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          payoutType: e.target.value
+                        }))
+                      }}
+                      label="Payout Type"
+                      sx={{ minHeight: 43 }}
+                    >
+                      <MenuItem value="Percentage">Percentage</MenuItem>
+                      <MenuItem value="Reward">Reward</MenuItem>
+                    </Select>
+                  </FormControl>
                 </Grid>
 
-                <Grid item xs={12} md={6} xl={3} mb={2}>
+                {formState.payoutType === "Percentage" &&
+                <>
+                <Grid item xs={12} md={6} xl={4}>
+                  <FormControl sx={{ width: "100%" }}>
+                    <InputLabel id="demo-simple-select-autowidth-label">Payout Percentage Type *</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-autowidth-label"
+                      id="demo-simple-select-autowidth"
+                      name='payoutPercentageType'
+                      value={formState?.payoutPercentageType || contest?.payoutPercentageType}
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          payoutPercentageType: e.target.value
+                        }))
+                      }}
+                      label="Payout Percentage Type"
+                      sx={{ minHeight: 43 }}
+                    >
+                      <MenuItem value="Daily">Daily</MenuItem>
+                      <MenuItem value="Contest End">Contest End</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={4} mb={2}>
+                  <TextField
+                    disabled={((isSubmitted || contest) && (!editing || saving))}
+                    id="outlined-required"
+                    label='Payout Percentage *'
+                    name='payoutPercentage'
+                    fullWidth
+                    type='number'
+                    defaultValue={editing ? formState?.payoutPercentage : contest?.payoutPercentage}
+                    // onChange={handleChange}
+                    onChange={(e) => {
+                      setFormState(prevState => ({
+                        ...prevState,
+                        payoutPercentage: (e.target.value)
+                      }))
+                    }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={4} mb={2}>
                   <TextField
                     disabled={((isSubmitted || contest) && (!editing || saving))}
                     id="outlined-required"
@@ -652,8 +734,9 @@ function Index() {
                     }}
                   />
                 </Grid>
+                </>}
 
-                <Grid item xs={12} md={6} xl={6} mb={2}>
+                <Grid item xs={12} md={6} xl={3} mb={2}>
                   <TextField
                     disabled={((isSubmitted || contest) && (!editing || saving))}
                     id="outlined-required"
@@ -717,7 +800,7 @@ function Index() {
                   </FormControl>
                 </Grid>
 
-                <Grid item xs={12} md={6} xl={3}>
+                {/* <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
                     <InputLabel id="demo-simple-select-autowidth-label">Current Live Status *</InputLabel>
                     <Select
@@ -739,7 +822,7 @@ function Index() {
                       <MenuItem value="Live">Live</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
+                </Grid> */}
 
                 <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
@@ -766,7 +849,7 @@ function Index() {
                   </FormControl>
                 </Grid>
 
-                <Grid item xs={12} md={6} xl={3}>
+                {/* <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
                     <InputLabel id="demo-multiple-name-label">Featured *</InputLabel>
                     <Select
@@ -791,9 +874,9 @@ function Index() {
                       <MenuItem value={false}>FALSE</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
+                </Grid> */}
 
-                <Grid item xs={12} md={6} xl={3}>
+                {/* <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
                     <InputLabel id="demo-simple-select-autowidth-label">Is Contest on Nifty ? *</InputLabel>
                     <Select
@@ -863,9 +946,9 @@ function Index() {
                       <MenuItem value={false}>FALSE</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
+                </Grid> */}
 
-                <Grid item xs={12} md={6} xl={3}>
+                {/* <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
                     <InputLabel id="demo-simple-select-autowidth-label">Is Contest on All Index ? *</InputLabel>
                     <Select
@@ -887,6 +970,71 @@ function Index() {
                       <MenuItem value={false}>FALSE</MenuItem>
                     </Select>
                   </FormControl>
+                </Grid> */}
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormGroup>
+                    <FormControlLabel
+                      checked={(contest?.featured !== undefined && !editing && formState?.featured === undefined) ? contest?.featured : formState?.featured}
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      control={<Checkbox />}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          featured: e.target.checked
+                        }))
+                      }}
+                      label="Featured" />
+                  </FormGroup>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormGroup>
+                    <FormControlLabel
+                      checked={(contest?.isNifty !== undefined && !editing && formState?.isNifty === undefined) ? contest?.isNifty : formState?.isNifty}
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      onChange={(e) => {
+                        console.log('checkbox', e.target.checked, e.target.value);
+                        setFormState(prevState => ({
+                          ...prevState,
+                          isNifty: e.target.checked
+                        }))
+                      }}
+                      control={<Checkbox />}
+                      label="NIFTY" />
+                  </FormGroup>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormGroup>
+                  <FormControlLabel
+                    checked={(contest?.isBankNifty !== undefined && !editing && formState?.isBankNifty === undefined) ? contest?.isBankNifty : formState?.isBankNifty}
+                    disabled={((isSubmitted || contest) && (!editing || saving))}
+                    control={<Checkbox />}
+                    onChange={(e) => {
+                      setFormState(prevState => ({
+                        ...prevState,
+                        isBankNifty: e.target.checked
+                      }))
+                    }}
+                    label="BANKNIFTY" />
+                  </FormGroup>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormGroup>
+                    <FormControlLabel 
+                      checked={(contest?.isFinNifty !== undefined && !editing && formState?.isFinNifty === undefined) ? contest?.isFinNifty : formState?.isFinNifty}
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      control={<Checkbox />} 
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          isFinNifty: e.target.checked
+                        }))
+                      }}
+                      label="FINNIFTY" />
+                  </FormGroup>
                 </Grid>
 
               </Grid>
@@ -948,12 +1096,11 @@ function Index() {
                 )}
               </Grid>
 
-                  {/* todo-vijay */}
-              {/* {(isSubmitted || contest) && <Grid item xs={12} md={12} xl={12} mt={2}>
+              {(contest?.payoutType === "Reward" || (isSubmitted && formState?.payoutType === "Reward")) && <Grid item xs={12} md={12} xl={12} mt={2}>
                 <MDBox>
                 <ContestRewards contest={contest!=undefined ? contest?._id : dailyContest?._id}/>
                 </MDBox>
-              </Grid>} */}
+              </Grid>}
               
 
               {(isSubmitted || contest) && <Grid item xs={12} md={12} xl={12} mt={2}>

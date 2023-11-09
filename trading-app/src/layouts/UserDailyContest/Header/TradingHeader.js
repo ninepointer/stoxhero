@@ -34,7 +34,7 @@ import NewTradingWindow from '../data/newTradingWindow';
 
 
 
-function TradingHeader({socket, data}) {
+function TradingHeader({socket, data, myRank}) {
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");
 
   useEffect(() => {
@@ -134,7 +134,7 @@ function TradingHeader({socket, data}) {
            <MDBox>
                {clicked === "trading" ?
                    <>
-                     <NewTradingWindow socket={socket} data={data} setClicked={setClicked}/>
+                     <NewTradingWindow socket={socket} data={data} setClicked={setClicked} myRank={myRank}/>
                        {/* <ContestTradingView socket={socket} data={location.state} setClicked={setClicked} /> */}
                    </>
                    :
