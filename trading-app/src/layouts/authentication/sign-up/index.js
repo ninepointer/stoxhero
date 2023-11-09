@@ -246,10 +246,8 @@ function Cover(props) {
     console.log("Data after account creation:",data)
     if (data.status === "Success") {
       setDetails.setUserDetail(data.data);
-      console.log(setDetails)
       setShowConfirmation(false);
       const userData = await userDetail();
-      console.log("User Details:",userData)
       if(userData?.role?.roleName === adminRole){
         const from = location.state?.from || "/tenxdashboard";
         navigate(from);
@@ -547,7 +545,7 @@ function Cover(props) {
                   <Grid container xs={12} md={12} lg={12} pt={1} pb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'90%'}}>
                     <Grid item xs={12} md={12} lg={12} mt={0.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                       <MDTypography fontSize={15} style={{color:'#315c45'}} fontWeight='bold'>
-                        Get ready, your trading journey starts here!
+                        Get ready, your stock market trading journey starts here!
                       </MDTypography>
                     </Grid>
                     
