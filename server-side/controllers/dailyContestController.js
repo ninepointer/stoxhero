@@ -508,41 +508,62 @@ exports.getUserLiveContests = async (req, res) => {
 
 exports.getUserFeaturedContests = async (req, res) => {
   try {
-      const contests = await Contest.find({
-          featured: true,
-          contestStatus:"Active"
-      },
+
+    const { userId } = req.user._id;
+    const contests = await Contest.find({
+      featured: true,
+      contestStatus: "Active",
+      contestFor: "StoxHero"
+    },
       {
-          allowedUsers: 0,
-          potentialParticipants: 0,
-          contestSharedBy: 0,
-          purchaseIntent: 0
+        allowedUsers: 0,
+        potentialParticipants: 0,
+        contestSharedBy: 0,
+        purchaseIntent: 0
       })
       .populate('participants.userId', 'first_name last_name email mobile creationProcess')
       .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
       .populate('portfolio', 'portfolioName _id portfolioValue')
       .sort({ contestStartTime: 1 })
 
-      const liveFeatured = contests.filter((elem)=>{
-        return elem.contestStartTime <= new Date();
+    const collegeContests = await Contest.find({
+      featured: true,
+      contestStatus: "Active",
+      contestFor: "College",
+      potentialParticipants: { $elemMatch: { $eq: userId } }
+    },
+      {
+        allowedUsers: 0,
+        potentialParticipants: 0,
+        contestSharedBy: 0,
+        purchaseIntent: 0
       })
+      .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+      .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+      .populate('portfolio', 'portfolioName _id portfolioValue')
+      .sort({ contestStartTime: 1 })
 
-      const upcomingFeatured = contests.filter((elem)=>{
-        return elem.contestStartTime > new Date();
-      })
+    const liveFeatured = contests.filter((elem) => {
+      return elem.contestStartTime <= new Date();
+    })
 
-      res.status(200).json({
-          status: "success",
-          message: "Featured contests fetched successfully",
-          liveFeatured: liveFeatured,
-          upcomingFeatured: upcomingFeatured
-      });
+    const upcomingFeatured = contests.filter((elem) => {
+      return elem.contestStartTime > new Date();
+    })
+
+    res.status(200).json({
+      status: "success",
+      message: "Featured contests fetched successfully",
+      stoxheroLiveFeatured: liveFeatured,
+      stoxheroUpcomingFeatured: upcomingFeatured,
+      collegeContests: collegeContests
+    });
   } catch (error) {
-      res.status(500).json({
-          status: "error",
-          message: "Error in fetching upcoming contests",
-          error: error.message
-      });
+    res.status(500).json({
+      status: "error",
+      message: "Error in fetching upcoming contests",
+      error: error.message
+    });
   }
 };
 
