@@ -26,6 +26,7 @@ import TradingHeader from '../Header/TradingHeader';
 import Order from '../../tradingCommonComponent/Order/Order';
 import PendingOrder from '../../tradingCommonComponent/Order/PendingOrder';
 import ExecutedOrders from '../../tradingCommonComponent/Order/ExecutedOrders';
+import PnlSummary from "./multipleDayContestComponent/pnlSummary";
 
 
 function Header({ socket, data }) {
@@ -35,7 +36,7 @@ function Header({ socket, data }) {
     const navigate = useNavigate();
     let contestId = data?.data;
     let endTime = data?.endTime;
-    console.log("all data", data.allData)
+    // console.log("all data", data.allData)
     useEffect(() => {
         socket.on("serverTime", (time) => {
             const serverTimeString = new Date(time).toISOString().slice(0, 19); // Extract relevant parts
@@ -109,6 +110,12 @@ function Header({ socket, data }) {
                 <Grid container  p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
                     <Grid item xs={12} md={6} lg={12} mb={-2} >
                         {memoizedTradableInstrument}
+                    </Grid>
+                </Grid>
+
+                <Grid container  p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
+                    <Grid item xs={12} md={6} lg={12} >
+                        <PnlSummary contestId={contestId} />
                     </Grid>
                 </Grid>
 

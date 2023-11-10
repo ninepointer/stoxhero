@@ -197,12 +197,11 @@ async function singleProcess() {
 
     //emitting leaderboard for contest.
 
-    //todo-vijay
    if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });
-        // sendLeaderboardDataBattle().then(() => { });
-        // sendMyRankDataBattle().then(() => { });
+        sendLeaderboardDataBattle().then(() => { });
+        sendMyRankDataBattle().then(() => { });
    }
 
     emitServerTime().then(() => { });

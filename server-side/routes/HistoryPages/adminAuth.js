@@ -83,63 +83,7 @@ const {mail} = require("../../controllers/dailyReportMail");
 const CareerApplication = require("../../models/Careers/careerApplicationSchema");
 
 
-// [
-//   {
-//     $match:
-//       {
-//         contestId: ObjectId(
-//           "654badad4b8fd118ebd1095f"
-//         ),
-//         trader: ObjectId(
-//           "63788f3991fc4bf629de6df0"
-//         ),
-//         trade_time: {
-//           $lt: new Date("2023-11-09"),
-//         },
-//       },
-//   },
-//   {
-//     $addFields: {
-//       date: {
-//         $dateToString: {
-//           format: "%Y-%m-%d",
-//           date: "$trade_time",
-//         },
-//       },
-//     },
-//   },
-//   {
-//     $group: {
-//       _id: "$date",
-//       gpnl: {
-//         $sum: {
-//           $multiply: ["$amount", -1],
-//         },
-//       },
-//       brokerage: {
-//         $sum: {
-//           $toDouble: "$brokerage",
-//         },
-//       },
-//       trades: {
-//         $count: {},
-//       },
-//     },
-//   },
-//   {
-//     $project:
-//       {
-//         _id: 0,
-//         date: "$_id",
-//         gpnl: 1,
-//         brokerage: 1,
-//         npnl: {
-//           $subtract: ["$gpnl", "$brokerage"],
-//         },
-//         trades: 1,
-//       },
-//   },
-// ]
+
 
 
 router.get('/tenxremove', async(req,res) =>{
