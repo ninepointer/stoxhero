@@ -2126,7 +2126,7 @@ exports.creditAmountToWallet = async () => {
         pnls.sort((a,b)=>b?.npnl-a?.npnl);
         for (let obj of rewards){
           for(let i=obj?.rankStart-1; i<=obj?.rankEnd-1; i++){
-            addRewardToWallet(obj?.prize, pnls[i], setting, contest[j]);
+            await addRewardToWallet(obj?.prize, pnls[i], setting, contest[j]);
           }
         }
 
