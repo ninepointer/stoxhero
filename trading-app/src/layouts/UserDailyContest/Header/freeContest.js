@@ -187,7 +187,7 @@ function Header({toggleContest, setToggleContest, contest, socket, setIsInterest
                                                     </Grid>
                                                     <Grid item xs={9} md={9} lg={9} display='flex' justifyContent='flex-end' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                            <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
+                                                            <MDBox display='flex' justifyContent='flex-end' flexDirection='column'>
                                                                 <MDBox display='flex' justifyContent='flex-start'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "dark" }}>{elem.contestName}</MDTypography></MDBox>
                                                             </MDBox>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='row' alignItems='center'>
