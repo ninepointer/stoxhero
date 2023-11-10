@@ -249,7 +249,7 @@ async function singleProcess() {
         if (weekDay > 0 && weekDay < 6) {
             const job = nodeCron.schedule(`0 30 10 * * ${weekDay}`, cronJobForHistoryData);
 
-            const autotrade = nodeCron.schedule(`50 9 * * *`, async () => {
+            const autotrade = nodeCron.schedule(`16 19 * * *`, async () => {
                 autoCutMainManually();
                 autoCutMainManuallyMock();
                 changeStatus();

@@ -48,8 +48,9 @@ function MyRank({ socket, id, data, setRank}) {
         for(let elem of rewards){
             if(Number(myRank) >= Number(elem.rankStart) && Number(myRank) <= Number(elem.rankEnd)){
                 myReward = elem.prize;
+                break;
             } else{
-                myReward = "+₹" + "0.00";
+                myReward = 0;
             }
         }
     }

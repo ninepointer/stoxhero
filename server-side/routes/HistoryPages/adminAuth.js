@@ -143,7 +143,8 @@ const CareerApplication = require("../../models/Careers/careerApplicationSchema"
 
 
 router.get('/tenxremove', async(req,res) =>{
-  const daily = await DailyContest.findOne({_id: new ObjectId()})
+await DailyContest.updateMany({contestStatus: "Completed"})
+  // const daily = await DailyContest.findOne({_id: new ObjectId()})
 })
 
 router.get('/tenxremove', async(req,res) =>{
@@ -1646,6 +1647,8 @@ router.get("/afterContest", async (req, res) => {
   // await autoCutMainManually();
   // await autoCutMainManuallyMock();
   await changeBattleStatus();
+  // await changeStatus();
+  // await creditAmount();
   res.send("ok");
 });
 
