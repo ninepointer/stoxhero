@@ -1817,6 +1817,12 @@ const dailyContestLeaderBoard = async (id) => {
         for(let i = 0; i < allParticipants.length; i++){
             let pnl = await client.get(`${allParticipants[i].userId._id.toString()}${id.toString()} overallpnlDailyContest`)
             pnl = JSON.parse(pnl); 
+            // console.log(pnl)
+            pnl = pnl?.filter((elem)=>{
+                return !elem?._id?.isLimit
+            })
+
+            // console.log("ddddd", pnl)
             if(pnl){
                 for(let elem of pnl){
                     elem.trader = allParticipants[i].userId._id.toString();

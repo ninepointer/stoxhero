@@ -2957,7 +2957,7 @@ exports.findFeaturedContestByName = async(req,res,next)=>{
         console.log(new Date(dateString))
         const result = await Contest.findOne({contestName: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'StoxHero'}).
         populate('portfolio', 'portfolioValue portfolioName').
-            select('_id contestName contestStartTime contestEndTime entryFee');
+            select('_id contestName contestStartTime contestEndTime entryFee rewards');
         console.log(result)
             if(!result){
             return res.status(404).json({
