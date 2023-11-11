@@ -74,7 +74,7 @@ exports.myWallet = async (req, res, next) => {
             { $match: { "userId": mongoose.Types.ObjectId(userId) } },
 
             // Unwinding the transactions to sort them
-            { $unwind: 
+            // { $unwind: 
                 
                 {
                     $unwind: {
@@ -82,7 +82,7 @@ exports.myWallet = async (req, res, next) => {
                       preserveNullAndEmptyArrays: true
                     }
                   },
-            },
+            // },
 
             // Sorting transactions by transactionDate in descending order
             { $sort: { "transactions.transactionDate": -1 } },
