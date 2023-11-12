@@ -43,7 +43,7 @@ const Timer = ({socket}) => {
 
     let date = new Date();
     let weekDay = date.getDay();
-    if (weekDay > 0 && weekDay < 6 && holiday === 0) {
+   // if (weekDay > 0 && weekDay < 6 && holiday === 0) {
 
       const appStartTime = new Date(setting[0]?.time?.appStartTime);
       const startTimer = new Date(setting[0]?.time?.timerStartTimeInStart);
@@ -129,12 +129,12 @@ const Timer = ({socket}) => {
         setColor("green");
         setTimerVisibility(false);
       }
-    } else{
-      // console.log("timeDifference in off 2")
-      setRemainingTime(changeDateFormat(nextTradingDay) && `Trading Resumes at ${changeDateFormat(nextTradingDay)}`);
-      setColor("red")
-      setTimerVisibility(false);
-    }
+   // } 
+    // else{
+    //   setRemainingTime(changeDateFormat(nextTradingDay) && `Trading Resumes at ${changeDateFormat(nextTradingDay)}`);
+    //   setColor("red")
+    //   setTimerVisibility(false);
+    // }
 
   }, [serverTime, setting, nextTradingDay]);
 
@@ -182,7 +182,7 @@ const Timer = ({socket}) => {
     <div style={ window.outerWidth >= 1200 ? { display: "flex", justifyContent: "center", alignContent: "center", alignItems: "center" , gap: "5px"} : {display: "flex", justifyContent: "center", alignContent: "center", alignItems: "center", flexDirection: "column"}}>
       {timerVisibility ?
         <>
-          <p style={{ color: color,  textAlign:"center" }}>{goingOnline ? `You can place trades in` :  `Open trades will be auto squared off in` } </p>
+          <p style={{ color: color,  textAlign:"center" }}>{goingOnline ? `Muhurat trading will start in` :  `Open trades will be auto squared off in` } </p>
           {/* <span style={{ color: color, backgroundColor: "#D3D3D3", borderRadius: "5px", padding: "2px" }}>{remainingTime}</span></p> */}
           <p style={{ color: color, backgroundColor: "#D3D3D3", borderRadius: "5px", padding: "2px", textAlign:"center", width: window.outerWidth < 1200 && "150px" }}>{remainingTime}</p>
         </>
