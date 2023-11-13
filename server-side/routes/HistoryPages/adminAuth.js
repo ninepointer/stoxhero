@@ -82,6 +82,29 @@ const moment = require("moment")
 const {mail} = require("../../controllers/dailyReportMail");
 const CareerApplication = require("../../models/Careers/careerApplicationSchema");
 
+const uuid = require('uuid');
+
+
+
+router.get('/tenxremove', async(req,res) =>{
+  // const arrr = ["", "65213309cc62c86984c48f95"]
+
+  const wallet = await userWallet.findOne({userId: new ObjectId("65213309cc62c86984c48f95")});
+
+  wallet.transactions = [...wallet.transactions, {
+    title: 'Contest Credit',
+    description: `Amount credited for contest Muhurat Trading - 12th Nov(6:15 PM)`,
+    transactionDate: new Date(),
+    amount: 700,
+    transactionId: uuid.v4(),
+    transactionType: 'Cash'
+}];
+
+await wallet.save()
+  // const 
+  // await DailyContest.updateMany({contestStatus: "Completed"})
+    // const daily = await DailyContest.findOne({_id: new ObjectId()})
+})
 
 // [
 //   {

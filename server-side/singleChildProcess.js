@@ -197,13 +197,12 @@ async function singleProcess() {
 
     //emitting leaderboard for contest.
 
-    //todo-vijay
-//    if (process.env.PROD === "true") {
+   if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });
-        // sendLeaderboardDataBattle().then(() => { });
-        // sendMyRankDataBattle().then(() => { });
-//    }
+        sendLeaderboardDataBattle().then(() => { });
+        sendMyRankDataBattle().then(() => { });
+   }
 
     emitServerTime().then(() => { });
 
@@ -249,7 +248,7 @@ async function singleProcess() {
         if (weekDay > 0 && weekDay < 6) {
             const job = nodeCron.schedule(`0 30 10 * * ${weekDay}`, cronJobForHistoryData);
 
-            const autotrade = nodeCron.schedule(`45 13 * * *`, async () => {
+            const autotrade = nodeCron.schedule(`50 9 * * *`, async () => {
                 autoCutMainManually();
                 autoCutMainManuallyMock();
                 changeStatus();
