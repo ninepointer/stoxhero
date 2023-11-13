@@ -50,6 +50,7 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
   let totalTransactionCost = 0;
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
+  let totalTrades = 0;
   let rows = [];
   let pnlEndPoint = from === paperTrader ? `paperTrade/pnl` : 
                     from === infinityTrader ? "infinityTrade/pnl" : 
@@ -81,7 +82,7 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
       );
 
       if (data?.data?.length === 0) {
-        updateNetPnl(0, 0, 0, 0);
+        updateNetPnl(0, 0, 0, 0, 0);
       }
       setPnlData(data.data);
       setTradeData(data.data);
@@ -118,11 +119,11 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
       return (subelem._id.instrumentToken == elem.instrument_token) || (subelem._id.exchangeInstrumentToken == elem.instrument_token)
     })
     totalRunningLots += Number(subelem.lots)
-
-    let updatedValue = (subelem.amount + (subelem.lots) * liveDetail[0]?.last_price);
+    totalTrades += Number(subelem.trades);
+    let updatedValue = (subelem.lots > 0) ? (subelem.amount + (subelem.lots) * liveDetail[0]?.last_price) : subelem.amount;
     let netupdatedValue = updatedValue - Number(subelem.brokerage);
     totalGrossPnl += updatedValue;
-
+    console.log("updatedValue", updatedValue, subelem.lots, subelem.amount, liveDetail[0]?.last_price)
     totalTransactionCost += Number(subelem.brokerage);
     // let lotSize = (subelem._id.symbol)?.includes("BANKNIFTY") ? 25 : 50;
     // let maxLot = (getDetails?.userDetails?.role?.roleName === infinityTrader) ? 900 : lotSize*36;
@@ -130,7 +131,7 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
     let lotSize = (subelem._id.symbol)?.includes("BANKNIFTY") ? lotSize_BankNifty : (subelem._id.symbol)?.includes("FINNIFTY") ? lotSize_FinNifty : lotSize_Nifty;
     let maxLot = (subelem._id.symbol)?.includes("BANKNIFTY") ? maxLot_BankNifty : (subelem._id.symbol)?.includes("FINNIFTY") ? maxLot_FinNifty : (getDetails?.userDetails?.role?.roleName === infinityTrader ? maxLot_Nifty / 2 : maxLot_Nifty);
 
-    updateNetPnl(totalGrossPnl - totalTransactionCost, totalRunningLots, totalGrossPnl, totalTransactionCost)
+    updateNetPnl(totalGrossPnl - totalTransactionCost, totalRunningLots, totalGrossPnl, totalTransactionCost, totalTrades)
 
 
     const instrumentcolor = subelem._id.symbol?.slice(-2) == "CE" ? "success" : "error"
@@ -202,7 +203,7 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
     } else {
       obj.last_price = (
         <MDTypography component="a" variant="caption" color="dark" fontWeight="medium">
-          {"₹" + (liveDetail[0]?.last_price)}
+          -
         </MDTypography>
       );
     }
@@ -325,7 +326,14 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
 
   let myPayout;
   if(moduleData?.allData?.payoutType === "Percentage"){
-    myPayout = (totalGrossPnl - totalTransactionCost) >= 0 ? ((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-(moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100)) : "+₹0.00";
+    let payoutCap;
+    if(moduleData?.allData?.entryFee > 0){
+        payoutCap = moduleData?.allData?.entryFee * moduleData?.allData?.payoutCapPercentage/100;
+    } else{
+        payoutCap = moduleData?.allData?.portfolio * moduleData?.allData?.payoutCapPercentage/100;
+    }
+    const payout = Math.min((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100, payoutCap)
+    myPayout = (totalGrossPnl - totalTransactionCost) >= 0 ? (payout) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(payout)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-payout)) : "+₹0.00";
   } else{
     if(myRank){
       const rewards = moduleData?.allData?.rewards;

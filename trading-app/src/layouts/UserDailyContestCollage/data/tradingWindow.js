@@ -34,6 +34,7 @@ function Header({ socket, data }) {
     const [watchList, setWatchList] = useState([]);
     const [updatePendingOrder, setUpdatePendingOrder] = useState();
     const navigate = useNavigate();
+    const [rank, setRank] = useState();
     let contestId = data?.data;
     let endTime = data?.endTime;
     // console.log("all data", data.allData)
@@ -59,8 +60,8 @@ function Header({ socket, data }) {
       }, [socket]);
 
       const memoizedDailyContestMyRank = useMemo(() => {
-        return <DailyContestMyRank socket={socket} id={contestId} data={data} />;
-      }, [socket, contestId, data]);
+        return <DailyContestMyRank socket={socket} id={contestId} data={data} setRank={setRank} />;
+      }, [socket, contestId, data, setRank]);
 
     const memoizedTradableInstrument = useMemo(() => {
         return <TradableInstrument
@@ -85,7 +86,14 @@ function Header({ socket, data }) {
         />;
       }, [setWatchList, data, contestId, socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
     
+      const startDate = new Date(data?.allData?.contestStartTime);
+      const endDate = new Date(data?.allData?.contestEndTime);
+      // Calculate the difference in milliseconds
+      const timeDifference = endDate.getTime() - startDate.getTime();
+      // Convert milliseconds to days
+      const daysDifference = timeDifference / (1000 * 3600 * 24);
 
+      console.log("daysDifference", daysDifference)
 
     return (
         <>
@@ -113,11 +121,12 @@ function Header({ socket, data }) {
                     </Grid>
                 </Grid>
 
+                {daysDifference > 1 &&
                 <Grid container  p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
                     <Grid item xs={12} md={6} lg={12} >
                         <PnlSummary contestId={contestId} />
                     </Grid>
-                </Grid>
+                </Grid>}
 
                 <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
                     <Grid item xs={12} md={6} lg={12} >
@@ -136,9 +145,10 @@ function Header({ socket, data }) {
 
                 {/* <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}> */}
                     <Grid item xs={12} md={6} lg={12} >
-                        <TradingHeader socket={socket} data={data}/>
+                        <TradingHeader socket={socket} data={data} myRank={rank}/>
                     </Grid>
                 {/* </Grid> */}
+
 
                 <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
                     <Grid item xs={12} md={6} lg={12}>

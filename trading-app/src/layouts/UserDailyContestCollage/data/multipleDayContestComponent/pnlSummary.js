@@ -1,5 +1,5 @@
 import React from 'react';
-import {useState, useEffect, memo} from "react"
+import {useState, useEffect, memo, useContext} from "react"
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -11,10 +11,13 @@ import MDTypography from '../../../../components/MDTypography';
 import MDBox from '../../../../components/MDBox';
 import { Card } from '@mui/material';
 import DataTable from '../../../../examples/Tables/DataTable';
+import { NetPnlContext } from '../../../../PnlContext';
+import moment from 'moment';
 
 function PnlSummary({contestId}) {
 
   const [pnlData, setPnlData] = useState([]);
+  const { netPnl, grossPnlAndBrokerage } = useContext(NetPnlContext); 
   let totalGpnl = 0;
   let totalNpnl = 0;
   let totalBrokerage = 0;
@@ -27,6 +30,7 @@ function PnlSummary({contestId}) {
     { Header: "# Trades", accessor: "trades", align: "center" },
   ];
   let rows = [];
+
 
   useEffect(() => {
     axios.get(`${apiUrl}dailycontest/trade/${contestId}/mydaywisepnl`,{
@@ -42,7 +46,6 @@ function PnlSummary({contestId}) {
       
   }, []);
 
-  console.log("pnl", pnlData)
 
   pnlData?.map((elem) => {
     let featureObj = {};
@@ -53,7 +56,7 @@ function PnlSummary({contestId}) {
 
     featureObj.date = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem?.date}
+        {moment.utc(elem?.date).utcOffset('+00:00').format('DD-MMM')}
       </MDTypography>
     );
     featureObj.gpnl = (
@@ -80,34 +83,64 @@ function PnlSummary({contestId}) {
     rows.push(featureObj)
   })
 
-  let featureObj = {}
-  featureObj.date = (
+  let obj = {};
+  obj.date = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
     TOTAL
     </MDTypography>
   );
-  featureObj.gpnl = (
+  obj.gpnl = (
     <MDTypography component="a" variant="caption" color={totalGpnl > 0 ? "success" : "error"} fontWeight="medium">
-      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(totalGpnl))}
+      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(grossPnlAndBrokerage.grossPnl))}
+    </MDTypography>
+  );
+  obj.brokerage = (
+    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(grossPnlAndBrokerage.brokerage))}
+    </MDTypography>
+  );
+  obj.npnl = (
+    <MDTypography component="a" variant="caption" color={totalNpnl > 0 ? "success" : "error"} fontWeight="medium">
+      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(netPnl))}
+    </MDTypography>
+  );
+  obj.trades = (
+    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      {grossPnlAndBrokerage.trades}
+    </MDTypography>
+  );
+
+  rows.push(obj)
+
+
+  let featureObj = {}
+  featureObj.date = (
+    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+    {moment.utc(new Date()).utcOffset('+00:00').format('DD-MMM')}
+    </MDTypography>
+  );
+  featureObj.gpnl = (
+    <MDTypography component="a" variant="caption" color={grossPnlAndBrokerage.grossPnl-totalGpnl > 0 ? "success" : "error"} fontWeight="medium">
+      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(totalGpnl-grossPnlAndBrokerage.grossPnl))}
     </MDTypography>
   );
   featureObj.brokerage = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {totalBrokerage}
+      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(totalBrokerage-grossPnlAndBrokerage.brokerage))}
     </MDTypography>
   );
   featureObj.npnl = (
-    <MDTypography component="a" variant="caption" color={totalNpnl > 0 ? "success" : "error"} fontWeight="medium">
-      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(totalNpnl))}
+    <MDTypography component="a" variant="caption" color={netPnl-totalNpnl > 0 ? "success" : "error"} fontWeight="medium">
+      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(totalNpnl-netPnl))}
     </MDTypography>
   );
   featureObj.trades = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {totalTrade}
+      {Math.abs(totalTrade-grossPnlAndBrokerage.trades)}
     </MDTypography>
   );
 
-  rows.push(featureObj)
+  rows.unshift(featureObj)
 
 
   return (
@@ -118,7 +151,7 @@ function PnlSummary({contestId}) {
           aria-controls="panel1a-content"
           id="panel1a-header"
         >
-          <Typography>Check your day wise pnl</Typography>
+          <Typography fontSize={14}>Check your day wise pnl</Typography>
         </AccordionSummary>
         <AccordionDetails>
           {pnlData.length > 0 ?
@@ -140,7 +173,7 @@ function PnlSummary({contestId}) {
             </MDBox>
           </Card>
           :
-          <Typography>Your daily pnl is visible here</Typography>}
+          <Typography>Your daily pnl will visible here</Typography>}
         </AccordionDetails>
       </Accordion>
     </div>

@@ -447,6 +447,7 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId, fromPl
         matchingElement.lots += Number(pnlData.Quantity);
         matchingElement.margin += pnlData.margin;
         matchingElement._id.isLimit = true;
+        matchingElement.amount += 1;
 
       } else {
         // Create a new element if instrument is not matching
@@ -466,7 +467,8 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId, fromPl
           brokerage: Number(pnlData.brokerage),
           lots: Number(pnlData.Quantity),
           lastaverageprice: pnlData.average_price,
-          margin: pnlData.margin
+          margin: pnlData.margin,
+          amount: pnlData + 1
   
         });
       }
@@ -480,6 +482,7 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId, fromPl
         matchingElement.lastaverageprice = pnlData.average_price;
         matchingElement.lots += Number(pnlData.Quantity);
         matchingElement.margin = pnlData.margin;
+        matchingElement.amount += 1;
   
       } else {
         // Create a new element if instrument is not matching
@@ -497,7 +500,8 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId, fromPl
           brokerage: Number(pnlData.brokerage),
           lots: Number(pnlData.Quantity),
           lastaverageprice: pnlData.average_price,
-          margin: pnlData.margin
+          margin: pnlData.margin,
+          amount: pnlData + 1
   
         });
       }
@@ -544,6 +548,7 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId, fromPl
           margin: {
             $last: "$margin",
           },
+          trades: { $count: {} }
         },
       },
       {
@@ -892,35 +897,6 @@ exports.overallpnlMarginX = async (pnlData, trader, data, marginxId, fromPlaceLi
   const today = new Date(todayDate);
   if(isRedisConnected && await client.exists(`${trader.toString()}${marginxId.toString()} overallpnlMarginX`)){
     pnl = JSON.parse(data);
-    // const matchingElement = pnl.find((element) => (element._id.instrumentToken === pnlData.instrumentToken && element._id.product === pnlData.Product ));
-    // if instrument is same then just updating value
-    // if (matchingElement) {
-    //   // Update the values of the matching element with the values of the first document
-    //   matchingElement.amount += (pnlData.amount * -1);
-    //   matchingElement.brokerage += Number(pnlData.brokerage);
-    //   matchingElement.lastaverageprice = pnlData.average_price;
-    //   matchingElement.lots += Number(pnlData.Quantity);
-    //   matchingElement.margin = pnlData.margin;
-
-    // } else {
-    //   // Create a new element if instrument is not matching
-    //   pnl.push({
-    //     _id: {
-    //       symbol: pnlData.symbol,
-    //       product: pnlData.Product,
-    //       instrumentToken: pnlData.instrumentToken,
-    //       exchangeInstrumentToken: pnlData.exchangeInstrumentToken,
-    //       exchange: pnlData.exchange,
-    //     },
-    //     amount: (pnlData.amount * -1),
-    //     brokerage: Number(pnlData.brokerage),
-    //     lots: Number(pnlData.Quantity),
-    //     lastaverageprice: pnlData.average_price,
-    //     margin: pnlData.margin
-    //   });
-    // }
-
-
 
     if(pnlData.order_type === "LIMIT" && !fromPlaceLimit){
       // const matchingElement = pnl.find((element) => (element._id.instrumentToken === pnlData.instrumentToken && element._id.product === pnlData.Product && pnlData.order_type === "LIMIT" && element._id.isLimit ));

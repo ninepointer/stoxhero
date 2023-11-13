@@ -39,16 +39,36 @@ exports.overallPnlTrader = async (req, res, next) => {
 
         } else {
 
-            let pnlDetails = await DailyContestMockUser.aggregate([
-                {
-                    $match: {
-                        trade_time: {
-                            $gte: today
-                        },
-                        status: "COMPLETE",
-                        trader: new ObjectId(userId),
-                        contestId: new ObjectId(id)
+            const contest = await DailyContest.findOne({_id: new ObjectId(id)}).select('contestStartTime contestEndTime');
+            // Dates in ISO format
+            const startDate = new Date(contest.contestStartTime);
+            const endDate = new Date(contest.contestEndTime);
+            // Calculate the difference in milliseconds
+            const timeDifference = endDate.getTime() - startDate.getTime();
+            // Convert milliseconds to days
+            const daysDifference = timeDifference / (1000 * 3600 * 24);
+
+            let matchStage = {};
+            if(daysDifference > 1){
+                matchStage = {
+                    status: "COMPLETE",
+                    trader: new ObjectId(userId),
+                    contestId: new ObjectId(id)
+                };
+            } else{
+                matchStage = {
+                    trade_time: {
+                        $gte: today
                     },
+                    status: "COMPLETE",
+                    trader: new ObjectId(userId),
+                    contestId: new ObjectId(id)
+                };
+            }
+
+            const pnlDetails = await DailyContestMockUser.aggregate([
+                {
+                    $match: matchStage,
                 },
                 {
                     $group: {
@@ -80,6 +100,7 @@ exports.overallPnlTrader = async (req, res, next) => {
                         margin: {
                             $last: "$margin",
                         },
+                        trades: { $count: {} }
                     },
                 },
                 {
@@ -1905,7 +1926,7 @@ const dailyContestLeaderBoard = async (contest) => {
         ranks.forEach(item => {
             if(item){
                 const { symbol, instrumentToken, exchange } = item._id;
-                uniqueData.add({ symbol, instrumentToken, exchange });
+                uniqueData.add({ symbol, instrumentToken, exchange, lots: item.lots });
             }
         });
 
@@ -1916,11 +1937,14 @@ const dailyContestLeaderBoard = async (contest) => {
 
         const data = await getKiteCred.getAccess();
         uniqueDataArray.forEach((elem, index) => {
-            if (index === 0) {
-                addUrl = ('i=' + elem.exchange + ':' + elem.symbol);
-            } else {
-                addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
+            if(elem.lots > 0){
+                if (index === 0) {
+                    addUrl = ('i=' + elem.exchange + ':' + elem.symbol);
+                } else {
+                    addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
+                }
             }
+
         });
         const ltpBaseUrl = `https://api.kite.trade/quote?${addUrl}`;
         let auth = 'token' + data.getApiKey + ':' + data.getAccessToken;
@@ -1939,7 +1963,7 @@ const dailyContestLeaderBoard = async (contest) => {
 
         for (doc of ranks) {
             if(doc){
-                doc.rpnl = doc?.lots * livePrices[doc?._id?.instrumentToken];
+                doc.rpnl = doc?.lots > 0 ? doc?.lots * livePrices[doc?._id?.instrumentToken] : doc?.amount;
                 doc.npnl = doc?.amount + doc?.rpnl - doc?.brokerage;    
             }
         }
@@ -2098,8 +2122,8 @@ async function processContestQueue() {
 
     const endTime = new Date(currentTime);
     endTime.setHours(9, 48, 0, 0);
-
-    if (currentTime >= startTime && currentTime <= endTime) {
+    //todo-vijay
+    // if (currentTime >= startTime && currentTime <= endTime) {
 
         // If the queue is empty, reset the processing flag and return
         if (contestQueue.length === 0) {
@@ -2117,7 +2141,7 @@ async function processContestQueue() {
             }
         }
 
-    }
+    // }
 }
 
 
@@ -2136,7 +2160,8 @@ exports.sendMyRankData = async () => {
                 startTime.setHours(3, 0, 0, 0);
                 const endTime = new Date(currentTime);
                 endTime.setHours(9, 48, 0, 0);
-               if (currentTime >= startTime && currentTime <= endTime) {
+                //todo-vijay
+             //  if (currentTime >= startTime && currentTime <= endTime) {
                     const contest = await DailyContest.find({ contestStatus: "Active", contestStartTime: { $lte: new Date() } });
 
                     for (let i = 0; i < contest?.length; i++) {
@@ -2157,7 +2182,7 @@ exports.sendMyRankData = async () => {
                             }
                         }
                     }
-               }
+              // }
             };
             emitLeaderboardData();
             interval = setInterval(emitLeaderboardData, 5000);

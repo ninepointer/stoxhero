@@ -4,7 +4,7 @@ import MDBox from "../../../components/MDBox";
 import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
 import { dailyContest } from '../../../variables';
 
-function Header({ socket, data }) {
+function Header({ socket, data, myRank }) {
     const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
     const contestId = data?.data;
 
@@ -20,7 +20,7 @@ function Header({ socket, data }) {
             setIsGetStartedClicked={handleSetIsGetStartedClicked}
             from={dailyContest}
             subscriptionId={contestId}
-            //   setAvailbleMargin={setAvailbleMargin}
+            myRank={myRank}
             moduleData={data}
         />;
     }, [data, contestId, handleSetIsGetStartedClicked, isGetStartedClicked, socket]);

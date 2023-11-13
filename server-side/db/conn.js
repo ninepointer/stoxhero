@@ -28,13 +28,6 @@ const infinityDB = process.env.INFINITYDB;
 
 
 /*
-1. Muhurt Trading 12 Nov 6-7:15 pm
-    a. payout% 0
-    b. AutoTrade cut time change for that day only
-    c. New trade route with new UI based on diwali
-    d. Popup for reward with tabular format of ranking
-    e. Ragistration Page
-    f. Result Page
 
 2. Multiple days contest
     a. payout option (lastday or daily)
