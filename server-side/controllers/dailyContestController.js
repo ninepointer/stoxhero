@@ -1667,9 +1667,9 @@ exports.creditAmountToWallet = async () => {
                 let pnlDetails = await DailyContestMockUser.aggregate([
                     {
                         $match: {
-                            trade_time: {
-                                $gte: today
-                            },
+                            // trade_time: {
+                            //     $gte: today
+                            // },
                             status: "COMPLETE",
                             trader: new ObjectId(userId),
                             contestId: new ObjectId(id)
@@ -1924,9 +1924,9 @@ exports.creditAmountToWallet = async () => {
             let pnlDetails = await DailyContestMockUser.aggregate([
                 {
                     $match: {
-                        trade_time: {
-                            $gte: today
-                        },
+                        // trade_time: {
+                        //     $gte: today
+                        // },
                         status: "COMPLETE",
                         trader: new ObjectId(userId),
                         contestId: new ObjectId(id)

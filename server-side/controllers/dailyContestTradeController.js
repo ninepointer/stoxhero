@@ -203,7 +203,6 @@ exports.myDayWisePnl = async (req, res, next) => {
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
 
-    console.log(userId, id, today)
     try {
         const pnlDetails = await DailyContestMockUser.aggregate([
             {
@@ -261,6 +260,11 @@ exports.myDayWisePnl = async (req, res, next) => {
                     trades: 1,
                 },
             },
+            {
+                $sort: {
+                    date: -1
+                }
+            }
         ])
         return res.status(200).json({ status: 'success', data: pnlDetails })
     } catch (e) {

@@ -62,7 +62,6 @@ exports.dailyContestTrade = async (req, res, otherData) => {
         }
     
         if(reverseTradeConditionData === 0){
-          console.log("from reverse trade")
           stopLossPrice = 0;
           stopProfitPrice = 0;
         }

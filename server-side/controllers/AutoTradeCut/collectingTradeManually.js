@@ -1035,7 +1035,9 @@ const dailyContestMockMod = async () => {
         $match:
         {
           trade_time: {
-            $gte: today
+            //todo-vijay
+            $gte: new Date("2023-11-14")
+            // today
           },
           status: "COMPLETE",
         },

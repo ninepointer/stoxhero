@@ -447,7 +447,7 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId, fromPl
         matchingElement.lots += Number(pnlData.Quantity);
         matchingElement.margin += pnlData.margin;
         matchingElement._id.isLimit = true;
-        matchingElement.amount += 1;
+        matchingElement.trades += 1;
 
       } else {
         // Create a new element if instrument is not matching
@@ -460,7 +460,6 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId, fromPl
             exchange: pnlData.exchange,
             validity: pnlData.validity,
             variety: pnlData.variety,                
-
             isLimit: true
           },
           amount: (pnlData.amount * -1),
@@ -468,7 +467,7 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId, fromPl
           lots: Number(pnlData.Quantity),
           lastaverageprice: pnlData.average_price,
           margin: pnlData.margin,
-          amount: pnlData + 1
+          trades: 1
   
         });
       }
@@ -482,7 +481,7 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId, fromPl
         matchingElement.lastaverageprice = pnlData.average_price;
         matchingElement.lots += Number(pnlData.Quantity);
         matchingElement.margin = pnlData.margin;
-        matchingElement.amount += 1;
+        matchingElement.trades += 1;
   
       } else {
         // Create a new element if instrument is not matching
@@ -501,7 +500,7 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId, fromPl
           lots: Number(pnlData.Quantity),
           lastaverageprice: pnlData.average_price,
           margin: pnlData.margin,
-          amount: pnlData + 1
+          trades: 1
   
         });
       }

@@ -252,9 +252,9 @@ async function singleProcess() {
             const autotrade = nodeCron.schedule(`50 9 * * *`, async () => {
                 autoCutMainManually();
                 autoCutMainManuallyMock();
-                changeStatus();
-                changeMarginXStatus();
-                changeBattleStatus();
+                // changeStatus();
+                // changeMarginXStatus();
+                // changeBattleStatus();
                 // creditAmount();
             });
 
@@ -277,8 +277,7 @@ async function singleProcess() {
         const internshipPayout = nodeCron.schedule(`0 30 17 * * *`, updateUserWallet);
         const reportMail = nodeCron.schedule(`0 0 18 * * *`, mail);
     }
-    const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
-    // const battle = nodeCron.schedule(`56 5 * * *`, processBattles);
+    // const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
 
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })

@@ -162,7 +162,6 @@ exports.mockTrade = async (req, res) => {
     }
 
     if(marginx){
-        console.log("in marginx", marginx)
         await marginxTrade(req, res, otherData)
     }
 

@@ -1588,8 +1588,8 @@ router.get("/margin", async (req, res) => {
 router.get("/afterContest", async (req, res) => {
   console.log("running after contest")
   // await autoCutMainManually();
-  // await autoCutMainManuallyMock();
-  await changeBattleStatus();
+  await autoCutMainManuallyMock();
+  // await changeBattleStatus();
   res.send("ok");
 });
 

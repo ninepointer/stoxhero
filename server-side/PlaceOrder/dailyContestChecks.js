@@ -6,7 +6,6 @@ const Battle = require("../models/battle/battle")
 exports.contestChecks = async(req,res,next) => {
     try{
         // req.body.contestId = req.body.marginxId;
-        console.log("req.body.contestId", req.body.contestId)
         const dailyContest = await DailyContest.findById(req.body.contestId);
         const userId = req.user._id;
         if(dailyContest?.contestEndTime < new Date()){
@@ -19,7 +18,6 @@ exports.contestChecks = async(req,res,next) => {
     
         // console.log(dailyContest?.participants)
         let user = dailyContest?.participants.filter((elem)=>{
-            console.log(userId, elem?.userId)
             return elem?.userId?.toString() === userId?.toString()
         })
 

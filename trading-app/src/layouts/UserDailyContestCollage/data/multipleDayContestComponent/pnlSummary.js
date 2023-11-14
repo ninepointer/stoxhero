@@ -85,27 +85,27 @@ function PnlSummary({contestId}) {
 
   let obj = {};
   obj.date = (
-    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+    <MDTypography component="a" variant="caption" color="black" fontWeight="bold" backgroundColor='#D3D3D3' borderRadius='5px' p={1}>
     TOTAL
     </MDTypography>
   );
   obj.gpnl = (
-    <MDTypography component="a" variant="caption" color={totalGpnl > 0 ? "success" : "error"} fontWeight="medium">
+    <MDTypography component="a" variant="caption" color={totalGpnl > 0 ? "success" : "error"} fontWeight="bold" backgroundColor='#D3D3D3' borderRadius='5px' p={1}>
       ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(grossPnlAndBrokerage.grossPnl))}
     </MDTypography>
   );
   obj.brokerage = (
-    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+    <MDTypography component="a" variant="caption" color="black" fontWeight="bold" backgroundColor='#D3D3D3' borderRadius='5px' p={1}>
       ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(grossPnlAndBrokerage.brokerage))}
     </MDTypography>
   );
   obj.npnl = (
-    <MDTypography component="a" variant="caption" color={totalNpnl > 0 ? "success" : "error"} fontWeight="medium">
+    <MDTypography component="a" variant="caption" color={(Math.abs(grossPnlAndBrokerage.grossPnl)-Math.abs(grossPnlAndBrokerage.brokerage)) > 0 ? "success" : "error"} fontWeight="bold" backgroundColor='#D3D3D3' borderRadius='5px' p={1}>
       ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(netPnl))}
     </MDTypography>
   );
   obj.trades = (
-    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+    <MDTypography component="a" variant="caption" color="black" fontWeight="bold" backgroundColor='#D3D3D3' borderRadius='5px' p={1}>
       {grossPnlAndBrokerage.trades}
     </MDTypography>
   );
@@ -158,7 +158,7 @@ function PnlSummary({contestId}) {
           <Card>
             <MDBox display="flex" justifyContent="space-between" alignItems="left">
               <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{ backgroundColor: "lightgrey", borderRadius: "2px" }}>
-                <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
+                <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center">
                   Day Wise Profit & Loss Table
                 </MDTypography>
               </MDBox>
