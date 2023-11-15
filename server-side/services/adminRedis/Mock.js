@@ -422,7 +422,6 @@ exports.letestTradeMock = async (pnlData) => {
 //--------contest-------------------------
 exports.overallpnlDailyContest = async (pnlData, trader, data, contestId, fromPlaceLimit)=>{
   const isRedisConnected = getValue();
-  // console.log(pnlData)
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
