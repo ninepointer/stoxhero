@@ -32,6 +32,7 @@ import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import PotentialUser from "./data/potentialUsers";
 import Leaderboard from "./data/contestWiseLeaderboard"
 import CollegeRegistrations from "./data/contestRegistrations";
+import FeaturedRegistrations from "./data/featuredRegistrations";
 import Shared from "./data/shared";
 import CreateRewards from './data/reward/createReward';
 import ContestRewards from './data/reward/contestReward';
@@ -73,6 +74,7 @@ function Index() {
   const [portfolios, setPortfolios] = useState([]);
   const [college, setCollege] = useState([]);
   const [contestRegistrations, setContestRegistrations] = useState([]);
+  const [featuredRegistrations, setFeaturedRegistrations] = useState([]);
   // const [careers,setCareers] = useState([]);
   const [action, setAction] = useState(false);
   let Url = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"
@@ -153,6 +155,7 @@ function Index() {
   useEffect(()=>{
     if(contest?._id){
       getCollegeContestRegistrations();
+      getFeaturedContestRegistrations();
     }
   },[])
 
@@ -160,6 +163,12 @@ function Index() {
     const res = await axios.get(`${apiUrl}dailycontest/collegecontest/getregistrations/${contest?._id}`,{withCredentials:true});
     if(res.status == 200){
       setContestRegistrations(res.data.data);
+    }
+  }
+  const getFeaturedContestRegistrations = async()=>{
+    const res = await axios.get(`${apiUrl}dailycontest/featured/getregistrations/${contest?._id}`,{withCredentials:true});
+    if(res.status == 200){
+      setFeaturedRegistrations(res.data.data);
     }
   }
   // console.log("College:", collegeSelectedOption)
@@ -982,6 +991,11 @@ function Index() {
               {(contest || newObjectId) && contest?.contestFor == 'College' && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                 <MDBox>
                   <CollegeRegistrations registrations={contestRegistrations} action={action} setAction={setAction} />
+                </MDBox>
+              </Grid>}
+              {(contest || newObjectId) && contest?.contestFor == 'StoxHero' && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                <MDBox>
+                  <FeaturedRegistrations registrations={featuredRegistrations} action={action} setAction={setAction} />
                 </MDBox>
               </Grid>}
 
