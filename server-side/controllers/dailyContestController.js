@@ -772,8 +772,12 @@ exports.getCollegeOngoingContests = async (req, res) => {
           contestSharedBy: 0,
           purchaseIntent: 0
       }
-      ).populate('college', 'collegeName zone')
-      .populate('portfolio', 'portfolioName _id portfolioValue')
+      ).populate('portfolio', 'portfolioName _id portfolioValue')
+      .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+      .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
+      .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+      .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
+      .populate('college', 'collegeName zone')
       .sort({ contestStartTime: 1 }).skip(skip).limit(limit)
       res.status(200).json({
           status: "success",
