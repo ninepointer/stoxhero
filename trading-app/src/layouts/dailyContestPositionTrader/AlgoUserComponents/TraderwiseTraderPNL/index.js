@@ -150,6 +150,25 @@ function TraderwiseTraderPNL({ socket }) {
     totalTrades += (subelem.noOfTrade);
     totalTraders += 1;
 
+    let myPayout;
+    if(moduleData?.allData?.payoutType === "Percentage"){
+      myPayout = (totalGrossPnl - totalTransactionCost) >= 0 ? ((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-(moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100)) : "+₹0.00";
+    } else{
+      if(myRank){
+        const rewards = moduleData?.allData?.rewards;
+        for(let elem of rewards){
+            if(Number(myRank) >= Number(elem.rankStart) && Number(myRank) <= Number(elem.rankEnd)){
+              myPayout = "+₹" + elem.prize;
+              break;
+            } else{
+              myPayout = "+₹" + "0.00";
+            }
+        }
+      } else{
+        myPayout = "+₹" + "0.00";
+      }
+    }
+
     obj.traderName = (
       <MDTypography component="a" variant="caption" color={tradercolor} fontWeight="medium" backgroundColor={traderbackgroundcolor} padding="5px" borderRadius="5px">
         {(subelem.name)}
@@ -270,6 +289,8 @@ function TraderwiseTraderPNL({ socket }) {
 
 
   rows.push(obj);
+
+  console.log("selectedContest", selectedContest)
 
   return (
     <>
