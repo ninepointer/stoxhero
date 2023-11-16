@@ -65,7 +65,7 @@ const contestSchema = new Schema({
     rewards:[{
         rankStart:{type:Number},
         rankEnd:Number,
-        prize:{type:String},
+        prize:{type:Number},
         // prizeValue:Number
     }],
     portfolio:{

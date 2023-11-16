@@ -189,7 +189,7 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='flex-end' alignContent='center' alignItems='center'>
                                                                 <MDBox display='flex' justifyContent='flex-start'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>{elem.contestName}</MDTypography></MDBox>
-                                                                <img src={Featured} width='100px' height='70px' display='flex' justifyContent='flex-end' />
+                                                                {/* <img src={Featured} width='100px' height='70px' display='flex' justifyContent='flex-end' /> */}
                                                                 {/* <MDBox display='flex' justifyContent='flex-end' sx={{ height: "10px", width: "100px", backgroundColor: "#DBB670" }}></MDBox> */}
                                                             </MDBox>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='row' alignItems='center'>

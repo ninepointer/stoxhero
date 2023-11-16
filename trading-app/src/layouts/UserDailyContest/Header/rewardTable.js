@@ -47,18 +47,21 @@ export default function RewardTable({ reward, paid }) {
         );
         featureObj.reward = (
             <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-                {elem?.prize}
+                ₹{elem?.prize}
             </MDTypography>
         );
 
         rows.push(featureObj)
     })
 
+    const pricePool = reward.reduce((total, acc)=>{
+        return total + (acc.rankEnd - acc.rankStart + 1)*Number(acc.prize);
+    }, 0)
 
     return (
         <>
             <MDBox onClick={handleClickOpen} color={paid ? "#DBB670" : "dark"}>
-                Reward based on rank click to know more!
+                {`Reward worth upto ₹${pricePool}. Click to know more!`}
             </MDBox>
 
             <Dialog
