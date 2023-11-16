@@ -142,13 +142,43 @@ function TraderwiseTraderPNL({ socket }) {
     let runninglotsbgcolor = subelem.runninglots > 0 ? "#ffff00" : ""
     let traderbackgroundcolor = subelem.runninglots != 0 ? "white" : "#e0e1e5"
 
-    totalPayout += ((subelem?.totalPnl - subelem?.brokerage) * selectedContest?.payoutPercentage) / 100 > 0 && ((subelem?.totalPnl - subelem?.brokerage) * selectedContest?.payoutPercentage) / 100;
+    // totalPayout += ((subelem?.totalPnl - subelem?.brokerage) * selectedContest?.payoutPercentage) / 100 > 0 && ((subelem?.totalPnl - subelem?.brokerage) * selectedContest?.payoutPercentage) / 100;
     totalGrossPnl += (subelem.totalPnl);
     totalTransactionCost += (subelem.brokerage);
     totalNoRunningLots += (subelem.runninglots);
     totalLotsUsed += (subelem.lotUsed);
     totalTrades += (subelem.noOfTrade);
     totalTraders += 1;
+
+    let payout;
+    if(selectedContest?.payoutType === "Percentage"){
+      let payoutCap;
+      if(selectedContest?.entryFee > 0){
+          payoutCap = selectedContest?.entryFee * selectedContest?.payoutCapPercentage/100;
+      } else{
+          payoutCap = selectedContest?.portfolio?.portfolioValue * selectedContest?.payoutCapPercentage/100;
+      }
+
+      // console.log("payoutCap", payoutCap)
+      const tempPayout = Math.min((selectedContest?.payoutPercentage * (subelem.totalPnl-subelem.brokerage))/100, payoutCap)
+      totalPayout += tempPayout > 0 ? tempPayout : 0
+      payout = ((subelem.totalPnl) - (subelem.brokerage)) >= 0 ? (tempPayout) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(tempPayout)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-tempPayout)) : "+₹0.00";
+      // console.log("payout tempPayout", payout, tempPayout)
+    } else{
+      if(index+1){
+        const rewards = selectedContest?.rewards;
+        for(let elem of rewards){
+            if(Number(index+1) >= Number(elem.rankStart) && Number(index+1) <= Number(elem.rankEnd)){
+              payout = "+₹" + elem.prize;
+              break;
+            } else{
+              payout = "+₹" + "0.00";
+            }
+        }
+      } else{
+        payout = "+₹" + "0.00";
+      }
+    }
 
     obj.traderName = (
       <MDTypography component="a" variant="caption" color={tradercolor} fontWeight="medium" backgroundColor={traderbackgroundcolor} padding="5px" borderRadius="5px">
@@ -194,7 +224,7 @@ function TraderwiseTraderPNL({ socket }) {
 
     obj.payout = (
       <MDTypography component="a" variant="caption" color={npnlcolor} fontWeight="medium">
-        {((subelem?.totalPnl - subelem?.brokerage) * selectedContest?.payoutPercentage) / 100 > 0.00 ? "+₹" + ((((subelem?.totalPnl - subelem?.brokerage) * selectedContest?.payoutPercentage) / 100).toFixed(2)) : "₹" + 0.00}
+        {payout}
       </MDTypography>
     );
 
@@ -271,6 +301,13 @@ function TraderwiseTraderPNL({ socket }) {
 
   rows.push(obj);
 
+  let maximumPayout = 0;
+  if(selectedContest?.entryFee > 0){
+    maximumPayout = selectedContest?.participants?.length * selectedContest?.entryFee * selectedContest?.payoutCapPercentage/100;
+  } else{
+    maximumPayout = selectedContest?.participants?.length * selectedContest?.portfolio?.portfolioValue * selectedContest?.payoutCapPercentage/100;
+  }
+
   return (
     <>
       {selectedContest &&
@@ -331,6 +368,16 @@ function TraderwiseTraderPNL({ socket }) {
               <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
                 <MDTypography fontSize={11}>Collected Fee:&nbsp;</MDTypography>
                 <MDTypography fontSize={13} fontWeight="bold" >₹{(selectedContest?.entryFee * selectedContest?.participants?.length)}</MDTypography>
+              </MDBox>
+
+              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                <MDTypography fontSize={11}>PortfolioValue:&nbsp;</MDTypography>
+                <MDTypography fontSize={13} fontWeight="bold" >₹{(selectedContest?.portfolio?.portfolioValue)}</MDTypography>
+              </MDBox>
+
+              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                <MDTypography fontSize={11}>Maximum Payout:&nbsp;</MDTypography>
+                <MDTypography fontSize={13} fontWeight="bold" >₹{maximumPayout}</MDTypography>
               </MDBox>
             </MDBox>
           </MDBox>

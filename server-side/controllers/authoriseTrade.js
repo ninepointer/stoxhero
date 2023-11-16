@@ -588,8 +588,14 @@ const marginSecondCase = async (req, res, next, prevMargin, prevQuantity) => {
     return next();
 }
 
-const marginThirdCase = async (req, res, next) => {
-    req.body.margin = 0;
+const marginThirdCase = async (req, res, next, netPnl) => {
+    //todo-vijay npnl negetive me h to margin me minus hoga
+    if(netPnl < 0){
+        req.body.margin = netPnl;
+    } else{
+        req.body.margin = 0;
+    }
+    
     console.log("3rd case");
 
     return next();
@@ -860,7 +866,7 @@ exports.fundCheckPaperTrade = async (req, res, next) => {
             await marginSecondCase(req, res, next, margin, runningLotForSymbol)
             break;
         case 3:
-            await marginThirdCase(req, res, next)
+            await marginThirdCase(req, res, next, netPnl)
             break;
         case 4:
             await marginFourthCase(req, res, next, availableMargin, runningLotForSymbol, virtual, data)
@@ -907,7 +913,7 @@ exports.fundCheckTenxTrader = async (req, res, next) => {
             await marginSecondCase(req, res, next, margin, runningLotForSymbol)
             break;
         case 3:
-            await marginThirdCase(req, res, next)
+            await marginThirdCase(req, res, next, netPnl)
             break;
         case 4:
             await marginFourthCase(req, res, next, availableMargin, runningLotForSymbol, tenx, data)
@@ -953,7 +959,7 @@ exports.fundCheckInternship = async (req, res, next) => {
             await marginSecondCase(req, res, next, margin, runningLotForSymbol)
             break;
         case 3:
-            await marginThirdCase(req, res, next)
+            await marginThirdCase(req, res, next, netPnl)
             break;
         case 4:
             await marginFourthCase(req, res, next, availableMargin, runningLotForSymbol, internship, data)
@@ -999,7 +1005,7 @@ exports.fundCheckMarginX = async (req, res, next) => {
             await marginSecondCase(req, res, next, margin, runningLotForSymbol)
             break;
         case 3:
-            await marginThirdCase(req, res, next)
+            await marginThirdCase(req, res, next, netPnl)
             break;
         case 4:
             await marginFourthCase(req, res, next, availableMargin, runningLotForSymbol, marginx, data)
@@ -1044,7 +1050,7 @@ exports.fundCheckDailyContest = async (req, res, next) => {
             await marginSecondCase(req, res, next, margin, runningLotForSymbol)
             break;
         case 3:
-            await marginThirdCase(req, res, next)
+            await marginThirdCase(req, res, next, netPnl)
             break;
         case 4:
             await marginFourthCase(req, res, next, availableMargin, runningLotForSymbol, dailyContest, data)
@@ -1089,7 +1095,7 @@ exports.fundCheckBattle = async (req, res, next) => {
             await marginSecondCase(req, res, next, margin, runningLotForSymbol)
             break;
         case 3:
-            await marginThirdCase(req, res, next)
+            await marginThirdCase(req, res, next, netPnl)
             break;
         case 4:
             await marginFourthCase(req, res, next, availableMargin, runningLotForSymbol, battle, data)

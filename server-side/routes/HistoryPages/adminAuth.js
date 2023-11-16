@@ -85,6 +85,76 @@ const CareerApplication = require("../../models/Careers/careerApplicationSchema"
 
 
 
+router.get('/updateDailyContest', async(req,res) =>{
+  const daily = await DailyContest.find();
+  const userData = await DailyContestMockUser.aggregate([
+    {
+        $match: {
+            trade_time: {
+                $lte: new Date("2023-10-25")
+            },
+            status: "COMPLETE",
+            // trader: new ObjectId(userId),
+            // contestId: new ObjectId(id)
+        },
+    },
+    {
+        $group: {
+            _id: {
+              trader: "$trader",
+              contestId: "$contestId"
+            },
+            amount: {
+                $sum: {
+                    $multiply: ["$amount", -1],
+                },
+            },
+            brokerage: {
+                $sum: {
+                    $toDouble: "$brokerage",
+                },
+            },
+            trades: {
+              $count: {},
+            }
+        },
+    },
+    {
+        $project:
+        {
+          npnl: {
+              $subtract: ["$amount", "$brokerage"],
+          },
+          gpnl: "$amount",
+          brokerage: "$brokerage",
+          trades: 1,
+          trader: "$_id.trader",
+          contestId: "$_id.contestId",
+          _id: 0
+        },
+    },
+  ])
+
+  for(let elem of daily){
+    for(let subelem of userData){
+      if(elem._id.toString() === subelem.contestId.toString()){
+        for(let sub_subelem of elem.participants){
+          if(sub_subelem.userId.toString() === subelem.trader.toString()){
+            sub_subelem.npnl = subelem.npnl;
+            sub_subelem.gpnl = subelem.gpnl;
+            sub_subelem.trades = subelem.trades;
+            sub_subelem.brokerage = subelem.brokerage;
+
+            console.log(sub_subelem)
+          }
+        }
+      }
+    }
+
+    await elem.save();
+  }
+})
+
 router.get('/tenxremove', async(req,res) =>{
   const daily = await DailyContest.findOne({_id: new ObjectId()})
 })
