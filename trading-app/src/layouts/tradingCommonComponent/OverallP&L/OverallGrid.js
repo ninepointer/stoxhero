@@ -330,10 +330,10 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
     if(moduleData?.allData?.entryFee > 0){
         payoutCap = moduleData?.allData?.entryFee * moduleData?.allData?.payoutCapPercentage/100;
     } else{
-        payoutCap = moduleData?.allData?.portfolio * moduleData?.allData?.payoutCapPercentage/100;
+        payoutCap = moduleData?.allData?.portfolio?.portfolioValue * moduleData?.allData?.payoutCapPercentage/100;
     }
     const payout = Math.min((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100, payoutCap)
-    myPayout = (totalGrossPnl - totalTransactionCost) >= 0 ? (payout) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(payout)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-payout)) : "+₹0.00";
+    myPayout = (totalGrossPnl - totalTransactionCost) >= 0 ? (payout) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(payout)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-payout)) : "+₹0.00";
   } else{
     if(myRank){
       const rewards = moduleData?.allData?.rewards;

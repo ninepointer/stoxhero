@@ -61,7 +61,7 @@ function PnlSummary({contestId}) {
     );
     featureObj.gpnl = (
       <MDTypography component="a" variant="caption" color={elem?.gpnl > 0 ? "success" : "error"} fontWeight="medium">
-        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.gpnl))}
+        { elem?.gpnl >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(elem?.gpnl))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(elem?.gpnl)))}
       </MDTypography>
     );
     featureObj.brokerage = (
@@ -71,7 +71,7 @@ function PnlSummary({contestId}) {
     );
     featureObj.npnl = (
       <MDTypography component="a" variant="caption" color={elem?.npnl > 0 ? "success" : "error"} fontWeight="medium">
-        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.npnl))}
+        { elem?.npnl >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(elem?.npnl))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(elem?.npnl)))}
       </MDTypography>
     );
     featureObj.trades = (
@@ -90,8 +90,8 @@ function PnlSummary({contestId}) {
     </MDTypography>
   );
   obj.gpnl = (
-    <MDTypography component="a" variant="caption" color={totalGpnl > 0 ? "success" : "error"} fontWeight="bold" backgroundColor='#D3D3D3' borderRadius='5px' p={1}>
-      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(grossPnlAndBrokerage.grossPnl))}
+    <MDTypography component="a" variant="caption" color={grossPnlAndBrokerage.grossPnl > 0 ? "success" : "error"} fontWeight="bold" backgroundColor='#D3D3D3' borderRadius='5px' p={1}>
+        { grossPnlAndBrokerage.grossPnl >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(grossPnlAndBrokerage.grossPnl))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(grossPnlAndBrokerage.grossPnl)))}
     </MDTypography>
   );
   obj.brokerage = (
@@ -100,8 +100,8 @@ function PnlSummary({contestId}) {
     </MDTypography>
   );
   obj.npnl = (
-    <MDTypography component="a" variant="caption" color={(Math.abs(grossPnlAndBrokerage.grossPnl)-Math.abs(grossPnlAndBrokerage.brokerage)) > 0 ? "success" : "error"} fontWeight="bold" backgroundColor='#D3D3D3' borderRadius='5px' p={1}>
-      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(netPnl))}
+    <MDTypography component="a" variant="caption" color={grossPnlAndBrokerage.grossPnl-grossPnlAndBrokerage.brokerage > 0 ? "success" : "error"} fontWeight="bold" backgroundColor='#D3D3D3' borderRadius='5px' p={1}>
+      { grossPnlAndBrokerage.grossPnl-grossPnlAndBrokerage.brokerage >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(netPnl))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(netPnl)))}
     </MDTypography>
   );
   obj.trades = (
@@ -121,7 +121,7 @@ function PnlSummary({contestId}) {
   );
   featureObj.gpnl = (
     <MDTypography component="a" variant="caption" color={grossPnlAndBrokerage.grossPnl-totalGpnl > 0 ? "success" : "error"} fontWeight="medium">
-      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(totalGpnl-grossPnlAndBrokerage.grossPnl))}
+        { grossPnlAndBrokerage.grossPnl-totalGpnl >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(totalGpnl-grossPnlAndBrokerage.grossPnl))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(totalGpnl-grossPnlAndBrokerage.grossPnl)))}
     </MDTypography>
   );
   featureObj.brokerage = (
@@ -131,7 +131,7 @@ function PnlSummary({contestId}) {
   );
   featureObj.npnl = (
     <MDTypography component="a" variant="caption" color={netPnl-totalNpnl > 0 ? "success" : "error"} fontWeight="medium">
-      ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(totalNpnl-netPnl))}
+        { netPnl-totalNpnl >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(netPnl-totalNpnl))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(netPnl-totalNpnl)))}
     </MDTypography>
   );
   featureObj.trades = (
@@ -142,6 +142,7 @@ function PnlSummary({contestId}) {
 
   rows.unshift(featureObj)
 
+  // console.log("rows", rows)
 
   return (
     <div>
@@ -151,17 +152,22 @@ function PnlSummary({contestId}) {
           aria-controls="panel1a-content"
           id="panel1a-header"
         >
-          <Typography fontSize={14}>Check your day wise pnl</Typography>
+          <Typography fontSize={14} fontWeight= {700} >
+          Contest Net P&L : &nbsp; 
+            <span style={{fontWeight: 700, color: netPnl >= 0 ? "#7EC581" : "#FF3737"}} >
+              { netPnl >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(netPnl))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(netPnl)))}
+            </span>
+          </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          {pnlData.length > 0 ?
+          {rows.length > 0 ?
           <Card>
             <MDBox display="flex" justifyContent="space-between" alignItems="left">
-              <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{ backgroundColor: "lightgrey", borderRadius: "2px" }}>
+              {/* <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{ backgroundColor: "lightgrey", borderRadius: "2px" }}>
                 <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center">
                   Day Wise Profit & Loss Table
                 </MDTypography>
-              </MDBox>
+              </MDBox> */}
             </MDBox>
             <MDBox mt={1}>
               <DataTable

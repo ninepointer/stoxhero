@@ -1967,7 +1967,7 @@ const dailyContestLeaderBoard = async (contest) => {
 
         for (doc of ranks) {
             if(doc){
-                doc.rpnl = doc?.lots > 0 ? doc?.lots * livePrices[doc?._id?.instrumentToken] : doc?.amount;
+                doc.rpnl = doc?.lots > 0 ? doc?.lots * livePrices[doc?._id?.instrumentToken] : 0;
                 doc.npnl = doc?.amount + doc?.rpnl - doc?.brokerage;    
             }
         }

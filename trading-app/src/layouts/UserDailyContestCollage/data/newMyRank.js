@@ -46,9 +46,9 @@ function MyRank({ socket, id, data, setRank}) {
         if(data?.allData?.entryFee > 0){
             payoutCap = data?.allData?.entryFee * data?.allData?.payoutCapPercentage/100;
         } else{
-            payoutCap = data?.allData?.portfolio * data?.allData?.payoutCapPercentage/100;
+            payoutCap = data?.allData?.portfolio?.portfolioValue * data?.allData?.payoutCapPercentage/100;
         }
-        myReward = Math.min(payoutCap, pnl?.netPnl*data?.allData?.payoutPercentage/100>0?pnl?.netPnl*data?.allData?.payoutPercentage/100:0) ;
+        myReward = Math.min(payoutCap, (pnl?.netPnl*data?.allData?.payoutPercentage/100>0?pnl?.netPnl*data?.allData?.payoutPercentage/100:0)) ;
     } else{
         const rewards = data?.allData?.rewards;
         for(let elem of rewards){
