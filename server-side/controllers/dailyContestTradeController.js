@@ -240,6 +240,7 @@ exports.myDayWisePnl = async (req, res, next) => {
                     trade_time: {
                         $lt: today,
                     },
+                    status: "COMPLETE"
                 },
             },
             {
