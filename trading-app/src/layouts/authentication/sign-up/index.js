@@ -85,7 +85,8 @@ function Cover(props) {
   }
   const getEarnings = async()=>{
     const res = await axios.get(`${apiUrl}contestscoreboard/earnings`);
-    setEarnings(res.data.data);
+    console.log('Earnings Leaderboard',res?.data?.data);
+    setEarnings(res?.data?.data);
   }
 
   const getDefaultInvite = async() => {

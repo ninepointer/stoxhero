@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
+const Users = require('../../models/User/userDetailSchema')
 const UserSignUp = require('../../models/User/signedUpUser');
 const CareerApplication = require('../../models/Careers/careerApplicationSchema');
 const PaperTrade = require('../../models/mock-trade/paperTrade');
+const ContestTrade = require('../../models/DailyContest/dailyContestMockUser');
 const InternshipTrade = require('../../models/mock-trade/internshipTrade');
 const TenxTrade= require('../../models/mock-trade/tenXTraderSchema');
 const Withdrawal= require('../../models/withdrawal/withdrawal')
@@ -12,8 +14,9 @@ const MarginX = require('../../models/marginX/marginX')
 const Internship = require('../../models/Careers/internBatch')
 
 router.get('/', async(req,res,next)=>{
-    const userSignUps = await UserSignUp.countDocuments();
-    const careerApplications = await CareerApplication.countDocuments();
+    const userSignUps = await Users.countDocuments();
+    
+    // const careerApplications = await CareerApplication.countDocuments();
 
     const virtualTradeVolume = await PaperTrade.aggregate([
         {
@@ -63,12 +66,28 @@ router.get('/', async(req,res,next)=>{
             }
         }
     ]);
+    const contestTradeVolume = await ContestTrade.aggregate([
+      {
+          $group:{
+              _id:null,
+              lots:{
+                  $sum:{$abs:"$Quantity"}
+              },
+              amount:{
+                  $sum:{$abs:"$amount"}
+              },
+              trades:{
+                  $sum: 1
+              }
+          }
+      }
+    ]);
     const withdrawals = await Withdrawal.aggregate([
-        {
-            $match: {
-              withdrawalStatus: "Processed",
-            },
-          },
+          // {
+          //   $match: {
+          //     withdrawalStatus: "Processed",
+          //   },
+          // },
           {
             $group: {
               _id: null,
@@ -222,10 +241,10 @@ router.get('/', async(req,res,next)=>{
     ]);
 
    
-    const totalSignups = userSignUps + careerApplications;
-    const totalTradedVolume =  tenxTradeVolume[0]?.lots + virtualTradeVolume[0]?.lots + internshipTradeVolume[0]?.lots
-    const totalTradedTurnover =  tenxTradeVolume[0]?.amount + virtualTradeVolume[0]?.amount + internshipTradeVolume[0]?.amount
-    const totalTrades = tenxTradeVolume[0]?.trades + virtualTradeVolume[0]?.trades + internshipTradeVolume[0]?.trades
+    const totalSignups = userSignUps;
+    const totalTradedVolume =  tenxTradeVolume[0]?.lots + virtualTradeVolume[0]?.lots + internshipTradeVolume[0]?.lots + contestTradeVolume[0]?.lots
+    const totalTradedTurnover =  tenxTradeVolume[0]?.amount + virtualTradeVolume[0]?.amount + internshipTradeVolume[0]?.amount + contestTradeVolume[0]?.amount
+    const totalTrades = tenxTradeVolume[0]?.trades + virtualTradeVolume[0]?.trades + internshipTradeVolume[0]?.trades + contestTradeVolume[0]?.trades
     const totalWithdrawals = withdrawals[0]?.withdrawals
     const totalTransactions = withdrawals[0]?.transactions
     const payouts = contestPayout[0]?.payout + tenxPayout[0]?.payout + marginxPayout[0]?.payout + internsPayout[0]?.payout

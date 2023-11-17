@@ -466,7 +466,6 @@ router.get("/readmocktradecompanyYesterday", (req, res)=>{
             res.json(data)
         }
     })
-
 })
 
 router.get("/readmocktradecompany/:id", (req, res)=>{
@@ -572,7 +571,7 @@ router.get("/readmocktradecompanyThisMonth", (req, res)=>{
     let date = new Date();
     let todayDate = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
     const {email} = req.params
-    let monthStart = `${String(01).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
+    let monthStart = `${String("01").padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
     //console.log(todayDate)
     // MockTradeDetails.find({order_timestamp: {$regex: todayDate}})
     MockTradeDetails.find({trade_time: {$gte:monthStart,$lt: todayDate}})

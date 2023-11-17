@@ -8,9 +8,7 @@ import Carousel from '../data/carouselItems'
 import Performance from '../data/performance'
 import Summary from '../data/summary'
 import { userContext } from '../../../AuthContext';
-import UpcomingContest from '../data/ongoingContest'
-import DailyChallenge from '../data/dailyChallenge'
-import MDTypography from '../../../components/MDTypography';
+import {CircularProgress} from "@mui/material";
 import MDButton from '../../../components/MDButton';
 import {useNavigate, useLocation} from 'react-router-dom';
 import Slider from 'react-slick';
@@ -19,11 +17,15 @@ import 'slick-carousel/slick/slick-theme.css';
 import ContestCard from '../data/contestCard'
 import MessagePopUp from '../../../MessagePopup';
 import ReactGA from "react-ga"
+import TopContestPortfolios from '../data/topContestPortfolios'
 
 
 export default function Dashboard() {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   let [carouselData, setCarouselData] = useState([]);
+  let [topPerformerData, setTopPerformerData] = useState([]);
+  let [startOfWeek, setStartOfWeek] = useState([]);
+  let [endOfWeek, setEndOfWeek] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [tradingData, setTradingData] = useState();
   const getDetails = useContext(userContext);
@@ -121,12 +123,22 @@ export default function Dashboard() {
         "Access-Control-Allow-Credentials": true,
       },
     });
-    Promise.all([call1, call2, call3])
-      .then(([api1Response, api1Response1, api1Response2]) => {
+    let call4 = axios.get(`${baseUrl}api/v1/dailycontest/weeklytopperformer`, {
+      withCredentials: true,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Credentials": true,
+      },
+    });
+    Promise.all([call1, call2, call3, call4])
+      .then(([api1Response, api1Response1, api1Response2, api1Response3]) => {
         setCarouselData(api1Response.data.data);
-        console.log(api1Response1.data.data)
         setTradingData(api1Response1.data.data);
         setPosts(api1Response2.data.data);
+        setTopPerformerData(api1Response3?.data?.data);
+        setStartOfWeek(api1Response3?.data?.startOfWeek);
+        setEndOfWeek(api1Response3?.data?.endOfWeek);
         setIsLoading(false);
       })
       .catch((error) => {
@@ -232,20 +244,41 @@ export default function Dashboard() {
         
           </Slider>)
       }
+        <Grid container spacing={0.75} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignItems='start' flexDirection='row'>
+          <Grid item xs={12} md={12} lg={12} mt={1}>
+            
+              {!isLoading ? 
+              
+              <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
+                <TopContestPortfolios topPerformer={topPerformerData} startOfWeek={startOfWeek} endOfWeek={endOfWeek}/>
+                </MDBox>
+                :
+                <MDBox mt={5} mb={5} display='flex' justifyContent='center' style={{borderRadius: 5 }}>
+                  <CircularProgress color="info" />
+                </MDBox>
+              }
+            
+          </Grid>
+        </Grid>
       
-        <Grid container spacing={0.75} xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='space-between' alignItems='start' flexDirection='row'>
+        <Grid container spacing={0.75} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignItems='start' flexDirection='row'>
 
         <Grid item xs={12} md={12} lg={12} display='flex' justifyContent="center" alignItems="center">
         
         <Grid container xs={12} md={12} lg={12} mb={1} display="flex" justifyContent="center" alignItems="center">
           
-          <Grid item xs={12} md={6} lg={12} mt={1}>
+          <Grid item xs={12} md={12} lg={12} mt={1}>
+          {!isLoading ?
             <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
               <Summary summary={summary}/>
             </MDBox>
+          :
+          <MDBox mt={5} mb={5} display='flex' justifyContent='center' style={{borderRadius: 5 }}>
+            <CircularProgress color="info" />
+          </MDBox>}
           </Grid>
 
-          <Grid item xs={12} md={6} lg={12} mt={1}>
+          <Grid item xs={12} md={12} lg={12} mt={1}>
             <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
               {stats && <Performance tradingData={stats} timeframe={timeframe} setTimeframe={setTimeframe} tradeType={tradeType} setTradeType={setTradeType}/>}
             </MDBox>
@@ -254,6 +287,7 @@ export default function Dashboard() {
         </Grid>
 
         </Grid>
+
         </Grid>
 
     </MDBox>

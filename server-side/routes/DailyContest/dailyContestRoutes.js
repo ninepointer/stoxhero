@@ -24,6 +24,8 @@ router.get('/contest/dailycontestusers', Authenticate, restrictTo('Admin', 'Supe
 router.get('/contest/dailyallcontestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDailyContestAllUsers);
 router.get('/contestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getUsers);
 router.patch('/feededuct', Authenticate, contestController.deductSubscriptionAmount);
+router.get('/weeklytopperformer', Authenticate, contestController.getTopContestWeeklyPortfolio);
+router.get('/weeklytopperformerfulllist', Authenticate, contestController.getTopContestWeeklyPortfolioFullList);
 router.get('/contest/:id', Authenticate, contestController.getContest);
 router.get('/usercontestdata/:id', Authenticate, contestController.userContestDetail);
 

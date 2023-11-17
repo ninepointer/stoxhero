@@ -411,7 +411,7 @@ exports.getHomePageContestEarnings = async (req, res) => {
             },
           },
         },
-        {
+        { 
           $sort: {
             reward: -1,
           },
@@ -429,7 +429,7 @@ exports.getHomePageContestEarnings = async (req, res) => {
       ]
 
       const contestEarnings = await Contest.aggregate(pipeline)
-
+      console.log(contestEarnings)
       res.status(200).json({
           status:"success",
           message: "Contest Earnings fetched successfully",

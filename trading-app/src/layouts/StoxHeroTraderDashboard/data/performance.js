@@ -83,13 +83,13 @@ function Performance({tradingData, tradeType, setTradeType, timeframe, setTimefr
   return (
     <MDBox bgColor="light" border='1px solid lightgrey' borderRadius={5} minHeight='40vh'>
         <Grid container spacing={1} display='flex' justifyContent='space-between' alignItems='center'>
-            <Grid item xs={12} md={6} lg={12} ml={1} mr={1} mb={1}>
+            <Grid item xs={12} md={12} lg={12} ml={1} mr={1} mb={1}>
                 <MDBox display='flex' mb={1} justifyContent='space-between' alignItems='center'>
                 <Grid container spacing={1} alignItems='center'>
                     <Grid item xs={12} md={6} lg={6}>
                     <MDTypography m={1} fontSize={13} fontWeight="bold">Performance</MDTypography>
                     </Grid>
-                    <Grid item xs={12} md={6} lg={3} display='flex' justifyContent='flex-end'>
+                    <Grid item xs={12} md={3} lg={3} display='flex' justifyContent='flex-end'>
                     <FormControl sx={{ m: 1, minWidth: 175 }}>
                         <Select
                         labelId="demo-controlled-open-select-label"
@@ -107,7 +107,7 @@ function Performance({tradingData, tradeType, setTradeType, timeframe, setTimefr
                         </Select>
                     </FormControl>
                     </Grid>
-                    <Grid item xs={12} md={6} lg={3} display='flex' justifyContent='flex-end'>
+                    <Grid item xs={12} md={3} lg={3} display='flex' justifyContent='flex-end'>
                     <FormControl sx={{ m: 1, minWidth: 150 }}>
                         <Select
                         labelId="demo-controlled-open-select-label"
