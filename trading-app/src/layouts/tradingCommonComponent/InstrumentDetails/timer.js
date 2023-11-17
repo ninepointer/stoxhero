@@ -116,7 +116,7 @@ const Timer = ({socket}) => {
       }
 
       if(now.getTime() > appOfflineTime.getTime()) {
-        console.log("timeDifference in off", nextTradingDay)
+        // console.log("timeDifference in off", now, appOfflineTime)
         // let time = new Date(`${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()+1).padStart(2, '0')}`);
         // console.log("changeDateFormat", changeDateFormat(time))
         setRemainingTime(`Trading Resumes at ${changeDateFormat(nextTradingDay)}`);

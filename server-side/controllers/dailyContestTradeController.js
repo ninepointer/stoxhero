@@ -1506,145 +1506,53 @@ exports.DailyContestPayoutChart = async (req, res, next) => {
     // let { id } = req.params
     let pipeline = [
         {
-            $match: {
-                status: "COMPLETE",
-            },
+          $match: {
+            contestStatus: "Completed",
+          },
         },
         {
-            $lookup: {
-                from: "daily-contests",
-                localField: "contestId",
-                foreignField: "_id",
-                as: "contestData",
-            },
+          $unwind: {
+            path: "$participants",
+          },
         },
         {
-            $unwind: {
-                path: "$contestData",
+          $group: {
+            _id: {
+              date: {
+                $substr: ["$contestStartTime", 0, 10],
+              },
             },
+            contestIds: {
+              $addToSet: "$_id", // Collect unique contest IDs for each date
+            },
+            totalNpnl: {
+              $sum: "$participants.npnl",
+            },
+            totalPayout: {
+              $sum: "$participants.payout",
+            },
+          },
         },
         {
-            $match: {
-                "contestData.contestStatus": "Completed",
-            },
+          $project: {
+            contestDate: "$_id.date",
+            _id: 0,
+            totalPayout: 1,
+            totalNpnl: 1,
+            numberOfContests: { $size: "$contestIds" }, // Count of contests on each date
+          },
         },
         {
-            $group: {
-                _id: {
-                    trader: "$trader",
-                    contestId: "$contestId",
-                    contestName: "$contestData.contestName",
-                    date: {
-                        $substr: [
-                            "$contestData.contestStartTime",
-                            0,
-                            10,
-                        ],
-                    },
-                    payoutPer:
-                        "$contestData.payoutPercentage",
-                },
-                gpnl: {
-                    $sum: {
-                        $multiply: ["$amount", -1],
-                    },
-                },
-                brokerage: {
-                    $sum: "$brokerage",
-                },
-            },
-        },
-        {
-            $project: {
-                _id: 1,
-                npnl: {
-                    $subtract: ["$gpnl", "$brokerage"],
-                },
-                positiveNpnl: {
-                    $max: [
-                        0,
-                        {
-                            $subtract: ["$gpnl", "$brokerage"],
-                        },
-                    ],
-                },
-                payoutPer: "$_id.payoutPer",
-            },
-        },
-        {
-            $group: {
-                _id: {
-                    contestId: "$_id.contestId",
-                    contestName: "$_id.contestName",
-                    date: "$_id.date",
-                    payoutPer: "$payoutPer",
-                },
-                totalNpnl: {
-                    $sum: "$npnl",
-                },
-                totalPositiveNpnl: {
-                    $sum: "$positiveNpnl",
-                },
-            },
-        },
-        {
-            $project: {
-                contestId: "$_id.contestId",
-                contestName: "$_id.contestName",
-                contestDate: "$_id.date",
-                totalNpnl: 1,
-                totalPayout: {
-                    $multiply: [
-                        "$totalPositiveNpnl",
-                        {
-                            $divide: ["$_id.payoutPer", 100],
-                        },
-                    ],
-                },
-                _id: 0,
-            },
+            $limit: 90,
         },
         {
             $sort: {
-                contestDate: -1,
+                contestDate: 1,
             },
         },
-        {
-            $group:
-            {
-                _id: {
-                    contestDate: "$contestDate",
-                },
-                totalNpnl: {
-                    $sum: "$totalNpnl",
-                },
-                totalPayout: {
-                    $sum: "$totalPayout",
-                },
-                numberOfContests: {
-                    $sum: 1,
-                },
-            },
-        },
-        {
-            $project:
-            {
-                _id: 0,
-                contestDate: "$_id.contestDate",
-                totalNpnl: 1,
-                totalPayout: 1,
-                numberOfContests: 1,
-            },
-        },
-        {
-            $sort:
-            {
-                contestDate: 1
-            }
-        }
-    ]
-
-    let x = await DailyContestMockUser.aggregate(pipeline)
+      ]
+      
+    let x = await DailyContest.aggregate(pipeline)
 
     res.status(201).json({ message: "data received", data: x });
 }
@@ -1917,6 +1825,12 @@ const dailyContestLeaderBoard = async (contest) => {
         for(let i = 0; i < allParticipants.length; i++){
             let pnl = await client.get(`${allParticipants[i].userId._id.toString()}${id.toString()} overallpnlDailyContest`)
             pnl = JSON.parse(pnl); 
+            // console.log(pnl)
+            pnl = pnl?.filter((elem)=>{
+                return !elem?._id?.isLimit
+            })
+
+            // console.log("ddddd", pnl)
             if(pnl){
                 for(let elem of pnl){
                     elem.trader = allParticipants[i].userId._id.toString();

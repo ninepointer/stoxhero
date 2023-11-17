@@ -340,6 +340,7 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
       for(let elem of rewards){
           if(Number(myRank) >= Number(elem.rankStart) && Number(myRank) <= Number(elem.rankEnd)){
             myPayout = "+₹" + elem.prize;
+            break;
           } else{
             myPayout = "+₹" + "0.00";
           }

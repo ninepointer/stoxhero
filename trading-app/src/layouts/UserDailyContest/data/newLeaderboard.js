@@ -77,8 +77,10 @@ function Leaderboard({ socket, name, id, data}) {
         for(let elem of rewards){
             if(Number(myRank) >= Number(elem.rankStart) && Number(myRank) <= Number(elem.rankEnd)){
                 myReward = elem.prize;
+                break;
             }else{
-                myReward = "+₹" + "0.00";
+                myReward = 0;
+                // "+₹" + "0.00";
             }
         }
     }
@@ -231,6 +233,10 @@ function Leaderboard({ socket, name, id, data}) {
                                                 for(let subelem of rewards){
                                                     if(Number(index+1) >= Number(subelem.rankStart) && Number(index+1) <= Number(subelem.rankEnd)){
                                                         myReward = subelem.prize;
+                                                        break;
+                                                    }else{
+                                                        myReward = 0;
+                                                        // "+₹" + "0.00";
                                                     }
                                                 }
                                             }

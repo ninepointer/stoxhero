@@ -1662,12 +1662,6 @@ exports.creditAmountToWallet = async () => {
             maxPayout = contest[j]?.entryFee * (contest[j]?.payoutCapPercentage ?? 10000)/100; 
           }
           //setting max payout for paid contest 
-          const startDate = new Date(contest[j]?.contestStartTime);
-          const endDate = new Date(contest[j]?.contestEndTime);
-          // Calculate the difference in milliseconds
-          const timeDifference = endDate.getTime() - startDate.getTime();
-          // Convert milliseconds to days
-          const daysDifference = timeDifference / (1000 * 3600 * 24);
             // if (contest[j].contestEndTime < new Date()) {
             for (let i = 0; i < contest[j]?.participants?.length; i++) {
                 let userId = contest[j]?.participants[i]?.userId;
@@ -1701,15 +1695,7 @@ exports.creditAmountToWallet = async () => {
                             },
                             trades: {
                               $count: {},
-                            },
-                            tradingDays: {
-                              $addToSet: {
-                                $dateToString: {
-                                  format: "%Y-%m-%d",
-                                  date: "$trade_time",
-                                },
-                              },
-                            },
+                            }
                         },
                     },
                     {
@@ -1720,10 +1706,7 @@ exports.creditAmountToWallet = async () => {
                           },
                           gpnl: "$amount",
                           brokerage: "$brokerage",
-                          trades: 1,
-                          tradingDays: {
-                            $size: "$tradingDays",
-                          },
+                          trades: 1
                         },
                     },
                 ])
@@ -2249,7 +2232,7 @@ const addRewardToWallet = async(rewardAmount, pnlObj, setting, contest) => {
   contest.participants[index].brokerage = pnlObj?.brokerage;
   contest.participants[index].tdsAmount = payoutAmountWithoutTDS-pnlObj?.fee>0?((payoutAmountWithoutTDS-pnlObj?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
   await contest.save();
-  if (process.env.PROD == 'true') {
+  // if (process.env.PROD == 'true') {
     try{
       if(!existingTransaction){
         console.log(user?.email, 'sent')
@@ -2341,7 +2324,7 @@ const addRewardToWallet = async(rewardAmount, pnlObj, setting, contest) => {
     }catch(e){
       console.log('error sending mail')
     }
-  }
+  // }
   if(!existingTransaction){
     await createUserNotification({
         title:'Contest Reward Credited',

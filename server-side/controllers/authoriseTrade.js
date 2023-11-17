@@ -595,8 +595,14 @@ const marginSecondCase = async (req, res, next, prevMargin, prevQuantity) => {
     return next();
 }
 
-const marginThirdCase = async (req, res, next) => {
-    req.body.margin = 0;
+const marginThirdCase = async (req, res, next, netPnl) => {
+    //todo-vijay npnl negetive me h to margin me minus hoga
+    // if(netPnl < 0){
+    //     req.body.margin = netPnl;
+    // } else{
+        req.body.margin = 0;
+    // }
+    
     console.log("3rd case");
 
     return next();
@@ -665,9 +671,9 @@ const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
     const totalMargin = pnlData.reduce((total, acc)=>{
         return total + acc.margin;
     }, 0)
-    // console.log("availble margin", totalMargin, openingBalance, npnl)
+    console.log("availble margin", totalMargin, openingBalance, npnl)
     if(npnl < 0)
-    return openingBalance-totalMargin-npnl;
+    return openingBalance-totalMargin+npnl;
     else
     return openingBalance-totalMargin;
 }
@@ -867,7 +873,7 @@ exports.fundCheckPaperTrade = async (req, res, next) => {
             await marginSecondCase(req, res, next, margin, runningLotForSymbol)
             break;
         case 3:
-            await marginThirdCase(req, res, next)
+            await marginThirdCase(req, res, next, netPnl)
             break;
         case 4:
             await marginFourthCase(req, res, next, availableMargin, runningLotForSymbol, virtual, data)
@@ -903,6 +909,8 @@ exports.fundCheckTenxTrader = async (req, res, next) => {
     const margin = (await marginAndCase).margin;
     const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
 
+    console.log(netPnl, availableMargin, caseNumber, margin, runningLotForSymbol )
+
     switch (caseNumber) {
         case 0:
             await marginZeroCase(req, res, next, availableMargin, tenx, data)
@@ -914,7 +922,7 @@ exports.fundCheckTenxTrader = async (req, res, next) => {
             await marginSecondCase(req, res, next, margin, runningLotForSymbol)
             break;
         case 3:
-            await marginThirdCase(req, res, next)
+            await marginThirdCase(req, res, next, netPnl)
             break;
         case 4:
             await marginFourthCase(req, res, next, availableMargin, runningLotForSymbol, tenx, data)
@@ -960,7 +968,7 @@ exports.fundCheckInternship = async (req, res, next) => {
             await marginSecondCase(req, res, next, margin, runningLotForSymbol)
             break;
         case 3:
-            await marginThirdCase(req, res, next)
+            await marginThirdCase(req, res, next, netPnl)
             break;
         case 4:
             await marginFourthCase(req, res, next, availableMargin, runningLotForSymbol, internship, data)
@@ -1006,7 +1014,7 @@ exports.fundCheckMarginX = async (req, res, next) => {
             await marginSecondCase(req, res, next, margin, runningLotForSymbol)
             break;
         case 3:
-            await marginThirdCase(req, res, next)
+            await marginThirdCase(req, res, next, netPnl)
             break;
         case 4:
             await marginFourthCase(req, res, next, availableMargin, runningLotForSymbol, marginx, data)
@@ -1052,7 +1060,7 @@ exports.fundCheckDailyContest = async (req, res, next) => {
             await marginSecondCase(req, res, next, margin, runningLotForSymbol)
             break;
         case 3:
-            await marginThirdCase(req, res, next)
+            await marginThirdCase(req, res, next, netPnl)
             break;
         case 4:
             await marginFourthCase(req, res, next, availableMargin, runningLotForSymbol, dailyContest, data)
@@ -1097,7 +1105,7 @@ exports.fundCheckBattle = async (req, res, next) => {
             await marginSecondCase(req, res, next, margin, runningLotForSymbol)
             break;
         case 3:
-            await marginThirdCase(req, res, next)
+            await marginThirdCase(req, res, next, netPnl)
             break;
         case 4:
             await marginFourthCase(req, res, next, availableMargin, runningLotForSymbol, battle, data)
