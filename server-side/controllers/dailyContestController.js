@@ -2249,7 +2249,7 @@ const addRewardToWallet = async(rewardAmount, pnlObj, setting, contest) => {
   contest.participants[index].brokerage = pnlObj?.brokerage;
   contest.participants[index].tdsAmount = payoutAmountWithoutTDS-pnlObj?.fee>0?((payoutAmountWithoutTDS-pnlObj?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
   await contest.save();
-  // if (process.env.PROD == 'true') {
+  if (process.env.PROD == 'true') {
     try{
       if(!existingTransaction){
         console.log(user?.email, 'sent')
@@ -2341,7 +2341,7 @@ const addRewardToWallet = async(rewardAmount, pnlObj, setting, contest) => {
     }catch(e){
       console.log('error sending mail')
     }
-  // }
+  }
   if(!existingTransaction){
     await createUserNotification({
         title:'Contest Reward Credited',
