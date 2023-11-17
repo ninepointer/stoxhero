@@ -1296,7 +1296,7 @@ const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
 
     const openingBalance = fundDetail?.openingBalance ? fundDetail?.openingBalance : fundDetail?.totalFund;
     const withoutLimitData = pnlData.filter((elem) => !elem._id.isLimit);
-    if (!withoutLimitData.length) {
+    if (!pnlData.length) {
         return openingBalance;
     }
 
