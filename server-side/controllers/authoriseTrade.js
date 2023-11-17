@@ -597,11 +597,11 @@ const marginSecondCase = async (req, res, next, prevMargin, prevQuantity) => {
 
 const marginThirdCase = async (req, res, next, netPnl) => {
     //todo-vijay npnl negetive me h to margin me minus hoga
-    if(netPnl < 0){
-        req.body.margin = netPnl;
-    } else{
+    // if(netPnl < 0){
+    //     req.body.margin = netPnl;
+    // } else{
         req.body.margin = 0;
-    }
+    // }
     
     console.log("3rd case");
 
@@ -671,9 +671,9 @@ const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
     const totalMargin = pnlData.reduce((total, acc)=>{
         return total + acc.margin;
     }, 0)
-    // console.log("availble margin", totalMargin, openingBalance, npnl)
+    console.log("availble margin", totalMargin, openingBalance, npnl)
     if(npnl < 0)
-    return openingBalance-totalMargin-npnl;
+    return openingBalance-totalMargin+npnl;
     else
     return openingBalance-totalMargin;
 }
@@ -908,6 +908,8 @@ exports.fundCheckTenxTrader = async (req, res, next) => {
     const caseNumber = (await marginAndCase).caseNumber;
     const margin = (await marginAndCase).margin;
     const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
+
+    console.log(netPnl, availableMargin, caseNumber, margin, runningLotForSymbol )
 
     switch (caseNumber) {
         case 0:

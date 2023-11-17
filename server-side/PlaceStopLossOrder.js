@@ -1240,12 +1240,7 @@ const marginSecondCase = async (tradeData, prevMargin, prevQuantity) => {
 
 const marginThirdCase = async (tradeData, netPnl) => {
 
-    if(netPnl < 0){
-        tradeData.margin = netPnl;
-    } else{
-        tradeData.margin = 0;
-    }
-    
+    tradeData.margin = 0;
 
     return;
 }
@@ -1309,7 +1304,7 @@ const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
         return total + acc.margin;
     }, 0)
     if (npnl < 0)
-        return openingBalance - totalMargin - npnl;
+        return openingBalance - totalMargin + npnl;
     else
         return openingBalance - totalMargin;
 }
