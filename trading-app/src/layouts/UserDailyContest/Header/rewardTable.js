@@ -1,21 +1,14 @@
 import * as React from 'react';
-import { useEffect, useState } from "react";
 import DataTable from "../../../examples/Tables/DataTable";
 // import MDButton from "../../../components/MDButton"
 import MDBox from "../../../components/MDBox"
 import MDTypography from "../../../components/MDTypography"
 import Card from "@mui/material/Card";
-import { Tooltip } from '@mui/material';
-// import MDButton from '../../../components/MDButton';
-// import axios from "axios";
-// import moment from 'moment';
-import DownloadIcon from '@mui/icons-material/Download';
-import { saveAs } from 'file-saver';
-// import html2canvas from 'html2canvas';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import MDButton from '../../../components/MDButton';
+import { Typography } from '@mui/material';
 
 
 
@@ -75,23 +68,28 @@ export default function RewardTable({ data, paid }) {
                 aria-describedby="alert-dialog-description"
             >
                 <DialogContent>
-                    <Card>
-                        {/* <MDBox display="flex" justifyContent="space-between" alignItems="left"> */}
-                            <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{ backgroundColor: "lightgrey", borderRadius: "2px" }}>
-                                <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-                                    Reward Table
-                                </MDTypography>
-                            </MDBox>
-                        {/* </MDBox> */}
-                        <MDBox mt={1}>
-                            <DataTable
-                                table={{ columns, rows }}
-                                showTotalEntries={false}
-                                isSorted={false}
-                                entriesPerPage={false}
-                            />
-                        </MDBox>
-                    </Card>
+                    {
+                        data?.payoutType !== "Reward" ?
+                            <Typography textAlign="justify" fontSize={15} sx={{ width: "100%" }} color="#000" variant="body2">
+                            <b>GST Charges</b>:  The government has implemented a 28% GST on wallet top-ups, but here's the good news: You won't need to worry about paying this GST yourself because we've got it covered. We'll be taking care of the GST on your behalf.
+                            </Typography>
+                            :
+                            <Card>
+                                <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{ backgroundColor: "lightgrey", borderRadius: "2px" }}>
+                                    <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
+                                        Reward Table
+                                    </MDTypography>
+                                </MDBox>
+                                <MDBox mt={1}>
+                                    <DataTable
+                                        table={{ columns, rows }}
+                                        showTotalEntries={false}
+                                        isSorted={false}
+                                        entriesPerPage={false}
+                                    />
+                                </MDBox>
+                            </Card>
+                    }
                 </DialogContent>
                 <DialogActions>
                     <MDButton onClick={handleClose} autoFocus>

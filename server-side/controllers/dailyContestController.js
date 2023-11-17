@@ -1718,6 +1718,7 @@ exports.creditAmountToWallet = async () => {
                 if (pnlDetails[0]?.npnl > 0 && daysDifference === pnlDetails[0]?.tradingDays) {
                     const payoutAmountWithoutTDS = Math.min(pnlDetails[0]?.npnl * payoutPercentage / 100, maxPayout);
                     let payoutAmount = payoutAmountWithoutTDS;
+                    console.log("check payout", payoutAmount, payoutAmountWithoutTDS)
                     if(payoutAmountWithoutTDS>fee){
                       payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100;
                     }
@@ -1726,7 +1727,7 @@ exports.creditAmountToWallet = async () => {
                     const transactionDescription = `Amount credited for contest ${contest[j].contestName}`;
   
                     // Check if a transaction with this description already exists
-                    const existingTransaction = wallet?.transactions?.some(transaction => transaction.description === transactionDescription);
+                    const existingTransaction = wallet?.transactions?.some(transaction => (transaction.description === transactionDescription && transaction.transactionDate >= today))
   
                     // console.log(userId, pnlDetails[0]);
                     //check if wallet.transactions doesn't have an object with the particular description, then push it to wallet.transactions
@@ -1747,6 +1748,7 @@ exports.creditAmountToWallet = async () => {
                     contest[j].participants[i].npnl = pnlDetails[0]?.npnl;
                     contest[j].participants[i].gpnl = pnlDetails[0]?.gpnl;
                     contest[j].participants[i].trades = pnlDetails[0]?.trades;
+                    contest[j].participants[i].tradingDays = pnlDetails[0]?.tradingDays;
                     contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
                     contest[j].participants[i].tdsAmount = payoutAmountWithoutTDS-fee>0?((payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
                     if (process.env.PROD == 'true') {
@@ -1861,6 +1863,7 @@ exports.creditAmountToWallet = async () => {
                   contest[j].participants[i].gpnl = pnlDetails[0]?.gpnl;
                   contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
                   contest[j].participants[i].trades = pnlDetails[0]?.trades;
+                  contest[j].participants[i].tradingDays = pnlDetails[0]?.tradingDays;
                 }
   
             }
@@ -1985,6 +1988,7 @@ exports.creditAmountToWallet = async () => {
                 gpnl:pnlDetails[0]?.gpnl,
                 trades:pnlDetails[0]?.trades,
                 brokerage:pnlDetails[0]?.brokerage,
+                tradingDays:pnlDetails[0]?.tradingDays,
                 fee:contest[j]?.participants[i]?.fee ?? 0
               });
             }
@@ -2001,7 +2005,7 @@ exports.creditAmountToWallet = async () => {
                 const transactionDescription = `Amount credited for contest ${contest[j].contestName}`;
 
                 // Check if a transaction with this description already exists
-                const existingTransaction = wallet?.transactions?.some(transaction => transaction.description === transactionDescription);
+                const existingTransaction = wallet?.transactions?.some(transaction => transaction.description === transactionDescription && transaction.transactionDate >= today);
 
                 // console.log(userId, pnlDetails[0]);
                 //check if wallet.transactions doesn't have an object with the particular description, then push it to wallet.transactions
@@ -2023,6 +2027,7 @@ exports.creditAmountToWallet = async () => {
                 contest[j].participants[i].gpnl = pnlDetails[0]?.gpnl;
                 contest[j].participants[i].trades = pnlDetails[0]?.trades;
                 contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
+                contest[j].participants[i].tradingDays = pnlDetails[0]?.tradingDays;
                 contest[j].participants[i].tdsAmount = payoutAmountWithoutTDS-fee>0?((payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
                 if (process.env.PROD == 'true') {
                   try{
@@ -2136,6 +2141,7 @@ exports.creditAmountToWallet = async () => {
               contest[j].participants[i].gpnl = pnlDetails[0]?.gpnl;
               contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
               contest[j].participants[i].trades = pnlDetails[0]?.trades;
+              contest[j].participants[i].tradingDays = pnlDetails[0]?.tradingDays;
             }
 
         }
@@ -2243,6 +2249,7 @@ const addRewardToWallet = async(rewardAmount, pnlObj, setting, contest) => {
   contest.participants[index].gpnl = pnlObj?.gpnl;
   contest.participants[index].trades = pnlObj?.trades;
   contest.participants[index].brokerage = pnlObj?.brokerage;
+  contest.participants[index].tradingDays = pnlObj?.tradingDays;
   contest.participants[index].tdsAmount = payoutAmountWithoutTDS-pnlObj?.fee>0?((payoutAmountWithoutTDS-pnlObj?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
   await contest.save();
   if (process.env.PROD == 'true') {

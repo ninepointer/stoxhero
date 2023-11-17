@@ -22,6 +22,7 @@ import { userContext } from '../../../AuthContext';
 import {  maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, lotSize_Nifty, lotSize_BankNifty, lotSize_FinNifty } from "../../../variables";
 import MDSnackbar from '../../../components/MDSnackbar';
 import PnlMenu from './PnlMenu';
+import { settingContext } from '../../../settingContext';
 
 
 function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptionId, moduleData }) {
@@ -38,6 +39,9 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
   const tradeSound = getDetails.tradeSound;
   const { updateNetPnl, setPnlData } = useContext(NetPnlContext);
   const marketDetails = useContext(marketDataContext)
+  const setting = useContext(settingContext)
+
+  console.log("settingContext", setting)
   const [exitState, setExitState] = useState(false);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
@@ -325,6 +329,8 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
   );
 
   let myPayout;
+  let tdsAmount;
+  let myReward;
   if(moduleData?.allData?.payoutType === "Percentage"){
     let payoutCap;
     if(moduleData?.allData?.entryFee > 0){
@@ -333,23 +339,30 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
         payoutCap = moduleData?.allData?.portfolio?.portfolioValue * moduleData?.allData?.payoutCapPercentage/100;
     }
     const payout = Math.min((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100, payoutCap)
-    myPayout = (totalGrossPnl - totalTransactionCost) >= 0 ? (payout) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(payout)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-payout)) : "+₹0.00";
+    if (moduleData?.allData?.entryFee > 0) {
+      tdsAmount = (payout-moduleData?.allData?.entryFee)*setting[0]?.tdsPercentage/100
+    } else {
+      tdsAmount = payout*setting[0]?.tdsPercentage/100
+    }
+    myPayout = payout-tdsAmount;
+    myReward = (totalGrossPnl - totalTransactionCost) >= 0 ? (payout) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(payout)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-payout)) : "+₹0.00";
   } else{
     if(myRank){
       const rewards = moduleData?.allData?.rewards;
       for(let elem of rewards){
           if(Number(myRank) >= Number(elem.rankStart) && Number(myRank) <= Number(elem.rankEnd)){
-            myPayout = "+₹" + elem.prize;
+            myReward = "+₹" + elem.prize;
             break;
           } else{
-            myPayout = "+₹" + "0.00";
+            myReward = "+₹" + "0.00";
           }
       }
     } else{
-      myPayout = "+₹" + "0.00";
+      myReward = "+₹" + "0.00";
     }
   }
 
+  console.log("tdsAmount", tdsAmount, myReward)
   return (
     <Card>
       <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
@@ -454,19 +467,19 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
               </tbody>
             </table>
             <Grid container display='flex' mt={1} p={1} style={{ border: '1px solid white', borderRadius: 4 }}>
-              <Grid item xs={6} md={3} lg={from === marginX ? 1.42 : from===dailyContest ? 2.4 : 3} display="flex" justifyContent="center">
+              <Grid item xs={6} md={3} lg={from === marginX ? 1.42 : from===dailyContest ? 1.71 : 3} display="flex" justifyContent="center">
                 <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color="#003366" style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Running Lots: {totalRunningLots}</MDTypography>
               </Grid>
 
-              <Grid item xs={6} md={3} lg={from === marginX ? 1.71 : from===dailyContest ? 2.4 : 3} display="flex" justifyContent="center">
+              <Grid item xs={6} md={3} lg={from === marginX ? 1.71 : from===dailyContest ? 1.71 : 3} display="flex" justifyContent="center">
                 <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color="#003366" style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Brokerage: {"₹" + (totalTransactionCost).toFixed(2)}</MDTypography>
               </Grid>
 
-              <Grid item xs={6} md={3} lg={from === marginX ? 1.71 : from===dailyContest ? 2.4 : 3} display="flex" justifyContent="center">
+              <Grid item xs={6} md={3} lg={from === marginX ? 1.71 : from===dailyContest ? 1.71 : 3} display="flex" justifyContent="center">
                 <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color={`${totalGrossPnl > 0 ? 'success' : 'error'}`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Gross P&L: { (totalGrossPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalGrossPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-totalGrossPnl))}</MDTypography>
               </Grid>
 
-              <Grid item xs={6} md={3} lg={from === marginX ? 1.71 : from===dailyContest ? 2.4 : 3} display="flex" justifyContent="center">
+              <Grid item xs={6} md={3} lg={from === marginX ? 1.71 : from===dailyContest ? 1.71 : 3} display="flex" justifyContent="center">
                 <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color={`${(totalGrossPnl - totalTransactionCost) > 0 ? 'success' : 'error'}`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Net P&L: { ((totalGrossPnl - totalTransactionCost)) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((totalGrossPnl - totalTransactionCost))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-(totalGrossPnl - totalTransactionCost)))} </MDTypography>
               </Grid>
 
@@ -488,8 +501,16 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
 
               {from === dailyContest &&
                 <>
-                  <Grid item xs={6} md={3} lg={2.4} display="flex" justifyContent="center">
-                    <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color={`info`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Payout: {myPayout} </MDTypography>
+                  <Grid item xs={6} md={3} lg={1.71} display="flex" justifyContent="center">
+                    <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color={`info`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Reward: {myReward} </MDTypography>
+                  </Grid>
+
+                  <Grid item xs={6} md={3} lg={1.71} display="flex" justifyContent="center">
+                    <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color={`info`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>TDS: {(totalGrossPnl - totalTransactionCost) >= 0 ? (tdsAmount) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(tdsAmount)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-tdsAmount)) : "+₹0.00"} </MDTypography>
+                  </Grid>
+
+                  <Grid item xs={6} md={3} lg={1.71} display="flex" justifyContent="center">
+                    <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color={`info`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Payout: {(totalGrossPnl - totalTransactionCost) >= 0 ? (myPayout) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(myPayout)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-myPayout)) : "+₹0.00"} </MDTypography>
                   </Grid>
                 </>
               }

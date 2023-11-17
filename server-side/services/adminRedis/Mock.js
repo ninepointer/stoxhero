@@ -887,7 +887,7 @@ exports.lastTradeDataMockDailyContest = async (pnlData, contestId) => {
 //----------------marginx-------------------
 
 exports.overallpnlMarginX = async (pnlData, trader, data, marginxId, fromPlaceLimit)=>{
-  console.log("in overallLivePnlRedis", pnlData)
+  // console.log("in overallLivePnlRedis", pnlData)
   const isRedisConnected = getValue();
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`

@@ -81,10 +81,154 @@ const mongoose = require('mongoose');
 const moment = require("moment")
 const {mail} = require("../../controllers/dailyReportMail");
 const CareerApplication = require("../../models/Careers/careerApplicationSchema");
-
+const emailService = require("../../utils/emailService")
+const {createUserNotification} = require('../../controllers/notification/notificationController');
 const uuid = require('uuid');
 
 
+
+router.get('/updatepayout', async(req,res) =>{
+  // const arrr = ["", "65213309cc62c86984c48f95"]
+  const contest = await DailyContest.findOne({_id: new ObjectId("655668097d89bf3d5dea859c")})
+
+  let data = 0;
+  for(let user of contest.participants){
+    const wallet = await userWallet.findOne({ userId: new ObjectId(user.userId) });
+    const transactionDescription = `Amount credited for contest ${contest.contestName}`;
+    const userData = await UserDetail.findOne({_id: new ObjectId(user.userId)}).select('email first_name last_name')
+    // Check if a transaction with this description already exists
+    const existingTransaction = wallet?.transactions?.some(transaction => (transaction.description === transactionDescription && transaction.transactionDate >= new Date("2023-11-17")));
+
+    // console.log(userId, pnlDetails[0]);
+    //check if wallet.transactions doesn't have an object with the particular description, then push it to wallet.transactions
+    if(user.payout && !existingTransaction){
+      if(wallet?.transactions?.length == 0 || !existingTransaction){
+        wallet.transactions.push({
+            title: 'Contest Credit',
+            description: `Amount credited for contest ${contest.contestName}`,
+            transactionDate: new Date(),
+            amount: user.payout.toFixed(2),
+            transactionId: uuid.v4(),
+            transactionType: 'Cash'
+        });
+
+        await wallet.save();
+      }
+
+      console.log(user.payout, Number(user.payout))
+      data += Number(user.payout)
+      console.log(user.payout.toFixed(2), userData.first_name)
+      try {
+        if (!existingTransaction) {
+          console.log(userData?.email, 'sent')
+          await emailService(userData?.email, 'Contest Payout Credited - StoxHero', `
+         <!DOCTYPE html>
+         <html>
+         <head>
+             <meta charset="UTF-8">
+             <title>Amount Credited</title>
+             <style>
+             body {
+                 font-family: Arial, sans-serif;
+                 font-size: 16px;
+                 line-height: 1.5;
+                 margin: 0;
+                 padding: 0;
+             }
+   
+             .container {
+                 max-width: 600px;
+                 margin: 0 auto;
+                 padding: 20px;
+                 border: 1px solid #ccc;
+             }
+   
+             h1 {
+                 font-size: 24px;
+                 margin-bottom: 20px;
+             }
+   
+             p {
+                 margin: 0 0 20px;
+             }
+   
+             .userid {
+                 display: inline-block;
+                 background-color: #f5f5f5;
+                 padding: 10px;
+                 font-size: 15px;
+                 font-weight: bold;
+                 border-radius: 5px;
+                 margin-right: 10px;
+             }
+   
+             .password {
+                 display: inline-block;
+                 background-color: #f5f5f5;
+                 padding: 10px;
+                 font-size: 15px;
+                 font-weight: bold;
+                 border-radius: 5px;
+                 margin-right: 10px;
+             }
+   
+             .login-button {
+                 display: inline-block;
+                 background-color: #007bff;
+                 color: #fff;
+                 padding: 10px 20px;
+                 font-size: 18px;
+                 font-weight: bold;
+                 text-decoration: none;
+                 border-radius: 5px;
+             }
+   
+             .login-button:hover {
+                 background-color: #0069d9;
+             }
+             </style>
+         </head>
+         <body>
+             <div class="container">
+             <h1>Amount Credited</h1>
+             <p>Hello ${userData.first_name},</p>
+             <p>Amount of ${(user.payout)?.toFixed(2)}INR has been credited in your wallet for ${contest.contestName}.</p>
+             <p>You can now purchase Tenx and participate in various activities on stoxhero.</p>
+             
+             <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+             <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+             <br/><br/>
+             <p>Thanks,</p>
+             <p>StoxHero Team</p>
+   
+             </div>
+         </body>
+         </html>
+         `);
+        }
+      } catch (e) {
+        console.log('error sending mail')
+      }
+      if (!existingTransaction) {
+        await createUserNotification({
+          title: 'Contest Reward Credited',
+          description: `₹${(user.payout)?.toFixed(2)} credited to your wallet as your contest reward`,
+          notificationType: 'Individual',
+          notificationCategory: 'Informational',
+          productCategory: 'Contest',
+          user: user?._id,
+          priority: 'Medium',
+          channels: ['App', 'Email'],
+          createdBy: '63ecbc570302e7cf0153370c',
+          lastModifiedBy: '63ecbc570302e7cf0153370c'
+        });
+      }
+    }
+
+  }
+
+  console.log("data", data)
+})
 
 router.get('/updateDailyContest', async(req,res) =>{
   const daily = await DailyContest.find();
@@ -152,7 +296,7 @@ router.get('/updateDailyContest', async(req,res) =>{
       }
     }
 
-    await elem.save();
+    await elem.save({validateBeforeSave: false});
   }
 })
 

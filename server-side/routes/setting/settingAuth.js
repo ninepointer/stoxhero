@@ -26,6 +26,12 @@ router.get("/readsetting", Authentication, (req, res)=>{
     })
 })
 
+router.get("/usersetting", Authentication, async (req, res)=>{
+
+    const setting = await Setting.find().select('isAppLive minWithdrawal maxWithdrawal maxWithdrawalHigh walletBalanceUpperLimit gstPercentage tdsPercentage contest time minWalletBalance maxBonusRedemptionPercentage bonusToUnitCashRatio')
+    return res.status(200).json({status: "success", data: setting});
+})
+
 router.get("/readsetting/:id", Authentication, (req, res)=>{
     //console.log(req.params)
     const {id} = req.params
