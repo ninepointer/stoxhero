@@ -2,7 +2,7 @@ import React, {useEffect, useState, useContext} from 'react'
 import MDBox from '../../../components/MDBox'
 import MDButton from '../../../components/MDButton';
 import ReactGA from "react-ga"
-import { CircularProgress, formLabelClasses } from "@mui/material";
+import { Card, CircularProgress, formLabelClasses } from "@mui/material";
 import { Grid, Input, TextField } from '@mui/material'
 import theme from '../utils/theme/index';
 import { ThemeProvider } from 'styled-components';
@@ -29,6 +29,7 @@ import { userContext } from "../../../AuthContext";
 import {Autocomplete} from '@mui/material';
 import moment from 'moment';
 import { Helmet } from 'react-helmet';
+import DataTable from '../../../examples/Tables/DataTable';
 
 function sleep(duration) {
   return new Promise((resolve) => {
@@ -38,7 +39,7 @@ function sleep(duration) {
   });
 }
 
-const CareerForm = () => {
+const FeaturedContestRegistration = () => {
   const [open, setOpen] = React.useState(false);
   const [options, setOptions] = React.useState([]);
   const loading = open && options.length === 0;
@@ -54,7 +55,12 @@ const CareerForm = () => {
   const referrerCode = params.get('referral');
   campaignCode = params.get('campaigncode');
   const getDetails = useContext(userContext);
+  let columns = [
+    { Header: "# Rank", accessor: "rank", align: "center" },
+    { Header: "Reward", accessor: "reward", align: "center" },
+]
 
+let rows = []
 
   const [detail, setDetails] = useState({
     firstName: "",
@@ -249,8 +255,22 @@ useEffect(()=>{
     }
   }
 
-  // console.log(contest?.contestStartTime, contestDetails?.contestStartTime, contest, contestDetails)
+  contestDetails.rewards?.map((elem) => {
+    let featureObj = {}
 
+    featureObj.rank = (
+        <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+            {Number(elem?.rankStart) === Number(elem?.rankEnd) ? Number(elem?.rankStart) : `${Number(elem?.rankStart)}-${Number(elem?.rankEnd)}`}
+        </MDTypography>
+    );
+    featureObj.reward = (
+        <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+            ₹{elem?.prize}
+        </MDTypography>
+    );
+
+    rows.push(featureObj)
+})
   return (
    
     <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{backgroundColor:'white', minHeight:'100vH', height: 'auto', width: 'auto', minWidth:'100vW'}}>
@@ -290,7 +310,7 @@ useEffect(()=>{
 
                   <Grid item xs={12} md={12} xl={6} pl={2} pr={2} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                     <MDTypography fontSize={12} fontColor='dark' fontWeight='bold'>
-                      🕒 Start: {moment.utc(contest ? contest?.contestStartTime : contestDetails?.contestStartTime).utcOffset('+05:30').format('DD-MMM hh:mm a')}
+                      🕒 Start: {moment.utc(contest ? contest?.contestStartTime : contestDetails?.contestStartTime).utcOffset('+05:30').format('DD-MMM-YY hh:mm a')}
                     </MDTypography>
                   </Grid>
 
@@ -316,7 +336,25 @@ useEffect(()=>{
                     <MDTypography fontSize={12} fontColor='dark' fontWeight='bold' sx={{ textAlign: 'center' }}>
                         Rewards will be based on your rank during the contest period.
                     </MDTypography>
-                  </Grid>       
+                  </Grid>  
+
+                  <Grid item xs={12} md={12} xl={12} lg={12} mt={1} mb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                    <MDBox width="100%" xl={12}>
+                      <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{ backgroundColor: "#315C45", borderRadius: "2px" }}>
+                        <MDTypography variant="text" fontSize={12} color="white" mt={0.7} alignItems="center" gutterBottom>
+                          Reward Table
+                        </MDTypography>
+                      </MDBox>
+                      <MDBox mt={1}>
+                        <DataTable
+                          table={{ columns, rows }}
+                          showTotalEntries={false}
+                          isSorted={false}
+                          entriesPerPage={false}
+                        />
+                      </MDBox>
+                    </MDBox>
+                  </Grid>     
                   
                 </Grid>
             </MDBox>
@@ -482,7 +520,7 @@ useEffect(()=>{
   )
 }
 
-export default CareerForm
+export default FeaturedContestRegistration
 
 
 //6UOWyIuWrBj5QdME6zzOA6p1qsLByKL1

@@ -82,8 +82,213 @@ const moment = require("moment")
 const {mail} = require("../../controllers/dailyReportMail");
 const CareerApplication = require("../../models/Careers/careerApplicationSchema");
 
+const uuid = require('uuid');
 
 
+
+router.get('/tenxremove', async(req,res) =>{
+  // const arrr = ["", "65213309cc62c86984c48f95"]
+
+  const wallet = await userWallet.findOne({userId: new ObjectId("65213309cc62c86984c48f95")});
+
+  wallet.transactions = [...wallet.transactions, {
+    title: 'Contest Credit',
+    description: `Amount credited for contest Muhurat Trading - 12th Nov(6:15 PM)`,
+    transactionDate: new Date(),
+    amount: 700,
+    transactionId: uuid.v4(),
+    transactionType: 'Cash'
+}];
+
+await wallet.save()
+  // const 
+  // await DailyContest.updateMany({contestStatus: "Completed"})
+    // const daily = await DailyContest.findOne({_id: new ObjectId()})
+})
+
+// [
+//   {
+//     $match:
+//       {
+//         contestId: ObjectId(
+//           "654badad4b8fd118ebd1095f"
+//         ),
+//         trader: ObjectId(
+//           "63788f3991fc4bf629de6df0"
+//         ),
+//         trade_time: {
+//           $lt: new Date("2023-11-09"),
+//         },
+//       },
+//   },
+//   {
+//     $addFields: {
+//       date: {
+//         $dateToString: {
+//           format: "%Y-%m-%d",
+//           date: "$trade_time",
+//         },
+//       },
+//     },
+//   },
+//   {
+//     $group: {
+//       _id: "$date",
+//       gpnl: {
+//         $sum: {
+//           $multiply: ["$amount", -1],
+//         },
+//       },
+//       brokerage: {
+//         $sum: {
+//           $toDouble: "$brokerage",
+//         },
+//       },
+//       trades: {
+//         $count: {},
+//       },
+//     },
+//   },
+//   {
+//     $project:
+//       {
+//         _id: 0,
+//         date: "$_id",
+//         gpnl: 1,
+//         brokerage: 1,
+//         npnl: {
+//           $subtract: ["$gpnl", "$brokerage"],
+//         },
+//         trades: 1,
+//       },
+//   },
+// ]
+
+
+router.get('/tenxremove', async(req,res) =>{
+await DailyContest.updateMany({contestStatus: "Completed"})
+  // const daily = await DailyContest.findOne({_id: new ObjectId()})
+})
+
+router.get('/tenxremove', async(req,res) =>{
+  const subscription = await TenxSubscription.aggregate([
+    {
+      $unwind: {
+        path: "$users",
+      },
+    },
+    {
+      $match: {
+        "users.expiredOn": {
+          $gte: new Date("2023-11-06"),
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        subscriptionId: "$_id",
+        docId: "$users._id",
+        dateDifference: {
+          $divide: [
+            {
+              $subtract: [
+                "$users.expiredOn",
+                "$users.subscribedOn",
+              ],
+            },
+            1000 * 60 * 60 * 24,
+          ],
+        },
+      },
+    },
+    {
+      $match: {
+        dateDifference: {
+          $gte: 35,
+        },
+      },
+    },
+  ])
+
+  console.log("subscription", subscription)
+
+  const user = await UserDetail.aggregate([
+    {
+      $unwind: {
+        path: "$subscription",
+      },
+    },
+    {
+      $match: {
+        "subscription.expiredOn": {
+          $gte: new Date("2023-11-06"),
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        userId: "$_id",
+        docId: "$subscription._id",
+        dateDifference: {
+          $divide: [
+            {
+              $subtract: [
+                "$subscription.expiredOn",
+                "$subscription.subscribedOn",
+              ],
+            },
+            1000 * 60 * 60 * 24,
+          ],
+        },
+      },
+    },
+    {
+      $match: {
+        dateDifference: {
+          $gte: 35,
+        },
+      },
+    },
+  ])
+
+  console.log("user", user)
+
+  for(let elem of subscription){
+    const subs = await TenxSubscription.findOne({_id: elem.subscriptionId})
+    for(let subelem of subs.users){
+      if(subelem._id.toString() === elem.docId.toString()){
+        console.log("subs", subelem)
+        subelem.payout = "",
+        subelem.expiredOn = "",
+        // subelem.expiredBy = "",
+        subelem.tdsAmount = "",
+        subelem.status = "Live"
+
+        await subs.save();
+        break;
+      }
+    }
+  }
+
+  for(let elem of user){
+    const users = await UserDetail.findOne({_id: elem.userId})
+    for(let subelem of users.subscription){
+      if(subelem._id.toString() === elem.docId.toString()){
+        console.log("user", subelem)
+        subelem.payout = "",
+        subelem.expiredOn = "",
+        // subelem.expiredBy = "",
+        subelem.tdsAmount = "",
+        subelem.status = "Live"
+
+        await users.save();
+        break;
+      }
+    }
+  }
+})
 
 router.get('/careerapplication', async(req,res) =>{
   console.log("data")
@@ -1465,6 +1670,8 @@ router.get("/afterContest", async (req, res) => {
   // await autoCutMainManually();
   // await autoCutMainManuallyMock();
   await changeBattleStatus();
+  // await changeStatus();
+  // await creditAmount();
   res.send("ok");
 });
 
@@ -2114,7 +2321,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2023-11-02T20:00:00.000+00:00"
+  let expiryDate = "2023-11-10T20:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(

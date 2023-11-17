@@ -24,7 +24,7 @@ import MDSnackbar from '../../../components/MDSnackbar';
 import PnlMenu from './PnlMenu';
 
 
-function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, moduleData }) {
+function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptionId, moduleData }) {
   const { render, setRender } = useContext(renderContext);
   const getDetails = useContext(userContext);
   let styleTD = {
@@ -109,8 +109,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
       })
     })
   }, [])
-
-
+  
   tradeData.map((subelem) => {
     if(!subelem?._id?.isLimit){
     let obj = {};
@@ -324,6 +323,25 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
     />
   );
 
+  let myPayout;
+  if(moduleData?.allData?.payoutType === "Percentage"){
+    myPayout = (totalGrossPnl - totalTransactionCost) >= 0 ? ((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-(moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100)) : "+₹0.00";
+  } else{
+    if(myRank){
+      const rewards = moduleData?.allData?.rewards;
+      for(let elem of rewards){
+          if(Number(myRank) >= Number(elem.rankStart) && Number(myRank) <= Number(elem.rankEnd)){
+            myPayout = "+₹" + elem.prize;
+            break;
+          } else{
+            myPayout = "+₹" + "0.00";
+          }
+      }
+    } else{
+      myPayout = "+₹" + "0.00";
+    }
+  }
+
   return (
     <Card>
       <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
@@ -463,7 +481,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
               {from === dailyContest &&
                 <>
                   <Grid item xs={6} md={3} lg={2.4} display="flex" justifyContent="center">
-                    <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color={`info`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Payout: { (totalGrossPnl - totalTransactionCost) >= 0 ? ((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-(moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100)) : "+₹0.00"} </MDTypography>
+                    <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color={`info`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Payout: {myPayout} </MDTypography>
                   </Grid>
                 </>
               }

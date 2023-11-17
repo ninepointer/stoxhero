@@ -13,7 +13,7 @@ import { NetPnlProvider } from './PnlContext';
 import MarketDataContext from './MarketDataContext';
 import RenderContext from "./renderContext";
 import SocketContext from "./socketContext";
-
+// import FeaturedContestRegistration from "./layouts/HomePage/pages/FeaturedContestRegistration"
 
 
 ReactDOM.render(
@@ -28,6 +28,7 @@ ReactDOM.render(
           <SocketContext>
             <BrowserRouter>
               <MaterialUIControllerProvider>
+                {/* <FeaturedContestRegistration /> */}
                 <App />
               </MaterialUIControllerProvider>
             </BrowserRouter>

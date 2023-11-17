@@ -24,9 +24,11 @@ const AffiliateProgram = require('../models/affiliateProgram/affiliateProgram');
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
     try {
-        const { liveThreshold, currentLiveStatus, contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
+        const {contestLiveTime, payoutPercentageType, liveThreshold, currentLiveStatus, 
+               contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
             contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
-            maxParticipants, contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, payoutType, payoutCapPercentage } = req.body;
+            maxParticipants, contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, 
+            payoutType, payoutCapPercentage } = req.body;
 
         const getContest = await Contest.findOne({ contestName: contestName });
 
@@ -53,7 +55,8 @@ exports.createContest = async (req, res) => {
         const contest = await Contest.create({
             maxParticipants, contestStatus, contestEndTime, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
-            contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage
+            contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage,
+            contestLiveTime, payoutPercentageType
         });
 
         // console.log(contest)
@@ -503,38 +506,66 @@ exports.getUserLiveContests = async (req, res) => {
     }
 };
 
-// exports.getCollegeUserLiveContests = async (req, res) => {
-//     try {
-//         const contests = await Contest.find({
-//             contestStartTime: { $lte: new Date() },
-//             contestEndTime: { $gte: new Date() },
-//             contestFor: "College", 
-//             contestStatus:"Active"
-//         },
-//         {
-//             allowedUsers: 0,
-//             potentialParticipants: 0,
-//             contestSharedBy: 0,
-//             purchaseIntent: 0
-//         })
-//         .populate('participants.userId', 'first_name last_name email mobile creationProcess')
-//         .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
-//         .populate('portfolio', 'portfolioName _id portfolioValue')
-//         .sort({ contestStartTime: 1 })
+exports.getUserFeaturedContests = async (req, res) => {
+  try {
 
-//         res.status(200).json({
-//             status: "success",
-//             message: "Upcoming contests fetched successfully",
-//             data: contests
-//         });
-//     } catch (error) {
-//         res.status(500).json({
-//             status: "error",
-//             message: "Error in fetching upcoming contests",
-//             error: error.message
-//         });
-//     }
-// };
+    const { userId } = req.user._id;
+    const contests = await Contest.find({
+      featured: true,
+      contestStatus: "Active",
+      contestFor: "StoxHero"
+    },
+      {
+        allowedUsers: 0,
+        potentialParticipants: 0,
+        contestSharedBy: 0,
+        purchaseIntent: 0
+      })
+      .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+      .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+      .populate('portfolio', 'portfolioName _id portfolioValue')
+      .sort({ contestStartTime: 1 })
+
+    const collegeContests = await Contest.find({
+      featured: true,
+      contestStatus: "Active",
+      contestFor: "College",
+      potentialParticipants: { $elemMatch: { $eq: userId } }
+    },
+      {
+        allowedUsers: 0,
+        potentialParticipants: 0,
+        contestSharedBy: 0,
+        purchaseIntent: 0
+      })
+      .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+      .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+      .populate('portfolio', 'portfolioName _id portfolioValue')
+      .sort({ contestStartTime: 1 })
+
+    const liveFeatured = contests.filter((elem) => {
+      return elem.contestStartTime <= new Date();
+    })
+
+    const upcomingFeatured = contests.filter((elem) => {
+      return elem.contestStartTime > new Date();
+    })
+
+    res.status(200).json({
+      status: "success",
+      message: "Featured contests fetched successfully",
+      stoxheroLiveFeatured: liveFeatured,
+      stoxheroUpcomingFeatured: upcomingFeatured,
+      collegeContests: collegeContests
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Error in fetching upcoming contests",
+      error: error.message
+    });
+  }
+};
 
 exports.getCollegeUserLiveContests = async (req, res) => {
   try {
@@ -669,7 +700,7 @@ exports.getFeaturedOngoingContests = async (req, res) => {
       const contests = await Contest.find({
           contestStartTime: { $lte: new Date() },
           contestEndTime: { $gte: new Date() },
-          feeatured: true
+          featured: true
       },
       {
           allowedUsers: 0,
@@ -677,7 +708,13 @@ exports.getFeaturedOngoingContests = async (req, res) => {
           contestSharedBy: 0,
           purchaseIntent: 0
       }
-      ).sort({ contestStartTime: 1 }).skip(skip).limit(limit)
+      ).populate('portfolio', 'portfolioName _id portfolioValue')
+      .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+      .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
+      .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+      .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
+      .populate('college', 'collegeName zone')
+      .sort({ contestStartTime: 1 }).skip(skip).limit(limit)
       res.status(200).json({
           status: "success",
           message: "Featured Ongoing Contests fetched successfully",
@@ -1601,284 +1638,564 @@ exports.verifyCollageCode = async (req, res) => {
 exports.creditAmountToWallet = async () => {
   console.log("in wallet")
   try {
-      let date = new Date();
-      let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-      todayDate = todayDate + "T00:00:00.000Z";
-      const today = new Date(todayDate);
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
 
-      const contest = await Contest.find({ contestStatus: "Completed", payoutStatus: null, contestEndTime: {$gte: today} }).populate('portfolio', 'portfolioValue');
-      const setting = await Setting.find();
-      // console.log(contest.length, contest)
-      for (let j = 0; j < contest.length; j++) {
+    const contest = await Contest.find({ contestStatus: "Completed", payoutStatus: null, contestEndTime: { $gte: today } }).populate('portfolio', 'portfolioValue');
+    const setting = await Setting.find();
+    // console.log(contest.length, contest)
+    for (let j = 0; j < contest.length; j++) {
+      //Payout for payoutType percentage
+      if (contest[j]?.payoutType != 'Reward') {
         let maxPayout = 10000;
         //setting max payout for free contest
-        if(contest[j]?.entryFee == 0){
-          maxPayout = contest[j]?.portfolio?.portfolioValue * (contest[j]?.payoutCapPercentage ?? 100)/100;
-        }else{
+        if (contest[j]?.entryFee == 0) {
+          maxPayout = contest[j]?.portfolio?.portfolioValue * (contest[j]?.payoutCapPercentage ?? 100) / 100;
+        } else {
           //setting maxPayout for paid contest[j]
-          maxPayout = contest[j]?.entryFee * (contest[j]?.payoutCapPercentage ?? 10000)/100; 
+          maxPayout = contest[j]?.entryFee * (contest[j]?.payoutCapPercentage ?? 10000) / 100;
         }
         //setting max payout for paid contest 
-          // if (contest[j].contestEndTime < new Date()) {
-          for (let i = 0; i < contest[j]?.participants?.length; i++) {
-              let userId = contest[j]?.participants[i]?.userId;
-              let fee = contest[j]?.participants[i]?.fee ?? 0;
-              let payoutPercentage = contest[j]?.payoutPercentage
-              let id = contest[j]._id;
-              let pnlDetails = await DailyContestMockUser.aggregate([
-                  {
-                      $match: {
-                          trade_time: {
-                              $gte: today
-                          },
-                          status: "COMPLETE",
-                          trader: new ObjectId(userId),
-                          contestId: new ObjectId(id)
-                      },
-                  },
-                  {
-                      $group: {
-                          _id: {
-                          },
-                          amount: {
-                              $sum: {
-                                  $multiply: ["$amount", -1],
-                              },
-                          },
-                          brokerage: {
-                              $sum: {
-                                  $toDouble: "$brokerage",
-                              },
-                          },
-                          trades: {
-                            $count: {},
-                          }
-                      },
-                  },
-                  {
-                      $project:
-                      {
-                        npnl: {
-                            $subtract: ["$amount", "$brokerage"],
-                        },
-                        gpnl: "$amount",
-                        brokerage: "$brokerage",
-                        trades: 1
-                      },
-                  },
-              ])
-
-              // console.log(pnlDetails[0]);
-              if (pnlDetails[0]?.npnl > 0) {
-                  const payoutAmountWithoutTDS = Math.min(pnlDetails[0]?.npnl * payoutPercentage / 100, maxPayout);
-                  let payoutAmount = payoutAmountWithoutTDS;
-                  if(payoutAmountWithoutTDS>fee){
-                    payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100;
-                  }
-                  console.log('payout amount', payoutAmount, maxPayout);
-                  const wallet = await Wallet.findOne({ userId: userId });
-                  const transactionDescription = `Amount credited for contest ${contest[j].contestName}`;
-
-                  // Check if a transaction with this description already exists
-                  const existingTransaction = wallet?.transactions?.some(transaction => transaction.description === transactionDescription);
-
-                  // console.log(userId, pnlDetails[0]);
-                  //check if wallet.transactions doesn't have an object with the particular description, then push it to wallet.transactions
-                  if(wallet?.transactions?.length == 0 || !existingTransaction){
-                    wallet.transactions.push({
-                        title: 'Contest Credit',
-                        description: `Amount credited for contest ${contest[j].contestName}`,
-                        transactionDate: new Date(),
-                        amount: payoutAmount?.toFixed(2),
-                        transactionId: uuid.v4(),
-                        transactionType: 'Cash'
-                    });
-                  }
-                  await wallet.save();
-                  const user = await User.findById(userId).select('first_name last_name email')
-
-                  contest[j].participants[i].payout = payoutAmount?.toFixed(2);
-                  contest[j].participants[i].npnl = pnlDetails[0]?.npnl;
-                  contest[j].participants[i].gpnl = pnlDetails[0]?.gpnl;
-                  contest[j].participants[i].trades = pnlDetails[0]?.trades;
-                  contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
-                  contest[j].participants[i].tdsAmount = payoutAmountWithoutTDS-fee>0?((payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
-                  // if (process.env.PROD == 'true') {
-                    try{
-                      if(!existingTransaction){
-                        console.log(user?.email, 'sent')
-                        await emailService(user?.email, 'Contest Payout Credited - StoxHero', `
-                       <!DOCTYPE html>
-                       <html>
-                       <head>
-                           <meta charset="UTF-8">
-                           <title>Amount Credited</title>
-                           <style>
-                           body {
-                               font-family: Arial, sans-serif;
-                               font-size: 16px;
-                               line-height: 1.5;
-                               margin: 0;
-                               padding: 0;
-                           }
-                 
-                           .container {
-                               max-width: 600px;
-                               margin: 0 auto;
-                               padding: 20px;
-                               border: 1px solid #ccc;
-                           }
-                 
-                           h1 {
-                               font-size: 24px;
-                               margin-bottom: 20px;
-                           }
-                 
-                           p {
-                               margin: 0 0 20px;
-                           }
-                 
-                           .userid {
-                               display: inline-block;
-                               background-color: #f5f5f5;
-                               padding: 10px;
-                               font-size: 15px;
-                               font-weight: bold;
-                               border-radius: 5px;
-                               margin-right: 10px;
-                           }
-                 
-                           .password {
-                               display: inline-block;
-                               background-color: #f5f5f5;
-                               padding: 10px;
-                               font-size: 15px;
-                               font-weight: bold;
-                               border-radius: 5px;
-                               margin-right: 10px;
-                           }
-                 
-                           .login-button {
-                               display: inline-block;
-                               background-color: #007bff;
-                               color: #fff;
-                               padding: 10px 20px;
-                               font-size: 18px;
-                               font-weight: bold;
-                               text-decoration: none;
-                               border-radius: 5px;
-                           }
-                 
-                           .login-button:hover {
-                               background-color: #0069d9;
-                           }
-                           </style>
-                       </head>
-                       <body>
-                           <div class="container">
-                           <h1>Amount Credited</h1>
-                           <p>Hello ${user.first_name},</p>
-                           <p>Amount of ${payoutAmount?.toFixed(2)}INR has been credited in your wallet for ${contest[j].contestName}.</p>
-                           <p>You can now purchase Tenx and participate in various activities on stoxhero.</p>
-                           
-                           <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-                           <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-                           <br/><br/>
-                           <p>Thanks,</p>
-                           <p>StoxHero Team</p>
-                 
-                           </div>
-                       </body>
-                       </html>
-                       `);
-                      }
-                    }catch(e){
-                      console.log('error sending mail')
-                    }
-                  // }
-                  if(!existingTransaction){
-                    await createUserNotification({
-                        title:'Contest Reward Credited',
-                        description:`₹${payoutAmount?.toFixed(2)} credited to your wallet as your contest reward`,
-                        notificationType:'Individual',
-                        notificationCategory:'Informational',
-                        productCategory:'Contest',
-                        user: user?._id,
-                        priority:'Medium',
-                        channels:['App', 'Email'],
-                        createdBy:'63ecbc570302e7cf0153370c',
-                        lastModifiedBy:'63ecbc570302e7cf0153370c'  
-                      });
-                  }
-              } else{
-                contest[j].participants[i].npnl = pnlDetails[0]?.npnl;
-                contest[j].participants[i].gpnl = pnlDetails[0]?.gpnl;
-                contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
-                contest[j].participants[i].trades = pnlDetails[0]?.trades;
-              }
-
-          }
-
-          const userContest = await DailyContestMockUser.aggregate([
-              {
-                  $match: {
-                      status: "COMPLETE",
-                      contestId: new ObjectId(
-                          contest[j]._id
-                      ),
-                  },
+        // if (contest[j].contestEndTime < new Date()) {
+        for (let i = 0; i < contest[j]?.participants?.length; i++) {
+          let userId = contest[j]?.participants[i]?.userId;
+          let fee = contest[j]?.participants[i]?.fee ?? 0;
+          let payoutPercentage = contest[j]?.payoutPercentage
+          let id = contest[j]._id;
+          let pnlDetails = await DailyContestMockUser.aggregate([
+            {
+              $match: {
+                trade_time: {
+                  $gte: today
+                },
+                status: "COMPLETE",
+                trader: new ObjectId(userId),
+                contestId: new ObjectId(id)
               },
-              {
-                  $group: {
-                      _id: {
-                          userId: "$trader",
-                      },
-                      amount: {
-                          $sum: {
-                              $multiply: ["$amount", -1],
-                          },
-                      },
-                      brokerage: {
-                          $sum: {
-                              $toDouble: "$brokerage",
-                          },
-                      },
+            },
+            {
+              $group: {
+                _id: {
+                },
+                amount: {
+                  $sum: {
+                    $multiply: ["$amount", -1],
                   },
-              },
-              {
-                  $project: {
-                      userId: "$_id.userId",
-                      _id: 0,
-                      npnl: {
-                          $subtract: ["$amount", "$brokerage"],
-                      },
+                },
+                brokerage: {
+                  $sum: {
+                    $toDouble: "$brokerage",
                   },
+                },
+                trades: {
+                  $count: {},
+                }
               },
+            },
+            {
+              $project:
               {
-                  $sort:
-                  {
-                      npnl: -1,
-                  },
+                npnl: {
+                  $subtract: ["$amount", "$brokerage"],
+                },
+                gpnl: "$amount",
+                brokerage: "$brokerage",
+                trades: 1
               },
+            },
           ])
-          for (let i = 0; i < userContest.length; i++) {
-              for (let subelem of contest[j]?.participants) {
-                  if (subelem.userId.toString() === userContest[i].userId.toString()) {
-                      subelem.rank = i + 1;
-                      // console.log("subelem.rank", subelem.rank)
-                  }
+
+          // console.log(pnlDetails[0]);
+          if (pnlDetails[0]?.npnl > 0) {
+            const payoutAmountWithoutTDS = Math.min(pnlDetails[0]?.npnl * payoutPercentage / 100, maxPayout);
+            let payoutAmount = payoutAmountWithoutTDS;
+            if (payoutAmountWithoutTDS > fee) {
+              payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS - fee) * setting[0]?.tdsPercentage / 100;
+            }
+            console.log('payout amount', payoutAmount, maxPayout);
+            const wallet = await Wallet.findOne({ userId: userId });
+            const transactionDescription = `Amount credited for contest ${contest[j].contestName}`;
+
+            // Check if a transaction with this description already exists
+            const existingTransaction = wallet?.transactions?.some(transaction => transaction.description === transactionDescription);
+
+            // console.log(userId, pnlDetails[0]);
+            //check if wallet.transactions doesn't have an object with the particular description, then push it to wallet.transactions
+            if (wallet?.transactions?.length == 0 || !existingTransaction) {
+              wallet.transactions.push({
+                title: 'Contest Credit',
+                description: `Amount credited for contest ${contest[j].contestName}`,
+                transactionDate: new Date(),
+                amount: payoutAmount?.toFixed(2),
+                transactionId: uuid.v4(),
+                transactionType: 'Cash'
+              });
+            }
+            await wallet.save();
+            const user = await User.findById(userId).select('first_name last_name email')
+
+            contest[j].participants[i].payout = payoutAmount?.toFixed(2);
+            contest[j].participants[i].npnl = pnlDetails[0]?.npnl;
+            contest[j].participants[i].gpnl = pnlDetails[0]?.gpnl;
+            contest[j].participants[i].trades = pnlDetails[0]?.trades;
+            contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
+            contest[j].participants[i].tdsAmount = payoutAmountWithoutTDS - fee > 0 ? ((payoutAmountWithoutTDS - fee) * setting[0]?.tdsPercentage / 100).toFixed(2) : 0;
+            // if (process.env.PROD == 'true') {
+            try {
+              if (!existingTransaction) {
+                console.log(user?.email, 'sent')
+                await emailService(user?.email, 'Contest Payout Credited - StoxHero', `
+                         <!DOCTYPE html>
+                         <html>
+                         <head>
+                             <meta charset="UTF-8">
+                             <title>Amount Credited</title>
+                             <style>
+                             body {
+                                 font-family: Arial, sans-serif;
+                                 font-size: 16px;
+                                 line-height: 1.5;
+                                 margin: 0;
+                                 padding: 0;
+                             }
+                   
+                             .container {
+                                 max-width: 600px;
+                                 margin: 0 auto;
+                                 padding: 20px;
+                                 border: 1px solid #ccc;
+                             }
+                   
+                             h1 {
+                                 font-size: 24px;
+                                 margin-bottom: 20px;
+                             }
+                   
+                             p {
+                                 margin: 0 0 20px;
+                             }
+                   
+                             .userid {
+                                 display: inline-block;
+                                 background-color: #f5f5f5;
+                                 padding: 10px;
+                                 font-size: 15px;
+                                 font-weight: bold;
+                                 border-radius: 5px;
+                                 margin-right: 10px;
+                             }
+                   
+                             .password {
+                                 display: inline-block;
+                                 background-color: #f5f5f5;
+                                 padding: 10px;
+                                 font-size: 15px;
+                                 font-weight: bold;
+                                 border-radius: 5px;
+                                 margin-right: 10px;
+                             }
+                   
+                             .login-button {
+                                 display: inline-block;
+                                 background-color: #007bff;
+                                 color: #fff;
+                                 padding: 10px 20px;
+                                 font-size: 18px;
+                                 font-weight: bold;
+                                 text-decoration: none;
+                                 border-radius: 5px;
+                             }
+                   
+                             .login-button:hover {
+                                 background-color: #0069d9;
+                             }
+                             </style>
+                         </head>
+                         <body>
+                             <div class="container">
+                             <h1>Amount Credited</h1>
+                             <p>Hello ${user.first_name},</p>
+                             <p>Amount of ${payoutAmount?.toFixed(2)}INR has been credited in your wallet for ${contest[j].contestName}.</p>
+                             <p>You can now purchase Tenx and participate in various activities on stoxhero.</p>
+                             
+                             <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                             <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                             <br/><br/>
+                             <p>Thanks,</p>
+                             <p>StoxHero Team</p>
+                   
+                             </div>
+                         </body>
+                         </html>
+                         `);
               }
-              await contest[j].save();
+            } catch (e) {
+              console.log('error sending mail')
+            }
+            // }
+            if (!existingTransaction) {
+              await createUserNotification({
+                title: 'Contest Reward Credited',
+                description: `₹${payoutAmount?.toFixed(2)} credited to your wallet as your contest reward`,
+                notificationType: 'Individual',
+                notificationCategory: 'Informational',
+                productCategory: 'Contest',
+                user: user?._id,
+                priority: 'Medium',
+                channels: ['App', 'Email'],
+                createdBy: '63ecbc570302e7cf0153370c',
+                lastModifiedBy: '63ecbc570302e7cf0153370c'
+              });
+            }
+          } else {
+            contest[j].participants[i].npnl = pnlDetails[0]?.npnl;
+            contest[j].participants[i].gpnl = pnlDetails[0]?.gpnl;
+            contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
+            contest[j].participants[i].trades = pnlDetails[0]?.trades;
           }
 
-          contest[j].payoutStatus = 'Completed'
-          contest[j].contestStatus = "Completed";
+        }
+
+        const userContest = await DailyContestMockUser.aggregate([
+          {
+            $match: {
+              status: "COMPLETE",
+              contestId: new ObjectId(
+                contest[j]._id
+              ),
+            },
+          },
+          {
+            $group: {
+              _id: {
+                userId: "$trader",
+              },
+              amount: {
+                $sum: {
+                  $multiply: ["$amount", -1],
+                },
+              },
+              brokerage: {
+                $sum: {
+                  $toDouble: "$brokerage",
+                },
+              },
+            },
+          },
+          {
+            $project: {
+              userId: "$_id.userId",
+              _id: 0,
+              npnl: {
+                $subtract: ["$amount", "$brokerage"],
+              },
+            },
+          },
+          {
+            $sort:
+            {
+              npnl: -1,
+            },
+          },
+        ])
+        for (let i = 0; i < userContest.length; i++) {
+          for (let subelem of contest[j]?.participants) {
+            if (subelem.userId.toString() === userContest[i].userId.toString()) {
+              subelem.rank = i + 1;
+              // console.log("subelem.rank", subelem.rank)
+            }
+          }
           await contest[j].save();
+        }
+
+        contest[j].payoutStatus = 'Completed'
+        contest[j].contestStatus = "Completed";
+        await contest[j].save();
+      } else {
+        let rewards = contest[j]?.rewards;
+        let pnls = [];
+        for (let i = 0; i < contest[j]?.participants?.length; i++) {
+          let userId = contest[j]?.participants[i]?.userId;
+          let fee = contest[j]?.participants[i]?.fee ?? 0;
+          let payoutPercentage = contest[j]?.payoutPercentage
+          let id = contest[j]._id;
+          let pnlDetails = await DailyContestMockUser.aggregate([
+            {
+              $match: {
+                trade_time: {
+                  $gte: today
+                },
+                status: "COMPLETE",
+                trader: new ObjectId(userId),
+                contestId: new ObjectId(id)
+              },
+            },
+            {
+              $group: {
+                _id: {
+                },
+                amount: {
+                  $sum: {
+                    $multiply: ["$amount", -1],
+                  },
+                },
+                brokerage: {
+                  $sum: {
+                    $toDouble: "$brokerage",
+                  },
+                },
+                trades: {
+                  $count: {},
+                }
+              },
+            },
+            {
+              $project:
+              {
+                npnl: {
+                  $subtract: ["$amount", "$brokerage"],
+                },
+                gpnl: "$amount",
+                brokerage: "$brokerage",
+                trades: 1
+              },
+            },
+          ])
+          pnls.push({
+            userId: contest[j]?.participants[i]?.userId,
+            npnl: pnlDetails[0]?.npnl,
+            gpnl: pnlDetails[0]?.gpnl,
+            trades: pnlDetails[0]?.trades,
+            brokerage: pnlDetails[0]?.brokerage,
+            fee: contest[j]?.participants[i]?.fee ?? 0
+          });
+
+        }
+
+        pnls.sort((a, b) => b?.npnl - a?.npnl);
+        for (let obj of rewards) {
+          for (let i = obj?.rankStart - 1; i <= obj?.rankEnd - 1; i++) {
+            console.log("pnls[i]", pnls[i])
+            if(pnls[i]){
+              await addRewardToWallet(obj?.prize, pnls[i], setting, contest[j]);
+            }
+          }
+        }
+
+        const userContest = await DailyContestMockUser.aggregate([
+          {
+            $match: {
+              status: "COMPLETE",
+              contestId: new ObjectId(
+                contest[j]._id
+              ),
+            },
+          },
+          {
+            $group: {
+              _id: {
+                userId: "$trader",
+              },
+              amount: {
+                $sum: {
+                  $multiply: ["$amount", -1],
+                },
+              },
+              brokerage: {
+                $sum: {
+                  $toDouble: "$brokerage",
+                },
+              },
+            },
+          },
+          {
+            $project: {
+              userId: "$_id.userId",
+              _id: 0,
+              npnl: {
+                $subtract: ["$amount", "$brokerage"],
+              },
+            },
+          },
+          {
+            $sort:
+            {
+              npnl: -1,
+            },
+          },
+        ])
+        for (let i = 0; i < userContest.length; i++) {
+          for (let subelem of contest[j]?.participants) {
+            if (subelem.userId.toString() === userContest[i].userId.toString()) {
+              subelem.rank = i + 1;
+              // console.log("subelem.rank", subelem.rank)
+            }
+          }
+          await contest[j].save();
+        }
+
+        contest[j].payoutStatus = 'Completed'
+        contest[j].contestStatus = "Completed";
+        await contest[j].save();
       }
+    }
   } catch (error) {
-      console.log(error);
+    console.log(error);
   }
 };
+
+const addRewardToWallet = async(rewardAmount, pnlObj, setting, contest) => {
+  console.log("rewardAmount", rewardAmount)
+  if(!rewardAmount){
+    return;
+  }
+  const payoutAmountWithoutTDS = rewardAmount;
+  console.log(payoutAmountWithoutTDS, pnlObj?.fee ?? 0, pnlObj?.fee, setting[0]?.tdsPercentage)
+  let payoutAmount = payoutAmountWithoutTDS;
+  if(payoutAmountWithoutTDS>(pnlObj?.fee ?? 0)){
+    payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-pnlObj?.fee)*setting[0]?.tdsPercentage/100;
+  }
+  console.log('payout amount', payoutAmount, contest?.contestName);
+  const wallet = await Wallet.findOne({ userId: pnlObj?.userId });
+  const transactionDescription = `Amount credited for contest ${contest?.contestName}`;
+
+  // Check if a transaction with this description already exists
+  const existingTransaction = wallet?.transactions?.some(transaction => transaction.description === transactionDescription);
+
+  // console.log(userId, pnlDetails[0]);
+  //check if wallet.transactions doesn't have an object with the particular description, then push it to wallet.transactions
+  if(wallet?.transactions?.length == 0 || !existingTransaction){
+    wallet?.transactions?.push({
+        title: 'Contest Credit',
+        description: `Amount credited for contest ${contest?.contestName}`,
+        transactionDate: new Date(),
+        amount: payoutAmount?.toFixed(2),
+        transactionId: uuid.v4(),
+        transactionType: 'Cash'
+    });
+  }
+  await wallet?.save();
+  const user = await User.findById(pnlObj?.userId).select('first_name last_name email')
+
+  let index = contest?.participants?.findIndex((item)=>item?.userId?.toString()==pnlObj?.userId?.toString())
+  console.log("index", index)
+  contest.participants[index].payout = payoutAmount?.toFixed(2);
+  contest.participants[index].npnl = pnlObj?.npnl;
+  contest.participants[index].gpnl = pnlObj?.gpnl;
+  contest.participants[index].trades = pnlObj?.trades;
+  contest.participants[index].brokerage = pnlObj?.brokerage;
+  contest.participants[index].tdsAmount = payoutAmountWithoutTDS-pnlObj?.fee>0?((payoutAmountWithoutTDS-pnlObj?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
+  await contest.save();
+  // if (process.env.PROD == 'true') {
+    try{
+      if(!existingTransaction){
+        console.log(user?.email, 'sent')
+        await emailService(user?.email, 'Contest Payout Credited - StoxHero', `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Amount Credited</title>
+            <style>
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 16px;
+                line-height: 1.5;
+                margin: 0;
+                padding: 0;
+            }
+  
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                border: 1px solid #ccc;
+            }
+  
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+  
+            p {
+                margin: 0 0 20px;
+            }
+  
+            .userid {
+                display: inline-block;
+                background-color: #f5f5f5;
+                padding: 10px;
+                font-size: 15px;
+                font-weight: bold;
+                border-radius: 5px;
+                margin-right: 10px;
+            }
+  
+            .password {
+                display: inline-block;
+                background-color: #f5f5f5;
+                padding: 10px;
+                font-size: 15px;
+                font-weight: bold;
+                border-radius: 5px;
+                margin-right: 10px;
+            }
+  
+            .login-button {
+                display: inline-block;
+                background-color: #007bff;
+                color: #fff;
+                padding: 10px 20px;
+                font-size: 18px;
+                font-weight: bold;
+                text-decoration: none;
+                border-radius: 5px;
+            }
+  
+            .login-button:hover {
+                background-color: #0069d9;
+            }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+            <h1>Amount Credited</h1>
+            <p>Hello ${user.first_name},</p>
+            <p>Amount of ${payoutAmount?.toFixed(2)}INR has been credited in your wallet for ${contest.contestName}.</p>
+            <p>You can now purchase Tenx and participate in various activities on stoxhero.</p>
+            
+            <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+            <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+            <br/><br/>
+            <p>Thanks,</p>
+            <p>StoxHero Team</p>
+  
+            </div>
+        </body>
+        </html>
+        `);
+      }
+    }catch(e){
+      console.log('error sending mail')
+    }
+  // }
+  if(!existingTransaction){
+    await createUserNotification({
+        title:'Contest Reward Credited',
+        description:`₹${payoutAmount?.toFixed(2)} credited to your wallet as your contest reward`,
+        notificationType:'Individual',
+        notificationCategory:'Informational',
+        productCategory:'Contest',
+        user: user?._id,
+        priority:'Medium',
+        channels:['App', 'Email'],
+        createdBy:'63ecbc570302e7cf0153370c',
+        lastModifiedBy:'63ecbc570302e7cf0153370c'  
+      });
+  }
+}
 
 exports.getDailyContestUsers = async (req, res) => {
     try {
@@ -1968,7 +2285,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
       }
     }
     
-    exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, contestId, coupon, bonusRedemption)=>{
+exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, contestId, coupon, bonusRedemption)=>{
       try{
         let affiliate, affiliateProgram;
         const contest = await Contest.findOne({ _id: contestId });
@@ -2641,7 +2958,7 @@ exports.findFeaturedContestByName = async(req,res,next)=>{
         console.log(new Date(dateString))
         const result = await Contest.findOne({contestName: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'StoxHero'}).
         populate('portfolio', 'portfolioValue portfolioName').
-            select('_id contestName contestStartTime contestEndTime entryFee description');
+            select('_id contestName contestStartTime contestEndTime entryFee rewards description');
         console.log(result)
             if(!result){
             return res.status(404).json({
@@ -4298,6 +4615,261 @@ exports.getContestLeaderboardById = async (req, res) => {
           message: "Contest Leaderboard fetched successfully",
           data: contestLeaderboard,
           count: participants.length,
+      };
+
+      res.status(200).json(response);
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Something went wrong",
+          error: error.message,
+      });
+  }
+};
+
+exports.getTopContestWeeklyPortfolio = async (req, res) => {
+  const now = new Date();
+  const startOfWeek = new Date(now);
+  startOfWeek.setUTCHours(0, 0, 0, 0);
+  startOfWeek.setDate(now.getUTCDate() - now.getUTCDay());
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getUTCDate() + 6); // Add remaining days in the week
+  try {
+      const pipeline = 
+      [
+        {
+          $match: {
+            contestStatus: "Completed",
+            contestFor: "StoxHero",
+            payoutStatus: "Completed",
+            contestStartTime: {
+              $gte: startOfWeek,
+              $lte: endOfWeek,
+            },
+          },
+        },
+        {
+          $unwind: {
+            path: "$participants",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              participants: "$participants.userId",
+            },
+            payout: {
+              $sum: {
+                $ifNull: ["$participants.payout", 0],
+              },
+            },
+            tds: {
+              $sum: {
+                $ifNull: ["$participants.tdsAmount", 0],
+              },
+            },
+            contests: {
+              $sum: 1,
+            },
+            contestsWon: {
+              $sum: {
+                $cond: [
+                  {
+                    $gt: ["$participants.payout", 0],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "_id.participants",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $unwind: {
+            path: "$user",
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            first_name: "$user.first_name",
+            profile_picture: "$user.profilePhoto",
+            contests: 1,
+            payout: 1,
+            tds: 1,
+            contestsWon: 1,
+          },
+        },
+        {
+          $addFields: {
+            totalPayout: {
+              $add: ["$payout", "$tds"],
+            },
+            strikeRate: {
+              $multiply: [
+                {
+                  $divide: [
+                    "$contestsWon",
+                    "$contests",
+                  ],
+                },
+                100,
+              ],
+            },
+          },
+        },
+        {
+          $sort: {
+            totalPayout: -1,
+          },
+        },
+        {
+          $limit: 6,
+        },
+      ]
+
+      const weeklyContestPerformers = await Contest.aggregate(pipeline);
+
+      const response = {
+          status: "success",
+          message: "Contest Weekly Top Performer Data fetched successfully",
+          data: weeklyContestPerformers,
+          startOfWeek: startOfWeek,
+          endOfWeek: endOfWeek,
+      };
+
+      res.status(200).json(response);
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Something went wrong",
+          error: error.message,
+      });
+  }
+};
+
+exports.getTopContestWeeklyPortfolioFullList = async (req, res) => {
+  const now = new Date();
+  const startOfWeek = new Date(now);
+  startOfWeek.setUTCHours(0, 0, 0, 0);
+  startOfWeek.setDate(now.getUTCDate() - now.getUTCDay());
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getUTCDate() + 6); // Add remaining days in the week
+  try {
+      const pipeline = 
+      [
+        {
+          $match: {
+            contestStatus: "Completed",
+            contestFor: "StoxHero",
+            payoutStatus: "Completed",
+            contestStartTime: {
+              $gte: startOfWeek,
+              $lte: endOfWeek,
+            },
+          },
+        },
+        {
+          $unwind: {
+            path: "$participants",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              participants: "$participants.userId",
+            },
+            payout: {
+              $sum: {
+                $ifNull: ["$participants.payout", 0],
+              },
+            },
+            tds: {
+              $sum: {
+                $ifNull: ["$participants.tdsAmount", 0],
+              },
+            },
+            contests: {
+              $sum: 1,
+            },
+            contestsWon: {
+              $sum: {
+                $cond: [
+                  {
+                    $gt: ["$participants.payout", 0],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "_id.participants",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $unwind: {
+            path: "$user",
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            first_name: "$user.first_name",
+            profile_picture: "$user.profilePhoto",
+            contests: 1,
+            payout: 1,
+            tds: 1,
+            contestsWon: 1,
+          },
+        },
+        {
+          $addFields: {
+            totalPayout: {
+              $add: ["$payout", "$tds"],
+            },
+            strikeRate: {
+              $multiply: [
+                {
+                  $divide: [
+                    "$contestsWon",
+                    "$contests",
+                  ],
+                },
+                100,
+              ],
+            },
+          },
+        },
+        {
+          $sort: {
+            totalPayout: -1,
+          },
+        },
+      ]
+
+      const weeklyContestPerformers = await Contest.aggregate(pipeline);
+
+      const response = {
+          status: "success",
+          message: "Contest Weekly Top Performer Data fetched successfully",
+          data: weeklyContestPerformers,
+          startOfWeek: startOfWeek,
+          endOfWeek: endOfWeek,
       };
 
       res.status(200).json(response);

@@ -110,11 +110,11 @@ function Breadcrumbs({ icon, title, route, light }) {
   }
   else if(title === "affiliateprograms"){
     title = "Affiliate Programs"
-  }   
+  }  
+  else if(title === "topcontestportfolios"){
+    title = "Top Contest Portfolios"
+  } 
   
-  
-  
-  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"
   let path=' ';
 
   return (

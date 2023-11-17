@@ -26,6 +26,7 @@ import PopupMessage from "../data/popupMessage";
 import PopupTrading from "../data/popupTrading";
 import { Link } from "react-router-dom";
 import Payment from "../data/payment"
+import RewardTable from "./rewardTable";
 
 function Header({toggleContest, setToggleContest, contest, socket, setIsInterested, showPay, setShowPay }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -186,7 +187,7 @@ function Header({toggleContest, setToggleContest, contest, socket, setIsInterest
                                                     </Grid>
                                                     <Grid item xs={9} md={9} lg={9} display='flex' justifyContent='flex-end' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                            <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
+                                                            <MDBox display='flex' justifyContent='flex-end' flexDirection='column'>
                                                                 <MDBox display='flex' justifyContent='flex-start'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "dark" }}>{elem.contestName}</MDTypography></MDBox>
                                                             </MDBox>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='row' alignItems='center'>
@@ -209,7 +210,12 @@ function Header({toggleContest, setToggleContest, contest, socket, setIsInterest
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                                 <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Reward</MDTypography></MDBox>
-                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "dark" }}>{elem?.payoutPercentage}% of the net P&L{elem?.payoutCapPercentage?`(upto ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue * (elem?.payoutCapPercentage??10)/100)})`:''}</MDTypography></MDBox>
+                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "dark" }}>
+                                                                    {/* {elem?.payoutPercentage}% of the net P&L{elem?.payoutCapPercentage?`(upto ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue * (elem?.payoutCapPercentage??10)/100)})`:''} */}
+                                                                    {elem?.payoutType !== "Reward" ? 
+                                                                    `${elem?.payoutPercentage}% of the net P&L${elem?.payoutCapPercentage?`(upto ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue * (elem?.payoutCapPercentage??10)/100)})`:''}` 
+                                                                    : <RewardTable reward={elem?.rewards} paid={false}/>} 
+                                                                    </MDTypography></MDBox>
                                                             </MDBox>
                                                         </MDBox>
                                                     </Grid>

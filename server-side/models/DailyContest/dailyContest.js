@@ -65,7 +65,7 @@ const contestSchema = new Schema({
     rewards:[{
         rankStart:{type:Number},
         rankEnd:Number,
-        prize:{type:String},
+        prize:{type:Number},
         // prizeValue:Number
     }],
     portfolio:{
@@ -149,21 +149,25 @@ const contestSchema = new Schema({
         required: true,
         enum: ["Day", "Monthly", "Weekly"]
     },
+    payoutPercentageType:{
+        type:String,
+        // required: true,
+        enum: ["Daily", "Contest End"]
+    },
     isNifty:{
         type:Boolean,
-        required: true
+        required: true,
+        default: false
     },
     isBankNifty:{
         type:Boolean,
-        required: true
+        required: true,
+        default: false
     },
     isFinNifty:{
         type:Boolean,
-        required: true
-    },
-    isAllIndex:{
-        type:Boolean,
-        required: true
+        required: true,
+        default: false
     },
     product:{
         type: Schema.Types.ObjectId,
