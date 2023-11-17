@@ -13,7 +13,7 @@ import Tcost from '../../../assets/images/tcost.png'
 import MDTypography from '../../../components/MDTypography';
 
 
-const PnlAndMarginData = ({contestId}) => {
+const PnlAndMarginData = ({contestId, yesterdayPnl}) => {
   const { netPnl, totalRunningLots, pnlData } = useContext(NetPnlContext);
   const pnl = useContext(NetPnlContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -46,7 +46,7 @@ const PnlAndMarginData = ({contestId}) => {
   const availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin?.toFixed(0))?.toLocaleString() : "₹" + (-Number(availableMargin?.toFixed(0)))?.toLocaleString()
   const usedMargin = runningPnl >= 0 ? 0 : runningPnl
   const usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin)?.toLocaleString() : "₹" + (-Number(usedMargin))?.toLocaleString()
-  const unrealisedPnl = runningPnl >= 0 ? runningPnl : 0
+  const unrealisedPnl = runningPnl-yesterdayPnl >= 0 ? runningPnl-yesterdayPnl : 0
   const unrealisedPnlString = unrealisedPnl >= 0 ? "₹" + Number(unrealisedPnl)?.toLocaleString() : "₹" + (-Number(unrealisedPnl))?.toLocaleString()
 
     

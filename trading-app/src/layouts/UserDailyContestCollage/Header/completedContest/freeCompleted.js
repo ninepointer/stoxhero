@@ -8,6 +8,7 @@ import ContestCarousel from '../../../../assets/images/target.png'
 import MDSnackbar from "../../../../components/MDSnackbar";
 import { Link, useNavigate } from "react-router-dom";
 import DownloadIcon from '@mui/icons-material/Download';
+import RewardTable from "../../../UserDailyContest/Header/rewardTable";
 
 
 
@@ -249,7 +250,9 @@ function Header({ contest }) {
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                                 <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                                     <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Reward</MDTypography></MDBox>
-                                                                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='dark'>{elem.payoutPercentage}% of the net P&L</MDTypography></MDBox>
+                                                                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='dark'>
+                                                                        {/* {elem.payoutPercentage}% of the net P&L */}  <RewardTable data={elem} paid={false}/>
+                                                                    </MDTypography></MDBox>
                                                                 </MDBox>
                                                             </MDBox>
                                                         </Grid>

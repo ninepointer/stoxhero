@@ -14,7 +14,7 @@ import DataTable from '../../../../examples/Tables/DataTable';
 import { NetPnlContext } from '../../../../PnlContext';
 import moment from 'moment';
 
-function PnlSummary({contestId}) {
+function PnlSummary({contestId, setyesterdayPnl}) {
 
   const [pnlData, setPnlData] = useState([]);
   const { netPnl, grossPnlAndBrokerage } = useContext(NetPnlContext); 
@@ -42,8 +42,10 @@ function PnlSummary({contestId}) {
       }}
       ).then((res)=>{
         setPnlData(res.data.data);
+        setyesterdayPnl(res?.data?.data?.reduce((total, acc)=>{
+          return total + acc?.npnl;
+        }, 0))
       })
-      
   }, []);
 
 

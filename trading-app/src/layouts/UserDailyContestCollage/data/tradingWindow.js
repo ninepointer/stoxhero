@@ -33,11 +33,12 @@ function Header({ socket, data }) {
     const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
     const [watchList, setWatchList] = useState([]);
     const [updatePendingOrder, setUpdatePendingOrder] = useState();
+    const [yesterdayPnl, setyesterdayPnl] = useState();
     const navigate = useNavigate();
     const [rank, setRank] = useState();
     let contestId = data?.data;
     let endTime = data?.endTime;
-    // console.log("all data", data.allData)
+    // console.log("yesterdayPnl", yesterdayPnl)
     useEffect(() => {
         socket.on("serverTime", (time) => {
             const serverTimeString = new Date(time).toISOString().slice(0, 19); // Extract relevant parts
@@ -100,7 +101,7 @@ function Header({ socket, data }) {
             <MDBox color="dark" mt={2} mb={1} borderRadius={10} minHeight='80vH'>
                 <MDBox bgColor="lightgrey" display='flex' p={1} borderRadius={10}>
                     <MDBox width='100%' minHeight='auto' display='flex' justifyContent='center'>
-                        <PnlAndMarginData contestId={contestId} />
+                        <PnlAndMarginData contestId={contestId} yesterdayPnl={yesterdayPnl} />
                     </MDBox>
                 </MDBox>
 
@@ -124,7 +125,7 @@ function Header({ socket, data }) {
                 {daysDifference > 1 &&
                 <Grid container  p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
                     <Grid item xs={12} md={6} lg={12} >
-                        <PnlSummary contestId={contestId} />
+                        <PnlSummary contestId={contestId} setyesterdayPnl={setyesterdayPnl}/>
                     </Grid>
                 </Grid>}
 

@@ -1668,6 +1668,11 @@ exports.creditAmountToWallet = async () => {
                 let fee = contest[j]?.participants[i]?.fee ?? 0;
                 let payoutPercentage = contest[j]?.payoutPercentage
                 let id = contest[j]._id;
+                const startDate = new Date(contest[j]?.contestStartTime);
+                const endDate = new Date(contest[j]?.contestEndTime);
+                const timeDifference = endDate.getTime() - startDate.getTime();
+                const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
+    
                 let pnlDetails = await DailyContestMockUser.aggregate([
                     {
                         $match: {
@@ -1695,7 +1700,8 @@ exports.creditAmountToWallet = async () => {
                             },
                             trades: {
                               $count: {},
-                            }
+                            },
+                            tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
                         },
                     },
                     {
@@ -1706,13 +1712,14 @@ exports.creditAmountToWallet = async () => {
                           },
                           gpnl: "$amount",
                           brokerage: "$brokerage",
+                          tradingDays: { $size: "$tradingDays" },
                           trades: 1
                         },
                     },
                 ])
   
                 // console.log(pnlDetails[0]);
-                if (pnlDetails[0]?.npnl > 0) {
+                if (pnlDetails[0]?.npnl > 0 && daysDifference === pnlDetails[0]?.tradingDays) {
                     const payoutAmountWithoutTDS = Math.min(pnlDetails[0]?.npnl * payoutPercentage / 100, maxPayout);
                     let payoutAmount = payoutAmountWithoutTDS;
                     if(payoutAmountWithoutTDS>fee){
@@ -1925,6 +1932,11 @@ exports.creditAmountToWallet = async () => {
             let fee = contest[j]?.participants[i]?.fee ?? 0;
             let payoutPercentage = contest[j]?.payoutPercentage
             let id = contest[j]._id;
+            const startDate = new Date(contest[j]?.contestStartTime);
+            const endDate = new Date(contest[j]?.contestEndTime);
+            const timeDifference = endDate.getTime() - startDate.getTime();
+            const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
+
             let pnlDetails = await DailyContestMockUser.aggregate([
                 {
                     $match: {
@@ -1952,7 +1964,8 @@ exports.creditAmountToWallet = async () => {
                         },
                         trades: {
                           $count: {},
-                        }
+                        },
+                        tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
                     },
                 },
                 {
@@ -1963,18 +1976,22 @@ exports.creditAmountToWallet = async () => {
                       },
                       gpnl: "$amount",
                       brokerage: "$brokerage",
-                      trades: 1
+                      trades: 1,
+                      tradingDays: { $size: "$tradingDays" },
                     },
                 },
             ])
-            pnls.push({
-              userId:contest[j]?.participants[i]?.userId,
-              npnl:pnlDetails[0]?.npnl,
-              gpnl:pnlDetails[0]?.gpnl,
-              trades:pnlDetails[0]?.trades,
-              brokerage:pnlDetails[0]?.brokerage,
-              fee:contest[j]?.participants[i]?.fee ?? 0
-            });
+
+            if(pnlDetails[0]?.tradingDays === daysDifference){
+              pnls.push({
+                userId:contest[j]?.participants[i]?.userId,
+                npnl:pnlDetails[0]?.npnl,
+                gpnl:pnlDetails[0]?.gpnl,
+                trades:pnlDetails[0]?.trades,
+                brokerage:pnlDetails[0]?.brokerage,
+                fee:contest[j]?.participants[i]?.fee ?? 0
+              });
+            }
           
             // console.log(pnlDetails[0]);
             if (pnlDetails[0]?.npnl > 0) {

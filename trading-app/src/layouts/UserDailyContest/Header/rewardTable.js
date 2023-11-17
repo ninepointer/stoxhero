@@ -19,7 +19,7 @@ import MDButton from '../../../components/MDButton';
 
 
 
-export default function RewardTable({ reward, paid }) {
+export default function RewardTable({ data, paid }) {
 
     let columns = [
         { Header: "# Rank", accessor: "rank", align: "center" },
@@ -37,7 +37,7 @@ export default function RewardTable({ reward, paid }) {
         setOpen(false);
     };
 
-    reward?.map((elem) => {
+    data?.rewards?.map((elem) => {
         let featureObj = {}
 
         featureObj.rank = (
@@ -54,14 +54,18 @@ export default function RewardTable({ reward, paid }) {
         rows.push(featureObj)
     })
 
-    const pricePool = reward.reduce((total, acc)=>{
+    const pricePool = data?.rewards.reduce((total, acc)=>{
         return total + (acc.rankEnd - acc.rankStart + 1)*Number(acc.prize);
     }, 0)
 
     return (
         <>
             <MDBox onClick={handleClickOpen} color={paid ? "#DBB670" : "dark"}>
-                {`Reward worth upto ₹${pricePool}. Click to know more!`}
+                {data?.payoutType !== "Reward" ?
+                paid ?
+                 `${data.payoutPercentage}% of the net P&L${data?.payoutCapPercentage?`(upto ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(data?.entryFee * (data?.payoutCapPercentage??1000)/100)})`:''}. Click to know more!` : 
+                 `${data.payoutPercentage}% of the net P&L${data?.payoutCapPercentage?`(upto ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(data?.portfolio?.portfolioValue * (data?.payoutCapPercentage??10)/100)})`:''}. Click to know more!` : 
+                 `Reward worth upto ₹${pricePool}. Click to know more!`}
             </MDBox>
 
             <Dialog

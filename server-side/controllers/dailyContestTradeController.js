@@ -49,12 +49,21 @@ exports.overallPnlTrader = async (req, res, next) => {
             const daysDifference = timeDifference / (1000 * 3600 * 24);
 
             let matchStage = {};
+            let matchForLimit = {}
             if(daysDifference > 1){
                 matchStage = {
                     status: "COMPLETE",
                     trader: new ObjectId(userId),
                     contestId: new ObjectId(id)
                 };
+                matchForLimit = {
+                    createdBy: new ObjectId(
+                        userId
+                    ),
+                    type: "Limit",
+                    status: "Pending",
+                    product_type: new ObjectId("6517d48d3aeb2bb27d650de5")
+                }
             } else{
                 matchStage = {
                     trade_time: {
@@ -64,11 +73,28 @@ exports.overallPnlTrader = async (req, res, next) => {
                     trader: new ObjectId(userId),
                     contestId: new ObjectId(id)
                 };
+
+                matchForLimit = {
+                    createdBy: new ObjectId(
+                        userId
+                    ),
+                    type: "Limit",
+                    status: "Pending",
+                    createdOn: {
+                        $gte: today,
+                    },
+                    product_type: new ObjectId("6517d48d3aeb2bb27d650de5")
+                }
             }
 
             const pnlDetails = await DailyContestMockUser.aggregate([
                 {
                     $match: matchStage,
+                },
+                {
+                    $sort: {
+                      trade_time: 1,
+                    },
                 },
                 {
                     $group: {
@@ -109,19 +135,14 @@ exports.overallPnlTrader = async (req, res, next) => {
                     },
                 },
             ])
-
+            
             const limitMargin = await PendingOrder.aggregate([
                 {
-                    $match: {
-                        createdBy: new ObjectId(
-                            userId
-                        ),
-                        type: "Limit",
-                        status: "Pending",
-                        createdOn: {
-                            $gte: today,
-                        },
-                        product_type: new ObjectId("6517d48d3aeb2bb27d650de5")
+                    $match: matchForLimit,
+                },
+                {
+                    $sort: {
+                        createdOn: 1,
                     },
                 },
                 {
@@ -157,6 +178,7 @@ exports.overallPnlTrader = async (req, res, next) => {
                 }
             ])
 
+            // console.log(pnlDetails, limitMargin)
             const arr = [];
             for (let elem of limitMargin) {
                 arr.push({
@@ -178,8 +200,9 @@ exports.overallPnlTrader = async (req, res, next) => {
                 });
             }
 
+            // console.log("arr", arr)
             const newPnl = pnlDetails.concat(arr);
-      
+            // console.log("newPnl", newPnl)
             if (isRedisConnected) {
                 await client.set(`${req.user._id.toString()}${id.toString()} overallpnlDailyContest`, JSON.stringify(newPnl))
                 await client.expire(`${req.user._id.toString()}${id.toString()} overallpnlDailyContest`, secondsRemaining);

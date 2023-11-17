@@ -45,6 +45,11 @@ exports.overallPnl = async (req, res, next) => {
               },
           },
           {
+            $sort: {
+              trade_time: 1,
+            },
+          },
+          {
             $group: {
               _id: {
                 symbol: "$symbol",
@@ -96,6 +101,11 @@ exports.overallPnl = async (req, res, next) => {
                 $gte: today,
               },
               product_type: new ObjectId("65449ee06932ba3a403a681a")
+            },
+          },
+          {
+            $sort: {
+              createdOn: 1,
             },
           },
           {
