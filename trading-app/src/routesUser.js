@@ -52,6 +52,7 @@ import InternshipAnalytics from './layouts/internshipAnalytics/index';
 import WorkShopOrders from './layouts/userorders/workshopOrder'
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import TopContestPerformersList from './layouts/StoxHeroTraderDashboard/topPerformerIndex'
+import ContestProfile from './layouts/StoxHeroTraderDashboard/contestProfileIndex'
 import UserDailyContest from './layouts/UserDailyContest'
 import UserDailyContestCollage from './layouts/UserDailyContestCollage';
 import UserBattle from './layouts/UserBattle'
@@ -95,7 +96,11 @@ const routes = [
     component: <CompletedDailyContest />,
   },
   {
-    route: "/topcontestportfolios",
+    route: "/testarenaprofile/:name",
+    component: <ContestProfile />,
+  },
+  {
+    route: "/toptestarenaportfolios",
     component: <TopContestPerformersList />,
   },
   {

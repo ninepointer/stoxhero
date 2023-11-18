@@ -8,16 +8,17 @@ import {useNavigate, useLocation} from 'react-router-dom';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import ReactGA from "react-ga"
-import TopPerformer from '../data/topPerformerCompleteList'
+import ContestProfile from '../data/contestProfile'
 import {CircularProgress} from "@mui/material";
 
 
 export default function Dashboard() {
+  const location = useLocation();
+  const userData = location?.state?.data;
+  console.log("User Data:",userData)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
-  let [carouselData, setCarouselData] = useState([]);
-  let [topPerformerData, setTopPerformerData] = useState([]);
-  let [startOfWeek, setStartOfWeek] = useState([]);
-  let [endOfWeek, setEndOfWeek] = useState([]);
+  let [contestProfile, setContestProfile] = useState([]);
+  let [dataLength, setDataLength] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [tradingData, setTradingData] = useState();
   const getDetails = useContext(userContext);
@@ -28,7 +29,7 @@ export default function Dashboard() {
     ReactGA.pageview(window.location.pathname)
     capturePageView()
   }, []);
-  let page = 'TopPerformerFullList'
+  let page = 'ArenaProfile'
   let pageLink = window.location.pathname
   async function capturePageView(){
         await fetch(`${baseUrl}api/v1/pageview/${page}${pageLink}`, {
@@ -44,7 +45,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     setIsLoading(true);
-    let call4 = axios.get(`${baseUrl}api/v1/dailycontest/weeklytopperformerfulllist`, {
+    let call4 = axios.get(`${baseUrl}api/v1/dailycontest/contestprofile/${userData?.trader}`, {
       withCredentials: true,
       headers: {
         Accept: "application/json",
@@ -54,10 +55,8 @@ export default function Dashboard() {
     });
     Promise.all([call4])
       .then(([api1Response3]) => {
-        setTopPerformerData(api1Response3?.data?.data);
-        setStartOfWeek(api1Response3?.data?.startOfWeek);
-        setEndOfWeek(api1Response3?.data?.endOfWeek);
-        console.log(api1Response3?.data?.data,api1Response3?.data?.startOfWeek,api1Response3?.data?.endOfWeek)
+        setContestProfile(api1Response3?.data?.data);
+        setDataLength(api1Response3?.data?.length)
         setIsLoading(false);
       })
       .catch((error) => {
@@ -73,7 +72,7 @@ export default function Dashboard() {
           <Grid item xs={12} md={12} lg={12} mt={1}>
             {!isLoading ? 
             <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
-              <TopPerformer topPerformer={topPerformerData} startOfWeek={startOfWeek} endOfWeek={endOfWeek}/>
+              <ContestProfile contestProfile={contestProfile} dataLength={dataLength}/>
             </MDBox>
             :
             <MDBox mt={5} mb={5} display='flex' justifyContent='center' style={{borderRadius: 5 }}>

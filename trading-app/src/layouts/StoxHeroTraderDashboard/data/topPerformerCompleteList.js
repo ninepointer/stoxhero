@@ -12,6 +12,7 @@ import MDAvatar from "../../../components/MDAvatar";
 import stock from "../../../assets/images/analyticspnl.png";
 import logo from "../../../assets/images/logo1.jpeg";
 import {CircularProgress} from "@mui/material";
+import { Link, useLocation } from "react-router-dom";
 
 
 function Summary({topPerformer, startOfWeek, endOfWeek}) {
@@ -46,7 +47,7 @@ function Summary({topPerformer, startOfWeek, endOfWeek}) {
             <Grid item xs={12} md={12} lg={12} m={1}>
                 <Grid container xs={12} md={12} lg={12} display='flex' alignItems='center'>
                     <Grid item xs={12} md={12} lg={6} mb={1} display='flex' justifyContent='flex-start'>
-                        <MDTypography ml={1} fontSize={15} fontWeight="bold">Top Contest Portfolios of the Week [{formattedDate(startOfWeek)} - {formattedDate(endOfWeek)}]</MDTypography>
+                        <MDTypography ml={1} fontSize={15} fontWeight="bold">TestArena Leaderboard of the Week [{formattedDate(startOfWeek)} - {formattedDate(endOfWeek)}]</MDTypography>
                     </Grid>
                 </Grid>
                     <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
@@ -70,39 +71,48 @@ function Summary({topPerformer, startOfWeek, endOfWeek}) {
                                     },
                                     })}
                                 />
-                                <MDTypography fontSize={18} fontWeight='bold'>
+                                <MDTypography fontSize={15} fontWeight='bold'>
                                     #{index +1} {TruncatedName(e?.first_name)}
                                 </MDTypography>
                                 
                                 <Grid container xs={12} md={12} lg={12} mb={-3}>
                                 <Grid item xs={12} md={3} lg={3}>
                                 <MDTypography mt={1} fontSize={13}>
-                                    Contests Played: {e?.contests}
+                                    Arenas Played: {e?.contests}
                                 </MDTypography>
                                 </Grid>
 
                                 <Grid item xs={12} md={3} lg={3}>
                                 <MDTypography mt={1} fontSize={13}>
-                                    Contests Won: {e?.contestsWon}
+                                    Arenas Won: {e?.contestsWon}
                                 </MDTypography>
                                 </Grid>
 
                                 <Grid item xs={12} md={3} lg={3}>
                                 <MDTypography mt={1} fontSize={13}>
-                                    Strike Rate: {(e?.strikeRate).toFixed(0)}%
+                                    StrikeRate: {(e?.strikeRate).toFixed(0)}%
                                 </MDTypography>
                                 </Grid>
 
                                 <Grid item xs={12} md={3} lg={3}>
                                 <MDTypography mt={1} fontSize={13}>
-                                    Earned: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(e?.totalPayout)}
+                                    Earnings: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(e?.totalPayout)}
                                 </MDTypography>
                                 </Grid>
                                 </Grid>
 
                             </CardContent>
                             <CardActions>
-                                <MDButton size="small">View Profile</MDButton>
+                                <MDButton 
+                                    size="small"
+                                    component = {Link}
+                                    to={{
+                                        pathname: `/testarenaprofile/${e?.userid}`,
+                                      }}
+                                    state={{data: e}}
+                                >
+                                    Arena Profile
+                                </MDButton>
                             </CardActions>
                             </Card>
                             </Grid>

@@ -4634,23 +4634,24 @@ exports.getTopContestWeeklyPortfolio = async (req, res) => {
   startOfWeek.setDate(now.getUTCDate() - now.getUTCDay());
   const endOfWeek = new Date(startOfWeek);
   endOfWeek.setDate(startOfWeek.getUTCDate() + 6); // Add remaining days in the week
+  // console.log(startOfWeek,endOfWeek)
   try {
       const pipeline = 
       [
         {
+          $unwind: {
+            path: "$participants",
+          },
+        },
+        {
           $match: {
             contestStatus: "Completed",
-            contestFor: "StoxHero",
             payoutStatus: "Completed",
             contestStartTime: {
               $gte: startOfWeek,
               $lte: endOfWeek,
             },
-          },
-        },
-        {
-          $unwind: {
-            path: "$participants",
+            "participants.rank": {$ne : null},
           },
         },
         {
@@ -4700,7 +4701,12 @@ exports.getTopContestWeeklyPortfolio = async (req, res) => {
         {
           $project: {
             _id: 0,
+            trader: "$user._id",
+            contestFor:1,
+            entryFee:1,
             first_name: "$user.first_name",
+            last_name: "$user.last_name",
+            userid: "$user.employeeid",
             profile_picture: "$user.profilePhoto",
             contests: 1,
             payout: 1,
@@ -4737,7 +4743,7 @@ exports.getTopContestWeeklyPortfolio = async (req, res) => {
       ]
 
       const weeklyContestPerformers = await Contest.aggregate(pipeline);
-
+      // console.log(weeklyContestPerformers)
       const response = {
           status: "success",
           message: "Contest Weekly Top Performer Data fetched successfully",
@@ -4745,7 +4751,6 @@ exports.getTopContestWeeklyPortfolio = async (req, res) => {
           startOfWeek: startOfWeek,
           endOfWeek: endOfWeek,
       };
-
       res.status(200).json(response);
   } catch (error) {
       res.status(500).json({
@@ -4767,19 +4772,19 @@ exports.getTopContestWeeklyPortfolioFullList = async (req, res) => {
       const pipeline = 
       [
         {
+          $unwind: {
+            path: "$participants",
+          },
+        },
+        {
           $match: {
             contestStatus: "Completed",
-            contestFor: "StoxHero",
             payoutStatus: "Completed",
+            'participants.rank': {$ne : null},
             contestStartTime: {
               $gte: startOfWeek,
               $lte: endOfWeek,
             },
-          },
-        },
-        {
-          $unwind: {
-            path: "$participants",
           },
         },
         {
@@ -4829,7 +4834,12 @@ exports.getTopContestWeeklyPortfolioFullList = async (req, res) => {
         {
           $project: {
             _id: 0,
+            trader: "$user._id",
+            contestFor:1,
+            entryFee:1,
             first_name: "$user.first_name",
+            last_name: "$user.first_name",
+            userid: "$user.employeeid",
             profile_picture: "$user.profilePhoto",
             contests: 1,
             payout: 1,
@@ -4881,3 +4891,232 @@ exports.getTopContestWeeklyPortfolioFullList = async (req, res) => {
       });
   }
 };
+
+exports.getUserContestProfile = async (req, res) => {
+  const { id } = req.params;
+  try {
+      const pipeline = 
+      [
+        {
+          $unwind: {
+            path: "$participants",
+          },
+        },
+        {
+          $match: {
+            contestStatus: "Completed",
+            payoutStatus: "Completed",
+            "participants.userId": new ObjectId(id),
+            'participants.rank': {$ne : null}
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "participants.userId",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $unwind: {
+            path: "$user",
+          },
+        },
+        {
+          $addFields: {
+            payout: {
+              $ifNull: ["$participants.payout", 0],
+            },
+            rank: {
+              $ifNull: ["$participants.rank", "-"],
+            },
+            tds: {
+              $ifNull: ["$participants.tdsAmount", 0],
+            },
+          },
+        },
+        {
+          $project: {
+            contestName: 1,
+            contestStartTime: 1,
+            trader: "$user._id",
+            contestFor:1,
+            entryFee:1,
+            userid: "$user.employeeid",
+            first_name: "$user.first_name",
+            last_name: "$user.last_name",
+            profile_picture: "$user.profilePhoto",
+            rank: 1,
+            payout: 1,
+            tds: 1,
+            joining_date: {
+              $substr: [
+                {
+                  $add: [
+                    "$user.joining_date",
+                    19800000,
+                  ],
+                },
+                0,
+                10,
+              ],
+            },
+          },
+        },
+        {
+          $addFields: {
+            finalPayout: {
+              $add: ["$payout", "$tds"],
+            },
+          },
+        },
+        {
+          $sort: {
+            contestStartTime: -1,
+          },
+        },
+      ]
+
+      const userContestProfile = await Contest.aggregate(pipeline);
+
+      const response = {
+          status: "success",
+          message: "Contest Profile Data fetched successfully",
+          data: userContestProfile,
+          length: userContestProfile.length,
+      };
+
+      res.status(200).json(response);
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Something went wrong",
+          error: error.message,
+      });
+  }
+};
+
+// exports.getTopContestWeeklyPortfolio = async (req, res) => {
+//   const { id } = req.params;
+//   try {
+//       const pipeline = 
+//       [
+//         {
+//           $unwind: {
+//             path: "$participants",
+//           },
+//         },
+//         {
+//           $match: {
+//             contestStatus: "Completed",
+//             payoutStatus: "Completed",
+//             'participants.userId': new ObjectId(id),
+//             'participants.rank': {$ne : null}
+//           },
+//         },
+//         {
+//           $group: {
+//             _id: {
+//               participants: "$participants.userId",
+//             },
+//             payout: {
+//               $sum: {
+//                 $ifNull: ["$participants.payout", 0],
+//               },
+//             },
+//             tds: {
+//               $sum: {
+//                 $ifNull: ["$participants.tdsAmount", 0],
+//               },
+//             },
+//             contests: {
+//               $sum: 1,
+//             },
+//             contestsWon: {
+//               $sum: {
+//                 $cond: [
+//                   {
+//                     $gt: ["$participants.payout", 0],
+//                   },
+//                   1,
+//                   0,
+//                 ],
+//               },
+//             },
+//           },
+//         },
+//         {
+//           $lookup: {
+//             from: "user-personal-details",
+//             localField: "_id.participants",
+//             foreignField: "_id",
+//             as: "user",
+//           },
+//         },
+//         {
+//           $unwind: {
+//             path: "$user",
+//           },
+//         },
+//         {
+//           $project: {
+//             _id: 0,
+//             trader: "$user._id",
+//             contestFor:1,
+//             entryFee:1,
+//             first_name: "$user.first_name",
+//             profile_picture: "$user.profilePhoto",
+//             contests: 1,
+//             payout: 1,
+//             tds: 1,
+//             contestsWon: 1,
+//           },
+//         },
+//         {
+//           $addFields: {
+//             totalPayout: {
+//               $add: ["$payout", "$tds"],
+//             },
+//             strikeRate: {
+//               $multiply: [
+//                 {
+//                   $divide: [
+//                     "$contestsWon",
+//                     "$contests",
+//                   ],
+//                 },
+//                 100,
+//               ],
+//             },
+//           },
+//         },
+//         {
+//           $sort: {
+//             totalPayout: -1,
+//           },
+//         },
+//         {
+//           $limit: 6,
+//         },
+//       ]
+
+//       const weeklyContestPerformers = await Contest.aggregate(pipeline);
+
+//       const response = {
+//           status: "success",
+//           message: "Contest Weekly Top Performer Data fetched successfully",
+//           data: weeklyContestPerformers,
+//           startOfWeek: startOfWeek,
+//           endOfWeek: endOfWeek,
+//       };
+
+//       res.status(200).json(response);
+//   } catch (error) {
+//       res.status(500).json({
+//           status: "error",
+//           message: "Something went wrong",
+//           error: error.message,
+//       });
+//   }
+// };

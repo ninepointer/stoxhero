@@ -111,9 +111,10 @@ function Breadcrumbs({ icon, title, route, light }) {
   else if(title === "affiliateprograms"){
     title = "Affiliate Programs"
   }  
-  else if(title === "topcontestportfolios"){
-    title = "Top Contest Portfolios"
+  else if(title === "toptestarenaportfolios"){
+    title = "Top TestArena Portfolios"
   } 
+  
   
   let path=' ';
 

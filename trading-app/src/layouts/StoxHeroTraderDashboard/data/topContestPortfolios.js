@@ -12,6 +12,7 @@ import MDAvatar from "../../../components/MDAvatar";
 import stock from "../../../assets/images/analyticspnl.png";
 import logo from "../../../assets/images/logo1.jpeg";
 import { useNavigate } from 'react-router-dom';
+import { Link, useLocation } from "react-router-dom";
 
 function Summary({topPerformer, startOfWeek, endOfWeek}) {
     const navigate = useNavigate();
@@ -45,10 +46,10 @@ function Summary({topPerformer, startOfWeek, endOfWeek}) {
             <Grid item xs={12} md={12} lg={12}>
                 <Grid container xs={12} md={12} lg={12} display='flex' alignItems='center'>
                     <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='flex-start'>
-                        <MDTypography ml={1} fontSize={15} fontWeight="bold">Top Contest Portfolios of the Week [{formattedDate(startOfWeek)} - {formattedDate(endOfWeek)}]</MDTypography>
+                        <MDTypography ml={1} fontSize={15} fontWeight="bold">TestArena Leaderboard of the Week [{formattedDate(startOfWeek)} - {formattedDate(endOfWeek)}]</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='flex-end'>
-                        <MDButton variant='text' color='dark' size="small" onClick={()=>{navigate('/topcontestportfolios')}}>View All</MDButton>
+                        <MDButton variant='text' color='dark' size="small" onClick={()=>{navigate('/toptestarenaportfolios')}}>View All</MDButton>
                     </Grid>
                 </Grid>
                     <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
@@ -72,29 +73,38 @@ function Summary({topPerformer, startOfWeek, endOfWeek}) {
                                     },
                                     })}
                                 />
-                                <MDTypography fontSize={18} fontWeight='bold'>
+                                <MDTypography fontSize={15} fontWeight='bold'>
                                     #{index +1} {TruncatedName(e?.first_name)}
                                 </MDTypography>
 
-                                <MDTypography mt={1} fontSize={13}>
-                                    Contests Played: {e?.contests}
+                                <MDTypography mt={1} fontSize={12}>
+                                    Arenas Played: {e?.contests}
                                 </MDTypography>
 
-                                <MDTypography mt={1} fontSize={13}>
-                                    Contests Won: {e?.contestsWon}
+                                <MDTypography mt={1} fontSize={12}>
+                                    Arenas Won: {e?.contestsWon}
                                 </MDTypography>
 
-                                <MDTypography mt={1} fontSize={13}>
-                                    Strike Rate: {(e?.strikeRate).toFixed(0)}%
+                                <MDTypography mt={1} fontSize={12}>
+                                    StrikeRate: {(e?.strikeRate).toFixed(0)}%
                                 </MDTypography>
 
-                                <MDTypography mt={1} mb={-3} fontSize={13}>
-                                    Earned: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(e?.totalPayout)}
+                                <MDTypography mt={1} mb={-3} fontSize={12}>
+                                    Earnings: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(e?.totalPayout)}
                                 </MDTypography>
 
                             </CardContent>
                             <CardActions>
-                                <MDButton size="small">View Profile</MDButton>
+                                <MDButton 
+                                    size="small"
+                                    component = {Link}
+                                    to={{
+                                        pathname: `/testarenaprofile/${e?.userid}`,
+                                      }}
+                                    state={{data: e}}
+                                >
+                                    Arena Profile
+                                </MDButton>
                             </CardActions>
                             </Card>
                             </Grid>
