@@ -71,7 +71,7 @@ const Scoreboard = () => {
         </MDBox>
         <MDBox ml={1}>
           <MDTypography color='light' fontWeight='bold'>
-              College TestArena Scoreboard
+              College TestZone Scoreboard
           </MDTypography>
         </MDBox>
       </MDBox>
@@ -96,10 +96,10 @@ const Scoreboard = () => {
                 <MDTypography fontSize={15} fontWeight='bold' color='dark'>Earnings</MDTypography>
             </Grid>
             <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='center'>
-                <MDTypography fontSize={15} fontWeight='bold' color='dark'>TestArenas Participated</MDTypography>
+                <MDTypography fontSize={15} fontWeight='bold' color='dark'>TestZones Participated</MDTypography>
             </Grid>
             <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='center'>
-                <MDTypography fontSize={15} fontWeight='bold' color='dark'>TestArenas Won</MDTypography>
+                <MDTypography fontSize={15} fontWeight='bold' color='dark'>TestZones Won</MDTypography>
             </Grid>
             <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='center'>
                 <MDTypography fontSize={15} fontWeight='bold' color='dark'>StrikeRate</MDTypography>

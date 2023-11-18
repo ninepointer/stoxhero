@@ -40,7 +40,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
   const [setting, setSetting] = useState([]);
   const [isCodeSubmit, setIsCodeSubmit] = useState(false);
   const getDetails = useContext(userContext);
-  const [data, setData] = useState("Enter your College Code shared by your college POC to participate in the contest.")
+  const [data, setData] = useState("Enter your College Code shared by your college POC to participate in the TestZone.")
   const [collegeCode, setCollegeCode] = useState();
   const [errorMsg, setErrorMsg] = useState("");
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -152,7 +152,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
     } else {
       setMessege({
         ...messege,
-        thanksMessege: `Thanks for the payment of ₹${elem.entryFee}, your seat is booked for the contest - ${elem.contestName}, please click on "Start Trading" once the contest starts.`
+        thanksMessege: `Thanks for the payment of ₹${elem.entryFee}, your seat is booked for the TestZone - ${elem.contestName}, please click on "Start Trading" once the TestZone starts.`
       })
     }
   }

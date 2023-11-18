@@ -47,7 +47,7 @@ function Summary({topPerformer, startOfWeek, endOfWeek}) {
             <Grid item xs={12} md={12} lg={12} m={1}>
                 <Grid container xs={12} md={12} lg={12} display='flex' alignItems='center'>
                     <Grid item xs={12} md={12} lg={6} mb={1} display='flex' justifyContent='flex-start'>
-                        <MDTypography ml={1} fontSize={15} fontWeight="bold">TestArena Leaderboard of the Week [{formattedDate(startOfWeek)} - {formattedDate(endOfWeek)}]</MDTypography>
+                        <MDTypography ml={1} fontSize={15} fontWeight="bold">TestZone Leaderboard of the Week [{formattedDate(startOfWeek)} - {formattedDate(endOfWeek)}]</MDTypography>
                     </Grid>
                 </Grid>
                     <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
@@ -78,13 +78,13 @@ function Summary({topPerformer, startOfWeek, endOfWeek}) {
                                 <Grid container xs={12} md={12} lg={12} mb={-3}>
                                 <Grid item xs={12} md={3} lg={3}>
                                 <MDTypography mt={1} fontSize={13}>
-                                    Arenas Played: {e?.contests}
+                                    Zones Played: {e?.contests}
                                 </MDTypography>
                                 </Grid>
 
                                 <Grid item xs={12} md={3} lg={3}>
                                 <MDTypography mt={1} fontSize={13}>
-                                    Arenas Won: {e?.contestsWon}
+                                    Zones Won: {e?.contestsWon}
                                 </MDTypography>
                                 </Grid>
 
@@ -107,11 +107,11 @@ function Summary({topPerformer, startOfWeek, endOfWeek}) {
                                     size="small"
                                     component = {Link}
                                     to={{
-                                        pathname: `/testarenaprofile/${e?.userid}`,
+                                        pathname: `/testzoneprofile/${e?.userid}`,
                                       }}
                                     state={{data: e}}
                                 >
-                                    Arena Profile
+                                    Zone Profile
                                 </MDButton>
                             </CardActions>
                             </Card>

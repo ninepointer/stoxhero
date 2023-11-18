@@ -205,7 +205,7 @@ function ContestDetails () {
 
   👉 Join the community of ace traders and learn real-time options trading
 
-  👉 Participate in free options trading contests to sharpen your trading skills
+  👉 Participate in free options trading TestZone to sharpen your trading skills
 
   📲 Visit https://www.stoxhero.com/signup?referral=${referralCode}
 
