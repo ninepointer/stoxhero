@@ -8,7 +8,7 @@ import MDTypography from "../../../../components/MDTypography";
 import MDSnackbar from "../../../../components/MDSnackbar";
 import WinnerImage from '../../../../assets/images/cup-image.png'
 import { Link, useNavigate } from "react-router-dom";
-import RewardTable from "../rewardTable";
+import RewardTable from "../rulesAndRewardTable";
 
 
 

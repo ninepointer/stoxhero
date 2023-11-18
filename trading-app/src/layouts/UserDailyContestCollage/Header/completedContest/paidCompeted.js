@@ -9,7 +9,7 @@ import MDSnackbar from "../../../../components/MDSnackbar";
 import WinnerImage from '../../../../assets/images/cup-image.png'
 import { Link, useNavigate } from "react-router-dom";
 import DownloadIcon from '@mui/icons-material/Download';
-import RewardTable from "../../../UserDailyContest/Header/rewardTable";
+import RewardTable from "../../../UserDailyContest/Header/rulesAndRewardTable";
 
 
 

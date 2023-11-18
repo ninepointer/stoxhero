@@ -21,7 +21,7 @@ import MDSnackbar from "../../../components/MDSnackbar";
 import PopupMessage from "../data/popupMessage";
 import PopupTrading from "../data/popupTrading";
 import Payment from "../data/payment"
-import RewardTable from "./rewardTable";
+import RewardTable from "./rulesAndRewardTable";
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 
 function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, socket, setIsInterested }) {

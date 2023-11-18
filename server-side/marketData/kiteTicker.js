@@ -15,15 +15,15 @@ const {xtsAccountType, zerodhaAccountType} = require("../constant");
 
 let ticker;
 
-const createNewTicker = (api_key, access_token) => {
+const createNewTicker = async (api_key, access_token) => {
   console.log("createNewTicker")
     ticker = new kiteTicker({
         api_key,
         access_token 
     });
    
-    ticker?.connect();
-    ticker?.autoReconnect(true, 10000000000, 5);
+    await ticker?.connect();
+    await ticker?.autoReconnect(true, 10000000000, 5);
     return ticker;    
 }
 

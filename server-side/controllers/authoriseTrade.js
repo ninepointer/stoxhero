@@ -596,13 +596,7 @@ const marginSecondCase = async (req, res, next, prevMargin, prevQuantity) => {
 }
 
 const marginThirdCase = async (req, res, next, netPnl) => {
-    //todo-vijay npnl negetive me h to margin me minus hoga
-    // if(netPnl < 0){
-    //     req.body.margin = netPnl;
-    // } else{
-        req.body.margin = 0;
-    // }
-    
+    req.body.margin = 0;
     console.log("3rd case");
 
     return next();

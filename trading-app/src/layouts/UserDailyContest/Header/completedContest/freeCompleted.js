@@ -7,7 +7,7 @@ import MDTypography from "../../../../components/MDTypography";
 import ContestCarousel from '../../../../assets/images/target.png'
 import MDSnackbar from "../../../../components/MDSnackbar";
 import { Link, useNavigate } from "react-router-dom";
-import RewardTable from "../rewardTable";
+import RewardTable from "../rulesAndRewardTable";
 
 
 

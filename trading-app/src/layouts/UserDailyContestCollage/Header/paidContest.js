@@ -27,7 +27,7 @@ import PopupMessage from "../data/popupMessage";
 import PopupTrading from "../data/popupTrading";
 // import { Link } from "react-router-dom";
 import Payment from "../data/payment"
-import RewardTable from "../../UserDailyContest/Header/rewardTable";
+import RewardTable from "../../UserDailyContest/Header/rulesAndRewardTable";
 
 function Header({ toggleContest, setToggleContest, contest, showPay, setShowPay, socket, setIsInterested }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"

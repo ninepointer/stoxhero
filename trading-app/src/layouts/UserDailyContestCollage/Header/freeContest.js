@@ -26,7 +26,7 @@ import PopupMessage from "../data/popupMessage";
 import PopupTrading from "../data/popupTrading";
 import { Link } from "react-router-dom";
 import Payment from "../data/payment"
-import RewardTable from "../../UserDailyContest/Header/rewardTable";
+import RewardTable from "../../UserDailyContest/Header/rulesAndRewardTable";
 // import axios from "axios";
 
 function Header({toggleContest, setToggleContest, contest, socket, setIsInterested, showPay, setShowPay }) {
