@@ -36,7 +36,7 @@ function Summary({lastPaidContests, lastContestDate}) {
           .join(' '); // Join the words back together with a space
       
         // Trim the name to a maximum of 30 characters
-        const truncatedName = convertedName.length > 20 ? convertedName.substring(0, 20) + '...' : convertedName;
+        const truncatedName = convertedName.length > 8 ? convertedName.substring(0, 7) + '..' : convertedName;
       
         return truncatedName;
       }
@@ -68,7 +68,7 @@ function Summary({lastPaidContests, lastContestDate}) {
                         {lastPaidContests?.map((e, index)=>{
                             return (
                             <Grid item xs={12} md={6} lg={3}>
-                            <Card style={{backgroundColor:'#65BA0D'}} sx={{ minWidth: '100%' }}>
+                            <Card style={{background:'linear-gradient(195deg, #66BB6A, #43A047)'}} sx={{ minWidth: '100%' }}>
                             <CardContent>
                             <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                 <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
@@ -119,23 +119,23 @@ function Summary({lastPaidContests, lastContestDate}) {
                                 })}
 
                             </CardContent>
-                            <CardActions>
+                            {/* <CardActions>
                                 <Grid container xs={12} md={12} lg={12} mt={-2} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
                                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
                                         <MDButton 
                                             size="small"
                                             variant='text'
-                                            // component = {Link}
-                                            // to={{
-                                            //     pathname: `/testzoneprofile/${e?.userid}`,
-                                            // }}
-                                            // state={{data: e}}
+                                            component = {Link}
+                                            to={{
+                                                pathname: `/testzoneprofile/${e?.userid}`,
+                                            }}
+                                            state={{data: e}}
                                         >
                                             Full Leaderboard
                                         </MDButton>
                                     </Grid>
                                 </Grid>
-                            </CardActions>
+                            </CardActions> */}
                             </Card>
                             </Grid>
                             )

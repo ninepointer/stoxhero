@@ -44,7 +44,7 @@ function Summary({topPerformer, startOfWeek, endOfWeek}) {
     <MDBox bgColor="light" minHeight='auto'>
         <Grid container display='flex' justifyContent='center' alignItems='center'>
             <Grid item xs={12} md={12} lg={12}>
-                <Grid container xs={12} md={12} lg={12} display='flex' alignItems='center'>
+                <Grid container xs={12} md={12} lg={12} mt={.5} mb={.5} display='flex' alignItems='center'>
                     <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='flex-start'>
                         <MDTypography ml={1} fontSize={15} fontWeight="bold">TestZone Leaderboard of the Week [{formattedDate(startOfWeek)} - {formattedDate(endOfWeek)}]</MDTypography>
                     </Grid>

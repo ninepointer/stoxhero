@@ -19,6 +19,7 @@ import MessagePopUp from '../../../MessagePopup';
 import ReactGA from "react-ga"
 import TopContestPortfolios from '../data/topContestPortfolios'
 import TestZoneChampions from '../data/testZoneChampions'
+import PracticeAndPrepare from '../data/practiceAndPrepare'
 
 
 export default function Dashboard() {
@@ -264,6 +265,23 @@ export default function Dashboard() {
               
               <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
                 <TopContestPortfolios topPerformer={topPerformerData} startOfWeek={startOfWeek} endOfWeek={endOfWeek}/>
+                </MDBox>
+                :
+                <MDBox mt={5} mb={5} display='flex' justifyContent='center' style={{borderRadius: 5 }}>
+                  <CircularProgress color="info" />
+                </MDBox>
+              }
+            
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={0.75} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignItems='start' flexDirection='row'>
+          <Grid item xs={12} md={12} lg={12} mt={1}>
+            
+              {!isLoading ? 
+              
+              <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
+                <PracticeAndPrepare/>
                 </MDBox>
                 :
                 <MDBox mt={5} mb={5} display='flex' justifyContent='center' style={{borderRadius: 5 }}>

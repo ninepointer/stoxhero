@@ -5204,6 +5204,11 @@ exports.getLastPaidContestChampions = async (req, res) => {
         },
         {
           $sort: {
+            entryFee: 1,
+          },
+        },
+        {
+          $sort: {
             "participants.npnl": -1,
           },
         },
@@ -5282,9 +5287,9 @@ exports.getLastPaidContestChampions = async (req, res) => {
                             "$$participant.employeeid",
                           email: "$$participant.email",
                           payout:
-                            "$$participant.payout",
-                          tds: "$$participant.tdsAmount",
-                          rank: "$$participant.rank",
+                            {$ifNull: ["$$participant.payout",0]},
+                          tds: {$ifNull : ["$$participant.tdsAmount",0]},
+                          rank: {$ifNull : ["$$participant.rank",0]},
                         },
                       ],
                     },
@@ -5310,6 +5315,9 @@ exports.getLastPaidContestChampions = async (req, res) => {
               employeeid: 1,
             },
           },
+        },
+        {
+          $limit: 4,
         },
       ]
 
