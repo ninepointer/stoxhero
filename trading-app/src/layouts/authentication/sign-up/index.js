@@ -258,7 +258,7 @@ function Cover(props) {
         navigate(from);
       } 
       else if(userData?.role?.roleName === userRole){
-        const from = location.state?.from || "/stoxherodashboard";
+        const from = location.state?.from || "/home";
         navigate(from);
       }
       return openSuccessSB("Account Created", data.message);
@@ -374,7 +374,7 @@ function Cover(props) {
               navigate(from);
             }
             else if(userData?.role?.roleName === userRole){
-              const from = location.state?.from || "/stoxherodashboard";
+              const from = location.state?.from || "/home";
                 navigate(from);
             }
           }

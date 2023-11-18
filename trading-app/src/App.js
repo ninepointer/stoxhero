@@ -339,7 +339,7 @@ export default function App() {
           :
           pathname == "/" || !pathname ?
           <Route path="/" element={<Navigate 
-            to={getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/stoxherodashboard'} 
+            to={getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/home'} 
             />} />
             :
             <Route path="*" element={<NotFound />} />
@@ -358,7 +358,7 @@ export default function App() {
           <Route path='/collegecontest/:id/:date' element={<ContestRegistration/>}/>
           <Route path='/featuredcontest/:id/:date' element={<FeaturedContestRegistration/>}/>
           <Route path='/' element={<Navigate 
-            to={getDetails?.userDetails?.role ? getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/stoxherodashboard':'/'} 
+            to={getDetails?.userDetails?.role ? getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/home':'/'} 
             />}/>
           <Route path='/adminlogin' element={<AdminLogin />}/>
           <Route path='/about' element={<About/>}/>
