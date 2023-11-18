@@ -39,15 +39,61 @@ exports.overallPnlTrader = async (req, res, next) => {
 
         } else {
 
-            let pnlDetails = await DailyContestMockUser.aggregate([
+            const contest = await DailyContest.findOne({_id: new ObjectId(id)}).select('contestStartTime contestEndTime');
+            // Dates in ISO format
+            const startDate = new Date(contest.contestStartTime);
+            const endDate = new Date(contest.contestEndTime);
+            // Calculate the difference in milliseconds
+            const timeDifference = endDate.getTime() - startDate.getTime();
+            // Convert milliseconds to days
+            const daysDifference = timeDifference / (1000 * 3600 * 24);
+
+            let matchStage = {};
+            let matchForLimit = {}
+            if(daysDifference > 1){
+                matchStage = {
+                    status: "COMPLETE",
+                    trader: new ObjectId(userId),
+                    contestId: new ObjectId(id)
+                };
+                matchForLimit = {
+                    createdBy: new ObjectId(
+                        userId
+                    ),
+                    type: "Limit",
+                    status: "Pending",
+                    product_type: new ObjectId("6517d48d3aeb2bb27d650de5")
+                }
+            } else{
+                matchStage = {
+                    trade_time: {
+                        $gte: today
+                    },
+                    status: "COMPLETE",
+                    trader: new ObjectId(userId),
+                    contestId: new ObjectId(id)
+                };
+
+                matchForLimit = {
+                    createdBy: new ObjectId(
+                        userId
+                    ),
+                    type: "Limit",
+                    status: "Pending",
+                    createdOn: {
+                        $gte: today,
+                    },
+                    product_type: new ObjectId("6517d48d3aeb2bb27d650de5")
+                }
+            }
+
+            const pnlDetails = await DailyContestMockUser.aggregate([
                 {
-                    $match: {
-                        trade_time: {
-                            $gte: today
-                        },
-                        status: "COMPLETE",
-                        trader: new ObjectId(userId),
-                        contestId: new ObjectId(id)
+                    $match: matchStage,
+                },
+                {
+                    $sort: {
+                      trade_time: 1,
                     },
                 },
                 {
@@ -80,6 +126,7 @@ exports.overallPnlTrader = async (req, res, next) => {
                         margin: {
                             $last: "$margin",
                         },
+                        trades: { $count: {} }
                     },
                 },
                 {
@@ -88,19 +135,14 @@ exports.overallPnlTrader = async (req, res, next) => {
                     },
                 },
             ])
-
+            
             const limitMargin = await PendingOrder.aggregate([
                 {
-                    $match: {
-                        createdBy: new ObjectId(
-                            userId
-                        ),
-                        type: "Limit",
-                        status: "Pending",
-                        createdOn: {
-                            $gte: today,
-                        },
-                        product_type: new ObjectId("6517d48d3aeb2bb27d650de5")
+                    $match: matchForLimit,
+                },
+                {
+                    $sort: {
+                        createdOn: 1,
                     },
                 },
                 {
@@ -136,6 +178,7 @@ exports.overallPnlTrader = async (req, res, next) => {
                 }
             ])
 
+            // console.log(pnlDetails, limitMargin)
             const arr = [];
             for (let elem of limitMargin) {
                 arr.push({
@@ -157,8 +200,9 @@ exports.overallPnlTrader = async (req, res, next) => {
                 });
             }
 
+            // console.log("arr", arr)
             const newPnl = pnlDetails.concat(arr);
-      
+            // console.log("newPnl", newPnl)
             if (isRedisConnected) {
                 await client.set(`${req.user._id.toString()}${id.toString()} overallpnlDailyContest`, JSON.stringify(newPnl))
                 await client.expire(`${req.user._id.toString()}${id.toString()} overallpnlDailyContest`, secondsRemaining);
@@ -171,6 +215,85 @@ exports.overallPnlTrader = async (req, res, next) => {
     } catch (e) {
         console.log(e);
         return res.status(500).json({ status: 'success', message: 'something went wrong.' })
+    }
+}
+
+exports.myDayWisePnl = async (req, res, next) => {
+    const userId = req.user._id;
+    const { id } = req.params;
+    const date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+
+    try {
+        const pnlDetails = await DailyContestMockUser.aggregate([
+            {
+                $match:
+                {
+                    contestId: new ObjectId(
+                        id
+                    ),
+                    trader: new ObjectId(
+                        userId
+                    ),
+                    trade_time: {
+                        $lt: today,
+                    },
+                    status: "COMPLETE"
+                },
+            },
+            {
+                $addFields: {
+                    date: {
+                        $dateToString: {
+                            format: "%Y-%m-%d",
+                            date: "$trade_time",
+                        },
+                    },
+                },
+            },
+            {
+                $group: {
+                    _id: "$date",
+                    gpnl: {
+                        $sum: {
+                            $multiply: ["$amount", -1],
+                        },
+                    },
+                    brokerage: {
+                        $sum: {
+                            $toDouble: "$brokerage",
+                        },
+                    },
+                    trades: {
+                        $count: {},
+                    },
+                },
+            },
+            {
+                $project:
+                {
+                    _id: 0,
+                    date: "$_id",
+                    gpnl: 1,
+                    brokerage: 1,
+                    npnl: {
+                        $subtract: ["$gpnl", "$brokerage"],
+                    },
+                    trades: 1,
+                },
+            },
+            {
+                $sort: {
+                    date: -1
+                }
+            }
+        ])
+        return res.status(200).json({ status: 'success', data: pnlDetails })
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({ status: 'error', message: 'something went wrong.' })
     }
 }
 
@@ -1407,145 +1530,53 @@ exports.DailyContestPayoutChart = async (req, res, next) => {
     // let { id } = req.params
     let pipeline = [
         {
-            $match: {
-                status: "COMPLETE",
-            },
+          $match: {
+            contestStatus: "Completed",
+          },
         },
         {
-            $lookup: {
-                from: "daily-contests",
-                localField: "contestId",
-                foreignField: "_id",
-                as: "contestData",
-            },
+          $unwind: {
+            path: "$participants",
+          },
         },
         {
-            $unwind: {
-                path: "$contestData",
+          $group: {
+            _id: {
+              date: {
+                $substr: ["$contestStartTime", 0, 10],
+              },
             },
+            contestIds: {
+              $addToSet: "$_id", // Collect unique contest IDs for each date
+            },
+            totalNpnl: {
+              $sum: "$participants.npnl",
+            },
+            totalPayout: {
+              $sum: "$participants.payout",
+            },
+          },
         },
         {
-            $match: {
-                "contestData.contestStatus": "Completed",
-            },
+          $project: {
+            contestDate: "$_id.date",
+            _id: 0,
+            totalPayout: 1,
+            totalNpnl: 1,
+            numberOfContests: { $size: "$contestIds" }, // Count of contests on each date
+          },
         },
         {
-            $group: {
-                _id: {
-                    trader: "$trader",
-                    contestId: "$contestId",
-                    contestName: "$contestData.contestName",
-                    date: {
-                        $substr: [
-                            "$contestData.contestStartTime",
-                            0,
-                            10,
-                        ],
-                    },
-                    payoutPer:
-                        "$contestData.payoutPercentage",
-                },
-                gpnl: {
-                    $sum: {
-                        $multiply: ["$amount", -1],
-                    },
-                },
-                brokerage: {
-                    $sum: "$brokerage",
-                },
-            },
-        },
-        {
-            $project: {
-                _id: 1,
-                npnl: {
-                    $subtract: ["$gpnl", "$brokerage"],
-                },
-                positiveNpnl: {
-                    $max: [
-                        0,
-                        {
-                            $subtract: ["$gpnl", "$brokerage"],
-                        },
-                    ],
-                },
-                payoutPer: "$_id.payoutPer",
-            },
-        },
-        {
-            $group: {
-                _id: {
-                    contestId: "$_id.contestId",
-                    contestName: "$_id.contestName",
-                    date: "$_id.date",
-                    payoutPer: "$payoutPer",
-                },
-                totalNpnl: {
-                    $sum: "$npnl",
-                },
-                totalPositiveNpnl: {
-                    $sum: "$positiveNpnl",
-                },
-            },
-        },
-        {
-            $project: {
-                contestId: "$_id.contestId",
-                contestName: "$_id.contestName",
-                contestDate: "$_id.date",
-                totalNpnl: 1,
-                totalPayout: {
-                    $multiply: [
-                        "$totalPositiveNpnl",
-                        {
-                            $divide: ["$_id.payoutPer", 100],
-                        },
-                    ],
-                },
-                _id: 0,
-            },
+            $limit: 90,
         },
         {
             $sort: {
-                contestDate: -1,
+                contestDate: 1,
             },
         },
-        {
-            $group:
-            {
-                _id: {
-                    contestDate: "$contestDate",
-                },
-                totalNpnl: {
-                    $sum: "$totalNpnl",
-                },
-                totalPayout: {
-                    $sum: "$totalPayout",
-                },
-                numberOfContests: {
-                    $sum: 1,
-                },
-            },
-        },
-        {
-            $project:
-            {
-                _id: 0,
-                contestDate: "$_id.contestDate",
-                totalNpnl: 1,
-                totalPayout: 1,
-                numberOfContests: 1,
-            },
-        },
-        {
-            $sort:
-            {
-                contestDate: 1
-            }
-        }
-    ]
-
-    let x = await DailyContestMockUser.aggregate(pipeline)
+      ]
+      
+    let x = await DailyContest.aggregate(pipeline)
 
     res.status(201).json({ message: "data received", data: x });
 }
@@ -1792,11 +1823,12 @@ exports.getRedisLeaderBoard = async (req, res, next) => {
 
 }
 
-const dailyContestLeaderBoard = async (id) => {
+const dailyContestLeaderBoard = async (contest) => {
 
+    const id = contest._id?.toString();
     try {
-        const contest = await DailyContest.findOne({_id: new ObjectId(id)})
-        .populate('participants.userId', 'first_name last_name employeeid profilePhoto')
+        // const contest = await DailyContest.findOne({_id: new ObjectId(id)})
+        // .populate('participants.userId', 'first_name last_name employeeid profilePhoto')
 
         const allParticipants = contest.participants;
         let obj = {};
@@ -1836,7 +1868,7 @@ const dailyContestLeaderBoard = async (id) => {
         ranks.forEach(item => {
             if(item){
                 const { symbol, instrumentToken, exchange } = item._id;
-                uniqueData.add({ symbol, instrumentToken, exchange });
+                uniqueData.add({ symbol, instrumentToken, exchange, lots: item.lots });
             }
         });
 
@@ -1847,11 +1879,14 @@ const dailyContestLeaderBoard = async (id) => {
 
         const data = await getKiteCred.getAccess();
         uniqueDataArray.forEach((elem, index) => {
-            if (index === 0) {
-                addUrl = ('i=' + elem.exchange + ':' + elem.symbol);
-            } else {
-                addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
+            if(elem.lots > 0){
+                if (index === 0) {
+                    addUrl = ('i=' + elem.exchange + ':' + elem.symbol);
+                } else {
+                    addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
+                }
             }
+
         });
         const ltpBaseUrl = `https://api.kite.trade/quote?${addUrl}`;
         let auth = 'token' + data.getApiKey + ':' + data.getAccessToken;
@@ -1870,7 +1905,7 @@ const dailyContestLeaderBoard = async (id) => {
 
         for (doc of ranks) {
             if(doc){
-                doc.rpnl = doc?.lots * livePrices[doc?._id?.instrumentToken];
+                doc.rpnl = doc?.lots > 0 ? doc?.lots * livePrices[doc?._id?.instrumentToken] : 0;
                 doc.npnl = doc?.amount + doc?.rpnl - doc?.brokerage;    
             }
         }
@@ -2002,7 +2037,8 @@ const contestQueue = [];
 
 exports.sendLeaderboardData = async () => {
     try {
-        const activeContest = await DailyContest.find({ contestStatus: "Active" });
+        const activeContest = await DailyContest.find({ contestStatus: "Active" })
+        .populate('participants.userId', 'first_name last_name employeeid profilePhoto');
 
         if (activeContest.length) {
             contestQueue.push(...activeContest);
@@ -2028,8 +2064,8 @@ async function processContestQueue() {
 
     const endTime = new Date(currentTime);
     endTime.setHours(9, 48, 0, 0);
-
-    if (currentTime >= startTime && currentTime <= endTime) {
+    //todo-vijay
+    // if (currentTime >= startTime && currentTime <= endTime) {
 
         // If the queue is empty, reset the processing flag and return
         if (contestQueue.length === 0) {
@@ -2040,17 +2076,16 @@ async function processContestQueue() {
         // Process contests and emit the data
         for (const contest of contestQueue) {
             if (contest.contestStatus === "Active" && contest.contestStartTime <= new Date()) {
-                const leaderBoard = await dailyContestLeaderBoard(contest._id?.toString());
+                const leaderBoard = await dailyContestLeaderBoard(contest);
                 
+                // console.log("leaderBoard", leaderBoard)
                 if(leaderBoard?.length > 0)
                 io.to(`${contest._id?.toString()}`).emit(`contest-leaderboardData${contest._id?.toString()}`, leaderBoard);
             }
         }
 
-    }
+    // }
 }
-
-
 
 exports.sendMyRankData = async () => {
     const io = getIOValue();
@@ -2066,7 +2101,8 @@ exports.sendMyRankData = async () => {
                 startTime.setHours(3, 0, 0, 0);
                 const endTime = new Date(currentTime);
                 endTime.setHours(9, 48, 0, 0);
-                if (currentTime >= startTime && currentTime <= endTime) {
+                //todo-vijay
+             //  if (currentTime >= startTime && currentTime <= endTime) {
                     const contest = await DailyContest.find({ contestStatus: "Active", contestStartTime: { $lte: new Date() } });
 
                     for (let i = 0; i < contest?.length; i++) {
@@ -2087,7 +2123,7 @@ exports.sendMyRankData = async () => {
                             }
                         }
                     }
-                }
+              // }
             };
             emitLeaderboardData();
             interval = setInterval(emitLeaderboardData, 5000);

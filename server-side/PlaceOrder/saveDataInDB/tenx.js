@@ -48,7 +48,6 @@ exports.tenxTrade = async (req, res, otherData) => {
     }
 
     if(reverseTradeConditionData === 0){
-      console.log("from reverse trade")
       stopLossPrice = 0;
       stopProfitPrice = 0;
     }
@@ -67,7 +66,6 @@ exports.tenxTrade = async (req, res, otherData) => {
       pendingOrderRedis = "OK";
     }
     
-    console.log(pendingOrderRedis, pnlRedis)
     if (pendingOrderRedis === "OK" && pnlRedis === "OK") {
       await session.commitTransaction();
       res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
@@ -86,7 +84,6 @@ exports.tenxTrade = async (req, res, otherData) => {
 const saveInRedis = async (req, tenxDoc, subscriptionId)=>{
   const {margin, order_type} = req.body;
 
-  console.log('ordertypes', order_type, tenxDoc)
   if (await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)) {
     let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
     pnl = JSON.parse(pnl);

@@ -1,6 +1,7 @@
 const Account =  require('../models/Trading Account/accountSchema');
 const RequestToken = require("../models/Trading Account/requestTokenSchema");
 const {client, getValue} = require("../marketData/redisClient")
+const {disconnectTicker, createNewTicker}  = require('../marketData/kiteTicker');
 
 
 exports.getAccess = async () => {
@@ -23,6 +24,9 @@ exports.getAccess = async () => {
                 }
             }
         }
+
+        await disconnectTicker();
+        await createNewTicker(getApiKey, getAccessToken);
 
         try{
             await client.set(`kiteCredToday:${process.env.PROD}`, JSON.stringify({getApiKey, getAccessToken}));

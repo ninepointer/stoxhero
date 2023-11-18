@@ -55,6 +55,11 @@ exports.overallPnl = async (req, res, next) => {
               },
           },
           {
+            $sort: {
+              trade_time: 1,
+            },
+          },
+          {
             $group: {
               _id: {
                 symbol: "$symbol",
@@ -106,6 +111,11 @@ exports.overallPnl = async (req, res, next) => {
                 $gte: today,
               },
               product_type: new ObjectId("6517d46e3aeb2bb27d650de3")
+            },
+          },
+          {
+            $sort: {
+              createdOn: 1,
             },
           },
           {
@@ -1074,6 +1084,30 @@ exports.internshipPnlReport = async (req, res, next) => {
   res.status(201).json({ message: "data received", data: x });
 }
 
+const getHoliday = async (startDate, enddate)=>{
+  let endDate = new Date(enddate)
+  let endDateDateComponent = endDate.toISOString().split('T')[0];
+
+  const fullEndDate = new Date(`${endDateDateComponent}T23:59:59.000Z`);
+
+  // console.log(startDate, fullEndDate, enddate)
+  const holiday = await Holiday.find({
+    holidayDate: {
+      $gte: new Date(startDate),
+      $lte: fullEndDate
+    },
+    $expr: {
+      $and: [
+        { $ne: [{ $dayOfWeek: "$holidayDate" }, 1] }, // 1 represents Sunday
+        { $ne: [{ $dayOfWeek: "$holidayDate" }, 7] }  // 7 represents Saturday
+      ]
+    }
+  });
+
+  console.log(holiday)
+  return holiday;
+}
+
 exports.internshipDailyPnlTWise = async (req, res, next) => {
 
   let { batch } = req.params
@@ -1085,17 +1119,25 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
   .populate('referrals.referredUserId', 'joining_date')
   .select("referrals")
 
-  const holiday = await Holiday.find({
-    holidayDate: {
-      $gte: internship.batchStartDate,
-      $lte: internship.batchEndDate
-    },
-    $expr: {
-      $ne: [{ $dayOfWeek: "$holidayDate" }, 1], // 1 represents Sunday
-      $ne: [{ $dayOfWeek: "$holidayDate" }, 7], // 7 represents Saturday
-    }
-  });
+  const batchEndDate = moment(internship.batchEndDate);
+  const currentDate = moment();
+  const endDate = batchEndDate.isBefore(currentDate) ? batchEndDate.format("YYYY-MM-DD") : currentDate.format("YYYY-MM-DD");
+  const endDate1 = batchEndDate.isBefore(currentDate) ? batchEndDate.clone().set({ hour: 19, minute: 0, second: 0, millisecond: 0 }) : currentDate.clone().set({ hour: 19, minute: 0, second: 0, millisecond: 0 });
 
+
+  const holiday = await getHoliday(internship.batchStartDate, endDate)
+  // Holiday.find({
+  //   holidayDate: {
+  //     $gte: internship.batchStartDate,
+  //     $lte: internship.batchEndDate
+  //   },
+  //   $expr: {
+  //     $ne: [{ $dayOfWeek: "$holidayDate" }, 1], // 1 represents Sunday
+  //     $ne: [{ $dayOfWeek: "$holidayDate" }, 7], // 7 represents Saturday
+  //   }
+  // });
+
+  // console.log(holiday)
   let traderWisePnlInfo = [];
   if (internship.batchStatus === "Completed") {
     const pipeline = [
@@ -1170,6 +1212,12 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
   } else {
     const pipeline = [
       {
+        $match: {
+          status: "COMPLETE",
+          batch: new ObjectId(batch),
+        },
+      },
+      {
         $lookup: {
           from: "user-personal-details",
           localField: "trader",
@@ -1177,12 +1225,7 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
           as: "user",
         },
       },
-      {
-        $match: {
-          status: "COMPLETE",
-          batch: new ObjectId(batch),
-        },
-      },
+
       // {
       //   $lookup: {
       //     from: "intern-batches",
@@ -1212,37 +1255,6 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
                 },
               ],
             },
-            // batchStartDate: {
-            //   $arrayElemAt: [
-            //     "$batch.batchStartDate",
-            //     0,
-            //   ],
-            // },
-            // batchEndDate: {
-            //   $arrayElemAt: [
-            //     "$batch.batchEndDate",
-            //     0,
-            //   ],
-            // },
-
-            // payoutPercentage: {
-            //   $arrayElemAt: [
-            //     "$batch.payoutPercentage",
-            //     0,
-            //   ],
-            // },
-            // attendancePercentage: {
-            //   $arrayElemAt: [
-            //     "$batch.attendancePercentage",
-            //     0,
-            //   ],
-            // },
-            // referralCount: {
-            //   $arrayElemAt: [
-            //     "$batch.referralCount",
-            //     0,
-            //   ],
-            // },
           },
           gpnl: {
             $sum: {
@@ -1309,28 +1321,20 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
         return subelem?._id?.toString() == elem?.userId?.toString();
       })
 
-      const batchEndDate = moment(internship.batchEndDate);
-      const currentDate = moment();
-      const endDate = batchEndDate.isBefore(currentDate) ? batchEndDate.format("YYYY-MM-DD") : currentDate.format("YYYY-MM-DD");
-      const endDate1 = batchEndDate.isBefore(currentDate) ? batchEndDate.clone().set({ hour: 19, minute: 0, second: 0, millisecond: 0 }) : currentDate.clone().set({ hour: 19, minute: 0, second: 0, millisecond: 0 });
-      const attendance = (elem?.tradingDays * 100 / (calculateWorkingDays(internship.batchStartDate, endDate) - holiday.length));
+      const attendance = (elem?.tradingDays * 100 / (calculateWorkingDays(internship.batchStartDate, endDate) - holiday.length), calculateWorkingDays(internship.batchStartDate, endDate));
       let refCount = 0;
       if(referral[0]?.referrals){
         for (let subelem of referral[0]?.referrals) {
           const joiningDate = moment(subelem?.referredUserId?.joining_date);
         
-          // console.log("joiningDate", moment(moment(internship.batchStartDate).format("YYYY-MM-DD")), joiningDate ,endDate, endDate1, moment(endDate).set({ hour: 19, minute: 0, second: 0, millisecond: 0 }).format("YYYY-MM-DD HH:mm:ss"))
           if (joiningDate.isSameOrAfter(moment(moment(internship.batchStartDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(endDate1)) {
-            // console.log("joiningDate if", batchEndDate, batchEndDate.format("YYYY-MM-DD"))
             refCount += 1;
-            // console.log("joiningDate if")
           }
         }
       } else{
         refCount = 0;
       }
 
-      // referral[0]?.referrals?.length;
       elem.isPayout = false;
       const profitCap = 15000;
 
@@ -1354,6 +1358,7 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
       elem.payout = elem.isPayout ? Math.min((elem?.npnl * payoutPercentage / 100).toFixed(0), profitCap) : 0;
       // elem.tradingDays = (elem?.tradingDays * 100 / (calculateWorkingDays(internship.batchStartDate, endDate) - holiday.length)).toFixed(0)
       elem.attendancePercentage = (elem?.tradingDays * 100 / (calculateWorkingDays(internship.batchStartDate, endDate) - holiday.length)).toFixed(0);
+      // console.log(elem?.tradingDays, internship.batchStartDate, endDate, holiday.length, (calculateWorkingDays(internship.batchStartDate, endDate) - holiday.length) )
       traderWisePnlInfo.push(elem);
     })
   }
@@ -1464,7 +1469,7 @@ function calculateWorkingDays(startDate, endDate) {
   // Iterate over each day between the start and end dates
   while (currentDate <= end) {
     // Check if the current day is a weekday (Monday to Friday)
-    if (currentDate.getDay() >= 1 && currentDate.getDay() <= 5) {
+    if (currentDate.getDay() > 1 && currentDate.getDay() < 7) {
       workingDays++;
     }
 
@@ -1530,8 +1535,10 @@ exports.updateUserWallet = async () => {
             $lte: elem.batchEndDate
           },
           $expr: {
-            $ne: [{ $dayOfWeek: "$holidayDate" }, 1], // 1 represents Sunday
-            $ne: [{ $dayOfWeek: "$holidayDate" }, 7], // 7 represents Saturday
+            $and: [
+              { $ne: [{ $dayOfWeek: "$holidayDate" }, 1] }, // 1 represents Sunday
+              { $ne: [{ $dayOfWeek: "$holidayDate" }, 7] }  // 7 represents Saturday
+            ]
           }
         });
 

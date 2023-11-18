@@ -19,7 +19,6 @@ exports.applyingSLSP = async (req, otherData, session, docId, from) => {
     product_type = "65449ee06932ba3a403a681a"
   }
 
-  console.log("product_type", product_type, from)
 
   try{
     let isRedisConnected = await getValue();
@@ -28,7 +27,6 @@ exports.applyingSLSP = async (req, otherData, session, docId, from) => {
         stopProfitPrice, stopLossPrice, createdBy, deviceDetails, id, margin, price,
         marginxId, contestId, portfolioId } = req.body ? req.body : req ;
 
-        console.log("portfolioId", portfolioId)
 
     last_price = last_price && String(last_price)?.includes("₹") && last_price?.slice(1);
     id = id ? id : from === tenxTrader ? subscriptionId : from === marginx ? marginxId : from === dailyContest ? contestId : from === internTrader ? subscriptionId : from === virtualTrader && portfolioId;
@@ -132,7 +130,6 @@ exports.applyingSLSP = async (req, otherData, session, docId, from) => {
         }
       });
 
-      console.log(transformedObject)
       pendingOrderRedis = await client.set('stoploss-stopprofit', JSON.stringify(transformedObject));
     }
     

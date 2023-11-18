@@ -122,6 +122,10 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
   sellFormDetails.validity = validity;
 
   const handleClickOpen = async () => {
+    if(!ltp){
+      openSuccessSB('error', "This instrument is expired. Please trade on valid instrument.");
+      return
+    }
     if (fromSearchInstrument) {
       addInstrument();
       render ? setRender(false) : setRender(true);

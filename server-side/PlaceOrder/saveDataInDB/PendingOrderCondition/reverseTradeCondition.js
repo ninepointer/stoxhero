@@ -36,7 +36,6 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
             }
 
             // Remove elements after the loop
-            console.log("index", indicesToRemove)
             indicesToRemove.forEach(index => symbolArray.splice(index, 1, {}));
             data[`${doc.instrumentToken}`] = symbolArray;
         }

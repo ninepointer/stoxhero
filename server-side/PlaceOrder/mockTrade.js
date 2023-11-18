@@ -103,8 +103,8 @@ exports.mockTrade = async (req, res) => {
         }
 
         newTimeStamp = liveData?.timestamp;
-        originalLastPriceUser = liveData?.last_price;
-        originalLastPriceCompany = liveData?.last_price;
+        originalLastPriceUser = liveData?.last_price ? liveData?.last_price : req?.body?.last_price;
+        originalLastPriceCompany = liveData?.last_price ? liveData?.last_price : req?.body?.last_price;
 
         trade_time = new Date(newTimeStamp);
         if(trade_time < new Date()){
@@ -162,7 +162,6 @@ exports.mockTrade = async (req, res) => {
     }
 
     if(marginx){
-        console.log("in marginx", marginx)
         await marginxTrade(req, res, otherData)
     }
 

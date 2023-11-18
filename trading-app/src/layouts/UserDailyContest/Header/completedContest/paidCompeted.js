@@ -8,7 +8,7 @@ import MDTypography from "../../../../components/MDTypography";
 import MDSnackbar from "../../../../components/MDSnackbar";
 import WinnerImage from '../../../../assets/images/cup-image.png'
 import { Link, useNavigate } from "react-router-dom";
-import RewardTable from "../rewardTable";
+import RewardTable from "../rulesAndRewardTable";
 
 
 
@@ -225,7 +225,8 @@ function Header({ contest }) {
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                                 <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Reward</MDTypography></MDBox>
                                                                 <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>
-                                                                {elem?.payoutType !== "Reward" ? `${elem.payoutPercentage}% of the net P&L` : <RewardTable reward={elem?.rewards} paid={true}/> }                                                                </MDTypography></MDBox>
+                                                                {/* {elem?.payoutType !== "Reward" ? `${elem.payoutPercentage}% of the net P&L` : <RewardTable reward={elem?.rewards} paid={true}/> }    */} <RewardTable data={elem} paid={true}/>
+                                                                </MDTypography></MDBox>
                                                             </MDBox>
                                                         </MDBox>
                                                     </Grid>

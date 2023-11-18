@@ -65,7 +65,13 @@ function Leaderboard({ socket, name, id, data}) {
 
     let myReward;
     if(data?.allData?.payoutType === "Percentage"){
-        myReward = myPnl*data?.allData?.payoutPercentage/100>0?myPnl*data?.allData?.payoutPercentage/100:0 ;
+        let payoutCap;
+        if(data?.allData?.entryFee > 0){
+            payoutCap = data?.allData?.entryFee * data?.allData?.payoutCapPercentage/100;
+        } else{
+            payoutCap = data?.allData?.portfolio * data?.allData?.payoutCapPercentage/100;
+        }
+        myReward = Math.min(payoutCap, myPnl*data?.allData?.payoutPercentage/100>0?myPnl*data?.allData?.payoutPercentage/100:0) ;
     } else{
         const rewards = data?.allData?.rewards;
         for(let elem of rewards){
@@ -78,6 +84,8 @@ function Leaderboard({ socket, name, id, data}) {
             }
         }
     }
+
+    console.log("data?.allData", data?.allData)
 
 
     return (
@@ -213,7 +221,13 @@ function Leaderboard({ socket, name, id, data}) {
 
                                             let myReward;
                                             if(data?.allData?.payoutType === "Percentage"){
-                                                myReward = elem?.npnl * data?.allData?.payoutPercentage/100>0?elem?.npnl * data?.allData?.payoutPercentage/100:0;
+                                                let payoutCap;
+                                                if(data?.allData?.entryFee > 0){
+                                                    payoutCap = data?.allData?.entryFee * data?.allData?.payoutCapPercentage/100;
+                                                } else{
+                                                    payoutCap = data?.allData?.portfolio * data?.allData?.payoutCapPercentage/100;
+                                                }
+                                                myReward = Math.min(payoutCap, elem?.npnl * data?.allData?.payoutPercentage/100>0?elem?.npnl * data?.allData?.payoutPercentage/100:0);
                                             } else{
                                                 const rewards = data?.allData?.rewards;
                                                 for(let subelem of rewards){

@@ -26,7 +26,7 @@ import PopupMessage from "../data/popupMessage";
 import PopupTrading from "../data/popupTrading";
 import { Link } from "react-router-dom";
 import Payment from "../data/payment"
-import RewardTable from "./rewardTable";
+import RewardTable from "./rulesAndRewardTable";
 
 function Header({toggleContest, setToggleContest, contest, socket, setIsInterested, showPay, setShowPay }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -212,9 +212,10 @@ function Header({toggleContest, setToggleContest, contest, socket, setIsInterest
                                                                 <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Reward</MDTypography></MDBox>
                                                                 <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "dark" }}>
                                                                     {/* {elem?.payoutPercentage}% of the net P&L{elem?.payoutCapPercentage?`(upto ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue * (elem?.payoutCapPercentage??10)/100)})`:''} */}
-                                                                    {elem?.payoutType !== "Reward" ? 
+                                                                    {/* {elem?.payoutType !== "Reward" ? 
                                                                     `${elem?.payoutPercentage}% of the net P&L${elem?.payoutCapPercentage?`(upto ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue * (elem?.payoutCapPercentage??10)/100)})`:''}` 
-                                                                    : <RewardTable reward={elem?.rewards} paid={false}/>} 
+                                                                    : <RewardTable reward={elem?.rewards} paid={false}/>}  */}
+                                                                    <RewardTable data={elem} paid={false}/>
                                                                     </MDTypography></MDBox>
                                                             </MDBox>
                                                         </MDBox>

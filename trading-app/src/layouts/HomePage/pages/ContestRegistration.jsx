@@ -673,9 +673,10 @@ const CareerForm = () => {
                       <MDButton 
                         onClick={()=>{confirmOTP()}} 
                         variant="gradient" 
-                        color="warning"
+                        // color="#65BA0D"
                         disabled={creating} 
-                        style={{width:'90%'}}
+                        // style={{width:'90%'}}
+                        style={{backgroundColor:'#65BA0D', color:'white',width:'90%'}}
                       >
                       {creating ? 
                         <CircularProgress size={20} color="inherit" /> : "Register & Apply"

@@ -20,7 +20,6 @@ function Header({ socket, data, myRank }) {
             setIsGetStartedClicked={handleSetIsGetStartedClicked}
             from={dailyContest}
             subscriptionId={contestId}
-            //   setAvailbleMargin={setAvailbleMargin}
             moduleData={data}
             myRank={myRank}
         />;

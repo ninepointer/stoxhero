@@ -115,6 +115,10 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
   }, [])
 
   const handleClickOpen = async () => {
+    if(!ltp){
+      openSuccessSB('error', "This instrument is expired. Please trade on valid instrument.");
+      return
+    }
     if (Math.abs(quantity) === 0) {
       openSuccessSB('error', "You do not have any open position for this symbol.")
       return;
