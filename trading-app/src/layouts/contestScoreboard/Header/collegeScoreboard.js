@@ -60,11 +60,6 @@ const Scoreboard = () => {
     });
   },[])
 
-//   useEffect(() => {
-//     const sorted = [...traders].sort((a, b) => b.earnings - a.earnings);
-//     setSortedTraders(sorted);
-//   }, []);
-
   return (
     <Box mt={0} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
       <MDBox p={1} bgColor='primary' width='100%' display='flex' justifyContent='center' alignItems='center'>
@@ -76,7 +71,7 @@ const Scoreboard = () => {
         </MDBox>
         <MDBox ml={1}>
           <MDTypography color='light' fontWeight='bold'>
-              StoxHero College Contest Scoreboard
+              College TestArena Scoreboard
           </MDTypography>
         </MDBox>
       </MDBox>
@@ -85,70 +80,6 @@ const Scoreboard = () => {
             <CircularProgress color='info'/>
        </MDBox>
        :
-        // <Box sx={{ maxWidth: '100%', width: '100%', margin: '0 auto' }} component={Paper}>   
-        // <Grid container mt={1} display='flex' justifyContent='center'>
-        //     <Grid item xs={12} md={6} lg={4} mt={1} display='flex' justifyContent='left'>
-        //         <MDBox display='flex' justifyContent='center' alignItems='center' width='100%'>
-        //             <MDBox display='flex' justifyContent='center' alignItems='center' width='30%'>
-        //                 <MDTypography fontSize={15} fontWeight='bold' color='dark'>Trader</MDTypography>
-        //             </MDBox>
-        //             <MDBox display='flex' justifyContent='left' alignItems='center' width='70%'>
-        //                 <MDTypography fontSize={15} fontWeight='bold' color='dark'></MDTypography>
-        //             </MDBox>
-        //         </MDBox>
-        //     </Grid>
-        //     <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='center'>
-        //         <MDTypography fontSize={15} fontWeight='bold' color='dark'>Cash Earned</MDTypography>
-        //     </Grid>
-        //     <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='center'>
-        //         <MDTypography fontSize={15} fontWeight='bold' color='dark'>Contest Participated</MDTypography>
-        //     </Grid>
-        //     <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='center'>
-        //         <MDTypography fontSize={15} fontWeight='bold' color='dark'>Contest Won</MDTypography>
-        //     </Grid>
-        //     <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='center'>
-        //         <MDTypography fontSize={15} fontWeight='bold' color='dark'>Strike Rate</MDTypography>
-        //     </Grid>
-            
-        // </Grid>
-        // <Divider style={{ backgroundColor: 'grey' }} />
-
-        // {traders.map((trader, index) => (
-        // <>
-        // <Grid container mb={1} display='flex' justifyContent='center' alignItems='center' sx={{ '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}>
-        //     <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center'>
-        //         <MDBox display='flex' justifyContent='center' alignItems='center' width='100%'>
-        //         <MDBox display='flex' justifyContent='center' alignItems='center' width='30%'>
-        //           <Avatar
-        //               src={trader?.traderProfilePhoto ? trader?.traderProfilePhoto : ''}
-        //               alt={trader?.traderFirstName}
-        //             />
-        //         </MDBox>
-        //         <MDBox display='flex' justifyContent='left' alignItems='center' width='70%'>
-        //             <MDTypography fontSize={15} color='dark'>
-        //                 {convertName(trader.traderFirstName)} {convertName(trader.traderLastName)}
-        //             </MDTypography></MDBox>
-        //         </MDBox>
-        //     </Grid>
-        //     <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
-        //         <MDTypography fontSize={15} color='dark'>
-        //             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(trader?.totalPayout)}
-        //         </MDTypography>
-        //     </Grid>
-        //     <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
-        //         <MDTypography fontSize={15} color='dark'>{trader?.contestParticipated}</MDTypography>
-        //     </Grid>
-        //     <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
-        //         <MDTypography fontSize={15} color='dark'>{trader?.contestWon}</MDTypography>
-        //     </Grid>
-        //     <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
-        //         <MDTypography fontSize={15} color='dark'>{(trader?.strikeRate).toFixed(2)}%</MDTypography>
-        //     </Grid>
-        // </Grid>
-        // <Divider style={{ backgroundColor: 'grey' }} />
-        // </>
-        // ))}
-        // </Box>
         <Box sx={{ maxWidth: '100%', width: '100%', margin: '0 auto' }} component={Paper}>   
         <Grid container mt={1} display='flex' justifyContent='center'>
             <Grid item xs={12} md={6} lg={1} mt={1} display='flex' justifyContent='center'>
@@ -162,16 +93,16 @@ const Scoreboard = () => {
                 </MDBox>
             </Grid>
             <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='center'>
-                <MDTypography fontSize={15} fontWeight='bold' color='dark'>Cash Earned</MDTypography>
+                <MDTypography fontSize={15} fontWeight='bold' color='dark'>Earnings</MDTypography>
             </Grid>
             <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='center'>
-                <MDTypography fontSize={15} fontWeight='bold' color='dark'>Contest Participated</MDTypography>
+                <MDTypography fontSize={15} fontWeight='bold' color='dark'>TestArenas Participated</MDTypography>
             </Grid>
             <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='center'>
-                <MDTypography fontSize={15} fontWeight='bold' color='dark'>Contest Won</MDTypography>
+                <MDTypography fontSize={15} fontWeight='bold' color='dark'>TestArenas Won</MDTypography>
             </Grid>
             <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='center'>
-                <MDTypography fontSize={15} fontWeight='bold' color='dark'>Strike Rate</MDTypography>
+                <MDTypography fontSize={15} fontWeight='bold' color='dark'>StrikeRate</MDTypography>
             </Grid>
             
         </Grid>

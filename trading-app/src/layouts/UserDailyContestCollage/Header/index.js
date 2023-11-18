@@ -30,8 +30,8 @@ function Header({ children }) {
     ReactGA.pageview(window.location.pathname)
     capturePageView()
   }, []);
-  let page = 'College Contest'
-  let pageLink = 'collegecontests'
+  let page = 'CollegeTestArena'
+  let pageLink = 'collegetestarena'
   async function capturePageView(){
         console.log("Page:",page)
         await fetch(`${baseUrl}api/v1/pageview/${page}/${pageLink}`, {
