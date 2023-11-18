@@ -33,7 +33,7 @@ function Header({ socket, data }) {
     const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
     const [watchList, setWatchList] = useState([]);
     const [updatePendingOrder, setUpdatePendingOrder] = useState();
-    const [yesterdayPnl, setyesterdayPnl] = useState();
+    const [yesterdayPnl, setyesterdayPnl] = useState(0);
     const navigate = useNavigate();
     const [rank, setRank] = useState();
     let contestId = data?.data;
