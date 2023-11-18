@@ -19,20 +19,20 @@ function Summary({contestProfile, dataLength}) {
     function TruncatedName(name) {
         const originalName = name;
         const convertedName = originalName
-          .toLowerCase() // Convert the entire name to lowercase
-          .split(' ') // Split the name into words
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
-          .join(' '); // Join the words back together with a space
+          ?.toLowerCase() // Convert the entire name to lowercase
+          ?.split(' ') // Split the name into words
+          ?.map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
+          ?.join(' '); // Join the words back together with a space
       
         // Trim the name to a maximum of 30 characters
-        const truncatedName = convertedName.length > 30 ? convertedName.substring(0, 30) + '...' : convertedName;
+        const truncatedName = convertedName?.length > 30 ? convertedName?.substring(0, 30) + '...' : convertedName;
       
         return truncatedName;
       }
 
       function formattedDate(date) {
 
-        const formattedDate = new Date(date).toLocaleDateString('en-GB', {
+        const formattedDate = new Date(date)?.toLocaleDateString('en-GB', {
             day: 'numeric',
             month: 'short',
             year: '2-digit'
@@ -70,7 +70,7 @@ function Summary({contestProfile, dataLength}) {
                         />
                     </Grid>
                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
-                        <MDTypography ml={1} fontSize={15} fontWeight="bold">{contestProfile[0]?.first_name} {contestProfile[0]?.last_name}</MDTypography>
+                        <MDTypography ml={1} fontSize={15} fontWeight="bold">{TruncatedName(contestProfile[0]?.first_name)} {TruncatedName(contestProfile[0]?.last_name)}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
                         <MDTypography ml={1} fontSize={15} fontWeight="bold">@{contestProfile[0]?.userid}</MDTypography>

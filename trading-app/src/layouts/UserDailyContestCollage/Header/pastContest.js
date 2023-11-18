@@ -306,7 +306,7 @@ function Header({ e }) {
                                                         <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                                 <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                                    Contest Completed
+                                                                    TestArena Completed
                                                                 </MDBox>
                                                             </MDBox>
                                                         </Grid>
@@ -328,36 +328,12 @@ function Header({ e }) {
                                                                 <MDBox color="dark"><MDTypography fontSize={10} style={{ backgroundColor: 'grey', padding: '2px 2px 1px 2px', border: '1px solid grey', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>PORTFOLIO: {"₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnl[0]?.portfolioValue))}</MDTypography></MDBox>
                                                             </MDBox>
                                                         </Grid>
-    
-                                                        {/* <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                                                        <MDBox display='flex' justifyContent='center' sx={{ width: '100%' }}>
-                                                            <ProgressBar progress={progressBar} />
-                                                        </MDBox>
-                                                    </Grid> */}
-    
-                                                        {/* <Grid item xs={12} md={12} lg={12} display="flex" mt={1} mb={1} justifyContent="space-between" alignItems="center" alignContent="center">
-                                                        {particularContestTime[0]?.value > 0 ?
-                                                            <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                                <HiUserGroup color='black' /><MDBox color="dark" style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.interestedUsers?.length} PEOPLE HAVE SHOWN INTEREST IN THIS CONTEST AND {elem?.maxParticipants - elem?.participants?.length} SEATS GRABBED</MDBox>
-                                                            </MDBox>
-                                                             :
-                                                             particularContestTime[0]?.value <= 0 &&
-                                                             <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                                 <HiUserGroup color='black' /><MDBox color="dark" style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.maxParticipants - elem?.participants?.length} SEATS UP FOR GRAB</MDBox>
-                                                             </MDBox>} 
-                                                    </Grid> */}
-    
+        
                                                         <Grid item mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignItems='center'>
                                                             <MDBox display='flex' justifyContent='space-between' flexDirection='row' width='100%'>
     
     
                                                                 <MDBox display='flex' justifyContent='flex-start' width='50%'>
-                                                                    {/* {particularContestTime[0]?.value > 0 &&
-                                                            <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} isInterestedState={isInterested} elem={elem} data={`Thanks for showing interest in ${elem.contestName} contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} />
-                                                            } */}
-                                                                    {/* {checkIsInterested &&
-                                                                <MDTypography color='info' fontWeight='bold' fontSize={13} mt={.5}>Thanks for expressing your interest.</MDTypography>
-                                                            } */}
                                                                 </MDBox>
     
                                                                 <MDBox mt={1} display='flex' justifyContent='flex-end' width='50%'>
@@ -366,19 +342,10 @@ function Header({ e }) {
                                                                         color='warning'
                                                                         size='small'
                                                                         component={Link}
-                                                                        // disabled={timeDifference > 0}
-                                                                        // to={{
-                                                                        //     pathname: `/completedcontests/${elem.contestName}`,
-                                                                        // }}
-                                                                        // state={{ data: elem._id }}
-    
                                                                         onClick={()=>{handleNavigate(elem?._id, elem?.contestName)}}
-    
-                                                                    // onClick={() => { participateUserToContest(elem) }}
                                                                     >
                                                                         <MDTypography color='warning' fontWeight='bold' fontSize={10}>VIEW ORDERS</MDTypography>
                                                                     </MDButton>
-                                                                    {/* <DailyContestOrders elem={elem} /> */}
                                                                 </MDBox>
                                                             </MDBox>
                                                         </Grid>

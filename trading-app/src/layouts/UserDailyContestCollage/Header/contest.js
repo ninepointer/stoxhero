@@ -89,7 +89,7 @@ export default function LabTabs() {
                                         <RemoveRedEyeIcon/>
                                     </MDBox>
                                     <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
-                                        Live Contests
+                                        Open TestArenas
                                     </MDBox>
                                 </MDBox>
                             </MDButton>
@@ -103,7 +103,7 @@ export default function LabTabs() {
                                         <RemoveRedEyeIcon/>
                                     </MDBox>
                                     <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
-                                        Upcoming Contests
+                                        Upcoming TestArenas
                                     </MDBox>
                                 </MDBox>
                             </MDButton>
@@ -117,7 +117,7 @@ export default function LabTabs() {
                                         <RemoveRedEyeIcon/>
                                     </MDBox>
                                     <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
-                                        Completed Contests
+                                        Completed TestArenas
                                     </MDBox>
                                 </MDBox>
                             </MDButton>
@@ -131,7 +131,7 @@ export default function LabTabs() {
                                         <SportsScoreIcon/>
                                     </MDBox>
                                     <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
-                                        College Leaderboard
+                                        TestArenas Leaderboard
                                     </MDBox>
                                 </MDBox>
                             </MDButton>

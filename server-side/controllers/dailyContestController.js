@@ -4798,6 +4798,8 @@ exports.getTopContestWeeklyPortfolio = async (req, res) => {
   startOfWeek.setDate(now.getUTCDate() - now.getUTCDay());
   const endOfWeek = new Date(startOfWeek);
   endOfWeek.setDate(startOfWeek.getUTCDate() + 6); // Add remaining days in the week
+  let startDate = startOfWeek;
+  let endDate = endOfWeek;
   // console.log(startOfWeek,endOfWeek)
   try {
       const pipeline = 
@@ -4812,8 +4814,8 @@ exports.getTopContestWeeklyPortfolio = async (req, res) => {
             contestStatus: "Completed",
             payoutStatus: "Completed",
             contestStartTime: {
-              $gte: startOfWeek,
-              $lte: endOfWeek,
+              $gte: startDate,
+              $lte: endDate,
             },
             "participants.rank": {$ne : null},
           },
@@ -4906,14 +4908,22 @@ exports.getTopContestWeeklyPortfolio = async (req, res) => {
         },
       ]
 
-      const weeklyContestPerformers = await Contest.aggregate(pipeline);
-      // console.log(weeklyContestPerformers)
+      
+      let weeklyContestPerformers = await Contest.aggregate(pipeline);
+      const weeklyleaderboardlength = weeklyContestPerformers.length
+      
+      if(weeklyleaderboardlength === 0){
+        startDate = startOfWeek.setDate(startOfWeek.getUTCDate() - 7);
+        endDate = endOfWeek.setDate(endOfWeek.getUTCDate() - 7);
+        weeklyContestPerformers = await Contest.aggregate(pipeline)
+      }
+      // console.log(weeklyleaderboardlength,startDate,endDate)
       const response = {
           status: "success",
           message: "Contest Weekly Top Performer Data fetched successfully",
           data: weeklyContestPerformers,
-          startOfWeek: startOfWeek,
-          endOfWeek: endOfWeek,
+          startOfWeek: startDate,
+          endOfWeek: endDate,
       };
       res.status(200).json(response);
   } catch (error) {
@@ -4932,6 +4942,9 @@ exports.getTopContestWeeklyPortfolioFullList = async (req, res) => {
   startOfWeek.setDate(now.getUTCDate() - now.getUTCDay());
   const endOfWeek = new Date(startOfWeek);
   endOfWeek.setDate(startOfWeek.getUTCDate() + 6); // Add remaining days in the week
+  let startDate = startOfWeek;
+  let endDate = endOfWeek;
+  console.log(startOfWeek,endOfWeek)
   try {
       const pipeline = 
       [
@@ -4946,8 +4959,8 @@ exports.getTopContestWeeklyPortfolioFullList = async (req, res) => {
             payoutStatus: "Completed",
             'participants.rank': {$ne : null},
             contestStartTime: {
-              $gte: startOfWeek,
-              $lte: endOfWeek,
+              $gte: startDate,
+              $lte: endDate,
             },
           },
         },
@@ -5002,7 +5015,7 @@ exports.getTopContestWeeklyPortfolioFullList = async (req, res) => {
             contestFor:1,
             entryFee:1,
             first_name: "$user.first_name",
-            last_name: "$user.first_name",
+            last_name: "$user.last_name",
             userid: "$user.employeeid",
             profile_picture: "$user.profilePhoto",
             contests: 1,
@@ -5036,7 +5049,14 @@ exports.getTopContestWeeklyPortfolioFullList = async (req, res) => {
         },
       ]
 
-      const weeklyContestPerformers = await Contest.aggregate(pipeline);
+      let weeklyContestPerformers = await Contest.aggregate(pipeline);
+      const weeklyleaderboardlength = weeklyContestPerformers.length
+      
+      if(weeklyleaderboardlength === 0){
+        startDate = startOfWeek.setDate(startOfWeek.getUTCDate() - 7);
+        endDate = endOfWeek.setDate(endOfWeek.getUTCDate() - 7);
+        weeklyContestPerformers = await Contest.aggregate(pipeline)
+      }
 
       const response = {
           status: "success",

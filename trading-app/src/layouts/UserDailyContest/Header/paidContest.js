@@ -43,7 +43,7 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
     const [isInterestedState, setIsInterestedState] = useState(initialInterestedCounts);
 
     const handleCopy = async (id) => {
-        let text = 'https://stoxhero.com/contest'
+        let text = 'https://stoxhero.com/testarena'
         const textarea = document.createElement('textarea');
         textarea.value = text;
         document.body.appendChild(textarea);
@@ -249,7 +249,7 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
 
                                                             <MDBox display="flex" justifyContent="space-between">
                                                                 <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                                    <HiUserGroup color="#DBB670" /><MDBox color={"#DBB670"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{isInterestedState[elem?._id]?.count} PEOPLE HAVE SHOWN INTEREST IN THIS CONTEST</MDBox>
+                                                                    <HiUserGroup color="#DBB670" /><MDBox color={"#DBB670"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{isInterestedState[elem?._id]?.count} PEOPLE HAVE SHOWN INTEREST IN THIS TestArena</MDBox>
                                                                 </MDBox>
                                                                 <MDBox color="light" fontSize={10}>
                                                                     <MDBox color={"#DBB670"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>SPOTS LEFT: {elem?.maxParticipants - elem?.participants?.length}</MDBox>
@@ -268,7 +268,7 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
 
                                                             <MDBox display='flex' justifyContent='flex-start' width='50%'>
                                                                 {(particularContestTime[0]?.value > 0 && !checkIsInterested) &&
-                                                                    <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} isInterestedState={isInterestedState} setIsInterestedState={setIsInterestedState} elem={elem} data={`Thanks for showing interest in ${elem.contestName} contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} />
+                                                                    <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} isInterestedState={isInterestedState} setIsInterestedState={setIsInterestedState} elem={elem} data={`Thanks for showing interest in ${elem.contestName} contest. You will be notified 10 mins before the TestArena starts on your WhatsApp Number.`} />
                                                                 }
                                                                 {checkIsInterested &&
                                                                     <MDTypography color='info' fontWeight='bold' fontSize={13} mt={.5}>Thanks for expressing your interest.</MDTypography>
