@@ -53,9 +53,6 @@ function ContestResultPage () {
 
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-    // useEffect(()=>{
-    //     console.log("contestId in use effect 2nd")
-    // })
     useEffect(() => {
 
         console.log("contestId in use effect", contestId)
