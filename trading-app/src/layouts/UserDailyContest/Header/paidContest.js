@@ -25,7 +25,7 @@ import RewardTable from "./rulesAndRewardTable";
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 
 function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, socket, setIsInterested }) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
 

@@ -409,6 +409,7 @@ async function singleProcess() {
     app.use('/api/v1/notifications', require("./routes/notification/notificationRoutes"));
     app.use('/api/v1/coupons', require("./routes/coupon/couponRoutes"));
     app.use('/api/v1/blogs', require("./routes/blog/blogRoutes"));
+    app.use('/api/v1/learningmodule', require("./routes/learningModule/learningModuleRoutes"));
     app.use('/api/v1/alltradeview', require("./routes/viewRoutes/allTradesViewRoute"));
 
 
