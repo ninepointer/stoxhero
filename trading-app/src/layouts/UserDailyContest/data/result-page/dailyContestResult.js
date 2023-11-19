@@ -254,7 +254,7 @@ function ContestResultPage () {
                                                                 <Divider style={{ backgroundColor: 'white' }} />
                                                                 <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
                                                                     <Grid item xs={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
-                                                                        <MDTypography fontSize={20} color='light' fontWeight='bold'>Reward: {(myReward) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(myReward)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-myReward))}</MDTypography>
+                                                                        <MDTypography fontSize={20} color='light' fontWeight='bold'>Reward: {(myReward) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(myReward)) : "₹" + "0.00"}</MDTypography>
                                                                     </Grid>
                                                                 </Grid>
                                                             </Grid>
