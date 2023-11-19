@@ -18,12 +18,16 @@ import ContestCard from '../data/contestCard'
 import MessagePopUp from '../../../MessagePopup';
 import ReactGA from "react-ga"
 import TopContestPortfolios from '../data/topContestPortfolios'
+import TestZoneChampions from '../data/testZoneChampions'
+import PracticeAndPrepare from '../data/practiceAndPrepare'
 
 
 export default function Dashboard() {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   let [carouselData, setCarouselData] = useState([]);
   let [topPerformerData, setTopPerformerData] = useState([]);
+  let [lastPaidContests, setLastPaidContests] = useState([]);
+  let [lastContestDate, setLastContestDate] = useState([]);
   let [startOfWeek, setStartOfWeek] = useState([]);
   let [endOfWeek, setEndOfWeek] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -131,14 +135,24 @@ export default function Dashboard() {
         "Access-Control-Allow-Credentials": true,
       },
     });
-    Promise.all([call1, call2, call3, call4])
-      .then(([api1Response, api1Response1, api1Response2, api1Response3]) => {
+    let call5 = axios.get(`${baseUrl}api/v1/dailycontest/lastpaidcontestchampions`, {
+      withCredentials: true,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Credentials": true,
+      },
+    });
+    Promise.all([call1, call2, call3, call4, call5])
+      .then(([api1Response, api1Response1, api1Response2, api1Response3, api1Response4]) => {
         setCarouselData(api1Response.data.data);
         setTradingData(api1Response1.data.data);
         setPosts(api1Response2.data.data);
         setTopPerformerData(api1Response3?.data?.data);
         setStartOfWeek(api1Response3?.data?.startOfWeek);
         setEndOfWeek(api1Response3?.data?.endOfWeek);
+        setLastPaidContests(api1Response4?.data?.data);
+        setLastContestDate(api1Response4?.data?.date);
         setIsLoading(false);
       })
       .catch((error) => {
@@ -251,6 +265,40 @@ export default function Dashboard() {
               
               <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
                 <TopContestPortfolios topPerformer={topPerformerData} startOfWeek={startOfWeek} endOfWeek={endOfWeek}/>
+                </MDBox>
+                :
+                <MDBox mt={5} mb={5} display='flex' justifyContent='center' style={{borderRadius: 5 }}>
+                  <CircularProgress color="info" />
+                </MDBox>
+              }
+            
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={0.75} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignItems='start' flexDirection='row'>
+          <Grid item xs={12} md={12} lg={12} mt={1}>
+            
+              {!isLoading ? 
+              
+              <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
+                <PracticeAndPrepare/>
+                </MDBox>
+                :
+                <MDBox mt={5} mb={5} display='flex' justifyContent='center' style={{borderRadius: 5 }}>
+                  <CircularProgress color="info" />
+                </MDBox>
+              }
+            
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={0.75} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignItems='start' flexDirection='row'>
+          <Grid item xs={12} md={12} lg={12} mt={1}>
+            
+              {!isLoading ? 
+              
+              <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
+                <TestZoneChampions lastPaidContests={lastPaidContests} lastContestDate={lastContestDate}/>
                 </MDBox>
                 :
                 <MDBox mt={5} mb={5} display='flex' justifyContent='center' style={{borderRadius: 5 }}>

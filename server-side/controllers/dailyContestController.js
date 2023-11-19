@@ -5181,126 +5181,164 @@ exports.getUserContestProfile = async (req, res) => {
   }
 };
 
-// exports.getTopContestWeeklyPortfolio = async (req, res) => {
-//   const { id } = req.params;
-//   try {
-//       const pipeline = 
-//       [
-//         {
-//           $unwind: {
-//             path: "$participants",
-//           },
-//         },
-//         {
-//           $match: {
-//             contestStatus: "Completed",
-//             payoutStatus: "Completed",
-//             'participants.userId': new ObjectId(id),
-//             'participants.rank': {$ne : null}
-//           },
-//         },
-//         {
-//           $group: {
-//             _id: {
-//               participants: "$participants.userId",
-//             },
-//             payout: {
-//               $sum: {
-//                 $ifNull: ["$participants.payout", 0],
-//               },
-//             },
-//             tds: {
-//               $sum: {
-//                 $ifNull: ["$participants.tdsAmount", 0],
-//               },
-//             },
-//             contests: {
-//               $sum: 1,
-//             },
-//             contestsWon: {
-//               $sum: {
-//                 $cond: [
-//                   {
-//                     $gt: ["$participants.payout", 0],
-//                   },
-//                   1,
-//                   0,
-//                 ],
-//               },
-//             },
-//           },
-//         },
-//         {
-//           $lookup: {
-//             from: "user-personal-details",
-//             localField: "_id.participants",
-//             foreignField: "_id",
-//             as: "user",
-//           },
-//         },
-//         {
-//           $unwind: {
-//             path: "$user",
-//           },
-//         },
-//         {
-//           $project: {
-//             _id: 0,
-//             trader: "$user._id",
-//             contestFor:1,
-//             entryFee:1,
-//             first_name: "$user.first_name",
-//             profile_picture: "$user.profilePhoto",
-//             contests: 1,
-//             payout: 1,
-//             tds: 1,
-//             contestsWon: 1,
-//           },
-//         },
-//         {
-//           $addFields: {
-//             totalPayout: {
-//               $add: ["$payout", "$tds"],
-//             },
-//             strikeRate: {
-//               $multiply: [
-//                 {
-//                   $divide: [
-//                     "$contestsWon",
-//                     "$contests",
-//                   ],
-//                 },
-//                 100,
-//               ],
-//             },
-//           },
-//         },
-//         {
-//           $sort: {
-//             totalPayout: -1,
-//           },
-//         },
-//         {
-//           $limit: 6,
-//         },
-//       ]
+exports.getLastPaidContestChampions = async (req, res) => {
+  let now = new Date();
+  let date = new Date(now);
+  date.setUTCHours(0, 0, 0, 0);
+  try {
+      const pipeline = 
+      [
+        {
+          $match: {
+            contestStartTime: {
+              $gte: date,
+              $lte: new Date(date.getTime() + 24 * 60 * 60 * 1000),
+            },
+            entryFee: {
+              $gt: 0,
+            },
+          },
+        },
+        {
+          $unwind: "$participants",
+        },
+        {
+          $sort: {
+            entryFee: 1,
+          },
+        },
+        {
+          $sort: {
+            "participants.npnl": -1,
+          },
+        },
+        {
+          $group: {
+            _id: "$_id",
+            contestName: {
+              $first: "$contestName",
+            },
+            contestStartTime: {
+              $first: "$contestStartTime",
+            },
+            participants: {
+              $push: "$participants",
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            // replace with the actual collection name
+            localField: "participants.userId",
+            // replace with the actual field in participants that corresponds to user-personal-details
+            foreignField: "_id",
+            // replace with the actual field in user-personal-details
+            as: "participantDetails",
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            contestName: 1,
+            contestDate: {
+              $substr: [
+                {
+                  $add: ["$contestStartTime", 19800000],
+                },
+                0,
+                10,
+              ],
+            },
+            topParticipants: {
+              $slice: [
+                {
+                  $map: {
+                    input: "$participants",
+                    as: "participant",
+                    in: {
+                      $mergeObjects: [
+                        {
+                          $arrayElemAt: [
+                            {
+                              $filter: {
+                                input:
+                                  "$participantDetails",
+                                as: "detail",
+                                cond: {
+                                  $eq: [
+                                    "$$participant.userId",
+                                    "$$detail._id",
+                                  ],
+                                },
+                              },
+                            },
+                            0,
+                          ],
+                        },
+                        {
+                          first_name:
+                            "$$participant.first_name",
+                          last_name:
+                            "$$participant.last_name",
+                          profilePhoto:
+                            "$$participant.profilePhoto",
+                          employeeid:
+                            "$$participant.employeeid",
+                          email: "$$participant.email",
+                          payout:
+                            {$ifNull: ["$$participant.payout",0]},
+                          tds: {$ifNull : ["$$participant.tdsAmount",0]},
+                          rank: {$ifNull : ["$$participant.rank",0]},
+                        },
+                      ],
+                    },
+                  },
+                },
+                3,
+              ],
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            contestName: 1,
+            contestDate: 1,
+            topParticipants: {
+              first_name: 1,
+              last_name: 1,
+              payout: 1,
+              tds: 1,
+              rank: 1,
+              profilePhoto: 1,
+              employeeid: 1,
+            },
+          },
+        },
+        {
+          $limit: 4,
+        },
+      ]
 
-//       const weeklyContestPerformers = await Contest.aggregate(pipeline);
+      let lastPaidContests = await Contest.aggregate(pipeline);
+      if(lastPaidContests.length === 0){
+        date = date.setDate(date.getUTCDate() - 1);
+        lastPaidContests = await Contest.aggregate(pipeline);
+      }
+      const response = {
+          status: "success",
+          message: "Last Paid Contest Data fetched successfully",
+          data: lastPaidContests,
+          date: date,
+      };
 
-//       const response = {
-//           status: "success",
-//           message: "Contest Weekly Top Performer Data fetched successfully",
-//           data: weeklyContestPerformers,
-//           startOfWeek: startOfWeek,
-//           endOfWeek: endOfWeek,
-//       };
-
-//       res.status(200).json(response);
-//   } catch (error) {
-//       res.status(500).json({
-//           status: "error",
-//           message: "Something went wrong",
-//           error: error.message,
-//       });
-//   }
-// };
+      res.status(200).json(response);
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Something went wrong",
+          error: error.message,
+      });
+  }
+};

@@ -212,7 +212,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
     } else {
       setMessege({
         ...messege,
-        thanksMessege: `Thanks for the payment of ₹${(Number(amount-discountAmount - bonusRedemption) + actualAmount).toFixed(2)} , your seat is booked for the contest - ${elem.contestName}, please click on "Start Trading" once the contest starts.`
+        thanksMessege: `Thanks for the payment of ₹${(Number(amount-discountAmount - bonusRedemption) + actualAmount).toFixed(2)} , your seat is booked for the TestZone - ${elem.contestName}, please click on "Start Trading" once the TestZone starts.`
       })
     }
   }

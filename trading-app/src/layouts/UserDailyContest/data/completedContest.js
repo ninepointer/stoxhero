@@ -50,7 +50,7 @@ export default function LabTabs() {
                 <>
                 <Grid container xs={12} md={12} lg={12} display='flex'>
                     <Grid item xs={12} md={6} lg={12}>
-                        <MDTypography color="light" fontSize={15} ml={0.5} fontWeight="bold">Paid TestArena(s)</MDTypography>
+                        <MDTypography color="light" fontSize={15} ml={0.5} fontWeight="bold">Paid TestZone(s)</MDTypography>
                         <PaidContest contest={contest} />
                     </Grid>
 
@@ -58,7 +58,7 @@ export default function LabTabs() {
 
                     <Grid item xs={12} md={6} lg={12}>
                         <MDBox style={{ minWidth: '100%' }}>
-                            <MDTypography color="light" fontSize={15} ml={0.5} fontWeight="bold">Free TestArena(s)</MDTypography>
+                            <MDTypography color="light" fontSize={15} ml={0.5} fontWeight="bold">Free TestZone(s)</MDTypography>
                             <FreeContest contest={contest} />
                         </MDBox>
                     </Grid>

@@ -29,7 +29,7 @@ export default function Dashboard() {
     ReactGA.pageview(window.location.pathname)
     capturePageView()
   }, []);
-  let page = 'ArenaProfile'
+  let page = 'ZoneProfile'
   let pageLink = window.location.pathname
   async function capturePageView(){
         await fetch(`${baseUrl}api/v1/pageview/${page}${pageLink}`, {

@@ -89,13 +89,13 @@ function Summary({contestProfile, dataLength}) {
                             
                             <Grid item xs={12} md={12} lg={3} display='flex' justifyContent='center'>
                             <MDTypography color='light' fontSize={15} fontWeight='bold'>
-                                Arenas Played 
+                                Zones Played 
                             </MDTypography>
                             </Grid>
 
                             <Grid item xs={12} md={12} lg={3} display='flex' justifyContent='center'>
                             <MDTypography color='light' fontSize={15} fontWeight='bold'>
-                                Arenas Won 
+                                Zones Won 
                             </MDTypography>
                             </Grid>
 
@@ -150,7 +150,7 @@ function Summary({contestProfile, dataLength}) {
                             
                                 <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
                                 <MDTypography color='light' fontSize={15} fontWeight='bold'>
-                                {contestProfile[0]?.first_name} {contestProfile[0]?.last_name}'s Recent TestArena Performance 
+                                {contestProfile[0]?.first_name} {contestProfile[0]?.last_name}'s Recent TestZone Performance 
                                 </MDTypography>
                                 </Grid>
 
