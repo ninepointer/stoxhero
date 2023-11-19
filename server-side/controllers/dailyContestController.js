@@ -970,7 +970,9 @@ exports.getCompletedContests = async (req, res) => {
             allowedUsers: 0,
             potentialParticipants: 0,
             contestSharedBy: 0
-        }).sort({ contestStartTime: -1 })
+        })
+        .populate('portfolio', 'portfolioName _id portfolioValue')
+        .sort({ contestStartTime: -1 })
 
         res.status(200).json({
             status: "success",
