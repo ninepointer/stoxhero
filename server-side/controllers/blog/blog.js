@@ -111,17 +111,45 @@ exports.uploadToS3 = async(req, res, next) => {
  
 
 
+// exports.createBlog = async (req, res) => {
+    
+//     try {
+//         const {blogTitle, content, author, tags} = req.body;
+//         const thumbnailImage = (req).uploadUrl;
+//         console.log(req.body)
+//         console.log(thumbnailImage)
+//         if(!blogTitle)return res.status(400).json({status: 'error', message: 'Enter all mandatory fields.'})
+//         const blog = await Blog.create({
+//             blogTitle, content, author, tags,
+//             createdBy: req.user._id, lastModifiedBy: req.user._id, thumbnailImage
+//         });
+
+//         res.status(201).json({
+//             status: 'success',
+//             message: "Blog created successfully",
+//             data: blog
+//         });
+//     } catch (error) {
+//         console.log(error);
+//         res.status(500).json({
+//             status: 'error',
+//             message: "Something went wrong",
+//             error: error.message
+//         });
+//     }
+// };
+
 exports.createBlog = async (req, res) => {
     
     try {
-        const {blogTitle, content, author, tags} = req.body;
-        const thumbnailImage = (req).uploadUrl;
+        const {blogTitle, content, author, tags, value} = req.body;
+        // const thumbnailImage = (req).uploadUrl;
         console.log(req.body)
-        console.log(thumbnailImage)
-        if(!blogTitle)return res.status(400).json({status: 'error', message: 'Enter all mandatory fields.'})
+        // console.log(thumbnailImage)
+        // if(!blogTitle)return res.status(400).json({status: 'error', message: 'Enter all mandatory fields.'})
         const blog = await Blog.create({
-            blogTitle, content, author, tags,
-            createdBy: req.user._id, lastModifiedBy: req.user._id, thumbnailImage
+            value,
+            createdBy: req.user._id, lastModifiedBy: req.user._id
         });
 
         res.status(201).json({
@@ -266,8 +294,16 @@ exports.getBlog = async (req, res) => {
 
 exports.getPublishedBlogs = async (req, res) => {
     try {
-        const publishedBlogs = await Blog.find({ status: 'Published' }).populate('lastModifiedBy', 'first_name last_name')
-        .populate('blogContent', 'header, serialNumber, content, image, youtubeVideoCode')
+        // const publishedBlogs = await Blog.find({ status: 'Published' }).populate('lastModifiedBy', 'first_name last_name')
+        // .populate('blogContent', 'header, serialNumber, content, image, youtubeVideoCode')
+        
+        // res.status(200).json({
+        //     status: 'success',
+        //     data: publishedBlogs,
+        //     count: publishedBlogs.length
+        // });
+
+        const publishedBlogs = await Blog.find().populate('lastModifiedBy', 'first_name last_name')
         
         res.status(200).json({
             status: 'success',
