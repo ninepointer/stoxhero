@@ -23,6 +23,7 @@
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^6.7.0",
     "fast-two-sms": "^3.0.0",
+    "firebase-admin": "^11.11.0",
     "flatted": "^3.2.9",
     "helmet": "^6.0.1",
     "howler": "^2.2.3",
