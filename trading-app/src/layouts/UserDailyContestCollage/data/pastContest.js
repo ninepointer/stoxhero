@@ -36,7 +36,7 @@ import {Link} from "react-router-dom"
 
 
 function PastContest() {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [contest, setContest] = useState([]);
     const [isInterested, setIsInterested] = useState(false);
     const [timeDifference, setTimeDifference] = useState([]);
@@ -298,7 +298,7 @@ function PastContest() {
                                                             component={Link}
                                                             // disabled={timeDifference > 0}
                                                             to={{
-                                                                pathname: `/contestorders/${elem.contestName}`,
+                                                                pathname: `/testzoneorders/${elem.contestName}`,
                                                             }}
                                                             state={{data: elem._id}}
                                                             // onClick={() => { participateUserToContest(elem) }}

@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 
 function OnGoingContests() {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [contest, setContest] = useState([]);
     const [ongoing, setOngoing] = useState([]);
     const [upcoming, setUpcoming] = useState([]);
@@ -106,7 +106,7 @@ function OnGoingContests() {
                             <MDBox display='flex' mb={1} justifyContent='space-between' alignItems='center'>
                                 <Grid container alignItems='center'>
                                     <Grid item xs={12} md={6} lg={12}>
-                                        <MDTypography ml={1} fontSize={15} fontWeight="bold" >{(ongoing.length !==0) ? "Ongoing Contests" : (upcoming.length !== 0) ? "Upcoming Contests" : "Contests"}</MDTypography>
+                                        <MDTypography ml={1} fontSize={15} fontWeight="bold" >{(ongoing.length !==0) ? "Ongoing TestZones" : (upcoming.length !== 0) ? "Upcoming TestZones" : "TestZones"}</MDTypography>
                                     </Grid>
                                 </Grid>
                             </MDBox>
@@ -128,11 +128,11 @@ function OnGoingContests() {
                                                                             fontWeight="bold"
                                                                             style={{ color: isContestFull ? "white" : 'white', animation: isContestFull ? '' : 'blinking .8s infinite' }}
                                                                         >
-                                                                            {isContestFull ? "Contest Full" : "Limited Seats - Join Now!"}
+                                                                            {isContestFull ? "TestZone Full" : "Limited Seats - Join Now!"}
                                                                         </MDTypography>
                                                                     </Grid>
                                                                     <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                                        <MDButton size='small' onClick={() => { navigate(`/contests`) }}><MDTypography fontSize={10} fontWeight='bold'>Join Now</MDTypography></MDButton>
+                                                                        <MDButton size='small' onClick={() => { navigate(`/testzone`) }}><MDTypography fontSize={10} fontWeight='bold'>Join Now</MDTypography></MDButton>
                                                                     </Grid>
                                                                 </Grid>
                                                                 <style>
@@ -206,7 +206,7 @@ function OnGoingContests() {
                                                             fontWeight="bold"
                                                             style={{ textAlign: 'center' }}
                                                         >
-                                                            There are currently no active contests on the platform. Please stay tuned for updates.
+                                                            There are currently no active TestZones on the platform. Please stay tuned for updates.
                                                         </MDTypography>
                                                     </Grid>
                                                 </Grid>

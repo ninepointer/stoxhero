@@ -15,7 +15,7 @@ import moment from 'moment';
 const CompletedContest = ({ type }) => {
   const [registeredUsersCount, setRegisteredUsersCount] = useState(0);
   const [completedContests, setCompletedContests] = useState([]);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(() => {
     let call1 = axios.get(`${baseUrl}api/v1/dailycontest/draft`, {
@@ -63,7 +63,7 @@ const CompletedContest = ({ type }) => {
                       <Grid container>
 
                         <Grid item xs={12} md={6} lg={12} mt={1} mb={1} display="flex" justifyContent="left" >
-                          <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>Contest Name: {e?.contestName}</MDTypography>
+                          <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>TestZone Name: {e?.contestName}</MDTypography>
                         </Grid>
 
                         <Grid item xs={12} md={6} lg={12} display={"flex"} justifyContent={"center"} alignItems={"center"}>
@@ -76,7 +76,7 @@ const CompletedContest = ({ type }) => {
                           </Grid>
 
                           <Grid item xs={12} md={6} lg={2.4} mb={1} display="flex" justifyContent="center">
-                            <MDTypography fontSize={9} style={{ color: "black" }}>Contest Status: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.contestStatus ? e?.contestStatus : 'Status not available'}</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "black" }}>Status: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.contestStatus ? e?.contestStatus : 'Status not available'}</span></MDTypography>
                           </Grid>
 
                           <Grid item xs={12} md={6} lg={2.4} mb={1} display="flex" justifyContent="center">
@@ -108,11 +108,11 @@ const CompletedContest = ({ type }) => {
                           </Grid>
 
                           <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
-                            <MDTypography fontSize={9} style={{ color: "black" }}>Contest Type: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.entryFee === 0 ? "Free" : 'Paid'}</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "black" }}>TestZone Type: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.entryFee === 0 ? "Free" : 'Paid'}</span></MDTypography>
                           </Grid>
 
                           <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
-                            <MDTypography fontSize={9} style={{ color: "black" }}>Contest For: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.contestFor}</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "black" }}>TestZone For: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.contestFor}</span></MDTypography>
                           </Grid>
 
                         </Grid>
@@ -129,7 +129,7 @@ const CompletedContest = ({ type }) => {
         :
         <Grid container spacing={1} xs={12} md={6} lg={12}>
           <Grid item mt={2} xs={6} md={3} lg={12} display="flex" justifyContent="center">
-            <MDTypography color="light">No Draft Contest(s)</MDTypography>
+            <MDTypography color="light">No Draft TestZone(s)</MDTypography>
           </Grid>
         </Grid>
       }

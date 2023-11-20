@@ -78,7 +78,7 @@ const CareerForm = () => {
   })
 
   const [file, setFile] = useState(null);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const getContestDetails = async (name, date) => {
     try {
@@ -162,7 +162,7 @@ const CareerForm = () => {
     if(res.status === 201){ 
         setSubmitted(true);
         setCreating(false);
-        return openSuccessSB("Contest Registration Completed",data.message,"SUCCESS");  
+        return openSuccessSB("TestZone Registration Completed",data.message,"SUCCESS");  
     }else{
         return openSuccessSB("Error",data.message,"Error")
     }
@@ -352,7 +352,7 @@ const CareerForm = () => {
                 <Grid container xs={12} md={12} xl={12} pt={1} pb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'90%'}}>
                   <Grid item xs={12} md={12} xl={12} pl={2} pr={2} mb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                     <MDTypography fontSize={15} fontColor='dark' fontWeight='bold' sx={{ textAlign: 'center' }}>
-                      🚀 Announcing {contest ? contest?.contestName : contestDetails?.contestName} College Trading Contest 🚀
+                      🚀 Announcing {contest ? contest?.contestName : contestDetails?.contestName} College Trading TestZone 🚀
                     </MDTypography>
                   </Grid>
 
@@ -388,7 +388,7 @@ const CareerForm = () => {
 
                   <Grid item xs={12} md={12} xl={12} pl={2} pr={2} mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                     <MDTypography fontSize={12} fontColor='dark' fontWeight='bold' sx={{ textAlign: 'center' }}>
-                        Rewards will be based on your net Profit and Loss during the contest period. So, bigger the P&L, the bigger you can earn!
+                        Rewards will be based on your net Profit and Loss during the TestZone period. So, bigger the P&L, the bigger you can earn!
                     </MDTypography>
                   </Grid>       
                   
@@ -690,7 +690,7 @@ const CareerForm = () => {
                 :
                 <Grid container pt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'90%'}}>
                   <Grid item pt={2} pl={5} pr={5} xs={12} md={12} lg={12} display="flex" justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{textAlign: 'center'}}>
-                    <MDTypography>Thank you for showing interest in our College Contest.</MDTypography>
+                    <MDTypography>Thank you for showing interest in our College TestZone.</MDTypography>
                     <MDTypography mt={1} fontSize={20} fontWeight='bold'>Explore the world of Virtual Options Trading and real cash earning by downloading StoxHero App!</MDTypography>
                   </Grid>
 

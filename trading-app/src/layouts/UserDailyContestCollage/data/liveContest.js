@@ -18,7 +18,7 @@ import { socketContext } from '../../../socketContext';
 export default function LabTabs({setClicked}) {
     // const [clicked, setClicked] = useState('live')
     const [isLoading, setIsLoading] = useState(false); 
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     // let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
     const socket = useContext(socketContext);
     let [showPay, setShowPay] = useState(true);
@@ -106,7 +106,7 @@ export default function LabTabs({setClicked}) {
                 <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
                     <img src={WinnerImage} width={50} height={50}/>
                     <MDTypography color="light" fontSize={15} mb={1}>No Live TestZone(s)</MDTypography>
-                    <MDButton color="info" size='small' fontSize={10} onClick={()=>{setClicked("upcoming")}} >Check Upcoming Contests</MDButton>
+                    <MDButton color="info" size='small' fontSize={10} onClick={()=>{setClicked("upcoming")}} >Check Upcoming TestZones</MDButton>
                 </MDBox>
                 }
             </>

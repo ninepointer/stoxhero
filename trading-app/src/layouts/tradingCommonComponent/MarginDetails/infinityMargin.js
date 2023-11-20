@@ -13,7 +13,7 @@ const InfinityMarginGrid = ({setyesterdayData, contestId}) => {
   // console.log("rendering : infinitymargin")
   //console.log("rendering in userPosition: marginGrid")
   const { netPnl, totalRunningLots, pnlData } = useContext(NetPnlContext);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [fundDetail, setFundDetail] = useState({});
   // const [yesterdayData, setyesterdayData] = useState({});
   const {render} = useContext(renderContext);

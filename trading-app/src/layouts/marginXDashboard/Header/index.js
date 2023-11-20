@@ -20,7 +20,7 @@ export default function LabTabs({socket}) {
   const [isLoading,setIsLoading] = useState(false);
   const [allMarginXUsers, setAllMarginXUsers] = useState();
   const [completedMarginX,setCompletedMarginX] = useState();
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 
   useEffect(()=>{
@@ -91,11 +91,11 @@ export default function LabTabs({socket}) {
                         </Grid>
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Active Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Active TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Completed Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Completed TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
 
                     </Grid>
@@ -127,11 +127,11 @@ export default function LabTabs({socket}) {
                         </Grid>
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Active Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Active TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Completed Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Completed TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
 
                     </Grid>

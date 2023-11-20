@@ -14,7 +14,7 @@ import moment from 'moment';
 
 export default function PaidContestData() {
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let [skip, setSkip] = useState(0);
   const limitSetting = 10;
   const [count, setCount] = useState(0);
@@ -103,7 +103,7 @@ export default function PaidContestData() {
       <Grid container spacing={1}>
         <Grid container p={1} style={{ border: '1px solid white', borderRadius: 5 }}>
           <Grid item xs={12} md={2} lg={2.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-            <MDTypography color="light" fontSize={10} fontWeight="bold">Contest Name</MDTypography>
+            <MDTypography color="light" fontSize={10} fontWeight="bold">TestZone Name</MDTypography>
           </Grid>
           <Grid item xs={12} md={2} lg={1.25} display="flex" justifyContent="center" alignContent="center" alignItems="center">
             <MDTypography color="light" fontSize={10} fontWeight="bold">Start Time</MDTypography>
@@ -202,7 +202,7 @@ export default function PaidContestData() {
         {!isLoading && count !== 0 &&
           <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
             <MDButton variant='outlined' color='warning' disabled={(skip + limitSetting) / limitSetting === 1 ? true : false} size="small" onClick={backHandler}>Back</MDButton>
-            <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Contests: {!count ? 0 : count} | Page {(skip + limitSetting) / limitSetting} of {!count ? 1 : Math.ceil(count / limitSetting)}</MDTypography>
+            <MDTypography color="light" fontSize={15} fontWeight='bold'>Total TestZones: {!count ? 0 : count} | Page {(skip + limitSetting) / limitSetting} of {!count ? 1 : Math.ceil(count / limitSetting)}</MDTypography>
             <MDButton variant='outlined' color='warning' disabled={Math.ceil(count / limitSetting) === (skip + limitSetting) / limitSetting ? true : !count ? true : false} size="small" onClick={nextHandler}>Next</MDButton>
           </MDBox>
         }

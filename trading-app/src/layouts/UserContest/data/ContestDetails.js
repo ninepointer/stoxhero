@@ -31,7 +31,7 @@ function ContestDetails () {
     const referralCode = getDetails.userDetails.myReferralCode
 
     console.log("Location: ",location)
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const nevigate = useNavigate();
   
     
@@ -205,7 +205,7 @@ function ContestDetails () {
 
   👉 Join the community of ace traders and learn real-time options trading
 
-  👉 Participate in free options trading contests to sharpen your trading skills
+  👉 Participate in free options trading TestZones to sharpen your trading skills
 
   📲 Visit https://www.stoxhero.com/signup?referral=${referralCode}                          
 

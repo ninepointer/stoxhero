@@ -62,7 +62,7 @@ function Index() {
   // console.log('id hai', contest);
   // const [applicationCount, setApplicationCount] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [isLoading, setIsLoading] = useState(contest ? true : false)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -248,9 +248,9 @@ function Index() {
     console.log(data, res.status);
     if (res.status !== 201) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
-      openErrorSB("Contest not created", data?.message)
+      openErrorSB("TestZone not created", data?.message)
     } else {
-      openSuccessSB("Contest Created", data?.message)
+      openSuccessSB("TestZone Created", data?.message)
       setNewObjectId(data?.data?._id)
       setIsSubmitted(true)
       setDailyContest(data?.data);

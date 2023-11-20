@@ -20,7 +20,7 @@ function TradeViewTenX() {
   const location = useLocation();
   let [id,setId]  = useState(location?.state?.batchId);
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const getDetails = useContext(userContext);
   // const location = useLocation();
   const socket = useContext(socketContext);

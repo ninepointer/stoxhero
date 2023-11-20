@@ -16,7 +16,7 @@ import { useLocation, Link } from "react-router-dom";
 
 export default function DailyContestOrders() {
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [isLoading,setIsLoading] = useState(false);
   const [data, setData] = useState([]);
   const location = useLocation();
@@ -54,10 +54,10 @@ export default function DailyContestOrders() {
           m={1}
           component={Link}
           to={{
-              pathname: `/contests`,
+              pathname: `/testzone`,
           }}
       >
-          <MDTypography color='warning' fontWeight='bold' fontSize={10}>BACK TO COMPLETED CONTEST</MDTypography>
+          <MDTypography color='warning' fontWeight='bold' fontSize={10}>Back</MDTypography>
       </MDButton>
       <Grid container mt={1}>
         <Grid container p={1} style={{border:'1px solid white', borderRadius:5}}>

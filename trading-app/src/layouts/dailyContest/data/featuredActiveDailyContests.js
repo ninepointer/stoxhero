@@ -18,7 +18,7 @@ const limitSetting = 10;
 const [count, setCount] = useState(0);
 const [isLoading,setIsLoading] = useState(false);
 const [upcomingContest,setUpcomingContest] = useState([]);
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
     let call1 = axios.get(`${baseUrl}api/v1/dailycontest/contests/featuredupcoming?skip=${skip}&limit=${limitSetting}`,{
@@ -122,7 +122,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                             <Grid container>
 
                               <Grid item xs={12} md={6} lg={12} mt={1} mb={1} display="flex" justifyContent="left" >
-                                <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>Contest Name: {e?.contestName}</MDTypography>
+                                <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>TestZone Name: {e?.contestName}</MDTypography>
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={12} display={"flex"} justifyContent={"center"} alignItems={"center"}>
@@ -171,11 +171,11 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                                 </Grid>
 
                                 <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>Contest Type: <span style={{ fontSize: 9, fontWeight: 700 }}>{e?.entryFee === 0 ? "Free" : 'Paid'}</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{ color: "black" }}>TestZone Type: <span style={{ fontSize: 9, fontWeight: 700 }}>{e?.entryFee === 0 ? "Free" : 'Paid'}</span></MDTypography>
                                 </Grid>
 
                                 <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>Contest For: <span style={{ fontSize: 9, fontWeight: 700 }}>{e?.contestFor}</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{ color: "black" }}>TestZone For: <span style={{ fontSize: 9, fontWeight: 700 }}>{e?.contestFor}</span></MDTypography>
                                 </Grid>
 
                               </Grid>

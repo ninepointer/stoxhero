@@ -20,7 +20,7 @@ export default function LabTabs({socket}) {
   const [isLoading,setIsLoading] = useState(false);
   const [dailyAllContestUsers, setDailyAllContestUsers] = useState();
   const [completedContest,setCompletedContest] = useState();
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 
   useEffect(()=>{
@@ -29,7 +29,7 @@ export default function LabTabs({socket}) {
     .then((res) => {
         console.log("Inside Payout chart data");
         setCompletedContest(res.data.data);
-        console.log("Completed Contest Res:",res.data.data)
+        // console.log("Completed TestZone Res:",res.data.data)
     }).catch((err) => {
         setIsLoading(false)
         return new Error(err);
@@ -60,7 +60,7 @@ export default function LabTabs({socket}) {
   return (
     <MDBox bgColor="dark" mt={2} mb={1} p={2} borderRadius={10} display='flex' flexDirection='column' justifyContent='center' alignItems='center' minHeight='auto' maxWidth='100%'>
         <MDBox display='flex' justifyContent='left'>
-            <MDTypography ml={1} mb={1} color='light' fontSize={18} fontWeight='bold'>Contest Dashboard</MDTypography>
+            <MDTypography ml={1} mb={1} color='light' fontSize={18} fontWeight='bold'>TestZone Dashboard</MDTypography>
         </MDBox>
 
         <Grid container xs={12} md={12} lg={12}>
@@ -90,21 +90,21 @@ export default function LabTabs({socket}) {
                     <Grid container xs={12} md={12} lg={12}>
 
                         <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Position(Company)</MDTypography>
+                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>TestZone Position(Company)</MDTypography>
                         </Grid>
 
                         <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
                             <MDBox display="flex" flexDirection="column">
-                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check all trader's contest position here!</MDTypography>
+                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check all trader's TestZone position here!</MDTypography>
                             </MDBox>
                         </Grid>
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Active Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Active TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Completed Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Completed TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
 
                     </Grid>

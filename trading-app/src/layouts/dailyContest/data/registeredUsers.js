@@ -12,7 +12,7 @@ import { Switch } from '@mui/material';
 
 export default function RegisteredUsers({ dailyContest }) {
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let [updateSwitch, setUpdateSwitch] = React.useState(true);
   // const [dailyContest,setDailyContest] = useState([]);
   const [userContestDetail, setUserContestDetails] = useState([]);
@@ -23,9 +23,9 @@ export default function RegisteredUsers({ dailyContest }) {
     { Header: "Name", accessor: "fullname", align: "center" },
     { Header: "Email", accessor: "email", align: "center" },
     { Header: "Mobile", accessor: "mobile", align: "center" },
-    { Header: "Total Contest", accessor: "totalContest", width: "12.5%", align: "center" },
-    { Header: "Paid Contest", accessor: "paidContest", width: "12.5%", align: "center" },
-    { Header: "Free Contest", accessor: "freeContest", width: "12.5%", align: "center" },
+    { Header: "Total TestZone", accessor: "totalContest", width: "12.5%", align: "center" },
+    { Header: "Paid TestZone", accessor: "paidContest", width: "12.5%", align: "center" },
+    { Header: "Free TestZone", accessor: "freeContest", width: "12.5%", align: "center" },
     { Header: "Trading Day", accessor: "tradingDay", width: "12.5%", align: "center" },
 
     { Header: "Mock/Live", accessor: "mockLive", width: "12.5%", align: "center" },

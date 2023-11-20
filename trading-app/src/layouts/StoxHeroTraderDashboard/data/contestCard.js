@@ -29,7 +29,7 @@ export default function App() {
 }
 
 const Container = () => {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [contest, setContest] = useState([]);
     const [upcoming, setUpcoming] = useState([]);
     const [loading, setIsLoading] = useState(true);
@@ -46,7 +46,7 @@ const Container = () => {
             },
         })
             .then((res) => {
-                console.log("Contest:",res.data.data)
+                // console.log("Contest:",res.data.data)
                 setContest(res.data.data);
                 setTimeout(() => {
                     setIsLoading(false)
@@ -67,7 +67,7 @@ const Container = () => {
                 },
             })
                 .then((res) => {
-                    console.log("Contest:",res.data.data)
+                    // console.log("Contest:",res.data.data)
                     setUpcoming(res.data.data);
                     if(contest.length === 0){
                         setContest(res.data.data)
@@ -117,7 +117,7 @@ const Container = () => {
     }
 
     const handleButtonClick = () => {
-        navigate(`/contests`);
+        navigate(`/testzone`);
     }
   return (
     <div style={{ height: "180px", width: "100%", margin: "0px", overflowX: "auto", whiteSpace: "nowrap" }}>
@@ -140,7 +140,7 @@ const Container = () => {
               >
                 <img
                   src={e?.entryFee !== 0 ? PaidContest : FreeContest}
-                  alt="Contest Image"
+                  alt="TestZone Image"
                   style={{
                     width: '100%',
                     height: '100%',

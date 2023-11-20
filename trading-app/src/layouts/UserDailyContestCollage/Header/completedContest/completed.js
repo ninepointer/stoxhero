@@ -15,7 +15,7 @@ import { Link } from "react-router-dom"
 import axios from "axios";
 
 export default function LabTabs() {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
     const [isLoading, setIsLoading] = useState(false);
     const [contest, setContest] = useState([]);
@@ -64,10 +64,10 @@ export default function LabTabs() {
                         <MDButton bgColor='dark' color={"success"} size='small'
                             component={Link}
                             to={{
-                                pathname: `/collegecontest`,
+                                pathname: `/collegetestzone`,
                             }}
                         >
-                            {"View Upcoming Contest"}
+                            {"View Upcoming TestZones"}
                         </MDButton>
                     </MDBox>
                     {/* <Grid container >
@@ -87,7 +87,7 @@ export default function LabTabs() {
                         <Grid item xs={12} md={6} lg={12}>
                             {paid.length !== 0 &&
                                 <>
-                                    <MDTypography color="light" fontSize={15} ml={0.5} fontWeight="bold">Paid Contest(s)</MDTypography>
+                                    <MDTypography color="light" fontSize={15} ml={0.5} fontWeight="bold">Paid TestZone(s)</MDTypography>
                                     <PaidContest contest={contest} />
                                 </>
                             }
@@ -95,7 +95,7 @@ export default function LabTabs() {
                         <Grid item xs={12} md={6} lg={12}>
                             {free.length !== 0 &&
                                 <>
-                                    <MDTypography color="light" fontSize={15} fontWeight="bold" ml={0.5} mt={1}>Free Contest(s)</MDTypography>
+                                    <MDTypography color="light" fontSize={15} fontWeight="bold" ml={0.5} mt={1}>Free TestZone(s)</MDTypography>
                                     <MDBox style={{ minWidth: '100%' }}>
                                         <FreeContest contest={contest} />
                                     </MDBox>

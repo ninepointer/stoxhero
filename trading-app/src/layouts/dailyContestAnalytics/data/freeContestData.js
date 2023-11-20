@@ -14,7 +14,7 @@ import moment from 'moment';
 
 export default function FreeContestData() {
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let [skip, setSkip] = useState(0);
   let [userskip, setUserSkip] = useState(0);
   const limitSetting = 10;
@@ -272,7 +272,7 @@ export default function FreeContestData() {
         {(!isLoading || !isDataLoading) && count !== 0 &&
           <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
             <MDButton variant='outlined' color='warning' disabled={(skip + limitSetting) / limitSetting === 1 ? true : false} size="small" onClick={backHandler}>Back</MDButton>
-            <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Contests: {!count ? 0 : count} | Page {(skip + limitSetting) / limitSetting} of {!count ? 1 : Math.ceil(count / limitSetting)}</MDTypography>
+            <MDTypography color="light" fontSize={15} fontWeight='bold'>Total TestZones: {!count ? 0 : count} | Page {(skip + limitSetting) / limitSetting} of {!count ? 1 : Math.ceil(count / limitSetting)}</MDTypography>
             <MDButton variant='outlined' color='warning' disabled={Math.ceil(count / limitSetting) === (skip + limitSetting) / limitSetting ? true : !count ? true : false} size="small" onClick={nextHandler}>Next</MDButton>
           </MDBox>
         }
@@ -294,7 +294,7 @@ export default function FreeContestData() {
             <MDTypography color="light" fontSize={10} fontWeight="bold">Mobile</MDTypography>
           </Grid>
           <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-            <MDTypography color="light" fontSize={10} fontWeight="bold">Contest Part.</MDTypography>
+            <MDTypography color="light" fontSize={10} fontWeight="bold">TestZone Part.</MDTypography>
           </Grid>
           <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
             <MDTypography color="light" fontSize={10} fontWeight="bold">Revenue</MDTypography>
@@ -361,7 +361,7 @@ export default function FreeContestData() {
         {(!isLoading || !isUserLoading) && userCount !== 0 &&
           <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
             <MDButton variant='outlined' color='warning' disabled={(userskip + userlimitSetting) / userlimitSetting === 1 ? true : false} size="small" onClick={backHandlerUser}>Back</MDButton>
-            <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Contest Participants: {!userCount ? 0 : userCount} | Page {(userskip + userlimitSetting) / userlimitSetting} of {!userCount ? 1 : Math.ceil(userCount / userlimitSetting)}</MDTypography>
+            <MDTypography color="light" fontSize={15} fontWeight='bold'>Total TestZone Participants: {!userCount ? 0 : userCount} | Page {(userskip + userlimitSetting) / userlimitSetting} of {!userCount ? 1 : Math.ceil(userCount / userlimitSetting)}</MDTypography>
             <MDButton variant='outlined' color='warning' disabled={Math.ceil(userCount / userlimitSetting) === (userskip + userlimitSetting) / userlimitSetting ? true : !userCount ? true : false} size="small" onClick={nextHandlerUser}>Next</MDButton>
           </MDBox>
         }

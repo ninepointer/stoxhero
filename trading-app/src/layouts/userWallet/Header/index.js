@@ -27,7 +27,7 @@ import AddMoney from './addMoneyPopup';
 
 export default function Wallet() {
   let name = 'Prateek Pawan'
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const [photo, setPhoto] = useState(DefaultProfilePic)
   const [myWallet, setMyWallet] = useState([]);
   const [mywithdrawals, setMyWithdrawals] = useState([]);

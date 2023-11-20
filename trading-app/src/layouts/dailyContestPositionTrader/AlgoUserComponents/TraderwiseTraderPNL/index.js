@@ -17,7 +17,7 @@ import { TextField } from "@mui/material";
 
 function TraderwiseTraderPNL({ socket }) {
   const { columns, rows } = data();
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [allTrade, setAllTrade] = useState([]);
   const [marketData, setMarketData] = useState([]);
   const [subscriptions, setSubscription] = useState([]);
@@ -315,7 +315,7 @@ function TraderwiseTraderPNL({ socket }) {
           <MDBox display="flex" justifyContent="space-between" alignItems="center">
             <MDBox>
               <MDTypography variant="h6" gutterBottom p={3}>
-                Daily Contest Trader Position(Trader Side)
+                Daily TestZone Trader Position(Trader Side)
               </MDTypography>
             </MDBox>
 

@@ -19,7 +19,7 @@ import { TextField } from "@mui/material";
 
 function TraderwiseTraderPNL({ socket }) {
   const { columns, rows } = data();
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [allTrade, setAllTrade] = useState([]);
   const [marketData, setMarketData] = useState([]);
   const [subscriptions, setSubscription] = useState([]);
@@ -276,7 +276,7 @@ const switchToMock = async () => {
           <MDBox display="flex" justifyContent="space-between" alignItems="center">
             <MDBox>
               <MDTypography variant="h6" gutterBottom p={3}>
-                Daily Contest Trader Position(Company Side)
+                Daily TestZone Trader Position(Company Side)
               </MDTypography>
             </MDBox>
 
@@ -349,13 +349,13 @@ const switchToMock = async () => {
                   </Grid>
                   <Grid item xs={12} md={12} lg={2}>
                     <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-                      <MDTypography fontSize={11}>Contest Type:&nbsp;</MDTypography>
+                      <MDTypography fontSize={11}>TestZone Type:&nbsp;</MDTypography>
                       <MDTypography fontSize={13} fontWeight="bold" >{(selectedContest?.contestType)}</MDTypography>
                     </MDBox>
                   </Grid>
                   <Grid item xs={12} md={12} lg={2}>
                     <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-                      <MDTypography fontSize={11}>Contest For:&nbsp;</MDTypography>
+                      <MDTypography fontSize={11}>TestZone For:&nbsp;</MDTypography>
                       <MDTypography fontSize={13} fontWeight="bold" >{(selectedContest?.contestFor)}</MDTypography>
                     </MDBox>
                   </Grid>

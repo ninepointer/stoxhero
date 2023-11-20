@@ -23,7 +23,7 @@ import PracticeAndPrepare from '../data/practiceAndPrepare'
 
 
 export default function Dashboard() {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   let [carouselData, setCarouselData] = useState([]);
   let [topPerformerData, setTopPerformerData] = useState([]);
   let [lastPaidContests, setLastPaidContests] = useState([]);
@@ -243,7 +243,7 @@ export default function Dashboard() {
                     >
                       <img
                         src={e?.carouselImage}
-                        alt="Contest Image"
+                        alt="TestZone Image"
                         style={{
                           width: '100%',
                           height: '100%',
