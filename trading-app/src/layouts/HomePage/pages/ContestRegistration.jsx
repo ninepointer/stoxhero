@@ -389,11 +389,7 @@ const CareerForm = () => {
 
                   <Grid item xs={12} md={12} xl={12} pl={2} pr={2} mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                     <MDTypography fontSize={12} fontColor='dark' fontWeight='bold' sx={{ textAlign: 'center' }}>
-<<<<<<< HEAD
                         Rewards will be based on your net Profit and Loss during the TestZone period. So, bigger the P&L, the bigger you can earn!
-=======
-                        Rewards will be based on your net Profit and Loss during the testzone period. So, bigger the P&L, the bigger you can earn!
->>>>>>> 73aff89e8933ab36bef3d56bd822e48a15f4855e
                     </MDTypography>
                   </Grid>       
                   
