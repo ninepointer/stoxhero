@@ -278,7 +278,7 @@ router.patch("/verifyotp", async (req, res) => {
                     referralEarning: referralProgramme.rewardPerReferral,
                     referralCurrency: referralProgramme.currency,
                 }];
-                if(referralProgramme?.referrralSignupBonus?.amount){
+                if(referralProgramme?.referralSignupBonus?.amount){
                     await addSignupBonus(newuser?._id, referralProgramme?.referralSignupBonus?.amount, referralProgramme?.referralSignupBonus?.currency);
                 }
                 await referrerCodeMatch.save({ validateBeforeSave: false });
