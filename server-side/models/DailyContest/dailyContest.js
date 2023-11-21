@@ -14,6 +14,9 @@ const contestSchema = new Schema({
         type:Date,
         required: true
     },
+    contestLiveTime:{
+        type:Date,
+    },
     contestOn:{
         type:String,
         // required:true
