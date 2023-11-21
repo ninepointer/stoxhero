@@ -568,6 +568,20 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
       const workingDays = calculateWorkingDays(intern.batchStartDate, endDate);
       const tradingdays = await tradingDays(userId, intern._id);
       const attendance = ((tradingdays * 100) / (workingDays - holiday.length)).toFixed(2);
+      const userReferrals = await User.find({referredBy: userId}).select('myReferralCode referrerCode joiningDate');
+      let refCount = 0;
+      if(userReferrals?.length>0){
+        for (let subelem of userReferrals) {
+          const joiningDate = moment(subelem?.joining_date);
+        
+          if (joiningDate.isSameOrAfter(moment(moment(intern?.batchStartDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(intern?.batchEndDate)) {
+            refCount += 1;
+          }
+        }
+      } else{
+        refCount = 0;
+      }
+      intern.myReferrals = refCount;
       intern.myAttendance = attendance;
         return res.json({status: 'success', data: intern});    
     }
