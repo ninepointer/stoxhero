@@ -34,9 +34,9 @@ function SwitchWindow(props) {
         // { Header: "Abs.Running Lots", accessor: "absRunningLots", width: "12.5%", align: "center" },
         { Header: "Net P&L", accessor: "netPnl", width: "12.5%", align: "center" },
 
-        { Header: "Total Contest", accessor: "totalContest", width: "12.5%", align: "center" },
-        { Header: "Paid Contest", accessor: "paidContest", width: "12.5%", align: "center" },
-        { Header: "Free Contest", accessor: "freeContest", width: "12.5%", align: "center" },
+        { Header: "Total TestZone", accessor: "totalContest", width: "12.5%", align: "center" },
+        { Header: "Paid TestZone", accessor: "paidContest", width: "12.5%", align: "center" },
+        { Header: "Free TestZone", accessor: "freeContest", width: "12.5%", align: "center" },
         { Header: "Trading Day", accessor: "tradingDay", width: "12.5%", align: "center" },
 
         { Header: "Mock/Live", accessor: "mockLive", width: "12.5%", align: "center" },

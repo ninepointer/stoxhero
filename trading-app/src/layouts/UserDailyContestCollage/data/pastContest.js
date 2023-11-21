@@ -298,7 +298,7 @@ function PastContest() {
                                                             component={Link}
                                                             // disabled={timeDifference > 0}
                                                             to={{
-                                                                pathname: `/contestorders/${elem.contestName}`,
+                                                                pathname: `/testzoneorders/${elem.contestName}`,
                                                             }}
                                                             state={{data: elem._id}}
                                                             // onClick={() => { participateUserToContest(elem) }}

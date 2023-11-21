@@ -74,7 +74,7 @@ exports.editContest = async(req, res, next) => {
 
     await Contest.findByIdAndUpdate(id, filteredBody);
 
-    res.status(200).json({message: 'Successfully edited contest.'});
+    res.status(200).json({message: 'Successfully edited TestZone.'});
 }
 
 exports.updateStatus = async(req, res, next) => {
@@ -89,7 +89,7 @@ exports.updateStatus = async(req, res, next) => {
                 status: status
             }
         })
-        res.status(200).json({message: 'Successfully edited contest.'});
+        res.status(200).json({message: 'Successfully edited TestZone.'});
     } catch (e){
         res.status(500).json({error:"Failed to edit data"});
     }
@@ -116,7 +116,7 @@ exports.joinContest = async(req, res, next) => {
             // console.log("in 2st")
             return res.status(400).json({
                 status: 'error',
-                message: 'The contest has expired. Join an active contest.'
+                message: 'The TestZone has expired. Join an active TestZone.'
             });
         }
 
@@ -125,7 +125,7 @@ exports.joinContest = async(req, res, next) => {
             // console.log("in 2st")
             return res.status(400).json({
                 status: 'error',
-                message: 'Entry for this contest is not started yet. Please wait.'
+                message: 'Entry for this TestZone is not started yet. Please wait.'
             });
         }
 
@@ -134,7 +134,7 @@ exports.joinContest = async(req, res, next) => {
             // console.log("in 2st")
             return res.status(400).json({
                 status: 'error',
-                message: 'Entry is closed for this contest. Please join another contest.'
+                message: 'Entry is closed for this TestZone. Please join another TestZone.'
             });
         }
 
@@ -143,7 +143,7 @@ exports.joinContest = async(req, res, next) => {
             // console.log("in 3st")
             return res.status(400).json({
                 status: 'error',
-                message: 'The contest is full. Join another contest'
+                message: 'The TestZone is full. Join another TestZone.'
             });
         }
 
@@ -152,7 +152,7 @@ exports.joinContest = async(req, res, next) => {
             // console.log("in 4st")
             return res.status(400).json({
               status: 'error',
-              message: 'You have already registered for this contest.'
+              message: 'You have already registered for this TestZone.'
             });
           }
 
@@ -187,7 +187,7 @@ exports.joinContest = async(req, res, next) => {
     
         await user.save({validateBeforeSave: false});
 
-        res.status(200).json({status:'success', message:'Joined contest.'});
+        res.status(200).json({status:'success', message:'Joined TestZone.'});
 
 
     }catch(e){
@@ -213,7 +213,7 @@ exports.getContest = async (req,res,next) => {
         // console.log("contest", contest)
         if (!contest) {
             // console.log("in if of contest")
-          return res.status(200).json({ status: 'success', message: 'Contest not found.', data: {} });
+          return res.status(200).json({ status: 'success', message: 'TestZone not found.', data: {} });
         }
         return res.status(200).json({ status: 'success', message: 'Successful', data: contest });
       } catch (e) {
@@ -228,7 +228,7 @@ exports.myContests = async(req,res,next) => {
         const myContests = await Contest.find({"participants.userId": userId, contestEndDate: {$gte: new Date()}});
 
         if(!myContests){
-            return res.status(404).json({status:'error', message: 'No contests found'});
+            return res.status(404).json({status:'error', message: 'No TestZone found'});
         }
 
         res.status(200).json({status: 'success', data: myContests, results: myContests.length});
@@ -244,7 +244,7 @@ exports.contestHistory = async(req, res, next) => {
     try{
        const myContestHistory = await Contest.find({"participants.userId": userId, contestEndDate: {$lt: new Date()}});
        if(!myContestHistory){
-           return res.status(404).json({status:'error', message: 'No contests found'});
+           return res.status(404).json({status:'error', message: 'No TestZone found'});
        }
    
        res.status(200).json({status: 'success', data: myContestHistory, results: myContestHistory.length});
@@ -261,7 +261,7 @@ exports.myPortfolio = async(req,res,next) => {
         const myContests = await Contest.find({"participants.userId": userId});
 
         if(!myContests){
-            return res.status(404).json({status:'error', message: 'No contests found'});
+            return res.status(404).json({status:'error', message: 'No TestZone found'});
         }
 
         res.status(200).json({status: 'success', data: myContests, results: myContests.length});
@@ -303,7 +303,7 @@ exports.exitContest = async(req,res,next)=>{
             user.contests.splice(indexToRemove, 1);
           }
         await user.save({validateBeforeSave: false});
-        res.status(200).json({status:'success', message:'Exited from the contest'});
+        res.status(200).json({status:'success', message:'Exited from the TestZone'});
     }catch(e){
         console.log(e);
         return res.status(500).json({status:'error', message:'Something went wrong'});

@@ -104,8 +104,8 @@ router.get('/updatepayout', async(req,res) =>{
     if(user.payout && !existingTransaction){
       if(wallet?.transactions?.length == 0 || !existingTransaction){
         wallet.transactions.push({
-            title: 'Contest Credit',
-            description: `Amount credited for contest ${contest.contestName}`,
+            title: 'TestZone Credit',
+            description: `Amount credited for TestZone ${contest.contestName}`,
             transactionDate: new Date(),
             amount: user.payout.toFixed(2),
             transactionId: uuid.v4(),
@@ -306,8 +306,8 @@ router.get('/tenxremove', async(req,res) =>{
   const wallet = await userWallet.findOne({userId: new ObjectId("65213309cc62c86984c48f95")});
 
   wallet.transactions = [...wallet.transactions, {
-    title: 'Contest Credit',
-    description: `Amount credited for contest Muhurat Trading - 12th Nov(6:15 PM)`,
+    title: 'TestZone Credit',
+    description: `Amount credited for TestZone Muhurat Trading - 12th Nov(6:15 PM)`,
     transactionDate: new Date(),
     amount: 700,
     transactionId: uuid.v4(),
@@ -1146,7 +1146,7 @@ router.get("/ltv", async (req, res) => {
                   {
                     $eq: [
                       "$transactions.title",
-                      "Contest Fee",
+                      "TestZone Fee",
                     ],
                   },
                   {

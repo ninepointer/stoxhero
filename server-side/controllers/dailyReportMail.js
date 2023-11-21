@@ -494,61 +494,61 @@ exports.mail = async () => {
                 <th></th>
                 <th>Tenx</th>
                 <th>MarginX</th>
-                <th>Contest</th>
+                <th>TestZone</th>
             </tr>
             <tr>
                 <td>Today</td>
                 <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueToday.toFixed(2))}</td>
                 <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueToday.toFixed(2))}</td>
-                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueToday.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`TestZone Fee`]?.revenueToday.toFixed(2))}</td>
             </tr>
             <tr>
                 <td>Yesterday</td>
                 <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueYesterday.toFixed(2))}</td>
                 <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueYesterday.toFixed(2))}</td>
-                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueYesterday.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`TestZone Fee`]?.revenueYesterday.toFixed(2))}</td>
             </tr>
             <tr>
                 <td>This Week</td>
                 <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueThisWeek.toFixed(2))}</td>
                 <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueThisWeek.toFixed(2))}</td>
-                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueThisWeek.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`TestZone Fee`]?.revenueThisWeek.toFixed(2))}</td>
             </tr>
             <tr>
                 <td>Last Week</td>
                 <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueLastWeek.toFixed(2))}</td>
                 <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueLastWeek.toFixed(2))}</td>
-                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueLastWeek.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`TestZone Fee`]?.revenueLastWeek.toFixed(2))}</td>
             </tr>
             <tr>
                 <td>This Month</td>
                 <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueThisMonth.toFixed(2))}</td>
                 <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueThisMonth.toFixed(2))}</td>
-                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueThisMonth.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`TestZone Fee`]?.revenueThisMonth.toFixed(2))}</td>
             </tr>
             <tr>
                 <td>Last Month</td>
                 <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueLastMonth.toFixed(2))}</td>
                 <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueLastMonth.toFixed(2))}</td>
-                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueLastMonth.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`TestZone Fee`]?.revenueLastMonth.toFixed(2))}</td>
             </tr>
             <tr>
                 <td>This Year</td>
                 <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueThisYear.toFixed(2))}</td>
                 <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueThisYear.toFixed(2))}</td>
-                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueThisYear.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`TestZone Fee`]?.revenueThisYear.toFixed(2))}</td>
             </tr>
             <tr>
                 <td>Last Year</td>
                 <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueLastYear.toFixed(2))}</td>
                 <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueLastYear.toFixed(2))}</td>
-                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueLastYear.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`TestZone Fee`]?.revenueLastYear.toFixed(2))}</td>
             </tr>
             <tr>
                 <td>Total</td>
                 <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.totalRevenue.toFixed(2))}</td>
                 <td>₹${Math.abs(revenue[`MarginX Fee`]?.totalRevenue.toFixed(2))}</td>
-                <td>₹${Math.abs(revenue[`Contest Fee`]?.totalRevenue.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`TestZone Fee`]?.totalRevenue.toFixed(2))}</td>
             </tr>
         </table>
         
@@ -615,7 +615,7 @@ const getOverallRevenue = async () => {
                 $match: {
                     $or: [
                         {
-                            "transactions.title": "Contest Fee",
+                            "transactions.title": "TestZone Fee",
                         },
                         {
                             "transactions.title": "MarginX Fee",
@@ -948,12 +948,12 @@ const createContestFile = async (data) => {
         ].join(',');
     }).join('\n');
     
-    await writeFile('dailyContest_payout.csv', contestHeader.join(',') + '\n' + csvData, 'utf8');
+    await writeFile('dailyTestZone_payout.csv', contestHeader.join(',') + '\n' + csvData, 'utf8');
 
     // Send email with attachment
     const attachment = {
-        filename: 'dailyContest_payout.csv',
-        path: 'dailyContest_payout.csv'
+        filename: 'dailyTestZone_payout.csv',
+        path: 'dailyTestZone_payout.csv'
     };
 
     return attachment;

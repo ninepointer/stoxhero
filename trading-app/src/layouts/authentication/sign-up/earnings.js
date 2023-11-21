@@ -17,34 +17,34 @@ function Example({leaderboard}) {
       }
     var items = [
         {
-            description: `${formatName(leaderboard[0]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[0]?.reward)} in contests so far! 🚀`,
+            description: `${formatName(leaderboard[0]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[0]?.reward)} in TestZone so far! 🚀`,
         },
         {
-            description: `${formatName(leaderboard[1]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[1]?.reward)} in contests so far! 🚀`,
+            description: `${formatName(leaderboard[1]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[1]?.reward)} in TestZone so far! 🚀`,
         },
         {
-            description: `${formatName(leaderboard[2]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[2]?.reward)} in contests so far! 🚀`,
+            description: `${formatName(leaderboard[2]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[2]?.reward)} in TestZone so far! 🚀`,
         },
         {
-            description: `${formatName(leaderboard[3]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[3]?.reward)} in contests so far! 🚀`,
+            description: `${formatName(leaderboard[3]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[3]?.reward)} in TestZone so far! 🚀`,
         },
         {
-            description: `${formatName(leaderboard[4]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[4]?.reward)} in contests so far! 🚀`,
+            description: `${formatName(leaderboard[4]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[4]?.reward)} in TestZone so far! 🚀`,
         },
         {
-            description: `${formatName(leaderboard[5]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[5]?.reward)} in contests so far! 🚀`,
+            description: `${formatName(leaderboard[5]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[5]?.reward)} in TestZone so far! 🚀`,
         },
         {
-            description: `${formatName(leaderboard[6]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[6]?.reward)} in contests so far! 🚀`,
+            description: `${formatName(leaderboard[6]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[6]?.reward)} in TestZone so far! 🚀`,
         },
         {
-            description: `${formatName(leaderboard[7]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[7]?.reward)} in contests so far! 🚀`,
+            description: `${formatName(leaderboard[7]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[7]?.reward)} in TestZone so far! 🚀`,
         },
         {
-            description: `${formatName(leaderboard[8]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[8]?.reward)} in contests so far! 🚀`,
+            description: `${formatName(leaderboard[8]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[8]?.reward)} in TestZone so far! 🚀`,
         },
         {
-            description: `${formatName(leaderboard[9]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[9]?.reward)} in contests so far! 🚀`,
+            description: `${formatName(leaderboard[9]?.first_name)} has earned ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(leaderboard[9]?.reward)} in TestZone so far! 🚀`,
         }
     ];
 

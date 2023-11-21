@@ -162,7 +162,7 @@ const CareerForm = () => {
     if(res.status === 201){ 
         setSubmitted(true);
         setCreating(false);
-        return openSuccessSB("Contest Registration Completed",data.message,"SUCCESS");  
+        return openSuccessSB("TestZone Registration Completed",data.message,"SUCCESS");  
     }else{
         return openSuccessSB("Error",data.message,"Error")
     }
@@ -353,6 +353,7 @@ const CareerForm = () => {
                   <Grid item xs={12} md={12} xl={12} pl={2} pr={2} mb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                     <MDTypography fontSize={15} fontColor='dark' fontWeight='bold' sx={{ textAlign: 'center' }}>
                       🚀 Announcing {contest ? contest?.contestName : contestDetails?.contestName} College Trading TestZone 🚀
+                      🚀 Announcing {contest ? contest?.contestName : contestDetails?.contestName} College Trading TestZone 🚀
                     </MDTypography>
                   </Grid>
 
@@ -388,7 +389,7 @@ const CareerForm = () => {
 
                   <Grid item xs={12} md={12} xl={12} pl={2} pr={2} mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                     <MDTypography fontSize={12} fontColor='dark' fontWeight='bold' sx={{ textAlign: 'center' }}>
-                        Rewards will be based on your net Profit and Loss during the testzone period. So, bigger the P&L, the bigger you can earn!
+                        Rewards will be based on your net Profit and Loss during the TestZone period. So, bigger the P&L, the bigger you can earn!
                     </MDTypography>
                   </Grid>       
                   

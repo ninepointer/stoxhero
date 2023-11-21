@@ -241,7 +241,7 @@ exports.getDailyActiveUsers = async (req, res) => {
 
     const response = {
       status: "success",
-      message: "Contest Scoreboard fetched successfully",
+      message: "TestZone Scoreboard fetched successfully",
       data: Object.values(dateWiseDAUs).splice(Object.values(dateWiseDAUs).length <= 90 ? 0 : Object.values(dateWiseDAUs).length - 90,Object.values(dateWiseDAUs).length),
     };
 
@@ -1483,7 +1483,7 @@ exports.getMonthWiseCummActiveUsers = async (req, res) => {
     // Calculate the month-wise total MAUs and unique users
     // console.log("MonthwiseMAUs:",monthWiseMAUs)
     Object.keys(monthWiseMAUs).forEach(month => {
-      console.log("Month:",month)
+      // console.log("Month:",month)
       // const { virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, uniqueUsers } = monthWiseMAUs[month];
       // console.log("Data:",virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, uniqueUsers)
       // console.log("Data:",virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, uniqueUsers)

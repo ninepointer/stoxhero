@@ -92,7 +92,7 @@ import PaymentStatus from "./layouts/paymentTest/paymentStatus";
 const routes = [
 
   {
-    route: "/completedcontests",
+    route: "/completedtestzone",
     component: <CompletedDailyContest />,
   },
   {
@@ -104,7 +104,7 @@ const routes = [
     component: <TopContestPerformersList />,
   },
   {
-    route: "/completedcollegecontests",
+    route: "/completedcollegetestzone",
     component: <CompletedDailyCollegeContest />,
   },
   {
@@ -116,11 +116,11 @@ const routes = [
     component: <BattleDetails />,
   },
   {
-    route: "/completedcontests/:name",
+    route: "/completedtestzone/:name",
     component: <DailyContestOrder />,
   },
   {
-    route: "/completedcontests/:name/leaderboard",
+    route: "/completedtestzone/:name/leaderboard",
     component: <CompletedContestLeaderboard />,
   },
   {
@@ -132,7 +132,7 @@ const routes = [
     component: <BattleOrder />,
   },
   {
-    route: "/completedcollegecontests/:name",
+    route: "/completedcollegetestzone/:name",
     component: <DailyCollegeContestOrder />,
   },
   {

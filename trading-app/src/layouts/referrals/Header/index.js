@@ -135,9 +135,10 @@ function ReferralHeader({ children }) {
                             href={`https://api.whatsapp.com/send?text=Hey,
                             %0A%0A*AB INDIA SIKHEGA OPTIONS TRADING AUR BANEGA ATMANIRBHAR*
                             %0A%0AJoin me at StoxHero - India's First Options Trading and Investment Platform 🤝 
-                            %0A%0A👉 Get 10,00,000 virtual currency in your account to start option trading using my referral code.
-                            %0A%0A👉 Join the community of ace traders and learn real-time options trading.
-                            %0A%0A👉 Participate in free options trading contests to sharpen your trading skills.
+                            %0A%0A👉 Get INR 100 cash in your StoxHero Wallet once you signup using my referral code.
+                            %0A%0A👉 Join the community of ace traders and learn real-time stock market trading.
+                            %0A%0A👉 Participate in free options trading TestZones to sharpen your trading skills.
+                            %0A%0A📲 Download ths App: https://play.google.com/store/apps/details?id=com.stoxhero.app
                             %0A%0A📲 Visit https://www.stoxhero.com
                             %0A%0AUse my below invitation code 👇 and get virtual currency of ₹10,00,000 in your wallet and start trading.
                             %0A%0AMy Referral Code to join the StoxHero: *${getDetails.userDetails.myReferralCode}*`}

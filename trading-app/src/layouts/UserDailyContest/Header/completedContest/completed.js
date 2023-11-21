@@ -58,10 +58,10 @@ export default function LabTabs() {
                         <MDButton bgColor='dark' color={"success"} size='small'
                             component={Link}
                             to={{
-                                pathname: `/contest`,
+                                pathname: `/testzone`,
                             }}
                         >
-                            {"View Upcoming Contest"}
+                            {"View Upcoming TestZones"}
                         </MDButton>
                     </MDBox>
                     <Grid container >

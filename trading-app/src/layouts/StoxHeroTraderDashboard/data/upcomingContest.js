@@ -109,7 +109,7 @@ function OnGoingContests() {
                             <MDBox display='flex' mb={1} justifyContent='space-between' alignItems='center'>
                                 <Grid container alignItems='center'>
                                     <Grid item xs={12} md={6} lg={12}>
-                                        <MDTypography ml={1} fontSize={15} fontWeight="bold">{contest.length === 0 ? "Ongoing Contests" : upcoming.length === 0 ? "Upcoming Contests" : "Contests"}</MDTypography>
+                                        <MDTypography ml={1} fontSize={15} fontWeight="bold">{contest.length === 0 ? "Ongoing TestZones" : upcoming.length === 0 ? "Upcoming TestZones" : "TestZones"}</MDTypography>
                                     </Grid>
                                 </Grid>
                             </MDBox>
@@ -174,7 +174,7 @@ function OnGoingContests() {
                                                         {/* <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='center' alignItems='center'>
                                                         </Grid> */}
                                                         <Grid item xs={3} md={3} lg={12} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                            <MDButton size='small' onClick={() => { navigate(`/contest`) }}>View</MDButton>
+                                                            <MDButton size='small' onClick={() => { navigate(`/testzone`) }}>View</MDButton>
                                                         </Grid>
                                                     </Grid>
                                                 </MDBox>

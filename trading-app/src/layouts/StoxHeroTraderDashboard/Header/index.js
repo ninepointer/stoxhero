@@ -243,7 +243,7 @@ export default function Dashboard() {
                     >
                       <img
                         src={e?.carouselImage}
-                        alt="Contest Image"
+                        alt="TestZone Image"
                         style={{
                           width: '100%',
                           height: '100%',
