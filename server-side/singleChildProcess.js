@@ -279,15 +279,6 @@ async function singleProcess() {
     //const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
     // const battle = nodeCron.schedule(`56 5 * * *`, processBattles);
 
-    const autotrade = nodeCron.schedule(`21 5 * * *`, async () => {
-        autoCutMainManually();
-        autoCutMainManuallyMock();
-        // changeStatus();
-        // changeMarginXStatus();
-        // changeBattleStatus();
-        // creditAmount();
-    });
-
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
     app.use(express.json({ limit: "20kb" }));
     app.use(require("cookie-parser")());
