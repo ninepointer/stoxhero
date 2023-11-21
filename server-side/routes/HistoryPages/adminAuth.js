@@ -87,6 +87,45 @@ const uuid = require('uuid');
 
 
 
+router.get('/addsignup', async(req,res) =>{
+  const user = await UserDetail.findOne({myReferralCode: "RUL0AALQ"});
+
+  const userList = await UserDetail.find({referredBy: user._id});
+let check = 0
+  for(let elem of userList){
+    const transactionDescription = `Amount credited for as sign up bonus.`;
+  
+    // Check if a transaction with this description already exists
+
+    const wallet = await userWallet.findOne({userId:elem._id});
+    const existingTransaction = wallet?.transactions?.some(transaction => (transaction.description === transactionDescription))
+
+    // console.log("Wallet, Amount, Currency:",wallet, userId, amount, currency)
+    if(!existingTransaction){
+      check += 1
+      console.log(check)
+      try{
+        wallet?.transactions?.push({
+            title: 'Sign up Bonus',
+            description: `Amount credited for as sign up bonus.`,
+            amount: 100,
+            transactionId: uuid.v4(),
+            transactionDate: new Date(),
+            transactionType: "Cash"
+        });
+        await wallet?.save({validateBeforeSave:false});
+        console.log("Saved Wallet:",wallet)
+    }catch(e){
+        console.log(e);
+    }
+    }
+
+  }
+
+
+
+})
+
 router.get('/updatepayout', async(req,res) =>{
   // const arrr = ["", "65213309cc62c86984c48f95"]
   const contest = await DailyContest.findOne({_id: new ObjectId("655668097d89bf3d5dea859c")})
