@@ -8,24 +8,22 @@ import {apiUrl} from "../../constants/constants.js"
 
 function Index() {
   const [value, setValue] = useState('');
-  // const modules
-  const quillRef = useRef(null)
-  const toolbarOptions={
-    toolbar: [
-      [{header: [1,2,3,4,5,6,false]}],
-      [{font: []}],
-      [{size: []}],
-      ["italic", "bold", "underline", "strike", "blockquote"],
-      [
-        {list: "ordered"},
-        {list: "bullet"},
-        {indent: "+1"},
-        {indent: "-1"}
-      ],
-      ["link", "image", "video"]
-    ],
+  // const modules ={
+  //   toolbar: [
+  //     [{header: [1,2,3,4,5,6,false]}],
+  //     [{font: []}],
+  //     [{size: []}],
+  //     ["italic", "bold", "underline", "strike", "blockquote"],
+  //     [
+  //       {list: "ordered"},
+  //       {list: "bullet"},
+  //       {indent: "+1"},
+  //       {indent: "-1"}
+  //     ],
+  //     ["link", "image", "video"]
+  //   ],
 
-  }
+  // }
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -73,17 +71,49 @@ function Index() {
     }
   }
 
-  function imageHandler() {
-    if (!quillRef.current) return
+  // function imageHandler() {
+  //   if (!quillRef.current) return
 
-    const editor = quillRef.current.getEditor()
-    const range = editor.getSelection()
-    const value = prompt("Please enter the image URL")
+  //   const editor = quillRef.current.getEditor()
+  //   const range = editor.getSelection()
+  //   const value = prompt("Please enter the image URL")
 
-    if (value && range) {
-      editor.insertEmbed(range.index, "image", value, "user")
+  //   if (value && range) {
+  //     editor.insertEmbed(range.index, "image", value, "user")
+  //   }
+  // }
+
+  console.log(value)
+
+
+
+  const modules = {
+    toolbar: {
+      container: "#toolbar"
     }
-  }
+  };
+  const formats = [
+    "font",
+    "size",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "color",
+    "background",
+    "script",
+    "header",
+    "blockquote",
+    "code-block",
+    "indent",
+    "list",
+    "direction",
+    "align",
+    "link",
+    "image",
+    "video",
+    "formula"
+  ];
 
   return (
     <>
@@ -96,19 +126,12 @@ function Index() {
 
         <MDBox sx={{height: "250px"}}>
           <ReactQuill
-            forwardedRef={quillRef}
-            theme="snow"
+            // forwardedRef={quillRef}
+            // theme="snow"
             value={value}
             onChange={setValue}
-            modules={{
-              toolbar: {
-                  container: toolbarOptions,
-                  handlers: {
-                      image: imageHandler
-                  }
-              }
-          }}
-            // {modules}
+            modules={modules}
+            formats={formats}
             style={{ height: "250px" }}
           />
         </MDBox>
