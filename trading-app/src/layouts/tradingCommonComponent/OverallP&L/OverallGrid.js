@@ -340,7 +340,12 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
     }
     const payout = Math.min((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100, payoutCap)
     if (moduleData?.allData?.entryFee > 0) {
-      tdsAmount = (payout-moduleData?.allData?.entryFee)*setting[0]?.tdsPercentage/100
+      if((payout-moduleData?.allData?.entryFee) > 0){
+        tdsAmount = (payout-moduleData?.allData?.entryFee)*setting[0]?.tdsPercentage/100
+      } else{
+        tdsAmount = 0;
+      }
+      
     } else {
       tdsAmount = payout*setting[0]?.tdsPercentage/100
     }
