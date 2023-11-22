@@ -85,7 +85,7 @@ const emailService = require("../../utils/emailService")
 const {createUserNotification} = require('../../controllers/notification/notificationController');
 const uuid = require('uuid');
 const Notification = require("../../models/notifications/notification")
-
+const Referrals = require("../../models/campaigns/referralProgram")
 
 router.get('/changeContestToTestzone', async(req,res) =>{
   // const wallet = await userWallet.find();
@@ -343,39 +343,56 @@ router.get('/getPnlInfoData', async(req,res) =>{
 })
 
 router.get('/addsignup', async(req,res) =>{
-  const user = await UserDetail.findOne({myReferralCode: "RUL0AALQ"});
+  // const user = await UserDetail.findOne({myReferralCode: "RUL0AALQ"});
+  const referral = await Referrals.findOne({_id: new ObjectId("654192220068c82a56e717c8")})
+  .populate('users.userId', 'first_name last_name mobile');
 
-  const userList = await UserDetail.find({referredBy: user._id});
-let check = 0
-  for(let elem of userList){
+
+  let arr = [];
+  for(let elem of referral.users){
+    const wallet = await userWallet.findOne({userId:elem.userId});
     const transactionDescription = `Amount credited for as sign up bonus.`;
-  
-    // Check if a transaction with this description already exists
-
-    const wallet = await userWallet.findOne({userId:elem._id});
     const existingTransaction = wallet?.transactions?.some(transaction => (transaction.description === transactionDescription))
-
-    // console.log("Wallet, Amount, Currency:",wallet, userId, amount, currency)
     if(!existingTransaction){
-      check += 1
-      console.log(check)
-      try{
-        wallet?.transactions?.push({
-            title: 'Sign up Bonus',
-            description: `Amount credited for as sign up bonus.`,
-            amount: 100,
-            transactionId: uuid.v4(),
-            transactionDate: new Date(),
-            transactionType: "Cash"
-        });
-        await wallet?.save({validateBeforeSave:false});
-        console.log("Saved Wallet:",wallet)
-    }catch(e){
-        console.log(e);
-    }
-    }
 
+      try {
+        wallet?.transactions?.push({
+          title: 'Sign up Bonus',
+          description: `Amount credited for as sign up bonus.`,
+          amount: 100,
+          transactionId: uuid.v4(),
+          transactionDate: new Date(),
+          transactionType: "Cash"
+        });
+        await wallet?.save({ validateBeforeSave: false });
+        console.log("Saved Wallet:", wallet)
+      } catch (e) {
+        console.log(e);
+      }
+      // console.log(elem.userId);
+      // arr.push({name: elem.userId.first_name+" "+elem.userId.last_name, mobile: elem.userId.mobile})
+    }
   }
+  // return res.send(arr);
+  // 654192220068c82a56e717c8
+  // const userList = await UserDetail.find({referredBy: user._id});
+// let check = 0
+  // for(let elem of userList){
+  //   const transactionDescription = `Amount credited for as sign up bonus.`;
+  
+  //   // Check if a transaction with this description already exists
+
+    // const wallet = await userWallet.findOne({userId:elem._id});
+    // const existingTransaction = wallet?.transactions?.some(transaction => (transaction.description === transactionDescription))
+
+  //   // console.log("Wallet, Amount, Currency:",wallet, userId, amount, currency)
+  //   if(!existingTransaction){
+  //     check += 1
+  //     console.log(check)
+
+  //   }
+
+  // }
 
 
 
