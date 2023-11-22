@@ -228,9 +228,9 @@ const Payment = ({ elem, setShowPay, showPay }) => {
       const res = await axios.post(`${apiUrl}payment/initiate`,{amount:Number((amount-discountAmount-bonusRedemption) *100)+actualAmount*100, redirectTo:window.location.href, paymentFor:'Contest', productId: elem?._id, coupon:verifiedCode, bonusRedemption},{withCredentials: true});
       console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
       window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
-  }catch(e){
-      console.log(e);
-  }
+    }catch(e){
+        console.log(e);
+    }
   }
   const calculateDiscount = (discountType, rewardType, discount, maxDiscount=1000) => {
     if(rewardType =='Discount'){
