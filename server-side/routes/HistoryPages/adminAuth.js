@@ -90,21 +90,29 @@ const Notification = require("../../models/notifications/notification")
 router.get('/updateTenxPnl', async(req,res) =>{
   const tenx = await TenxSubscription.find();
 
-  for(let elem of tenx){
-    for(let subelem of elem.users){
-      if(subelem.expiredOn){
-        console.log(subelem)
+  const promises = tenx.map(async (elem) => {
+    for (let subelem of elem.users) {
+      if (subelem.expiredOn) {
         const pnl = await pnlFunc(subelem.subscribedOn, subelem.expiredOn, subelem.userId, elem._id);
+        // console.log(pnl[0]?.grossPnl, pnl[0]?.npnl, pnl)
         subelem.gpnl = pnl[0]?.grossPnl ? pnl[0]?.grossPnl : 0;
+        console.log(subelem.gpnl)
         subelem.npnl = pnl[0]?.npnl ? pnl[0]?.npnl : 0;
         subelem.brokerage = pnl[0]?.brokerage ? pnl[0]?.brokerage : 0;
         subelem.tradingDays = pnl[0]?.tradingDays ? pnl[0]?.tradingDays : 0;
         subelem.trades = pnl[0]?.trades ? pnl[0]?.trades : 0;
+
+        console.log(subelem.gpnl, subelem.npnl)
+
+        console.log("subelem", subelem);
       }
     }
 
     await elem.save();
-  }
+  });
+
+  // Wait for all promises to resolve before continuing
+  await Promise.all(promises);
 })
 
 const pnlFunc = async(startDate, endDate, userId, id)=>{
