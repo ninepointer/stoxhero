@@ -136,7 +136,7 @@ useEffect(()=>{
     if(res.status === 201){ 
         setSubmitted(true);
         setCreating(false);
-        return openSuccessSB("Contest Registration Completed",data?.info,"SUCCESS");  
+        return openSuccessSB("TestZone Registration Completed",data?.info,"SUCCESS");  
     }else{
         return openSuccessSB("Error",data.info,"Error")
     }
@@ -298,7 +298,7 @@ useEffect(()=>{
                 <Grid container xs={12} md={12} xl={12} pt={1} pb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'90%'}}>
                   <Grid item xs={12} md={12} xl={12} pl={2} pr={2} mb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                     <MDTypography fontSize={15} fontColor='dark' fontWeight='bold' sx={{ textAlign: 'center' }}>
-                      🚀 Announcing {contest ? contest?.contestName : contestDetails?.contestName} Trading Contest 🚀
+                      🚀 Announcing {contest ? contest?.contestName : contestDetails?.contestName} Trading TestZone 🚀
                     </MDTypography>
                   </Grid>
 
@@ -334,7 +334,7 @@ useEffect(()=>{
 
                   <Grid item xs={12} md={12} xl={12} pl={2} pr={2} mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                     <MDTypography fontSize={12} fontColor='dark' fontWeight='bold' sx={{ textAlign: 'center' }}>
-                        Rewards will be based on your rank during the contest period.
+                        Rewards will be based on your rank during the TestZone period.
                     </MDTypography>
                   </Grid>  
 
@@ -486,7 +486,7 @@ useEffect(()=>{
                 :
                 <Grid container pt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'90%'}}>
                   <Grid item pt={2} pl={5} pr={5} xs={12} md={12} lg={12} display="flex" justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{textAlign: 'center'}}>
-                    <MDTypography>Thank you for showing interest in the Contest.</MDTypography>
+                    <MDTypography>Thank you for showing interest in the TestZone.</MDTypography>
                     <MDTypography mt={1} fontSize={20} fontWeight='bold'>Explore the world of Virtual Options Trading and real cash earning by downloading StoxHero App!</MDTypography>
                   </Grid>
 

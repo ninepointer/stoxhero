@@ -125,7 +125,7 @@ const CompletedContest = () => {
                           <Grid container>
 
                             <Grid item xs={12} md={6} lg={12} mt={1} mb={1} display="flex" justifyContent="left" >
-                              <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>Contest Name: {e?.contestName}</MDTypography>
+                              <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>TestZone Name: {e?.contestName}</MDTypography>
                             </Grid>
 
                             <Grid item xs={12} md={6} lg={12} display={"flex"} justifyContent={"center"} alignItems={"center"}>
@@ -174,11 +174,11 @@ const CompletedContest = () => {
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
-                                <MDTypography fontSize={9} style={{ color: "black" }}>Contest Type: <span style={{ fontSize: 9, fontWeight: 700 }}>{e?.entryFee === 0 ? "Free" : 'Paid'}</span></MDTypography>
+                                <MDTypography fontSize={9} style={{ color: "black" }}>TestZone Type: <span style={{ fontSize: 9, fontWeight: 700 }}>{e?.entryFee === 0 ? "Free" : 'Paid'}</span></MDTypography>
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
-                                <MDTypography fontSize={9} style={{ color: "black" }}>Contest For: <span style={{ fontSize: 9, fontWeight: 700 }}>{e?.contestFor}</span></MDTypography>
+                                <MDTypography fontSize={9} style={{ color: "black" }}>TestZone For: <span style={{ fontSize: 9, fontWeight: 700 }}>{e?.contestFor}</span></MDTypography>
                               </Grid>
 
                             </Grid>
@@ -194,7 +194,7 @@ const CompletedContest = () => {
           {!isLoading && count !== 0 &&
           <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
             <MDButton variant='outlined' color='warning' disabled={(skip + limitSetting) / limitSetting === 1 ? true : false} size="small" onClick={backHandler}>Back</MDButton>
-            <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Contests: {!count ? 0 : count} | Page {(skip + limitSetting) / limitSetting} of {!count ? 1 : Math.ceil(count / limitSetting)}</MDTypography>
+            <MDTypography color="light" fontSize={15} fontWeight='bold'>Total TestZones: {!count ? 0 : count} | Page {(skip + limitSetting) / limitSetting} of {!count ? 1 : Math.ceil(count / limitSetting)}</MDTypography>
             <MDButton variant='outlined' color='warning' disabled={Math.ceil(count / limitSetting) === (skip + limitSetting) / limitSetting ? true : !count ? true : false} size="small" onClick={nextHandler}>Next</MDButton>
           </MDBox>
           }
@@ -202,7 +202,7 @@ const CompletedContest = () => {
         :
        <Grid container spacing={1} xs={12} md={6} lg={12}>
         <Grid item mt={2} xs={6} md={3} lg={12} display="flex" justifyContent="center">
-          <MDTypography color="light">No Upcoming Contest(s)</MDTypography>
+          <MDTypography color="light">No Upcoming TestZone(s)</MDTypography>
         </Grid>
        </Grid>
        } 

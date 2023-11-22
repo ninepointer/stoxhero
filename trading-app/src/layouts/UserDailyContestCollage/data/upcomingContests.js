@@ -78,7 +78,7 @@ export default function LabTabs({setClicked}) {
                         {free.length !== 0 &&
                         <>
                             <MDBox>
-                                <MDTypography color="light" fontSize={15} fontWeight="bold" ml={1} mb={0.5} alignItems='center'>Free Contest(s)</MDTypography>
+                                <MDTypography color="light" fontSize={15} fontWeight="bold" ml={1} mb={0.5} alignItems='center'>Free TestZone(s)</MDTypography>
                             </MDBox>
                             <MDBox style={{ minWidth: '100%' }}>
                                 <FreeContest socket={socket} contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay} toggleContest={toggleContest} setToggleContest={setToggleContest}/>
@@ -91,7 +91,7 @@ export default function LabTabs({setClicked}) {
                         {paid.length !== 0 &&
                         <>
                             <MDBox>
-                                <MDTypography color="light" fontSize={15} ml={1} mb={0.5} fontWeight="bold">Paid Contest(s)</MDTypography>
+                                <MDTypography color="light" fontSize={15} ml={1} mb={0.5} fontWeight="bold">Paid TestZone(s)</MDTypography>
                             </MDBox>
                             <MDBox style={{ minWidth: '100%' }}>
                                 <PaidContest socket={socket} contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay} toggleContest={toggleContest} setToggleContest={setToggleContest}/>
@@ -104,8 +104,8 @@ export default function LabTabs({setClicked}) {
             :
             <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
                 <img src={WinnerImage} width={50} height={50}/>
-                <MDTypography color="light" fontSize={15} mb={1}>No Upcoming Contests</MDTypography>
-                <MDButton color="info" size='small' fontSize={10} onClick={()=>{setClicked("live")}} >Check Live Contests</MDButton>
+                <MDTypography color="light" fontSize={15} mb={1}>No Upcoming TestZones</MDTypography>
+                <MDButton color="info" size='small' fontSize={10} onClick={()=>{setClicked("live")}} >Check Live TestZones</MDButton>
             </MDBox>
             }
             </>

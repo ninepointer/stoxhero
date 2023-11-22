@@ -44,25 +44,25 @@ const withdrawalData = {
   
   console.log(withdrawalData);
 
-  const purchaseToday = Math.abs(overallRevenue["Contest Fee"].revenueToday + overallRevenue["Bought TenX Trading Subscription"].revenueToday + overallRevenue["MarginX Fee"].revenueToday + overallRevenue["Battle Fee"].revenueToday)
-  const purchaseYesterday = Math.abs(overallRevenue["Contest Fee"].revenueYesterday + overallRevenue["Bought TenX Trading Subscription"].revenueYesterday + overallRevenue["MarginX Fee"].revenueYesterday + overallRevenue["Battle Fee"].revenueYesterday)
-  const purchaseThisWeek = Math.abs(overallRevenue["Contest Fee"].revenueThisWeek + overallRevenue["Bought TenX Trading Subscription"].revenueThisWeek + overallRevenue["MarginX Fee"].revenueThisWeek + overallRevenue["Battle Fee"].revenueThisWeek)
-  const purchaseLastWeek = Math.abs(overallRevenue["Contest Fee"].revenueLastWeek + overallRevenue["Bought TenX Trading Subscription"].revenueLastWeek + overallRevenue["MarginX Fee"].revenueLastWeek + overallRevenue["Battle Fee"].revenueLastWeek)
-  const purchaseThisMonth = Math.abs(overallRevenue["Contest Fee"].revenueThisMonth + overallRevenue["Bought TenX Trading Subscription"].revenueThisMonth + overallRevenue["MarginX Fee"].revenueThisMonth + overallRevenue["Battle Fee"].revenueThisMonth)
-  const purchaseLastMonth = Math.abs(overallRevenue["Contest Fee"].revenueLastMonth + overallRevenue["Bought TenX Trading Subscription"].revenueLastMonth + overallRevenue["MarginX Fee"].revenueLastMonth + overallRevenue["Battle Fee"].revenueLastMonth)
-  const purchaseThisYear = Math.abs(overallRevenue["Contest Fee"].revenueThisYear + overallRevenue["Bought TenX Trading Subscription"].revenueThisYear + overallRevenue["MarginX Fee"].revenueThisYear + overallRevenue["Battle Fee"].revenueThisYear)
-  const purchaseLastYear = Math.abs(overallRevenue["Contest Fee"].revenueLastYear + overallRevenue["Bought TenX Trading Subscription"].revenueLastYear + overallRevenue["MarginX Fee"].revenueLastYear + overallRevenue["Battle Fee"].revenueLastYear)
-  const totalPurchase = Math.abs(overallRevenue["Contest Fee"].totalRevenue + overallRevenue["Bought TenX Trading Subscription"].totalRevenue + overallRevenue["MarginX Fee"].totalRevenue + overallRevenue["Battle Fee"].totalRevenue)
+  const purchaseToday = Math.abs(overallRevenue["TestZone Fee"].revenueToday + overallRevenue["Bought TenX Trading Subscription"].revenueToday + overallRevenue["MarginX Fee"].revenueToday + overallRevenue["Battle Fee"].revenueToday)
+  const purchaseYesterday = Math.abs(overallRevenue["TestZone Fee"].revenueYesterday + overallRevenue["Bought TenX Trading Subscription"].revenueYesterday + overallRevenue["MarginX Fee"].revenueYesterday + overallRevenue["Battle Fee"].revenueYesterday)
+  const purchaseThisWeek = Math.abs(overallRevenue["TestZone Fee"].revenueThisWeek + overallRevenue["Bought TenX Trading Subscription"].revenueThisWeek + overallRevenue["MarginX Fee"].revenueThisWeek + overallRevenue["Battle Fee"].revenueThisWeek)
+  const purchaseLastWeek = Math.abs(overallRevenue["TestZone Fee"].revenueLastWeek + overallRevenue["Bought TenX Trading Subscription"].revenueLastWeek + overallRevenue["MarginX Fee"].revenueLastWeek + overallRevenue["Battle Fee"].revenueLastWeek)
+  const purchaseThisMonth = Math.abs(overallRevenue["TestZone Fee"].revenueThisMonth + overallRevenue["Bought TenX Trading Subscription"].revenueThisMonth + overallRevenue["MarginX Fee"].revenueThisMonth + overallRevenue["Battle Fee"].revenueThisMonth)
+  const purchaseLastMonth = Math.abs(overallRevenue["TestZone Fee"].revenueLastMonth + overallRevenue["Bought TenX Trading Subscription"].revenueLastMonth + overallRevenue["MarginX Fee"].revenueLastMonth + overallRevenue["Battle Fee"].revenueLastMonth)
+  const purchaseThisYear = Math.abs(overallRevenue["TestZone Fee"].revenueThisYear + overallRevenue["Bought TenX Trading Subscription"].revenueThisYear + overallRevenue["MarginX Fee"].revenueThisYear + overallRevenue["Battle Fee"].revenueThisYear)
+  const purchaseLastYear = Math.abs(overallRevenue["TestZone Fee"].revenueLastYear + overallRevenue["Bought TenX Trading Subscription"].revenueLastYear + overallRevenue["MarginX Fee"].revenueLastYear + overallRevenue["Battle Fee"].revenueLastYear)
+  const totalPurchase = Math.abs(overallRevenue["TestZone Fee"].totalRevenue + overallRevenue["Bought TenX Trading Subscription"].totalRevenue + overallRevenue["MarginX Fee"].totalRevenue + overallRevenue["Battle Fee"].totalRevenue)
 
-  const contestpurchaseToday = Math.abs(overallRevenue["Contest Fee"].revenueToday)
-  const contestpurchaseYesterday = Math.abs(overallRevenue["Contest Fee"].revenueYesterday)
-  const contestpurchaseThisWeek = Math.abs(overallRevenue["Contest Fee"].revenueThisWeek)
-  const contestpurchaseLastWeek = Math.abs(overallRevenue["Contest Fee"].revenueLastWeek)
-  const contestpurchaseThisMonth = Math.abs(overallRevenue["Contest Fee"].revenueThisMonth)
-  const contestpurchaseLastMonth = Math.abs(overallRevenue["Contest Fee"].revenueLastMonth)
-  const contestpurchaseThisYear = Math.abs(overallRevenue["Contest Fee"].revenueThisYear)
-  const contestpurchaseLastYear = Math.abs(overallRevenue["Contest Fee"].revenueLastYear)
-  const contesttotalPurchase = Math.abs(overallRevenue["Contest Fee"].totalRevenue)
+  const contestpurchaseToday = Math.abs(overallRevenue["TestZone Fee"].revenueToday)
+  const contestpurchaseYesterday = Math.abs(overallRevenue["TestZone Fee"].revenueYesterday)
+  const contestpurchaseThisWeek = Math.abs(overallRevenue["TestZone Fee"].revenueThisWeek)
+  const contestpurchaseLastWeek = Math.abs(overallRevenue["TestZone Fee"].revenueLastWeek)
+  const contestpurchaseThisMonth = Math.abs(overallRevenue["TestZone Fee"].revenueThisMonth)
+  const contestpurchaseLastMonth = Math.abs(overallRevenue["TestZone Fee"].revenueLastMonth)
+  const contestpurchaseThisYear = Math.abs(overallRevenue["TestZone Fee"].revenueThisYear)
+  const contestpurchaseLastYear = Math.abs(overallRevenue["TestZone Fee"].revenueLastYear)
+  const contesttotalPurchase = Math.abs(overallRevenue["TestZone Fee"].totalRevenue)
 
   const marginXpurchaseToday = Math.abs(overallRevenue["MarginX Fee"].revenueToday)
   const marginXpurchaseYesterday = Math.abs(overallRevenue["MarginX Fee"].revenueYesterday)
@@ -202,7 +202,7 @@ const withdrawalData = {
                     <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
                         <MDBox>
                             <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
-                                Contest Fee (Today)
+                                TestZone Fee (Today)
                             </MDTypography>
                         </MDBox>
                         <MDBox>
@@ -222,7 +222,7 @@ const withdrawalData = {
                     <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
                         <MDBox>
                             <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
-                                Contest Fee (Week)
+                                TestZone Fee (Week)
                             </MDTypography>
                         </MDBox>
                         <MDBox>
@@ -242,7 +242,7 @@ const withdrawalData = {
                     <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
                         <MDBox>
                             <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
-                                Contest Fee (Month)
+                                TestZone Fee (Month)
                             </MDTypography>
                         </MDBox>
                         <MDBox>
@@ -262,7 +262,7 @@ const withdrawalData = {
                     <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
                         <MDBox>
                             <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
-                                Contest Fee (Year)
+                                TestZone Fee (Year)
                             </MDTypography>
                         </MDBox>
                         <MDBox>
@@ -282,7 +282,7 @@ const withdrawalData = {
                     <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
                         <MDBox>
                             <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
-                                Total Contest Fee
+                                Total TestZone Fee
                             </MDTypography>
                         </MDBox>
                         <MDBox>
@@ -701,16 +701,16 @@ const withdrawalData = {
                     <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
                         <MDBox>
                             <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
-                                Contest Payout (Today)
+                                TestZone Payout (Today)
                             </MDTypography>
                         </MDBox>
                         <MDBox>
-                            <MDTypography fontSize={13} color={overallRevenue["Contest Credit"]?.revenueToday > overallRevenue["Contest Credit"]?.revenueYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Contest Credit"]?.revenueToday)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Contest Credit"]?.revenueYesterday)}
+                            <MDTypography fontSize={13} color={overallRevenue["TestZone Credit"]?.revenueToday > overallRevenue["TestZone Credit"]?.revenueYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TestZone Credit"]?.revenueToday)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TestZone Credit"]?.revenueYesterday)}
                             </MDTypography>
-                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["Contest Credit"]?.revenueToday > overallRevenue["Contest Credit"]?.revenueYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["Contest Credit"]?.revenueToday-overallRevenue["Contest Credit"]?.revenueYesterday))/(overallRevenue["Contest Credit"]?.revenueYesterday === 0 ? overallRevenue["Contest Credit"]?.revenueToday : overallRevenue["Contest Credit"]?.revenueYesterday)*100).toFixed(0)}%</span>&nbsp;
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallRevenue["Contest Credit"]?.revenueToday > overallRevenue["Contest Credit"]?.revenueYesterday ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["TestZone Credit"]?.revenueToday > overallRevenue["TestZone Credit"]?.revenueYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["TestZone Credit"]?.revenueToday-overallRevenue["TestZone Credit"]?.revenueYesterday))/(overallRevenue["TestZone Credit"]?.revenueYesterday === 0 ? overallRevenue["TestZone Credit"]?.revenueToday : overallRevenue["TestZone Credit"]?.revenueYesterday)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallRevenue["TestZone Credit"]?.revenueToday > overallRevenue["TestZone Credit"]?.revenueYesterday ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from yesterday</span>
                             </MDTypography>
                         </MDBox>
@@ -721,16 +721,16 @@ const withdrawalData = {
                     <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
                         <MDBox>
                             <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
-                                Contest Payout (Week)
+                                TestZone Payout (Week)
                             </MDTypography>
                         </MDBox>
                         <MDBox>
-                            <MDTypography fontSize={13} color={overallRevenue["Contest Credit"]?.revenueThisWeek > overallRevenue["Contest Credit"]?.revenueLastWeek ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Contest Credit"]?.revenueThisWeek)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Contest Credit"]?.revenueLastWeek)}
+                            <MDTypography fontSize={13} color={overallRevenue["TestZone Credit"]?.revenueThisWeek > overallRevenue["TestZone Credit"]?.revenueLastWeek ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TestZone Credit"]?.revenueThisWeek)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TestZone Credit"]?.revenueLastWeek)}
                             </MDTypography>
-                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["Contest Credit"]?.revenueThisWeek > overallRevenue["Contest Credit"]?.revenueLastWeek ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["Contest Credit"]?.revenueThisWeek-overallRevenue["Contest Credit"]?.revenueLastWeek))/(overallRevenue["Contest Credit"]?.revenueLastWeek === 0 ? overallRevenue["Contest Credit"]?.revenueThisWeek : overallRevenue["Contest Credit"]?.revenueLastWeek)*100).toFixed(0)}%</span>&nbsp;
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallRevenue["Contest Credit"]?.revenueThisWeek > overallRevenue["Contest Credit"]?.revenueLastWeek ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["TestZone Credit"]?.revenueThisWeek > overallRevenue["TestZone Credit"]?.revenueLastWeek ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["TestZone Credit"]?.revenueThisWeek-overallRevenue["TestZone Credit"]?.revenueLastWeek))/(overallRevenue["TestZone Credit"]?.revenueLastWeek === 0 ? overallRevenue["TestZone Credit"]?.revenueThisWeek : overallRevenue["TestZone Credit"]?.revenueLastWeek)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallRevenue["TestZone Credit"]?.revenueThisWeek > overallRevenue["TestZone Credit"]?.revenueLastWeek ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from last week</span>
                             </MDTypography>
                         </MDBox>
@@ -741,16 +741,16 @@ const withdrawalData = {
                     <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
                         <MDBox>
                             <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
-                                Contest Payout (Month)
+                                TestZone Payout (Month)
                             </MDTypography>
                         </MDBox>
                         <MDBox>
-                            <MDTypography fontSize={13} color={overallRevenue["Contest Credit"]?.revenueThisMonth > overallRevenue["Contest Credit"]?.revenueLastMonth ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Contest Credit"]?.revenueThisMonth)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Contest Credit"]?.revenueLastMonth)}
+                            <MDTypography fontSize={13} color={overallRevenue["TestZone Credit"]?.revenueThisMonth > overallRevenue["TestZone Credit"]?.revenueLastMonth ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TestZone Credit"]?.revenueThisMonth)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TestZone Credit"]?.revenueLastMonth)}
                             </MDTypography>
-                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["Contest Credit"]?.revenueThisMonth > overallRevenue["Contest Credit"]?.revenueLastMonth ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["Contest Credit"]?.revenueThisMonth-overallRevenue["Contest Credit"]?.revenueLastMonth))/(overallRevenue["Contest Credit"]?.revenueLastMonth === 0 ? overallRevenue["Contest Credit"]?.revenueThisMonth : overallRevenue["Contest Credit"]?.revenueLastMonth)*100).toFixed(0)}%</span>&nbsp;
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallRevenue["Contest Credit"]?.revenueThisMonth > overallRevenue["Contest Credit"]?.revenueLastMonth ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["TestZone Credit"]?.revenueThisMonth > overallRevenue["TestZone Credit"]?.revenueLastMonth ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["TestZone Credit"]?.revenueThisMonth-overallRevenue["TestZone Credit"]?.revenueLastMonth))/(overallRevenue["TestZone Credit"]?.revenueLastMonth === 0 ? overallRevenue["TestZone Credit"]?.revenueThisMonth : overallRevenue["TestZone Credit"]?.revenueLastMonth)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallRevenue["TestZone Credit"]?.revenueThisMonth > overallRevenue["TestZone Credit"]?.revenueLastMonth ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from last month</span>
                             </MDTypography>
                         </MDBox>
@@ -761,16 +761,16 @@ const withdrawalData = {
                     <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
                         <MDBox>
                             <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
-                                Contest Payout (Year)
+                              TestZone Payout (Year)
                             </MDTypography>
                         </MDBox>
                         <MDBox>
-                            <MDTypography fontSize={13} color={overallRevenue["Contest Credit"]?.revenueThisYear > overallRevenue["Contest Credit"]?.revenueLastYear ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Contest Credit"]?.revenueThisYear)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Contest Credit"]?.revenueLastYear)}
+                            <MDTypography fontSize={13} color={overallRevenue["TestZone Credit"]?.revenueThisYear > overallRevenue["TestZone Credit"]?.revenueLastYear ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TestZone Credit"]?.revenueThisYear)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TestZone Credit"]?.revenueLastYear)}
                             </MDTypography>
-                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["Contest Credit"]?.revenueThisYear > overallRevenue["Contest Credit"]?.revenueLastYear ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["Contest Credit"]?.revenueThisYear-overallRevenue["Contest Credit"]?.revenueLastYear))/(overallRevenue["Contest Credit"]?.revenueLastYear === 0 ? overallRevenue["Contest Credit"]?.revenueThisYear : overallRevenue["Contest Credit"]?.revenueLastYear)*100).toFixed(0)}%</span>&nbsp;
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallRevenue["Contest Credit"]?.revenueThisYear > overallRevenue["Contest Credit"]?.revenueLastYear ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["TestZone Credit"]?.revenueThisYear > overallRevenue["TestZone Credit"]?.revenueLastYear ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["TestZone Credit"]?.revenueThisYear-overallRevenue["TestZone Credit"]?.revenueLastYear))/(overallRevenue["TestZone Credit"]?.revenueLastYear === 0 ? overallRevenue["TestZone Credit"]?.revenueThisYear : overallRevenue["TestZone Credit"]?.revenueLastYear)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallRevenue["TestZone Credit"]?.revenueThisYear > overallRevenue["TestZone Credit"]?.revenueLastYear ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from last year</span>
                             </MDTypography>
                         </MDBox>
@@ -781,12 +781,12 @@ const withdrawalData = {
                     <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
                         <MDBox>
                             <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
-                                Total Contest Payout
+                                Total TestZone Payout
                             </MDTypography>
                         </MDBox>
                         <MDBox>
                             <MDTypography fontSize={13} color='success' fontWeight="bold" style={{textAlign:'center'}}>
-                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Contest Credit"]?.totalRevenue)}
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TestZone Credit"]?.totalRevenue)}
                             </MDTypography>
                             <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color='success' fontWeight="bold" style={{textAlign:'center'}}>
                                 {/* <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["Contest Credit"]?.revenueThisYear-overallRevenue["Contest Credit"]?.revenueLastYear))/(overallRevenue["Contest Credit"]?.revenueLastYear === 0 ? overallRevenue["Contest Credit"]?.revenueThisYear : overallRevenue["Contest Credit"]?.revenueLastYear)*100).toFixed(0)}%</span>&nbsp; */}

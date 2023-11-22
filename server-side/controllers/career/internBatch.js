@@ -10,6 +10,8 @@ const TradingHoliday = require('../../models/TradingHolidays/tradingHolidays');
 const fs = require('fs');
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
 const path = require('path');
+const Holiday = require("../../models/TradingHolidays/tradingHolidays");
+const InternTrades = require("../../models/mock-trade/internshipTrade");
 
 exports.createBatch = async(req, res, next)=>{
     // console.log(req.body) // batchID
@@ -513,6 +515,7 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
 
   exports.getCurrentBatch = async(req,res,next) =>{
     // console.log('current');
+   
     const userId = req.user._id;
     const userBatches = await User.findById(userId)
     .populate({
@@ -547,12 +550,91 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     }).select('internshipBatch');
     let internships = userBatches?.internshipBatch?.filter((item)=>item?.career?.listingType === 'Job');
     if(new Date()>=internships[internships.length-1]?.batchStartDate && new Date()<=internships[internships.length-1]?.batchEndDate){
-        return res.json({status: 'success', data: internships[internships.length-1]});    
+      const intern = JSON.parse(JSON.stringify(internships[internships.length-1]));
+      const endDate = new Date();
+
+      const holiday = await Holiday.find({
+        holidayDate: {
+          $gte: intern.batchStartDate,
+          $lte: endDate
+        },
+        $expr: {
+          $and: [
+            { $ne: [{ $dayOfWeek: "$holidayDate" }, 1] }, // 1 represents Sunday
+            { $ne: [{ $dayOfWeek: "$holidayDate" }, 7] }  // 7 represents Saturday
+          ]
+        }
+      });
+      const workingDays = calculateWorkingDays(intern.batchStartDate, endDate);
+      const tradingdays = await tradingDays(userId, intern._id);
+      const attendance = ((tradingdays * 100) / (workingDays - holiday.length)).toFixed(2);
+      intern.myAttendance = attendance;
+        return res.json({status: 'success', data: intern});    
     }
     // console.log("Internship Details:",internships, new Date(), internships[internships.length-1]?.batchStartDate, internships[internships.length-1]?.batchEndDate)
     // console.log("Condition:",new Date()>=internships[internships.length-1]?.batchStartDate && new Date()<=internships[internships.length-1]?.batchEndDate);
     return res.json({status: 'success', data: {}, message:'No active internships'});
   }
+
+  const tradingDays = async (userId, batchId) => {
+    const pipeline =
+      [
+        {
+          $match: {
+            batch: new ObjectId(batchId),
+            trader: new ObjectId(userId),
+            status: "COMPLETE",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              date: {
+                $substr: ["$trade_time", 0, 10],
+              },
+            },
+            count: {
+              $count: {},
+            },
+          },
+        },
+      ]
+  
+    let x = await InternTrades.aggregate(pipeline);
+  
+    return x.length;
+  }
+
+  function calculateWorkingDays(startDate, endDate) {
+    // Convert the input strings to Date objects
+    const start = new Date(startDate);
+    let end = new Date(endDate);
+    end = end.toISOString().split('T')[0];
+    end = new Date(end)
+    end.setDate(end.getDate() + 1);
+  
+    // Check if the start date is after the end date
+    if (start > end) {
+      return 0;
+    }
+  
+    let workingDays = 0;
+    let currentDate = new Date(start);
+  
+    // Iterate over each day between the start and end dates
+    while (currentDate <= end) {
+      // Check if the current day is a weekday (Monday to Friday)
+      if (currentDate.getDay() > 1 && currentDate.getDay() < 7) {
+        workingDays++;
+      }
+  
+      // Move to the next day
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+  
+    return workingDays;
+  }
+  
 
   exports.getWorkshops = async(req,res,next) =>{
     // console.log('current');

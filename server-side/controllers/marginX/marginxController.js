@@ -842,7 +842,7 @@ exports.participateUsers = async (req, res) => {
 
         for (let i = 0; i < marginx.participants?.length; i++) {
             if (marginx.participants[i]?.userId?.toString() === userId?.toString()) {
-                return res.status(404).json({ status: "error", message: "You have already participated in this marginx." });
+                return res.status(404).json({ status: "error", message: "You have already participated in this MarginX." });
             }
         }
 
@@ -1034,7 +1034,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
                     statusCode:400,
                     data:{
                     status: "error",
-                    message:"You have already participated in this marginx",
+                    message:"You have already participated in this MarginX",
                     }
                 };
             }

@@ -165,7 +165,7 @@ return new Promise((resolve, reject) => {
 
   function downloadHelperUser(data) {
     let csvDataFile = [[]]
-    let csvDataDailyPnl = [["#","Full Name", "Joining Date", "Email", "Mobile", "Contest Participated", "Contest Won", "Strike Rate(%)", "Revenue", "Payout", "Days Since Last Contest", "Last Contest Date"]]
+    let csvDataDailyPnl = [["#","Full Name", "Joining Date", "Email", "Mobile", "TestZone Participated", "TestZone Won", "Strike Rate(%)", "Revenue", "Payout", "Days Since Last TestZone", "Last TestZone Date"]]
     if (data) {
       // dates = Object.keys(data)
       let csvpnlData = Object.values(data)
@@ -202,7 +202,7 @@ return new Promise((resolve, reject) => {
     component={Link}
     to='/contestdashboard'
     >
-        Back to Contest Dashboard
+        Back to TestZone Dashboard
     </MDButton>
     
     <MDButton 
@@ -211,7 +211,7 @@ return new Promise((resolve, reject) => {
     size="small"
     onClick={() => { handleDownload(`Daily Contest Data`) }}
     >
-        Download Contest Data
+        Download TestZone Data
     </MDButton>
     
     <MDButton 
@@ -258,10 +258,10 @@ return new Promise((resolve, reject) => {
       <TabContext value={value}>
         <MDBox sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Paid Contest Data" value="1" />
-            <Tab label="Free Contest Data" value="2" />
-            <Tab label="Free College Contest" value="3" />
-            <Tab label="Paid College Contest" value="4" />
+            <Tab label="Paid TestZone Data" value="1" />
+            <Tab label="Free TestZone Data" value="2" />
+            <Tab label="Free College TestZone" value="3" />
+            <Tab label="Paid College TestZone" value="4" />
           </TabList>
         </MDBox>
         <TabPanel value="1">

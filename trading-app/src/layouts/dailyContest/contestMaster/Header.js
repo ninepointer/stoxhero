@@ -45,16 +45,16 @@ export default function LabTabs() {
     component={Link}
     to='/createContestMaster'
     >
-        Create Contest Master
+        Create TestZone Master
     </MDButton>
     </MDBox>
       <TabContext value={value}>
         <MDBox sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Ongoing Contest" value="1" />
-            <Tab label="Upcoming Contest" value="2" />
-            <Tab label="Completed Contest" value="3" />
-            <Tab label="Draft Contest" value="4" />
+            <Tab label="Ongoing TestZone" value="1" />
+            <Tab label="Upcoming TestZone" value="2" />
+            <Tab label="Completed TestZone" value="3" />
+            <Tab label="Draft TestZone" value="4" />
           </TabList>
         </MDBox>
         <TabPanel value="1">

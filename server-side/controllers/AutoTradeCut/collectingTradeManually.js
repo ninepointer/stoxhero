@@ -1364,10 +1364,12 @@ const contestTradeLive = async () => {
           }
         }
       ]);
+      console.log("collectiong", data);
+
       if(data.length ==0){
+        resolve();
         return;
       }
-      // console.log("collectiong", data);
 
       for (let i = 0; i < data.length; i++) {
         let date = new Date();

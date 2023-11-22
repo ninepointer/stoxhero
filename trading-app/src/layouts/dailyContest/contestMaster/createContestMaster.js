@@ -217,9 +217,9 @@ function Index() {
         // console.log(data, res.status);
         if (res.status !== 201) {
             setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
-            openErrorSB("Contest not created", data?.message)
+            openErrorSB("TestZone not created", data?.message)
         } else {
-            openSuccessSB("Contest Created", data?.message)
+            openSuccessSB("TestZone Created", data?.message)
             setNewObjectId(data?.data?._id)
             console.log("New Object Id: ", data?.data?._id, newObjectId)
             setIsSubmitted(true)

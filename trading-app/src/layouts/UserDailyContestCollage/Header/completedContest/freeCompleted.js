@@ -121,11 +121,11 @@ function Header({ contest }) {
         })
             .then((res) => {
                 if (res.data.count > 0) {
-                    navigate(`/completedcollegecontests/${name}`, {
+                    navigate(`/completedcollegetestzone/${name}`, {
                         state: { data: id }
                     });
                 } else {
-                    openSuccessSB("error", "You do not have any trade for this contest.")
+                    openSuccessSB("error", "You do not have any trade for this TestZone.")
                 }
             }).catch((err) => {
                 return new Error(err);
@@ -144,11 +144,11 @@ function Header({ contest }) {
         })
             .then((res) => {
                 if (res.data.count > 0) {
-                    navigate(`/completedcontests/${name}/leaderboard`, {
+                    navigate(`/completedtestzone/${name}/leaderboard`, {
                         state: { data: id }
                     });
                 } else {
-                    openSuccessSB("error", "No leaderboard for this contest.")
+                    openSuccessSB("error", "No leaderboard for this TestZone.")
                 }
             }).catch((err) => {
                 return new Error(err);

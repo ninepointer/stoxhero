@@ -84,8 +84,263 @@ const CareerApplication = require("../../models/Careers/careerApplicationSchema"
 const emailService = require("../../utils/emailService")
 const {createUserNotification} = require('../../controllers/notification/notificationController');
 const uuid = require('uuid');
+const Notification = require("../../models/notifications/notification")
 
 
+router.get('/changeContestToTestzone', async(req,res) =>{
+  // const wallet = await userWallet.find();
+  const notification = await Notification.find();
+  // console.log(wallet.length, notification.length);
+  // for(let elem of wallet){
+  //   for(let subelem of elem.transactions){
+  //     // console.log("wallet")
+  //     if(subelem?.title?.includes("Contest")){
+  //       const newTitle = subelem.title.replace("Contest", "TestZone")
+  //       subelem.title = newTitle
+  //       console.log("subelem", subelem)
+  //     }
+
+  //     if(subelem?.description?.includes("contest")){
+  //       const newDes = subelem.description.replace("contest", "testzone");
+  //       subelem.description = newDes;
+  //     }
+  //   }
+  //   const data = await elem.save();
+  //   // console.log(data)
+  // }
+
+  for(let elem of notification){
+    console.log("notification")
+    if(elem.productCategory === "Contest"){
+      elem.productCategory = "TestZone";
+    }
+    if(elem.title.includes("Contest")){
+      const newTitle = elem.title.replace("Contest", "TestZone")
+      elem.title = newTitle
+    }
+
+    if(elem.description.includes("contest")){
+      const newDes = elem.description.replace("contest", "testzone");
+      elem.description = newDes;
+    }
+    const data = await elem.save();
+    console.log(data)
+  }
+})
+
+router.get('/getProductInfoData', async(req,res) =>{
+  // const arrr = ["", "65213309cc62c86984c48f95"]
+  const users = await UserDetail.aggregate([
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          referredBy: new ObjectId(
+            "655b519138e04eb74a3f493e"
+          ),
+          joining_date: {
+            $gte: new Date("2023-11-21"),
+          },
+        },
+    },
+    {
+      $lookup: {
+        from: "paper-trades",
+        localField: "_id",
+        foreignField: "trader",
+        as: "virtual",
+      },
+    },
+    {
+      $lookup:
+
+        {
+          from: "dailycontest-mock-users",
+          localField: "_id",
+          foreignField: "trader",
+          as: "dailycontest",
+        },
+    },
+    {
+      $lookup:
+
+        {
+          from: "tenx-trade-users",
+          localField: "_id",
+          foreignField: "trader",
+          as: "tenx",
+        },
+    },
+    {
+      $lookup:
+
+        {
+          from: "marginx-mock-users",
+          localField: "_id",
+          foreignField: "trader",
+          as: "marginx",
+        },
+    },
+
+    {
+      $project:
+        /**
+         * specifications: The fields to
+         *   include or exclude.
+         */
+        {
+          marginx: {
+            $cond: {
+              if: {
+                $gt: [
+                  {
+                    $size: "$marginx",
+                  },
+                  0,
+                ],
+              },
+              then: true,
+              else: false,
+            },
+          },
+          dailyContest: {
+            $cond: {
+              if: {
+                $gt: [
+                  {
+                    $size: "$dailycontest",
+                  },
+                  0,
+                ],
+              },
+              then: true,
+              else: false,
+            },
+          },
+          virtual: {
+            $cond: {
+              if: {
+                $gt: [
+                  {
+                    $size: "$virtual",
+                  },
+                  0,
+                ],
+              },
+              then: true,
+              else: false,
+            },
+          },
+          tenx: {
+            $cond: {
+              if: {
+                $gt: [
+                  {
+                    $size: "$tenx",
+                  },
+                  0,
+                ],
+              },
+              then: true,
+              else: false,
+            },
+          },
+          first_name: 1,
+          last_name: 1,
+          email: 1,
+          mobile: 1,
+          // dailycontest: 1,
+        },
+    },
+  ])
+
+  const contest = await DailyContest.find({contestStartTime: {$gte: new Date("2023-11-21")}})
+
+  console.log(users.length, contest.length)
+  for(let elem of users){
+    if(elem.dailyContest){
+      for(let subelem of contest){
+        for(let sub_subelem of subelem.participants){
+          console.log(sub_subelem.userId)
+          if(sub_subelem.fee > 0 && sub_subelem.userId.toString() === elem._id.toString()){
+            elem.paidContest = true;
+            break;
+          }
+          // else{
+          //   elem.freeContest = true;
+          //   break;
+          // }
+        }
+        if(elem.paidContest){
+          break;
+        }
+      }
+    }
+
+  }
+  
+
+  res.send(users)
+
+
+})
+
+router.get('/getPnlInfoData', async(req,res) =>{
+  // const arrr = ["", "65213309cc62c86984c48f95"]
+  const users = await UserDetail.aggregate([
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          referredBy: new ObjectId(
+            "655b519138e04eb74a3f493e"
+          ),
+          joining_date: {
+            $gte: new Date("2023-11-21"),
+          },
+        },
+    },
+    {
+      $project:
+        /**
+         * specifications: The fields to
+         *   include or exclude.
+         */
+        {
+          first_name: 1,
+          last_name: 1,
+          email: 1,
+          mobile: 1,
+          // dailycontest: 1,
+        },
+    },
+  ])
+
+  const contest = await DailyContest.find({contestStartTime: {$gte: new Date("2023-11-21")}})
+  console.log(users.length, contest.length)
+  for(let elem of users){
+    for(let subelem of contest){
+      for(let sub_subelem of subelem.participants){
+        console.log(sub_subelem.userId)
+        if(sub_subelem.userId.toString() === elem._id.toString()){
+          elem[`${"contestPayout"}-${subelem.contestName}`] = sub_subelem.payout ? sub_subelem.payout : 0;
+          elem[`${"contestNpnl"}-${subelem.contestName}`] = sub_subelem.npnl;
+          elem[`${"contestFee"}-${subelem.contestName}`] = sub_subelem.fee;
+          break;
+        }
+      }
+    }
+  }
+  
+
+  res.send(users)
+
+
+})
 
 router.get('/addsignup', async(req,res) =>{
   const user = await UserDetail.findOne({myReferralCode: "RUL0AALQ"});
@@ -143,8 +398,8 @@ router.get('/updatepayout', async(req,res) =>{
     if(user.payout && !existingTransaction){
       if(wallet?.transactions?.length == 0 || !existingTransaction){
         wallet.transactions.push({
-            title: 'Contest Credit',
-            description: `Amount credited for contest ${contest.contestName}`,
+            title: 'TestZone Credit',
+            description: `Amount credited for TestZone ${contest.contestName}`,
             transactionDate: new Date(),
             amount: user.payout.toFixed(2),
             transactionId: uuid.v4(),
@@ -345,8 +600,8 @@ router.get('/tenxremove', async(req,res) =>{
   const wallet = await userWallet.findOne({userId: new ObjectId("65213309cc62c86984c48f95")});
 
   wallet.transactions = [...wallet.transactions, {
-    title: 'Contest Credit',
-    description: `Amount credited for contest Muhurat Trading - 12th Nov(6:15 PM)`,
+    title: 'TestZone Credit',
+    description: `Amount credited for TestZone Muhurat Trading - 12th Nov(6:15 PM)`,
     transactionDate: new Date(),
     amount: 700,
     transactionId: uuid.v4(),
@@ -1185,7 +1440,7 @@ router.get("/ltv", async (req, res) => {
                   {
                     $eq: [
                       "$transactions.title",
-                      "Contest Fee",
+                      "TestZone Fee",
                     ],
                   },
                   {
@@ -1864,7 +2119,7 @@ router.get("/margin", async (req, res) => {
 
 router.get("/afterContest", async (req, res) => {
   console.log("running after contest")
-  // await autoCutMainManually();
+  await autoCutMainManually();
   await autoCutMainManuallyMock();
   // await changeBattleStatus();
   res.send("ok");

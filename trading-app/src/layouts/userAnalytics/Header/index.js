@@ -32,7 +32,7 @@ import { InfinityTraderRole } from '../../../variables';
 
 
 export default function LabTabs() {
-  const paperTrading = "Virtual Trading";
+  const paperTrading = "F&O";
   const infinityTrading = "Infinity Trading";
   const stoxheroTrading = "TenX Trading"
   const getDetails = useContext(userContext);

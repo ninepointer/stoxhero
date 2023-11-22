@@ -9,11 +9,11 @@ exports.contestChecks = async(req,res,next) => {
         const dailyContest = await DailyContest.findById(req.body.contestId);
         const userId = req.user._id;
         if(dailyContest?.contestEndTime < new Date()){
-            return res.status(201).json({ status: 'error', message: 'This contest has ended.' });
+            return res.status(201).json({ status: 'error', message: 'This TestZone has ended.' });
         }
 
         if(dailyContest?.contestStartTime > new Date()){
-            return res.status(201).json({ status: 'error', message: 'This Contest is not started yet.' });
+            return res.status(201).json({ status: 'error', message: 'This TestZone is not started yet.' });
         }
     
         // console.log(dailyContest?.participants)
@@ -22,7 +22,7 @@ exports.contestChecks = async(req,res,next) => {
         })
 
         if(user?.length === 0){
-            return res.status(404).json({ status: "error", message: "You have not participated in this contest."}); 
+            return res.status(404).json({ status: "error", message: "You have not participated in this TestZone."}); 
         }
 
         next();

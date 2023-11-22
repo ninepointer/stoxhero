@@ -315,7 +315,7 @@ function TraderwiseTraderPNL({ socket }) {
           <MDBox display="flex" justifyContent="space-between" alignItems="center">
             <MDBox>
               <MDTypography variant="h6" gutterBottom p={3}>
-                Daily Contest Trader Position(Trader Side)
+                Daily TestZone Trader Position(Trader Side)
               </MDTypography>
             </MDBox>
 

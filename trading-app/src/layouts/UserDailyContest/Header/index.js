@@ -24,10 +24,10 @@ function Header() {
     ReactGA.pageview(window.location.pathname)
     capturePageView()
   }, []);
-  let page = 'Contest'
+  let page = 'TestZone'
   let pageLink = window.location.pathname
   async function capturePageView(){
-        console.log("Page:",page)
+        // console.log("Page:",page)
         await fetch(`${baseUrl}api/v1/pageview/${page}${pageLink}`, {
         method: "POST",
         credentials:"include",

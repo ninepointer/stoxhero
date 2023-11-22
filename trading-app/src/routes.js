@@ -2,13 +2,12 @@
 import CompanyPosition from "./layouts/companyposition";
 import CompanyPositionRedis from "./layouts/companypositionRedis";
 import CohortPosition from "./layouts/cohortposition";
-import InfinityDashboard from "./layouts/infinitydashboard";
-import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
 import TenXDashboard from "./layouts/tenxdashboard";
 import TraderDashboard from "./layouts/traderdashboard";
 import Orders from "./layouts/company-orders";
 import Instruments from "./layouts/instruments";
 import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
+import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 // import Contests from "./layouts/contests";
 import TradingAccount from "./layouts/trading-account";
 import Users from "./layouts/users";
@@ -84,6 +83,10 @@ import MarginXReport from "./layouts/marginxReport";
 import Coupons from './layouts/coupons'
 import Blogs from './layouts/blog'
 import BlogDetails from './layouts/blog/blogDetails'
+import LearningModule from './layouts/learningModule'
+import LearningModuleDetails from './layouts/learningModule/moduleChapterIndex'
+// import ModuleChapter from './layouts/learningModule/'
+import ModuleChapterDetails from './layouts/learningModule/moduleChapterIndex'
 import AffiliateProgram from './layouts/affiliateProgram'
 import AffiliateProgramDetails from './layouts/affiliateProgram/AffiliateProgramDetails'
 
@@ -262,6 +265,14 @@ const routes = [
     icon: <EmojiEventsIcon/>,
     route: "/marginxdashboard",
     component: <MarginXDashboard />,
+  },
+    {
+    type: "collapse",
+    name: "Learning Modules",
+    key: "learningmodules",
+    icon: <LocalLibraryIcon/>,
+    route: "/learningmodules",
+    component: <LearningModule />,
   },
   {
     type: "collapse",
@@ -443,6 +454,14 @@ const routes = [
   {
     route: "/blogdetails",
     component: <BlogDetails />,
+  },
+  {
+    route: "/learningmoduledetails/:name",
+    component: <LearningModuleDetails />,
+  },
+  {
+    route: "/modulechapterdetails/:name",
+    component: <ModuleChapterDetails />,
   },
   {  
     route: "/affiliateprogramdetails",

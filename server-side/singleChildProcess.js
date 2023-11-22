@@ -276,9 +276,8 @@ async function singleProcess() {
         const internshipPayout = nodeCron.schedule(`0 30 17 * * *`, updateUserWallet);
         const reportMail = nodeCron.schedule(`0 0 18 * * *`, mail);
     }
-    const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
+    //const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
     // const battle = nodeCron.schedule(`56 5 * * *`, processBattles);
-
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
     app.use(express.json({ limit: "20kb" }));
@@ -409,6 +408,7 @@ async function singleProcess() {
     app.use('/api/v1/notifications', require("./routes/notification/notificationRoutes"));
     app.use('/api/v1/coupons', require("./routes/coupon/couponRoutes"));
     app.use('/api/v1/blogs', require("./routes/blog/blogRoutes"));
+    app.use('/api/v1/learningmodule', require("./routes/learningModule/learningModuleRoutes"));
     app.use('/api/v1/alltradeview', require("./routes/viewRoutes/allTradesViewRoute"));
     app.use('/api/v1/push', require("./routes/pushNotifications/pushNotificationRoutes"));
 

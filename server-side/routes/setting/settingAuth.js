@@ -212,7 +212,7 @@ router.get("/deletetxns", async (req, res)=>{
             const userWallet = await Wallet.findOne({userId: elem?.userId});
             const txns = userWallet.transactions;
             // console.log(userWallet);
-            const contestTxns = txns?.filter((item) => { return item?.title == 'Contest Credit' && new Date(item?.transactionDate)>= new Date('2023-10-25') && item?.description == 'Amount credited for contest Campus Financial Faceoff (Day 1)'});
+            const contestTxns = txns?.filter((item) => { return item?.title == 'TestZone Credit' && new Date(item?.transactionDate)>= new Date('2023-10-25') && item?.description == 'Amount credited for contest Campus Financial Faceoff (Day 1)'});
             // const sumPayouts = contestTxns?.reduce()
             if(contestTxns.length > 1){
                 console.log('red', elem?.userId, elem?.payout);

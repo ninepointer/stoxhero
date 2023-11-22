@@ -18,6 +18,7 @@ const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema");
 const DailyContestMockUser = require("../../models/DailyContest/dailyContestMockUser");
 
 const autoCutMainManually = async () => {
+    console.log("cronjob running")
     const updates = await PendingOrder.updateMany(
         {
             status:'Pending'
@@ -27,12 +28,17 @@ const autoCutMainManually = async () => {
             }
         }
     )
+
+    console.log("cronjob running updates", updates)
     await client.del(`stoploss-stopprofit`);
     await infinityTradeLive();
+    console.log("cronjob running end middle")
     await contestTradeLive();
+    console.log("cronjob running end")
 }
 
 const autoCutMainManuallyMock = async () => {
+    console.log("cronjob running 2nd")
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
