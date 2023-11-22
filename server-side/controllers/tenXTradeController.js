@@ -631,6 +631,7 @@ exports.autoExpireTenXSubscription = async () => {
         let userId = users[j].userId;
         let fee = users[j]?.fee;
         let subscribedOn = users[j].subscribedOn;
+        let expiredOn = user[j].expiredOn;
         let status = users[j].status;
 
         const today = new Date();  // Get the current date
@@ -796,6 +797,9 @@ exports.autoExpireTenXSubscription = async () => {
                     $toDouble: "$brokerage",
                   },
                 },
+                trades: {
+                  $count: {},
+                },
               },
             },
             {
@@ -805,6 +809,9 @@ exports.autoExpireTenXSubscription = async () => {
                   npnl: {
                     $subtract: ["$amount", "$brokerage"],
                   },
+                  gpnl: "$amount",
+                  brokerage: "$brokerage",
+                  trades: 1,
                 },
             },
           ])
@@ -833,6 +840,13 @@ exports.autoExpireTenXSubscription = async () => {
                   user.subscription[k].status = "Expired";
                   user.subscription[k].expiredOn = new Date();
                   user.subscription[k].expiredBy = "System";
+
+                  user.subscription[k].npnl = pnlDetails[0]?.npnl;
+                  user.subscription[k].gpnl = pnlDetails[0]?.gpnl;
+                  user.subscription[k].brokerage = pnlDetails[0]?.brokerage;
+                  user.subscription[k].tradingDays = tradingDays[0]?.totalTradingDays;
+                  user.subscription[k].trades = pnlDetails[0]?.trades;
+
                   if(tradingDays[0]?.totalTradingDays >= validity){
                     user.subscription[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0) 
                     user.subscription[k].tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
@@ -854,6 +868,12 @@ exports.autoExpireTenXSubscription = async () => {
                   subs.users[k].status = "Expired";
                   subs.users[k].expiredOn = new Date();
                   subs.users[k].expiredBy = "System";
+
+                  subs.users[k].npnl = pnlDetails[0]?.npnl;
+                  subs.users[k].gpnl = pnlDetails[0]?.gpnl;
+                  subs.users[k].brokerage = pnlDetails[0]?.brokerage;
+                  subs.users[k].tradingDays = tradingDays[0]?.totalTradingDays;
+                  subs.users[k].trades = pnlDetails[0]?.trades;
                   if(tradingDays[0]?.totalTradingDays >= validity){
                     subs.users[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0) 
                     subs.users[k].tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0; 
