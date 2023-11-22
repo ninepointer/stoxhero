@@ -87,6 +87,88 @@ const uuid = require('uuid');
 const Notification = require("../../models/notifications/notification")
 
 
+router.get('/updateTenxPnl', async(req,res) =>{
+  const tenx = await TenxSubscription.find();
+
+  for(let elem of tenx){
+    for(let subelem of elem.users){
+      if(subelem.expiredOn){
+        console.log(subelem)
+        const pnl = await pnlFunc(subelem.subscribedOn, subelem.expiredOn, subelem.userId, elem._id);
+        subelem.gpnl = pnl[0]?.grossPnl ? pnl[0]?.grossPnl : 0;
+        subelem.npnl = pnl[0]?.npnl ? pnl[0]?.npnl : 0;
+        subelem.brokerage = pnl[0]?.brokerage ? pnl[0]?.brokerage : 0;
+        subelem.tradingDays = pnl[0]?.tradingDays ? pnl[0]?.tradingDays : 0;
+        subelem.trades = pnl[0]?.trades ? pnl[0]?.trades : 0;
+      }
+    }
+
+    await elem.save();
+  }
+})
+
+const pnlFunc = async(startDate, endDate, userId, id)=>{
+  const pnl = await TenXTrade.aggregate([
+    {
+      $match:
+      {
+        subscriptionId: new ObjectId(id),
+        trader: new ObjectId(userId),
+        trade_time_utc: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate)
+        },
+        status: "COMPLETE"
+      },
+    },
+    {
+      $group: {
+        _id: {
+          userId: "$trader",
+        },
+        amount: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        trades: {
+          $count: {},
+        },
+        tradingDays: {
+          $addToSet: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$trade_time_utc",
+            },
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        userId: "$_id.userId",
+        grossPnl: "$amount",
+        brokerage: "$brokerage",
+        _id: 0,
+        npnl: {
+          $subtract: ["$amount", "$brokerage"],
+        },
+        tradingDays: {
+          $size: "$tradingDays",
+        },
+        trades: 1,
+      },
+    },
+  ])
+
+  return pnl
+}
+
 router.get('/changeContestToTestzone', async(req,res) =>{
   // const wallet = await userWallet.find();
   const notification = await Notification.find();
