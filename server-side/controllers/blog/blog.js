@@ -54,60 +54,60 @@ exports.resizePhoto = (req, res, next) => {
     });
 }; 
 
-exports.uploadToS3 = async(req, res, next) => {
+exports.uploadToS3 = async (req, res, next) => {
     if (!req.file) {
-      // no file uploaded, skip to next middleware
-      next();
-      return;
+        // no file uploaded, skip to next middleware
+        next();
+        return;
     }
-  
+
     // create S3 upload parameters
     let blogTitle;
-    if(req.body.blogTitle){
+    if (req.body.blogTitle) {
         blogTitle = req.body.blogTitle;
-    }else{
+    } else {
         let blog = await Blog.findById(req.params.id);
-        blogTitle = `${blog?.blogTitle}` ;
+        blogTitle = `${blog?.blogTitle}`;
     }
     const key = `blogs/${blogTitle}/photos/${(Date.now()) + req.file.originalname}`;
     const params = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: key,
-      Body: req.file.buffer,
-      ContentType: req.file.mimetype,
-      ACL: 'public-read',
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: key,
+        Body: req.file.buffer,
+        ContentType: req.file.mimetype,
+        ACL: 'public-read',
     };
-  
+
     // upload image to S3 bucket
-    
+
     s3.upload((params)).promise()
-      .then((s3Data) => {
-        // console.log('file uploaded');
-        // console.log(s3Data.Location);
-        (req).uploadUrl = s3Data.Location;
-        next();
-      })
-      .catch((err) => {
-        console.error(err);
-        res.status(500).send({ message: "Error uploading to S3" });
-      });
-  };
+        .then((s3Data) => {
+            // console.log('file uploaded');
+            // console.log(s3Data.Location);
+            (req).uploadUrl = s3Data.Location;
+            next();
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).send({ message: "Error uploading to S3" });
+        });
+};
 
 
-  const filterObj = (obj, ...allowedFields) => {
+const filterObj = (obj, ...allowedFields) => {
     const newObj = {};
     Object.keys(obj).forEach((el) => {
-      if (
-        allowedFields.includes(el) &&
-        obj[el] !== null &&
-        obj[el] !== undefined &&
-        obj[el] !== ''
-      ) {
-        newObj[el] = obj[el];
-      }
+        if (
+            allowedFields.includes(el) &&
+            obj[el] !== null &&
+            obj[el] !== undefined &&
+            obj[el] !== ''
+        ) {
+            newObj[el] = obj[el];
+        }
     });
     return newObj;
-  };
+};
  
 
 

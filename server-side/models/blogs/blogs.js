@@ -2,17 +2,22 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const blogSchema = new Schema({
-    // blogTitle:{
-    //     type: String,
-    //     required: true,
-    // },
+    blogTitle:{
+        type: String,
+        required: true,
+    },
     // content:{
     //     type: String,
     //     required: true,
     // },
-    // thumbnailImage:{
-    //     type: String,
-    // },
+    thumbnailImage:{
+        name: {type: String},
+        url: {type: String}
+    },
+    images:[{
+        name: {type: String},
+        url: {type: String}
+    }],
     // blogContent:[{
     //     serialNumber:{type:Number},
     //     header:{type:String},
@@ -48,7 +53,7 @@ const blogSchema = new Schema({
     // }],
     value: {
         type: String,
-        required:true
+        // required:true
     },
     createdOn:{
         type: Date,

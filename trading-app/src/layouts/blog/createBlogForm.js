@@ -2,29 +2,43 @@ import React ,{useEffect, useState, useRef} from "react";
 import MDTypography from "../../components/MDTypography";
 import MDBox from "../../components/MDBox";
 import MDButton from "../../components/MDButton"
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+// import ReactQuill from 'react-quill';
+// import 'react-quill/dist/quill.snow.css';
 import {apiUrl} from "../../constants/constants.js"
+import JoditEditor from 'jodit-react';
+import TextField from '@mui/material/TextField';
+import Grid from "@mui/material/Grid";
+import { useNavigate, useLocation } from "react-router-dom";
+import DefaultBlogImage from '../../assets/images/defaultcarousel.png'
+import axios from "axios";
+
 
 function Index() {
   const [value, setValue] = useState('');
-  // const modules ={
-  //   toolbar: [
-  //     [{header: [1,2,3,4,5,6,false]}],
-  //     [{font: []}],
-  //     [{size: []}],
-  //     ["italic", "bold", "underline", "strike", "blockquote"],
-  //     [
-  //       {list: "ordered"},
-  //       {list: "bullet"},
-  //       {indent: "+1"},
-  //       {indent: "-1"}
-  //     ],
-  //     ["link", "image", "video"]
-  //   ],
+  const [isSubmitted,setIsSubmitted] = useState(false);
+  const [editing,setEditing] = useState(false)
+  const [saving,setSaving] = useState(false)
+  const location = useLocation();
 
-  // }
+  const  id  = location?.state?.data;
+  const [imageFile, setImageFile] = useState(id ? id?.thumbnailImage : DefaultBlogImage);
+  const [previewUrl, setPreviewUrl] = useState('');
 
+  const [title, setTitle] = useState("");
+  const [titleImage, setTitleImage] = useState(null);
+  const editor = useRef(null);
+  const [formState,setFormState] = useState({
+    blogTitle: '' || id?.blogTitle,
+    content:'' || id?.content,
+    author: '' || id?.author,
+    thumbnailImage:'' || id?.thumbnailImage,
+    blogContent: {
+      serialNumber: "",
+      header: "",
+      content: "",
+      image:"",
+  },
+});
   async function onSubmit(e) {
     e.preventDefault();
     // setCreating(true)
@@ -71,49 +85,86 @@ function Index() {
     }
   }
 
-  // function imageHandler() {
-  //   if (!quillRef.current) return
 
-  //   const editor = quillRef.current.getEditor()
-  //   const range = editor.getSelection()
-  //   const value = prompt("Please enter the image URL")
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    setImageFile(file);
 
-  //   if (value && range) {
-  //     editor.insertEmbed(range.index, "image", value, "user")
-  //   }
-  // }
+    // Create a FileReader instance
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPreviewUrl(reader.result);
+    };
+    reader.readAsDataURL(file);
+    };
 
   console.log(value)
 
 
 
-  const modules = {
-    toolbar: {
-      container: "#toolbar"
+
+  const [file, setFile] = useState(null);
+  const [uploadedData, setUploadedData] = useState([]);
+
+
+  const handleFileChange = (event) => {
+    setFile(event.target.files);
+  };
+
+
+
+  const handleUpload = async () => {
+    // setDetails(detail);
+    console.log("file", titleImage, file);
+    if (!file) {
+      alert('Please select a file to upload');
+      return;
+    }
+  
+    try {
+      const formData = new FormData();
+      if (titleImage) {
+        formData.append("titleFiles", titleImage[0]);
+      }
+  
+      // Append each file in the file array to the "files" array
+      for (let i = 0; i < file.length; i++) {
+        formData.append("files", file[i]);
+      }
+      formData.append('title', title);
+
+      console.log("formData", formData)
+
+      const res = await fetch(`${apiUrl}blogs/images`, {
+
+        method: "POST",
+        credentials: "include",
+        headers: {
+          // 'content-type': 'multipart/form-data',
+          "Access-Control-Allow-Credentials": true
+        },
+        body: formData
+      });
+
+      let data = await res.json()
+
+      // const { data } = await axios.post(`${apiUrl}blogs/images`, formData, {
+      //   withCredentials: true,
+      //   headers: {
+      //     'Content-Type': 'multipart/form-data'
+      //   },
+      // });
+  
+      console.log("if file uploaded before", data);
+      alert("File upload successfully");
+      console.log("if file uploaded", data);
+      setFile(null)
+    } catch (error) {
+      console.log(error, file);
+      alert('File upload failed');
     }
   };
-  const formats = [
-    "font",
-    "size",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "color",
-    "background",
-    "script",
-    "header",
-    "blockquote",
-    "code-block",
-    "indent",
-    "list",
-    "direction",
-    "align",
-    "link",
-    "image",
-    "video",
-    "formula"
-  ];
+
 
   return (
     <>
@@ -123,22 +174,65 @@ function Index() {
             Fill Blog Details
           </MDTypography>
         </MDBox>
+        <Grid container display="flex" flexDirection="row" justifyContent="space-between">
+          <Grid container spacing={1} mt={0.5} mb={0} xs={12} md={9} xl={12}>
 
-        <MDBox sx={{height: "250px"}}>
-          <ReactQuill
-            // forwardedRef={quillRef}
-            // theme="snow"
+            <Grid item xs={12} md={6} xl={4}>
+              <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
+                label='Blog Title *'
+                fullWidth
+                value={title}
+                onChange={(e) => { setTitle(e.target.value) }}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6} xl={4}>
+              <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color="success" component="label">
+                Upload Title Image
+                <input
+                  hidden
+                  disabled={((isSubmitted || id) && (!editing || saving))}
+                  accept="image/*"
+                  type="file"
+                  onChange={(e)=>{setTitleImage(e.target.files)}}
+                />
+              </MDButton>
+            </Grid>
+
+            <Grid item xs={12} md={6} xl={4}>
+              <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color="success" component="label">
+                Upload Other Images
+                <input
+                  hidden
+                  disabled={((isSubmitted || id) && (!editing || saving))}
+                  accept="image/*"
+                  type="file"
+                  multiple
+                  onChange={handleFileChange}
+                />
+              </MDButton>
+            </Grid>
+
+          </Grid>
+        </Grid>
+
+        <MDBox sx={{ height: "250px" }}>
+
+          <JoditEditor
+            ref={editor}
             value={value}
-            onChange={setValue}
-            modules={modules}
-            formats={formats}
-            style={{ height: "250px" }}
+            // config={config}
+            // tabIndex={1} // tabIndex of textarea
+            // onBlur={newContent => setContent(newContent)} // preferred to use only this option to update the content for performance reasons
+            onChange={newContent => setValue(newContent)}
           />
         </MDBox>
 
 
-        <MDBox display='flex' justifyContent='space-between' alignItems='center' sx={{marginTop: "60px"}}>
-          <MDBox sx={{fontWeight: 600, fontSize: "18px"}}>
+        <MDBox display='flex' justifyContent='space-between' alignItems='center' sx={{ marginTop: "60px" }}>
+          <MDBox sx={{ fontWeight: 600, fontSize: "18px" }}>
             Preview
           </MDBox>
           <MDBox display='flex' justifyContent='center' alignItems='center'>
@@ -147,8 +241,11 @@ function Index() {
               color="success"
               size="small"
               sx={{ mr: 1, ml: 2 }}
-            // disabled={creating}
-            onClick={onSubmit}  
+              // disabled={creating}
+              onClick={
+                // onSubmit
+                handleUpload
+              }
             >
               Save
             </MDButton>
@@ -158,14 +255,14 @@ function Index() {
               size="small"
               sx={{ mr: 1, ml: 2 }}
             // disabled={creating}
-                      
+
             >
               Reset
             </MDButton>
           </MDBox>
         </MDBox>
 
-        <MDBox sx={{border: "1px solid #CCCCCC", minHeight: "300px", marginTop: "10px", padding: "5px"}} dangerouslySetInnerHTML={{__html: value}} />
+        <MDBox sx={{ border: "1px solid #CCCCCC", minHeight: "300px", marginTop: "10px", padding: "5px" }} dangerouslySetInnerHTML={{ __html: value }} />
       </MDBox>
     </>
   )
