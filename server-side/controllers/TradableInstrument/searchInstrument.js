@@ -113,7 +113,7 @@ exports.search = async (searchString, res, req) => {
             {
               expiry: {
                 $gte: todayDate, // expiry is greater than or equal to today's date
-                $lt: fromLessThen
+                $lte: fromLessThen
               }
             },
             {
