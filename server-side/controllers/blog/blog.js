@@ -1,13 +1,9 @@
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 const Blog = require('../../models/blogs/blogs');
-const{stringify} = require('flatted');
-const moment = require('moment');
-const express = require('express');
-const multer = require('multer');
+// const multer = require('multer');
 const AWS = require('aws-sdk');
-const sharp = require('sharp');
-const storage = multer.memoryStorage();
-
+const { ObjectId } = require("mongodb");
+const {decode} = require('html-entities');
 
 AWS.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -32,13 +28,47 @@ exports.createBlog = (async (req, res, next) => {
 
         const blog = await Blog.create({
             blogTitle: title, thumbnailImage: titleImage[0], images: otherImages,
-            createdBy: req.user._id, lastModifiedBy: req.user._id
+            createdBy: req.user._id, lastModifiedBy: req.user._id, status: "Draft"
         });
         console.log(blog)
-        res.status(200).json({status: "success", data: blog});
+        res.status(200).json({status: "success", data: blog, message: "Blog created successfully."});
     } catch (error) {
         console.error(error);
-        res.status(500).send("Error uploading files.");
+        res.status(500).send({status: "error", err: error, message: "Error uploading files."});
+    }
+
+});
+
+exports.editBlog = (async (req, res, next) => {
+
+    try {
+        const { title } = req.body;
+        const {id} = req.params;
+        const uploadedFiles = req.files;
+        let otherImages; let titleImage;
+
+        console.log(uploadedFiles);
+        const blog = await Blog.findOne({_id: new ObjectId(id)});
+        if(title){
+            blog.blogTitle = title;
+        }
+        if(uploadedFiles?.files){
+            otherImages = await Promise.all(await processUpload(uploadedFiles.files, s3, title));
+            blog.images = blog.images.concat(otherImages);
+            console.log("blog.images", blog.images)
+        }
+        if(uploadedFiles?.titleFiles){
+            titleImage = await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, title));
+            blog.thumbnailImage = blog.thumbnailImage.concat(titleImage);
+        }
+
+        const blogUpdate = await Blog.updateOne({_id: new ObjectId(id)}, blog)
+
+        console.log("blog", blog, blogUpdate)
+        res.status(200).json({status: "success", data: blog, message: "Blog edited successfully"});
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({status: "error", err: error, message: "Error uploading files."});
     }
 
 });
@@ -97,11 +127,11 @@ const processUpload = async(uploadedFiles, s3, title)=>{
 
 exports.saveBlogData = async(req, res, next) => {
     const id = req.params.id;
-    console.log("Req Body:",req.body)
-    console.log("id is ,", id)
+    console.log("Req Body:", decode(req.body.blogData))
+    // console.log("id is ,", id)
     const blog = await Blog.findOneAndUpdate({_id: new ObjectId(id)}, {
         $set: {
-            blogData: req.body.blogData
+            blogData: decode(req.body.blogData)
         }
     });
 
@@ -117,23 +147,23 @@ exports.saveBlogData = async(req, res, next) => {
     return res.status(200).json({message: 'Successfully saved Blog Data.', data: blog});
 }
 
-exports.editBlog = async(req, res, next) => {
-    const id = req.params.id;
-    console.log("Req Body:",req.body)
-    console.log("id is ,", id)
-    const blog = await Blog.findById(id);
+// exports.editBlog = async(req, res, next) => {
+//     const id = req.params.id;
+//     console.log("Req Body:",req.body)
+//     console.log("id is ,", id)
+//     const blog = await Blog.findById(id);
 
-    const filteredBody = filterObj(req.body, "blogTitle", "content", "author", "thumbnailImage");
-    if(req.body.blogContent)filteredBody.blogContent=[...blog.blogContent,
-        {serialNumber:req.body.blogContent.serialNumber,
-            content:req.body.blogContent.content,header:req.body.blogContent.header,youtubeVideoCode:req.body.blogContent.youtubeVideoCode,image:req.body.blogContent.image}]
-    filteredBody.lastModifiedBy = req.user._id;    
+//     const filteredBody = filterObj(req.body, "blogTitle", "content", "author", "thumbnailImage");
+//     if(req.body.blogContent)filteredBody.blogContent=[...blog.blogContent,
+//         {serialNumber:req.body.blogContent.serialNumber,
+//             content:req.body.blogContent.content,header:req.body.blogContent.header,youtubeVideoCode:req.body.blogContent.youtubeVideoCode,image:req.body.blogContent.image}]
+//     filteredBody.lastModifiedBy = req.user._id;    
 
-    console.log(filteredBody)
-    const updated = await Blog.findByIdAndUpdate(id, filteredBody, { new: true });
+//     console.log(filteredBody)
+//     const updated = await Blog.findByIdAndUpdate(id, filteredBody, { new: true });
 
-    return res.status(200).json({message: 'Successfully edited Blog.', data: updated});
-}
+//     return res.status(200).json({message: 'Successfully edited Blog.', data: updated});
+// }
 
 exports.updateBlogStatus = async (req, res) => {
     try {

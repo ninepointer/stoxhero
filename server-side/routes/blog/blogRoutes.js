@@ -21,7 +21,7 @@ router.route('/').post(Authenticate, upload.fields([{ name: 'titleFiles', maxCou
 router.route('/published').get(Authenticate, getPublishedBlogs);
 router.route('/draft').get(Authenticate, getDraftBlogs);
 router.route('/unpublished').get(Authenticate, getUnpublishedBlogs);
-router.route('/:id').patch(Authenticate, restrictTo('Admin', 'Super Admin'), editBlog).get(Authenticate, restrictTo('Admin', 'Super Admin'), getBlog);
+router.route('/:id').patch(Authenticate, restrictTo('Admin', 'Super Admin'), upload.fields([{ name: 'titleFiles', maxCount: 1 }, { name: 'files', maxCount: 100 }]), editBlog).get(Authenticate, restrictTo('Admin', 'Super Admin'), getBlog);
 router.route('/:id/blogData').patch(Authenticate, restrictTo('Admin', 'Super Admin'), saveBlogData).get(Authenticate, restrictTo('Admin', 'Super Admin'), getBlog);
 router.route('/:id/:status').patch(Authenticate, restrictTo('Admin', 'Super Admin'), updateBlogStatus);
 

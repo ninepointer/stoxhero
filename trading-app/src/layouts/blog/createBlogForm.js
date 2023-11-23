@@ -12,20 +12,23 @@ import { useNavigate, useLocation } from "react-router-dom";
 import DefaultBlogImage from '../../assets/images/defaultcarousel.png'
 import axios from "axios";
 import { Typography } from "@mui/material";
+import MDSnackbar from '../../components/MDSnackbar';
 
 
 function Index() {
-  const [value, setValue] = useState('');
+  const location = useLocation();
+  const  prevData  = location?.state?.data;
+
+  const [value, setValue] = useState(prevData?.blogData || '');
   const [isSubmitted,setIsSubmitted] = useState(false);
   const [editing,setEditing] = useState(false)
   const [saving,setSaving] = useState(false)
-  const location = useLocation();
 
-  const  id  = location?.state?.data;
-  const [imageFile, setImageFile] = useState(id ? id?.thumbnailImage : DefaultBlogImage);
-  const [previewUrl, setPreviewUrl] = useState('');
-  const [imageData, setImageData] = useState();
-  const [title, setTitle] = useState("");
+  // console.log("this is data", id)
+  // const [imageFile, setImageFile] = useState(id ? id?.thumbnailImage : DefaultBlogImage);
+  // const [previewUrl, setPreviewUrl] = useState('');
+  const [imageData, setImageData] = useState(prevData || null);
+  const [title, setTitle] = useState(prevData?.title || "");
   const [titleImage, setTitleImage] = useState(null);
   const editor = useRef(null);
 
@@ -79,9 +82,6 @@ function Index() {
   console.log(value)
 
   const [file, setFile] = useState(null);
-  const [uploadedData, setUploadedData] = useState([]);
-
-
   const handleFileChange = (event) => {
     setFile(event.target.files);
   };
@@ -89,10 +89,12 @@ function Index() {
 
 
   const handleUpload = async () => {
-    // setDetails(detail);
-    console.log("file", titleImage, file);
-    if (!file) {
-      alert('Please select a file to upload');
+    if (!title) {
+      openSuccessSB('error', 'Please fill title');
+      return;
+    }
+    if (!file || !titleImage) {
+      openSuccessSB('error', 'Please select a file to upload');
       return;
     }
   
@@ -108,14 +110,11 @@ function Index() {
       }
       formData.append('title', title);
 
-      console.log("formData", formData)
-
-      const res = await fetch(`${apiUrl}blogs/images`, {
+      const res = await fetch(`${apiUrl}blogs`, {
 
         method: "POST",
         credentials: "include",
         headers: {
-          // 'content-type': 'multipart/form-data',
           "Access-Control-Allow-Credentials": true
         },
         body: formData
@@ -123,57 +122,67 @@ function Index() {
 
       let data = await res.json()
   
-
-      console.log("if file uploaded before", data);
-      alert("File upload successfully");
-      console.log("if file uploaded", data);
-      setFile(null)
-      setImageData(data.data);
+      if(data.status==='success'){
+        setFile(null)
+        setImageData(data.data);
+        openSuccessSB('success', data.message);
+      }
     } catch (error) {
-      console.log(error, file);
-      alert('File upload failed');
+      openSuccessSB('error', error?.err);
     }
   };
 
-  // async function onEdit(e, formState) {
-  //   e.preventDefault()
-  //   setSaving(true)
-  //   // if (!formState?.blogTitle || !formState?.content || !formState.author) {
+  const edit = async () => {
+    // if (!title) {
+    //   openSuccessSB('error', 'Please fill title');
+    //   return;
+    // }
+    // if (!file || !titleImage) {
+    //   openSuccessSB('error', 'Please select a file to upload');
+    //   return;
+    // }
+  
+    try {
+      const formData = new FormData();
+      if (titleImage) {
+        formData.append("titleFiles", titleImage[0]);
+      }
+  
+      // Append each file in the file array to the "files" array
+      for (let i = 0; i < file.length; i++) {
+        formData.append("files", file[i]);
+      }
+      formData.append('title', title);
 
-  //   //   setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
-  //   //   return openErrorSB("Missing Field", "Please fill all the mandatory fields")
+      const res = await fetch(`${apiUrl}blogs/${prevData?._id}`, {
 
-  //   // }
-  //   // setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-  //   const { blogTitle, content, author, thumbnailImage } = formState;
-  //   const res = await fetch(`${baseUrl}api/v1/blogs/${id?._id || imageData?._id}`, {
-  //     method: "PATCH",
-  //     credentials: "include",
-  //     headers: {
-  //       "content-type": "application/json",
-  //       "Access-Control-Allow-Credentials": true
-  //     },
-  //     body: JSON.stringify({
-  //       blogTitle, content, author, thumbnailImage
-  //     })
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Access-Control-Allow-Credentials": true
+        },
+        body: formData
+      });
 
-  //   });
-
-  //   const data = await res.json();
-  //   const updatedData = data?.data
-  //   if (updatedData || res.status === 200) {
-  //     setNewObjectId(data.data);
-  //     openSuccessSB("Blog Edited", data.message)
-  //     setTimeout(()=>{setSaving(false);setEditing(false)},500)
-  //   } else {
-  //     openErrorSB("Error", "data.error")
-  //   }
-  // }
+      let data = await res.json()
+  
+      if(data.status==='success'){
+        setFile(null)
+        setImageData(data.data);
+        openSuccessSB('success', data.message);
+      }
+    } catch (error) {
+      openSuccessSB('error', error?.err);
+    }
+  };
 
   async function saveBlogData(value) {
-    // e.preventDefault()
+    if (!value) {
+      openSuccessSB('error', 'Please type text.');
+      return;
+    }
     setSaving(true)
-    const res = await fetch(`${apiUrl}blogs/${id?._id || imageData?._id}/blogData`, {
+    const res = await fetch(`${apiUrl}blogs/${prevData?._id || imageData?._id}/blogData`, {
       method: "PATCH",
       credentials: "include",
       headers: {
@@ -189,15 +198,52 @@ function Index() {
     const data = await res.json();
     const updatedData = data?.data
     if (updatedData || res.status === 200) {
-      // setNewObjectId(data.data);
-      // openSuccessSB("Blog Edited", data.message)
-      // setTimeout(()=>{setSaving(false);setEditing(false)},500)
+      openSuccessSB("success", data.message)
     } else {
-      // openErrorSB("Error", "data.error")
+      openSuccessSB("error", data.message)
     }
   }
 
-  console.log("imageData", imageData)
+
+  const [successSB, setSuccessSB] = useState(false);
+  const [messageObj, setMessageObj] = useState({
+    color: '',
+    icon: '',
+    title: '',
+    content: ''
+  })
+  const openSuccessSB = (value, content) => {
+    if (value === "success") {
+      messageObj.color = 'success'
+      messageObj.icon = 'check'
+      messageObj.title = "Success";
+      messageObj.content = content;
+      setSuccessSB(true);
+    };
+    if (value === "error") {
+      messageObj.color = 'error'
+      messageObj.icon = 'error'
+      messageObj.title = "Error";
+      messageObj.content = content;
+    };
+
+    setMessageObj(messageObj);
+    setSuccessSB(true);
+  }
+  const closeSuccessSB = () => setSuccessSB(false);
+  const renderSuccessSB = (
+    <MDSnackbar
+      color={messageObj.color}
+      icon={messageObj.icon}
+      title={messageObj.title}
+      content={messageObj.content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite={messageObj.color}
+      sx={{ borderLeft: `10px solid ${messageObj.color==="success" ? "#4CAF50" : messageObj.color==="error" ? "#F44335" : "#1A73E8"}`, borderRight: `10px solid ${messageObj.color==="success" ? "#4CAF50" : messageObj.color==="error" ? "#F44335" : "#1A73E8"}`, borderRadius: "15px", width: "auto" }}
+    />
+  );
 
   return (
     <>
@@ -212,21 +258,21 @@ function Index() {
 
             <Grid item xs={12} md={6} xl={4}>
               <TextField
-                disabled={((isSubmitted || id) && (!editing || saving))}
+                disabled={((imageData || prevData) && (!editing || saving))}
                 id="outlined-required"
                 label='Blog Title *'
                 fullWidth
-                value={title}
+                value={prevData.blogTitle || title}
                 onChange={(e) => { setTitle(e.target.value) }}
               />
             </Grid>
 
             <Grid item xs={12} md={6} xl={4}>
-              <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color="success" component="label">
+              <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={titleImage ? "error" : "success"} component="label">
                 Upload Title Image
                 <input
                   hidden
-                  disabled={((isSubmitted || id) && (!editing || saving))}
+                  disabled={((imageData || prevData) && (!editing || saving))}
                   accept="image/*"
                   type="file"
                   onChange={(e)=>{setTitleImage(e.target.files)}}
@@ -235,11 +281,11 @@ function Index() {
             </Grid>
 
             <Grid item xs={12} md={6} xl={4}>
-              <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color="success" component="label">
+              <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={file ? "error" : "success"} component="label">
                 Upload Other Images
                 <input
                   hidden
-                  disabled={((isSubmitted || id) && (!editing || saving))}
+                  disabled={((isSubmitted || prevData) && (!editing || saving))}
                   accept="image/*"
                   type="file"
                   multiple
@@ -251,18 +297,19 @@ function Index() {
           </Grid>
         </Grid>
 
+        
         <MDBox display='flex' justifyContent='flex-end' alignItems='center'>
-            <MDButton
-              variant="contained"
-              color="success"
-              size="small"
-              sx={{ mr: 1, ml: 2 }}
-              // disabled={creating}
-              onClick={handleUpload}
-            >
-              Save
-            </MDButton>
-          </MDBox>
+          <MDButton
+            variant="contained"
+            color="success"
+            size="small"
+            sx={{ mr: 1, ml: 2 }}
+            // disabled={creating}
+            onClick={(prevData && !editing) ? ()=>{setEditing(true)} : (prevData && editing) ? edit : handleUpload}
+          >
+            {(prevData && !editing) ? "Edit" : (prevData && editing) ? "Save" : "Save"}
+          </MDButton>
+        </MDBox>
 
         <MDBox mt={1}>
           {imageData &&
@@ -338,196 +385,9 @@ function Index() {
         </MDBox>
 
         <MDBox sx={{ border: "1px solid #CCCCCC", minHeight: "300px", marginTop: "10px", padding: "5px" }} dangerouslySetInnerHTML={{ __html: value }} />
+        {renderSuccessSB}
       </MDBox>
     </>
   )
 }
 export default Index;
-
-
-
-
-
-
-
-
-
-
-
-
-
-{/* <Grid container display="flex" flexDirection="row" justifyContent="space-between">
-<Grid container spacing={1} mt={0.5} mb={0} xs={12} md={9} xl={12}>
-  <Grid item xs={12} md={6} xl={6}>
-    <TextField
-      disabled={((isSubmitted || id) && (!editing || saving))}
-      id="outlined-required"
-      label='Blog Title *'
-      fullWidth
-      value={formState?.blogTitle}
-      onChange={(e) => {
-        setFormState(prevState => ({
-          ...prevState,
-          blogTitle: e.target.value
-        }))
-      }}
-    />
-  </Grid>
-
-  <Grid item xs={12} md={6} xl={3}>
-    <TextField
-      disabled={((isSubmitted || id) && (!editing || saving))}
-      id="outlined-required"
-      label='Author Name *'
-      fullWidth
-      value={formState?.author}
-      onChange={(e) => {
-        setFormState(prevState => ({
-          ...prevState,
-          author: e.target.value
-        }))
-      }}
-    />
-  </Grid>
-
-  <Grid item xs={12} md={6} xl={3}>
-    <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color="success" component="label">
-      {!formState?.thumbnailImage?.name ? "Upload Thumbnail Image" : "Upload Another File?"}
-      <input
-        hidden
-        disabled={((isSubmitted || id) && (!editing || saving))}
-        accept="image/*"
-        type="file"
-        onChange={(e) => {
-          setFormState(prevState => ({
-            ...prevState,
-            thumbnailImage: e.target.files[0]
-          }));
-          handleImageUpload(e);
-        }}
-      />
-    </MDButton>
-  </Grid>
-
-  <Grid item xs={12} md={12} xl={12} mt={1}>
-    <TextField
-      disabled={((isSubmitted || id) && (!editing || saving))}
-      id="outlined-required"
-      name="content"
-      label='Summary *'
-      fullWidth
-      multiline
-      rows={5}
-      defaultValue={editing ? formState?.content : id?.content}
-      onChange={(e) => {
-        setFormState(prevState => ({
-          ...prevState,
-          content: e.target.value
-        }))
-      }}
-    />
-  </Grid>
-
-  <Grid container spacing={1} mt={0.5} mb={0} xs={12} md={3} xl={12}>
-    <Grid item xs={12} md={6} lg={12}>
-      {previewUrl ?
-        <img src={previewUrl} style={{ height: "250px", width: "250px", borderRadius: "5px", border: "1px #ced4da solid" }} />
-        :
-        <img src={imageFile} style={{ height: "250px", width: "250px", borderRadius: "5px", border: "1px #ced4da solid" }} />
-      }
-    </Grid>
-  </Grid>
-
-  {newObjectId?.status &&
-    <>
-      <Grid item xs={12} md={12} xl={3} display='flex' justifyContent='center'>
-        <MDTypography fontSize={13} color='success'>Status : {newObjectId?.status}</MDTypography>
-      </Grid>
-
-      <Grid item xs={12} md={12} xl={3} display='flex' justifyContent='center'>
-        <MDTypography fontSize={13}>CreatedOn : {moment.utc(newObjectId?.createdOn).utcOffset('+05:30').format("DD-MMM-YY HH:mm a")}</MDTypography>
-      </Grid>
-
-      <Grid item xs={12} md={12} xl={3} display='flex' justifyContent='center'>
-        <MDTypography fontSize={13}>{newObjectId?.status} On : {moment.utc(newObjectId?.lastModifiedOn).utcOffset('+05:30').format("DD-MMM-YY HH:mm a")}</MDTypography>
-      </Grid>
-
-      <Grid item xs={12} md={12} xl={3} display='flex' justifyContent='center'>
-        <MDTypography fontSize={13}>Last Modified By : {newObjectId?.lastModifiedBy?.first_name} {newObjectId?.lastModifiedBy?.last_name}</MDTypography>
-      </Grid>
-    </>
-  }
-
-</Grid>
-</Grid>
-
-<Grid container mt={2} xs={12} md={12} xl={12} >
-<Grid item display="flex" justifyContent="flex-end" xs={12} md={6} xl={12}>
-  {!isSubmitted && !id && (
-    <>
-      <MDButton
-        variant="contained"
-        color="success"
-        size="small"
-        sx={{ mr: 1, ml: 2 }}
-        disabled={creating}
-        onClick={(e) => { onSubmit(e, formState) }}
-      >
-        {creating ? <CircularProgress size={20} color="inherit" /> : "Create"}
-      </MDButton>
-      <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/allblogs") }}>
-        Cancel
-      </MDButton>
-    </>
-  )}
-  {(isSubmitted || id) && !editing && (
-    <>
-      <MDButton
-        variant="contained"
-        color="success"
-        size="small"
-        sx={{ mr: 0, ml: 1 }}
-        onClick={() => { updateStatus(newObjectId?._id, newObjectId?.status === 'Created' ? 'Published' : newObjectId?.status === 'Published' ? 'Unpublished' : newObjectId?.status === 'Unpublished' ? 'Published' : '') }}
-      >
-        {newObjectId?.status === 'Created' ? 'Publish' : newObjectId?.status === 'Published' ? 'Unpublish' : newObjectId?.status === 'Unpublished' ? 'Publish' : ''}
-      </MDButton>
-      <MDButton
-        variant="contained"
-        color="warning"
-        size="small"
-        sx={{ mr: 1, ml: 1 }}
-        onClick={(e) => { setEditing(true) }}
-      >
-        Edit
-      </MDButton>
-      <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/allblogs') }}>
-        Back
-      </MDButton>
-    </>
-  )}
-  {(isSubmitted || id) && editing && (
-    <>
-      <MDButton
-        variant="contained"
-        color="warning"
-        size="small"
-        sx={{ mr: 1, ml: 1 }}
-        disabled={saving}
-        onClick={(e) => { onEdit(e, formState) }}
-      >
-        {saving ? <CircularProgress size={20} color="inherit" /> : "Save"}
-      </MDButton>
-      <MDButton
-        variant="contained"
-        color="error"
-        size="small"
-        disabled={saving}
-        onClick={() => { setEditing(false) }}
-      >
-        Cancel
-      </MDButton>
-    </>
-  )}
-</Grid>
-
-</Grid> */}

@@ -29,7 +29,7 @@
 const {decode} = require('html-entities');
 // const entities = new Entities();
 
-const encodedHtml = "<p><strong><em>Hello</em></strong>,</p><p>I am Vijay Verma</p>";
+const encodedHtml = "&lt;p>Hello dear&lt;/p>";
 const decodedHtml = decode(encodedHtml);
 
 console.log(decodedHtml);

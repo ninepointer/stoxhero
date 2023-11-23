@@ -51,7 +51,7 @@ const blogSchema = new Schema({
     //     email:{type:String},
     //     comment:{type:String}
     // }],
-    value: {
+    blogData: {
         type: String,
         // required:true
     },
