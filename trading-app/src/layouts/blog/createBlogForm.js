@@ -11,6 +11,7 @@ import Grid from "@mui/material/Grid";
 import { useNavigate, useLocation } from "react-router-dom";
 import DefaultBlogImage from '../../assets/images/defaultcarousel.png'
 import axios from "axios";
+import { Typography } from "@mui/material";
 
 
 function Index() {
@@ -23,22 +24,12 @@ function Index() {
   const  id  = location?.state?.data;
   const [imageFile, setImageFile] = useState(id ? id?.thumbnailImage : DefaultBlogImage);
   const [previewUrl, setPreviewUrl] = useState('');
-
+  const [imageData, setImageData] = useState();
   const [title, setTitle] = useState("");
   const [titleImage, setTitleImage] = useState(null);
   const editor = useRef(null);
-  const [formState,setFormState] = useState({
-    blogTitle: '' || id?.blogTitle,
-    content:'' || id?.content,
-    author: '' || id?.author,
-    thumbnailImage:'' || id?.thumbnailImage,
-    blogContent: {
-      serialNumber: "",
-      header: "",
-      content: "",
-      image:"",
-  },
-});
+
+
   async function onSubmit(e) {
     e.preventDefault();
     // setCreating(true)
@@ -85,23 +76,7 @@ function Index() {
     }
   }
 
-
-  const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    setImageFile(file);
-
-    // Create a FileReader instance
-    const reader = new FileReader();
-    reader.onload = () => {
-      setPreviewUrl(reader.result);
-    };
-    reader.readAsDataURL(file);
-    };
-
   console.log(value)
-
-
-
 
   const [file, setFile] = useState(null);
   const [uploadedData, setUploadedData] = useState([]);
@@ -147,24 +122,82 @@ function Index() {
       });
 
       let data = await res.json()
-
-      // const { data } = await axios.post(`${apiUrl}blogs/images`, formData, {
-      //   withCredentials: true,
-      //   headers: {
-      //     'Content-Type': 'multipart/form-data'
-      //   },
-      // });
   
+
       console.log("if file uploaded before", data);
       alert("File upload successfully");
       console.log("if file uploaded", data);
       setFile(null)
+      setImageData(data.data);
     } catch (error) {
       console.log(error, file);
       alert('File upload failed');
     }
   };
 
+  // async function onEdit(e, formState) {
+  //   e.preventDefault()
+  //   setSaving(true)
+  //   // if (!formState?.blogTitle || !formState?.content || !formState.author) {
+
+  //   //   setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
+  //   //   return openErrorSB("Missing Field", "Please fill all the mandatory fields")
+
+  //   // }
+  //   // setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
+  //   const { blogTitle, content, author, thumbnailImage } = formState;
+  //   const res = await fetch(`${baseUrl}api/v1/blogs/${id?._id || imageData?._id}`, {
+  //     method: "PATCH",
+  //     credentials: "include",
+  //     headers: {
+  //       "content-type": "application/json",
+  //       "Access-Control-Allow-Credentials": true
+  //     },
+  //     body: JSON.stringify({
+  //       blogTitle, content, author, thumbnailImage
+  //     })
+
+  //   });
+
+  //   const data = await res.json();
+  //   const updatedData = data?.data
+  //   if (updatedData || res.status === 200) {
+  //     setNewObjectId(data.data);
+  //     openSuccessSB("Blog Edited", data.message)
+  //     setTimeout(()=>{setSaving(false);setEditing(false)},500)
+  //   } else {
+  //     openErrorSB("Error", "data.error")
+  //   }
+  // }
+
+  async function saveBlogData(value) {
+    // e.preventDefault()
+    setSaving(true)
+    const res = await fetch(`${apiUrl}blogs/${id?._id || imageData?._id}/blogData`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+        "Access-Control-Allow-Credentials": true
+      },
+      body: JSON.stringify({
+        blogData: value
+      })
+
+    });
+
+    const data = await res.json();
+    const updatedData = data?.data
+    if (updatedData || res.status === 200) {
+      // setNewObjectId(data.data);
+      // openSuccessSB("Blog Edited", data.message)
+      // setTimeout(()=>{setSaving(false);setEditing(false)},500)
+    } else {
+      // openErrorSB("Error", "data.error")
+    }
+  }
+
+  console.log("imageData", imageData)
 
   return (
     <>
@@ -218,6 +251,51 @@ function Index() {
           </Grid>
         </Grid>
 
+        <MDBox display='flex' justifyContent='flex-end' alignItems='center'>
+            <MDButton
+              variant="contained"
+              color="success"
+              size="small"
+              sx={{ mr: 1, ml: 2 }}
+              // disabled={creating}
+              onClick={handleUpload}
+            >
+              Save
+            </MDButton>
+          </MDBox>
+
+        <MDBox mt={1}>
+          {imageData &&
+            <>
+              <MDBox display="flex" justifyContent='flex-start' alignItems='center'>
+                <MDBox>
+                  <img src={imageData.thumbnailImage.url} style={{ height: "100px", width: "100px", borderRadius: "5px", border: "1px #ced4da solid" }} />
+                </MDBox>
+                <MDBox>
+                  <Typography sx={{ fontSize: "12px" }}>Url: {imageData.thumbnailImage.url}</Typography>
+                  <Typography sx={{ fontSize: "12px" }}>Name: {imageData.thumbnailImage.name}</Typography>
+
+                </MDBox>
+              </MDBox>
+
+              {imageData.images.map((elem) => {
+                return (
+                  <MDBox display="flex" justifyContent='flex-start' alignItems='center'>
+                    <MDBox>
+                      <img src={elem.url} style={{ height: "100px", width: "100px", borderRadius: "5px", border: "1px #ced4da solid" }} />
+                    </MDBox>
+                    <MDBox>
+                      <Typography sx={{ fontSize: "12px" }}>Url: {elem.url}</Typography>
+                      <Typography sx={{ fontSize: "12px" }}>Name: {elem.name}</Typography>
+
+                    </MDBox>
+                  </MDBox>
+                )
+              })}
+            </>
+          }
+        </MDBox>
+
         <MDBox sx={{ height: "250px" }}>
 
           <JoditEditor
@@ -242,10 +320,7 @@ function Index() {
               size="small"
               sx={{ mr: 1, ml: 2 }}
               // disabled={creating}
-              onClick={
-                // onSubmit
-                handleUpload
-              }
+              onClick={()=>{saveBlogData(value)}}
             >
               Save
             </MDButton>
