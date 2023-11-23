@@ -622,7 +622,7 @@ exports.autoExpireTenXSubscription = async () => {
     let users = subscription[i].users;
     let subscriptionId = subscription[i]._id
     let validity = subscription[i].validity;
-    let payoutPercentage = subscription[i].payoutPercentage;
+    let payoutPercentage = subscription[i].payoutPercentage || 10;
     let expiryDays = subscription[i].expiryDays;
     for (let j = 0; j < users.length; j++) {
       const session = await mongoose.startSession();
@@ -829,10 +829,10 @@ exports.autoExpireTenXSubscription = async () => {
           }
     
 
-          // console.log("payoutAmount", (payoutAmount > 0 && tradingDays[0]?.totalTradingDays === validity))
+          console.log("payoutAmount",pnlDetails[0]?.npnl, pnl, profitCap, subscription[i].profitCap, payoutPercentage, payoutAmountWithoutTDS, users[j]?.fee, daysDifference >= expiryDays)
 
-          if ((tradingDays.length && Math.floor(tradingDays[0]?.actualRemainingDay) <= 0) || (daysDifference == expiryDays)) {
-            // console.log(pnlDetails[0]?.npnl, pnl, profitCap, payoutAmount, userId)
+          if ((tradingDays.length && Math.floor(tradingDays[0]?.actualRemainingDay) <= 0) || (daysDifference >= expiryDays)) {
+            console.log(daysDifference >= expiryDays)
 
             const user = await User.findOne({ _id: new ObjectId(userId), status: "Active" });
             if(user){
@@ -998,11 +998,11 @@ exports.autoExpireTenXSubscription = async () => {
                 }
 
                 if(process.env.PROD == 'true'){
-                  whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage).toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
-                  whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage).toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                  whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage)?.toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount?.toLocaleString('en-IN')], tags : '', attributes : ''});
+                  whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage)?.toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount?.toLocaleString('en-IN')], tags : '', attributes : ''});
                 }
                 else {
-                  whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage).toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                  whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage)?.toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount?.toLocaleString('en-IN')], tags : '', attributes : ''});
                   // whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, subscription[i]?.payoutPercentage,subscription[i]?.plan_name, moment.utc(subs.users[k].subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
                 }
                 
