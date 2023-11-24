@@ -350,6 +350,12 @@ const userDetailSchema = new mongoose.Schema({
         bonusRedemption:Number,
         payout:{type:Number},
         tdsAmount:{type:Number},
+        
+        gpnl: {type: Number},
+        npnl: {type: Number},
+        brokerage: {type: Number},
+        tradingDays: {type: Number},
+        trades: {type: Number},
     }],
     internshipBatch:[{
         type: Schema.Types.ObjectId,

@@ -2077,7 +2077,7 @@ async function processContestQueue() {
             if (contest.contestStatus === "Active" && contest.contestStartTime <= new Date()) {
                 const leaderBoard = await dailyContestLeaderBoard(contest);
                 
-                // console.log("leaderBoard", leaderBoard)
+                console.log("leaderBoard", leaderBoard)
                 if(leaderBoard?.length > 0)
                 io.to(`${contest._id?.toString()}`).emit(`contest-leaderboardData${contest._id?.toString()}`, leaderBoard);
             }
