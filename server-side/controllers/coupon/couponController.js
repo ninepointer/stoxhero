@@ -471,7 +471,7 @@ async function getCollectionAndData(productName, specificProduct, coupon, userId
                 effectivePrice: (participant?.fee) + (gstAmount?gstAmount:0)
             };
             break;
-        case 'Contest':
+        case 'TestZone':
             const contest = await DailyContest.findById(specificProduct).select('contestName entryFee participants');
             participants = contest?.participants;
             participant = participants?.find(
@@ -650,7 +650,7 @@ function calculateMetrics(coupon) {
                 metrics.marginXDiscount += detail?.discountAmount??0;
                 metrics.marginXBonus += detail?.bonusAmount??0;
                 break;
-            case 'Contest':
+            case 'TestZone':
                 metrics.contestPurchases++;
                 metrics.contestRevenue += detail?.effectivePrice??0;
                 metrics.contestDiscount += detail?.discountAmount??0;
@@ -709,7 +709,7 @@ function calculateMetricss(coupon) {
                     metrics.marginXRevenue += detail?.effectivePrice;
                     metrics.marginXDiscount += detail?.discountAmount;
                     break;
-                case 'Contest':
+                case 'TestZone':
                     metrics.contestPurchases++;
                     metrics.contestRevenue += detail?.effectivePrice;
                     metrics.contestDiscount += detail?.discountAmount;
