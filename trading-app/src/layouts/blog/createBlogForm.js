@@ -28,7 +28,7 @@ function Index() {
   // const [imageFile, setImageFile] = useState(id ? id?.thumbnailImage : DefaultBlogImage);
   // const [previewUrl, setPreviewUrl] = useState('');
   const [imageData, setImageData] = useState(prevData || null);
-  const [title, setTitle] = useState(prevData?.title || "");
+  const [title, setTitle] = useState(prevData?.blogTitle || "");
   const [titleImage, setTitleImage] = useState(null);
   const [formstate, setFormState] = useState({
     metaTitle: prevData?.metaTitle || "",
@@ -43,7 +43,7 @@ function Index() {
   const handleFileChange = (event) => {
     setFile(event.target.files);
   };
-
+  // {"country_code":"IN","country_name":"India","city":null,"postal":null,"latitude":20,"longitude":77,"IPv4":"49.36.239.8","state":null}
 
 
   const handleUpload = async () => {
@@ -64,9 +64,12 @@ function Index() {
       }
   
       // Append each file in the file array to the "files" array
-      for (let i = 0; i < file.length; i++) {
-        formData.append("files", file[i]);
+      if(file){
+        for (let i = 0; i < file.length; i++) {
+          formData.append("files", file[i]);
+        }
       }
+
       formData.append('title', title);
       for(let elem in formstate){
         formData.append(`${elem}`, formstate[elem]);
@@ -95,7 +98,6 @@ function Index() {
   };
 
   const edit = async () => {
-console.log("edit")
     try {
       const formData = new FormData();
       if (titleImage) {
@@ -103,15 +105,16 @@ console.log("edit")
       }
   
       // Append each file in the file array to the "files" array
-      for (let i = 0; i < file.length; i++) {
-        formData.append("files", file[i]);
+      if(file){
+        for (let i = 0; i < file.length; i++) {
+          formData.append("files", file[i]);
+        }
       }
       formData.append('blogTitle', title);
       for(let elem in formstate){
         formData.append(`${elem}`, formstate[elem]);
       }
 
-      console.log("in edit", formData)
       const res = await fetch(`${apiUrl}blogs/${prevData?._id}`, {
 
         method: "PATCH",
@@ -127,6 +130,7 @@ console.log("edit")
       if(data.status==='success'){
         setFile(null)
         setImageData(data.data);
+        setEditing(false)
         openSuccessSB('success', data.message);
       }
     } catch (error) {
@@ -203,14 +207,6 @@ console.log("edit")
     />
   );
 
-  const userAgent = navigator.userAgent;
-console.log('User Agent:', userAgent);
-
-const platform = navigator.platform;
-console.log('Platform:', platform);
-
-const isMobile = /Mobi/.test(navigator.userAgent);
-console.log('Is Mobile Device:', isMobile, editing);
   return (
     <>
       <MDBox pl={2} pr={2} mt={4} mb={2}>
@@ -228,13 +224,13 @@ console.log('Is Mobile Device:', isMobile, editing);
                 id="outlined-required"
                 label='Blog Title *'
                 fullWidth
-                value={prevData?.blogTitle || title}
+                value={title || prevData?.blogTitle}
                 onChange={(e) => { setTitle(e.target.value) }}
               />
             </Grid>
 
             <Grid item xs={12} md={6} xl={4}>
-              <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={titleImage ? "error" : "success"} component="label">
+              <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(imageData?.thumbnailImage?.url && !titleImage) ? "warning" : ((imageData?.thumbnailImage?.url && titleImage) || titleImage) ? "error" : "success"} component="label">
                 Upload Title Image
                 <input
                   hidden
@@ -247,7 +243,7 @@ console.log('Is Mobile Device:', isMobile, editing);
             </Grid>
 
             <Grid item xs={12} md={6} xl={4}>
-              <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={file ? "error" : "success"} component="label">
+              <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(imageData?.images?.length && !titleImage) ? "warning" : ((imageData?.images?.length && titleImage) || titleImage) ? "error" : "success"} component="label">
                 Upload Other Images
                 <input
                   hidden
@@ -273,7 +269,7 @@ console.log('Is Mobile Device:', isMobile, editing);
                 id="outlined-required"
                 label='Meta Title *'
                 fullWidth
-                value={prevData?.metaTitle || formstate?.metaTitle}
+                value={formstate?.metaTitle || prevData?.metaTitle}
                 onChange={(e) => {
                   setFormState(prevState => ({
                     ...prevState,
@@ -289,7 +285,7 @@ console.log('Is Mobile Device:', isMobile, editing);
                 id="outlined-required"
                 label='Meta Keywords *'
                 fullWidth
-                value={prevData?.metaKeywords || formstate?.metaKeywords}
+                value={formstate?.metaKeywords || prevData?.metaKeywords}
                 onChange={(e) => {
                   setFormState(prevState => ({
                     ...prevState,
@@ -337,7 +333,7 @@ console.log('Is Mobile Device:', isMobile, editing);
                 id="outlined-required"
                 label='Meta Description *'
                 fullWidth
-                value={prevData?.metaDescription || formstate?.metaDescription}
+                value={formstate?.metaDescription || prevData?.metaDescription}
                 onChange={(e) => {
                   setFormState(prevState => ({
                     ...prevState,
@@ -353,7 +349,7 @@ console.log('Is Mobile Device:', isMobile, editing);
         <MDBox display='flex' justifyContent='flex-end' alignItems='center'>
           <MDButton
             variant="contained"
-            color="success"
+            color= {(prevData && !editing) ? "warning" : (prevData && editing) ? "warning" : "success"}
             size="small"
             sx={{ mr: 1, ml: 2, mt: 1 }}
             // disabled={creating}
@@ -368,7 +364,7 @@ console.log('Is Mobile Device:', isMobile, editing);
             <>
               <MDBox display="flex" justifyContent='flex-start' alignItems='center'>
                 <MDBox>
-                  <img src={imageData.thumbnailImage.url} style={{ height: "100px", width: "100px", borderRadius: "5px", border: "1px #ced4da solid" }} />
+                  <img src={imageData?.thumbnailImage?.url} style={{ height: "100px", width: "100px", borderRadius: "5px", border: "1px #ced4da solid" }} />
                 </MDBox>
                 <MDBox>
                   <Typography sx={{ fontSize: "12px" }}>Url: {imageData.thumbnailImage.url}</Typography>
@@ -395,31 +391,21 @@ console.log('Is Mobile Device:', isMobile, editing);
           }
         </MDBox>
 
-        <MDBox sx={{ height: "250px" }}>
-
           <JoditEditor
             ref={editor}
             value={value}
-            // config={config}
-            // tabIndex={1} // tabIndex of textarea
-            // onBlur={newContent => setContent(newContent)} // preferred to use only this option to update the content for performance reasons
             onChange={newContent => setValue(newContent)}
+            style={{height: "100%"}}
           />
-        </MDBox>
 
-
-        <MDBox display='flex' justifyContent='space-between' alignItems='center' sx={{ marginTop: "60px" }}>
-          <MDBox sx={{ fontWeight: 600, fontSize: "18px" }}>
-            Preview
-          </MDBox>
-          <MDBox display='flex' justifyContent='center' alignItems='center'>
+          <MDBox display='flex' justifyContent='flex-end' alignItems='center' mt={1}>
             <MDButton
               variant="contained"
               color="success"
               size="small"
               sx={{ mr: 1, ml: 2 }}
               // disabled={creating}
-              onClick={()=>{saveBlogData(value)}}
+              onClick={() => { saveBlogData(value) }}
             >
               Save
             </MDButton>
@@ -434,9 +420,6 @@ console.log('Is Mobile Device:', isMobile, editing);
               Reset
             </MDButton>
           </MDBox>
-        </MDBox>
-
-        <MDBox sx={{ border: "1px solid #CCCCCC", minHeight: "300px", marginTop: "10px", padding: "5px" }} dangerouslySetInnerHTML={{ __html: value }} />
         {renderSuccessSB}
       </MDBox>
     </>

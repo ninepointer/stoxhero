@@ -20,14 +20,14 @@ const s3 = new AWS.S3({
 exports.createBlog = (async (req, res, next) => {
 
     try {
-        const { title, metaTitle, metaDescription, metaKeywords, status  } = req.body;
+        const { blogTitle, metaTitle, metaDescription, metaKeywords, status  } = req.body;
         const uploadedFiles = req.files;
         const otherImages = await Promise.all(await processUpload(uploadedFiles.files, s3, title));
         const titleImage = await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, title));
 
 
         const blog = await Blog.create({
-            blogTitle: title, thumbnailImage: titleImage[0], images: otherImages,
+            blogTitle: blogTitle, thumbnailImage: titleImage[0], images: otherImages,
             createdBy: req.user._id, lastModifiedBy: req.user._id, status: "Created",
             metaTitle, metaDescription, metaKeywords
         });
@@ -49,24 +49,29 @@ exports.editBlog = (async (req, res, next) => {
         const uploadedFiles = req.files;
         let otherImages; let titleImage;
 
-        console.log(uploadedFiles);
+        // console.log(uploadedFiles, update);
         const blog = await Blog.findOne({_id: new ObjectId(id)});
         // if(title){
         //     blog.blogTitle = title;
         // }
         if(uploadedFiles?.files){
-            otherImages = await Promise.all(await processUpload(uploadedFiles.files, s3, title));
+            otherImages = await Promise.all(await processUpload(uploadedFiles.files, s3, update.blogTitle));
             update.images = blog.images.concat(otherImages);
             console.log("blog.images", blog.images)
         }
         if(uploadedFiles?.titleFiles){
-            titleImage = await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, title));
-            update.thumbnailImage = blog.thumbnailImage.concat(titleImage);
+            titleImage = await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, update.blogTitle));
+            update.thumbnailImage = titleImage[0];
         }
 
-        const blogUpdate = await Blog.updateOneAndUpdate({_id: new ObjectId(id)}, update, {new: true})
+        update.lastModifiedBy = req?.user?._id;
+        update.lastModifiedOn = new Date();
+        if(update.status === "Published"){
+            update.publishedOn = new Date();
+        }
+        const blogUpdate = await Blog.findOneAndUpdate({_id: new ObjectId(id)}, update, {new: true})
 
-        console.log("blog", blogUpdate , update)
+        // console.log("blog", blogUpdate , update)
         res.status(200).json({status: "success", data: blog, message: "Blog edited successfully"});
     } catch (error) {
         console.error(error);
@@ -115,6 +120,33 @@ exports.saveBlogData = async(req, res, next) => {
     });
 
     return res.status(200).json({message: 'Successfully saved Blog Data.', data: blog});
+}
+
+exports.viewBlog = async(req, res, next) => {
+    const {ip, isMobile, country, blogId} = req.body;
+    const blog = await Blog.findOne({_id: new ObjectId(blogId)});
+    let flag = false;
+
+    await Promise.all(blog.reader.map((elem)=>{
+        if(elem.ip === ip){
+            flag = true
+        }
+    }))
+
+    if(!flag){
+        blog.reader.push({
+            ip: ip,
+            isMobile: isMobile,
+            country: country,
+            time: new Date()
+        })
+    }
+
+    blog.viewCount += 1;
+    const save = await blog.save({ validateBeforeSave: false, new: true });
+
+
+    return res.status(200).json({status:"success", message: 'reader data saved.', data: save});
 }
 
 
@@ -193,9 +225,10 @@ exports.getAllBlogs = async (req, res) => {
 exports.getBlog = async (req, res) => {
     const { id } = req.params;
     try {
-        const blogs = await Blog.findOne({_id:id}).populate('lastModifiedBy', 'first_name last_name')
-        .populate('blogContent', 'header, serialNumber, content, image, youtubeVideoCode');
-        
+        const blogs = await Blog.findOne({_id:new ObjectId(id)})
+        // .populate('lastModifiedBy', 'first_name last_name')
+        // .populate('blogContent', 'header, serialNumber, content, image, youtubeVideoCode');
+        .select('-reader')
         res.status(200).json({
             status: 'success',
             data: blogs
@@ -221,7 +254,7 @@ exports.getPublishedBlogs = async (req, res) => {
         //     count: publishedBlogs.length
         // });
 
-        const publishedBlogs = await Blog.find().populate('lastModifiedBy', 'first_name last_name')
+        const publishedBlogs = await Blog.find({status: "Published"}).populate('lastModifiedBy', 'first_name last_name')
         
         res.status(200).json({
             status: 'success',

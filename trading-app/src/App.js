@@ -74,7 +74,8 @@ import {Howl} from "howler";
 import sound from "./assets/sound/tradeSound.mp3"
 import MessagePopUp from "./MessagePopup";
 import AdminLogin from "./layouts/authentication/sign-in/adminLogin";
-// import ContestRegistration from "./layouts/UserContest/data/ContestRegistration";
+import BlogCard from "./layouts/HomePage/pages/BlogCards";
+import BlogData from "./layouts/HomePage/pages/BlogData";
 
 
 const TRACKING_ID = "UA-264098426-2"
@@ -355,6 +356,8 @@ export default function App() {
           <Route path='/terms' element={<Terms/>}/>
           <Route path='/careers/:name/jobdescription' element={<JobDescription/>}/>
           <Route path='/careers/careerform/:name' element={<JobApply/>}/>
+          <Route path='/blogs' element={<BlogCard/>}/>
+          <Route path='/blogs/:id' element={<BlogData/>}/>
           <Route path='/collegecontest/:id/:date' element={<ContestRegistration/>}/>
           <Route path='/featuredcontest/:id/:date' element={<FeaturedContestRegistration/>}/>
           <Route path='/' element={<Navigate 
@@ -362,6 +365,7 @@ export default function App() {
             />}/>
           <Route path='/adminlogin' element={<AdminLogin />}/>
           <Route path='/about' element={<About/>}/>
+          
           <Route path='/contact' element={<Contact/>}/>
           <Route path='/workshops' element={<Workshops location={myLocation.current}/>}/>
           <Route path="*" element={<NotFound />} />

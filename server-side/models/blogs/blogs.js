@@ -50,6 +50,9 @@ const blogSchema = new Schema({
         required : true,
         default: ()=>new Date(),
     },
+    publishedOn:{
+        type: Date,
+    },
     createdBy:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
@@ -58,6 +61,16 @@ const blogSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
     },
+    reader: [{
+        ip: {type: String},
+        isMobile: {type: Boolean},
+        country: {type: String},
+        time: {type: Date}
+    }],
+    viewCount: {
+        type: Number,
+        default: 0
+    }
 })
 
 const blogData = mongoose.model("blog", blogSchema);

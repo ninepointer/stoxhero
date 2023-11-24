@@ -131,6 +131,7 @@ import InfinityTrader from "./layouts/InfinityTrading"
 import UserAnalytics from "./layouts/userAnalytics";
 import UserWallet from "./layouts/userWallet"
 import About from './layouts/HomePage/pages/About'
+import Blog from './layouts/HomePage/pages/BlogCards'
 import Careers from './layouts/HomePage/pages/Career'
 import JobForm from './layouts/HomePage/pages/EICCareerForm'
 import Workshops from './layouts/HomePage/pages/Workshop'
@@ -439,6 +440,10 @@ const routes = [
     route: "/about",
     component: <About />,
   },
+  // {
+  //   route: "/blogs",
+  //   component: <Blog />,
+  // },
   {
     route: "/careerdetails",
     component: <CareerDetails />,
