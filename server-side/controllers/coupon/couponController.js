@@ -471,7 +471,7 @@ async function getCollectionAndData(productName, specificProduct, coupon, userId
                 effectivePrice: (participant?.fee) + (gstAmount?gstAmount:0)
             };
             break;
-        case 'Contest':
+        case 'TestZone':
             const contest = await DailyContest.findById(specificProduct).select('contestName entryFee participants');
             participants = contest?.participants;
             participant = participants?.find(

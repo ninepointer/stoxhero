@@ -6,10 +6,18 @@ const blogSchema = new Schema({
         type: String,
         required: true,
     },
-    // content:{
-    //     type: String,
-    //     required: true,
-    // },
+    metaTitle: {
+        type: String,
+        // required:true
+    },
+    metaDescription: {
+        type: String,
+        // required:true
+    },
+    metaKeywords: {
+        type: String,
+        // required:true
+    },
     thumbnailImage:{
         name: {type: String},
         url: {type: String}
@@ -18,39 +26,16 @@ const blogSchema = new Schema({
         name: {type: String},
         url: {type: String}
     }],
-    // blogContent:[{
-    //     serialNumber:{type:Number},
-    //     header:{type:String},
-    //     content:{type:String},
-    //     image:{type:String},
-    //     youtubeVideoCode:{type:String},
-    //     _id: {
-    //         type: mongoose.Schema.Types.ObjectId,
-    //         default: mongoose.Types.ObjectId
-    //     }
-    // }],
-    // publishedDate:{
-    //     type: Date,
-    //     // required : true,
-    // },
-    // author:{
-    //     type: String,
-    //     required: true,
-    // },
-    // status:{
-    //     type: String,
-    //     enum: ['Published','Unpublished','Created'],
-    //     default: 'Created',
-    //     required: true,
-    // },
-    // tags:[{
-    //     tagName:{type:String}
-    // }],
-    // comments:[{
-    //     full_name:{type:String},
-    //     email:{type:String},
-    //     comment:{type:String}
-    // }],
+    readingTime:{
+        type: Number,
+        required: true,
+    },
+    status:{
+        type: String,
+        enum: ['Published','Unpublished','Created'],
+        default: 'Created',
+        required: true,
+    },
     blogData: {
         type: String,
         // required:true

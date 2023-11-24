@@ -1469,7 +1469,7 @@ function calculateWorkingDays(startDate, endDate) {
   // Iterate over each day between the start and end dates
   while (currentDate <= end) {
     // Check if the current day is a weekday (Monday to Friday)
-    if (currentDate.getDay() > 1 && currentDate.getDay() < 7) {
+    if (currentDate.getDay() > 0 && currentDate.getDay() < 6) {
       workingDays++;
     }
 
@@ -1506,8 +1506,8 @@ exports.updateUserWallet = async () => {
 
     let date = new Date();
 
-    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    // let todayDate = `2023-09-26`
+    // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    let todayDate = `2023-11-23`
 
     let endOfToday = todayDate + "T23:59:59.400Z"
     const setting = await Setting.find();

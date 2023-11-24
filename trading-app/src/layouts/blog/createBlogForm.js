@@ -11,7 +11,7 @@ import Grid from "@mui/material/Grid";
 import { useNavigate, useLocation } from "react-router-dom";
 import DefaultBlogImage from '../../assets/images/defaultcarousel.png'
 import axios from "axios";
-import { Typography } from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select, Typography } from "@mui/material";
 import MDSnackbar from '../../components/MDSnackbar';
 
 
@@ -30,56 +30,14 @@ function Index() {
   const [imageData, setImageData] = useState(prevData || null);
   const [title, setTitle] = useState(prevData?.title || "");
   const [titleImage, setTitleImage] = useState(null);
+  const [formstate, setFormState] = useState({
+    metaTitle: prevData?.metaTitle || "",
+    metaDescription: prevData?.metaDescription || "",
+    metaKeywords: prevData?.metaKeywords || "",
+    status: prevData?.status || ""
+  })
   const editor = useRef(null);
 
-
-  async function onSubmit(e) {
-    e.preventDefault();
-    // setCreating(true)
-    // console.log("Form Data: ", data)
-    try {
-      // const formData = new FormData();
-      // Object.keys(data).forEach((key) => {
-      //   console.log("data to be appended:", key, data[key])
-      //   // formData.append(key, data[key])
-      //   formData.append(key, data[key])
-      //   console.log("data appended", formData)
-      //   console.log("formState", formState)
-      // });
-
-      // if (!formState.blogTitle || !formState.content || !formState.author || !formState.thumbnailImage) {
-      //   setCreating(false);
-      //   return openErrorSB("Error", "Please fill the mandatory fields.")
-      // }
-      console.log("Calling API", value)
-      const res = await fetch(`${apiUrl}blogs`, {
-
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "content-type" : "application/json",
-          "Access-Control-Allow-Credentials": true
-        },
-        body: JSON.stringify({
-          value: value
-        })
-      });
-
-      let data1 = await res.json()
-      console.log("Response:", data1)
-      if (data1.data) {
-        // openSuccessSB("Success", data1.message)
-        // setIsSubmitted(true)
-        // setTimeout(() => { setCreating(false); setIsSubmitted(true); setEditing(false) }, 500)
-      } else {
-        // setTimeout(() => { setCreating(false); setIsSubmitted(false); setEditing(false) }, 500)
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  console.log(value)
 
   const [file, setFile] = useState(null);
   const handleFileChange = (event) => {
@@ -89,6 +47,7 @@ function Index() {
 
 
   const handleUpload = async () => {
+
     if (!title) {
       openSuccessSB('error', 'Please fill title');
       return;
@@ -109,6 +68,9 @@ function Index() {
         formData.append("files", file[i]);
       }
       formData.append('title', title);
+      for(let elem in formstate){
+        formData.append(`${elem}`, formstate[elem]);
+      }
 
       const res = await fetch(`${apiUrl}blogs`, {
 
@@ -133,15 +95,7 @@ function Index() {
   };
 
   const edit = async () => {
-    // if (!title) {
-    //   openSuccessSB('error', 'Please fill title');
-    //   return;
-    // }
-    // if (!file || !titleImage) {
-    //   openSuccessSB('error', 'Please select a file to upload');
-    //   return;
-    // }
-  
+console.log("edit")
     try {
       const formData = new FormData();
       if (titleImage) {
@@ -152,8 +106,12 @@ function Index() {
       for (let i = 0; i < file.length; i++) {
         formData.append("files", file[i]);
       }
-      formData.append('title', title);
+      formData.append('blogTitle', title);
+      for(let elem in formstate){
+        formData.append(`${elem}`, formstate[elem]);
+      }
 
+      console.log("in edit", formData)
       const res = await fetch(`${apiUrl}blogs/${prevData?._id}`, {
 
         method: "PATCH",
@@ -245,6 +203,14 @@ function Index() {
     />
   );
 
+  const userAgent = navigator.userAgent;
+console.log('User Agent:', userAgent);
+
+const platform = navigator.platform;
+console.log('Platform:', platform);
+
+const isMobile = /Mobi/.test(navigator.userAgent);
+console.log('Is Mobile Device:', isMobile, editing);
   return (
     <>
       <MDBox pl={2} pr={2} mt={4} mb={2}>
@@ -262,7 +228,7 @@ function Index() {
                 id="outlined-required"
                 label='Blog Title *'
                 fullWidth
-                value={prevData.blogTitle || title}
+                value={prevData?.blogTitle || title}
                 onChange={(e) => { setTitle(e.target.value) }}
               />
             </Grid>
@@ -297,13 +263,99 @@ function Index() {
           </Grid>
         </Grid>
 
+
+        <Grid container display="flex" flexDirection="row" justifyContent="space-between">
+          <Grid container spacing={1} mt={0.5} mb={0} xs={12} md={9} xl={12}>
+
+            <Grid item xs={12} md={6} xl={4}>
+              <TextField
+                disabled={((imageData || prevData) && (!editing || saving))}
+                id="outlined-required"
+                label='Meta Title *'
+                fullWidth
+                value={prevData?.metaTitle || formstate?.metaTitle}
+                onChange={(e) => {
+                  setFormState(prevState => ({
+                    ...prevState,
+                    metaTitle: e.target.value
+                  }))
+                }}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6} xl={4}>
+            <TextField
+                disabled={((imageData || prevData) && (!editing || saving))}
+                id="outlined-required"
+                label='Meta Keywords *'
+                fullWidth
+                value={prevData?.metaKeywords || formstate?.metaKeywords}
+                onChange={(e) => {
+                  setFormState(prevState => ({
+                    ...prevState,
+                    metaKeywords: e.target.value
+                  }))
+                }}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6} xl={4}>
+                  <FormControl sx={{ width: "100%" }}>
+                    <InputLabel id="demo-simple-select-autowidth-label">Status *</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-autowidth-label"
+                      id="demo-simple-select-autowidth"
+                      name='status'
+                      value={formstate?.status || prevData?.status}
+                      disabled={((imageData || prevData) && (!editing || saving))}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          status: e.target.value
+                        }))
+                      }}
+                      label="Status"
+                      sx={{ minHeight: 43 }}
+                    >
+                      <MenuItem value="Created">Created</MenuItem>
+                      <MenuItem value="Published">Published</MenuItem>
+                      <MenuItem value="Unpublished">Unpublished</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+          </Grid>
+        </Grid>
+
+
+        <Grid container display="flex" flexDirection="row" justifyContent="space-between">
+          <Grid container spacing={1} mt={0.5} mb={0} xs={12} md={9} xl={12}>
+
+            <Grid item xs={12} md={6} xl={12}>
+            <TextField
+                disabled={((imageData || prevData) && (!editing || saving))}
+                id="outlined-required"
+                label='Meta Description *'
+                fullWidth
+                value={prevData?.metaDescription || formstate?.metaDescription}
+                onChange={(e) => {
+                  setFormState(prevState => ({
+                    ...prevState,
+                    metaDescription: e.target.value
+                  }))
+                }}
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+
         
         <MDBox display='flex' justifyContent='flex-end' alignItems='center'>
           <MDButton
             variant="contained"
             color="success"
             size="small"
-            sx={{ mr: 1, ml: 2 }}
+            sx={{ mr: 1, ml: 2, mt: 1 }}
             // disabled={creating}
             onClick={(prevData && !editing) ? ()=>{setEditing(true)} : (prevData && editing) ? edit : handleUpload}
           >

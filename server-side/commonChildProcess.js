@@ -173,7 +173,10 @@ async function commonProcess() {
     app.use('/api/v1/push', require("./routes/pushNotifications/pushNotificationRoutes"));
 
     const PORT = process.env.PORT || 5002;
-    const server = app.listen(PORT);
+    // const server = app.listen(PORT);
+    const server = app.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server is running on port ${PORT}`);
+      });
     
     await pendingOrderMain();
 
