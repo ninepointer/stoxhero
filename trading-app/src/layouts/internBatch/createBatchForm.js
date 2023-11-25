@@ -42,7 +42,7 @@ function Index() {
     const  id  = location?.state?.data;
     const [applicationCount, setApplicationCount] = useState(0);
     const [isSubmitted,setIsSubmitted] = useState(false);
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const [isLoading,setIsLoading] = useState(id ? true : false)
     const [editing,setEditing] = useState(false)
     const [saving,setSaving] = useState(false)
@@ -66,6 +66,7 @@ function Index() {
         orientationDate: dayjs(id?.orientationDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
         orientationMeetingLink: '' || id?.orientationMeetingLink,
         payoutPercentage:'' || id?.payoutPercentage,
+        payoutCap:'' || id?.payoutCap,
         attendancePercentage:'' || id?.attendancePercentage,
         career: {
             id: "" || id?.career?._id,
@@ -171,6 +172,7 @@ function Index() {
         !formState.portfolio || 
         !formState.attendancePercentage || 
         formState.payoutPercentage === '' || 
+        !formState.payoutCap ||
         !formState.orientationDate ||
         !formState.orientationMeetingLink ||
         !formState.referralCount){
@@ -183,7 +185,7 @@ function Index() {
       }
 
       setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-      const {batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, attendancePercentage, referralCount, orientationDate, orientationMeetingLink} = formState;
+      const {batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink} = formState;
       const res = await fetch(`${baseUrl}api/v1/internbatch/`, {
           method: "POST",
           credentials:"include",
@@ -192,7 +194,7 @@ function Index() {
               "Access-Control-Allow-Credentials": true
           },
           body: JSON.stringify({
-            batchName, batchStartDate, batchEndDate, batchStatus, career : career.id, portfolio: portfolio.id, payoutPercentage, attendancePercentage, referralCount, orientationDate, orientationMeetingLink 
+            batchName, batchStartDate, batchEndDate, batchStatus, career : career.id, portfolio: portfolio.id, payoutPercentage, attendancePercentage, payoutCap, referralCount, orientationDate, orientationMeetingLink 
           })
       });
       
@@ -251,6 +253,7 @@ function Index() {
           !formState.career || 
           !formState.portfolio || 
           formState.payoutPercentage === '' || 
+          formState.payoutCap ||
           !formState.attendancePercentage ||
           !formState.orientationDate ||
           !formState.orientationMeetingLink || 
@@ -258,7 +261,7 @@ function Index() {
             setTimeout(()=>{setSaving(false);setEditing(true)},500)
             return openErrorSB("Missing Field","Please fill all the mandatory fields")
         }
-        const { batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = formState;
+        const { batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = formState;
     
         const res = await fetch(`${baseUrl}api/v1/internbatch/${id._id}`, {
             method: "PATCH",
@@ -268,7 +271,7 @@ function Index() {
                 "Access-Control-Allow-Credentials": true
             },
             body: JSON.stringify({
-                batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id, payoutPercentage, attendancePercentage, referralCount, orientationDate, orientationMeetingLink 
+                batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink 
             })
         });
      
@@ -384,6 +387,19 @@ const handleChange = (e) => {
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
+                label='Payout Cap *'
+                name='payoutCap'
+                type='number'
+                fullWidth
+                defaultValue={editing ? formState?.payoutCap : id?.payoutCap}
+                onChange={handleChange}
+              />
+          </Grid>
+
+          <Grid item xs={12} md={6} xl={3}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
                 label='Attendance % *'
                 name='attendancePercentage'
                 type='number'
@@ -484,7 +500,7 @@ const handleChange = (e) => {
           </Grid>
 
            {!id && <Grid item xs={12} md={3} xl={3}>
-                <FormControl sx={{ minHeight:10, minWidth:263 }}>
+                <FormControl sx={{ minHeight:10 }}>
                   <InputLabel id="demo-multiple-name-label">Batch Type</InputLabel>
                   <Select
                     labelId="demo-multiple-name-label"
@@ -513,7 +529,7 @@ const handleChange = (e) => {
             </Grid>}
 
            <Grid item xs={12} md={3} xl={3} mt={-2}>
-                <FormControl sx={{ minHeight:10, minWidth:263 }}>
+                <FormControl sx={{ minHeight:10, width:'100%' }}>
                   <InputLabel id="demo-multiple-name-label">Portfolio</InputLabel>
                   <Select
                     labelId="demo-multiple-name-label"

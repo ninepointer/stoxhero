@@ -18,7 +18,7 @@ export default function LabTabs() {
   const [value, setValue] = React.useState('1');
   const [isLoading,setIsLoading] = useState(false);
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
   
   useEffect(() => {
     ReactGA.pageview(window.location.pathname)
