@@ -14,7 +14,17 @@ exports.isAppLive = async(req,res,next) => {
 
         const appSettings = await AppSettings.find();
         if(appSettings.length>0 && !appSettings[0].isAppLive){
-            return res.status(401).send({message: "Something went wrong."}) ;
+            const currentTime = new Date();
+            const hours = currentTime.getHours();
+            const minutes = currentTime.getMinutes();
+    
+            // Check if the current time is between 9:15 and 15:30
+            if ((hours > 3 || (hours === 3 && minutes >= 50)) && (hours < 9 || (hours === 9 && minutes <= 50))) {
+                return res.status(401).send({message: "Something went wrong."}) ;
+            } else{
+                return res.status(401).send({message: "Market is currently closed. Please take trade during market hours."}) ;
+            }
+            
         }else{
             next();
         }

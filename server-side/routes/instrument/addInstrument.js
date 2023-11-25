@@ -478,6 +478,12 @@ router.get("/instrumentDetails", authentication, async (req, res)=>{
 
             if(dailyContest){
 
+                // if(isRedisConnected && await client.exists(`${req.user._id.toString()}: contestInstrument`)){
+                //     let instrument = await client.LRANGE(`${req.user._id.toString()}: contestInstrument`, 0, -1)
+                //     const instrumentJSONs = instrument.map(instrument => JSON.parse(instrument));
+                //     res.status(201).json({message: "redis instrument received", data: instrumentJSONs}); 
+    
+                // } else{
           
                     const user = await User.findOne({_id: _id});
                     let instrument = await Instrument.find({ 

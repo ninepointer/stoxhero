@@ -1021,6 +1021,14 @@ exports.myExpiredSubsciption = async(req, res, next)=>{
               status: "$users.status",
               subscribedOn: "$users.subscribedOn",
               expiredOn: "$users.expiredOn",
+              payout: "$users.payout",
+              tdsAmount: "$users.tdsAmount",
+              gpnl: "$users.gpnl",
+              npnl: "$users.npnl",
+              brokerage: "$users.brokerage",
+              tradingDays: "$users.tradingDays",
+              trades: "$users.trades",
+
             },
           },
           {

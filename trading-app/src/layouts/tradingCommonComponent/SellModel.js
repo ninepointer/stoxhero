@@ -30,7 +30,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 // import {internshipTrader, tenxTrader, dailyContest, marginX, paperTrader } from "../../variables";
 
 
-const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setSellState, exchangeSegment, exchangeInstrumentToken, module }) => {
+const SellModel = ({fromTradable, chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setSellState, exchangeSegment, exchangeInstrumentToken, module }) => {
 
   const newLtp = ltp;
   const { pnlData } = useContext(NetPnlContext);
@@ -122,7 +122,7 @@ const SellModel = ({ chartInstrument, isOption, setOpenOptionChain, traderId, so
   sellFormDetails.validity = validity;
 
   const handleClickOpen = async () => {
-    if(!ltp){
+    if(!ltp && !fromTradable){
       openSuccessSB('error', "This instrument is expired. Please trade on valid instrument.");
       return
     }

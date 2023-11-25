@@ -17,7 +17,7 @@ exports.search = async (searchString, res, req) => {
   const page = parseInt(req.query.page);
   const size = parseInt(req.query.size);
   let {isNifty, isBankNifty, isFinNifty, dailyContest} = req.query;
-  // console.log(isNifty, isBankNifty, isFinNifty)
+  console.log(isNifty, isBankNifty, isFinNifty, dailyContest)
 
   let query = [];
   if(isNifty){
@@ -113,7 +113,7 @@ exports.search = async (searchString, res, req) => {
             {
               expiry: {
                 $gte: todayDate, // expiry is greater than or equal to today's date
-                $lt: fromLessThen
+                $lte: fromLessThen
               }
             },
             {

@@ -83,6 +83,7 @@ import MarginXReport from "./layouts/marginxReport";
 import Coupons from './layouts/coupons'
 import Blogs from './layouts/blog'
 import BlogDetails from './layouts/blog/blogDetails'
+import BlogForm from './layouts/blog/blogDetails'
 import LearningModule from './layouts/learningModule'
 import LearningModuleDetails from './layouts/learningModule/moduleChapterIndex'
 // import ModuleChapter from './layouts/learningModule/'
@@ -131,6 +132,7 @@ import InfinityTrader from "./layouts/InfinityTrading"
 import UserAnalytics from "./layouts/userAnalytics";
 import UserWallet from "./layouts/userWallet"
 import About from './layouts/HomePage/pages/About'
+import Blog from './layouts/HomePage/pages/BlogCards'
 import Careers from './layouts/HomePage/pages/Career'
 import JobForm from './layouts/HomePage/pages/EICCareerForm'
 import Workshops from './layouts/HomePage/pages/Workshop'
@@ -428,10 +430,6 @@ const routes = [
     component: <ReferralProgramDetails />,
   },
   {
-    // type: "collapse",
-    // name: "Arena",
-    // key: "arena",
-    // icon: <BusinessIcon/>,
     route: "/arena/:name",
     component: <ContestPage />,
   },
@@ -454,6 +452,10 @@ const routes = [
   {
     route: "/blogdetails",
     component: <BlogDetails />,
+  },
+  {
+    route: "/blog/:id",
+    component: <BlogForm />,
   },
   {
     route: "/learningmoduledetails/:name",

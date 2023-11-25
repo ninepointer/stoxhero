@@ -124,7 +124,7 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
     })
     totalRunningLots += Number(subelem.lots)
     totalTrades += Number(subelem.trades);
-    let updatedValue = (subelem.lots > 0) ? (subelem.amount + (subelem.lots) * liveDetail[0]?.last_price) : subelem.amount;
+    let updatedValue = (subelem.lots !== 0) ? (subelem.amount + (subelem.lots) * liveDetail[0]?.last_price) : subelem.amount;
     let netupdatedValue = updatedValue - Number(subelem.brokerage);
     totalGrossPnl += updatedValue;
     console.log("updatedValue", updatedValue, subelem.lots, subelem.amount, liveDetail[0]?.last_price)
@@ -340,7 +340,12 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
     }
     const payout = Math.min((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100, payoutCap)
     if (moduleData?.allData?.entryFee > 0) {
-      tdsAmount = (payout-moduleData?.allData?.entryFee)*setting[0]?.tdsPercentage/100
+      if((payout-moduleData?.allData?.entryFee) > 0){
+        tdsAmount = (payout-moduleData?.allData?.entryFee)*setting[0]?.tdsPercentage/100
+      } else{
+        tdsAmount = 0;
+      }
+      
     } else {
       tdsAmount = payout*setting[0]?.tdsPercentage/100
     }

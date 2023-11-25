@@ -276,9 +276,8 @@ async function singleProcess() {
         const internshipPayout = nodeCron.schedule(`0 30 17 * * *`, updateUserWallet);
         const reportMail = nodeCron.schedule(`0 0 18 * * *`, mail);
     }
-    const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
+    //const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
     // const battle = nodeCron.schedule(`56 5 * * *`, processBattles);
-
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
     app.use(express.json({ limit: "20kb" }));
@@ -416,6 +415,7 @@ async function singleProcess() {
 
     const PORT = process.env.PORT || 5002;
     const server = app.listen(PORT);
+
 
     if(process.env.CHART === "true"){
         webSocketService.init(io);

@@ -37,7 +37,7 @@ const App = (props) => {
   },[]);
   return (
     <>
-    <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{backgroundColor:'white', minHeight:'100vH', height: 'auto', width: 'auto', minWidth:'100vW'}}>
+    <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='stretch' style={{backgroundColor:'white', minHeight:'100vH', height: 'auto', width: 'auto', minWidth:'100vW'}}>
       <ThemeProvider theme={theme}>
         <Navbar/>
         <Grid mt={10} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' container xs={12} md={12} lg={12}>

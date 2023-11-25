@@ -118,7 +118,7 @@ function Header({ subscription, checkPayment, setCheckPayment, amount, name, id,
                                       </MDTypography>
                                   </MDBox>
                                  
-                                  <MDBox mt={0.5} display='flex' justifyContent='center'>
+                                  <MDBox mt={0.5} display='flex' justifyContent='space-around'>
                                       <MDTypography 
                                           fontSize={12} 
                                           fontWeight='bold'
@@ -127,6 +127,17 @@ function Header({ subscription, checkPayment, setCheckPayment, amount, name, id,
                                           // sx={{background:'linear-gradient(110.8deg, rgb(86, 238, 225) 11.4%, rgb(176, 255, 39) 84.5%)',padding:'2px 6px 2px 6px', borderRadius:2}}
                                       >
                                           Net Payout: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(subscription?.payout ? subscription?.payout : 0)}
+                                      </MDTypography>
+                                  </MDBox>
+                                  <MDBox mt={0.5} display='flex' justifyContent='space-around'>
+                                      <MDTypography 
+                                          fontSize={12} 
+                                          fontWeight='bold'
+                                          color='light'
+                                          sx={{background:'linear-gradient(195deg, #49a3f1, #1A73E8)',padding:'2px 6px 2px 6px', borderRadius:2}}
+                                          // sx={{background:'linear-gradient(110.8deg, rgb(86, 238, 225) 11.4%, rgb(176, 255, 39) 84.5%)',padding:'2px 6px 2px 6px', borderRadius:2}}
+                                      >
+                                          TDS: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(subscription?.tdsAmount ? subscription?.tdsAmount : 0)}
                                       </MDTypography>
                                   </MDBox>
                               </MDBox>
@@ -156,7 +167,7 @@ function Header({ subscription, checkPayment, setCheckPayment, amount, name, id,
                           <Grid item xs={12} md={12} lg={12} mt={1} mb={1} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
                               <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
                               <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
-                                <DialogueAnalytics subscription={subscription} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={amount} name={name} id={id} walletCash={walletCash} allowRenewal={allowRenewal} />
+                                <DialogueAnalytics subscription={subscription} />
                               </Grid>
                               <Grid item xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
                               <MDButton varaint='contained' color='warning' size='small' style={{fontSize:'10px', width:'88%', border:'none'}} onClick={()=>{navigate('/orders')}}>Order Book</MDButton>

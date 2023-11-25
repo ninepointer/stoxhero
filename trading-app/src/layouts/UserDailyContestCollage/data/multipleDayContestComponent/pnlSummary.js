@@ -155,7 +155,7 @@ function PnlSummary({contestId, setyesterdayPnl}) {
           id="panel1a-header"
         >
           <Typography fontSize={14} fontWeight= {700} >
-          Contest Net P&L : &nbsp; 
+          TestZone Net P&L : &nbsp; 
             <span style={{fontWeight: 700, color: netPnl >= 0 ? "#7EC581" : "#FF3737"}} >
               { netPnl >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(netPnl))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(netPnl)))}
             </span>

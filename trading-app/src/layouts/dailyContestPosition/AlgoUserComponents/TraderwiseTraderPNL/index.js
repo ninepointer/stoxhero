@@ -87,7 +87,7 @@ function TraderwiseTraderPNL({ socket }) {
       })
 
       let obj = mapForParticularUser.get(allTrade[i]._id.traderId)
-      obj.totalPnl += ((allTrade[i].amount + ((allTrade[i].lots) * marketDataInstrument[0]?.last_price)));
+      obj.totalPnl += allTrade[i].lots !== 0 ? ((allTrade[i].amount + ((allTrade[i].lots) * marketDataInstrument[0]?.last_price))) : allTrade[i].amount;
       obj.lotUsed += Math.abs(allTrade[i].lotUsed)
       obj.runninglots += allTrade[i].lots;
       obj.brokerage += allTrade[i].brokerage;
@@ -99,7 +99,7 @@ function TraderwiseTraderPNL({ socket }) {
       })
       mapForParticularUser.set(allTrade[i]._id.traderId, {
         name: allTrade[i]._id.traderName,
-        totalPnl: ((allTrade[i].amount + ((allTrade[i].lots) * marketDataInstrument[0]?.last_price))),
+        totalPnl: allTrade[i].lots !== 0 ? ((allTrade[i].amount + ((allTrade[i].lots) * marketDataInstrument[0]?.last_price))) : allTrade[i].amount,
         lotUsed: Math.abs(allTrade[i].lotUsed),
         runninglots: allTrade[i].lots,
         brokerage: allTrade[i].brokerage,

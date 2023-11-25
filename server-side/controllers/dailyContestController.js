@@ -994,7 +994,9 @@ exports.getCompletedCollegeContests = async (req, res) => {
     try {
         const contests = await Contest.find({
             contestEndTime: { $lt: new Date() }, "participants.userId": new ObjectId(userId), contestFor: "College"
-        }).sort({ contestStartTime: -1 })
+        })
+        .populate('portfolio', 'portfolioName _id portfolioValue')
+        .sort({ contestStartTime: -1 })
 
         res.status(200).json({
             status: "success",
@@ -1852,7 +1854,7 @@ exports.creditAmountToWallet = async () => {
                           description:`₹${payoutAmount?.toFixed(2)} credited to your wallet as your TestZone reward`,
                           notificationType:'Individual',
                           notificationCategory:'Informational',
-                          productCategory:'Contest',
+                          productCategory:'TestZone',
                           user: user?._id,
                           priority:'Medium',
                           channels:['App', 'Email'],
@@ -5199,16 +5201,12 @@ exports.getLastPaidContestChampions = async (req, res) => {
             entryFee: {
               $gt: 0,
             },
-            contestStatus: 'Completed'
+            contestStatus: 'Completed',
+            payoutStatus: 'Completed'
           },
         },
         {
           $unwind: "$participants",
-        },
-        {
-          $sort: {
-            entryFee: 1,
-          },
         },
         {
           $sort: {
@@ -5220,6 +5218,9 @@ exports.getLastPaidContestChampions = async (req, res) => {
             _id: "$_id",
             contestName: {
               $first: "$contestName",
+            },
+            entryFee: {
+              $first: "$entryFee",
             },
             contestStartTime: {
               $first: "$contestStartTime",
@@ -5244,6 +5245,7 @@ exports.getLastPaidContestChampions = async (req, res) => {
           $project: {
             _id: 1,
             contestName: 1,
+            entryFee: 1,
             contestDate: {
               $substr: [
                 {
@@ -5308,6 +5310,7 @@ exports.getLastPaidContestChampions = async (req, res) => {
             _id: 1,
             contestName: 1,
             contestDate: 1,
+            entryFee: 1,
             topParticipants: {
               first_name: 1,
               last_name: 1,
@@ -5317,6 +5320,11 @@ exports.getLastPaidContestChampions = async (req, res) => {
               profilePhoto: 1,
               employeeid: 1,
             },
+          },
+        },
+        {
+          $sort: {
+            entryFee: -1,
           },
         },
         {
