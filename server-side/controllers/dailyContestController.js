@@ -5185,7 +5185,7 @@ exports.getUserContestProfile = async (req, res) => {
 
 exports.getLastPaidContestChampions = async (req, res) => {
   let now = new Date();
-  let date = new Date(now);
+  let date = new Date(now); 
   date.setUTCHours(0, 0, 0, 0);
   try {
       const pipeline = 
@@ -5199,6 +5199,7 @@ exports.getLastPaidContestChampions = async (req, res) => {
             entryFee: {
               $gt: 0,
             },
+            contestStatus: 'Completed'
           },
         },
         {

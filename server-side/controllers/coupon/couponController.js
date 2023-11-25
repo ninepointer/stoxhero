@@ -220,9 +220,10 @@ exports.getExpiredCouponCodes = async (req, res) => {
 exports.verifyCouponCode = async (req, res) => {
     try {
         const { code, product, orderValue, platform, paymentMode} = req.body;
+        console.log("Coupon Data:",req.body)
         const userId = req.user._id;
         let coupon = await Coupon.findOne({ code: code, expiryDate:{$gte: new Date()}, status:'Active' });
-
+        console.log("Coupon:",coupon)
         if(!coupon){
             const affiliatePrograms = await AffiliateProgram.find({status:'Active'});
             if(affiliatePrograms.length != 0){
@@ -265,12 +266,14 @@ exports.verifyCouponCode = async (req, res) => {
             });
         }
         if(paymentMode=='wallet' && coupon?.rewardType == 'Cashback'){
+            console.log("Payment Mode & RewardType:",paymentMode,coupon?.rewardType )
             return res.status(400).json({
                 status: 'error',
                 message: "This coupon is not valid for your selected payment mode",
             });
         }
         if(paymentMode=='addition' && coupon?.rewardType == 'Discount'){
+            console.log("Payment Mode & RewardType:",paymentMode,coupon?.rewardType )
             return res.status(400).json({
                 status: 'error',
                 message: "This coupon is not valid for wallet topup",
@@ -289,6 +292,7 @@ exports.verifyCouponCode = async (req, res) => {
             });
         }
         if(coupon?.isOneTimeUse){
+            console.log("Inside Onetime Use:",paymentMode,coupon?.rewardType )
             if(coupon?.usedBySuccessful.length >0){
                 const uses = coupon?.usedBySuccessful?.filter((item)=>item?.user?.toString() == userId?.toString());
                 if(uses?.length>0){
@@ -300,6 +304,7 @@ exports.verifyCouponCode = async (req, res) => {
             }
         }
         if(coupon?.minOrderValue && orderValue<coupon?.minOrderValue){
+            console.log("Inside Min Order and order value check:",paymentMode,coupon?.rewardType )
             return res.status(400).json({
                 status: 'error',
                 message: `Your order is not eligible for this coupon. The minimum order value for this coupon is ₹${coupon?.minOrderValue}`,
