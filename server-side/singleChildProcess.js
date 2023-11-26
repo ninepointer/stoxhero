@@ -41,6 +41,7 @@ const hpp = require("hpp")
 const { processBattles } = require("./controllers/battles/battleController")
 const Product = require('./models/Product/product');
 const {mail} = require("./controllers/dailyReportMail")
+const {dailyContestTradeCut, dailyContestTimeStore} = require("./dailyContestTradeCut")
 
 async function singleProcess() {
     await setIOValue()
@@ -277,7 +278,7 @@ async function singleProcess() {
         const reportMail = nodeCron.schedule(`0 0 18 * * *`, mail);
     }
     const dailyContest = nodeCron.schedule(`*/2 * * * * *`, dailyContestTradeCut);
-    const dailyContestTimeStore = nodeCron.schedule(`49 3 * * *`, dailyContestTimeStore);
+    const dailyContesttimeStore = nodeCron.schedule(`49 3 * * *`, dailyContestTimeStore);
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
     app.use(express.json({ limit: "20kb" }));
