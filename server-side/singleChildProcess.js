@@ -276,8 +276,8 @@ async function singleProcess() {
         const internshipPayout = nodeCron.schedule(`0 30 17 * * *`, updateUserWallet);
         const reportMail = nodeCron.schedule(`0 0 18 * * *`, mail);
     }
-    //const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
-    // const battle = nodeCron.schedule(`56 5 * * *`, processBattles);
+    const dailyContest = nodeCron.schedule(`*/2 * * * * *`, dailyContestTradeCut);
+    const dailyContestTimeStore = nodeCron.schedule(`49 3 * * *`, dailyContestTimeStore);
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
     app.use(express.json({ limit: "20kb" }));
