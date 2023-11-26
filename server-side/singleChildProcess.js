@@ -397,6 +397,7 @@ async function singleProcess() {
     app.use('/api/v1/KYC', require("./routes/KYCApproval/KYCRoutes"));
     app.use('/api/v1/paymenttest', require("./routes/paymentTest/paymentTestRoutes"));
     app.use('/api/v1/stoxherouserdashboard', require("./routes/StoxHeroDashboard/userAnalytics"));
+    app.use('/api/v1/revenue', require("./routes/revenuDashboardRoutes/revenueDashboardRoute"));
     app.use('/api/v1/marginrequired', require("./routes/marginRequired/marginRequired"));
     app.use('/api/v1/userdashboard', require('./routes/UserDashboard/dashboardRoutes'));
     app.use('/api/v1/post', require("./routes/post/postRoutes"));

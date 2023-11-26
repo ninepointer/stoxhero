@@ -54,13 +54,6 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
 
                       <CardActionArea>
                         <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
-                          {/* <CardMedia
-                            component="img"
-                            height="180"
-                            style={{maxWidth:'100%'}}
-                            image={elem?.thumbnailImage?.url}
-                            alt="green iguana"
-                          /> */}
                           <img src={elem?.thumbnailImage?.url} style={{maxWidth: '100%',height: 'auto', borderTopLeftRadius:10, borderTopRightRadius:10}}/>
                         </Grid>
                         <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>

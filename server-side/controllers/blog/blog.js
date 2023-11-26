@@ -1,9 +1,8 @@
-// const mongoose = require('mongoose');
 const Blog = require('../../models/blogs/blogs');
-// const multer = require('multer');
 const AWS = require('aws-sdk');
 const { ObjectId } = require("mongodb");
 const {decode} = require('html-entities');
+const sharp = require('sharp');
 
 AWS.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -23,7 +22,7 @@ exports.createBlog = (async (req, res, next) => {
         const { title, metaTitle, category, metaDescription, metaKeywords, status  } = req.body;
         const uploadedFiles = req.files;
         const otherImages = await Promise.all(await processUpload(uploadedFiles.files, s3, title));
-        const titleImage = await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, title));
+        const titleImage = await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, title, true));
         const blog = await Blog.create({
             blogTitle: title, thumbnailImage: titleImage[0], images: otherImages,
             createdBy: req.user._id, lastModifiedBy: req.user._id, status: "Created",
@@ -37,6 +36,38 @@ exports.createBlog = (async (req, res, next) => {
     }
 
 });
+
+const processUpload = async(uploadedFiles, s3, title, isTitleImage)=>{
+    const MAX_LIMIT = 5*1024*1024;
+    const fileUploadPromises = uploadedFiles.map(async (file) => {
+        
+        if(file.size > MAX_LIMIT){
+            return res.status(500).send({status: "error", err: error, message: 'Image size should be less then 5 MB.'});
+        }
+        if(isTitleImage){
+            file.buffer = await sharp(file.buffer)
+            .resize({ width: 1080, height: 720 })
+            .toBuffer();
+        }
+        const key = `blogs/${title}/photos/${(Date.now()) + file.originalname}`;
+        const uploadParams = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: key,
+            Body: file.buffer,
+            ContentType: file.mimetype,
+            ACL: 'public-read',
+        };
+        const uploadedObject = await s3.upload(uploadParams).promise();
+        return {
+            name: file.originalname,
+            url: uploadedObject.Location,
+            // size: (uploadedObject).Size,
+            // mimetype: file.mimetype,
+        };
+    });
+
+    return fileUploadPromises;
+}
 
 exports.editBlog = (async (req, res, next) => {
 
@@ -58,7 +89,7 @@ exports.editBlog = (async (req, res, next) => {
             // console.log("blog.images", blog.images)
         }
         if(uploadedFiles?.titleFiles){
-            titleImage = await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, update.blogTitle));
+            titleImage = await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, update.blogTitle, true));
             update.thumbnailImage = titleImage[0];
         }
 
@@ -78,28 +109,6 @@ exports.editBlog = (async (req, res, next) => {
 
 });
 
-const processUpload = async(uploadedFiles, s3, title)=>{
-    const fileUploadPromises = uploadedFiles.map(async (file) => {
-        const key = `blogs/${title}/photos/${(Date.now()) + file.originalname}`;
-        const uploadParams = {
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: key,
-            Body: file.buffer,
-            ContentType: file.mimetype,
-            ACL: 'public-read',
-        };
-        const uploadedObject = await s3.upload(uploadParams).promise();
-        return {
-            name: file.originalname,
-            url: uploadedObject.Location,
-            // size: (uploadedObject).Size,
-            // mimetype: file.mimetype,
-        };
-    });
-
-    return fileUploadPromises;
-}
-
 exports.saveBlogData = async(req, res, next) => {
     const id = req.params.id;
     const content = decode(req.body.blogData)
@@ -118,6 +127,34 @@ exports.saveBlogData = async(req, res, next) => {
     });
 
     return res.status(200).json({message: 'Successfully saved Blog Data.', data: blog});
+}
+
+exports.getUserPublishedBlogs = async (req, res, next) => {
+    try {
+        const skip = parseInt(req.query.skip) || 0;
+        const limit = parseInt(req.query.limit) || 10
+        const count = await Blog.countDocuments({ status: "Published" });
+
+        const publishedBlogs = await Blog.find({ status: "Published" })
+            .select('-reader -images -createdBy -createdOn -lastModifiedOn -lastModifiedBy -metaDescription -metaTitle -metaKeywords -blogData')
+            .sort({ publishedOn: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        res.status(200).json({
+            status: 'success',
+            data: publishedBlogs,
+            count: count
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
 }
 
 exports.viewBlog = async(req, res, next) => {
@@ -146,25 +183,6 @@ exports.viewBlog = async(req, res, next) => {
 
     return res.status(200).json({status:"success", message: 'reader data saved.', data: save});
 }
-
-
-// exports.editBlog = async(req, res, next) => {
-//     const id = req.params.id;
-//     console.log("Req Body:",req.body)
-//     console.log("id is ,", id)
-//     const blog = await Blog.findById(id);
-
-//     const filteredBody = filterObj(req.body, "blogTitle", "content", "author", "thumbnailImage");
-//     if(req.body.blogContent)filteredBody.blogContent=[...blog.blogContent,
-//         {serialNumber:req.body.blogContent.serialNumber,
-//             content:req.body.blogContent.content,header:req.body.blogContent.header,youtubeVideoCode:req.body.blogContent.youtubeVideoCode,image:req.body.blogContent.image}]
-//     filteredBody.lastModifiedBy = req.user._id;    
-
-//     console.log(filteredBody)
-//     const updated = await Blog.findByIdAndUpdate(id, filteredBody, { new: true });
-
-//     return res.status(200).json({message: 'Successfully edited Blog.', data: updated});
-// }
 
 exports.updateBlogStatus = async (req, res) => {
     try {
