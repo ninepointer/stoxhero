@@ -278,7 +278,8 @@ async function singleProcess() {
         const reportMail = nodeCron.schedule(`0 0 18 * * *`, mail);
     }
     const dailyContest = nodeCron.schedule(`*/2 * * * * *`, dailyContestTradeCut);
-    const dailyContesttimeStore = nodeCron.schedule(`49 3 * * *`, dailyContestTimeStore);
+    // const dailyContesttimeStore = nodeCron.schedule(`49 3 * * *`, dailyContestTimeStore);
+    const dailyContesttimeStore = nodeCron.schedule(`*/59 * * * * *`, dailyContestTimeStore);
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
     app.use(express.json({ limit: "20kb" }));

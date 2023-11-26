@@ -1213,6 +1213,7 @@ const dailyContestSingleMockMod = async (contestId) => {
 
     ]
   );
+  console.log(data.length);
   if(data.length == 0) return;
   const system = await User.findOne({email:'system@ninepointer.in'}).select('_id');  
   //const uniqueInstrumentTokens = [...new Set(data.map(item => item.instrumentToken))];
@@ -1246,8 +1247,8 @@ const dailyContestSingleMockMod = async (contestId) => {
       instrumentToken: item?.instrumentToken,contestId: item?.contestId, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?.userId, amount: (Number(item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5*60 + 30) * 60 * 1000),
     }
   });
-  // console.log('userTrades', userTradeObjects);
-  // console.log('company trades', companyTradeObjects);
+  console.log('userTrades', userTradeObjects);
+  console.log('company trades', companyTradeObjects);
   
   await takeDailyContestMockTrades(companyTradeObjects, userTradeObjects);
 
