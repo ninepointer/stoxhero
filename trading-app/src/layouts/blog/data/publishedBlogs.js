@@ -15,7 +15,7 @@ import moment from 'moment'
 
 const PublishedBlogs = ({status}) => {
 const [publishedBlogs,setPublishedBlogs] = useState([]);
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
     let call1 = axios.get(`${baseUrl}api/v1/blogs/published`,{
@@ -43,34 +43,35 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
       {publishedBlogs.length > 0 ?
         
           <MDBox>
-            <Grid container spacing={2} bgColor="dark" display="flex" justifyContent="flex-start" alignItems='center'>
+            <Grid container spacing={4} bgColor="dark" display="flex" justifyContent="flex-start" alignItems='center'>
               {publishedBlogs?.map((elem, index)=>{
 
                     return (
 
-                      <Grid key={elem?._id} item xs={12} md={4} lg={4} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                      <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                      <Card sx={{ minWidth: '100%' }} component={Link} to={{pathname:`/blogdetails`}} state={{ data: elem }} >
+                      <Grid key={elem?._id} item xs={12} md={4} lg={4} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                      <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                      <Card sx={{ minWidth: '100%', cursor:'pointer' }} component={Link} to={{pathname:`/blogdetails`}} state={{ data: elem }} >
 
-                        <CardActionArea>
-                        <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                          <CardMedia
+                      <CardActionArea>
+                        <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                          {/* <CardMedia
                             component="img"
                             height="180"
                             style={{maxWidth:'100%'}}
                             image={elem?.thumbnailImage?.url}
                             alt="green iguana"
-                          />
+                          /> */}
+                          <img src={elem?.thumbnailImage?.url} style={{maxWidth: '100%',height: 'auto', borderTopLeftRadius:10, borderTopRightRadius:10}}/>
                         </Grid>
-                        <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                          <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
+                        <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                          <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                             <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', minHeight:60}}>
                             <MDTypography variant="h5" fontFamily='Segoe UI' fontWeight={400} style={{textAlign:'center'}}>
                               {elem?.blogTitle}
                             </MDTypography>
                             </MDBox>
                             <Divider style={{width:'100%'}}/>
-                            <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
+                            <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                             <MDTypography variant='caption'>
                               {`${moment.utc(elem?.publishedOn).utcOffset('+05:30').format('DD MMM YYYY')} • ${elem?.readingTime} min read • ${elem?.reader?.length} views`}
                             </MDTypography>
@@ -80,7 +81,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                         </CardActionArea>
                       </Card>
                       </Grid>
-                      </Grid>      
+                      </Grid>   
                     )
               })}
             </Grid>

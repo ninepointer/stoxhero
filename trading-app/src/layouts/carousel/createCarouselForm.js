@@ -42,13 +42,13 @@ function Index() {
     const { register, handleSubmit, formState: { errors }, watch } = useForm();
     const location = useLocation();
     const  id  = location?.state?.data;
-    console.log("Carousel:",id)
+    // console.log("Carousel:",id)
     let [photo,setPhoto] = useState(id ? id?.carouselImage : DefaultCarouselImage)
     const [imageFile, setImageFile] = useState(id ? id?.carouselImage : DefaultCarouselImage);
     const [previewUrl, setPreviewUrl] = useState('');
     const [carousel,setCarousel] = useState([]);
     const [isSubmitted,setIsSubmitted] = useState(false);
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [isLoading,setIsLoading] = useState(id ? true : false)
     const [editing,setEditing] = useState(id ? false : true)
     const [saving,setSaving] = useState(false)
@@ -67,7 +67,6 @@ function Index() {
         carouselPosition: '' || id?.carouselPosition,
         visibility: '' || id?.visibility
     });
-    console.log("Initial FormState:", formState)
 
     useEffect(()=>{
       setTimeout(()=>{
@@ -103,15 +102,15 @@ function Index() {
     async function onSubmit(e,data){
         e.preventDefault();
         setCreating(true)
-        console.log("Form Data: ",data)
+        // console.log("Form Data: ",data)
         try{
           const formData = new FormData();
           Object.keys(data).forEach((key) => {
-            console.log("data to be appended")
+            // console.log("data to be appended")
             formData.append('blogContent', data[key])
             // formData.append('blogContent', JSON.stringify(childFormState.blogContent));
-            console.log("data appended",formData)
-            console.log("formState",formState)
+            // console.log("data appended",formData)
+            // console.log("formState",formState)
           });
           
             if(!formState.carouselName || !formState.description || 
@@ -136,7 +135,7 @@ function Index() {
           });
 
           let data1 = await res.json()
-          console.log("Response:",data1)
+          // console.log("Response:",data1)
           if (data1.data) {
             openSuccessSB("Success", data1.message)
             setIsSubmitted(true)

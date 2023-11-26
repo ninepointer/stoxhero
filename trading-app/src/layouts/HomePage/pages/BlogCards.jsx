@@ -63,18 +63,18 @@ export default function BlogCard() {
   };
   return (
     <> 
-      <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{backgroundColor:'white', minHeight:'100vH', height: 'auto', width: 'auto', minWidth:'100vW'}}>
+      <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{backgroundColor:'white', minHeight:'100%', height: 'auto', width: 'auto', maxWidth:'100%'}}>
       <ThemeProvider theme={theme}>
         <Navbar/>
-        <Grid mt={10} mb={10} display='flex' justifyContent='center' alignContent='center' alignItems='center' container xs={12} md={12} lg={12} style={{maxWidth:'80%'}}>
+        <Grid mt={10} mb={7} display='flex' justifyContent='center' alignContent='center' alignItems='center' container xs={12} md={12} lg={12} style={{maxWidth: '80%',height: 'auto'}}>
           
           <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
             <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
               
               <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'90%'}}>
-                <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                  <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                    <MDBox  display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
+                <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                  <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                    <MDBox  display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                       <MDTypography fontSize={18} fontWeight="bold">StoxHero Blogs</MDTypography>
                     </MDBox>
                   </Grid>
@@ -82,32 +82,26 @@ export default function BlogCard() {
                   <Grid item xs={12} mt={5} md={12} lg={12} alignItems='stretch'>
                     
                       <MDBox alignItems='stretch'>
-                      <Grid container spacing={3} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
+                      <Grid container spacing={3} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                           {blogData?.map((elem)=>{
                             return (
-                                <Grid item xs={12} md={4} lg={4} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                                <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                                <Card sx={{ minWidth: '100%' }} onClick={()=>{handleOpenNewTab(elem)}}>
+                                <Grid item xs={12} md={4} lg={4} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                                <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                                <Card sx={{ minWidth: '100%', cursor:'pointer' }} onClick={()=>{handleOpenNewTab(elem)}}>
                                 
                                   <CardActionArea>
-                                  <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                                    <CardMedia
-                                      component="img"
-                                      height="180"
-                                      style={{maxWidth:'100%'}}
-                                      image={elem?.thumbnailImage?.url}
-                                      alt="green iguana"
-                                    />
+                                  <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                                    <img src={elem?.thumbnailImage?.url} style={{maxWidth: '100%',height: 'auto', borderTopLeftRadius:10, borderTopRightRadius:10}}/>
                                   </Grid>
-                                  <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                                    <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
+                                  <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                                    <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                                       <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', minHeight:60}}>
                                       <Typography variant="h5" fontFamily='Segoe UI' fontWeight={400} style={{textAlign:'center'}}>
                                         {elem?.blogTitle}
                                       </Typography>
                                       </MDBox>
                                       <Divider style={{width:'100%'}}/>
-                                      <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
+                                      <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                                       <Typography variant='caption'>
                                         {`${moment.utc(elem?.publishedOn).utcOffset('+05:30').format('DD MMM YYYY')} • ${elem?.readingTime} min read • ${elem?.reader?.length} views`}
                                       </Typography>
@@ -134,7 +128,7 @@ export default function BlogCard() {
         
       </ThemeProvider>
     </MDBox>
-    <MDBox>
+    <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-end'>
       <Footer/>
     </MDBox>
     </>

@@ -18,21 +18,18 @@ const s3 = new AWS.S3({
 
 
 exports.createBlog = (async (req, res, next) => {
-    console.log(req.body)
+    
     try {
-        const { title, metaTitle, metaDescription, metaKeywords, status  } = req.body;
-        console.log(title);
+        const { title, metaTitle, category, metaDescription, metaKeywords, status  } = req.body;
         const uploadedFiles = req.files;
         const otherImages = await Promise.all(await processUpload(uploadedFiles.files, s3, title));
         const titleImage = await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, title));
-
-        console.log("Going to create blog")
         const blog = await Blog.create({
             blogTitle: title, thumbnailImage: titleImage[0], images: otherImages,
             createdBy: req.user._id, lastModifiedBy: req.user._id, status: "Created",
-            metaTitle, metaDescription, metaKeywords
+            metaTitle, category, metaDescription, metaKeywords
         });
-        console.log(blog)
+       
         res.status(200).json({status: "success", data: blog, message: "Blog created successfully."});
     } catch (error) {
         console.error(error);
@@ -58,7 +55,7 @@ exports.editBlog = (async (req, res, next) => {
         if(uploadedFiles?.files){
             otherImages = await Promise.all(await processUpload(uploadedFiles.files, s3, update.blogTitle));
             update.images = blog.images.concat(otherImages);
-            console.log("blog.images", blog.images)
+            // console.log("blog.images", blog.images)
         }
         if(uploadedFiles?.titleFiles){
             titleImage = await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, update.blogTitle));

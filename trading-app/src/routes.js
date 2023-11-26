@@ -13,6 +13,7 @@ import TradingAccount from "./layouts/trading-account";
 import Users from "./layouts/users";
 import AlgoBox from "./layouts/algobox";
 import Funds from "./layouts/funds";
+import BookIcon from '@mui/icons-material/Book';
 // import Notifications from "./layouts/notifications";
 import Profile from "./layouts/profile";
 import Setting from "./layouts/settings/Setting";
@@ -278,9 +279,9 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Blogs",
+    name: "StoxHero Blogs",
     key: "allblogs",
-    icon: <EmojiEventsIcon/>,
+    icon: <BookIcon/>,
     route: "/allblogs",
     component: <Blogs />,
   },

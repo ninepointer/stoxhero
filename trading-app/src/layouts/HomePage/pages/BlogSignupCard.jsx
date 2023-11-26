@@ -65,24 +65,24 @@ export default function BlogCard() {
   };
   return (
     <>
-        <Grid display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' container xs={12} md={12} lg={12} style={{minWidth:'100%'}}>
+        <Grid container display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' xs={12} md={12} lg={12} style={{maxWidth:'100%', height:'auto'}}>
           
-          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{minWidth:'100%'}}>
-            <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{minWidth:'100%'}}>
+          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
+            <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
               
-              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'90%'}}>
-                <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
+              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
+                <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                   
-                  <Grid item xs={12} mt={5} md={12} lg={12} alignItems='stretch'>
+                  <Grid item xs={12} mt={5} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                     
-                      <MDBox alignItems='stretch'>
-                      <Grid container spacing={3} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                          <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                          <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                          <Card sx={{ minWidth: '100%' }} onClick={()=>{handleOpenHomePage()}}>
+                      <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
+                      <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
+                          <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
+                          <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
+                          <Card sx={{ maxWidth: '100%', height:'auto' }} onClick={()=>{handleOpenHomePage()}}>
                           
                             <CardActionArea>
-                            <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
+                            <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                               <CardMedia
                                 component="img"
                                 height="120"
@@ -91,25 +91,25 @@ export default function BlogCard() {
                                 alt="green iguana"
                               />
                             </Grid>
-                            <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                              <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                                <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', minHeight:30}}>
+                            <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
+                              <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
+                                <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                                   <Typography variant="h5" fontFamily='Segoe UI' fontWeight={400} style={{textAlign:'center', color:'#65BA0D'}}>
-                                    Want to learn Stock Market Trading?
+                                    Want to learn Trading?
                                   </Typography>
                                 </MDBox>   
-                                <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
+                                <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                                   <Typography variant='caption' style={{textAlign:'center'}}>
                                       Open a StoxHero account and start learning. It's fast and 100% free!
                                   </Typography>
                                 </MDBox>
-                                <MDBox mt={3} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
+                                <MDBox mt={3} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                                   <Typography variant='caption' fontWeight={700} style={{textAlign:'center'}}>
                                       Download StoxHero App and use code <span style={{backgroundColor:'#65BA0D', color:'white', padding:2, borderRadius:3}}>SHBSU100</span> to get ₹100 in your StoxHero wallet.
                                   </Typography>
                                 </MDBox>
-                                <Divider style={{width:'100%'}}/>
-                                <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
+                                <Divider style={{maxWidth:'100%', height:'auto'}}/>
+                                <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                                   <Typography variant='caption' fontWeight={700} style={{textAlign:'center', color:'#65BA0D'}}>
                                       Download App Now!
                                   </Typography>
@@ -131,22 +131,22 @@ export default function BlogCard() {
             </Grid>
           </Grid>
 
-          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{minWidth:'100%'}}>
-            <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{minWidth:'100%'}}>
+          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
+            <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
               
-              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'90%'}}>
-                <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
+              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
+                <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                   
-                  <Grid item xs={12} mt={5} md={12} lg={12} alignItems='stretch'>
+                  <Grid item mt={5} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                     
-                      <MDBox alignItems='stretch'>
-                      <Grid container spacing={3} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                          <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                          <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                          <Card sx={{ minWidth: '100%' }} onClick={()=>{handleOpenHomePage()}}>
+                      <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
+                      <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
+                          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
+                          <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
+                          <Card sx={{ maxWidth: '100%', height:'auto' }} onClick={()=>{handleOpenHomePage()}}>
                           
                             <CardActionArea>
-                            <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
+                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                               <CardMedia
                                 component="img"
                                 height="120"
@@ -155,25 +155,25 @@ export default function BlogCard() {
                                 alt="green iguana"
                               />
                             </Grid>
-                            <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                              <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                                <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', minHeight:30}}>
+                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
+                              <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
+                                <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                                   <Typography variant="h5" fontFamily='Segoe UI' fontWeight={400} style={{textAlign:'center', color:'#65BA0D'}}>
                                       Experience the real F&O market!
                                   </Typography>
                                 </MDBox>   
-                                <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
+                                <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                                   <Typography variant='caption' style={{textAlign:'center'}}>
                                       Participate in different TestZones to test your strategies & win cash rewards!
                                   </Typography>
                                 </MDBox>
-                                <MDBox mt={3} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
+                                <MDBox mt={3} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                                   <Typography variant='caption' fontWeight={700} style={{textAlign:'center'}}>
                                       Download StoxHero App and use code <span style={{backgroundColor:'#65BA0D', color:'white', padding:2, borderRadius:3}}>SHBTZ100</span> to get ₹100 in your StoxHero wallet.
                                   </Typography>
                                 </MDBox>
                                 <Divider style={{width:'100%'}}/>
-                                <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%'}}>
+                                <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                                   <Typography variant='caption' fontWeight={700} style={{textAlign:'center', color:'#65BA0D'}}>
                                       Download App Now!
                                   </Typography>

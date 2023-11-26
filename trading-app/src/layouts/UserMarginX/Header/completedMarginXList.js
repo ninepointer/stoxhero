@@ -27,7 +27,7 @@ import MDSnackbar from "../../../components/MDSnackbar";
 import ScreenshotMonitorIcon from '@mui/icons-material/ScreenshotMonitor';
 
 function Header({ marginX }) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     // const [timeDifference, setTimeDifference] = useState([]);
     // const getDetails = useContext(userContext);
     const navigate = useNavigate();

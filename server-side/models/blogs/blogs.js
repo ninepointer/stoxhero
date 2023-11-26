@@ -10,6 +10,10 @@ const blogSchema = new Schema({
         type: String,
         // required:true
     },
+    category: {
+        type: String,
+        required:true
+    },
     metaDescription: {
         type: String,
         // required:true
