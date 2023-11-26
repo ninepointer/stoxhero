@@ -7,16 +7,16 @@ import ReactGA from "react-ga"
 import { Grid, Input, TextField } from '@mui/material'
 import careerlisting from '../../../assets/images/careerlisting.png'
 import theme from '../utils/theme/index';
-import { Box } from '@mui/material';
+// import { Box } from '@mui/material';
 import { ThemeProvider } from 'styled-components';
 import Navbar from '../components/Navbars/Navbar';
 import Footer from '../../../layouts/authentication/components/Footer'
 import Internship from './Internship';
-import Workshops from './Workshops';
+// import Workshops from './Workshops';
 import MDBox from "../../../components/MDBox";
-import { CircularProgress } from '@mui/material';
+// import { CircularProgress } from '@mui/material';
 import MDTypography from "../../../components/MDTypography";
-import CareerJD from './careerJD';
+// import CareerJD from './careerJD';
 
 const App = (props) => {
   const [campaignCode,setCampaignCode] = useState();

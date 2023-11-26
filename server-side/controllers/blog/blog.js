@@ -38,8 +38,12 @@ exports.createBlog = (async (req, res, next) => {
 });
 
 const processUpload = async(uploadedFiles, s3, title, isTitleImage)=>{
+    const MAX_LIMIT = 5*1024*1024;
     const fileUploadPromises = uploadedFiles.map(async (file) => {
-
+        
+        if(file.size > MAX_LIMIT){
+            return res.status(500).send({status: "error", err: error, message: 'Image size should be less then 5 MB.'});
+        }
         if(isTitleImage){
             file.buffer = await sharp(file.buffer)
             .resize({ width: 1080, height: 720 })
@@ -125,6 +129,34 @@ exports.saveBlogData = async(req, res, next) => {
     return res.status(200).json({message: 'Successfully saved Blog Data.', data: blog});
 }
 
+exports.getUserPublishedBlogs = async (req, res, next) => {
+    try {
+        const skip = parseInt(req.query.skip) || 0;
+        const limit = parseInt(req.query.limit) || 10
+        const count = await Blog.countDocuments({ status: "Published" });
+
+        const publishedBlogs = await Blog.find({ status: "Published" })
+            .select('-reader -images -createdBy -createdOn -lastModifiedOn -lastModifiedBy -metaDescription -metaTitle -metaKeywords -blogData')
+            .sort({ publishedOn: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        res.status(200).json({
+            status: 'success',
+            data: publishedBlogs,
+            count: count
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+}
+
 exports.viewBlog = async(req, res, next) => {
     const {ip, isMobile, country, blogId} = req.body;
     const blog = await Blog.findOne({_id: new ObjectId(blogId)});
@@ -151,25 +183,6 @@ exports.viewBlog = async(req, res, next) => {
 
     return res.status(200).json({status:"success", message: 'reader data saved.', data: save});
 }
-
-
-// exports.editBlog = async(req, res, next) => {
-//     const id = req.params.id;
-//     console.log("Req Body:",req.body)
-//     console.log("id is ,", id)
-//     const blog = await Blog.findById(id);
-
-//     const filteredBody = filterObj(req.body, "blogTitle", "content", "author", "thumbnailImage");
-//     if(req.body.blogContent)filteredBody.blogContent=[...blog.blogContent,
-//         {serialNumber:req.body.blogContent.serialNumber,
-//             content:req.body.blogContent.content,header:req.body.blogContent.header,youtubeVideoCode:req.body.blogContent.youtubeVideoCode,image:req.body.blogContent.image}]
-//     filteredBody.lastModifiedBy = req.user._id;    
-
-//     console.log(filteredBody)
-//     const updated = await Blog.findByIdAndUpdate(id, filteredBody, { new: true });
-
-//     return res.status(200).json({message: 'Successfully edited Blog.', data: updated});
-// }
 
 exports.updateBlogStatus = async (req, res) => {
     try {

@@ -5051,6 +5051,11 @@ exports.getTopContestWeeklyPortfolioFullList = async (req, res) => {
             totalPayout: -1,
           },
         },
+        {
+          $match:{
+            totalPayout: {$gt: 0}
+          }
+        }
       ]
 
       let weeklyContestPerformers = await Contest.aggregate(pipeline);

@@ -23,11 +23,10 @@ function Index() {
   const [editing,setEditing] = useState(prevData ? false : true)
   const [saving,setSaving] = useState(false)
   const [titlePreviewUrl, setTitlePreviewUrl] = useState('');
+  const [imagesPreviewUrl, setImagesPreviewUrl] = useState(null);
   const [imageData, setImageData] = useState(prevData || null);
   const [title, setTitle] = useState(prevData?.blogTitle || "");
   const [titleImage, setTitleImage] = useState(null);
-  let textToCopy; // Replace with your link
-  const textareaRef = useRef(null);
   const [formstate, setFormState] = useState({
     metaTitle: prevData?.metaTitle || "",
     metaDescription: prevData?.metaDescription || "",
@@ -35,11 +34,41 @@ function Index() {
     metaKeywords: prevData?.metaKeywords || "",
     status: prevData?.status || ""
   })
+  const [isfileSizeExceed, setIsFileExceed] = useState(false);
   const editor = useRef(null);
   const [file, setFile] = useState(null);
+
+  useEffect(()=>{
+    setIsFileExceed(false)
+    if(file){
+      for(let elem of file){
+        if(elem?.size > 5*1024*1024){
+          setIsFileExceed(true);
+          openSuccessSB('error', 'Image size should be less then 5 MB.');
+
+        }
+      }
+    }
+  },[file])
   
   const handleFileChange = (event) => {
     setFile(event.target.files);
+    let previewUrls = [];
+    const files = event.target.files;
+    for (const file of files) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        // Add the preview URL to the array
+        previewUrls.push(reader.result);
+  
+        // If all files have been processed, update the state with the array of preview URLs
+        if (previewUrls.length === files.length) {
+          setImagesPreviewUrl(previewUrls);
+          console.log("Title Preview URLs:", previewUrls);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleBlogThumbnailImage = (event) => {
@@ -54,8 +83,6 @@ function Index() {
     };
     reader.readAsDataURL(file);
   };
-  // {"country_code":"IN","country_name":"India","city":null,"postal":null,"latitude":20,"longitude":77,"IPv4":"49.36.239.8","state":null}
-
 
   const handleUpload = async () => {
 
@@ -193,9 +220,6 @@ function Index() {
       // Remove the temporary textarea
       document.body.removeChild(textarea);
     };
-
-  
-
 
   const [successSB, setSuccessSB] = useState(false);
   const [messageObj, setMessageObj] = useState({
@@ -346,6 +370,7 @@ function Index() {
               />
             </Grid>
 
+            {prevData &&
             <Grid item xs={12} md={6} xl={4}>
                   <FormControl sx={{ width: "100%" }}>
                     <InputLabel id="demo-simple-select-autowidth-label">Status *</InputLabel>
@@ -369,9 +394,9 @@ function Index() {
                       <MenuItem value="Unpublished">Unpublished</MenuItem>
                     </Select>
                   </FormControl>
-            </Grid>
+            </Grid>}
 
-            <Grid item xs={12} md={6} xl={4}>
+            <Grid item xs={12} md={6} xl={!prevData ? 6 : 4}>
               <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(imageData?.thumbnailImage?.url && !titleImage) ? "warning" : ((imageData?.thumbnailImage?.url && titleImage) || titleImage) ? "error" : "success"} component="label">
                 {!formstate?.titleImage?.name ? "Upload Blog Thumbnail(1080X720)" : "Upload Another File?"}
                 <input
@@ -392,8 +417,8 @@ function Index() {
               </MDButton>
             </Grid>
 
-            <Grid item xs={12} md={6} xl={4}>
-              <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(imageData?.images?.length && !titleImage) ? "warning" : ((imageData?.images?.length && titleImage) || titleImage) ? "error" : "success"} component="label">
+            <Grid item xs={12} md={6} xl={!prevData ? 6 : 4}>
+              <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(imageData?.images?.length && !file) ? "warning" : ((imageData?.images?.length && file) || file) ? "error" : "success"} component="label">
                 {!formstate?.titleImage?.name ? "Upload Blog Images(1080X720)" : "Upload More File?"}
                 <input
                   hidden
@@ -416,7 +441,7 @@ function Index() {
             color= {(prevData && !editing) ? "warning" : (prevData && editing) ? "warning" : "success"}
             size="small"
             sx={{mr:1, ml:1}} 
-            // disabled={creating}
+            disabled={isfileSizeExceed}
             onClick={(prevData && !editing) ? ()=>{setEditing(true)} : (prevData && editing) ? edit : handleUpload}
           >
             {(prevData && !editing) ? "Edit" : (prevData && editing) ? "Save" : "Next"}
@@ -503,8 +528,40 @@ function Index() {
               </Grid>
           }
           </Grid>
+          {(imagesPreviewUrl && !imageData) ? 
           <Grid container mb={2} spacing={2} xs={12} md={12} xl={12} mt={1} display="flex" justifyContent='flex-start' alignItems='center' style={{maxWidth:'100%', height:'auto'}}>
-          {imageData.images.map((elem) => {
+          {imagesPreviewUrl?.map((elem) => {
+              return (
+                <>
+                  <Grid item xs={12} md={12} xl={2} style={{maxWidth:'100%', height:'auto'}}>
+                    <Grid container xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
+                      <Grid item xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
+                        <Card sx={{ minWidth: '100%', cursor:'pointer' }} onClick={()=>{handleCopyClick(elem?.url)}}>       
+                          <CardActionArea>
+                          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                            <img src={elem} style={{maxWidth: '100%',height: 'auto', borderTopLeftRadius:10, borderTopRightRadius:10}}/>
+                          </Grid>
+                          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                            <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                              <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
+                              <Typography variant="caption" fontFamily='Segoe UI' fontWeight={400} style={{textAlign:'center'}}>
+                                Click to copy URL
+                              </Typography>
+                              </MDBox>
+                            </CardContent>
+                          </Grid>
+                          </CardActionArea>
+                        </Card>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </>
+              )
+            })}
+          </Grid> 
+          :
+          <Grid container mb={2} spacing={2} xs={12} md={12} xl={12} mt={1} display="flex" justifyContent='flex-start' alignItems='center' style={{maxWidth:'100%', height:'auto'}}>
+          {imageData?.images?.map((elem) => {
               return (
                 <>
                   <Grid item xs={12} md={12} xl={2} style={{maxWidth:'100%', height:'auto'}}>
@@ -532,7 +589,7 @@ function Index() {
                 </>
               )
             })}
-          </Grid>
+          </Grid>}
        
 
           {prevData?.status && 
