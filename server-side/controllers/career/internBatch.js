@@ -116,7 +116,7 @@ exports.editBatch = async(req, res, next) => {
             career: req.body.career,
             portfolio: req.body.portfolio,
             payoutPercentage: req.body.payoutPercentage,
-            payoutCap: req.boDY.payoutCap,
+            payoutCap: req.body.payoutCap,
             attendancePercentage: req.body.attendancePercentage,
             referralCount: req.body.referralCount,
             lastModifiedBy: req.user._id,
