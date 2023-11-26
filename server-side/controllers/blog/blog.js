@@ -1,9 +1,8 @@
-// const mongoose = require('mongoose');
 const Blog = require('../../models/blogs/blogs');
-// const multer = require('multer');
 const AWS = require('aws-sdk');
 const { ObjectId } = require("mongodb");
 const {decode} = require('html-entities');
+const sharp = require('sharp');
 
 AWS.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -23,7 +22,7 @@ exports.createBlog = (async (req, res, next) => {
         const { title, metaTitle, category, metaDescription, metaKeywords, status  } = req.body;
         const uploadedFiles = req.files;
         const otherImages = await Promise.all(await processUpload(uploadedFiles.files, s3, title));
-        const titleImage = await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, title));
+        const titleImage = await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, title, true));
         const blog = await Blog.create({
             blogTitle: title, thumbnailImage: titleImage[0], images: otherImages,
             createdBy: req.user._id, lastModifiedBy: req.user._id, status: "Created",
@@ -37,6 +36,34 @@ exports.createBlog = (async (req, res, next) => {
     }
 
 });
+
+const processUpload = async(uploadedFiles, s3, title, isTitleImage)=>{
+    const fileUploadPromises = uploadedFiles.map(async (file) => {
+
+        if(isTitleImage){
+            file.buffer = await sharp(file.buffer)
+            .resize({ width: 1080, height: 720 })
+            .toBuffer();
+        }
+        const key = `blogs/${title}/photos/${(Date.now()) + file.originalname}`;
+        const uploadParams = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: key,
+            Body: file.buffer,
+            ContentType: file.mimetype,
+            ACL: 'public-read',
+        };
+        const uploadedObject = await s3.upload(uploadParams).promise();
+        return {
+            name: file.originalname,
+            url: uploadedObject.Location,
+            // size: (uploadedObject).Size,
+            // mimetype: file.mimetype,
+        };
+    });
+
+    return fileUploadPromises;
+}
 
 exports.editBlog = (async (req, res, next) => {
 
@@ -58,7 +85,7 @@ exports.editBlog = (async (req, res, next) => {
             // console.log("blog.images", blog.images)
         }
         if(uploadedFiles?.titleFiles){
-            titleImage = await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, update.blogTitle));
+            titleImage = await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, update.blogTitle, true));
             update.thumbnailImage = titleImage[0];
         }
 
@@ -77,28 +104,6 @@ exports.editBlog = (async (req, res, next) => {
     }
 
 });
-
-const processUpload = async(uploadedFiles, s3, title)=>{
-    const fileUploadPromises = uploadedFiles.map(async (file) => {
-        const key = `blogs/${title}/photos/${(Date.now()) + file.originalname}`;
-        const uploadParams = {
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: key,
-            Body: file.buffer,
-            ContentType: file.mimetype,
-            ACL: 'public-read',
-        };
-        const uploadedObject = await s3.upload(uploadParams).promise();
-        return {
-            name: file.originalname,
-            url: uploadedObject.Location,
-            // size: (uploadedObject).Size,
-            // mimetype: file.mimetype,
-        };
-    });
-
-    return fileUploadPromises;
-}
 
 exports.saveBlogData = async(req, res, next) => {
     const id = req.params.id;
