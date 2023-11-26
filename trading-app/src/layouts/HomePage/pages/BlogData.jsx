@@ -45,7 +45,7 @@ console.error(error);
     <ThemeProvider theme={theme}>
     <Navbar/>
     <Helmet>
-        <title></title>
+        <title>{blogData?.metaTitle}</title>
         <meta name='description' content={blogData?.metaDescription} />
         <meta name='keywords' content={blogData?.keywords} />
     </Helmet>
