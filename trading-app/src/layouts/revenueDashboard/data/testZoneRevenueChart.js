@@ -1,66 +1,139 @@
-import React from 'react';
-import ReactEcharts from 'echarts-for-react';
+import * as echarts from 'echarts';
+import React, { useEffect, useRef } from 'react';
+import MDBox from '../../../components/MDBox';
+import moment from 'moment';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import { CardActionArea, Divider, Grid } from '@mui/material';
+import MDTypography from '../../../components/MDTypography';
 
-const ChartComponent = ({testZoneMonthlyRevenue}) => {
-  
-  const maxRevenue = Math.max(...testZoneMonthlyRevenue.map(item => item.monthRevenue));
-  const roundedMaxRevenue = Math.round((maxRevenue+50000) / 25000) * 25000;
-  const interval = Math.ceil(roundedMaxRevenue / 5);
-    const option = {
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: {
-        type: 'cross',
-        crossStyle: {
-          color: '#999'
-        }
-      }
-    },
-    toolbox: {
-      feature: {
-        dataView: { show: true, readOnly: false },
-        magicType: { show: true, type: ['line', 'bar'] },
-        restore: { show: true },
-        saveAsImage: { show: true }
-      }
-    },
-    legend: {
-      data: ['TestZone Monthly Revenue']
-    },
-    xAxis: [
-      {
-        type: 'category',
-        data: testZoneMonthlyRevenue.map(item => item.formattedDate),
-        axisPointer: {
-          type: 'shadow'
-        }
-      }
-    ],
-    yAxis: [
-      {
-        type: 'value',
-        name: 'Revenue',
-        min: 0,
-        max: roundedMaxRevenue,
-        interval: interval,
-        axisLabel: {
-          formatter: '₹{value}'
-        }
-      },
-    ],
-    series: [
-      {
-        name: 'TestZone Monthly Revenue',
-        type: 'bar',
-        tooltip: {
-          formatter: '₹ {b}: {c}',
+export default function Charts({ testZoneMonthlyRevenue }) {
+  const chartRef = useRef(null);
+
+  useEffect(() => {
+    const chart = echarts.init(chartRef.current);
+
+    const options = {
+      title: {
+        text: 'Last 6 Months TestZone',
+        left: 'left',
+        textStyle: {
+          fontSize: 10, // Adjust the font size as needed
         },
-        data: testZoneMonthlyRevenue.map(item => item.monthRevenue),
       },
-    ]
-  };
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'cross',
+          crossStyle: {
+            color: '#999',
+          },
+        },
+      },
+      toolbox: {
+        feature: {
+          dataView: { show: true, readOnly: true },
+          magicType: { show: true, type: ['line', 'bar'] },
+          restore: { show: true },
+          saveAsImage: { show: true },
+        },
+      },
+      legend: {
+        data: ['GMV', 'Revenue', 'Orders', 'Unique Paid Users'],
+      },
+      grid: {
+        right: '2%', // Adjust the right margin as per your requirement
+        left: '2%',
+        bottom: '2%',
+        containLabel: true,
+      },
+      xAxis: [
+        {
+          type: 'category',
+          data: testZoneMonthlyRevenue.map((item) => item?.formattedDate),
+          axisPointer: {
+            type: 'shadow',
+          },
+          axisLabel: {
+            interval: 0, // Display all labels
+            rotate: 0, // Rotate labels by 45 degrees
+            margin: 10, // Adjust the margin to prevent clipping
+          },
+        },
+      ],
+      yAxis: [
+        {
+          type: 'value',
+          // name: 'GMV/Revenue',
+          axisLabel: {
+            formatter: `₹{value}`,
+          },
+        },
+        {
+          type: 'value',
+          // name: 'Orders',
+          axisLabel: {
+            formatter: `{value}`,
+          },
+        },
+      ],
+      series: [
+        {
+          name: 'GMV',
+          type: 'bar',
+          yAxisIndex: 0, // Associate with the first y-axis
+          data: testZoneMonthlyRevenue.map((item) => (item?.monthGMV).toFixed(0)),
+        },
+        {
+          name: 'Revenue',
+          type: 'bar',
+          yAxisIndex: 0, // Associate with the first y-axis
+          data: testZoneMonthlyRevenue.map((item) => (item?.monthRevenue)?.toFixed(0)),
+        },
+        {
+          name: 'Orders',
+          type: 'line',
+          yAxisIndex: 1, // Associate with the second y-axis
+          data: testZoneMonthlyRevenue.map((item) => item?.totalOrder),
+        },
+        {
+          name: 'Unique Paid Users',
+          type: 'line',
+          yAxisIndex: 1, // Associate with the second y-axis
+          data: testZoneMonthlyRevenue.map((item) => item?.uniqueUsersCount),
+        },
+      ],
+    };
 
-  return <ReactEcharts option={option} />;
-};
+    chart.setOption(options);
 
-export default ChartComponent;
+    return () => {
+      chart.dispose();
+    };
+  }, [testZoneMonthlyRevenue]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const chart = echarts.getInstanceByDom(chartRef.current);
+      if (chart) {
+        chart.resize();
+      }
+    };
+  
+    window.addEventListener('resize', handleResize);
+  
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  return (
+    <Card style={{ minWidth: '100%', height: '380px' }}>
+      <CardContent>
+        {/* <MDTypography variant="h6">Last 6 months TestZone Data</MDTypography> */}
+        <div style={{ minWidth: '100%', height: '360px' }} ref={chartRef}></div>
+      </CardContent>
+    </Card>
+  );
+}
