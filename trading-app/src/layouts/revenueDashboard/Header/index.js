@@ -9,6 +9,7 @@ import { userContext } from '../../../AuthContext';
 import MDTypography from '../../../components/MDTypography';
 import { CircularProgress, LinearProgress, Paper } from '@mui/material';
 import TestZoneRevenueChart from '../data/testZoneRevenueChart'
+import TenXRevenueChart from '../data/tenXRevenueChart'
 import TestZoneRevenue from '../data/totalTestZoneRevenue'
 import MarginXRevenue from '../data/totalMarginXRevenue'
 import BattleRevenue from '../data/totalBattleRevenue'
@@ -20,6 +21,8 @@ export default function Dashboard() {
   let [isLoading,setIsLoading] = useState([])
   const [testZoneMonthlyRevenue,setTestZoneMonthlyRevenue] = useState([])
   const [totalTestZoneRevenue,setTotalTestZoneRevenue] = useState([])
+  const [tenXMonthlyRevenue,setTenXMonthlyRevenue] = useState([])
+  const [totalTenXRevenue,setTotalTenXRevenue] = useState([])
   
   
   useEffect(()=>{
@@ -34,8 +37,10 @@ export default function Dashboard() {
                 })
     Promise.all([call1])
     .then(([api1Response]) => {
-        setTestZoneMonthlyRevenue(api1Response.data.data)
-        setTotalTestZoneRevenue(api1Response.data.totalRevenue)
+        setTestZoneMonthlyRevenue(api1Response.data.testZoneData)
+        setTotalTestZoneRevenue(api1Response.data.totalTestZoneRevenue)
+        setTenXMonthlyRevenue(api1Response.data.tenXData)
+        setTotalTenXRevenue(api1Response.data.totalTenXRevenue)
       setTimeout(()=>{
         setIsLoading(false)
       },500)
@@ -156,11 +161,12 @@ export default function Dashboard() {
             </Grid>
 
           </Grid>
+
           <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
           
             <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
                 <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                        {totalTestZoneRevenue && <TotalRevenue totalTestZoneRevenue={totalTestZoneRevenue}/>}
+                        {totalTenXRevenue && <TenXRevenue totalTenXRevenue={totalTenXRevenue}/>}
                 </Grid>
 
             </Grid>
@@ -173,7 +179,7 @@ export default function Dashboard() {
                 
                 <Grid item spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
                   
-                    <TestZoneRevenueChart testZoneMonthlyRevenue={testZoneMonthlyRevenue}/>
+                    <TenXRevenueChart tenXMonthlyRevenue={tenXMonthlyRevenue}/>
                     
                 </Grid>
                 
