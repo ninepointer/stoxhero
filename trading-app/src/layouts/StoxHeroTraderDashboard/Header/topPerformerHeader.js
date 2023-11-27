@@ -13,7 +13,7 @@ import {CircularProgress} from "@mui/material";
 
 
 export default function Dashboard() {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   let [carouselData, setCarouselData] = useState([]);
   let [topPerformerData, setTopPerformerData] = useState([]);
   let [startOfWeek, setStartOfWeek] = useState([]);
