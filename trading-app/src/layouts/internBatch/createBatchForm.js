@@ -244,7 +244,7 @@ function Index() {
 
     async function onEdit(e,formState){
         e.preventDefault()
-        console.log(formState)
+        console.log("Edit Form:",formState)
         setSaving(true)
         if(!formState.batchName || 
           !formState.batchStartDate || 
@@ -253,7 +253,7 @@ function Index() {
           !formState.career || 
           !formState.portfolio || 
           formState.payoutPercentage === '' || 
-          formState.payoutCap ||
+          !formState.payoutCap ||
           !formState.attendancePercentage ||
           !formState.orientationDate ||
           !formState.orientationMeetingLink || 
@@ -486,7 +486,7 @@ const handleChange = (e) => {
               </LocalizationProvider>
           </Grid>
 
-          <Grid item xs={12} md={6} xl={3}>
+          <Grid item xs={12} md={6} xl={3} mt={-2}>
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
@@ -556,7 +556,7 @@ const handleChange = (e) => {
             </Grid>
 
             <Grid item xs={12} md={3} xl={3} mt={-2}>
-                <FormControl sx={{ minHeight:10, minWidth:263 }}>
+                <FormControl sx={{ minHeight:10, width:'100%' }}>
                   <InputLabel id="demo-multiple-name-label">Career</InputLabel>
                   <Select
                     labelId="demo-multiple-name-label"
