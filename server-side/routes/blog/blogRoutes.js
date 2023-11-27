@@ -1,7 +1,7 @@
 const express = require("express");
 const Authenticate = require('../../authentication/authentication');
 const router = express.Router();
-const {getUserPublishedBlogs, viewBlog, saveBlogData, createBlog, editBlog, getBlog, getAllBlogs, getPublishedBlogs, getDraftBlogs, getUnpublishedBlogs, updateBlogStatus} = require('../../controllers/blog/blog');
+const {removeImage, getUserPublishedBlogs, viewBlog, saveBlogData, createBlog, editBlog, getBlog, getAllBlogs, getPublishedBlogs, getDraftBlogs, getUnpublishedBlogs, updateBlogStatus} = require('../../controllers/blog/blog');
 const restrictTo = require('../../authentication/authorization');
 const {getUploads} = require("../../controllers/blog/uploadImage")
 const multer = require('multer');
@@ -24,8 +24,9 @@ router.route('/draft').get(Authenticate, getDraftBlogs);
 router.route('/unpublished').get(Authenticate, getUnpublishedBlogs);
 router.route('/:id').patch(Authenticate, restrictTo('Admin', 'Super Admin'), upload.fields([{ name: 'titleFiles', maxCount: 1 }, { name: 'files', maxCount: 100 }]), editBlog).get(getBlog);
 router.route('/:id/blogData').patch(Authenticate, restrictTo('Admin', 'Super Admin'), saveBlogData).get(Authenticate, restrictTo('Admin', 'Super Admin'), getBlog);
-router.route('/:id/:status').patch(Authenticate, restrictTo('Admin', 'Super Admin'), updateBlogStatus);
+router.route('/removeImage/:id/:docId').patch(Authenticate, restrictTo('Admin', 'Super Admin'), removeImage);
 
+router.route('/:id/:status').patch(Authenticate, restrictTo('Admin', 'Super Admin'), updateBlogStatus);
 
 
 module.exports = router;

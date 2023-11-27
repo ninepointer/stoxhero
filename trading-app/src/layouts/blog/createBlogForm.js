@@ -4,7 +4,6 @@ import MDBox from "../../components/MDBox";
 import MDButton from "../../components/MDButton"
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
 import { CardActionArea, Divider, Grid } from '@mui/material';
 import {apiUrl} from "../../constants/constants.js"
 import JoditEditor from 'jodit-react';
@@ -12,7 +11,7 @@ import TextField from '@mui/material/TextField';
 import { useNavigate, useLocation } from "react-router-dom";
 import { FormControl, InputLabel, MenuItem, Select, Typography } from "@mui/material";
 import MDSnackbar from '../../components/MDSnackbar';
-
+import DeleteIcon from '@mui/icons-material/Delete';
 
 function Index() {
   const location = useLocation();
@@ -21,6 +20,7 @@ function Index() {
   const [value, setValue] = useState(prevData?.blogData || '');
   const [isSubmitted,setIsSubmitted] = useState(false);
   const [editing,setEditing] = useState(prevData ? false : true)
+  const [editingBlogData,setEditingBlogData] = useState(prevData ? false : true)
   const [saving,setSaving] = useState(false)
   const [titlePreviewUrl, setTitlePreviewUrl] = useState('');
   const [imagesPreviewUrl, setImagesPreviewUrl] = useState(null);
@@ -178,6 +178,29 @@ function Index() {
     }
   };
 
+  const removeImage = async (id, docId) => {
+    try {
+      const res = await fetch(`${apiUrl}blogs/removeImage/${id}/${docId}`, {
+
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Access-Control-Allow-Credentials": true
+        },
+        
+      });
+
+      let data = await res.json()
+  
+      if(data.status==='success'){
+        setImageData(data.data);
+        openSuccessSB('success', data.message);
+      }
+    } catch (error) {
+      openSuccessSB('error', error?.err);
+    }
+  };
+
   async function saveBlogData(value) {
     if (!value) {
       openSuccessSB('error', 'Please type text.');
@@ -201,25 +224,26 @@ function Index() {
     const updatedData = data?.data
     if (updatedData || res.status === 200) {
       openSuccessSB("success", data.message)
+      setEditingBlogData(false);
     } else {
       openSuccessSB("error", data.message)
     }
   }
 
   function handleCopyClick(textToCopy) {
-      console.log("TextToCopy:",textToCopy)
-      // Create a temporary textarea element to copy the text
-      const textarea = document.createElement('textarea');
-      textarea.value = textToCopy;
-      document.body.appendChild(textarea);
-  
-      // Select the text in the textarea
-      textarea.select();
-      document.execCommand('copy');
-  
-      // Remove the temporary textarea
-      document.body.removeChild(textarea);
-    };
+    console.log("TextToCopy:", textToCopy)
+    // Create a temporary textarea element to copy the text
+    const textarea = document.createElement('textarea');
+    textarea.value = textToCopy;
+    document.body.appendChild(textarea);
+
+    // Select the text in the textarea
+    textarea.select();
+    document.execCommand('copy');
+
+    // Remove the temporary textarea
+    document.body.removeChild(textarea);
+  };
 
   const [successSB, setSuccessSB] = useState(false);
   const [messageObj, setMessageObj] = useState({
@@ -261,6 +285,29 @@ function Index() {
     />
   );
 
+  // const config = {
+  //   disabled: editingBlogData ? false : true,
+  //   autofocus : true , 
+  //   cursorAfterAutofocus: 'end',
+  //   // readonly: true,
+  // }
+
+  const config = React.useMemo(
+    () => ({
+      disabled: editingBlogData ? false : true,
+      readonly: false,
+      enableDragAndDropFileToEditor: false,
+      toolbarAdaptive: false,
+      toolbarSticky: true,
+      addNewLine: false,
+      useSearch: false,
+      hidePoweredByJodit: true,
+    }),
+    [editingBlogData],
+  )
+
+
+  console.log("file", file)
   return (
     <>
       <MDBox pl={2} pr={2} mt={4} mb={2}>
@@ -541,15 +588,30 @@ function Index() {
                           <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
                             <img src={elem} style={{maxWidth: '100%',height: 'auto', borderTopLeftRadius:10, borderTopRightRadius:10}}/>
                           </Grid>
-                          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
-                            <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
-                              <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
-                              <Typography variant="caption" fontFamily='Segoe UI' fontWeight={400} style={{textAlign:'center'}}>
+                          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignContent='center' style={{maxWidth:'100%', height: 'auto'}}>
+                            <CardContent
+                            //  display='flex' justifyContent='space-between' alignContent='center' style={{maxWidth: '100%',height: 'auto'}}
+                             >
+                              <MDBox 
+                              mb={-2}
+                               display='flex' flexDirection='column' justifyContent='space-between' alignContent='center' style={{width:'100%', height:'auto'}}
+                              >
+                              <Typography
+                              mb={-1.5} variant="caption" fontFamily='Segoe UI' fontWeight={400} style={{textAlign:'center'}}
+                               >
                                 Click to copy URL
                               </Typography>
+                              <Divider />
+                              <Typography
+                               mt={-1.5} variant="caption" fontFamily='Segoe UI' fontWeight={400} style={{textAlign:'center', display:"flex", justifyContent: "center", alignItems: 'center', alignContent: 'center'}}
+                               onClick={()=>{setImagesPreviewUrl(imagesPreviewUrl.filter(item=>item!==elem))}}
+                               >
+                               Delete <DeleteIcon  />
+                               </Typography>
                               </MDBox>
                             </CardContent>
                           </Grid>
+
                           </CardActionArea>
                         </Card>
                       </Grid>
@@ -573,11 +635,26 @@ function Index() {
                             <img src={elem?.url} style={{maxWidth: '100%',height: 'auto', borderTopLeftRadius:10, borderTopRightRadius:10}}/>
                           </Grid>
                           <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
-                            <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
-                              <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
-                              <Typography variant="caption" fontFamily='Segoe UI' fontWeight={400} style={{textAlign:'center'}}>
+
+                            <CardContent
+                            //  display='flex' justifyContent='space-between' alignContent='center' style={{maxWidth: '100%',height: 'auto'}}
+                             >
+                              <MDBox 
+                              mb={-2}
+                               display='flex' flexDirection='column' justifyContent='space-between' alignContent='center' style={{width:'100%', height:'auto'}}
+                              >
+                              <Typography
+                              mb={-1.5} variant="caption" fontFamily='Segoe UI' fontWeight={400} style={{textAlign:'center'}}
+                               >
                                 Click to copy URL
                               </Typography>
+                              <Divider />
+                              <Typography
+                               mt={-1.5} variant="caption" fontFamily='Segoe UI' fontWeight={400} style={{textAlign:'center', display:"flex", justifyContent: "center", alignItems: 'center', alignContent: 'center'}}
+                               onClick={()=>{removeImage(imageData?._id, elem?._id)}}
+                               >
+                               Delete <DeleteIcon  />
+                               </Typography>
                               </MDBox>
                             </CardContent>
                           </Grid>
@@ -596,21 +673,26 @@ function Index() {
           <>
           <JoditEditor
             ref={editor}
+            config={config}
             value={value}
             onChange={newContent => setValue(newContent)}
+            disabled={true}
             style={{height: "100%"}}
           />
 
           <MDBox display='flex' justifyContent='flex-end' alignItems='center' mt={1}>
             <MDButton
               variant="contained"
-              color="success"
+              color={(prevData && !editingBlogData) ? "warning" : (prevData && editingBlogData) ? "warning" : "success"}
               size="small"
               sx={{ mr: 1, ml: 2 }}
               // disabled={creating}
-              onClick={() => { saveBlogData(value) }}
-            >
-              Save
+              // onClick={() => { saveBlogData(value) }}
+            
+              onClick={(prevData && !editingBlogData) ? ()=>{setEditingBlogData(true)} : (prevData && editingBlogData) ? () => {saveBlogData(value)} : () => {saveBlogData(value)}}
+          >
+            {(prevData && !editingBlogData) ? "Edit" : (prevData && editingBlogData) ? "Save" : "Save"}
+
             </MDButton>
             <MDButton
               variant="contained"
@@ -618,6 +700,7 @@ function Index() {
               size="small"
               sx={{ mr: 1, ml: 2 }}
             // disabled={creating}
+            onClick={()=>{setValue("")}}
 
             >
               Reset

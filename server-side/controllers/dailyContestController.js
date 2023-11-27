@@ -935,6 +935,95 @@ exports.getCommpletedContestsAdmin = async (req, res) => {
     }
 };
 
+exports.getUserCompletedContests = async (req, res) => {
+  try {
+    const userId = req?.user?._id;
+    const matchStage = {
+      contestFor: "StoxHero"
+    }
+    const data = await userCompletedHelper(matchStage, userId);
+    res.status(200).json({
+      status: "success",
+      message: "Completed TestZones fetched successfully",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      status: "error",
+      message: "Error in fetching upcoming TestZones",
+      error: error.message
+    });
+  }
+};
+
+async function userCompletedHelper(matchStage, userId) {
+  const data = await Contest.aggregate([
+    {
+      $match: matchStage
+    },
+    {
+      $unwind:
+      {
+        path: "$participants",
+      },
+    },
+    {
+      $match:
+      {
+        "participants.userId": new ObjectId(
+          userId
+        ),
+        "participants.rank": {
+          $ne: null,
+        },
+      },
+    },
+    {
+      $project: {
+        contestName: 1,
+        entryFee: 1,
+        contestStartTime: 1,
+        contestEndTime: 1,
+        isNifty: 1,
+        isBankNifty: 1,
+        isFinNifty: 1,
+        payoutCapPercentage: 1,
+        payoutPercentage: 1,
+        rank: "$participants.rank",
+        payout: "$participants.payout",
+        tdsAmount: "$participants.tdsAmount",
+        fee: "$participants.fee",
+        actuaFee: "$participants.actualPrice",
+        rewards: 1,
+      },
+    },
+  ])
+  return data;
+}
+
+exports.getUserCollegeCompletedContests = async (req, res) => {
+  try {
+    const userId = req?.user?._id;
+    const matchStage = {
+      contestFor: "College"
+    }
+    const data = await userCompletedHelper(matchStage, userId);
+    res.status(200).json({
+      status: "success",
+      message: "Completed TestZones fetched successfully",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      status: "error",
+      message: "Error in fetching upcoming TestZones",
+      error: error.message
+    });
+  }
+};
+
 exports.getCommpletedContestsAdminLive = async (req, res) => {
     try {
         const contests = await Contest.find({ contestStatus: 'Completed', contestType: "Live" })
@@ -5338,10 +5427,13 @@ exports.getLastPaidContestChampions = async (req, res) => {
       ]
 
       let lastPaidContests = await Contest.aggregate(pipeline);
-      if(lastPaidContests.length === 0){
-        date = date.setDate(date.getUTCDate() - 1);
+
+      while(lastPaidContests.length === 0){
+        date.setDate(date.getUTCDate() - 1);
         lastPaidContests = await Contest.aggregate(pipeline);
       }
+      // if(lastPaidContests.length === 0){
+      // }
       const response = {
           status: "success",
           message: "Last Paid TestZone Data fetched successfully",

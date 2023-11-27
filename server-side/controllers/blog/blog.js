@@ -109,6 +109,28 @@ exports.editBlog = (async (req, res, next) => {
 
 });
 
+exports.removeImage = (async (req, res, next) => {
+
+    try {
+        const {id, docId} = req.params;
+
+        // console.log(uploadedFiles, update);
+        const blog = await Blog.findOne({_id: new ObjectId(id)});
+        const images = blog.images.filter((elem)=>{
+            return elem._id.toString() !== docId.toString()
+        });
+
+        blog.images = images;
+        await blog.save({ validateBeforeSave: false, new: true })
+
+        res.status(200).json({status: "success", data: blog, message: "Blog edited successfully"});
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({status: "error", err: error, message: "Error uploading files."});
+    }
+
+});
+
 exports.saveBlogData = async(req, res, next) => {
     const id = req.params.id;
     const content = decode(req.body.blogData)

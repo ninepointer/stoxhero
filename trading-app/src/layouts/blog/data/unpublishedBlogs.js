@@ -4,7 +4,7 @@ import axios from "axios";
 import {apiUrl} from "../../../constants/constants.js"
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
+// import CardMedia from '@mui/material/CardMedia';
 import { CardActionArea, Divider, Grid } from '@mui/material';
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
@@ -18,7 +18,7 @@ const [publishedBlogs,setPublishedBlogs] = useState([]);
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
   useEffect(()=>{
-    let call1 = axios.get(`${baseUrl}api/v1/blogs/unpublished`,{
+    let call1 = axios.get(`${apiUrl}blogs/unpublished`,{
                 withCredentials: true,
                 headers: {
                     Accept: "application/json",
@@ -54,13 +54,6 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
 
                 <CardActionArea>
                   <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
-                    {/* <CardMedia
-                      component="img"
-                      height="180"
-                      style={{maxWidth:'100%'}}
-                      image={elem?.thumbnailImage?.url}
-                      alt="green iguana"
-                    /> */}
                     <img src={elem?.thumbnailImage?.url} style={{maxWidth: '100%',height: 'auto', borderTopLeftRadius:10, borderTopRightRadius:10}}/>
                   </Grid>
                   <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
@@ -73,7 +66,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                       <Divider style={{width:'100%'}}/>
                       <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                       <MDTypography variant='caption'>
-                        {`${moment.utc(elem?.publishedOn).utcOffset('+05:30').format('DD MMM YYYY')} • ${elem?.readingTime} min read • ${elem?.reader?.length} views`}
+                        {`${moment.utc(elem?.publishedOn).utcOffset('+05:30').format('DD MMM YYYY')} • ${elem?.readingTime || 1} min read • ${elem?.viewCount || 0} views`}
                       </MDTypography>
                       </MDBox>
                     </CardContent>
