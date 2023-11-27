@@ -49,7 +49,7 @@ export default function LabTabs() {
   const [dateWiseData, setDateWiseData] = useState([]);
   const[expected, setExpected] = useState([]);
   const[tradeType, setTradeType] = useState('virtual');
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   useEffect(() => {
     ReactGA.pageview(window.location.pathname)

@@ -20,7 +20,7 @@ import { Divider, Grid } from '@mui/material';
 import axios from "axios"; 
 
 function Header() {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const navigate = useNavigate();
     const [isLoading,setIsLoading] = useState(true)
     const [contest,setContest] = useState([])
