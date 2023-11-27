@@ -14,7 +14,7 @@ import moment from 'moment'
 
 
 const PublishedBlogs = ({totalTestZoneRevenue}) => {
-console.log("Total:",totalTestZoneRevenue)
+
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
     return (

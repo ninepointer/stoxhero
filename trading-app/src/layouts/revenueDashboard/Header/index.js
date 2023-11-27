@@ -33,6 +33,7 @@ export default function Dashboard() {
   const [battleMonthlyRevenue,setBattleMonthlyRevenue] = useState([])
   const [totalBattleRevenue,setTotalBattleRevenue] = useState([])
   const [downloadingTestZoneData,setDownloadingTestZoneRevenueData] = useState(false)
+  const [downloadingMarginXData,setDownloadingMarginXRevenueData] = useState(false)
   
   
   useEffect(()=>{
@@ -100,15 +101,44 @@ export default function Dashboard() {
             setDownloadingTestZoneRevenueData(false)
         });
     });
-    };
+  };
+
+  const downloadMarginXRevenueData = () => {
+    setDownloadingMarginXRevenueData(true)
+    return new Promise((resolve, reject) => {
+        axios
+        .get(`${baseUrl}api/v1/revenue/downloadmarginxrevenuedata`, {
+            withCredentials: true,
+            headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Credentials': true,
+            },
+        })
+        .then((res) => {
+            resolve(res.data.data); // Resolve the promise with the data
+            setDownloadingMarginXRevenueData(false)
+        })
+        .catch((err) => {
+            console.log(err)
+            reject(err); // Reject the promise with the error'
+            setDownloadingMarginXRevenueData(false)
+        });
+    });
+  };
 
   const handleDownload = async (nameVariable) => {
+    console.log("Name:",nameVariable)
     try {
       // Wait for downloadContestData() to complete and return data
       let data = [];
       let csvData = [];
       if(nameVariable === 'TestZone Revenue Data'){
         data = await downloadTestZoneRevenueData();
+        csvData = downloadHelper(data)
+      }
+      if(nameVariable === 'MarginX Revenue Data'){
+        data = await downloadMarginXRevenueData();
         csvData = downloadHelper(data)
       }
       // Create the CSV content
@@ -368,15 +398,21 @@ export default function Dashboard() {
                   <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                     <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1, backgroundColor:'lightgrey' }} >
                       
-                      <Grid container xs={12} md={12} lg={12}>
-                        <Grid item p={1} xs={12} md={12} lg={8} display='flex' justifyContent='flex-start'>
+                      <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent="center" alignItems="center">
+                        <Grid item p={1} xs={12} md={12} lg={8} display='flex' justifyContent='flex-start' alignContent="center" alignItems="center">
                           <MDTypography variant="h6" style={{textAlign:'center'}}>MarginX Revenue Data</MDTypography>
                         </Grid>
-                        <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='flex-end'>
-                          <MDButton variant='text' color='success'>
+                        {!downloadingMarginXData ? 
+                         <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='flex-end' alignContent="center" alignItems="center">
+                          <MDButton variant='text' color='success' onClick={() => { handleDownload(`MarginX Revenue Data`) }}>
                             Download Data
                           </MDButton>
                         </Grid>
+                        :
+                        <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='flex-end' alignContent="center" alignItems="center">
+                          <MDTypography mr={5} fontSize={15} color='warning' fontWeight="bold">Downloading</MDTypography>
+                        </Grid>
+                        }
                       </Grid>
                     
                   </Card>
