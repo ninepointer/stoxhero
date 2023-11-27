@@ -72,8 +72,8 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                     </MDBox>
                     <Divider style={{width:'100%'}}/>
                     <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
-                    <MDTypography variant='caption'>
-                      {`${moment.utc(elem?.publishedOn).utcOffset('+05:30').format('DD MMM YYYY')} • ${elem?.readingTime || 1} min read • ${elem?.viewCount || 0} views`}
+                    <MDTypography variant='caption' fontSize={11}>
+                      {`${moment.utc(elem?.publishedOn).utcOffset('+05:30').format('DD MMM YY')} • ${elem?.readingTime || 1} min read • ${elem?.viewCount || 0} views • ${elem?.reader.length || 0} reader`}
                     </MDTypography>
                     </MDBox>
                   </CardContent>

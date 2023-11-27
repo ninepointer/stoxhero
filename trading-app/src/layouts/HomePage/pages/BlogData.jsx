@@ -16,6 +16,8 @@ import { CiTimer } from "react-icons/ci";
 import { CiRead } from "react-icons/ci";
 import Footer from '../../authentication/components/Footer/index.js'
 import { CircularProgress } from '@mui/material';
+import MDButton from '../../../components/MDButton/index.js';
+import playstore from '../../../assets/images/playstore.png'
 
 export default function BlogCard() {
   const [blogData, setBlogData] = useState();
@@ -24,7 +26,7 @@ export default function BlogCard() {
 
   console.log("location", location, location?.pathname?.split("/"))
   useEffect(() => {
-    let call1 = axios.get(`${apiUrl}blogs/${location?.pathname?.split("/")[2]}`, {
+    let call1 = axios.get(`${apiUrl}blogs/bytitle/${location?.pathname?.split("/")[2]}`, {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -43,7 +45,7 @@ export default function BlogCard() {
 
 
   return (
-    <>
+    <MDBox style={{ backgroundColor: 'white' }} >
       <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ backgroundColor: 'white', height: 'auto', width: 'auto', maxWidth: '100vW' }}>
         <ThemeProvider theme={theme}>
           <Navbar />
@@ -72,9 +74,9 @@ export default function BlogCard() {
                           <CiCalendar /> &nbsp;
                           {`${moment.utc(blogData?.publishedOn).utcOffset('+05:30').format('DD MMMM YYYY')}`} &nbsp;
                           <CiTimer /> &nbsp;
-                          {`${blogData?.readingTime} min read`} &nbsp;
+                          {`${blogData?.readingTime || 1} min read`} &nbsp;
                           <CiRead /> &nbsp;
-                          {`${blogData?.reader?.length} views`}
+                          {`${blogData?.viewCount || 0} views`}
                         </MDTypography>
                       </MDBox>
                     </Grid>
@@ -86,8 +88,11 @@ export default function BlogCard() {
                         <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%' }}>
                           <MDBox dangerouslySetInnerHTML={{ __html: blogData?.blogData }}></MDBox>
                         </Grid>
+
                       </Grid>
                     </Grid>
+
+
                   </Grid>
                   <Grid container ml={3} mr={3} mt={1} mb={5} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' spacing={1} xs={12} md={12} lg={4} style={{ maxWidth: '100%', height: 'auto' }}>
                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
@@ -99,11 +104,27 @@ export default function BlogCard() {
                 </Grid>
               </Grid>
             </MDBox>}
+
         </ThemeProvider>
+
+
       </MDBox>
+
+      <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+            <MDTypography fontSize={15} color='text' fontWeight='bold'>Download the App Now</MDTypography>
+          </Grid>
+          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+            <MDButton style={{ maxWidth: '50%', maxHeight: '20%', width: 'auto', height: 'auto' }} component="a" href="https://play.google.com/store/apps/details?id=com.stoxhero.app" target="_blank">
+              <img src={playstore} style={{ maxWidth: '60%', maxHeight: '20%', width: 'auto', height: 'auto' }} />
+            </MDButton>
+          </Grid>
+        </Grid>
+
+
       <MDBox>
         <Footer />
       </MDBox>
-    </>
+    </MDBox>
   );
 }
