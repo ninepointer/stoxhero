@@ -72,7 +72,7 @@ export default function BlogCard() {
   }
   const handleOpenNewTab = async (elem) => {
     
-    const newTab = window.open(`/blogs/${elem?._id}`, '_blank');
+    const newTab = window.open(`/blogs/${elem?.blogTitle}`, '_blank');
     await fetchDeviceDetail(elem?._id);
   };
 

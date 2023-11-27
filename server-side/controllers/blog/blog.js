@@ -260,6 +260,26 @@ exports.getAllBlogs = async (req, res) => {
     }
 };
 
+exports.getBlogByTitle = async (req, res) => {
+    const { title } = req.params;
+    const newTitle = title.replace("%20", " ")
+    try {
+        const blogs = await Blog.findOne({blogTitle: newTitle})
+        .select('-reader')
+        res.status(200).json({
+            status: 'success',
+            data: blogs
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
 exports.getBlog = async (req, res) => {
     const { id } = req.params;
     try {
