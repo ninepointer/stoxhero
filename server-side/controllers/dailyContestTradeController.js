@@ -1823,12 +1823,141 @@ exports.getRedisLeaderBoard = async (req, res, next) => {
 
 }
 
+const fetchPnlData = async (userId, id) =>{
+    const pnlDetails = await DailyContestMockUser.aggregate([
+        {
+            $match: {
+                status: "COMPLETE",
+                trader: new ObjectId(userId),
+                contestId: new ObjectId(id)
+            },
+        },
+        {
+            $sort: {
+              trade_time: 1,
+            },
+        },
+        {
+            $group: {
+                _id: {
+                    symbol: "$symbol",
+                    product: "$Product",
+                    instrumentToken: "$instrumentToken",
+                    exchangeInstrumentToken: "$exchangeInstrumentToken",
+                    exchange: "$exchange",
+                    validity: "$validity",
+                    variety: "$variety",
+                },
+                amount: {
+                    $sum: { $multiply: ["$amount", -1] },
+                },
+                brokerage: {
+                    $sum: {
+                        $toDouble: "$brokerage",
+                    },
+                },
+                lots: {
+                    $sum: {
+                        $toInt: "$Quantity",
+                    },
+                },
+                lastaverageprice: {
+                    $last: "$average_price",
+                },
+                margin: {
+                    $last: "$margin",
+                },
+                trades: { $count: {} }
+            },
+        },
+        {
+            $sort: {
+                _id: -1,
+            },
+        },
+    ])
+    
+    const limitMargin = await PendingOrder.aggregate([
+        {
+            $match: {
+                createdBy: new ObjectId(
+                    userId
+                ),
+                type: "Limit",
+                status: "Pending",
+                product_type: new ObjectId("6517d48d3aeb2bb27d650de5")
+            },
+        },
+        {
+            $sort: {
+                createdOn: 1,
+            },
+        },
+        {
+            $group:
+            {
+                _id: {
+                    symbol: "$symbol",
+                    product: "$Product",
+                    instrumentToken: "$instrumentToken",
+                    exchangeInstrumentToken: "$exchangeInstrumentToken",
+                    exchange: "$exchange",
+                    validity: "$validity",
+                    variety: "$variety",
+                    // order_type: "$order_type"
+                },
+                amount: {
+                    $sum: { $multiply: ["$amount", -1] },
+                },
+                brokerage: {
+                    $sum: {
+                        $toDouble: "$brokerage",
+                    },
+                },
+                lots: {
+                    $sum: {
+                        $toInt: "$Quantity",
+                    },
+                },
+                margin: {
+                    $last: "$margin",
+                },
+            }
+        }
+    ])
+
+    // console.log(pnlDetails, limitMargin)
+    const arr = [];
+    for (let elem of limitMargin) {
+        arr.push({
+            _id: {
+                symbol: elem._id.symbol,
+                product: elem._id.product,
+                instrumentToken: elem._id.instrumentToken,
+                exchangeInstrumentToken: elem._id.exchangeInstrumentToken,
+                exchange: elem._id.exchange,
+                isLimit: true
+            },
+            lots: Number(elem.lots),
+            margin: elem.margin
+        });
+    }
+
+    // console.log("arr", arr)
+    const newPnl = pnlDetails.concat(arr);
+
+    return newPnl;
+
+}
+
 const dailyContestLeaderBoard = async (contest) => {
 
     const id = contest._id?.toString();
     try {
-        // const contest = await DailyContest.findOne({_id: new ObjectId(id)})
-        // .populate('participants.userId', 'first_name last_name employeeid profilePhoto')
+        const startDate = new Date(contest.contestStartTime);
+        const endDate = new Date(contest.contestEndTime);
+        const timeDifference = endDate.getTime() - startDate.getTime();
+        const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
 
         const allParticipants = contest.participants;
         let obj = {};
@@ -1842,13 +1971,23 @@ const dailyContestLeaderBoard = async (contest) => {
         }
 
         let temp = await client.set(`${id.toString()}employeeid`, JSON.stringify(obj));
-
-
         let ranks = [];
 
         for(let i = 0; i < allParticipants.length; i++){
-            let pnl = await client.get(`${allParticipants[i].userId._id.toString()}${id.toString()} overallpnlDailyContest`)
-            pnl = JSON.parse(pnl); 
+            let pnl;
+            if(daysDifference > 1){
+                if(await client.exists(`${allParticipants[i].userId._id.toString()}${id.toString()} overallpnlDailyContest`)){
+                    pnl = await client.get(`${allParticipants[i].userId._id.toString()}${id.toString()} overallpnlDailyContest`)
+                    pnl = JSON.parse(pnl); 
+                } else{
+                    pnl = await fetchPnlData(allParticipants[i].userId._id, id);
+                    await client.set(`${allParticipants[i].userId._id.toString()}${id.toString()} overallpnlDailyContest`, JSON.stringify(pnl));
+                }
+            } else{
+                pnl = await client.get(`${allParticipants[i].userId._id.toString()}${id.toString()} overallpnlDailyContest`)
+                pnl = JSON.parse(pnl);
+            }
+ 
             // console.log(pnl)
             pnl = pnl?.filter((elem)=>{
                 return !elem?._id?.isLimit
@@ -2064,7 +2203,7 @@ async function processContestQueue() {
 
     const endTime = new Date(currentTime);
     endTime.setHours(9, 48, 0, 0);
-    if (currentTime >= startTime && currentTime <= endTime) {
+   if (currentTime >= startTime && currentTime <= endTime) {
 
         // If the queue is empty, reset the processing flag and return
         if (contestQueue.length === 0) {
@@ -2100,7 +2239,7 @@ exports.sendMyRankData = async () => {
                 startTime.setHours(3, 0, 0, 0);
                 const endTime = new Date(currentTime);
                 endTime.setHours(9, 48, 0, 0);
-              if (currentTime >= startTime && currentTime <= endTime) {
+             if (currentTime >= startTime && currentTime <= endTime) {
                     const contest = await DailyContest.find({ contestStatus: "Active", contestStartTime: { $lte: new Date() } });
 
                     for (let i = 0; i < contest?.length; i++) {
@@ -2121,7 +2260,7 @@ exports.sendMyRankData = async () => {
                             }
                         }
                     }
-              }
+             }
             };
             emitLeaderboardData();
             interval = setInterval(emitLeaderboardData, 5000);

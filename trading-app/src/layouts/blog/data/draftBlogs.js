@@ -18,7 +18,7 @@ const [publishedBlogs,setPublishedBlogs] = useState([]);
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
-    let call1 = axios.get(`${baseUrl}api/v1/blogs/draft`,{
+    let call1 = axios.get(`${apiUrl}blogs/draft`,{
                 withCredentials: true,
                 headers: {
                     Accept: "application/json",
@@ -73,7 +73,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                     <Divider style={{width:'100%'}}/>
                     <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                     <MDTypography variant='caption'>
-                      {`${moment.utc(elem?.publishedOn).utcOffset('+05:30').format('DD MMM YYYY')} • ${elem?.readingTime} min read • ${elem?.reader?.length} views`}
+                      {`${moment.utc(elem?.publishedOn).utcOffset('+05:30').format('DD MMM YYYY')} • ${elem?.readingTime || 1} min read • ${elem?.viewCount || 0} views`}
                     </MDTypography>
                     </MDBox>
                   </CardContent>
