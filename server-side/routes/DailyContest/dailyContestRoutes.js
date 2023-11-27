@@ -70,6 +70,8 @@ router.get('/contests/collegeupcoming', Authenticate, restrictTo('Admin', 'Super
 router.get('/contests/collegeongoing', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getCollegeOngoingContests);
 router.get('/contests/adminongoing', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.ongoingContestAdmin);
 router.get('/contests/completed', Authenticate, contestController.getCompletedContests);
+router.get('/contests/usercompleted', Authenticate, contestController.getUserCompletedContests);
+router.get('/contests/usercollegecompleted', Authenticate, contestController.getUserCollegeCompletedContests);
 
 router.get('/contests/collegeupcoming', Authenticate, contestController.getUpcomingCollegeContests);
 router.get('/contests/collegecompleted', Authenticate, contestController.getCompletedCollegeContests);
