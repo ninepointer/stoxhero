@@ -1209,6 +1209,180 @@ exports.getOverallRevenue = async(req,res,next) => {
         },
       },
     ];
+    const totalTestZoneMonthPipeline =[
+      {
+        $match: {
+          entryFee: { $gt: 0 },
+        },
+      },
+      {
+        $project: {
+          entryFee: 1,
+          participants: 1,
+        },
+      },
+      {
+        $unwind: "$participants",
+      },
+      {
+        $match: {
+          "participants.userId": { $exists: true, $ne: null },
+        },
+      },
+      {
+        $addFields: {
+          purchaseDate: {
+            $add: [
+              "$participants.participatedOn",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            month: {
+              $month: "$purchaseDate",
+            },
+            year: {
+              $year: "$purchaseDate",
+            },
+          },
+          totalRevenue: {
+            $sum: {
+              $ifNull: ["$participants.fee", "$entryFee"],
+            },
+          },
+          totalGMV: {
+            $sum: {
+              $ifNull: ["$participants.actualPrice", "$entryFee"],
+            },
+          },
+          totalOrder: { $sum: 1 },
+          uniqueUsers: { $addToSet: "$participants.userId" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          month: "$_id.month",
+          year: "$_id.year",
+          totalRevenue: 1,
+          totalGMV: 1,
+          totalOrder: 1,
+          uniqueUsersCount: { $size: "$uniqueUsers" },
+          uniqueUsers:"$uniqueUsers",
+          totalDiscountAmount: {
+            $subtract: ["$totalGMV", "$totalRevenue"],
+          },
+        },
+      },
+      {
+        $addFields: {
+          monthName: {
+            $switch: {
+              branches: [
+                {
+                  case: {
+                    $eq: ["$month", 1],
+                  },
+                  then: "Jan",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 2],
+                  },
+                  then: "Feb",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 3],
+                  },
+                  then: "Mar",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 4],
+                  },
+                  then: "Apr",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 5],
+                  },
+                  then: "May",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 6],
+                  },
+                  then: "Jun",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 7],
+                  },
+                  then: "Jul",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 8],
+                  },
+                  then: "Aug",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 9],
+                  },
+                  then: "Sep",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 10],
+                  },
+                  then: "Oct",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 11],
+                  },
+                  then: "Nov",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 12],
+                  },
+                  then: "Dec",
+                },
+              ],
+              default: null,
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          formattedDate: {
+            $concat: [
+              "$monthName",
+              "-",
+              {
+                $toString: {
+                  $substr: ["$year", 2, 4],
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        $sort: {
+          year: -1,
+          month: -1,
+        },
+      },
+    ];
     
     const totalTenxPipeline = [
       {
@@ -1246,6 +1420,169 @@ exports.getOverallRevenue = async(req,res,next) => {
           totalDiscountAmount: {
             $subtract: ["$totalGMV", "$totalRevenue"],
           },
+      },
+    },
+    ];
+    const totalTenxMonthPipeline = [
+      {
+        $unwind: "$users",
+      },
+      {
+        $match: {
+          "users.userId": { $exists: true, $ne: null },
+        },
+      },
+      {
+        $addFields: {
+          purchaseDate: {
+            $add: [
+              "$users.subscribedOn",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            month: {
+              $month: "$purchaseDate",
+            },
+            year: {
+              $year: "$purchaseDate",
+            },
+          },
+          totalRevenue: {
+            $sum: {
+              $ifNull: ["$users.fee", "$discounted_price"],
+            },
+          },
+          totalGMV: {
+            $sum: {
+              $ifNull: ["$users.actualPrice", "$actual_price"],
+            },
+          },
+          totalOrder: { $sum: 1 },
+          uniqueUsers: { $addToSet: "$users.userId" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          month: "$_id.month",
+          year: "$_id.year",
+          totalRevenue: 1,
+          totalGMV: 1,
+          totalOrder: 1,
+          uniqueUsersCount: { $size: "$uniqueUsers" },
+          uniqueUsers:1,
+          totalDiscountAmount: {
+            $subtract: ["$totalGMV", "$totalRevenue"],
+          },
+      },
+    },
+    {
+      $addFields: {
+        monthName: {
+          $switch: {
+            branches: [
+              {
+                case: {
+                  $eq: ["$month", 1],
+                },
+                then: "Jan",
+              },
+              {
+                case: {
+                  $eq: ["$month", 2],
+                },
+                then: "Feb",
+              },
+              {
+                case: {
+                  $eq: ["$month", 3],
+                },
+                then: "Mar",
+              },
+              {
+                case: {
+                  $eq: ["$month", 4],
+                },
+                then: "Apr",
+              },
+              {
+                case: {
+                  $eq: ["$month", 5],
+                },
+                then: "May",
+              },
+              {
+                case: {
+                  $eq: ["$month", 6],
+                },
+                then: "Jun",
+              },
+              {
+                case: {
+                  $eq: ["$month", 7],
+                },
+                then: "Jul",
+              },
+              {
+                case: {
+                  $eq: ["$month", 8],
+                },
+                then: "Aug",
+              },
+              {
+                case: {
+                  $eq: ["$month", 9],
+                },
+                then: "Sep",
+              },
+              {
+                case: {
+                  $eq: ["$month", 10],
+                },
+                then: "Oct",
+              },
+              {
+                case: {
+                  $eq: ["$month", 11],
+                },
+                then: "Nov",
+              },
+              {
+                case: {
+                  $eq: ["$month", 12],
+                },
+                then: "Dec",
+              },
+            ],
+            default: null,
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
+        formattedDate: {
+          $concat: [
+            "$monthName",
+            "-",
+            {
+              $toString: {
+                $substr: ["$year", 2, 4],
+              },
+            },
+          ],
+        },
+      },
+    },
+    {
+      $sort: {
+        year: -1,
+        month: -1,
       },
     },
     ];
@@ -1293,7 +1630,184 @@ exports.getOverallRevenue = async(req,res,next) => {
           totalGMV: 1,
           totalOrder: 1,
           uniqueUsersCount: { $size: "$uniqueUsers" },
-          uniqueUsers:"$uniqueUsers"
+          uniqueUsers:"$uniqueUsers",
+          totalDiscountAmount: {
+            $subtract: ["$totalGMV", "$totalRevenue"],
+          },
+        },
+      },
+    ];
+    const totalMarginXMonthPipeline = [
+      {
+        $lookup: {
+          from: 'marginx-templates', // Replace with the actual name of the marginX-template collection
+          localField: 'marginXTemplate',
+          foreignField: '_id',
+          as: 'templateData',
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $addFields: {
+          purchaseDate: {
+            $add: [
+              "$participants.boughtAt",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+        },
+      },
+      {
+        $match: {
+          "participants.userId": { $exists: true, $ne: null },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            month: {
+              $month: "$purchaseDate",
+            },
+            year: {
+              $year: "$purchaseDate",
+            },
+          },
+          totalRevenue: {
+            $sum: {
+              $ifNull: ["$participants.fee", { $arrayElemAt: ["$templateData.entryFee", 0] }],
+            },
+          },
+          totalGMV: {
+            $sum: {
+              $ifNull: ["$participants.actualPrice", { $arrayElemAt: ["$templateData.entryFee", 0] }],
+            },
+          },
+          totalOrder: { $sum: 1 },
+          uniqueUsers: { $addToSet: "$participants.userId" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          month: "$_id.month",
+          year: "$_id.year",
+          totalRevenue: 1,
+          totalGMV: 1,
+          totalOrder: 1,
+          uniqueUsersCount: { $size: "$uniqueUsers" },
+          uniqueUsers:"$uniqueUsers",
+          totalDiscountAmount: {
+            $subtract: ["$totalGMV", "$totalRevenue"],
+          },
+        },
+      },
+      {
+        $addFields: {
+          monthName: {
+            $switch: {
+              branches: [
+                {
+                  case: {
+                    $eq: ["$month", 1],
+                  },
+                  then: "Jan",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 2],
+                  },
+                  then: "Feb",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 3],
+                  },
+                  then: "Mar",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 4],
+                  },
+                  then: "Apr",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 5],
+                  },
+                  then: "May",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 6],
+                  },
+                  then: "Jun",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 7],
+                  },
+                  then: "Jul",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 8],
+                  },
+                  then: "Aug",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 9],
+                  },
+                  then: "Sep",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 10],
+                  },
+                  then: "Oct",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 11],
+                  },
+                  then: "Nov",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 12],
+                  },
+                  then: "Dec",
+                },
+              ],
+              default: null,
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          formattedDate: {
+            $concat: [
+              "$monthName",
+              "-",
+              {
+                $toString: {
+                  $substr: ["$year", 2, 4],
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        $sort: {
+          year: -1,
+          month: -1,
         },
       },
     ];
@@ -1341,22 +1855,205 @@ exports.getOverallRevenue = async(req,res,next) => {
           totalGMV: 1,
           totalOrder: 1,
           uniqueUsersCount: { $size: "$uniqueUsers" },
-          uniqueUsers:"$uniqueUsers"
+          uniqueUsers:"$uniqueUsers",
+          totalDiscountAmount: {
+            $subtract: ["$totalGMV", "$totalRevenue"],
+          },
+        },
+      },
+    ];
+    const totalBattleMonthPipeline = [
+      {
+        $lookup: {
+          from: 'battle-templates', // Replace with the actual name of the marginX-template collection
+          localField: 'battleTemplate',
+          foreignField: '_id',
+          as: 'templateData',
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $addFields: {
+          purchaseDate: {
+            $add: [
+              "$participants.boughtAt",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+        },
+      },
+      {
+        $match: {
+          "participants.userId": { $exists: true, $ne: null },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            month: {
+              $month: "$purchaseDate",
+            },
+            year: {
+              $year: "$purchaseDate",
+            },
+          },
+          totalRevenue: {
+            $sum: {
+              $ifNull: ["$participants.fee", { $arrayElemAt: ["$templateData.entryFee", 0] }],
+            },
+          },
+          totalGMV: {
+            $sum: {
+              $ifNull: ["$participants.actualPrice", { $arrayElemAt: ["$templateData.entryFee", 0] }],
+            },
+          },
+          totalOrder: { $sum: 1 },
+          uniqueUsers: { $addToSet: "$participants.userId" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          month: "$_id.month",
+          year: "$_id.year",
+          totalRevenue: 1,
+          totalGMV: 1,
+          totalOrder: 1,
+          uniqueUsersCount: { $size: "$uniqueUsers" },
+          uniqueUsers:"$uniqueUsers",
+          totalDiscountAmount: {
+            $subtract: ["$totalGMV", "$totalRevenue"],
+          },
+        },
+      },
+      {
+        $addFields: {
+          monthName: {
+            $switch: {
+              branches: [
+                {
+                  case: {
+                    $eq: ["$month", 1],
+                  },
+                  then: "Jan",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 2],
+                  },
+                  then: "Feb",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 3],
+                  },
+                  then: "Mar",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 4],
+                  },
+                  then: "Apr",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 5],
+                  },
+                  then: "May",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 6],
+                  },
+                  then: "Jun",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 7],
+                  },
+                  then: "Jul",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 8],
+                  },
+                  then: "Aug",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 9],
+                  },
+                  then: "Sep",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 10],
+                  },
+                  then: "Oct",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 11],
+                  },
+                  then: "Nov",
+                },
+                {
+                  case: {
+                    $eq: ["$month", 12],
+                  },
+                  then: "Dec",
+                },
+              ],
+              default: null,
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          formattedDate: {
+            $concat: [
+              "$monthName",
+              "-",
+              {
+                $toString: {
+                  $substr: ["$year", 2, 4],
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        $sort: {
+          year: -1,
+          month: -1,
         },
       },
     ];
     
-    const [totalTestZoneRevenue, totalTenXRevenue, totalMarginXRevenue, totalBattleRevenue] = await Promise.all([
+    const [totalTestZoneRevenue, totalTestZoneMonthRevenue, totalTenXRevenue, totalTenXMonthRevenue, 
+      totalMarginXRevenue, totalMarginXMonthRevenue, totalBattleRevenue, totalBattleMonthRevenue] = await Promise.all([
       TestZone.aggregate(totalTestZonePipeline),
+      TestZone.aggregate(totalTestZoneMonthPipeline),
       TenX.aggregate(totalTenxPipeline),
+      TenX.aggregate(totalTenxMonthPipeline),
       MarginX.aggregate(totalMarginXPipeline),
+      MarginX.aggregate(totalMarginXMonthPipeline),
       Battle.aggregate(totalBattlePipeline),
+      Battle.aggregate(totalBattleMonthPipeline),
   ]);
 
   let allUniqueUsers = new Set();
   let totalRevenueSum = 0;
   let totalGMVSum = 0;
   let totalOrderSum = 0;
+  let totalDiscountSum = 0;
   [totalTestZoneRevenue, totalTenXRevenue, totalMarginXRevenue, totalBattleRevenue].forEach(response => {
     if (response.length > 0) {
       if (response[0].uniqueUsers) {
@@ -1367,8 +2064,79 @@ exports.getOverallRevenue = async(req,res,next) => {
       totalRevenueSum += response[0].totalRevenue || 0;
       totalGMVSum += response[0].totalGMV || 0;
       totalOrderSum += response[0].totalOrder || 0;
+      totalDiscountSum += response[0].totalDiscountAmount || 0;
     }
   });
+  const getMonthYearFromFormattedDate = (formattedDate) => {
+    const parts = formattedDate.split('-'); // Assuming formattedDate is like "Nov-23"
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const month = monthNames.indexOf(parts[0]) + 1;
+    const year = parseInt(parts[1], 10) + 2000; // Adjust this based on your actual data format
+    return { month, year };
+  };
+  
+  const isWithinLastSixMonths = (formattedDate, currentMonth, currentYear) => {
+    const { month, year } = getMonthYearFromFormattedDate(formattedDate);
+    const monthDifference = currentMonth - month + (currentYear - year) * 12;
+    return monthDifference >= 0 && monthDifference < 6;
+  };
+  
+  // Get current month and year
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth() + 1;
+  const currentYear = currentDate.getFullYear();
+  
+  let monthlyAggregates = {};
+  [totalTestZoneMonthRevenue, totalTenXMonthRevenue, totalMarginXMonthRevenue, totalBattleMonthRevenue].forEach(response => {
+    response.forEach(monthData => {
+      if(isWithinLastSixMonths(monthData.formattedDate, currentMonth, currentYear)){
+
+        const monthKey = monthData.formattedDate;
+        
+        if (!monthlyAggregates[monthKey]) {
+          monthlyAggregates[monthKey] = {
+            totalRevenue: 0,
+            totalGMV: 0,
+            totalOrder: 0,
+            uniqueUsers: new Set(),
+          };
+        }
+    
+        monthlyAggregates[monthKey].totalRevenue += monthData.totalRevenue;
+        monthlyAggregates[monthKey].totalGMV += monthData.totalGMV;
+        monthlyAggregates[monthKey].totalOrder += monthData.totalOrder;
+        monthData.uniqueUsers.forEach(user => monthlyAggregates[monthKey].uniqueUsers.add(user.toString()));
+      }
+    });
+  });
+
+  // Object.keys(monthlyAggregates).forEach(monthKey => {
+  //   monthlyAggregates[monthKey].uniqueUsers = Array.from(monthlyAggregates[monthKey].uniqueUsers);
+  //   monthlyAggregates[monthKey].uniqueUsersCount = monthlyAggregates[monthKey].uniqueUsers.length;
+  // });
+
+  // const sortedMonthlyAggregates = Object.keys(monthlyAggregates)
+  // .sort((a, b) => new Date(getMonthYearFromFormattedDate(a).year, getMonthYearFromFormattedDate(a).month) - new Date(getMonthYearFromFormattedDate(b).year, getMonthYearFromFormattedDate(b).month))
+  // .reduce((obj, key) => {
+  //   obj[key] = monthlyAggregates[key];
+  //   return obj;
+  // }, {});
+  Object.keys(monthlyAggregates).forEach(monthKey => {
+    monthlyAggregates[monthKey] = {
+      monthRevenue: monthlyAggregates[monthKey].totalRevenue,
+      monthGMV: monthlyAggregates[monthKey].totalGMV,
+      totalOrder: monthlyAggregates[monthKey].totalOrder,
+      uniqueUsersCount: monthlyAggregates[monthKey].uniqueUsers.size,
+      formattedDate: monthKey,
+      arpu: monthlyAggregates[monthKey].totalRevenue/monthlyAggregates[monthKey].uniqueUsers.size,
+      aov:  monthlyAggregates[monthKey].totalRevenue/monthlyAggregates[monthKey].totalOrder
+    };
+  });
+  
+  // Sort the monthly data in ascending order and convert to an array of objects
+  const sortedMonthlyAggregatesArray = Object.keys(monthlyAggregates)
+    .sort((a, b) => new Date(getMonthYearFromFormattedDate(a).year, getMonthYearFromFormattedDate(a).month) - new Date(getMonthYearFromFormattedDate(b).year, getMonthYearFromFormattedDate(b).month))
+    .map(key => monthlyAggregates[key]);
   
   let allUniqueUsersArray = Array.from(allUniqueUsers);
   let allUniqueUsersCount = allUniqueUsersArray.length;
@@ -1380,8 +2148,23 @@ exports.getOverallRevenue = async(req,res,next) => {
   console.log("Total Orders:", totalOrderSum);
   console.log("Unique Users:", allUniqueUsersCount); 
   console.log("Total AOV:", overallAOV); 
-  console.log("Total Arpu:", overallArpu); 
-
+  console.log("Total Arpu:", overallArpu);
+  
+  const response = {
+    totalRevenueData:{
+      totalRevenue: totalRevenueSum,
+      totalGMV: totalGMVSum,
+      totalOrder: totalOrderSum,
+      uniqueUsers: allUniqueUsersCount,
+      totalAOV: overallAOV,
+      totalArpu: overallArpu,
+      totalDiscount: totalDiscountSum,
+    },
+    totalMonthWiseData:sortedMonthlyAggregatesArray,
+    status: "success",
+    message: "Revenue Data fetched successfully",
+  }
+  res.status(200).json(response);
   }catch(e){
     console.log(e);
   }

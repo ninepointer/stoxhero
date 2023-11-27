@@ -16,7 +16,7 @@ export default function Charts({ testZoneMonthlyRevenue }) {
 
     const options = {
       title: {
-        text: 'Last 6 Months TestZone',
+        text: 'Last 6 Months',
         left: 'left',
         textStyle: {
           fontSize: 10, // Adjust the font size as needed
@@ -83,7 +83,7 @@ export default function Charts({ testZoneMonthlyRevenue }) {
           name: 'GMV',
           type: 'bar',
           yAxisIndex: 0, // Associate with the first y-axis
-          data: testZoneMonthlyRevenue?.map((item) => (item?.monthGMV).toFixed(0)),
+          data: testZoneMonthlyRevenue?.map((item) => (item?.monthGMV)?.toFixed(0)),
         },
         {
           name: 'Revenue',
