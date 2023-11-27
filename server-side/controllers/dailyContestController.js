@@ -509,7 +509,7 @@ exports.getUserLiveContests = async (req, res) => {
 exports.getUserFeaturedContests = async (req, res) => {
   try {
 
-    const { userId } = req.user._id;
+    const userId = req.user._id;
     const contests = await Contest.find({
       featured: true,
       contestStatus: "Active",
@@ -527,7 +527,6 @@ exports.getUserFeaturedContests = async (req, res) => {
       .sort({ contestStartTime: 1 })
 
     const collegeContests = await Contest.find({
-      featured: true,
       contestStatus: "Active",
       contestFor: "College",
       potentialParticipants: { $elemMatch: { $eq: userId } }
