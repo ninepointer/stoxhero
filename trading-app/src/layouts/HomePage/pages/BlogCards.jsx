@@ -72,7 +72,7 @@ export default function BlogCard() {
   }
   const handleOpenNewTab = async (elem) => {
     
-    const newTab = window.open(`/blogs/${elem?._id}`, '_blank');
+    const newTab = window.open(`/blogs/${elem?.blogTitle}`, '_blank');
     await fetchDeviceDetail(elem?._id);
   };
 
@@ -113,7 +113,7 @@ export default function BlogCard() {
                                         <CardActionArea>
                                           <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                                             <img src={elem?.thumbnailImage?.url} style={{ maxWidth: '100%', height: 'auto', borderTopLeftRadius: 10, borderTopRightRadius: 10 }} />
-                                            <Typography variant="h6" fontSize={10} fontFamily='Segoe UI' fontWeight={400} style={{ position: 'absolute', top: 0, right: 0, margin: '8px', textAlign: 'center', color: '#A4A7B0', backgroundColor: "white", borderRadius: "15px", padding: "2px 10px 2px 10px", marginTop: "10px" }}>
+                                            <Typography variant="h6" fontSize={10} fontFamily='Segoe UI' fontWeight={400} style={{ position: 'absolute', top: 0, right: 0, margin: '8px', textAlign: 'center', color: 'black', backgroundColor: "white", borderRadius: "15px", padding: "2px 10px 2px 10px", marginTop: "10px" }}>
                                               {elem?.category?.toUpperCase() || "F&O"}
                                             </Typography>
                                           </Grid>
