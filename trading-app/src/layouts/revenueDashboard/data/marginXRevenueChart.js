@@ -8,7 +8,7 @@ import CardMedia from '@mui/material/CardMedia';
 import { CardActionArea, Divider, Grid } from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
 
-export default function Charts({ testZoneMonthlyRevenue }) {
+export default function Charts({ marginXMonthlyRevenue }) {
   const chartRef = useRef(null);
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export default function Charts({ testZoneMonthlyRevenue }) {
 
     const options = {
       title: {
-        text: 'Last 6 Months TestZone',
+        text: 'Last 6 Months MarginX',
         left: 'left',
         textStyle: {
           fontSize: 10, // Adjust the font size as needed
@@ -51,7 +51,7 @@ export default function Charts({ testZoneMonthlyRevenue }) {
       xAxis: [
         {
           type: 'category',
-          data: testZoneMonthlyRevenue?.map((item) => item?.formattedDate),
+          data: marginXMonthlyRevenue?.map((item) => item?.formattedDate),
           axisPointer: {
             type: 'shadow',
           },
@@ -83,25 +83,25 @@ export default function Charts({ testZoneMonthlyRevenue }) {
           name: 'GMV',
           type: 'bar',
           yAxisIndex: 0, // Associate with the first y-axis
-          data: testZoneMonthlyRevenue?.map((item) => (item?.monthGMV).toFixed(0)),
+          data: marginXMonthlyRevenue?.map((item) => (item?.monthGMV).toFixed(0)),
         },
         {
           name: 'Revenue',
           type: 'bar',
           yAxisIndex: 0, // Associate with the first y-axis
-          data: testZoneMonthlyRevenue?.map((item) => (item?.monthRevenue)?.toFixed(0)),
+          data: marginXMonthlyRevenue?.map((item) => (item?.monthRevenue)?.toFixed(0)),
         },
         {
           name: 'Orders',
           type: 'line',
           yAxisIndex: 1, // Associate with the second y-axis
-          data: testZoneMonthlyRevenue?.map((item) => item?.totalOrder),
+          data: marginXMonthlyRevenue?.map((item) => item?.totalOrder),
         },
         {
           name: 'Unique Paid Users',
           type: 'line',
           yAxisIndex: 1, // Associate with the second y-axis
-          data: testZoneMonthlyRevenue?.map((item) => item?.uniqueUsersCount),
+          data: marginXMonthlyRevenue?.map((item) => item?.uniqueUsersCount),
         },
       ],
     };
@@ -111,7 +111,7 @@ export default function Charts({ testZoneMonthlyRevenue }) {
     return () => {
       chart.dispose();
     };
-  }, [testZoneMonthlyRevenue]);
+  }, [marginXMonthlyRevenue]);
 
   useEffect(() => {
     const handleResize = () => {
