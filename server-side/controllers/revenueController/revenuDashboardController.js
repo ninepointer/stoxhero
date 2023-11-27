@@ -10,6 +10,8 @@ const { ObjectId } = require('mongodb');
 
 const TestZone = require("../../models/DailyContest/dailyContest")
 const TenX = require("../../models/TenXSubscription/TenXSubscriptionSchema")
+const MarginX = require("../../models/marginX/marginX");
+const Battle = require("../../models/battle/battle");
 
 
 exports.getTestZoneRevenue = async (req, res) => {
@@ -583,6 +585,235 @@ exports.getTestZoneRevenue = async (req, res) => {
     }
 };
 
+exports.getOverallRevenue = async(req,res,next) => {
+  try{
+    const totalTestZonePipeline =[
+      {
+        $match: {
+          entryFee: { $gt: 0 },
+        },
+      },
+      {
+        $project: {
+          entryFee: 1,
+          participants: 1,
+        },
+      },
+      {
+        $unwind: "$participants",
+      },
+      {
+        $match: {
+          "participants.userId": { $exists: true, $ne: null },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: {
+            $sum: {
+              $ifNull: ["$participants.fee", "$entryFee"],
+            },
+          },
+          totalGMV: {
+            $sum: {
+              $ifNull: ["$participants.actualPrice", "$entryFee"],
+            },
+          },
+          totalOrder: { $sum: 1 },
+          uniqueUsers: { $addToSet: "$participants.userId" },
+        },
+      },
+      {
+        $project: {
+          totalRevenue: 1,
+          totalGMV: 1,
+          totalOrder: 1,
+          uniqueUsersCount: { $size: "$uniqueUsers" },
+          uniqueUsers:"$uniqueUsers",
+          totalDiscountAmount: {
+            $subtract: ["$totalGMV", "$totalRevenue"],
+          },
+        },
+      },
+    ];
+    
+    const totalTenxPipeline = [
+      {
+        $unwind: "$users",
+      },
+      {
+        $match: {
+          "users.userId": { $exists: true, $ne: null },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: {
+            $sum: {
+              $ifNull: ["$users.fee", "$discounted_price"],
+            },
+          },
+          totalGMV: {
+            $sum: {
+              $ifNull: ["$users.actualPrice", "$actual_price"],
+            },
+          },
+          totalOrder: { $sum: 1 },
+          uniqueUsers: { $addToSet: "$users.userId" },
+        },
+      },
+      {
+        $project: {
+          totalRevenue: 1,
+          totalGMV: 1,
+          totalOrder: 1,
+          uniqueUsersCount: { $size: "$uniqueUsers" },
+          uniqueUsers:1,
+          totalDiscountAmount: {
+            $subtract: ["$totalGMV", "$totalRevenue"],
+          },
+      },
+    },
+    ];
+
+    const totalMarginXPipeline = [
+      {
+        $lookup: {
+          from: 'marginx-templates', // Replace with the actual name of the marginX-template collection
+          localField: 'marginXTemplate',
+          foreignField: '_id',
+          as: 'templateData',
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $match: {
+          "participants.userId": { $exists: true, $ne: null },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: {
+            $sum: {
+              $ifNull: ["$participants.fee", { $arrayElemAt: ["$templateData.entryFee", 0] }],
+            },
+          },
+          totalGMV: {
+            $sum: {
+              $ifNull: ["$participants.actualPrice", { $arrayElemAt: ["$templateData.entryFee", 0] }],
+            },
+          },
+          totalOrder: { $sum: 1 },
+          uniqueUsers: { $addToSet: "$participants.userId" },
+        },
+      },
+      {
+        $project: {
+          totalRevenue: 1,
+          totalGMV: 1,
+          totalOrder: 1,
+          uniqueUsersCount: { $size: "$uniqueUsers" },
+          uniqueUsers:"$uniqueUsers"
+        },
+      },
+    ];
+
+    const totalBattlePipeline = [
+      {
+        $lookup: {
+          from: 'battle-templates', // Replace with the actual name of the marginX-template collection
+          localField: 'battleTemplate',
+          foreignField: '_id',
+          as: 'templateData',
+        },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $match: {
+          "participants.userId": { $exists: true, $ne: null },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: {
+            $sum: {
+              $ifNull: ["$participants.fee", { $arrayElemAt: ["$templateData.entryFee", 0] }],
+            },
+          },
+          totalGMV: {
+            $sum: {
+              $ifNull: ["$participants.actualPrice", { $arrayElemAt: ["$templateData.entryFee", 0] }],
+            },
+          },
+          totalOrder: { $sum: 1 },
+          uniqueUsers: { $addToSet: "$participants.userId" },
+        },
+      },
+      {
+        $project: {
+          totalRevenue: 1,
+          totalGMV: 1,
+          totalOrder: 1,
+          uniqueUsersCount: { $size: "$uniqueUsers" },
+          uniqueUsers:"$uniqueUsers"
+        },
+      },
+    ];
+    
+    const [totalTestZoneRevenue, totalTenXRevenue, totalMarginXRevenue, totalBattleRevenue] = await Promise.all([
+      TestZone.aggregate(totalTestZonePipeline),
+      TenX.aggregate(totalTenxPipeline),
+      MarginX.aggregate(totalMarginXPipeline),
+      Battle.aggregate(totalBattlePipeline),
+  ]);
+
+  let allUniqueUsers = new Set();
+  let totalRevenueSum = 0;
+  let totalGMVSum = 0;
+  let totalOrderSum = 0;
+  [totalTestZoneRevenue, totalTenXRevenue, totalMarginXRevenue, totalBattleRevenue].forEach(response => {
+    if (response.length > 0) {
+      if (response[0].uniqueUsers) {
+        response[0].uniqueUsers.forEach(userId => {
+          allUniqueUsers.add(userId.toString());
+        });
+      }
+      totalRevenueSum += response[0].totalRevenue || 0;
+      totalGMVSum += response[0].totalGMV || 0;
+      totalOrderSum += response[0].totalOrder || 0;
+    }
+  });
+  
+  let allUniqueUsersArray = Array.from(allUniqueUsers);
+  let allUniqueUsersCount = allUniqueUsersArray.length;
+
+  let overallAOV = totalRevenueSum/totalOrderSum;
+  let overallArpu = totalRevenueSum/allUniqueUsersCount; 
+  console.log("Total Revenue:", totalRevenueSum);
+  console.log("Total GMV:", totalGMVSum);
+  console.log("Total Orders:", totalOrderSum);
+  console.log("Unique Users:", allUniqueUsersCount); 
+  console.log("Total AOV:", overallAOV); 
+  console.log("Total Arpu:", overallArpu); 
+
+  }catch(e){
+    console.log(e);
+  }
+}
 
 
 
