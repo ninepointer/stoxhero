@@ -16,7 +16,7 @@ export default function Charts({ tenXMonthlyRevenue }) {
 
     const options = {
       title: {
-        text: 'Last 6 Months TestZone',
+        text: 'Last 6 Months TenX',
         left: 'left',
         textStyle: {
           fontSize: 10, // Adjust the font size as needed
@@ -129,7 +129,7 @@ export default function Charts({ tenXMonthlyRevenue }) {
   }, []);
 
   return (
-    <Card style={{ minWidth: '100%', height: '380px' }}>
+    <Card style={{ minWidth: '100%', height: '380px', borderRadius:1 }}>
       <CardContent>
         {/* <MDTypography variant="h6">Last 6 months TestZone Data</MDTypography> */}
         <div style={{ minWidth: '100%', height: '360px' }} ref={chartRef}></div>

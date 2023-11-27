@@ -13,31 +13,142 @@ import { Link} from "react-router-dom";
 import moment from 'moment'
 
 
-const PublishedBlogs = ({totalTestZoneRevenue}) => {
-
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-
+const PublishedBlogs = ({totalBattleRevenue}) => {
+    
     return (
-    <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{minWidth: '100%',height: 'auto'}}>
-        <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1 }} >
-            <CardActionArea>
-                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
-                    <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
-                        <Grid mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
-                            <MDTypography variant="h6" fontFamily='Segoe UI' fontWeight={400} style={{textAlign:'center'}}>
-                                Total Battle Revenue
-                            </MDTypography>
-                        </Grid>
-                            <Divider style={{width:'100%'}}/>
-                        <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
-                            <MDTypography variant='h6'>
-                                ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalTestZoneRevenue)}
-                            </MDTypography>
-                        </Grid>
-                    </CardContent>
-                </Grid>
-            </CardActionArea>
-        </Card>
+    <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{minWidth: '100%',height: 'auto'}}>
+        
+        <Grid item xs={12} md={12} lg={6}>
+            <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1 }} >
+                <CardActionArea>
+                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                        <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                            <Grid mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
+                                <MDTypography variant="h7" fontWeight="bold" fontFamily='Segoe UI' style={{textAlign:'center'}}>
+                                    Lifetime Battle <br/> GMV
+                                </MDTypography>
+                            </Grid>
+                                <Divider style={{width:'100%'}}/>
+                            <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                                <MDTypography variant='h6'>
+                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalBattleRevenue?.totalGMV)}
+                                </MDTypography>
+                            </Grid>
+                        </CardContent>
+                    </Grid>
+                </CardActionArea>
+            </Card>
+        </Grid>
+
+        <Grid item xs={12} md={12} lg={6}>
+            <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1 }} >
+                <CardActionArea>
+                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                        <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                            <Grid mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
+                            <MDTypography variant="h7" fontWeight="bold" fontFamily='Segoe UI' style={{textAlign:'center'}}>
+                                    Lifetime Battle <br/> Revenue
+                                </MDTypography>
+                            </Grid>
+                                <Divider style={{width:'100%'}}/>
+                            <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                                <MDTypography variant='h6'>
+                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalBattleRevenue?.totalRevenue)}
+                                </MDTypography>
+                            </Grid>
+                        </CardContent>
+                    </Grid>
+                </CardActionArea>
+            </Card>
+        </Grid>
+
+        <Grid item xs={12} md={12} lg={6}>
+            <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1 }} >
+                <CardActionArea>
+                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                        <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                            <Grid mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
+                                <MDTypography variant="h7" fontWeight="bold" fontFamily='Segoe UI' style={{textAlign:'center'}}>
+                                    Lifetime Battle <br/> Orders(Paid)
+                                </MDTypography>
+                            </Grid>
+                                <Divider style={{width:'100%'}}/>
+                            <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                                <MDTypography variant='h6'>
+                                    {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalBattleRevenue?.totalOrder)}
+                                </MDTypography>
+                            </Grid>
+                        </CardContent>
+                    </Grid>
+                </CardActionArea>
+            </Card>
+        </Grid>
+
+        <Grid item xs={12} md={12} lg={6}>
+            <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1 }} >
+                <CardActionArea>
+                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                        <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                            <Grid mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
+                                <MDTypography variant="h7" fontWeight="bold" fontFamily='Segoe UI' style={{textAlign:'center'}}>
+                                    Lifetime Battle <br/>  Discounts
+                                </MDTypography>
+                            </Grid>
+                                <Divider style={{width:'100%'}}/>
+                            <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                                <MDTypography variant='h6'>
+                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalBattleRevenue?.totalDiscountAmount)}
+                                </MDTypography>
+                            </Grid>
+                        </CardContent>
+                    </Grid>
+                </CardActionArea>
+            </Card>
+        </Grid>
+
+        <Grid item xs={12} md={12} lg={6}>
+            <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1 }} >
+                <CardActionArea>
+                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                        <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                            <Grid mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
+                                <MDTypography variant="h7" fontWeight="bold" fontFamily='Segoe UI' style={{textAlign:'center'}}>
+                                    Lifetime Battle <br/> ARPU
+                                </MDTypography>
+                            </Grid>
+                                <Divider style={{width:'100%'}}/>
+                            <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                                <MDTypography variant='h6'>
+                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalBattleRevenue?.arpu)}
+                                </MDTypography>
+                            </Grid>
+                        </CardContent>
+                    </Grid>
+                </CardActionArea>
+            </Card>
+        </Grid>
+
+        <Grid item xs={12} md={12} lg={6}>
+            <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1 }} >
+                <CardActionArea>
+                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                        <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                            <Grid mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
+                                <MDTypography variant="h7" fontWeight="bold" fontFamily='Segoe UI' style={{textAlign:'center'}}>
+                                    Lifetime Battle <br/> AOV
+                                </MDTypography>
+                            </Grid>
+                                <Divider style={{width:'100%'}}/>
+                            <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                                <MDTypography variant='h6'>
+                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalBattleRevenue?.aov)}
+                                </MDTypography>
+                            </Grid>
+                        </CardContent>
+                    </Grid>
+                </CardActionArea>
+            </Card>
+        </Grid>
     </Grid>
 
 )}
