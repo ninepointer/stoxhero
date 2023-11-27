@@ -1157,6 +1157,151 @@ exports.getTestZoneRevenue = async (req, res) => {
     }
 };
 
+exports.downloadTestZoneRevenueData = async (req, res) => {
+
+  try {
+
+    const testZoneRevenueDataPipeline = [
+      {
+        $match: {
+          entryFee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $unwind: "$participants",
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "participants.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: "$user",
+      },
+      {
+        $lookup: {
+          from: "user-portfolios",
+          localField: "portfolio",
+          foreignField: "_id",
+          as: "portfolio-details",
+        },
+      },
+      {
+        $unwind: "$portfolio-details",
+      },
+      {
+        $addFields: {
+          testzoneDate: {
+            $add: [
+              "$contestStartTime",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+          purchaseDate: {
+            $add: [
+              "$participants.participatedOn",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+          joiningDate: {
+            $add: [
+              "$user.joining_date",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          first_name: "$user.first_name",
+          last_name: "$user.last_name",
+          mobile: "$user.mobile",
+          email: "$user.email",
+          testzone: "$contestName",
+          testzoneDate: "$testzoneDate",
+          testzonePortfolio:
+            "$portfolio-details.portfolioValue",
+          purchaseDate: "$purchaseDate",
+          joiningDate: "$joiningDate",
+          campaignCode: {
+            $ifNull: ["$user.campaignCode", ""],
+          },
+          referrerCode: {
+            $ifNull: ["$user.referrerCode", ""],
+          },
+          myReferralCode: {
+            $ifNull: ["$user.myReferralCode", ""],
+          },
+          contestStatus: {
+            $ifNull: ["$contestStatus", ""],
+          },
+          actualPrice: {
+            $ifNull: ["$actualPrice", "$entryFee"],
+          },
+          creationProcess: {
+            $ifNull: ["$user.creationProcess", ""],
+          },
+          buyingPrice: {
+            $ifNull: [
+              "$participants.fee",
+              "$entryFee",
+            ],
+          },
+          bonusRedemption: {
+            $ifNull: ["$bonusRedemption", 0],
+          },
+          tdsAmount: {
+            $ifNull: ["$tdsAmount", 0],
+          },
+          rank: {
+            $ifNull: ["$participants.rank", ""],
+          },
+          payout: {
+            $ifNull: ["$participants.payout", 0],
+          },
+          npnl: {
+            $ifNull: ["$participants.npnl", 0],
+          },
+          gpnl: {
+            $ifNull: ["$participants.gpnl", 0],
+          },
+          trades: {
+            $ifNull: ["$participants.trades", 0],
+          },
+        },
+      },
+      {
+        $sort:{
+          testzoneDate:-1
+        }
+      }
+    ]
+
+    const testZoneRevenueData = await TestZone.aggregate(testZoneRevenueDataPipeline);
+
+    const response = {
+      status: "success",
+      message: "Monthly Active Users on Platform fetched successfully",
+      data: testZoneRevenueData,
+    };
+    
+
+  res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
 
 
 

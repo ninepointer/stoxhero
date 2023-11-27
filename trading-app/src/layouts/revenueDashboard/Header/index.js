@@ -18,9 +18,11 @@ import MarginXRevenue from '../data/totalMarginXRevenue'
 import BattleRevenue from '../data/totalBattleRevenue'
 import TenXRevenue from '../data/totalTenXRevenue'
 import TotalRevenue from '../data/totalRevenue'
+import { saveAs } from 'file-saver';
+import moment from 'moment'
 
 export default function Dashboard() {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let [isLoading,setIsLoading] = useState([])
   const [testZoneMonthlyRevenue,setTestZoneMonthlyRevenue] = useState([])
   const [totalTestZoneRevenue,setTotalTestZoneRevenue] = useState([])
@@ -30,6 +32,7 @@ export default function Dashboard() {
   const [totalMarginXRevenue,setTotalMarginXRevenue] = useState([])
   const [battleMonthlyRevenue,setBattleMonthlyRevenue] = useState([])
   const [totalBattleRevenue,setTotalBattleRevenue] = useState([])
+  const [downloadingTestZoneData,setDownloadingTestZoneRevenueData] = useState(false)
   
   
   useEffect(()=>{
@@ -60,6 +63,113 @@ export default function Dashboard() {
     });
     
   },[])
+
+  function TruncatedName(name) {
+    const originalName = name;
+    const convertedName = originalName
+      .toLowerCase() // Convert the entire name to lowercase
+      .split(' ') // Split the name into words
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
+      .join(' '); // Join the words back together with a space
+  
+    // Trim the name to a maximum of 30 characters
+    const truncatedName = convertedName.length > 30 ? convertedName.substring(0, 30) + '...' : convertedName;
+  
+    return truncatedName;
+  }
+
+  const downloadTestZoneRevenueData = () => {
+    setDownloadingTestZoneRevenueData(true)
+    return new Promise((resolve, reject) => {
+        axios
+        .get(`${baseUrl}api/v1/revenue/downloadtestzonerevenuedata`, {
+            withCredentials: true,
+            headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Credentials': true,
+            },
+        })
+        .then((res) => {
+            resolve(res.data.data); // Resolve the promise with the data
+            setDownloadingTestZoneRevenueData(false)
+        })
+        .catch((err) => {
+            console.log(err)
+            reject(err); // Reject the promise with the error'
+            setDownloadingTestZoneRevenueData(false)
+        });
+    });
+    };
+
+  const handleDownload = async (nameVariable) => {
+    try {
+      // Wait for downloadContestData() to complete and return data
+      let data = [];
+      let csvData = [];
+      if(nameVariable === 'TestZone Revenue Data'){
+        data = await downloadTestZoneRevenueData();
+        csvData = downloadHelper(data)
+      }
+      // Create the CSV content
+      const csvContent = csvData?.map((row) => {
+        return row?.map((row1) => row1.join(',')).join('\n');
+      });
+  
+      // Create a Blob object with the CSV content
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+  
+      // Save the file using FileSaver.js
+      saveAs(blob, `${nameVariable}.csv`);
+    } catch (error) {
+      console.error('Error downloading revenue data:', error);
+    }
+  }
+
+  function downloadHelper(data) {
+    let csvDataFile = [[]]
+    let csvDataDailyPnl = [["#","First Name", "Last Name", "Email", "Mobile", "Signup Method", "Joining Date", 
+                            "Campaign Code", "Referrer Code", "Referral Code", "TestZone", 
+                            "TestZone Date", "TestZone Portfolio", "Purchase Date", 
+                            "TestZone Status", "Actual Price", "Buying Price", "Bonus Used", 
+                            "Rank", "Payout", "TDS Amount", "Net P&L", "Gross P&L", "# of Trades"]]
+    if (data) {
+      // dates = Object.keys(data)
+      let csvpnlData = Object.values(data)
+      csvDataFile = csvpnlData?.map((elem, index) => {
+
+        return [
+          index+1,
+          TruncatedName(elem?.first_name),
+          TruncatedName(elem?.last_name),
+          elem?.email,
+          elem?.mobile,
+          elem?.creationProcess,
+          moment.utc(elem?.joiningDate).format('DD-MMM-YY'),
+          elem?.campaignCode,
+          elem?.referrerCode,
+          elem?.myReferralCode,
+          elem?.testzone,
+          moment.utc(elem?.testzoneDate).format('DD-MMM-YY'),
+          elem?.testzonePortfolio,
+          moment.utc(elem?.purchaseDate).format('DD-MMM-YY HH:mm'),
+          elem?.contestStatus,
+          elem?.actualPrice?.toFixed(2),
+          elem?.buyingPrice?.toFixed(2),
+          elem?.bonusRedemption?.toFixed(2),
+          elem?.rank,
+          elem?.payout?.toFixed(0),
+          elem?.tdsAmount?.toFixed(0),
+          elem?.npnl?.toFixed(0),
+          elem?.gpnl?.toFixed(0),
+          elem?.trades,
+
+        ]
+      })
+    }
+
+    return [[...csvDataDailyPnl, ...csvDataFile]]
+  }
 
 
   return (
@@ -134,15 +244,21 @@ export default function Dashboard() {
                   <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                   <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1, backgroundColor:'lightgrey' }} >
                       
-                      <Grid container xs={12} md={12} lg={12}>
-                        <Grid item p={1} xs={12} md={12} lg={8} display='flex' justifyContent='flex-start'>
+                      <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent="center" alignItems="center">
+                        <Grid item p={1} xs={12} md={12} lg={8} display='flex' justifyContent='flex-start' alignContent="center" alignItems="center">
                           <MDTypography variant="h6" style={{textAlign:'center'}}>TestZone Revenue Data</MDTypography>
                         </Grid>
-                        <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='flex-end'>
-                          <MDButton variant='text' color='success'>
+                        {!downloadingTestZoneData ? 
+                         <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='flex-end' alignContent="center" alignItems="center">
+                          <MDButton variant='text' color='success' onClick={() => { handleDownload(`TestZone Revenue Data`) }}>
                             Download Data
                           </MDButton>
                         </Grid>
+                        :
+                        <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='flex-end' alignContent="center" alignItems="center">
+                          <MDTypography mr={5} fontSize={15} color='warning' fontWeight="bold">Downloading</MDTypography>
+                        </Grid>
+                        }
                       </Grid>
                     
                   </Card>
