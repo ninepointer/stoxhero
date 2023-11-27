@@ -13,7 +13,7 @@ import { Link} from "react-router-dom";
 import moment from 'moment'
 
 
-const PublishedBlogs = ({totalTestZoneRevenue}) => {
+const PublishedBlogs = ({overallRevenue}) => {
 
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 

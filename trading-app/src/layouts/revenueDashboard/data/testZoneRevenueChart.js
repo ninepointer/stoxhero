@@ -16,7 +16,7 @@ export default function Charts({ testZoneMonthlyRevenue }) {
 
     const options = {
       title: {
-        text: 'Last 6 Months',
+        text: testZoneMonthlyRevenue[0].month ? 'Last 6 Months TestZone' : 'Last 6 Months Overview',
         left: 'left',
         textStyle: {
           fontSize: 10, // Adjust the font size as needed
