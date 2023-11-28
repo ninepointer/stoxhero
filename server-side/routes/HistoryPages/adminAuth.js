@@ -86,6 +86,20 @@ const {createUserNotification} = require('../../controllers/notification/notific
 const uuid = require('uuid');
 const Notification = require("../../models/notifications/notification")
 const Referrals = require("../../models/campaigns/referralProgram")
+const {dailyContestTimeStore} = require("../../dailyContestTradeCut")
+
+
+
+router.get('/updatecreationprocess', async(req,res) =>{
+  const user = await UserDetail.find({creationProcess: "Auto SignUp"});
+  for(let elem of user){
+    if(elem.referredBy){
+      elem.creationProcess = "Referral SignUp";
+      console.log(elem.creationProcess, elem.first_name)
+    }
+    await elem.save({validationBeforeSave: false});
+  }
+})
 
 router.get('/updateTenxPnl', async(req,res) =>{
   const tenx = await TenxSubscription.find();
@@ -178,44 +192,26 @@ const pnlFunc = async(startDate, endDate, userId, id)=>{
 }
 
 router.get('/changeContestToTestzone', async(req,res) =>{
-  // const wallet = await userWallet.find();
-  const notification = await Notification.find();
-  // console.log(wallet.length, notification.length);
-  // for(let elem of wallet){
-  //   for(let subelem of elem.transactions){
-  //     // console.log("wallet")
-  //     if(subelem?.title?.includes("Contest")){
-  //       const newTitle = subelem.title.replace("Contest", "TestZone")
-  //       subelem.title = newTitle
-  //       console.log("subelem", subelem)
-  //     }
+  // const notification = await Notification.find();
 
-  //     if(subelem?.description?.includes("contest")){
-  //       const newDes = subelem.description.replace("contest", "testzone");
-  //       subelem.description = newDes;
-  //     }
+  // for(let elem of notification){
+  //   console.log("notification")
+  //   if(elem.productCategory === "Contest"){
+  //     elem.productCategory = "TestZone";
+  //   }
+  //   if(elem.title.includes("Contest")){
+  //     const newTitle = elem.title.replace("Contest", "TestZone")
+  //     elem.title = newTitle
+  //   }
+
+  //   if(elem.description.includes("contest")){
+  //     const newDes = elem.description.replace("contest", "testzone");
+  //     elem.description = newDes;
   //   }
   //   const data = await elem.save();
-  //   // console.log(data)
+  //   console.log(data)
   // }
-
-  for(let elem of notification){
-    console.log("notification")
-    if(elem.productCategory === "Contest"){
-      elem.productCategory = "TestZone";
-    }
-    if(elem.title.includes("Contest")){
-      const newTitle = elem.title.replace("Contest", "TestZone")
-      elem.title = newTitle
-    }
-
-    if(elem.description.includes("contest")){
-      const newDes = elem.description.replace("contest", "testzone");
-      elem.description = newDes;
-    }
-    const data = await elem.save();
-    console.log(data)
-  }
+  await dailyContestTimeStore()
 })
 
 router.get('/getProductInfoData', async(req,res) =>{
@@ -2918,7 +2914,7 @@ router.get("/updateInstrumentStatus", async (req, res) => {
   //   });
   // }
 
-  await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
+  await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "", allInstruments: "" } });
 
   res.send({ message: "updated", data: instrument, data1: infinityInstrument })
 })

@@ -464,6 +464,31 @@ exports.editCareer = async(req, res, next) => {
     res.status(200).json({message: 'Successfully edited Career.', data: updated});
 }
 
+exports.getAllCareers = async(req, res, next)=>{
+  const type = req.query.type;
+  const cond = !type? {}:{listingType:type}
+  const career = await Career.aggregate(
+    [
+      {
+        $match: cond
+      },
+      {
+        $project: {
+          jobTitle: 1,
+          jobDescription: 1,
+          jobType: 1,
+          jobLocation: 1,
+          status: 1,
+          activelyRecruiting: 1,
+          rolesAndResponsibilities: 1,
+          listingType: 1
+        },
+      },
+    ]
+  )
+  res.status(201).json({message: 'success', data:career});
+}
+
 exports.getCareers = async(req, res, next)=>{
     const type = req.query.type;
     const cond = !type? {}:{listingType:type}

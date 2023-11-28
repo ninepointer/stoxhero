@@ -41,6 +41,7 @@ const hpp = require("hpp")
 const { processBattles } = require("./controllers/battles/battleController")
 const Product = require('./models/Product/product');
 const {mail} = require("./controllers/dailyReportMail")
+const {dailyContestTradeCut, dailyContestTimeStore} = require("./dailyContestTradeCut")
 
 async function singleProcess() {
     await setIOValue()
@@ -196,13 +197,12 @@ async function singleProcess() {
     });
 
     //emitting leaderboard for contest.
-    //todo-vijay
-//    if (process.env.PROD === "true") {
+   if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });
         // sendLeaderboardDataBattle().then(() => { });
         // sendMyRankDataBattle().then(() => { });
-//    }
+   }
 
     emitServerTime().then(() => { });
 
@@ -275,9 +275,11 @@ async function singleProcess() {
         const autoExpire = nodeCron.schedule(`0 30 10 * * *`, autoExpireTenXSubscription);
         const internshipPayout = nodeCron.schedule(`0 30 17 * * *`, updateUserWallet);
         const reportMail = nodeCron.schedule(`0 0 18 * * *`, mail);
+            // const dailyContest = nodeCron.schedule(`*/2 * * * * *`, dailyContestTradeCut);
+    // const dailyContesttimeStore = nodeCron.schedule(`49 3 * * *`, dailyContestTimeStore);
+    // const dailyContesttimeStore = nodeCron.schedule(`*/59 * * * * *`, dailyContestTimeStore);
+
     }
-    //const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
-    // const battle = nodeCron.schedule(`56 5 * * *`, processBattles);
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
     app.use(express.json({ limit: "20kb" }));
