@@ -65,7 +65,7 @@ export default function BlogCard() {
   };
   return (
     <>
-        <Grid container display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' xs={12} md={12} lg={12} style={{maxWidth:'100%', height:'auto'}}>
+        <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
           
           <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
             <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
@@ -73,7 +73,7 @@ export default function BlogCard() {
               <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                 <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                   
-                  <Grid item xs={12} mt={5} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
+                  <Grid item xs={12} mt={2} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                     
                       <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                       <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
@@ -137,7 +137,7 @@ export default function BlogCard() {
               <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                 <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                   
-                  <Grid item mt={5} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
+                  <Grid item mt={2} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                     
                       <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>
                       <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'100%', height:'auto'}}>

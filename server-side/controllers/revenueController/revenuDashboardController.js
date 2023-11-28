@@ -4,6 +4,7 @@ const TestZone = require("../../models/DailyContest/dailyContest")
 const TenX = require("../../models/TenXSubscription/TenXSubscriptionSchema")
 const MarginX = require("../../models/marginX/marginX")
 const Battle = require("../../models/battle/battle")
+const User = require("../../models/User/userDetailSchema")
 
 
 exports.getTestZoneRevenue = async (req, res) => {
@@ -2129,7 +2130,8 @@ exports.getOverallRevenue = async(req,res,next) => {
       uniqueUsersCount: monthlyAggregates[monthKey].uniqueUsers.size,
       formattedDate: monthKey,
       arpu: monthlyAggregates[monthKey].totalRevenue/monthlyAggregates[monthKey].uniqueUsers.size,
-      aov:  monthlyAggregates[monthKey].totalRevenue/monthlyAggregates[monthKey].totalOrder
+      aov: monthlyAggregates[monthKey].totalRevenue/monthlyAggregates[monthKey].totalOrder,
+      aos: monthlyAggregates[monthKey].totalOrder/monthlyAggregates[monthKey].uniqueUsers.size,
     };
   });
   
@@ -2139,16 +2141,40 @@ exports.getOverallRevenue = async(req,res,next) => {
     .map(key => monthlyAggregates[key]);
   
   let allUniqueUsersArray = Array.from(allUniqueUsers);
+  // console.log("All Users:",allUniqueUsersArray, allUniqueUsersArray?.length)
   let allUniqueUsersCount = allUniqueUsersArray.length;
+  let formattedUserDetails;
+  async function fetchUserDetails() {
+    try {
+      const userDetails = await User.find({ _id: { $in: allUniqueUsersArray } }, '_id creationProcess');
+      formattedUserDetails = userDetails?.map(({ _id, creationProcess }) => ({ _id, creationProcess }));
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  }
+  await fetchUserDetails();
 
+  const userCountsByProcess = formattedUserDetails?.reduce((result, { creationProcess }) => {
+    result[creationProcess] = (result[creationProcess] || 0) + 1;
+    return result;
+  }, {});
+
+  const userCountsByProcessArray = Object.entries(userCountsByProcess).map(([creationProcess, count]) => ({
+    creationProcess,
+    count,
+  }));
+
+  // console.log(userCountsByProcess)
+  
   let overallAOV = totalRevenueSum/totalOrderSum;
-  let overallArpu = totalRevenueSum/allUniqueUsersCount; 
-  console.log("Total Revenue:", totalRevenueSum);
-  console.log("Total GMV:", totalGMVSum);
-  console.log("Total Orders:", totalOrderSum);
-  console.log("Unique Users:", allUniqueUsersCount); 
-  console.log("Total AOV:", overallAOV); 
-  console.log("Total Arpu:", overallArpu);
+  let overallArpu = totalRevenueSum/allUniqueUsersCount;
+  let overallAOS =  totalOrderSum/allUniqueUsersCount;
+  // console.log("Total Revenue:", totalRevenueSum);
+  // console.log("Total GMV:", totalGMVSum);
+  // console.log("Total Orders:", totalOrderSum);
+  // console.log("Unique Users:", allUniqueUsersCount); 
+  // console.log("Total AOV:", overallAOV); 
+  // console.log("Total Arpu:", overallArpu);
   
   const response = {
     totalRevenueData:{
@@ -2158,9 +2184,11 @@ exports.getOverallRevenue = async(req,res,next) => {
       uniqueUsers: allUniqueUsersCount,
       totalAOV: overallAOV,
       totalArpu: overallArpu,
+      totalAOS: overallAOS,
       totalDiscount: totalDiscountSum,
     },
     totalMonthWiseData:sortedMonthlyAggregatesArray,
+    userByCreationProcess: userCountsByProcessArray,
     status: "success",
     message: "Revenue Data fetched successfully",
   }

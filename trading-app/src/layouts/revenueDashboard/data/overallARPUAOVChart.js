@@ -1,9 +1,14 @@
 import * as echarts from 'echarts';
 import React, { useEffect, useRef } from 'react';
+import MDBox from '../../../components/MDBox';
+import moment from 'moment';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import { CardActionArea, Divider, Grid } from '@mui/material';
+import MDTypography from '../../../components/MDTypography';
 
-export default function Charts({ battleMonthlyRevenue }) {
+export default function Charts({ testZoneMonthlyRevenue }) {
   const chartRef = useRef(null);
 
   useEffect(() => {
@@ -11,7 +16,7 @@ export default function Charts({ battleMonthlyRevenue }) {
 
     const options = {
       title: {
-        text: 'Last 6 Months Battle',
+        text: testZoneMonthlyRevenue[0].month ? 'Last 6 Months TestZone ARPU, AOV & AOS' : 'Last 6 Months ARPU, AOV & AOS',
         left: 'left',
         textStyle: {
           fontSize: 10, // Adjust the font size as needed
@@ -35,7 +40,7 @@ export default function Charts({ battleMonthlyRevenue }) {
         },
       },
       legend: {
-        data: ['GMV', 'Revenue', 'Orders', 'Unique Paid Users'],
+        data: ['AOV', 'ARPU', 'AOS'],
       },
       grid: {
         right: '2%', // Adjust the right margin as per your requirement
@@ -46,7 +51,7 @@ export default function Charts({ battleMonthlyRevenue }) {
       xAxis: [
         {
           type: 'category',
-          data: battleMonthlyRevenue?.map((item) => item?.formattedDate),
+          data: testZoneMonthlyRevenue?.map((item) => item?.formattedDate),
           axisPointer: {
             type: 'shadow',
           },
@@ -75,28 +80,22 @@ export default function Charts({ battleMonthlyRevenue }) {
       ],
       series: [
         {
-          name: 'GMV',
+          name: 'AOV',
           type: 'bar',
           yAxisIndex: 0, // Associate with the first y-axis
-          data: battleMonthlyRevenue?.map((item) => (item?.monthGMV).toFixed(0)),
+          data: testZoneMonthlyRevenue?.map((item) => (item?.aov)?.toFixed(0)),
         },
         {
-          name: 'Revenue',
+          name: 'ARPU',
           type: 'bar',
           yAxisIndex: 0, // Associate with the first y-axis
-          data: battleMonthlyRevenue?.map((item) => (item?.monthRevenue)?.toFixed(0)),
+          data: testZoneMonthlyRevenue?.map((item) => (item?.arpu)?.toFixed(0)),
         },
         {
-          name: 'Orders',
+          name: 'AOS',
           type: 'line',
           yAxisIndex: 1, // Associate with the second y-axis
-          data: battleMonthlyRevenue?.map((item) => item?.totalOrder),
-        },
-        {
-          name: 'Unique Paid Users',
-          type: 'line',
-          yAxisIndex: 1, // Associate with the second y-axis
-          data: battleMonthlyRevenue?.map((item) => item?.uniqueUsersCount),
+          data: testZoneMonthlyRevenue?.map((item) => (item?.aos)?.toFixed(2)),
         },
       ],
     };
@@ -106,7 +105,7 @@ export default function Charts({ battleMonthlyRevenue }) {
     return () => {
       chart.dispose();
     };
-  }, [battleMonthlyRevenue]);
+  }, [testZoneMonthlyRevenue]);
 
   useEffect(() => {
     const handleResize = () => {

@@ -74,6 +74,7 @@ import BackReportXTS from "./layouts/backReportXTS";
 import OverallPnlTrader from "./layouts/overallPnlTrader";
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import RevenueDashboard from './layouts/revenueDashboard'
+import AffiliateDashboard from './layouts/affiliateDashboard'
 import ChallengeDashboard from './layouts/challengeDashboard'
 import DailyContestDashboard from './layouts/dailyContestDashboard'
 import BattleDashboard from './layouts/battleDashboard'
@@ -173,6 +174,7 @@ import DailyContestAnalytics from "./layouts/dailyContestAnalytics"
 import TenXSubscribers from "./layouts/tenXSubscribers"
 import MarketingFunnel from "./layouts/marketingDashboard"
 import { FaRupeeSign } from "react-icons/fa";
+import { FaAffiliatetheme } from "react-icons/fa";
 
 const routes = [
 
@@ -191,6 +193,14 @@ const routes = [
     icon: <FaRupeeSign/>,
     route: "/revenuedashboard",
     component: <RevenueDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Affiliate Dashboard",
+    key: "affiliatedashboard",
+    icon: <FaAffiliatetheme/>,
+    route: "/affiliatedashboard",
+    component: <AffiliateDashboard />,
   },
   {
     type: "collapse",

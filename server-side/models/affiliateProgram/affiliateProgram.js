@@ -10,6 +10,11 @@ const affiliateProgramSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    affiliateType: {
+        type: String,
+        required: true,
+        enum: ['Youtube Influencer','Instagram Influencer','LinkedIn Influencer','StoxHero User','Offline Institute']
+    },
     startDate:{
         type: Date,
         required: true

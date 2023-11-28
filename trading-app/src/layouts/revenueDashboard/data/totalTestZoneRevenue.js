@@ -26,7 +26,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                         <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                             <Grid mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
                                 <MDTypography variant="h7" fontWeight="bold" fontFamily='Segoe UI' style={{textAlign:'center'}}>
-                                    Lifetime <br/> TestZone GMV
+                                    Lifetime TestZone <br/> GMV
                                 </MDTypography>
                             </Grid>
                                 <Divider style={{width:'100%'}}/>
@@ -48,7 +48,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                         <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                             <Grid mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
                             <MDTypography variant="h7" fontWeight="bold" fontFamily='Segoe UI' style={{textAlign:'center'}}>
-                                    Lifetime <br/> TestZone Revenue
+                                    Lifetime TestZone <br/> Revenue
                                 </MDTypography>
                             </Grid>
                                 <Divider style={{width:'100%'}}/>
@@ -70,7 +70,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                         <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                             <Grid mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
                                 <MDTypography variant="h7" fontWeight="bold" fontFamily='Segoe UI' style={{textAlign:'center'}}>
-                                    Lifetime <br/> TestZone Orders(Paid)
+                                    Lifetime TestZone <br/> Orders(Paid)
                                 </MDTypography>
                             </Grid>
                                 <Divider style={{width:'100%'}}/>
@@ -92,7 +92,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                         <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                             <Grid mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
                                 <MDTypography variant="h7" fontWeight="bold" fontFamily='Segoe UI' style={{textAlign:'center'}}>
-                                    Lifetime <br/> TestZone Discounts
+                                    Lifetime TestZone <br/> Discounts
                                 </MDTypography>
                             </Grid>
                                 <Divider style={{width:'100%'}}/>
@@ -114,7 +114,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                         <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                             <Grid mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
                                 <MDTypography variant="h7" fontWeight="bold" fontFamily='Segoe UI' style={{textAlign:'center'}}>
-                                    Lifetime <br/> TestZone ARPU
+                                    Lifetime TestZone <br/> ARPU
                                 </MDTypography>
                             </Grid>
                                 <Divider style={{width:'100%'}}/>
@@ -136,7 +136,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                         <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                             <Grid mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
                                 <MDTypography variant="h7" fontWeight="bold" fontFamily='Segoe UI' style={{textAlign:'center'}}>
-                                    Lifetime <br/> TestZone AOV
+                                    Lifetime TestZone <br/> AOV
                                 </MDTypography>
                             </Grid>
                                 <Divider style={{width:'100%'}}/>

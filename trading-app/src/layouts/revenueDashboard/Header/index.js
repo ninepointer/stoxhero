@@ -18,6 +18,8 @@ import MarginXRevenue from '../data/totalMarginXRevenue'
 import BattleRevenue from '../data/totalBattleRevenue'
 import TenXRevenue from '../data/totalTenXRevenue'
 import TotalRevenue from '../data/totalRevenue'
+import OverallARPUAOVChart from '../data/overallARPUAOVChart'
+import CreationProcessChart from '../data/creationProcessDonutChart'
 import { saveAs } from 'file-saver';
 import moment from 'moment'
 
@@ -36,6 +38,7 @@ export default function Dashboard() {
   const [overallMonthlyRevenue,setOverallMonthlyRevenue] = useState([])
   const [downloadingTestZoneData,setDownloadingTestZoneRevenueData] = useState(false)
   const [downloadingMarginXData,setDownloadingMarginXRevenueData] = useState(false)
+  const [creationProcess, setCreationProcess] = useState([]);
   
   
   useEffect(()=>{
@@ -68,6 +71,7 @@ export default function Dashboard() {
         setTotalBattleRevenue(api1Response.data.totalBattleRevenue);
         setOverallRevenue(api2Response?.data?.totalRevenueData);
         setOverallMonthlyRevenue(api2Response?.data?.totalMonthWiseData);
+        setCreationProcess(api2Response?.data?.userByCreationProcess);
         setIsLoading(false)
     })
     .catch((error) => {
@@ -262,6 +266,36 @@ export default function Dashboard() {
                     <Grid item spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
                       
                         <TestZoneRevenueChart testZoneMonthlyRevenue={overallMonthlyRevenue}/>
+                        
+                    </Grid>
+                    
+    
+                </Grid>
+    
+              </Grid>
+
+              <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
+              
+                <Grid container spacing={2} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                    
+                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
+                      
+                        <CreationProcessChart creationProcess={creationProcess}/>
+                        
+                    </Grid>
+                    
+    
+                </Grid>
+    
+              </Grid>
+
+              <Grid item xs={12} md={12} lg={8} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
+              
+                <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                    
+                    <Grid item spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
+                      
+                        <OverallARPUAOVChart testZoneMonthlyRevenue={overallMonthlyRevenue}/>
                         
                     </Grid>
                     

@@ -54,15 +54,17 @@ export default function BlogCard() {
             <meta name='description' content={blogData?.metaDescription} />
             <meta name='keywords' content={blogData?.keywords} />
           </Helmet>
-          {isLoading ?
-            <MDBox mt={35} mb={35} display="flex" width="100%" justifyContent="center" alignItems="center">
-              <CircularProgress color='success' />
-            </MDBox>
+          <Grid container p={5} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{width:'100%'}}>
+          {/* {isLoading ?
+            
+              <Grid container mt={35} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' spacing={1} xs={12} md={12} lg={12} style={{ maxWidth: '100%', height: 'auto' }}>
+                <CircularProgress color='success' />
+              </Grid>
+            */}
             :
-            <MDBox spacing={2} mt={10} p={1} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ backgroundColor: 'white', maxWidth: '100%', height: 'auto' }}>
-              <Grid container display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' spacing={1} xs={12} md={12} lg={12} style={{ maxWidth: '100%', height: 'auto' }}>
-                <Grid item display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' xs={12} md={12} lg={12} style={{ maxWidth: '100%', height: 'auto' }}>
-                  <Grid container ml={3} mr={3} mb={5} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' spacing={1} xs={12} md={12} lg={8} style={{ maxWidth: '100%', height: 'auto' }}>
+              <Grid container p={2} spacing={1} xs={12} md={12} lg={8} mt={5} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
+                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
+                  <Grid container xs={12} md={12} lg={12} mb={5} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' spacing={1} style={{ maxWidth: '100%', height: 'auto' }}>
                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
                       <MDBox display='flex' justifyContent='flex-start' alignContent='center' alignItems='flex-start'>
                         <MDTypography variant="h5">{blogData?.blogTitle}</MDTypography>
@@ -86,40 +88,51 @@ export default function BlogCard() {
                           <img src={blogData?.thumbnailImage?.url} width='100%' />
                         </Grid>
                         <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%' }}>
-                          <MDBox dangerouslySetInnerHTML={{ __html: blogData?.blogData }}></MDBox>
+                          <MDBox 
+                            // dangerouslySetInnerHTML={{ __html: blogData?.blogData }} 
+                            style={{ maxWidth: '100%', width: '100%', height: 'auto', overflow: 'scroll' }}
+                            >
+                            <div dangerouslySetInnerHTML={{ __html: blogData?.blogData }} />
+                            <style>
+                              {`
+                                img {
+                                  max-width: 100%;
+                                  height: auto;
+                                }
+                              `}
+                            </style>
+                          </MDBox>
                         </Grid>
 
                       </Grid>
                     </Grid>
-
-
-                  </Grid>
-                  <Grid container ml={3} mr={3} mt={1} mb={5} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' spacing={1} xs={12} md={12} lg={4} style={{ maxWidth: '100%', height: 'auto' }}>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
-                      <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
-                        <BlogSignUpCard />
-                      </MDBox>
-                    </Grid>
                   </Grid>
                 </Grid>
               </Grid>
-            </MDBox>}
+            
+          {/* } */}
 
-        </ThemeProvider>
 
+              <Grid container p={2} mt={10} xs={12} md={12} lg={4} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                  <BlogSignUpCard />
+                </Grid>
+              </Grid>
 
+              <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                  <MDTypography fontSize={15} color='text' fontWeight='bold'>Download the App Now</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                  <MDButton style={{ maxWidth: '50%', maxHeight: '20%', width: 'auto', height: 'auto' }} component="a" href="https://play.google.com/store/apps/details?id=com.stoxhero.app" target="_blank">
+                    <img src={playstore} style={{ maxWidth: '60%', maxHeight: '20%', width: 'auto', height: 'auto' }} />
+                  </MDButton>
+                </Grid>
+              </Grid>
+
+      </Grid>
+      </ThemeProvider>
       </MDBox>
-
-      <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography fontSize={15} color='text' fontWeight='bold'>Download the App Now</MDTypography>
-          </Grid>
-          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDButton style={{ maxWidth: '50%', maxHeight: '20%', width: 'auto', height: 'auto' }} component="a" href="https://play.google.com/store/apps/details?id=com.stoxhero.app" target="_blank">
-              <img src={playstore} style={{ maxWidth: '60%', maxHeight: '20%', width: 'auto', height: 'auto' }} />
-            </MDButton>
-          </Grid>
-        </Grid>
 
 
       <MDBox>
