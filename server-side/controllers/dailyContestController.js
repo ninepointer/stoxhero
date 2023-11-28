@@ -509,7 +509,7 @@ exports.getUserLiveContests = async (req, res) => {
 exports.getUserFeaturedContests = async (req, res) => {
   try {
 
-    const { userId } = req.user._id;
+    const userId = req.user._id;
     const contests = await Contest.find({
       featured: true,
       contestStatus: "Active",
@@ -527,7 +527,6 @@ exports.getUserFeaturedContests = async (req, res) => {
       .sort({ contestStartTime: 1 })
 
     const collegeContests = await Contest.find({
-      featured: true,
       contestStatus: "Active",
       contestFor: "College",
       potentialParticipants: { $elemMatch: { $eq: userId } }
@@ -5015,8 +5014,8 @@ exports.getTopContestWeeklyPortfolio = async (req, res) => {
           status: "success",
           message: "TestZone Weekly Top Performer Data fetched successfully",
           data: weeklyContestPerformers,
-          startOfWeek: startDate,
-          endOfWeek: endDate,
+          startOfWeek: new Date(startDate),
+          endOfWeek: new Date (endDate),
       };
       res.status(200).json(response);
   } catch (error) {
