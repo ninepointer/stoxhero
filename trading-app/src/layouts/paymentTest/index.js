@@ -6,7 +6,7 @@ const Index = () => {
     const [data, setData] = useState(null);
         const makePayment = async () => {
             try {
-                const response = await axios.get('http://localhost:5001/api/v1/paymenttest/generate');
+                const response = await axios.get('http://localhost:5000/api/v1/paymenttest/generate');
                 const { data } = response;
                 setData(data);
                 let form = document.createElement('form');

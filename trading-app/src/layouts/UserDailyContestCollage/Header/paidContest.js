@@ -30,7 +30,7 @@ import Payment from "../data/payment"
 import RewardTable from "../../UserDailyContest/Header/rulesAndRewardTable";
 
 function Header({ toggleContest, setToggleContest, contest, showPay, setShowPay, socket, setIsInterested }) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
 

@@ -78,7 +78,7 @@ const CareerForm = () => {
   })
 
   const [file, setFile] = useState(null);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const getContestDetails = async (name, date) => {
     try {

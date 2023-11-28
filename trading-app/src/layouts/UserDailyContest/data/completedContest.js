@@ -12,7 +12,7 @@ import PaidContest from "../Header/completedContest/paidCompeted";
 import axios from "axios";
 
 export default function LabTabs() {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [isLoading, setIsLoading] = useState(false);
     const [contest, setContest] = useState([]);
 
