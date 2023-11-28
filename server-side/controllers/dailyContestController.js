@@ -457,7 +457,7 @@ exports.getUserUpcomingContests = async (req, res) => {
         .populate('participants.userId', 'first_name last_name email mobile creationProcess')
         .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
         .populate('portfolio', 'portfolioName _id portfolioValue')
-        .sort({ contestStartTime: 1 })
+        .sort({ entryFee: -1 })
 
         res.status(200).json({
             status: "success",

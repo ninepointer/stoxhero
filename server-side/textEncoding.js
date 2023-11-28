@@ -1,21 +1,60 @@
 // // Sample data
-// const originalData = "Hello, this is some data to be converted to binary.";
+const originalData = [
+    {
+      tradable: true,
+      mode: 'full',
+      instrument_token: 15026434,
+      last_price: 15.9,
+      last_traded_quantity: 400,
+      average_traded_price: 35.94,
+      volume_traded: 164096600,
+      total_buy_quantity: 200550,
+      total_sell_quantity: 2201200,
+      ohlc: { open: 56.25, high: 56.25, low: 15.45, close: 65.9 },      
+      change: -75.87253414264038,
+      last_trade_time: "2023-11-28T09:59:59.000Z",
+      exchange_timestamp: "2023-11-28T12:00:26.000Z",
+      oi: 15439400,
+      oi_day_high: 17768400,
+      oi_day_low: 7695300,
+    //   depth: { buy: [Array], sell: [Array] }
+    },
+    {
+      tradable: true,
+      mode: 'full',
+      instrument_token: 15023106,
+      last_price: 170,
+      last_traded_quantity: 50,
+      average_traded_price: 109.91,
+      volume_traded: 132541650,
+      total_buy_quantity: 375550,
+      total_sell_quantity: 131500,
+      ohlc: { open: 97.05, high: 170, low: 83.6, close: 93.5 },
+      change: 81.81818181818181,
+      last_trade_time: "2023-11-28T09:59:59.000Z",
+      exchange_timestamp: "2023-11-28T12:00:26.000Z",
+      oi: 6220750,
+      oi_day_high: 12832950,
+      oi_day_low: 6220750,
+    //   depth: { buy: [Array], sell: [Array] }
+    }
+  ];
 
 // // Create a TextEncoder instance
-// const textEncoder = new TextEncoder();
+const textEncoder = new TextEncoder();
 
 // // Encode the data to binary (Uint8Array)
-// const binaryData = textEncoder.encode(originalData);
+const binaryData = textEncoder.encode(originalData);
 
-// console.log(binaryData); // Output: Uint8Array(50) [ 72, 101, 108, 108, 111, ... ]
+console.log(binaryData); // Output: Uint8Array(50) [ 72, 101, 108, 108, 111, ... ]
 
 // // Create a TextDecoder instance
-// const textDecoder = new TextDecoder();
+const textDecoder = new TextDecoder();
 
 // // Decode the binary data back to the original text
-// const decodedData = textDecoder.decode(binaryData);
+const decodedData = textDecoder.decode(binaryData);
 
-// console.log(decodedData);
+console.log(decodedData[0], decodedData[1]);
 
 
 // const Entities = require('html-entities').AllHtmlEntities;
@@ -27,10 +66,10 @@
 // console.log(decodedHtml);
 
 const {decode} = require('html-entities');
-// const entities = new Entities();
+// // const entities = new Entities();
 
-const encodedHtml = "&lt;p>Hello dear&lt;/p>";
-const decodedHtml = decode(encodedHtml);
+// const encodedHtml = "&lt;p>Hello dear&lt;/p>";
+// const decodedHtml = decode(encodedHtml);
 
-console.log(decodedHtml);
+// console.log(decodedHtml);
 
