@@ -1,18 +1,18 @@
 import React from "react";
-import axios from "axios";
-import { useEffect, useState, useContext, useRef, useReducer } from "react";
+// import axios from "axios";
+// import { useEffect, useState, useContext, useRef, useReducer } from "react";
 import Grid from "@mui/material/Grid";
 import MDBox from "../../../components/MDBox";
 import MDTypography from "../../../components/MDTypography";
 import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
+// import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-import MDButton from "../../../components/MDButton";
+// import MDButton from "../../../components/MDButton";
 import MDAvatar from "../../../components/MDAvatar";
-import stock from "../../../assets/images/analyticspnl.png";
+// import stock from "../../../assets/images/analyticspnl.png";
 import logo from "../../../assets/images/logo1.jpeg";
 import { useNavigate } from 'react-router-dom';
-import { Link, useLocation } from "react-router-dom";
+// import { Link, useLocation } from "react-router-dom";
 import { useMediaQuery, makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
@@ -30,20 +30,20 @@ function Summary({lastPaidContests, lastContestDate}) {
     function TruncatedName(name) {
         const originalName = name;
         const convertedName = originalName
-          .toLowerCase() // Convert the entire name to lowercase
-          .split(' ') // Split the name into words
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
-          .join(' '); // Join the words back together with a space
+          ?.toLowerCase() // Convert the entire name to lowercase
+          ?.split(' ') // Split the name into words
+          ?.map(word => word.charAt(0)?.toUpperCase() + word?.slice(1)) // Capitalize the first letter of each word
+          ?.join(' '); // Join the words back together with a space
       
         // Trim the name to a maximum of 30 characters
-        const truncatedName = convertedName.length > 8 ? convertedName.substring(0, 7) + '..' : convertedName;
+        const truncatedName = convertedName?.length > 8 ? convertedName?.substring(0, 7) + '..' : convertedName;
       
         return truncatedName;
       }
 
       function formattedDate(date) {
 
-        const formattedDate = new Date(date).toLocaleDateString('en-GB', {
+        const formattedDate = new Date(date)?.toLocaleDateString('en-GB', {
             day: 'numeric',
             month: 'short',
           });
