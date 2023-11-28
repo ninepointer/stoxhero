@@ -63,6 +63,7 @@ function CreateAffiliateProgram() {
     description: id?.description || '',
     discountPercentage: id?.discountPercentage || '',
     commissionPercentage: id?.commissionPercentage || '',
+    affiliateType: id?.affiliateType || '',
     status: id?.status || 'Active',
     startDate: dayjs(id?.startDate) || dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
     endDate: dayjs(id?.endDate) || dayjs(new Date()).set('hour', 23).set('minute', 59).set('second', 59),
@@ -86,13 +87,13 @@ function CreateAffiliateProgram() {
     console.log(formState)
     setCreating(true)
 
-    if (!formState?.affiliateProgramName || !formState?.discountPercentage || !formState?.commissionPercentage || !formState?.status || !formState?.startDate || !formState?.endDate || !formState?.eligibleProducts.length || !formState?.eligiblePlatforms.length) {
+    if (!formState?.affiliateProgramName || !formState?.discountPercentage || !formState?.commissionPercentage || !formState?.status || !formState?.affiliateType || !formState?.startDate || !formState?.endDate || !formState?.eligibleProducts.length || !formState?.eligiblePlatforms.length) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500);
       return openErrorSB("Missing Field", "Please fill all the mandatory fields");
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const { affiliateProgramName, discountPercentage, commissionPercentage, status, startDate, endDate, eligibleProducts, description, maxDiscount, minOrderValue, eligiblePlatforms } = formState;
+    const { affiliateProgramName, discountPercentage, commissionPercentage, affiliateType, status, startDate, endDate, eligibleProducts, description, maxDiscount, minOrderValue, eligiblePlatforms } = formState;
     const res = await fetch(`${apiUrl}affiliate`, {
       method: "POST",
       credentials: "include",
@@ -101,7 +102,7 @@ function CreateAffiliateProgram() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        affiliateProgramName, discountPercentage, commissionPercentage, status, startDate, endDate, eligibleProducts, description, maxDiscount, minOrderValue, eligiblePlatforms
+        affiliateProgramName, discountPercentage, commissionPercentage, status, affiliateType, startDate, endDate, eligibleProducts, description, maxDiscount, minOrderValue, eligiblePlatforms
       })
     });
 
@@ -123,12 +124,12 @@ function CreateAffiliateProgram() {
   async function onEdit(e, formState) {
     e.preventDefault()
     setSaving(true)
-    if (!formState?.affiliateProgramName || !formState?.discountPercentage || !formState?.commissionPercentage || !formState?.status || !formState?.startDate || !formState?.endDate || !formState?.eligibleProducts.length || !formState?.eligiblePlatforms.length) {
+    if (!formState?.affiliateProgramName || !formState?.discountPercentage || !formState?.commissionPercentage || !formState?.status || !formState?.affiliateType || !formState?.startDate || !formState?.endDate || !formState?.eligibleProducts.length || !formState?.eligiblePlatforms.length) {
       // setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500);
       return openErrorSB("Missing Field", "Please fill all the mandatory fields");
     }
 
-    const { affiliateProgramName, discountPercentage, commissionPercentage, status, startDate, endDate, eligibleProducts, description, maxDiscount, minOrderValue, eligiblePlatforms } = formState;
+    const { affiliateProgramName, discountPercentage, commissionPercentage, affiliateType, status, startDate, endDate, eligibleProducts, description, maxDiscount, minOrderValue, eligiblePlatforms } = formState;
     const res = await fetch(`${apiUrl}affiliate/${id?._id}`, {
       method: "PUT",
       credentials: "include",
@@ -137,7 +138,7 @@ function CreateAffiliateProgram() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        affiliateProgramName, discountPercentage, commissionPercentage, status, startDate, endDate, eligibleProducts, description, maxDiscount, minOrderValue, eligiblePlatforms
+        affiliateProgramName, discountPercentage, commissionPercentage, affiliateType, status, startDate, endDate, eligibleProducts, description, maxDiscount, minOrderValue, eligiblePlatforms
       })
 
     });
@@ -318,6 +319,35 @@ function CreateAffiliateProgram() {
                     <MenuItem value={'Active'}>Active</MenuItem>
                     <MenuItem value={'Inactive'}>Inactive</MenuItem>
                     <MenuItem value={'Draft'}>Draft</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              {/*Affiliate Type*/}
+              <Grid item xs={12} md={6} xl={3}>
+                <FormControl sx={{ width: '100%' }}>
+                  <InputLabel id="demo-simple-select-autowidth-label">Affiliate Type*</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-autowidth-label"
+                    id="demo-simple-select-autowidth"
+                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    value={formState?.affiliateType || affiliateProgramData?.affiliateType}
+                    onChange={(e) => {
+                      setFormState((prevState) => ({
+                        ...prevState,
+                        affiliateType: e.target.value,
+                      }));
+                    }}
+                    label="Affiliate Type*"
+                    sx={{
+                      minHeight: 43,
+                    }}
+                  >
+                    <MenuItem value={'Youtube Influencer'}>Youtube Influencer</MenuItem>
+                    <MenuItem value={'Instagram Influencer'}>Instagram Influencer</MenuItem>
+                    <MenuItem value={'LinkedIn Influencer'}>LinkedIn Influencer</MenuItem>
+                    <MenuItem value={'StoxHero User'}>StoxHero User</MenuItem>
+                    <MenuItem value={'Offline Institute'}>Offline Institute</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>

@@ -5015,8 +5015,8 @@ exports.getTopContestWeeklyPortfolio = async (req, res) => {
           status: "success",
           message: "TestZone Weekly Top Performer Data fetched successfully",
           data: weeklyContestPerformers,
-          startOfWeek: startDate,
-          endOfWeek: endDate,
+          startOfWeek: new Date(startDate),
+          endOfWeek: new Date (endDate),
       };
       res.status(200).json(response);
   } catch (error) {

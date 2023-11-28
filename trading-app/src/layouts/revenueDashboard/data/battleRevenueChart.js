@@ -1,12 +1,7 @@
 import * as echarts from 'echarts';
 import React, { useEffect, useRef } from 'react';
-import MDBox from '../../../components/MDBox';
-import moment from 'moment';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import { CardActionArea, Divider, Grid } from '@mui/material';
-import MDTypography from '../../../components/MDTypography';
 
 export default function Charts({ battleMonthlyRevenue }) {
   const chartRef = useRef(null);

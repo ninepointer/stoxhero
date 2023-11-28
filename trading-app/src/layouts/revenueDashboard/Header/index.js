@@ -13,11 +13,13 @@ import TestZoneRevenueChart from '../data/testZoneRevenueChart'
 import TenXRevenueChart from '../data/tenXRevenueChart'
 import MarginXRevenueChart from '../data/marginXRevenueChart'
 import BattleRevenueChart from '../data/battleRevenueChart'
-import TestZoneRevenue from '../data/totalTestZoneRevenue'
+import TotalTestZoneRevenue from '../data/totalTestZoneRevenue'
 import MarginXRevenue from '../data/totalMarginXRevenue'
 import BattleRevenue from '../data/totalBattleRevenue'
 import TenXRevenue from '../data/totalTenXRevenue'
 import TotalRevenue from '../data/totalRevenue'
+import OverallARPUAOVChart from '../data/overallARPUAOVChart'
+import CreationProcessChart from '../data/creationProcessDonutChart'
 import { saveAs } from 'file-saver';
 import moment from 'moment'
 
@@ -32,8 +34,11 @@ export default function Dashboard() {
   const [totalMarginXRevenue,setTotalMarginXRevenue] = useState([])
   const [battleMonthlyRevenue,setBattleMonthlyRevenue] = useState([])
   const [totalBattleRevenue,setTotalBattleRevenue] = useState([])
+  const [overallRevenue,setOverallRevenue] = useState([])
+  const [overallMonthlyRevenue,setOverallMonthlyRevenue] = useState([])
   const [downloadingTestZoneData,setDownloadingTestZoneRevenueData] = useState(false)
   const [downloadingMarginXData,setDownloadingMarginXRevenueData] = useState(false)
+  const [creationProcess, setCreationProcess] = useState([]);
   
   
   useEffect(()=>{
@@ -46,8 +51,16 @@ export default function Dashboard() {
                     "Access-Control-Allow-Credentials": true
                   },
                 })
-    Promise.all([call1])
-    .then(([api1Response]) => {
+    let call2 = axios.get((`${baseUrl}api/v1/revenue/overallrevenue`),{
+                withCredentials: true,
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Credentials": true
+                  },
+                })
+    Promise.all([call1, call2])
+    .then(([api1Response, api2Response]) => {
         setTestZoneMonthlyRevenue(api1Response.data.testZoneData)
         setTotalTestZoneRevenue(api1Response.data.totalTestZoneRevenue)
         setTenXMonthlyRevenue(api1Response.data.tenXData)
@@ -55,7 +68,10 @@ export default function Dashboard() {
         setMarginXMonthlyRevenue(api1Response.data.marginXData)
         setTotalMarginXRevenue(api1Response.data.totalMarginXRevenue)
         setBattleMonthlyRevenue(api1Response.data.battleData)
-        setTotalBattleRevenue(api1Response.data.totalBattleRevenue)
+        setTotalBattleRevenue(api1Response.data.totalBattleRevenue);
+        setOverallRevenue(api2Response?.data?.totalRevenueData);
+        setOverallMonthlyRevenue(api2Response?.data?.totalMonthWiseData);
+        setCreationProcess(api2Response?.data?.userByCreationProcess);
         setIsLoading(false)
     })
     .catch((error) => {
@@ -236,7 +252,7 @@ export default function Dashboard() {
               
                 <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                            {totalTestZoneRevenue && <TotalRevenue totalTestZoneRevenue={totalTestZoneRevenue}/>}
+                            {overallRevenue && <TotalRevenue overallRevenue={overallRevenue}/>}
                     </Grid>
     
                 </Grid>
@@ -249,7 +265,37 @@ export default function Dashboard() {
                     
                     <Grid item spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
                       
-                        <TestZoneRevenueChart testZoneMonthlyRevenue={testZoneMonthlyRevenue}/>
+                        <TestZoneRevenueChart testZoneMonthlyRevenue={overallMonthlyRevenue}/>
+                        
+                    </Grid>
+                    
+    
+                </Grid>
+    
+              </Grid>
+
+              <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
+              
+                <Grid container spacing={2} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                    
+                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
+                      
+                        <CreationProcessChart creationProcess={creationProcess}/>
+                        
+                    </Grid>
+                    
+    
+                </Grid>
+    
+              </Grid>
+
+              <Grid item xs={12} md={12} lg={8} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
+              
+                <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                    
+                    <Grid item spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
+                      
+                        <OverallARPUAOVChart testZoneMonthlyRevenue={overallMonthlyRevenue}/>
                         
                     </Grid>
                     
@@ -301,7 +347,7 @@ export default function Dashboard() {
             
               <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
                   <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                          {totalTestZoneRevenue && <TotalRevenue totalTestZoneRevenue={totalTestZoneRevenue}/>}
+                          {totalTestZoneRevenue && <TotalTestZoneRevenue totalTestZoneRevenue={totalTestZoneRevenue}/>}
                   </Grid>
 
               </Grid>

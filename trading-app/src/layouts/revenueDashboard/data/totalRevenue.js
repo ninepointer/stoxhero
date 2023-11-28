@@ -13,7 +13,7 @@ import { Link} from "react-router-dom";
 import moment from 'moment'
 
 
-const PublishedBlogs = ({totalTestZoneRevenue}) => {
+const PublishedBlogs = ({overallRevenue}) => {
 
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
@@ -27,13 +27,13 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                         <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                             <Grid mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
                                 <MDTypography variant="h7" fontWeight="bold" fontFamily='Segoe UI' style={{textAlign:'center'}}>
-                                    Lifetime TestZone <br/> GMV
+                                    Lifetime <br/> GMV
                                 </MDTypography>
                             </Grid>
                                 <Divider style={{width:'100%'}}/>
                             <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                                 <MDTypography variant='h6'>
-                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalTestZoneRevenue?.totalGMV)}
+                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue?.totalGMV)}
                                 </MDTypography>
                             </Grid>
                         </CardContent>
@@ -49,13 +49,13 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                         <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                             <Grid mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
                             <MDTypography variant="h7" fontWeight="bold" fontFamily='Segoe UI' style={{textAlign:'center'}}>
-                                    Lifetime TestZone <br/> Revenue
+                                    Lifetime <br/> Revenue
                                 </MDTypography>
                             </Grid>
                                 <Divider style={{width:'100%'}}/>
                             <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                                 <MDTypography variant='h6'>
-                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalTestZoneRevenue?.totalRevenue)}
+                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue?.totalRevenue)}
                                 </MDTypography>
                             </Grid>
                         </CardContent>
@@ -71,13 +71,13 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                         <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                             <Grid mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
                                 <MDTypography variant="h7" fontWeight="bold" fontFamily='Segoe UI' style={{textAlign:'center'}}>
-                                    Lifetime TestZone <br/> Orders(Paid)
+                                    Lifetime <br/> Orders(Paid)
                                 </MDTypography>
                             </Grid>
                                 <Divider style={{width:'100%'}}/>
                             <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                                 <MDTypography variant='h6'>
-                                    {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalTestZoneRevenue?.totalOrder)}
+                                    {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue?.totalOrder)}
                                 </MDTypography>
                             </Grid>
                         </CardContent>
@@ -93,13 +93,13 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                         <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                             <Grid mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
                                 <MDTypography variant="h7" fontWeight="bold" fontFamily='Segoe UI' style={{textAlign:'center'}}>
-                                    Lifetime TestZone <br/> Discounts
+                                    Lifetime <br/> Discounts
                                 </MDTypography>
                             </Grid>
                                 <Divider style={{width:'100%'}}/>
                             <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                                 <MDTypography variant='h6'>
-                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalTestZoneRevenue?.totalDiscountAmount)}
+                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue?.totalDiscount)}
                                 </MDTypography>
                             </Grid>
                         </CardContent>
@@ -115,13 +115,13 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                         <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                             <Grid mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
                                 <MDTypography variant="h7" fontWeight="bold" fontFamily='Segoe UI' style={{textAlign:'center'}}>
-                                    Lifetime TestZone <br/> ARPU
+                                    Lifetime <br/> ARPU
                                 </MDTypography>
                             </Grid>
                                 <Divider style={{width:'100%'}}/>
                             <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                                 <MDTypography variant='h6'>
-                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalTestZoneRevenue?.arpu)}
+                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue?.totalArpu)}
                                 </MDTypography>
                             </Grid>
                         </CardContent>
@@ -137,13 +137,13 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                         <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                             <Grid mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
                                 <MDTypography variant="h7" fontWeight="bold" fontFamily='Segoe UI' style={{textAlign:'center'}}>
-                                    Lifetime TestZone <br/> AOV
+                                    Lifetime <br/> AOV
                                 </MDTypography>
                             </Grid>
                                 <Divider style={{width:'100%'}}/>
                             <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                                 <MDTypography variant='h6'>
-                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalTestZoneRevenue?.aov)}
+                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue?.totalAOV)}
                                 </MDTypography>
                             </Grid>
                         </CardContent>
