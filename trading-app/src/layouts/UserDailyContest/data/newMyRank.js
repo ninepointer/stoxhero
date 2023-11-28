@@ -42,18 +42,25 @@ function MyRank({ socket, id, data, setRank}) {
     
     let myReward;
     if(data?.allData?.payoutType === "Percentage"){
-        myReward = pnl?.netPnl*data?.allData?.payoutPercentage/100>0?pnl?.netPnl*data?.allData?.payoutPercentage/100:0 ;
+        let payoutCap;
+        if(data?.allData?.entryFee > 0){
+            payoutCap = data?.allData?.entryFee * data?.allData?.payoutCapPercentage/100;
+        } else{
+            payoutCap = data?.allData?.portfolio?.portfolioValue * data?.allData?.payoutCapPercentage/100;
+        }
+        myReward = Math.min(payoutCap, (pnl?.netPnl*data?.allData?.payoutPercentage/100>0?pnl?.netPnl*data?.allData?.payoutPercentage/100:0)) ;
     } else{
         const rewards = data?.allData?.rewards;
         for(let elem of rewards){
             if(Number(myRank) >= Number(elem.rankStart) && Number(myRank) <= Number(elem.rankEnd)){
                 myReward = elem.prize;
-                break;
             } else{
-                myReward = 0;
+                myReward = "+₹" + "0.00";
             }
         }
     }
+
+    console.log("myReward", myReward, myRank)
     return (
         <>
 

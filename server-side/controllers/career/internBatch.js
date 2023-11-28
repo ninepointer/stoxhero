@@ -569,13 +569,13 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
       const workingDays = calculateWorkingDays(intern.batchStartDate, endDate);
       const tradingdays = await tradingDays(userId, intern._id);
       const attendance = ((tradingdays * 100) / (workingDays - holiday.length)).toFixed(2);
-      const userReferrals = await User.find({referredBy: userId}).select('myReferralCode referrerCode joiningDate');
+      const userReferrals = await User.find({referredBy: new ObjectId(userId)}).select('myReferralCode referrerCode joining_date');
       let refCount = 0;
+
       if(userReferrals?.length>0){
         for (let subelem of userReferrals) {
           const joiningDate = moment(subelem?.joining_date);
-        
-          if (joiningDate.isSameOrAfter(moment(moment(intern?.batchStartDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(intern?.batchEndDate)) {
+          if (joiningDate.isSameOrAfter(moment(moment(intern?.batchStartDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(moment(moment(intern?.batchEndDate).format("YYYY-MM-DD")))) {
             refCount += 1;
           }
         }
@@ -639,7 +639,7 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     // Iterate over each day between the start and end dates
     while (currentDate <= end) {
       // Check if the current day is a weekday (Monday to Friday)
-      if (currentDate.getDay() > 1 && currentDate.getDay() < 7) {
+      if (currentDate.getDay() > 0 && currentDate.getDay() < 6) {
         workingDays++;
       }
   

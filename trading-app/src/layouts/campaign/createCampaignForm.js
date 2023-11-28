@@ -44,8 +44,10 @@ function Index() {
         status:'',
         campaignType:"",
         maxUsers: "",
-        amount: "",
-        currency: ""
+        campaignSignupBonus: {
+          amount: "",
+          currency: ""
+        }
     });
 
     useEffect(()=>{
@@ -75,8 +77,11 @@ function Index() {
               status: res.data.data?.status || '',
               campaignType:res.data.data?.campaignType || "",
               maxUsers:res.data.data?.maxUsers ||  "",
-              amount:res.data.data?.amount ||  "",
-              currency:res.data.data?.currency ||  "",
+              campaignSignupBonus:{
+                amount:res.data.data?.campaignSignupBonus?.amount ||  "",
+                currency:res.data.data?.campaignSignupBonus?.currency ||  "",
+  
+              },
               isDefault:res.data.data?.isDefault || ""
             });
               setTimeout(()=>{setIsLoading(false)},500) 
@@ -96,7 +101,7 @@ function Index() {
       }
       // console.log("Is Submitted before State Update: ",isSubmitted)
       setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-      const {currency, campaignType, maxUsers, amount, campaignName, description, campaignCode, campaignFor, campaignLink, campaignCost, status, isDefault } = formState;
+      const {campaignSignupBonus, currency, campaignType, maxUsers, amount, campaignName, description, campaignCode, campaignFor, campaignLink, campaignCost, status, isDefault } = formState;
       const res = await fetch(`${baseUrl}api/v1/campaign/create`, {
           method: "POST",
           credentials:"include",
@@ -105,7 +110,7 @@ function Index() {
               "Access-Control-Allow-Credentials": true
           },
           body: JSON.stringify({
-            campaignSignupBonus:{amount: amount, currency: currency} , campaignType, maxUsers, campaignName, description, campaignCode, campaignFor, campaignLink, campaignCost, status, isDefault
+            campaignSignupBonus:campaignSignupBonus , campaignType, maxUsers, campaignName, description, campaignCode, campaignFor, campaignLink, campaignCost, status, isDefault
           })
       });
       
@@ -133,7 +138,7 @@ function Index() {
           setTimeout(()=>{setSaving(false);setEditing(true)},500)
           return openErrorSB("Missing Field","Please fill all the mandatory fields")
       }
-      const { currency, campaignType, maxUsers, amount, campaignName, description, campaignFor, campaignLink, campaignCode, campaignCost, status, isDefault } = formState;
+      const { campaignSignupBonus, currency, campaignType, maxUsers, amount, campaignName, description, campaignFor, campaignLink, campaignCode, campaignCost, status, isDefault } = formState;
   
       const res = await fetch(`${baseUrl}api/v1/campaign/${id._id}`, {
           method: "PATCH",
@@ -143,7 +148,7 @@ function Index() {
               "Access-Control-Allow-Credentials": true
           },
           body: JSON.stringify({
-            campaignSignupBonus:{amount: amount, currency: currency} , campaignType, maxUsers, campaignName, description, campaignFor, campaignLink, campaignCost, campaignCode, status, isDefault 
+            campaignSignupBonus:campaignSignupBonus , campaignType, maxUsers, campaignName, description, campaignFor, campaignLink, campaignCost, campaignCode, status, isDefault 
           })
       });
   
@@ -360,14 +365,16 @@ function Index() {
                 name="amount"
                 label='Amount *'
                 fullWidth
-                // value={formState?.amount || id?.amount}
-                // onChange={(e) => {setFormState(prevState => ({
-                //     ...prevState,
-                //     amount: e.target.value
-                //   }))}}
-
-                defaultValue={editing ? formState.amount:id?.amount}
-                onChange={handleChange}
+                defaultValue={editing ? formState?.campaignSignupBonus?.amount : id?.campaignSignupBonus?.amount}
+                onChange={(e) => {
+                  setFormState((prevState) => ({
+                    ...prevState,
+                    campaignSignupBonus: {
+                      ...prevState.campaignSignupBonus,
+                      amount: e.target.value,
+                    },
+                  }));
+                }}    
               />
           </Grid>
 
@@ -378,13 +385,18 @@ function Index() {
                 labelId="demo-simple-select-autowidth-label"
                 id="demo-simple-select-autowidth"
                 name="currency"
-                value={formState?.currency || id?.currency}
+                value={formState?.campaignSignupBonus?.currency || id?.campaignSignupBonus?.currency}
                 // value={oldObjectId ? contestData?.status : formState?.status}
                 disabled={((isSubmitted || id) && (!editing || saving))}
-                onChange={(e) => {setFormState(prevState => ({
+                onChange={(e) => {
+                  setFormState((prevState) => ({
                     ...prevState,
-                    currency: e.target.value
-                }))}}
+                    campaignSignupBonus: {
+                      ...prevState.campaignSignupBonus,
+                      currency: e.target.value,
+                    },
+                  }));
+                }}                
                 label="Job Type"
                 sx={{ minHeight:43 }}
                 >

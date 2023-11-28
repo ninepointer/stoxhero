@@ -89,6 +89,18 @@ const Referrals = require("../../models/campaigns/referralProgram")
 const {dailyContestTimeStore} = require("../../dailyContestTradeCut")
 
 
+
+router.get('/updatecreationprocess', async(req,res) =>{
+  const user = await UserDetail.find({creationProcess: "Auto SignUp"});
+  for(let elem of user){
+    if(elem.referredBy){
+      elem.creationProcess = "Referral SignUp";
+      console.log(elem.creationProcess, elem.first_name)
+    }
+    await elem.save({validationBeforeSave: false});
+  }
+})
+
 router.get('/updateTenxPnl', async(req,res) =>{
   const tenx = await TenxSubscription.find();
 
@@ -2902,7 +2914,7 @@ router.get("/updateInstrumentStatus", async (req, res) => {
   //   });
   // }
 
-  await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
+  await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "", allInstruments: "" } });
 
   res.send({ message: "updated", data: instrument, data1: infinityInstrument })
 })

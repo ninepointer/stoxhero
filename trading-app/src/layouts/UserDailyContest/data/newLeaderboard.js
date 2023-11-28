@@ -225,7 +225,7 @@ function Leaderboard({ socket, name, id, data}) {
                                                 if(data?.allData?.entryFee > 0){
                                                     payoutCap = data?.allData?.entryFee * data?.allData?.payoutCapPercentage/100;
                                                 } else{
-                                                    payoutCap = data?.allData?.portfolio * data?.allData?.payoutCapPercentage/100;
+                                                    payoutCap = data?.allData?.portfolio?.portfolioValue * data?.allData?.payoutCapPercentage/100;
                                                 }
                                                 myReward = Math.min(payoutCap, elem?.npnl * data?.allData?.payoutPercentage/100>0?elem?.npnl * data?.allData?.payoutPercentage/100:0);
                                             } else{

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router({mergeParams: true});
 const multer = require('multer');
 const aws = require('aws-sdk');
-const {getDraftCareers, getRejectedCareers, getUploadsApplication, createCareer, 
+const {getAllCareers, getDraftCareers, getRejectedCareers, getUploadsApplication, createCareer, 
       getCareers, editCareer, getCareer, getCareerApplicantions, findCareerByName, getCareerApplicationCount,
       generateOTP, confirmOTP, getSelectedCareerApplicantions, getRejectedApplications, 
       rejectApplication, fetchCareers, applyForCareer} = require("../../controllers/career/careerController");
@@ -27,6 +27,7 @@ const upload = multer({
 });
 
 router.route('/').get(getCareers);
+router.route('/all').get(authentication, restrictTo('Admin', 'Super Admin'), getAllCareers);
 router.route('/live').get(fetchCareers);
 router.route('/draft').get(getDraftCareers);
 router.route('/reject').get(getRejectedCareers);

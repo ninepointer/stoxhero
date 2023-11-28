@@ -197,12 +197,12 @@ async function singleProcess() {
     });
 
     //emitting leaderboard for contest.
-//    if (process.env.PROD === "true") {
+   if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });
         // sendLeaderboardDataBattle().then(() => { });
         // sendMyRankDataBattle().then(() => { });
-//    }
+   }
 
     emitServerTime().then(() => { });
 

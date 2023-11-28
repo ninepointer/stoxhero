@@ -69,13 +69,13 @@ function Index() {
         payoutCap:'' || id?.payoutCap,
         attendancePercentage:'' || id?.attendancePercentage,
         career: {
-            id: "" || id?.career?._id,
-            jobTitle: "" || id?.career?.jobTitle,
+            id: id?.career?._id || "",
+            jobTitle: id?.career?.jobTitle || "",
         },
         portfolio: {
-            id: "" || id?.portfolio?._id,
-            portfolioName: "" || id?.portfolio?.portfolioName,
-            portfolioValue: "" || id?.portfolio?.portfolioValue,
+            id: id?.portfolio?._id || "",
+            portfolioName: id?.portfolio?.portfolioName || "",
+            portfolioValue: id?.portfolio?.portfolioValue || "",
         },
     });
 
@@ -103,7 +103,7 @@ function Index() {
             return new Error(err)
         })
 
-        axios.get(`${baseUrl}api/v1/career?type=${type}`)
+        axios.get(`${baseUrl}api/v1/career/all?type=${type}`, {withCredentials: true})
         .then((res)=>{
           setCareers(res?.data?.data);
         }).catch((err)=>{
@@ -113,6 +113,28 @@ function Index() {
         axios.get(`${baseUrl}api/v1/internbatch/${id?._id}`, {withCredentials:true})
         .then((res)=>{
           setBatch(res?.data?.data);
+          setFormState({
+            batchName:'' || res?.data?.data?.batchName,
+            batchStartDate: dayjs(res?.data?.data?.batchStartDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
+            batchEndDate:  dayjs(res?.data?.data?.batchEndDate) ?? dayjs(new Date()).set('hour', 23).set('minute', 59).set('second', 59),
+            participants: [{collegeName:'',joinedOn:'',userId:''}],
+            batchStatus:'' || res?.data?.data?.batchStatus,
+            referralCount:'' || res?.data?.data?.referralCount,
+            orientationDate: dayjs(res?.data?.data?.orientationDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
+            orientationMeetingLink: '' || res?.data?.data?.orientationMeetingLink,
+            payoutPercentage:'' || res?.data?.data?.payoutPercentage,
+            payoutCap:'' || res?.data?.data?.payoutCap,
+            attendancePercentage:'' || res?.data?.data?.attendancePercentage,
+            career: {
+                id: res?.data?.data?.career?._id || "",
+                jobTitle: res?.data?.data?.career?.jobTitle || "",
+            },
+            portfolio: {
+                id: res?.data?.data?.portfolio?._id || "",
+                portfolioName: res?.data?.data?.portfolio?.portfolioName || "",
+                portfolioValue: res?.data?.data?.portfolio?.portfolioValue || "",
+            },
+        })
           setTimeout(()=>{
             setIsLoading(false)
           },500)
@@ -121,6 +143,8 @@ function Index() {
             //Handle error here
         })    
     },[type])
+
+    console.log("formstate", formState, formState?.career?.jobTitle);
 
     const handleTypeChange = (e) =>{
       const value = e.target.value;
@@ -537,7 +561,7 @@ const handleChange = (e) => {
                     name='portfolio'
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     // defaultValue={id ? portfolios?.portfolio : ''}
-                    value={formState?.portfolio?.name || batch?.portfolio?.portfolioName}
+                    value={formState?.portfolio?.portfolioName || batch?.portfolio?.portfolioName}
                     onChange={handlePortfolioChange}
                     input={<OutlinedInput label="Portfolio" />}
                     sx={{minHeight:45}}
@@ -564,7 +588,7 @@ const handleChange = (e) => {
                     name='jobTitle'
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     // defaultValue={id ? portfolios?.portfolio : ''}
-                    value={formState?.career?.name || batch?.career?.jobTitle}
+                    value={formState?.career?.jobTitle || batch?.career?.jobTitle}
                     onChange={handleCareerChange}
                     input={<OutlinedInput label="Career" />}
                     sx={{minHeight:45}}
@@ -600,6 +624,7 @@ const handleChange = (e) => {
                 >
                 <MenuItem value="Active">Active</MenuItem>
                 <MenuItem value="Inactive">Inactive</MenuItem>
+                <MenuItem value="Completed">Completed</MenuItem>
                 </Select>
               </FormControl>
           </Grid>
