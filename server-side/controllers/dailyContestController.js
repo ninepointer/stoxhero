@@ -5142,7 +5142,7 @@ exports.getTopContestWeeklyPortfolioFullList = async (req, res) => {
         },
         {
           $match:{
-            totalPayout: {$gt: 0}
+            totalPayout: {$gte: 1}
           }
         }
       ]

@@ -196,7 +196,6 @@ async function singleProcess() {
     });
 
     //emitting leaderboard for contest.
-    //todo-vijay
 //    if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });
