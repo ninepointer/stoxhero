@@ -23,8 +23,8 @@ exports.createBlog = (async (req, res, next) => {
         const { title, metaTitle, category, metaDescription, metaKeywords, status  } = req.body;
         const slug = title.replace(/ /g, "-").toLowerCase();
         const uploadedFiles = req.files;
-        const otherImages = await Promise.all(await processUpload(uploadedFiles.files, s3, title));
-        const titleImage = await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, title, true));
+        const otherImages = uploadedFiles.files && await Promise.all(await processUpload(uploadedFiles.files, s3, title));
+        const titleImage = uploadedFiles.titleFiles && await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, title, true));
         const blog = await Blog.create({
             blogTitle: title, thumbnailImage: titleImage[0], images: otherImages,
             createdBy: req.user._id, lastModifiedBy: req.user._id, status: "Created",

@@ -63,15 +63,26 @@ function Summary({topPerformer, startOfWeek, endOfWeek}) {
                                     src={e?.profile_picture ? e?.profile_picture?.url : logo}
                                     alt={"Stock"}
                                     size="lg"
-                                    sx={({ borders: { borderWidth }, palette: { white } }) => ({
-                                    border: `${borderWidth[2]} solid ${white.main}`,
+                                    // padding="10px"
+                                    // sx={({ borders: { borderWidth }, palette: { white } }) => ({
+                                    // border: `${borderWidth[2]} solid ${white.main}`,
+                                    // cursor: "pointer",
+                                    // position: "relative",
+                                    // ml: -1,
+                                   
+                                    // "&:hover, &:focus": {
+                                    //     zIndex: "10",
+                                    // },
+                                    // })}
+                                    sx={{padding: "15px",
                                     cursor: "pointer",
-                                    position: "relative",
-                                    ml: -1,
-                                    "&:hover, &:focus": {
-                                        zIndex: "10",
-                                    },
-                                    })}
+                                        position: "relative",
+                                        ml: -1,
+                                        "&:hover, &:focus": {
+                                            zIndex: "10",
+                                        },
+                                
+                                }}
                                 />
                                 <MDTypography fontSize={15} fontWeight='bold'>
                                     #{index +1} {TruncatedName(e?.first_name)}

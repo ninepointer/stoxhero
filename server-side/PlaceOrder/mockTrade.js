@@ -103,8 +103,12 @@ exports.mockTrade = async (req, res) => {
         }
 
         newTimeStamp = liveData?.timestamp;
-        originalLastPriceUser = liveData?.last_price ? liveData?.last_price : req?.body?.last_price;
-        originalLastPriceCompany = liveData?.last_price ? liveData?.last_price : req?.body?.last_price;
+        originalLastPriceUser = liveData?.last_price ;
+        originalLastPriceCompany = liveData?.last_price ;
+
+        if(!liveData?.last_price){
+            return res.status(400).json({status: "error", message: "Market orders are blocked for in the money options due to illiquidity. Try again later."})
+        }
 
         trade_time = new Date(newTimeStamp);
         if(trade_time < new Date()){

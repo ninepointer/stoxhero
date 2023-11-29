@@ -62,7 +62,7 @@ const Scoreboard = () => {
 
   return (
     <Box mt={0} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-      <MDBox p={1} bgColor='primary' width='100%' display='flex' justifyContent='center' alignItems='center'>
+      <MDBox p={1} width='100%' display='flex' justifyContent='center' alignItems='center'>
         <MDBox>
           <Avatar
             src={logo}

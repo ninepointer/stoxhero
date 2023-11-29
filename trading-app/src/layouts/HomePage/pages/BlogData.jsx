@@ -86,20 +86,8 @@ export default function BlogCard() {
               <>
               {/* {(blogData?.metaTitle && blogData?.metaDescription && blogData?.thumbnailImage?.url) && */}
                 <Helmet>
-                  <title>{"this is title"}</title>
-                  <meta name='description' content={"this is description"} />
-                  <meta name='keywords' content={"blogData?.keywords"} />
-                  <meta name="twitter:card" content="summary_large_image" />
-                  <meta name="twitter:title" content={"this is title"} />
-                  <meta name="twitter:description" content={"this is description"} />
-                  <meta name="twitter:image" content={"https://dmt-trade.s3.ap-south-1.amazonaws.com/blogs/Recent%20Updates%20in%20Strategy%20Builder%20and%20Option%20Chain/photos/170109179121320058548_6233237.jpg"} />
-                  <meta itemprop="image" content={"https://dmt-trade.s3.ap-south-1.amazonaws.com/blogs/Recent%20Updates%20in%20Strategy%20Builder%20and%20Option%20Chain/photos/170109179121320058548_6233237.jpg"}></meta>
-                  <meta property="og:title" content={"this is title"} />
-                  <meta property="og:description" content={"this is description"} />
-                  <meta property="og:image" content={"https://dmt-trade.s3.ap-south-1.amazonaws.com/blogs/Recent%20Updates%20in%20Strategy%20Builder%20and%20Option%20Chain/photos/170109179121320058548_6233237.jpg"} />
-                  <meta property="og:url" content={`https://stoxhero.com/blogs/${location?.pathname?.split("/")[2]}`} />
 
-{/* 
+ 
                   <title>{blogData?.metaTitle}</title>
                   <meta name='description' content={blogData?.metaDescription} />
                   <meta name='keywords' content={blogData?.keywords} />
@@ -111,7 +99,7 @@ export default function BlogCard() {
                   <meta property="og:title" content={blogData?.metaTitle} />
                   <meta property="og:description" content={blogData?.metaDescription} />
                   <meta property="og:image" content={blogData?.thumbnailImage?.url} />
-                  <meta property="og:url" content={`https://stoxhero.com/blogs/${location?.pathname?.split("/")[2]}`} /> */}
+                  <meta property="og:url" content={`https://stoxhero.com/blogs/${location?.pathname?.split("/")[2]}`} />
 
                 </Helmet>
                 {/* } */}

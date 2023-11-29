@@ -29,7 +29,7 @@ function Index() {
   const [titleImage, setTitleImage] = useState(null);
   const [formstate, setFormState] = useState({
     metaTitle: prevData?.metaTitle || "",
-    metaDescription: prevData?.metaDescription || "",
+    metaDescription: "" || prevData?.metaDescription,
     category: prevData?.category || "",
     metaKeywords: prevData?.metaKeywords || "",
     status: prevData?.status || ""
@@ -90,7 +90,7 @@ function Index() {
       openSuccessSB('error', 'Please fill title');
       return;
     }
-    if (!file || !titleImage) {
+    if (!titleImage) {
       openSuccessSB('error', 'Please select a file to upload');
       return;
     }
@@ -146,11 +146,11 @@ function Index() {
       }
   
       // Append each file in the file array to the "files" array
-      if(file){
-        for (let i = 0; i < file.length; i++) {
-          formData.append("files", file[i]);
-        }
-      }
+      // if(file){
+      //   for (let i = 0; i < file.length; i++) {
+      //     formData.append("files", file[i]);
+      //   }
+      // }
       formData.append('blogTitle', title);
       for(let elem in formstate){
         formData.append(`${elem}`, formstate[elem]);
@@ -180,7 +180,7 @@ function Index() {
     }
   };
 
-  console.log("bool", (imagesPreviewUrl && (!imageData || editing)), imagesPreviewUrl , imageData , editing)
+  // console.log("bool", (imagesPreviewUrl && (!imageData || editing)), imagesPreviewUrl , imageData , editing)
   const removeImage = async (id, docId) => {
     try {
       const res = await fetch(`${apiUrl}blogs/removeImage/${id}/${docId}`, {
@@ -307,7 +307,7 @@ function Index() {
   )
 
 
-  console.log("file", file)
+  // console.log("file", file)
   return (
     <>
       <MDBox pl={2} pr={2} mt={4} mb={2}>
@@ -407,7 +407,7 @@ function Index() {
                 fullWidth
                 multiline
                 rows={5}
-                value={formstate?.metaDescription || prevData?.metaDescription}
+                value={formstate?.metaDescription}
                 onChange={(e) => {
                   setFormState(prevState => ({
                     ...prevState,

@@ -98,6 +98,7 @@ function Summary({lastPaidContests, lastContestDate}) {
                                                 cursor: "pointer",
                                                 position: "relative",
                                                 mt: 0.5,
+                                                p: 1,
                                                 "&:hover, &:focus": {
                                                     zIndex: "10",
                                                 },
