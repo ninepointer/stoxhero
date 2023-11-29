@@ -4,6 +4,7 @@ const { ObjectId } = require("mongodb");
 const {decode} = require('html-entities');
 const sharp = require('sharp');
 
+
 AWS.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -132,7 +133,12 @@ exports.removeImage = (async (req, res, next) => {
 });
 
 exports.saveBlogData = async(req, res, next) => {
+    console.log("saved data")
     const id = req.params.id;
+//     const textDecoder = new TextEncoder();
+
+//     const decodedData = textDecoder.decode(req.body.blogData);
+// console.log(decodedData)
     const content = decode(req.body.blogData)
     const wordCount = content.split(" ").length;
 

@@ -11,7 +11,7 @@ const hpp = require("hpp")
 const { zerodhaAccountType } = require("./constant")
 const Product = require('./models/Product/product');
 const { pendingOrderMain } = require("./PlaceStopLossOrder")
-
+const bodyParser = require('body-parser');
 
 async function commonProcess() {
     // await setIOValue();
@@ -30,8 +30,10 @@ async function commonProcess() {
         })
 
     
-    app.use(express.json({ limit: "20kb" }));
-
+    // app.use(express.json({ limit: "20kb" }));
+    app.use(express.json({ limit: '10mb' }));
+    app.use(express.urlencoded({ limit: '10mb' }));
+    
     app.use(cors({
         credentials: true,
 

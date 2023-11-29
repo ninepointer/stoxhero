@@ -188,10 +188,11 @@ const getTicksForUserPosition = async (socket, id) => {
         if (isRedisConnected) {
           userId = await client.get(socket.id);
         }
-        // console.log(isRedisConnected)
-        if (isRedisConnected && await client.exists(`${(userId)?.toString()}allInstrument`)) {
-          let instruments = await client.SMEMBERS(`${(userId)?.toString()}allInstrument`)
+        // console.log("1st", userId, id)
+        if (isRedisConnected && await client.exists(`${(id)?.toString()}allInstrument`)) {
+          let instruments = await client.SMEMBERS(`${(id)?.toString()}allInstrument`)
           // instrumentTokenArr = new Set(instruments)
+          // console.log("this is instruments", instruments);
           const parsedInstruments = instruments.map(jsonString => JSON.parse(jsonString));
           instrumentTokenArr = new Set();
 
@@ -205,6 +206,7 @@ const getTicksForUserPosition = async (socket, id) => {
           const user = await User.findById({_id: new ObjectId(id)})
             .populate('allInstruments')
 
+            // console.log(user.allInstruments);
           userId = user._id;
           instrumentTokenArr = [];
           for (let i = 0; i < user.allInstruments.length; i++) {
@@ -215,8 +217,9 @@ const getTicksForUserPosition = async (socket, id) => {
               instrumentToken: user.allInstruments[i].instrumentToken,
               exchangeInstrumentToken: user.allInstruments[i].exchangeInstrumentToken
             }
-            const newredisClient = await client.SADD(`${(user._id)?.toString()}allInstrument`, JSON.stringify(obj));
 
+            const newredisClient = await client.SADD(`${(user._id)?.toString()}allInstrument`, JSON.stringify(obj));
+            // console.log("2nd", newredisClient, user._id)
           }
           instrumentTokenArr = new Set(instrumentTokenArr)
         }
@@ -239,7 +242,7 @@ const getTicksForUserPosition = async (socket, id) => {
         instruments = null;
 
       } catch (err) {
-        // console.log(err)
+        console.log(err)
       }
     });
   } catch (e) {

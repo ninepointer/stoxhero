@@ -48,32 +48,11 @@ export default function BlogCard() {
       });
   }
  
-  const fetchDeviceDetail = async (id)=>{
-    const ipData = await axios.get('https://geolocation-db.com/json/');
-    console.log(ipData)
-    const ip = ipData?.data?.IPv4;
-    const country = ipData?.data?.country_name;
-    const isMobile = /Mobi/.test(navigator.userAgent);
 
-    const res = await fetch(`${apiUrl}blogs/savereader`, {
-      method: "PATCH",
-      credentials: "include",
-      headers: {
-        "content-type": "application/json",
-        "Access-Control-Allow-Credentials": true
-      },
-      body: JSON.stringify({
-        ip, country, isMobile, blogId: id
-      })
-    });
-
-
-    const data = await res.json();
-  }
   const handleOpenNewTab = async (elem) => {
     
     const newTab = window.open(`/blogs/${elem?.blogTitle}`, '_blank');
-    await fetchDeviceDetail(elem?._id);
+    // await fetchDeviceDetail(elem?._id);
   };
 
   const handlePageChange = (event, value) => {

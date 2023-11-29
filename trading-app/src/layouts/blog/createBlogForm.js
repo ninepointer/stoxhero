@@ -129,6 +129,7 @@ function Index() {
         setFile(null)
         setImageData(data.data);
         setIsSubmitted(true);
+        setImagesPreviewUrl(null)
         setEditing(false);
         openSuccessSB('success', data.message);
       }
@@ -170,6 +171,7 @@ function Index() {
       if(data.status==='success'){
         setFile(null)
         setImageData(data.data);
+        setImagesPreviewUrl(null)
         setEditing(false)
         openSuccessSB('success', data.message);
       }
@@ -178,6 +180,7 @@ function Index() {
     }
   };
 
+  console.log("bool", (imagesPreviewUrl && (!imageData || editing)), imagesPreviewUrl , imageData , editing)
   const removeImage = async (id, docId) => {
     try {
       const res = await fetch(`${apiUrl}blogs/removeImage/${id}/${docId}`, {
@@ -201,12 +204,16 @@ function Index() {
     }
   };
 
+  // const textEncoder = new TextEncoder();
+
   async function saveBlogData(value) {
     if (!value) {
       openSuccessSB('error', 'Please type text.');
       return;
     }
     setSaving(true)
+    // const binaryData = textEncoder.encode(value);
+
     const res = await fetch(`${apiUrl}blogs/${prevData?._id || imageData?._id}/blogData`, {
       method: "PATCH",
       credentials: "include",
@@ -285,13 +292,6 @@ function Index() {
     />
   );
 
-  // const config = {
-  //   disabled: editingBlogData ? false : true,
-  //   autofocus : true , 
-  //   cursorAfterAutofocus: 'end',
-  //   // readonly: true,
-  // }
-
   const config = React.useMemo(
     () => ({
       disabled: editingBlogData ? false : true,
@@ -321,7 +321,7 @@ function Index() {
 
             <Grid item xs={12} md={12} xl={12}>
               <TextField
-                disabled={((imageData || prevData) && (!editing || saving))}
+                disabled={((imageData || prevData) && (!editing))}
                 id="outlined-required"
                 label='Blog Title *'
                 fullWidth
@@ -332,7 +332,7 @@ function Index() {
 
             <Grid item xs={12} md={12} xl={12}>
               <TextField
-                disabled={((imageData || prevData) && (!editing || saving))}
+                disabled={((imageData || prevData) && (!editing))}
                 id="outlined-required"
                 label='Meta Title *'
                 fullWidth
@@ -348,7 +348,7 @@ function Index() {
 
             <Grid item xs={12} md={8} xl={8}>
             <TextField
-                disabled={((imageData || prevData) && (!editing || saving))}
+                disabled={((imageData || prevData) && (!editing))}
                 id="outlined-required"
                 label='Meta Keywords *'
                 fullWidth
@@ -370,7 +370,7 @@ function Index() {
                       id="demo-simple-select-autowidth"
                       name='category'
                       value={formstate?.category || prevData?.category}
-                      disabled={((imageData || prevData) && (!editing || saving))}
+                      disabled={((imageData || prevData) && (!editing))}
                       onChange={(e) => {
                         setFormState(prevState => ({
                           ...prevState,
@@ -401,7 +401,7 @@ function Index() {
 
             <Grid item xs={12} md={12} xl={12}>
             <TextField
-                disabled={((imageData || prevData) && (!editing || saving))}
+                disabled={((imageData || prevData) && (!editing))}
                 id="outlined-required"
                 label='Meta Description *'
                 fullWidth
@@ -426,7 +426,7 @@ function Index() {
                       id="demo-simple-select-autowidth"
                       name='status'
                       value={formstate?.status || prevData?.status}
-                      disabled={((imageData || prevData) && (!editing || saving))}
+                      disabled={((imageData || prevData) && (!editing))}
                       onChange={(e) => {
                         setFormState(prevState => ({
                           ...prevState,
@@ -448,7 +448,7 @@ function Index() {
                 {!formstate?.titleImage?.name ? "Upload Blog Thumbnail(1080X720)" : "Upload Another File?"}
                 <input
                   hidden
-                  disabled={((imageData || prevData) && (!editing || saving))}
+                  disabled={((imageData || prevData) && (!editing))}
                   accept="image/*"
                   type="file"
                   // onChange={(e)=>{setTitleImage(e.target.files)}}
@@ -469,7 +469,7 @@ function Index() {
                 {!formstate?.titleImage?.name ? "Upload Blog Images(1080X720)" : "Upload More File?"}
                 <input
                   hidden
-                  disabled={((isSubmitted || prevData) && (!editing || saving))}
+                  disabled={((imageData || prevData) && (!editing))}
                   accept="image/*"
                   type="file"
                   multiple
@@ -575,100 +575,97 @@ function Index() {
               </Grid>
           }
           </Grid>
-          {(imagesPreviewUrl && !imageData) ? 
-          <Grid container mb={2} spacing={2} xs={12} md={12} xl={12} mt={1} display="flex" justifyContent='flex-start' alignItems='center' style={{maxWidth:'100%', height:'auto'}}>
-          {imagesPreviewUrl?.map((elem) => {
-              return (
-                <>
-                  <Grid item xs={12} md={12} xl={2} style={{maxWidth:'100%', height:'auto'}}>
-                    <Grid container xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
-                      <Grid item xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
-                        <Card sx={{ minWidth: '100%', cursor:'pointer' }} onClick={()=>{handleCopyClick(elem?.url)}}>       
-                          <CardActionArea>
-                          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
-                            <img src={elem} style={{maxWidth: '100%',height: 'auto', borderTopLeftRadius:10, borderTopRightRadius:10}}/>
-                          </Grid>
-                          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignContent='center' style={{maxWidth:'100%', height: 'auto'}}>
-                            <CardContent
-                            //  display='flex' justifyContent='space-between' alignContent='center' style={{maxWidth: '100%',height: 'auto'}}
-                             >
-                              <MDBox 
-                              mb={-2}
-                               display='flex' flexDirection='column' justifyContent='space-between' alignContent='center' style={{width:'100%', height:'auto'}}
-                              >
-                              <Typography
-                              mb={-1.5} variant="caption" fontFamily='Segoe UI' fontWeight={400} style={{textAlign:'center'}}
-                               >
-                                Click to copy URL
-                              </Typography>
-                              <Divider />
-                              <Typography
-                               mt={-1.5} variant="caption" fontFamily='Segoe UI' fontWeight={400} style={{textAlign:'center', display:"flex", justifyContent: "center", alignItems: 'center', alignContent: 'center'}}
-                               onClick={()=>{setImagesPreviewUrl(imagesPreviewUrl.filter(item=>item!==elem))}}
-                               >
-                               Delete <DeleteIcon  />
-                               </Typography>
-                              </MDBox>
-                            </CardContent>
-                          </Grid>
 
-                          </CardActionArea>
-                        </Card>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </>
-              )
-            })}
-          </Grid> 
-          :
-          <Grid container mb={2} spacing={2} xs={12} md={12} xl={12} mt={1} display="flex" justifyContent='flex-start' alignItems='center' style={{maxWidth:'100%', height:'auto'}}>
+        <Grid container mb={2} spacing={2} xs={12} md={12} xl={12} mt={1} display="flex" justifyContent='flex-start' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
           {imageData?.images?.map((elem) => {
-              return (
-                <>
-                  <Grid item xs={12} md={12} xl={2} style={{maxWidth:'100%', height:'auto'}}>
-                    <Grid container xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
-                      <Grid item xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
-                        <Card sx={{ minWidth: '100%', cursor:'pointer' }} onClick={()=>{handleCopyClick(elem?.url)}}>       
-                          <CardActionArea>
-                          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
-                            <img src={elem?.url} style={{maxWidth: '100%',height: 'auto', borderTopLeftRadius:10, borderTopRightRadius:10}}/>
+            return (
+              <>
+                <Grid item xs={12} md={12} xl={2} style={{ maxWidth: '100%', height: 'auto' }}>
+                  <Grid container xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
+                    <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
+                      <Card sx={{ minWidth: '100%', cursor: 'pointer' }} onClick={() => { handleCopyClick(elem?.url) }}>
+                        <CardActionArea>
+                          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                            <img src={elem?.url} style={{ maxWidth: '100%', height: 'auto', borderTopLeftRadius: 10, borderTopRightRadius: 10 }} />
                           </Grid>
-                          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
 
                             <CardContent
                             //  display='flex' justifyContent='space-between' alignContent='center' style={{maxWidth: '100%',height: 'auto'}}
-                             >
-                              <MDBox 
-                              mb={-2}
-                               display='flex' flexDirection='column' justifyContent='space-between' alignContent='center' style={{width:'100%', height:'auto'}}
+                            >
+                              <MDBox
+                                mb={-2}
+                                display='flex' flexDirection='column' justifyContent='space-between' alignContent='center' style={{ width: '100%', height: 'auto' }}
                               >
-                              <Typography
-                              mb={-1.5} variant="caption" fontFamily='Segoe UI' fontWeight={400} style={{textAlign:'center'}}
-                               >
-                                Click to copy URL
-                              </Typography>
-                              <Divider />
-                              <Typography
-                               mt={-1.5} variant="caption" fontFamily='Segoe UI' fontWeight={400} style={{textAlign:'center', display:"flex", justifyContent: "center", alignItems: 'center', alignContent: 'center'}}
-                               onClick={()=>{removeImage(imageData?._id, elem?._id)}}
-                               >
-                               Delete <DeleteIcon  />
-                               </Typography>
+                                <Typography
+                                  mb={-1.5} variant="caption" fontFamily='Segoe UI' fontWeight={400} style={{ textAlign: 'center' }}
+                                >
+                                  Click to copy URL
+                                </Typography>
+                                <Divider />
+                                <Typography
+                                  mt={-1.5} variant="caption" fontFamily='Segoe UI' fontWeight={400} style={{ textAlign: 'center', display: "flex", justifyContent: "center", alignItems: 'center', alignContent: 'center' }}
+                                  onClick={() => { removeImage(imageData?._id, elem?._id) }}
+                                >
+                                  Delete <DeleteIcon />
+                                </Typography>
                               </MDBox>
                             </CardContent>
                           </Grid>
-                          </CardActionArea>
-                        </Card>
-                      </Grid>
+                        </CardActionArea>
+                      </Card>
                     </Grid>
                   </Grid>
-                </>
-              )
-            })}
-          </Grid>}
-       
+                </Grid>
+              </>
+            )
+          })}
+          {imagesPreviewUrl?.map((elem) => {
+            return (
+              <>
+                <Grid item xs={12} md={12} xl={2} style={{ maxWidth: '100%', height: 'auto' }}>
+                  <Grid container xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
+                    <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
+                      <Card sx={{ minWidth: '100%', cursor: 'pointer' }} onClick={() => { handleCopyClick(elem?.url) }}>
+                        <CardActionArea>
+                          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                            <img src={elem} style={{ maxWidth: '100%', height: 'auto', borderTopLeftRadius: 10, borderTopRightRadius: 10 }} />
+                          </Grid>
+                          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignContent='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                            <CardContent
+                            //  display='flex' justifyContent='space-between' alignContent='center' style={{maxWidth: '100%',height: 'auto'}}
+                            >
+                              <MDBox
+                                mb={-2}
+                                display='flex' flexDirection='column' justifyContent='space-between' alignContent='center' style={{ width: '100%', height: 'auto' }}
+                              >
+                                <Typography
+                                  mb={-1.5} variant="caption" fontFamily='Segoe UI' fontWeight={400} style={{ textAlign: 'center' }}
+                                >
+                                  Click to copy URL
+                                </Typography>
+                                <Divider />
+                                <Typography
+                                  mt={-1.5} variant="caption" fontFamily='Segoe UI' fontWeight={400} style={{ textAlign: 'center', display: "flex", justifyContent: "center", alignItems: 'center', alignContent: 'center' }}
+                                  onClick={() => { setImagesPreviewUrl(imagesPreviewUrl.filter(item => item !== elem)) }}
+                                >
+                                  Delete <DeleteIcon />
+                                </Typography>
+                              </MDBox>
+                            </CardContent>
+                          </Grid>
 
+                        </CardActionArea>
+                      </Card>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </>
+            )
+          })}
+        </Grid> 
+
+      
           {prevData?.status && 
           <>
           <JoditEditor

@@ -43,6 +43,32 @@ export default function BlogCard() {
       });
   }, []);
 
+  useEffect(()=>{
+    blogData && fetchDeviceDetail(blogData?._id);
+  }, [blogData])
+  const fetchDeviceDetail = async (id)=>{
+    const ipData = await axios.get('https://geolocation-db.com/json/');
+    console.log(ipData)
+    const ip = ipData?.data?.IPv4;
+    const country = ipData?.data?.country_name;
+    const isMobile = /Mobi/.test(navigator.userAgent);
+
+    const res = await fetch(`${apiUrl}blogs/savereader`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+        "Access-Control-Allow-Credentials": true
+      },
+      body: JSON.stringify({
+        ip, country, isMobile, blogId: id
+      })
+    });
+
+
+    const data = await res.json();
+  }
+
 
   return (
     <MDBox style={{ backgroundColor: 'white' }} >
@@ -53,14 +79,22 @@ export default function BlogCard() {
             <title>{blogData?.metaTitle}</title>
             <meta name='description' content={blogData?.metaDescription} />
             <meta name='keywords' content={blogData?.keywords} />
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:title" content={blogData?.metaTitle} />
+            <meta name="twitter:description" content={blogData?.metaDescription}  />
+            <meta name="twitter:image" content={blogData?.thumbnailImage?.url} />
+            <meta property="og:title" content={blogData?.metaTitle} />
+            <meta property="og:description" content={blogData?.metaDescription}  />
+            <meta property="og:image" content={blogData?.thumbnailImage?.url} />
+            <meta property="og:url" content={`https://stoxhero.com/blogs/${location?.pathname?.split("/")[2]}`} />
           </Helmet>
           <Grid container p={5} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{width:'100%'}}>
-          {/* {isLoading ?
+          {isLoading ?
             
               <Grid container mt={35} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' spacing={1} xs={12} md={12} lg={12} style={{ maxWidth: '100%', height: 'auto' }}>
                 <CircularProgress color='success' />
               </Grid>
-            */}
+           
             :
               <Grid container p={2} spacing={1} xs={12} md={12} lg={8} mt={5} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
                 <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
@@ -90,7 +124,7 @@ export default function BlogCard() {
                         <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%' }}>
                           <MDBox 
                             // dangerouslySetInnerHTML={{ __html: blogData?.blogData }} 
-                            style={{ maxWidth: '100%', width: '100%', height: 'auto', overflow: 'scroll' }}
+                            style={{ maxWidth: '100%', width: '100%', height: 'auto' }}
                             >
                             <div dangerouslySetInnerHTML={{ __html: blogData?.blogData }} />
                             <style>
@@ -110,7 +144,7 @@ export default function BlogCard() {
                 </Grid>
               </Grid>
             
-          {/* } */}
+          }
 
 
               <Grid container p={2} mt={10} xs={12} md={12} lg={4} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>

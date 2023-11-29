@@ -282,7 +282,7 @@ async function singleProcess() {
     }
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
-    app.use(express.json({ limit: "20kb" }));
+    app.use(express.json({ limit: "10mb" }));
     app.use(require("cookie-parser")());
     app.use(cors({
         credentials: true,
