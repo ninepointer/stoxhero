@@ -269,6 +269,8 @@ exports.getAllBlogs = async (req, res) => {
 
 exports.getBlogByTitle = async (req, res) => {
     const { title } = req.params;
+
+    console.log("title", title)
     const newTitle = title.replace("%20", " ")
     try {
         const blogs = await Blog.findOne({blogTitle: newTitle})

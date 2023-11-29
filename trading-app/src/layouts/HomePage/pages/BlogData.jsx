@@ -84,6 +84,7 @@ export default function BlogCard() {
            
             :
               <>
+              {(blogData?.metaTitle && blogData?.metaDescription && blogData?.thumbnailImage?.url) &&
                 <Helmet>
                   <title>{blogData?.metaTitle}</title>
                   <meta name='description' content={blogData?.metaDescription} />
@@ -92,11 +93,12 @@ export default function BlogCard() {
                   <meta name="twitter:title" content={blogData?.metaTitle} />
                   <meta name="twitter:description" content={blogData?.metaDescription} />
                   <meta name="twitter:image" content={blogData?.thumbnailImage?.url} />
+                  <meta itemprop="image" content={blogData?.thumbnailImage?.url}></meta>
                   <meta property="og:title" content={blogData?.metaTitle} />
                   <meta property="og:description" content={blogData?.metaDescription} />
                   <meta property="og:image" content={blogData?.thumbnailImage?.url} />
                   <meta property="og:url" content={`https://stoxhero.com/blogs/${location?.pathname?.split("/")[2]}`} />
-                </Helmet>
+                </Helmet>}
 
                 <Grid container p={2} spacing={1} xs={12} md={12} lg={8} mt={5} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
                   <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
