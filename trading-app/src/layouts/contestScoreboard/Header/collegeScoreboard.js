@@ -13,7 +13,7 @@ import {Grid} from '@mui/material'
 import MDTypography from '../../../components/MDTypography';
 import MDBox from '../../../components/MDBox';
 import MDAvatar from '../../../components/MDAvatar';
-import logo from '../../../assets/images/logo1.jpeg'
+import logo from '../../../assets/images/logo1.png'
 
 const Scoreboard = () => {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"

@@ -3,7 +3,7 @@ import MDBox from '../../../components/MDBox'
 import MDButton from '../../../components/MDButton'
 import { Grid } from '@mui/material'
 import MDTypography from '../../../components/MDTypography'
-import Logo from '../../../assets/images/logo1.jpeg'
+import Logo from '../../../assets/images/logo1.png'
 
 function Contests(){
 

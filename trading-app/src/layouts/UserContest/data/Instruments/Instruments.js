@@ -2,7 +2,7 @@ import React,{useState, useEffect, memo, useContext} from 'react'
 // import MDBox from '../../../../components/MDBox'
 import Grid from '@mui/material/Grid'
 import MDTypography from '../../../../components/MDTypography'
-// import Logo from '../../../assets/images/logo1.jpeg'
+// import Logo from '../../../assets/images/logo1.png'
 // import { Divider } from '@mui/material'
 // import { HiUserGroup } from 'react-icons/hi';
 // import { Link } from 'react-router-dom';

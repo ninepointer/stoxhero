@@ -10,7 +10,7 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import DefaultProfilePic from "../../../../assets/images/default-profile.png";
-import logo from '../../../../assets/images/logo1.jpeg'
+import logo from '../../../../assets/images/logo1.png'
 import MDAvatar from "../../../../components/MDAvatar";
 import MDButton from "../../../../components/MDButton";
 import FastRewindIcon from '@mui/icons-material/FastRewind';

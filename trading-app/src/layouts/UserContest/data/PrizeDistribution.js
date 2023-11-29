@@ -2,7 +2,7 @@ import React, {memo} from 'react'
 import MDBox from '../../../components/MDBox'
 import Grid from '@mui/material/Grid'
 import MDTypography from '../../../components/MDTypography'
-import Logo from '../../../assets/images/logo1.jpeg'
+import Logo from '../../../assets/images/logo1.png'
 import { Divider } from '@mui/material'
 import Prize from '../../../assets/images/prize.png'
 

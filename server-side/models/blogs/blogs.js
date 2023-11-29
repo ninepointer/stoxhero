@@ -6,6 +6,10 @@ const blogSchema = new Schema({
         type: String,
         required: true,
     },
+    slug:{
+        type: String,
+        required: true,
+    },
     metaTitle: {
         type: String,
         // required:true

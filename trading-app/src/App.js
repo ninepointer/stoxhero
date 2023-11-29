@@ -42,7 +42,7 @@ import { useMaterialUIController, setMiniSidenav, setOpenConfigurator, setLayout
 
 // Images
 import brandWhite from "./assets/images/logo-ct.png";
-import Logo from "./assets/images/logo1.jpeg"
+import Logo from "./assets/images/logos/fullLogo.png"
 import brandDark from "./assets/images/logo-ct-dark.png";
 import SignIn from "./layouts/authentication/sign-in"
 import NewMain from "./NewMain"
@@ -266,7 +266,7 @@ export default function App() {
                 <Sidenav
                 color={sidenavColor}
                 brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-                brandName="StoxHero"
+                // brandName="StoxHero"
                 routes={(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole)
                 ? routes : (detailUser.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === InfinityTraderRole) 
                 ? routesInfinityTrader : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
@@ -297,7 +297,7 @@ export default function App() {
             <Sidenav
               color={sidenavColor}
               brand={Logo}
-              brandName="StoxHero"
+              // brandName="StoxHero"
               routes={
                 (detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole)
                 ? routes : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 

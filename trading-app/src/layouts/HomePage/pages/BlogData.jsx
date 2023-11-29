@@ -75,19 +75,6 @@ export default function BlogCard() {
       <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ backgroundColor: 'white', height: 'auto', width: 'auto', maxWidth: '100vW' }}>
         <ThemeProvider theme={theme}>
           <Navbar />
-          <Helmet>
-            <title>{blogData?.metaTitle}</title>
-            <meta name='description' content={blogData?.metaDescription} />
-            <meta name='keywords' content={blogData?.keywords} />
-            <meta name="twitter:card" content="summary_large_image" />
-            <meta name="twitter:title" content={blogData?.metaTitle} />
-            <meta name="twitter:description" content={blogData?.metaDescription}  />
-            <meta name="twitter:image" content={blogData?.thumbnailImage?.url} />
-            <meta property="og:title" content={blogData?.metaTitle} />
-            <meta property="og:description" content={blogData?.metaDescription}  />
-            <meta property="og:image" content={blogData?.thumbnailImage?.url} />
-            <meta property="og:url" content={`https://stoxhero.com/blogs/${location?.pathname?.split("/")[2]}`} />
-          </Helmet>
           <Grid container p={5} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{width:'100%'}}>
           {isLoading ?
             
@@ -96,53 +83,70 @@ export default function BlogCard() {
               </Grid>
            
             :
-              <Grid container p={2} spacing={1} xs={12} md={12} lg={8} mt={5} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
-                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
-                  <Grid container xs={12} md={12} lg={12} mb={5} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' spacing={1} style={{ maxWidth: '100%', height: 'auto' }}>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
-                      <MDBox display='flex' justifyContent='flex-start' alignContent='center' alignItems='flex-start'>
-                        <MDTypography variant="h5">{blogData?.blogTitle}</MDTypography>
-                      </MDBox>
-                    </Grid>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
-                      <MDBox display='flex' justifyContent='flex-start' alignContent='center' alignItems='flex-start'>
-                        <MDTypography variant="caption" style={{ display: 'flex', alignItems: 'center', alignContent: 'center' }}>
-                          <CiCalendar /> &nbsp;
-                          {`${moment.utc(blogData?.publishedOn).utcOffset('+05:30').format('DD MMMM YYYY')}`} &nbsp;
-                          <CiTimer /> &nbsp;
-                          {`${blogData?.readingTime || 1} min read`} &nbsp;
-                          <CiRead /> &nbsp;
-                          {`${blogData?.viewCount || 0} views`}
-                        </MDTypography>
-                      </MDBox>
-                    </Grid>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
-                      <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ width: '100%' }}>
-                        <Grid item xs={12} md={12} lg={12} style={{ maxWidth: '100%' }}>
-                          <img src={blogData?.thumbnailImage?.url} width='100%' />
-                        </Grid>
-                        <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%' }}>
-                          <MDBox 
-                            // dangerouslySetInnerHTML={{ __html: blogData?.blogData }} 
-                            style={{ maxWidth: '100%', width: '100%', height: 'auto' }}
+              <>
+                <Helmet>
+                  <title>{blogData?.metaTitle}</title>
+                  <meta name='description' content={blogData?.metaDescription} />
+                  <meta name='keywords' content={blogData?.keywords} />
+                  <meta name="twitter:card" content="summary_large_image" />
+                  <meta name="twitter:title" content={blogData?.metaTitle} />
+                  <meta name="twitter:description" content={blogData?.metaDescription} />
+                  <meta name="twitter:image" content={blogData?.thumbnailImage?.url} />
+                  <meta property="og:title" content={blogData?.metaTitle} />
+                  <meta property="og:description" content={blogData?.metaDescription} />
+                  <meta property="og:image" content={blogData?.thumbnailImage?.url} />
+                  <meta property="og:url" content={`https://stoxhero.com/blogs/${location?.pathname?.split("/")[2]}`} />
+                </Helmet>
+
+                <Grid container p={2} spacing={1} xs={12} md={12} lg={8} mt={5} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
+                  <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
+                    <Grid container xs={12} md={12} lg={12} mb={5} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' spacing={1} style={{ maxWidth: '100%', height: 'auto' }}>
+                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
+                        <MDBox display='flex' justifyContent='flex-start' alignContent='center' alignItems='flex-start'>
+                          <MDTypography variant="h5">{blogData?.blogTitle}</MDTypography>
+                        </MDBox>
+                      </Grid>
+                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
+                        <MDBox display='flex' justifyContent='flex-start' alignContent='center' alignItems='flex-start'>
+                          <MDTypography variant="caption" style={{ display: 'flex', alignItems: 'center', alignContent: 'center' }}>
+                            <CiCalendar /> &nbsp;
+                            {`${moment.utc(blogData?.publishedOn).utcOffset('+05:30').format('DD MMMM YYYY')}`} &nbsp;
+                            <CiTimer /> &nbsp;
+                            {`${blogData?.readingTime || 1} min read`} &nbsp;
+                            <CiRead /> &nbsp;
+                            {`${blogData?.viewCount || 0} views`}
+                          </MDTypography>
+                        </MDBox>
+                      </Grid>
+                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%', height: 'auto' }}>
+                        <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ width: '100%' }}>
+                          <Grid item xs={12} md={12} lg={12} style={{ maxWidth: '100%' }}>
+                            <img src={blogData?.thumbnailImage?.url} width='100%' />
+                          </Grid>
+                          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '100%' }}>
+                            <MDBox
+                              // dangerouslySetInnerHTML={{ __html: blogData?.blogData }} 
+                              style={{ maxWidth: '100%', width: '100%', height: 'auto' }}
                             >
-                            <div dangerouslySetInnerHTML={{ __html: blogData?.blogData }} />
-                            <style>
-                              {`
+                              <div dangerouslySetInnerHTML={{ __html: blogData?.blogData }} />
+                              <style>
+                                {`
                                 img {
                                   max-width: 100%;
                                   height: auto;
                                 }
                               `}
-                            </style>
-                          </MDBox>
-                        </Grid>
+                              </style>
+                            </MDBox>
+                          </Grid>
 
+                        </Grid>
                       </Grid>
                     </Grid>
                   </Grid>
                 </Grid>
-              </Grid>
+              </>
+
             
           }
 

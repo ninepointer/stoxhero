@@ -9,7 +9,7 @@ import PropTypes from "prop-types";
 // @mui material components
 import Container from "@mui/material/Container";
 import Icon from "@mui/material/Icon";
-import Logo from "../../../assets/images/logo1.jpeg"
+import Logo from "../../../assets/images/logo1.png"
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";

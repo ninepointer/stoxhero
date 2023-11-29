@@ -21,13 +21,14 @@ exports.createBlog = (async (req, res, next) => {
     
     try {
         const { title, metaTitle, category, metaDescription, metaKeywords, status  } = req.body;
+        const slug = title.replace(/ /g, "-").toLowerCase();
         const uploadedFiles = req.files;
         const otherImages = await Promise.all(await processUpload(uploadedFiles.files, s3, title));
         const titleImage = await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, title, true));
         const blog = await Blog.create({
             blogTitle: title, thumbnailImage: titleImage[0], images: otherImages,
             createdBy: req.user._id, lastModifiedBy: req.user._id, status: "Created",
-            metaTitle, category, metaDescription, metaKeywords
+            metaTitle, category, metaDescription, metaKeywords, slug
         });
        
         res.status(200).json({status: "success", data: blog, message: "Blog created successfully."});
@@ -272,7 +273,7 @@ exports.getBlogByTitle = async (req, res) => {
     try {
         const blogs = await Blog.findOne({blogTitle: newTitle})
         .select('-reader')
-        res.status(200).json({
+        res.status(201).json({
             status: 'success',
             data: blogs
         });

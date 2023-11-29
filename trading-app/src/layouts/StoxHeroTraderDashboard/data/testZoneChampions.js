@@ -10,7 +10,7 @@ import CardContent from '@mui/material/CardContent';
 // import MDButton from "../../../components/MDButton";
 import MDAvatar from "../../../components/MDAvatar";
 // import stock from "../../../assets/images/analyticspnl.png";
-import logo from "../../../assets/images/logo1.jpeg";
+import logo from "../../../assets/images/logo1.png";
 import { useNavigate } from 'react-router-dom';
 // import { Link, useLocation } from "react-router-dom";
 import { useMediaQuery, makeStyles } from '@material-ui/core';
