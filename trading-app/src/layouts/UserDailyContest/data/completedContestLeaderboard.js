@@ -5,7 +5,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import ReactGA from "react-ga"
 import Modal from 'react-modal';
 import leaderboardbackground from '../../../assets/images/leaderboardbackground.png'
-import DefaultProfilePic from "../../../assets/images/logo1.png";
+import DefaultProfilePic from "../../../assets/images/logo1.jpeg";
 import Rank1 from "../../../assets/images/r1.png";
 import Rank2 from "../../../assets/images/r2.png";
 import Rank3 from "../../../assets/images/r3.png";

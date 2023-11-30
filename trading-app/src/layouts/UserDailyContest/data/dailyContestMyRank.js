@@ -18,7 +18,7 @@ import MDButton from "../../../components/MDButton";
 import MDAvatar from "../../../components/MDAvatar";
 import MDTypography from "../../../components/MDTypography";
 import AMargin from '../../../assets/images/amargin.png'
-import logo from '../../../assets/images/logo1.png'
+import logo from '../../../assets/images/logo1.jpeg'
 import TwitterIcon from '@mui/icons-material/Twitter';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';

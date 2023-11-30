@@ -14,7 +14,7 @@ import MDTypography from "../../../components/MDTypography";
 // import AMargin from '../../../assets/images/amargin.png'
 import DefaultProfilePic from "../../../assets/images/default-profile.png";
 
-import logo from '../../../assets/images/logo1.png'
+import logo from '../../../assets/images/logo1.jpeg'
 import FacebookIcon from '@mui/icons-material/Facebook';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { CircularProgress, Divider } from "@mui/material";

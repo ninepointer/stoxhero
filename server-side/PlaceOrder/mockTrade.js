@@ -11,6 +11,8 @@ const {internTrade} = require("./saveDataInDB/internship")
 const {infinityTrade} = require("./saveDataInDB/infinity")
 const {marginxTrade} = require("./saveDataInDB/marginx")
 const {battleTrade} = require("./saveDataInDB/battle");
+const UserDetail = require("../models/User/userDetailSchema")
+const {ObjectId} = require("mongodb")
 
 exports.mockTrade = async (req, res) => {
     const setting = await Setting.find().select('toggle');
@@ -30,6 +32,13 @@ exports.mockTrade = async (req, res) => {
         return res.status(422).json({error : "Something went wrong"})
     }
 
+    // if(!req?.user?.activationDate){
+    //     const userActivationDateUpdate = await UserDetail.findOneAndUpdate({_id: new ObjectId(req?.user?._id)}, {
+    //         $set: {
+    //             activationDate: new Date()
+    //         }
+    //     })
+    // }
     req.body.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
 
     // console.log("caseStudy 8: mocktrade", req.body)

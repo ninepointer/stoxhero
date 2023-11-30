@@ -10,7 +10,7 @@ import CardContent from '@mui/material/CardContent';
 import MDButton from "../../../components/MDButton";
 import MDAvatar from "../../../components/MDAvatar";
 import stock from "../../../assets/images/analyticspnl.png";
-import logo from "../../../assets/images/logo1.png";
+import logo from "../../../assets/images/logo1.jpeg";
 import { useNavigate } from 'react-router-dom';
 import { Link, useLocation } from "react-router-dom";
 
@@ -63,26 +63,26 @@ function Summary({topPerformer, startOfWeek, endOfWeek}) {
                                     src={e?.profile_picture ? e?.profile_picture?.url : logo}
                                     alt={"Stock"}
                                     size="lg"
-                                    // padding="10px"
-                                    // sx={({ borders: { borderWidth }, palette: { white } }) => ({
-                                    // border: `${borderWidth[2]} solid ${white.main}`,
-                                    // cursor: "pointer",
-                                    // position: "relative",
-                                    // ml: -1,
-                                   
-                                    // "&:hover, &:focus": {
-                                    //     zIndex: "10",
-                                    // },
-                                    // })}
-                                    sx={{padding: "15px",
+                                    padding="10px"
+                                    sx={({ borders: { borderWidth }, palette: { white } }) => ({
+                                    border: `${borderWidth[2]} solid ${white.main}`,
                                     cursor: "pointer",
-                                        position: "relative",
-                                        ml: -1,
-                                        "&:hover, &:focus": {
-                                            zIndex: "10",
-                                        },
+                                    position: "relative",
+                                    ml: -1,
+                                    // padding: "1px",
+                                    "&:hover, &:focus": {
+                                        zIndex: "10",
+                                    },
+                                    })}
+                                //     sx={{,
+                                //     cursor: "pointer",
+                                //         position: "relative",
+                                //         ml: -1,
+                                //         "&:hover, &:focus": {
+                                //             zIndex: "10",
+                                //         },
                                 
-                                }}
+                                // }}
                                 />
                                 <MDTypography fontSize={15} fontWeight='bold'>
                                     #{index +1} {TruncatedName(e?.first_name)}
