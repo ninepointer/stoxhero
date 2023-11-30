@@ -283,6 +283,14 @@ const userDetailSchema = new mongoose.Schema({
     KYCActionDate:{
         type: Date,
     },
+    activationDetails:{
+        activationDate: {type: Date},
+        activationProduct: {type: Schema.Types.ObjectId},
+        activationType: {type: String},
+        activationStatus: {type: String},
+        activationProductPrice: {type: Number},
+        
+    },
     KYCRejectionReason: String,
     myReferralCode:{
         type: String,
@@ -370,6 +378,10 @@ const userDetailSchema = new mongoose.Schema({
 
 //Adding the ninepointer id before saving
 userDetailSchema.pre('save', async function(next){
+    if (this.isModified('activationDate')) {
+        // Skip the pre-save logic for activationDate updates
+        return next();
+    }
     // console.log("inside employee id generator code")
     if(!this.employeeid || this.isNew){
         const count = await this.constructor.countDocuments();

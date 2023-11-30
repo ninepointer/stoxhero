@@ -10,7 +10,7 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import MDButton from "../../../components/MDButton";
 import MDAvatar from "../../../components/MDAvatar";
-import logo from "../../../assets/images/logo1.png";
+import logo from "../../../assets/images/logo1.jpeg";
 import { useNavigate } from 'react-router-dom';
 
 function Summary({contestProfile, dataLength}) {

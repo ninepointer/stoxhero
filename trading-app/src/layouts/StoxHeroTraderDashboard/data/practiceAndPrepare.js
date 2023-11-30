@@ -10,7 +10,7 @@ import CardContent from '@mui/material/CardContent';
 import MDButton from "../../../components/MDButton";
 import MDAvatar from "../../../components/MDAvatar";
 import stock from "../../../assets/images/analyticspnl.png";
-import logo from "../../../assets/images/logo1.png";
+import logo from "../../../assets/images/logo1.jpeg";
 import trading from "../../../assets/images/tradingjourney.png";
 import testzone from "../../../assets/images/testzone.png";
 import market from "../../../assets/images/market.png";

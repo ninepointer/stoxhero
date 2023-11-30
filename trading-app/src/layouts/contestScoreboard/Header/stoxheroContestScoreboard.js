@@ -13,7 +13,7 @@ import {Grid} from '@mui/material'
 import MDTypography from '../../../components/MDTypography';
 import MDBox from '../../../components/MDBox';
 import MDAvatar from '../../../components/MDAvatar';
-import logo from '../../../assets/images/logo1.png'
+import logo from '../../../assets/images/logo1.jpeg'
 
 const Scoreboard = () => {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -62,7 +62,7 @@ const Scoreboard = () => {
 
   return (
     <Box mt={0} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-      <MDBox p={1} width='100%' display='flex' justifyContent='center' alignItems='center'>
+      <MDBox p={1} backgroundColor="#59B15D" width='100%' display='flex' justifyContent='center' alignItems='center'>
         <MDBox>
           <Avatar
             src={logo}
@@ -122,7 +122,7 @@ const Scoreboard = () => {
                   <Avatar
                       src={trader?.traderProfilePhoto ? trader?.traderProfilePhoto : logo}
                       alt={trader?.traderFirstName}
-                      sx={{padding: "5px"}}
+                      // sx={{padding: "5px"}}
                     />
                 </MDBox>
                 <MDBox display='flex' justifyContent='flex-start' alignItems='center'>

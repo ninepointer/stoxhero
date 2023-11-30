@@ -10,7 +10,7 @@ import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 import { Typography } from '@mui/material';
 import { userContext } from '../../../AuthContext';
-import Logo from "../../../assets/images/logo1.png"
+import Logo from "../../../assets/images/logo1.jpeg"
 import StarIcon from '@mui/icons-material/Star';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
   

@@ -188,9 +188,9 @@ const getTicksForUserPosition = async (socket, id) => {
         if (isRedisConnected) {
           userId = await client.get(socket.id);
         }
-        console.log("1st", userId, id)
-        if (isRedisConnected && await client.exists(`${(id)?.toString()}allInstrument`)) {
-          let instruments = await client.SMEMBERS(`${(id)?.toString()}allInstrument`)
+        // console.log("1st", userId, id)
+        if (isRedisConnected && (await client.exists(`${(id)?.toString()}allInstrument`) || await client.exists(`${(id)?.toString()}`))) {
+          let instruments = await client.SMEMBERS(`${(id)?.toString()}allInstrument`) || await client.exists(`${(id)?.toString()}`)
           // instrumentTokenArr = new Set(instruments)
           // console.log("this is instruments", instruments);
           const parsedInstruments = instruments.map(jsonString => JSON.parse(jsonString));
@@ -204,7 +204,8 @@ const getTicksForUserPosition = async (socket, id) => {
           // console.log("this is instrumentTokenArr");
         } else {
           const user = await User.findById({_id: new ObjectId(id)})
-            .populate('allInstruments')
+            .populate('allInstruments', 'instrumentToken exchangeInstrumentToken')
+            .select('allInstruments')
 
             // console.log(user.allInstruments);
           userId = user._id;
@@ -219,7 +220,8 @@ const getTicksForUserPosition = async (socket, id) => {
             }
 
             const newredisClient = await client.SADD(`${(user._id)?.toString()}allInstrument`, JSON.stringify(obj));
-            console.log("2nd", newredisClient, user._id)
+            const newredis = await client.SADD(`${(user._id)?.toString()}`, JSON.stringify(obj));
+            // console.log("2nd", newredisClient, user._id)
           }
           instrumentTokenArr = new Set(instrumentTokenArr)
         }

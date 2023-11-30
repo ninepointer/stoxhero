@@ -17,7 +17,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import AvTimerIcon from '@mui/icons-material/AvTimer';
 import ProgressBar from '../data/ProgressBar'
 import { CircularProgress } from "@mui/material";
-import Logo from "../../../assets/images/logo1.png"
+import Logo from "../../../assets/images/logo1.jpeg"
 import nifty from "../../../assets/images/nifty.png"
 import banknifty from "../../../assets/images/banknifty.png"
 import upcoming from "../../../assets/images/upcoming.png"

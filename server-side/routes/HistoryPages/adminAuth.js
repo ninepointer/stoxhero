@@ -74,6 +74,8 @@ const userWallet = require("../../models/UserWallet/userWalletSchema");
 const { processBattles } = require("../../controllers/battles/battleController")
 const Battle = require("../../models/battle/battle")
 const MarginX = require("../../models/marginX/marginX");
+const MarginXUser = require("../../models/marginX/marginXUserMock");
+
 const BattleMock = require("../../models/battle/battleTrade");
 const Holiday = require("../../models/TradingHolidays/tradingHolidays");
 const Career = require("../../models/Careers/careerSchema");
@@ -89,6 +91,148 @@ const Referrals = require("../../models/campaigns/referralProgram")
 const {dailyContestTimeStore} = require("../../dailyContestTradeCut")
 
 
+router.get('/updateactivationdate', async(req,res) =>{
+  const user = await UserDetail.find({_id: new ObjectId("63971eec2ca5ce5b52f900b7")}).select('_id subscription')
+console.log(user) // date, status, product, type, productPrice
+let count = 0;
+  for(let elem of user){
+    // console.log(elem)
+    count += 1;
+    let intern = await InternTrade.findOne({trader: elem?._id, status: "COMPLETE", trade_time:{$gt: new Date("2020-01-01")}}).select('trade_time')
+    let contest = await DailyContestMockUser.findOne({trader: elem?._id, status: "COMPLETE",  trade_time:{$gt: new Date("2020-01-01")}})
+    .populate('contestId', 'entryFee')
+    .select('trade_time contestId')
+    let paper = await PaperTrade.findOne({trader: elem?._id, status: "COMPLETE",  trade_time:{$gt: new Date("2020-01-01")}})
+    .select('trade_time')
+    let marginx = await MarginXUser.findOne({trader: elem?._id, status: "COMPLETE",  trade_time:{$gt: new Date("2020-01-01")}})
+      .populate({
+        path: 'marginxId',
+        select: 'marginXTemplate',
+        populate: {
+          path: 'marginXTemplate',
+          select: 'entryFee' // Add the fields you want to select from marginXTemplate
+        }
+      })
+    .select('trade_time marginxId')
+  //   let battle = await BattleMock.findOne({trader: elem?._id, status: "COMPLETE",  trade_time:{$gt: new Date("2020-01-01")}})
+  //   .populate({
+  //     path: 'battleId',
+  //     select: 'battleTemplate',
+  //     populate: {
+  //       path: 'battleTemplate',
+  //       select: 'entryFee' // Add the fields you want to select from marginXTemplate
+  //     }
+  //   })
+  // .select('trade_time battleId')
+    // .select('trade_time')
+    let tenx = await TenXTrade.findOne({trader: elem?._id, status: "COMPLETE",  trade_time:{$gt: new Date("2020-01-01")}})
+    .select('trade_time')
+
+    console.log(intern,
+      contest,
+      paper,
+      marginx,
+      // battle,
+      tenx, elem.subscription[0] )
+    let date1 = new Date(intern?.trade_time);
+    let date2 = new Date(contest?.trade_time);
+    let date3 = new Date(paper?.trade_time);
+    let date4 = new Date(marginx?.trade_time);
+    let date5 = new Date(tenx?.trade_time);
+    let date6 = new Date(battle?.trade_time);
+
+    let old = [intern && date1, contest && date2, 
+      paper && date3, marginx && date4, tenx && date5, battle && date6];
+
+      let dates = [];
+      for(let suubelem of old){
+        if(suubelem){
+          dates.push(suubelem);
+        }
+      }
+    console.log(dates)
+    // Sort the dates in ascending order
+    dates.sort((a, b) => a - b);
+
+    // The smallest date is now the first element in the array
+    let smallestDate = dates[0];
+
+    let activationDetails = {};
+    if(dates[0] == date1){
+      
+      activationDetails.activationDate = dates[0];
+      activationDetails.activationProduct = "6517d46e3aeb2bb27d650de3"
+      activationDetails.activationType = "Free"
+      activationDetails.activationStatus = "Active"
+      activationDetails.activationProductPrice = 0
+    }else if(dates[0] == date2){
+      activationDetails.activationDate = dates[0];
+      activationDetails.activationProduct = "6517d48d3aeb2bb27d650de5"
+
+      if(contest?.contestId?.entryFee > 0){
+        activationDetails.activationType = "Paid"
+        activationDetails.activationProductPrice = contest?.contestId?.entryFee
+      } else{
+        activationDetails.activationType = "Free"
+        activationDetails.activationProductPrice = 0
+      }
+      activationDetails.activationStatus = "Active"
+      
+    }else if(dates[0] == date3){
+      activationDetails.activationDate = dates[0];
+      activationDetails.activationProduct = "65449ee06932ba3a403a681a"
+      activationDetails.activationType = "Free"
+      activationDetails.activationStatus = "Active"
+      activationDetails.activationProductPrice = 0
+
+    }else if(dates[0] == date4){
+      activationDetails.activationDate = dates[0];
+      activationDetails.activationProduct = "6517d40e3aeb2bb27d650de1"
+
+      if(marginx?.contestId?.entryFee > 0){
+        activationDetails.activationType = "Paid"
+        activationDetails.activationProductPrice = contest?.contestId?.entryFee
+      } else{
+        activationDetails.activationType = "Free"
+        activationDetails.activationProductPrice = 0
+      }
+      activationDetails.activationStatus = "Active"
+
+    }else if(dates[0] == date5){
+      activationDetails.activationDate = dates[0];
+      activationDetails.activationProduct = "6517d4623aeb2bb27d650de2"
+
+      if(contest?.contestId?.entryFee > 0){
+        activationDetails.activationType = "Paid"
+        activationDetails.activationProductPrice = contest?.contestId?.entryFee
+      } else{
+        activationDetails.activationType = "Free"
+        activationDetails.activationProductPrice = 0
+      }
+      activationDetails.activationStatus = "Active"
+
+    }else if(dates[0] == date6){
+      activationDetails.activationDate = dates[0];
+      activationDetails.activationProduct = "6517d3803aeb2bb27d650de0"
+
+      if(contest?.contestId?.entryFee > 0){
+        activationDetails.activationType = "Paid"
+        activationDetails.activationProductPrice = contest?.contestId?.entryFee
+      } else{
+        activationDetails.activationType = "Free"
+        activationDetails.activationProductPrice = 0
+      }
+      activationDetails.activationStatus = "Active"
+
+    }
+
+    console.log(smallestDate, count);
+    elem.activationDate = smallestDate;
+    // await elem.save({validationBeforeSave: false});
+  }
+
+  res.send("ok")
+})
 
 router.get('/updatecreationprocess', async(req,res) =>{
   const user = await UserDetail.find({creationProcess: "Auto SignUp"});

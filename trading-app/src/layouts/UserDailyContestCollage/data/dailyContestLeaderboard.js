@@ -20,7 +20,7 @@ import MDTypography from "../../../components/MDTypography";
 import AMargin from '../../../assets/images/amargin.png'
 import DefaultProfilePic from "../../../assets/images/default-profile.png";
 
-import logo from '../../../assets/images/logo1.png'
+import logo from '../../../assets/images/logo1.jpeg'
 import Profit from '../../../assets/images/profit.png'
 import Tcost from '../../../assets/images/tcost.png'
 import TwitterIcon from '@mui/icons-material/Twitter';
