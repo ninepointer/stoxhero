@@ -131,7 +131,7 @@ function Index() {
   useEffect(() => {
     axios.get(`${baseUrl}api/v1/portfolio/dailycontestportfolio`, {withCredentials: true})
       .then((res) => {
-        // console.log("Contest Portfolios :", res?.data?.data)
+        // console.log("TestZone Portfolios :", res?.data?.data)
         setPortfolios(res?.data?.data);
       }).catch((err) => {
         return new Error(err)
@@ -300,7 +300,7 @@ function Index() {
       openErrorSB("Error", data.error)
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
     } else if(data.status == 'success') {
-      openSuccessSB("Contest Edited", "Edited Successfully")
+      openSuccessSB("TestZone Edited", "Edited Successfully")
       setTimeout(() => { setSaving(false); setEditing(false) }, 500)
       console.log("entry succesfull");
     }else{
@@ -385,7 +385,7 @@ function Index() {
           <MDBox pl={2} pr={2} mt={4}>
             <MDBox display="flex" justifyContent="space-between" alignItems="center">
               <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
-                Fill Contest Details
+                Fill TestZone Details
               </MDTypography>
               {contestFor === 'College' && <MDTypography variant="caption" fontWeight="bold" color="text">
                 Link: {Url}collegecontest/{contest?.contestName?.replace(/\s/g, '%20')}/{formattedDate}
@@ -398,7 +398,7 @@ function Index() {
                   <TextField
                     disabled={((isSubmitted || contest) && (!editing || saving))}
                     id="outlined-required"
-                    label='Contest Name *'
+                    label='TestZone Name *'
                     name='contestName'
                     fullWidth
                     defaultValue={editing ? formState?.contestName : contest?.contestName}
@@ -416,7 +416,7 @@ function Index() {
                     <DemoContainer components={['MobileDateTimePicker']}>
                       <DemoItem>
                         <MobileDateTimePicker
-                          label="Contest Live Time"
+                          label="TestZone Live Time"
                           disabled={((isSubmitted || contest) && (!editing || saving))}
                           value={formState?.contestLiveTime || dayjs(dailyContest?.contestLiveTime)}
                           onChange={(newValue) => {
@@ -437,7 +437,7 @@ function Index() {
                     <DemoContainer components={['MobileDateTimePicker']}>
                       <DemoItem>
                         <MobileDateTimePicker
-                          label="Contest Start Time"
+                          label="TestZone Start Time"
                           disabled={((isSubmitted || contest) && (!editing || saving))}
                           value={formState?.contestStartTime || dayjs(dailyContest?.contestStartTime)}
                           onChange={(newValue) => {
@@ -458,7 +458,7 @@ function Index() {
                     <DemoContainer components={['MobileDateTimePicker']}>
                       <DemoItem>
                         <MobileDateTimePicker
-                          label="Contest End Time"
+                          label="TestZone End Time"
                           disabled={((isSubmitted || contest) && (!editing || saving))}
                           value={formState?.contestEndTime || dayjs(dailyContest?.contestEndTime)}
                           onChange={(newValue) => {
@@ -476,7 +476,7 @@ function Index() {
 
                 <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width:'100%' }}>
-                    <InputLabel id="demo-multiple-name-label">Contest For</InputLabel>
+                    <InputLabel id="demo-multiple-name-label">TestZone For</InputLabel>
                     <Select
                       labelId="demo-multiple-name-label"
                       id="demo-multiple-name"
@@ -491,7 +491,7 @@ function Index() {
                           contestFor: e.target.value
                         }))
                       }}
-                      input={<OutlinedInput label="Contest For" />}
+                      input={<OutlinedInput label="TestZone For" />}
                       sx={{ minHeight: 45 }}
                       MenuProps={MenuProps}
                     >
@@ -565,7 +565,7 @@ function Index() {
 
                 {/* <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width:'100%' }}>
-                    <InputLabel id="demo-multiple-name-label">Contest Type</InputLabel>
+                    <InputLabel id="demo-multiple-name-label">TestZone Type</InputLabel>
                     <Select
                       labelId="demo-multiple-name-label"
                       id="demo-multiple-name"
@@ -580,7 +580,7 @@ function Index() {
                           contestType: e.target.value
                         }))
                       }}
-                      input={<OutlinedInput label="Contest Type" />}
+                      input={<OutlinedInput label="TestZone Type" />}
                       sx={{ minHeight: 45 }}
                       MenuProps={MenuProps}
                     >
@@ -701,7 +701,7 @@ function Index() {
                       sx={{ minHeight: 43 }}
                     >
                       <MenuItem value="Daily">Daily</MenuItem>
-                      <MenuItem value="Contest End">Contest End</MenuItem>
+                      <MenuItem value="TestZone End">TestZone End</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -785,7 +785,7 @@ function Index() {
 
                 <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Contest Status *</InputLabel>
+                    <InputLabel id="demo-simple-select-autowidth-label">TestZone Status *</InputLabel>
                     <Select
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
@@ -798,7 +798,7 @@ function Index() {
                           contestStatus: e.target.value
                         }))
                       }}
-                      label="Contest Status"
+                      label="TestZone Status"
                       sx={{ minHeight: 43 }}
                     >
                       <MenuItem value="Active">Active</MenuItem>
@@ -824,7 +824,7 @@ function Index() {
                           currentLiveStatus: e.target.value
                         }))
                       }}
-                      label="Contest Status"
+                      label="TestZone Status"
                       sx={{ minHeight: 43 }}
                     >
                       <MenuItem value="Mock">Mock</MenuItem>
@@ -835,7 +835,7 @@ function Index() {
 
                 <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Contest Expiry *</InputLabel>
+                    <InputLabel id="demo-simple-select-autowidth-label">TestZone Expiry *</InputLabel>
                     <Select
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
@@ -848,7 +848,7 @@ function Index() {
                           contestExpiry: e.target.value
                         }))
                       }}
-                      label="Contest Expiry"
+                      label="TestZone Expiry"
                       sx={{ minHeight: 43 }}
                     >
                       <MenuItem value="Day">Day</MenuItem>
@@ -887,7 +887,7 @@ function Index() {
 
                 {/* <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Is Contest on Nifty ? *</InputLabel>
+                    <InputLabel id="demo-simple-select-autowidth-label">Is TestZone on Nifty ? *</InputLabel>
                     <Select
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
@@ -911,7 +911,7 @@ function Index() {
 
                 <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Is Contest on BankNifty ? *</InputLabel>
+                    <InputLabel id="demo-simple-select-autowidth-label">Is TestZone on BankNifty ? *</InputLabel>
                     <Select
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
@@ -935,7 +935,7 @@ function Index() {
 
                 <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Is Contest on FinNifty ? *</InputLabel>
+                    <InputLabel id="demo-simple-select-autowidth-label">Is TestZone on FinNifty ? *</InputLabel>
                     <Select
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
@@ -959,7 +959,7 @@ function Index() {
 
                 {/* <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Is Contest on All Index ? *</InputLabel>
+                    <InputLabel id="demo-simple-select-autowidth-label">Is TestZone on All Index ? *</InputLabel>
                     <Select
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"

@@ -126,7 +126,7 @@ export default function LabTabs({socket}) {
                     <Grid container xs={12} md={12} lg={12}>
 
                         <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Position(Trader)</MDTypography>
+                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>TestZone Position(Trader)</MDTypography>
                         </Grid>
 
                         <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
@@ -136,11 +136,11 @@ export default function LabTabs({socket}) {
                         </Grid>
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Active Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Active TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Completed Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Completed TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
 
                     </Grid>
@@ -162,7 +162,7 @@ export default function LabTabs({socket}) {
                     <Grid container xs={12} md={12} lg={12}>
 
                         <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Report</MDTypography>
+                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>TestZone Report</MDTypography>
                         </Grid>
 
                         <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
@@ -172,11 +172,11 @@ export default function LabTabs({socket}) {
                         </Grid>
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Free Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Free TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
                         </Grid>
 
                     </Grid>
@@ -198,7 +198,7 @@ export default function LabTabs({socket}) {
                       <Grid container xs={12} md={12} lg={12}>
 
                           <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
-                              <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Report Live</MDTypography>
+                              <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>TestZone Report Live</MDTypography>
                           </Grid>
 
                           <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
@@ -208,11 +208,11 @@ export default function LabTabs({socket}) {
                           </Grid>
 
                           <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                              <MDTypography fontSize={9} style={{ color: "white" }}>Total Free Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                              <MDTypography fontSize={9} style={{ color: "white" }}>Total Free TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                           </Grid>
 
                           <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                              <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
+                              <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
                           </Grid>
 
                       </Grid>
@@ -234,21 +234,21 @@ export default function LabTabs({socket}) {
                     <Grid container xs={12} md={12} lg={12}>
 
                         <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Daily Contest</MDTypography>
+                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Daily TestZone</MDTypography>
                         </Grid>
 
                         <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
                             <MDBox display="flex" flexDirection="column">
-                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Create Daily Contest here!</MDTypography>
+                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Create Daily TestZone here!</MDTypography>
                             </MDBox>
                         </Grid>
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Free Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Free TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
                         </Grid>
 
                     </Grid>
@@ -270,21 +270,21 @@ export default function LabTabs({socket}) {
                     <Grid container xs={12} md={12} lg={12}>
 
                         <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Template</MDTypography>
+                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>TestZone Template</MDTypography>
                         </Grid>
 
                         <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
                             <MDBox display="flex" flexDirection="column">
-                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Create Daily Contest here!</MDTypography>
+                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Create Daily TestZone here!</MDTypography>
                             </MDBox>
                         </Grid>
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Free Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Free TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
                         </Grid>
 
                     </Grid>
@@ -306,21 +306,21 @@ export default function LabTabs({socket}) {
                     <Grid container xs={12} md={12} lg={12}>
 
                         <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Masters</MDTypography>
+                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>TestZone Masters</MDTypography>
                         </Grid>
 
                         <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
                             <MDBox display="flex" flexDirection="column">
-                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Create Daily Contest here!</MDTypography>
+                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Create Daily TestZone here!</MDTypography>
                             </MDBox>
                         </Grid>
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Free Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Free TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
                         </Grid>
 
                     </Grid>
@@ -342,21 +342,21 @@ export default function LabTabs({socket}) {
                     <Grid container xs={12} md={12} lg={12}>
 
                         <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Analytics</MDTypography>
+                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>TestZone Analytics</MDTypography>
                         </Grid>
 
                         <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
                             <MDBox display="flex" flexDirection="column">
-                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check Contest Analytics here!</MDTypography>
+                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check TestZone Analytics here!</MDTypography>
                             </MDBox>
                         </Grid>
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Free Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Free TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
 
                         <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid TestZones: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
                         </Grid>
 
                     </Grid>

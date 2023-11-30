@@ -76,7 +76,7 @@ import MessagePopUp from "./MessagePopup";
 import AdminLogin from "./layouts/authentication/sign-in/adminLogin";
 import BlogCard from "./layouts/HomePage/pages/BlogCards";
 import BlogData from "./layouts/HomePage/pages/BlogData";
-
+import Calculator from "./layouts/HomePage/pages/Calculator";
 
 const TRACKING_ID = "UA-264098426-2"
 ReactGA.initialize(TRACKING_ID);
@@ -357,6 +357,7 @@ export default function App() {
           <Route path='/careers/:name/jobdescription' element={<JobDescription/>}/>
           <Route path='/careers/careerform/:name' element={<JobApply/>}/>
           <Route path='/blogs' element={<BlogCard/>}/>
+          <Route path='/calculators' element={<Calculator/>}/>
           <Route path='/blogs/:id' element={<BlogData/>}/>
           <Route path='/collegecontest/:id/:date' element={<ContestRegistration/>}/>
           <Route path='/featuredcontest/:id/:date' element={<FeaturedContestRegistration/>}/>
