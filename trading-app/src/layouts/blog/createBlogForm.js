@@ -64,7 +64,7 @@ function Index() {
         // If all files have been processed, update the state with the array of preview URLs
         if (previewUrls.length === files.length) {
           setImagesPreviewUrl(previewUrls);
-          console.log("Title Preview URLs:", previewUrls);
+          // console.log("Title Preview URLs:", previewUrls);
         }
       };
       reader.readAsDataURL(file);
@@ -74,12 +74,12 @@ function Index() {
   const handleBlogThumbnailImage = (event) => {
     const file = event.target.files[0];
     setTitleImage(event.target.files);
-    console.log("Title File:",file)
+    // console.log("Title File:",file)
     // Create a FileReader instance
     const reader = new FileReader();
     reader.onload = () => {
       setTitlePreviewUrl(reader.result);
-      console.log("Title Preview Url:",reader.result)
+      // console.log("Title Preview Url:",reader.result)
     };
     reader.readAsDataURL(file);
   };
@@ -146,11 +146,11 @@ function Index() {
       }
   
       // Append each file in the file array to the "files" array
-      // if(file){
-      //   for (let i = 0; i < file.length; i++) {
-      //     formData.append("files", file[i]);
-      //   }
-      // }
+      if(file){
+        for (let i = 0; i < file.length; i++) {
+          formData.append("files", file[i]);
+        }
+      }
       formData.append('blogTitle', title);
       for(let elem in formstate){
         formData.append(`${elem}`, formstate[elem]);
@@ -180,7 +180,7 @@ function Index() {
     }
   };
 
-  // console.log("bool", (imagesPreviewUrl && (!imageData || editing)), imagesPreviewUrl , imageData , editing)
+  console.log("bool", imageData)
   const removeImage = async (id, docId) => {
     try {
       const res = await fetch(`${apiUrl}blogs/removeImage/${id}/${docId}`, {
@@ -307,7 +307,7 @@ function Index() {
   )
 
 
-  // console.log("file", file)
+  // console.log("formState", formstate)
   return (
     <>
       <MDBox pl={2} pr={2} mt={4} mb={2}>
@@ -325,7 +325,7 @@ function Index() {
                 id="outlined-required"
                 label='Blog Title *'
                 fullWidth
-                value={title || prevData?.blogTitle}
+                value={title}
                 onChange={(e) => { setTitle(e.target.value) }}
               />
             </Grid>
@@ -336,7 +336,7 @@ function Index() {
                 id="outlined-required"
                 label='Meta Title *'
                 fullWidth
-                value={formstate?.metaTitle || prevData?.metaTitle}
+                value={formstate?.metaTitle}
                 onChange={(e) => {
                   setFormState(prevState => ({
                     ...prevState,
@@ -352,7 +352,7 @@ function Index() {
                 id="outlined-required"
                 label='Meta Keywords *'
                 fullWidth
-                value={formstate?.metaKeywords || prevData?.metaKeywords}
+                value={formstate?.metaKeywords}
                 onChange={(e) => {
                   setFormState(prevState => ({
                     ...prevState,
@@ -369,7 +369,7 @@ function Index() {
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
                       name='category'
-                      value={formstate?.category || prevData?.category}
+                      value={formstate?.category}
                       disabled={((imageData || prevData) && (!editing))}
                       onChange={(e) => {
                         setFormState(prevState => ({
@@ -425,7 +425,7 @@ function Index() {
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
                       name='status'
-                      value={formstate?.status || prevData?.status}
+                      value={formstate?.status}
                       disabled={((imageData || prevData) && (!editing))}
                       onChange={(e) => {
                         setFormState(prevState => ({

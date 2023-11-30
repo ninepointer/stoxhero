@@ -80,7 +80,7 @@ exports.editBlog = (async (req, res, next) => {
         const uploadedFiles = req.files;
         let otherImages; let titleImage;
 
-        // console.log(uploadedFiles, update);
+        // console.log("uploadedFiles", uploadedFiles);
         const blog = await Blog.findOne({_id: new ObjectId(id)});
         // if(title){
         //     blog.blogTitle = title;
@@ -94,6 +94,9 @@ exports.editBlog = (async (req, res, next) => {
             titleImage = await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, update.blogTitle, true));
             update.thumbnailImage = titleImage[0];
         }
+        if(update.blogTitle){
+            update.slug = update.blogTitle.replace(/ /g, "-").toLowerCase();
+        }
 
         update.lastModifiedBy = req?.user?._id;
         update.lastModifiedOn = new Date();
@@ -103,7 +106,7 @@ exports.editBlog = (async (req, res, next) => {
         const blogUpdate = await Blog.findOneAndUpdate({_id: new ObjectId(id)}, update, {new: true})
 
         // console.log("blog", blogUpdate , update)
-        res.status(200).json({status: "success", data: blog, message: "Blog edited successfully"});
+        res.status(200).json({status: "success", data: blogUpdate, message: "Blog edited successfully"});
     } catch (error) {
         console.error(error);
         res.status(500).send({status: "error", err: error, message: "Error uploading files."});
@@ -269,11 +272,8 @@ exports.getAllBlogs = async (req, res) => {
 
 exports.getBlogByTitle = async (req, res) => {
     const { title } = req.params;
-
-    console.log("title", title)
-    const newTitle = title.replace("%20", " ")
     try {
-        const blogs = await Blog.findOne({blogTitle: newTitle})
+        const blogs = await Blog.findOne({slug: title})
         .select('-reader')
         res.status(201).json({
             status: 'success',
