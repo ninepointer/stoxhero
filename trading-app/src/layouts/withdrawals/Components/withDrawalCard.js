@@ -65,6 +65,8 @@ const WithDrawalCard = ({amount, withdrawalStatus, withdrawalRequestDate, user, 
         setAction(!action);
     }
   }  
+
+  console.log(userWallet?.transactions.reduce((acc,num)=> { if(num?.transactionType=='Cash') return acc+num.amount}, 0));
   return (
     <MDBox style={{ marginBottom:'12px', padding:'12px', borderRadius:'16px', boxShadow:"0px 4px 6px -2px rgba(0, 0, 0, 0.5)"}}>
     <MDBox style={{display:'flex', justifyContent:'space-between'}}>

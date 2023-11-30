@@ -106,7 +106,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
             <Grid container spacing={2} bgColor="dark">
               {upcomingContest?.map((e)=>{
                 let contestColor = (e?.featured === true && e?.entryFee != 0) ? 'success' : (e?.featured === true && e?.entryFee === 0) ? 'warning' : (e?.featured === false && e?.entryFee != 0) ? 'text' : 'light';
-                console.log(contestColor,e?.featured,e?.entryFee, e?.featured === true && e?.entryFee != 0,e?.featured === true && e?.entryFee === 0 )
+                // console.log(contestColor,e?.featured,e?.entryFee, e?.featured === true && e?.entryFee != 0,e?.featured === true && e?.entryFee === 0 )
                     return (
                       
                       <Grid key={e._id} item xs={12} md={12} lg={12} bgColor="dark">

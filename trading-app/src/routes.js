@@ -244,7 +244,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Contest Dashboard",
+    name: "TestZone Dashboard",
     key: "contestdashboard",
     icon: <EmojiEventsIcon/>,
     route: "/contestdashboard",
@@ -284,7 +284,7 @@ const routes = [
   // },
   {
     type: "collapse",
-    name: "Contest Scoreboard",
+    name: "TestZone Scoreboard",
     key: "contestscoreboard",
     icon: <EmojiEventsIcon/>,
     route: "/contestscoreboard",

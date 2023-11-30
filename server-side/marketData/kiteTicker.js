@@ -188,7 +188,7 @@ const getTicksForUserPosition = async (socket, id) => {
         if (isRedisConnected) {
           userId = await client.get(socket.id);
         }
-        // console.log("1st", userId, id)
+        console.log("1st", userId, id)
         if (isRedisConnected && await client.exists(`${(id)?.toString()}allInstrument`)) {
           let instruments = await client.SMEMBERS(`${(id)?.toString()}allInstrument`)
           // instrumentTokenArr = new Set(instruments)
@@ -219,7 +219,7 @@ const getTicksForUserPosition = async (socket, id) => {
             }
 
             const newredisClient = await client.SADD(`${(user._id)?.toString()}allInstrument`, JSON.stringify(obj));
-            // console.log("2nd", newredisClient, user._id)
+            console.log("2nd", newredisClient, user._id)
           }
           instrumentTokenArr = new Set(instrumentTokenArr)
         }
