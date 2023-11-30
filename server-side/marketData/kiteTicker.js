@@ -207,7 +207,7 @@ const getTicksForUserPosition = async (socket, id) => {
             .populate('allInstruments', 'instrumentToken exchangeInstrumentToken')
             .select('allInstruments')
 
-            // console.log(user.allInstruments);
+            console.log("in kite else..............................");
           userId = user._id;
           instrumentTokenArr = [];
           for (let i = 0; i < user.allInstruments.length; i++) {

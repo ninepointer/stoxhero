@@ -114,16 +114,16 @@ let count = 0;
         }
       })
     .select('trade_time marginxId')
-  //   let battle = await BattleMock.findOne({trader: elem?._id, status: "COMPLETE",  trade_time:{$gt: new Date("2020-01-01")}})
-  //   .populate({
-  //     path: 'battleId',
-  //     select: 'battleTemplate',
-  //     populate: {
-  //       path: 'battleTemplate',
-  //       select: 'entryFee' // Add the fields you want to select from marginXTemplate
-  //     }
-  //   })
-  // .select('trade_time battleId')
+    let battle = await BattleMock.findOne({trader: elem?._id, status: "COMPLETE",  trade_time:{$gt: new Date("2020-01-01")}})
+    .populate({
+      path: 'battleId',
+      select: 'battleTemplate',
+      populate: {
+        path: 'battleTemplate',
+        select: 'entryFee' // Add the fields you want to select from marginXTemplate
+      }
+    })
+  .select('trade_time battleId')
     // .select('trade_time')
     let tenx = await TenXTrade.findOne({trader: elem?._id, status: "COMPLETE",  trade_time:{$gt: new Date("2020-01-01")}})
     .select('trade_time')
@@ -132,8 +132,31 @@ let count = 0;
       contest,
       paper,
       marginx,
-      // battle,
+      battle,
       tenx, elem.subscription[0] )
+
+      // {
+      //   _id: new ObjectId("64f5579f745d5ed28c190d6f"),
+      //   trade_time: 2023-09-04T09:35:51.000Z,
+      //   marginxId: {
+      //     _id: new ObjectId("64f4b2bb084074068136a237"),        
+      //     marginXTemplate: { _id: new ObjectId("64f4b0b4827e600fb13dbc53"), entryFee: 25 }
+      //   }
+      // }
+
+      // {
+      //   _id: new ObjectId("64a4f1f21a976108be85f673"),
+      //   trade_time: 2023-07-05T10:00:41.000Z,
+      //   contestId: { _id: new ObjectId("64a308db16646a82b5e9cc54"), entryFee: 0 }
+
+      // {
+      //   _id: new ObjectId("6503f316432fb9acd004c0d1"),
+      //   trade_time: 2023-09-15T11:30:53.000Z,
+      //   battleId: {
+      //     _id: new ObjectId("64fff7a91a8d6021cd5de0eb"),        
+      //     battleTemplate: { _id: new ObjectId("64fff59caa44f8297dc5be47"), entryFee: 250 }
+      //   }
+      // }
     let date1 = new Date(intern?.trade_time);
     let date2 = new Date(contest?.trade_time);
     let date3 = new Date(paper?.trade_time);

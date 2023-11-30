@@ -101,7 +101,7 @@ const battleUserSchema = new Schema({
     },
     battleId: {
         type: Schema.Types.ObjectId,
-        ref: 'battles',
+        ref: 'battle',
     }
 
 })
