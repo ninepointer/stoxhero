@@ -584,6 +584,9 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
       }
       intern.myReferrals = refCount;
       intern.myAttendance = attendance;
+      intern.tradingdays = tradingdays;
+      intern.workingDays = workingDays;
+      
         return res.json({status: 'success', data: intern});    
     }
     // console.log("Internship Details:",internships, new Date(), internships[internships.length-1]?.batchStartDate, internships[internships.length-1]?.batchEndDate)
