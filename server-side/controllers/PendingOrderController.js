@@ -199,7 +199,44 @@ exports.myTodaysPendingTrade = async (req, res, next) => {
         $limit: limit
       }
     ])
-    res.status(200).json({ status: 'success', data: myTodaysTrade, count: count ? count : 0 });
+
+    const totalQuantity = await PendingOrder.aggregate([
+      {
+        $match: {
+          product_type: new ObjectId(
+            product_type
+          ),
+          createdBy: new ObjectId(
+            userId
+          ),
+          createdOn: {
+            $gte: today,
+          },
+          status: "Pending",
+          sub_product_id: new ObjectId(id)
+        },
+      },
+      {
+        $group: {
+          _id: {
+            type: "$type"
+          },
+          totalQuantity: {
+            $sum: "$Quantity", // Assuming "amount" is the field you want to sum
+          },
+        },
+      },
+      {
+        $project: {
+          type: "$_id.type",
+          quantity: "$totalQuantity"
+        }
+      }
+    ])
+
+    res.status(200).json({ status: 'success', data: myTodaysTrade, count: count || 0 });
+
+    // res.status(200).json({ status: 'success', data: myTodaysTrade, count: count || 0, quantity: totalQuantity[0] || {} });
   } catch (e) {
     console.log(e);
     res.status(500).json({ status: 'error', message: 'Something went wrong' });

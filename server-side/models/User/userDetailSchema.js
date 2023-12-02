@@ -379,7 +379,7 @@ const userDetailSchema = new mongoose.Schema({
         brand: String,
         model: String,
         platform: String,
-        os_version: String,
+        osVersion: String,
         createdAt: {
             type: Date,
             default: ()=>new Date()
@@ -393,7 +393,7 @@ const userDetailSchema = new mongoose.Schema({
 
 //Adding the ninepointer id before saving
 userDetailSchema.pre('save', async function(next){
-    if (this.isModified('activationDate')) {
+    if (this.isModified('activationDetails')) {
         // Skip the pre-save logic for activationDate updates
         return next();
     }

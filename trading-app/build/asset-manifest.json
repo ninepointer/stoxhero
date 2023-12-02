@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.06af0c21.css",
-    "main.js": "/static/js/main.82dd7a36.js",
+    "main.js": "/static/js/main.799df8de.js",
     "static/js/703.0d407a6f.chunk.js": "/static/js/703.0d407a6f.chunk.js",
     "static/js/513.75e0454c.chunk.js": "/static/js/513.75e0454c.chunk.js",
     "static/media/bgBanner1.jpg": "/static/media/bgBanner1.c9ad6246a3bebeb04615.jpg",
@@ -200,15 +200,15 @@
     "static/media/logo-asana.svg": "/static/media/logo-asana.5f1f8c632c977244be2c9735c57de5e3.svg",
     "static/media/pantera.svg": "/static/media/pantera.0034252c625131661a555b5f63ae4b3b.svg",
     "static/media/mew.svg": "/static/media/mew.b0269a00f9248097aadb55069a898680.svg",
-    "static/media/slick.woff": "/static/media/slick.295183786cd8a1389865.woff",
     "index.html": "/index.html",
+    "static/media/slick.woff": "/static/media/slick.295183786cd8a1389865.woff",
     "main.06af0c21.css.map": "/static/css/main.06af0c21.css.map",
-    "main.82dd7a36.js.map": "/static/js/main.82dd7a36.js.map",
+    "main.799df8de.js.map": "/static/js/main.799df8de.js.map",
     "703.0d407a6f.chunk.js.map": "/static/js/703.0d407a6f.chunk.js.map",
     "513.75e0454c.chunk.js.map": "/static/js/513.75e0454c.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.06af0c21.css",
-    "static/js/main.82dd7a36.js"
+    "static/js/main.799df8de.js"
   ]
 }
