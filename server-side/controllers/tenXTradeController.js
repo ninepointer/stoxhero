@@ -10,6 +10,7 @@ const Wallet = require("../models/UserWallet/userWalletSchema");
 const uuid = require('uuid');
 const { ObjectId } = require("mongodb");
 const sendMail = require('../utils/emailService');
+const {sendMultiNotifications} = require('../utils/fcmService');
 const moment = require('moment');
 const mongoose = require('mongoose');
 const {createUserNotification} = require('../controllers/notification/notificationController');
@@ -1018,6 +1019,12 @@ exports.autoExpireTenXSubscription = async () => {
                   createdBy:'63ecbc570302e7cf0153370c',
                   lastModifiedBy:'63ecbc570302e7cf0153370c'  
                 }, session);
+                if(user?.fcmTokens?.length>0){
+                  await sendMultiNotifications('TenX Payout Credited', 
+                    `₹${payoutAmount?.toFixed(2)} credited for your profit in TenX plan ${subscription[i]?.plan_name}`,
+                    user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                    )  
+                }
 
               }
               await session.commitTransaction();

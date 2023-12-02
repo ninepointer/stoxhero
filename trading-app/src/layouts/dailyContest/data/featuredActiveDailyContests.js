@@ -191,7 +191,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
             {!isLoading && count !== 0 &&
             <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
               <MDButton variant='outlined' color='warning' disabled={(skip + limitSetting) / limitSetting === 1 ? true : false} size="small" onClick={backHandler}>Back</MDButton>
-              <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Contests: {!count ? 0 : count} | Page {(skip + limitSetting) / limitSetting} of {!count ? 1 : Math.ceil(count / limitSetting)}</MDTypography>
+              <MDTypography color="light" fontSize={15} fontWeight='bold'>Total TestZones: {!count ? 0 : count} | Page {(skip + limitSetting) / limitSetting} of {!count ? 1 : Math.ceil(count / limitSetting)}</MDTypography>
               <MDButton variant='outlined' color='warning' disabled={Math.ceil(count / limitSetting) === (skip + limitSetting) / limitSetting ? true : !count ? true : false} size="small" onClick={nextHandler}>Next</MDButton>
             </MDBox>
             }

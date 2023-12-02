@@ -9,6 +9,7 @@ const {createUserNotification} = require('../notification/notificationController
 const Setting = require("../../models/settings/setting")
 const uuid = require("uuid");
 const emailService = require("../../utils/emailService");
+const {sendMultiNotifications} = require("../../utils/fcmService");
 const Product = require('../../models/Product/product');
 const {saveSuccessfulCouponUse} = require('../coupon/couponController');
 const Coupon = require('../../models/coupon/coupon');
@@ -745,6 +746,12 @@ exports.creditAmountToWallet = async () => {
                         createdBy:'63ecbc570302e7cf0153370c',
                         lastModifiedBy:'63ecbc570302e7cf0153370c'  
                       });
+                      if(user?.fcmTokens?.length>0){
+                        await sendMultiNotifications('MarginX Payout Credited', 
+                          `₹${paymentAmountAdjusted?.toFixed(2)} credited in your wallet for your MarginX return`,
+                          user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                          )  
+                      }  
                     marginxs[j].participants[i].payout = payoutAmountAdjusted?.toFixed(2);
                     marginxs[j].participants[i].tdsAmount = payoutAmount>fee?((payoutAmount- fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
                     await marginxs[j].save();
@@ -1201,6 +1208,12 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
                 createdBy:'63ecbc570302e7cf0153370c',
                 lastModifiedBy:'63ecbc570302e7cf0153370c'  
               });
+              if(user?.fcmTokens?.length>0){
+                await sendMultiNotifications('StoxHero Cashback', 
+                  `${cashbackAmount?.toFixed(2)}HeroCash credited as bonus in your wallet.`,
+                  user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                  )  
+              }
         }
         await createUserNotification({
             title:'MarginX Fee Deducted',

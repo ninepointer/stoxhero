@@ -1,5 +1,6 @@
 const User = require('../models/User/userDetailSchema');
 const sendMail = require('../utils/emailService');
+const {sendMultiNotifications} = require('../utils/fcmService');
 const Settings = require('../models/settings/setting');
 
 const multer = require('multer');
@@ -207,6 +208,12 @@ exports.approveKYC = async(req,res,next) => {
         createdBy:'63ecbc570302e7cf0153370c',
         lastModifiedBy:'63ecbc570302e7cf0153370c'  
       });
+      if(user?.fcmTokens?.length>0){
+        await sendMultiNotifications('KYC Approved', 
+          `Your KYC Request was approved. You are now eligible for withdrawals.`,
+          user?.fcmTokens?.map(item=>item.token)
+          )  
+      }
   
       res.status(200).json({status:'success', message:'KYC Approved'});
     }catch(e){
@@ -322,6 +329,12 @@ exports.rejectKYC = async(req,res,next) => {
       createdBy:'63ecbc570302e7cf0153370c',
       lastModifiedBy:'63ecbc570302e7cf0153370c'  
     });
+    if(user?.fcmTokens?.length>0){
+      await sendMultiNotifications('KYC Rejected', 
+        `Reason-${rejectionReason}`,
+        user?.fcmTokens?.map(item=>item.token)
+        )  
+    }
 
 
     res.status(200).json({status:'success', message:'KYC Rejected'});

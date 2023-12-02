@@ -26,11 +26,11 @@ exports.sendMultiNotifications = async (req,res, next) => {
 exports.sendNotificationToSingleUser = async(req,res,next) => {
     const{id} = req.params;
     const{title, body, token, mediaUrl, actions}  = req.body;
-    const user = await User.findById(id).select('deviceTokens');
+    const user = await User.findById(id).select('fcmTokens');
     if(!user){
         return res.status(404).json({status:'error', message:'User not found'});
     }
-    const userTokens = User?.deviceTokens;
+    const userTokens = User?.fcmTokens;
     if (!userTokens){
         return res.status(404).json({status:'error', message:'User token not found'});
     }

@@ -89,16 +89,21 @@ router.post('/verifyphonelogin', async(req,res,next)=>{
     const {mobile, mobile_otp, fcmTokenData} = req.body;
 
     try {
+        console.log("fcm data", fcmTokenData);
         const user = await UserDetail.findOne({mobile});
         if(!user){
             return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'});
         }
         if(process.env.PROD!='true' && mobile == '7737384957' && mobile_otp== '987654'){
           const token = await user.generateAuthToken();
-        if(fcmTokenData){
+        console.log(fcmTokenData?.token);    
+        if(fcmTokenData?.token){
+            console.log('inside if');
             const tokenExists = user?.fcmTokens?.some(token => token?.token === fcmTokenData.token);
         // If the token does not exist, add it to the fcmTokens array
+            console.log('token exists', tokenExists);
             if (!tokenExists) {
+                console.log('saving fcm token');
                 fcmTokenData.lastUsedAt = new Date();
                 user.fcmTokens.push(fcmTokenData);
                 await user.save({validateBeforeSave:false});
@@ -123,6 +128,22 @@ router.post('/verifyphonelogin', async(req,res,next)=>{
         }
 
         const token = await user.generateAuthToken();
+        console.log(fcmTokenData?.token);    
+        if(fcmTokenData?.token){
+            console.log('inside if');
+            const tokenExists = user?.fcmTokens?.some(token => token?.token === fcmTokenData.token);
+        // If the token does not exist, add it to the fcmTokens array
+            console.log('token exists', tokenExists);
+            if (!tokenExists) {
+                console.log('saving fcm token');
+                fcmTokenData.lastUsedAt = new Date();
+                user.fcmTokens.push(fcmTokenData);
+                await user.save({validateBeforeSave:false});
+                console.log('FCM token added successfully.');
+            } else {
+                console.log('FCM token already exists.');
+            }
+        }    
 
         res.cookie("jwtoken", token, {
             expires: new Date(Date.now() + 25892000000),
@@ -217,10 +238,11 @@ router.get("/logout", authentication, (req, res)=>{
 })
 router.post("/addfcmtoken", authentication, async (req, res)=>{
     const {fcmTokenData} = req.body;
+    console.log('fcm', fcmTokenData);
     try{
-        const user = await User.findById(req.user._id);
-        if(fcmTokenData){
-            const tokenExists = user?.fcmTokens?.some(token => token?.token === fcmTokenData.token);
+        const user = await UserDetail.findById(req.user._id);
+        if(fcmTokenData?.token){
+            const tokenExists = user?.fcmTokens?.some(token => token?.token === fcmTokenData?.token);
         // If the token does not exist, add it to the fcmTokens array
             if (!tokenExists) {
                 fcmTokenData.lastUsedAt = new Date();

@@ -20,6 +20,7 @@ const Coupon = require('../models/coupon/coupon');
 const {saveSuccessfulCouponUse} = require('./coupon/couponController');
 const {creditAffiliateAmount} = require('./affiliateProgramme/affiliateController');
 const AffiliateProgram = require('../models/affiliateProgram/affiliateProgram');
+const {sendMultiNotifications} = require('../utils/fcmService');
 
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
@@ -1834,7 +1835,7 @@ exports.creditAmountToWallet = async () => {
                       });
                     }
                     await wallet.save();
-                    const user = await User.findById(userId).select('first_name last_name email')
+                    const user = await User.findById(userId).select('first_name last_name email fcmTokens')
   
                     contest[j].participants[i].payout = payoutAmount?.toFixed(2);
                     contest[j].participants[i].npnl = pnlDetails[0]?.npnl;
@@ -1949,6 +1950,12 @@ exports.creditAmountToWallet = async () => {
                           createdBy:'63ecbc570302e7cf0153370c',
                           lastModifiedBy:'63ecbc570302e7cf0153370c'  
                         });
+                        if(user?.fcmTokens?.length>0){
+                          await sendMultiNotifications('TestZone Reward Credited', 
+                            `₹${payoutAmount?.toFixed(2)} credited to your wallet as your TestZone reward`,
+                            user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                            )  
+                        }
                     }
                 } else{
                   contest[j].participants[i].npnl = pnlDetails[0]?.npnl;
@@ -2112,7 +2119,7 @@ exports.creditAmountToWallet = async () => {
                   });
                 }
                 await wallet.save();
-                const user = await User.findById(userId).select('first_name last_name email')
+                const user = await User.findById(userId).select('first_name last_name email fcmTokens')
 
                 contest[j].participants[i].payout = payoutAmount?.toFixed(2);
                 contest[j].participants[i].npnl = pnlDetails[0]?.npnl;
@@ -2227,6 +2234,12 @@ exports.creditAmountToWallet = async () => {
                       createdBy:'63ecbc570302e7cf0153370c',
                       lastModifiedBy:'63ecbc570302e7cf0153370c'  
                     });
+                    if(user?.fcmTokens?.length>0){
+                      await sendMultiNotifications('TestZone Reward Credited', 
+                        `₹${payoutAmount?.toFixed(2)} credited to your wallet as your TestZone reward`,
+                        user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                        )  
+                    }
                 }
             } else{
               contest[j].participants[i].npnl = pnlDetails[0]?.npnl;

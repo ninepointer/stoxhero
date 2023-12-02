@@ -11,6 +11,7 @@ const Holiday = require("../models/TradingHolidays/tradingHolidays");
 const moment = require('moment');
 const { ObjectId } = require("mongodb");
 const sendMail = require('../utils/emailService');
+const {sendMultiNotifications} = require('../utils/fcmService');
 const {createUserNotification} = require('./notification/notificationController');
 const mongoose = require('mongoose');
 const Setting = require("../models/settings/setting")
@@ -1668,7 +1669,6 @@ exports.updateUserWallet = async () => {
                   transactionType: 'Cash'
                 }];
                 await wallet.save({ session });
-
                 users[i].payout = creditAmount.toFixed(2);
                 users[i].tradingdays = tradingdays;
                 users[i].attendance = attendance.toFixed(2);
@@ -1677,6 +1677,12 @@ exports.updateUserWallet = async () => {
                 users[i].npnl = pnl?.npnl?.toFixed(2);
                 users[i].noOfTrade = pnl?.noOfTrade;
 
+                if(user?.fcmTokens?.length>0){
+                  await sendMultiNotifications('Internship Payout Credited', 
+                    `₹${creditAmount?.toFixed(2)} credited to your wallet for your Internship profit as payout`,
+                    user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                    )  
+                }
               } else {
                 users[i].payout = 0;
                 users[i].tradingdays = tradingdays;
