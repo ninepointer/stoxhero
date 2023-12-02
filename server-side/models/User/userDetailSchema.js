@@ -373,7 +373,22 @@ const userDetailSchema = new mongoose.Schema({
     lastLoggedInDevice:{
         deviceType: String,
         deviceDetails: String
-    }
+    },
+    fcmTokens:[{
+        token: String,
+        brand: String,
+        model: String,
+        platform: String,
+        os_version: String,
+        createdAt: {
+            type: Date,
+            default: ()=>new Date()
+        },
+        lastUsedAt:{
+            type: Date,
+        },
+        tags: [{type: String}],
+    }]
 })
 
 //Adding the ninepointer id before saving

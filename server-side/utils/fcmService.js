@@ -1,10 +1,10 @@
-// const admin = require('firebase-admin');
+const admin = require('firebase-admin');
 
-// const serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT, 'base64').toString('ascii'));
+const serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT, 'base64').toString('ascii'));
 
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount),
-// });
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 
 // exports.sendIndividualNotification = async (title, body, token) => {
@@ -54,6 +54,7 @@ exports.sendIndividualNotification = async (title, body, token, mediaUrl = null,
       message.data = {};
       if (mediaUrl) {
           message.data.mediaUrl = mediaUrl;
+          message.notification.image = mediaUrl;
       }
       if (actions) {
           message.data.actions = JSON.stringify(actions);
@@ -83,6 +84,7 @@ exports.sendMultiNotifications = async (title, body, tokens, mediaUrl = null, ac
       message.data = {};
       if (mediaUrl) {
           message.data.mediaUrl = mediaUrl;
+          message.data.image = mediaUrl;
       }
       if (actions) {
           message.data.actions = JSON.stringify(actions);
