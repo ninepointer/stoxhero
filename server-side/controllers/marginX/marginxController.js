@@ -14,6 +14,7 @@ const {saveSuccessfulCouponUse} = require('../coupon/couponController');
 const Coupon = require('../../models/coupon/coupon');
 const AffiliateProgram = require('../../models/affiliateProgram/affiliateProgram');
 const{creditAffiliateAmount} = require('../affiliateProgramme/affiliateController');
+const {TDS} = require("../../constant")
 
 exports.createMarginX = async (req, res) => {
     try {
@@ -450,6 +451,7 @@ exports.getUserCompletedMarginXs = async (req, res) => {
 
         for(let elem of completed){
             let xFactor = (elem.portfolioValue/elem.entryFee);
+            elem.tds = (elem.npnl/xFactor) > 0 ? (elem.npnl/xFactor)*TDS/100 : 0;
             elem.return = elem.entryFee + elem.npnl/xFactor;
             elem.return = elem.return > 0 ? elem.return : 0;
         }

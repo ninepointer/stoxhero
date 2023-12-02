@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 const {xtsAccountType, zerodhaAccountType} = require("../../constant");
 
 
-const tradableInstrumentSchema = new mongoose.Schema({
+const equityStockSchema = new mongoose.Schema({
     instrument_token:{
         type: Number,
         required: true
@@ -20,14 +20,14 @@ const tradableInstrumentSchema = new mongoose.Schema({
         type: String,
         required : true
     },
-    last_price:{
-        type: Number,
-        // required : true
-    },
-    expiry:{
-        type: String,
-        required : true
-    },
+    // last_price:{
+    //     type: Number,
+    //     // required : true
+    // },
+    // expiry:{
+    //     type: String,
+    //     required : true
+    // },
     strike:{
         type: Number,
         required : true
@@ -36,10 +36,10 @@ const tradableInstrumentSchema = new mongoose.Schema({
         type: Number,
         required : true
     },
-    lot_size:{
-        type: Number,
-        required : true
-    },
+    // lot_size:{
+    //     type: Number,
+    //     required : true
+    // },
     instrument_type:{
         type: String,
         required : true
@@ -55,7 +55,8 @@ const tradableInstrumentSchema = new mongoose.Schema({
     accountType:{
         type: String,
         // required : true,
-        enum : [zerodhaAccountType, xtsAccountType]
+        enum : [zerodhaAccountType, xtsAccountType],
+        default: zerodhaAccountType
     },
     lastModifiedBy:{
         type:Schema.Types.ObjectId,
@@ -82,21 +83,12 @@ const tradableInstrumentSchema = new mongoose.Schema({
         required : true,
         default: "Active"
     },
-    infinityVisibility: {
-        type: Boolean,
-    },
-    earlySubscription: {
-        type: Boolean,
-    },
-    chartInstrument: {
-        type: String,
-    },
-    isEquity: {
-        type: Boolean
-    }
+    // chartInstrument: {
+    //     type: String,
+    // }
 })
 
-const TradableInstrumentDetail = mongoose.model("tradable-instrument", tradableInstrumentSchema);
-module.exports = TradableInstrumentDetail;
+const EquityStock = mongoose.model("equity-instrument", equityStockSchema);
+module.exports = EquityStock;
 
 

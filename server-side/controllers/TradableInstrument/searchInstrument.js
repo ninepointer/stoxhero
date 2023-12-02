@@ -165,5 +165,36 @@ exports.search = async (searchString, res, req) => {
 
 }
 
+exports.equitySearch = async (searchString, res, req) => {
+  const size = parseInt(req.query.size);
+
+  try {
+    let data = await TradableInstrument.find({
+      $and: [
+        {
+          $or: [
+            { tradingsymbol: { $regex: searchString, $options: 'i' } },
+            { name: { $regex: searchString, $options: 'i' } },
+            { exchange: { $regex: searchString, $options: 'i' } },
+            { expiry: { $regex: searchString, $options: 'i' } },
+          ]
+        },
+        {
+          status: 'Active',
+          isEquity: true
+        },
+      ]
+    })
+    .sort({ expiry: 1 })
+    .limit(size)
+    .exec();
+
+    res.status(200).json({ status: "success", data: data, message: "List Received" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
 
 
