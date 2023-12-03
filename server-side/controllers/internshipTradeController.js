@@ -1525,7 +1525,8 @@ exports.updateUserWallet = async () => {
           }
         });
 
-        const profitCap = 15000;
+        const profitCap = elem.payoutCap;
+        // 15000;
         for (let i = 0; i < users.length; i++) {
           const session = await mongoose.startSession();
           try {
