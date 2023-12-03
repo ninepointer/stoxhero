@@ -604,7 +604,14 @@ const addCashback = async(amount, userId, coupon) => {
 
 const sendWhatsAppNotification = async(payment) => {
     const {paymentBy, amount, bonusRedemption} = payment;
-    const user = await User.findOne({_id: new ObjectId(paymentBy)}).select('first_name creationProcess last_name mobile');
+    const user = await User.findOne({_id: new ObjectId(paymentBy)}).select('first_name creationProcess last_name mobile fcmTokens');
+    if(user?.fcmTokens?.length>0){
+        await sendMultiNotifications('Amount Added To Wallet', 
+          `₹${amount?.toFixed(2)} credited in your wallet.`,
+          user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+          )  
+      }  
+
     const wallet = await UserWallet.findOne({userId:new ObjectId(paymentBy)});
     const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
         return transaction.transactionType === "Cash";
