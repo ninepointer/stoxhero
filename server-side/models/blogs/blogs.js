@@ -6,31 +6,37 @@ const blogSchema = new Schema({
         type: String,
         required: true,
     },
-    content:{
+    slug:{
         type: String,
         required: true,
+    },
+    metaTitle: {
+        type: String,
+        // required:true
+    },
+    category: {
+        type: String,
+        required:true
+    },
+    metaDescription: {
+        type: String,
+        // required:true
+    },
+    metaKeywords: {
+        type: String,
+        // required:true
     },
     thumbnailImage:{
-        type: String,
+        name: {type: String},
+        url: {type: String}
     },
-    blogContent:[{
-        serialNumber:{type:Number},
-        header:{type:String},
-        content:{type:String},
-        image:{type:String},
-        youtubeVideoCode:{type:String},
-        _id: {
-            type: mongoose.Schema.Types.ObjectId,
-            default: mongoose.Types.ObjectId
-        }
+    images:[{
+        name: {type: String},
+        url: {type: String}
     }],
-    publishedDate:{
-        type: Date,
-        // required : true,
-    },
-    author:{
-        type: String,
-        required: true,
+    readingTime:{
+        type: Number,
+        // required: true,
     },
     status:{
         type: String,
@@ -38,14 +44,10 @@ const blogSchema = new Schema({
         default: 'Created',
         required: true,
     },
-    tags:[{
-        tagName:{type:String}
-    }],
-    comments:[{
-        full_name:{type:String},
-        email:{type:String},
-        comment:{type:String}
-    }],
+    blogData: {
+        type: String,
+        // required:true
+    },
     createdOn:{
         type: Date,
         required : true,
@@ -56,6 +58,9 @@ const blogSchema = new Schema({
         required : true,
         default: ()=>new Date(),
     },
+    publishedOn:{
+        type: Date,
+    },
     createdBy:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
@@ -64,6 +69,16 @@ const blogSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
     },
+    reader: [{
+        ip: {type: String},
+        isMobile: {type: Boolean},
+        country: {type: String},
+        time: {type: Date}
+    }],
+    viewCount: {
+        type: Number,
+        default: 0
+    }
 })
 
 const blogData = mongoose.model("blog", blogSchema);

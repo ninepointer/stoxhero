@@ -9,11 +9,13 @@ const {createUserNotification} = require('../notification/notificationController
 const Setting = require("../../models/settings/setting")
 const uuid = require("uuid");
 const emailService = require("../../utils/emailService");
+const {sendMultiNotifications} = require("../../utils/fcmService");
 const Product = require('../../models/Product/product');
 const {saveSuccessfulCouponUse} = require('../coupon/couponController');
 const Coupon = require('../../models/coupon/coupon');
 const AffiliateProgram = require('../../models/affiliateProgram/affiliateProgram');
 const{creditAffiliateAmount} = require('../affiliateProgramme/affiliateController');
+const {TDS} = require("../../constant")
 
 exports.createMarginX = async (req, res) => {
     try {
@@ -450,6 +452,7 @@ exports.getUserCompletedMarginXs = async (req, res) => {
 
         for(let elem of completed){
             let xFactor = (elem.portfolioValue/elem.entryFee);
+            elem.tds = (elem.npnl/xFactor) > 0 ? (elem.npnl/xFactor)*TDS/100 : 0;
             elem.return = elem.entryFee + elem.npnl/xFactor;
             elem.return = elem.return > 0 ? elem.return : 0;
         }
@@ -743,6 +746,12 @@ exports.creditAmountToWallet = async () => {
                         createdBy:'63ecbc570302e7cf0153370c',
                         lastModifiedBy:'63ecbc570302e7cf0153370c'  
                       });
+                      if(user?.fcmTokens?.length>0){
+                        await sendMultiNotifications('MarginX Payout Credited', 
+                          `₹${paymentAmountAdjusted?.toFixed(2)} credited in your wallet for your MarginX return`,
+                          user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                          )  
+                      }  
                     marginxs[j].participants[i].payout = payoutAmountAdjusted?.toFixed(2);
                     marginxs[j].participants[i].tdsAmount = payoutAmount>fee?((payoutAmount- fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
                     await marginxs[j].save();
@@ -842,7 +851,7 @@ exports.participateUsers = async (req, res) => {
 
         for (let i = 0; i < marginx.participants?.length; i++) {
             if (marginx.participants[i]?.userId?.toString() === userId?.toString()) {
-                return res.status(404).json({ status: "error", message: "You have already participated in this marginx." });
+                return res.status(404).json({ status: "error", message: "You have already participated in this MarginX." });
             }
         }
 
@@ -1034,7 +1043,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
                     statusCode:400,
                     data:{
                     status: "error",
-                    message:"You have already participated in this marginx",
+                    message:"You have already participated in this MarginX",
                     }
                 };
             }
@@ -1199,6 +1208,12 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
                 createdBy:'63ecbc570302e7cf0153370c',
                 lastModifiedBy:'63ecbc570302e7cf0153370c'  
               });
+              if(user?.fcmTokens?.length>0){
+                await sendMultiNotifications('StoxHero Cashback', 
+                  `${cashbackAmount?.toFixed(2)}HeroCash credited as bonus in your wallet.`,
+                  user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                  )  
+              }
         }
         await createUserNotification({
             title:'MarginX Fee Deducted',
@@ -1212,6 +1227,12 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           });
+          if(user?.fcmTokens?.length>0){
+            await sendMultiNotifications('MarginX Fee Deducted', 
+              `₹${entryFee} deducted for ${marginx?.marginXName} MarginX Fee`,
+              user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+              )  
+          }
           if(coupon){
             const product = await Product.findOne({productName:'MarginX'}).select('_id');
             if(affiliate){

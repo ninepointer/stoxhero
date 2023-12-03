@@ -123,11 +123,11 @@ function Header({ contest }) {
         })
             .then((res) => {
                 if (res.data.count > 0) {
-                    navigate(`/completedcollegecontests/${name}`, {
+                    navigate(`/completedcollegetestzone/${name}`, {
                         state: { data: id }
                     });
                 } else {
-                    openSuccessSB("error", "You do not have any trade for this contest.")
+                    openSuccessSB("error", "You do not have any trade for this TestZone.")
                 }
             }).catch((err) => {
                 return new Error(err);
@@ -146,11 +146,11 @@ function Header({ contest }) {
         })
             .then((res) => {
                 if (res.data.count > 0) {
-                    navigate(`/completedcontests/${name}/leaderboard`, {
+                    navigate(`/completedtestzone/${name}/leaderboard`, {
                         state: { data: id }
                     });
                 } else {
-                    openSuccessSB("error", "No leaderboard for this contest.")
+                    openSuccessSB("error", "No leaderboard for this TestZone.")
                 }
             }).catch((err) => {
                 return new Error(err);
@@ -267,7 +267,7 @@ function Header({ contest }) {
                                                                 <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                                     <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                                         <MDTypography style={{ color: "white", fontSize: 12, fontWeight: 600 }}>
-                                                                            TestArena Completed
+                                                                            TestZone Completed
                                                                         </MDTypography>
                                                                     </MDBox>
                                                                 </Grid>

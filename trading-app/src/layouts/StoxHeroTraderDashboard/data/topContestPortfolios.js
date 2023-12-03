@@ -44,12 +44,12 @@ function Summary({topPerformer, startOfWeek, endOfWeek}) {
     <MDBox bgColor="light" minHeight='auto'>
         <Grid container display='flex' justifyContent='center' alignItems='center'>
             <Grid item xs={12} md={12} lg={12}>
-                <Grid container xs={12} md={12} lg={12} display='flex' alignItems='center'>
+                <Grid container xs={12} md={12} lg={12} mt={.5} mb={.5} display='flex' alignItems='center'>
                     <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='flex-start'>
-                        <MDTypography ml={1} fontSize={15} fontWeight="bold">TestArena Leaderboard of the Week [{formattedDate(startOfWeek)} - {formattedDate(endOfWeek)}]</MDTypography>
+                        <MDTypography ml={1} fontSize={15} fontWeight="bold">TestZone Leaderboard of the Week [{formattedDate(startOfWeek)} - {formattedDate(endOfWeek)}]</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='flex-end'>
-                        <MDButton variant='text' color='dark' size="small" onClick={()=>{navigate('/toptestarenaportfolios')}}>View All</MDButton>
+                        <MDButton variant='text' color='dark' size="small" onClick={()=>{navigate('/toptestzoneportfolios')}}>View All</MDButton>
                     </Grid>
                 </Grid>
                     <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
@@ -63,26 +63,37 @@ function Summary({topPerformer, startOfWeek, endOfWeek}) {
                                     src={e?.profile_picture ? e?.profile_picture?.url : logo}
                                     alt={"Stock"}
                                     size="lg"
+                                    padding="10px"
                                     sx={({ borders: { borderWidth }, palette: { white } }) => ({
                                     border: `${borderWidth[2]} solid ${white.main}`,
                                     cursor: "pointer",
                                     position: "relative",
                                     ml: -1,
+                                    // padding: "1px",
                                     "&:hover, &:focus": {
                                         zIndex: "10",
                                     },
                                     })}
+                                //     sx={{,
+                                //     cursor: "pointer",
+                                //         position: "relative",
+                                //         ml: -1,
+                                //         "&:hover, &:focus": {
+                                //             zIndex: "10",
+                                //         },
+                                
+                                // }}
                                 />
                                 <MDTypography fontSize={15} fontWeight='bold'>
                                     #{index +1} {TruncatedName(e?.first_name)}
                                 </MDTypography>
 
                                 <MDTypography mt={1} fontSize={12}>
-                                    Arenas Played: {e?.contests}
+                                    Zones Played: {e?.contests}
                                 </MDTypography>
 
                                 <MDTypography mt={1} fontSize={12}>
-                                    Arenas Won: {e?.contestsWon}
+                                    Zones Won: {e?.contestsWon}
                                 </MDTypography>
 
                                 <MDTypography mt={1} fontSize={12}>
@@ -99,11 +110,11 @@ function Summary({topPerformer, startOfWeek, endOfWeek}) {
                                     size="small"
                                     component = {Link}
                                     to={{
-                                        pathname: `/testarenaprofile/${e?.userid}`,
+                                        pathname: `/testzoneprofile/${e?.userid}`,
                                       }}
                                     state={{data: e}}
                                 >
-                                    Arena Profile
+                                    Zone Profile
                                 </MDButton>
                             </CardActions>
                             </Card>

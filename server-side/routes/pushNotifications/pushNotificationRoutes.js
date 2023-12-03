@@ -4,8 +4,8 @@ const Authenticate = require('../../authentication/authentication');
 const {sendSingleNotification, sendMultiNotifications} = require('../../controllers/pushNotification/pushNotificationController');
 const router = express.Router();
 
-router.route('/single').get(Authenticate, sendSingleNotification);
-router.route('/multiple').get(Authenticate, sendMultiNotifications);
+router.route('/single').post(Authenticate, sendSingleNotification);
+router.route('/multiple').post(Authenticate, sendMultiNotifications);
 
 
 

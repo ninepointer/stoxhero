@@ -74,6 +74,8 @@ const userWallet = require("../../models/UserWallet/userWalletSchema");
 const { processBattles } = require("../../controllers/battles/battleController")
 const Battle = require("../../models/battle/battle")
 const MarginX = require("../../models/marginX/marginX");
+const MarginXUser = require("../../models/marginX/marginXUserMock");
+
 const BattleMock = require("../../models/battle/battleTrade");
 const Holiday = require("../../models/TradingHolidays/tradingHolidays");
 const Career = require("../../models/Careers/careerSchema");
@@ -84,8 +86,546 @@ const CareerApplication = require("../../models/Careers/careerApplicationSchema"
 const emailService = require("../../utils/emailService")
 const {createUserNotification} = require('../../controllers/notification/notificationController');
 const uuid = require('uuid');
+const Notification = require("../../models/notifications/notification")
+const Referrals = require("../../models/campaigns/referralProgram")
+const {dailyContestTimeStore} = require("../../dailyContestTradeCut")
 
 
+router.get('/updateactivationdate', async (req, res) => {
+  // let ids = ["64e4d0bb3901d36ce7730549", "64ab9b1bbc383a1888d605ce",
+  //             "64e5562e28367dee0f88df6f", "64b63326dc241119b4d7f342",
+  //             "65544e834bddc04764a77d7c", "656587ddc28f5b5c1bac9da1"
+  //           ]
+
+  // let ids = [
+  //   "63788f3991fc4bf629de6df0", "63971eec2ca5ce5b52f900b7", "642c6434573edbfcb2ac45a5", "6453c1435509f00c92fd59b7"
+  // ]
+  // for(let id of ids){
+    const user = await UserDetail.find({ activationDetails: null }).select('_id subscription')
+    let count = 0;
+    for (let elem of user) {
+      // console.log(elem)
+      count += 1;
+      let intern = await InternTrade.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } }).select('trade_time')
+      let contest = await DailyContestMockUser.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } })
+        .populate('contestId', 'entryFee')
+        .select('trade_time contestId')
+      let paper = await PaperTrade.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } })
+        .select('trade_time')
+      let marginx = await MarginXUser.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } })
+        .populate({
+          path: 'marginxId',
+          select: 'marginXTemplate',
+          populate: {
+            path: 'marginXTemplate',
+            select: 'entryFee' // Add the fields you want to select from marginXTemplate
+          }
+        })
+        .select('trade_time marginxId')
+      let battle = await BattleMock.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } })
+        .populate({
+          path: 'battleId',
+          select: 'battleTemplate',
+          populate: {
+            path: 'battleTemplate',
+            select: 'entryFee' // Add the fields you want to select from marginXTemplate
+          }
+        })
+        .select('trade_time battleId')
+      // .select('trade_time')
+      let tenx = await TenXTrade.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } })
+        .populate('subscriptionId', 'discounted_price')
+        .select('trade_time subscriptionId')
+  
+      console.log(intern,
+        contest,
+        paper,
+        marginx,
+        battle,
+        tenx, elem.subscription[0])
+  
+      let date1 = new Date(intern?.trade_time);
+      let date2 = new Date(contest?.trade_time);
+      let date3 = new Date(paper?.trade_time);
+      let date4 = new Date(marginx?.trade_time);
+      let date5 = new Date(tenx?.trade_time);
+      let date6 = new Date(battle?.trade_time);
+  
+      let old = [intern && date1, contest && date2,
+      paper && date3, marginx && date4, tenx && date5, battle && date6];
+  
+      let dates = [];
+      for (let suubelem of old) {
+        if (suubelem) {
+          dates.push(suubelem);
+        }
+      }
+      console.log(dates)
+      // Sort the dates in ascending order
+      dates.sort((a, b) => a - b);
+  
+      // The smallest date is now the first element in the array
+      let smallestDate = dates[0];
+  
+      let activationDetails = {};
+      if (dates[0] == date1) {
+  
+        activationDetails.activationDate = dates[0];
+        activationDetails.activationProduct = "6517d46e3aeb2bb27d650de3"
+        activationDetails.activationType = "Free"
+        activationDetails.activationStatus = "Active"
+        activationDetails.activationProductPrice = 0
+      } else if (dates[0] == date2) {
+        activationDetails.activationDate = dates[0];
+        activationDetails.activationProduct = "6517d48d3aeb2bb27d650de5"
+  
+        if (contest?.contestId?.entryFee > 0) {
+          activationDetails.activationType = "Paid"
+          activationDetails.activationProductPrice = contest?.contestId?.entryFee
+        } else {
+          activationDetails.activationType = "Free"
+          activationDetails.activationProductPrice = 0
+        }
+        activationDetails.activationStatus = "Active"
+  
+
+      } else if (dates[0] == date3) {
+        activationDetails.activationDate = dates[0];
+        activationDetails.activationProduct = "65449ee06932ba3a403a681a"
+        activationDetails.activationType = "Free"
+        activationDetails.activationStatus = "Active"
+        activationDetails.activationProductPrice = 0
+  
+      } else if (dates[0] == date4) {
+        activationDetails.activationDate = dates[0];
+        activationDetails.activationProduct = "6517d40e3aeb2bb27d650de1"
+        activationDetails.activationType = "Paid"
+        activationDetails.activationProductPrice = marginx?.marginxId?.marginXTemplate?.entryFee
+        activationDetails.activationStatus = "Active"
+  
+      } else if (dates[0] == date6) {
+        activationDetails.activationDate = dates[0];
+        activationDetails.activationProduct = "6517d4623aeb2bb27d650de2"
+        activationDetails.activationType = "Paid"
+        activationDetails.activationProductPrice = battle?.battleId?.battleTemplate?.entryFee
+        activationDetails.activationStatus = "Active"
+  
+      } else if (dates[0] == date5) {
+        activationDetails.activationDate = dates[0];
+        activationDetails.activationProduct = "6517d3803aeb2bb27d650de0"
+        activationDetails.activationType = "Paid"
+        activationDetails.activationProductPrice = elem.subscription[0]?.fee || tenx?.subscriptionId?.discounted_price
+        activationDetails.activationStatus = "Active"
+  
+      } else{
+        activationDetails.activationStatus = "Inactive"
+      }
+  
+      console.log(smallestDate, count);
+  
+      console.log(activationDetails)
+      elem.activationDetails = activationDetails;
+      await elem.save({validationBeforeSave: false});
+    }
+  // }
+
+
+  res.send("ok")
+})
+
+router.get('/updatecreationprocess', async(req,res) =>{
+  const user = await UserDetail.find({creationProcess: "Auto SignUp"});
+  for(let elem of user){
+    if(elem.referredBy){
+      elem.creationProcess = "Referral SignUp";
+      console.log(elem.creationProcess, elem.first_name)
+    }
+    await elem.save({validationBeforeSave: false});
+  }
+})
+
+router.get('/updateTenxPnl', async(req,res) =>{
+  const tenx = await TenxSubscription.find();
+
+  const promises = tenx.map(async (elem) => {
+    for (let subelem of elem.users) {
+      if (subelem.expiredOn) {
+        const pnl = await pnlFunc(subelem.subscribedOn, subelem.expiredOn, subelem.userId, elem._id);
+        // console.log(pnl[0]?.grossPnl, pnl[0]?.npnl, pnl)
+        subelem.gpnl = pnl[0]?.grossPnl ? pnl[0]?.grossPnl : 0;
+        console.log(subelem.gpnl)
+        subelem.npnl = pnl[0]?.npnl ? pnl[0]?.npnl : 0;
+        subelem.brokerage = pnl[0]?.brokerage ? pnl[0]?.brokerage : 0;
+        subelem.tradingDays = pnl[0]?.tradingDays ? pnl[0]?.tradingDays : 0;
+        subelem.trades = pnl[0]?.trades ? pnl[0]?.trades : 0;
+
+        console.log(subelem.gpnl, subelem.npnl)
+
+        console.log("subelem", subelem);
+      }
+    }
+
+    await elem.save();
+  });
+
+  // Wait for all promises to resolve before continuing
+  await Promise.all(promises);
+})
+
+const pnlFunc = async(startDate, endDate, userId, id)=>{
+  const pnl = await TenXTrade.aggregate([
+    {
+      $match:
+      {
+        subscriptionId: new ObjectId(id),
+        trader: new ObjectId(userId),
+        trade_time_utc: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate)
+        },
+        status: "COMPLETE"
+      },
+    },
+    {
+      $group: {
+        _id: {
+          userId: "$trader",
+        },
+        amount: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        trades: {
+          $count: {},
+        },
+        tradingDays: {
+          $addToSet: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$trade_time_utc",
+            },
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        userId: "$_id.userId",
+        grossPnl: "$amount",
+        brokerage: "$brokerage",
+        _id: 0,
+        npnl: {
+          $subtract: ["$amount", "$brokerage"],
+        },
+        tradingDays: {
+          $size: "$tradingDays",
+        },
+        trades: 1,
+      },
+    },
+  ])
+
+  return pnl
+}
+
+router.get('/changeContestToTestzone', async(req,res) =>{
+  // const notification = await Notification.find();
+
+  // for(let elem of notification){
+  //   console.log("notification")
+  //   if(elem.productCategory === "Contest"){
+  //     elem.productCategory = "TestZone";
+  //   }
+  //   if(elem.title.includes("Contest")){
+  //     const newTitle = elem.title.replace("Contest", "TestZone")
+  //     elem.title = newTitle
+  //   }
+
+  //   if(elem.description.includes("contest")){
+  //     const newDes = elem.description.replace("contest", "testzone");
+  //     elem.description = newDes;
+  //   }
+  //   const data = await elem.save();
+  //   console.log(data)
+  // }
+  await dailyContestTimeStore()
+})
+
+router.get('/getProductInfoData', async(req,res) =>{
+  // const arrr = ["", "65213309cc62c86984c48f95"]
+  const users = await UserDetail.aggregate([
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          referredBy: new ObjectId(
+            "655b519138e04eb74a3f493e"
+          ),
+          joining_date: {
+            $gte: new Date("2023-11-21"),
+          },
+        },
+    },
+    {
+      $lookup: {
+        from: "paper-trades",
+        localField: "_id",
+        foreignField: "trader",
+        as: "virtual",
+      },
+    },
+    {
+      $lookup:
+
+        {
+          from: "dailycontest-mock-users",
+          localField: "_id",
+          foreignField: "trader",
+          as: "dailycontest",
+        },
+    },
+    {
+      $lookup:
+
+        {
+          from: "tenx-trade-users",
+          localField: "_id",
+          foreignField: "trader",
+          as: "tenx",
+        },
+    },
+    {
+      $lookup:
+
+        {
+          from: "marginx-mock-users",
+          localField: "_id",
+          foreignField: "trader",
+          as: "marginx",
+        },
+    },
+
+    {
+      $project:
+        /**
+         * specifications: The fields to
+         *   include or exclude.
+         */
+        {
+          marginx: {
+            $cond: {
+              if: {
+                $gt: [
+                  {
+                    $size: "$marginx",
+                  },
+                  0,
+                ],
+              },
+              then: true,
+              else: false,
+            },
+          },
+          dailyContest: {
+            $cond: {
+              if: {
+                $gt: [
+                  {
+                    $size: "$dailycontest",
+                  },
+                  0,
+                ],
+              },
+              then: true,
+              else: false,
+            },
+          },
+          virtual: {
+            $cond: {
+              if: {
+                $gt: [
+                  {
+                    $size: "$virtual",
+                  },
+                  0,
+                ],
+              },
+              then: true,
+              else: false,
+            },
+          },
+          tenx: {
+            $cond: {
+              if: {
+                $gt: [
+                  {
+                    $size: "$tenx",
+                  },
+                  0,
+                ],
+              },
+              then: true,
+              else: false,
+            },
+          },
+          first_name: 1,
+          last_name: 1,
+          email: 1,
+          mobile: 1,
+          // dailycontest: 1,
+        },
+    },
+  ])
+
+  const contest = await DailyContest.find({contestStartTime: {$gte: new Date("2023-11-21")}})
+
+  console.log(users.length, contest.length)
+  for(let elem of users){
+    if(elem.dailyContest){
+      for(let subelem of contest){
+        for(let sub_subelem of subelem.participants){
+          console.log(sub_subelem.userId)
+          if(sub_subelem.fee > 0 && sub_subelem.userId.toString() === elem._id.toString()){
+            elem.paidContest = true;
+            break;
+          }
+          // else{
+          //   elem.freeContest = true;
+          //   break;
+          // }
+        }
+        if(elem.paidContest){
+          break;
+        }
+      }
+    }
+
+  }
+  
+
+  res.send(users)
+
+
+})
+
+router.get('/getPnlInfoData', async(req,res) =>{
+  // const arrr = ["", "65213309cc62c86984c48f95"]
+  const users = await UserDetail.aggregate([
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          referredBy: new ObjectId(
+            "655b519138e04eb74a3f493e"
+          ),
+          joining_date: {
+            $gte: new Date("2023-11-21"),
+          },
+        },
+    },
+    {
+      $project:
+        /**
+         * specifications: The fields to
+         *   include or exclude.
+         */
+        {
+          first_name: 1,
+          last_name: 1,
+          email: 1,
+          mobile: 1,
+          // dailycontest: 1,
+        },
+    },
+  ])
+
+  const contest = await DailyContest.find({contestStartTime: {$gte: new Date("2023-11-21")}})
+  console.log(users.length, contest.length)
+  for(let elem of users){
+    for(let subelem of contest){
+      for(let sub_subelem of subelem.participants){
+        console.log(sub_subelem.userId)
+        if(sub_subelem.userId.toString() === elem._id.toString()){
+          elem[`${"contestPayout"}-${subelem.contestName}`] = sub_subelem.payout ? sub_subelem.payout : 0;
+          elem[`${"contestNpnl"}-${subelem.contestName}`] = sub_subelem.npnl;
+          elem[`${"contestFee"}-${subelem.contestName}`] = sub_subelem.fee;
+          break;
+        }
+      }
+    }
+  }
+  
+
+  res.send(users)
+
+
+})
+
+router.get('/addsignup', async(req,res) =>{
+  // const user = await UserDetail.findOne({myReferralCode: "RUL0AALQ"});
+  const referral = await Referrals.findOne({_id: new ObjectId("654192220068c82a56e717c8")})
+  .populate('users.userId', 'first_name last_name mobile');
+
+
+  let arr = [];
+  for(let elem of referral.users){
+    const wallet = await userWallet.findOne({userId:elem.userId});
+    const transactionDescription = `Amount credited for as sign up bonus.`;
+    const existingTransaction = wallet?.transactions?.some(transaction => (transaction.description === transactionDescription))
+    if(!existingTransaction){
+
+      try {
+        wallet?.transactions?.push({
+          title: 'Sign up Bonus',
+          description: `Amount credited for as sign up bonus.`,
+          amount: 100,
+          transactionId: uuid.v4(),
+          transactionDate: new Date(),
+          transactionType: "Cash"
+        });
+        await wallet?.save({ validateBeforeSave: false });
+        console.log("Saved Wallet:", wallet)
+      } catch (e) {
+        console.log(e);
+      }
+      // console.log(elem.userId);
+      // arr.push({name: elem.userId.first_name+" "+elem.userId.last_name, mobile: elem.userId.mobile})
+    }
+  }
+  // return res.send(arr);
+  // 654192220068c82a56e717c8
+  // const userList = await UserDetail.find({referredBy: user._id});
+// let check = 0
+  // for(let elem of userList){
+  //   const transactionDescription = `Amount credited for as sign up bonus.`;
+  
+  //   // Check if a transaction with this description already exists
+
+    // const wallet = await userWallet.findOne({userId:elem._id});
+    // const existingTransaction = wallet?.transactions?.some(transaction => (transaction.description === transactionDescription))
+
+  //   // console.log("Wallet, Amount, Currency:",wallet, userId, amount, currency)
+  //   if(!existingTransaction){
+  //     check += 1
+  //     console.log(check)
+
+  //   }
+
+  // }
+
+
+
+})
 
 router.get('/updatepayout', async(req,res) =>{
   // const arrr = ["", "65213309cc62c86984c48f95"]
@@ -104,8 +644,8 @@ router.get('/updatepayout', async(req,res) =>{
     if(user.payout && !existingTransaction){
       if(wallet?.transactions?.length == 0 || !existingTransaction){
         wallet.transactions.push({
-            title: 'Contest Credit',
-            description: `Amount credited for contest ${contest.contestName}`,
+            title: 'TestZone Credit',
+            description: `Amount credited for TestZone ${contest.contestName}`,
             transactionDate: new Date(),
             amount: user.payout.toFixed(2),
             transactionId: uuid.v4(),
@@ -306,8 +846,8 @@ router.get('/tenxremove', async(req,res) =>{
   const wallet = await userWallet.findOne({userId: new ObjectId("65213309cc62c86984c48f95")});
 
   wallet.transactions = [...wallet.transactions, {
-    title: 'Contest Credit',
-    description: `Amount credited for contest Muhurat Trading - 12th Nov(6:15 PM)`,
+    title: 'TestZone Credit',
+    description: `Amount credited for TestZone Muhurat Trading - 12th Nov(6:15 PM)`,
     transactionDate: new Date(),
     amount: 700,
     transactionId: uuid.v4(),
@@ -1146,7 +1686,7 @@ router.get("/ltv", async (req, res) => {
                   {
                     $eq: [
                       "$transactions.title",
-                      "Contest Fee",
+                      "TestZone Fee",
                     ],
                   },
                   {
@@ -1825,7 +2365,7 @@ router.get("/margin", async (req, res) => {
 
 router.get("/afterContest", async (req, res) => {
   console.log("running after contest")
-  // await autoCutMainManually();
+  await autoCutMainManually();
   await autoCutMainManuallyMock();
   // await changeBattleStatus();
   res.send("ok");
@@ -2477,7 +3017,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2023-11-17T20:00:00.000+00:00"
+  let expiryDate = "2023-11-30T20:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(
@@ -2517,7 +3057,7 @@ router.get("/updateInstrumentStatus", async (req, res) => {
   //   });
   // }
 
-  await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
+  await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "", allInstruments: "" } });
 
   res.send({ message: "updated", data: instrument, data1: infinityInstrument })
 })
@@ -2668,11 +3208,9 @@ router.get("/referralCode", async (req, res) => {
 // })
 
 router.get("/Tradable", authentication, async (req, res, next) => {
-  // await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-04"}}, {$set: {status: "Inactive"}});
-  // await TradableInstrument.tradableInstrument(req,res,next);
-  // await tradableInstrument(req, res);
-  // await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-18"}}, {$set: {status: "Inactive"}});
-  await TradableInstrument.tradableInstrument(req, res, next);
+  // await TradableInstrument.tradableInstrument(req, res, next);
+  await TradableInstrument.tradableNSEInstrument(req, res, next);
+
 })
 // router.get("/updateInstrumentStatus", async (req, res) => {
 //   let date = new Date();
@@ -2983,6 +3521,8 @@ router.get("/insertDocument", async (req, res) => {
   res.send(getTrade)
 
 })
+
+
 
 
 

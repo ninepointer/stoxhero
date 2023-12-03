@@ -4,6 +4,7 @@ const User = require("../models/User/userDetailSchema");
 
 const filterObj = (obj, ...allowedFields) => {
     const newObj = {};
+    newObj.campaignSignupBonus = {};
     Object.keys(obj).forEach((el) => {
       if (allowedFields.includes(el) && obj[el] !== null && obj[el] !== undefined && obj[el] !== '') {
         newObj[el] = obj[el];
@@ -36,9 +37,10 @@ exports.editCampaign = async(req, res, next) => {
     const id = req.params.id;
 
     // console.log("id is ,", id)
-    const tenx = await Campaign.findById(id);
+    // const tenx = await Campaign.findById(id);
 
     let filteredBody = filterObj(req.body, "campaignName", "description", "campaignFor", "campaignLink", "campaignCost", "campaignCode", "status", "maxUsers", "isDefault", "campaignType");
+    // console.log(filteredBody)
     filteredBody.lastModifiedBy = req.user._id;
     if(req.body?.campaignSignupBonus?.amount){
       filteredBody.campaignSignupBonus.amount = req.body?.campaignSignupBonus?.amount;

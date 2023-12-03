@@ -271,6 +271,7 @@ exports.getDashboardStatsContest = async (req, res,next) => {
     let startDate, endDate;
     const {timeframe} = req.query;
     const userId = req.user._id;
+    const user = await UserDetails.findById(userId).select('joining_date');
     switch (timeframe) {
       case 'this month':
         startDate = moment().startOf('month');
@@ -472,6 +473,7 @@ exports.getDashboardStatsTenX = async (req, res,next) => {
     let startDate, endDate;
     const {timeframe} = req.query;
     const userId = req.user._id;
+    const user = await UserDetails.findById(userId).select('joining_date');
     switch (timeframe) {
       case 'this month':
         startDate = moment().startOf('month');

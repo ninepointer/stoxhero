@@ -17,7 +17,7 @@ exports.search = async (searchString, res, req) => {
   const page = parseInt(req.query.page);
   const size = parseInt(req.query.size);
   let {isNifty, isBankNifty, isFinNifty, dailyContest} = req.query;
-  // console.log(isNifty, isBankNifty, isFinNifty)
+  console.log(isNifty, isBankNifty, isFinNifty, dailyContest)
 
   let query = [];
   if(isNifty){
@@ -113,7 +113,7 @@ exports.search = async (searchString, res, req) => {
             {
               expiry: {
                 $gte: todayDate, // expiry is greater than or equal to today's date
-                $lt: fromLessThen
+                $lte: fromLessThen
               }
             },
             {
@@ -163,6 +163,37 @@ exports.search = async (searchString, res, req) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 
+}
+
+exports.equitySearch = async (searchString, res, req) => {
+  const size = parseInt(req.query.size);
+
+  try {
+    let data = await TradableInstrument.find({
+      $and: [
+        {
+          $or: [
+            { tradingsymbol: { $regex: searchString, $options: 'i' } },
+            { name: { $regex: searchString, $options: 'i' } },
+            { exchange: { $regex: searchString, $options: 'i' } },
+            { expiry: { $regex: searchString, $options: 'i' } },
+          ]
+        },
+        {
+          status: 'Active',
+          isEquity: true
+        },
+      ]
+    })
+    .sort({ expiry: 1 })
+    .limit(size)
+    .exec();
+
+    res.status(200).json({ status: "success", data: data, message: "List Received" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 }
 
 

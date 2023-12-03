@@ -148,14 +148,14 @@ export default function LabTabs() {
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
 
       <MDBox mb={2} style={{ border: '1px solid white', borderRadius: 5 }} display="flex" justifyContent="space-between">
-        <MDTypography color="light" fontSize={15} fontWeight="bold" p={1} alignItem="center">Daily Contest Report</MDTypography>
+        <MDTypography color="light" fontSize={15} fontWeight="bold" p={1} alignItem="center">Daily TestZone Report</MDTypography>
         <MDBox sx={{ display: 'flex', alignItems: 'center' }}>
           <CustomTextField
             select
             label=""
             value={`${selectedSubscription?.contestName} - ${changeDateFormat(selectedSubscription?.contestStartTime)}`}
             minHeight="4em"
-            placeholder="Select Contest"
+            placeholder="Select TestZone"
             variant="outlined"
             sx={{ width: "400px" }}
             onChange={(e) => {setselectedSubscription(subscriptions.filter((item) => item.contestName == (e.target.value).split(" | ")[0].slice(0, -13).trim())[0]) }}
@@ -280,7 +280,7 @@ export default function LabTabs() {
                 
                 <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
-                    <MDTypography fontSize={11}>Contest:&nbsp;</MDTypography>
+                    <MDTypography fontSize={11}>TestZone:&nbsp;</MDTypography>
                     <MDTypography fontSize={13} fontWeight="bold" >{selectedSubscription?.contestName}</MDTypography>
                   </MDBox>
                 </Grid>
@@ -319,7 +319,7 @@ export default function LabTabs() {
 
                 <Grid item xs={12} md={6} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
-                    <MDTypography fontSize={11} >Contest For:&nbsp;</MDTypography>
+                    <MDTypography fontSize={11} >TestZone For:&nbsp;</MDTypography>
                     <MDTypography fontSize={13} fontWeight="bold" >
                       {selectedSubscription?.contestFor}
                     </MDTypography>

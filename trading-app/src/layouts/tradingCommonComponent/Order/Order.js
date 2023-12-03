@@ -191,7 +191,7 @@ function Orders({ id, socket, updatePendingOrder, from }) {
                 {from === tenxTrader ?
                 moment.utc(elem?.trade_time_utc).utcOffset('+05:30').format('DD-MMM HH:mm:ss')
                 :
-                moment.utc(elem?.trade_time).utcOffset('+05:30').format('DD-MMM HH:mm:ss')}
+                moment.utc(elem?.trade_time).utcOffset('+00:00').format('DD-MMM HH:mm:ss')}
             </MDTypography>
         );
 

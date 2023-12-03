@@ -2,18 +2,18 @@
 import CompanyPosition from "./layouts/companyposition";
 import CompanyPositionRedis from "./layouts/companypositionRedis";
 import CohortPosition from "./layouts/cohortposition";
-import InfinityDashboard from "./layouts/infinitydashboard";
-import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
 import TenXDashboard from "./layouts/tenxdashboard";
 import TraderDashboard from "./layouts/traderdashboard";
 import Orders from "./layouts/company-orders";
 import Instruments from "./layouts/instruments";
 import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
+import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 // import Contests from "./layouts/contests";
 import TradingAccount from "./layouts/trading-account";
 import Users from "./layouts/users";
 import AlgoBox from "./layouts/algobox";
 import Funds from "./layouts/funds";
+import BookIcon from '@mui/icons-material/Book';
 // import Notifications from "./layouts/notifications";
 import Profile from "./layouts/profile";
 import Setting from "./layouts/settings/Setting";
@@ -73,6 +73,8 @@ import VpnLockIcon from '@mui/icons-material/VpnLock';
 import BackReportXTS from "./layouts/backReportXTS";
 import OverallPnlTrader from "./layouts/overallPnlTrader";
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
+import RevenueDashboard from './layouts/revenueDashboard'
+import AffiliateDashboard from './layouts/affiliateDashboard'
 import ChallengeDashboard from './layouts/challengeDashboard'
 import DailyContestDashboard from './layouts/dailyContestDashboard'
 import BattleDashboard from './layouts/battleDashboard'
@@ -84,50 +86,31 @@ import MarginXReport from "./layouts/marginxReport";
 import Coupons from './layouts/coupons'
 import Blogs from './layouts/blog'
 import BlogDetails from './layouts/blog/blogDetails'
+import BlogForm from './layouts/blog/blogDetails'
+import LearningModule from './layouts/learningModule'
+import LearningModuleDetails from './layouts/learningModule/moduleChapterIndex'
+// import ModuleChapter from './layouts/learningModule/'
+import ModuleChapterDetails from './layouts/learningModule/moduleChapterIndex'
 import AffiliateProgram from './layouts/affiliateProgram'
 import AffiliateProgramDetails from './layouts/affiliateProgram/AffiliateProgramDetails'
-
-
-
-// import DummyPage from "./layouts/UserContest/dummyContestTradePage";
-
-
-// @mui icons
-// import StadiumIcon from '@mui/icons-material/Stadium';
 import Shop2Icon from '@mui/icons-material/Shop2';
 import SportsKabaddiIcon from '@mui/icons-material/SportsKabaddi';
 import ReportIcon from '@mui/icons-material/Assessment';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
-// import SummarizeIcon from '@mui/icons-material/Summarize';
 import InventoryIcon from '@mui/icons-material/Inventory'; 
-// import SettingsIcon from '@mui/icons-material/Settings';
-// import EngineeringIcon from '@mui/icons-material/Engineering';
 import PersonIcon from '@mui/icons-material/Person';
-// import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-// import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-// import DashboardIcon from '@mui/icons-material/Dashboard';
-// import TableViewIcon from '@mui/icons-material/TableView';
 import BusinessIcon from '@mui/icons-material/Business';
 import CampaignIcon from '@mui/icons-material/Campaign';
-// import FolderSharedIcon from '@mui/icons-material/FolderShared';
-// import CandlestickChartIcon from '@mui/icons-material/CandlestickChart';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-// import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
-// import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import WalletIcon from '@mui/icons-material/Wallet';
-// import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
-// import DBEntry from "./layouts/InsertData/DBEntry";
 import Referral from "./layouts/referral-program";
 import BatchIcon from '@mui/icons-material/Diversity3';
-// import CardMembershipIcon from '@mui/icons-material/CardMembership';
-// import UserContest from "./layouts/UserContest"
 import Batch from "./layouts/batch";
-// import WorkIcon from '@mui/icons-material/Work';
-// import { GiNinjaHeroicStance } from 'react-icons/gi';
 import InfinityTrader from "./layouts/InfinityTrading"
 import UserAnalytics from "./layouts/userAnalytics";
 import UserWallet from "./layouts/userWallet"
 import About from './layouts/HomePage/pages/About'
+import Blog from './layouts/HomePage/pages/BlogCards'
 import Careers from './layouts/HomePage/pages/Career'
 import JobForm from './layouts/HomePage/pages/EICCareerForm'
 import Workshops from './layouts/HomePage/pages/Workshop'
@@ -152,22 +135,16 @@ import VirtualPosition from "./layouts/virtualtradePosition";
 import TenxPosition from "./layouts/tenxPosition";
 import DailyContestPosition from "./layouts/dailyContestPosition";
 import DailyContestPositionTrader from "./layouts/dailyContestPositionTrader";
-
 import MarginXPosition from "./layouts/marginxCompanyPosition";
 import MarginXPositionTrader from "./layouts/marginxTraderPosition";
-
 import KYC from './layouts/KYC/index';
 import MarginDetails from './layouts/margindetails'
-// import BadgeIcon from '@mui/icons-material/Badge';
-// import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import CareerDashboard from './layouts/careerdashboard'
 import VirtualDashboard from './layouts/virtualdashboard'
 import InternshipOrders from './layouts/internshipOrders'
 import ContactInfo from './layouts/ContactInfo'
-// import SchoolIcon from '@mui/icons-material/School';
 import TenxReport from "./layouts/tenXReport";
 import DailyContestReport from "./layouts/dailyContestReport";
-
 import InternReport from "./layouts/internReport";
 import InternshipLeaderboard from './layouts/leaderBoard/internshipLeaderboard'
 import AdminMockReport from './layouts/adminSideReportMock'
@@ -180,7 +157,6 @@ import PaymentStatus from "./layouts/paymentTest/paymentStatus";
 import InfinityContest from "./layouts/dailyContestDashboard/data/infinityContestHeader"
 import DailyContestLiveReport from "./layouts/dailyContestReportLive"
 import ContestMaster from "./layouts/dailyContest/contestMaster/contestMaster"
-// import CreateContestMaster from './layouts/dailyContest/ContestMaster/createContestMasterHeader'
 import CreateContestMasterHeader from "./layouts/dailyContest/contestMaster/createContestMasterHeader";
 import MarginXDashboard from "./layouts/marginXDashboard"
 import MarginXTemplateDetail from "./layouts/marginXTemplate"
@@ -197,6 +173,9 @@ import BattleReport from "./layouts/battleReport";
 import DailyContestAnalytics from "./layouts/dailyContestAnalytics"
 import TenXSubscribers from "./layouts/tenXSubscribers"
 import MarketingFunnel from "./layouts/marketingDashboard"
+import { FaRupeeSign } from "react-icons/fa";
+import { FaAffiliatetheme } from "react-icons/fa";
+
 const routes = [
 
   {
@@ -206,6 +185,22 @@ const routes = [
     icon: <AllInclusiveIcon/>,
     route: "/stoxherouserdashboard",
     component: <StoxHeroUserDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Revenue Dashboard",
+    key: "revenuedashboard",
+    icon: <FaRupeeSign/>,
+    route: "/revenuedashboard",
+    component: <RevenueDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Affiliate Dashboard",
+    key: "affiliatedashboard",
+    icon: <FaAffiliatetheme/>,
+    route: "/affiliatedashboard",
+    component: <AffiliateDashboard />,
   },
   {
     type: "collapse",
@@ -249,7 +244,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Contest Dashboard",
+    name: "TestZone Dashboard",
     key: "contestdashboard",
     icon: <EmojiEventsIcon/>,
     route: "/contestdashboard",
@@ -263,11 +258,19 @@ const routes = [
     route: "/marginxdashboard",
     component: <MarginXDashboard />,
   },
+    {
+    type: "collapse",
+    name: "Learning Modules",
+    key: "learningmodules",
+    icon: <LocalLibraryIcon/>,
+    route: "/learningmodules",
+    component: <LearningModule />,
+  },
   {
     type: "collapse",
-    name: "Blogs",
+    name: "StoxHero Blogs",
     key: "allblogs",
-    icon: <EmojiEventsIcon/>,
+    icon: <BookIcon/>,
     route: "/allblogs",
     component: <Blogs />,
   },
@@ -281,7 +284,7 @@ const routes = [
   // },
   {
     type: "collapse",
-    name: "Contest Scoreboard",
+    name: "TestZone Scoreboard",
     key: "contestscoreboard",
     icon: <EmojiEventsIcon/>,
     route: "/contestscoreboard",
@@ -417,10 +420,6 @@ const routes = [
     component: <ReferralProgramDetails />,
   },
   {
-    // type: "collapse",
-    // name: "Arena",
-    // key: "arena",
-    // icon: <BusinessIcon/>,
     route: "/arena/:name",
     component: <ContestPage />,
   },
@@ -443,6 +442,18 @@ const routes = [
   {
     route: "/blogdetails",
     component: <BlogDetails />,
+  },
+  {
+    route: "/blog/:id",
+    component: <BlogForm />,
+  },
+  {
+    route: "/learningmoduledetails/:name",
+    component: <LearningModuleDetails />,
+  },
+  {
+    route: "/modulechapterdetails/:name",
+    component: <ModuleChapterDetails />,
   },
   {  
     route: "/affiliateprogramdetails",

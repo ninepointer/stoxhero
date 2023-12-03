@@ -25,6 +25,7 @@ router.get('/contest/dailyallcontestusers', Authenticate, restrictTo('Admin', 'S
 router.get('/contestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getUsers);
 router.patch('/feededuct', Authenticate, contestController.deductSubscriptionAmount);
 router.get('/weeklytopperformer', Authenticate, contestController.getTopContestWeeklyPortfolio);
+router.get('/lastpaidcontestchampions', Authenticate, contestController.getLastPaidContestChampions);
 router.get('/weeklytopperformerfulllist', Authenticate, contestController.getTopContestWeeklyPortfolioFullList);
 router.get('/contestprofile/:id', Authenticate, contestController.getUserContestProfile);
 router.get('/contest/:id', Authenticate, contestController.getContest);
@@ -69,6 +70,8 @@ router.get('/contests/collegeupcoming', Authenticate, restrictTo('Admin', 'Super
 router.get('/contests/collegeongoing', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getCollegeOngoingContests);
 router.get('/contests/adminongoing', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.ongoingContestAdmin);
 router.get('/contests/completed', Authenticate, contestController.getCompletedContests);
+router.get('/contests/usercompleted', Authenticate, contestController.getUserCompletedContests);
+router.get('/contests/usercollegecompleted', Authenticate, contestController.getUserCollegeCompletedContests);
 
 router.get('/contests/collegeupcoming', Authenticate, contestController.getUpcomingCollegeContests);
 router.get('/contests/collegecompleted', Authenticate, contestController.getCompletedCollegeContests);

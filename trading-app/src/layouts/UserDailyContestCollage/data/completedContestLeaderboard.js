@@ -74,23 +74,23 @@ function Header() {
         let badge = ''
         if(rank === 1)
         {
-          badge = 'Contest Hero'
+          badge = 'TestZone Hero'
         }
         if(rank === 2)
         {
-          badge = 'Contest Guru'
+          badge = 'TestZone Guru'
         } 
         if(rank === 3)
         {
-          badge = 'Contest Wizard'
+          badge = 'TestZone Wizard'
         } 
         if(rank >= 4 && rank <= 6)
         {
-          badge = 'Contest Runners'
+          badge = 'TestZone Runners'
         } 
         if(rank >= 7 && rank <= 10)
         {
-          badge = 'Contest Rising Star'
+          badge = 'TestZone Rising Star'
         }
         if(rank >= 11)
         {
@@ -130,14 +130,14 @@ function Header() {
                 m={1}
                 component={Link}
                 to={{
-                    pathname: `${id?.contestFor === 'StoxHero' ? '/contests' : '/collegecontests'}`,
+                    pathname: `${id?.contestFor === 'StoxHero' ? '/testzone' : '/collegetestzone'}`,
                 }}
               >
-                <MDTypography color='warning' fontWeight='bold' fontSize={10}>BACK TO CONTESTS</MDTypography>
+                <MDTypography color='warning' fontWeight='bold' fontSize={10}>Back</MDTypography>
               </MDButton>
             </Grid>
             <Grid item xs={12} md={12} lg={12} mb={1} display='flex' justifyContent='center' style={{width:'100%'}}>
-              <MDTypography fontSize={25} color='light' fontWeight='bold'>StoxHero : {contest?.contestName} Contest Leaderboard</MDTypography>
+              <MDTypography fontSize={25} color='light' fontWeight='bold'>StoxHero : {contest?.contestName} TestZone Leaderboard</MDTypography>
             </Grid>
             
             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' style={{width:'100%'}}>
@@ -264,19 +264,19 @@ function Header() {
                       <MDTypography color='light' fontWeight='bold' fontSize={12}>Badge Assignment</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                      <MDTypography color='light' fontSize={12}>Contest Hero : Rank 1</MDTypography>
+                      <MDTypography color='light' fontSize={12}>TestZone Hero : Rank 1</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                      <MDTypography color='light' fontSize={12}>Contest Guru : Rank 2</MDTypography>
+                      <MDTypography color='light' fontSize={12}>TestZone Guru : Rank 2</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                      <MDTypography color='light' fontSize={12}>Contest Wizard : Rank 3</MDTypography>
+                      <MDTypography color='light' fontSize={12}>TestZone Wizard : Rank 3</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                      <MDTypography color='light' fontSize={12}>Contest Runners : Rank 4 to Rank 6</MDTypography>
+                      <MDTypography color='light' fontSize={12}>TestZone Runners : Rank 4 to Rank 6</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                      <MDTypography color='light' fontSize={12}>Contest Rising Stars : Rank 7 to Rank 10</MDTypography>
+                      <MDTypography color='light' fontSize={12}>TestZone Rising Stars : Rank 7 to Rank 10</MDTypography>
                     </Grid>
                   </Grid>
 

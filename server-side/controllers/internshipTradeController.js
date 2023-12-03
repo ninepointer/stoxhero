@@ -11,6 +11,7 @@ const Holiday = require("../models/TradingHolidays/tradingHolidays");
 const moment = require('moment');
 const { ObjectId } = require("mongodb");
 const sendMail = require('../utils/emailService');
+const {sendMultiNotifications} = require('../utils/fcmService');
 const {createUserNotification} = require('./notification/notificationController');
 const mongoose = require('mongoose');
 const Setting = require("../models/settings/setting")
@@ -1126,18 +1127,6 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
 
 
   const holiday = await getHoliday(internship.batchStartDate, endDate)
-  // Holiday.find({
-  //   holidayDate: {
-  //     $gte: internship.batchStartDate,
-  //     $lte: internship.batchEndDate
-  //   },
-  //   $expr: {
-  //     $ne: [{ $dayOfWeek: "$holidayDate" }, 1], // 1 represents Sunday
-  //     $ne: [{ $dayOfWeek: "$holidayDate" }, 7], // 7 represents Saturday
-  //   }
-  // });
-
-  // console.log(holiday)
   let traderWisePnlInfo = [];
   if (internship.batchStatus === "Completed") {
     const pipeline = [
@@ -1322,6 +1311,7 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
       })
 
       const attendance = (elem?.tradingDays * 100 / (calculateWorkingDays(internship.batchStartDate, endDate) - holiday.length), calculateWorkingDays(internship.batchStartDate, endDate));
+      // console.log("attendance", attendance, calculateWorkingDays(internship.batchStartDate, endDate), holiday.length)
       let refCount = 0;
       if(referral[0]?.referrals){
         for (let subelem of referral[0]?.referrals) {
@@ -1362,15 +1352,6 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
       traderWisePnlInfo.push(elem);
     })
   }
-
-
-
-
-
-
-
-  // res.status(201).json(x);
-
   res.status(201).json({ message: "data received", data: traderWisePnlInfo });
 }
 
@@ -1458,6 +1439,7 @@ function calculateWorkingDays(startDate, endDate) {
   end = new Date(end)
   end.setDate(end.getDate() + 1);
 
+  // console.log(start, end)
   // Check if the start date is after the end date
   if (start > end) {
     return 0;
@@ -1469,7 +1451,8 @@ function calculateWorkingDays(startDate, endDate) {
   // Iterate over each day between the start and end dates
   while (currentDate <= end) {
     // Check if the current day is a weekday (Monday to Friday)
-    if (currentDate.getDay() > 1 && currentDate.getDay() < 7) {
+    if (currentDate.getDay() > 0 && currentDate.getDay() < 6) {
+      
       workingDays++;
     }
 
@@ -1507,7 +1490,7 @@ exports.updateUserWallet = async () => {
     let date = new Date();
 
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    // let todayDate = `2023-09-26`
+    // let todayDate = `2023-11-27`
 
     let endOfToday = todayDate + "T23:59:59.400Z"
     const setting = await Setting.find();
@@ -1686,7 +1669,6 @@ exports.updateUserWallet = async () => {
                   transactionType: 'Cash'
                 }];
                 await wallet.save({ session });
-
                 users[i].payout = creditAmount.toFixed(2);
                 users[i].tradingdays = tradingdays;
                 users[i].attendance = attendance.toFixed(2);
@@ -1695,6 +1677,12 @@ exports.updateUserWallet = async () => {
                 users[i].npnl = pnl?.npnl?.toFixed(2);
                 users[i].noOfTrade = pnl?.noOfTrade;
 
+                if(user?.fcmTokens?.length>0){
+                  await sendMultiNotifications('Internship Payout Credited', 
+                    `₹${creditAmount?.toFixed(2)} credited to your wallet for your Internship profit as payout`,
+                    user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                    )  
+                }
               } else {
                 users[i].payout = 0;
                 users[i].tradingdays = tradingdays;

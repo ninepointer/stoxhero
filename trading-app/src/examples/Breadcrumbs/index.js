@@ -59,25 +59,25 @@ function Breadcrumbs({ icon, title, route, light }) {
   } else if(title === "stoxherodashboard"){
     title = "StoxHero Dashboard"
   } else if(title === "contestdashboard"){
-    title = "Contest Dashboard"
+    title = "TestZone Dashboard"
   } else if(title === "dailycontestdetails"){
-    title = "Daily Contest Details"
+    title = "Daily TestZone Details"
   } else if(title === "tradingholiday"){
     title = "Trading Holidays"
   } else if(title === "infinitymining"){
     title = "Infinity Mining"
   } else if(title === "dailycontestposition"){
-    title = "Daily Contest Positions"
+    title = "Daily TestZone Positions"
   } else if(title === "dailycontestpositiontrader"){
-    title = "Daily Contest Positions - Trader Side"
+    title = "Daily TestZone Positions - Trader Side"
   } else if(title === "contestdashboard"){
-    title = "Contest Dashboard"
+    title = "TestZone Dashboard"
   } else if(title === "virtualdashboard"){
     title = "Virtual Trading Dashboard"
   } else if(title === "contestscoreboard"){
-    title = "Contest Scoreboard"
+    title = "TestZone Scoreboard"
   } else if(title === "collegecontest"){
-    title = "College Contests"
+    title = "College TestZone"
   } else if(title === "stoxherouserdashboard"){
     title = "StoxHero Dashboard"
   } 
@@ -85,7 +85,7 @@ function Breadcrumbs({ icon, title, route, light }) {
     title = "MarginX"
   } 
   else if(title === "collegecontests"){
-    title = "College Contests"
+    title = "College TestZones"
   } 
   else if(title === "tenxsubscribers"){
     title = "TenX Subscribers"
@@ -111,8 +111,8 @@ function Breadcrumbs({ icon, title, route, light }) {
   else if(title === "affiliateprograms"){
     title = "Affiliate Programs"
   }  
-  else if(title === "toptestarenaportfolios"){
-    title = "Top TestArena Portfolios"
+  else if(title === "toptestzoneportfolios"){
+    title = "Top TestZone Portfolios"
   } 
   
   

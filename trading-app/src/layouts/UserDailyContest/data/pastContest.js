@@ -230,7 +230,7 @@ function PastContest() {
                                                 <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                     <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                            TestArena Completed
+                                                            TestZone Completed
                                                         </MDBox>
                                                     </MDBox>
                                                 </Grid>
@@ -292,7 +292,7 @@ function PastContest() {
                                                             component={Link}
                                                             // disabled={timeDifference > 0}
                                                             to={{
-                                                                pathname: `/contestorders/${elem.contestName}`,
+                                                                pathname: `/testzoneorders/${elem.contestName}`,
                                                             }}
                                                             state={{data: elem._id}}
                                                             // onClick={() => { participateUserToContest(elem) }}

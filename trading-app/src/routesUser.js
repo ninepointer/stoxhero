@@ -92,19 +92,19 @@ import PaymentStatus from "./layouts/paymentTest/paymentStatus";
 const routes = [
 
   {
-    route: "/completedcontests",
+    route: "/completedtestzone",
     component: <CompletedDailyContest />,
   },
   {
-    route: "/testarenaprofile/:name",
+    route: "/testzoneprofile/:name",
     component: <ContestProfile />,
   },
   {
-    route: "/toptestarenaportfolios",
+    route: "/toptestzoneportfolios",
     component: <TopContestPerformersList />,
   },
   {
-    route: "/completedcollegecontests",
+    route: "/completedcollegetestzone",
     component: <CompletedDailyCollegeContest />,
   },
   {
@@ -116,11 +116,11 @@ const routes = [
     component: <BattleDetails />,
   },
   {
-    route: "/completedcontests/:name",
+    route: "/completedtestzone/:name",
     component: <DailyContestOrder />,
   },
   {
-    route: "/completedcontests/:name/leaderboard",
+    route: "/completedtestzone/:name/leaderboard",
     component: <CompletedContestLeaderboard />,
   },
   {
@@ -132,7 +132,7 @@ const routes = [
     component: <BattleOrder />,
   },
   {
-    route: "/completedcollegecontests/:name",
+    route: "/completedcollegetestzone/:name",
     component: <DailyCollegeContestOrder />,
   },
   {
@@ -170,10 +170,10 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "TestArena",
-    key: "testarena",
+    name: "TestZone",
+    key: "testzone",
     icon: <EmojiEventsIcon/>,
-    route: "/testarena",
+    route: "/testzone",
     component: <UserDailyContest />,
   },
   {
@@ -194,10 +194,10 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "College TestArena",
-    key: "collegetestarena",
+    name: "College TestZone",
+    key: "collegetestzone",
     icon: <SchoolIcon/>,
-    route: "/collegetestarena",
+    route: "/collegetestzone",
     component: <UserDailyContestCollage />,
   },
   {
@@ -227,7 +227,7 @@ const routes = [
     component: <ContestPage />,
   },
   {
-    route: "/testarena/:name",
+    route: "/testzone/:name",
     component: <ContestTradingWindow />,
   },
   {
@@ -239,7 +239,7 @@ const routes = [
     component: <BattleTradingWindow />,
   },
   {
-    route: "/collegetextarena/:name",
+    route: "/collegetestzone/:name",
     component: <CollegeContestTradingWindow />,
   },
   {
@@ -255,7 +255,7 @@ const routes = [
     component: <ResultPage />,
   },
   {
-    route: "textarena/result",
+    route: "testzone/result",
     component: <DailyContestResultPage />,
   },
 
@@ -268,7 +268,7 @@ const routes = [
     component: <BattleResultPage />,
   },
   {
-    route: "collegetestarena/result",
+    route: "collegetestzone/result",
     component: <DailyCollegeContestResultPage />,
   },
   {
@@ -282,9 +282,9 @@ const routes = [
   {
     // type: "collapse",
     // name: "Contest Scoreboard",
-    key: "testarenascoreboard",
+    key: "testzonescoreboard",
     // icon: <EmojiEventsIcon/>,
-    route: "/testarenascoreboard",
+    route: "/testzonescoreboard",
     component: <ContestScoreboard />,
   },
   {

@@ -10,6 +10,7 @@ const Wallet = require("../models/UserWallet/userWalletSchema");
 const uuid = require('uuid');
 const { ObjectId } = require("mongodb");
 const sendMail = require('../utils/emailService');
+const {sendMultiNotifications} = require('../utils/fcmService');
 const moment = require('moment');
 const mongoose = require('mongoose');
 const {createUserNotification} = require('../controllers/notification/notificationController');
@@ -622,7 +623,7 @@ exports.autoExpireTenXSubscription = async () => {
     let users = subscription[i].users;
     let subscriptionId = subscription[i]._id
     let validity = subscription[i].validity;
-    let payoutPercentage = subscription[i].payoutPercentage;
+    let payoutPercentage = subscription[i].payoutPercentage || 10;
     let expiryDays = subscription[i].expiryDays;
     for (let j = 0; j < users.length; j++) {
       const session = await mongoose.startSession();
@@ -631,7 +632,12 @@ exports.autoExpireTenXSubscription = async () => {
         let userId = users[j].userId;
         let fee = users[j]?.fee;
         let subscribedOn = users[j].subscribedOn;
+        // let expiredOn = users[j].expiredOn;
         let status = users[j].status;
+        const timeDifference = (new Date()).getTime() - (new Date(subscribedOn)).getTime();
+        // Convert milliseconds to days
+        const daysDifference = Math.floor(timeDifference / (1000 * 3600 * 24));
+
 
         const today = new Date();  // Get the current date
 
@@ -796,6 +802,9 @@ exports.autoExpireTenXSubscription = async () => {
                     $toDouble: "$brokerage",
                   },
                 },
+                trades: {
+                  $count: {},
+                },
               },
             },
             {
@@ -805,6 +814,9 @@ exports.autoExpireTenXSubscription = async () => {
                   npnl: {
                     $subtract: ["$amount", "$brokerage"],
                   },
+                  gpnl: "$amount",
+                  brokerage: "$brokerage",
+                  trades: 1,
                 },
             },
           ])
@@ -818,10 +830,10 @@ exports.autoExpireTenXSubscription = async () => {
           }
     
 
-          // console.log("payoutAmount", (payoutAmount > 0 && tradingDays[0]?.totalTradingDays === validity))
+          console.log("payoutAmount",pnlDetails[0]?.npnl, pnl, profitCap, subscription[i].profitCap, payoutPercentage, payoutAmountWithoutTDS, users[j]?.fee, daysDifference >= expiryDays)
 
-          if (tradingDays.length && Math.floor(tradingDays[0]?.actualRemainingDay) <= 0) {
-            // console.log(pnlDetails[0]?.npnl, pnl, profitCap, payoutAmount, userId)
+          if ((tradingDays.length && Math.floor(tradingDays[0]?.actualRemainingDay) <= 0) || (daysDifference >= expiryDays)) {
+            console.log(daysDifference >= expiryDays)
 
             const user = await User.findOne({ _id: new ObjectId(userId), status: "Active" });
             if(user){
@@ -833,6 +845,13 @@ exports.autoExpireTenXSubscription = async () => {
                   user.subscription[k].status = "Expired";
                   user.subscription[k].expiredOn = new Date();
                   user.subscription[k].expiredBy = "System";
+
+                  user.subscription[k].npnl = pnlDetails[0]?.npnl || 0;
+                  user.subscription[k].gpnl = pnlDetails[0]?.gpnl  || 0;
+                  user.subscription[k].brokerage = pnlDetails[0]?.brokerage  || 0;
+                  user.subscription[k].tradingDays = tradingDays[0]?.totalTradingDays  || 0;
+                  user.subscription[k].trades = pnlDetails[0]?.trades  || 0;
+
                   if(tradingDays[0]?.totalTradingDays >= validity){
                     user.subscription[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0) 
                     user.subscription[k].tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
@@ -854,6 +873,12 @@ exports.autoExpireTenXSubscription = async () => {
                   subs.users[k].status = "Expired";
                   subs.users[k].expiredOn = new Date();
                   subs.users[k].expiredBy = "System";
+
+                  subs.users[k].npnl = pnlDetails[0]?.npnl || 0;
+                  subs.users[k].gpnl = pnlDetails[0]?.gpnl || 0;
+                  subs.users[k].brokerage = pnlDetails[0]?.brokerage || 0;
+                  subs.users[k].tradingDays = tradingDays[0]?.totalTradingDays || 0;
+                  subs.users[k].trades = pnlDetails[0]?.trades || 0;
                   if(tradingDays[0]?.totalTradingDays >= validity){
                     subs.users[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0) 
                     subs.users[k].tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0; 
@@ -974,11 +999,11 @@ exports.autoExpireTenXSubscription = async () => {
                 }
 
                 if(process.env.PROD == 'true'){
-                  whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage).toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
-                  whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage).toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                  whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage)?.toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount?.toLocaleString('en-IN')], tags : '', attributes : ''});
+                  whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage)?.toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount?.toLocaleString('en-IN')], tags : '', attributes : ''});
                 }
                 else {
-                  whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage).toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                  whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage)?.toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount?.toLocaleString('en-IN')], tags : '', attributes : ''});
                   // whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, subscription[i]?.payoutPercentage,subscription[i]?.plan_name, moment.utc(subs.users[k].subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
                 }
                 
@@ -994,6 +1019,12 @@ exports.autoExpireTenXSubscription = async () => {
                   createdBy:'63ecbc570302e7cf0153370c',
                   lastModifiedBy:'63ecbc570302e7cf0153370c'  
                 }, session);
+                if(user?.fcmTokens?.length>0){
+                  await sendMultiNotifications('TenX Payout Credited', 
+                    `₹${payoutAmount?.toFixed(2)} credited for your profit in TenX plan ${subscription[i]?.plan_name}`,
+                    user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                    )  
+                }
 
               }
               await session.commitTransaction();

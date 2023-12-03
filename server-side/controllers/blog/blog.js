@@ -1,134 +1,184 @@
-const mongoose = require('mongoose');
 const Blog = require('../../models/blogs/blogs');
-const{stringify} = require('flatted');
-const moment = require('moment');
-const express = require('express');
-const multer = require('multer');
 const AWS = require('aws-sdk');
+const { ObjectId } = require("mongodb");
+const {decode} = require('html-entities');
 const sharp = require('sharp');
-const storage = multer.memoryStorage();
-const fileFilter = (req, file, cb) => {
-// console.log("File upload started");
-  if (file.mimetype.startsWith("image/")) {
-    cb(null, true);
-} else {
-    cb(new Error("Invalid file type"), false);
-}
-}
+
+
 AWS.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     region: process.env.AWS_REGION
-    // accessKeyId: "AKIASR77BQMICZATCLPV",
-    // secretAccessKey: "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",
-  
-  });
-  
-const upload = multer({ storage, fileFilter }).single("thumbnailImage");
-// console.log("Upload:",upload)
+
+});
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
 
-// console.log("Keys:",process.env.AWS_ACCESS_KEY_ID, process.env.AWS_SECRET_ACCESS_KEY);
 
-exports.uploadMulter = upload;
-
-exports.resizePhoto = (req, res, next) => {
-    if (!req.file) {
-      // no file uploaded, skip to next middleware
-      console.log('no file');
-      next();
-      return;
-    }
-    sharp(req.file.buffer).resize({width: 1080, height: 720}).toBuffer()
-    .then((resizedImageBuffer) => {
-      req.file.buffer = resizedImageBuffer;
-      // console.log("Resized:",resizedImageBuffer)
-      next();
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send({ message: "Error resizing photo" });
-    });
-}; 
-
-exports.uploadToS3 = async(req, res, next) => {
-    if (!req.file) {
-      // no file uploaded, skip to next middleware
-      next();
-      return;
-    }
-  
-    // create S3 upload parameters
-    let blogTitle;
-    if(req.body.blogTitle){
-        blogTitle = req.body.blogTitle;
-    }else{
-        let blog = await Blog.findById(req.params.id);
-        blogTitle = `${blog?.blogTitle}` ;
-    }
-    const key = `blogs/${blogTitle}/photos/${(Date.now()) + req.file.originalname}`;
-    const params = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: key,
-      Body: req.file.buffer,
-      ContentType: req.file.mimetype,
-      ACL: 'public-read',
-    };
-  
-    // upload image to S3 bucket
-    
-    s3.upload((params)).promise()
-      .then((s3Data) => {
-        // console.log('file uploaded');
-        // console.log(s3Data.Location);
-        (req).uploadUrl = s3Data.Location;
-        next();
-      })
-      .catch((err) => {
-        console.error(err);
-        res.status(500).send({ message: "Error uploading to S3" });
-      });
-  };
-
-
-  const filterObj = (obj, ...allowedFields) => {
-    const newObj = {};
-    Object.keys(obj).forEach((el) => {
-      if (
-        allowedFields.includes(el) &&
-        obj[el] !== null &&
-        obj[el] !== undefined &&
-        obj[el] !== ''
-      ) {
-        newObj[el] = obj[el];
-      }
-    });
-    return newObj;
-  };
- 
-
-
-exports.createBlog = async (req, res) => {
+exports.createBlog = (async (req, res, next) => {
     
     try {
-        const {blogTitle, content, author, tags} = req.body;
-        const thumbnailImage = (req).uploadUrl;
-        console.log(req.body)
-        console.log(thumbnailImage)
-        if(!blogTitle)return res.status(400).json({status: 'error', message: 'Enter all mandatory fields.'})
+        const { title, metaTitle, category, metaDescription, metaKeywords, status  } = req.body;
+        const slug = title.replace(/ /g, "-").toLowerCase();
+        const uploadedFiles = req.files;
+        const otherImages = uploadedFiles.files && await Promise.all(await processUpload(uploadedFiles.files, s3, title));
+        const titleImage = uploadedFiles.titleFiles && await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, title, true));
         const blog = await Blog.create({
-            blogTitle, content, author, tags,
-            createdBy: req.user._id, lastModifiedBy: req.user._id, thumbnailImage
+            blogTitle: title, thumbnailImage: titleImage[0], images: otherImages,
+            createdBy: req.user._id, lastModifiedBy: req.user._id, status: "Created",
+            metaTitle, category, metaDescription, metaKeywords, slug
+        });
+       
+        res.status(200).json({status: "success", data: blog, message: "Blog created successfully."});
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({status: "error", err: error, message: "Error uploading files."});
+    }
+
+});
+
+const processUpload = async(uploadedFiles, s3, title, isTitleImage)=>{
+    const MAX_LIMIT = 5*1024*1024;
+    const fileUploadPromises = uploadedFiles.map(async (file) => {
+        
+        if(file.size > MAX_LIMIT){
+            return res.status(500).send({status: "error", err: error, message: 'Image size should be less then 5 MB.'});
+        }
+        if(isTitleImage){
+            file.buffer = await sharp(file.buffer)
+            .resize({ width: 1080, height: 720 })
+            .toBuffer();
+        }
+        const key = `blogs/${title}/photos/${(Date.now()) + file.originalname}`;
+        const uploadParams = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: key,
+            Body: file.buffer,
+            ContentType: file.mimetype,
+            ACL: 'public-read',
+        };
+        const uploadedObject = await s3.upload(uploadParams).promise();
+        return {
+            name: file.originalname,
+            url: uploadedObject.Location,
+            // size: (uploadedObject).Size,
+            // mimetype: file.mimetype,
+        };
+    });
+
+    return fileUploadPromises;
+}
+
+exports.editBlog = (async (req, res, next) => {
+
+    try {
+        // const { title } = req.body;
+        const update = req.body;
+        const {id} = req.params;
+        const uploadedFiles = req.files;
+        let otherImages; let titleImage;
+
+        // console.log("uploadedFiles", uploadedFiles);
+        const blog = await Blog.findOne({_id: new ObjectId(id)});
+        // if(title){
+        //     blog.blogTitle = title;
+        // }
+        if(uploadedFiles?.files){
+            otherImages = await Promise.all(await processUpload(uploadedFiles.files, s3, update.blogTitle));
+            update.images = blog.images.concat(otherImages);
+            // console.log("blog.images", blog.images)
+        }
+        if(uploadedFiles?.titleFiles){
+            titleImage = await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, update.blogTitle, true));
+            update.thumbnailImage = titleImage[0];
+        }
+        if(update.blogTitle){
+            update.slug = update.blogTitle.replace(/ /g, "-").toLowerCase();
+        }
+
+        update.lastModifiedBy = req?.user?._id;
+        update.lastModifiedOn = new Date();
+        if(update.status === "Published"){
+            update.publishedOn = new Date();
+        }
+        const blogUpdate = await Blog.findOneAndUpdate({_id: new ObjectId(id)}, update, {new: true})
+
+        // console.log("blog", blogUpdate , update)
+        res.status(200).json({status: "success", data: blogUpdate, message: "Blog edited successfully"});
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({status: "error", err: error, message: "Error uploading files."});
+    }
+
+});
+
+exports.removeImage = (async (req, res, next) => {
+
+    try {
+        const {id, docId} = req.params;
+
+        // console.log(uploadedFiles, update);
+        const blog = await Blog.findOne({_id: new ObjectId(id)});
+        const images = blog.images.filter((elem)=>{
+            return elem._id.toString() !== docId.toString()
         });
 
-        res.status(201).json({
+        blog.images = images;
+        await blog.save({ validateBeforeSave: false, new: true })
+
+        res.status(200).json({status: "success", data: blog, message: "Blog edited successfully"});
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({status: "error", err: error, message: "Error uploading files."});
+    }
+
+});
+
+exports.saveBlogData = async(req, res, next) => {
+    console.log("saved data")
+    const id = req.params.id;
+//     const textDecoder = new TextEncoder();
+
+//     const decodedData = textDecoder.decode(req.body.blogData);
+// console.log(decodedData)
+    const content = decode(req.body.blogData)
+    const wordCount = content.split(" ").length;
+
+    // Average reading speed (in words per minute)
+    const wordsPerMinute = 200;
+
+    // Calculate the reading time in minutes
+    const readingTimeMinutes = Math.ceil(wordCount / wordsPerMinute);
+    const blog = await Blog.findOneAndUpdate({_id: new ObjectId(id)}, {
+        $set: {
+            blogData: decode(req.body.blogData),
+            readingTime: readingTimeMinutes
+        }
+    });
+
+    return res.status(200).json({message: 'Successfully saved Blog Data.', data: blog});
+}
+
+exports.getUserPublishedBlogs = async (req, res, next) => {
+    try {
+        const skip = parseInt(req.query.skip) || 0;
+        const limit = parseInt(req.query.limit) || 10
+        const count = await Blog.countDocuments({ status: "Published" });
+
+        const publishedBlogs = await Blog.find({ status: "Published" })
+            .select('-reader -images -createdBy -createdOn -lastModifiedOn -lastModifiedBy -metaDescription -metaTitle -metaKeywords -blogData')
+            .sort({ publishedOn: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        res.status(200).json({
             status: 'success',
-            message: "Blog created successfully",
-            data: blog
+            data: publishedBlogs,
+            count: count
         });
+
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -137,57 +187,33 @@ exports.createBlog = async (req, res) => {
             error: error.message
         });
     }
-};
+}
 
-// exports.editBlog = async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const updateFields = req.body;
+exports.viewBlog = async(req, res, next) => {
+    const {ip, isMobile, country, blogId} = req.body;
+    const blog = await Blog.findOne({_id: new ObjectId(blogId)});
+    let flag = false;
 
-//         let blog = await Blog.findOne({ _id: id });
+    await Promise.all(blog.reader.map((elem)=>{
+        if(elem.ip === ip){
+            flag = true
+        }
+    }))
 
-//         if (!blog) {
-//             return res.status(404).json({
-//                 status: 'error',
-//                 message: "Blog not found.",
-//             });
-//         }
+    if(!flag){
+        blog.reader.push({
+            ip: ip,
+            isMobile: isMobile,
+            country: country,
+            time: new Date()
+        })
+    }
 
-//         updateFields.lastModifiedBy = req.user._id;
-//         updateFields.lastModifiedOn = new Date();
-//         blog = await Blog.findOneAndUpdate({  _id: id }, updateFields, { new: true }).populate('lastModifiedBy', 'first_name last_name');
+    blog.viewCount += 1;
+    const save = await blog.save({ validateBeforeSave: false, new: true });
 
-//         res.status(200).json({
-//             status: 'success',
-//             message: "Blog updated successfully",
-//             data: blog
-//         });
-//     } catch (error) {
-//         console.log(error);
-//         res.status(500).json({
-//             status: 'error',
-//             message: "Something went wrong",
-//             error: error.message
-//         });
-//     }
-// };
 
-exports.editBlog = async(req, res, next) => {
-    const id = req.params.id;
-    console.log("Req Body:",req.body)
-    console.log("id is ,", id)
-    const blog = await Blog.findById(id);
-
-    const filteredBody = filterObj(req.body, "blogTitle", "content", "author", "thumbnailImage");
-    if(req.body.blogContent)filteredBody.blogContent=[...blog.blogContent,
-        {serialNumber:req.body.blogContent.serialNumber,
-            content:req.body.blogContent.content,header:req.body.blogContent.header,youtubeVideoCode:req.body.blogContent.youtubeVideoCode,image:req.body.blogContent.image}]
-    filteredBody.lastModifiedBy = req.user._id;    
-
-    console.log(filteredBody)
-    const updated = await Blog.findByIdAndUpdate(id, filteredBody, { new: true });
-
-    return res.status(200).json({message: 'Successfully edited Blog.', data: updated});
+    return res.status(200).json({status:"success", message: 'reader data saved.', data: save});
 }
 
 exports.updateBlogStatus = async (req, res) => {
@@ -244,12 +270,32 @@ exports.getAllBlogs = async (req, res) => {
     }
 };
 
+exports.getBlogByTitle = async (req, res) => {
+    const { title } = req.params;
+    try {
+        const blogs = await Blog.findOne({slug: title})
+        .select('-reader')
+        res.status(201).json({
+            status: 'success',
+            data: blogs
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
 exports.getBlog = async (req, res) => {
     const { id } = req.params;
     try {
-        const blogs = await Blog.findOne({_id:id}).populate('lastModifiedBy', 'first_name last_name')
-        .populate('blogContent', 'header, serialNumber, content, image, youtubeVideoCode');
-        
+        const blogs = await Blog.findOne({_id:new ObjectId(id)})
+        // .populate('lastModifiedBy', 'first_name last_name')
+        // .populate('blogContent', 'header, serialNumber, content, image, youtubeVideoCode');
+        // .select('-reader')
         res.status(200).json({
             status: 'success',
             data: blogs
@@ -266,8 +312,8 @@ exports.getBlog = async (req, res) => {
 
 exports.getPublishedBlogs = async (req, res) => {
     try {
-        const publishedBlogs = await Blog.find({ status: 'Published' }).populate('lastModifiedBy', 'first_name last_name')
-        .populate('blogContent', 'header, serialNumber, content, image, youtubeVideoCode')
+
+        const publishedBlogs = await Blog.find({status: "Published"}).populate('lastModifiedBy', 'first_name last_name')
         
         res.status(200).json({
             status: 'success',
@@ -287,8 +333,10 @@ exports.getPublishedBlogs = async (req, res) => {
 
 exports.getDraftBlogs = async (req, res) => {
     try {
+        const clientIP = req.ip || req.connection.remoteAddress;
+        console.log("clientIP", clientIP, req.headers['x-forwarded-for'], req.ip, req.connection.remoteAddress)
         const draftBlogs = await Blog.find({ status: 'Created' }).populate('lastModifiedBy', 'first_name last_name')
-        .populate('blogContent', 'header, serialNumber, content, image, youtubeVideoCode')
+        // .populate('blogContent', 'header, serialNumber, content, image, youtubeVideoCode')
         
         res.status(200).json({
             status: 'success',
@@ -308,13 +356,13 @@ exports.getDraftBlogs = async (req, res) => {
 
 exports.getUnpublishedBlogs = async (req, res) => {
     try {
-        const unpublishedBlogs = await Blog.find({ status: 'Unpublished' }).populate('lastModifiedBy', 'first_name last_name')
-        .populate('blogContent', 'header, serialNumber, content, image, youtubeVideoCode')
+
+        const publishedBlogs = await Blog.find({status: "Unpublished"}).populate('lastModifiedBy', 'first_name last_name')
         
         res.status(200).json({
             status: 'success',
-            data: unpublishedBlogs,
-            count: unpublishedBlogs.length
+            data: publishedBlogs,
+            count: publishedBlogs.length
         });
         
     } catch (error) {

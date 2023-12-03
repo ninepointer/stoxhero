@@ -77,14 +77,14 @@ export default function RewardTable({ data, paid }) {
                 aria-describedby="alert-dialog-description"
             >
                 <DialogTitle textAlign={'center'}>
-                    TestArena Rules
+                    TestZone Rules
                 </DialogTitle>
                 <DialogContent>
                     {
                         data?.payoutType !== "Reward" ?
                             <> 
                                 <Typography textAlign="justify" fontSize={15} sx={{ width: "100%" }} color="#000" variant="body2">
-                                    <b>TestArena Details</b>: TestArena begins at {moment.utc(data?.contestStartTime).utcOffset('+05:30').format('DD-MMM HH:mm:ss')} and ends at {moment.utc(data?.contestEndTime).utcOffset('+05:30').format('DD-MMM HH:mm:ss')}. The entry fee is ₹{data?.entryFee}.
+                                    <b>TestZone Details</b>: TestZone begins at {moment.utc(data?.contestStartTime).utcOffset('+05:30').format('DD-MMM HH:mm:ss')} and ends at {moment.utc(data?.contestEndTime).utcOffset('+05:30').format('DD-MMM HH:mm:ss')}. The entry fee is ₹{data?.entryFee}.
                                 </Typography>
 
                                 <Typography textAlign="justify" fontSize={15} sx={{ width: "100%" }} color="#000" variant="body2">
@@ -104,14 +104,14 @@ export default function RewardTable({ data, paid }) {
                                 </Typography>
 
                                 <Typography textAlign="justify" fontSize={15} sx={{ width: "100%" }} color="#000" variant="body2">
-                                    <b>Daily Participation</b>:  For TestArenas spanning multiple days, daily trading is required for payout eligibility.
+                                    <b>Daily Participation</b>:  For TestZones spanning multiple days, daily trading is required for payout eligibility.
                                 </Typography>
                             </>
 
                             :
                             <>
                                 <Typography textAlign="justify" fontSize={15} sx={{ width: "100%" }} color="#000" variant="body2">
-                                    <b>Contest Details</b>: TestArena begins at {moment.utc(data?.contestStartTime).utcOffset('+05:30').format('DD-MMM HH:mm:ss')} and ends at {moment.utc(data?.contestEndTime).utcOffset('+05:30').format('DD-MMM HH:mm:ss')}. The entry fee is ₹{data?.entryFee}.
+                                    <b>Contest Details</b>: TestZone begins at {moment.utc(data?.contestStartTime).utcOffset('+05:30').format('DD-MMM HH:mm:ss')} and ends at {moment.utc(data?.contestEndTime).utcOffset('+05:30').format('DD-MMM HH:mm:ss')}. The entry fee is ₹{data?.entryFee}.
                                 </Typography>
 
                                 <Typography textAlign="justify" fontSize={15} sx={{ width: "100%" }} color="#000" variant="body2">
@@ -123,7 +123,7 @@ export default function RewardTable({ data, paid }) {
                                 </Typography>
 
                                 <Typography textAlign="justify" fontSize={15} sx={{ width: "100%" }} color="#000" variant="body2">
-                                    <b>Daily Participation</b>:  For TestArenas spanning multiple days, daily trading is required for payout eligibility.
+                                    <b>Daily Participation</b>:  For TestZones spanning multiple days, daily trading is required for payout eligibility.
                                 </Typography>
 
                                 <Card sx={{marginTop: "10px"}}>

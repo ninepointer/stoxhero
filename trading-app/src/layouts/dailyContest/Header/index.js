@@ -40,7 +40,7 @@ export default function LabTabs() {
     component={Link}
     to='/contestdashboard'
     >
-        Back to Contest Dashboard
+        Back to TestZone Dashboard
     </MDButton>
     <MDButton 
     variant="outlined" 
@@ -49,7 +49,7 @@ export default function LabTabs() {
     component={Link}
     to='/dailycontestdetails'
     >
-        Create Contest
+        Create TestZone
     </MDButton>
     </MDBox>
       <TabContext value={value}>

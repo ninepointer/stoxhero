@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User/userDetailSchema");
 const {client, getValue} = require("../marketData/redisClient");
-const { ObjectId } = require("bson");
+const ObjectId = require('mongodb').ObjectId;
 
 
 const Authenticate = async (req, res, next) => {
@@ -35,8 +35,9 @@ const Authenticate = async (req, res, next) => {
         } else {
             
             user = await User.findOne({ _id: new ObjectId(verifyToken._id), status: "Active" })
-                .select('_id employeeid first_name last_name mobile name role isAlgoTrader passwordChangedAt');
+                .select('_id employeeid first_name last_name mobile name role isAlgoTrader passwordChangedAt activationDetails');
 
+                // console.log(user)
             if (!user) { 
                 return res.status(404).json({ status: 'error', message: 'User not found' });
             }

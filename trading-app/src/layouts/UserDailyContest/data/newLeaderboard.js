@@ -69,7 +69,7 @@ function Leaderboard({ socket, name, id, data}) {
         if(data?.allData?.entryFee > 0){
             payoutCap = data?.allData?.entryFee * data?.allData?.payoutCapPercentage/100;
         } else{
-            payoutCap = data?.allData?.portfolio * data?.allData?.payoutCapPercentage/100;
+            payoutCap = data?.allData?.portfolio?.portfolioValue * data?.allData?.payoutCapPercentage/100;
         }
         myReward = Math.min(payoutCap, myPnl*data?.allData?.payoutPercentage/100>0?myPnl*data?.allData?.payoutPercentage/100:0) ;
     } else{
@@ -93,7 +93,7 @@ function Leaderboard({ socket, name, id, data}) {
             {loading ?
                 <MDBox display="flex" flexDirection='column' justifyContent="center" alignItems="center">
                     <MDBox ml={1} display="flex" justifyContent="center" alignItems="center"><CircularProgress color="black" /></MDBox>
-                    <MDBox display="flex" justifyContent="center" alignItems="center"><MDTypography fontSize={15} fontWeight='bold' color='black'>Loading Contest Leaderboard</MDTypography></MDBox>
+                    <MDBox display="flex" justifyContent="center" alignItems="center"><MDTypography fontSize={15} fontWeight='bold' color='black'>Loading TestZone Leaderboard</MDTypography></MDBox>
                 </MDBox>
                 :
                 <MDBox color="black" mt={0} mb={0} borderRadius={10} minHeight='auto'>
@@ -126,7 +126,7 @@ function Leaderboard({ socket, name, id, data}) {
                                                 />
                                             </Grid>
                                             <Grid item xs={12} lg={12} display='flex' justifyContent='left' alignItems='center'>
-                                                <MDTypography fontSize={15} color='black' fontWeight='bold'>StoxHero {name} Contest Leaderboard</MDTypography>
+                                                <MDTypography fontSize={15} color='black' fontWeight='bold'>StoxHero {name} TestZone Leaderboard</MDTypography>
                                             </Grid>
                                             <Grid item xs={12} lg={4} display='flex' justifyContent='right' alignItems='center' gap={1} mr={1}>
                                                 <MDBox><MDTypography fontSize={15} color='#000000' backgroundColor='#000000' fontWeight='bold' style={{ cursor: 'pointer', borderRadius: "5px" }}><MDButton variant='text' size='small' onClick={() => window.open('https://instagram.com/stoxhero_official?igshid=MzRlODBiNWFlZA==', '_blank')}><InstagramIcon /></MDButton></MDTypography></MDBox>
@@ -225,7 +225,7 @@ function Leaderboard({ socket, name, id, data}) {
                                                 if(data?.allData?.entryFee > 0){
                                                     payoutCap = data?.allData?.entryFee * data?.allData?.payoutCapPercentage/100;
                                                 } else{
-                                                    payoutCap = data?.allData?.portfolio * data?.allData?.payoutCapPercentage/100;
+                                                    payoutCap = data?.allData?.portfolio?.portfolioValue * data?.allData?.payoutCapPercentage/100;
                                                 }
                                                 myReward = Math.min(payoutCap, elem?.npnl * data?.allData?.payoutPercentage/100>0?elem?.npnl * data?.allData?.payoutPercentage/100:0);
                                             } else{
@@ -293,7 +293,7 @@ function Leaderboard({ socket, name, id, data}) {
                                     :
 
                                     <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center'>
-                                        <MDBox mb={2}><MDTypography fontSize={15} color='black' fontWeight='bold' style={{ cursor: 'pointer' }}>The Contest Leaderboard will be displayed here!</MDTypography></MDBox>
+                                        <MDBox mb={2}><MDTypography fontSize={15} color='black' fontWeight='bold' style={{ cursor: 'pointer' }}>The TestZone Leaderboard will be displayed here!</MDTypography></MDBox>
                                     </Grid>
 
                                 }

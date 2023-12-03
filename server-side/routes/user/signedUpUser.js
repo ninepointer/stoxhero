@@ -104,6 +104,7 @@ router.patch("/verifyotp", async (req, res) => {
         mobile,
         mobile_otp,
         referrerCode,
+        fcmTokenData
     } = req.body
 
 
@@ -190,6 +191,10 @@ router.patch("/verifyotp", async (req, res) => {
             campaignCode: campaign && referrerCode,
             referredBy: referredBy && referredBy,
             creationProcess: referredBy ? 'Referral SignUp' : 'Auto SignUp',
+        }
+        if(fcmTokenData){
+            fcmTokenData.lastUsedAt = new Date();
+            obj.fcmTokens = [fcmTokenData];
         }
         // console.log('password', password);
         // if(password){
@@ -278,7 +283,7 @@ router.patch("/verifyotp", async (req, res) => {
                     referralEarning: referralProgramme.rewardPerReferral,
                     referralCurrency: referralProgramme.currency,
                 }];
-                if(referralProgramme?.referrralSignupBonus?.amount){
+                if(referralProgramme?.referralSignupBonus?.amount){
                     await addSignupBonus(newuser?._id, referralProgramme?.referralSignupBonus?.amount, referralProgramme?.referralSignupBonus?.currency);
                 }
                 await referrerCodeMatch.save({ validateBeforeSave: false });
@@ -383,19 +388,19 @@ router.patch("/verifyotp", async (req, res) => {
                     <p>Welcome to StoxHero - Your Gateway to the Exciting World of Options Trading and Earning! </p>
                     <p> StoxHero is a specialized Intraday Options Trading Platform focusing on indices such as NIFTY, BANKNIFTY & FINNIFTY.</p>
                     <p>Congratulations on joining our ever-growing community of traders and learners. We are thrilled to have you onboard and can't wait to embark on this exciting journey together. At StoxHero, we offer a range of programs designed to help you learn and excel in trading while providing you with opportunities to earn real profits from virtual currency. Let's dive into the fantastic programs that await you:</p>
-                    <p>1. Virtual Trading:
+                    <p>1. F&O Trading:
                     Start your trading experience with a risk-free environment! In Virtual Trading, you get INR 10L worth of virtual currency to practice your trading skills, test strategies, and build your profit and loss (P&L) under real market scenarios without any investment. It's the perfect platform to refine your trading strategies and gain confidence before entering the real market.</p>
-                    <p>2. Ten X:
+                    <p>2. TenX:
                     Participate in our Ten X program and explore various trading opportunities. Trade with virtual currency and, after completing 20 trading days, you become eligible for a remarkable 10% profit share or profit CAP amount from the net profit you make in the program. You'll not only learn trading but also earn real money while doing so - a win-win situation!</p>
-                    <p>3. Contests:
-                    Challenge yourself in daily contests where you compete with other users based on your P&L. You'll receive virtual currency to trade with, and your profit share from the net P&L you achieve in each contest will add to your earnings. With different contests running, you have the flexibility to choose and participate as per your preference.</p>
-                    <p>4. College Contest:
-                    Attention college students! Our College Contest is tailored just for you. Engage in daily intraday trading contests, and apart from receiving profit share from your net P&L, the top 3 performers will receive an appreciation certificate highlighting their outstanding performance.</p>
+                    <p>3. TestZone:
+                    Challenge yourself in daily TestZones where you compete with other users based on your P&L. You'll receive virtual currency to trade with, and your profit share from the net P&L you achieve in each TestZone will add to your earnings. With different TestZones running, you have the flexibility to choose and participate as per your preference.</p>
+                    <p>4. College TestZone:
+                    Attention college students! Our College TestZone is tailored just for you. Engage in daily intraday trading TestZones, and apart from receiving profit share from your net P&L, the top 3 performers will receive an appreciation certificate highlighting their outstanding performance.</p>
                     <p>To help you get started and make the most of our programs, we've prepared comprehensive tutorial videos for each of them:</p>
                     <p><a href='https://youtu.be/6wW8k-8zTXY'>Virtual Trading Tutorial</a></br>
                     <a href='https://www.youtube.com/watch?v=a3_bmjv5tXQ'>Ten X Tutorial</a></br>
-                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>Contests Tutorial</a></br>
-                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>College Contest Tutorial</a></p>
+                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>TestZones Tutorial</a></br>
+                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>College TestZone Tutorial</a></p>
                     <p>For any queries or assistance, our dedicated team is always here to support you. Feel free to connect with us on different platforms:
                     </p>
                     <p><a href='https://t.me/stoxhero_official'>Telegram</a></br>

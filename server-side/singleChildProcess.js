@@ -41,6 +41,7 @@ const hpp = require("hpp")
 const { processBattles } = require("./controllers/battles/battleController")
 const Product = require('./models/Product/product');
 const {mail} = require("./controllers/dailyReportMail")
+const {dailyContestTradeCut, dailyContestTimeStore} = require("./dailyContestTradeCut")
 
 async function singleProcess() {
     await setIOValue()
@@ -196,7 +197,6 @@ async function singleProcess() {
     });
 
     //emitting leaderboard for contest.
-
    if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });
@@ -275,13 +275,14 @@ async function singleProcess() {
         const autoExpire = nodeCron.schedule(`0 30 10 * * *`, autoExpireTenXSubscription);
         const internshipPayout = nodeCron.schedule(`0 30 17 * * *`, updateUserWallet);
         const reportMail = nodeCron.schedule(`0 0 18 * * *`, mail);
-    }
-    const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
-    // const battle = nodeCron.schedule(`56 5 * * *`, processBattles);
+            // const dailyContest = nodeCron.schedule(`*/2 * * * * *`, dailyContestTradeCut);
+    // const dailyContesttimeStore = nodeCron.schedule(`49 3 * * *`, dailyContestTimeStore);
+    // const dailyContesttimeStore = nodeCron.schedule(`*/59 * * * * *`, dailyContestTimeStore);
 
+    }
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
-    app.use(express.json({ limit: "20kb" }));
+    app.use(express.json({ limit: "10mb" }));
     app.use(require("cookie-parser")());
     app.use(cors({
         credentials: true,
@@ -398,6 +399,7 @@ async function singleProcess() {
     app.use('/api/v1/KYC', require("./routes/KYCApproval/KYCRoutes"));
     app.use('/api/v1/paymenttest', require("./routes/paymentTest/paymentTestRoutes"));
     app.use('/api/v1/stoxherouserdashboard', require("./routes/StoxHeroDashboard/userAnalytics"));
+    app.use('/api/v1/revenue', require("./routes/revenuDashboardRoutes/revenueDashboardRoute"));
     app.use('/api/v1/marginrequired', require("./routes/marginRequired/marginRequired"));
     app.use('/api/v1/userdashboard', require('./routes/UserDashboard/dashboardRoutes'));
     app.use('/api/v1/post', require("./routes/post/postRoutes"));
@@ -409,12 +411,14 @@ async function singleProcess() {
     app.use('/api/v1/notifications', require("./routes/notification/notificationRoutes"));
     app.use('/api/v1/coupons', require("./routes/coupon/couponRoutes"));
     app.use('/api/v1/blogs', require("./routes/blog/blogRoutes"));
+    app.use('/api/v1/learningmodule', require("./routes/learningModule/learningModuleRoutes"));
     app.use('/api/v1/alltradeview', require("./routes/viewRoutes/allTradesViewRoute"));
     app.use('/api/v1/push', require("./routes/pushNotifications/pushNotificationRoutes"));
 
 
     const PORT = process.env.PORT || 5002;
     const server = app.listen(PORT);
+
 
     if(process.env.CHART === "true"){
         webSocketService.init(io);

@@ -60,6 +60,8 @@ function ModifyPopUp({data, id, handleCloseMenu, setMsg, from}) {
     });
     let index = symbolName.includes("BANK") ? "BANKNIFTY" : symbolName.includes("FIN") ? 'FINNIFTY' : "NIFTY";
     let lotSize = symbolName.includes("BANK") ? lotSize_BankNifty : symbolName.includes("FIN") ? lotSize_FinNifty : lotSize_Nifty;
+    let maxLot = symbolName.includes("BANK") ? lotSize_BankNifty : symbolName.includes("FIN") ? lotSize_FinNifty : lotSize_Nifty;
+
     id = from===paperTrader ? "6433e2e5500dc2f2d20d686d" : id;
 
     let finalLot = Math.abs(lots)/lotSize;

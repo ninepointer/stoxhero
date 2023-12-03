@@ -66,15 +66,16 @@ function Index() {
         orientationDate: dayjs(id?.orientationDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
         orientationMeetingLink: '' || id?.orientationMeetingLink,
         payoutPercentage:'' || id?.payoutPercentage,
+        payoutCap:'' || id?.payoutCap,
         attendancePercentage:'' || id?.attendancePercentage,
         career: {
-            id: "" || id?.career?._id,
-            jobTitle: "" || id?.career?.jobTitle,
+            id: id?.career?._id || "",
+            jobTitle: id?.career?.jobTitle || "",
         },
         portfolio: {
-            id: "" || id?.portfolio?._id,
-            portfolioName: "" || id?.portfolio?.portfolioName,
-            portfolioValue: "" || id?.portfolio?.portfolioValue,
+            id: id?.portfolio?._id || "",
+            portfolioName: id?.portfolio?.portfolioName || "",
+            portfolioValue: id?.portfolio?.portfolioValue || "",
         },
     });
 
@@ -102,7 +103,7 @@ function Index() {
             return new Error(err)
         })
 
-        axios.get(`${baseUrl}api/v1/career?type=${type}`)
+        axios.get(`${baseUrl}api/v1/career/all?type=${type}`, {withCredentials: true})
         .then((res)=>{
           setCareers(res?.data?.data);
         }).catch((err)=>{
@@ -112,6 +113,28 @@ function Index() {
         axios.get(`${baseUrl}api/v1/internbatch/${id?._id}`, {withCredentials:true})
         .then((res)=>{
           setBatch(res?.data?.data);
+          setFormState({
+            batchName:'' || res?.data?.data?.batchName,
+            batchStartDate: dayjs(res?.data?.data?.batchStartDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
+            batchEndDate:  dayjs(res?.data?.data?.batchEndDate) ?? dayjs(new Date()).set('hour', 23).set('minute', 59).set('second', 59),
+            participants: [{collegeName:'',joinedOn:'',userId:''}],
+            batchStatus:'' || res?.data?.data?.batchStatus,
+            referralCount:'' || res?.data?.data?.referralCount,
+            orientationDate: dayjs(res?.data?.data?.orientationDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
+            orientationMeetingLink: '' || res?.data?.data?.orientationMeetingLink,
+            payoutPercentage:'' || res?.data?.data?.payoutPercentage,
+            payoutCap:'' || res?.data?.data?.payoutCap,
+            attendancePercentage:'' || res?.data?.data?.attendancePercentage,
+            career: {
+                id: res?.data?.data?.career?._id || "",
+                jobTitle: res?.data?.data?.career?.jobTitle || "",
+            },
+            portfolio: {
+                id: res?.data?.data?.portfolio?._id || "",
+                portfolioName: res?.data?.data?.portfolio?.portfolioName || "",
+                portfolioValue: res?.data?.data?.portfolio?.portfolioValue || "",
+            },
+        })
           setTimeout(()=>{
             setIsLoading(false)
           },500)
@@ -120,6 +143,8 @@ function Index() {
             //Handle error here
         })    
     },[type])
+
+    console.log("formstate", formState, formState?.career?.jobTitle);
 
     const handleTypeChange = (e) =>{
       const value = e.target.value;
@@ -171,6 +196,7 @@ function Index() {
         !formState.portfolio || 
         !formState.attendancePercentage || 
         formState.payoutPercentage === '' || 
+        !formState.payoutCap ||
         !formState.orientationDate ||
         !formState.orientationMeetingLink ||
         !formState.referralCount){
@@ -183,7 +209,7 @@ function Index() {
       }
 
       setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-      const {batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, attendancePercentage, referralCount, orientationDate, orientationMeetingLink} = formState;
+      const {batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink} = formState;
       const res = await fetch(`${baseUrl}api/v1/internbatch/`, {
           method: "POST",
           credentials:"include",
@@ -192,7 +218,7 @@ function Index() {
               "Access-Control-Allow-Credentials": true
           },
           body: JSON.stringify({
-            batchName, batchStartDate, batchEndDate, batchStatus, career : career.id, portfolio: portfolio.id, payoutPercentage, attendancePercentage, referralCount, orientationDate, orientationMeetingLink 
+            batchName, batchStartDate, batchEndDate, batchStatus, career : career.id, portfolio: portfolio.id, payoutPercentage, attendancePercentage, payoutCap, referralCount, orientationDate, orientationMeetingLink 
           })
       });
       
@@ -242,7 +268,7 @@ function Index() {
 
     async function onEdit(e,formState){
         e.preventDefault()
-        console.log(formState)
+        console.log("Edit Form:",formState)
         setSaving(true)
         if(!formState.batchName || 
           !formState.batchStartDate || 
@@ -251,6 +277,7 @@ function Index() {
           !formState.career || 
           !formState.portfolio || 
           formState.payoutPercentage === '' || 
+          !formState.payoutCap ||
           !formState.attendancePercentage ||
           !formState.orientationDate ||
           !formState.orientationMeetingLink || 
@@ -258,7 +285,7 @@ function Index() {
             setTimeout(()=>{setSaving(false);setEditing(true)},500)
             return openErrorSB("Missing Field","Please fill all the mandatory fields")
         }
-        const { batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = formState;
+        const { batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = formState;
     
         const res = await fetch(`${baseUrl}api/v1/internbatch/${id._id}`, {
             method: "PATCH",
@@ -268,7 +295,7 @@ function Index() {
                 "Access-Control-Allow-Credentials": true
             },
             body: JSON.stringify({
-                batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id, payoutPercentage, attendancePercentage, referralCount, orientationDate, orientationMeetingLink 
+                batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink 
             })
         });
      
@@ -384,6 +411,19 @@ const handleChange = (e) => {
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
+                label='Payout Cap *'
+                name='payoutCap'
+                type='number'
+                fullWidth
+                defaultValue={editing ? formState?.payoutCap : id?.payoutCap}
+                onChange={handleChange}
+              />
+          </Grid>
+
+          <Grid item xs={12} md={6} xl={3}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
                 label='Attendance % *'
                 name='attendancePercentage'
                 type='number'
@@ -470,7 +510,7 @@ const handleChange = (e) => {
               </LocalizationProvider>
           </Grid>
 
-          <Grid item xs={12} md={6} xl={3}>
+          <Grid item xs={12} md={6} xl={3} mt={-2}>
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
@@ -484,7 +524,7 @@ const handleChange = (e) => {
           </Grid>
 
            {!id && <Grid item xs={12} md={3} xl={3}>
-                <FormControl sx={{ minHeight:10, minWidth:263 }}>
+                <FormControl sx={{ minHeight:10 }}>
                   <InputLabel id="demo-multiple-name-label">Batch Type</InputLabel>
                   <Select
                     labelId="demo-multiple-name-label"
@@ -513,7 +553,7 @@ const handleChange = (e) => {
             </Grid>}
 
            <Grid item xs={12} md={3} xl={3} mt={-2}>
-                <FormControl sx={{ minHeight:10, minWidth:263 }}>
+                <FormControl sx={{ minHeight:10, width:'100%' }}>
                   <InputLabel id="demo-multiple-name-label">Portfolio</InputLabel>
                   <Select
                     labelId="demo-multiple-name-label"
@@ -521,7 +561,7 @@ const handleChange = (e) => {
                     name='portfolio'
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     // defaultValue={id ? portfolios?.portfolio : ''}
-                    value={formState?.portfolio?.name || batch?.portfolio?.portfolioName}
+                    value={formState?.portfolio?.portfolioName || batch?.portfolio?.portfolioName}
                     onChange={handlePortfolioChange}
                     input={<OutlinedInput label="Portfolio" />}
                     sx={{minHeight:45}}
@@ -540,7 +580,7 @@ const handleChange = (e) => {
             </Grid>
 
             <Grid item xs={12} md={3} xl={3} mt={-2}>
-                <FormControl sx={{ minHeight:10, minWidth:263 }}>
+                <FormControl sx={{ minHeight:10, width:'100%' }}>
                   <InputLabel id="demo-multiple-name-label">Career</InputLabel>
                   <Select
                     labelId="demo-multiple-name-label"
@@ -548,7 +588,7 @@ const handleChange = (e) => {
                     name='jobTitle'
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     // defaultValue={id ? portfolios?.portfolio : ''}
-                    value={formState?.career?.name || batch?.career?.jobTitle}
+                    value={formState?.career?.jobTitle || batch?.career?.jobTitle}
                     onChange={handleCareerChange}
                     input={<OutlinedInput label="Career" />}
                     sx={{minHeight:45}}
@@ -584,6 +624,7 @@ const handleChange = (e) => {
                 >
                 <MenuItem value="Active">Active</MenuItem>
                 <MenuItem value="Inactive">Inactive</MenuItem>
+                <MenuItem value="Completed">Completed</MenuItem>
                 </Select>
               </FormControl>
           </Grid>

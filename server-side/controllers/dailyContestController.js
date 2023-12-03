@@ -20,6 +20,7 @@ const Coupon = require('../models/coupon/coupon');
 const {saveSuccessfulCouponUse} = require('./coupon/couponController');
 const {creditAffiliateAmount} = require('./affiliateProgramme/affiliateController');
 const AffiliateProgram = require('../models/affiliateProgram/affiliateProgram');
+const {sendMultiNotifications} = require('../utils/fcmService');
 
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
@@ -35,7 +36,7 @@ exports.createContest = async (req, res) => {
         if (getContest) {
             return res.status(500).json({
                 status: 'error',
-                message: "Contest is already exist with this name.",
+                message: "TestZone is already exist with this name.",
             });
         }
         const startTimeDate = new Date(contestStartTime);
@@ -62,7 +63,7 @@ exports.createContest = async (req, res) => {
         // console.log(contest)
         res.status(201).json({
             status: 'success',
-            message: "Contest created successfully",
+            message: "TestZone created successfully",
             data: contest
         });
     } catch (error) {
@@ -82,7 +83,7 @@ exports.editContest = async (req, res) => {
         const updates = req.body;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ status: "error", message: "Invalid contest ID" });
+            return res.status(400).json({ status: "error", message: "Invalid TestZone ID" });
         }
         const contest = await Contest.findById(id);
         if(updates?.liveThreshold && updates?.liveThreshold != contest?.liveThreshold){
@@ -105,23 +106,23 @@ exports.editContest = async (req, res) => {
             await contest.save({validateBeforeSave:false});
             return res.status(200).json({
                 status: 'success',
-                message: "Contest updated successfully",
+                message: "TestZone updated successfully",
             });
         }
         const result = await Contest.findByIdAndUpdate(id, updates, { new: true });
 
         if (!result) {
-            return res.status(404).json({ status: "error", message: "Contest not found" });
+            return res.status(404).json({ status: "error", message: "TestZone not found" });
         }
 
         res.status(200).json({
             status: 'success',
-            message: "Contest updated successfully",
+            message: "TestZone updated successfully",
         });
     } catch (error) {
         res.status(500).json({
             status: 'error',
-            message: "Error in updating contest",
+            message: "Error in updating TestZone",
             error: error.message
         });
     }
@@ -238,18 +239,18 @@ exports.deleteContest = async (req, res) => {
         const { id } = req.params;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ status: "error", message: "Invalid contest ID" });
+            return res.status(400).json({ status: "error", message: "Invalid TestZone ID" });
         }
 
         const result = await Contest.findByIdAndDelete(id);
 
         if (!result) {
-            return res.status(404).json({ status: "error", message: "Contest not found" });
+            return res.status(404).json({ status: "error", message: "TestZone not found" });
         }
 
         res.status(200).json({
             status: "success",
-            message: "Contest deleted successfully",
+            message: "TestZone deleted successfully",
             data: result
         });
     } catch (error) {
@@ -267,7 +268,7 @@ exports.getAllContests = async (req, res) => {
 
         res.status(200).json({
             status: "success",
-            message: "Contests fetched successfully",
+            message: "TestZone fetched successfully",
             data: contests
         });
     } catch (error) {
@@ -311,7 +312,7 @@ exports.getAllLiveContests = async (req, res) => {
 
         res.status(200).json({
             status: "success",
-            message: "Contests fetched successfully",
+            message: "TestZones fetched successfully",
             data: contests
         });
     } catch (error) {
@@ -335,7 +336,7 @@ exports.getContest = async (req, res) => {
 
         res.status(200).json({
             status: "success",
-            message: "Contests fetched successfully",
+            message: "TestZones fetched successfully",
             data: contests
         });
     } catch (error) {
@@ -366,13 +367,13 @@ exports.getUpcomingContests = async (req, res) => {
 
         res.status(200).json({
             status: "success",
-            message: "Upcoming contests fetched successfully",
+            message: "Upcoming TestZones fetched successfully",
             data: contests
         });
     } catch (error) {
         res.status(500).json({
             status: "error",
-            message: "Error in fetching upcoming contests",
+            message: "Error in fetching upcoming TestZones",
             error: error.message
         });
     }
@@ -430,13 +431,13 @@ exports.getCollegeUserUpcomingContests = async (req, res) => {
 
       res.status(200).json({
           status: "success",
-          message: "Upcoming contests fetched successfully",
+          message: "Upcoming TestZones fetched successfully",
           data: contests
       });
   } catch (error) {
       res.status(500).json({
           status: "error",
-          message: "Error in fetching upcoming contests",
+          message: "Error in fetching upcoming TestZones",
           error: error.message
       });
   }
@@ -457,17 +458,17 @@ exports.getUserUpcomingContests = async (req, res) => {
         .populate('participants.userId', 'first_name last_name email mobile creationProcess')
         .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
         .populate('portfolio', 'portfolioName _id portfolioValue')
-        .sort({ contestStartTime: 1 })
+        .sort({ entryFee: -1 })
 
         res.status(200).json({
             status: "success",
-            message: "Upcoming contests fetched successfully",
+            message: "Upcoming TestZones fetched successfully",
             data: contests
         });
     } catch (error) {
         res.status(500).json({
             status: "error",
-            message: "Error in fetching upcoming contests",
+            message: "Error in fetching upcoming TestZones",
             error: error.message
         });
     }
@@ -494,13 +495,13 @@ exports.getUserLiveContests = async (req, res) => {
 
         res.status(200).json({
             status: "success",
-            message: "Upcoming contests fetched successfully",
+            message: "Upcoming TestZones fetched successfully",
             data: contests
         });
     } catch (error) {
         res.status(500).json({
             status: "error",
-            message: "Error in fetching upcoming contests",
+            message: "Error in fetching upcoming TestZones",
             error: error.message
         });
     }
@@ -509,7 +510,7 @@ exports.getUserLiveContests = async (req, res) => {
 exports.getUserFeaturedContests = async (req, res) => {
   try {
 
-    const { userId } = req.user._id;
+    const userId = req.user._id;
     const contests = await Contest.find({
       featured: true,
       contestStatus: "Active",
@@ -527,7 +528,6 @@ exports.getUserFeaturedContests = async (req, res) => {
       .sort({ contestStartTime: 1 })
 
     const collegeContests = await Contest.find({
-      featured: true,
       contestStatus: "Active",
       contestFor: "College",
       potentialParticipants: { $elemMatch: { $eq: userId } }
@@ -553,7 +553,7 @@ exports.getUserFeaturedContests = async (req, res) => {
 
     res.status(200).json({
       status: "success",
-      message: "Featured contests fetched successfully",
+      message: "Featured TestZones fetched successfully",
       stoxheroLiveFeatured: liveFeatured,
       stoxheroUpcomingFeatured: upcomingFeatured,
       collegeContests: collegeContests
@@ -561,7 +561,7 @@ exports.getUserFeaturedContests = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       status: "error",
-      message: "Error in fetching upcoming contests",
+      message: "Error in fetching upcoming TestZones",
       error: error.message
     });
   }
@@ -591,13 +591,13 @@ exports.getCollegeUserLiveContests = async (req, res) => {
 
       res.status(200).json({
           status: "success",
-          message: "Upcoming contests fetched successfully",
+          message: "Upcoming TestZones fetched successfully",
           data: contests
       });
   } catch (error) {
       res.status(500).json({
           status: "error",
-          message: "Error in fetching upcoming contests",
+          message: "Error in fetching upcoming TestZones",
           error: error.message
       });
   }
@@ -619,13 +619,13 @@ exports.getOnlyUpcomingContests = async (req, res) => {
         .populate('portfolio','portfolioValue')
         res.status(200).json({
             status: "success",
-            message: "Upcoming contests fetched successfully",
+            message: "Upcoming TestZones fetched successfully",
             data: contests
         });
     } catch (error) {
         res.status(500).json({
             status: "error",
-            message: "Error in fetching upcoming contests",
+            message: "Error in fetching upcoming TestZones",
             error: error.message
         });
     }
@@ -649,14 +649,14 @@ exports.getAdminUpcomingContests = async (req, res) => {
 
         res.status(200).json({
             status: "success",
-            message: "StoxHero Upcoming contests fetched successfully",
+            message: "StoxHero Upcoming TestZones fetched successfully",
             data: contests,
             count: count
         });
     } catch (error) {
         res.status(500).json({
             status: "error",
-            message: "Error in fetching upcoming contests",
+            message: "Error in fetching upcoming TestZones",
             error: error.message
         });
     }
@@ -679,14 +679,14 @@ exports.getFeaturedUpcomingContests = async (req, res) => {
 
       res.status(200).json({
           status: "success",
-          message: "Featured Upcoming contests fetched successfully",
+          message: "Featured Upcoming TestZones fetched successfully",
           data: contests,
           count: count
       });
   } catch (error) {
       res.status(500).json({
           status: "error",
-          message: "Error in fetching upcoming contests",
+          message: "Error in fetching upcoming TestZones",
           error: error.message
       });
   }
@@ -717,14 +717,14 @@ exports.getFeaturedOngoingContests = async (req, res) => {
       .sort({ contestStartTime: 1 }).skip(skip).limit(limit)
       res.status(200).json({
           status: "success",
-          message: "Featured Ongoing Contests fetched successfully",
+          message: "Featured Ongoing TestZones fetched successfully",
           data: contests,
           count: count
       });
   } catch (error) {
       res.status(500).json({
           status: "error",
-          message: "Error in fetching featured Ongoing Contests",
+          message: "Error in fetching featured Ongoing TestZones",
           error: error.message
       });
   }
@@ -744,13 +744,13 @@ exports.getCollegeUpcomingContests = async (req, res) => {
 
       res.status(200).json({
           status: "success",
-          message: "Featured Upcoming contests fetched successfully",
+          message: "Featured Upcoming TestZones fetched successfully",
           data: contests
       });
   } catch (error) {
       res.status(500).json({
           status: "error",
-          message: "Error in fetching upcoming contests",
+          message: "Error in fetching upcoming TestZones",
           error: error.message
       });
   }
@@ -777,14 +777,14 @@ exports.getCollegeOngoingContests = async (req, res) => {
       .sort({ contestStartTime: 1 }).skip(skip).limit(limit)
       res.status(200).json({
           status: "success",
-          message: "Ongoing College Contests fetched successfully",
+          message: "Ongoing College TestZones fetched successfully",
           data: contests,
           count: count
       });
   } catch (error) {
       res.status(500).json({
           status: "error",
-          message: "Error in fetching Ongoing College Contests",
+          message: "Error in fetching Ongoing College TestZones",
           error: error.message
       });
   }
@@ -806,13 +806,13 @@ exports.todaysContest = async (req, res) => {
 
         res.status(200).json({
             status: "success",
-            message: "Today's contests fetched successfully",
+            message: "Today's TestZones fetched successfully",
             data: contests
         });
     } catch (error) {
         res.status(500).json({
             status: "error",
-            message: "Error in fetching upcoming contests",
+            message: "Error in fetching upcoming TestZones",
             error: error.message
         });
     }
@@ -838,14 +838,14 @@ exports.ongoingContest = async (req, res) => {
         ).sort({ contestStartTime: 1 }).skip(skip).limit(limit)
         res.status(200).json({
             status: "success",
-            message: "ongoing contests fetched successfully",
+            message: "Ongoing TestZones fetched successfully",
             data: contests,
             count: count
         });
     } catch (error) {
         res.status(500).json({
             status: "error",
-            message: "Error in fetching ongoing contests",
+            message: "Error in fetching ongoing TestZones",
             error: error.message
         });
     }
@@ -867,13 +867,13 @@ exports.ongoingContestAdmin = async (req, res) => {
 
         res.status(200).json({
             status: "success",
-            message: "ongoing contests fetched successfully",
+            message: "Ongoing TestZones fetched successfully",
             data: contests
         });
     } catch (error) {
         res.status(500).json({
             status: "error",
-            message: "Error in fetching ongoing contests",
+            message: "Error in fetching ongoing TestZones",
             error: error.message
         });
     }
@@ -894,13 +894,13 @@ exports.getUpcomingCollegeContests = async (req, res) => {
 
         res.status(200).json({
             status: "success",
-            message: "Upcoming contests fetched successfully",
+            message: "Upcoming TestZones fetched successfully",
             data: contests
         });
     } catch (error) {
         res.status(500).json({
             status: "error",
-            message: "Error in fetching upcoming contests",
+            message: "Error in fetching upcoming TestZones",
             error: error.message
         });
     }
@@ -921,7 +921,7 @@ exports.getCommpletedContestsAdmin = async (req, res) => {
             .sort({ contestStartTime: -1 }).skip(skip).limit(limit)
         res.status(200).json({
             status: "success",
-            message: "Upcoming contests fetched successfully",
+            message: "Upcoming TestZones fetched successfully",
             data: contests,
             count: count,
         });
@@ -929,10 +929,99 @@ exports.getCommpletedContestsAdmin = async (req, res) => {
       console.log(error)
         res.status(500).json({
             status: "error",
-            message: "Error in fetching upcoming contests",
+            message: "Error in fetching upcoming TestZones",
             error: error.message
         });
     }
+};
+
+exports.getUserCompletedContests = async (req, res) => {
+  try {
+    const userId = req?.user?._id;
+    const matchStage = {
+      contestFor: "StoxHero"
+    }
+    const data = await userCompletedHelper(matchStage, userId);
+    res.status(200).json({
+      status: "success",
+      message: "Completed TestZones fetched successfully",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      status: "error",
+      message: "Error in fetching upcoming TestZones",
+      error: error.message
+    });
+  }
+};
+
+async function userCompletedHelper(matchStage, userId) {
+  const data = await Contest.aggregate([
+    {
+      $match: matchStage
+    },
+    {
+      $unwind:
+      {
+        path: "$participants",
+      },
+    },
+    {
+      $match:
+      {
+        "participants.userId": new ObjectId(
+          userId
+        ),
+        "participants.rank": {
+          $ne: null,
+        },
+      },
+    },
+    {
+      $project: {
+        contestName: 1,
+        entryFee: 1,
+        contestStartTime: 1,
+        contestEndTime: 1,
+        isNifty: 1,
+        isBankNifty: 1,
+        isFinNifty: 1,
+        payoutCapPercentage: 1,
+        payoutPercentage: 1,
+        rank: "$participants.rank",
+        payout: "$participants.payout",
+        tdsAmount: "$participants.tdsAmount",
+        fee: "$participants.fee",
+        actuaFee: "$participants.actualPrice",
+        rewards: 1,
+      },
+    },
+  ])
+  return data;
+}
+
+exports.getUserCollegeCompletedContests = async (req, res) => {
+  try {
+    const userId = req?.user?._id;
+    const matchStage = {
+      contestFor: "College"
+    }
+    const data = await userCompletedHelper(matchStage, userId);
+    res.status(200).json({
+      status: "success",
+      message: "Completed TestZones fetched successfully",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      status: "error",
+      message: "Error in fetching upcoming TestZones",
+      error: error.message
+    });
+  }
 };
 
 exports.getCommpletedContestsAdminLive = async (req, res) => {
@@ -946,13 +1035,13 @@ exports.getCommpletedContestsAdminLive = async (req, res) => {
             .sort({ contestStartTime: -1 })
         res.status(200).json({
             status: "success",
-            message: "Upcoming contests fetched successfully",
+            message: "Upcoming TestZones fetched successfully",
             data: contests
         });
     } catch (error) {
         res.status(500).json({
             status: "error",
-            message: "Error in fetching upcoming contests",
+            message: "Error in fetching upcoming TestZones",
             error: error.message
         });
     }
@@ -970,11 +1059,13 @@ exports.getCompletedContests = async (req, res) => {
             allowedUsers: 0,
             potentialParticipants: 0,
             contestSharedBy: 0
-        }).sort({ contestStartTime: -1 })
+        })
+        .populate('portfolio', 'portfolioName _id portfolioValue')
+        .sort({ contestStartTime: -1 })
 
         res.status(200).json({
             status: "success",
-            message: "Completed contests fetched successfully",
+            message: "Completed TestZones fetched successfully",
             data: contests
         });
     } catch (error) {
@@ -992,11 +1083,13 @@ exports.getCompletedCollegeContests = async (req, res) => {
     try {
         const contests = await Contest.find({
             contestEndTime: { $lt: new Date() }, "participants.userId": new ObjectId(userId), contestFor: "College"
-        }).sort({ contestStartTime: -1 })
+        })
+        .populate('portfolio', 'portfolioName _id portfolioValue')
+        .sort({ contestStartTime: -1 })
 
         res.status(200).json({
             status: "success",
-            message: "Completed contests fetched successfully",
+            message: "Completed TestZones fetched successfully",
             data: contests
         });
     } catch (error) {
@@ -1015,7 +1108,7 @@ exports.getDraftContests = async (req, res) => {
 
         res.status(200).json({
             status: "success",
-            message: "Draft contests fetched successfully",
+            message: "Draft TestZones fetched successfully",
             data: contests
         });
     } catch (error) {
@@ -1033,7 +1126,7 @@ exports.addAllowedUser = async (req, res) => {
         const { id, userId } = req.params; // ID of the contest and the user to add
 
         if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).json({ status: "success", message: "Invalid contest ID or user ID" });
+            return res.status(400).json({ status: "success", message: "Invalid TestZones ID or user ID" });
         }
 
         const result = await Contest.findByIdAndUpdate(
@@ -1043,7 +1136,7 @@ exports.addAllowedUser = async (req, res) => {
         );
 
         if (!result) {
-            return res.status(404).json({ status: "error", message: "Contest not found" });
+            return res.status(404).json({ status: "error", message: "TestZone not found" });
         }
 
         res.status(200).json({
@@ -1066,12 +1159,12 @@ exports.removeAllowedUser = async (req, res) => {
         const { id, userId } = req.params; // ID of the contest and the user to remove
 
         if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).json({ status: "success", message: "Invalid contest ID or user ID" });
+            return res.status(400).json({ status: "success", message: "Invalid TestZone ID or user ID" });
         }
 
         const contest = await Contest.findOne({ _id: id });
         if (contest?.allowedUsers?.length == 0) {
-            return res.status(404).json({ status: 'error', message: 'No allowed user in this contest.' });
+            return res.status(404).json({ status: 'error', message: 'No allowed user in this TestZone.' });
         }
         let participants = contest?.allowedUsers?.filter((item) => (item._id).toString() != userId.toString());
         contest.allowedUsers = [...participants];
@@ -1107,7 +1200,7 @@ exports.getRewards = async (req, res) => {
         const { id } = req.params;
         const contest = await Contest.findById(id);
         if (!contest) {
-            return res.status(404).json({ status: 'error', message: 'Contest not found' });
+            return res.status(404).json({ status: 'error', message: 'TestZone not found' });
         }
         res.status(200).json({ status: 'success', message: 'rewards fetched', data: contest.rewards });
     } catch (e) {
@@ -1129,7 +1222,7 @@ exports.addReward = async (req, res, next) => {
     try {
         const contest = await Contest.findById(id);
         if (!contest) {
-            return res.status(404).json({ status: 'error', message: 'Contest not found' });
+            return res.status(404).json({ status: 'error', message: 'TestZone not found' });
         }
         for (let reward of contest.rewards) {
             if (contest.rewards.length > 0) {
@@ -1237,7 +1330,7 @@ exports.registerUserToContest = async (req, res) => {
         const userId = req.user._id;
 
         if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).json({ status: "error", message: "Invalid contest ID or user ID" });
+            return res.status(400).json({ status: "error", message: "Invalid TestZone ID or user ID" });
         }
 
         const result = await Contest.findByIdAndUpdate(
@@ -1256,12 +1349,12 @@ exports.registerUserToContest = async (req, res) => {
         );
 
         if (!result) {
-            return res.status(404).json({ status: "error", message: "Contest not found" });
+            return res.status(404).json({ status: "error", message: "TestZone not found" });
         }
 
         res.status(200).json({
             status: "success",
-            message: "User registered to contest successfully",
+            message: "User registered to TestZone successfully",
             data: result
         });
     } catch (error) {
@@ -1309,7 +1402,7 @@ exports.copyAndShare = async (req, res) => {
         const userId = req.user._id;
 
         if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).json({ status: "error", message: "Invalid contest ID or user ID" });
+            return res.status(400).json({ status: "error", message: "Invalid TestZone ID or user ID" });
         }
 
         const result = await Contest.findByIdAndUpdate(
@@ -1330,12 +1423,12 @@ exports.copyAndShare = async (req, res) => {
         );
 
         if (!result) {
-            return res.status(404).json({ status: "error", message: "Contest not found" });
+            return res.status(404).json({ status: "error", message: "TestZone not found" });
         }
 
         res.status(200).json({
             status: "success",
-            message: "User share to contest successfully",
+            message: "User share to TestZone successfully",
             data: result
         });
     } catch (error) {
@@ -1356,7 +1449,7 @@ exports.participateUsers = async (req, res) => {
 
         for (let i = 0; i < contest.participants?.length; i++) {
             if (contest.participants[i]?.userId?.toString() === userId?.toString()) {
-                return res.status(404).json({ status: "error", message: "You have already participated in this contest." });
+                return res.status(404).json({ status: "error", message: "You have already participated in this TestZone." });
             }
         }
 
@@ -1385,7 +1478,7 @@ exports.participateUsers = async (req, res) => {
                 contest.potentialParticipants.push(userId);
                 await contest.save();
             }
-            return res.status(404).json({ status: "error", message: "You can only participate in another contest once your current contest ends!" });
+            return res.status(404).json({ status: "error", message: "You can only participate in another TestZone once your current TestZone ends!" });
         }
 
         if (contest?.maxParticipants <= contest?.participants?.length) {
@@ -1393,7 +1486,7 @@ exports.participateUsers = async (req, res) => {
                 contest.potentialParticipants.push(userId);
                 await contest.save();
             }
-            return res.status(404).json({ status: "error", message: "The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest." });
+            return res.status(404).json({ status: "error", message: "The TestZone is already full. We sincerely appreciate your enthusiasm to participate in our TestZone. Please join in our future TestZones." });
         }
 
 
@@ -1591,7 +1684,7 @@ exports.verifyCollageCode = async (req, res) => {
                 contest.potentialParticipants.push(userId);
                 await contest.save();
             }
-            return res.status(404).json({ status: "error", message: "The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest." });
+            return res.status(404).json({ status: "error", message: "The TestZone is already full. We sincerely appreciate your enthusiasm to participate in our TestZone. Please join in our future TestZones." });
         }
 
         if (contest?.entryFee === 0) {
@@ -1601,7 +1694,7 @@ exports.verifyCollageCode = async (req, res) => {
                     contest.potentialParticipants.push(userId);
                     await contest.save();
                 }
-                return res.status(404).json({ status: "error", message: "You can only participate in another contest once your current contest ends!" });
+                return res.status(404).json({ status: "error", message: "You can only participate in another TestZone once your current TestZone ends!" });
             }
 
             const result = await Contest.findByIdAndUpdate(
@@ -1724,7 +1817,7 @@ exports.creditAmountToWallet = async () => {
                     }
                     console.log('payout amount', payoutAmount, maxPayout);
                     const wallet = await Wallet.findOne({ userId: userId });
-                    const transactionDescription = `Amount credited for contest ${contest[j].contestName}`;
+                    const transactionDescription = `Amount credited for TestZone ${contest[j].contestName}`;
   
                     // Check if a transaction with this description already exists
                     const existingTransaction = wallet?.transactions?.some(transaction => (transaction.description === transactionDescription && transaction.transactionDate >= today))
@@ -1733,8 +1826,8 @@ exports.creditAmountToWallet = async () => {
                     //check if wallet.transactions doesn't have an object with the particular description, then push it to wallet.transactions
                     if(wallet?.transactions?.length == 0 || !existingTransaction){
                       wallet.transactions.push({
-                          title: 'Contest Credit',
-                          description: `Amount credited for contest ${contest[j].contestName}`,
+                          title: 'TestZone Credit',
+                          description: `Amount credited for TestZone ${contest[j].contestName}`,
                           transactionDate: new Date(),
                           amount: payoutAmount?.toFixed(2),
                           transactionId: uuid.v4(),
@@ -1742,7 +1835,7 @@ exports.creditAmountToWallet = async () => {
                       });
                     }
                     await wallet.save();
-                    const user = await User.findById(userId).select('first_name last_name email')
+                    const user = await User.findById(userId).select('first_name last_name email fcmTokens')
   
                     contest[j].participants[i].payout = payoutAmount?.toFixed(2);
                     contest[j].participants[i].npnl = pnlDetails[0]?.npnl;
@@ -1755,7 +1848,7 @@ exports.creditAmountToWallet = async () => {
                       try{
                         if(!existingTransaction){
                           console.log(user?.email, 'sent')
-                          await emailService(user?.email, 'Contest Payout Credited - StoxHero', `
+                          await emailService(user?.email, 'TestZone Payout Credited - StoxHero', `
                          <!DOCTYPE html>
                          <html>
                          <head>
@@ -1827,7 +1920,7 @@ exports.creditAmountToWallet = async () => {
                              <h1>Amount Credited</h1>
                              <p>Hello ${user.first_name},</p>
                              <p>Amount of ${payoutAmount?.toFixed(2)}INR has been credited in your wallet for ${contest[j].contestName}.</p>
-                             <p>You can now purchase Tenx and participate in various activities on stoxhero.</p>
+                             <p>You can now purchase TenX and participate in different TestZones on StoxHero.</p>
                              
                              <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
                              <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
@@ -1846,17 +1939,23 @@ exports.creditAmountToWallet = async () => {
                     }
                     if(!existingTransaction){
                       await createUserNotification({
-                          title:'Contest Reward Credited',
-                          description:`₹${payoutAmount?.toFixed(2)} credited to your wallet as your contest reward`,
+                          title:'TestZone Reward Credited',
+                          description:`₹${payoutAmount?.toFixed(2)} credited to your wallet as your TestZone reward`,
                           notificationType:'Individual',
                           notificationCategory:'Informational',
-                          productCategory:'Contest',
+                          productCategory:'TestZone',
                           user: user?._id,
                           priority:'Medium',
                           channels:['App', 'Email'],
                           createdBy:'63ecbc570302e7cf0153370c',
                           lastModifiedBy:'63ecbc570302e7cf0153370c'  
                         });
+                        if(user?.fcmTokens?.length>0){
+                          await sendMultiNotifications('TestZone Reward Credited', 
+                            `₹${payoutAmount?.toFixed(2)} credited to your wallet as your TestZone reward`,
+                            user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                            )  
+                        }
                     }
                 } else{
                   contest[j].participants[i].npnl = pnlDetails[0]?.npnl;
@@ -2002,7 +2101,7 @@ exports.creditAmountToWallet = async () => {
                 }
                 console.log('payout amount', payoutAmount, maxPayout);
                 const wallet = await Wallet.findOne({ userId: userId });
-                const transactionDescription = `Amount credited for contest ${contest[j].contestName}`;
+                const transactionDescription = `Amount credited for TestZone ${contest[j].contestName}`;
 
                 // Check if a transaction with this description already exists
                 const existingTransaction = wallet?.transactions?.some(transaction => transaction.description === transactionDescription && transaction.transactionDate >= today);
@@ -2011,8 +2110,8 @@ exports.creditAmountToWallet = async () => {
                 //check if wallet.transactions doesn't have an object with the particular description, then push it to wallet.transactions
                 if(wallet?.transactions?.length == 0 || !existingTransaction){
                   wallet.transactions.push({
-                      title: 'Contest Credit',
-                      description: `Amount credited for contest ${contest[j].contestName}`,
+                      title: 'TestZone Credit',
+                      description: `Amount credited for TestZone ${contest[j].contestName}`,
                       transactionDate: new Date(),
                       amount: payoutAmount?.toFixed(2),
                       transactionId: uuid.v4(),
@@ -2020,7 +2119,7 @@ exports.creditAmountToWallet = async () => {
                   });
                 }
                 await wallet.save();
-                const user = await User.findById(userId).select('first_name last_name email')
+                const user = await User.findById(userId).select('first_name last_name email fcmTokens')
 
                 contest[j].participants[i].payout = payoutAmount?.toFixed(2);
                 contest[j].participants[i].npnl = pnlDetails[0]?.npnl;
@@ -2033,7 +2132,7 @@ exports.creditAmountToWallet = async () => {
                   try{
                     if(!existingTransaction){
                       console.log(user?.email, 'sent')
-                      await emailService(user?.email, 'Contest Payout Credited - StoxHero', `
+                      await emailService(user?.email, 'TestZone Payout Credited - StoxHero', `
                      <!DOCTYPE html>
                      <html>
                      <head>
@@ -2105,7 +2204,7 @@ exports.creditAmountToWallet = async () => {
                          <h1>Amount Credited</h1>
                          <p>Hello ${user.first_name},</p>
                          <p>Amount of ${payoutAmount?.toFixed(2)}INR has been credited in your wallet for ${contest[j].contestName}.</p>
-                         <p>You can now purchase Tenx and participate in various activities on stoxhero.</p>
+                         <p>You can now purchase TenX and participate in different TestZones on StoxHero.</p>
                          
                          <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
                          <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
@@ -2124,17 +2223,23 @@ exports.creditAmountToWallet = async () => {
                 }
                 if(!existingTransaction){
                   await createUserNotification({
-                      title:'Contest Reward Credited',
-                      description:`₹${payoutAmount?.toFixed(2)} credited to your wallet as your contest reward`,
+                      title:'TestZone Reward Credited',
+                      description:`₹${payoutAmount?.toFixed(2)} credited to your wallet as your TestZone reward`,
                       notificationType:'Individual',
                       notificationCategory:'Informational',
-                      productCategory:'Contest',
+                      productCategory:'TestZone',
                       user: user?._id,
                       priority:'Medium',
                       channels:['App', 'Email'],
                       createdBy:'63ecbc570302e7cf0153370c',
                       lastModifiedBy:'63ecbc570302e7cf0153370c'  
                     });
+                    if(user?.fcmTokens?.length>0){
+                      await sendMultiNotifications('TestZone Reward Credited', 
+                        `₹${payoutAmount?.toFixed(2)} credited to your wallet as your TestZone reward`,
+                        user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                        )  
+                    }
                 }
             } else{
               contest[j].participants[i].npnl = pnlDetails[0]?.npnl;
@@ -2223,7 +2328,7 @@ const addRewardToWallet = async(rewardAmount, pnlObj, setting, contest) => {
   }
   console.log('payout amount', payoutAmount);
   const wallet = await Wallet.findOne({ userId: pnlObj?.userId });
-  const transactionDescription = `Amount credited for contest ${contest?.contestName}`;
+  const transactionDescription = `Amount credited for TestZone ${contest?.contestName}`;
 
   // Check if a transaction with this description already exists
   const existingTransaction = wallet?.transactions?.some(transaction => transaction.description === transactionDescription);
@@ -2232,8 +2337,8 @@ const addRewardToWallet = async(rewardAmount, pnlObj, setting, contest) => {
   //check if wallet.transactions doesn't have an object with the particular description, then push it to wallet.transactions
   if(wallet?.transactions?.length == 0 || !existingTransaction){
     wallet.transactions.push({
-        title: 'Contest Credit',
-        description: `Amount credited for contest ${contest?.contestName}`,
+        title: 'TestZone Credit',
+        description: `Amount credited for TestZone ${contest?.contestName}`,
         transactionDate: new Date(),
         amount: payoutAmount?.toFixed(2),
         transactionId: uuid.v4(),
@@ -2256,7 +2361,7 @@ const addRewardToWallet = async(rewardAmount, pnlObj, setting, contest) => {
     try{
       if(!existingTransaction){
         console.log(user?.email, 'sent')
-        await emailService(user?.email, 'Contest Payout Credited - StoxHero', `
+        await emailService(user?.email, 'TestZone Payout Credited - StoxHero', `
         <!DOCTYPE html>
         <html>
         <head>
@@ -2328,7 +2433,7 @@ const addRewardToWallet = async(rewardAmount, pnlObj, setting, contest) => {
             <h1>Amount Credited</h1>
             <p>Hello ${user.first_name},</p>
             <p>Amount of ${payoutAmount?.toFixed(2)}INR has been credited in your wallet for ${contest.contestName}.</p>
-            <p>You can now purchase Tenx and participate in various activities on stoxhero.</p>
+            <p>You can now purchase TenX and participate in different TestZones on StoxHero.</p>
             
             <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
             <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
@@ -2347,11 +2452,11 @@ const addRewardToWallet = async(rewardAmount, pnlObj, setting, contest) => {
   }
   if(!existingTransaction){
     await createUserNotification({
-        title:'Contest Reward Credited',
-        description:`₹${payoutAmount?.toFixed(2)} credited to your wallet as your contest reward`,
+        title:'TestZone Reward Credited',
+        description:`₹${payoutAmount?.toFixed(2)} credited to your wallet as your TestZone reward`,
         notificationType:'Individual',
         notificationCategory:'Informational',
-        productCategory:'Contest',
+        productCategory:'TestZone',
         user: user?._id,
         priority:'Medium',
         channels:['App', 'Email'],
@@ -2418,7 +2523,7 @@ exports.getDailyContestUsers = async (req, res) => {
 
         const response = {
             status: "success",
-            message: "Contest Scoreboard fetched successfully",
+            message: "TestZone Scoreboard fetched successfully",
             data: Object.values(dateWiseDAUs),
         };
 
@@ -2543,7 +2648,7 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
           statusCode:400,
           data:{
           status: "error",
-          message:"Incorrect contest fee amount",
+          message:"Incorrect TestZone fee amount",
           }
         };  
       } 
@@ -2552,7 +2657,7 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
             statusCode:400,
             data:{
             status: "error",
-            message:"You do not have enough balance to join this contest. Please add money to your wallet.",
+            message:"You do not have enough balance to join this TestZone. Please add money to your StoxHero Wallet.",
             }
           };  
         }
@@ -2563,7 +2668,7 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
                 statusCode:400,
                 data:{
                 status: "error",
-                message:"You have already participated in this contest.",
+                message:"You have already participated in this TestZone.",
                 }
             };  
             }
@@ -2578,7 +2683,7 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
               statusCode:400,
               data:{
               status: "error",
-              message:"The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest.",
+              message:"The TestZone is already full. We sincerely appreciate your enthusiasm to participate in our TestZone. Please join in our future TestZone.",
               }
           };  
         }
@@ -2713,8 +2818,8 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
 
 
         wallet.transactions = [...wallet.transactions, {
-            title: 'Contest Fee',
-            description: `Amount deducted for the contest fee of ${contestName} contest`,
+            title: 'TestZone Fee',
+            description: `Amount deducted for the TestZone fee of ${contestName} TestZone`,
             transactionDate: new Date(),
             amount: (-contestFee),
             transactionId: uuid.v4(),
@@ -2734,14 +2839,14 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
 
         let recipients = [user.email,'team@stoxhero.com'];
         let recipientString = recipients.join(",");
-        let subject = "Contest Fee - StoxHero";
+        let subject = "TestZone Fee - StoxHero";
         let message = 
         `
         <!DOCTYPE html>
             <html>
             <head>
                 <meta charset="UTF-8">
-                <title>Contest Fee Deducted</title>
+                <title>TestZone Fee Deducted</title>
                 <style>
                 body {
                     font-family: Arial, sans-serif;
@@ -2805,15 +2910,15 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
             </head>
             <body>
                 <div class="container">
-                <h1>Contest Fee</h1>
+                <h1>TestZone Fee</h1>
                 <p>Hello ${user.first_name},</p>
-                <p>Thanks for participating in contest! Please find your transaction details below.</p>
+                <p>Thanks for participating in TestZone! Please find your transaction details below.</p>
                 <p>User ID: <span class="userid">${user.employeeid}</span></p>
                 <p>Full Name: <span class="password">${user.first_name} ${user.last_name}</span></p>
                 <p>Email: <span class="password">${user.email}</span></p>
                 <p>Mobile: <span class="password">${user.mobile}</span></p>
-                <p>Contest Name: <span class="password">${contest.contestName}</span></p>
-                <p>Contest Fee: <span class="password">₹${contestFee}/-</span></p>
+                <p>TestZone Name: <span class="password">${contest.contestName}</span></p>
+                <p>TestZone Fee: <span class="password">₹${contestFee}/-</span></p>
                 </div>
             </body>
             </html>
@@ -2821,7 +2926,7 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
         `
         if(process.env.PROD === "true"){
             emailService(recipientString,subject,message);
-            console.log("Subscription Email Sent")
+            // console.log("Subscription Email Sent")
         }
         if(coupon && cashbackAmount>0){
           await createUserNotification({
@@ -2829,28 +2934,40 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
               description:`${cashbackAmount?.toFixed(2)} HeroCash added as bonus - ${coupon} code used.`,
               notificationType:'Individual',
               notificationCategory:'Informational',
-              productCategory:'Contest',
+              productCategory:'TestZone',
               user: user?._id,
               priority:'Medium',
               channels:['App', 'Email'],
               createdBy:'63ecbc570302e7cf0153370c',
               lastModifiedBy:'63ecbc570302e7cf0153370c'  
             });
+            if(user?.fcmTokens?.length>0){
+              await sendMultiNotifications('StoxHero Cashback', 
+                `${cashbackAmount?.toFixed(2)}HeroCash credited as bonus in your wallet.`,
+                user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                )  
+            }  
       }
         await createUserNotification({
-            title:'Contest Fee Deducted',
-            description:`₹${contestFee} deducted as contest fee for ${contest?.contestName}`,
+            title:'TestZone Fee Deducted',
+            description:`₹${contestFee} deducted as TestZone fee for ${contest?.contestName}`,
             notificationType:'Individual',
             notificationCategory:'Informational',
-            productCategory:'Contest',
+            productCategory:'TestZone',
             user: user?._id,
             priority:'Low',
             channels:['App', 'Email'],
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           });
+          if(user?.fcmTokens?.length>0){
+            await sendMultiNotifications('TestZone Fee Deducted', 
+              `₹${contestFee} deducted as TestZone fee for ${contest?.contestName}`,
+              user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+              )  
+          }  
           if(coupon){
-            const product = await Product.findOne({productName:'Contest'}).select('_id');
+            const product = await Product.findOne({productName:'TestZone'}).select('_id');
             if(affiliate){
               await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, contest?._id, contest?.entryFee, userId);
             }else{
@@ -3070,7 +3187,7 @@ exports.getDailyContestAllUsers = async (req, res) => {
         
         const response = {
             status: "success",
-            message: "Contest Users fetched successfully",
+            message: "TestZone Users fetched successfully",
             data: contestusers
         };
 
@@ -3100,7 +3217,7 @@ exports.findContestByName = async(req,res,next)=>{
             if(!result){
             return res.status(404).json({
                 status: "error",
-                message: "No contests found",
+                message: "No TestZones found",
             });
         }
         res.status(200).json({data:result, status:'success'});
@@ -3123,11 +3240,11 @@ exports.findFeaturedContestByName = async(req,res,next)=>{
         const result = await Contest.findOne({contestName: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'StoxHero'}).
         populate('portfolio', 'portfolioValue portfolioName').
             select('_id contestName contestStartTime contestEndTime entryFee rewards description');
-        console.log(result)
+        // console.log(result)
             if(!result){
             return res.status(404).json({
                 status: "error",
-                message: "No contests found",
+                message: "No TestZones found",
             });
         }
         res.status(200).json({data:result, status:'success'});
@@ -3154,7 +3271,7 @@ exports.getCollegeContestRegistrations = async(req,res) => {
 
 exports.downloadParticipationCertificate = async (req,res,next) => {
     const {id} = req.params;
-    console.log('downloding');
+    // console.log('downloding');
     try {
         // Load the existing PDF into pdf-lib
         const dailyContest = await Contest.findById(id).select('contestStartTime contestName');
@@ -3356,7 +3473,7 @@ exports.getDailyFreeContestData = async (req, res) => {
 
         const response = {
             status: "success",
-            message: "Contest Data fetched successfully",
+            message: "TestZone Data fetched successfully",
             data: contestData,
             count: count
         };
@@ -3523,7 +3640,7 @@ exports.getDailyPaidContestData = async (req, res) => {
 
         const response = {
             status: "success",
-            message: "Contest Data fetched successfully",
+            message: "TestZone Data fetched successfully",
             data: contestData,
             count: count
         };
@@ -3690,7 +3807,7 @@ exports.getDailyFreeCollegeContestData = async (req, res) => {
   
           const response = {
               status: "success",
-              message: "Contest Data fetched successfully",
+              message: "TestZone Data fetched successfully",
               data: contestData,
               count: count
           };
@@ -3857,7 +3974,7 @@ exports.getDailyPaidCollegeContestData = async (req, res) => {
   
           const response = {
               status: "success",
-              message: "Contest Data fetched successfully",
+              message: "TestZone Data fetched successfully",
               data: contestData,
               count: count
           };
@@ -4015,7 +4132,7 @@ exports.downloadDailyContestData = async (req, res) => {
 
         const response = {
             status: "success",
-            message: "Contest Data Downloaded successfully",
+            message: "TestZone Data Downloaded successfully",
             data: contestData,
         };
 
@@ -4184,7 +4301,7 @@ exports.paidContestUserData = async (req, res) => {
 
       const response = {
           status: "success",
-          message: "Paid Contest User Data fetched successfully",
+          message: "Paid TestZone User Data fetched successfully",
           data: paidContestUserData,
           count: participants.length,
       };
@@ -4354,7 +4471,7 @@ exports.freeContestUserData = async (req, res) => {
 
       const response = {
           status: "success",
-          message: "Free Contest User Data fetched successfully",
+          message: "Free TestZone User Data fetched successfully",
           data: freeContestUserData,
           count: participants.length,
       };
@@ -4520,7 +4637,7 @@ exports.downloadFreeContestUserData = async (req, res) => {
 
       const response = {
           status: "success",
-          message: "Free Contest User Data fetched successfully",
+          message: "Free TestZone User Data fetched successfully",
           data: freeContestUserData,
           count: participants.length,
       };
@@ -4686,7 +4803,7 @@ exports.downloadPaidContestUserData = async (req, res) => {
 
       const response = {
           status: "success",
-          message: "Paid Contest User Data fetched successfully",
+          message: "Paid TestZone User Data fetched successfully",
           data: paidContestUserData,
           count: participants.length,
       };
@@ -4776,7 +4893,7 @@ exports.getContestLeaderboardById = async (req, res) => {
 
       const response = {
           status: "success",
-          message: "Contest Leaderboard fetched successfully",
+          message: "TestZone Leaderboard fetched successfully",
           data: contestLeaderboard,
           count: participants.length,
       };
@@ -4920,10 +5037,10 @@ exports.getTopContestWeeklyPortfolio = async (req, res) => {
       // console.log(weeklyleaderboardlength,startDate,endDate)
       const response = {
           status: "success",
-          message: "Contest Weekly Top Performer Data fetched successfully",
+          message: "TestZone Weekly Top Performer Data fetched successfully",
           data: weeklyContestPerformers,
-          startOfWeek: startDate,
-          endOfWeek: endDate,
+          startOfWeek: new Date(startDate),
+          endOfWeek: new Date (endDate),
       };
       res.status(200).json(response);
   } catch (error) {
@@ -5047,6 +5164,11 @@ exports.getTopContestWeeklyPortfolioFullList = async (req, res) => {
             totalPayout: -1,
           },
         },
+        {
+          $match:{
+            totalPayout: {$gte: 1}
+          }
+        }
       ]
 
       let weeklyContestPerformers = await Contest.aggregate(pipeline);
@@ -5060,7 +5182,7 @@ exports.getTopContestWeeklyPortfolioFullList = async (req, res) => {
 
       const response = {
           status: "success",
-          message: "Contest Weekly Top Performer Data fetched successfully",
+          message: "TestZone Weekly Top Performer Data fetched successfully",
           data: weeklyContestPerformers,
           startOfWeek: startOfWeek,
           endOfWeek: endOfWeek,
@@ -5166,7 +5288,7 @@ exports.getUserContestProfile = async (req, res) => {
 
       const response = {
           status: "success",
-          message: "Contest Profile Data fetched successfully",
+          message: "TestZone Profile Data fetched successfully",
           data: userContestProfile,
           length: userContestProfile.length,
       };
@@ -5181,126 +5303,174 @@ exports.getUserContestProfile = async (req, res) => {
   }
 };
 
-// exports.getTopContestWeeklyPortfolio = async (req, res) => {
-//   const { id } = req.params;
-//   try {
-//       const pipeline = 
-//       [
-//         {
-//           $unwind: {
-//             path: "$participants",
-//           },
-//         },
-//         {
-//           $match: {
-//             contestStatus: "Completed",
-//             payoutStatus: "Completed",
-//             'participants.userId': new ObjectId(id),
-//             'participants.rank': {$ne : null}
-//           },
-//         },
-//         {
-//           $group: {
-//             _id: {
-//               participants: "$participants.userId",
-//             },
-//             payout: {
-//               $sum: {
-//                 $ifNull: ["$participants.payout", 0],
-//               },
-//             },
-//             tds: {
-//               $sum: {
-//                 $ifNull: ["$participants.tdsAmount", 0],
-//               },
-//             },
-//             contests: {
-//               $sum: 1,
-//             },
-//             contestsWon: {
-//               $sum: {
-//                 $cond: [
-//                   {
-//                     $gt: ["$participants.payout", 0],
-//                   },
-//                   1,
-//                   0,
-//                 ],
-//               },
-//             },
-//           },
-//         },
-//         {
-//           $lookup: {
-//             from: "user-personal-details",
-//             localField: "_id.participants",
-//             foreignField: "_id",
-//             as: "user",
-//           },
-//         },
-//         {
-//           $unwind: {
-//             path: "$user",
-//           },
-//         },
-//         {
-//           $project: {
-//             _id: 0,
-//             trader: "$user._id",
-//             contestFor:1,
-//             entryFee:1,
-//             first_name: "$user.first_name",
-//             profile_picture: "$user.profilePhoto",
-//             contests: 1,
-//             payout: 1,
-//             tds: 1,
-//             contestsWon: 1,
-//           },
-//         },
-//         {
-//           $addFields: {
-//             totalPayout: {
-//               $add: ["$payout", "$tds"],
-//             },
-//             strikeRate: {
-//               $multiply: [
-//                 {
-//                   $divide: [
-//                     "$contestsWon",
-//                     "$contests",
-//                   ],
-//                 },
-//                 100,
-//               ],
-//             },
-//           },
-//         },
-//         {
-//           $sort: {
-//             totalPayout: -1,
-//           },
-//         },
-//         {
-//           $limit: 6,
-//         },
-//       ]
+exports.getLastPaidContestChampions = async (req, res) => {
+  let now = new Date();
+  let date = new Date(now); 
+  date.setUTCHours(0, 0, 0, 0);
+  try {
+      const pipeline = 
+      [
+        {
+          $match: {
+            contestStartTime: {
+              $gte: date,
+              $lte: new Date(date.getTime() + 24 * 60 * 60 * 1000),
+            },
+            entryFee: {
+              $gt: 0,
+            },
+            contestStatus: 'Completed',
+            payoutStatus: 'Completed'
+          },
+        },
+        {
+          $unwind: "$participants",
+        },
+        {
+          $sort: {
+            "participants.npnl": -1,
+          },
+        },
+        {
+          $group: {
+            _id: "$_id",
+            contestName: {
+              $first: "$contestName",
+            },
+            entryFee: {
+              $first: "$entryFee",
+            },
+            contestStartTime: {
+              $first: "$contestStartTime",
+            },
+            participants: {
+              $push: "$participants",
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            // replace with the actual collection name
+            localField: "participants.userId",
+            // replace with the actual field in participants that corresponds to user-personal-details
+            foreignField: "_id",
+            // replace with the actual field in user-personal-details
+            as: "participantDetails",
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            contestName: 1,
+            entryFee: 1,
+            contestDate: {
+              $substr: [
+                {
+                  $add: ["$contestStartTime", 19800000],
+                },
+                0,
+                10,
+              ],
+            },
+            topParticipants: {
+              $slice: [
+                {
+                  $map: {
+                    input: "$participants",
+                    as: "participant",
+                    in: {
+                      $mergeObjects: [
+                        {
+                          $arrayElemAt: [
+                            {
+                              $filter: {
+                                input:
+                                  "$participantDetails",
+                                as: "detail",
+                                cond: {
+                                  $eq: [
+                                    "$$participant.userId",
+                                    "$$detail._id",
+                                  ],
+                                },
+                              },
+                            },
+                            0,
+                          ],
+                        },
+                        {
+                          first_name:
+                            "$$participant.first_name",
+                          last_name:
+                            "$$participant.last_name",
+                          profilePhoto:
+                            "$$participant.profilePhoto",
+                          employeeid:
+                            "$$participant.employeeid",
+                          email: "$$participant.email",
+                          payout:
+                            {$ifNull: ["$$participant.payout",0]},
+                          tds: {$ifNull : ["$$participant.tdsAmount",0]},
+                          rank: {$ifNull : ["$$participant.rank",0]},
+                        },
+                      ],
+                    },
+                  },
+                },
+                3,
+              ],
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            contestName: 1,
+            contestDate: 1,
+            entryFee: 1,
+            topParticipants: {
+              first_name: 1,
+              last_name: 1,
+              payout: 1,
+              tds: 1,
+              rank: 1,
+              profilePhoto: 1,
+              employeeid: 1,
+            },
+          },
+        },
+        {
+          $sort: {
+            entryFee: -1,
+          },
+        },
+        {
+          $limit: 4,
+        },
+      ]
 
-//       const weeklyContestPerformers = await Contest.aggregate(pipeline);
+      let lastPaidContests = await Contest.aggregate(pipeline);
 
-//       const response = {
-//           status: "success",
-//           message: "Contest Weekly Top Performer Data fetched successfully",
-//           data: weeklyContestPerformers,
-//           startOfWeek: startOfWeek,
-//           endOfWeek: endOfWeek,
-//       };
+      while(lastPaidContests.length === 0){
+        date.setDate(date.getUTCDate() - 1);
+        lastPaidContests = await Contest.aggregate(pipeline);
+      }
+      // if(lastPaidContests.length === 0){
+      // }
+      const response = {
+          status: "success",
+          message: "Last Paid TestZone Data fetched successfully",
+          data: lastPaidContests,
+          date: date,
+      };
 
-//       res.status(200).json(response);
-//   } catch (error) {
-//       res.status(500).json({
-//           status: "error",
-//           message: "Something went wrong",
-//           error: error.message,
-//       });
-//   }
-// };
+      res.status(200).json(response);
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Something went wrong",
+          error: error.message,
+      });
+  }
+};
