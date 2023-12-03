@@ -31,14 +31,14 @@ exports.createContest = async (req, res) => {
             maxParticipants, contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, 
             payoutType, payoutCapPercentage } = req.body;
 
-        const getContest = await Contest.findOne({ contestName: contestName });
+        // const getContest = await Contest.findOne({ contestName: contestName });
 
-        if (getContest) {
-            return res.status(500).json({
-                status: 'error',
-                message: "TestZone is already exist with this name.",
-            });
-        }
+        // if (getContest) {
+        //     return res.status(500).json({
+        //         status: 'error',
+        //         message: "TestZone is already exist with this name.",
+        //     });
+        // }
         const startTimeDate = new Date(contestStartTime);
 
         // Set the seconds to "00"
@@ -491,7 +491,7 @@ exports.getUserLiveContests = async (req, res) => {
         .populate('participants.userId', 'first_name last_name email mobile creationProcess')
         .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
         .populate('portfolio', 'portfolioName _id portfolioValue')
-        .sort({ contestStartTime: 1 })
+        .sort({ entryFee: -1 })
 
         res.status(200).json({
             status: "success",
