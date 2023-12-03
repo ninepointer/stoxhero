@@ -1227,6 +1227,12 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           });
+          if(user?.fcmTokens?.length>0){
+            await sendMultiNotifications('MarginX Fee Deducted', 
+              `₹${entryFee} deducted for ${marginx?.marginXName} MarginX Fee`,
+              user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+              )  
+          }
           if(coupon){
             const product = await Product.findOne({productName:'MarginX'}).select('_id');
             if(affiliate){

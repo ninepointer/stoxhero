@@ -2941,6 +2941,12 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
               createdBy:'63ecbc570302e7cf0153370c',
               lastModifiedBy:'63ecbc570302e7cf0153370c'  
             });
+            if(user?.fcmTokens?.length>0){
+              await sendMultiNotifications('StoxHero Cashback', 
+                `${cashbackAmount?.toFixed(2)}HeroCash credited as bonus in your wallet.`,
+                user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                )  
+            }  
       }
         await createUserNotification({
             title:'TestZone Fee Deducted',
@@ -2954,6 +2960,12 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           });
+          if(user?.fcmTokens?.length>0){
+            await sendMultiNotifications('TestZone Fee Deducted', 
+              `₹${contestFee} deducted as TestZone fee for ${contest?.contestName}`,
+              user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+              )  
+          }  
           if(coupon){
             const product = await Product.findOne({productName:'TestZone'}).select('_id');
             if(affiliate){
