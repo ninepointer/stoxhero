@@ -748,7 +748,7 @@ exports.creditAmountToWallet = async () => {
                       });
                       if(user?.fcmTokens?.length>0){
                         await sendMultiNotifications('MarginX Payout Credited', 
-                          `₹${paymentAmountAdjusted?.toFixed(2)} credited in your wallet for your MarginX return`,
+                          `₹${payoutAmountAdjusted?.toFixed(2)} credited in your wallet for your MarginX return`,
                           user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
                           )  
                       }  

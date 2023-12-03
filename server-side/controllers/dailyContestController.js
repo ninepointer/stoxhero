@@ -1952,9 +1952,11 @@ exports.creditAmountToWallet = async () => {
                         });
                         if(user?.fcmTokens?.length>0){
                           await sendMultiNotifications('TestZone Reward Credited', 
-                            `₹${payoutAmount?.toFixed(2)} credited to your wallet as your TestZone reward`,
+                            contest[j].contestFor == 'College'?`
+                            ₹${payoutAmount?.toFixed(2)} credited to your wallet as reward for College TestZone ${contest[j]?.contestName}`
+                            :`₹${payoutAmount?.toFixed(2)} credited to your wallet as reward for TestZone ${contest[j]?.contestName}`,
                             user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
-                            )  
+                            )
                         }
                     }
                 } else{
@@ -2236,7 +2238,9 @@ exports.creditAmountToWallet = async () => {
                     });
                     if(user?.fcmTokens?.length>0){
                       await sendMultiNotifications('TestZone Reward Credited', 
-                        `₹${payoutAmount?.toFixed(2)} credited to your wallet as your TestZone reward`,
+                        contest[j].contestFor == 'College'?`
+                        ₹${payoutAmount?.toFixed(2)} credited to your wallet as reward for College TestZone ${contest[j]?.contestName}`
+                        :`₹${payoutAmount?.toFixed(2)} credited to your wallet as reward for TestZone ${contest[j]?.contestName}`,
                         user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
                         )  
                     }
