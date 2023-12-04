@@ -1540,8 +1540,8 @@ exports.updateUserWallet = async () => {
               const referral = await referrals(user, elem);
               const pnl = await pnlFunc(users[i].user, batchId);
               const payoutAmountWithoutTDS = Math.min(pnl.npnl * payoutPercentage / 100, profitCap)
-              const creditAmount = payoutAmountWithoutTDS;
-              // const creditAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
+              const tdsAmount = payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
+              const creditAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
 
               const wallet = await Wallet.findOne({ userId: new ObjectId(users[i].user) }).session(session);
 
@@ -1677,6 +1677,7 @@ exports.updateUserWallet = async () => {
                 users[i].gpnl = pnl?.gpnl?.toFixed(2);
                 users[i].npnl = pnl?.npnl?.toFixed(2);
                 users[i].noOfTrade = pnl?.noOfTrade;
+                users[i].tdsAmount = tdsAmount.toFixed(2);
 
                 if(user?.fcmTokens?.length>0){
                   await sendMultiNotifications('Internship Payout Credited', 
