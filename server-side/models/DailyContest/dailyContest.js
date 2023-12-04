@@ -123,7 +123,8 @@ const contestSchema = new Schema({
         trades: {type: Number},
         brokerage: {type: Number},
         rank: {type: Number},
-        bonusRedemption:Number
+        bonusRedemption:Number,
+        herocashPayout: Number
     }],
     maxParticipants:{
         type:Number,

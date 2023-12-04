@@ -1497,7 +1497,7 @@ exports.updateUserWallet = async () => {
 
     const internship = await InternBatch.find({batchStatus: "Active", batchEndDate: {$gte: new Date(todayDate)}, batchEndDate: { $lte: new Date(endOfToday) }})
     .populate('career', 'listingType')
-    .select('batchName participants batchStartDate batchEndDate attendancePercentage payoutPercentage referralCount')
+    .select('batchName participants batchStartDate batchEndDate attendancePercentage payoutPercentage referralCount rewardType tdsRelief payoutCap')
   
     console.log(internship)
 
@@ -1542,7 +1542,7 @@ exports.updateUserWallet = async () => {
               const payoutAmountWithoutTDS = Math.min(pnl.npnl * payoutPercentage / 100, profitCap);
               let creditAmount;
               const tdsAmount = elem.rewardType === "Cash" ? payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100 : 0;
-              if(elem.rewardType === "Cash"){
+              if(elem?.rewardType === "Cash"){
                 creditAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
               } else{
                 creditAmount = payoutAmountWithoutTDS;
@@ -1550,7 +1550,7 @@ exports.updateUserWallet = async () => {
 
               const wallet = await Wallet.findOne({ userId: new ObjectId(users[i].user) }).session(session);
 
-              // console.log( users[i].user, referral, creditAmount);
+              console.log( users[i].user, referral, creditAmount);
               if (creditAmount > 0) {
                 if (attendance >= attendanceLimit && referral >= referralLimit && pnl.npnl > 0) {
                   eligible = true;
@@ -1641,7 +1641,7 @@ exports.updateUserWallet = async () => {
                     <div class="container">
                     <h1>Amount Credited</h1>
                     <p>Hello ${user.first_name},</p>
-                    <p>${elem.rewardType === "Cash" ? "₹"+creditAmount?.toFixed(2) : "HeroCash "+creditAmount?.toFixed(2)} has been credited in you wallet</p>
+                    <p>${elem.rewardType === "Cash" ? "₹" + creditAmount?.toFixed(2) : "HeroCash " + creditAmount?.toFixed(2)} has been credited in you wallet</p>
                     <p>You can now purchase Tenx and participate in contest.</p>
                     
                     <p>In case of any discrepencies, raise a ticket or reply to this message.</p>

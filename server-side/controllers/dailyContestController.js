@@ -458,7 +458,8 @@ exports.getUserUpcomingContests = async (req, res) => {
         .populate('participants.userId', 'first_name last_name email mobile creationProcess')
         .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
         .populate('portfolio', 'portfolioName _id portfolioValue')
-        .sort({ entryFee: -1 })
+        // .sort({ entryFee: -1 })
+        .sort({ entryFee: { $gte: 0 } ? -1 : 1 });
 
         res.status(200).json({
             status: "success",
@@ -1813,27 +1814,47 @@ exports.creditAmountToWallet = async () => {
                     let payoutAmount = payoutAmountWithoutTDS;
                     console.log("check payout", payoutAmount, payoutAmountWithoutTDS)
                     if(payoutAmountWithoutTDS>fee){
-                      payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100;
+
+                      if(contest[j]?.rewardType === "Cash"){
+                        payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100;
+                      } else{
+                        payoutAmount = payoutAmountWithoutTDS;
+                      }
+                      
                     }
+                    const tdsAmount = contest[j]?.rewardType === "Cash" ? (payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100 : 0;
+
                     console.log('payout amount', payoutAmount, maxPayout);
                     const wallet = await Wallet.findOne({ userId: userId });
                     const transactionDescription = `Amount credited for TestZone ${contest[j].contestName}`;
   
                     // Check if a transaction with this description already exists
-                    const existingTransaction = wallet?.transactions?.some(transaction => (transaction.description === transactionDescription && transaction.transactionDate >= today))
+                    const existingTransaction = wallet?.transactions?.some(transaction => (transaction.description.includes(contest[j].contestName) && transaction.transactionDate >= today))
   
                     // console.log(userId, pnlDetails[0]);
                     //check if wallet.transactions doesn't have an object with the particular description, then push it to wallet.transactions
                     if(wallet?.transactions?.length == 0 || !existingTransaction){
                       wallet.transactions.push({
                           title: 'TestZone Credit',
-                          description: `Amount credited for TestZone ${contest[j].contestName}`,
+                          description: `Reward credited for TestZone ${contest[j].contestName}`,
                           transactionDate: new Date(),
                           amount: payoutAmount?.toFixed(2),
                           transactionId: uuid.v4(),
                           transactionType: 'Cash'
                       });
+
+                      if(tdsAmount > 0 && contest[j]?.tdsRelief){
+                        wallet.transactions = [...wallet.transactions, {
+                          title: 'StoxHero CashBack',
+                          description: `Cashback of ${tdsAmount?.toFixed(2)} HeroCash - TestZone ${contest[j].contestName} TDS`,
+                          amount: (tdsAmount?.toFixed(2)),
+                          transactionId: uuid.v4(),
+                          transactionType: "Bonus"
+                        }];
+                      }
                     }
+
+
                     await wallet.save();
                     const user = await User.findById(userId).select('first_name last_name email fcmTokens')
   
@@ -1843,7 +1864,9 @@ exports.creditAmountToWallet = async () => {
                     contest[j].participants[i].trades = pnlDetails[0]?.trades;
                     contest[j].participants[i].tradingDays = pnlDetails[0]?.tradingDays;
                     contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
-                    contest[j].participants[i].tdsAmount = payoutAmountWithoutTDS-fee>0?((payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
+                    contest[j].participants[i].tdsAmount = tdsAmount;
+                    contest[j].participants[i].herocashPayout = tdsAmount;
+
                     if (process.env.PROD == 'true') {
                       try{
                         if(!existingTransaction){
@@ -1919,7 +1942,7 @@ exports.creditAmountToWallet = async () => {
                              <div class="container">
                              <h1>Amount Credited</h1>
                              <p>Hello ${user.first_name},</p>
-                             <p>Amount of ${payoutAmount?.toFixed(2)}INR has been credited in your wallet for ${contest[j].contestName}.</p>
+                             <p>${contest[j]?.rewardType === "Cash" ? "₹"+payoutAmount?.toFixed(2) : "HeroCash "+payoutAmount?.toFixed(2)} has been credited in your wallet for ${contest[j].contestName}.</p>
                              <p>You can now purchase TenX and participate in different TestZones on StoxHero.</p>
                              
                              <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
@@ -1940,7 +1963,7 @@ exports.creditAmountToWallet = async () => {
                     if(!existingTransaction){
                       await createUserNotification({
                           title:'TestZone Reward Credited',
-                          description:`₹${payoutAmount?.toFixed(2)} credited to your wallet as your TestZone reward`,
+                          description:`${contest[j]?.rewardType === "Cash" ? "₹"+payoutAmount?.toFixed(2) : "HeroCash "+payoutAmount?.toFixed(2)} credited to your wallet as your TestZone reward`,
                           notificationType:'Individual',
                           notificationCategory:'Informational',
                           productCategory:'TestZone',
@@ -1953,8 +1976,8 @@ exports.creditAmountToWallet = async () => {
                         if(user?.fcmTokens?.length>0){
                           await sendMultiNotifications('TestZone Reward Credited', 
                             contest[j].contestFor == 'College'?`
-                            ₹${payoutAmount?.toFixed(2)} credited to your wallet as reward for College TestZone ${contest[j]?.contestName}`
-                            :`₹${payoutAmount?.toFixed(2)} credited to your wallet as reward for TestZone ${contest[j]?.contestName}`,
+                            ${contest[j]?.rewardType === "Cash" ? "₹"+payoutAmount?.toFixed(2) : "HeroCash "+payoutAmount?.toFixed(2)} credited to your wallet as reward for College TestZone ${contest[j]?.contestName}`
+                            :`${contest[j]?.rewardType === "Cash" ? "₹"+payoutAmount?.toFixed(2) : "HeroCash "+payoutAmount?.toFixed(2)} credited to your wallet as reward for TestZone ${contest[j]?.contestName}`,
                             user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
                             )
                         }
@@ -2099,14 +2122,22 @@ exports.creditAmountToWallet = async () => {
                 const payoutAmountWithoutTDS = Math.min(pnlDetails[0]?.npnl * payoutPercentage / 100, maxPayout);
                 let payoutAmount = payoutAmountWithoutTDS;
                 if(payoutAmountWithoutTDS>fee){
-                  payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100;
+
+                  if(contest[j]?.rewardType === "Cash"){
+                    payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100;
+                  } else{
+                    payoutAmount = payoutAmountWithoutTDS;
+                  }
+                  
                 }
+                const tdsAmount = contest[j]?.rewardType === "Cash" ? (payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100 : 0;
+
                 console.log('payout amount', payoutAmount, maxPayout);
                 const wallet = await Wallet.findOne({ userId: userId });
                 const transactionDescription = `Amount credited for TestZone ${contest[j].contestName}`;
 
                 // Check if a transaction with this description already exists
-                const existingTransaction = wallet?.transactions?.some(transaction => transaction.description === transactionDescription && transaction.transactionDate >= today);
+                const existingTransaction = wallet?.transactions?.some(transaction => (transaction.description.includes(contest[j].contestName) && transaction.transactionDate >= today))
 
                 // console.log(userId, pnlDetails[0]);
                 //check if wallet.transactions doesn't have an object with the particular description, then push it to wallet.transactions
@@ -2119,6 +2150,16 @@ exports.creditAmountToWallet = async () => {
                       transactionId: uuid.v4(),
                       transactionType: 'Cash'
                   });
+
+                  if(tdsAmount > 0 && contest[j]?.tdsRelief){
+                    wallet.transactions = [...wallet.transactions, {
+                      title: 'StoxHero CashBack',
+                      description: `Cashback of ${tdsAmount?.toFixed(2)} HeroCash - TestZone ${contest[j].contestName} TDS`,
+                      amount: (tdsAmount?.toFixed(2)),
+                      transactionId: uuid.v4(),
+                      transactionType: "Bonus"
+                    }];
+                  }
                 }
                 await wallet.save();
                 const user = await User.findById(userId).select('first_name last_name email fcmTokens')
@@ -2129,7 +2170,9 @@ exports.creditAmountToWallet = async () => {
                 contest[j].participants[i].trades = pnlDetails[0]?.trades;
                 contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
                 contest[j].participants[i].tradingDays = pnlDetails[0]?.tradingDays;
-                contest[j].participants[i].tdsAmount = payoutAmountWithoutTDS-fee>0?((payoutAmountWithoutTDS-fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
+                contest[j].participants[i].tdsAmount = tdsAmount;
+                contest[j].participants[i].herocashPayout = tdsAmount;
+
                 if (process.env.PROD == 'true') {
                   try{
                     if(!existingTransaction){
@@ -2205,7 +2248,7 @@ exports.creditAmountToWallet = async () => {
                          <div class="container">
                          <h1>Amount Credited</h1>
                          <p>Hello ${user.first_name},</p>
-                         <p>Amount of ${payoutAmount?.toFixed(2)}INR has been credited in your wallet for ${contest[j].contestName}.</p>
+                         <p>${contest[j]?.rewardType === "Cash" ? "₹"+payoutAmount?.toFixed(2) : "HeroCash "+payoutAmount?.toFixed(2)} has been credited in your wallet for ${contest[j].contestName}.</p>
                          <p>You can now purchase TenX and participate in different TestZones on StoxHero.</p>
                          
                          <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
@@ -2226,7 +2269,7 @@ exports.creditAmountToWallet = async () => {
                 if(!existingTransaction){
                   await createUserNotification({
                       title:'TestZone Reward Credited',
-                      description:`₹${payoutAmount?.toFixed(2)} credited to your wallet as your TestZone reward`,
+                      description:`${contest[j]?.rewardType === "Cash" ? "₹"+payoutAmount?.toFixed(2) : "HeroCash "+payoutAmount?.toFixed(2)} credited to your wallet as your TestZone reward`,
                       notificationType:'Individual',
                       notificationCategory:'Informational',
                       productCategory:'TestZone',
@@ -2239,9 +2282,9 @@ exports.creditAmountToWallet = async () => {
                     if(user?.fcmTokens?.length>0){
                       await sendMultiNotifications('TestZone Reward Credited', 
                         contest[j].contestFor == 'College'?`
-                        ₹${payoutAmount?.toFixed(2)} credited to your wallet as reward for College TestZone ${contest[j]?.contestName}`
-                        :`₹${payoutAmount?.toFixed(2)} credited to your wallet as reward for TestZone ${contest[j]?.contestName}`,
-                        user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                        ${contest[j]?.rewardType === "Cash" ? "₹"+payoutAmount?.toFixed(2) : "HeroCash "+payoutAmount?.toFixed(2)} credited to your wallet as reward for College TestZone ${contest[j]?.contestName}`
+                        :`${contest[j]?.rewardType === "Cash" ? "₹"+payoutAmount?.toFixed(2) : "HeroCash "+payoutAmount?.toFixed(2)} credited to your wallet as reward for TestZone ${contest[j]?.contestName}`,
+                    user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
                         )  
                     }
                 }
