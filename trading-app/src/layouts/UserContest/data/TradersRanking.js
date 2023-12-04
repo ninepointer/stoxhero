@@ -10,7 +10,7 @@ import { userContext } from '../../../AuthContext';
 function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward, setMyRankProps}){
 
   reward?.length === 0 && reward.push({currency: "INR"})
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
   const [rankData, setRankData] = useState([]);
   const [myRank, setMyRank] = useState({});
   const [setting, setSetting] = useState([]);

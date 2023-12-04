@@ -18,7 +18,7 @@ const limitSetting = 10;
 const [count, setCount] = useState(0);
 const [isLoading,setIsLoading] = useState(false);
 const [upcomingContest,setUpcomingContest] = useState([]);
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
   useEffect(()=>{
     let call1 = axios.get(`${baseUrl}api/v1/dailycontest/contests/featuredongoing?skip=${skip}&limit=${limitSetting}`,{
