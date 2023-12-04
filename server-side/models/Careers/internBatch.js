@@ -67,6 +67,16 @@ const batchSchema = new mongoose.Schema({
         required: true,
         enum: ['Active','Inactive', 'Completed']
     },
+    payoutType:{
+        type:String,
+        required: true,
+        enum: ['Cash','Bonus']
+    },
+    tdsRelief:{
+        type:Boolean,
+        required: true,
+        default: false
+    },
     batchID:{
         type:String,
         // required: true,

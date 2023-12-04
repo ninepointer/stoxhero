@@ -91,14 +91,19 @@ const autoCutMainManuallyMock = async () => {
     console.log(data)
 
     if (data.length === 0) {
+        console.log("in if" );
         await tenx();
         await paperTrade();
         await internshipTradeMod();
         await infinityTrade();
+        console.log("before dail" );
         await dailyContestMockMod();
+        console.log("after dail" );
         await marginXMockMod();
         await battleTradeMod();
+        console.log("in if sttus" );
         await changeStatus();
+        console.log("in if mx sttus" );
         await changeMarginXStatus();
         await changeBattleStatus();
         return;
@@ -229,6 +234,8 @@ const changeStatus = async () => {
 
         ]
     );
+
+    console.log("data", data, dataUser );
 
     if (data.length === 0 && dataUser.length === 0) {
         console.log("in if change status..")
