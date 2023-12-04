@@ -54,10 +54,10 @@ export default function DailyContestOrders() {
           m={1}
           component={Link}
           to={{
-              pathname: `/contests`,
+              pathname: `/testzone`,
           }}
       >
-          <MDTypography color='warning' fontWeight='bold' fontSize={10}>BACK TO COMPLETED CONTEST</MDTypography>
+          <MDTypography color='warning' fontWeight='bold' fontSize={10}>Back</MDTypography>
       </MDButton>
       <Grid container mt={1}>
         <Grid container p={1} style={{border:'1px solid white', borderRadius:5}}>

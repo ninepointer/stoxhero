@@ -135,7 +135,7 @@ const ContestCard = () => {
 
                     <Grid item xs={12} md={6} lg={12} mb={1} style={{color:"white",fontSize:11}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
                       <span style={timerStyle}>
-                        <AvTimerIcon/><Timer targetDate={e.contestStartDate} text="Contest Started" />
+                        <AvTimerIcon/><Timer targetDate={e.contestStartDate} text="TestZone Started" />
                       </span>
                     </Grid>
 

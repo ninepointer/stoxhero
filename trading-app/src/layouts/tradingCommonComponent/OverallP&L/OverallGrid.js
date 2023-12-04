@@ -19,10 +19,13 @@ import Grid from '@mui/material/Grid'
 import { renderContext } from '../../../renderContext';
 import {battle, paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest, marginX } from "../../../variables";
 import { userContext } from '../../../AuthContext';
-import { maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, lotSize_Nifty, lotSize_BankNifty, lotSize_FinNifty } from "../../../variables";
+import {  maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, lotSize_Nifty, lotSize_BankNifty, lotSize_FinNifty } from "../../../variables";
+import MDSnackbar from '../../../components/MDSnackbar';
+import PnlMenu from './PnlMenu';
+import { settingContext } from '../../../settingContext';
 
 
-function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, moduleData }) {
+function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptionId, moduleData }) {
   const { render, setRender } = useContext(renderContext);
   const getDetails = useContext(userContext);
   let styleTD = {
@@ -33,8 +36,12 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
     opacity: 0.7,
   }
 
+  const tradeSound = getDetails.tradeSound;
   const { updateNetPnl, setPnlData } = useContext(NetPnlContext);
   const marketDetails = useContext(marketDataContext)
+  const setting = useContext(settingContext)
+
+  console.log("settingContext", setting)
   const [exitState, setExitState] = useState(false);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
@@ -47,6 +54,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
   let totalTransactionCost = 0;
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
+  let totalTrades = 0;
   let rows = [];
   let pnlEndPoint = from === paperTrader ? `paperTrade/pnl` : 
                     from === infinityTrader ? "infinityTrade/pnl" : 
@@ -78,7 +86,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
       );
 
       if (data?.data?.length === 0) {
-        updateNetPnl(0, 0, 0, 0);
+        updateNetPnl(0, 0, 0, 0, 0);
       }
       setPnlData(data.data);
       setTradeData(data.data);
@@ -86,7 +94,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
     })();
 
     return () => abortController.abort();
-  }, [render, trackEvent])
+  }, [render, trackEvent.data])
 
   useEffect(() => {
     socket.on(`${(getDetails.userDetails._id).toString()}autoCut`, (data) => {
@@ -98,28 +106,28 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
   }, [])
 
   useEffect(() => {
-    socket?.on(`sendResponse${(getDetails.userDetails._id).toString()}`, (data) => {
-      // render ? setRender(false) : setRender(true);
-      // openSuccessSB(data.status, data.message)
+    socket?.on(`sendOrderResponse${(getDetails.userDetails._id).toString()}`, (data) => {
+      openSuccessSB(data.status, data.message)
+      tradeSound.play();
       setTimeout(() => {
         setTrackEvent(data);
       })
     })
   }, [])
-
-
-  tradeData.map((subelem, index) => {
+  
+  tradeData.map((subelem) => {
+    if(!subelem?._id?.isLimit){
     let obj = {};
     let liveDetail = marketDetails.marketData.filter((elem) => {
       // //console.log("elem", elem, subelem)
       return (subelem._id.instrumentToken == elem.instrument_token) || (subelem._id.exchangeInstrumentToken == elem.instrument_token)
     })
     totalRunningLots += Number(subelem.lots)
-
-    let updatedValue = (subelem.amount + (subelem.lots) * liveDetail[0]?.last_price);
+    totalTrades += Number(subelem.trades);
+    let updatedValue = (subelem.lots !== 0) ? (subelem.amount + (subelem.lots) * liveDetail[0]?.last_price) : subelem.amount;
     let netupdatedValue = updatedValue - Number(subelem.brokerage);
     totalGrossPnl += updatedValue;
-
+    console.log("updatedValue", updatedValue, subelem.lots, subelem.amount, liveDetail[0]?.last_price)
     totalTransactionCost += Number(subelem.brokerage);
     // let lotSize = (subelem._id.symbol)?.includes("BANKNIFTY") ? 25 : 50;
     // let maxLot = (getDetails?.userDetails?.role?.roleName === infinityTrader) ? 900 : lotSize*36;
@@ -127,7 +135,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
     let lotSize = (subelem._id.symbol)?.includes("BANKNIFTY") ? lotSize_BankNifty : (subelem._id.symbol)?.includes("FINNIFTY") ? lotSize_FinNifty : lotSize_Nifty;
     let maxLot = (subelem._id.symbol)?.includes("BANKNIFTY") ? maxLot_BankNifty : (subelem._id.symbol)?.includes("FINNIFTY") ? maxLot_FinNifty : (getDetails?.userDetails?.role?.roleName === infinityTrader ? maxLot_Nifty / 2 : maxLot_Nifty);
 
-    updateNetPnl(totalGrossPnl - totalTransactionCost, totalRunningLots, totalGrossPnl, totalTransactionCost)
+    updateNetPnl(totalGrossPnl - totalTransactionCost, totalRunningLots, totalGrossPnl, totalTransactionCost, totalTrades)
 
 
     const instrumentcolor = subelem._id.symbol?.slice(-2) == "CE" ? "success" : "error"
@@ -139,6 +147,36 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
     obj.Product = (
       <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
         {(subelem._id.product)}
+      </MDTypography>
+    );
+
+    obj.instrumentToken = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.instrumentToken)}
+      </MDTypography>
+    );
+
+    obj.exchangeInstrumentToken = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.exchangeInstrumentToken)}
+      </MDTypography>
+    );
+
+    obj.exchange = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.exchange)}
+      </MDTypography>
+    );
+
+    obj.validity = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.validity)}
+      </MDTypography>
+    );
+
+    obj.variety = (
+      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+        {(subelem._id.variety)}
       </MDTypography>
     );
 
@@ -169,7 +207,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
     } else {
       obj.last_price = (
         <MDTypography component="a" variant="caption" color="dark" fontWeight="medium">
-          {"₹" + (liveDetail[0]?.last_price)}
+          -
         </MDTypography>
       );
     }
@@ -201,7 +239,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
       );
     }
     obj.exit = (
-      < ExitPosition module={moduleData} maxLot={maxLot} lotSize={lotSize} socket={socket} exchangeInstrumentToken={subelem._id.exchangeInstrumentToken} subscriptionId={subscriptionId} from={from} render={render} setRender={setRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity={subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange} setExitState={setExitState} exitState={exitState} />
+      < ExitPosition ltp={(liveDetail[0]?.last_price)?.toFixed(2)} module={moduleData} maxLot={maxLot} lotSize={lotSize} socket={socket} exchangeInstrumentToken={subelem._id.exchangeInstrumentToken} subscriptionId={subscriptionId} from={from} render={render} setRender={setRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity={subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange} setExitState={setExitState} exitState={exitState} />
     );
     obj.buy = (
       <Buy module={moduleData} socket={socket} exchangeInstrumentToken={subelem._id.exchangeInstrumentToken} subscriptionId={subscriptionId} from={from} render={render} setRender={setRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol)?.slice(-7)} lotSize={lotSize} maxLot={maxLot} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState} buyState={buyState} />
@@ -230,7 +268,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
       countPosition.closePosition += 1;
       rows.push(obj);
     }
-
+  }
   })
 
   const handleBuyClick = (index) => {
@@ -255,8 +293,81 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
   };
 
   const xFactor = moduleData?.portfolioValue/moduleData?.entryFee;
-  // const xFactor = 100000/100;
 
+  const [messageObj, setMessageObj] = useState({
+    color: '',
+    icon: '',
+    title: '',
+    content: ''
+  })
+  const [successSB, setSuccessSB] = useState(false);
+
+  const openSuccessSB = (value,content) => {
+    if(value === "Success"){
+        messageObj.color = 'success'
+        messageObj.icon = 'check'
+        messageObj.title = "Order Successful";
+        messageObj.content = content;
+        setSuccessSB(true);
+    };
+    setMessageObj(messageObj);
+    setSuccessSB(true);
+  }
+  const closeSuccessSB = () => setSuccessSB(false);
+  const renderSuccessSB = (
+    <MDSnackbar
+      color= {messageObj.color}
+      icon= {messageObj.icon}
+      title={messageObj.title}
+      content={messageObj.content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite="info"
+      sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto"}}
+    />
+  );
+
+  let myPayout;
+  let tdsAmount;
+  let myReward;
+  if(moduleData?.allData?.payoutType === "Percentage"){
+    let payoutCap;
+    if(moduleData?.allData?.entryFee > 0){
+        payoutCap = moduleData?.allData?.entryFee * moduleData?.allData?.payoutCapPercentage/100;
+    } else{
+        payoutCap = moduleData?.allData?.portfolio?.portfolioValue * moduleData?.allData?.payoutCapPercentage/100;
+    }
+    const payout = Math.min((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100, payoutCap)
+    if (moduleData?.allData?.entryFee > 0) {
+      if((payout-moduleData?.allData?.entryFee) > 0){
+        tdsAmount = (payout-moduleData?.allData?.entryFee)*setting[0]?.tdsPercentage/100
+      } else{
+        tdsAmount = 0;
+      }
+      
+    } else {
+      tdsAmount = payout*setting[0]?.tdsPercentage/100
+    }
+    myPayout = payout-tdsAmount;
+    myReward = (totalGrossPnl - totalTransactionCost) >= 0 ? (payout) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(payout)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-payout)) : "+₹0.00";
+  } else{
+    if(myRank){
+      const rewards = moduleData?.allData?.rewards;
+      for(let elem of rewards){
+          if(Number(myRank) >= Number(elem.rankStart) && Number(myRank) <= Number(elem.rankEnd)){
+            myReward = "+₹" + elem.prize;
+            break;
+          } else{
+            myReward = "+₹" + "0.00";
+          }
+      }
+    } else{
+      myReward = "+₹" + "0.00";
+    }
+  }
+
+  console.log("tdsAmount", tdsAmount, myReward)
   return (
     <Card>
       <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
@@ -274,7 +385,6 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
           <MDButton variant="outlined" size="small" color="info" onClick={() => { setIsGetStartedClicked(true) }}>Get Started</MDButton>
         </MDBox>)
         :
-
         (<MDBox>
           <TableContainer component={Paper}>
             <table style={{ borderCollapse: "collapse", width: "100%", borderSpacing: "10px 5px" }}>
@@ -290,14 +400,20 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
                   <td style={styleTD} >CHANGE(%)</td>
                   <td style={styleTD} >EXIT</td>
                   <td style={styleTD} >BUY</td>
-                  <td style={{ ...styleTD, paddingRight: "20px" }} >SELL</td>
+                  <td style={styleTD} >SELL</td>
+                  {from===tenxTrader &&
+                    <td style={{ ...styleTD, paddingRight: "20px" }} >ACTION</td>
+                  }
+
+
                 </tr>
               </thead>
               <tbody>
+                
 
                 {rows.map((elem, index) => {
                   return (
-                    <>
+                    <React.Fragment key={elem?.symbol?.props?.children}>
                       <tr
                         style={{ borderBottom: "1px solid #D3D3D3" }} key={elem.symbol.props.children}
                       >
@@ -310,6 +426,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
                           grossPnl={elem?.grossPnl?.props?.children}
                           netPnl={elem?.netPnl?.props?.children}
                           change={elem?.change?.props?.children}
+                          from={from}
                         />
                         <Tooltip title="Exit Your Position" placement="top">
                           {elem.exitState ?
@@ -344,28 +461,30 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
                             </td>
                           }
                         </Tooltip>
+                        {/* {from===tenxTrader && */}
+                          <PnlMenu data={elem} id={subscriptionId} from={from} />                            
+                        {/* } */}
                       </tr>
-                    </>
-
+                    </React.Fragment>
                   )
                 })}
 
               </tbody>
             </table>
             <Grid container display='flex' mt={1} p={1} style={{ border: '1px solid white', borderRadius: 4 }}>
-              <Grid item xs={6} md={3} lg={from === marginX ? 1.42 : from===dailyContest ? 2.4 : 3} display="flex" justifyContent="center">
+              <Grid item xs={6} md={3} lg={from === marginX ? 1.42 : from===dailyContest ? 1.71 : 3} display="flex" justifyContent="center">
                 <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color="#003366" style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Running Lots: {totalRunningLots}</MDTypography>
               </Grid>
 
-              <Grid item xs={6} md={3} lg={from === marginX ? 1.71 : from===dailyContest ? 2.4 : 3} display="flex" justifyContent="center">
+              <Grid item xs={6} md={3} lg={from === marginX ? 1.71 : from===dailyContest ? 1.71 : 3} display="flex" justifyContent="center">
                 <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color="#003366" style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Brokerage: {"₹" + (totalTransactionCost).toFixed(2)}</MDTypography>
               </Grid>
 
-              <Grid item xs={6} md={3} lg={from === marginX ? 1.71 : from===dailyContest ? 2.4 : 3} display="flex" justifyContent="center">
+              <Grid item xs={6} md={3} lg={from === marginX ? 1.71 : from===dailyContest ? 1.71 : 3} display="flex" justifyContent="center">
                 <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color={`${totalGrossPnl > 0 ? 'success' : 'error'}`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Gross P&L: { (totalGrossPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalGrossPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-totalGrossPnl))}</MDTypography>
               </Grid>
 
-              <Grid item xs={6} md={3} lg={from === marginX ? 1.71 : from===dailyContest ? 2.4 : 3} display="flex" justifyContent="center">
+              <Grid item xs={6} md={3} lg={from === marginX ? 1.71 : from===dailyContest ? 1.71 : 3} display="flex" justifyContent="center">
                 <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color={`${(totalGrossPnl - totalTransactionCost) > 0 ? 'success' : 'error'}`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Net P&L: { ((totalGrossPnl - totalTransactionCost)) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((totalGrossPnl - totalTransactionCost))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-(totalGrossPnl - totalTransactionCost)))} </MDTypography>
               </Grid>
 
@@ -387,8 +506,16 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
 
               {from === dailyContest &&
                 <>
-                  <Grid item xs={6} md={3} lg={2.4} display="flex" justifyContent="center">
-                    <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color={`info`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Payout: { (totalGrossPnl - totalTransactionCost) >= 0 ? ((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-(moduleData?.allData?.payoutPercentage * (totalGrossPnl - totalTransactionCost))/100)) : "+₹0.00"} </MDTypography>
+                  <Grid item xs={6} md={3} lg={1.71} display="flex" justifyContent="center">
+                    <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color={`info`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Reward: {myReward} </MDTypography>
+                  </Grid>
+
+                  <Grid item xs={6} md={3} lg={1.71} display="flex" justifyContent="center">
+                    <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color={`info`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>TDS: {(totalGrossPnl - totalTransactionCost) >= 0 ? (tdsAmount) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(tdsAmount)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-tdsAmount)) : "+₹0.00"} </MDTypography>
+                  </Grid>
+
+                  <Grid item xs={6} md={3} lg={1.71} display="flex" justifyContent="center">
+                    <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color={`info`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Payout: {(totalGrossPnl - totalTransactionCost) >= 0 ? (myPayout) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(myPayout)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-myPayout)) : "+₹0.00"} </MDTypography>
                   </Grid>
                 </>
               }
@@ -398,6 +525,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
         </MDBox>
         )
       }
+      {renderSuccessSB}
     </Card>
   );
 

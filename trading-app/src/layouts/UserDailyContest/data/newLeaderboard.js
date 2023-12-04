@@ -1,10 +1,4 @@
 import { React, useState, useEffect, useContext, useCallback, useMemo } from "react";
-// import axios from "axios";
-// import { Link } from "react-router-dom";
-// import moment from 'moment'
-// import ReactGA from "react-ga"
-
-
 // @mui material components
 import Grid from "@mui/material/Grid";
 
@@ -21,14 +15,10 @@ import MDTypography from "../../../components/MDTypography";
 import DefaultProfilePic from "../../../assets/images/default-profile.png";
 
 import logo from '../../../assets/images/logo1.jpeg'
-// import Profit from '../../../assets/images/profit.png'
-// import Tcost from '../../../assets/images/tcost.png'
-// import TwitterIcon from '@mui/icons-material/Twitter';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { CircularProgress, Divider } from "@mui/material";
 import { userContext } from "../../../AuthContext";
-// import { NetPnlContext } from "../../../PnlContext";
 import axios from "axios";
 import InstagramIcon from '@mui/icons-material/Instagram';
 import TelegramIcon from '@mui/icons-material/Telegram';
@@ -41,8 +31,8 @@ function Leaderboard({ socket, name, id, data}) {
     const [myRank, setMyRankData] = useState();
     const [myPnl, setMyPnl] = useState();
     const getDetails = useContext(userContext);
-    const [reward, setReward] = useState([]);
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    // const [reward, setReward] = useState([]);
+    // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     console.log('received data',data);
 
     const [loading, setIsLoading] = useState(true);
@@ -63,26 +53,7 @@ function Leaderboard({ socket, name, id, data}) {
 
         })
 
-        // let timer = setTimeout(() => {
-        //     setIsLoading(false);
-        // }, 1000);
-
     }, [])
-
-    // useEffect(() => {
-    //     axios.get(`${baseUrl}api/v1/battles/prizedetail/${id}`,{
-    //       withCredentials: true,
-    //       headers: {
-    //           Accept: "application/json",
-    //           "Content-Type": "application/json",
-    //           "Access-Control-Allow-Credentials": true
-    //       }}
-    //       ).then((res)=>{
-    //         setReward(res.data.data?.prizeDistribution);
-    //         // setyesterdayData(res.data.data);
-    //       })
-          
-    //   }, []);
 
     useEffect(()=>{
         leaderboard.map((elem, index)=>{
@@ -92,7 +63,29 @@ function Leaderboard({ socket, name, id, data}) {
         })
     }, [leaderboard, myRank])
 
-    let myReward = myPnl*data?.allData?.payoutPercentage/100>0?myPnl*data?.allData?.payoutPercentage/100:0 ;
+    let myReward;
+    if(data?.allData?.payoutType === "Percentage"){
+        let payoutCap;
+        if(data?.allData?.entryFee > 0){
+            payoutCap = data?.allData?.entryFee * data?.allData?.payoutCapPercentage/100;
+        } else{
+            payoutCap = data?.allData?.portfolio?.portfolioValue * data?.allData?.payoutCapPercentage/100;
+        }
+        myReward = Math.min(payoutCap, myPnl*data?.allData?.payoutPercentage/100>0?myPnl*data?.allData?.payoutPercentage/100:0) ;
+    } else{
+        const rewards = data?.allData?.rewards;
+        for(let elem of rewards){
+            if(Number(myRank) >= Number(elem.rankStart) && Number(myRank) <= Number(elem.rankEnd)){
+                myReward = elem.prize;
+                break;
+            }else{
+                myReward = 0;
+                // "+₹" + "0.00";
+            }
+        }
+    }
+
+    console.log("data?.allData", data?.allData)
 
 
     return (
@@ -100,7 +93,7 @@ function Leaderboard({ socket, name, id, data}) {
             {loading ?
                 <MDBox display="flex" flexDirection='column' justifyContent="center" alignItems="center">
                     <MDBox ml={1} display="flex" justifyContent="center" alignItems="center"><CircularProgress color="black" /></MDBox>
-                    <MDBox display="flex" justifyContent="center" alignItems="center"><MDTypography fontSize={15} fontWeight='bold' color='black'>Loading Contest Leaderboard</MDTypography></MDBox>
+                    <MDBox display="flex" justifyContent="center" alignItems="center"><MDTypography fontSize={15} fontWeight='bold' color='black'>Loading TestZone Leaderboard</MDTypography></MDBox>
                 </MDBox>
                 :
                 <MDBox color="black" mt={0} mb={0} borderRadius={10} minHeight='auto'>
@@ -133,7 +126,7 @@ function Leaderboard({ socket, name, id, data}) {
                                                 />
                                             </Grid>
                                             <Grid item xs={12} lg={12} display='flex' justifyContent='left' alignItems='center'>
-                                                <MDTypography fontSize={15} color='black' fontWeight='bold'>StoxHero {name} Contest Leaderboard</MDTypography>
+                                                <MDTypography fontSize={15} color='black' fontWeight='bold'>StoxHero {name} TestZone Leaderboard</MDTypography>
                                             </Grid>
                                             <Grid item xs={12} lg={4} display='flex' justifyContent='right' alignItems='center' gap={1} mr={1}>
                                                 <MDBox><MDTypography fontSize={15} color='#000000' backgroundColor='#000000' fontWeight='bold' style={{ cursor: 'pointer', borderRadius: "5px" }}><MDButton variant='text' size='small' onClick={() => window.open('https://instagram.com/stoxhero_official?igshid=MzRlODBiNWFlZA==', '_blank')}><InstagramIcon /></MDButton></MDTypography></MDBox>
@@ -224,7 +217,29 @@ function Leaderboard({ socket, name, id, data}) {
 
                                         {leaderboard?.map((elem, index) => {
 
-                                            let myReward = elem?.npnl * data?.allData?.payoutPercentage/100>0?elem?.npnl * data?.allData?.payoutPercentage/100:0;
+                                            // let myReward = elem?.npnl * data?.allData?.payoutPercentage/100>0?elem?.npnl * data?.allData?.payoutPercentage/100:0;
+
+                                            let myReward;
+                                            if(data?.allData?.payoutType === "Percentage"){
+                                                let payoutCap;
+                                                if(data?.allData?.entryFee > 0){
+                                                    payoutCap = data?.allData?.entryFee * data?.allData?.payoutCapPercentage/100;
+                                                } else{
+                                                    payoutCap = data?.allData?.portfolio?.portfolioValue * data?.allData?.payoutCapPercentage/100;
+                                                }
+                                                myReward = Math.min(payoutCap, elem?.npnl * data?.allData?.payoutPercentage/100>0?elem?.npnl * data?.allData?.payoutPercentage/100:0);
+                                            } else{
+                                                const rewards = data?.allData?.rewards;
+                                                for(let subelem of rewards){
+                                                    if(Number(index+1) >= Number(subelem.rankStart) && Number(index+1) <= Number(subelem.rankEnd)){
+                                                        myReward = subelem.prize;
+                                                        break;
+                                                    }else{
+                                                        myReward = 0;
+                                                        // "+₹" + "0.00";
+                                                    }
+                                                }
+                                            }
                                             return (
                                                 <div key={elem?.name}>
                                                     <Grid container xs={12} lg={12} display='flex' justifyContent='center' alignItems='center' border={(myRank == index + 1) && "1px solid black"}>
@@ -278,7 +293,7 @@ function Leaderboard({ socket, name, id, data}) {
                                     :
 
                                     <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center'>
-                                        <MDBox mb={2}><MDTypography fontSize={15} color='black' fontWeight='bold' style={{ cursor: 'pointer' }}>The Contest Leaderboard will be displayed here!</MDTypography></MDBox>
+                                        <MDBox mb={2}><MDTypography fontSize={15} color='black' fontWeight='bold' style={{ cursor: 'pointer' }}>The TestZone Leaderboard will be displayed here!</MDTypography></MDBox>
                                     </Grid>
 
                                 }

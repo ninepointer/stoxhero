@@ -253,7 +253,7 @@ let {exchange, symbol, buyOrSell, Quantity, Price, Product, order_type, TriggerP
 router.post("/mocktradecompany", authoizeTrade.fundCheck,  async (req, res)=>{
 
     console.log("inside mocktrade")
-    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType,
+    let {exchange, symbol, buyOrSell, Quantity, Product, order_type,
           validity, variety, createdBy, userId, uId, algoBox, order_id, instrumentToken,  
           realBuyOrSell, realQuantity, checkingMultipleAlgoFlag, real_instrument_token, realSymbol } = req.body 
 
@@ -266,8 +266,8 @@ router.post("/mocktradecompany", authoizeTrade.fundCheck,  async (req, res)=>{
         const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL"});
 
 
-    if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety || !algoName || !transactionChange || !instrumentChange || !exchangeChange || !lotMultipler || !productChange || !tradingAccount){
-        //console.log(Boolean(exchange)); //console.log(Boolean(symbol)); //console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
+    if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety || !algoName || !transactionChange || !instrumentChange || !exchangeChange || !lotMultipler || !productChange || !tradingAccount){
+        //console.log(Boolean(exchange)); //console.log(Boolean(symbol)); //console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(order_type)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
         //console.log("data is not complete");
         return res.status(422).json({error : "please fill all the feilds..."})
     }
@@ -360,7 +360,7 @@ router.post("/mocktradecompany", authoizeTrade.fundCheck,  async (req, res)=>{
         const mockTradeDetails = new MockTradeDetails({
             status:"COMPLETE", uId, createdBy, average_price: originalLastPriceCompany, Quantity: realQuantity, 
             Product, buyOrSell:realBuyOrSell, order_timestamp: newTimeStamp,
-            variety, validity, exchange, order_type: OrderType, symbol: realSymbol, placed_by: "ninepointer", userId,
+            variety, validity, exchange, order_type: order_type, symbol: realSymbol, placed_by: "ninepointer", userId,
                 algoBox:{algoName, transactionChange, instrumentChange, exchangeChange, 
             lotMultipler, productChange, tradingAccount, _id, marginDeduction, isDefault}, order_id, instrumentToken: real_instrument_token, brokerage: brokerageCompany,
             tradeBy: createdBy, isRealTrade: false, amount: (Number(realQuantity)*originalLastPriceCompany), trade_time:trade_time,
@@ -384,7 +384,7 @@ router.post("/mocktradecompany", authoizeTrade.fundCheck,  async (req, res)=>{
 
             const mockTradeDetailsUser = new MockTradeDetailsUser({
                 status:"COMPLETE", uId, createdBy, average_price: originalLastPriceUser, Quantity, Product, buyOrSell, order_timestamp: newTimeStamp,
-                variety, validity, exchange, order_type: OrderType, symbol, placed_by: "ninepointer", userId,
+                variety, validity, exchange, order_type: order_type, symbol, placed_by: "ninepointer", userId,
                 isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, 
                 tradeBy: createdBy, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
                 
@@ -466,7 +466,6 @@ router.get("/readmocktradecompanyYesterday", (req, res)=>{
             res.json(data)
         }
     })
-
 })
 
 router.get("/readmocktradecompany/:id", (req, res)=>{
@@ -572,7 +571,7 @@ router.get("/readmocktradecompanyThisMonth", (req, res)=>{
     let date = new Date();
     let todayDate = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
     const {email} = req.params
-    let monthStart = `${String(01).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
+    let monthStart = `${String("01").padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
     //console.log(todayDate)
     // MockTradeDetails.find({order_timestamp: {$regex: todayDate}})
     MockTradeDetails.find({trade_time: {$gte:monthStart,$lt: todayDate}})

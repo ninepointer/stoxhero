@@ -50,11 +50,11 @@ function Header({ children }) {
                         Welcome StoxHeroes!
                     </MDTypography>
                     <MDTypography color='dark' fontSize={15} textAlign='center'>
-                        Start your trading journey by participating in virtual Futures & Options contest
+                        Start your trading journey by participating in virtual Futures & Options TestZones
                         and win real cash rewards as per your portfolio value.
                     </MDTypography>
                     <MDTypography color='dark' fontSize={15} textAlign='center'>
-                        अपनी ट्रेडिंग यात्रा शुरू करें वर्चुअल फ्यूचर्स और ऑप्शन कॉन्टेस्ट में हिस्सा लेकर और अपने पोर्टफोलियो की 
+                        अपनी ट्रेडिंग यात्रा शुरू करें वर्चुअल फ्यूचर्स और ऑप्शन टेस्ट ज़ोन में हिस्सा लेकर और अपने पोर्टफोलियो की 
                         मान्यता के हिसाब से वास्तविक नकदी रिवार्ड्स जीतें।
                     </MDTypography> 
                     </Grid>

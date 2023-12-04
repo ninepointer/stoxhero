@@ -127,11 +127,11 @@ function Header({ e }) {
             //   setData(res.data.data);
             // setCount(res.data.count);
             if (res.data.count > 0) {
-                navigate(`/completedcontests/${name}`, {
+                navigate(`/completedtestzone/${name}`, {
                     state: { data: id }
                 });
             } else {
-                openSuccessSB("error", "You dont have any trade for this contest.")
+                openSuccessSB("error", "You do not have any trade for this TestZone.")
             }
             //   setIsLoading(false)
         }).catch((err) => {
@@ -191,10 +191,10 @@ function Header({ e }) {
                             <MDButton bgColor='dark' color={"success"} size='small'
                                 component={Link}
                                 to={{
-                                    pathname: `/contest`,
+                                    pathname: `/testzone`,
                                 }}
                             >
-                                {"View Upcoming Contest"}
+                                {"View Upcoming TestZone"}
                             </MDButton>
                         </MDBox>
 
@@ -261,7 +261,7 @@ function Header({ e }) {
                                                         <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                                 <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                                    Contest Completed
+                                                                    TestZone Completed
                                                                 </MDBox>
                                                             </MDBox>
                                                         </Grid>

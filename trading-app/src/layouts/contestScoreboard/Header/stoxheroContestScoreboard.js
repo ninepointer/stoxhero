@@ -62,7 +62,7 @@ const Scoreboard = () => {
 
   return (
     <Box mt={0} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-      <MDBox p={1} bgColor='primary' width='100%' display='flex' justifyContent='center' alignItems='center'>
+      <MDBox p={1} backgroundColor="#59B15D" width='100%' display='flex' justifyContent='center' alignItems='center'>
         <MDBox>
           <Avatar
             src={logo}
@@ -71,7 +71,7 @@ const Scoreboard = () => {
         </MDBox>
         <MDBox ml={1}>
           <MDTypography color='light' fontWeight='bold'>
-              StoxHero Contest Scoreboard
+              TestZone Leaderboard
           </MDTypography>
         </MDBox>
       </MDBox>
@@ -93,16 +93,16 @@ const Scoreboard = () => {
                 </MDBox>
             </Grid>
             <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='center'>
-                <MDTypography fontSize={15} fontWeight='bold' color='dark'>Cash Earned</MDTypography>
+                <MDTypography fontSize={15} fontWeight='bold' color='dark'>Earnings</MDTypography>
             </Grid>
             <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='center'>
-                <MDTypography fontSize={15} fontWeight='bold' color='dark'>Contest Participated</MDTypography>
+                <MDTypography fontSize={15} fontWeight='bold' color='dark'>TestZone Participated</MDTypography>
             </Grid>
             <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='center'>
-                <MDTypography fontSize={15} fontWeight='bold' color='dark'>Contest Won</MDTypography>
+                <MDTypography fontSize={15} fontWeight='bold' color='dark'>TestZone Won</MDTypography>
             </Grid>
             <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='center'>
-                <MDTypography fontSize={15} fontWeight='bold' color='dark'>Strike Rate</MDTypography>
+                <MDTypography fontSize={15} fontWeight='bold' color='dark'>StrikeRate</MDTypography>
             </Grid>
             
         </Grid>
@@ -120,8 +120,9 @@ const Scoreboard = () => {
                 <MDBox display='flex' justifyContent='flex-start' alignItems='center' width='100%'>
                 <MDBox display='flex' justifyContent='flex-start' alignItems='center' ml={9} mr={1}>
                   <Avatar
-                      src={trader?.traderProfilePhoto ? trader?.traderProfilePhoto : ''}
+                      src={trader?.traderProfilePhoto ? trader?.traderProfilePhoto : logo}
                       alt={trader?.traderFirstName}
+                      // sx={{padding: "5px"}}
                     />
                 </MDBox>
                 <MDBox display='flex' justifyContent='flex-start' alignItems='center'>

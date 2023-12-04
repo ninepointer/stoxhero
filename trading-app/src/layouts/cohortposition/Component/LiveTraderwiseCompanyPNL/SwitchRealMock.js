@@ -103,7 +103,7 @@
 //                 instrumentToken: tradeDetail[i]._id.instrumentToken,
 //                 exchange: tradeDetail[i]._id.exchange,
 //                 validity: tradeDetail[i]._id.validity,
-//                 OrderType: tradeDetail[i]._id.order_type,
+//                 order_type: tradeDetail[i]._id.order_type,
 //                 variety: tradeDetail[i]._id.variety,
 //                 buyOrSell: transaction_type,
 //                 Quantity: quantity,
@@ -128,7 +128,7 @@
 
 //     const placeLiveOrder = async (algoBox, detailObj, apiKeyArr, accessTokenArr, transaction_type)=>{
   
-//         const { exchange, symbol, buyOrSell, Quantity, Product, OrderType, validity, variety, instrumentToken, tradeBy } = detailObj;
+//         const { exchange, symbol, buyOrSell, Quantity, Product, order_type, validity, variety, instrumentToken, tradeBy } = detailObj;
 //         const { algoName, transactionChange, instrumentChange, exchangeChange, lotMultipler, productChange, tradingAccount } = algoBox;
   
 //         const { apiKey } = apiKeyArr[0];
@@ -143,7 +143,7 @@
 //             body: JSON.stringify({
                 
 //                 apiKey, accessToken, tradeBy,
-//                 exchange, symbol, buyOrSell: transaction_type, realBuyOrSell: transaction_type, Quantity, realQuantity: Quantity, Product, OrderType, 
+//                 exchange, symbol, buyOrSell: transaction_type, realBuyOrSell: transaction_type, Quantity, realQuantity: Quantity, Product, order_type, 
 //                 validity, variety, createdBy, userId, createdOn, uId, 
 //                 algoBox: {algoName, transactionChange, instrumentChange, exchangeChange, lotMultipler, 
 //                 productChange, tradingAccount}, instrumentToken

@@ -133,6 +133,7 @@ exports.getTradingHolidayBetweenDates = async(req, res, next) => {
     const fullStartDate = new Date(`${startDateDateComponent}T00:00:00.000Z`);
     const fullEndDate = new Date(`${endDateDateComponent}T23:59:59.000Z`);
 
+    console.log(fullStartDate, fullEndDate, startDate, endDate)
     try {
         const holiday = await TradingHoliday.find({
             holidayDate: {
@@ -140,10 +141,12 @@ exports.getTradingHolidayBetweenDates = async(req, res, next) => {
               $lte: fullEndDate
             },
             $expr: {
-              $ne: [{ $dayOfWeek: "$holidayDate" }, 1], // 1 represents Sunday
-              $ne: [{ $dayOfWeek: "$holidayDate" }, 7], // 7 represents Saturday
+              $and: [
+                { $ne: [{ $dayOfWeek: "$holidayDate" }, 1] }, // 1 represents Sunday
+                { $ne: [{ $dayOfWeek: "$holidayDate" }, 7] }  // 7 represents Saturday
+              ]
             }
-        });
+          });
 
         //   console.log(holiday)
         // const holiday = await TradingHoliday.find({holidayDate: {$gte: startDate, $lte: endDate}});
@@ -157,41 +160,59 @@ exports.getTradingHolidayBetweenDates = async(req, res, next) => {
 exports.nextTradingDay = async (req, res, next) => {
 
     try {
-
-        function isTradingDay(date, holidays) {
-            // Check if the date is a weekend (Saturday or Sunday)
-            if (date.getDay() === 0 || date.getDay() === 6) {
-                return false;
-            }
-
-            // Check if the date is a holiday
-            if (holidays.length) {
-                return false;
-            }
-            return true;
-        }
-
         for (let i = 1; i < 30; i++) {
             let date = new Date();
-            let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate() + i).padStart(2, '0')}`
-            const currentDate = new Date(todayDate);
-            let secondDate = new Date(`${todayDate}T23:59:00.000Z`);
+            date.setDate(date.getDate() + i);
+            const endOfTomorrow = new Date(date);
+            endOfTomorrow.setHours(23, 59, 59, 999);
+            // console.log(date.getDate() + i);
+            // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate() + i).padStart(2, '0')}`
+            // const currentDate = new Date(todayDate);
+            // let secondDate = new Date(`${todayDate}T23:59:00.000Z`);
+            // console.log(currentDate, secondDate)
+            // const currentDate = new Date();
+
+            // // Get tomorrow's date
+            // const tomorrowDate = new Date(currentDate);
+            // tomorrowDate.setDate(currentDate.getDate() + 1);
+            
+            // // Start of tomorrow
+            // const startOfTomorrow = new Date(tomorrowDate);
+            // startOfTomorrow.setHours(0, 0, 0, 0);
+            
+            // // End of tomorrow
+            // const endOfTomorrow = new Date(tomorrowDate);
+            // endOfTomorrow.setHours(23, 59, 59, 999);
+            // console.log( date, endOfTomorrow, new Date(date.toISOString().split("T")[0]), new Date(`${endOfTomorrow.toISOString().split("T")[0]}T23:59:00.000Z`) )
             const holiday = await TradingHoliday.find({
                 holidayDate: {
-                    $gte: currentDate,
-                    $lte: secondDate
+                    $gte: new Date(date.toISOString().split("T")[0]),
+                    $lte: new Date(`${endOfTomorrow.toISOString().split("T")[0]}T23:59:00.000Z`)
                 }
             });
-            if (isTradingDay(currentDate, holiday)) {
+            if (isTradingDay(date, holiday)) {
                 // Set the remaining time state here
-                res.status(200).send({ status: "success", data: currentDate })
+                res.status(200).send({ status: "success", data: date })
                 break;
             } else {
                 console.log("Not a trading day. Remaining time state not set.");
             }
         }
-
     } catch (e) {
+        console.log(e)
         res.status(500).json({ status: 'error', message: 'Something went wrong' });
     }
+}
+
+function isTradingDay(date, holidays) {
+    // Check if the date is a weekend (Saturday or Sunday)
+    if (date.getDay() === 0 || date.getDay() === 6) {
+        return false;
+    }
+
+    // Check if the date is a holiday
+    if (holidays.length) {
+        return false;
+    }
+    return true;
 }

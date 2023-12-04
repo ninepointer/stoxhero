@@ -62,10 +62,10 @@ function FAQs() {
                         StoxHero is India's fastest growing options trading learning platform aimed at helping genZ master the art of 'Trading'. On StoxHero, Traders learn how to pick the right contracts using virtual money by participating in experiential learning programs.
                     </MDTypography> 
 
-                    <MDTypography ml={2} mr={2} mt={1} fontSize={15} fontWeight="bold" color="dark">Can I Join A Battle On StoxHero Without A Trading Account?</MDTypography>
+                    {/* <MDTypography ml={2} mr={2} mt={1} fontSize={15} fontWeight="bold" color="dark">Can I Join A Battle On StoxHero Without A Trading Account?</MDTypography>
                     <MDTypography ml={2} mr={2} fontSize={13} color="dark">
                         Yes, trading account is not needed to get started. At registration, each user is awarded virtual currency of INR 10,00,000 in three different portfolios named Trading, Battle Mania and Battle Fever. While Trading Portfolio is for virtual intra-day trading, Battle Mania and Battle Fever are used only to participate in StoxHero Battles. Users can start adding contracts to these portfolios with the virtual cash.
-                    </MDTypography>
+                    </MDTypography> */}
 
                     <MDTypography ml={2} mr={2} mt={1} fontSize={15} fontWeight="bold" color="dark">Do I Trade Contracts With Real Money?</MDTypography>
                     <MDTypography ml={2} mr={2} fontSize={13} mb={2} color="dark">
@@ -227,7 +227,7 @@ function FAQs() {
                 </MDBox>
             </Grid>
 
-            <Grid item xs={12} md={12} lg={10}>
+            {/* <Grid item xs={12} md={12} lg={10}>
                 <MDBox bgColor="light" style={{border:'1px solid black', borderRadius:5}}>
                     <MDBox display="flex" justifyContent="space-between" alignItems="center">
                     <MDTypography style={{fontSize:18, fontWeight:700}} color="dark" ml={2}>StoxHero Battles</MDTypography>
@@ -349,9 +349,9 @@ function FAQs() {
                     </>
                     }
                 </MDBox>
-            </Grid>
+            </Grid> */}
 
-            <Grid item xs={12} md={12} lg={10}>
+            {/* <Grid item xs={12} md={12} lg={10}>
                 <MDBox bgColor="light" style={{border:'1px solid black', borderRadius:5}}>
                     <MDBox display="flex" justifyContent="space-between" alignItems="center">
                     <MDTypography style={{fontSize:18, fontWeight:700}} color="dark" ml={2}>Points & Ranking System</MDTypography>
@@ -392,7 +392,7 @@ function FAQs() {
                     </>
                     }
                 </MDBox>
-            </Grid>
+            </Grid> */}
 
             <Grid item xs={12} md={12} lg={10}>
                 <MDBox bgColor="light" style={{border:'1px solid black', borderRadius:5}}>

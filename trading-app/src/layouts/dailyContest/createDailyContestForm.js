@@ -9,7 +9,7 @@ import Grid from "@mui/material/Grid";
 import MDTypography from "../../components/MDTypography";
 import MDBox from "../../components/MDBox";
 import MDButton from "../../components/MDButton"
-import { CircularProgress, formLabelClasses } from "@mui/material";
+import { Checkbox, CircularProgress, FormControlLabel, FormGroup, formLabelClasses } from "@mui/material";
 import MDSnackbar from "../../components/MDSnackbar";
 import MenuItem from '@mui/material/MenuItem';
 import { styled } from '@mui/material';
@@ -32,6 +32,7 @@ import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import PotentialUser from "./data/potentialUsers";
 import Leaderboard from "./data/contestWiseLeaderboard"
 import CollegeRegistrations from "./data/contestRegistrations";
+import FeaturedRegistrations from "./data/featuredRegistrations";
 import Shared from "./data/shared";
 import CreateRewards from './data/reward/createReward';
 import ContestRewards from './data/reward/contestReward';
@@ -58,7 +59,7 @@ function Index() {
   const location = useLocation();
   const contest = location?.state?.data;
   const [collegeSelectedOption, setCollegeSelectedOption] = useState();
-  console.log('id hai', contest);
+  // console.log('id hai', contest);
   // const [applicationCount, setApplicationCount] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -73,17 +74,20 @@ function Index() {
   const [portfolios, setPortfolios] = useState([]);
   const [college, setCollege] = useState([]);
   const [contestRegistrations, setContestRegistrations] = useState([]);
+  const [featuredRegistrations, setFeaturedRegistrations] = useState([]);
   // const [careers,setCareers] = useState([]);
   const [action, setAction] = useState(false);
+  let Url = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"
   // const [type, setType] = useState(contest?.portfolio?.portfolioName.includes('Workshop')?'Workshop':'Job');
 
   const [formState, setFormState] = useState({
     contestName: '' || contest?.contestName,
+    contestLiveTime: dayjs(contest?.contestLiveTime) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
     contestStartTime: dayjs(contest?.contestStartTime) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
     contestEndTime: dayjs(contest?.contestEndTime) ?? dayjs(new Date()).set('hour', 23).set('minute', 59).set('second', 59),
     allowedUsers: [{ addedOn: '', userId: '' }],
     contestStatus: '' || contest?.contestStatus,
-    contestType: '' || contest?.contestType,
+    contestType: 'Mock' || contest?.contestType,
     contestFor: '' || contest?.contestFor,
     collegeCode: '' || contest?.collegeCode,
     contestOn: '' || contest?.contestOn,
@@ -96,19 +100,18 @@ function Index() {
       name: "" || contest?.portfolio?.portfolioName
     },
     college: "" || contest?.college?._id,
-    // college: {
-    //   id: "" || contest?.college?._id,
-    //   name: "" || contest?.college?.collegeName
-    // },
     contestExpiry: "" || contest?.contestExpiry,
+    featured: "" || contest?.featured,
     isNifty: "" || contest?.isNifty,
     isBankNifty: "" || contest?.isBankNifty,
     isFinNifty: "" || contest?.isFinNifty,
     isAllIndex: "" || contest?.isAllIndex,
-    currentLiveStatus: "" || contest?.currentLiveStatus,
+    currentLiveStatus: "Mock" || contest?.currentLiveStatus,
     payoutType: "" || contest?.payoutType,
     liveThreshold: "" || contest?.liveThreshold,
-
+    payoutCapPercentage: "" || contest?.payoutCapPercentage,
+    // payoutType: "" || contest?.payoutType,
+    payoutPercentageType : "" || contest?.payoutPercentageType,
     registeredUsers: {
       userId: "",
       registeredOn: "",
@@ -116,9 +119,6 @@ function Index() {
       exitDate: "",
     },
   });
-
-
-  // console.log("contest status", contest, formState)
 
   useEffect(() => {
     setTimeout(() => {
@@ -131,7 +131,7 @@ function Index() {
   useEffect(() => {
     axios.get(`${baseUrl}api/v1/portfolio/dailycontestportfolio`, {withCredentials: true})
       .then((res) => {
-        console.log("Contest Portfolios :", res?.data?.data)
+        // console.log("TestZone Portfolios :", res?.data?.data)
         setPortfolios(res?.data?.data);
       }).catch((err) => {
         return new Error(err)
@@ -139,7 +139,7 @@ function Index() {
 
     axios.get(`${baseUrl}api/v1/college`,{withCredentials: true})
     .then((res) => {
-      console.log("College Lists :", res?.data?.data)
+      // console.log("College Lists :", res?.data?.data)
       setCollege(res?.data?.data);
     }).catch((err) => {
       return new Error(err)
@@ -158,6 +158,7 @@ function Index() {
   useEffect(()=>{
     if(contest?._id){
       getCollegeContestRegistrations();
+      getFeaturedContestRegistrations();
     }
   },[])
 
@@ -165,6 +166,12 @@ function Index() {
     const res = await axios.get(`${apiUrl}dailycontest/collegecontest/getregistrations/${contest?._id}`,{withCredentials:true});
     if(res.status == 200){
       setContestRegistrations(res.data.data);
+    }
+  }
+  const getFeaturedContestRegistrations = async()=>{
+    const res = await axios.get(`${apiUrl}dailycontest/featured/getregistrations/${contest?._id}`,{withCredentials:true});
+    if(res.status == 200){
+      setFeaturedRegistrations(res.data.data);
     }
   }
   // console.log("College:", collegeSelectedOption)
@@ -187,7 +194,6 @@ function Index() {
   };
 
   const handleCollegeChange = (event, newValue) => {
-    console.log("College Selection:",newValue)
     setCollegeSelectedOption(newValue);
     setFormState(prevState => ({
       ...prevState,
@@ -212,16 +218,19 @@ function Index() {
     // console.log("inside submit")
     e.preventDefault()
     console.log(formState)
+    if(formState.contestLiveTime > formState.contestStartTime){
+      return openErrorSB("Error", "Live time should be less then start time.")
+    }
     if(formState.contestStartTime > formState.contestEndTime){
       return openErrorSB("Error", "Date range is not valid.")
     }
-    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.contestType || !formState.portfolio.id || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty && !formState.isAllIndex) ) {
+    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.contestType || !formState.portfolio.id || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty) ) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const { liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
+    const {contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage } = formState;
     const res = await fetch(`${baseUrl}api/v1/dailycontest/contest`, {
       method: "POST",
       credentials: "include",
@@ -230,7 +239,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
+        contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage
       })
     });
 
@@ -239,11 +248,10 @@ function Index() {
     console.log(data, res.status);
     if (res.status !== 201) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
-      openErrorSB("Contest not created", data?.message)
+      openErrorSB("TestZone not created", data?.message)
     } else {
-      openSuccessSB("Contest Created", data?.message)
+      openSuccessSB("TestZone Created", data?.message)
       setNewObjectId(data?.data?._id)
-      console.log("New Object Id: ", data?.data?._id, newObjectId)
       setIsSubmitted(true)
       setDailyContest(data?.data);
       setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
@@ -254,20 +262,25 @@ function Index() {
 
   async function onEdit(e, formState) {
     e.preventDefault()
-    console.log("Edited FormState: ", new Date(formState.contestStartTime).toISOString(), new Date(formState.contestEndTime).toISOString())
+    // console.log("Edited FormState: ", new Date(formState.contestStartTime).toISOString(), new Date(formState.contestEndTime).toISOString())
     setSaving(true)
-    console.log("formstate", formState)
+    console.log("formstate....", formState, formState.contestName , formState.contestStartTime , formState.contestEndTime , formState.contestStatus , formState.maxParticipants , formState.description , formState.contestType , formState.portfolio , formState.contestFor , ( formState.isNifty , formState.isBankNifty , formState.isFinNifty) )
+
+    if(new Date(formState.contestLiveTime).toISOString() > new Date(formState.contestStartTime).toISOString()){
+      setTimeout(() => { setSaving(false); setEditing(true) }, 500)
+      return openErrorSB("Error", "Live time should be less then start time.")
+    }
 
     if(new Date(formState.contestStartTime).toISOString() > new Date(formState.contestEndTime).toISOString()){
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Error", "Date range is not valid.")
     }
     
-    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.maxParticipants || !formState.payoutPercentage || !formState.description || !formState.contestType || !formState.portfolio || !formState.contestFor || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty && !formState.isAllIndex) ) {
+    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.maxParticipants || !formState.description || !formState.contestType || !formState.portfolio || !formState.contestFor || ( !formState.isNifty && !formState.isBankNifty && !formState.isFinNifty) ) {
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const { liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
+    const { contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, featured, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage } = formState;
 
     const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${contest?._id}`, {
       method: "PUT",
@@ -277,7 +290,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
+        contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage
       })
     });
 
@@ -287,7 +300,7 @@ function Index() {
       openErrorSB("Error", data.error)
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
     } else if(data.status == 'success') {
-      openSuccessSB("Contest Edited", "Edited Successfully")
+      openSuccessSB("TestZone Edited", "Edited Successfully")
       setTimeout(() => { setSaving(false); setEditing(false) }, 500)
       console.log("entry succesfull");
     }else{
@@ -352,7 +365,14 @@ function Index() {
     }
   };
 
+  const date = new Date(contest?.contestStartTime);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
 
+  const formattedDate = `${year}${month}${day}`;
+  const contestFor = contest?.contestFor
+  const link = (contestFor === 'College' ? 'collegecontest' : '')
   return (
     <>
       {isLoading ? (
@@ -365,17 +385,20 @@ function Index() {
           <MDBox pl={2} pr={2} mt={4}>
             <MDBox display="flex" justifyContent="space-between" alignItems="center">
               <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
-                Fill Contest Details
+                Fill TestZone Details
               </MDTypography>
+              {contestFor === 'College' && <MDTypography variant="caption" fontWeight="bold" color="text">
+                Link: {Url}collegecontest/{contest?.contestName?.replace(/\s/g, '%20')}/{formattedDate}
+              </MDTypography>}
             </MDBox>
 
             <Grid container display="flex" flexDirection="row" justifyContent="space-between">
-              <Grid container spacing={2} mt={0.5} mb={0} xs={12} md={9} xl={12}>
+              <Grid container spacing={2} mt={0.5} mb={0} xs={12} md={12} xl={12}>
                 <Grid item xs={12} md={6} xl={3}>
                   <TextField
                     disabled={((isSubmitted || contest) && (!editing || saving))}
                     id="outlined-required"
-                    label='Contest Name *'
+                    label='TestZone Name *'
                     name='contestName'
                     fullWidth
                     defaultValue={editing ? formState?.contestName : contest?.contestName}
@@ -393,7 +416,28 @@ function Index() {
                     <DemoContainer components={['MobileDateTimePicker']}>
                       <DemoItem>
                         <MobileDateTimePicker
-                          label="Contest Start Time"
+                          label="TestZone Live Time"
+                          disabled={((isSubmitted || contest) && (!editing || saving))}
+                          value={formState?.contestLiveTime || dayjs(dailyContest?.contestLiveTime)}
+                          onChange={(newValue) => {
+                            if (newValue && newValue.isValid()) {
+                              setFormState(prevState => ({ ...prevState, contestLiveTime: newValue }))
+                            }
+                          }}
+                          minDateTime={null}
+                          sx={{ width: '100%' }}
+                        />
+                      </DemoItem>
+                    </DemoContainer>
+                  </LocalizationProvider>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3} mt={-1} mb={1}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer components={['MobileDateTimePicker']}>
+                      <DemoItem>
+                        <MobileDateTimePicker
+                          label="TestZone Start Time"
                           disabled={((isSubmitted || contest) && (!editing || saving))}
                           value={formState?.contestStartTime || dayjs(dailyContest?.contestStartTime)}
                           onChange={(newValue) => {
@@ -409,13 +453,12 @@ function Index() {
                   </LocalizationProvider>
                 </Grid>
 
-
                 <Grid item xs={12} md={6} xl={3} mt={-1} mb={1}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DemoContainer components={['MobileDateTimePicker']}>
                       <DemoItem>
                         <MobileDateTimePicker
-                          label="Contest End Time"
+                          label="TestZone End Time"
                           disabled={((isSubmitted || contest) && (!editing || saving))}
                           value={formState?.contestEndTime || dayjs(dailyContest?.contestEndTime)}
                           onChange={(newValue) => {
@@ -431,9 +474,9 @@ function Index() {
                   </LocalizationProvider>
                 </Grid>
 
-                <Grid item xs={12} md={3} xl={3}>
-                  <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
-                    <InputLabel id="demo-multiple-name-label">Contest For</InputLabel>
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormControl sx={{ width:'100%' }}>
+                    <InputLabel id="demo-multiple-name-label">TestZone For</InputLabel>
                     <Select
                       labelId="demo-multiple-name-label"
                       id="demo-multiple-name"
@@ -448,7 +491,7 @@ function Index() {
                           contestFor: e.target.value
                         }))
                       }}
-                      input={<OutlinedInput label="Contest For" />}
+                      input={<OutlinedInput label="TestZone For" />}
                       sx={{ minHeight: 45 }}
                       MenuProps={MenuProps}
                     >
@@ -468,12 +511,12 @@ function Index() {
                 
                 {(formState?.contestFor === "College" || contest?.contestFor === "College") &&
                   <>
-                    <Grid item xs={12} md={3} xl={6}>
+                    <Grid item xs={12} md={6} xl={3}>
                       <CustomAutocomplete
                         id="country-select-demo"
                         sx={{
-                          width: 526,
-                          height: 10,
+                          width: '100%',
+                          // height: 10,
                           '& .MuiAutocomplete-clearIndicator': {
                             color: 'black',
                           },
@@ -520,10 +563,9 @@ function Index() {
                   </>
                 }
 
-                
-                <Grid item xs={12} md={3} xl={3}>
-                  <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
-                    <InputLabel id="demo-multiple-name-label">Contest Type</InputLabel>
+                {/* <Grid item xs={12} md={6} xl={3}>
+                  <FormControl sx={{ width:'100%' }}>
+                    <InputLabel id="demo-multiple-name-label">TestZone Type</InputLabel>
                     <Select
                       labelId="demo-multiple-name-label"
                       id="demo-multiple-name"
@@ -538,7 +580,7 @@ function Index() {
                           contestType: e.target.value
                         }))
                       }}
-                      input={<OutlinedInput label="Contest Type" />}
+                      input={<OutlinedInput label="TestZone Type" />}
                       sx={{ minHeight: 45 }}
                       MenuProps={MenuProps}
                     >
@@ -554,7 +596,7 @@ function Index() {
                       </MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
+                </Grid> */}
                 
                 <Grid item xs={12} md={6} xl={3} mb={2}>
                   <TextField
@@ -575,28 +617,6 @@ function Index() {
                   />
                 </Grid>
 
-                {/* todo-vijay */}
-                {/* {(formState?.payoutType === "Percentage") && */}
-                <Grid item xs={12} md={6} xl={3} mb={2}>
-                  <TextField
-                    disabled={((isSubmitted || contest) && (!editing || saving))}
-                    id="outlined-required"
-                    label='Payout Percentage *'
-                    name='payoutPercentage'
-                    fullWidth
-                    type='number'
-                    defaultValue={editing ? formState?.payoutPercentage : contest?.payoutPercentage}
-                    // onChange={handleChange}
-                    onChange={(e) => {
-                      setFormState(prevState => ({
-                        ...prevState,
-                        payoutPercentage: (e.target.value)
-                      }))
-                    }}
-                  />
-                </Grid>
-                {/* } */}
-
                 <Grid item xs={12} md={6} xl={3} mb={2}>
                   <TextField
                     disabled={((isSubmitted || contest) && (!editing || saving))}
@@ -616,11 +636,11 @@ function Index() {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6} xl={3} mb={2}>
+                {/* <Grid item xs={12} md={6} xl={3} mb={2}>
                   <TextField
                     disabled={((isSubmitted || contest) && (!editing || saving))}
                     id="outlined-required"
-                    label='Live Threshold *'
+                    label='Live Threshold'
                     name='liveThreshold'
                     fullWidth
                     type='number'
@@ -633,9 +653,99 @@ function Index() {
                       }))
                     }}
                   />
+                </Grid> */}
+
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormControl sx={{ width: "100%" }}>
+                    <InputLabel id="demo-simple-select-autowidth-label">Payout Type *</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-autowidth-label"
+                      id="demo-simple-select-autowidth"
+                      name='payoutType'
+                      value={formState?.payoutType || contest?.payoutType}
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          payoutType: e.target.value
+                        }))
+                      }}
+                      label="Payout Type"
+                      sx={{ minHeight: 43 }}
+                    >
+                      <MenuItem value="Percentage">Percentage</MenuItem>
+                      <MenuItem value="Reward">Reward</MenuItem>
+                    </Select>
+                  </FormControl>
                 </Grid>
 
-                <Grid item xs={12} md={6} xl={12} mt={-2}>
+                {formState.payoutType === "Percentage" &&
+                <>
+                <Grid item xs={12} md={6} xl={4}>
+                  <FormControl sx={{ width: "100%" }}>
+                    <InputLabel id="demo-simple-select-autowidth-label">Payout Percentage Type *</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-autowidth-label"
+                      id="demo-simple-select-autowidth"
+                      name='payoutPercentageType'
+                      value={formState?.payoutPercentageType || contest?.payoutPercentageType}
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          payoutPercentageType: e.target.value
+                        }))
+                      }}
+                      label="Payout Percentage Type"
+                      sx={{ minHeight: 43 }}
+                    >
+                      <MenuItem value="Daily">Daily</MenuItem>
+                      <MenuItem value="TestZone End">TestZone End</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={4} mb={2}>
+                  <TextField
+                    disabled={((isSubmitted || contest) && (!editing || saving))}
+                    id="outlined-required"
+                    label='Payout Percentage *'
+                    name='payoutPercentage'
+                    fullWidth
+                    type='number'
+                    defaultValue={editing ? formState?.payoutPercentage : contest?.payoutPercentage}
+                    // onChange={handleChange}
+                    onChange={(e) => {
+                      setFormState(prevState => ({
+                        ...prevState,
+                        payoutPercentage: (e.target.value)
+                      }))
+                    }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={4} mb={2}>
+                  <TextField
+                    disabled={((isSubmitted || contest) && (!editing || saving))}
+                    id="outlined-required"
+                    label='Payout Cap Percentage *'
+                    name='payoutCapPercentage'
+                    fullWidth
+                    type='number'
+                    defaultValue={editing ? formState?.payoutCapPercentage : contest?.payoutCapPercentage}
+                    // onChange={handleChange}
+                    onChange={(e) => {
+                      setFormState(prevState => ({
+                        ...prevState,
+                        payoutCapPercentage: e.target.value
+                      }))
+                    }}
+                  />
+                </Grid>
+                </>}
+
+                <Grid item xs={12} md={6} xl={3} mb={2}>
                   <TextField
                     disabled={((isSubmitted || contest) && (!editing || saving))}
                     id="outlined-required"
@@ -647,8 +757,8 @@ function Index() {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={3} xl={3}>
-                  <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormControl sx={{ width:'100%' }}>
                     <InputLabel id="demo-multiple-name-label">Portfolio</InputLabel>
                     <Select
                       labelId="demo-multiple-name-label"
@@ -675,7 +785,7 @@ function Index() {
 
                 <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Contest Status *</InputLabel>
+                    <InputLabel id="demo-simple-select-autowidth-label">TestZone Status *</InputLabel>
                     <Select
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
@@ -688,7 +798,7 @@ function Index() {
                           contestStatus: e.target.value
                         }))
                       }}
-                      label="Contest Status"
+                      label="TestZone Status"
                       sx={{ minHeight: 43 }}
                     >
                       <MenuItem value="Active">Active</MenuItem>
@@ -699,7 +809,7 @@ function Index() {
                   </FormControl>
                 </Grid>
 
-                <Grid item xs={12} md={6} xl={3}>
+                {/* <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
                     <InputLabel id="demo-simple-select-autowidth-label">Current Live Status *</InputLabel>
                     <Select
@@ -714,18 +824,18 @@ function Index() {
                           currentLiveStatus: e.target.value
                         }))
                       }}
-                      label="Contest Status"
+                      label="TestZone Status"
                       sx={{ minHeight: 43 }}
                     >
                       <MenuItem value="Mock">Mock</MenuItem>
                       <MenuItem value="Live">Live</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
+                </Grid> */}
 
                 <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Contest Expiry *</InputLabel>
+                    <InputLabel id="demo-simple-select-autowidth-label">TestZone Expiry *</InputLabel>
                     <Select
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
@@ -738,7 +848,7 @@ function Index() {
                           contestExpiry: e.target.value
                         }))
                       }}
-                      label="Contest Expiry"
+                      label="TestZone Expiry"
                       sx={{ minHeight: 43 }}
                     >
                       <MenuItem value="Day">Day</MenuItem>
@@ -748,9 +858,36 @@ function Index() {
                   </FormControl>
                 </Grid>
 
-                <Grid item xs={12} md={6} xl={3}>
+                {/* <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Is Contest on Nifty ? *</InputLabel>
+                    <InputLabel id="demo-multiple-name-label">Featured *</InputLabel>
+                    <Select
+                      labelId="demo-multiple-name-label"
+                      id="demo-multiple-name"
+                      name='featured'
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      // defaultValue={id ? portfolios?.portfolio : ''}
+                      value={formState?.featured}
+                      // onChange={handleTypeChange}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          featured: e.target.value
+                        }))
+                      }}
+                      input={<OutlinedInput label="Featured" />}
+                      sx={{ minHeight: 45 }}
+                      MenuProps={MenuProps}
+                    >
+                      <MenuItem value={true}>TRUE</MenuItem>
+                      <MenuItem value={false}>FALSE</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid> */}
+
+                {/* <Grid item xs={12} md={6} xl={3}>
+                  <FormControl sx={{ width: "100%" }}>
+                    <InputLabel id="demo-simple-select-autowidth-label">Is TestZone on Nifty ? *</InputLabel>
                     <Select
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
@@ -774,7 +911,7 @@ function Index() {
 
                 <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Is Contest on BankNifty ? *</InputLabel>
+                    <InputLabel id="demo-simple-select-autowidth-label">Is TestZone on BankNifty ? *</InputLabel>
                     <Select
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
@@ -798,7 +935,7 @@ function Index() {
 
                 <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Is Contest on FinNifty ? *</InputLabel>
+                    <InputLabel id="demo-simple-select-autowidth-label">Is TestZone on FinNifty ? *</InputLabel>
                     <Select
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
@@ -818,11 +955,11 @@ function Index() {
                       <MenuItem value={false}>FALSE</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
+                </Grid> */}
 
-                <Grid item xs={12} md={6} xl={3}>
+                {/* <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Is Contest on All Index ? *</InputLabel>
+                    <InputLabel id="demo-simple-select-autowidth-label">Is TestZone on All Index ? *</InputLabel>
                     <Select
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
@@ -842,6 +979,71 @@ function Index() {
                       <MenuItem value={false}>FALSE</MenuItem>
                     </Select>
                   </FormControl>
+                </Grid> */}
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormGroup>
+                    <FormControlLabel
+                      checked={(contest?.featured !== undefined && !editing && formState?.featured === undefined) ? contest?.featured : formState?.featured}
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      control={<Checkbox />}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          featured: e.target.checked
+                        }))
+                      }}
+                      label="Featured" />
+                  </FormGroup>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormGroup>
+                    <FormControlLabel
+                      checked={(contest?.isNifty !== undefined && !editing && formState?.isNifty === undefined) ? contest?.isNifty : formState?.isNifty}
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      onChange={(e) => {
+                        console.log('checkbox', e.target.checked, e.target.value);
+                        setFormState(prevState => ({
+                          ...prevState,
+                          isNifty: e.target.checked
+                        }))
+                      }}
+                      control={<Checkbox />}
+                      label="NIFTY" />
+                  </FormGroup>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormGroup>
+                  <FormControlLabel
+                    checked={(contest?.isBankNifty !== undefined && !editing && formState?.isBankNifty === undefined) ? contest?.isBankNifty : formState?.isBankNifty}
+                    disabled={((isSubmitted || contest) && (!editing || saving))}
+                    control={<Checkbox />}
+                    onChange={(e) => {
+                      setFormState(prevState => ({
+                        ...prevState,
+                        isBankNifty: e.target.checked
+                      }))
+                    }}
+                    label="BANKNIFTY" />
+                  </FormGroup>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormGroup>
+                    <FormControlLabel 
+                      checked={(contest?.isFinNifty !== undefined && !editing && formState?.isFinNifty === undefined) ? contest?.isFinNifty : formState?.isFinNifty}
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      control={<Checkbox />} 
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          isFinNifty: e.target.checked
+                        }))
+                      }}
+                      label="FINNIFTY" />
+                  </FormGroup>
                 </Grid>
 
               </Grid>
@@ -903,12 +1105,11 @@ function Index() {
                 )}
               </Grid>
 
-                  {/* todo-vijay */}
-              {/* {(isSubmitted || contest) && <Grid item xs={12} md={12} xl={12} mt={2}>
+              {(contest?.payoutType === "Reward" || (isSubmitted && formState?.payoutType === "Reward")) && <Grid item xs={12} md={12} xl={12} mt={2}>
                 <MDBox>
                 <ContestRewards contest={contest!=undefined ? contest?._id : dailyContest?._id}/>
                 </MDBox>
-              </Grid>} */}
+              </Grid>}
               
 
               {(isSubmitted || contest) && <Grid item xs={12} md={12} xl={12} mt={2}>
@@ -937,6 +1138,11 @@ function Index() {
               {(contest || newObjectId) && contest?.contestFor == 'College' && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                 <MDBox>
                   <CollegeRegistrations registrations={contestRegistrations} action={action} setAction={setAction} />
+                </MDBox>
+              </Grid>}
+              {(contest || newObjectId) && contest?.contestFor == 'StoxHero' && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                <MDBox>
+                  <FeaturedRegistrations registrations={featuredRegistrations} action={action} setAction={setAction} />
                 </MDBox>
               </Grid>}
 

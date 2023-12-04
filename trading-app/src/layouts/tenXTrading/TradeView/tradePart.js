@@ -19,6 +19,9 @@ import { NetPnlContext } from '../../../PnlContext';
 import TenXTMargin from '../../tradingCommonComponent/MarginDetails/TenXMargin';
 import { tenxTrader } from '../../../variables';
 import {useNavigate} from "react-router-dom"
+import Order from '../../tradingCommonComponent/Order/Order';
+import PendingOrder from '../../tradingCommonComponent/Order/PendingOrder';
+import ExecutedOrders from '../../tradingCommonComponent/Order/ExecutedOrders';
 
 export default function TenXTrading({ tradingDayData, socket, subscriptionId }) {
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
@@ -28,6 +31,8 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
   const [availbaleMargin, setAvailbleMargin] = useState([]);
   const navigate = useNavigate();
   const [watchList, setWatchList] = useState([]);
+  const [updatePendingOrder, setUpdatePendingOrder] = useState();
+
 
 
   const memoizedStockIndex = useMemo(() => {
@@ -75,7 +80,7 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
   let openingBalance = yesterdayData?.openingBalance ? (yesterdayData?.openingBalance) : yesterdayData.totalFund;
   let fundChangePer = openingBalance ? ((openingBalance + pnl.netPnl - openingBalance) * 100 / openingBalance) : 0;
 
-  console.log("fundDetail", fundChangePer, openingBalance)
+  // console.log("fundDetail", fundChangePer, openingBalance)
   return (
     <>
       <MDBox bgColor="dark" color="light" mt={2} mb={0} p={2} borderRadius={10} >
@@ -104,22 +109,21 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
 
           <Grid item xs={12} md={6} lg={3}>
             <MDBox bgColor="light" borderRadius={5} p={2} display="flex" justifyContent="space-between">
-              <Grid container display="flex" justifyContent="space-around">
+              <Grid container display="flex" justifyContent="space-around" >
 
-                <Grid item xs={12} md={6} lg={2.5}>
+                <Grid item xs={12} md={6} lg={2}>
                   <MDAvatar src={marginicon} size="sm" />
                 </Grid>
 
-                <Grid item xs={12} md={6} lg={5}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Margin</MDTypography>
+                <Grid item xs={12} md={6} lg={6.5}>
+                  <MDTypography fontSize={11} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Opening Balance</MDTypography>
                   <MDBox display="flex">
-                  
                     <MDTypography fontSize={10}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(openingBalance + pnl.netPnl)}</MDTypography>
                     <MDAvatar src={openingBalance + pnl.netPnl - openingBalance + pnl.netPnl >= 0 ? upicon : downicon} style={{ width: 15, height: 15 }} display="flex" justifyContent="left" />
                   </MDBox>
                 </Grid>
 
-                <Grid item xs={12} md={6} lg={4.5}>
+                <Grid item xs={12} md={6} lg={3.5}>
                   <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(openingBalance)}</MDTypography>
                   <MDBox display="flex" justifyContent="right">
                     <MDTypography fontSize={10} display="flex" justifyContent="right">{fundChangePer.toFixed(2)}%</MDTypography>
@@ -173,7 +177,13 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
             {memoizedOverallPnl}
           </Grid>
           <Grid item xs={12} md={6} lg={12}>
-            <TenXTMargin availbaleMargin={availbaleMargin} subscriptionId={subscriptionId} setyesterdayData={setyesterdayData} />
+            <PendingOrder from={tenxTrader} socket={socket} id={subscriptionId} setUpdatePendingOrder={setUpdatePendingOrder} updatePendingOrder={updatePendingOrder} />
+            <ExecutedOrders from={tenxTrader} socket={socket} id={subscriptionId} updatePendingOrder={updatePendingOrder} />
+            <Order from={tenxTrader} id={subscriptionId} updatePendingOrder={updatePendingOrder} />
+          </Grid>
+
+          <Grid item xs={12} md={6} lg={12} >
+            <TenXTMargin subscriptionId={subscriptionId} setyesterdayData={setyesterdayData} />
           </Grid>
         </Grid>
 

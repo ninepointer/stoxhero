@@ -96,6 +96,15 @@ const tenXTraderSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'tenx-subscription',
         required: true
+    },
+    deviceDetails:{
+        deviceType: { type: String },
+        platformType: { type: String }
+    },
+    margin: {
+        type: Number,
+        required: true,
+        default: 0
     }
 
 })

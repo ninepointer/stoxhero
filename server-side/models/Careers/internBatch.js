@@ -30,6 +30,10 @@ const batchSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    payoutCap:{
+        type: Number,
+        required: true
+    },
     referralCount:{
         type: Number,
         required: true

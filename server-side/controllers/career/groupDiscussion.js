@@ -5,6 +5,7 @@ const whatsAppService = require("../../utils/whatsAppService")
 const mediaURL = "https://dmt-trade.s3.amazonaws.com/carousels/WhastAp%20Msg%20Photo/photos/1697228055934Welcome%20to%20the%20world%20of%20Virtual%20Trading%20but%20real%20earning%21.png";
 const mediaFileName = 'StoxHero'
 const mailSender = require('../../utils/emailService');
+const {sendMultiNotifications} = require('../../utils/fcmService');
 const moment = require('moment')
 const Portfolio =require('../../models/userPortfolio/UserPortfolio');
 const CareerApplication = require("../../models/Careers/careerApplicationSchema");
@@ -370,11 +371,17 @@ exports.selectCandidate = async (req, res, next) => {
       createdBy:'63ecbc570302e7cf0153370c',
       lastModifiedBy:'63ecbc570302e7cf0153370c'  
     });
+    if(user?.fcmTokens?.length>0){
+      await sendMultiNotifications('Congratulations', 
+        `Your profile has been selected for Internship batch ${batch.batchName}, batch starts: ${moment.utc(batch?.batchStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a")}`,
+        user?.fcmTokens?.map(item=>item.token), null, {route:'internship'}
+        )  
+    }
    
     if(process.env.PROD == 'true'){
       whatsAppService.sendWhatsApp({
           destination : user?.mobile, 
-          campaignName : 'internship_start_campaign', 
+          campaignName : 'intern_batch_start_campaign', 
           userName : user.first_name, 
           source : user.creationProcess, 
           media : {url : mediaURL, filename : mediaFileName}, 
@@ -385,7 +392,7 @@ exports.selectCandidate = async (req, res, next) => {
               batch.batchName, 
               moment.utc(batch?.batchStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
               moment.utc(batch?.batchEndDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
-              moment.utc(gd.gdStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a"), 
+              moment.utc(batch?.orientationDate).utcOffset('+05:30').format("DD-MMM hh:mm a"), 
               gd.meetLink
             ], 
             tags : '', 
@@ -414,7 +421,7 @@ exports.selectCandidate = async (req, res, next) => {
       //   });
       whatsAppService.sendWhatsApp({
         destination : '9319671094', 
-        campaignName : 'internship_start_campaign', 
+        campaignName : 'intern_batch_start_campaign', 
         userName : user.first_name, 
         source : user.creationProcess, 
         media : {url : mediaURL, filename : mediaFileName}, 
@@ -425,7 +432,7 @@ exports.selectCandidate = async (req, res, next) => {
             batch.batchName, 
             moment.utc(batch?.batchStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
             moment.utc(batch?.batchEndDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
-            moment.utc(gd.gdStartDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
+            moment.utc(batch?.orientationDate).utcOffset('+05:30').format("DD-MMM hh:mm a"),
             gd.meetLink
           ], 
           tags : '', 

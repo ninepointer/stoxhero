@@ -29,7 +29,8 @@ const { zerodhaAccountType } = require("./constant")
 const { openPrice } = require("./marketData/setOpenPriceFlag");
 const webSocketService = require('./services/chartService/chartService');
 const { updateUserWallet } = require('./controllers/internshipTradeController');
-const { EarlySubscribedInstrument } = require("./marketData/earlySubscribeInstrument")
+const { EarlySubscribedInstrument } = require("./marketData/earlySubscribeInstrument");
+const {notificationSender} = require("./notificationSender")
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -39,6 +40,8 @@ const xssClean = require("xss-clean");
 const hpp = require("hpp")
 const { processBattles } = require("./controllers/battles/battleController")
 const Product = require('./models/Product/product');
+const {mail} = require("./controllers/dailyReportMail")
+const {dailyContestTradeCut, dailyContestTimeStore} = require("./dailyContestTradeCut")
 
 async function singleProcess() {
     await setIOValue()
@@ -162,9 +165,11 @@ async function singleProcess() {
                 // await positions();
                 if (setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType) {
                     await getTicksForUserPosition(socket, data);
+                    // await getTicksForCompanySide(socket);
                     // await getDummyTicks(socket)
                 } else {
                     await getXTSTicksForUserPosition(socket, data);
+                    await getXTSTicksForCompanySide(socket);
                 }
 
                 // await DummyMarketData(socket);
@@ -192,13 +197,11 @@ async function singleProcess() {
     });
 
     //emitting leaderboard for contest.
-
-    //todo-vijay
    if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });
-        sendLeaderboardDataBattle().then(() => { });
-        sendMyRankDataBattle().then(() => { });
+        // sendLeaderboardDataBattle().then(() => { });
+        // sendMyRankDataBattle().then(() => { });
    }
 
     emitServerTime().then(() => { });
@@ -248,9 +251,9 @@ async function singleProcess() {
             const autotrade = nodeCron.schedule(`50 9 * * *`, async () => {
                 autoCutMainManually();
                 autoCutMainManuallyMock();
-                changeStatus();
-                changeMarginXStatus();
-                changeBattleStatus();
+                // changeStatus();
+                // changeMarginXStatus();
+                // changeBattleStatus();
                 // creditAmount();
             });
 
@@ -269,16 +272,17 @@ async function singleProcess() {
                 subscribeTokens();
             });
         }
-        const autoExpire = nodeCron.schedule(`0 30 13 * * *`, autoExpireTenXSubscription);
-        const internshipPayout = nodeCron.schedule(`0 30 13 * * *`, updateUserWallet);
+        const autoExpire = nodeCron.schedule(`0 30 10 * * *`, autoExpireTenXSubscription);
+        const internshipPayout = nodeCron.schedule(`0 30 17 * * *`, updateUserWallet);
+        const reportMail = nodeCron.schedule(`0 0 18 * * *`, mail);
+            // const dailyContest = nodeCron.schedule(`*/2 * * * * *`, dailyContestTradeCut);
+    // const dailyContesttimeStore = nodeCron.schedule(`49 3 * * *`, dailyContestTimeStore);
+    // const dailyContesttimeStore = nodeCron.schedule(`*/59 * * * * *`, dailyContestTimeStore);
 
     }
-    const battle = nodeCron.schedule(`*/5 * * * * *`, processBattles);
-    // const battle = nodeCron.schedule(`56 5 * * *`, processBattles);
-
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
-    app.use(express.json({ limit: "20kb" }));
+    app.use(express.json({ limit: "10mb" }));
     app.use(require("cookie-parser")());
     app.use(cors({
         credentials: true,
@@ -309,6 +313,7 @@ async function singleProcess() {
     app.use('/api/v1/marginxtrade', require('./routes/marginx/marginxTradeRoute'));
     app.use('/api/v1/battletrade', require('./routes/battles/battleTradeRoute'));
     app.use('/api/v1/pageview', require("./routes/pageView/pageView"));
+    app.use('/api/v1/affiliate', require("./routes/affiliateProgramme/affiliateRoute"));
 
     //  TODO toggle
     app.use('/api/v1/contestmaster', require("./routes/DailyContest/contestMaster"));
@@ -331,6 +336,7 @@ async function singleProcess() {
     app.use('/api/v1', require('./routes/CronJobsRouter/historyTrade'));
     app.use('/api/v1', require('./routes/AlgoBox/tradingAlgoAuth'));
     app.use('/api/v1/dailycontest', require('./routes/DailyContest/dailyContestLiveTrade'));
+    app.use('/api/v1/pendingorder', require('./routes/pendingOrder/pendingRoute'));
 
     app.use('/api/v1', require("./marketData/getRetrieveOrder"));
     app.use('/api/v1', require('./marketData/switchToRealTrade'));
@@ -385,6 +391,7 @@ async function singleProcess() {
     app.use('/api/v1/instrumentpnl', require("./routes/instrumentPNL/instrumentPNL"));
     app.use('/api/v1/analytics', require("./routes/analytics/analytics"));
     app.use('/api/v1/appmetrics', require("./routes/appMetrics/appMetricsRoutes"));
+    app.use('/api/v1/newappmetrics', require("./routes/appMetrics/newAppMetricesRoutes"));
     app.use('/api/v1/infinitymining', require("./routes/infinityMining/infinityMiningRoutes"));
     app.use('/api/v1/virtualtradingperformance', require("./routes/performance/virtualTradingRoute"));
     app.use('/api/v1/user', require("./routes/user/userRoutes"));
@@ -392,7 +399,8 @@ async function singleProcess() {
     app.use('/api/v1/KYC', require("./routes/KYCApproval/KYCRoutes"));
     app.use('/api/v1/paymenttest', require("./routes/paymentTest/paymentTestRoutes"));
     app.use('/api/v1/stoxherouserdashboard', require("./routes/StoxHeroDashboard/userAnalytics"));
-    app.use('/api/v1/marginused', require("./routes/marginUsed/marginUsed"));
+    app.use('/api/v1/revenue', require("./routes/revenuDashboardRoutes/revenueDashboardRoute"));
+    app.use('/api/v1/marginrequired', require("./routes/marginRequired/marginRequired"));
     app.use('/api/v1/userdashboard', require('./routes/UserDashboard/dashboardRoutes'));
     app.use('/api/v1/post', require("./routes/post/postRoutes"));
     app.use('/api/v1/signup', require("./routes/UserRoute/signUpUser"));
@@ -402,16 +410,21 @@ async function singleProcess() {
     app.use('/api/v1/marginxtemplates', require("./routes/marginx/marginxTemplateRoutes"));
     app.use('/api/v1/notifications', require("./routes/notification/notificationRoutes"));
     app.use('/api/v1/coupons', require("./routes/coupon/couponRoutes"));
-
-
+    app.use('/api/v1/blogs', require("./routes/blog/blogRoutes"));
+    app.use('/api/v1/learningmodule', require("./routes/learningModule/learningModuleRoutes"));
+    app.use('/api/v1/alltradeview', require("./routes/viewRoutes/allTradesViewRoute"));
+    app.use('/api/v1/push', require("./routes/pushNotifications/pushNotificationRoutes"));
 
 
     const PORT = process.env.PORT || 5002;
     const server = app.listen(PORT);
 
+
     if(process.env.CHART === "true"){
         webSocketService.init(io);
     }
+
+    notificationSender().then(()=>{});
 }
 
 

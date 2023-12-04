@@ -93,19 +93,19 @@ function Header({ children }) {
               {/* <Tabs orientation={tabsOrientation} value={tabValue} onChange={handleSetTabValue}> */}
               <Tabs orientation={tabsOrientation} value={tabValue} onChange={handleSetTabValue}>
                 <Tab
-                  label="Upcoming Contests"
+                  label="Upcoming TestZones"
                   icon={
                     <GiPodiumWinner fontSize="small" sx={{ mt: -0.25 }}/>
                   }
                 />
                 <Tab
-                  label="Contest Rules"
+                  label="TestZone Rules"
                   icon={
                     <CandlestickChartIcon fontSize="small" sx={{ mt: -0.25 }}/>
                   }
                 />
                  <Tab
-                  label="Expired Contests"
+                  label="Expired TestZone"
                   icon={
                     <CandlestickChartIcon fontSize="small" sx={{ mt: -0.25 }}/>
                   }

@@ -16,7 +16,7 @@ const Setting = require("../../models/settings/setting");
 exports.takeAutoTrade = async (tradeDetails) => {
 
     const setting = await Setting.find().select('toggle');
-    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, exchangeSegment,
+    let {exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId, exchangeSegment,
         validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath,
         realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, dontSendResp } = tradeDetails
 
@@ -29,8 +29,8 @@ exports.takeAutoTrade = async (tradeDetails) => {
 
     //   console.log("req body", req.body)
 
-    if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
-        //console.log(Boolean(exchange)); //console.log(Boolean(symbol)); //console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
+    if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety){
+        //console.log(Boolean(exchange)); //console.log(Boolean(symbol)); //console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(order_type)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
         return res.status(422).json({error : "please fill all the feilds..."})
     }
 
@@ -121,7 +121,7 @@ exports.takeAutoTrade = async (tradeDetails) => {
 
         const tenx = new TenxTrader({
             status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
-            variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+            variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
             order_id, instrumentToken, brokerage: brokerageUser, portfolioId, subscriptionId,
             createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
             

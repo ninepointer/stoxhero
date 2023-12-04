@@ -64,11 +64,11 @@ export default function DailyContestOrders() {
           component={Link}
           // disabled={timeDifference > 0}
           to={{
-              pathname: `/collegecontests`,
+              pathname: `/collegetestzone`,
           }}
           // onClick={() => { participateUserToContest(elem) }}
       >
-          <MDTypography color='warning' fontWeight='bold' fontSize={10}>BACK TO COMPLETED CONTEST</MDTypography>
+          <MDTypography color='warning' fontWeight='bold' fontSize={10}>Back</MDTypography>
       </MDButton>
       <Grid container mt={1}>
         <Grid container p={1} style={{border:'1px solid white', borderRadius:5}}>

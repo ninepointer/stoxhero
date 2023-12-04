@@ -9,12 +9,15 @@ const Wallet = require("../models/UserWallet/userWalletSchema");
 const uuid = require('uuid');
 const {client, getValue} = require("../marketData/redisClient");
 const emailService = require("../utils/emailService");
+const {sendMultiNotifications} = require("../utils/fcmService");
 const mongoose = require('mongoose');
 const {createUserNotification} = require('./notification/notificationController');
 const Product = require('../models/Product/product');
 const Coupon = require('../models/coupon/coupon');
 const Setting = require('../models/settings/setting');
 const {saveSuccessfulCouponUse} = require('./coupon/couponController');
+const AffiliateProgram = require('../models/affiliateProgram/affiliateProgram');
+const{creditAffiliateAmount} = require('./affiliateProgramme/affiliateController');
 
 
 const filterObj = (obj, ...allowedFields) => {
@@ -98,7 +101,7 @@ exports.getActiveTenXSubs = async(req, res, next)=>{
     try{
         const tenXSubs = await TenXSubscription.find({status: "Active"}).select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features allowPurchase allowRenewal expiryDays payoutPercentage')
         .populate('portfolio', 'portfolioName portfolioValue')
-        .sort({discounted_price: 1})
+        .sort({ validity:1, discounted_price: 1})
         
         res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
     }catch(e){
@@ -504,11 +507,15 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
   const today = new Date();
   const session = await mongoose.startSession();
   try{
+    let affiliate, affiliateProgram;
     let discountAmount =0;
     let cashbackAmount =0;
     session.startTransaction();
     const tenXSubs = await TenXSubscription.findOne({_id: new ObjectId(subscriptionId)})
-    subscriptionAmount = tenXSubs?.discounted_price;
+    if(!subscriptionAmount){
+      subscriptionAmount = tenXSubs?.discounted_price;
+    }
+    
     const setting = await Setting.find({});
     const wallet = await Wallet.findOne({userId: userId});
     let amount = 0;
@@ -541,7 +548,20 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
       });
     }  
     if(coupon){
-      const couponDoc = await Coupon.findOne({code:coupon});
+      let couponDoc = await Coupon.findOne({code:coupon});
+      if(!couponDoc){
+        const affiliatePrograms = await AffiliateProgram.find({status:'Active'});
+        if(affiliatePrograms.length != 0)
+            for(let program of affiliatePrograms){
+                let match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
+                if(match){
+                    affiliate = match;
+                    affiliateProgram = program;
+                    couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: program?.discountPercentage, maxDiscount:program?.maxDiscount }
+                }
+            }
+
+    }
       if(couponDoc?.rewardType == 'Discount'){
           if(couponDoc?.discountType == 'Flat'){
               //Calculate amount and match
@@ -570,6 +590,7 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
   }
 
   const totalAmount = (tenXSubs?.discounted_price - discountAmount -bonusRedemption)*(1+setting[0]?.gstPercentage/100)
+  console.log(Number(totalAmount) , Number(subscriptionAmount))
   if(Number(totalAmount) != Number(subscriptionAmount)){
     return {
       statusCode:400,
@@ -811,6 +832,12 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
           createdBy:'63ecbc570302e7cf0153370c',
           lastModifiedBy:'63ecbc570302e7cf0153370c'  
         });
+        if(user?.fcmTokens?.length>0){
+          await sendMultiNotifications('StoxHero Cashback', 
+            `${cashbackAmount?.toFixed(2)}HeroCash added as bonus in your wallet.`,
+            user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+            )  
+        }
   }
     await createUserNotification({
       title:'TenX Subscription Renewed',
@@ -824,10 +851,20 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
       createdBy:'63ecbc570302e7cf0153370c',
       lastModifiedBy:'63ecbc570302e7cf0153370c'  
     }, session);
+    if(user?.fcmTokens?.length>0){
+      await sendMultiNotifications('TenX Subscription Renewed', 
+        `Your TenX subscription ${subscription?.plan_name} has been renewed.`,
+        user?.fcmTokens?.map(item=>item.token), null, {route:'tenx'}
+        )  
+    }
     await session.commitTransaction();
     if(coupon){
       const product = await Product.findOne({productName:'TenX'}).select('_id');
-      await saveSuccessfulCouponUse(userId, coupon, product?._id, subscription?._id);
+      if(affiliate){
+        await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, subscription?._id, subscription?.discounted_price, userId);
+      }else{
+        await saveSuccessfulCouponUse(userId, coupon, product?._id, subscription?._id);
+      }
     }
     return {
       statusCode:201,
@@ -899,6 +936,7 @@ exports.myActiveSubs = async(req, res, next)=>{
             features: 1,
             discounted_price:1,
             payoutPercentage: 1,
+            validity:1,
             portfolioValue: {
               $arrayElemAt: [
                 "$portfolio_details.portfolioValue",
@@ -921,6 +959,7 @@ exports.myActiveSubs = async(req, res, next)=>{
         {
           $sort: {
             subscribedOn: -1,
+            validity:1
           },
         },
       ]
@@ -983,6 +1022,7 @@ exports.myExpiredSubsciption = async(req, res, next)=>{
               expiryDays:1,
               payoutPercentage:1,
               features: 1,
+              validity:1,
               portfolioValue: {
                 $arrayElemAt: [
                   "$portfolio_details.portfolioValue",
@@ -994,6 +1034,14 @@ exports.myExpiredSubsciption = async(req, res, next)=>{
               status: "$users.status",
               subscribedOn: "$users.subscribedOn",
               expiredOn: "$users.expiredOn",
+              payout: "$users.payout",
+              tdsAmount: "$users.tdsAmount",
+              gpnl: "$users.gpnl",
+              npnl: "$users.npnl",
+              brokerage: "$users.brokerage",
+              tradingDays: "$users.tradingDays",
+              trades: "$users.trades",
+
             },
           },
           {
@@ -1005,6 +1053,7 @@ exports.myExpiredSubsciption = async(req, res, next)=>{
           {
             $sort: {
               subscribedOn: -1,
+              validity:1
             },
           },
         ]

@@ -10,11 +10,13 @@ const TradingHoliday = require('../../models/TradingHolidays/tradingHolidays');
 const fs = require('fs');
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
 const path = require('path');
+const Holiday = require("../../models/TradingHolidays/tradingHolidays");
+const InternTrades = require("../../models/mock-trade/internshipTrade");
 
 exports.createBatch = async(req, res, next)=>{
     // console.log(req.body) // batchID
     const{batchName, batchStartDate, batchEndDate, 
-        batchStatus, career, portfolio, payoutPercentage, 
+        batchStatus, career, portfolio, payoutPercentage, payoutCap,
         attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = req.body;
 
     const date = new Date();
@@ -26,7 +28,7 @@ exports.createBatch = async(req, res, next)=>{
 
     const batch = await Batch.create({batchID, batchName:batchName.trim(), batchStartDate, batchEndDate,
         batchStatus, createdBy: req.user._id, lastModifiedBy: req.user._id, career, portfolio, 
-        payoutPercentage, attendancePercentage, referralCount, orientationDate, orientationMeetingLink});
+        payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink});
     
     res.status(201).json({message: 'Batch successfully created.', data:batch});
 
@@ -74,7 +76,7 @@ exports.getActiveBatches = async(req, res, next)=>{
 exports.getCompletedBatches = async(req, res, next)=>{
     // console.log("inside CompletedBatches")
     try {
-        const batch = await Batch.find({ batchEndDate: { $lt: new Date() }, batchStatus: 'Active' })
+        const batch = await Batch.find({ batchEndDate: { $lt: new Date() }, batchStatus: 'Completed' })
                                 .populate('career','jobTitle')
                                 .populate('portfolio','portfolioName portfolioValue');; 
         res.status(201).json({status: 'success', data: batch, results: batch.length}); 
@@ -114,6 +116,7 @@ exports.editBatch = async(req, res, next) => {
             career: req.body.career,
             portfolio: req.body.portfolio,
             payoutPercentage: req.body.payoutPercentage,
+            payoutCap: req.body.payoutCap,
             attendancePercentage: req.body.attendancePercentage,
             referralCount: req.body.referralCount,
             lastModifiedBy: req.user._id,
@@ -513,12 +516,13 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
 
   exports.getCurrentBatch = async(req,res,next) =>{
     // console.log('current');
+   
     const userId = req.user._id;
     const userBatches = await User.findById(userId)
     .populate({
         path: 'internshipBatch',
         model: 'intern-batch',
-        select:'career batchName batchStartDate batchEndDate attendancePercentage payoutPercentage referralCount',
+        select:'career batchName batchStartDate batchEndDate attendancePercentage payoutPercentage referralCount payoutCap',
         populate: {
             path: 'career',
             model: 'career',
@@ -533,7 +537,7 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     .populate({
         path: 'internshipBatch',
         model: 'intern-batch',
-        select:'career batchName batchStartDate batchEndDate attendancePercentage payoutPercentage referralCount portfolio',
+        select:'career batchName batchStartDate batchEndDate attendancePercentage payoutPercentage payoutCap referralCount portfolio',
         populate: {
             path: 'portfolio',
             model: 'user-portfolio',
@@ -547,12 +551,108 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     }).select('internshipBatch');
     let internships = userBatches?.internshipBatch?.filter((item)=>item?.career?.listingType === 'Job');
     if(new Date()>=internships[internships.length-1]?.batchStartDate && new Date()<=internships[internships.length-1]?.batchEndDate){
-        return res.json({status: 'success', data: internships[internships.length-1]});    
+      const intern = JSON.parse(JSON.stringify(internships[internships.length-1]));
+      const endDate = new Date();
+
+      const holiday = await Holiday.find({
+        holidayDate: {
+          $gte: intern.batchStartDate,
+          $lte: endDate
+        },
+        $expr: {
+          $and: [
+            { $ne: [{ $dayOfWeek: "$holidayDate" }, 1] }, // 1 represents Sunday
+            { $ne: [{ $dayOfWeek: "$holidayDate" }, 7] }  // 7 represents Saturday
+          ]
+        }
+      });
+      const workingDays = calculateWorkingDays(intern.batchStartDate, endDate);
+      const tradingdays = await tradingDays(userId, intern._id);
+      const attendance = ((tradingdays * 100) / (workingDays - holiday.length)).toFixed(2);
+      const userReferrals = await User.find({referredBy: new ObjectId(userId)}).select('myReferralCode referrerCode joining_date');
+      let refCount = 0;
+
+      if(userReferrals?.length>0){
+        for (let subelem of userReferrals) {
+          const joiningDate = moment(subelem?.joining_date);
+          if (joiningDate.isSameOrAfter(moment(moment(intern?.batchStartDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(moment(moment(intern?.batchEndDate).format("YYYY-MM-DD")))) {
+            refCount += 1;
+          }
+        }
+      } else{
+        refCount = 0;
+      }
+      intern.myReferrals = refCount;
+      intern.myAttendance = attendance;
+      intern.tradingdays = tradingdays;
+      intern.workingDays = workingDays;
+      
+        return res.json({status: 'success', data: intern});    
     }
     // console.log("Internship Details:",internships, new Date(), internships[internships.length-1]?.batchStartDate, internships[internships.length-1]?.batchEndDate)
     // console.log("Condition:",new Date()>=internships[internships.length-1]?.batchStartDate && new Date()<=internships[internships.length-1]?.batchEndDate);
     return res.json({status: 'success', data: {}, message:'No active internships'});
   }
+
+  const tradingDays = async (userId, batchId) => {
+    const pipeline =
+      [
+        {
+          $match: {
+            batch: new ObjectId(batchId),
+            trader: new ObjectId(userId),
+            status: "COMPLETE",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              date: {
+                $substr: ["$trade_time", 0, 10],
+              },
+            },
+            count: {
+              $count: {},
+            },
+          },
+        },
+      ]
+  
+    let x = await InternTrades.aggregate(pipeline);
+  
+    return x.length;
+  }
+
+  function calculateWorkingDays(startDate, endDate) {
+    // Convert the input strings to Date objects
+    const start = new Date(startDate);
+    let end = new Date(endDate);
+    end = end.toISOString().split('T')[0];
+    end = new Date(end)
+    end.setDate(end.getDate() + 1);
+  
+    // Check if the start date is after the end date
+    if (start > end) {
+      return 0;
+    }
+  
+    let workingDays = 0;
+    let currentDate = new Date(start);
+  
+    // Iterate over each day between the start and end dates
+    while (currentDate <= end) {
+      // Check if the current day is a weekday (Monday to Friday)
+      if (currentDate.getDay() > 0 && currentDate.getDay() < 6) {
+        workingDays++;
+      }
+  
+      // Move to the next day
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+  
+    return workingDays;
+  }
+  
 
   exports.getWorkshops = async(req,res,next) =>{
     // console.log('current');
@@ -890,87 +990,7 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
   
     return res.json({status: 'success', active: activeUsers, inactive: inactiveUsers});
   }
-  
-// exports.getEligibleInternshipBatch = async(req,res, next) => {
-//   try{
-//     const user = await User.findById(req.user._id)
-//     .populate({
-//         path: 'internshipBatch',
-//         select: 'batchName career batchStartDate batchEndDate attendancePercentage',  // select only 'batchName' and 'career' fields from 'internshipBatch'
-//         populate: {
-//             path: 'career',
-//             select: 'listingType'  // select only 'listingType' from 'career'
-//         }
-//     });
-//     if(!user?.internshipBatch || user?.internshipBatch == 0){
-//       return res.status(200).json({data:{}, result:0, message:'No eligible batches'});
-//     }
 
-//     const batches = user?.internshipBatch;
-//     const internshipBatches = batches.filter(batch => 
-//       batch.career.listingType === 'Job' && 
-//       batch.batchEndDate <= new Date()
-//     );
-//     if(internshipBatches.length == 0){
-//       console.log('no bathces');
-//       return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
-//     }
-//     const lastBatch = internshipBatches[internshipBatches.length -1];
-//     console.log('lastBatch', lastBatch);
-//     const attendanceDocs = await InternshipOrders.aggregate([
-//       {
-//         $match: {
-//           status: "COMPLETE",
-//           batch: new ObjectId(lastBatch._id),
-//           trader: new ObjectId(req.user._id)
-//         },
-//       },
-//       {
-//         $group: {
-//           _id:0,
-//           tradingDays: {
-//             $addToSet: {
-//               $dateToString: {
-//                 format: "%Y-%m-%d",
-//                 date: "$trade_time",
-//               },
-//             },
-//           },
-//         }
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           tradingDays: {
-//             $size: "$tradingDays",
-//           },
-//         },
-//       },
-//     ]);
-//     console.log('attendance', attendanceDocs);
-//     if(attendanceDocs.length == 0){
-//       console.log('no attendance docs');
-//       return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
-//     }
-//     const totalMarketDays = await countTradingDays(lastBatch?.batchStartDate, lastBatch?.batchEndDate);
-//     console.log('totalMarketDays', totalMarketDays);
-
-//     if((attendanceDocs[0].tradingDays/totalMarketDays)*100 <= lastBatch?.attendancePercentage -5){
-//       console.log('condition passed');
-//       return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
-//     }
-    
-//     return res.status(200).json({
-//       status:'success',
-//       message:'eligible for certificate',
-//       batch: lastBatch?._id
-//     });
-
-//   }catch(e){
-//     console.log(e);
-//     res.status(500).json({status:'error', message:'Something went wrong.'})
-//   }
-// }
 exports.getEligibleInternshipBatch = async(req, res, next) => {
   try {
     const user = await User.findById(req.user._id)

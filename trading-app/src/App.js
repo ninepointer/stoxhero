@@ -14,6 +14,7 @@ import MDBox from "./components/MDBox";
 
 // Material Dashboard 2 React example components
 import Sidenav from "./examples/Sidenav";
+import NewSidenav from "./examples/NewSideNav/Sidebar";
 import Configurator from "./examples/Configurator";
 
 // Material Dashboard 2 React themes
@@ -41,7 +42,7 @@ import { useMaterialUIController, setMiniSidenav, setOpenConfigurator, setLayout
 
 // Images
 import brandWhite from "./assets/images/logo-ct.png";
-import Logo from "./assets/images/logo1.jpeg"
+import Logo from "./assets/images/logos/fullLogo.png"
 import brandDark from "./assets/images/logo-ct-dark.png";
 import SignIn from "./layouts/authentication/sign-in"
 import NewMain from "./NewMain"
@@ -52,8 +53,9 @@ import SignUp from './layouts/authentication/sign-up'
 import Careers from './layouts/HomePage/pages/Career'
 import Workshops from './layouts/HomePage/pages/Workshop'
 import JobDescription from './layouts/HomePage/pages/JobDescription'
-import JobApply from './layouts/HomePage/pages/CareerForm'
+import JobApply from './layouts/HomePage/pages/EICCareerForm'
 import ContestRegistration from './layouts/HomePage/pages/ContestRegistration'
+import FeaturedContestRegistration from './layouts/HomePage/pages/FeaturedContestRegistration'
 import Home from "../src/layouts/HomePage/pages/Home";
 import About from "../src/layouts/HomePage/pages/About";
 // import ResetPassword from './layouts/authentication/reset-password'
@@ -71,8 +73,10 @@ import { socketContext } from "./socketContext";
 import {Howl} from "howler";
 import sound from "./assets/sound/tradeSound.mp3"
 import MessagePopUp from "./MessagePopup";
-// import ContestRegistration from "./layouts/UserContest/data/ContestRegistration";
-
+import AdminLogin from "./layouts/authentication/sign-in/adminLogin";
+import BlogCard from "./layouts/HomePage/pages/BlogCards";
+import BlogData from "./layouts/HomePage/pages/BlogData";
+import Calculator from "./layouts/HomePage/pages/Calculator";
 
 const TRACKING_ID = "UA-264098426-2"
 ReactGA.initialize(TRACKING_ID);
@@ -262,7 +266,7 @@ export default function App() {
                 <Sidenav
                 color={sidenavColor}
                 brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-                brandName="StoxHero"
+                // brandName="StoxHero"
                 routes={(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole)
                 ? routes : (detailUser.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === InfinityTraderRole) 
                 ? routesInfinityTrader : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
@@ -272,6 +276,7 @@ export default function App() {
                   onMouseEnter={handleOnMouseEnter}
                   onMouseLeave={handleOnMouseLeave}
                 />
+                // <NewSidenav/>
               }
               
               <Configurator />
@@ -292,7 +297,7 @@ export default function App() {
             <Sidenav
               color={sidenavColor}
               brand={Logo}
-              brandName="StoxHero"
+              // brandName="StoxHero"
               routes={
                 (detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole)
                 ? routes : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
@@ -303,6 +308,7 @@ export default function App() {
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
             />
+            // <NewSidenav/>
           }
 
             <Configurator />
@@ -321,20 +327,20 @@ export default function App() {
 
           {!cookieValue  ?  
           
-          pathname == "/login" ?
-          <Route path="/login" element={<SignIn />} />
-          :
-          pathname == "/signup" ?
-          <Route path="/signup" element={<SignUp location={myLocation.current} />} />
+          // pathname == "/login" ?
+          // <Route path="/login" element={<SignIn />} />
+          // :
+          pathname == "/" ?
+          <Route path="/" element={<SignUp location={myLocation.current} />} />
           :
           pathname == "/resetpassword" ?
           <Route path="/resetpassword" element={<ResetPassword/>} />
           :
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<SignUp />} />
           :
           pathname == "/" || !pathname ?
           <Route path="/" element={<Navigate 
-            to={getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/stoxherodashboard'} 
+            to={getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/home'} 
             />} />
             :
             <Route path="*" element={<NotFound />} />
@@ -348,14 +354,19 @@ export default function App() {
           <Route path='/careers' element={<Careers location={myLocation.current}/>}/>
           <Route path='/privacy' element={<Privacy/>}/>
           <Route path='/terms' element={<Terms/>}/>
-          <Route path='/jobdescription' element={<JobDescription/>}/>
-          <Route path='/apply' element={<JobApply/>}/>
+          <Route path='/careers/:name/jobdescription' element={<JobDescription/>}/>
+          <Route path='/careers/careerform/:name' element={<JobApply/>}/>
+          <Route path='/blogs' element={<BlogCard/>}/>
+          <Route path='/calculators' element={<Calculator/>}/>
+          <Route path='/blogs/:id' element={<BlogData/>}/>
           <Route path='/collegecontest/:id/:date' element={<ContestRegistration/>}/>
-          <Route path='/home' element={<Navigate 
-            to={getDetails?.userDetails?.role ? getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/stoxherodashboard':'/'} 
+          <Route path='/featuredcontest/:id/:date' element={<FeaturedContestRegistration/>}/>
+          <Route path='/' element={<Navigate 
+            to={getDetails?.userDetails?.role ? getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/home':'/'} 
             />}/>
-          <Route path='/login' element={<SignIn />}/>
+          <Route path='/adminlogin' element={<AdminLogin />}/>
           <Route path='/about' element={<About/>}/>
+          
           <Route path='/contact' element={<Contact/>}/>
           <Route path='/workshops' element={<Workshops location={myLocation.current}/>}/>
           <Route path="*" element={<NotFound />} />

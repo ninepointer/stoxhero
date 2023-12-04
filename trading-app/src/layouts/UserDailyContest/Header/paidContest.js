@@ -10,6 +10,7 @@ import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 
 // Images
+import Featured from '../../../assets/images/featured.png'
 import ContestCarousel from '../../../assets/images/target.png'
 import WinnerImage from '../../../assets/images/cup-image.png'
 import Timer from '../timer'
@@ -20,6 +21,8 @@ import MDSnackbar from "../../../components/MDSnackbar";
 import PopupMessage from "../data/popupMessage";
 import PopupTrading from "../data/popupTrading";
 import Payment from "../data/payment"
+import RewardTable from "./rulesAndRewardTable";
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 
 function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, socket, setIsInterested }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -40,7 +43,7 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
     const [isInterestedState, setIsInterestedState] = useState(initialInterestedCounts);
 
     const handleCopy = async (id) => {
-        let text = 'https://stoxhero.com/contest'
+        let text = 'https://stoxhero.com/testzone'
         const textarea = document.createElement('textarea');
         textarea.value = text;
         document.body.appendChild(textarea);
@@ -157,9 +160,7 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
                                     if (elem.isFinNifty) {
                                         contestOn.push("FINNIFTY")
                                     }
-                                    if (elem.isAllIndex) {
-                                        contestOn = ['NIFTY', 'BANKNIFTY', 'FINNIFTY']
-                                    }
+
 
                                     contestOn.push(elem.contestExpiry.toUpperCase());
 
@@ -186,8 +187,10 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
                                                     </Grid>
                                                     <Grid item xs={9} md={9} lg={9} display='flex' justifyContent='flex-end' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                            <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
+                                                            <MDBox display='flex' justifyContent='flex-end' alignContent='center' alignItems='center'>
                                                                 <MDBox display='flex' justifyContent='flex-start'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>{elem.contestName}</MDTypography></MDBox>
+                                                                {/* <img src={Featured} width='100px' height='70px' display='flex' justifyContent='flex-end' /> */}
+                                                                {/* <MDBox display='flex' justifyContent='flex-end' sx={{ height: "10px", width: "100px", backgroundColor: "#DBB670" }}></MDBox> */}
                                                             </MDBox>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='row' alignItems='center'>
                                                                 <MDBox mr={1} display='flex' justifyContent='flex-start'><MDTypography fontSize={10} sx={{ color: "#DBB670" }}>{changeDateFormat(elem.contestStartTime)}</MDTypography></MDBox>
@@ -209,7 +212,10 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                                 <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Reward</MDTypography></MDBox>
-                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>{elem?.payoutPercentage}% of the net P&L</MDTypography></MDBox>
+                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>
+                                                                   {/* {elem?.payoutType === "Percentage" ? `${elem?.payoutPercentage}% of the net P&L${elem?.payoutCapPercentage?`(upto ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.entryFee * (elem?.payoutCapPercentage??1000)/100)})`:''}` : <RewardTable data={elem} paid={true}/>}  */}
+                                                                   <RewardTable data={elem} paid={true}/>
+                                                                </MDTypography></MDBox>
                                                             </MDBox>
                                                         </MDBox>
                                                     </Grid>
@@ -243,7 +249,7 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
 
                                                             <MDBox display="flex" justifyContent="space-between">
                                                                 <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                                    <HiUserGroup color="#DBB670" /><MDBox color={"#DBB670"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{isInterestedState[elem?._id]?.count} PEOPLE HAVE SHOWN INTEREST IN THIS CONTEST</MDBox>
+                                                                    <HiUserGroup color="#DBB670" /><MDBox color={"#DBB670"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{isInterestedState[elem?._id]?.count} PEOPLE HAVE SHOWN INTEREST IN THIS TestZone</MDBox>
                                                                 </MDBox>
                                                                 <MDBox color="light" fontSize={10}>
                                                                     <MDBox color={"#DBB670"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>SPOTS LEFT: {elem?.maxParticipants - elem?.participants?.length}</MDBox>
@@ -262,7 +268,7 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
 
                                                             <MDBox display='flex' justifyContent='flex-start' width='50%'>
                                                                 {(particularContestTime[0]?.value > 0 && !checkIsInterested) &&
-                                                                    <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} isInterestedState={isInterestedState} setIsInterestedState={setIsInterestedState} elem={elem} data={`Thanks for showing interest in ${elem.contestName} contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} />
+                                                                    <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} isInterestedState={isInterestedState} setIsInterestedState={setIsInterestedState} elem={elem} data={`Thanks for showing interest in ${elem.contestName} TestZone. You will be notified 10 mins before the TestZone starts.`} />
                                                                 }
                                                                 {checkIsInterested &&
                                                                     <MDTypography color='info' fontWeight='bold' fontSize={13} mt={.5}>Thanks for expressing your interest.</MDTypography>

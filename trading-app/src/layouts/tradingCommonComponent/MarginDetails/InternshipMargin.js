@@ -11,19 +11,11 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
   const { netPnl, totalRunningLots, pnlData } = useContext(NetPnlContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [fundDetail, setFundDetail] = useState({});
-  // const [yesterdayData, setyesterdayData] = useState({});
   const {render} = useContext(renderContext);
 
- 
-
-  const todayAmount = pnlData.reduce((total, acc) => {
-    if (acc.lots !== 0) {
-      return total + Math.abs(acc.amount);
-    }
-    return total; // return the accumulator if the condition is false
+  const todayMargin = pnlData.reduce((total, acc) => {
+    return total + (acc.margin ? acc.margin : 0);
   }, 0);
-
-  // console.log("margin", todayAmount)
 
   useEffect(() => {
     axios.get(`${baseUrl}api/v1/internship/marginDetail/${BatchId}`,{
@@ -40,21 +32,19 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
       
   }, [render, BatchId]);
 
-  // console.log("fundDetail", Number(netPnl?.toFixed(0)), fundDetail)
 
-  let totalCreditString = fundDetail?.totalFund ? fundDetail?.totalFund >= 0 ? "+₹" + fundDetail?.totalFund?.toLocaleString() : "-₹" + ((-fundDetail?.totalFund)?.toLocaleString()): "+₹0"
+  const totalCreditString = fundDetail?.totalFund ? fundDetail?.totalFund >= 0 ? "+₹" + fundDetail?.totalFund?.toLocaleString() : "-₹" + ((-fundDetail?.totalFund)?.toLocaleString()): "+₹0"
+  const runningPnl = Number(netPnl?.toFixed(0));
+  const openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
+  // const openingBalanceString = openingBalance >= 0 ? "₹" + Number(openingBalance)?.toLocaleString() : "₹" + (-Number(openingBalance))?.toLocaleString()
+  // const availableMargin = openingBalance ? (totalRunningLots === 0 ? Number(openingBalance)+runningPnl : Number(openingBalance)-todayAmount) : fundDetail?.totalFund;
+  const availableMargin = (runningPnl < 0) ? totalRunningLots===0 ? (openingBalance-todayMargin+runningPnl) : openingBalance-todayMargin : openingBalance-todayMargin;
+  const availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹0"
+  const usedMargin = runningPnl >= 0 ? 0 : runningPnl
+  const usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin)?.toLocaleString() : "₹" + (-Number(usedMargin))?.toLocaleString()
+  const unrealisedPnl = runningPnl >= 0 ? runningPnl : 0
+  const unrealisedPnlString = unrealisedPnl >= 0 ? "₹" + Number(unrealisedPnl)?.toLocaleString() : "₹" + (-Number(unrealisedPnl))?.toLocaleString()
 
-  let runningPnl = Number(netPnl?.toFixed(0));
-  let openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
-  let openingBalanceString = openingBalance >= 0 ? "₹" + Number(openingBalance)?.toLocaleString() : "₹" + (-Number(openingBalance))?.toLocaleString()
-  let availableMargin = openingBalance ? (totalRunningLots === 0 ? Number(openingBalance)+runningPnl : Number(openingBalance)-todayAmount) : fundDetail?.totalFund;
-  // let availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹" + (-Number(availableMargin))?.toLocaleString()
-  let availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹0"
-
-  let usedMargin = runningPnl >= 0 ? 0 : runningPnl
-  let usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin)?.toLocaleString() : "₹" + (-Number(usedMargin))?.toLocaleString()
-  
-  // console.log("checkmargin", netPnl, fundDetail, fundDetail)
     
     return (<>
   
@@ -67,7 +57,7 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
                 <Grid item xs={16} md={6} xl={3}>
                   <DefaultInfoCard
                     // icon={<CreditCardIcon/>}
-                    title="Portfolio value"
+                    title="Virtual Margin Money"
                     description="Total funds added by StoxHero in your Account"
                     value={totalCreditString}
                   />
@@ -75,7 +65,7 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
                 <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     // icon={<AvailableIcon/>}
-                    title="available margin"
+                    title="Virtual available margin"
                     description="Funds that you can used to trade today"
                     value={availableMarginpnlstring}
                   />
@@ -83,7 +73,7 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
                 <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     // icon={<ShoppingCartIcon/>}
-                    title="used margin"
+                    title="Virtual used margin"
                     description="Net funds utilized for your executed trades"
                     value={usedMarginString}
                   />
@@ -92,9 +82,9 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
                 <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     // icon={<AccountBalanceWalletIcon/>}
-                    title="opening balance"
-                    description="Cash available at the beginning of the day"
-                    value={openingBalanceString}
+                    title="Virtual unrealised pnl"
+                    description="Increased value of your investment"
+                    value={unrealisedPnlString}
                   />
                 </Grid>
               </Grid>

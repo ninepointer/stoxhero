@@ -31,7 +31,7 @@
 
 const nodemailer = require('nodemailer');
 
-function mailSender(to, subject, message) {
+async function mailSender(to, subject, message, attachments) {
   return new Promise((resolve, reject) => {
     // console.log("Inside Email Service")
     // console.log("Password: ",process.env.STOXHEROEMAILPASSWORD)
@@ -43,12 +43,24 @@ function mailSender(to, subject, message) {
       }
     });
     // console.log('Transporter: ',transporter)
-    const mailOptions = { 
-      from: 'team@stoxhero.com',      // sender address
-      to: to,       // receiver address 
-      subject: subject,  
-      html: message // plain text body
-    };
+    let mailOptions;
+    if(attachments){
+      mailOptions = { 
+        from: 'team@stoxhero.com',      // sender address
+        to: to,       // receiver address 
+        subject: subject,  
+        html: message, // plain text body
+        attachments: attachments
+      };
+    } else{
+      mailOptions = { 
+        from: 'team@stoxhero.com',      // sender address
+        to: to,       // receiver address 
+        subject: subject,  
+        html: message, // plain text body
+      };
+    }
+
 
     transporter.sendMail(mailOptions, function (err, info) {
       if(err) {

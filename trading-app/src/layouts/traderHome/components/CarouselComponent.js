@@ -12,7 +12,7 @@ return(
                 <Grid item xs={12} md={6} lg={12} display="flex" justifyContent="space-between">
                     <MDBox bgColor="dark" borderRadius={6} p={2}>
                         <MDBox display="flex" justifyContent="space-between">
-                             <MDTypography color="light">Contests</MDTypography>
+                             <MDTypography color="light">TestZones</MDTypography>
                              <MDButton variant="text" size="small" color="light">View all</MDButton>
                         </MDBox>
                         

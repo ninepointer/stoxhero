@@ -120,7 +120,7 @@ const UserContestCard = ({createContestForm,setCreateCOntestForm,isObjectNew,set
                                 <Grid item xs={12} md={12} lg={12}>
                                   <MDTypography color="black" display="flex" fontSize={10} justifyContent="center" alignContent="center">
                                       <span style={{borderRadius:6, backgroundColor: "white", padding: "0 8px" }}>
-                                        <Timer targetDate={e.contestStartDate} text="Contest Started" />
+                                        <Timer targetDate={e.contestStartDate} text="TestZone Started" />
                                       </span>
                                   </MDTypography>
                                 </Grid>

@@ -14,6 +14,9 @@ const contestSchema = new Schema({
         type:Date,
         required: true
     },
+    contestLiveTime:{
+        type:Date,
+    },
     contestOn:{
         type:String,
         // required:true
@@ -53,6 +56,10 @@ const contestSchema = new Schema({
         type: Number,
         // required: true,
     },
+    featured:{
+        type: Boolean,
+        default: false,
+    },
     payoutType:{
         type: String,
         enum: ["Reward", "Percentage"]
@@ -61,7 +68,7 @@ const contestSchema = new Schema({
     rewards:[{
         rankStart:{type:Number},
         rankEnd:Number,
-        prize:{type:String},
+        prize:{type:Number},
         // prizeValue:Number
     }],
     portfolio:{
@@ -101,6 +108,10 @@ const contestSchema = new Schema({
         payout: {type: Number},
         tdsAmount: {type: Number},
         isLive: {type: Boolean},
+        npnl: {type: Number},
+        gpnl: {type: Number},
+        trades: {type: Number},
+        brokerage: {type: Number},
         rank: {type: Number},
         bonusRedemption:Number
     }],
@@ -141,26 +152,33 @@ const contestSchema = new Schema({
         required: true,
         enum: ["Day", "Monthly", "Weekly"]
     },
+    payoutPercentageType:{
+        type:String,
+        // required: true,
+        enum: ["Daily", "Contest End"]
+    },
     isNifty:{
         type:Boolean,
-        required: true
+        required: true,
+        default: false
     },
     isBankNifty:{
         type:Boolean,
-        required: true
+        required: true,
+        default: false
     },
     isFinNifty:{
         type:Boolean,
-        required: true
-    },
-    isAllIndex:{
-        type:Boolean,
-        required: true
+        required: true,
+        default: false
     },
     product:{
         type: Schema.Types.ObjectId,
         ref: 'product',
         default:'6517d48d3aeb2bb27d650de5'
+    },
+    payoutCapPercentage:{
+        type:Number
     }
 
 })

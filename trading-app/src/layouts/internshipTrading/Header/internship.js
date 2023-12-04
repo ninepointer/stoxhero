@@ -92,9 +92,6 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
     }
 
     return workingDays;
-
-
-
   }
   const handleDownload = async (id) => {
     try {
@@ -249,6 +246,23 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
         })
     }
   }, [batchId])
+
+  useEffect(()=>{
+    if(batchId){
+      axios.get(`${baseUrl}api/v1/internship/my/referrals/${batchId}`,{
+        withCredentials: true,
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true
+          },
+        })
+      .then((api1Response)=>{
+        // console.log(api1Response.data.data)
+        setMyReferralCount(api1Response.data.data)  
+      })
+  }
+  },[batchId])
 
   useEffect(()=>{
     if(batchId){
@@ -476,7 +490,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
         <MDTypography fontSize = {12}>5. You are limited to taking intraday option trades and are required to close all your positions before 3:20 PM every day.</MDTypography>
         <MDTypography></MDTypography>
         
-      </MDBox>   
+      </MDBox>
       </Grid>           
     </Grid>
 

@@ -7,6 +7,7 @@ const TenX = require('../../models/TenXSubscription/TenXSubscriptionSchema');
 const DailyContest = require('../../models/DailyContest/dailyContest');
 const{stringify} = require('flatted');
 const moment = require('moment');
+const AffiliateProgram = require('../../models/affiliateProgram/affiliateProgram');
 
 
 exports.createCouponCode = async (req, res) => {
@@ -175,7 +176,6 @@ exports.getDraftCouponCodes = async (req, res) => {
         res.status(200).json({
             status: 'success',
             data: draftCoupons,
-            metrics,
             count: draftCoupons.length
         });
     } catch (error) {
@@ -205,7 +205,6 @@ exports.getExpiredCouponCodes = async (req, res) => {
         res.status(200).json({
             status: 'success',
             data: expiredCoupons,
-            metrics,
             count: expiredCoupons.length
         });
     } catch (error) {
@@ -221,9 +220,44 @@ exports.getExpiredCouponCodes = async (req, res) => {
 exports.verifyCouponCode = async (req, res) => {
     try {
         const { code, product, orderValue, platform, paymentMode} = req.body;
+        console.log("Coupon Data:",req.body)
         const userId = req.user._id;
         let coupon = await Coupon.findOne({ code: code, expiryDate:{$gte: new Date()}, status:'Active' });
-
+        console.log("Coupon:",coupon)
+        if(!coupon){
+            const affiliatePrograms = await AffiliateProgram.find({status:'Active'});
+            if(affiliatePrograms.length != 0){
+                for(program of affiliatePrograms){
+                    let match = program?.affiliates?.some(item => item?.affiliateCode.toString() == code?.toString());
+                    if(match){
+                        console.log('match', match, program?.maxDiscount);
+                        //check for eligible platforms
+                        if(program?.eligiblePlatforms?.length != 0 && !program?.eligiblePlatforms.includes(platform)){
+                            return res.status(400).json({
+                                status: 'error',
+                                message: "This coupon is not valid for your device platform",
+                            });
+                        }
+                        //check for eligible products
+                        if(program?.eligibleProducts?.length != 0 && !program?.eligibleProducts.includes(product)){
+                            return res.status(400).json({
+                                status: 'error',
+                                message: "This coupon is not valid for the product you're purchasing.",
+                            });
+                        }
+                        return res.status(200).json({
+                            status: 'success',
+                            data: {
+                                discount: program?.discountPercentage,
+                                discountType: 'Percentage',
+                                rewardType: 'Discount',
+                                maxDiscount: program?.maxDiscount
+                            }
+                        })
+                    }
+                }
+            }    
+        }
         
         if (!coupon) {
             return res.status(404).json({
@@ -232,12 +266,14 @@ exports.verifyCouponCode = async (req, res) => {
             });
         }
         if(paymentMode=='wallet' && coupon?.rewardType == 'Cashback'){
+            console.log("Payment Mode & RewardType:",paymentMode,coupon?.rewardType )
             return res.status(400).json({
                 status: 'error',
                 message: "This coupon is not valid for your selected payment mode",
             });
         }
         if(paymentMode=='addition' && coupon?.rewardType == 'Discount'){
+            console.log("Payment Mode & RewardType:",paymentMode,coupon?.rewardType )
             return res.status(400).json({
                 status: 'error',
                 message: "This coupon is not valid for wallet topup",
@@ -256,6 +292,7 @@ exports.verifyCouponCode = async (req, res) => {
             });
         }
         if(coupon?.isOneTimeUse){
+            console.log("Inside Onetime Use:",paymentMode,coupon?.rewardType )
             if(coupon?.usedBySuccessful.length >0){
                 const uses = coupon?.usedBySuccessful?.filter((item)=>item?.user?.toString() == userId?.toString());
                 if(uses?.length>0){
@@ -267,6 +304,7 @@ exports.verifyCouponCode = async (req, res) => {
             }
         }
         if(coupon?.minOrderValue && orderValue<coupon?.minOrderValue){
+            console.log("Inside Min Order and order value check:",paymentMode,coupon?.rewardType )
             return res.status(400).json({
                 status: 'error',
                 message: `Your order is not eligible for this coupon. The minimum order value for this coupon is ₹${coupon?.minOrderValue}`,
@@ -438,7 +476,7 @@ async function getCollectionAndData(productName, specificProduct, coupon, userId
                 effectivePrice: (participant?.fee) + (gstAmount?gstAmount:0)
             };
             break;
-        case 'Contest':
+        case 'TestZone':
             const contest = await DailyContest.findById(specificProduct).select('contestName entryFee participants');
             participants = contest?.participants;
             participant = participants?.find(
@@ -617,7 +655,7 @@ function calculateMetrics(coupon) {
                 metrics.marginXDiscount += detail?.discountAmount??0;
                 metrics.marginXBonus += detail?.bonusAmount??0;
                 break;
-            case 'Contest':
+            case 'TestZone':
                 metrics.contestPurchases++;
                 metrics.contestRevenue += detail?.effectivePrice??0;
                 metrics.contestDiscount += detail?.discountAmount??0;
@@ -676,7 +714,7 @@ function calculateMetricss(coupon) {
                     metrics.marginXRevenue += detail?.effectivePrice;
                     metrics.marginXDiscount += detail?.discountAmount;
                     break;
-                case 'Contest':
+                case 'TestZone':
                     metrics.contestPurchases++;
                     metrics.contestRevenue += detail?.effectivePrice;
                     metrics.contestDiscount += detail?.discountAmount;

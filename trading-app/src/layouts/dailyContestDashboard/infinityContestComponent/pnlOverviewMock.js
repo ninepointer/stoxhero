@@ -149,7 +149,7 @@ export default function PnlOverviewMock({socket}) {
                         <>
                             <Grid container xs={12} md={12} lg={12}>
                                 <Grid item p={2} xs={12} md={12} lg={5.9}>
-                                    <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's Contest Position (Company Side)</MDTypography>
+                                    <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's TestZone Position (Company Side)</MDTypography>
                                     <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
                                         <Grid item xs={4} md={4} lg={4}>
                                             <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -213,7 +213,7 @@ export default function PnlOverviewMock({socket}) {
                                 </Grid>
 
                                 <Grid item p={2} xs={12} md={12} lg={5.9}>
-                                    <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last Trading Day Contest Position (Company Side)</MDTypography>
+                                    <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last Trading Day TestZone Position (Company Side)</MDTypography>
                                     <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
                                         <Grid item xs={4} md={4} lg={4}>
                                             <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -287,7 +287,7 @@ export default function PnlOverviewMock({socket}) {
                         <>
                             <Grid container xs={12} md={12} lg={12}>
                                 <Grid item p={2} xs={12} md={12} lg={5.9}>
-                                    <MDTypography fontSize={16} fontWeight='bold' color='dark'>MTD till Yesterday Contest Position (Company Side)</MDTypography>
+                                    <MDTypography fontSize={16} fontWeight='bold' color='dark'>MTD till Yesterday TestZone Position (Company Side)</MDTypography>
                                     <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
                                         <Grid item xs={4} md={4} lg={4}>
                                             <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -351,7 +351,7 @@ export default function PnlOverviewMock({socket}) {
                                 </Grid>
 
                                 <Grid item p={2} xs={12} md={12} lg={5.9}>
-                                    <MDTypography fontSize={16} fontWeight='bold' color='dark'>Lifetime till Yesterday Contest Position (Company Side)</MDTypography>
+                                    <MDTypography fontSize={16} fontWeight='bold' color='dark'>Lifetime till Yesterday TestZone Position (Company Side)</MDTypography>
                                     <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
                                         <Grid item xs={4} md={4} lg={4}>
                                             <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>

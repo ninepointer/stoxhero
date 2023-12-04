@@ -41,10 +41,8 @@ export default function MaxWidthDialog(subscription) {
       <MDBox display='flex' justifyContent='center' alignItems='center' style={{width:'90%'}}>
         <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' flexDirection='row' style={{width:'100%'}}>
           <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
-            <MDButton variant="contained" color="warning" sx={{ fontSize: "10px",width:'100%'}} size='small' onClick={handleClickOpen}>Learn More</MDButton>
-          </Grid>
-          <Grid item xs={12} md={12} lg={0} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
-            <></>
+            <button variant="contained" color="warning" style={{ fontSize: "10px",width:'100%', padding:2, border: 'none', fontWeight:'bold', textDecoration:'under-line', cursor: 'pointer'}} size='small' onClick={handleClickOpen}>💡 Click to know more</button>
+            {/* <button varaint='contained' color='error' size="small" style={{fontSize:'10px',width:'88%', padding:2}} onClick={captureTutorialViews}>Watch Tutorial Video</button> */}
           </Grid>
         </Grid>
       </MDBox>

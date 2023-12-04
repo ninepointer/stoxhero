@@ -11,6 +11,11 @@ const {internTrade} = require("./saveDataInDB/internship")
 const {infinityTrade} = require("./saveDataInDB/infinity")
 const {marginxTrade} = require("./saveDataInDB/marginx")
 const {battleTrade} = require("./saveDataInDB/battle");
+const UserDetail = require("../models/User/userDetailSchema")
+const {ObjectId} = require("mongodb")
+const DailyContest = require("../models/DailyContest/dailyContest")
+const MarginX = require("../models/marginX/marginX");
+const TenxSubscription = require("../models/TenXSubscription/TenXSubscriptionSchema");
 
 exports.mockTrade = async (req, res) => {
     const setting = await Setting.find().select('toggle');
@@ -22,17 +27,15 @@ exports.mockTrade = async (req, res) => {
     const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
 
-    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType,
+    let {exchange, symbol, buyOrSell, Quantity, Product, order_type,
         validity, variety, instrumentToken, tenxTraderPath, internPath, battle,
-        realBuyOrSell, realQuantity, isAlgoTrader, paperTrade, dailyContest, marginx } = req.body 
+        realBuyOrSell, realQuantity, isAlgoTrader, paperTrade, dailyContest, marginx, deviceDetails } = req.body 
 
-    if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
+    if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety){
         return res.status(422).json({error : "Something went wrong"})
     }
 
     req.body.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
-
-    console.log("caseStudy 8: mocktrade", req.body)
 
     if(exchange === "NFO"){
         exchangeSegment = 2;
@@ -103,8 +106,12 @@ exports.mockTrade = async (req, res) => {
         }
 
         newTimeStamp = liveData?.timestamp;
-        originalLastPriceUser = liveData?.last_price;
-        originalLastPriceCompany = liveData?.last_price;
+        originalLastPriceUser = liveData?.last_price ;
+        originalLastPriceCompany = liveData?.last_price ;
+
+        if(!liveData?.last_price){
+            return res.status(400).json({status: "error", message: "Market orders are blocked for in the money options due to illiquidity. Try again later."})
+        }
 
         trade_time = new Date(newTimeStamp);
         if(trade_time < new Date()){
@@ -141,29 +148,113 @@ exports.mockTrade = async (req, res) => {
         secondsRemaining: secondsRemaining
     }
 
-    // if(!paperTrade && isAlgoTrader && !dailyContest){
-    //     await infinityTrade(req, res, otherData)
-    // }
 
     if(dailyContest){
-        await dailyContestTrade(req, res, otherData)
+        await dailyContestTrade(req, res, otherData);
+        if (!req?.user?.activationDetails?.activationDate) {
+            const contest = await DailyContest.findOne({_id: new ObjectId(req.body.contestId)})
+            const userActivationDateUpdate = await UserDetail.findOneAndUpdate({ _id: new ObjectId(req?.user?._id) }, {
+                $set: {
+                    activationDetails: {
+                        activationDate: new Date(),
+                        activationProduct: "6517d48d3aeb2bb27d650de5",
+                        activationType: contest?.entryFee > 0 ? "Paid" : "Free",
+                        activationStatus: "Active",
+                        activationProductPrice: contest?.entryFee
+                    }
+                }
+            })
+            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+        }
     }
     
     if(paperTrade){
-        await virtualTrade(req, res, otherData)
+        await virtualTrade(req, res, otherData);
+        if (!req?.user?.activationDetails?.activationDate) {
+            const userActivationDateUpdate = await UserDetail.findOneAndUpdate({ _id: new ObjectId(req?.user?._id) }, {
+                $set: {
+                    activationDetails: {
+                        activationDate: new Date(),
+                        activationProduct: "65449ee06932ba3a403a681a",
+                        activationType: "Free",
+                        activationStatus: "Active",
+                        activationProductPrice: 0
+                    }
+                }
+            })
+            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+        }
     }
     
     if(tenxTraderPath){
-        await tenxTrade(req, res, otherData)
+        await tenxTrade(req, res, otherData);
+        if (!req?.user?.activationDetails?.activationDate) {
+            let tenx = [];
+            const user = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id) }).select('subscription');
+            let data;
+            for(let elem of user.subscription){
+                if(elem.status === "Live"){
+                    data = JSON.parse(JSON.stringify(elem));
+                }
+            }
+
+            if(!data?.fee){
+                tenx = await TenxSubscription.findOne({_id: new ObjectId(req?.body?.subscriptionId)}).select('discounted_price');
+            }
+
+            const userActivationDateUpdate = await UserDetail.findOneAndUpdate({ _id: new ObjectId(req?.user?._id) }, {
+                $set: {
+                    activationDetails: {
+                        activationDate: new Date(),
+                        activationProduct: "6517d3803aeb2bb27d650de0",
+                        activationType: "Paid",
+                        activationStatus: "Active",
+                        activationProductPrice: data?.fee || tenx?.discounted_price
+                    }
+                }
+            })
+
+            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+        }
     }
 
     if(internPath){
-        await internTrade(req, res, otherData)
+        await internTrade(req, res, otherData);
+        if (!req?.user?.activationDetails?.activationDate) {
+            const userActivationDateUpdate = await UserDetail.findOneAndUpdate({ _id: new ObjectId(req?.user?._id) }, {
+                $set: {
+                    activationDetails: {
+                        activationDate: new Date(),
+                        activationProduct: "6517d46e3aeb2bb27d650de3",
+                        activationType: "Free",
+                        activationStatus: "Active",
+                        activationProductPrice: 0
+                    }
+                }
+            })
+            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+        }
     }
 
     if(marginx){
-        console.log("in marginx", marginx)
-        await marginxTrade(req, res, otherData)
+        await marginxTrade(req, res, otherData);
+        if (!req?.user?.activationDetails?.activationDate) {
+            const marginx = await MarginX.findOne({_id: new ObjectId(req?.body?.marginxId)})
+            .populate('marginXTemplate', 'entryFee')
+            const userActivationDateUpdate = await UserDetail.findOneAndUpdate({ _id: new ObjectId(req?.user?._id) }, {
+                $set: {
+                    activationDetails: {
+                        activationDate: new Date(),
+                        activationProduct: "6517d40e3aeb2bb27d650de1",
+                        activationType: "Paid",
+                        activationStatus: "Active",
+                        activationProductPrice: marginx?.marginXTemplate?.entryFee
+                    }
+                }
+            })
+
+            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+        }
     }
 
     if(battle){

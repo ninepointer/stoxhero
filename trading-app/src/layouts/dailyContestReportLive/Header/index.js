@@ -140,14 +140,14 @@ export default function LabTabs() {
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
 
       <MDBox mb={2} style={{ border: '1px solid white', borderRadius: 5 }} display="flex" justifyContent="space-between">
-        <MDTypography color="light" fontSize={15} fontWeight="bold" p={1} alignItem="center">Daily Contest Report Live</MDTypography>
+        <MDTypography color="light" fontSize={15} fontWeight="bold" p={1} alignItem="center">Daily TestZone Report Live</MDTypography>
         <MDBox sx={{ display: 'flex', alignItems: 'center' }}>
           <CustomTextField
             select
             label=""
             value={`${selectedSubscription?.contestName} - ${changeDateFormat(selectedSubscription?.contestStartTime)}`}
             minHeight="4em"
-            placeholder="Select Contest"
+            placeholder="Select TestZone"
             variant="outlined"
             sx={{ width: "400px" }}
             onChange={(e) => {setselectedSubscription(subscriptions.filter((item) => item.contestName == (e.target.value).split(" | ")[0].slice(0, -13).trim())[0]) }}

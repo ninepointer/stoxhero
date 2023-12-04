@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { userContext } from "../../../AuthContext";
+import axios from "axios";
 
 // react-router components
 import { useLocation, Link } from "react-router-dom";
@@ -43,6 +44,7 @@ import {
   setOpenConfigurator,
 } from "../../../context";
 import { Tooltip } from "@mui/material";
+import MDTypography from "../../../components/MDTypography";
 
 function DashboardNavbar({ absolute, light, isMini }) {
   const getDetails = useContext(userContext);
@@ -51,6 +53,29 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const { miniSidenav, transparentNavbar, fixedNavbar, openConfigurator, darkMode } = controller;
   const [openMenu, setOpenMenu] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
+  const [myWallet, setMyWallet] = useState([]);
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+
+  useEffect(() => {
+
+    let call1 = axios.get(`${baseUrl}api/v1/userwallet/my`, {
+      withCredentials: true,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Credentials": true
+      },
+    })
+
+    Promise.all([call1])
+      .then(([api1Response]) => {
+        setMyWallet(api1Response?.data?.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+  }, []);
 
   useEffect(() => {
     // Setting the navbar type
@@ -119,6 +144,15 @@ function DashboardNavbar({ absolute, light, isMini }) {
     },
   });
 
+  const cashTransactions = myWallet?.transactions?.filter((transaction) => {
+    return transaction.transactionType === "Cash";
+  });
+  // console.log(myWallet?.transactions);
+
+  const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
+    return total + transaction?.amount;
+  }, 0);
+
   return (
     <AppBar
       position={absolute ? "absolute" : navbarType}
@@ -132,14 +166,14 @@ function DashboardNavbar({ absolute, light, isMini }) {
         {isMini ? null : (
           <MDBox sx={(theme) => navbarRow(theme, { isMini })}>
             <MDBox pr={1}>
-              Hello {getDetails?.userDetails?.first_name}!
+              <MDTypography fontSize={15}>Hello {getDetails?.userDetails?.first_name}!</MDTypography>
             </MDBox>
             <MDBox color={light ? "white" : "inherit"}>
             
               <Link to="/wallet">
                 <Tooltip title='Wallet' placement='top'>
                 <IconButton sx={navbarIconButton} size="small" disableRipple>
-                  <AccountBalanceWalletIcon color="dark"/>
+                  <AccountBalanceWalletIcon color="dark"/><MDTypography fontSize={15}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalCashAmount ? totalCashAmount : 0)}</MDTypography>
                 </IconButton>
                 </Tooltip>
               </Link>
@@ -155,7 +189,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
                 </Icon>
               </IconButton>
               
-              {/* <IconButton
+              <IconButton
                 size="small"
                 disableRipple
                 color="inherit"
@@ -163,7 +197,8 @@ function DashboardNavbar({ absolute, light, isMini }) {
                 onClick={handleConfiguratorOpen}
               >
                 <Icon sx={iconsStyle}>settings</Icon>
-              </IconButton> */}
+              </IconButton>
+
               <Link to="/notifications">
               <Tooltip title='Notifications' placement="top">
                 <IconButton

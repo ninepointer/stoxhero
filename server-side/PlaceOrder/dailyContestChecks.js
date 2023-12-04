@@ -6,25 +6,23 @@ const Battle = require("../models/battle/battle")
 exports.contestChecks = async(req,res,next) => {
     try{
         // req.body.contestId = req.body.marginxId;
-        console.log("req.body.contestId", req.body.contestId)
         const dailyContest = await DailyContest.findById(req.body.contestId);
         const userId = req.user._id;
         if(dailyContest?.contestEndTime < new Date()){
-            return res.status(201).json({ status: 'error', message: 'This contest has ended.' });
+            return res.status(201).json({ status: 'error', message: 'This TestZone has ended.' });
         }
 
         if(dailyContest?.contestStartTime > new Date()){
-            return res.status(201).json({ status: 'error', message: 'This Contest is not started yet.' });
+            return res.status(201).json({ status: 'error', message: 'This TestZone is not started yet.' });
         }
     
         // console.log(dailyContest?.participants)
         let user = dailyContest?.participants.filter((elem)=>{
-            console.log(userId, elem?.userId)
             return elem?.userId?.toString() === userId?.toString()
         })
 
-        if(user.length === 0){
-            return res.status(404).json({ status: "error", message: "You have not participated in this contest."}); 
+        if(user?.length === 0){
+            return res.status(404).json({ status: "error", message: "You have not participated in this TestZone."}); 
         }
 
         next();
@@ -45,12 +43,12 @@ exports.marginxChecks = async(req,res,next) => {
             return res.status(201).json({ status: 'error', message: 'This MarginX is not started yet.' });
         }
     
-        let user = marginx.participants.filter((elem)=>{
+        let user = marginx?.participants.filter((elem)=>{
             // console.log(userId, elem?.userId)
             return elem?.userId?.toString() === userId?.toString()
         })
 
-        if(user.length === 0){
+        if(user?.length === 0){
             return res.status(404).json({ status: "error", message: "You have not participated in this MarginX."}); 
         }
 

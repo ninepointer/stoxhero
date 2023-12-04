@@ -26,25 +26,6 @@ import { useTheme } from '@mui/material/styles';
 import { useNavigate } from "react-router-dom";
 
 
-// import CreateRewardForm from './CreateRewards'
-// import RewardsData from './data/rewardsData'
-// import LinkedContestRuleData from './data/contestLinkedRuleData'
-// import ContestParticipantsData from './data/contestParticipants'
-// import Stack from '@mui/material/Stack';
-// import { MobileTimePicker } from '@mui/x-date-pickers/MobileTimePicker';
-
-// const ITEM_HEIGHT = 30;
-// const ITEM_PADDING_TOP = 10;
-// const MenuProps = {
-//   PaperProps: {
-//     style: {
-//       maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-//       width: 250,
-//     },
-//   },
-// };
-
-
 function CreateBatch({createContestForm, setCreateBatchForm, oldObjectId, setOldObjectId, setCreateBatchFormCard}) {
   // console.log("Old Object Id: ",oldObjectId)
   const [isSubmitted,setIsSubmitted] = useState(false);
@@ -64,20 +45,6 @@ function CreateBatch({createContestForm, setCreateBatchForm, oldObjectId, setOld
 
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 const navigate = useNavigate();
-
-// const theme = useTheme();
-//   const [ruleName, setRuleName] = React.useState([]);
-
-//   const handleChange = (event) => {
-//     const {
-//       target: { value },
-//     } = event;
-//     setRuleName(value)
-//     setFormState(prevState => ({
-//       ...prevState,
-//       contestRule: value
-//     }))
-//   };
 
 React.useEffect(()=>{
     // console.log("Inside Use Effect")

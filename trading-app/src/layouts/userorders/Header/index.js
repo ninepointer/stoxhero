@@ -504,7 +504,7 @@ function Header() {
                   <MDTypography color={"light"} fontSize={13}>{elem?.subscriptionId?.plan_name}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDTypography color="light" fontSize={13}>{moment.utc(elem?.trade_time).format('DD-MMM-YY HH:mm:ss')}</MDTypography>
+                  <MDTypography color="light" fontSize={13}>{moment.utc(elem?.trade_time_utc).format('DD-MMM-YY HH:mm:ss')}</MDTypography>
                 </Grid>
             </Grid>
             )

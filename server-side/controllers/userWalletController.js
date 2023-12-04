@@ -1,5 +1,6 @@
 const UserWallet = require('../models/UserWallet/userWalletSchema');
 const emailService = require("../utils/emailService")
+const {sendMultiNotifications} = require("../utils/fcmService")
 const User = require('../models/User/userDetailSchema');
 const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema")
 const ObjectId = require('mongodb').ObjectId;
@@ -11,7 +12,8 @@ const Product = require('../models/Product/product');
 const {saveSuccessfulCouponUse} = require('./coupon/couponController');
 const Setting = require('../models/settings/setting');
 const Coupon = require('../models/coupon/coupon');
-
+const {creditAffiliateAmount}= require('./affiliateProgramme/affiliateController');
+const AffiliateProgram = require('../models/affiliateProgram/affiliateProgram');
 
 
 exports.createUserWallet = async(req, res, next)=>{
@@ -73,7 +75,12 @@ exports.myWallet = async (req, res, next) => {
             { $match: { "userId": mongoose.Types.ObjectId(userId) } },
 
             // Unwinding the transactions to sort them
-            { $unwind: "$transactions" },
+            { $unwind: 
+                {
+                    path: "$transactions",
+                    preserveNullAndEmptyArrays: true,
+                  },
+            },
 
             // Sorting transactions by transactionDate in descending order
             { $sort: { "transactions.transactionDate": -1 } },
@@ -97,7 +104,7 @@ exports.myWallet = async (req, res, next) => {
         // Since aggregation doesn't allow direct use of populate, using it separately
         const myWallet = await UserWallet.populate(wallets[0], {
             path: 'userId',
-            select: 'first_name last_name profilePhoto KYCStatus'
+            select: 'first_name last_name profilePhoto KYCStatus state bankName accountNumber ifscCode nameAsPerBankAccount'
         });
 
         res.status(200).json({ status: 'success', data: myWallet });
@@ -132,6 +139,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
     const session = await mongoose.startSession();
     let result = {};
     try{
+        let affiliate, affiliateProgram;
         let discountAmount = 0;
         let cashbackAmount = 0;
         session.startTransaction();
@@ -172,7 +180,20 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         }  
 
         if(coupon){
-            const couponDoc = await Coupon.findOne({code:coupon});
+            let couponDoc = await Coupon.findOne({code:coupon});
+            if(!couponDoc){
+                const affiliatePrograms = await AffiliateProgram.find({status:'Active'});
+                if(affiliatePrograms.length != 0)
+                    for(let program of affiliatePrograms){
+                        let match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
+                        if(match){
+                            affiliate = match;
+                            affiliateProgram = program;
+                            couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: program?.discountPercentage, maxDiscount:program?.maxDiscount }
+                        }
+                    }
+
+            }
             if(couponDoc?.rewardType == 'Discount'){
                 if(couponDoc?.discountType == 'Flat'){
                     //Calculate amount and match
@@ -200,6 +221,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
             }
         }
         const totalAmount = (subs?.discounted_price - discountAmount - bonusRedemption)*(1+setting[0]?.gstPercentage/100)
+        console.log(Number(totalAmount) , Number(subscriptionAmount))
         if(Number(totalAmount) != Number(subscriptionAmount)){
           return {
             statusCode:400,
@@ -405,6 +427,12 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
                 createdBy:'63ecbc570302e7cf0153370c',
                 lastModifiedBy:'63ecbc570302e7cf0153370c'  
               });
+            if(user?.fcmTokens?.length>0){
+                await sendMultiNotifications('StoxHero Cashback', 
+                    `${cashbackAmount?.toFixed(2)}HeroCash added as bonus in your wallet`,
+                    user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                    )  
+            }  
         }
         await createUserNotification({
             title:'TenX Subscription Deducted',
@@ -418,10 +446,20 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           }, session);
+          if(user?.fcmTokens?.length>0){
+            await sendMultiNotifications('TenX Plan Unlocked', 
+              `${subscription.plan_name} TenX plan unlocked. Good luck trading.`,
+              user?.fcmTokens?.map(item=>item.token), null, {route:'tenx'}
+              )  
+          }
           await session.commitTransaction();
           if(coupon){
             const product = await Product.findOne({productName:'TenX'}).select('_id');
-            await saveSuccessfulCouponUse(userId, coupon, product?._id, subscription?._id);
+            if(affiliate){
+                await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, subs?._id, subs?.discounted_price, userId);
+            }else{
+                await saveSuccessfulCouponUse(userId, coupon, product?._id, subscription?._id);
+            }
           }
           result = {
             statusCode:200,

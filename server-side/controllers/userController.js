@@ -513,7 +513,7 @@ exports.getUsers = async (req, res) => {
                   status: 'Active',
               },
           ]
-      }).select('first_name last_name email mobile _id')
+      }).select('first_name last_name email mobile _id myReferralCode')
       res.status(200).json({
           status: "success",
           message: "Getting User successfully",
@@ -1085,4 +1085,10 @@ exports.getReferralsBetweenDates = async (req, res, next) => {
   const referrals = await UserDetail.aggregate(pipeline)
   console.log("Referrals",referrals.length)
   res.status(201).json({ message: "Referrals Recieved", data: referrals.length });
+}
+
+exports.checkUserExist = async(req, res)=>{
+  const {mobile} = req.params;
+  const findUser = await UserDetail.findOne({mobile: mobile});
+  res.status(201).json({ status: "success", data: findUser ? true : false});
 }

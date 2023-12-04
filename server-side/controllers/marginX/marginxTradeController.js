@@ -10,6 +10,7 @@ const Instrument = require("../../models/Instruments/instrumentSchema")
 const getKiteCred = require('../../marketData/getKiteCred');
 const axios = require("axios")
 const {getIOValue} = require('../../marketData/socketio');
+const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema");
 
 exports.overallPnlTrader = async (req, res, next) => {
     let isRedisConnected = getValue();
@@ -50,13 +51,20 @@ exports.overallPnlTrader = async (req, res, next) => {
                     },
                 },
                 {
+                    $sort: {
+                      trade_time: 1,
+                    },
+                },
+                {
                     $group: {
                         _id: {
                             symbol: "$symbol",
                             product: "$Product",
                             instrumentToken: "$instrumentToken",
                             exchangeInstrumentToken: "$exchangeInstrumentToken",
-                            exchange: "$exchange"
+                            exchange: "$exchange",
+                            validity: "$validity",
+                            variety: "$variety",
                         },
                         amount: {
                             $sum: { $multiply: ["$amount", -1] },
@@ -74,6 +82,9 @@ exports.overallPnlTrader = async (req, res, next) => {
                         lastaverageprice: {
                             $last: "$average_price",
                         },
+                        margin: {
+                            $last: "$margin",
+                        },
                     },
                 },
                 {
@@ -82,15 +93,89 @@ exports.overallPnlTrader = async (req, res, next) => {
                     },
                 },
             ])
-            // //console.log("pnlDetails in else", pnlDetails)
 
+            const limitMargin = await PendingOrder.aggregate([
+                {
+                    $match: {
+                        createdBy: new ObjectId(
+                            userId
+                        ),
+                        type: "Limit",
+                        status: "Pending",
+                        createdOn: {
+                            $gte: today,
+                        },
+                        product_type: new ObjectId("6517d40e3aeb2bb27d650de1")
+                    },
+                },
+                {
+                    $sort: {
+                        createdOn: 1,
+                    },
+                },
+                {
+                    $group:
+                    {
+                        _id: {
+                            symbol: "$symbol",
+                            product: "$Product",
+                            instrumentToken: "$instrumentToken",
+                            exchangeInstrumentToken: "$exchangeInstrumentToken",
+                            exchange: "$exchange",
+                            validity: "$validity",
+                            variety: "$variety",
+                            // order_type: "$order_type"
+                        },
+                        amount: {
+                            $sum: { $multiply: ["$amount", -1] },
+                        },
+                        brokerage: {
+                            $sum: {
+                                $toDouble: "$brokerage",
+                            },
+                        },
+                        lots: {
+                            $sum: {
+                                $toInt: "$Quantity",
+                            },
+                        },
+                        margin: {
+                            $last: "$margin",
+                        },
+                    }
+                }
+            ])
+
+            const arr = [];
+            for (let elem of limitMargin) {
+                arr.push({
+                    _id: {
+                        symbol: elem._id.symbol,
+                        product: elem._id.product,
+                        instrumentToken: elem._id.instrumentToken,
+                        exchangeInstrumentToken: elem._id.exchangeInstrumentToken,
+                        exchange: elem._id.exchange,
+                        // validity: elem._id.validity,
+                        // variety: elem._id.variety,
+                        isLimit: true
+                    },
+                    // amount: (tenxDoc.amount * -1),
+                    // brokerage: Number(tenxDoc.brokerage),
+                    lots: Number(elem.lots),
+                    // lastaverageprice: tenxDoc.average_price,
+                    margin: elem.margin
+                });
+            }
+
+            const newPnl = pnlDetails.concat(arr);
+      
             if (isRedisConnected) {
-                await client.set(`${req.user._id.toString()}${id.toString()} overallpnlMarginX`, JSON.stringify(pnlDetails))
+                await client.set(`${req.user._id.toString()}${id.toString()} overallpnlMarginX`, JSON.stringify(newPnl))
                 await client.expire(`${req.user._id.toString()}${id.toString()} overallpnlMarginX`, secondsRemaining);
             }
 
             // //console.log("pnlDetails", pnlDetails)
-            res.status(201).json({ message: "pnl received", data: pnlDetails });
+            res.status(201).json({ message: "pnl received", data: newPnl });
         }
 
     } catch (e) {

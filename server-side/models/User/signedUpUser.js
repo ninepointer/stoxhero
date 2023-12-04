@@ -13,7 +13,7 @@ const signedUpUserSchema = new mongoose.Schema({
     },
     dob:{
         type: Date,
-        required: true,
+        // required: true,
     },
     last_modifiedOn:{
         type: Date,

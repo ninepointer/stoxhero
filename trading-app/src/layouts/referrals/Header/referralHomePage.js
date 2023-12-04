@@ -135,7 +135,7 @@ function ReferralHomePage() {
 
   👉 Participate in TenX Trading and earn 10% real cash on the profit you will make on the platform
 
-  📲 Visit https://www.stoxhero.com/signup?referral=${referralCode}                          
+  📲 Visit https://www.stoxhero.com?referral=${referralCode}                          
 
   Use my below invitation code 👇 and get virtual currency of ₹10,00,000 in your wallet and start trading
 
@@ -345,7 +345,7 @@ function ReferralHomePage() {
                                 <Grid item xs={12} md={12} lg={12} mt={1.5}>
                                     <MDBox display="flex" alignItems="start">
                                         <AccountBalanceWalletIcon fontSize="small" style={{ borderRadius: '50%',padding:3, border: '1px solid black' }}/>
-                                        <MDTypography ml={0.5} fontSize={13}>Your friend gets two portfolios worth 10 Lakhs each to participate in daily free contests.</MDTypography>
+                                        <MDTypography ml={0.5} fontSize={13}>Your friend gets INR 100 in his StoxHero Wallet.</MDTypography>
                                     </MDBox>
                                 </Grid>
 
@@ -384,8 +384,8 @@ function ReferralHomePage() {
                                         %0A%0AJoin me at StoxHero - India's First Options Trading and Investment Platform 🤝 
                                         %0A%0A👉 Get 10,00,000 virtual currency in your account to start option trading using my referral code.
                                         %0A%0A👉 Join the community of ace traders and learn real-time options trading.
-                                        %0A%0A👉 Participate in free options trading contests to sharpen your trading skills.
-                                        %0A%0A📲 Visit https://www.stoxhero.com/signup?referral=${referralCode}
+                                        %0A%0A👉 Participate in free options trading TestZones to sharpen your trading skills.
+                                        %0A%0A📲 Visit https://www.stoxhero.com?referral=${referralCode}
                                         %0A%0AUse my below invitation code 👇 and get virtual currency of ₹10,00,000 in your wallet and start trading.
                                         %0A%0AMy Referral Code to join the StoxHero: *${getDetails.userDetails.myReferralCode}*`}
                                         target="_blank">
@@ -421,7 +421,7 @@ function ReferralHomePage() {
                         >
                         <MDBox style={{display:"flex", alignItems: "center", justifyContent: "center", width:"40%"}}>
                             {/* <QrCode2Icon color="success" fontSize="large" style={{width:"80%", height:"80%"}}/> */}
-                            <QRCode value = {`https://stoxhero.com/signup?referral=${referralCode}`} fgColor='green' style={{padding:'20px'}}/>
+                            <QRCode value = {`https://stoxhero.com?referral=${referralCode}`} fgColor='green' style={{padding:'20px'}}/>
                         </MDBox>
                         <MDBox style={{display:"flex", alignItems: "center", justifyContent: "center", flexDirection:"column", width:"60%"}}>
                                 <MDTypography fontSize="13px" lineHeight={1}>My Referral Code</MDTypography>
@@ -439,7 +439,7 @@ function ReferralHomePage() {
                                 %0A%0A👉 Get 10,00,000 virtual currency in your account to start option trading using my referral code.
                                 %0A%0A👉 Join the community of ace traders and learn real-time options trading.
                                 %0A%0A👉 Participate in free options trading contests to sharpen your trading skills.
-                                %0A%0A📲 Visit https://www.stoxhero.com/signup
+                                %0A%0A📲 Visit https://www.stoxhero.com
                                 %0A%0AUse my below invitation code 👇 and get virtual currency of ₹10,00,000 in your wallet and start trading.
                                 %0A%0AMy Referral Code to join the StoxHero: *${getDetails.userDetails.myReferralCode}*`}
                                 target="_blank">

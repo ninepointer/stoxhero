@@ -8,6 +8,7 @@ const {ObjectId} = require('mongodb');
 const Contest = require('../../models/DailyContest/dailyContest');
 const Wallet = require('../../models/UserWallet/userWalletSchema');
 const Notification = require('../../models/notifications/notification');
+const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema");
 
 
 router.get("/leaderboardSetting", Authentication, async (req, res)=>{
@@ -23,6 +24,12 @@ router.get("/readsetting", Authentication, (req, res)=>{
             return res.status(200).send(data);
         }
     })
+})
+
+router.get("/usersetting", Authentication, async (req, res)=>{
+
+    const setting = await Setting.find().select('isAppLive minWithdrawal maxWithdrawal maxWithdrawalHigh walletBalanceUpperLimit gstPercentage tdsPercentage contest time minWalletBalance maxBonusRedemptionPercentage bonusToUnitCashRatio')
+    return res.status(200).json({status: "success", data: setting});
 })
 
 router.get("/readsetting/:id", Authentication, (req, res)=>{
@@ -102,6 +109,7 @@ router.patch("/settings/:id", Authentication, restrictTo('Admin', 'SuperAdmin'),
                 maxWithdrawalHigh:req.body.maxWithdrawalHigh,
                 walletBalanceUpperLimit:req.body.walletBalanceUpperLimit,
                 minWithdrawal:req.body.minWithdrawal,
+                minWalletBalance:req.body.minWalletBalance,
                 gstPercentage:req.body.gstPercentage,
                 tdsPercentage:req.body.tdsPercentage,
                 mobileAppVersion:req.body.mobileAppVersion,
@@ -194,22 +202,23 @@ router.patch("/toggleComplete/:id", restrictTo('Admin', 'SuperAdmin'), Authentic
 router.get("/deletetxns", async (req, res)=>{
     try{
         // const contest = await Contest.findOne({_id: new ObjectId('6509843318489d6d850f9f1e')});
-        const contest = await Contest.findOne({_id: new ObjectId('65147e3872e48e8f9e4fd9a1')});
+        const contest = await Contest.findOne({_id: new ObjectId('6533ae99986e42d4944f14d2')});
         // console.log(contest)
-        let participants = contest.participants;
+        let participants = contest?.participants;
+        // console.log(participants);
         let totalPayout = 0;
     
         for (let elem of participants){
             const userWallet = await Wallet.findOne({userId: elem?.userId});
             const txns = userWallet.transactions;
             // console.log(userWallet);
-            const contestTxns = txns?.filter((item) => { return item?.title == 'Contest Credit' && new Date(item?.transactionDate)>= new Date('2023-10-13') && item?.description == 'Amount credited for contest IIIT Lucknow Options Ninja (Day 3)'});
+            const contestTxns = txns?.filter((item) => { return item?.title == 'TestZone Credit' && new Date(item?.transactionDate)>= new Date('2023-10-25') && item?.description == 'Amount credited for contest Campus Financial Faceoff (Day 1)'});
             // const sumPayouts = contestTxns?.reduce()
             if(contestTxns.length > 1){
-                console.log('red', elem?.userId);
+                console.log('red', elem?.userId, elem?.payout);
             }
             if(contestTxns.length == 1){
-                console.log('green', elem?.userId);
+                console.log('green', elem?.userId ,elem?.payout);
             }
             if(contestTxns.length > 2){
                 console.log('extreme', elem?.userId, contestTxns?.length);
@@ -256,7 +265,7 @@ router.get("/deletetxns", async (req, res)=>{
 })
 router.get("/deletenotifs", async (req, res)=>{
     try{
-        const contest = await Contest.findOne({_id: new ObjectId('65147e3872e48e8f9e4fd9a1')});
+        const contest = await Contest.findOne({_id: new ObjectId('652c0d87d565747ad90bfd1b')});
         // const contest = await Contest.findOne({_id: new ObjectId('65150e3ff3ef0c1ed1a36a0c')});
         let participants = contest.participants;
         // let totalPayout = 0;
@@ -265,7 +274,7 @@ router.get("/deletenotifs", async (req, res)=>{
             // const userWallet = await Wallet.findOne({userId: elem?.userId});
             const notifications = await Notification.find({user:elem?.userId});
             // const txns = userWallet.transactions;
-            const not = notifications?.filter((item) => { return item?.title == 'Contest Reward Credited' && new Date(item?.notificationTime)>= new Date('2023-10-12T09:49:00.485+00:00')});
+            const not = notifications?.filter((item) => { return item?.title == 'Contest Reward Credited' && new Date(item?.notificationTime)>= new Date('2023-10-20T09:49:00.485+00:00')});
             // const sumPayouts = contestTxns.reduce()
             // console.log(not.length, 'for', elem?.userId);
             if(not?.length == 2){
@@ -309,6 +318,42 @@ router.get("/deletenotifs", async (req, res)=>{
     res.status(500).send("Internal Server Error");
 }
 })    
+
+exports.cancelPendingOrders = async() => {
+    const today = new Date().setHours(0,0,0,0);
+    try{
+        const updates = await PendingOrder.updateMany(
+            {
+                status:'Pending', createdOn:{$gte: new Date(today)}
+            },{
+                $set: {
+                    status: "Cancelled"
+                }
+            }
+        )
+    }catch(e){
+        console.log(e);
+    }
+}
+
+router.get("/checkextra", async (req, res)=>{
+    const today = new Date().setHours(0,0,0,0);
+    try{
+        const contest = await Contest.findById('654240e691586db318590372');
+        const participants = contest.participants;
+        const participantIds = participants.map(item=>item.userId.toString());
+        const pot = contest.potentialParticipants.map(item=>item?.toString());
+        const potSet = new Set(pot);
+        console.log(pot, participantIds);
+        let arr = [];
+        const difference = participantIds.filter(item => !potSet.has(item.toString()));
+        console.log('only',difference);
+    }catch(e){
+        console.log(e);
+    }
+})
+
+
 
 module.exports = router;
 

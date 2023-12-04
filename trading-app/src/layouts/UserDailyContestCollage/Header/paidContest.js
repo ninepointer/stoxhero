@@ -27,6 +27,7 @@ import PopupMessage from "../data/popupMessage";
 import PopupTrading from "../data/popupTrading";
 // import { Link } from "react-router-dom";
 import Payment from "../data/payment"
+import RewardTable from "../../UserDailyContest/Header/rulesAndRewardTable";
 
 function Header({ toggleContest, setToggleContest, contest, showPay, setShowPay, socket, setIsInterested }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -47,7 +48,7 @@ function Header({ toggleContest, setToggleContest, contest, showPay, setShowPay,
     const [isInterestedState, setIsInterestedState] = useState(initialInterestedCounts);
 
     const handleCopy = async (id) => {
-        let text = 'https://stoxhero.com/contest'
+        let text = 'https://stoxhero.com/testzone'
         const textarea = document.createElement('textarea');
         textarea.value = text;
         document.body.appendChild(textarea);
@@ -215,7 +216,10 @@ function Header({ toggleContest, setToggleContest, contest, showPay, setShowPay,
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                                 <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Reward</MDTypography></MDBox>
-                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>{elem?.payoutPercentage}% of the net P&L</MDTypography></MDBox>
+                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>
+                                                                    {/* {elem?.payoutPercentage}% of the net P&L{elem?.payoutCapPercentage?`(upto ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.entryFee * (elem?.payoutCapPercentage??1000)/100)})`:''} */}
+                                                                    <RewardTable data={elem} paid={true}/>
+                                                                </MDTypography></MDBox>
                                                             </MDBox>
                                                         </MDBox>
                                                     </Grid>
@@ -234,7 +238,7 @@ function Header({ toggleContest, setToggleContest, contest, showPay, setShowPay,
                                                         </MDBox>
 
                                                         <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                            <MDBox color={"#DBB670"}><MDTypography fontSize={10} style={{ backgroundColor: '#DBB670', color: "black", padding: '2px 2px 1px 2px', border: '1px solid black', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Portfolio: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue)}</MDTypography></MDBox>
+                                                            <MDBox color={"#DBB670"}><MDTypography fontSize={10} style={{ backgroundColor: '#DBB670', color: "black", padding: '2px 2px 1px 2px', border: '1px solid black', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Virtual Margin: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue)}</MDTypography></MDBox>
                                                         </MDBox>
                                                     </Grid>
 
@@ -249,7 +253,7 @@ function Header({ toggleContest, setToggleContest, contest, showPay, setShowPay,
 
                                                             <MDBox display="flex" justifyContent="space-between">
                                                                 <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                                    <HiUserGroup color="#DBB670" /><MDBox color={"#DBB670"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{isInterestedState[elem?._id]?.count} PEOPLE HAVE SHOWN INTEREST IN THIS CONTEST</MDBox>
+                                                                    <HiUserGroup color="#DBB670" /><MDBox color={"#DBB670"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{isInterestedState[elem?._id]?.count} PEOPLE HAVE SHOWN INTEREST IN THIS TestZone</MDBox>
                                                                 </MDBox>
                                                                 <MDBox color="light" fontSize={10}>
                                                                     <MDBox color={"#DBB670"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>SPOTS LEFT: {elem?.maxParticipants - elem?.participants?.length}</MDBox>
@@ -268,7 +272,7 @@ function Header({ toggleContest, setToggleContest, contest, showPay, setShowPay,
 
                                                             <MDBox display='flex' justifyContent='flex-start' width='50%'>
                                                                 {(particularContestTime[0]?.value > 0 && !checkIsInterested) &&
-                                                                    <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} isInterestedState={isInterestedState} setIsInterestedState={setIsInterestedState} elem={elem} data={`Thanks for showing interest in ${elem.contestName} contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} />
+                                                                    <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} isInterestedState={isInterestedState} setIsInterestedState={setIsInterestedState} elem={elem} data={`Thanks for showing interest in ${elem.contestName} TestZone. You will be notified 10 mins before the TestZone starts.`} />
                                                                 }
                                                                 {checkIsInterested &&
                                                                     <MDTypography color='info' fontWeight='bold' fontSize={13} mt={.5}>Thanks for expressing your interest.</MDTypography>
