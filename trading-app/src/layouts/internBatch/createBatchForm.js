@@ -654,7 +654,7 @@ function Index() {
                       sx={{ minHeight: 43 }}
                     >
                       <MenuItem value="Cash">Cash</MenuItem>
-                      <MenuItem value="Bonus">Bonus</MenuItem>
+                      <MenuItem value="HeroCash">HeroCash</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
