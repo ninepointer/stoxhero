@@ -228,15 +228,16 @@ exports.myTodaysPendingTrade = async (req, res, next) => {
       },
       {
         $project: {
+          _id: 0,
           type: "$_id.type",
           quantity: "$totalQuantity"
         }
       }
     ])
 
-    res.status(200).json({ status: 'success', data: myTodaysTrade, count: count || 0 });
+    // res.status(200).json({ status: 'success', data: myTodaysTrade, count: count || 0 });
 
-    // res.status(200).json({ status: 'success', data: myTodaysTrade, count: count || 0, quantity: totalQuantity[0] || {} });
+    res.status(200).json({ status: 'success', data: myTodaysTrade, count: count || 0, quantity: totalQuantity || [] });
   } catch (e) {
     console.log(e);
     res.status(500).json({ status: 'error', message: 'Something went wrong' });
@@ -378,29 +379,29 @@ exports.modifyOrder = async (req, res, next) => {
     const {instrumentToken, symbol, from} = req.body;
     const userId = req.user._id
     console.log(req.body)
-    data = await client.get('stoploss-stopprofit');
-    data = JSON.parse(data);
-    if (data && data[`${instrumentToken}`]) {
-        let symbolArray = data[`${instrumentToken}`];
-        let indicesToRemove = [];
-        for(let i = symbolArray.length-1; i >= 0; i--){
-            if(symbolArray[i]?.createdBy?.toString() === userId.toString() && symbolArray[i]?.symbol === symbol){
-                // remove this element
-                indicesToRemove.push(i);
-                const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]?._id)},{
-                  $set: {
-                    status: "Cancelled",
-                    execution_price: 0
-                  }
-              })
-            }
-        }
+    // data = await client.get('stoploss-stopprofit');
+    // data = JSON.parse(data);
+    // if (data && data[`${instrumentToken}`]) {
+    //     let symbolArray = data[`${instrumentToken}`];
+    //     let indicesToRemove = [];
+    //     for(let i = symbolArray.length-1; i >= 0; i--){
+    //         if(symbolArray[i]?.createdBy?.toString() === userId.toString() && symbolArray[i]?.symbol === symbol){
+    //             // remove this element
+    //             indicesToRemove.push(i);
+    //             const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]?._id)},{
+    //               $set: {
+    //                 status: "Cancelled",
+    //                 execution_price: 0
+    //               }
+    //           })
+    //         }
+    //     }
   
-        // Remove elements after the loop
-        indicesToRemove.forEach(index => symbolArray.splice(index, 1, {}));
-    }
+    //     // Remove elements after the loop
+    //     indicesToRemove.forEach(index => symbolArray.splice(index, 1, {}));
+    // }
   
-    await client.set('stoploss-stopprofit', JSON.stringify(data));
+    // await client.set('stoploss-stopprofit', JSON.stringify(data));
     const result = await applyingSLSP(req, {}, null ,null, from);
   
     return res.status(200).json({status: "Success", message: `Your SL/SP-M order placed for ${req.body.symbol}`});
