@@ -29,7 +29,7 @@ exports.createContest = async (req, res) => {
                contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
             contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
             maxParticipants, contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, 
-            payoutType, payoutCapPercentage } = req.body;
+            payoutType, payoutCapPercentage, rewardType, tdsRelief } = req.body;
 
         // const getContest = await Contest.findOne({ contestName: contestName });
 
@@ -57,7 +57,7 @@ exports.createContest = async (req, res) => {
             maxParticipants, contestStatus, contestEndTime, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
             contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage,
-            contestLiveTime, payoutPercentageType
+            contestLiveTime, payoutPercentageType, rewardType, tdsRelief
         });
 
         // console.log(contest)

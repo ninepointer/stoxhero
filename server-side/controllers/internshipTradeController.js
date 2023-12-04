@@ -1541,8 +1541,8 @@ exports.updateUserWallet = async () => {
               const pnl = await pnlFunc(users[i].user, batchId);
               const payoutAmountWithoutTDS = Math.min(pnl.npnl * payoutPercentage / 100, profitCap);
               let creditAmount;
-              const tdsAmount = elem.payoutType === "Cash" ? payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100 : 0;
-              if(elem.payoutType === "Cash"){
+              const tdsAmount = elem.rewardType === "Cash" ? payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100 : 0;
+              if(elem.rewardType === "Cash"){
                 creditAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
               } else{
                 creditAmount = payoutAmountWithoutTDS;
@@ -1641,7 +1641,7 @@ exports.updateUserWallet = async () => {
                     <div class="container">
                     <h1>Amount Credited</h1>
                     <p>Hello ${user.first_name},</p>
-                    <p>${elem.payoutType === "Cash" ? "₹"+creditAmount?.toFixed(2) : "HeroCash "+creditAmount?.toFixed(2)} has been credited in you wallet</p>
+                    <p>${elem.rewardType === "Cash" ? "₹"+creditAmount?.toFixed(2) : "HeroCash "+creditAmount?.toFixed(2)} has been credited in you wallet</p>
                     <p>You can now purchase Tenx and participate in contest.</p>
                     
                     <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
@@ -1657,7 +1657,7 @@ exports.updateUserWallet = async () => {
                 }
                 await createUserNotification({
                   title: 'Internship Payout Credited',
-                  description: `${elem.payoutType === "Cash" ? "₹"+creditAmount?.toFixed(2) : "HeroCash "+creditAmount?.toFixed(2)} credited for your internship profit`,
+                  description: `${elem.rewardType === "Cash" ? "₹"+creditAmount?.toFixed(2) : "HeroCash "+creditAmount?.toFixed(2)} credited for your internship profit`,
                   notificationType: 'Individual',
                   notificationCategory: 'Informational',
                   productCategory: 'Internship',
@@ -1673,7 +1673,7 @@ exports.updateUserWallet = async () => {
                   description: `Internship profit credited`,
                   amount: (creditAmount?.toFixed(2)),
                   transactionId: uuid.v4(),
-                  transactionType: elem.payoutType === "Cash" ? 'Cash' : "Bonus"
+                  transactionType: elem.rewardType === "Cash" ? 'Cash' : "Bonus"
                 }];
 
                 if(tdsAmount > 0 && elem.tdsRelief){
@@ -1698,7 +1698,7 @@ exports.updateUserWallet = async () => {
                 
                 if(user?.fcmTokens?.length>0){
                   await sendMultiNotifications('Internship Payout Credited', 
-                    `${elem.payoutType === "Cash" ? "₹"+creditAmount?.toFixed(2) : "HeroCash "+creditAmount?.toFixed(2)} credited to your wallet for your Internship profit as payout`,
+                    `${elem.rewardType === "Cash" ? "₹"+creditAmount?.toFixed(2) : "HeroCash "+creditAmount?.toFixed(2)} credited to your wallet for your Internship profit as payout`,
                     user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
                     )
                 }

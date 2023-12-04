@@ -15,7 +15,7 @@ const InternTrades = require("../../models/mock-trade/internshipTrade");
 
 exports.createBatch = async(req, res, next)=>{
     // console.log(req.body) // batchID
-    const{batchName, batchStartDate, batchEndDate, payoutType, tdsRelief,
+    const{batchName, batchStartDate, batchEndDate, rewardType, tdsRelief,
         batchStatus, career, portfolio, payoutPercentage, payoutCap,
         attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = req.body;
 
@@ -27,7 +27,7 @@ exports.createBatch = async(req, res, next)=>{
     if(await Batch.findOne({batchName})) return res.status(400).json({message:'This batch already exists.'});
 
     const batch = await Batch.create({batchID, batchName:batchName.trim(), batchStartDate, batchEndDate,
-        batchStatus, createdBy: req.user._id, lastModifiedBy: req.user._id, career, portfolio, payoutType, tdsRelief, 
+        batchStatus, createdBy: req.user._id, lastModifiedBy: req.user._id, career, portfolio, rewardType, tdsRelief, 
         payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink});
     
     res.status(201).json({message: 'Batch successfully created.', data:batch});
@@ -117,7 +117,7 @@ exports.editBatch = async(req, res, next) => {
             portfolio: req.body.portfolio,
             payoutPercentage: req.body.payoutPercentage,
             payoutCap: req.body.payoutCap,
-            payoutType: req.body.payoutType,
+            rewardType: req.body.rewardType,
             tdsRelief: req.body.tdsRelief,
             attendancePercentage: req.body.attendancePercentage,
             referralCount: req.body.referralCount,

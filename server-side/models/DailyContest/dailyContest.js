@@ -65,6 +65,16 @@ const contestSchema = new Schema({
         enum: ["Reward", "Percentage"]
         // required: true,
     },
+    rewardType:{
+        type:String,
+        required: true,
+        enum: ['Cash','HeroCash']
+    },
+    tdsRelief:{
+        type:Boolean,
+        required: true,
+        default: false
+    },
     rewards:[{
         rankStart:{type:Number},
         rankEnd:Number,

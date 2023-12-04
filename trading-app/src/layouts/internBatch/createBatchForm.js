@@ -77,7 +77,7 @@ function Index() {
       portfolioName: id?.portfolio?.portfolioName || "",
       portfolioValue: id?.portfolio?.portfolioValue || "",
     },
-    payoutType: '' || id?.payoutType,
+    rewardType: '' || id?.rewardType,
     tdsRelief: '' || id?.tdsRelief,
   });
 
@@ -136,6 +136,9 @@ function Index() {
             portfolioName: res?.data?.data?.portfolio?.portfolioName || "",
             portfolioValue: res?.data?.data?.portfolio?.portfolioValue || "",
           },
+          rewardType: '' || res?.data?.data?.rewardType,
+          tdsRelief: '' || res?.data?.data?.tdsRelief,
+      
         })
         setTimeout(() => {
           setIsLoading(false)
@@ -199,7 +202,7 @@ function Index() {
       !formState.attendancePercentage ||
       formState.payoutPercentage === '' ||
       !formState.payoutCap ||
-      !formState.payoutType ||
+      !formState.rewardType ||
       !formState.orientationDate ||
       !formState.orientationMeetingLink ||
       !formState.referralCount) {
@@ -212,7 +215,7 @@ function Index() {
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const { payoutType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = formState;
+    const { rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = formState;
     const res = await fetch(`${baseUrl}api/v1/internbatch/`, {
       method: "POST",
       credentials: "include",
@@ -221,7 +224,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        payoutType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id, payoutPercentage, attendancePercentage, payoutCap, referralCount, orientationDate, orientationMeetingLink
+        rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id, payoutPercentage, attendancePercentage, payoutCap, referralCount, orientationDate, orientationMeetingLink
       })
     });
 
@@ -281,7 +284,7 @@ function Index() {
       !formState.portfolio ||
       formState.payoutPercentage === '' ||
       !formState.payoutCap ||
-      !formState.payoutType ||
+      !formState.rewardType ||
       !formState.attendancePercentage ||
       !formState.orientationDate ||
       !formState.orientationMeetingLink ||
@@ -289,7 +292,7 @@ function Index() {
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const {payoutType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = formState;
+    const {rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = formState;
 
     const res = await fetch(`${baseUrl}api/v1/internbatch/${id._id}`, {
       method: "PATCH",
@@ -299,7 +302,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        payoutType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink
+        rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink
       })
     });
 
@@ -637,17 +640,17 @@ function Index() {
 
                 <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Payout Type *</InputLabel>
+                    <InputLabel id="demo-simple-select-autowidth-label">Reward Type *</InputLabel>
                     <Select
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
-                      name='payoutType'
-                      value={formState?.payoutType || id?.payoutType}
+                      name='rewardType'
+                      value={formState?.rewardType || id?.rewardType}
                       disabled={((isSubmitted || id) && (!editing || saving))}
                       onChange={(e) => {
                         setFormState(prevState => ({
                           ...prevState,
-                          payoutType: e.target.value
+                          rewardType: e.target.value
                         }))
                       }}
                       label="Batch Status"
@@ -672,7 +675,7 @@ function Index() {
                         }))
                       }}
                       control={<Checkbox />}
-                      label="Payout Relief" />
+                      label="TDS Relief" />
                   </FormGroup>
                 </Grid>
               </Grid>

@@ -69,7 +69,7 @@ const batchSchema = new mongoose.Schema({
         required: true,
         enum: ['Active','Inactive', 'Completed']
     },
-    payoutType:{
+    rewardType:{
         type:String,
         required: true,
         enum: ['Cash','HeroCash']
