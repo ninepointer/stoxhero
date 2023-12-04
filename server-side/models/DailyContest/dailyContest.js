@@ -65,6 +65,16 @@ const contestSchema = new Schema({
         enum: ["Reward", "Percentage"]
         // required: true,
     },
+    rewardType:{
+        type:String,
+        required: true,
+        enum: ['Cash','HeroCash']
+    },
+    tdsRelief:{
+        type:Boolean,
+        required: true,
+        default: false
+    },
     rewards:[{
         rankStart:{type:Number},
         rankEnd:Number,
@@ -113,7 +123,8 @@ const contestSchema = new Schema({
         trades: {type: Number},
         brokerage: {type: Number},
         rank: {type: Number},
-        bonusRedemption:Number
+        bonusRedemption:Number,
+        herocashPayout: Number
     }],
     maxParticipants:{
         type:Number,

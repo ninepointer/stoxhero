@@ -1497,7 +1497,7 @@ exports.updateUserWallet = async () => {
 
     const internship = await InternBatch.find({batchStatus: "Active", batchEndDate: {$gte: new Date(todayDate)}, batchEndDate: { $lte: new Date(endOfToday) }})
     .populate('career', 'listingType')
-    .select('batchName participants batchStartDate batchEndDate attendancePercentage payoutPercentage referralCount')
+    .select('batchName participants batchStartDate batchEndDate attendancePercentage payoutPercentage referralCount rewardType tdsRelief payoutCap')
   
     console.log(internship)
 
@@ -1539,13 +1539,18 @@ exports.updateUserWallet = async () => {
               const attendance = (tradingdays * 100) / (workingDays - holiday.length);
               const referral = await referrals(user, elem);
               const pnl = await pnlFunc(users[i].user, batchId);
-              const payoutAmountWithoutTDS = Math.min(pnl.npnl * payoutPercentage / 100, profitCap)
-              const creditAmount = payoutAmountWithoutTDS;
-              // const creditAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
+              const payoutAmountWithoutTDS = Math.min(pnl.npnl * payoutPercentage / 100, profitCap);
+              let creditAmount;
+              const tdsAmount = elem.rewardType === "Cash" ? payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100 : 0;
+              if(elem?.rewardType === "Cash"){
+                creditAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
+              } else{
+                creditAmount = payoutAmountWithoutTDS;
+              }
 
               const wallet = await Wallet.findOne({ userId: new ObjectId(users[i].user) }).session(session);
 
-              // console.log( users[i].user, referral, creditAmount);
+              console.log( users[i].user, referral, creditAmount);
               if (creditAmount > 0) {
                 if (attendance >= attendanceLimit && referral >= referralLimit && pnl.npnl > 0) {
                   eligible = true;
@@ -1636,7 +1641,7 @@ exports.updateUserWallet = async () => {
                     <div class="container">
                     <h1>Amount Credited</h1>
                     <p>Hello ${user.first_name},</p>
-                    <p>Amount of ${creditAmount?.toFixed(2)}INR has been credited in you wallet</p>
+                    <p>${elem.rewardType === "Cash" ? "₹" + creditAmount?.toFixed(2) : "HeroCash " + creditAmount?.toFixed(2)} has been credited in you wallet</p>
                     <p>You can now purchase Tenx and participate in contest.</p>
                     
                     <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
@@ -1648,11 +1653,11 @@ exports.updateUserWallet = async () => {
                     </div>
                     </body>
                     </html>
-                    `);
+                  `);
                 }
                 await createUserNotification({
                   title: 'Internship Payout Credited',
-                  description: `₹${creditAmount?.toFixed(2)} credited for your internship profit`,
+                  description: `${elem.rewardType === "Cash" ? "₹"+creditAmount?.toFixed(2) : "HeroCash "+creditAmount?.toFixed(2)} credited for your internship profit`,
                   notificationType: 'Individual',
                   notificationCategory: 'Informational',
                   productCategory: 'Internship',
@@ -1662,13 +1667,37 @@ exports.updateUserWallet = async () => {
                   createdBy: '63ecbc570302e7cf0153370c',
                   lastModifiedBy: '63ecbc570302e7cf0153370c'
                 }, session);
+
                 wallet.transactions = [...wallet.transactions, {
                   title: 'Internship Payout',
-                  description: `Amount credited for your internship profit`,
+                  description: `Internship profit credited`,
                   amount: (creditAmount?.toFixed(2)),
                   transactionId: uuid.v4(),
-                  transactionType: 'Cash'
+                  transactionType: elem.rewardType === "Cash" ? 'Cash' : "Bonus"
                 }];
+
+                if(tdsAmount > 0 && elem.tdsRelief){
+                  wallet.transactions = [...wallet.transactions, {
+                    title: 'StoxHero CashBack',
+                    description: `Cashback of ${tdsAmount?.toFixed(2)} HeroCash - Internship TDS`,
+                    amount: (tdsAmount?.toFixed(2)),
+                    transactionId: uuid.v4(),
+                    transactionType: "Bonus"
+                  }];
+
+                  await createUserNotification({
+                    title: 'StoxHero CashBack',
+                    description: `${elem.rewardType === "Cash" ? "₹"+creditAmount?.toFixed(2) : "HeroCash "+creditAmount?.toFixed(2)} HeroCash - Internship TDS`,
+                    notificationType: 'Individual',
+                    notificationCategory: 'Informational',
+                    productCategory: 'Internship',
+                    user: user?._id,
+                    priority: 'High',
+                    channels: ['App', 'Email'],
+                    createdBy: '63ecbc570302e7cf0153370c',
+                    lastModifiedBy: '63ecbc570302e7cf0153370c'
+                  }, session);
+                }
                 await wallet.save({ session });
                 users[i].payout = creditAmount.toFixed(2);
                 users[i].tradingdays = tradingdays;
@@ -1677,12 +1706,14 @@ exports.updateUserWallet = async () => {
                 users[i].gpnl = pnl?.gpnl?.toFixed(2);
                 users[i].npnl = pnl?.npnl?.toFixed(2);
                 users[i].noOfTrade = pnl?.noOfTrade;
-
+                users[i].tdsAmount = tdsAmount;
+                users[i].herocashPayout = elem.tdsRelief ? tdsAmount : 0;
+                
                 if(user?.fcmTokens?.length>0){
                   await sendMultiNotifications('Internship Payout Credited', 
-                    `₹${creditAmount?.toFixed(2)} credited to your wallet for your Internship profit as payout`,
+                    `${elem.rewardType === "Cash" ? "₹"+creditAmount?.toFixed(2) : "HeroCash "+creditAmount?.toFixed(2)} credited to your wallet for your Internship profit as payout`,
                     user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
-                    )  
+                    )
                 }
               } else {
                 users[i].payout = 0;

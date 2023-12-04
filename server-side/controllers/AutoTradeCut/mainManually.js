@@ -256,7 +256,7 @@ const changeContestStatus = async () => {
             for (let j = 0; j < contest.length; j++) {
                 console.log(contest[j].contestEndTime, new Date())
                 contest[j].contestStatus = "Completed";
-                await contest[j].save();
+                await contest[j].save({validationBeforeSave: false});
             }
 
             resolve();
