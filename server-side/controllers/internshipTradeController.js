@@ -1667,7 +1667,7 @@ exports.updateUserWallet = async () => {
                   createdBy: '63ecbc570302e7cf0153370c',
                   lastModifiedBy: '63ecbc570302e7cf0153370c'
                 }, session);
-                
+
                 wallet.transactions = [...wallet.transactions, {
                   title: 'Internship Payout',
                   description: `Internship profit credited`,
@@ -1676,7 +1676,7 @@ exports.updateUserWallet = async () => {
                   transactionType: elem.payoutType === "Cash" ? 'Cash' : "Bonus"
                 }];
 
-                if(tdsAmount > 0){
+                if(tdsAmount > 0 && elem.tdsRelief){
                   wallet.transactions = [...wallet.transactions, {
                     title: 'StoxHero CashBack',
                     description: `Cashback of ${tdsAmount?.toFixed(2)} HeroCash - Internship TDS`,
