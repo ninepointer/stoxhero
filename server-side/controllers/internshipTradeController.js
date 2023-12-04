@@ -1653,7 +1653,7 @@ exports.updateUserWallet = async () => {
                     </div>
                     </body>
                     </html>
-                    `);
+                  `);
                 }
                 await createUserNotification({
                   title: 'Internship Payout Credited',
@@ -1684,6 +1684,19 @@ exports.updateUserWallet = async () => {
                     transactionId: uuid.v4(),
                     transactionType: "Bonus"
                   }];
+
+                  await createUserNotification({
+                    title: 'StoxHero CashBack',
+                    description: `${elem.rewardType === "Cash" ? "₹"+creditAmount?.toFixed(2) : "HeroCash "+creditAmount?.toFixed(2)} HeroCash - Internship TDS`,
+                    notificationType: 'Individual',
+                    notificationCategory: 'Informational',
+                    productCategory: 'Internship',
+                    user: user?._id,
+                    priority: 'High',
+                    channels: ['App', 'Email'],
+                    createdBy: '63ecbc570302e7cf0153370c',
+                    lastModifiedBy: '63ecbc570302e7cf0153370c'
+                  }, session);
                 }
                 await wallet.save({ session });
                 users[i].payout = creditAmount.toFixed(2);
@@ -1694,7 +1707,7 @@ exports.updateUserWallet = async () => {
                 users[i].npnl = pnl?.npnl?.toFixed(2);
                 users[i].noOfTrade = pnl?.noOfTrade;
                 users[i].tdsAmount = tdsAmount;
-                users[i].herocashPayout = tdsAmount;
+                users[i].herocashPayout = elem.tdsRelief ? tdsAmount : 0;
                 
                 if(user?.fcmTokens?.length>0){
                   await sendMultiNotifications('Internship Payout Credited', 

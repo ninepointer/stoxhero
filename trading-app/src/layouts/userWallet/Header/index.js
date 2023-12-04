@@ -200,11 +200,11 @@ export default function Wallet() {
                           <MDTypography style={{ alignContent: 'center' }} ml={1} color="light" fontSize={10}>
                             Transaction Date: {moment.utc(elem?.transactionDate).utcOffset('+05:30').format('DD-MMM-YY hh:mm:ss a')}
                           </MDTypography>
-                          <MDTypography style={{ alignContent: 'center' }} ml={1} color="light" fontSize={10}>{elem?.description}</MDTypography>
+                          <MDTypography style={{ alignContent: 'center' }} ml={1} color="light" fontSize={10}>{`${elem?.description}`}</MDTypography>
                         </MDBox>
                       </Grid>
                       <Grid item xs={6} md={6} lg={4} display="flex" justifyContent="flex-end">
-                        <MDTypography color={elem?.amount >= 0 ? "success" : "error"} fontSize={12} fontWeight="bold">{elem.amount > 0 ? '+₹' + elem?.amount : '-₹' + -elem.amount}</MDTypography>
+                        <MDTypography color={elem?.amount >= 0 ? "success" : "error"} fontSize={12} fontWeight="bold">{elem?.transactionType === "Bonus" ? "🌟"+elem.amount : elem.amount > 0 ? '+₹' + elem?.amount : '-₹' + -elem.amount}</MDTypography>
                       </Grid>
                     </Grid>
                   </MDBox>

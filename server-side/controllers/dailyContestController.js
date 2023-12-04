@@ -429,6 +429,7 @@ exports.getCollegeUserUpcomingContests = async (req, res) => {
       .populate('portfolio', 'portfolioName _id portfolioValue')
       .sort({ contestStartTime: 1 });
 
+
       res.status(200).json({
           status: "success",
           message: "Upcoming TestZones fetched successfully",
@@ -459,7 +460,14 @@ exports.getUserUpcomingContests = async (req, res) => {
         .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
         .populate('portfolio', 'portfolioName _id portfolioValue')
         // .sort({ entryFee: -1 })
-        .sort({ entryFee: { $gte: 0 } ? -1 : 1 });
+        // .sort({ entryFee: { $gte: 0 } ? -1 : 1 });
+        contests.sort((a, b) => {
+          if (a.entryFee > 0 && b.entryFee > 0) {
+              return a.entryFee - b.entryFee; // Ascending order for elements with entryFee > 0
+          } else {
+              return b.entryFee - a.entryFee; // Descending order for remaining elements
+          }
+      });
 
         res.status(200).json({
             status: "success",
@@ -492,7 +500,15 @@ exports.getUserLiveContests = async (req, res) => {
         .populate('participants.userId', 'first_name last_name email mobile creationProcess')
         .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
         .populate('portfolio', 'portfolioName _id portfolioValue')
-        .sort({ entryFee: -1 })
+        // .sort({ entryFee: -1 })
+        // .sort({ entryFee: { $gte: 0 } ? 1 : -1 });
+        contests.sort((a, b) => {
+          if (a.entryFee > 0 && b.entryFee > 0) {
+              return a.entryFee - b.entryFee; // Ascending order for elements with entryFee > 0
+          } else {
+              return b.entryFee - a.entryFee; // Descending order for remaining elements
+          }
+      });
 
         res.status(200).json({
             status: "success",
@@ -1829,9 +1845,9 @@ exports.creditAmountToWallet = async () => {
                     const transactionDescription = `Amount credited for TestZone ${contest[j].contestName}`;
   
                     // Check if a transaction with this description already exists
-                    const existingTransaction = wallet?.transactions?.some(transaction => (transaction.description.includes(contest[j].contestName) && transaction.transactionDate >= today))
+                    const existingTransaction = wallet?.transactions?.some(transaction => (transaction?.description?.includes(contest[j].contestName) && transaction.transactionDate >= today))
   
-                    // console.log(userId, pnlDetails[0]);
+                    console.log("existingTransaction", existingTransaction);
                     //check if wallet.transactions doesn't have an object with the particular description, then push it to wallet.transactions
                     if(wallet?.transactions?.length == 0 || !existingTransaction){
                       wallet.transactions.push({
@@ -1840,7 +1856,7 @@ exports.creditAmountToWallet = async () => {
                           transactionDate: new Date(),
                           amount: payoutAmount?.toFixed(2),
                           transactionId: uuid.v4(),
-                          transactionType: 'Cash'
+                          transactionType: contest[j]?.rewardType === "Cash" ? 'Cash' : "Bonus"
                       });
 
                       if(tdsAmount > 0 && contest[j]?.tdsRelief){
@@ -1851,11 +1867,32 @@ exports.creditAmountToWallet = async () => {
                           transactionId: uuid.v4(),
                           transactionType: "Bonus"
                         }];
+
+                        await createUserNotification({
+                          title:'StoxHero CashBack',
+                          description:`Cashback of ${tdsAmount?.toFixed(2)} HeroCash - TestZone ${contest[j].contestName} TDS`,
+                          notificationType:'Individual',
+                          notificationCategory:'Informational',
+                          productCategory:'TestZone',
+                          user: user?._id,
+                          priority:'Medium',
+                          channels:['App', 'Email'],
+                          createdBy:'63ecbc570302e7cf0153370c',
+                          lastModifiedBy:'63ecbc570302e7cf0153370c'  
+                        });
+                        // if(user?.fcmTokens?.length>0){
+                        //   await sendMultiNotifications('TestZone Reward Credited', 
+                        //     contest[j].contestFor == 'College'?
+                        //     `Cashback of ${tdsAmount?.toFixed(2)} HeroCash credited - College TestZone ${contest[j].contestName} TDS`
+                        //     :`${contest[j]?.rewardType === "Cash" ? "₹"+payoutAmount?.toFixed(2) : "HeroCash "+payoutAmount?.toFixed(2)} credited to your wallet as reward for TestZone ${contest[j]?.contestName}`,
+                        //     user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                        //     )
+                        // }
                       }
                     }
 
 
-                    await wallet.save();
+                    await wallet.save({validationBeforeSave: false});
                     const user = await User.findById(userId).select('first_name last_name email fcmTokens')
   
                     contest[j].participants[i].payout = payoutAmount?.toFixed(2);
@@ -1865,7 +1902,9 @@ exports.creditAmountToWallet = async () => {
                     contest[j].participants[i].tradingDays = pnlDetails[0]?.tradingDays;
                     contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
                     contest[j].participants[i].tdsAmount = tdsAmount;
-                    contest[j].participants[i].herocashPayout = tdsAmount;
+                    contest[j].participants[i].herocashPayout = contest[j]?.tdsRelief ? tdsAmount : 0;
+
+                    console.log(contest[j].participants[i])
 
                     if (process.env.PROD == 'true') {
                       try{
@@ -2041,12 +2080,12 @@ exports.creditAmountToWallet = async () => {
                         // console.log("subelem.rank", subelem.rank)
                     }
                 }
-                await contest[j].save();
+                await contest[j].save({validationBeforeSave: false});
             }
   
             contest[j].payoutStatus = 'Completed'
             contest[j].contestStatus = "Completed";
-            await contest[j].save();
+            await contest[j].save({validationBeforeSave: false});
         }else{
           let rewards = contest[j]?.rewards;
           let pnls = [];
@@ -2137,7 +2176,7 @@ exports.creditAmountToWallet = async () => {
                 const transactionDescription = `Amount credited for TestZone ${contest[j].contestName}`;
 
                 // Check if a transaction with this description already exists
-                const existingTransaction = wallet?.transactions?.some(transaction => (transaction.description.includes(contest[j].contestName) && transaction.transactionDate >= today))
+                const existingTransaction = wallet?.transactions?.some(transaction => (transaction?.description?.includes(contest[j].contestName) && transaction.transactionDate >= today))
 
                 // console.log(userId, pnlDetails[0]);
                 //check if wallet.transactions doesn't have an object with the particular description, then push it to wallet.transactions
@@ -2359,7 +2398,7 @@ exports.creditAmountToWallet = async () => {
 
         contest[j].payoutStatus = 'Completed'
         contest[j].contestStatus = "Completed";
-        await contest[j].save();
+        await contest[j].save({validationBeforeSave: false});
         }
       }
   } catch (error) {
