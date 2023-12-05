@@ -16,6 +16,8 @@ const MarginXMock = require("../../models/marginX/marginXCompanyMock");
 const singleLivePrice = require('../../marketData/sigleLivePrice');
 const getLivePrices = require('../../marketData/multipleLivePrices');
 const { ObjectId } = require("mongodb");
+const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema");
+let { client } = require("../../marketData/redisClient");
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -1143,6 +1145,37 @@ const dailyContestSingleMockMod = async (contestId) => {
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
+
+  const updates = await PendingOrder.updateMany(
+    {
+      status: 'Pending',
+      sub_product_id: new ObjectId(contestId)
+    },
+    {
+    $set: {
+      status: "Cancelled"
+    }
+  })
+
+  let stopLossData = await client.get('stoploss-stopprofit');
+  stopLossData = JSON.parse(stopLossData);
+  
+  for(let elem in stopLossData){
+    console.log(elem);
+    let indicesToRemove = [];
+    const symbolArr = stopLossData[elem];
+    for(let i = 0; i < symbolArr.length; i++){
+      if(symbolArr[i]?.sub_product_id?.toString() === contestId?.toString()){
+        indicesToRemove.push(i);
+        // console.log(symbolArr[i])
+      }
+    }
+
+    // console.log(indicesToRemove);
+    indicesToRemove.forEach(index => stopLossData[elem].splice(index, 1, {}));
+  }
+  await client.set('stoploss-stopprofit', JSON.stringify(stopLossData));
+
 
   const data = await DailyContestMock.aggregate(
     [
