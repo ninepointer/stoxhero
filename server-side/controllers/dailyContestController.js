@@ -1845,8 +1845,9 @@ exports.creditAmountToWallet = async () => {
                     const transactionDescription = `Amount credited for TestZone ${contest[j].contestName}`;
   
                     // Check if a transaction with this description already exists
-                    const existingTransaction = wallet?.transactions?.some(transaction => (transaction?.description?.includes(contest[j].contestName) && transaction.transactionDate >= today))
-  
+                    const existingTransaction = wallet?.transactions?.some(transaction => (transaction?.description?.includes(contest[j].contestName) && transaction?.description?.includes("credited") && transaction.transactionDate >= today))
+                    const user = await User.findById(userId).select('first_name last_name email fcmTokens')
+
                     console.log("existingTransaction", existingTransaction);
                     //check if wallet.transactions doesn't have an object with the particular description, then push it to wallet.transactions
                     if(wallet?.transactions?.length == 0 || !existingTransaction){
@@ -1893,7 +1894,6 @@ exports.creditAmountToWallet = async () => {
 
 
                     await wallet.save({validationBeforeSave: false});
-                    const user = await User.findById(userId).select('first_name last_name email fcmTokens')
   
                     contest[j].participants[i].payout = payoutAmount?.toFixed(2);
                     contest[j].participants[i].npnl = pnlDetails[0]?.npnl;

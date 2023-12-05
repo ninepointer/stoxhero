@@ -194,6 +194,7 @@ const paperTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDeta
         }
 
 
+        console.log("todayPnlData", todayPnlData)
         const kiteData = await getKiteCred.getAccess();
         const netPnl = await calculateNetPnl(message.data, todayPnlData, kiteData);
         const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
@@ -885,6 +886,7 @@ exports.pendingOrderMain = async () => {
             let index = message.index;
             let last_price = message.ltp;
 
+            console.log(message)
             const lockKey = `${createdBy}-${symbol}-${Quantity}-${_id}`
             const lockValue = Date.now().toString() + Math.random * 1000;
             const release = await mutex.acquire();
@@ -1106,7 +1108,7 @@ async function buyBrokerageUser(zerodhaAccountType, isRedisConnected) {
 }
 
 const getLastTradeMarginAndCaseNumber = async (data, pnlData, from) => {
-    const mySymbol = pnlData.filter((elem) => {
+    const mySymbol = pnlData?.filter((elem) => {
         return elem?._id?.symbol === data.symbol && !elem?._id?.isLimit;
     })
 
@@ -1156,7 +1158,7 @@ const getLastTradeMarginAndCaseNumber = async (data, pnlData, from) => {
 
 const calculateNetPnl = async (tradeData, pnlData, data) => {
     let addUrl = 'i=' + tradeData.exchange + ':' + tradeData.symbol;
-    pnlData.forEach((elem, index) => {
+    pnlData?.forEach((elem, index) => {
         addUrl += ('&i=' + elem._id.exchange + ':' + elem._id.symbol);
     });
 
@@ -1295,13 +1297,13 @@ const calculateRequiredMargin = async (tradeData, Quantity, data) => {
 const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
 
     const openingBalance = fundDetail?.openingBalance ? fundDetail?.openingBalance : fundDetail?.totalFund;
-    const withoutLimitData = pnlData.filter((elem) => !elem._id.isLimit);
-    if (!pnlData.length) {
+    const withoutLimitData = pnlData?.filter((elem) => !elem?._id?.isLimit);
+    if (!pnlData?.length) {
         return openingBalance;
     }
 
-    const totalMargin = pnlData.reduce((total, acc) => {
-        return total + acc.margin;
+    const totalMargin = pnlData?.reduce((total, acc) => {
+        return total + acc?.margin;
     }, 0)
     if (npnl < 0)
         return openingBalance - totalMargin + npnl;
