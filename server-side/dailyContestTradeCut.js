@@ -20,7 +20,7 @@ exports.dailyContestTradeCut = async()=>{
             elem.status = "Completed";
             await client.set('dailyContestTime', JSON.stringify(data));
 
-            return;
+            // return;
         }
     }
 }
