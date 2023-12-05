@@ -15,7 +15,7 @@ const InternTrades = require("../../models/mock-trade/internshipTrade");
 
 exports.createBatch = async(req, res, next)=>{
     // console.log(req.body) // batchID
-    const{batchName, batchStartDate, batchEndDate, 
+    const{batchName, batchStartDate, batchEndDate, rewardType, tdsRelief,
         batchStatus, career, portfolio, payoutPercentage, payoutCap,
         attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = req.body;
 
@@ -27,7 +27,7 @@ exports.createBatch = async(req, res, next)=>{
     if(await Batch.findOne({batchName})) return res.status(400).json({message:'This batch already exists.'});
 
     const batch = await Batch.create({batchID, batchName:batchName.trim(), batchStartDate, batchEndDate,
-        batchStatus, createdBy: req.user._id, lastModifiedBy: req.user._id, career, portfolio, 
+        batchStatus, createdBy: req.user._id, lastModifiedBy: req.user._id, career, portfolio, rewardType, tdsRelief, 
         payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink});
     
     res.status(201).json({message: 'Batch successfully created.', data:batch});
@@ -117,6 +117,8 @@ exports.editBatch = async(req, res, next) => {
             portfolio: req.body.portfolio,
             payoutPercentage: req.body.payoutPercentage,
             payoutCap: req.body.payoutCap,
+            rewardType: req.body.rewardType,
+            tdsRelief: req.body.tdsRelief,
             attendancePercentage: req.body.attendancePercentage,
             referralCount: req.body.referralCount,
             lastModifiedBy: req.user._id,
@@ -587,7 +589,7 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
       intern.tradingdays = tradingdays;
       intern.workingDays = workingDays;
       
-        return res.json({status: 'success', data: intern});    
+      return res.json({status: 'success', data: intern});    
     }
     // console.log("Internship Details:",internships, new Date(), internships[internships.length-1]?.batchStartDate, internships[internships.length-1]?.batchEndDate)
     // console.log("Condition:",new Date()>=internships[internships.length-1]?.batchStartDate && new Date()<=internships[internships.length-1]?.batchEndDate);
@@ -1085,10 +1087,10 @@ exports.downloadCertificate = async (req,res, next) => {
     const user = await User.findById(userId).select('first_name last_name');
     const name = `${user.first_name} ${user.last_name}`;
     console.log('this', batch?.batchStartDate);
-    const start = moment(batch?.batchStartDate).format('Do MMMM YYYY').toString();
-    const end = moment(batch?.batchEndDate).format('Do MMMM YYYY').toString();
+    const start = moment(batch?.batchStartDate).format('Do MMM YY').toString();
+    const end = moment(batch?.batchEndDate).format('Do MMM YY').toString();
     console.log('start and end', start, end, batch?.batchStartDate, batch?.batchEndDate);
-    const existingPdfBytes = fs.readFileSync(path.join(__dirname, '/template.pdf'));
+    const existingPdfBytes = fs.readFileSync(path.join(__dirname, '/template3.pdf'));
     // console.log(existingPdfBytes);
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
     //Get the first page of the document
@@ -1099,17 +1101,17 @@ exports.downloadCertificate = async (req,res, next) => {
     // Note: You'll have to adjust the coordinates based on where you want to place the text in your PDF
     firstPage.drawText(name, {
         x: 300,
-        y: 362,
+        y: 355,
         size: 16
     });
     firstPage.drawText(start, {
-        x: 450,
-        y: 344,
+        x: 440,
+        y: 340,
         size: 14
     });
     firstPage.drawText(end, {
-        x: 620,
-        y: 344,
+        x: 610,
+        y: 340,
         size: 14,
     });
     // console.log(firstPage);
@@ -1128,6 +1130,7 @@ exports.downloadCertificate = async (req,res, next) => {
     res.status(500).send('Error generating certificate: ' + err.message);
 }
 }
+
 
 
 
@@ -1156,73 +1159,3 @@ async function countTradingDays(startDate, endDate) {
 
   return count;
 }
-
-
-
-
-  // [
-  //   {
-  //     $match: {
-  //       _id: ObjectId("646f5295035caf88a30dd5da"),
-  //     },
-  //   },
-  //   {
-  //     $unwind: "$participants",
-  //   },
-  //   {
-  //     $lookup: {
-  //       from: "intern-trades",
-  //       localField: "participants.user",
-  //       foreignField: "trader",
-  //       as: "tradeData",
-  //     },
-  //   },
-  //   {
-  //     $match:
-  //       {
-  //         "participants.college": ObjectId(
-  //           "64708c99ae1d4cffe2779742"
-  //         ),
-  //       },
-  //   },
-  //   {
-  //     $lookup:
-  //       {
-  //         from: "user-personal-details",
-  //         localField: "participants.user",
-  //         foreignField: "_id",
-  //         as: "userData",
-  //       },
-  //   },
-  //   {
-  //     $project:
-  //       {
-  //         first_name: {
-  //           $arrayElemAt: [
-  //             "$userData.first_name",
-  //             0,
-  //           ],
-  //         },
-  //         last_name: {
-  //           $arrayElemAt: [
-  //             "$userData.last_name",
-  //             0,
-  //           ],
-  //         },
-  //         mobile: {
-  //           $arrayElemAt: ["$userData.mobile", 0],
-  //         },
-  //         email: {
-  //           $arrayElemAt: ["$userData.email", 0],
-  //         },
-  //         _id: 0,
-  //         tradeData: {
-  //           $size: "tradeData"
-  //         }
-  //       },
-  //   },
-  // ]
-
-  // 64708c99ae1d4cffe2779742
-  // 64709adde5ef90f4210d64d5
-  

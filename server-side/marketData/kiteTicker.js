@@ -248,6 +248,7 @@ const getTicksForCompanySide = async (socket) => {
       let data = await client.get('stoploss-stopprofit');
       data = JSON.parse(data);
 
+      // console.log("this is data", data)
       if (data) {
         for (let tick of ticks) {
 

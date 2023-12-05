@@ -34,7 +34,7 @@ const takeAutoTenxTrade = async (tradeDetails) => {
       const {brokerageDetailBuyUser, brokerageDetailSellUser} = await brokerage();
 
 
-    if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety) {
+    if (!exchange || !symbol || !buyOrSell || !Quantity) {
       
       if (!dontSendResp) {
         console.log("Please fill all fields, autotrade");
@@ -78,8 +78,8 @@ const takeAutoTenxTrade = async (tradeDetails) => {
         }
 
         const tenx = new TenxTrader({
-          status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
-          variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
+          status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product: "NRML", buyOrSell,
+          variety:"regular", validity: "DAY", exchange, order_type: "MARKET", symbol, placed_by: "stoxhero",
           order_id, instrumentToken, brokerage: brokerageUser, portfolioId, subscriptionId, exchangeInstrumentToken,
           createdBy, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
         });
@@ -122,7 +122,7 @@ const takeAutoTenxTrade = async (tradeDetails) => {
             await client.expire(`${trader.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, secondsRemaining);
           }
 
-          io.emit(`${trader.toString()}autoCut`, tenx);
+          io?.emit(`${trader.toString()}autoCut`, tenx);
           
           resolve();
         }).catch((err) => {
@@ -242,7 +242,7 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
             await client.expire(`${trader.toString()}${batch.toString()}: overallpnlIntern`, secondsRemaining);
           }
 
-          io.emit(`${trader.toString()}autoCut`, internship);
+          io?.emit(`${trader.toString()}autoCut`, internship);
           resolve();
         }).catch((err) => {
           console.log("in err autotrade", err)
@@ -272,7 +272,7 @@ const takeAutoPaperTrade = async (tradeDetails) => {
       const {brokerageDetailBuyUser, brokerageDetailSellUser} = await brokerage();
 
 
-    if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety) {
+    if (!exchange || !symbol || !buyOrSell || !Quantity) {
       
       if (!dontSendResp) {
         console.log("Please fill all fields, autotrade");
@@ -317,8 +317,8 @@ const takeAutoPaperTrade = async (tradeDetails) => {
         }
 
         const paperTrade = new PaperTrade({
-          status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
-          variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
+          status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product: "NRML", buyOrSell,
+          variety:"regular", validity: "DAY", exchange, order_type: "MARKET", symbol, placed_by: "stoxhero",
           order_id, instrumentToken, brokerage: brokerageUser, portfolioId, exchangeInstrumentToken,
           createdBy, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
 
@@ -363,7 +363,7 @@ const takeAutoPaperTrade = async (tradeDetails) => {
             await client.expire(`${trader.toString()}: overallpnlPaperTrade`, secondsRemaining);
           }
 
-          io.emit(`${trader.toString()}autoCut`, paperTrade);
+          io?.emit(`${trader.toString()}autoCut`, paperTrade);
           resolve();
         }).catch((err) => {
           console.log("in err autotrade", err)
@@ -522,7 +522,7 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
         await session.commitTransaction();
       }
 
-      io.emit(`${trader.toString()}autoCut`, algoTrader);
+      io?.emit(`${trader.toString()}autoCut`, algoTrader);
       resolve();
     } catch (err) {
       console.error('Transaction failed, documents not saved:', err);
@@ -685,7 +685,7 @@ const takeAutoDailyContestMockTrade = async (tradeDetails) => {
         await session.commitTransaction();
       }
 
-      io.emit(`${trader.toString()}autoCut`, algoTrader);
+      io?.emit(`${trader.toString()}autoCut`, algoTrader);
       resolve();
     } catch (err) {
       console.error('Transaction failed, documents not saved:', err);
@@ -836,7 +836,7 @@ const takeInternshipTrades = async(tradeObjs)=>{
         await client.expire(`${trade?.trader.toString()}${trade?.batch.toString()}: overallpnlIntern`, secondsRemaining);
       }
   
-      io.emit(`${trade?.trader.toString()}autoCut`, trade);
+      io?.emit(`${trade?.trader.toString()}autoCut`, trade);
     }
     resolve();
 } catch (err) {
@@ -895,7 +895,7 @@ const takeInternshipTrades = async(tradeObjs)=>{
     //         await client.expire(`${trader.toString()}${batch.toString()}: overallpnlIntern`, secondsRemaining);
     //       }
 
-    //       io.emit(`${trader.toString()}autoCut`, internship);
+    //       io?.emit(`${trader.toString()}autoCut`, internship);
     //       resolve();
     //     }).catch((err) => {
     //       console.log("in err autotrade", err)
@@ -983,7 +983,7 @@ const takeDailyContestMockTrades = async(companyTradeObjects, userTradeObjects)=
       if (isRedisConnected) {
         await client.expire(`${trade?.trader.toString()}${trade?.contestId?.toString()} overallpnlDailyContest`, secondsRemaining);
       }
-      io.emit(`${trade?.trader.toString()}autoCut`, trade);
+      io?.emit(`${trade?.trader.toString()}autoCut`, trade);
     }
     if (true) {
       console.log('committing transaction');
@@ -1052,7 +1052,7 @@ const takeDailyContestMockTrades = async(companyTradeObjects, userTradeObjects)=
     //         await client.expire(`${trader.toString()}${batch.toString()}: overallpnlIntern`, secondsRemaining);
     //       }
 
-    //       io.emit(`${trader.toString()}autoCut`, internship);
+    //       io?.emit(`${trader.toString()}autoCut`, internship);
     //       resolve();
     //     }).catch((err) => {
     //       console.log("in err autotrade", err)
@@ -1139,7 +1139,7 @@ const takeMarginXMockTrades = async(companyTradeObjects, userTradeObjects)=>{
       if (isRedisConnected) {
         await client.expire(`${trade?.trader.toString()}${trade?.marginxId?.toString()} overallpnlMarginX`, secondsRemaining);
       }
-      io.emit(`${trade?.trader.toString()}autoCut`, trade);
+      io?.emit(`${trade?.trader.toString()}autoCut`, trade);
     }
     if (true) {
       console.log('committing transaction');
@@ -1208,7 +1208,7 @@ const takeMarginXMockTrades = async(companyTradeObjects, userTradeObjects)=>{
     //         await client.expire(`${trader.toString()}${batch.toString()}: overallpnlIntern`, secondsRemaining);
     //       }
 
-    //       io.emit(`${trader.toString()}autoCut`, internship);
+    //       io?.emit(`${trader.toString()}autoCut`, internship);
     //       resolve();
     //     }).catch((err) => {
     //       console.log("in err autotrade", err)
@@ -1344,7 +1344,7 @@ const takeBattleTrades = async(tradeObjs)=>{
     //         await client.expire(`${trader.toString()}${batch.toString()}: overallpnlIntern`, secondsRemaining);
     //       }
 
-    //       io.emit(`${trader.toString()}autoCut`, internship);
+    //       io?.emit(`${trader.toString()}autoCut`, internship);
     //       resolve();
     //     }).catch((err) => {
     //       console.log("in err autotrade", err)

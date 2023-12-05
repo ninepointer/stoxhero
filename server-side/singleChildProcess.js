@@ -275,8 +275,8 @@ async function singleProcess() {
         const autoExpire = nodeCron.schedule(`0 30 10 * * *`, autoExpireTenXSubscription);
         const internshipPayout = nodeCron.schedule(`0 30 17 * * *`, updateUserWallet);
         const reportMail = nodeCron.schedule(`0 0 18 * * *`, mail);
-            // const dailyContest = nodeCron.schedule(`*/2 * * * * *`, dailyContestTradeCut);
-    // const dailyContesttimeStore = nodeCron.schedule(`49 3 * * *`, dailyContestTimeStore);
+        const dailyContest = nodeCron.schedule(`31 6 * * *`, dailyContestTradeCut);
+        const dailyContesttimeStore = nodeCron.schedule(`49 3 * * *`, dailyContestTimeStore);
     // const dailyContesttimeStore = nodeCron.schedule(`*/59 * * * * *`, dailyContestTimeStore);
 
     }

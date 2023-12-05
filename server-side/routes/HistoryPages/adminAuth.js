@@ -32,7 +32,7 @@ const Instrument = require("../../models/Instruments/instrumentSchema");
 // const Instrument = require('../')
 const { takeAutoTrade } = require("../../controllers/contestTradeController");
 const { deletePnlKey } = require("../../controllers/deletePnlKey");
-// const {client, getValue} = require("../../marketData/redisClient")
+const {client, getValue} = require("../../marketData/redisClient")
 // const {overallPnlTrader} = require("../../controllers/infinityController");
 const { marginDetail, tradingDays, autoExpireTenXSubscription } = require("../../controllers/tenXTradeController")
 const { getMyPnlAndCreditData } = require("../../controllers/infinityController");
@@ -89,6 +89,64 @@ const uuid = require('uuid');
 const Notification = require("../../models/notifications/notification")
 const Referrals = require("../../models/campaigns/referralProgram")
 const {dailyContestTimeStore} = require("../../dailyContestTradeCut")
+const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema");
+
+
+router.get('/pendingorder', async (req, res) => {
+
+  let stopLossData = await client.get('stoploss-stopprofit');
+  stopLossData = JSON.parse(stopLossData);
+  
+  for(let elem in stopLossData){
+    console.log(elem);
+    let indicesToRemove = [];
+    const symbolArr = stopLossData[elem];
+    for(let i = 0; i < symbolArr.length; i++){
+      if(symbolArr[i]?.sub_product_id?.toString() === "6433e2e5500dc2f2d20d686d"){
+        indicesToRemove.push(i);
+        // console.log(symbolArr[i])
+      }
+    }
+
+    console.log(indicesToRemove);
+    indicesToRemove.forEach(index => stopLossData[elem].splice(index, 1, {}));
+
+  }
+  await client.set('stoploss-stopprofit', JSON.stringify(stopLossData));
+
+  const updates = await PendingOrder.updateMany(
+    {
+      status: 'Pending',
+      // sub_product_id: new ObjectId(contestId)
+    },
+    {
+    $set: {
+      status: "Cancelled"
+    }
+  })
+  // console.log(indicesToRemove);
+
+  // if (stopLossData && stopLossData[`${instrumentToken}`]) {
+  //     let symbolArray = stopLossData[`${instrumentToken}`];
+  //     let indicesToRemove = [];
+  //     for(let i = symbolArray.length-1; i >= 0; i--){
+  //         if(symbolArray[i]?.createdBy?.toString() === userId.toString() && symbolArray[i]?.symbol === symbol){
+  //             // remove this element
+  //             indicesToRemove.push(i);
+  //           //   const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]?._id)},{
+  //           //     $set: {
+  //           //       status: "Cancelled",
+  //           //       execution_price: 0
+  //           //     }
+  //           // })
+  //         }
+  //     }
+
+  //     // Remove elements after the loop
+      // indicesToRemove.forEach(index => symbolArray.splice(index, 1, {}));
+  // }
+  res.send("ok")
+})
 
 
 router.get('/updateactivationdate', async (req, res) => {
@@ -3017,7 +3075,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2023-11-30T20:00:00.000+00:00"
+  let expiryDate = "2023-12-05T20:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(

@@ -94,13 +94,13 @@ const autoCutMainManuallyMock = async () => {
         await tenx();
         await paperTrade();
         await internshipTradeMod();
-        await infinityTrade();
+        // await infinityTrade();
         await dailyContestMockMod();
         await marginXMockMod();
-        await battleTradeMod();
+        // await battleTradeMod();
         await changeStatus();
         await changeMarginXStatus();
-        await changeBattleStatus();
+        // await changeBattleStatus();
         return;
     }
 
@@ -136,11 +136,11 @@ const changeStatus = async () => {
                         symbol: "$symbol",
                         instrumentToken: "$instrumentToken",
                         exchangeInstrumentToken: "$exchangeInstrumentToken",
-                        variety: "$variety",
-                        validity: "$validity",
-                        order_type: "$order_type",
-                        Product: "$Product",
-                        algoBoxId: "$algoBox",
+                        // variety: "$variety",
+                        // validity: "$validity",
+                        // order_type: "$order_type",
+                        // Product: "$Product",
+                        // algoBoxId: "$algoBox",
                         contestId: "$contestId"
                     },
                     runningLots: {
@@ -194,11 +194,11 @@ const changeStatus = async () => {
                         symbol: "$symbol",
                         instrumentToken: "$instrumentToken",
                         exchangeInstrumentToken: "$exchangeInstrumentToken",
-                        variety: "$variety",
-                        validity: "$validity",
-                        order_type: "$order_type",
-                        Product: "$Product",
-                        algoBoxId: "$algoBox",
+                        // variety: "$variety",
+                        // validity: "$validity",
+                        // order_type: "$order_type",
+                        // Product: "$Product",
+                        // algoBoxId: "$algoBox",
                         contestId: "$contestId"
                     },
                     runningLots: {
@@ -229,6 +229,8 @@ const changeStatus = async () => {
 
         ]
     );
+
+    console.log("data", data, dataUser)
 
     if (data.length === 0 && dataUser.length === 0) {
         console.log("in if change status..")
@@ -325,11 +327,11 @@ const changeMarginXStatus = async () => {
                         symbol: "$symbol",
                         instrumentToken: "$instrumentToken",
                         exchangeInstrumentToken: "$exchangeInstrumentToken",
-                        variety: "$variety",
-                        validity: "$validity",
-                        order_type: "$order_type",
-                        Product: "$Product",
-                        algoBoxId: "$algoBox",
+                        // variety: "$variety",
+                        // validity: "$validity",
+                        // order_type: "$order_type",
+                        // Product: "$Product",
+                        // algoBoxId: "$algoBox",
                         marginxId: "$marginxId"
                     },
                     runningLots: {
@@ -352,13 +354,13 @@ const changeMarginXStatus = async () => {
                     symbol: "$_id.symbol",
                     instrumentToken: "$_id.instrumentToken",
                     exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
-                    variety: "$_id.variety",
-                    validity: "$_id.validity",
-                    order_type: "$_id.order_type",
-                    Product: "$_id.Product",
+                    // variety: "$_id.variety",
+                    // validity: "$_id.validity",
+                    // order_type: "$_id.order_type",
+                    // Product: "$_id.Product",
                     runningLots: "$runningLots",
                     takeTradeQuantity: "$takeTradeQuantity",
-                    algoBoxId: "$_id.algoBoxId",
+                    // algoBoxId: "$_id.algoBoxId",
                     marginxId: "$_id.marginxId"
                 },
             },
@@ -395,11 +397,11 @@ const changeMarginXStatus = async () => {
                         symbol: "$symbol",
                         instrumentToken: "$instrumentToken",
                         exchangeInstrumentToken: "$exchangeInstrumentToken",
-                        variety: "$variety",
-                        validity: "$validity",
-                        order_type: "$order_type",
-                        Product: "$Product",
-                        algoBoxId: "$algoBox",
+                        // variety: "$variety",
+                        // validity: "$validity",
+                        // order_type: "$order_type",
+                        // Product: "$Product",
+                        // algoBoxId: "$algoBox",
                         marginxId: "$marginxId"
                     },
                     runningLots: {
@@ -422,13 +424,13 @@ const changeMarginXStatus = async () => {
                     symbol: "$_id.symbol",
                     instrumentToken: "$_id.instrumentToken",
                     exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
-                    variety: "$_id.variety",
-                    validity: "$_id.validity",
-                    order_type: "$_id.order_type",
-                    Product: "$_id.Product",
+                    // variety: "$_id.variety",
+                    // validity: "$_id.validity",
+                    // order_type: "$_id.order_type",
+                    // Product: "$_id.Product",
                     runningLots: "$runningLots",
                     takeTradeQuantity: "$takeTradeQuantity",
-                    algoBoxId: "$_id.algoBoxId",
+                    // algoBoxId: "$_id.algoBoxId",
                     marginxId: "$_id.marginxId"
                 },
             },
