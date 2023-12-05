@@ -73,10 +73,10 @@ const tenx = async () => {
           symbol: "$_id.symbol",
           instrumentToken: "$_id.instrumentToken",
           exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
-          variety: "$_id.variety",
-          validity: "$_id.validity",
-          order_type: "$_id.order_type",
-          Product: "$_id.Product",
+          // variety: "$_id.variety",
+          // validity: "$_id.validity",
+          // order_type: "$_id.order_type",
+          // Product: "$_id.Product",
           runningLots: "$runningLots",
           takeTradeQuantity: "$takeTradeQuantity",
         },
@@ -358,10 +358,10 @@ const paperTrade = async () => {
           symbol: "$_id.symbol",
           instrumentToken: "$_id.instrumentToken",
           exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
-          variety: "$_id.variety",
-          validity: "$_id.validity",
-          order_type: "$_id.order_type",
-          Product: "$_id.Product",
+          // variety: "$_id.variety",
+          // validity: "$_id.validity",
+          // order_type: "$_id.order_type",
+          // Product: "$_id.Product",
           runningLots: "$runningLots",
           takeTradeQuantity: "$takeTradeQuantity",
         },
@@ -977,10 +977,10 @@ const internshipTradeMod = async () => {
           symbol: "$_id.symbol",
           instrumentToken: "$_id.instrumentToken",
           exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
-          variety: "$_id.variety",
-          validity: "$_id.validity",
-          order_type: "$_id.order_type",
-          Product: "$_id.Product",
+          // variety: "$_id.variety",
+          // validity: "$_id.validity",
+          // order_type: "$_id.order_type",
+          // Product: "$_id.Product",
           runningLots: "$runningLots",
           takeTradeQuantity: "$takeTradeQuantity",
         },
@@ -1014,8 +1014,8 @@ const internshipTradeMod = async () => {
   const pricesByTokens = await fetchPricesForTokensArr(uniqueInstrumentObjects);
   const tradeObjects = data.map((item)=>{
     return {
-      status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity:-(item?.runningLots), Product:item?.Product, 
-      buyOrSell:item?.runningLots>0?'SELL':'BUY',variety:item?.variety, validity: item?.validity, exchange:item?.exchange, order_type:item?.order_type, 
+      status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity:-(item?.runningLots), Product:"NRML", 
+      buyOrSell:item?.runningLots>0?'SELL':'BUY',variety:"regular", validity: "DAY", exchange:item?.exchange, order_type:"MARKET", 
       symbol: item?.symbol, placed_by: "stoxhero",order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`, 
       instrumentToken: item?.instrumentToken, batch: item?.batch, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?.userId, amount: (Number(-item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5*60 + 30) * 60 * 1000),
     }
@@ -1049,7 +1049,7 @@ const dailyContestMockMod = async () => {
           _id: {
             userId: "$trader",
             // subscriptionId: "$subscriptionId",
-            // exchange: "$exchange",
+            exchange: "$exchange",
             symbol: "$symbol",
             instrumentToken: "$instrumentToken",
             exchangeInstrumentToken: "$exchangeInstrumentToken",
@@ -1080,13 +1080,13 @@ const dailyContestMockMod = async () => {
           symbol: "$_id.symbol",
           instrumentToken: "$_id.instrumentToken",
           exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
-          variety: "$_id.variety",
-          validity: "$_id.validity",
-          order_type: "$_id.order_type",
-          Product: "$_id.Product",
+          // variety: "$_id.variety",
+          // validity: "$_id.validity",
+          // order_type: "$_id.order_type",
+          // Product: "$_id.Product",
           runningLots: "$runningLots",
           takeTradeQuantity: "$takeTradeQuantity",
-          algoBoxId: "$_id.algoBoxId",
+          // algoBoxId: "$_id.algoBoxId",
           contestId: "$_id.contestId"
         },
       },
@@ -1119,16 +1119,16 @@ const dailyContestMockMod = async () => {
   const pricesByTokens = await fetchPricesForTokensArr(uniqueInstrumentObjects);
   const companyTradeObjects = data.map((item)=>{
     return {
-      status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity: -(item?.runningLots), Product:item?.Product, 
-      buyOrSell:item?.runningLots>0?'SELL':'BUY',variety:item?.variety, validity: item?.validity, exchange:item?.exchange, order_type:item?.order_type, 
+      status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity: -(item?.runningLots), Product:"NRML", 
+      buyOrSell:item?.runningLots>0?'SELL':'BUY',variety:"regular", validity: "DAY", exchange:item?.exchange, order_type:"MARKET", 
       symbol: item?.symbol, placed_by: "stoxhero",order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`, 
-      instrumentToken: item?.instrumentToken,contestId: item?.contestId, algoBox: item?.algoBoxId, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?.userId, amount: (Number(-item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5*60 + 30) * 60 * 1000),
+      instrumentToken: item?.instrumentToken,contestId: item?.contestId, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?.userId, amount: (Number(-item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5*60 + 30) * 60 * 1000),
     }
   });
   const userTradeObjects = data.map((item)=>{
     return {
-      status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity:(item?.runningLots), Product:item?.Product, 
-      buyOrSell:item?.runningLots<0?'SELL':'BUY',variety:item?.variety, validity: item?.validity, exchange:item?.exchange, order_type:item?.order_type, 
+      status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity:(item?.runningLots), Product:"NRML", 
+      buyOrSell:item?.runningLots<0?'SELL':'BUY',variety:"regular", validity: "DAY", exchange:item?.exchange, order_type:"MARKET", 
       symbol: item?.symbol, placed_by: "stoxhero",order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`, isRealTrade:false,
       instrumentToken: item?.instrumentToken,contestId: item?.contestId, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?.userId, amount: (Number(item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5*60 + 30) * 60 * 1000),
     }
@@ -1195,7 +1195,7 @@ const dailyContestSingleMockMod = async (contestId) => {
           _id: {
             userId: "$trader",
             // subscriptionId: "$subscriptionId",
-            // exchange: "$exchange",
+            exchange: "$exchange",
             symbol: "$symbol",
             instrumentToken: "$instrumentToken",
             exchangeInstrumentToken: "$exchangeInstrumentToken",
@@ -1203,7 +1203,6 @@ const dailyContestSingleMockMod = async (contestId) => {
             // validity: "$validity",
             // order_type: "$order_type",
             // Product: "$Product",
-            // algoBoxId: "$algoBox",
             contestId: "$contestId"
           },
           runningLots: {
@@ -1226,13 +1225,13 @@ const dailyContestSingleMockMod = async (contestId) => {
           symbol: "$_id.symbol",
           instrumentToken: "$_id.instrumentToken",
           exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
-          variety: "$_id.variety",
-          validity: "$_id.validity",
-          order_type: "$_id.order_type",
-          Product: "$_id.Product",
+          // variety: "$_id.variety",
+          // validity: "$_id.validity",
+          // order_type: "$_id.order_type",
+          // Product: "$_id.Product",
           runningLots: "$runningLots",
           takeTradeQuantity: "$takeTradeQuantity",
-          algoBoxId: "$_id.algoBoxId",
+          // algoBoxId: "$_id.algoBoxId",
           contestId: "$_id.contestId"
         },
       },
@@ -1266,8 +1265,8 @@ const dailyContestSingleMockMod = async (contestId) => {
   const pricesByTokens = await fetchPricesForTokensArr(uniqueInstrumentObjects);
   const companyTradeObjects = data.map((item)=>{
     return {
-      status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity: -(item?.runningLots), Product:item?.Product, 
-      buyOrSell:item?.runningLots>0?'SELL':'BUY',variety:item?.variety, validity: item?.validity, exchange:item?.exchange, order_type:item?.order_type, 
+      status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity: -(item?.runningLots), Product: "NRML", 
+      buyOrSell:item?.runningLots>0?'SELL':'BUY',variety:"regular", validity: "DAY", exchange:item?.exchange, order_type:"MARKET", 
       symbol: item?.symbol, placed_by: "stoxhero",order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`, 
       instrumentToken: item?.instrumentToken,contestId: item?.contestId, algoBox: item?.algoBoxId, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?.userId, amount: (Number(-item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5*60 + 30) * 60 * 1000),
     }
@@ -1341,13 +1340,13 @@ const marginXMockMod = async () => {
           symbol: "$_id.symbol",
           instrumentToken: "$_id.instrumentToken",
           exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
-          variety: "$_id.variety",
-          validity: "$_id.validity",
-          order_type: "$_id.order_type",
-          Product: "$_id.Product",
+          // variety: "$_id.variety",
+          // validity: "$_id.validity",
+          // order_type: "$_id.order_type",
+          // Product: "$_id.Product",
           runningLots: "$runningLots",
           takeTradeQuantity: "$takeTradeQuantity",
-          algoBoxId: "$_id.algoBoxId",
+          // algoBoxId: "$_id.algoBoxId",
           marginxId: "$_id.marginxId"
         },
       },
@@ -1379,16 +1378,16 @@ const marginXMockMod = async () => {
   const pricesByTokens = await fetchPricesForTokensArr(uniqueInstrumentObjects);
   const companyTradeObjects = data.map((item)=>{
     return {
-      status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity: -(item?.runningLots), Product:item?.Product, 
-      buyOrSell:item?.runningLots>0?'SELL':'BUY',variety:item?.variety, validity: item?.validity, exchange:item?.exchange, order_type:item?.order_type, 
+      status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity: -(item?.runningLots), Product:"NRML", 
+      buyOrSell:item?.runningLots>0?'SELL':'BUY',variety:"regular", validity: "DAY", exchange:item?.exchange, order_type:"MARKET", 
       symbol: item?.symbol, placed_by: "stoxhero",order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`, 
       instrumentToken: item?.instrumentToken,marginxId: item?.marginxId, algoBox: item?.algoBoxId, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?.userId, amount: (Number(-item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5*60 + 30) * 60 * 1000),
     }
   });
   const userTradeObjects = data.map((item)=>{
     return {
-      status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity:(item?.runningLots), Product:item?.Product, 
-      buyOrSell:item?.runningLots<0?'SELL':'BUY',variety:item?.variety, validity: item?.validity, exchange:item?.exchange, order_type:item?.order_type, 
+      status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity:(item?.runningLots), Product:"NRML", 
+      buyOrSell:item?.runningLots<0?'SELL':'BUY',variety:"regular", validity: "DAY", exchange:item?.exchange, order_type:"MARKET", 
       symbol: item?.symbol, placed_by: "stoxhero",order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`, isRealTrade:false,
       instrumentToken: item?.instrumentToken,marginxId: item?.marginxId, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?.userId, amount: (Number(item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5*60 + 30) * 60 * 1000),
     }
