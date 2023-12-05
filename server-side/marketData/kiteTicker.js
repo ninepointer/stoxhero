@@ -248,12 +248,12 @@ const getTicksForCompanySide = async (socket) => {
       let data = await client.get('stoploss-stopprofit');
       data = JSON.parse(data);
 
-      console.log("this is data", data)
+      // console.log("this is data", data)
       if (data) {
         for (let tick of ticks) {
 
           let symbolArr = data[`${tick.instrument_token}`];
-          console.log("this is symbolArr", symbolArr, Boolean(symbolArr))
+          // console.log("this is symbolArr", symbolArr, Boolean(symbolArr))
           try {
             if (symbolArr?.length > 0) {
               // for(let subelem of symbolArr){
