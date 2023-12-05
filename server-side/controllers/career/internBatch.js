@@ -1105,12 +1105,12 @@ exports.downloadCertificate = async (req,res, next) => {
         size: 16
     });
     firstPage.drawText(start, {
-        x: 440,
+        x: 460,
         y: 340,
         size: 14
     });
     firstPage.drawText(end, {
-        x: 610,
+        x: 625,
         y: 340,
         size: 14,
     });
