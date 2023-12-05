@@ -11,6 +11,7 @@ const multer = require('multer');
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
 const storage = multer.memoryStorage();
+const {sendMultiNotifications} = require('../utils/fcmService');    
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image/") || file.mimetype.startsWith("application/")) {
     cb(null, true);
@@ -86,7 +87,7 @@ exports.uploadToS3 = async(req, res, next) => {
 exports.createWithdrawal = async(req,res,next) => {
     const userId = req.user._id;
     const{amount}=req.body
-    const user = await User.findById(userId).select('KYCStatus');
+    const user = await User.findById(userId).select('KYCStatus fcmTokens');
     if(!user.KYCStatus || user?.KYCStatus!='Approved'){
         return res.status(400).json({status:'error', message:'KYC not completed. Complete KYC and try again.'})
     }
@@ -158,7 +159,13 @@ exports.createWithdrawal = async(req,res,next) => {
         transactionType: 'Cash',
         transactionStatus:'Pending'
     });
-    await userWallet.save({validateBeforeSave:false});
+    if(user?.fcmTokens?.length>0){
+        await sendMultiNotifications('Withdrawal Request Initiated', 
+            `User initiated withdrawal from wallet of ₹${amount} to bank account - Withdrawal #${withdrawalCount+1}`,
+            user?.fcmTokens?.map(item=>item?.token)
+            )
+        await userWallet.save({validateBeforeSave:false});
+    }
     res.status(201).json({status:'success', message:'Withdrawal request successful'});
 }
 
@@ -252,6 +259,12 @@ exports.processWithdrawal = async(req,res,next) => {
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           }, session);
+        if(user?.fcmTokens?.length>0){
+            await sendMultiNotifications('Withdrawal Request Under Process', 
+              `Your withdrawal request is being processed. It may take 3-5 business days to reflect in your account.`,
+              user?.fcmTokens?.map(item=>item.token)
+              )  
+        }  
         res.status(200).json({status:'success', message:'Withdrawal Initiated'});
         if(process.env.PROD=='true'){
             await sendMail(user?.email, 'Withdrawal Request Initiated - StoxHero', `
@@ -389,7 +402,7 @@ exports.rejectWithdrawal = async(req,res,next) => {
         const withdrawalNo = walletTxnObj[0]?.description?.split('#')[1];
         const withdrawalTransaction = userWallet?.transactions?.find((item)=>item?.transactionId == withdrawal?.walletTransactionId);
         if(withdrawalTransaction) withdrawalTransaction['transactionStatus'] = 'Failed';
-        const user = await User.findById(withdrawal.user).select('email first_name last_name');
+        const user = await User.findById(withdrawal.user).select('email first_name last_name fcmTokens');
         userWallet?.transactions?.push(
             {
                 title:`Refund`, 
@@ -412,6 +425,12 @@ exports.rejectWithdrawal = async(req,res,next) => {
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           }, session);
+        if(user?.fcmTokens?.length>0){
+            await sendMultiNotifications('Withdrawal Request Rejected', 
+              `Reason-${req.body.rejectionReason}`,
+              user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+              )  
+        }  
         await userWallet.save({validateBeforeSave:false, session: session});
         await withdrawal.save({validateBeforeSave:false, session:session});
         if(process.env.PROD == 'true'){
@@ -567,7 +586,7 @@ exports.approveWithdrawal = async(req, res, next) => {
     
         await userWallet.save({validateBeforeSave:false ,session:session});
         await withdrawal.save({validateBeforeSave:false, session:session});
-        const user = await User.findById(withdrawal.user).select('email first_name last_name');
+        const user = await User.findById(withdrawal.user).select('email first_name last_name fcmTokens');
         await createUserNotification({
             title:'Withdrawal Approved',
             description:`₹${withdrawal?.amount} is successfully deposited in your bank account.`,
@@ -580,6 +599,12 @@ exports.approveWithdrawal = async(req, res, next) => {
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           }, session);
+          if(user?.fcmTokens?.length>0){
+            await sendMultiNotifications('Withdrawal Approved', 
+              `₹${withdrawal?.amount?.toFixed(2)} is successfully deposited in your bank account.`,
+              user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+              )  
+          }  
         if(process.env.PROD=='true'){
             await sendMail(user.email, 
                 "Withdrawal Approved - StoxHero",

@@ -9,6 +9,7 @@ const Wallet = require("../models/UserWallet/userWalletSchema");
 const uuid = require('uuid');
 const {client, getValue} = require("../marketData/redisClient");
 const emailService = require("../utils/emailService");
+const {sendMultiNotifications} = require("../utils/fcmService");
 const mongoose = require('mongoose');
 const {createUserNotification} = require('./notification/notificationController');
 const Product = require('../models/Product/product');
@@ -831,6 +832,12 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
           createdBy:'63ecbc570302e7cf0153370c',
           lastModifiedBy:'63ecbc570302e7cf0153370c'  
         });
+        if(user?.fcmTokens?.length>0){
+          await sendMultiNotifications('StoxHero Cashback', 
+            `${cashbackAmount?.toFixed(2)}HeroCash added as bonus in your wallet.`,
+            user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+            )  
+        }
   }
     await createUserNotification({
       title:'TenX Subscription Renewed',
@@ -844,6 +851,12 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
       createdBy:'63ecbc570302e7cf0153370c',
       lastModifiedBy:'63ecbc570302e7cf0153370c'  
     }, session);
+    if(user?.fcmTokens?.length>0){
+      await sendMultiNotifications('TenX Subscription Renewed', 
+        `Your TenX subscription ${subscription?.plan_name} has been renewed.`,
+        user?.fcmTokens?.map(item=>item.token), null, {route:'tenx'}
+        )  
+    }
     await session.commitTransaction();
     if(coupon){
       const product = await Product.findOne({productName:'TenX'}).select('_id');
@@ -951,7 +964,7 @@ exports.myActiveSubs = async(req, res, next)=>{
         },
       ]
     )
-      res.status(201).json({status: 'success', data: tenXSubs});    
+    res.status(201).json({status: 'success', data: tenXSubs});    
   }catch(e){
       console.log(e);
       res.status(500).json({status: 'error', message: 'Something went wrong'});

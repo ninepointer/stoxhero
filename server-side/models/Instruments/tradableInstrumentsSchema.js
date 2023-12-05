@@ -90,6 +90,9 @@ const tradableInstrumentSchema = new mongoose.Schema({
     },
     chartInstrument: {
         type: String,
+    },
+    isEquity: {
+        type: Boolean
     }
 })
 

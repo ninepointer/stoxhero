@@ -104,6 +104,7 @@ router.patch("/verifyotp", async (req, res) => {
         mobile,
         mobile_otp,
         referrerCode,
+        fcmTokenData
     } = req.body
 
 
@@ -190,6 +191,10 @@ router.patch("/verifyotp", async (req, res) => {
             campaignCode: campaign && referrerCode,
             referredBy: referredBy && referredBy,
             creationProcess: referredBy ? 'Referral SignUp' : 'Auto SignUp',
+        }
+        if(fcmTokenData){
+            fcmTokenData.lastUsedAt = new Date();
+            obj.fcmTokens = [fcmTokenData];
         }
         // console.log('password', password);
         // if(password){

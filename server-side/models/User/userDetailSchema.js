@@ -373,12 +373,27 @@ const userDetailSchema = new mongoose.Schema({
     lastLoggedInDevice:{
         deviceType: String,
         deviceDetails: String
-    }
+    },
+    fcmTokens:[{
+        token: String,
+        brand: String,
+        model: String,
+        platform: String,
+        osVersion: String,
+        createdAt: {
+            type: Date,
+            default: ()=>new Date()
+        },
+        lastUsedAt:{
+            type: Date,
+        },
+        tags: [{type: String}],
+    }]
 })
 
 //Adding the ninepointer id before saving
 userDetailSchema.pre('save', async function(next){
-    if (this.isModified('activationDate')) {
+    if (this.isModified('activationDetails')) {
         // Skip the pre-save logic for activationDate updates
         return next();
     }

@@ -10,6 +10,7 @@ const Wallet = require("../models/UserWallet/userWalletSchema");
 const uuid = require('uuid');
 const { ObjectId } = require("mongodb");
 const sendMail = require('../utils/emailService');
+const {sendMultiNotifications} = require('../utils/fcmService');
 const moment = require('moment');
 const mongoose = require('mongoose');
 const {createUserNotification} = require('../controllers/notification/notificationController');
@@ -188,6 +189,95 @@ exports.overallPnl = async (req, res, next) => {
 
       res.status(201).json({ message: "pnl received", data: newPnl });
     }
+
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ status: 'success', message: 'something went wrong.' })
+  }
+
+
+}
+
+exports.liveSubscriptionAnalytics = async (req, res, next) => {
+  const userId = req.user._id;
+  const subscriptionId = req.params.id;
+  const subscriptionTime = req.params.starttime;
+
+  let date = new Date();
+  const currentTime = new Date();
+  const endTime = new Date(currentTime);
+  endTime.setHours(10, 0, 0, 0);
+
+  let time;
+  if(currentTime >= endTime){
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()+1).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    time = new Date(todayDate);  
+  } else{
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    time = new Date(todayDate);  
+  }
+
+  try {
+
+    const pnlDetails = await TenXTrader.aggregate([
+      {
+        $match: {
+          trade_time_utc: {
+            $gte: new Date(subscriptionTime),
+            $lte: new Date(time)
+          },
+          status: "COMPLETE",
+          trader: new ObjectId(userId),
+          subscriptionId: new ObjectId(subscriptionId)
+        },
+      },
+      {
+        $group: {
+          _id: {
+          },
+          amount: {
+            $sum: { $multiply: ["$amount", -1] },
+          },
+          brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
+          },
+          trades: {
+            $count: {},
+          },
+          tradingDays: {
+            $addToSet: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$trade_time_utc",
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          grossPnl: "$amount",
+          brokerage: "$brokerage",
+          isRenew: "$_id.isRenew",
+          _id: 0,
+          npnl: {
+            $subtract: ["$amount", "$brokerage"],
+          },
+          tradingDays: {
+            $size: "$tradingDays",
+          },
+          trades: 1,  
+        }
+      }
+    ])
+      res.status(201).json({ message: "pnl received", data: pnl });
+
+
 
   } catch (e) {
     console.log(e);
@@ -1018,6 +1108,12 @@ exports.autoExpireTenXSubscription = async () => {
                   createdBy:'63ecbc570302e7cf0153370c',
                   lastModifiedBy:'63ecbc570302e7cf0153370c'  
                 }, session);
+                if(user?.fcmTokens?.length>0){
+                  await sendMultiNotifications('TenX Payout Credited', 
+                    `₹${payoutAmount?.toFixed(2)} credited for your profit in TenX plan ${subscription[i]?.plan_name}`,
+                    user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                    )  
+                }
 
               }
               await session.commitTransaction();

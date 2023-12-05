@@ -4,6 +4,7 @@ const UserWallet = require("../models/UserWallet/userWalletSchema")
 const uuid = require("uuid")
 const User = require("../models/User/userDetailSchema");
 const sendMail = require('../utils/emailService');
+const {sendMultiNotifications} = require('../utils/fcmService');
 const axios = require('axios');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
@@ -159,6 +160,12 @@ exports.createPayment = async(req, res, next)=>{
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           }, session);
+          if(user?.fcmTokens?.length>0){
+            await sendMultiNotifications('Amount Credited in Your Wallet - Topup', 
+              `₹${amount?.toFixed(2)} credited in your wallet as wallet top up`,
+              user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+              )  
+          }
           try{
               if(process.env.PROD == 'true'){
                 whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'wallet_credited_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, amount.toLocaleString('en-IN'),(totalCashAmount+amount).toLocaleString('en-IN'), totalBonusAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
@@ -597,7 +604,14 @@ const addCashback = async(amount, userId, coupon) => {
 
 const sendWhatsAppNotification = async(payment) => {
     const {paymentBy, amount, bonusRedemption} = payment;
-    const user = await User.findOne({_id: new ObjectId(paymentBy)}).select('first_name creationProcess last_name mobile');
+    const user = await User.findOne({_id: new ObjectId(paymentBy)}).select('first_name creationProcess last_name mobile fcmTokens');
+    if(user?.fcmTokens?.length>0){
+        await sendMultiNotifications('Amount Added To Wallet', 
+          `₹${amount?.toFixed(2)} credited in your wallet.`,
+          user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+          )  
+      }  
+
     const wallet = await UserWallet.findOne({userId:new ObjectId(paymentBy)});
     const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
         return transaction.transactionType === "Cash";

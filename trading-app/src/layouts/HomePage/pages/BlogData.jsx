@@ -71,7 +71,7 @@ export default function BlogCard() {
 
 
   return (
-    <MDBox style={{ backgroundColor: 'white' }} >
+    <MDBox style={{ backgroundColor: 'white',  }} >
       <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ backgroundColor: 'white', height: 'auto', width: 'auto', maxWidth: '100vW' }}>
         <ThemeProvider theme={theme}>
           <Navbar />
@@ -138,7 +138,7 @@ export default function BlogCard() {
                               <style>
                                 {`
                                 img {
-                                  max-width: 100%;
+                                  max-width: 70%;
                                   height: auto;
                                 }
                               `}
