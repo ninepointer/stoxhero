@@ -16,6 +16,7 @@ const MarginXMock = require("../../models/marginX/marginXCompanyMock");
 const singleLivePrice = require('../../marketData/sigleLivePrice');
 const getLivePrices = require('../../marketData/multipleLivePrices');
 const { ObjectId } = require("mongodb");
+const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema");
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -1144,6 +1145,17 @@ const dailyContestSingleMockMod = async (contestId) => {
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
+  const updates = await PendingOrder.updateMany(
+    {
+      status: 'Pending',
+      sub_product_id: new ObjectId(contestId)
+    }, {
+    $set: {
+      status: "Cancelled"
+    }
+  }
+  )
+  
   const data = await DailyContestMock.aggregate(
     [
       {
