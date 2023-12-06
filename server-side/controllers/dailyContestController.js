@@ -1477,7 +1477,7 @@ exports.participateUsers = async (req, res) => {
                 }
             },
             contestStatus: "Active",
-            // entryFee: 0,
+            entryFee: 0, //varify-vijay
             $or: [
                 { contestStartTime: { $gte: new Date(contest.contestStartTime), $lte: new Date(contest.contestEndTime) } },
                 { contestEndTime: { $gte: new Date(contest.contestStartTime), $lte: new Date(contest.contestEndTime) } },
@@ -1663,6 +1663,7 @@ exports.verifyCollageCode = async (req, res) => {
         const contest = await Contest.findOne({ _id: id });
 
         const getActiveContest = await Contest.find({
+            entryFee: 0, //verify-vijay
             participants: {
                 $elemMatch: {
                     userId: new ObjectId(userId)

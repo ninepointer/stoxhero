@@ -161,7 +161,34 @@ const getTicksForUserPosition = async (socket, id) => {
 
   try {
     ticker?.on('ticks', async (ticks) => {
+      /*
+      1. ticks array []
+      2. loop lgake instrument fetch kiya and instrunment 1000000, 1111111
+      3. userid ke array pe loop lgake [1,2,3], [1, 4, 6]
+      4. loop on user
+      5. [{1000000}]
 
+      1. for loop on ticks O(n)
+      2. fetch users against instruments O(1). {instrument_1: [users], instrument_2: [users]}
+      3. for loop on users O(n)
+      4. push ticks against user in array. {userId_1: [ticks_1], userId_2: [ticks_2]}
+      5. for loop in object of userIds and emit event. O(n)
+
+      so i want to do that in event haldler ticker.on
+
+      1. apply for loop on ticks
+      2. fetch userIds from an object which key is instrument and value is array of userIds
+      3. apply loop on userIds, and store tick object in array like this {userId_1: [ticks_1, ticks_2....], userId_2: [ticks_1, ticks_2....]}
+      4. finally itrate above userId and tick object and sending ticks to respective userid
+      like this io.to(`${userId}`).emit('tick-room', [ticks_1, ticks_2....]);
+
+O(n^2)
+
+      2nd approach
+      1. fetch users from redis array
+      2. users ke instrument extrzted from redis
+      3. extracted instruments ko ticks pe loop lgake bhejna h
+      */
       let indexObj = {};
       // populate hash table with indexObj from indecies
       for (let i = 0; i < indecies?.length; i++) {
@@ -292,8 +319,6 @@ const getTicksForCompanySide = async (socket) => {
           }
         }
       }
-
-
 
       ticks = null;
     } catch (err) {
