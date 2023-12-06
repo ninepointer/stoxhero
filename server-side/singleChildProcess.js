@@ -276,6 +276,7 @@ async function singleProcess() {
         const internshipPayout = nodeCron.schedule(`0 30 17 * * *`, updateUserWallet);
         const reportMail = nodeCron.schedule(`0 0 18 * * *`, mail);
         const dailyContest = nodeCron.schedule(`31 6 * * *`, dailyContestTradeCut);
+        const dailyContest2oclock = nodeCron.schedule(`31 8 * * *`, dailyContestTradeCut);
         const dailyContesttimeStore = nodeCron.schedule(`49 3 * * *`, dailyContestTimeStore);
     // const dailyContesttimeStore = nodeCron.schedule(`*/59 * * * * *`, dailyContestTimeStore);
 
