@@ -1009,7 +1009,21 @@ async function userCompletedHelper(matchStage, userId) {
         payoutPercentage: 1,
         rank: "$participants.rank",
         payout: "$participants.payout",
-        tdsAmount: "$participants.tdsAmount",
+        // tdsAmount: "$participants.tdsAmount",
+        tdsAmount: {
+          $cond: {
+            if: { $gt: ["$participants.tdsAmount", 0] },
+            then: "$participants.tdsAmount",
+            else: 0
+          }
+        },
+        herocashPayout: {
+          $cond: {
+            if: { $gt: ["$participants.herocashPayout", 0] },
+            then: "$participants.herocashPayout",
+            else: 0
+          }
+        },
         fee: "$participants.fee",
         actuaFee: "$participants.actualPrice",
         rewards: 1,
