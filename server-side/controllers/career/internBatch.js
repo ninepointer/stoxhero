@@ -1087,10 +1087,10 @@ exports.downloadCertificate = async (req,res, next) => {
     const user = await User.findById(userId).select('first_name last_name');
     const name = `${user.first_name} ${user.last_name}`;
     console.log('this', batch?.batchStartDate);
-    const start = moment(batch?.batchStartDate).format('Do MMMM YYYY').toString();
-    const end = moment(batch?.batchEndDate).format('Do MMMM YYYY').toString();
+    const start = moment(batch?.batchStartDate).format('Do MMM YY').toString();
+    const end = moment(batch?.batchEndDate).format('Do MMM YY').toString();
     console.log('start and end', start, end, batch?.batchStartDate, batch?.batchEndDate);
-    const existingPdfBytes = fs.readFileSync(path.join(__dirname, '/template.pdf'));
+    const existingPdfBytes = fs.readFileSync(path.join(__dirname, '/template3.pdf'));
     // console.log(existingPdfBytes);
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
     //Get the first page of the document
@@ -1101,17 +1101,17 @@ exports.downloadCertificate = async (req,res, next) => {
     // Note: You'll have to adjust the coordinates based on where you want to place the text in your PDF
     firstPage.drawText(name, {
         x: 300,
-        y: 362,
+        y: 355,
         size: 16
     });
     firstPage.drawText(start, {
-        x: 450,
-        y: 344,
+        x: 460,
+        y: 340,
         size: 14
     });
     firstPage.drawText(end, {
-        x: 620,
-        y: 344,
+        x: 625,
+        y: 340,
         size: 14,
     });
     // console.log(firstPage);
@@ -1130,6 +1130,7 @@ exports.downloadCertificate = async (req,res, next) => {
     res.status(500).send('Error generating certificate: ' + err.message);
 }
 }
+
 
 
 
