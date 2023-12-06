@@ -159,29 +159,29 @@ async function singleProcess() {
                 // await onOrderUpdate();
             });
 
-            socket.on('user-ticks', async (data) => {
-                console.log("in user-ticks event")
-                // await getTicksForUserPosition(socket, data);
-                // await positions();
-                if (setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType) {
-                    await getTicksForUserPosition(socket, data);
-                    // await getTicksForCompanySide(socket);
-                    // await getDummyTicks(socket)
-                } else {
-                    await getXTSTicksForUserPosition(socket, data);
-                    await getXTSTicksForCompanySide(socket);
-                }
+            // socket.on('user-ticks', async (data) => {
+            //     console.log("in user-ticks event")
+            //     // await getTicksForUserPosition(socket, data);
+            //     // await positions();
+            //     if (setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType) {
+            //         await getTicksForUserPosition(socket, data);
+            //         // await getTicksForCompanySide(socket);
+            //         // await getDummyTicks(socket)
+            //     } else {
+            //         await getXTSTicksForUserPosition(socket, data);
+            //         await getXTSTicksForCompanySide(socket);
+            //     }
 
-                // await DummyMarketData(socket);
-                await onError();
-                await onOrderUpdate();
+            //     // await DummyMarketData(socket);
+            //     await onError();
+            //     await onOrderUpdate();
 
-            });
+            // });
 
             socket.on('leave-company-room', async (data) => {
                 socket.leave('company-side');
             });
-            await subscribeTokens(); //TODO toggle
+            // await subscribeTokens(); //TODO toggle
 
         });
 
