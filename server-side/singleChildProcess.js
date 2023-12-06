@@ -139,25 +139,25 @@ async function singleProcess() {
                 client.expire(socket.id, 10);
             })
 
-            socket.on('hi', async (data) => {
-                await onError();
-                await onOrderUpdate();
+            // socket.on('hi', async (data) => {
+            //     await onError();
+            //     await onOrderUpdate();
 
-            });
+            // });
 
 
-            socket.on('company-ticks', async (data) => {
-                socket.join("company-side")
-                console.log("in company-ticks event")
-                if (setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType) {
-                    await getTicksForCompanySide(socket);
-                } else {
-                    await getXTSTicksForCompanySide(socket);
-                }
+            // socket.on('company-ticks', async (data) => {
+            //     socket.join("company-side")
+            //     console.log("in company-ticks event")
+            //     if (setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType) {
+            //         await getTicksForCompanySide(socket);
+            //     } else {
+            //         await getXTSTicksForCompanySide(socket);
+            //     }
 
-                await onError();
-                // await onOrderUpdate();
-            });
+            //     await onError();
+            //     // await onOrderUpdate();
+            // });
 
             // socket.on('user-ticks', async (data) => {
             //     console.log("in user-ticks event")
