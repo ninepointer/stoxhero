@@ -1614,7 +1614,7 @@ exports.participateUsers = async (req, res) => {
                 }
             },
             contestStatus: "Active",
-            // entryFee: 0,
+            entryFee: 0,
             $or: [
                 { contestStartTime: { $gte: new Date(contest.contestStartTime), $lte: new Date(contest.contestEndTime) } },
                 { contestEndTime: { $gte: new Date(contest.contestStartTime), $lte: new Date(contest.contestEndTime) } },
@@ -1805,6 +1805,7 @@ exports.verifyCollageCode = async (req, res) => {
                     userId: new ObjectId(userId)
                 }
             },
+            entryFee: 0,
             contestStatus: "Active",
             $or: [
                 { contestStartTime: { $gte: new Date(contest.contestStartTime), $lte: new Date(contest.contestEndTime) } },
