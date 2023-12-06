@@ -383,7 +383,11 @@ async function index(){
 
 
 const getTicker = () => ticker;
-module.exports = { createNewTicker, disconnectTicker, subscribeTokens, getTicker, onError, unSubscribeTokens, subscribeSingleToken, getTicksForUserPosition, getDummyTicks, getTicksForCompanySide };
+module.exports = { createNewTicker, disconnectTicker, subscribeTokens, getTicker, onError, unSubscribeTokens, subscribeSingleToken, 
+  // getTicksForUserPosition, 
+  getDummyTicks, 
+  // getTicksForCompanySide
+ };
 
 
 

@@ -35,7 +35,7 @@ router.get("/getliveprice", async (req, res)=>{
       addUrl += ('&i=' + "NSE" + ':' + elem.instrumentSymbol);
     });
 
-    let url = `https://api.kite.trade/quote/ltp?${addUrl}`;
+    let url = `https://api.kite.trade/quote/ohlc?${addUrl}`;
     const api_key = getApiKey; 
     const access_token = getAccessToken;
     let auth = 'token' + api_key + ':' + access_token;
@@ -51,13 +51,14 @@ router.get("/getliveprice", async (req, res)=>{
       try{
         const response = await axios.get(url, authOptions);
         
-        // console.log(response.data.data, response.data, response)
+        // console.log(response.data, response,response.data.data, )
         for (let instrument in response.data.data) {
             let obj = {};
             obj.last_price = response.data.data[instrument].last_price;
             obj.instrument_token = response.data.data[instrument].instrument_token;
             obj.average_price = response.data.data[instrument].last_price;
             obj.timestamp = new Date();
+            obj.change = (response.data.data[instrument].last_price - response.data.data[instrument].ohlc.close)*100/response.data.data[instrument].ohlc.close;
             arr.push(obj);
         }
         return res.status(201).send((arr));
