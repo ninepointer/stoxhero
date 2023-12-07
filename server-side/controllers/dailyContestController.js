@@ -31,30 +31,23 @@ exports.createContest = async (req, res) => {
             maxParticipants, contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, 
             payoutType, payoutCapPercentage, rewardType, tdsRelief } = req.body;
 
-        // const getContest = await Contest.findOne({ contestName: contestName });
-
-        // if (getContest) {
-        //     return res.status(500).json({
-        //         status: 'error',
-        //         message: "TestZone is already exist with this name.",
-        //     });
-        // }
         const startTimeDate = new Date(contestStartTime);
-
-        // Set the seconds to "00"
         startTimeDate.setSeconds(0);
 
+        const endTimeDate = new Date(contestEndTime);
+        endTimeDate.setSeconds(0);
+
         // Check if startTime is valid
-        if (isNaN(startTimeDate.getTime())) {
+        if (isNaN(startTimeDate.getTime()) || isNaN(endTimeDate.getTime())) {
             return res.status(400).json({
                 status: 'error',
-                message: "Validation error: Invalid start time format",
+                message: "Validation error: Invalid start time or end time format",
             });
         }
 
 
         const contest = await Contest.create({
-            maxParticipants, contestStatus, contestEndTime, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
+            maxParticipants, contestStatus, contestEndTime: endTimeDate, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
             contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage,
             contestLiveTime, payoutPercentageType, rewardType, tdsRelief
@@ -775,7 +768,7 @@ exports.getOnlyUpcomingContests = async (req, res) => {
 exports.getAdminUpcomingContests = async (req, res) => {
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  const count = await Contest.countDocuments({contestStatus:"Active", featured: false})
+  const count = await Contest.countDocuments({contestStartTime: { $gt: new Date() }, contestStatus:"Active", featured: false})
     try {
         const contests = await Contest.find({
             contestStartTime: { $gt: new Date() }, contestStatus:"Active", featured: false,
@@ -805,7 +798,7 @@ exports.getAdminUpcomingContests = async (req, res) => {
 exports.getFeaturedUpcomingContests = async (req, res) => {
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  const count = await Contest.countDocuments({contestStatus:"Active", featured:true})
+  const count = await Contest.countDocuments({contestStartTime: { $gt: new Date() }, contestStatus:"Active", featured:true})
   try {
       const contests = await Contest.find({
           contestStartTime: { $gt: new Date() }, contestStatus:"Active", featured:true,
@@ -5666,7 +5659,7 @@ exports.getLastPaidContestChampions = async (req, res) => {
         },
         {
           $sort: {
-            entryFee: -1,
+            "topParticipants.payout": -1,
           },
         },
         {

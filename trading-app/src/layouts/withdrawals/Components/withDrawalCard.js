@@ -66,6 +66,15 @@ const WithDrawalCard = ({amount, withdrawalStatus, withdrawalRequestDate, user, 
     }
   }  
 
+  const cashTransactions = userWallet?.transactions?.filter((transaction) => {
+    return transaction.transactionType === "Cash";
+  });
+  // console.log(myWallet?.transactions);
+
+  const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
+    return total + transaction?.amount;
+  }, 0);
+
   console.log(userWallet?.transactions.reduce((acc,num)=> { if(num?.transactionType=='Cash') return acc+num.amount}, 0));
   return (
     <MDBox style={{ marginBottom:'12px', padding:'12px', borderRadius:'16px', boxShadow:"0px 4px 6px -2px rgba(0, 0, 0, 0.5)"}}>
@@ -77,7 +86,7 @@ const WithDrawalCard = ({amount, withdrawalStatus, withdrawalRequestDate, user, 
             <MDTypography style={{fontSize:'14px', marginBottom:'8px'}}>Request Date:{localRequestTime}</MDTypography>
             {withdrawalStatus == 'Processed' && <MDTypography style={{fontSize:'14px', marginBottom:'8px'}}>Settlement Date:{localSettlementTime}</MDTypography>}
             <MDTypography style={{fontSize:'14px', marginBottom:'8px'}}>Wallet Transaction Id:{walletTransactionId}</MDTypography>
-            {(withdrawalStatus == 'Pending' || withdrawalStatus == 'Initiated') && <MDTypography style={{fontSize:'14px', marginBottom:'8px'}}>Wallet Balance:{(userWallet?.transactions.reduce((acc,num)=> { if(num?.transactionType=='Cash') return acc+num.amount}, 0))?.toFixed(2)}</MDTypography>}
+            {(withdrawalStatus == 'Pending' || withdrawalStatus == 'Initiated') && <MDTypography style={{fontSize:'14px', marginBottom:'8px'}}>Wallet Balance:{(totalCashAmount)?.toFixed(2)}</MDTypography>}
         </MDBox>
         {(withdrawalStatus == 'Pending' || withdrawalStatus == 'Initiated')&&<MDBox>
             <MDButton onClick={handleOpen} color='success' sx={{marginRight:'6px'}}>Approve</MDButton>

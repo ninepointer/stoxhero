@@ -662,14 +662,35 @@ const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
         return openingBalance;
     }
 
-    const totalMargin = pnlData.reduce((total, acc)=>{
-        return total + acc.margin;
-    }, 0)
-    console.log("availble margin", totalMargin, openingBalance, npnl)
-    if(npnl < 0)
-    return openingBalance-totalMargin+npnl;
-    else
-    return openingBalance-totalMargin;
+    // const totalMargin = pnlData.reduce((total, acc)=>{
+    //     return total + acc.margin;
+    // }, 0)
+    let closedNpnl = 0;
+    let totalMargin = 0
+    let runningLots = 0;
+    for(let acc of pnlData){
+        closedNpnl += acc.lots === 0 && (acc.amount-acc.brokerage);
+        totalMargin += acc.margin;
+        runningLots += acc.lots;
+    }
+    // const closedNpnl = pnlData.reduce((total, acc)=>{
+    //     return total + (acc.amount-acc.brokerage);
+    // }, 0)
+    console.log("totalMargin", totalMargin)
+    console.log("closedNpnl", closedNpnl)
+    console.log("runningLots", runningLots)
+    console.log("npnl", npnl)
+    console.log("pnlData", pnlData)
+    if (npnl < 0)
+        // substract npnl for those positions only which are closed
+        if (runningLots === 0) {
+            return openingBalance - totalMargin + npnl;
+        } else {
+            return openingBalance - totalMargin + closedNpnl;
+        }
+    else{
+        return openingBalance - totalMargin;
+    }
 }
 
 const takeRejectedTrade = async(req, res, from)=>{
