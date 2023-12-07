@@ -548,12 +548,16 @@ const getLastTradeMarginAndCaseNumber = async (req, pnlData, from) => {
     }
 
     if(Math.abs(runningLotForSymbol) > Math.abs(quantity) && transactionTypeForSymbol !== transaction_type){
+        // if squaring of some quantity
         caseNumber = 2;
     } else if(Math.abs(runningLotForSymbol) < Math.abs(quantity) && transactionTypeForSymbol !== transaction_type){
+        // if squaring of all quantity and adding more in reverse direction (square off more quantity)
         caseNumber = 4;
     } else if(Math.abs(runningLotForSymbol) === Math.abs(quantity) && transactionTypeForSymbol !== transaction_type){
+        // if squaring off all quantity
         caseNumber = 3;
     } else if(transactionTypeForSymbol === transaction_type){
+        // if adding more quantity
         caseNumber = 1;
     } else{
         caseNumber = 0;
