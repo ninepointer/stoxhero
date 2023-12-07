@@ -9,11 +9,9 @@ const { sendLeaderboardData, sendMyRankData, emitServerTime } = require("./contr
 const { sendMyRankDataBattle, sendLeaderboardDataBattle } = require("./controllers/battles/battleTradeController");
 
 const { saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, saveXtsMargin } = require("./controllers/marginRequired")
-const { autoCutMainManually, autoCutMainManuallyMock, changeBattleStatus, changeStatus, changeMarginXStatus } = require("./controllers/AutoTradeCut/mainManually");
+const { autoCutMainManually, autoCutMainManuallyMock} = require("./controllers/AutoTradeCut/mainManually");
 const { createNewTicker, disconnectTicker,
-    subscribeTokens, onError,
-    onOrderUpdate, getTicksForUserPosition,
-    getTicksForCompanySide,
+    subscribeTokens, subscribeWatchListInstrument,
 } = require('./marketData/kiteTicker');
 // getTicksForContest
 
@@ -87,7 +85,7 @@ async function singleProcess() {
         // console.log(data)
         let interval;
         await createNewTicker(data.getApiKey, data.getAccessToken);
-        await subscribeInstrument();
+        // await subscribeInstrument();
         io.on("connection", async (socket) => {
             // console.log(socket.id, "socket id") 
             socket.on('userId', async (data) => {
@@ -146,18 +144,18 @@ async function singleProcess() {
             // });
 
 
-            // socket.on('company-ticks', async (data) => {
-            //     socket.join("company-side")
-            //     console.log("in company-ticks event")
-            //     if (setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType) {
-            //         await getTicksForCompanySide(socket);
-            //     } else {
-            //         await getXTSTicksForCompanySide(socket);
-            //     }
+            socket.on('company-ticks', async (data) => {
+                socket.join("company-side")
+                // console.log("in company-ticks event")
+                // if (setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType) {
+                //     await getTicksForCompanySide(socket);
+                // } else {
+                //     await getXTSTicksForCompanySide(socket);
+                // }
 
-            //     await onError();
-            //     // await onOrderUpdate();
-            // });
+                // await onError();
+                // await onOrderUpdate();
+            });
 
             // socket.on('user-ticks', async (data) => {
             //     console.log("in user-ticks event")
@@ -181,7 +179,7 @@ async function singleProcess() {
             socket.on('leave-company-room', async (data) => {
                 socket.leave('company-side');
             });
-            // await subscribeTokens(); //TODO toggle
+            await subscribeWatchListInstrument(); //TODO toggle
 
         });
 

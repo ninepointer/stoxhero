@@ -1,33 +1,48 @@
 const kiteTicker = require('kiteconnect').KiteTicker;
 const fetchToken = require('./fetchToken');
-const getKiteCred = require('./getKiteCred');
-const RetreiveOrder = require("../models/TradeDetails/retreiveOrder")
+// const getKiteCred = require('./getKiteCred');
+// const RetreiveOrder = require("../models/TradeDetails/retreiveOrder")
 const StockIndex = require("../models/StockIndex/stockIndexSchema");
-const ContestInstrument = require("../models/Instruments/contestInstrument");
+// const ContestInstrument = require("../models/Instruments/contestInstrument");
 const { DummyMarketData } = require("./dummyMarketData")
-const User = require("../models/User/userDetailSchema")
+// const User = require("../models/User/userDetailSchema")
 const { getIOValue } = require('../marketData/socketio');
 const { client, getValue } = require("./redisClient");
-const { ObjectId } = require('mongodb');
-const { xtsAccountType, zerodhaAccountType } = require("../constant");
+// const { ObjectId } = require('mongodb');
+const { zerodhaAccountType } = require("../constant");
 const Instrument = require("../models/Instruments/instrumentSchema");
-
+let { client6 } = require("../marketData/redisClient");
 
 
 let ticker;
+client6.connect().then(()=>{});
 
 const createNewTicker = async (api_key, access_token) => {
-  console.log("createNewTicker")
+
+  console.log("createNewTicker");
+
   ticker = new kiteTicker({
     api_key,
     access_token
   });
 
-  await ticker?.connect();
-  await ticker?.autoReconnect(true, 10000000000, 5);
-  await subscribeTokens();
-  await ticksData();
-  return ticker;
+  try {
+    await ticker?.connect();
+    await ticker?.autoReconnect(true, 10000000000, 5);
+    await subscribeTokens();
+    await ticksData();
+
+    await client6.SUBSCRIBE("subscribe-single-token", async (instruemnt) => {
+      instruemnt = JSON.parse(instruemnt);
+      ticker?.subscribe([Number(instruemnt?.instrumentToken)]);
+      ticker?.setMode(ticker?.modeQuote, [Number(instruemnt?.instrumentToken)]);  
+    })
+    
+    return ticker;
+  } catch (error) {
+    console.error('Error creating ticker:', error);
+    throw error;
+  }
 }
 
 const ticksData = async () => {
@@ -40,7 +55,6 @@ const ticksData = async () => {
       indexObj[indecies[i]?.instrumentToken] = true;
     }
     ticker?.on('ticks', async (ticks) => {
-      console.log(ticks.length);
       const users = await instrumentAndUser();
       const indexData = ticks.filter(function (item) {
         return indexObj[item.instrument_token];
@@ -55,7 +69,7 @@ const ticksData = async () => {
         }
       }
 
-      for(let elem in userTickObj){
+      for(let elem in (userTickObj)){
         io.to(`${elem}`).emit('tick-room', userTickObj[elem]);
       }
 
@@ -63,13 +77,12 @@ const ticksData = async () => {
         io.emit('index-tick', indexData)
       }
 
-      io?.emit('tick', ticks);
+      io?.to(`${'company-side'}`).emit('tick', ticks);
 
       await pendingOrderProcess(ticks);
       userTickObj={};
       ticks=[];
   
-      // console.log("userTickObj", userTickObj)
     })
   } catch(err){
     console.log(err)
@@ -84,14 +97,21 @@ const disconnectTicker = () => {
 
 const subscribeTokens = async () => {
   let tokens = await fetchToken();
-  let data = ticker?.subscribe(tokens);
+  ticker?.subscribe(tokens);
   ticker?.setMode(ticker?.modeQuote, tokens);
-  // ticker?.setMode(ticker?.modeFull, tokens);
 }
 
-const subscribeSingleToken = async (instrumentToken) => {
-  ticker?.subscribe(instrumentToken);
-  ticker?.setMode(ticker?.modeFull, instrumentToken);
+const subscribeWatchListInstrument = async () => {
+  let token = [];
+  if (await client.exists(`all-token`)) {
+    token = JSON.parse(await client.get('all-token'));
+  } else {
+    token = await fetchToken();
+    await client.set('all-token', JSON.stringify(token));
+  }
+
+  ticker?.subscribe(token);
+  ticker?.setMode(ticker?.modeQuote, token);
 
 }
 
@@ -383,7 +403,7 @@ async function index(){
 
 
 const getTicker = () => ticker;
-module.exports = { createNewTicker, disconnectTicker, subscribeTokens, getTicker, onError, unSubscribeTokens, subscribeSingleToken, 
+module.exports = { createNewTicker, disconnectTicker, subscribeTokens, getTicker, onError, unSubscribeTokens, subscribeWatchListInstrument, 
   // getTicksForUserPosition, 
   getDummyTicks, 
   // getTicksForCompanySide

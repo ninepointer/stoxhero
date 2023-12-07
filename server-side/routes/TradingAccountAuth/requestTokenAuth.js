@@ -25,11 +25,11 @@ router.post("/requestToken", Authenticate, restrictTo('Admin', 'SuperAdmin'), (r
     requestTokens.save().then(async ()=>{
 
         await client.del(`kiteCredToday:${process.env.PROD}`);
-        disconnectTicker();
-        getKiteCred.getAccess().then((data) => {
-            //console.log(data);
-            createNewTicker(data.getApiKey, data.getAccessToken);
-        });
+        // disconnectTicker();
+        // getKiteCred.getAccess().then((data) => {
+        //     //console.log(data);
+        //     createNewTicker(data.getApiKey, data.getAccessToken);
+        // });
         
         res.status(201).json({massage : "data enter succesfully"});
     }).catch((err)=> res.status(500).json({error:"Failed to enter data"}));
@@ -132,11 +132,11 @@ router.put("/readRequestToken/:id", Authenticate, restrictTo('Admin', 'SuperAdmi
                 lastModified: req.body.lastModified
             }
         });
-        disconnectTicker();
-        getKiteCred.getAccess().then((data) => {
-            //console.log(data);
-            createNewTicker(data.getApiKey, data.getAccessToken);
-        });
+        // disconnectTicker();
+        // getKiteCred.getAccess().then((data) => {
+        //     //console.log(data);
+        //     createNewTicker(data.getApiKey, data.getAccessToken);
+        // });
         
         //console.log("this is role", requestToken);
         res.send(requestToken)
