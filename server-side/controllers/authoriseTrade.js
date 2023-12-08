@@ -548,12 +548,16 @@ const getLastTradeMarginAndCaseNumber = async (req, pnlData, from) => {
     }
 
     if(Math.abs(runningLotForSymbol) > Math.abs(quantity) && transactionTypeForSymbol !== transaction_type){
+        // if squaring of some quantity
         caseNumber = 2;
     } else if(Math.abs(runningLotForSymbol) < Math.abs(quantity) && transactionTypeForSymbol !== transaction_type){
+        // if squaring of all quantity and adding more in reverse direction (square off more quantity)
         caseNumber = 4;
     } else if(Math.abs(runningLotForSymbol) === Math.abs(quantity) && transactionTypeForSymbol !== transaction_type){
+        // if squaring off all quantity
         caseNumber = 3;
     } else if(transactionTypeForSymbol === transaction_type){
+        // if adding more quantity
         caseNumber = 1;
     } else{
         caseNumber = 0;
@@ -662,14 +666,35 @@ const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
         return openingBalance;
     }
 
-    const totalMargin = pnlData.reduce((total, acc)=>{
-        return total + acc.margin;
-    }, 0)
-    console.log("availble margin", totalMargin, openingBalance, npnl)
-    if(npnl < 0)
-    return openingBalance-totalMargin+npnl;
-    else
-    return openingBalance-totalMargin;
+    // const totalMargin = pnlData.reduce((total, acc)=>{
+    //     return total + acc.margin;
+    // }, 0)
+    let closedNpnl = 0;
+    let totalMargin = 0
+    let runningLots = 0;
+    for(let acc of pnlData){
+        closedNpnl += acc.lots === 0 && (acc.amount-acc.brokerage);
+        totalMargin += acc.margin;
+        runningLots += acc.lots;
+    }
+    // const closedNpnl = pnlData.reduce((total, acc)=>{
+    //     return total + (acc.amount-acc.brokerage);
+    // }, 0)
+    console.log("totalMargin", totalMargin)
+    console.log("closedNpnl", closedNpnl)
+    console.log("runningLots", runningLots)
+    console.log("npnl", npnl)
+    console.log("pnlData", pnlData)
+    if (npnl < 0)
+        // substract npnl for those positions only which are closed
+        if (runningLots === 0) {
+            return openingBalance - totalMargin + npnl;
+        } else {
+            return openingBalance - totalMargin + closedNpnl;
+        }
+    else{
+        return openingBalance - totalMargin;
+    }
 }
 
 const takeRejectedTrade = async(req, res, from)=>{

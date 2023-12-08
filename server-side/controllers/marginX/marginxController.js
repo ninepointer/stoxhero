@@ -637,121 +637,125 @@ exports.creditAmountToWallet = async () => {
 
                     const wallet = await Wallet.findOne({ userId: userId });
                     console.log("second if", userId, pnlDetails[0], payoutAmount);
+                    const existingTransaction = wallet?.transactions?.some(transaction => (transaction?.description?.includes(marginxs[j].marginXName) && transaction?.description?.includes("credited") && transaction.transactionDate >= today))
 
-                    wallet.transactions = [...wallet.transactions, {
-                        title: 'Marginx Credit',
-                        description: `Amount credited for Marginx ${marginxs[j].marginXName}`,
-                        transactionDate: new Date(),
-                        amount: payoutAmountAdjusted?.toFixed(2),
-                        transactionId: uuid.v4(),
-                        transactionType: 'Cash'
-                    }];
-                    await wallet.save();
-                    const user = await User.findById(userId).select('email first_name last_name');
-                    if (process.env.PROD == 'true') {
-                        emailService(user?.email, 'MarginX Payout Credited - StoxHero', `
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                            <meta charset="UTF-8">
-                            <title>Amount Credited</title>
-                            <style>
-                            body {
-                                font-family: Arial, sans-serif;
-                                font-size: 16px;
-                                line-height: 1.5;
-                                margin: 0;
-                                padding: 0;
-                            }
-                  
-                            .container {
-                                max-width: 600px;
-                                margin: 0 auto;
-                                padding: 20px;
-                                border: 1px solid #ccc;
-                            }
-                  
-                            h1 {
-                                font-size: 24px;
-                                margin-bottom: 20px;
-                            }
-                  
-                            p {
-                                margin: 0 0 20px;
-                            }
-                  
-                            .userid {
-                                display: inline-block;
-                                background-color: #f5f5f5;
-                                padding: 10px;
-                                font-size: 15px;
-                                font-weight: bold;
-                                border-radius: 5px;
-                                margin-right: 10px;
-                            }
-                  
-                            .password {
-                                display: inline-block;
-                                background-color: #f5f5f5;
-                                padding: 10px;
-                                font-size: 15px;
-                                font-weight: bold;
-                                border-radius: 5px;
-                                margin-right: 10px;
-                            }
-                  
-                            .login-button {
-                                display: inline-block;
-                                background-color: #007bff;
-                                color: #fff;
-                                padding: 10px 20px;
-                                font-size: 18px;
-                                font-weight: bold;
-                                text-decoration: none;
-                                border-radius: 5px;
-                            }
-                  
-                            .login-button:hover {
-                                background-color: #0069d9;
-                            }
-                            </style>
-                        </head>
-                        <body>
-                            <div class="container">
-                            <h1>Amount Credited</h1>
-                            <p>Hello ${user.first_name},</p>
-                            <p>Amount of ₹${payoutAmountAdjusted?.toFixed(2)} has been credited in your wallet for ${marginxs[j].marginXName}.</p>
-                            <p>You can now purchase Tenx and participate in various activities on stoxhero.</p>
-                            
-                            <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-                            <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-                            <br/><br/>
-                            <p>Thanks,</p>
-                            <p>StoxHero Team</p>
-                  
-                            </div>
-                        </body>
-                        </html>
-                        `);
+                    if(!existingTransaction){
+                        wallet.transactions = [...wallet.transactions, {
+                            title: 'Marginx Credit',
+                            description: `Amount credited for Marginx ${marginxs[j].marginXName}`,
+                            transactionDate: new Date(),
+                            amount: payoutAmountAdjusted?.toFixed(2),
+                            transactionId: uuid.v4(),
+                            transactionType: 'Cash'
+                        }];
+                        await wallet.save();
+                        const user = await User.findById(userId).select('email first_name last_name');
+                        if (process.env.PROD == 'true') {
+                            emailService(user?.email, 'MarginX Payout Credited - StoxHero', `
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                                <meta charset="UTF-8">
+                                <title>Amount Credited</title>
+                                <style>
+                                body {
+                                    font-family: Arial, sans-serif;
+                                    font-size: 16px;
+                                    line-height: 1.5;
+                                    margin: 0;
+                                    padding: 0;
+                                }
+                      
+                                .container {
+                                    max-width: 600px;
+                                    margin: 0 auto;
+                                    padding: 20px;
+                                    border: 1px solid #ccc;
+                                }
+                      
+                                h1 {
+                                    font-size: 24px;
+                                    margin-bottom: 20px;
+                                }
+                      
+                                p {
+                                    margin: 0 0 20px;
+                                }
+                      
+                                .userid {
+                                    display: inline-block;
+                                    background-color: #f5f5f5;
+                                    padding: 10px;
+                                    font-size: 15px;
+                                    font-weight: bold;
+                                    border-radius: 5px;
+                                    margin-right: 10px;
+                                }
+                      
+                                .password {
+                                    display: inline-block;
+                                    background-color: #f5f5f5;
+                                    padding: 10px;
+                                    font-size: 15px;
+                                    font-weight: bold;
+                                    border-radius: 5px;
+                                    margin-right: 10px;
+                                }
+                      
+                                .login-button {
+                                    display: inline-block;
+                                    background-color: #007bff;
+                                    color: #fff;
+                                    padding: 10px 20px;
+                                    font-size: 18px;
+                                    font-weight: bold;
+                                    text-decoration: none;
+                                    border-radius: 5px;
+                                }
+                      
+                                .login-button:hover {
+                                    background-color: #0069d9;
+                                }
+                                </style>
+                            </head>
+                            <body>
+                                <div class="container">
+                                <h1>Amount Credited</h1>
+                                <p>Hello ${user.first_name},</p>
+                                <p>Amount of ₹${payoutAmountAdjusted?.toFixed(2)} has been credited in your wallet for ${marginxs[j].marginXName}.</p>
+                                <p>You can now purchase Tenx and participate in various activities on stoxhero.</p>
+                                
+                                <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                                <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                                <br/><br/>
+                                <p>Thanks,</p>
+                                <p>StoxHero Team</p>
+                      
+                                </div>
+                            </body>
+                            </html>
+                            `);
+                        }
+                        await createUserNotification({
+                            title:'MarginX Payout Credited',
+                            description:`₹${payoutAmountAdjusted?.toFixed(2)} credited for your MarginX return`,
+                            notificationType:'Individual',
+                            notificationCategory:'Informational',
+                            productCategory:'MarginX',
+                            user: user?._id,
+                            priority:'Medium',
+                            channels:['App', 'Email'],
+                            createdBy:'63ecbc570302e7cf0153370c',
+                            lastModifiedBy:'63ecbc570302e7cf0153370c'  
+                          });
+                          if(user?.fcmTokens?.length>0){
+                            await sendMultiNotifications('MarginX Payout Credited', 
+                              `₹${payoutAmountAdjusted?.toFixed(2)} credited in your wallet for your MarginX return`,
+                              user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                              )  
+                          } 
                     }
-                    await createUserNotification({
-                        title:'MarginX Payout Credited',
-                        description:`₹${payoutAmountAdjusted?.toFixed(2)} credited for your MarginX return`,
-                        notificationType:'Individual',
-                        notificationCategory:'Informational',
-                        productCategory:'MarginX',
-                        user: user?._id,
-                        priority:'Medium',
-                        channels:['App', 'Email'],
-                        createdBy:'63ecbc570302e7cf0153370c',
-                        lastModifiedBy:'63ecbc570302e7cf0153370c'  
-                      });
-                      if(user?.fcmTokens?.length>0){
-                        await sendMultiNotifications('MarginX Payout Credited', 
-                          `₹${payoutAmountAdjusted?.toFixed(2)} credited in your wallet for your MarginX return`,
-                          user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
-                          )  
-                      }  
+ 
                     marginxs[j].participants[i].payout = payoutAmountAdjusted?.toFixed(2);
                     marginxs[j].participants[i].tdsAmount = payoutAmount>fee?((payoutAmount- fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
                     await marginxs[j].save();

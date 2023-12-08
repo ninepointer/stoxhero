@@ -31,30 +31,23 @@ exports.createContest = async (req, res) => {
             maxParticipants, contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, 
             payoutType, payoutCapPercentage, rewardType, tdsRelief } = req.body;
 
-        // const getContest = await Contest.findOne({ contestName: contestName });
-
-        // if (getContest) {
-        //     return res.status(500).json({
-        //         status: 'error',
-        //         message: "TestZone is already exist with this name.",
-        //     });
-        // }
         const startTimeDate = new Date(contestStartTime);
-
-        // Set the seconds to "00"
         startTimeDate.setSeconds(0);
 
+        const endTimeDate = new Date(contestEndTime);
+        endTimeDate.setSeconds(0);
+
         // Check if startTime is valid
-        if (isNaN(startTimeDate.getTime())) {
+        if (isNaN(startTimeDate.getTime()) || isNaN(endTimeDate.getTime())) {
             return res.status(400).json({
                 status: 'error',
-                message: "Validation error: Invalid start time format",
+                message: "Validation error: Invalid start time or end time format",
             });
         }
 
 
         const contest = await Contest.create({
-            maxParticipants, contestStatus, contestEndTime, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
+            maxParticipants, contestStatus, contestEndTime: endTimeDate, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
             contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage,
             contestLiveTime, payoutPercentageType, rewardType, tdsRelief
@@ -445,83 +438,206 @@ exports.getCollegeUserUpcomingContests = async (req, res) => {
 };
 
 
+exports.getUserUpcomingContestss = async (req, res) => {
+  try {
+      const contests = await Contest.find({
+          contestStartTime: { $gte: new Date() }, contestFor: "StoxHero", contestStatus:"Active"
+      },
+      {
+          allowedUsers: 0,
+          potentialParticipants: 0,
+          contestSharedBy: 0,
+          purchaseIntent: 0
+      })
+      .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+      .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+      .populate('portfolio', 'portfolioName _id portfolioValue')
+      // .sort({ entryFee: -1 })
+      // .sort({ entryFee: { $gte: 0 } ? -1 : 1 });
+      contests.sort((a, b) => {
+        if (a.entryFee > 0 && b.entryFee > 0) {
+            return a.entryFee - b.entryFee; // Ascending order for elements with entryFee > 0
+        } else {
+            return b.entryFee - a.entryFee; // Descending order for remaining elements
+        }
+    });
+
+      res.status(200).json({
+          status: "success",
+          message: "Upcoming TestZones fetched successfully",
+          data: contests
+      });
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Error in fetching upcoming TestZones",
+          error: error.message
+      });
+  }
+};
 exports.getUserUpcomingContests = async (req, res) => {
-    try {
-        const contests = await Contest.find({
-            contestStartTime: { $gte: new Date() }, contestFor: "StoxHero", contestStatus:"Active"
+try {
+    const userId = req.user._id; // Assuming this is the logged-in user's ID
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(23, 59, 59, 999);
+
+    let contests = await Contest.aggregate([
+        {
+            $match: {
+                contestStartTime: { $gte: new Date() },
+                contestFor: "StoxHero",
+                contestStatus: "Active",
+                contestLiveTime: { $lte: tomorrow}
+            }
         },
         {
-            allowedUsers: 0,
-            potentialParticipants: 0,
-            contestSharedBy: 0,
-            purchaseIntent: 0
-        })
-        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
-        .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
-        .populate('portfolio', 'portfolioName _id portfolioValue')
-        // .sort({ entryFee: -1 })
-        // .sort({ entryFee: { $gte: 0 } ? -1 : 1 });
-        contests.sort((a, b) => {
-          if (a.entryFee > 0 && b.entryFee > 0) {
-              return a.entryFee - b.entryFee; // Ascending order for elements with entryFee > 0
-          } else {
-              return b.entryFee - a.entryFee; // Descending order for remaining elements
-          }
-      });
+            $addFields: {
+                isUserParticipating: {
+                    $in: [userId, "$participants.userId"]
+                },
+                isPaid: {
+                    $gt: ["$entryFee", 0]
+                }
+            }
+        },
+        {
+            $sort: {
+                isUserParticipating: -1, // User's contests first
+                isPaid: -1, // Paid contests next
+                contestEndTime: 1, // Then sort by endTime
+                entryFee: 1 // Finally by entryFee
+            }
+        },
+        {
+            $project: {
+                allowedUsers: 0,
+                potentialParticipants: 0,
+                contestSharedBy: 0,
+                purchaseIntent: 0
+            }
+        }
+    ])
+    contests = await Contest.populate(contests, [
+      { path: 'participants.userId', select: 'first_name last_name email mobile creationProcess' },
+      { path: 'interestedUsers.userId', select: 'first_name last_name email mobile creationProcess' },
+      { path: 'portfolio', select: 'portfolioName _id portfolioValue' }
+  ]);
 
-        res.status(200).json({
-            status: "success",
-            message: "Upcoming TestZones fetched successfully",
-            data: contests
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: "error",
-            message: "Error in fetching upcoming TestZones",
-            error: error.message
-        });
-    }
+  res.status(200).json({
+      status: "success",
+      message: "Upcoming TestZones fetched successfully",
+      data: contests
+  });
+} catch (error) {
+  res.status(500).json({
+      status: "error",
+      message: "Error in fetching upcoming TestZones",
+      error: error.message
+  });
+}
 };
 
 exports.getUserLiveContests = async (req, res) => {
-    try {
-        const contests = await Contest.find({
-            contestStartTime: { $lte: new Date() },
-            contestEndTime: { $gte: new Date() },
-            contestFor: "StoxHero", 
-            contestStatus:"Active"
+try {
+    const userId = req.user._id; // Assuming this is the logged-in user's ID
+
+
+    let contests = await Contest.aggregate([
+        {
+            $match: {
+                contestFor: "StoxHero",
+                contestStatus: "Active",
+                contestStartTime: { $lte: new Date() },
+                contestEndTime: { $gte: new Date() },
+            }
         },
         {
-            allowedUsers: 0,
-            potentialParticipants: 0,
-            contestSharedBy: 0,
-            purchaseIntent: 0
-        })
-        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
-        .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
-        .populate('portfolio', 'portfolioName _id portfolioValue')
-        // .sort({ entryFee: -1 })
-        // .sort({ entryFee: { $gte: 0 } ? 1 : -1 });
-        contests.sort((a, b) => {
-          if (a.entryFee > 0 && b.entryFee > 0) {
-              return a.entryFee - b.entryFee; // Ascending order for elements with entryFee > 0
-          } else {
-              return b.entryFee - a.entryFee; // Descending order for remaining elements
-          }
-      });
+            $addFields: {
+                isUserParticipating: {
+                    $in: [userId, "$participants.userId"]
+                },
+                isPaid: {
+                    $gt: ["$entryFee", 0]
+                }
+            }
+        },
+        {
+            $sort: {
+                isUserParticipating: -1, // User's contests first
+                isPaid: -1, // Paid contests next
+                contestEndTime: 1, // Then sort by endTime
+                entryFee: 1 // Finally by entryFee
+            }
+        },
+        {
+            $project: {
+                allowedUsers: 0,
+                potentialParticipants: 0,
+                contestSharedBy: 0,
+                purchaseIntent: 0
+            }
+        }
+    ])
+    contests = await Contest.populate(contests, [
+      { path: 'participants.userId', select: 'first_name last_name email mobile creationProcess' },
+      { path: 'interestedUsers.userId', select: 'first_name last_name email mobile creationProcess' },
+      { path: 'portfolio', select: 'portfolioName _id portfolioValue' }
+  ]);
 
-        res.status(200).json({
-            status: "success",
-            message: "Upcoming TestZones fetched successfully",
-            data: contests
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: "error",
-            message: "Error in fetching upcoming TestZones",
-            error: error.message
-        });
-    }
+  res.status(200).json({
+      status: "success",
+      message: "Live TestZones fetched successfully",
+      data: contests
+  });
+} catch (error) {
+  res.status(500).json({
+      status: "error",
+      message: "Error in fetching live TestZones",
+      error: error.message
+  });
+}
+};
+
+exports.getUserLiveContestss = async (req, res) => {
+  try {
+      const contests = await Contest.find({
+          contestStartTime: { $lte: new Date() },
+          contestEndTime: { $gte: new Date() },
+          contestFor: "StoxHero", 
+          contestStatus:"Active"
+      },
+      {
+          allowedUsers: 0,
+          potentialParticipants: 0,
+          contestSharedBy: 0,
+          purchaseIntent: 0
+      })
+      .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+      .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+      .populate('portfolio', 'portfolioName _id portfolioValue')
+      // .sort({ entryFee: -1 })
+      // .sort({ entryFee: { $gte: 0 } ? 1 : -1 });
+      contests.sort((a, b) => {
+        if (a.entryFee > 0 && b.entryFee > 0) {
+            return a.entryFee - b.entryFee; // Ascending order for elements with entryFee > 0
+        } else {
+            return b.entryFee - a.entryFee; // Descending order for remaining elements
+        }
+    });
+
+      res.status(200).json({
+          status: "success",
+          message: "Upcoming TestZones fetched successfully",
+          data: contests
+      });
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Error in fetching upcoming TestZones",
+          error: error.message
+      });
+  }
 };
 
 exports.getUserFeaturedContests = async (req, res) => {
@@ -652,7 +768,7 @@ exports.getOnlyUpcomingContests = async (req, res) => {
 exports.getAdminUpcomingContests = async (req, res) => {
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  const count = await Contest.countDocuments({contestStatus:"Active", featured: false})
+  const count = await Contest.countDocuments({contestStartTime: { $gt: new Date() }, contestStatus:"Active", featured: false})
     try {
         const contests = await Contest.find({
             contestStartTime: { $gt: new Date() }, contestStatus:"Active", featured: false,
@@ -682,7 +798,7 @@ exports.getAdminUpcomingContests = async (req, res) => {
 exports.getFeaturedUpcomingContests = async (req, res) => {
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  const count = await Contest.countDocuments({contestStatus:"Active", featured:true})
+  const count = await Contest.countDocuments({contestStartTime: { $gt: new Date() }, contestStatus:"Active", featured:true})
   try {
       const contests = await Contest.find({
           contestStartTime: { $gt: new Date() }, contestStatus:"Active", featured:true,
@@ -1009,7 +1125,21 @@ async function userCompletedHelper(matchStage, userId) {
         payoutPercentage: 1,
         rank: "$participants.rank",
         payout: "$participants.payout",
-        tdsAmount: "$participants.tdsAmount",
+        // tdsAmount: "$participants.tdsAmount",
+        tdsAmount: {
+          $cond: {
+            if: { $gt: ["$participants.tdsAmount", 0] },
+            then: "$participants.tdsAmount",
+            else: 0
+          }
+        },
+        herocashPayout: {
+          $cond: {
+            if: { $gt: ["$participants.herocashPayout", 0] },
+            then: "$participants.herocashPayout",
+            else: 0
+          }
+        },
         fee: "$participants.fee",
         actuaFee: "$participants.actualPrice",
         rewards: 1,
@@ -1477,7 +1607,7 @@ exports.participateUsers = async (req, res) => {
                 }
             },
             contestStatus: "Active",
-            entryFee: 0, //varify-vijay
+            entryFee: 0,
             $or: [
                 { contestStartTime: { $gte: new Date(contest.contestStartTime), $lte: new Date(contest.contestEndTime) } },
                 { contestEndTime: { $gte: new Date(contest.contestStartTime), $lte: new Date(contest.contestEndTime) } },
@@ -1669,6 +1799,7 @@ exports.verifyCollageCode = async (req, res) => {
                     userId: new ObjectId(userId)
                 }
             },
+            entryFee: 0,
             contestStatus: "Active",
             $or: [
                 { contestStartTime: { $gte: new Date(contest.contestStartTime), $lte: new Date(contest.contestEndTime) } },
@@ -5529,7 +5660,7 @@ exports.getLastPaidContestChampions = async (req, res) => {
         },
         {
           $sort: {
-            entryFee: -1,
+            "topParticipants.payout": -1,
           },
         },
         {
