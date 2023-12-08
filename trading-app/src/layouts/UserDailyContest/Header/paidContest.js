@@ -1,4 +1,4 @@
-import { React, useState, useEffect, useContext } from "react";
+import { React, useState, useEffect, useContext, useMemo } from "react";
 import { userContext } from '../../../AuthContext';
 import Grid from "@mui/material/Grid";
 import ShareIcon from '@mui/icons-material/Share';
@@ -139,6 +139,9 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
         />
     );
 
+
+    
+
     console.log("running upcoming")
 
     return (
@@ -176,6 +179,27 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
                                     let isParticipated = elem?.participants.some(elem => {
                                         return elem?.userId?._id?.toString() === getDetails?.userDetails?._id?.toString()
                                     })
+
+
+                                    // const timer = useMemo(() => {
+                                    //     return <Timer 
+                                    //         toggleContest={toggleContest} 
+                                    //         setToggleContest={setToggleContest} 
+                                    //         socket={socket} 
+                                    //         elem={elem} 
+                                    //         date={elem?.contestStartTime} 
+                                    //         id={elem?._id} 
+                                    //         setTimeDifference={setTimeDifference} 
+                                    //     />
+                                    // }, [toggleContest, setToggleContest, socket, elem, elem?.contestStartTime, elem?._id, setTimeDifference]);
+                                    
+                                    // const payment = useMemo(() => {
+                                    //     return <Payment 
+                                    //     elem={elem} 
+                                    //     showPay={showPay} 
+                                    //     setShowPay={setShowPay} 
+                                    //     />
+                                    // }, [elem, showPay, setShowPay]);
 
                                     // console.log("timeDifference",timeDifference, isParticipated,  particularContestTime, checkIsInterested)
                                     return (
@@ -223,7 +247,8 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
                                                     <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                                <Timer toggleContest={toggleContest} setToggleContest={setToggleContest} socket={socket} elem={elem} date={elem?.contestStartTime} id={elem?._id} setTimeDifference={setTimeDifference} />
+                                                                {/* <Timer toggleContest={toggleContest} setToggleContest={setToggleContest} socket={socket} elem={elem} date={elem?.contestStartTime} id={elem?._id} setTimeDifference={setTimeDifference} /> */}
+                                                                {/* {timer} */}
                                                             </MDBox>
                                                         </MDBox>
                                                     </Grid>
@@ -280,7 +305,9 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
                                                                     {(isParticipated || elem.entryFee === 0) ?
                                                                         <PopupTrading elem={elem} timeDifference={particularContestTime[0]?.value} />
                                                                         :
-                                                                        <Payment elem={elem} showPay={showPay} setShowPay={setShowPay} />
+                                                                        // <Payment elem={elem} showPay={showPay} setShowPay={setShowPay} />
+                                                                        // {payment} todo-vijay
+                                                                        <></>
                                                                     }
                                                                 </MDBox>
                                                                 <Tooltip title='Share it with your friends'><MDBox ml={1}><MDButton variant='outlined' size='small' color='info' onClick={() => { handleCopy(elem?._id) }}><ShareIcon size='large' /></MDButton></MDBox></Tooltip>
