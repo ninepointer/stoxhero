@@ -1,10 +1,10 @@
 const TenXTrader = require("../models/mock-trade/tenXTraderSchema");
 const User = require("../models/User/userDetailSchema");
-const Portfolio = require("../models/userPortfolio/UserPortfolio");
+// const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema")
 const whatsAppService = require("../utils/whatsAppService")
-const mediaURL = "https://dmt-trade.s3.amazonaws.com/carousels/WhastAp%20Msg%20Photo/photos/1697228055934Welcome%20to%20the%20world%20of%20Virtual%20Trading%20but%20real%20earning%21.png";
-const mediaFileName = 'StoxHero'
+// const mediaURL = "https://dmt-trade.s3.amazonaws.com/carousels/WhastAp%20Msg%20Photo/photos/1697228055934Welcome%20to%20the%20world%20of%20Virtual%20Trading%20but%20real%20earning%21.png";
+// const mediaFileName = 'StoxHero'
 const { client, getValue } = require('../marketData/redisClient');
 const Wallet = require("../models/UserWallet/userWalletSchema");
 const uuid = require('uuid');
@@ -196,6 +196,89 @@ exports.overallPnl = async (req, res, next) => {
   }
 
 
+}
+
+exports.liveSubscriptionAnalytics = async (req, res, next) => {
+
+  try {
+    const userId = req.user._id;
+    const subscriptionId = req.params.id;
+    const subscriptionTime = req.params.starttime;
+  
+    let date = new Date();
+    const currentTime = new Date();
+    const endTime = new Date(currentTime);
+    endTime.setHours(10, 0, 0, 0);
+  
+    let time;
+    if(currentTime >= endTime){
+      let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()+1).padStart(2, '0')}`
+      todayDate = todayDate + "T00:00:00.000Z";
+      time = new Date(todayDate);  
+    } else{
+      let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+      todayDate = todayDate + "T00:00:00.000Z";
+      time = new Date(todayDate);  
+    }
+  
+    const pnlDetails = await TenXTrader.aggregate([
+      {
+        $match: {
+          trade_time_utc: {
+            $gte: new Date(subscriptionTime),
+            $lte: new Date(time)
+          },
+          status: "COMPLETE",
+          trader: new ObjectId(userId),
+          subscriptionId: new ObjectId(subscriptionId)
+        },
+      },
+      {
+        $group: {
+          _id: {
+          },
+          amount: {
+            $sum: { $multiply: ["$amount", -1] },
+          },
+          brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
+          },
+          trades: {
+            $count: {},
+          },
+          tradingDays: {
+            $addToSet: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$trade_time_utc",
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          grossPnl: "$amount",
+          brokerage: "$brokerage",
+          _id: 0,
+          npnl: {
+            $subtract: ["$amount", "$brokerage"],
+          },
+          tradingDays: {
+            $size: "$tradingDays",
+          },
+          trades: 1,
+        }
+      }
+    ])
+    res.status(201).json({ message: "pnl received", data: pnlDetails });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ status: 'success', message: 'something went wrong.' })
+  }
 }
 
 exports.myTodaysTrade = async (req, res, next) => {
@@ -1223,89 +1306,6 @@ exports.liveTotalTradersCount = async (req, res, next) => {
       ])
       res.status(201).json({ message: "pnl received", data: pnlDetails });
 }
-
-// exports.overallTenXPnlYesterday = async (req, res, next) => {
-  
-//   let date;
-//   let i = 1;
-//   async function pnlDetails(i){
-//     console.log("i",i)
-//     let yesterdayDate = new Date();
-//     yesterdayDate.setDate(yesterdayDate.getDate() - i);
-//     let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
-//     yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
-//     let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
-//     yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
-//     const startTime = new Date(yesterdayStartTime); 
-//     date = startTime;
-//     const endTime = new Date(yesterdayEndTime); 
-//     console.log("STime & ETime:",startTime,endTime)
-   
-//     let pnlDetailsData = await TenXTrader.aggregate([
-//       {
-//         $match: {
-//           trade_time_utc: {
-//             $gte: startTime, $lte: endTime
-//             // $gte: new Date("2023-06-23T00:00:00.000+00:00"), $lte: new Date("2023-06-23T23:59:59.000+00:00")
-//             // $gte: new Date("2023-05-26T00:00:00.000+00:00")
-//           },
-//           status: "COMPLETE",
-//         },
-//       },
-//         {
-//           $group: {
-//             _id: null,
-
-//             amount: {
-//               $sum: {$multiply : ["$amount",-1]},
-//             },
-//             turnover: {
-//               $sum: {
-//                 $toInt: {$abs : "$amount"},
-//               },
-//             },
-//             brokerage: {
-//               $sum: {
-//                 $toDouble: "$brokerage",
-//               },
-//             },
-//             lots: {
-//               $sum: {
-//                 $toInt: "$Quantity",
-//               },
-//             },
-//             totallots: {
-//               $sum: {
-//                 $toInt: {$abs : "$Quantity"},
-//               },
-//             },
-//             trades: {
-//               $count:{}
-//             },
-//           },
-//         },
-//         {
-//           $sort: {
-//             _id: -1,
-//           },
-//         },
-//       ])
-//       console.log("Length:",pnlDetailsData.length,pnlDetailsData)
-//       if(!pnlDetailsData || pnlDetailsData.length === 0){
-//         console.log("Inside length check")
-//         await pnlDetails(i+1);
-//       }
-//       else{
-//         console.log("inside else statement:",pnlDetailsData)
-//         return pnlDetailsData;
-        
-//       }    
-//     }
-    
-//     let pnlData = await pnlDetails(i)
-//     console.log("PNL Data:",i,pnlData)
-//     res.status(201).json({ message: "pnl received", data: pnlData, results:(pnlData ? pnlData.length : 0), date:date });
-// }
 
 exports.overallTenXPnlYesterday = async (req, res, next) => {
   let date;
