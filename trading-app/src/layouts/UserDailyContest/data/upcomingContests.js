@@ -58,6 +58,7 @@ export default function LabTabs({setClicked}) {
         return elem?.entryFee !== 0;
     })
 
+    console.log("upcoming again")
 
     return (
 

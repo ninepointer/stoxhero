@@ -12,6 +12,7 @@ const {xtsAccountType, zerodhaAccountType} = require("../../constant");
 const { ObjectId } = require("mongodb");
 const Authenticate = require('../../authentication/authentication');
 const restrictTo = require('../../authentication/authorization');
+const KiteConnect = require("kiteconnect").KiteConnect;
 
 router.post("/requestToken", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
 
@@ -48,7 +49,7 @@ router.post("/autologin", Authenticate, restrictTo('Admin', 'SuperAdmin'), async
     }
     let password = (accountId === process.env.KUSH_ACCOUNT_ID) ? process.env.KUSH_PASS : accountId === process.env.PRATEEK_ACCOUNT_ID && process.env.PRATEEK_PASS
 
-    await deletePnlKey();
+    // await deletePnlKey();
 
     if(process.env.PROD === "true"){
         return;

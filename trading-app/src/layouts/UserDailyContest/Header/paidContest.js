@@ -139,7 +139,7 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
         />
     );
 
-    // console.log("timediffrence", timeDifference)
+    console.log("running upcoming")
 
     return (
         <>
@@ -280,7 +280,7 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
                                                                     {(isParticipated || elem.entryFee === 0) ?
                                                                         <PopupTrading elem={elem} timeDifference={particularContestTime[0]?.value} />
                                                                         :
-                                                                        <Payment elem={elem} showPay={showPay} setShowPay={setShowPay} timeDifference={particularContestTime[0]?.value} />
+                                                                        <Payment elem={elem} showPay={showPay} setShowPay={setShowPay} />
                                                                     }
                                                                 </MDBox>
                                                                 <Tooltip title='Share it with your friends'><MDBox ml={1}><MDButton variant='outlined' size='small' color='info' onClick={() => { handleCopy(elem?._id) }}><ShareIcon size='large' /></MDButton></MDBox></Tooltip>

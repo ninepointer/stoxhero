@@ -51,6 +51,7 @@ const ticksData = async () => {
     let indexObj = {};
     const indecies = await index();
     // populate hash table with indexObj from indecies
+    // console.log("indecies", indecies.length)
     for (let i = 0; i < indecies?.length; i++) {
       indexObj[indecies[i]?.instrumentToken] = true;
     }
@@ -72,7 +73,7 @@ const ticksData = async () => {
       for(let elem in (userTickObj)){
         io.to(`${elem}`).emit('tick-room', userTickObj[elem]);
       }
-
+      // console.log(indexData.length)
       if (indexData?.length > 0) {
         io.emit('index-tick', indexData)
       }
@@ -390,13 +391,14 @@ async function instrumentAndUser(){
 async function index(){
   let isRedisConnected = getValue();
   let indecies = isRedisConnected && await client.get("index");
-
+  // console.log("indecies redis", indecies);
   if (!indecies) {
     indecies = await StockIndex.find({ status: "Active", accountType: zerodhaAccountType });
     isRedisConnected && await client.set("index", JSON.stringify(indecies));
+    return indecies;
   } else {
     indecies = JSON.parse(indecies);
-
+    // console.log("indecies oddfef", indecies)
     return indecies;
   }
 }
