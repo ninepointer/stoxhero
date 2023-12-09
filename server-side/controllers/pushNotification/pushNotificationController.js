@@ -1,5 +1,87 @@
 const {sendIndividualNotification, sendMultiNotifications} = require('../../utils/fcmService');
 const User = require('../../models/User/userDetailSchema');
+const NotificationGroup = require("../../models/notificationGroup/notificationGroup");
+const multer = require('multer');
+const AWS = require('aws-sdk');
+const sharp = require('sharp');
+const {createUserNotification} = require('../controllers/notification/notificationController');
+
+const storage = multer.memoryStorage();
+const fileFilter = (req, file, cb) => {
+console.log("File upload started");
+  if (file.mimetype.startsWith("image/") || file.mimetype.startsWith("application/")) {
+    cb(null, true);
+} else {
+    cb(new Error("Invalid file type"), false);
+}
+}
+AWS.config.update({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGION
+  
+  });
+  
+const upload = multer({ storage, fileFilter }).single("notificationImage");
+console.log("Upload:",upload)
+const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+});
+
+
+exports.uploadMulter = upload;
+
+exports.resizePhoto = (req, res, next) => {
+    if (!req.file) {
+      // no file uploaded, skip to next middleware
+      console.log('no file');
+      next();
+      return;
+    }
+    sharp(req.file.buffer).resize({width: 500, height: 500}).toBuffer()
+    .then((resizedImageBuffer) => {
+      req.file.buffer = resizedImageBuffer;
+    //   console.log("Resized:",resizedImageBuffer)
+      next();
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send({ message: "Error resizing photo" });
+    });
+}; 
+
+exports.uploadToS3 = async(req, res, next) => {
+    if (!req.file) {
+      // no file uploaded, skip to next middleware
+      next();
+      return;
+    }
+  
+    // create S3 upload parameters
+    const key = `notifications/images/${(Date.now()) + req.file.originalname}`;
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: key,
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
+      ACL: 'public-read',
+    };
+  
+    // upload image to S3 bucket
+    
+    s3.upload((params)).promise()
+      .then((s3Data) => {
+        // console.log('file uploaded');
+        // console.log(s3Data.Location);
+        (req).uploadUrl = s3Data.Location;
+        next();
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).send({ message: "Error uploading to S3" });
+      });
+  };
 
 exports.sendSingleNotification  = async(req,res,next) => {
     const{title, body, token, mediaUrl, actions}  = req.body;
@@ -79,5 +161,28 @@ exports.getAllActiveTokens = async () => {
 
 }
 
+exports.sendGroupNotifications = async (req,res, next) => {
+    const{title, body, tokens, mediaUrl, actions}  = req.body;
+    const {id} = req.params;
+    try{
+        const group = await NotificationGroup.findById(id);
+        let groupUsers = group.users;
+        for(let user of groupUsers){
+            const userDoc = await User.findById(user).select("fcmTokens");
+            if(userDoc.fcmTokens.length >0){
+                await sendMultiNotifications(title, body,
+                user?.fcmTokens?.map(item=>item.token), req?.uploadUrl, {route:actions}
+                )
+            }
+        }
+        group.lastNotificationDate = new Date();
+        await group.save({validateBeforeSave:false});
+        res.status(200).json({status:'success', message:'Notifications sent'});
+    }catch(e){
+        console.log(e)
+        res.status(500).json({status:'error', error:e.message, message:'Something went wrong.'})
+    }
+
+}
 
 
