@@ -766,6 +766,34 @@ export default function LabTabs({socket}) {
                                 App Settings
                             </MDButton>
                         </Grid>
+
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"error"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/notification`,
+                                  }}
+                            >
+                                Notification Group
+                            </MDButton>
+                        </Grid>
+
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"error"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/sendnotification`,
+                                  }}
+                            >
+                                Send Notification
+                            </MDButton>
+                        </Grid>
                         <Grid item fullWidth>
                             <MDButton 
                                 variant="contained" 

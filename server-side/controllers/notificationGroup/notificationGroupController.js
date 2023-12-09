@@ -10,6 +10,7 @@ const User = require("../../models/User/userDetailSchema");
 const moment = require('moment');
 
 exports.createNotificationGroup = async(req,res) => {
+    console.log("createNotificationGroup")
     const {criteria, notificationGroupName} = req.body;
     try{
         const users = await getUsersFromCriteria(criteria);

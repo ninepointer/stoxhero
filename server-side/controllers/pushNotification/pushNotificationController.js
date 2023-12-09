@@ -4,7 +4,7 @@ const NotificationGroup = require("../../models/notificationGroup/notificationGr
 const multer = require('multer');
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
-const {createUserNotification} = require('../controllers/notification/notificationController');
+const {createUserNotification} = require('../../controllers/notification/notificationController');
 
 const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
