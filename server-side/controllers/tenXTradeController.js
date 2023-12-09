@@ -909,9 +909,15 @@ exports.autoExpireTenXSubscription = async () => {
           let payoutAmountWithoutTDS = Math.min(pnl, profitCap);
           let payoutAmount = payoutAmountWithoutTDS;
           if(payoutAmountWithoutTDS>users[j]?.fee){
-            payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100;
+            if (subscription[i]?.rewardType === "Cash") {
+              payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100;
+              // payoutAmountAdjusted = payoutAmount - (payoutAmount - fee) * setting[0]?.tdsPercentage / 100;
+            } else {
+              payoutAmount = payoutAmountWithoutTDS;
+            }
           }
     
+          const tdsAmount = subscription[i]?.rewardType === "Cash" ? (payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100 : 0;
 
           console.log("payoutAmount",pnlDetails[0]?.npnl, pnl, profitCap, subscription[i].profitCap, payoutPercentage, payoutAmountWithoutTDS, users[j]?.fee, daysDifference >= expiryDays)
 
@@ -983,11 +989,34 @@ exports.autoExpireTenXSubscription = async () => {
                 const wallet = await Wallet.findOne({userId: new ObjectId(userId)});
                 wallet.transactions = [...wallet.transactions, {
                       title: 'TenX Trading Payout',
-                      description: `Amount Credited for the profit of ${subscription[i]?.plan_name} subscription`,
+                      description: `Payout Credited for the profit of ${subscription[i]?.plan_name} subscription`,
                       amount: (payoutAmount?.toFixed(2)),
                       transactionId: uuid.v4(),
-                      transactionType: 'Cash'
+                      transactionType: subscription[i]?.rewardType === "Cash" ? 'Cash' : "Bonus"
                 }];
+
+                if (tdsAmount > 0 && subscription[i]?.tdsRelief) {
+                  wallet.transactions = [...wallet.transactions, {
+                      title: 'StoxHero CashBack',
+                      description: `Cashback of ${tdsAmount?.toFixed(2)} HeroCash - TenX ${subscription[i]?.plan_name} subscription TDS`,
+                      amount: (tdsAmount?.toFixed(2)),
+                      transactionId: uuid.v4(),
+                      transactionType: "Bonus"
+                  }];
+
+                  await createUserNotification({
+                      title: 'StoxHero CashBack',
+                      description: `Cashback of ${tdsAmount?.toFixed(2)} HeroCash - TenX ${subscription[i]?.plan_name} subscription TDS`,
+                      notificationType: 'Individual',
+                      notificationCategory: 'Informational',
+                      productCategory: 'TenX',
+                      user: user?._id,
+                      priority: 'Medium',
+                      channels: ['App', 'Email'],
+                      createdBy: '63ecbc570302e7cf0153370c',
+                      lastModifiedBy: '63ecbc570302e7cf0153370c'
+                  });
+              }
                 await wallet.save({session, validateBeforeSave:false});
 
                 if (process.env.PROD == 'true') {
@@ -1065,7 +1094,7 @@ exports.autoExpireTenXSubscription = async () => {
                       <p>Great news! We're thrilled to inform you that your TenX Subscription 💰 payout has been processed, and ${subscription[i]?.payoutPercentage}% of the Net P&L made under this subscription has been credited to your StoxHero Wallet 🎉. Please find the details below:</p>
                       <p>TenX Subscription: ${subscription[i]?.plan_name}</p>
                       <p>Subscription Purchase Date: ${moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a")}</p>
-                      <p>Amount Credited in StoxHero Wallet: ₹${payoutAmount.toLocaleString('en-IN')}</p>
+                      <p>Payout Credited in StoxHero Wallet: ${subscription[i]?.rewardType === "Cash" ? "₹"+payoutAmount.toLocaleString('en-IN') : "HeroCash "+payoutAmount.toLocaleString('en-IN')}</p>
                       <p>We are delighted to have traders like you on our platform. Keep learning and earning!</p>
                       <p>Note: 30% TDS has been deducted from your net payout amount.</p>
                       
@@ -1092,7 +1121,8 @@ exports.autoExpireTenXSubscription = async () => {
                 
                 await createUserNotification({
                   title:'TenX Payout Credited',
-                  description:`₹${payoutAmount?.toFixed(2)} credited for your profit in TenX plan ${subscription[i]?.plan_name}`,
+                  description:`${subscription[i]?.rewardType === "Cash" ? "₹"+payoutAmount?.toFixed(2) : "HeroCash "+payoutAmount?.toFixed(2)} credited for your profit in TenX plan ${subscription[i]?.plan_name}`,
+                  // description:`₹${payoutAmount?.toFixed(2)} credited for your profit in TenX plan ${subscription[i]?.plan_name}`,
                   notificationType:'Individual',
                   notificationCategory:'Informational',
                   productCategory:'TenX',
@@ -1104,7 +1134,7 @@ exports.autoExpireTenXSubscription = async () => {
                 }, session);
                 if(user?.fcmTokens?.length>0){
                   await sendMultiNotifications('TenX Payout Credited', 
-                    `₹${payoutAmount?.toFixed(2)} credited for your profit in TenX plan ${subscription[i]?.plan_name}`,
+                    `${subscription[i]?.rewardType === "Cash" ? "₹"+payoutAmount?.toFixed(2) : "HeroCash "+payoutAmount?.toFixed(2)} credited for your profit in TenX plan ${subscription[i]?.plan_name}`,
                     user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
                     )  
                 }

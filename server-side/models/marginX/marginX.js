@@ -58,6 +58,16 @@ const marginXSchema = new Schema({
         // required: true,
         enum: ['Completed','Not started','Processing']
     },
+    rewardType:{
+        type:String,
+        required: true,
+        enum: ['Cash','HeroCash']
+    },
+    tdsRelief:{
+        type:Boolean,
+        required: true,
+        default: false
+    },
     createdOn:{
         type: Date,
         required : true,
