@@ -21,7 +21,7 @@ const CompletedContest = () => {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(() => {
-    let call1 = axios.get(`${baseUrl}api/v1/dailycontest/contests/completedadmin?skip=${skip}&limit=${limitSetting}`, {
+    let call1 = axios.get(`${baseUrl}api/v1/notificationgroup/inactive?skip=${skip}&limit=${limitSetting}`, {
       withCredentials: true,
       headers: {
         Accept: "application/json",
@@ -51,7 +51,7 @@ const CompletedContest = () => {
     setSkip(prev => prev-limitSetting);
     setActive([]);
     setIsLoading(true)
-    axios.get(`${baseUrl}api/v1/dailycontest/contests/completedadmin?skip=${skip-limitSetting}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/notificationgroup/inactive?skip=${skip-limitSetting}&limit=${limitSetting}`,{
         withCredentials: true,
         headers: {
             Accept: "application/json",
@@ -100,7 +100,7 @@ const CompletedContest = () => {
 
   return (
     <>
-    {active.length > 0 ?
+    {active?.length > 0 ?
       
         <MDBox>
           <Grid container spacing={2} bgColor="dark">
@@ -118,7 +118,7 @@ const CompletedContest = () => {
                       component = {Link}
                       style={{minWidth:'100%'}}
                       to={{
-                          pathname: `/notification`,
+                          pathname: `/notificationdetails`,
                         }}
                       state={{data: e}}
                     >
@@ -132,7 +132,7 @@ const CompletedContest = () => {
                             </Grid>
 
                             <Grid item xs={12} md={6} lg={12} mt={1} mb={1} display="flex" justifyContent="left" >
-                              <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>Criteria: {e?.active}</MDTypography>
+                              <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>Users: {e?.users?.length}</MDTypography>
                             </Grid>
                           </Grid>
                     </MDButton>
@@ -145,7 +145,7 @@ const CompletedContest = () => {
           {!isLoading && count !== 0 &&
           <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
             <MDButton variant='outlined' color='warning' disabled={(skip + limitSetting) / limitSetting === 1 ? true : false} size="small" onClick={backHandler}>Back</MDButton>
-            <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Group: {!count ? 0 : count} | Page {(skip + limitSetting) / limitSetting} of {!count ? 1 : Math.ceil(count / limitSetting)}</MDTypography>
+            <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Groups: {!count ? 0 : count} | Page {(skip + limitSetting) / limitSetting} of {!count ? 1 : Math.ceil(count / limitSetting)}</MDTypography>
             <MDButton variant='outlined' color='warning' disabled={Math.ceil(count / limitSetting) === (skip + limitSetting) / limitSetting ? true : !count ? true : false} size="small" onClick={nextHandler}>Next</MDButton>
           </MDBox>
           }
