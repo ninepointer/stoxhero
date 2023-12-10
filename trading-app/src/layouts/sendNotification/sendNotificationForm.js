@@ -168,7 +168,7 @@ function Index() {
 
     const data = await res.json();
     console.log(data, res.status);
-    if (res.status !== 201 || res.status!= 200) {
+    if (res.status!= 200) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       openErrorSB("Notifications not sent", data?.message)
     } else {

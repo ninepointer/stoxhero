@@ -163,12 +163,13 @@ exports.getAllActiveTokens = async () => {
 }
 
 exports.sendGroupNotifications = async (req,res, next) => {
-    const{title, body, tokens, mediaUrl, actions}  = req.body;
+    let {title, body, tokens, mediaUrl, actions}  = req.body;
     const {id} = req.params;
     if(!actions){
         actions = 'home'
     }
     try{
+        console.log('upload url', req?.uploadUrl)
         const group = await NotificationGroup.findById(id);
         let groupUsers = group.users;
         for(let user of groupUsers){

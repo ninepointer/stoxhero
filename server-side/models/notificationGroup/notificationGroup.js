@@ -15,11 +15,11 @@ const notificationGroupSchema = new mongoose.Schema({
     lastNotificationTime: Date,
     lastUpdatedOn:{
         type: Date,
-        default: ()=> new Date()
+        default: () => new Date()
     },
     createdOn:{
         type: Date,
-        default: ()=> new Date()
+        default: () => new Date()
     },
     createdBy:{
         type:Schema.Types.ObjectId, 

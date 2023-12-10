@@ -636,11 +636,12 @@ exports.creditAmountToWallet = async () => {
                         if(marginxs[j]?.rewardType === "Cash"){
                             payoutAmountAdjusted = payoutAmount - (payoutAmount-fee)*setting[0]?.tdsPercentage/100;
                         } else{
-                        payoutAmountAdjusted = payoutAmount;
+                            payoutAmountAdjusted = payoutAmount;
                         }
                     }
-
+                    
                     const tdsAmount = marginxs[j]?.rewardType === "Cash" ? (payoutAmount-fee)*setting[0]?.tdsPercentage/100 : 0;
+                    const user = await User.findById(userId).select('email first_name last_name');
 
                     const wallet = await Wallet.findOne({ userId: userId });
                     console.log("second if", userId, pnlDetails[0], payoutAmount);
@@ -655,7 +656,7 @@ exports.creditAmountToWallet = async () => {
                             transactionId: uuid.v4(),
                             transactionType: marginxs[j]?.rewardType === "Cash" ? 'Cash' : "Bonus"
                         }];
-
+                        
                         if (tdsAmount > 0 && marginxs[j]?.tdsRelief) {
                             wallet.transactions = [...wallet.transactions, {
                                 title: 'StoxHero CashBack',
@@ -680,7 +681,6 @@ exports.creditAmountToWallet = async () => {
                         }
 
                         await wallet.save();
-                        const user = await User.findById(userId).select('email first_name last_name');
                         if (process.env.PROD == 'true') {
                             emailService(user?.email, 'MarginX Payout Credited - StoxHero', `
                             <!DOCTYPE html>
