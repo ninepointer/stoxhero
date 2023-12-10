@@ -488,7 +488,7 @@ try {
                 contestStartTime: { $gte: new Date() },
                 contestFor: "StoxHero",
                 contestStatus: "Active",
-                contestLiveTime: { $lte: tomorrow}
+                contestLiveTime: { $gte: new Date()}
             }
         },
         {

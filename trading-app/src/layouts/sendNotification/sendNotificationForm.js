@@ -28,6 +28,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
+import DefaultCarouselImage from '../../assets/images/defaultcarousel.png'
 // import User from './users';
 // import PotentialUser from "./data/potentialUsers";
 // import Leaderboard from "./data/contestWiseLeaderboard"
@@ -73,7 +74,7 @@ function Index() {
   const [sendNotificationData, setSendNotification] = useState([]);
   const [notification, setNotification] = useState([]);
   const [image, setImage] = useState(null);
-  const [titlePreviewUrl, setTitlePreviewUrl] = useState([]);
+  const [previewUrl, setPreviewUrl] = useState([]);
   // const [featuredRegistrations, setFeaturedRegistrations] = useState([]);
   // // const [careers,setCareers] = useState([]);
   // const [action, setAction] = useState(false);
@@ -83,7 +84,7 @@ function Index() {
   const [formState, setFormState] = useState({
     title: '' || sendNotification?.title,
     body: '' || sendNotification?.body,
-    notificatioImage: '' || sendNotification?.notificatioImage,
+    notificationImage: '' || sendNotification?.mediaUrl,
     notificationGroup: {
       id: "" || sendNotification?.notificationGroup?._id,
       name: "" || sendNotification?.notificationGroup?.notificationGroupName
@@ -92,7 +93,7 @@ function Index() {
 
 
   useEffect(() => {
-    axios.get(`${baseUrl}api/v1/notificationgroup`, {withCredentials: true})
+    axios.get(`${baseUrl}api/v1/notificationgroup/activegroups`, {withCredentials: true})
       .then((res) => {
         // console.log("TestZone Portfolios :", res?.data?.data)
         setNotification(res?.data?.data);
@@ -129,7 +130,7 @@ function Index() {
     // Create a FileReader instance
     const reader = new FileReader();
     reader.onload = () => {
-      setTitlePreviewUrl(reader.result);
+      setPreviewUrl(reader.result);
       // console.log("Title Preview Url:",reader.result)
     };
     reader.readAsDataURL(file);
@@ -149,6 +150,7 @@ function Index() {
     const {title, body, notificationGroup} = formState;
     const formData = new FormData();
     if (image) {
+      console.log('image hai');
       formData.append("notificationImage", image[0]);
     }
     formData.append('title', title);
@@ -157,7 +159,7 @@ function Index() {
       method: "POST",
       credentials: "include",
       headers: {
-        "content-type": "application/json",
+        // "content-type": "application/json",
         "Access-Control-Allow-Credentials": true
       },
       body: formData
@@ -166,11 +168,11 @@ function Index() {
 
     const data = await res.json();
     console.log(data, res.status);
-    if (res.status !== 201) {
+    if (res.status !== 201 || res.status!= 200) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
-      openErrorSB("TestZone not created", data?.message)
+      openErrorSB("Notifications not sent", data?.message)
     } else {
-      openSuccessSB("TestZone Created", data?.message)
+      openSuccessSB("Group Notifications sent", data?.message)
       setNewObjectId(data?.data?._id)
       setIsSubmitted(true)
       setSendNotification(data?.data);
@@ -305,12 +307,12 @@ function Index() {
           <MDBox pl={2} pr={2} mt={4}>
             <MDBox display="flex" justifyContent="space-between" alignItems="center">
               <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
-                Fill TestZone Details
+                Fill Notification Details
               </MDTypography>
             </MDBox>
 
             <Grid container display="flex" flexDirection="row" justifyContent="space-between">
-              <Grid container spacing={2} mt={0.5} mb={0} xs={12} md={12} xl={12}>
+              <Grid container spacing={2} mt={0.5} mb={0} xs={12} md={12} xl={9} display='flex' alignItems='flex-start' justifyContent='flex-start'>
                 <Grid item xs={12} md={6} xl={3}>
                   <TextField
                     disabled={((isSubmitted || sendNotification) && (!editing || saving))}
@@ -328,7 +330,7 @@ function Index() {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6} xl={3}>
+                <Grid item xs={12} md={6} xl={9}>
                   <TextField
                     disabled={((isSubmitted || sendNotification) && (!editing || saving))}
                     id="outlined-required"
@@ -345,8 +347,8 @@ function Index() {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6} xl={6}>
-                  <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth component="label">
+                <Grid item xs={12} md={6} xl={3}>
+                  <MDButton variant="outlined" style={{ fontSize: 10, color:'black', border:'1px black solid' }} fullWidth component="label">
                     Upload Image
                     <input
                       hidden
@@ -355,13 +357,27 @@ function Index() {
                       type="file"
                       // onChange={(e)=>{setTitleImage(e.target.files)}}
                       onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          notificationImage: e.target.files[0]
+                        }));
                         handleImage(e);
                       }}
                     />
                   </MDButton>
                 </Grid>
+                <Grid item xs={12} md={6} xl={4.5}>
+                  <TextField
+                          disabled
+                          id="outlined-required"
+                          // label='Selected Carousel Image'
+                          fullWidth
+                          // defaultValue={portfolioData?.portfolioName}
+                          value={sendNotification ?sendNotification?.mediaUrl.split("/")[6]  : (formState?.notificationImage?.name ? formState?.notificationImage?.name : "No Image Uploaded")}
+                      />
+                </Grid>
 
-                <Grid item xs={12} md={6} xl={3}>
+                <Grid item xs={12} md={6} xl={4.5}>
                   <FormControl sx={{ width:'100%' }}>
                     <InputLabel id="demo-multiple-name-label">Notification Group</InputLabel>
                     <Select
@@ -390,14 +406,23 @@ function Index() {
 
               </Grid>
 
+            <Grid container spacing={1} mt={0.5} mb={0} xs={12} md={3} xl={3}>
+            <Grid item xs={12} md={6} lg={12}>
+            {previewUrl ? 
+              <img src={previewUrl} style={{height:"200px", width:"250px",borderRadius:"5px", border:"1px #ced4da solid"}}/>
+            :
+              <img src={image} style={{height:"200px", width:"250px",borderRadius:"5px", border:"1px #ced4da solid"}}/>
+            }
             </Grid>
+            </Grid>
+        </Grid>
 
 
 
 
             <Grid container mt={2} xs={12} md={12} xl={12} >
               <Grid item display="flex" justifyContent="flex-end" xs={12} md={6} xl={12}>
-                {!isSubmitted && !sendNotification && (
+                {
                   <>
                     <MDButton
                       variant="contained"
@@ -407,47 +432,14 @@ function Index() {
                       disabled={creating}
                       onClick={(e) => { onSubmit(e, formState) }}
                     >
-                      {creating ? <CircularProgress size={20} color="inherit" /> : "Save"}
+                      {creating ? <CircularProgress size={20} color="inherit" /> : "Send"}
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/contestdashboard/dailycontest") }}>
+                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/tenxdashboard") }}>
                       Cancel
                     </MDButton>
                   </>
-                )}
-                {(isSubmitted || sendNotification) && !editing && (
-                  <>
-                  {sendNotification?.contestStatus !== "Completed" &&
-                    <MDButton variant="contained" color="warning" size="small" sx={{ mr: 1, ml: 2 }} onClick={() => { setEditing(true) }}>
-                      Edit
-                    </MDButton>}
-                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/contestdashboard/dailycontest') }}>
-                      Back
-                    </MDButton>
-                  </>
-                )}
-                {(isSubmitted || sendNotification) && editing && (
-                  <>
-                    <MDButton
-                      variant="contained"
-                      color="warning"
-                      size="small"
-                      sx={{ mr: 1, ml: 2 }}
-                      disabled={saving}
-                      onClick={(e) => { onEdit(e, formState) }}
-                    >
-                      {saving ? <CircularProgress size={20} color="inherit" /> : "Save"}
-                    </MDButton>
-                    <MDButton
-                      variant="contained"
-                      color="error"
-                      size="small"
-                      disabled={saving}
-                      onClick={() => { setEditing(false) }}
-                    >
-                      Cancel
-                    </MDButton>
-                  </>
-                )}
+                }
+
               </Grid>
 
 

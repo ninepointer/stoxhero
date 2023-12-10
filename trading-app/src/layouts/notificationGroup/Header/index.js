@@ -33,7 +33,7 @@ export default function LabTabs() {
     component={Link}
     to='/tenxdashboard'
     >
-        Back to TestZone Dashboard
+        Back to Notification Groups
     </MDButton>
     <MDButton 
     variant="outlined" 

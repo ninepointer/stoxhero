@@ -20,7 +20,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import RegisteredUsers from "./data/registeredUsers";
 import OutlinedInput from '@mui/material/OutlinedInput';
 // import Autocomplete from '@mui/material/Autocomplete';
-import {apiUrl} from "../../constants/constants"
+import {apiUrl} from "../../constants/constants";
+import moment from 'moment';
 
 const ITEM_HEIGHT = 30;
 const ITEM_PADDING_TOP = 10;
@@ -61,6 +62,7 @@ function Index() {
   }, [])
 
 
+  
 
   async function onSubmit(e, formState) {
     // console.log("inside submit")
@@ -260,6 +262,7 @@ function Index() {
                       <MenuItem value='Inactive Users'>Inactive Users</MenuItem>
                       <MenuItem value='Month Inactive Users'>Month Inactive Users</MenuItem>
                       <MenuItem value='Inactive Users Today'>Inactive Users Today</MenuItem>
+                      <MenuItem value='Test'>Test</MenuItem>
 
                     </Select>
                   </FormControl>
@@ -322,8 +325,18 @@ function Index() {
                       <MDButton variant="contained" color="warning" size="small" sx={{ mr: 1, ml: 2 }} onClick={() => { setEditing(true) }}>
                         Edit
                       </MDButton>}
-                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/contestdashboard/notificationData') }}>
+                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/notification') }}>
                       Back
+                    </MDButton>
+                    <MDButton
+                      variant="contained"
+                      color="warning"
+                      size="small"
+                      sx={{ mr: 1, ml: 2 }}
+                      disabled={saving}
+                      onClick={()=>{setAction(!action)}}
+                    >
+                      {"Refresh"}
                     </MDButton>
                   </>
                 )}
@@ -353,6 +366,12 @@ function Index() {
               </Grid>
 
               {(notification || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                
+                <MDBox display='flex' justifyContent='flex-end'>
+                  <MDTypography variant="h6">
+                    {`last refreshed at ${moment(notification?.lastUpdatedOn).format('DD-MM-YY HH:MM a')}`}
+                    </MDTypography>
+                </MDBox>
                 <MDBox>
                   <RegisteredUsers notification={notification || notificationData} action={action} setAction={setAction} />
                 </MDBox>

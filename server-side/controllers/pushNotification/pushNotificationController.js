@@ -1,6 +1,7 @@
 const {sendIndividualNotification, sendMultiNotifications} = require('../../utils/fcmService');
 const User = require('../../models/User/userDetailSchema');
 const NotificationGroup = require("../../models/notificationGroup/notificationGroup");
+const MarketingNotification = require("../../models/notifications/marketingNotification");
 const multer = require('multer');
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
@@ -164,18 +165,32 @@ exports.getAllActiveTokens = async () => {
 exports.sendGroupNotifications = async (req,res, next) => {
     const{title, body, tokens, mediaUrl, actions}  = req.body;
     const {id} = req.params;
+    if(!actions){
+        actions = 'home'
+    }
     try{
         const group = await NotificationGroup.findById(id);
         let groupUsers = group.users;
         for(let user of groupUsers){
             const userDoc = await User.findById(user).select("fcmTokens");
             if(userDoc.fcmTokens.length >0){
+                console.log('tokens', userDoc?.fcmTokens?.map(item=>item.token))
                 await sendMultiNotifications(title, body,
-                user?.fcmTokens?.map(item=>item.token), req?.uploadUrl, {route:actions}
+                userDoc?.fcmTokens?.map(item=>item.token), req?.uploadUrl, {route:actions}
                 )
             }
         }
-        group.lastNotificationDate = new Date();
+        const marketingNotification = await MarketingNotification.create({
+            title,
+            body,
+            mediaUrl:req?.uploadUrl ?? '',
+            actions: actions??'',
+            notificationGroup: group._id,
+            createdBy: req.user._id,
+            lastModifiedBy: req.user._id
+        })
+        group.notifications?.push(marketingNotification._id);
+        group.lastNotificationTime = new Date();
         await group.save({validateBeforeSave:false});
         res.status(200).json({status:'success', message:'Notifications sent'});
     }catch(e){

@@ -788,7 +788,7 @@ export default function LabTabs({socket}) {
                                 size="small" 
                                 component = {Link}
                                 to={{
-                                    pathname: `/sendnotification`,
+                                    pathname: `/sendnotificationdetails`,
                                   }}
                             >
                                 Send Notification

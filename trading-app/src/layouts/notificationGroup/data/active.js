@@ -21,7 +21,7 @@ const CompletedContest = () => {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(() => {
-    let call1 = axios.get(`${baseUrl}api/v1/dailycontest/contests/completedadmin?skip=${skip}&limit=${limitSetting}`, {
+    let call1 = axios.get(`${baseUrl}api/v1/notificationgroup/active?skip=${skip}&limit=${limitSetting}`, {
       withCredentials: true,
       headers: {
         Accept: "application/json",
@@ -32,8 +32,8 @@ const CompletedContest = () => {
     Promise.all([call1])
       .then(([api1Response]) => {
         // Process the responses here
-        setActive(api1Response.data.data)
-        setCount(api1Response.data.count)
+        setActive(api1Response?.data?.data)
+        setCount(api1Response?.data?.count)
         setTimeout(()=>{
           setIsLoading(false)
         },100)
@@ -51,7 +51,7 @@ const CompletedContest = () => {
     setSkip(prev => prev-limitSetting);
     setActive([]);
     setIsLoading(true)
-    axios.get(`${baseUrl}api/v1/dailycontest/contests/completedadmin?skip=${skip-limitSetting}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/notificationgroup/active?skip=${skip-limitSetting}&limit=${limitSetting}`,{
         withCredentials: true,
         headers: {
             Accept: "application/json",
@@ -100,7 +100,7 @@ const CompletedContest = () => {
 
   return (
     <>
-    {active.length > 0 ?
+    {active?.length > 0 ?
       
         <MDBox>
           <Grid container spacing={2} bgColor="dark">
@@ -118,7 +118,7 @@ const CompletedContest = () => {
                       component = {Link}
                       style={{minWidth:'100%'}}
                       to={{
-                          pathname: `/notification`,
+                          pathname: `/notificationdetails`,
                         }}
                       state={{data: e}}
                     >
@@ -132,7 +132,7 @@ const CompletedContest = () => {
                             </Grid>
 
                             <Grid item xs={12} md={6} lg={12} mt={1} mb={1} display="flex" justifyContent="left" >
-                              <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>Criteria: {e?.active}</MDTypography>
+                              <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>Users: {e?.users?.length}</MDTypography>
                             </Grid>
                           </Grid>
                     </MDButton>
@@ -145,7 +145,7 @@ const CompletedContest = () => {
           {!isLoading && count !== 0 &&
           <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
             <MDButton variant='outlined' color='warning' disabled={(skip + limitSetting) / limitSetting === 1 ? true : false} size="small" onClick={backHandler}>Back</MDButton>
-            <MDTypography color="light" fontSize={15} fontWeight='bold'>Total TestZones: {!count ? 0 : count} | Page {(skip + limitSetting) / limitSetting} of {!count ? 1 : Math.ceil(count / limitSetting)}</MDTypography>
+            <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Notification Groups: {!count ? 0 : count} | Page {(skip + limitSetting) / limitSetting} of {!count ? 1 : Math.ceil(count / limitSetting)}</MDTypography>
             <MDButton variant='outlined' color='warning' disabled={Math.ceil(count / limitSetting) === (skip + limitSetting) / limitSetting ? true : !count ? true : false} size="small" onClick={nextHandler}>Next</MDButton>
           </MDBox>
           }
@@ -153,7 +153,7 @@ const CompletedContest = () => {
         :
        <Grid container spacing={1} xs={12} md={6} lg={12}>
         <Grid item mt={2} xs={6} md={3} lg={12} display="flex" justifyContent="center">
-          <MDTypography color="light">No Upcoming TestZone(s)</MDTypography>
+          <MDTypography color="light">No Active Notification Groups</MDTypography>
         </Grid>
        </Grid>
        } 

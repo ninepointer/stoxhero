@@ -30,32 +30,74 @@ exports.createNotificationGroup = async(req,res) => {
 
 }
 
+exports.editNotificationGroup = async(req,res) => {
+    try {
+        const { id } = req.params; // ID of the marginX to edit
+        const updates = req.body;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ status: "error", message: "Invalid notification group ID" });
+        }
+
+        // Your additional checks and logic go here if necessary
+        const existing = await NotificationGroup.findById(id).select('criteria');
+        if(updates?.criteria && updates?.criteria != existing.criteria){
+            updates.users = await getUsersFromCriteria(updates?.criteria);
+        }
+        const result = await NotificationGroup.findByIdAndUpdate(id, updates, { new: true });
+
+        if (!result) {
+            return res.status(404).json({ status: "error", message: "Notification Group not found" });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            message: "Notification group updated successfully",
+        });
+    } catch (error) {
+        console.log('error' ,error);
+        res.status(500).json({
+            status: 'error',
+            message: "Error in updating notification group",
+            error: error.message
+        });
+    }
+}
+
 async function getUsersFromCriteria(criteria){
     let users = [];
 
     switch(criteria){
         case 'Lifetime Active Users':
             users = getActiveUsersSet(new Date('2022-08-01'), new Date());
+            break;
         case 'Monthly Active Users':
             const currentDate = moment();
             const firstDayOfMonth = currentDate.clone().startOf('month').format('YYYY-MM-DD');
             const lastDayOfMonth = currentDate.clone().endOf('month').format('YYYY-MM-DD');
             users = getActiveUsersSet(new Date(firstDayOfMonth), new Date());
+            break;
         case 'Lifetime Paid Users':
             users = await getPaidUsersSet(new Date('2022-08-01'), new Date());
-
+            break;
         case 'Inactive Users':
             users = getInactiveUsersSet(new Date('2022-08-01'), new Date());
-
+            break;
         case 'Month Inactive Users':
             users = getMonthInactiveUsers();
-
+            break;
         case 'Inactive Users Today':
             const today = new Date();
             const yesterday = new Date();
             yesterday.setDate(today.getDate() - 1);
             yesterday.setHours(0, 0, 0, 0);
             users = getInactiveUsersSet(yesterday, new Date());
+            break;
+        case 'Test':
+            users = ['642c6434573edbfcb2ac45a5', '6453c1435509f00c92fd59b7'];    
+        default:
+            console.log('no such criteria');
+            break;
     }
     return users;
 }
@@ -97,9 +139,10 @@ async function getActiveUsersSet(startDate, endDate){
       
 
 async function getInactiveUsersSet(startDate, endDate){
-    const activeUsers = getActiveUsersSet(startDate, endDate);
+    const activeUsers = await getActiveUsersSet(startDate, endDate);
     const allUserDocs = await User.find().select("_id");
     const allUsers = allUserDocs.map(item=>item._id.toString());
+    console.log('activeUsers',activeUsers)
     //find the difference between the arrays and store it in inactiveUsers
     let inactiveUsers = allUsers.filter(user => !activeUsers.includes(user));
     return inactiveUsers;
@@ -243,7 +286,7 @@ exports.refreshNotificationGroup = async (req,res) => {
     const {id} = req.params;
     try{
         const group = await NotificationGroup.findById(id);
-        const users = await getUsersFromCriteria(group.criteria);
+        const users = await getUsersFromCriteria(group?.criteria);
         group.users = users;
         group.lastUpdatedOn = new Date();
         group.lastmodifiedBy = req.user._id
@@ -259,9 +302,51 @@ exports.getNotificationGroups = async(req,res) => {
     const groups = await NotificationGroup.find({status:'Active'});
     res.status(200).json({status:'success',message:'Notification Groups fetched successfully'});
 }
+exports.getActiveNotificationGroups = async(req,res) => {
+    try{
+        const groups = await NotificationGroup.find({status:'Active'})
+        res.status(200).json({status:'success',message:'Notification Groups fetched successfully', data:groups});
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status:'error', message:'Something went wrong', error:e.message});
+    }
+}
+exports.getActiveNotificationGroupsWithoutUsers = async(req,res) => {
+    try{
+        const groups = await NotificationGroup.find({status:'Active'}).select("-users");
+        res.status(200).json({status:'success',message:'Notification Groups fetched successfully', data:groups});
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status:'error', message:'Something went wrong', error:e.message});
+    }
+}
+exports.getInactiveNotificationGroups = async(req,res) => {
+    try{
+        const groups = await NotificationGroup.find({status:'Inactive'})
+        res.status(200).json({status:'success',message:'Notification Groups fetched successfully', data:groups});
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status:'error', message:'Something went wrong', error:e.message});
+    }
+}
+exports.getDraftNotificationGroups = async(req,res) => {
+    try{
+        const groups = await NotificationGroup.find({status:'Draft'})
+        res.status(200).json({status:'success',message:'Notification Groups fetched successfully', data:groups});
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status:'error', message:'Something went wrong', error:e.message});
+    }
+}
+
 
 exports.getNotificationGroup = async(req,res) => {
     const {id} = req.params;
-    const group = await NotificationGroup.findById(id).populate('users', 'first_name last_name mobile joining_date activationDetails.activationDate campaignCode')
-
+    try{
+        const group = await NotificationGroup.findById(id).populate('users', 'first_name last_name mobile joining_date activationDetails.activationDate campaignCode')
+        res.status(200).json({status:'success',message:'Notification Groups fetched successfully', data:group});
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status:'error', message:'Something went wrong', error:e.message});
+    }
 }

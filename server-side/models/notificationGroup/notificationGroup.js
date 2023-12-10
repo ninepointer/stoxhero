@@ -9,7 +9,7 @@ const notificationGroupSchema = new mongoose.Schema({
     }],
     criteria:{
         type:'String',
-        enum:['Lifetime Active Users', 'Monthly Active Users', 'Lifetime Paid Users', 'Inactive Users', 'Month Inactive Users', 'Inactive Users Today']
+        enum:['Lifetime Active Users', 'Monthly Active Users', 'Lifetime Paid Users', 'Inactive Users', 'Month Inactive Users', 'Inactive Users Today', 'Test']
     },
     status:String,
     lastNotificationTime: Date,
@@ -30,7 +30,13 @@ const notificationGroupSchema = new mongoose.Schema({
         type:Schema.Types.ObjectId, 
         ref: 'user-personal-detail',
         // required: true
-    }
+    },
+    notifications:[
+        {
+            type: Schema.Types.ObjectId,
+            ref:'mareting-notification'
+        }
+    ]
 });
 
 const notificationGroup = mongoose.model("notification-group", notificationGroupSchema);
