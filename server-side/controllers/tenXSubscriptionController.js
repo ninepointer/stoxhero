@@ -39,7 +39,7 @@ exports.createTenXSubscription = async(req, res, next)=>{
 
     const tenXSubs = await TenXSubscription.create({plan_name:plan_name.trim(), actual_price, discounted_price, features, validity, validityPeriod,
         status, createdBy: req.user._id, lastModifiedBy: req.user._id, portfolio, profitCap, allowPurchase, allowRenewal, payoutPercentage,
-        expiryDays, rewardType, tdsRelief});
+        expiryDays, rewardType, tdsRelief: tdsRelief || false});
     
     res.status(201).json({message: 'TenX Subscription successfully created.', data:tenXSubs});
 }
