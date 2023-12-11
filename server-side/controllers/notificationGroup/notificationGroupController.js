@@ -8,10 +8,11 @@ const MarginXTrading = require('../../models/marginX/marginXUserMock');
 const BattleTrading = require('../../models/battle/battleTrade');
 const User = require("../../models/User/userDetailSchema");
 const moment = require('moment');
+const mongoose = require('mongoose');
 
 exports.createNotificationGroup = async(req,res) => {
     console.log("createNotificationGroup")
-    const {criteria, notificationGroupName} = req.body;
+    const {criteria, notificationGroupName, status} = req.body;
     try{
         const users = await getUsersFromCriteria(criteria);
         const group = await NotificationGroup.create({
@@ -20,7 +21,7 @@ exports.createNotificationGroup = async(req,res) => {
             criteria,
             createdBy:req.user._id,
             lastmodifiedBy:req.user._id,
-            status:'Active'
+            status:status??'Active'
         });
         res.status(201).json({status:'success', message:'Notification group created'})
     }catch(e){
@@ -33,7 +34,7 @@ exports.createNotificationGroup = async(req,res) => {
 exports.editNotificationGroup = async(req,res) => {
     try {
         const { id } = req.params; // ID of the marginX to edit
-        const updates = req.body;
+        let updates = req.body;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ status: "error", message: "Invalid notification group ID" });
@@ -94,7 +95,8 @@ async function getUsersFromCriteria(criteria){
             users = getInactiveUsersSet(yesterday, new Date());
             break;
         case 'Test':
-            users = ['642c6434573edbfcb2ac45a5', '6453c1435509f00c92fd59b7'];    
+            users = ['642c6434573edbfcb2ac45a5', '6453c1435509f00c92fd59b7'];
+            break;    
         default:
             console.log('no such criteria');
             break;

@@ -8,12 +8,13 @@ import moment from 'moment';
 import {apiUrl} from "../../../constants/constants";
 import axios from 'axios';
 
-export default function RegisteredUsers({ notification, action }) {
+export default function RegisteredUsers({ notification, action, lastRefresh, setLastRefresh }) {
   const [userData, setUserData] = useState([]);
   const isInitialMount = useRef(true);
   console.log('notificationId', notification?._id);
   let getNotificationGroup = async()=>{
     const res = await axios.get(`${apiUrl}notificationgroup/${notification?._id}`, {withCredentials:true});
+    setLastRefresh(res?.data?.data?.lastUpdatedOn);
     setUserData(res?.data?.data?.users);
   }
   let refreshUsers = async()=>{

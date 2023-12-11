@@ -46,6 +46,7 @@ function Index() {
   const [newObjectId, setNewObjectId] = useState("");
   const [notificationData, setNotificationData] = useState([]);
   const [action, setAction] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState();
   // let Url = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"
 
   const [formState, setFormState] = useState({
@@ -118,7 +119,7 @@ function Index() {
     const { notificationGroupName, criteria, status } = formState;
 
     const res = await fetch(`${apiUrl}notificationgroup/${notification?._id}`, {
-      method: "PUT",
+      method: "PATCH",
       credentials: "include",
       headers: {
         "content-type": "application/json",
@@ -369,11 +370,11 @@ function Index() {
                 
                 <MDBox display='flex' justifyContent='flex-end'>
                   <MDTypography variant="h6">
-                    {`last refreshed at ${moment(notification?.lastUpdatedOn).format('DD-MM-YY HH:MM a')}`}
+                    {`last refreshed at ${moment(lastRefresh ?? notification?.lastUpdatedOn).format('DD-MM-YY hh:mm a')}`}
                     </MDTypography>
                 </MDBox>
                 <MDBox>
-                  <RegisteredUsers notification={notification || notificationData} action={action} setAction={setAction} />
+                  <RegisteredUsers notification={notification || notificationData} action={action} setAction={setAction} lastRefresh={lastRefresh} setLastRefresh={setLastRefresh} />
                 </MDBox>
               </Grid>}
             </Grid>
