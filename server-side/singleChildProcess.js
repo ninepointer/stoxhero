@@ -87,7 +87,7 @@ async function singleProcess() {
         await createNewTicker(data.getApiKey, data.getAccessToken);
         // await subscribeInstrument();
         io.on("connection", async (socket) => {
-            console.log(socket) 
+            // console.log(socket) 
             socket.on('userId', async (data) => {
                 socket.join(`${data}`)
                 await client.set(socket.id, data);
@@ -134,25 +134,24 @@ async function singleProcess() {
                 client.expire(socket.id, 10);
             })
 
-            // socket.emit('e', async (data) => {
-            //     socket.join(`${data}`)
-            //     await client.set(socket.id, data);
-            // })
+            socket.on('equity-watchlist', async (data) => {
+                socket.join("equity")
+            })
 
             socket.on('company-ticks', async (data) => {
                 socket.join("company-side")
-                socket.join("equity")
+                
             });
 
-            socket.on('user-ticks', async (data) => {
-                socket.join("equity")
-            });
+            // socket.on('user-ticks', async (data) => {
+            //     socket.join("equity")
+            // });
 
             socket.on('leave-company-room', async (data) => {
                 socket.leave('company-side');
             });
 
-            socket.on('leave-equity', async (data) => {
+            socket.on('leave-equity-watchlist', async (data) => {
                 socket.leave('equity');
             });
             await subscribeWatchListInstrument(); //TODO toggle

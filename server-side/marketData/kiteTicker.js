@@ -81,7 +81,6 @@ const ticksData = async () => {
         io.emit('index-tick', indexData)
       }
 
-      console.log(equity)
       io?.to(`${'equity'}`).emit('equity-ticks', equity);
       io?.to(`${'company-side'}`).emit('tick', ticks);
 
