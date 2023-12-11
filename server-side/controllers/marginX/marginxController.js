@@ -993,7 +993,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
                     //Calculate amount and match
                     discountAmount = couponDoc?.discount;
                 }else{
-                    discountAmount = Math.min(couponDoc?.discount/100*(marginx?.marginXTemplate?.entryFee-bonusRedemption), couponDoc?.maxDiscount);
+                    discountAmount = Math.min(couponDoc?.discount/100*(marginx?.marginXTemplate?.entryFee), couponDoc?.maxDiscount);
                     
                 }
             }else{
@@ -1015,7 +1015,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
             }
         }
         const totalAmount = ((marginx?.marginXTemplate?.entryFee - discountAmount- bonusRedemption)*(1+setting[0]?.gstPercentage/100)).toFixed(2);
-        console.log('entry fee', entryFee, totalAmount);
+        console.log('entry fee', entryFee, totalAmount, marginx?.marginXTemplate?.entryFee , discountAmount, bonusRedemption);
         if(totalAmount != entryFee){
             return {
                 statusCode:400,

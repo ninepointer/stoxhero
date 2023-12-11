@@ -2,10 +2,8 @@
 // const Account =  require('../models/Trading Account/accountSchema');
 // const RequestToken = require("../models/Trading Account/requestTokenSchema");
 const Instrument = require("../models/Instruments/instrumentSchema");
-// const InstrumentMapping = require("../models/AlgoBox/instrumentMappingSchema");
+const EquityInstrument = require("../models/Instruments/equityStocks");
 const StockIndex = require("../models/StockIndex/stockIndexSchema");
-const ContestInstrument = require("../models/Instruments/contestInstrument");
-const InfinityInstrument = require("../models/Instruments/infinityInstrument");
 const {xtsAccountType, zerodhaAccountType} = require("../constant");
 const TradableInstrument = require("../models/Instruments/tradableInstrumentsSchema")
 
@@ -14,6 +12,7 @@ const fetchData = async () => {
 
   try{
 
+    const equityInstrument = await EquityInstrument.find();
     const resp = await Instrument.find({status: "Active"});
     const index = await StockIndex.find({status: "Active", accountType: zerodhaAccountType})
     const tradableInstrument = await TradableInstrument.find({earlySubscription: true});
@@ -27,6 +26,9 @@ const fetchData = async () => {
     }) 
  
     tradableInstrument.forEach((elem)=>{
+      tokens.push(elem.instrument_token);
+    }) 
+    equityInstrument.forEach((elem)=>{
       tokens.push(elem.instrument_token);
     }) 
   

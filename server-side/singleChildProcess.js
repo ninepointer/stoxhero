@@ -127,9 +127,6 @@ async function singleProcess() {
                 await webSocketService.getMessages(io, socket);
             });
 
-            // socket.emit('check', false)
-
-
             socket.on('disconnect', () => {
                 console.log("disconnecting socket")
 
@@ -137,47 +134,26 @@ async function singleProcess() {
                 client.expire(socket.id, 10);
             })
 
-            // socket.on('hi', async (data) => {
-            //     await onError();
-            //     await onOrderUpdate();
-
-            // });
-
+            // socket.emit('e', async (data) => {
+            //     socket.join(`${data}`)
+            //     await client.set(socket.id, data);
+            // })
 
             socket.on('company-ticks', async (data) => {
                 socket.join("company-side")
-                // console.log("in company-ticks event")
-                // if (setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType) {
-                //     await getTicksForCompanySide(socket);
-                // } else {
-                //     await getXTSTicksForCompanySide(socket);
-                // }
-
-                // await onError();
-                // await onOrderUpdate();
+                socket.join("equity")
             });
 
-            // socket.on('user-ticks', async (data) => {
-            //     console.log("in user-ticks event")
-            //     // await getTicksForUserPosition(socket, data);
-            //     // await positions();
-            //     if (setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType) {
-            //         await getTicksForUserPosition(socket, data);
-            //         // await getTicksForCompanySide(socket);
-            //         // await getDummyTicks(socket)
-            //     } else {
-            //         await getXTSTicksForUserPosition(socket, data);
-            //         await getXTSTicksForCompanySide(socket);
-            //     }
-
-            //     // await DummyMarketData(socket);
-            //     await onError();
-            //     await onOrderUpdate();
-
-            // });
+            socket.on('user-ticks', async (data) => {
+                socket.join("equity")
+            });
 
             socket.on('leave-company-room', async (data) => {
                 socket.leave('company-side');
+            });
+
+            socket.on('leave-equity', async (data) => {
+                socket.leave('equity');
             });
             await subscribeWatchListInstrument(); //TODO toggle
 
