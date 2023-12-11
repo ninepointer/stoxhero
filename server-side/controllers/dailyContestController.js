@@ -488,7 +488,7 @@ try {
                 contestStartTime: { $gte: new Date() },
                 contestFor: "StoxHero",
                 contestStatus: "Active",
-                contestLiveTime: { $lte: tomorrow}
+                contestLiveTime: { $lte: new Date()}
             }
         },
         {
@@ -1051,7 +1051,7 @@ exports.getCommpletedContestsAdmin = async (req, res) => {
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
             .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
             .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
-            .sort({ contestStartTime: -1 }).skip(skip).limit(limit)
+            .sort({ contestEndTime: -1, entryFee: -1 }).skip(skip).limit(limit)
         res.status(200).json({
             status: "success",
             message: "Upcoming TestZones fetched successfully",

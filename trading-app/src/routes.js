@@ -44,7 +44,9 @@ import CareerList from './layouts/career'
 import CareerDetails from './layouts/career/careerDetails'
 import BatchDetails from './layouts/internBatch/batchDetails'
 import DailyContestDetails from './layouts/dailyContest/dailyContestDetails'
-// import BattleDetails from './layouts/battle/battleDetails'
+import NotificationDetails from './layouts/notificationGroup/notificationDetails'
+
+import SendNotificationDetails from './layouts/sendNotification/sendNotificationDetails'
 import CampaignDetails from './layouts/campaign/campaignDetails'
 import ReferralProgramDetails from './layouts/referral-program/ReferralProgramDetails'
 import ContestPage from './layouts/UserContest/contestPage'
@@ -127,6 +129,9 @@ import CreatePaymentHeader from "./layouts/Payment/CreatePaymentHeader";
 import College from "./layouts/college";
 import InternBatch from "./layouts/internBatch";
 import DailyContest from "./layouts/dailyContest";
+import NotificationGroup from "./layouts/notificationGroup";
+import NotificationSend from "./layouts/sendNotification";
+
 import Battles from "./layouts/battle";
 import CollegeEdit from './layouts/college/CollegeEdit'
 import TenXTrading from "./layouts/tenXTrading"
@@ -467,10 +472,14 @@ const routes = [
     route: "/dailycontestdetails",
     component: <DailyContestDetails />,
   },
-  // {
-  //   route: "/battledetails",
-  //   component: <BattleDetails />,
-  // },
+  {
+    route: "/notificationdetails",
+    component: <NotificationDetails />,
+  },
+  {
+    route: "/sendnotificationdetails",
+    component: <SendNotificationDetails />,
+  },
   {
     route: "/campaigndetails",
     component: <CampaignDetails />,
@@ -799,6 +808,22 @@ const routes = [
     // icon: <BatchIcon/>,
     route: "/internshipbatch",
     component: <InternBatch />,
+  },
+  {
+    // type: "collapse",
+    // name: "Internship Batch",
+    key: "notification",
+    // icon: <BatchIcon/>,
+    route: "/notification",
+    component: <NotificationGroup />,
+  },
+  {
+    // type: "collapse",
+    // name: "Internship Batch",
+    key: "sendnotification",
+    // icon: <BatchIcon/>,
+    route: "/sendnotification",
+    component: <NotificationSend />,
   },
   {
     // type: "collapse",

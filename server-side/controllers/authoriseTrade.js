@@ -666,31 +666,26 @@ const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
         return openingBalance;
     }
 
-    // const totalMargin = pnlData.reduce((total, acc)=>{
-    //     return total + acc.margin;
-    // }, 0)
-    let closedNpnl = 0;
     let totalMargin = 0
     let runningLots = 0;
+    let amount = 0;
+    let margin = 0;
     for(let acc of pnlData){
-        closedNpnl += acc.lots === 0 && (acc.amount-acc.brokerage);
         totalMargin += acc.margin;
         runningLots += acc.lots;
+        if (acc._id.isLimit) {
+            margin += acc.margin;
+        } else {
+            amount += (acc.amount - acc.brokerage)
+        }
     }
-    // const closedNpnl = pnlData.reduce((total, acc)=>{
-    //     return total + (acc.amount-acc.brokerage);
-    // }, 0)
-    console.log("totalMargin", totalMargin)
-    console.log("closedNpnl", closedNpnl)
-    console.log("runningLots", runningLots)
-    console.log("npnl", npnl)
-    console.log("pnlData", pnlData)
     if (npnl < 0)
         // substract npnl for those positions only which are closed
         if (runningLots === 0) {
             return openingBalance - totalMargin + npnl;
         } else {
-            return openingBalance - totalMargin + closedNpnl;
+            console.log("margin", openingBalance  - (Math.abs(amount)+margin))
+            return openingBalance  - (Math.abs(amount)+margin);
         }
     else{
         return openingBalance - totalMargin;
