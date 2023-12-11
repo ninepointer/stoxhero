@@ -470,6 +470,103 @@ exports.myTodaysTrade = async (req, res, next) => {
     }
 }
 
+exports.getResultPagePnl = async (req, res, next) => {
+    let { id } = req.params;
+    let userId = req.user._id;
+
+    try {
+
+        const contest = await DailyContest.findOne({contestStatus: new ObjectId(id), contestStatus: "Completed"});
+        // console.log(contest?.contestName)
+        let data = {};
+        if(contest){
+            const result = await DailyContestMockUser.aggregate([
+                {
+                    $match:
+                    /**
+                     * query: The query in MQL.
+                     */
+                    {
+                        contestId: new ObjectId(
+                            id
+                        ),
+                        // trader: ObjectId('63788f3991fc4bf629de6df0')
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "daily-contests",
+                        localField: "contestId",
+                        foreignField: "_id",
+                        as: "contest",
+                    },
+                },
+                {
+                    $unwind: {
+                        path: "$contest",
+                    },
+                },
+                {
+                    $match:
+                    /**
+                     * query: The query in MQL.
+                     */
+                    {
+                        "contest.contestStatus": "Completed",
+                    },
+                },
+                {
+                    $group:
+                    {
+                        _id: {
+                            user: "$trader",
+                        },
+                        amount: {
+                            $sum: {
+                                $multiply: ["$amount", -1],
+                            },
+                        },
+                        brokerage: {
+                            $sum: {
+                                $toDouble: "$brokerage",
+                            },
+                        },
+                    },
+                },
+                {
+                    $project:
+                    {
+                        npnl: {
+                            $subtract: ["$amount", "$brokerage"],
+                        },
+                        user: "$_id.user",
+                        _id: 0
+                    },
+                },
+                {
+                    $sort:
+                    {
+                        npnl: -1,
+                    },
+                },
+            ])
+    
+            for(let i = 0; i < result.length; i++){
+                if(result[i]?.user?.toString() === userId?.toString()){
+                    result[i].rank = i+1;
+                    data = JSON.parse(JSON.stringify(result[i]));
+                }
+            }
+        }
+
+        return res.status(200).json({ status: 'success', message: 'result page data received', data: data || {} })
+
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({ status: 'error', message: 'something went wrong.' })
+    }
+}
+
 exports.getMyPnlAndCreditData = async (req, res, next) => {
     let { id } = req.params;
     // console.log("Batch:",batch)

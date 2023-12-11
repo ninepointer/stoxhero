@@ -40,10 +40,16 @@ function Header({ socket, data }) {
     let endTime = data?.endTime;
     // console.log("yesterdayPnl", yesterdayPnl)
     useEffect(() => {
+        const newendTime = new Date(endTime); // Replace this with your actual newendTime value
+        newendTime.setSeconds(newendTime.getSeconds() + 10);
+
+        const endTimeString = newendTime.toISOString().slice(0, 19);
+        // console.log("endTimeString", endTimeString);
+
         socket.on("serverTime", (time) => {
             const serverTimeString = new Date(time).toISOString().slice(0, 19); // Extract relevant parts
-            const endTimeString = new Date(endTime).toISOString().slice(0, 19); // Extract relevant parts
-            // console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
+            // const endTimeString = newEndTimeString
+            console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
             if (serverTimeString === endTimeString) {
                 navigate(`/testzone/result`, {
                     state: { contestId: contestId}

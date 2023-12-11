@@ -30,6 +30,7 @@ const createNewTicker = async (api_key, access_token) => {
     await ticker?.connect();
     await ticker?.autoReconnect(true, 10000000000, 5);
     await subscribeTokens();
+    // await getDummyTicks();
     await ticksData();
 
     await client6.SUBSCRIBE("subscribe-single-token", async (instruemnt) => {
@@ -126,12 +127,11 @@ const unSubscribeTokens = async (token) => {
   let x = ticker?.unsubscribe(tokens);
 }
 
-
-const getDummyTicks = async (socket) => {
+const getDummyTicks = async (id) => {
   const io = getIOValue();
-  let userId = await client.get(socket.id);
-  let filteredTicks = await DummyMarketData(socket);
-  io.to(userId).emit('tick-room-test', filteredTicks);
+  // let userId = await client.get(id.id);
+  let filteredTicks = await DummyMarketData(id);
+  io.to(id.toString()).emit('tick-room', filteredTicks);
 }
 
 async function pendingOrderProcess(ticks) {

@@ -2153,6 +2153,17 @@ exports.creditAmountToWallet = async () => {
                             )
                         }
                     }
+
+                    // io.to(`${userId?.toString()}${contest[j]?.toString()}`).emit('result', {
+                    //   payout: payoutAmount?.toFixed(2),
+                    //   npnl: pnlDetails[0]?.npnl,
+                    //   gpnl: pnlDetails[0]?.gpnl,
+                    //   trades: pnlDetails[0]?.trades,
+                    //   tradingDays: pnlDetails[0]?.tradingDays,
+                    //   brokerage: pnlDetails[0]?.brokerage,
+                    //   tdsAmount: tdsAmount > 0 ? tdsAmount : 0,
+                    //   herocashPayout: contest[j]?.tdsRelief ? (tdsAmount > 0 ? tdsAmount : 0) : 0
+                    // })
                 } else{
                   contest[j].participants[i].npnl = pnlDetails[0]?.npnl;
                   contest[j].participants[i].gpnl = pnlDetails[0]?.gpnl;

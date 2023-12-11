@@ -10,7 +10,7 @@ const { sendMyRankDataBattle, sendLeaderboardDataBattle } = require("./controlle
 
 const { saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, saveXtsMargin } = require("./controllers/marginRequired")
 const { autoCutMainManually, autoCutMainManuallyMock} = require("./controllers/AutoTradeCut/mainManually");
-const { createNewTicker, disconnectTicker,
+const { createNewTicker, disconnectTicker, getDummyTicks,
     subscribeTokens, subscribeWatchListInstrument,
 } = require('./marketData/kiteTicker');
 // getTicksForContest
@@ -91,6 +91,7 @@ async function singleProcess() {
             socket.on('userId', async (data) => {
                 socket.join(`${data}`)
                 await client.set(socket.id, data);
+                // await getDummyTicks(data)
             })
 
             socket.on('chart-room', async (data) => {
@@ -254,6 +255,12 @@ async function singleProcess() {
     // const dailyContesttimeStore = nodeCron.schedule(`*/59 * * * * *`, dailyContestTimeStore);
 
     }
+
+
+    const dailyContest = nodeCron.schedule(`24 20 * * *`, dailyContestTradeCut);
+    // const dailyContest2oclock = nodeCron.schedule(`31 8 * * *`, dailyContestTradeCut);
+    const dailyContesttimeStore = nodeCron.schedule(`45 19 * * *`, dailyContestTimeStore);
+
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
     app.use(express.json({ limit: "10mb" }));
