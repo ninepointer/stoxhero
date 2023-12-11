@@ -1249,43 +1249,45 @@ const dailyContestSingleMockMod = async (contestId) => {
         ]
       );
       console.log(data.length);
-      if (data.length == 0) return;
-      const system = await User.findOne({ email: 'system@ninepointer.in' }).select('_id');
-      //const uniqueInstrumentTokens = [...new Set(data.map(item => item.instrumentToken))];
-      const uniqueTokensMap = {};
-      const uniqueInstrumentObjects = data.filter(item => {
-        if (!uniqueTokensMap[item.instrumentToken]) {
-          uniqueTokensMap[item.instrumentToken] = true;
-          return true; // Keep this item
-        }
-        return false; // Discard this item
-      }).map(item => ({
-        instrumentToken: item.instrumentToken,
-        exchange: item.exchange,
-        symbol: item.symbol
-      }));
-      console.log('getting contest');
-      const pricesByTokens = await fetchPricesForTokensArr(uniqueInstrumentObjects);
-      const companyTradeObjects = data.map((item) => {
-        return {
-          status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity: -(item?.runningLots), Product: "NRML",
-          buyOrSell: item?.runningLots > 0 ? 'SELL' : 'BUY', variety: "regular", validity: "DAY", exchange: item?.exchange, order_type: "MARKET",
-          symbol: item?.symbol, placed_by: "stoxhero", order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`,
-          instrumentToken: item?.instrumentToken, contestId: item?.contestId, algoBox: item?.algoBoxId, exchangeInstrumentToken: item?.exchangeInstrumentToken, createdBy: system?._id, trader: item?.userId, amount: (Number(-item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5 * 60 + 30) * 60 * 1000),
-        }
-      });
-      const userTradeObjects = data.map((item) => {
-        return {
-          status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity: (item?.runningLots), Product: "NRML",
-          buyOrSell: item?.runningLots < 0 ? 'SELL' : 'BUY', variety: "regular", validity: "DAY", exchange: item?.exchange, order_type: "MARKET",
-          symbol: item?.symbol, placed_by: "stoxhero", order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`, isRealTrade: false,
-          instrumentToken: item?.instrumentToken, contestId: item?.contestId, exchangeInstrumentToken: item?.exchangeInstrumentToken, createdBy: system?._id, trader: item?.userId, amount: (Number(item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5 * 60 + 30) * 60 * 1000),
-        }
-      });
-      console.log('userTrades', userTradeObjects);
-      console.log('company trades', companyTradeObjects);
-
-      await takeDailyContestMockTrades(companyTradeObjects, userTradeObjects);
+      if (data.length !== 0){
+        const system = await User.findOne({ email: 'system@ninepointer.in' }).select('_id');
+        //const uniqueInstrumentTokens = [...new Set(data.map(item => item.instrumentToken))];
+        const uniqueTokensMap = {};
+        const uniqueInstrumentObjects = data.filter(item => {
+          if (!uniqueTokensMap[item.instrumentToken]) {
+            uniqueTokensMap[item.instrumentToken] = true;
+            return true; // Keep this item
+          }
+          return false; // Discard this item
+        }).map(item => ({
+          instrumentToken: item.instrumentToken,
+          exchange: item.exchange,
+          symbol: item.symbol
+        }));
+        console.log('getting contest');
+        const pricesByTokens = await fetchPricesForTokensArr(uniqueInstrumentObjects);
+        const companyTradeObjects = data.map((item) => {
+          return {
+            status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity: -(item?.runningLots), Product: "NRML",
+            buyOrSell: item?.runningLots > 0 ? 'SELL' : 'BUY', variety: "regular", validity: "DAY", exchange: item?.exchange, order_type: "MARKET",
+            symbol: item?.symbol, placed_by: "stoxhero", order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`,
+            instrumentToken: item?.instrumentToken, contestId: item?.contestId, algoBox: item?.algoBoxId, exchangeInstrumentToken: item?.exchangeInstrumentToken, createdBy: system?._id, trader: item?.userId, amount: (Number(-item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5 * 60 + 30) * 60 * 1000),
+          }
+        });
+        const userTradeObjects = data.map((item) => {
+          return {
+            status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity: (item?.runningLots), Product: "NRML",
+            buyOrSell: item?.runningLots < 0 ? 'SELL' : 'BUY', variety: "regular", validity: "DAY", exchange: item?.exchange, order_type: "MARKET",
+            symbol: item?.symbol, placed_by: "stoxhero", order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`, isRealTrade: false,
+            instrumentToken: item?.instrumentToken, contestId: item?.contestId, exchangeInstrumentToken: item?.exchangeInstrumentToken, createdBy: system?._id, trader: item?.userId, amount: (Number(item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5 * 60 + 30) * 60 * 1000),
+          }
+        });
+        console.log('userTrades', userTradeObjects);
+        console.log('company trades', companyTradeObjects);
+  
+        await takeDailyContestMockTrades(companyTradeObjects, userTradeObjects);
+  
+      }
 
       resolve();
     } catch (err) {
