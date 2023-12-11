@@ -1179,6 +1179,8 @@ const dailyContestSingleMockMod = async (contestId) => {
       }
       await client.set('stoploss-stopprofit', JSON.stringify(stopLossData));
 
+      // router.route('/:id/result').get(Authenticate, getResultPagePnl)
+
 
       const data = await DailyContestMock.aggregate(
         [
