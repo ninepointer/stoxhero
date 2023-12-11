@@ -37,7 +37,7 @@ const TenXSubscription = new mongoose.Schema({
     },
     tdsRelief:{
         type:Boolean,
-        required: true,
+        // required: true,
         default: false
     },
     isRecommended:{

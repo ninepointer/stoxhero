@@ -3266,8 +3266,8 @@ router.get("/referralCode", async (req, res) => {
 // })
 
 router.get("/Tradable", authentication, async (req, res, next) => {
-  // await TradableInstrument.tradableInstrument(req, res, next);
-  await TradableInstrument.tradableNSEInstrument(req, res, next);
+  await TradableInstrument.tradableInstrument(req, res, next);
+  // await TradableInstrument.tradableNSEInstrument(req, res, next);
 
 })
 // router.get("/updateInstrumentStatus", async (req, res) => {
