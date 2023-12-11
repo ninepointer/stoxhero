@@ -257,11 +257,6 @@ async function singleProcess() {
     }
 
 
-    const dailyContest = nodeCron.schedule(`24 20 * * *`, dailyContestTradeCut);
-    // const dailyContest2oclock = nodeCron.schedule(`31 8 * * *`, dailyContestTradeCut);
-    const dailyContesttimeStore = nodeCron.schedule(`45 19 * * *`, dailyContestTimeStore);
-
-
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
     app.use(express.json({ limit: "10mb" }));
     app.use(require("cookie-parser")());

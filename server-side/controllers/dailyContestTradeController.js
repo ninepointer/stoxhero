@@ -476,7 +476,7 @@ exports.getResultPagePnl = async (req, res, next) => {
 
     try {
 
-        const contest = await DailyContest.findOne({contestStatus: new ObjectId(id), contestStatus: "Completed"});
+        const contest = await DailyContest.findOne({_id: new ObjectId(id), contestStatus: "Completed"});
         // console.log(contest?.contestName)
         let data = {};
         if(contest){
