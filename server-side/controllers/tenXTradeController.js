@@ -948,6 +948,7 @@ exports.autoExpireTenXSubscription = async () => {
                   }else{
                     user.subscription[k].payout=0;
                     user.subscription[k].tdsAmount=0;
+                    user.subscription[k].herocashPayout = 0;
                   }
                   // console.log("this is user", user)
                   await user.save({session, validateBeforeSave:false});
@@ -978,6 +979,7 @@ exports.autoExpireTenXSubscription = async () => {
                   }else{
                     subs.users[k].payout=0;
                     subs.users[k].tdsAmount=0;
+                    subs.users[k].herocashPayout = 0;
                   }
                   // console.log("this is subs", subs)
                   await subs.save({session, validateBeforeSave:false});
