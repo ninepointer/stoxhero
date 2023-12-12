@@ -11,7 +11,7 @@ const { sendMyRankDataBattle, sendLeaderboardDataBattle } = require("./controlle
 const { saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, saveXtsMargin } = require("./controllers/marginRequired")
 const { autoCutMainManually, autoCutMainManuallyMock} = require("./controllers/AutoTradeCut/mainManually");
 const { createNewTicker, disconnectTicker, getDummyTicks,
-    subscribeTokens, subscribeWatchListInstrument,
+    subscribeTokens, subscribeWatchListInstrument, tempGetTicks,
 } = require('./marketData/kiteTicker');
 // getTicksForContest
 
@@ -144,9 +144,10 @@ async function singleProcess() {
                 
             });
 
-            // socket.on('user-ticks', async (data) => {
-            //     socket.join("equity")
-            // });
+            socket.on('user-ticks', async (data) => {
+                // socket.join("equity")
+                await tempGetTicks();
+            });
 
             socket.on('leave-company-room', async (data) => {
                 socket.leave('company-side');

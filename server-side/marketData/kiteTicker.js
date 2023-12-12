@@ -1,6 +1,6 @@
 const kiteTicker = require('kiteconnect').KiteTicker;
 const fetchToken = require('./fetchToken');
-// const getKiteCred = require('./getKiteCred');
+const getKiteCred = require('./getKiteCred');
 // const RetreiveOrder = require("../models/TradeDetails/retreiveOrder")
 const StockIndex = require("../models/StockIndex/stockIndexSchema");
 // const ContestInstrument = require("../models/Instruments/contestInstrument");
@@ -13,7 +13,7 @@ const { zerodhaAccountType } = require("../constant");
 const Instrument = require("../models/Instruments/instrumentSchema");
 let { client6 } = require("../marketData/redisClient");
 const {equityInstrumentArray} = require('../controllers/TradableInstrument/searchInstrument')
-
+const axios = require('axios');
 let ticker;
 client6.connect().then(()=>{});
 
@@ -134,6 +134,57 @@ const getDummyTicks = async (id) => {
   io.to(id.toString()).emit('tick-room', filteredTicks);
 }
 
+const tempGetTicks = async (id) => {
+  const io = getIOValue();
+  getKiteCred.getAccess().then(async (data) => {
+    let {getApiKey, getAccessToken} = data;
+    const stockIndex = await StockIndex.find({status: "Active"});
+    
+    let addUrl;
+    stockIndex.forEach((elem, index) => {
+      if (index === 0) {
+        addUrl = ('i=' + elem.exchange + ':' + elem.instrumentSymbol);
+      } else {
+        addUrl += ('&i=' + elem.exchange + ':' + elem.instrumentSymbol);
+      }
+    });
+
+    let url = `https://api.kite.trade/quote/ohlc?${addUrl}`;
+    const api_key = getApiKey; 
+    const access_token = getAccessToken;
+    let auth = 'token' + api_key + ':' + access_token;
+  
+    let authOptions = {
+      headers: {
+        'X-Kite-Version': '3',
+        Authorization: auth,
+      },
+    };
+  // console.log(url, authOptions);
+    let arr = [];
+      try{
+        const response = await axios.get(url, authOptions);
+        
+        for (let instrument in response.data.data) {
+          // console.log("response", response.data.data[instrument])
+            let obj = {};
+            obj.last_price = response.data.data[instrument].last_price;
+            obj.instrument_token = response.data.data[instrument].instrument_token;
+            obj.average_price = response.data.data[instrument].last_price;
+            obj.timestamp = new Date();
+            obj.change = (response.data.data[instrument].last_price - response.data.data[instrument].ohlc.close)*100/response.data.data[instrument].ohlc.close;
+            arr.push(obj);
+        }
+  
+        // console.log("Arr", arr)
+        io.emit('index-tick', arr);
+
+      } catch (err){
+        console.log(err)
+    }  
+  });
+}
+
 async function pendingOrderProcess(ticks) {
   try {
     let data = await client.get('stoploss-stopprofit');
@@ -228,7 +279,7 @@ async function index(){
 
 
 const getTicker = () => ticker;
-module.exports = { createNewTicker, disconnectTicker, subscribeTokens, getTicker, onError, unSubscribeTokens, subscribeWatchListInstrument, 
+module.exports = {tempGetTicks, createNewTicker, disconnectTicker, subscribeTokens, getTicker, onError, unSubscribeTokens, subscribeWatchListInstrument, 
   // getTicksForUserPosition, 
   getDummyTicks, 
   // getTicksForCompanySide
