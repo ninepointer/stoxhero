@@ -1,4 +1,5 @@
-import * as React from 'react';
+import React, {useEffect} from 'react';
+import axios from 'axios';
 import Box from '@mui/material/Box';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
@@ -10,6 +11,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Grid } from '@mui/material'
 import MDTypography from '../../../components/MDTypography';
+import {apiUrl} from "../../../constants/constants"
 
 export default function MaxWidthDialog({ subscription, isActive }) {
   const [open, setOpen] = React.useState(false);
@@ -35,9 +37,35 @@ export default function MaxWidthDialog({ subscription, isActive }) {
   //   setFullWidth(event.target.checked);
   // };
 
-  // useEffect(()=>{
+  console.log("subscription", subscription)
 
-  // }, [])
+  useEffect(()=>{
+    axios.get(`${apiUrl}tenx/${subscription?._id}/trade/livesubscriptionpnl/${subscription?.subscribedOn}`,{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+        },
+      })
+    .then((api1Response)=>{
+      
+      // const cashTransactions = (api1Response?.data?.data)?.transactions?.filter((transaction) => {
+      //   return transaction.transactionType === "Cash";
+      // });
+      // const bonusTransactions = (api1Response?.data?.data)?.transactions?.filter((transaction) => {
+      //   return transaction.transactionType === "Bonus";
+      // });
+      // const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
+      //   return total + transaction?.amount;
+      // }, 0);
+      // const totalBonusAmount = bonusTransactions?.reduce((total, transaction) => {
+      //   return total + transaction?.amount;
+      // }, 0);
+      // setCashBalance(totalCashAmount);
+      // setBonusBalance(totalBonusAmount);
+    })
+  }, [open])
 
   return (
     <React.Fragment>

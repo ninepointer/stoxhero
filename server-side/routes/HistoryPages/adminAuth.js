@@ -92,40 +92,41 @@ const {dailyContestTimeStore} = require("../../dailyContestTradeCut")
 const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema");
 
 
-router.get('/negetivetds', async (req, res) => {
-  const tenx = await TenxSubscription.find().select('users');
+router.get('/negetivetds', async(req,res) =>{
+  // const tenx = await TenxSubscription.find();
 
   // const promises = tenx.map(async (elem) => {
   //   for (let subelem of elem.users) {
-  //     if (subelem.expiredOn > new Date("2023-12-10")) {
-  //       subelem.herocashPayout = subelem.tdsAmount;
+  //     if (subelem.tdsAmount < 0) {
+  //       subelem.tdsAmount = 0;
   //       console.log(subelem);
   //     }
   //   }
 
-    // await elem.save({ validateBeforeSave: false });
+  //   await elem.save({validateBeforeSave: false});
 
-    // const tenx = await DailyContest.find();
+  
 
-    // const promises = tenx.map(async (elem) => {
-    //   for (let subelem of elem.participants) {
-    //     if (subelem.tdsAmount < 0) {
-    //       subelem.tdsAmount = 0;
-    //       subelem.herocashPayout = 0;
-    //       console.log(subelem);
-    //     }
-    //   }
+  const tenx = await MarginX.find();
 
-    //   await elem.save({validateBeforeSave: false});
+  const promises = tenx.map(async (elem) => {
 
+    if(elem.startTime > new Date("2023-12-10")){
+      for (let subelem of elem.participants) {
+        // if (subelem.tdsAmount < 0) {
+          // subelem.tdsAmount = 0;
+          subelem.herocashPayout = subelem.tdsAmount
+          console.log(subelem);
+        // }
+      }
+  
+      await elem.save({validateBeforeSave: false});
+  
+    }
+  });
 
-    // });
-
-    // // Wait for all promises to resolve before continuing
-    // await Promise.all(promises);
-  // })
-
-  res.send('ok')
+  // Wait for all promises to resolve before continuing
+  await Promise.all(promises);
 })
 
 
