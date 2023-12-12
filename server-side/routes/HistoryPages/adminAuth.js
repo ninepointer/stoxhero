@@ -92,6 +92,39 @@ const {dailyContestTimeStore, dailyContestTradeCut} = require("../../dailyContes
 const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema");
 
 
+router.get('/negetivetds', async(req,res) =>{
+  // const tenx = await TenxSubscription.find();
+
+  // const promises = tenx.map(async (elem) => {
+  //   for (let subelem of elem.users) {
+  //     if (subelem.tdsAmount < 0) {
+  //       subelem.tdsAmount = 0;
+  //       console.log(subelem);
+  //     }
+  //   }
+
+  //   await elem.save({validateBeforeSave: false});
+
+  const tenx = await DailyContest.find();
+
+  const promises = tenx.map(async (elem) => {
+    for (let subelem of elem.participants) {
+      if (subelem.tdsAmount < 0) {
+        subelem.tdsAmount = 0;
+        subelem.herocashPayout = 0;
+        console.log(subelem);
+      }
+    }
+
+    await elem.save({validateBeforeSave: false});
+
+
+  });
+
+  // Wait for all promises to resolve before continuing
+  await Promise.all(promises);
+})
+
 router.get('/pendingorder', async (req, res) => {
 
   let stopLossData = await client.get('stoploss-stopprofit');
@@ -147,7 +180,6 @@ router.get('/pendingorder', async (req, res) => {
   // }
   res.send("ok")
 })
-
 
 router.get('/updateactivationdate', async (req, res) => {
   // let ids = ["64e4d0bb3901d36ce7730549", "64ab9b1bbc383a1888d605ce",
