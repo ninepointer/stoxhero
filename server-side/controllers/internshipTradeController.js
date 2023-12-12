@@ -1489,8 +1489,8 @@ exports.updateUserWallet = async () => {
 
     let date = new Date();
 
-    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    // let todayDate = `2023-11-27`
+    // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    let todayDate = `2023-12-11`
 
     let endOfToday = todayDate + "T23:59:59.400Z"
     const setting = await Setting.find();
@@ -1569,7 +1569,7 @@ exports.updateUserWallet = async () => {
                 }
               }
               if (eligible) {
-                if (process.env.PROD == 'true') {
+                // if (process.env.PROD == 'true') {
                   sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
                 <!DOCTYPE html>
                 <html>
@@ -1654,7 +1654,7 @@ exports.updateUserWallet = async () => {
                     </body>
                     </html>
                   `);
-                }
+                // }
                 await createUserNotification({
                   title: 'Internship Payout Credited',
                   description: `${elem.rewardType === "Cash" ? "₹"+creditAmount?.toFixed(2) : "HeroCash "+creditAmount?.toFixed(2)} credited for your internship profit`,
@@ -1698,7 +1698,7 @@ exports.updateUserWallet = async () => {
                     lastModifiedBy: '63ecbc570302e7cf0153370c'
                   }, session);
                 }
-                await wallet.save({ session });
+                await wallet.save({ session, validateBeforeSave: false });
                 users[i].payout = creditAmount.toFixed(2);
                 users[i].tradingdays = tradingdays;
                 users[i].attendance = attendance.toFixed(2);
@@ -1739,7 +1739,7 @@ exports.updateUserWallet = async () => {
         elem.workingDays = workingDays;
         elem.batchStatus = 'Completed';
 
-        await elem.save();
+        await elem.save({validateBeforeSave: false});
       }
     }
   } catch (err) {
