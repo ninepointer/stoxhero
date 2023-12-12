@@ -2,8 +2,8 @@ const express = require("express");
 const router = express.Router({mergeParams: true});
 const {liveTotalTradersCount, overallDailyContestTraderPnl, overallDailyContestCompanySidePnlThisMonth,
     overallPnlTrader, myTodaysTrade, getMyPnlAndCreditData, getRedisMyRankHTTP,overallDailyContestCompanySidePnlLifetime,
-    myPnlAndPayout, overallDailyContestPnlYesterday, DailyContestPayoutChart, myDayWisePnl,
-    liveTotalTradersCountYesterday, traderWiseMockCompanySide, DailyContestPnlTWiseTraderSide, getResultPagePnl,
+    myPnlAndPayout, overallDailyContestPnlYesterday, DailyContestPayoutChart, myDayWisePnl, getResultPagePnl,
+    liveTotalTradersCountYesterday, traderWiseMockCompanySide, DailyContestPnlTWiseTraderSide,
     DailyContestPnlTWise, traderWiseMockTraderSide, getRedisLeaderBoard, getContestWiseLeaderboard } = require('../../controllers/dailyContestTradeController');
 
 const restrictTo = require('../../authentication/authorization');
