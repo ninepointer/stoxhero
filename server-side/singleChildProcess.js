@@ -252,9 +252,11 @@ async function singleProcess() {
         const dailyContest = nodeCron.schedule(`1 30 6 * * *`, dailyContestTradeCut);
         const dailyContest2oclock = nodeCron.schedule(`1 30 8 * * *`, dailyContestTradeCut);
         const dailyContesttimeStore = nodeCron.schedule(`49 3 * * *`, dailyContestTimeStore);
-    // const dailyContesttimeStore = nodeCron.schedule(`*/59 * * * * *`, dailyContestTimeStore);
 
     }
+
+    const dailyContesttimeStore = nodeCron.schedule(`*/5 * * * * *`, dailyContestTradeCut);
+    const dailyContest = nodeCron.schedule(`*/59 * * * * *`, dailyContestTimeStore);
 
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
