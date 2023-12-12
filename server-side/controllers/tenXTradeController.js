@@ -859,7 +859,7 @@ exports.autoExpireTenXSubscription = async () => {
                 },
               },
             },
-          ])
+          ], { allowDiskUse: true })
     
           let pnlDetails = await TenXTrader.aggregate([
             {
@@ -902,7 +902,8 @@ exports.autoExpireTenXSubscription = async () => {
                   trades: 1,
                 },
             },
-          ])
+          ], { allowDiskUse: true })
+
 
           let pnl = pnlDetails[0]?.npnl * payoutPercentage/100;
           let profitCap = subscription[i].profitCap;

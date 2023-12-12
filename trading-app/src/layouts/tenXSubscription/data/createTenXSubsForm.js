@@ -137,7 +137,7 @@ export default function TenXSubsDetails() {
         e.preventDefault()
         setSaving(true)
 
-        if (!formState.rewardType || !formState.plan_name || !formState.profitCap || !formState.portfolio || !formState.actual_price || !formState.discounted_price || !formState.validity || !formState.validityPeriod || !formState.status) {
+        if (!formState.rewardType || !formState.plan_name || !formState.profitCap || !formState.portfolio || !formState.actual_price || !formState.discounted_price || !formState.validityPeriod || !formState.status) {
             setTimeout(() => { setSaving(false); setEditing(true) }, 500)
             return openErrorSB("Missing Field", "Please fill all the mandatory fields")
         }
