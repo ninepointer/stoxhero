@@ -255,8 +255,8 @@ async function singleProcess() {
 
     }
 
-    const dailyContesttimeStore = nodeCron.schedule(`*/5 * * * * *`, dailyContestTradeCut);
-    const dailyContest = nodeCron.schedule(`*/59 * * * * *`, dailyContestTimeStore);
+    // const dailyContesttimeStore = nodeCron.schedule(`*/5 * * * * *`, dailyContestTradeCut);
+    // const dailyContest = nodeCron.schedule(`*/59 * * * * *`, dailyContestTimeStore);
 
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
