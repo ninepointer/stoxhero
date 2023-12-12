@@ -789,7 +789,9 @@ exports.creditAmountToWallet = async () => {
                     }
  
                     marginxs[j].participants[i].payout = payoutAmountAdjusted?.toFixed(2);
-                    marginxs[j].participants[i].tdsAmount = payoutAmount>fee?((payoutAmount- fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
+                    marginxs[j].participants[i].tdsAmount = tdsAmount > 0 ? tdsAmount : 0;
+                    marginxs[j].participants[i].herocashPayout = tdsAmount > 0 ? tdsAmount : 0;
+
                     await marginxs[j].save();
                 }
             }

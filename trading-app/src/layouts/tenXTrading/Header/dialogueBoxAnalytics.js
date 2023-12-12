@@ -6,12 +6,12 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
+// import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Grid } from '@mui/material'
 import MDTypography from '../../../components/MDTypography';
 
-export default function MaxWidthDialog({ subscription }) {
+export default function MaxWidthDialog({ subscription, isActive }) {
   const [open, setOpen] = React.useState(false);
   const [fullWidth, setFullWidth] = React.useState(true);
   const [maxWidth, setMaxWidth] = React.useState('sm');
@@ -24,16 +24,20 @@ export default function MaxWidthDialog({ subscription }) {
     setOpen(false);
   };
 
-  const handleMaxWidthChange = (event) => {
-    setMaxWidth(
-      // @ts-expect-error autofill of arbitrary value is not handled.
-      event.target.value,
-    );
-  };
+  // const handleMaxWidthChange = (event) => {
+  //   setMaxWidth(
+  //     // @ts-expect-error autofill of arbitrary value is not handled.
+  //     event.target.value,
+  //   );
+  // };
 
-  const handleFullWidthChange = (event) => {
-    setFullWidth(event.target.checked);
-  };
+  // const handleFullWidthChange = (event) => {
+  //   setFullWidth(event.target.checked);
+  // };
+
+  // useEffect(()=>{
+
+  // }, [])
 
   return (
     <React.Fragment>
