@@ -1,4 +1,5 @@
-import * as React from 'react';
+import React, {useEffect} from 'react';
+import axios from 'axios';
 import Box from '@mui/material/Box';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
@@ -6,12 +7,13 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
+// import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Grid } from '@mui/material'
 import MDTypography from '../../../components/MDTypography';
+import {apiUrl} from "../../../constants/constants"
 
-export default function MaxWidthDialog({ subscription }) {
+export default function MaxWidthDialog({ subscription, isActive }) {
   const [open, setOpen] = React.useState(false);
   const [fullWidth, setFullWidth] = React.useState(true);
   const [maxWidth, setMaxWidth] = React.useState('sm');
@@ -24,16 +26,46 @@ export default function MaxWidthDialog({ subscription }) {
     setOpen(false);
   };
 
-  const handleMaxWidthChange = (event) => {
-    setMaxWidth(
-      // @ts-expect-error autofill of arbitrary value is not handled.
-      event.target.value,
-    );
-  };
+  // const handleMaxWidthChange = (event) => {
+  //   setMaxWidth(
+  //     // @ts-expect-error autofill of arbitrary value is not handled.
+  //     event.target.value,
+  //   );
+  // };
 
-  const handleFullWidthChange = (event) => {
-    setFullWidth(event.target.checked);
-  };
+  // const handleFullWidthChange = (event) => {
+  //   setFullWidth(event.target.checked);
+  // };
+
+  console.log("subscription", subscription)
+
+  useEffect(()=>{
+    axios.get(`${apiUrl}tenx/${subscription?._id}/trade/livesubscriptionpnl/${subscription?.subscribedOn}`,{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+        },
+      })
+    .then((api1Response)=>{
+      
+      // const cashTransactions = (api1Response?.data?.data)?.transactions?.filter((transaction) => {
+      //   return transaction.transactionType === "Cash";
+      // });
+      // const bonusTransactions = (api1Response?.data?.data)?.transactions?.filter((transaction) => {
+      //   return transaction.transactionType === "Bonus";
+      // });
+      // const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
+      //   return total + transaction?.amount;
+      // }, 0);
+      // const totalBonusAmount = bonusTransactions?.reduce((total, transaction) => {
+      //   return total + transaction?.amount;
+      // }, 0);
+      // setCashBalance(totalCashAmount);
+      // setBonusBalance(totalBonusAmount);
+    })
+  }, [open])
 
   return (
     <React.Fragment>
