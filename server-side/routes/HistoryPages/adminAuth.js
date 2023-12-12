@@ -105,20 +105,24 @@ router.get('/negetivetds', async(req,res) =>{
 
   //   await elem.save({validateBeforeSave: false});
 
-  const tenx = await DailyContest.find();
+  
+
+  const tenx = await MarginX.find();
 
   const promises = tenx.map(async (elem) => {
-    for (let subelem of elem.participants) {
-      if (subelem.tdsAmount < 0) {
-        subelem.tdsAmount = 0;
-        subelem.herocashPayout = 0;
-        console.log(subelem);
+
+    if(elem.startTime > new Date("2023-12-10")){
+      for (let subelem of elem.participants) {
+        // if (subelem.tdsAmount < 0) {
+          // subelem.tdsAmount = 0;
+          subelem.herocashPayout = subelem.tdsAmount
+          console.log(subelem);
+        // }
       }
+  
+      // await elem.save({validateBeforeSave: false});
+  
     }
-
-    await elem.save({validateBeforeSave: false});
-
-
   });
 
   // Wait for all promises to resolve before continuing
