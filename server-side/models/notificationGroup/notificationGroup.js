@@ -9,7 +9,7 @@ const notificationGroupSchema = new mongoose.Schema({
     }],
     criteria:{
         type:'String',
-        enum:['Lifetime Active Users', 'Monthly Active Users', 'Lifetime Paid Users', 'Inactive Users', 'Month Inactive Users', 'Inactive Users Today', 'Test']
+        // enum:['Lifetime Active Users', 'Monthly Active Users', 'Lifetime Paid Users', 'Inactive Users', 'Month Inactive Users', 'Inactive Users Today', 'Test']
     },
     status:String,
     lastNotificationTime: Date,

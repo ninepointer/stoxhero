@@ -263,6 +263,18 @@ function Index() {
                       <MenuItem value='Inactive Users'>Inactive Users</MenuItem>
                       <MenuItem value='Month Inactive Users'>Month Inactive Users</MenuItem>
                       <MenuItem value='Inactive Users Today'>Inactive Users Today</MenuItem>
+                      <MenuItem value='TenX Lifetime Users'>TenX Lifetime Users</MenuItem>
+                      <MenuItem value='TenX Active Users'>TenX Active Users</MenuItem>
+                      <MenuItem value='TenX Inactive Users'>TenX Inactive Users</MenuItem>
+                      <MenuItem value='TenX Expired Today Payout'>TenX Expired Today Payout</MenuItem>
+                      <MenuItem value='TenX Expired Today Without Payout'>TenX Expired Today Without Payout</MenuItem>
+                      <MenuItem value='TestZone Lifetime Active Users'>TestZone Lifetime Active Users</MenuItem>
+                      <MenuItem value='TestZone Monthly Active Users'>TestZone Monthly Active Users</MenuItem>
+                      <MenuItem value='TestZone Paid Users'>TestZone Paid Users</MenuItem>
+                      <MenuItem value='TestZone Free Users'>TestZone Free Users</MenuItem>
+                      <MenuItem value='Joined Users(7 days)'>Joined Users(7 days)</MenuItem>
+                      <MenuItem value='Joined Users(7 days) Active'>Joined Users(7 days) Active</MenuItem>
+                      <MenuItem value='Joined Users(7 days) Inactive'>Joined Users(7 days) Inactive</MenuItem>
                       <MenuItem value='Test'>Test</MenuItem>
 
                     </Select>
