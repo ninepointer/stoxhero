@@ -940,13 +940,15 @@ exports.autoExpireTenXSubscription = async () => {
                   user.subscription[k].brokerage = pnlDetails[0]?.brokerage  || 0;
                   user.subscription[k].tradingDays = tradingDays[0]?.totalTradingDays  || 0;
                   user.subscription[k].trades = pnlDetails[0]?.trades  || 0;
-
+                  const tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100) : 0;
                   if(tradingDays[0]?.totalTradingDays >= validity){
-                    user.subscription[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0) 
-                    user.subscription[k].tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
+                    user.subscription[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0);
+                    user.subscription[k].tdsAmount = tdsAmount > 0 ? tdsAmount : 0;
+                    user.subscription[k].herocashPayout = tdsAmount > 0 ? tdsAmount : 0
                   }else{
                     user.subscription[k].payout=0;
                     user.subscription[k].tdsAmount=0;
+                    user.subscription[k].herocashPayout = 0;
                   }
                   // console.log("this is user", user)
                   await user.save({session, validateBeforeSave:false});
@@ -968,13 +970,16 @@ exports.autoExpireTenXSubscription = async () => {
                   subs.users[k].brokerage = pnlDetails[0]?.brokerage || 0;
                   subs.users[k].tradingDays = tradingDays[0]?.totalTradingDays || 0;
                   subs.users[k].trades = pnlDetails[0]?.trades || 0;
+                  const tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100) : 0; 
                   if(tradingDays[0]?.totalTradingDays >= validity){
                     subs.users[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0) 
-                    subs.users[k].tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0; 
+                    subs.users[k].tdsAmount = tdsAmount>0 ? tdsAmount : 0;
+                    subs.users[k].herocashPayout = tdsAmount>0 ? tdsAmount : 0;
                     subscribedOn = subs.users[k]?.subscribedOn;
                   }else{
                     subs.users[k].payout=0;
                     subs.users[k].tdsAmount=0;
+                    subs.users[k].herocashPayout = 0;
                   }
                   // console.log("this is subs", subs)
                   await subs.save({session, validateBeforeSave:false});

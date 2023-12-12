@@ -1723,6 +1723,8 @@ exports.updateUserWallet = async () => {
                 users[i].gpnl = pnl?.gpnl?.toFixed(2);
                 users[i].npnl = pnl?.npnl?.toFixed(2);
                 users[i].noOfTrade = pnl?.noOfTrade?.toFixed(2);
+                users[i].tdsAmount = 0;
+                users[i].herocashPayout = 0;
 
               }
               await session.commitTransaction();

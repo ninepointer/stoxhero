@@ -358,7 +358,7 @@ const userDetailSchema = new mongoose.Schema({
         bonusRedemption:Number,
         payout:{type:Number},
         tdsAmount:{type:Number},
-        
+        herocashPayout: Number,
         gpnl: {type: Number},
         npnl: {type: Number},
         brokerage: {type: Number},
