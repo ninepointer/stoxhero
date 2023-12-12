@@ -234,6 +234,8 @@ exports.getMonthlyActiveUsers = async (req, res) => {
       }
     });
 
+    console.log('monthwisemaus', monthWiseMAUs);
+
     // Calculate the month-wise total MAUs and unique users
     Object.keys(monthWiseMAUs).forEach(month => {
       const { virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, battleTrading, uniqueUsers } = monthWiseMAUs[month];
