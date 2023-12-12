@@ -7,11 +7,12 @@ exports.dailyContestTradeCut = async()=>{
     let data = await client.get('dailyContestTime');
     data = JSON.parse(data);
     for(let elem of data){
-        // console.log(new Date(elem.endTime) , new Date() , elem.status );
+        console.log(new Date(elem.endTime) , elem.status, new Date(elem.endTime) <= new Date() );
         if(new Date(elem.endTime) <= new Date() && elem.status === "Active"){
 
             // console.log("in if");
-            await dailyContestSingleMockMod(elem?._id);
+            const dd = await dailyContestSingleMockMod(elem?._id);
+            console.log(dd)
             await DailyContest.findOneAndUpdate({_id: new ObjectId(elem?._id)}, {
                 $set: {
                     contestStatus: "Completed"
@@ -20,7 +21,7 @@ exports.dailyContestTradeCut = async()=>{
             elem.status = "Completed";
             await client.set('dailyContestTime', JSON.stringify(data));
 
-            return;
+            // return;
         }
     }
 }

@@ -190,6 +190,8 @@ export default function Wallet() {
             (<>
               {data.map((elem) => {
                 // console.log("elem", elem)
+                const myAmount = elem.amount > 0 ? '+₹' + elem?.amount : '-₹' + -elem.amount;
+                const myBonus = elem.amount > 0 ? '🌟' + elem?.amount : '🌟' + -elem.amount;
                 return (
                   <MDBox mb={1} style={{ border: '1px solid white', borderRadius: 5, padding: 4 }}>
                     <Grid container xs={12} md={6} lg={12} spacing={1} display="flex" justifyContent="center" alignItems="center" alignContent="center">
@@ -200,11 +202,11 @@ export default function Wallet() {
                           <MDTypography style={{ alignContent: 'center' }} ml={1} color="light" fontSize={10}>
                             Transaction Date: {moment.utc(elem?.transactionDate).utcOffset('+05:30').format('DD-MMM-YY hh:mm:ss a')}
                           </MDTypography>
-                          <MDTypography style={{ alignContent: 'center' }} ml={1} color="light" fontSize={10}>{elem?.description}</MDTypography>
+                          <MDTypography style={{ alignContent: 'center' }} ml={1} color="light" fontSize={10}>{`${elem?.description}`}</MDTypography>
                         </MDBox>
                       </Grid>
                       <Grid item xs={6} md={6} lg={4} display="flex" justifyContent="flex-end">
-                        <MDTypography color={elem?.amount >= 0 ? "success" : "error"} fontSize={12} fontWeight="bold">{elem.amount > 0 ? '+₹' + elem?.amount : '-₹' + -elem.amount}</MDTypography>
+                        <MDTypography color={elem?.amount >= 0 ? "success" : "error"} fontSize={12} fontWeight="bold">{elem?.transactionType === "Bonus" ? myBonus : myAmount}</MDTypography>
                       </Grid>
                     </Grid>
                   </MDBox>

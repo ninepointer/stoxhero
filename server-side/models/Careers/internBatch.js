@@ -60,17 +60,19 @@ const batchSchema = new mongoose.Schema({
         referral: Number,
         gpnl: Number,
         npnl: Number,
-        noOfTrade: Number
+        noOfTrade: Number,
+        tdsAmount: Number,
+        herocashPayout: Number
     }],
     batchStatus:{
         type:String,
         required: true,
         enum: ['Active','Inactive', 'Completed']
     },
-    payoutType:{
+    rewardType:{
         type:String,
         required: true,
-        enum: ['Cash','Bonus']
+        enum: ['Cash','HeroCash']
     },
     tdsRelief:{
         type:Boolean,

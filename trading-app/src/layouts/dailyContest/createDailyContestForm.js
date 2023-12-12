@@ -110,7 +110,9 @@ function Index() {
     payoutType: "" || contest?.payoutType,
     liveThreshold: "" || contest?.liveThreshold,
     payoutCapPercentage: "" || contest?.payoutCapPercentage,
-    // payoutType: "" || contest?.payoutType,
+    rewardType: "" || contest?.rewardType,
+    tdsRelief: "" || contest?.tdsRelief,
+
     payoutPercentageType : "" || contest?.payoutPercentageType,
     registeredUsers: {
       userId: "",
@@ -201,16 +203,6 @@ function Index() {
 
     }))
 
-
-    // setFormState(prevState => ({
-    //   ...prevState,
-    //   college: {
-    //     ...prevState.college,
-    //     id: newValue?._id,
-    //     name: newValue?.collegeName
-    //   }
-    // }));
-    // setTraderId(newValue);
   };
 
 
@@ -230,7 +222,7 @@ function Index() {
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const {contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage } = formState;
+    const {rewardType, tdsRelief, contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage } = formState;
     const res = await fetch(`${baseUrl}api/v1/dailycontest/contest`, {
       method: "POST",
       credentials: "include",
@@ -239,7 +231,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage
+        rewardType, tdsRelief, contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage
       })
     });
 
@@ -280,7 +272,7 @@ function Index() {
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const { contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, featured, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage } = formState;
+    const {rewardType, tdsRelief, contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, featured, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage } = formState;
 
     const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${contest?._id}`, {
       method: "PUT",
@@ -290,7 +282,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage
+        rewardType, tdsRelief, contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage
       })
     });
 
@@ -563,41 +555,6 @@ function Index() {
                   </>
                 }
 
-                {/* <Grid item xs={12} md={6} xl={3}>
-                  <FormControl sx={{ width:'100%' }}>
-                    <InputLabel id="demo-multiple-name-label">TestZone Type</InputLabel>
-                    <Select
-                      labelId="demo-multiple-name-label"
-                      id="demo-multiple-name"
-                      name='contestType'
-                      disabled={((isSubmitted || contest) && (!editing || saving))}
-                      // defaultValue={id ? portfolios?.portfolio : ''}
-                      value={formState?.contestType}
-                      // onChange={handleTypeChange}
-                      onChange={(e) => {
-                        setFormState(prevState => ({
-                          ...prevState,
-                          contestType: e.target.value
-                        }))
-                      }}
-                      input={<OutlinedInput label="TestZone Type" />}
-                      sx={{ minHeight: 45 }}
-                      MenuProps={MenuProps}
-                    >
-                      <MenuItem
-                        value='Mock'
-                      >
-                        Mock
-                      </MenuItem>
-                      <MenuItem
-                        value='Live'
-                      >
-                        Live
-                      </MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid> */}
-                
                 <Grid item xs={12} md={6} xl={3} mb={2}>
                   <TextField
                     disabled={((isSubmitted || contest) && (!editing || saving))}
@@ -635,26 +592,6 @@ function Index() {
                     }}
                   />
                 </Grid>
-
-                {/* <Grid item xs={12} md={6} xl={3} mb={2}>
-                  <TextField
-                    disabled={((isSubmitted || contest) && (!editing || saving))}
-                    id="outlined-required"
-                    label='Live Threshold'
-                    name='liveThreshold'
-                    fullWidth
-                    type='number'
-                    defaultValue={editing ? formState?.liveThreshold : contest?.liveThreshold}
-                    // onChange={handleChange}
-                    onChange={(e) => {
-                      setFormState(prevState => ({
-                        ...prevState,
-                        liveThreshold: e.target.value
-                      }))
-                    }}
-                  />
-                </Grid> */}
-
 
                 <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
@@ -809,30 +746,6 @@ function Index() {
                   </FormControl>
                 </Grid>
 
-                {/* <Grid item xs={12} md={6} xl={3}>
-                  <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Current Live Status *</InputLabel>
-                    <Select
-                      labelId="demo-simple-select-autowidth-label"
-                      id="demo-simple-select-autowidth"
-                      name='currentLiveStatus'
-                      value={formState?.currentLiveStatus || contest?.currentLiveStatus}
-                      disabled={((isSubmitted || contest) && (!editing || saving))}
-                      onChange={(e) => {
-                        setFormState(prevState => ({
-                          ...prevState,
-                          currentLiveStatus: e.target.value
-                        }))
-                      }}
-                      label="TestZone Status"
-                      sx={{ minHeight: 43 }}
-                    >
-                      <MenuItem value="Mock">Mock</MenuItem>
-                      <MenuItem value="Live">Live</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid> */}
-
                 <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
                     <InputLabel id="demo-simple-select-autowidth-label">TestZone Expiry *</InputLabel>
@@ -858,128 +771,56 @@ function Index() {
                   </FormControl>
                 </Grid>
 
-                {/* <Grid item xs={12} md={6} xl={3}>
-                  <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-multiple-name-label">Featured *</InputLabel>
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormControl sx={{ width:'100%' }}>
+                    <InputLabel id="demo-multiple-name-label">Reward Type</InputLabel>
                     <Select
                       labelId="demo-multiple-name-label"
                       id="demo-multiple-name"
-                      name='featured'
+                      name='rewardType'
                       disabled={((isSubmitted || contest) && (!editing || saving))}
                       // defaultValue={id ? portfolios?.portfolio : ''}
-                      value={formState?.featured}
+                      value={formState?.rewardType}
                       // onChange={handleTypeChange}
                       onChange={(e) => {
                         setFormState(prevState => ({
                           ...prevState,
-                          featured: e.target.value
+                          rewardType: e.target.value
                         }))
                       }}
-                      input={<OutlinedInput label="Featured" />}
+                      input={<OutlinedInput label="Reward Type" />}
                       sx={{ minHeight: 45 }}
                       MenuProps={MenuProps}
                     >
-                      <MenuItem value={true}>TRUE</MenuItem>
-                      <MenuItem value={false}>FALSE</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid> */}
-
-                {/* <Grid item xs={12} md={6} xl={3}>
-                  <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Is TestZone on Nifty ? *</InputLabel>
-                    <Select
-                      labelId="demo-simple-select-autowidth-label"
-                      id="demo-simple-select-autowidth"
-                      name='isNifty'
-                      value={(contest?.isNifty !== undefined && !editing && formState?.isNifty === undefined) ? contest?.isNifty : formState?.isNifty}
-                      disabled={((isSubmitted || contest) && (!editing || saving))}
-                      onChange={(e) => {
-                        setFormState(prevState => ({
-                          ...prevState,
-                          isNifty: e.target.value
-                        }))
-                      }}
-                      label="Is Nifty"
-                      sx={{ minHeight: 43 }}
-                    >
-                      <MenuItem value={true}>TRUE</MenuItem>
-                      <MenuItem value={false}>FALSE</MenuItem>
+                      <MenuItem
+                        value='Cash'
+                      >
+                        Cash
+                      </MenuItem>
+                      <MenuItem
+                        value='HeroCash'
+                      >
+                        HeroCash
+                      </MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
 
                 <Grid item xs={12} md={6} xl={3}>
-                  <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Is TestZone on BankNifty ? *</InputLabel>
-                    <Select
-                      labelId="demo-simple-select-autowidth-label"
-                      id="demo-simple-select-autowidth"
-                      name='isBankNifty'
-                      value={(contest?.isBankNifty !== undefined && !editing && formState?.isBankNifty === undefined) ? contest?.isBankNifty : formState?.isBankNifty}
+                  <FormGroup>
+                    <FormControlLabel
+                      checked={(contest?.tdsRelief !== undefined && !editing && formState?.tdsRelief === undefined) ? contest?.tdsRelief : formState?.tdsRelief}
                       disabled={((isSubmitted || contest) && (!editing || saving))}
+                      control={<Checkbox />}
                       onChange={(e) => {
                         setFormState(prevState => ({
                           ...prevState,
-                          isBankNifty: e.target.value
+                          tdsRelief: e.target.checked
                         }))
                       }}
-                      label="Is BankNifty"
-                      sx={{ minHeight: 43 }}
-                    >
-                      <MenuItem value={true}>TRUE</MenuItem>
-                      <MenuItem value={false}>FALSE</MenuItem>
-                    </Select>
-                  </FormControl>
+                      label="TDS Relief" />
+                  </FormGroup>
                 </Grid>
-
-                <Grid item xs={12} md={6} xl={3}>
-                  <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Is TestZone on FinNifty ? *</InputLabel>
-                    <Select
-                      labelId="demo-simple-select-autowidth-label"
-                      id="demo-simple-select-autowidth"
-                      name='isFinNifty'
-                      value={(contest?.isFinNifty !== undefined && !editing && formState?.isFinNifty === undefined) ? contest?.isFinNifty : formState?.isFinNifty}
-                      disabled={((isSubmitted || contest) && (!editing || saving))}
-                      onChange={(e) => {
-                        setFormState(prevState => ({
-                          ...prevState,
-                          isFinNifty: e.target.value
-                        }))
-                      }}
-                      label="Is FinNifty"
-                      sx={{ minHeight: 43 }}
-                    >
-                      <MenuItem value={true}>TRUE</MenuItem>
-                      <MenuItem value={false}>FALSE</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid> */}
-
-                {/* <Grid item xs={12} md={6} xl={3}>
-                  <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Is TestZone on All Index ? *</InputLabel>
-                    <Select
-                      labelId="demo-simple-select-autowidth-label"
-                      id="demo-simple-select-autowidth"
-                      name='isAllIndex'
-                      value={(contest?.isAllIndex !== undefined && !editing && formState?.isAllIndex === undefined) ? contest?.isAllIndex : formState?.isAllIndex}
-                      disabled={((isSubmitted || contest) && (!editing || saving))}
-                      onChange={(e) => {
-                        setFormState(prevState => ({
-                          ...prevState,
-                          isAllIndex: e.target.value
-                        }))
-                      }}
-                      label="Is All Index"
-                      sx={{ minHeight: 43 }}
-                    >
-                      <MenuItem value={true}>TRUE</MenuItem>
-                      <MenuItem value={false}>FALSE</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid> */}
 
                 <Grid item xs={12} md={6} xl={3}>
                   <FormGroup>

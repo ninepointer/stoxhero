@@ -164,8 +164,8 @@ exports.createWithdrawal = async(req,res,next) => {
             `User initiated withdrawal from wallet of ₹${amount} to bank account - Withdrawal #${withdrawalCount+1}`,
             user?.fcmTokens?.map(item=>item?.token)
             )
+        }
         await userWallet.save({validateBeforeSave:false});
-    }
     res.status(201).json({status:'success', message:'Withdrawal request successful'});
 }
 

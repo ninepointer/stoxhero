@@ -53,6 +53,7 @@ exports.sendIndividualNotification = async (title, body, token, mediaUrl = null,
   if (mediaUrl || actions) {
       message.data = {};
       if (mediaUrl) {
+          console.log('This is the image url', mediaUrl);  
           message.data.mediaUrl = mediaUrl;
           message.notification.image = mediaUrl;
       }
@@ -62,6 +63,7 @@ exports.sendIndividualNotification = async (title, body, token, mediaUrl = null,
   }
 
   try {
+      console.log('sending this', message);  
       const res = await admin.messaging().send(message);
       console.log('Successfully sent message:', res);
       return res;
@@ -85,6 +87,8 @@ exports.sendMultiNotifications = async (title, body, tokens, mediaUrl = null, ac
       if (mediaUrl) {
           message.data.mediaUrl = mediaUrl;
           message.data.image = mediaUrl;
+          message.notification.image = mediaUrl;
+        //   message.notification.image = 'https://t4.ftcdn.net/jpg/02/57/42/55/360_F_257425552_3JqnRkyhqjiQcB95Ty2vBH9YMcErSpDM.jpg'
       }
       if (actions) {
           message.data.actions = JSON.stringify(actions);
@@ -92,6 +96,7 @@ exports.sendMultiNotifications = async (title, body, tokens, mediaUrl = null, ac
   }
 
   try {
+      console.log('sending this', message);  
       const res = await admin.messaging().sendEachForMulticast(message);
       console.log('Successfully sent message:', res);
       return res;

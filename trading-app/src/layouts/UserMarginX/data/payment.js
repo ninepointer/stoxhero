@@ -391,29 +391,6 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
                       </RadioGroup>
                     </FormControl>
 
-                    {/* <Grid container display="flex" flexDirection="row" justifyContent="center" alignContent={"center"} gap={2} >
-                      <Grid container mt={2} xs={12} md={9} xl={12} lg={12}>
-                        <Grid item xs={12} md={6} xl={9} lg={9} >
-                          <TextField
-                            // disabled={((isSubmitted || battle) && (!editing || saving))}
-                            id="outlined-required"
-                            label='Coupen Code'
-                            name='coupenCode'
-                            fullWidth
-                            value={amount}
-                            onChange={(e) => { }}
-                          />
-                        </Grid>
-
-                        <Grid item xs={12} md={6} xl={3} lg={3} >
-                          <MDButton color={"success"} onClick={handleClose} autoFocus>
-                            Apply
-                          </MDButton>
-                        </Grid>
-                      </Grid>
-
-                    </Grid> */}
-
                   </MDBox>
                 </DialogContentText>
 

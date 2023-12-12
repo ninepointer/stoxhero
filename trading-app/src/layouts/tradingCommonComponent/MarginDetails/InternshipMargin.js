@@ -17,6 +17,17 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
     return total + (acc.margin ? acc.margin : 0);
   }, 0);
 
+  let amount = 0;
+  let margin = 0;
+  pnlData.map((elem) => {
+    console.log(elem._id.isLimit)
+    if(elem._id.isLimit){
+      margin += elem.margin;
+    } else{
+      amount += (elem.amount - elem.brokerage)
+    }
+  });
+
   useEffect(() => {
     axios.get(`${baseUrl}api/v1/internship/marginDetail/${BatchId}`,{
       withCredentials: true,
@@ -38,7 +49,7 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
   const openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
   // const openingBalanceString = openingBalance >= 0 ? "₹" + Number(openingBalance)?.toLocaleString() : "₹" + (-Number(openingBalance))?.toLocaleString()
   // const availableMargin = openingBalance ? (totalRunningLots === 0 ? Number(openingBalance)+runningPnl : Number(openingBalance)-todayAmount) : fundDetail?.totalFund;
-  const availableMargin = (runningPnl < 0) ? totalRunningLots===0 ? (openingBalance-todayMargin+runningPnl) : openingBalance-todayMargin : openingBalance-todayMargin;
+  const availableMargin = ((runningPnl < 0) ? totalRunningLots===0 ? (openingBalance-todayMargin+runningPnl) : openingBalance-(Math.abs(amount)+margin) : openingBalance-todayMargin)?.toFixed(0);
   const availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹0"
   const usedMargin = runningPnl >= 0 ? 0 : runningPnl
   const usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin)?.toLocaleString() : "₹" + (-Number(usedMargin))?.toLocaleString()
