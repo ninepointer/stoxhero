@@ -13,6 +13,7 @@ const TenX = require("../../models/TenXSubscription/TenXSubscriptionSchema");
 const MarginX = require("../../models/marginX/marginX");
 const Contest = require("../../models/DailyContest/dailyContest");
 const Battle = require("../../models/battle/battle");
+const MarketingNotification = require("../../models/notifications/marketingNotification");
 
 exports.createNotificationGroup = async(req,res) => {
     console.log("createNotificationGroup")
@@ -739,6 +740,17 @@ exports.getNotificationGroup = async(req,res) => {
     try{
         const group = await NotificationGroup.findById(id).populate('users', 'first_name last_name mobile joining_date activationDetails.activationDate campaignCode')
         res.status(200).json({status:'success',message:'Notification Groups fetched successfully', data:group});
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status:'error', message:'Something went wrong', error:e.message});
+    }
+}
+
+exports.getNotificationsForGroup = async(req,res) => {
+    const {id} = req.params;
+    try{
+        const notifications = await MarketingNotification.find({notificationGroup: { $in: [id] }}).sort({_id:-1});
+        res.status(200).json({status:'success', data:notifications});
     }catch(e){
         console.log(e);
         res.status(500).json({status:'error', message:'Something went wrong', error:e.message});

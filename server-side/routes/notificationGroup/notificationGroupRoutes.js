@@ -3,7 +3,7 @@ const Authenticate = require('../../authentication/authentication');
 const router = express.Router({mergeParams: true});
 const {createNotificationGroup, refreshNotificationGroup, getNotificationGroup, 
     getNotificationGroups, editNotificationGroup, getActiveNotificationGroups, getInactiveNotificationGroups, 
-    getDraftNotificationGroups, getActiveNotificationGroupsWithoutUsers} = require('../../controllers/notificationGroup/notificationGroupController');
+    getDraftNotificationGroups, getActiveNotificationGroupsWithoutUsers, getNotificationsForGroup} = require('../../controllers/notificationGroup/notificationGroupController');
 const restrictTo = require('../../authentication/authorization');
 
 router.route('/')
@@ -18,6 +18,7 @@ router.route('/inactive')
 router.route('/draft')
     .get(Authenticate, restrictTo('Admin', 'Super Admin'), getDraftNotificationGroups)
 router.route('/refresh/:id').patch(Authenticate, restrictTo('Admin', 'Super Admin'), refreshNotificationGroup);
+router.get('/:id/previousnotifications', Authenticate, restrictTo('Admin', 'Super Admin'), getNotificationsForGroup)
 router.route('/:id')
     .get(Authenticate, restrictTo('Admin', 'Super Admin'), getNotificationGroup)
     .patch(Authenticate, restrictTo('Admin', 'Super Admin'), editNotificationGroup)
