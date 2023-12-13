@@ -28,8 +28,10 @@ exports.createContest = async (req, res) => {
         const {contestLiveTime, payoutPercentageType, liveThreshold, currentLiveStatus, 
                contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
             contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
-            maxParticipants, contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, 
+            maxParticipants, contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, visibility, 
             payoutType, payoutCapPercentage, rewardType, tdsRelief } = req.body;
+
+            const slug = contestName.replace(/ /g, "-").toLowerCase();
 
         const startTimeDate = new Date(contestStartTime);
         startTimeDate.setSeconds(0);
@@ -50,7 +52,7 @@ exports.createContest = async (req, res) => {
             maxParticipants, contestStatus, contestEndTime: endTimeDate, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
             contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage,
-            contestLiveTime, payoutPercentageType, rewardType, tdsRelief
+            contestLiveTime, payoutPercentageType, rewardType, tdsRelief, slug, visibility
         });
 
         // console.log(contest)
@@ -74,6 +76,10 @@ exports.editContest = async (req, res) => {
     try {
         const { id } = req.params; // ID of the contest to edit
         const updates = req.body;
+        let slug;
+        if(updates?.contestName){
+          updates.slug = updates?.contestName.replace(/ /g, "-").toLowerCase();
+        }
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ status: "error", message: "Invalid TestZone ID" });
@@ -441,7 +447,11 @@ exports.getCollegeUserUpcomingContests = async (req, res) => {
 exports.getUserUpcomingContestss = async (req, res) => {
   try {
       const contests = await Contest.find({
-          contestStartTime: { $gte: new Date() }, contestFor: "StoxHero", contestStatus:"Active"
+          contestStartTime: { $gte: new Date() }, contestFor: "StoxHero", contestStatus:"Active",
+          $or: [
+            { visibility: true },
+            { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
+        ]
       },
       {
           allowedUsers: 0,
@@ -488,7 +498,11 @@ try {
                 contestStartTime: { $gte: new Date() },
                 contestFor: "StoxHero",
                 contestStatus: "Active",
-                contestLiveTime: { $lte: new Date()}
+                contestLiveTime: { $lte: new Date()},
+                $or: [
+                  { visibility: true },
+                  { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
+              ]
             }
         },
         {
@@ -550,6 +564,10 @@ try {
                 contestStatus: "Active",
                 contestStartTime: { $lte: new Date() },
                 contestEndTime: { $gte: new Date() },
+                $or: [
+                  { visibility: true },
+                  { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
+              ]
             }
         },
         {
@@ -605,7 +623,11 @@ exports.getUserLiveContestss = async (req, res) => {
           contestStartTime: { $lte: new Date() },
           contestEndTime: { $gte: new Date() },
           contestFor: "StoxHero", 
-          contestStatus:"Active"
+          contestStatus:"Active",
+          $or: [
+            { visibility: true },
+            { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
+        ]
       },
       {
           allowedUsers: 0,
@@ -647,7 +669,11 @@ exports.getUserFeaturedContests = async (req, res) => {
     const contests = await Contest.find({
       featured: true,
       contestStatus: "Active",
-      contestFor: "StoxHero"
+      contestFor: "StoxHero",
+      $or: [
+        { visibility: true },
+        { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
+      ]
     },
       {
         allowedUsers: 0,
@@ -798,11 +824,27 @@ exports.getAdminUpcomingContests = async (req, res) => {
 exports.getFeaturedUpcomingContests = async (req, res) => {
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  const count = await Contest.countDocuments({contestStartTime: { $gt: new Date() }, contestStatus:"Active", featured:true})
+  const count = await Contest.countDocuments({
+    featured:true,
+    contestStartTime: { $gte: new Date() },
+    contestStatus: "Active",
+    contestLiveTime: { $lte: new Date()},
+    $or: [
+      { visibility: true },
+      { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
+    ]
+  })
   try {
       const contests = await Contest.find({
-          contestStartTime: { $gt: new Date() }, contestStatus:"Active", featured:true,
-      }).populate('portfolio', 'portfolioName _id portfolioValue')
+        featured:true,
+        contestStartTime: { $gte: new Date() },
+        contestStatus: "Active",
+        contestLiveTime: { $lte: new Date()},
+        $or: [
+          { visibility: true },
+          { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
+        ]
+          }).populate('portfolio', 'portfolioName _id portfolioValue')
           .populate('participants.userId', 'first_name last_name email mobile creationProcess')
           .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
           .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
@@ -1072,7 +1114,11 @@ exports.getUserCompletedContests = async (req, res) => {
   try {
     const userId = req?.user?._id;
     const matchStage = {
-      contestFor: "StoxHero"
+      contestFor: "StoxHero",
+      $or: [
+        { visibility: true },
+        { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
+    ]
     }
     const data = await userCompletedHelper(matchStage, userId);
     res.status(200).json({
@@ -3466,9 +3512,9 @@ exports.findFeaturedContestByName = async(req,res,next)=>{
         console.log("Body:",req.query)
         let dateString = date.includes('-') ? date.split('-').join('') : date.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
         console.log(new Date(dateString))
-        const result = await Contest.findOne({contestName: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'StoxHero'}).
+        const result = await Contest.findOne({slug: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'StoxHero'}).
         populate('portfolio', 'portfolioValue portfolioName').
-            select('_id contestName contestStartTime contestEndTime entryFee rewards description');
+            select('_id contestName contestStartTime contestEndTime entryFee rewards description payoutType payoutCapPercentage payoutPercentage');
         // console.log(result)
             if(!result){
             return res.status(404).json({

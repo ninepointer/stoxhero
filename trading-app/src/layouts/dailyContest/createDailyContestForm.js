@@ -365,6 +365,7 @@ function Index() {
 
   const formattedDate = `${year}${month}${day}`;
   const contestFor = contest?.contestFor
+  const visibility = contest?.visibility;
   const link = (contestFor === 'College' ? 'collegecontest' : '')
   return (
     <>
@@ -380,8 +381,8 @@ function Index() {
               <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
                 Fill TestZone Details
               </MDTypography>
-              {contestFor === 'College' && <MDTypography variant="caption" fontWeight="bold" color="text">
-                Link: {Url}collegecontest/{contest?.contestName?.replace(/\s/g, '%20')}/{formattedDate}
+              {(contestFor === 'College' || !visibility) && <MDTypography variant="caption" fontWeight="bold" color="text">
+                Link: {Url}{contestFor === 'College' ? "collegetestzone" : "testzone"}/{contest?.slug}/{formattedDate}{!visibility && "?campaigncode=****&referral=****"}
               </MDTypography>}
             </MDBox>
 
