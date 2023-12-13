@@ -243,6 +243,9 @@ exports.addAffiliateUser = async (req, res) => {
 exports.creditAffiliateAmount = async(affiliate, affiliateProgram, product, specificProduct, actualPrice, buyer) => {
     // console.log(product, specificProduct, actualPrice, buyer);
     //add amount to wallet
+    if(affiliate?.userId?.toString() === buyer?.toString()){
+      return;
+    }
     const wallet = await Wallet.findOne({userId: new ObjectId(affiliate?.userId)});
     const user = await User.findOne({_id:buyer}).select('first_name last_name');
     const productDoc = await Product.findOne({_id: product});
