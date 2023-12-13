@@ -9,11 +9,9 @@ const { sendLeaderboardData, sendMyRankData, emitServerTime } = require("./contr
 const { sendMyRankDataBattle, sendLeaderboardDataBattle } = require("./controllers/battles/battleTradeController");
 
 const { saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, saveXtsMargin } = require("./controllers/marginRequired")
-const { autoCutMainManually, autoCutMainManuallyMock, changeBattleStatus, changeStatus, changeMarginXStatus } = require("./controllers/AutoTradeCut/mainManually");
-const { createNewTicker, disconnectTicker,
-    subscribeTokens, onError,
-    onOrderUpdate, getTicksForUserPosition,
-    getTicksForCompanySide,
+const { autoCutMainManually, autoCutMainManuallyMock} = require("./controllers/AutoTradeCut/mainManually");
+const { createNewTicker, disconnectTicker, getDummyTicks,
+    subscribeTokens, subscribeWatchListInstrument, tempGetTicks,
 } = require('./marketData/kiteTicker');
 // getTicksForContest
 
@@ -87,12 +85,13 @@ async function singleProcess() {
         // console.log(data)
         let interval;
         await createNewTicker(data.getApiKey, data.getAccessToken);
-        await subscribeInstrument();
+        // await subscribeInstrument();
         io.on("connection", async (socket) => {
-            // console.log(socket.id, "socket id") 
+            // console.log(socket) 
             socket.on('userId', async (data) => {
                 socket.join(`${data}`)
                 await client.set(socket.id, data);
+                // await getDummyTicks(data)
             })
 
             socket.on('chart-room', async (data) => {
@@ -129,9 +128,6 @@ async function singleProcess() {
                 await webSocketService.getMessages(io, socket);
             });
 
-            // socket.emit('check', false)
-
-
             socket.on('disconnect', () => {
                 console.log("disconnecting socket")
 
@@ -139,49 +135,28 @@ async function singleProcess() {
                 client.expire(socket.id, 10);
             })
 
-            socket.on('hi', async (data) => {
-                await onError();
-                await onOrderUpdate();
-
-            });
-
+            socket.on('equity-watchlist', async (data) => {
+                socket.join("equity")
+            })
 
             socket.on('company-ticks', async (data) => {
                 socket.join("company-side")
-                console.log("in company-ticks event")
-                if (setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType) {
-                    await getTicksForCompanySide(socket);
-                } else {
-                    await getXTSTicksForCompanySide(socket);
-                }
-
-                await onError();
-                // await onOrderUpdate();
+                
             });
 
             socket.on('user-ticks', async (data) => {
-                console.log("in user-ticks event")
-                // await getTicksForUserPosition(socket, data);
-                // await positions();
-                if (setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType) {
-                    await getTicksForUserPosition(socket, data);
-                    // await getTicksForCompanySide(socket);
-                    // await getDummyTicks(socket)
-                } else {
-                    await getXTSTicksForUserPosition(socket, data);
-                    await getXTSTicksForCompanySide(socket);
-                }
-
-                // await DummyMarketData(socket);
-                await onError();
-                await onOrderUpdate();
-
+                // socket.join("equity")
+                await tempGetTicks();
             });
 
             socket.on('leave-company-room', async (data) => {
                 socket.leave('company-side');
             });
-            await subscribeTokens(); //TODO toggle
+
+            socket.on('leave-equity-watchlist', async (data) => {
+                socket.leave('equity');
+            });
+            await subscribeWatchListInstrument(); //TODO toggle
 
         });
 
@@ -278,9 +253,12 @@ async function singleProcess() {
         const dailyContest = nodeCron.schedule(`1 30 6 * * *`, dailyContestTradeCut);
         const dailyContest2oclock = nodeCron.schedule(`1 30 8 * * *`, dailyContestTradeCut);
         const dailyContesttimeStore = nodeCron.schedule(`49 3 * * *`, dailyContestTimeStore);
-    // const dailyContesttimeStore = nodeCron.schedule(`*/59 * * * * *`, dailyContestTimeStore);
 
     }
+
+    // const dailyContesttimeStore = nodeCron.schedule(`*/5 * * * * *`, dailyContestTradeCut);
+    // const dailyContest = nodeCron.schedule(`*/59 * * * * *`, dailyContestTimeStore);
+
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
     app.use(express.json({ limit: "10mb" }));

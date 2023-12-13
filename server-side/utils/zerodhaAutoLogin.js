@@ -65,10 +65,10 @@ async function zerodhaLogin(ApiKey,SecretKey,UserId,Password, req, resp) {
           
               await client.expire(`kiteCredToday:${process.env.PROD}`, secondsRemaining);
           
-              disconnectTicker();
-              getKiteCred.getAccess().then((data) => {
-                  createNewTicker(data.getApiKey, data.getAccessToken);
-              });
+              // disconnectTicker();
+              // getKiteCred.getAccess().then((data) => {
+              //     createNewTicker(data.getApiKey, data.getAccessToken);
+              // });
               
               resp.status(201).json({massage : "data enter succesfully"});
           }).catch((err)=> {console.log(err); resp.status(500).json({error:"Failed to enter data"})});

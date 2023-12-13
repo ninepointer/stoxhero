@@ -32,17 +32,35 @@ function StockIndex({socket}) {
         })
     }, [])
 
-    useEffect(()=>{
+    let instruments = [256265, 260105, 257801]
+    useEffect(() => {
+
+        axios.get(`${baseUrl}api/v1/getliveprice`)
+            .then((res) => {
+                //   marketDetails.setMarketData(res.data);
+                const filterd = res.data.filter((elem) => {
+                    return instruments.includes(elem.instrument_token)
+                })
+                setIndexLiveData(prevInstruments => {
+                    const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
+                    filterd.forEach(instrument => {
+                        instrumentMap.set(instrument.instrument_token, instrument);
+                    });
+                    return Array.from(instrumentMap.values());
+                });
+            }).catch((err) => {
+                return new Error(err);
+            })
         socket?.on("index-tick", (data) => {
             setIndexLiveData(prevInstruments => {
-              const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
-              data.forEach(instrument => {
-                instrumentMap.set(instrument.instrument_token, instrument);
-              });
-              return Array.from(instrumentMap.values());
+                const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
+                data.forEach(instrument => {
+                    instrumentMap.set(instrument.instrument_token, instrument);
+                });
+                return Array.from(instrumentMap.values());
             });
-      
-          })
+
+        })
     }, [])
 
     let finalArr = [];

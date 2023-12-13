@@ -305,16 +305,3 @@ function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, 
 }
 
 export default Header;
-
-
-
-
-
-
-
-
-
-
-
-
-

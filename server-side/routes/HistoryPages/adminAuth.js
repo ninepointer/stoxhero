@@ -88,7 +88,7 @@ const {createUserNotification} = require('../../controllers/notification/notific
 const uuid = require('uuid');
 const Notification = require("../../models/notifications/notification")
 const Referrals = require("../../models/campaigns/referralProgram")
-const {dailyContestTimeStore} = require("../../dailyContestTradeCut")
+const {dailyContestTimeStore, dailyContestTradeCut} = require("../../dailyContestTradeCut")
 const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema");
 
 
@@ -451,6 +451,7 @@ router.get('/changeContestToTestzone', async(req,res) =>{
   //   console.log(data)
   // }
   await dailyContestTimeStore()
+  await dailyContestTradeCut();
 })
 
 router.get('/getProductInfoData', async(req,res) =>{
@@ -3113,7 +3114,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2023-12-05T20:00:00.000+00:00"
+  let expiryDate = "2023-12-12T20:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(
