@@ -3624,5 +3624,24 @@ router.get("/insertDocument", async (req, res) => {
 
 module.exports = router;
 
+/*
+requirment: 
+1. testzone is only visible to registered user, if thats visibility is false
+2. admin side affiliates leaderboard
+3. remove revenue sharing on sel purchase
 
-// todo--> login auto, db entry ui, cronejob of 13, 14 with delete entry
+Steps:
+1. add visibility feild in testzone
+2. show testxone according visibility.
+2. regiteration page with clear routing
+3. in admin dashboard show full leaderboard of affiliates
+*/
+
+/*
+requirment: 
+1. tenx running lots > 0 = previous day else total pnl
+2. today pnl is in unrealised pnl
+3. give some insights, max profit, max loss, avg profit, avg loss, roi, ..etc. 
+
+Steps:
+*/
