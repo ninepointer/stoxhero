@@ -344,7 +344,6 @@ exports.cancelPendingOrders = async() => {
     }
 }
 
-<<<<<<< HEAD
 router.get('/uniqueactivated', async(req,res) => {
         const contest1 = await Contest.findById('652c0af86365ad15659986ed').select('participants potentialParticipants');
         const contest2 = await Contest.findById('652c0cd8921a308fe75aafe5').select('participants potentialParticipants');
