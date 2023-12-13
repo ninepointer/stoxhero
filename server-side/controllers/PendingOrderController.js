@@ -219,7 +219,8 @@ exports.myTodaysPendingTrade = async (req, res, next) => {
       {
         $group: {
           _id: {
-            type: "$type"
+            type: "$type",
+            symbol: "$symbol"
           },
           totalQuantity: {
             $sum: "$Quantity", // Assuming "amount" is the field you want to sum
@@ -230,7 +231,8 @@ exports.myTodaysPendingTrade = async (req, res, next) => {
         $project: {
           _id: 0,
           type: "$_id.type",
-          quantity: "$totalQuantity"
+          quantity: "$totalQuantity",
+          symbol: "$_id.symbol"
         }
       }
     ])

@@ -65,12 +65,15 @@ function ModifyPopUp({ data, id, handleCloseMenu, setMsg, from }) {
   let lotSize = symbolName.includes("BANK") ? lotSize_BankNifty : symbolName.includes("FIN") ? lotSize_FinNifty : lotSize_Nifty;
   let maxLot = symbolName.includes("BANK") ? maxLot_BankNifty : symbolName.includes("FIN") ? maxLot_FinNifty : maxLot_Nifty;
 
-  const slPendingQuantity = pendingOrderQuantity?.reduce((acc, item) => {
+  const instrumentsPendingOrder = pendingOrderQuantity.filter((elem)=>{
+    return elem.symbol === symbolName;
+  })
+  const slPendingQuantity = instrumentsPendingOrder?.reduce((acc, item) => {
     return item.type === "StopLoss" ? acc + item.quantity : acc;
   }, 0);
 
 
-  const spPendingQuantity = pendingOrderQuantity?.reduce((acc, item) => {
+  const spPendingQuantity = instrumentsPendingOrder?.reduce((acc, item) => {
     return item.type === "StopProfit" ? acc + item.quantity : acc;
   }, 0)
 
