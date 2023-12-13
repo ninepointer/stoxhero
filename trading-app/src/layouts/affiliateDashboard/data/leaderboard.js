@@ -12,7 +12,7 @@ import MDTypography from "../../../components/MDTypography/index.js";
 // import { Link} from "react-router-dom";
 // import moment from 'moment'
 import DataTable from '../../../examples/Tables/DataTable/index.js';
-import { Grid } from '@mui/material';
+import { CircularProgress, Grid } from '@mui/material';
 import FilteredUsers from './filteredUser.js';
 // import FilteredUsers from "./filteredUser";
 
@@ -33,19 +33,50 @@ const LeaderBoard = () => {
         { Header: "TestZone Referred", accessor: "testzoneReferred", align: "center" },
         { Header: "TestZone Payout", accessor: "testzonePayout", align: "center" },
 
-        // { Header: "MarginX", accessor: "marginx", align: "center" },
         { Header: "MarginX Referred", accessor: "marginxReferred", align: "center" },
         { Header: "MarginX Payout", accessor: "marginxPayout", align: "center" },
+        { Header: "SignUp", accessor: "signupPayout", align: "center" },
+
         { Header: "Total", accessor: "total", align: "center" },
 
     ]
 
     let rows = [];
-    let totalAmount = 0;
-
+    
+    let arr = [];
     leaderboard?.map((elem, index) => {
+        let totalAmount = (
+            (elem?.tenx_payout || 0) +
+            (elem?.testzone_payout || 0) +
+            (elem?.marginx_payout || 0) +
+            ((elem?.signup || 0) * 15)
+        );
+        elem.total = totalAmount;
+    
+        arr.push(JSON.parse(JSON.stringify(elem)));
+    });
+    
 
-        totalAmount += (elem?.tenx_payout || 0 + elem?.testzone_payout || 0 + elem?.marginx_payout || 0);
+    arr.sort((a, b) => {
+        // Extract numerical values from the strings and remove commas
+        // const aValue = parseFloat(a.total.props.children.replace(/[^0-9.-]+/g,""));
+        // const bValue = parseFloat(b.total.props.children.replace(/[^0-9.-]+/g,""));
+    
+        // Compare numerical values in descending order
+        if (a.total > b.total) {
+            return -1; // a should come before b
+        } else if (a.total < b.total) {
+            return 1; // b should come before a
+        } else {
+            return 0; // a is equal to b
+        }
+    });
+    
+    console.log("Arr", arr)
+
+    arr?.map((elem, index) => {
+
+        // totalAmount += (elem?.tenx_payout || 0 + elem?.testzone_payout || 0 + elem?.marginx_payout || 0 + (elem?.signup*15) || 0);
 
         let featureObj = {}
         featureObj.index = (
@@ -97,7 +128,7 @@ const LeaderBoard = () => {
             </MDTypography>
         );
 
-
+        
         featureObj.marginxPayout = (
             <MDTypography component="a" variant="caption" fontWeight="medium">
                 {/* {elem?.marginx_payout || "-"} */}
@@ -105,25 +136,39 @@ const LeaderBoard = () => {
             </MDTypography>
         );
 
+        featureObj.signupPayout = (
+            <MDTypography component="a" variant="caption" fontWeight="medium">
+                {/* {elem?.marginx_payout || "-"} */}
+                {elem?.signup ? ("₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.signup*15))) : "-"}
+            </MDTypography>
+        );
+
         featureObj.total = (
             <MDTypography component="a" variant="caption" fontWeight="medium">
-                {/* {totalAmount || "-"} */}
-                {("₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalAmount))) || "-"}
+                {("₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.total))) || "-"}
+                {/* {("₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalAmount))) || "-"} */}
             </MDTypography>
         );
 
         rows.push(featureObj)
     })
 
-    rows.sort((a, b) => {
-        if (a.totalAmount > b.totalAmount) {
-            return 1;
-        } else if (a.totalAmount < b.totalAmount) {
-            return -1;
-        } else {
-            return 0; // a is equal to b
-        }
-    });
+    // console.log("rows", rows)
+    // rows.sort((a, b) => {
+    //     // Extract numerical values from the strings and remove commas
+    //     const aValue = parseFloat(a.total.props.children.replace(/[^0-9.-]+/g,""));
+    //     const bValue = parseFloat(b.total.props.children.replace(/[^0-9.-]+/g,""));
+    
+    //     // Compare numerical values in descending order
+    //     if (aValue > bValue) {
+    //         return -1; // a should come before b
+    //     } else if (aValue < bValue) {
+    //         return 1; // b should come before a
+    //     } else {
+    //         return 0; // a is equal to b
+    //     }
+    // });
+    
 
     return (
         <Card>
@@ -138,14 +183,19 @@ const LeaderBoard = () => {
             <Grid mt={2} p={1} container style={{ border: '1px solid white', borderRadius: 5 }}>
                 <FilteredUsers setFilteredUsers={setFilteredUsers} />
             </Grid>
-            <MDBox mt={1}>
-                <DataTable
-                    table={{ columns, rows }}
-                    showTotalEntries={false}
-                    isSorted={false}
-                    entriesPerPage={false}
-                />
-            </MDBox>
+            {rows.length > 0 ?
+                <MDBox mt={1}>
+                    <DataTable
+                        table={{ columns, rows }}
+                        showTotalEntries={false}
+                        isSorted={false}
+                        entriesPerPage={false}
+                    />
+                </MDBox>
+                :
+                <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ minWidth: '100%', minHeight: '380px' }}>
+                    <CircularProgress />
+                </Grid>}
         </Card>
 
     )

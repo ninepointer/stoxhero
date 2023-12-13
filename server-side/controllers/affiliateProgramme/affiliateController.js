@@ -340,17 +340,24 @@ exports.removeAffiliateUser = async (req, res) => {
 };
 
 exports.affiliateLeaderboard = async (req, res) => {
-  const {programme, startDate, endDate} = req.params;
+  const {programme, startDate, endDate, lifetime} = req.query;
+  console.log(programme, new Date(startDate), endDate, (lifetime))
+  const matchStage = {
+    affiliateProgram: programme!=="Cummulative" && new ObjectId(programme),
+    transactionDate: {
+      $gte: new Date((lifetime) ? "2000-01-01" : startDate),
+      $lte: new Date((lifetime) ? new Date() : endDate)
+    }
+  }
   try {
       const leaderboard = await AffiliateTransaction.aggregate([
         {
-          $match: {
-            affiliate: new ObjectId(programme),
+          $match: programme==="Cummulative" ? {
             transactionDate: {
-              $gte: new Date(startDate),
-              $lte: new Date(endDate)
+              $gte: new Date((lifetime) ? "2000-01-01" : startDate),
+              $lte: new Date((lifetime) ? new Date() : endDate)
             }
-          }
+          } : matchStage
         },
         {
           $group: {
@@ -397,6 +404,7 @@ exports.affiliateLeaderboard = async (req, res) => {
             last_name: {
               $arrayElemAt: ["$affiliate.last_name", 0],
             },
+            affiliate: "$_id.affiliate",
             code: {
               $arrayElemAt: [
                 "$affiliate.myReferralCode",
@@ -427,6 +435,7 @@ exports.affiliateLeaderboard = async (req, res) => {
               first_name: "$first_name",
               last_name: "$last_name",
               code: "$code",
+              affiliate: "$affiliate",
             },
             data: {
               $push: {
@@ -453,6 +462,14 @@ exports.affiliateLeaderboard = async (req, res) => {
           },
         },
         {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "_id.code",
+            foreignField: "referrerCode",
+            as: "signup",
+          },
+        },
+        {
           $replaceRoot: {
             newRoot: {
               $mergeObjects: [
@@ -460,6 +477,10 @@ exports.affiliateLeaderboard = async (req, res) => {
                   first_name: "$_id.first_name",
                   last_name: "$_id.last_name",
                   code: "$_id.code",
+                  affiliate: "$_id.affiliate",
+                  signup: {
+                    $size: "$signup",
+                  },
                 },
                 {
                   $arrayToObject: "$data",

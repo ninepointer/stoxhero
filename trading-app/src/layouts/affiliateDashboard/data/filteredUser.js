@@ -1,6 +1,6 @@
-import React, {useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 import axios from "axios";
-import { CircularProgress, Grid } from '@mui/material';
+import { Checkbox, CircularProgress, FormControlLabel, FormGroup, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
 // import MDAvatar from '../../../components/MDAvatar';
@@ -14,7 +14,7 @@ import TextField from '@mui/material/TextField';
 import { withStyles } from '@mui/styles';
 import MenuItem from '@mui/material/MenuItem';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import {apiUrl} from '../../../constants/constants';
+import { apiUrl } from '../../../constants/constants';
 import DownloadIcon from '@mui/icons-material/Download';
 import { saveAs } from 'file-saver';
 import html2canvas from 'html2canvas';
@@ -22,21 +22,22 @@ import { Tooltip } from '@mui/material';
 import moment from 'moment';
 // import Users from './users';
 
-export default function FilteredUsers({setFilteredUsers}) {
+export default function FilteredUsers({ setFilteredUsers }) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [selectedTab, setSelectedTab] = React.useState({
     affiliate: {
-      id: "",
+      id: "Cummulative",
       name: ""
-    }
+    },
+    isLifetime: false
   });
   // const [referralProgramme, setReferralProgramme] = React.useState([]);
   const [affiliate, setAffiliate] = React.useState([]);
   const date = new Date();
   const lastMonth = new Date(date.getFullYear(), date.getMonth(), 1);
   lastMonth.setDate(date.getDate());
-  const [startDate,setStartDate] = React.useState(dayjs(lastMonth));
-  const [endDate,setEndDate] = React.useState(dayjs(date));
+  const [startDate, setStartDate] = React.useState(dayjs(lastMonth));
+  const [endDate, setEndDate] = React.useState(dayjs(date));
   // const [filteredUsers, setFilteredUsers] = useState([]);
   // const [currentPage, setCurrentPage] = useState(1);
   // const[data,setData] = useState([]);
@@ -46,7 +47,6 @@ export default function FilteredUsers({setFilteredUsers}) {
   //   mobile:''
   // });
 
-  const perPage = 10;
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const CustomTextField = withStyles({
@@ -54,23 +54,7 @@ export default function FilteredUsers({setFilteredUsers}) {
       '& .MuiInputBase-input': {
         color: '#000000', // Replace 'red' with your desired text color
         textAlign: 'center',
-        height:'48px'
-      },
-      '& .MuiInput-underline:before': {
-        borderBottomColor: '#000000', // Replace 'red' with your desired text color
-      },
-      '& .MuiInput-underline:after': {
-        borderBottomColor: '#000000', // Replace 'red' with your desired text color
-      },
-    },
-  })(TextField);
-
-  const CustomTextField2 = withStyles({
-    root: {
-      '& .MuiInputBase-input': {
-        color: '#000000', // Replace 'red' with your desired text color
-        textAlign: 'center',
-        height:'40px'
+        height: '48px'
       },
       '& .MuiInput-underline:before': {
         borderBottomColor: '#000000', // Replace 'red' with your desired text color
@@ -82,7 +66,7 @@ export default function FilteredUsers({setFilteredUsers}) {
   })(TextField);
 
   useEffect(() => {
-
+    handleShowDetails();
     setIsLoading(true);
     let call1 = axios.get(`${baseUrl}api/v1/affiliate`, {
       withCredentials: true,
@@ -105,260 +89,158 @@ export default function FilteredUsers({setFilteredUsers}) {
 
   }, [])
 
-  // useEffect(()=>{
-  //   const startIndex = (currentPage - 1) * perPage;
-  //   const slicedData = filteredUsers.slice(startIndex, startIndex + perPage);
-  //   setData(slicedData);
-  // }, [currentPage])
 
-  // const handleNextPage = () => {
-  //   setCurrentPage((prevPage) => prevPage + 1);
-  // };
-
-  // const handlePrevPage = () => {
-  //   if (currentPage > 1) {
-  //     setCurrentPage((prevPage) => prevPage - 1);
-  //   }
-  // };
-  function handleReset(){
-    setSelectedTab({
-      affiliate: {
-        id: "",
-        name: ""
-      }
-    });
-    // setSelectedUser({});
-    setStartDate(dayjs(lastMonth));
-    setEndDate(dayjs(date));
+  async function handleShowDetails() {
     setFilteredUsers([]);
-    // setData([]);
-  }
-  async function handleShowDetails(){
-    try{
-      const res = await axios.get(`${apiUrl}affiliate/leaderboard?programme=${selectedTab?.affiliate?.id}&startDate=${startDate}&endDate=${endDate} `, {withCredentials:true});
-      if(res.status == 200){
+    try {
+
+      const res = await axios.get(`${apiUrl}affiliate/leaderboard?programme=${selectedTab?.affiliate?.id}&startDate=${startDate}&endDate=${endDate}&lifetime=${selectedTab?.isLifetime} `, { withCredentials: true });
+      if (res.status == 200) {
         setFilteredUsers(res.data.data);
-        // const startIndex = (currentPage - 1) * perPage;
-        // const slicedData = res.data.data.slice(startIndex, startIndex + perPage);
-        // setData(slicedData);
         setIsLoading(false);
-      }else{
+      } else {
         //handle error
       }
-    }catch(e){
+    } catch (e) {
       console.log(e);
       //handle error
     }
   }
 
-  const handleAffiliateChange = (e) =>{
+  const handleAffiliateChange = (e) => {
     const affiliateId = e.target.value;
-    const selectedAffiliate = affiliate.filter(elem=>elem?._id == affiliateId);
+    const selectedAffiliate = affiliate.filter(elem => elem?._id == affiliateId);
     console.log('selected', selectedAffiliate[0], affiliateId);
-    setSelectedTab((prev)=>{
+    setSelectedTab((prev) => {
       return {
-      ...prev,
-      affiliate: {
-        id:selectedAffiliate[0]?._id,
-        name:selectedAffiliate[0]?.affiliateType
-      },
-    }});
-    console.log('selected tab',selectedTab);
+        ...prev,
+        affiliate: {
+          id: affiliateId || selectedAffiliate[0]?._id,
+          name: selectedAffiliate[0]?.affiliateType
+        },
+      }
+    });
+    console.log('selected tab', selectedTab);
 
   }
 
-  // const handleCampaignChange = (e) =>{
-  //   const campaignId = e.target.value;
+  const handleLifetime = (value)=>{
+    
+    // if(selectedTab?.isLifetime){
+    //   value = false;
+    // } else{
+    //   value = true;
+    // }
+    console.log("value", value)
+    setSelectedTab(prevState => ({
+      ...prevState,
+      isLifetime: value
+    }))
+  }
 
-  //   const selectedCampaign = campaign.filter(elem=>elem?._id == campaignId);
-  //   setSelectedTab((prev) => {
-  //     return {
-  //     ...prev,
-  //     campaign: {
-  //       id:selectedCampaign[0]?._id,
-  //       name:selectedCampaign[0]?.campaignName
-  //     },
-  //   }})
-
-  // }
-
-  // function 
-
-  // setselectedSubscription(referralProgramme.filter((item) => item._id == (e.target.value))[0])
 
   return (
     <>
-    {isLoading ?
-        <MDBox display="flex" justifyContent="center" alignItems="center" mt={10} mb={10}>
-          <CircularProgress fontSize='xxl' color="light" />
-        </MDBox>
 
-      :
-        <>
-        <Grid mt={3} container>
-          <Grid item xs={12} md={6} lg={12}>
-            <MDBox bgColor="light" borderRadius={5}>
+      {/* <Grid container> */}
+        <Grid item xs={12} md={6} lg={12}>
+          {/* <MDBox bgColor="light" borderRadius={5}> */}
 
-              <MDBox display="flex" justifyContent="space-around" alignContent="center" alignItems="center">
-                <Grid container spacing={0} p={0} display="flex" justifyContent="space-evenly" alignContent="center" alignItems="center">
+            <MDBox display="flex" justifyContent="space-around" alignContent="center" alignItems="center">
+              <Grid container display="flex" justifyContent="space-evenly" alignContent="center" alignItems="center">
 
+                  <Grid container lg={12} display="flex" alignContent="center" alignItems="center" justifyContent='space-between'>
 
-                  <Grid item xs={12} md={6} lg={12} mt={1} mb={1} p={0} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                    <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                      <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DemoContainer components={['DatePicker']}>
+                            <DatePicker
+                              label="Start Date"
+                              value={startDate}
+                              onChange={(e) => { setStartDate(prev => dayjs(e)) }}
+                              sx={{ width: '100%' }}
+                              disabled={selectedTab?.isLifetime}
+                            />
+                          </DemoContainer>
+                        </LocalizationProvider>
+                      </MDBox>
+                    </Grid>
 
-                    <MDBox alignItem='center'>
-                      <MDTypography display="flex" justifyContent="center" alignContent="center" alignItems="center" color="dark" fontSize={15} fontWeight="bold">Select Filters</MDTypography>
+                    <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                      <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={4}>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DemoContainer components={['DatePicker']}>
+                            <DatePicker
+                              label="End Date"
+                              value={endDate}
+                              onChange={(e) => { setEndDate(prev => dayjs(e)) }}
+                              disabled={selectedTab?.isLifetime}
+                              sx={{ width: '100%' }}
+                            />
+                          </DemoContainer>
+                        </LocalizationProvider>
+                      </MDBox>
+                    </Grid>
 
-                      <Grid container spacing={0} p={0} lg={12} display="flex" alignContent="center" alignItems="center" justifyContent='space-between'>
-
-                        <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                          <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}>
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                              <DemoContainer components={['DatePicker']}>
-                                <DatePicker
-                                  label="Start Date"
-                                  value={startDate}
-                                  onChange={(e) => { setStartDate(prev => dayjs(e)) }}
-                                  sx={{ width: '100%' }}
-                                />
-                              </DemoContainer>
-                            </LocalizationProvider>
-                          </MDBox>
-                        </Grid>
-
-                        <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                          <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={4}>
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                              <DemoContainer components={['DatePicker']}>
-                                <DatePicker
-                                  label="End Date"
-                                  // disabled={true}
-                                  // defaultValue={dayjs(date)}
-                                  value={endDate}
-                                  onChange={(e) => { setEndDate(prev => dayjs(e)) }}
-                                  // value={dayjs(date)}
-                                  // onChange={(e) => {setFormStatePD(prevState => ({
-                                  //   ...prevState,
-                                  //   dateField: dayjs(e)
-                                  // }))}}
-                                  sx={{ width: '100%', marginLeft: "30px" }}
-                                />
-                              </DemoContainer>
-                            </LocalizationProvider>
-                          </MDBox>
-                        </Grid>
-
-                        <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                        <CustomTextField
-                          select
-                          label="Affiliate Type"
-                          value={selectedTab?.affiliate?.id}
-                          minHeight="6em"
-                          placeholder="Affiliate Type"
-                          variant="outlined"
-                          sx={{ width: "200px"}}
-                          onChange={(e) => {handleAffiliateChange(e)}}
-                          InputLabelProps={{
-                            style: { color: '#000000' },
+                    <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                      <FormGroup>
+                        <FormControlLabel
+                          checked={selectedTab?.isLifetime}
+                          control={<Checkbox />}
+                          onChange={(e) => {
+                            handleLifetime(e.target.checked)
                           }}
-                          SelectProps={{
-                            MenuProps: {
-                              PaperProps: {
-                                style: { width: '400px' }, // Replace '200px' with your desired width
-                              },
+                          label="LifeTime"
+                          // value={selectedTab?.isLifetime}
+                          />
+                          
+                      </FormGroup>
+                    </Grid>
+
+                    <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                      <CustomTextField
+                        select
+                        label="Affiliate Type"
+                        value={selectedTab?.affiliate?.id}
+                        minHeight="6em"
+                        placeholder="Affiliate Type"
+                        variant="outlined"
+                        sx={{ width: "250px" }}
+                        onChange={(e) => { handleAffiliateChange(e) }}
+                        InputLabelProps={{
+                          style: { color: '#000000' },
+                        }}
+                        SelectProps={{
+                          MenuProps: {
+                            PaperProps: {
+                              style: { width: '250px' }, // Replace '200px' with your desired width
                             },
-                          }}
-                        >
-                          {affiliate?.map((option) => (
-                            <MenuItem key={option?._id} value={option?._id} minHeight="4em" width='300px'>
-                              {option?.affiliateType}
-                            </MenuItem>
-                          ))}
-                        </CustomTextField>
-                        </Grid>
+                          },
+                        }}
+                      >
+                        {affiliate?.map((option) => (
+                          <MenuItem key={option?._id} value={option?._id} minHeight="4em" width='300px'>
+                            {option?.affiliateType}
+                          </MenuItem>
+                        ))}
+                           <MenuItem value={"Cummulative"} minHeight="4em" width='300px'>
+                          {"Cummulative"}
+                        </MenuItem>
+                      </CustomTextField>
+                    </Grid>
 
 
-                      </Grid>
-                    </MDBox>
                   </Grid>
 
+                    <Grid item xs={12} md={6} lg={12} mt={0} mb={0} display="flex" justifyContent="flex-end" width='100%'>
+                      <MDButton variant="contained" color="info" onClick={handleShowDetails}>Show Leaderboard</MDButton>
+                    </Grid>
 
-                </Grid>
-              </MDBox>
-
-            </MDBox>
-          </Grid>
-        </Grid>
-        {/* {data?.length>0 &&  */}
-        <>
-        {/* <MDBox display="flex" justifyContent="space-between" alignItems="left" width='100%' mt={1}>
-        <MDBox width="100%" display="flex" justifyContent="space-between" alignItems="center" sx={{ backgroundColor: "#ffffff", borderRadius: "5px" }}>
-        <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-          </MDTypography>
-          <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-            Filtered Users({filteredUsers?.length})
-          </MDTypography>
-        </MDBox>
-      </MDBox> */}
-      <Grid mt={2} p={1} container style={{border:'1px solid white', borderRadius:5}}>
-          <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="left" alignContent="center" alignItems="center">
-          <MDTypography color="light" fontSize={13} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">Full Name</MDTypography>
-          </Grid>
-          <Grid item xs={12} md={2} lg={2.8} display="flex" justifyContent="left" alignContent="center" alignItems="center">
-          <MDTypography color="light" fontSize={13} fontWeight="bold">Email Id</MDTypography>
-          </Grid>
-          <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-          <MDTypography color="light" fontSize={13} fontWeight="bold">Mobile No.</MDTypography>
-          </Grid>
-          <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-          <MDTypography color="light" fontSize={13} fontWeight="bold">Referred By/Campaign</MDTypography>
-          </Grid>
-          <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-          <MDTypography color="light" fontSize={13} fontWeight="bold">SignUp Method</MDTypography>
-          </Grid>
-          <Grid item xs={12} md={2} lg={1.8} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-          <MDTypography color="light" fontSize={13} fontWeight="bold">Joining Date</MDTypography>
-          </Grid>
-      </Grid></>
-      {/* } */}
-
-      {/* {data?.map((elem)=>{
-            
-              return (
-              <>  
-              <Grid mt={1} p={1} container style={{border:'1px solid white', borderRadius:5}}>
-                  <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="left" alignContent="center" alignItems="center">
-                      <MDTypography color="light" fontSize={13} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.first_name} {elem?.last_name}</MDTypography>
-                  </Grid>
-                  <Grid item xs={12} md={2} lg={2.8} display="flex" justifyContent="left" alignContent="center" alignItems="center">
-                      <MDTypography color="light" fontSize={13}>{elem?.email}</MDTypography>
-                  </Grid>
-                  <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                      <MDTypography color="light" fontSize={13}>{elem?.mobile}</MDTypography>
-                  </Grid>
-                  <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                      <MDTypography color="light" fontSize={13}>{elem?.referredBy ? (elem?.referredBy?.first_name + ' ' + elem?.referredBy?.last_name) : elem?.campaign?.campaignName}</MDTypography>
-                  </Grid>
-                  <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                      <MDTypography color="light" fontSize={13}>{elem?.creationProcess}</MDTypography>
-                  </Grid>
-                  <Grid item xs={12} md={2} lg={1.8} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color='light' fontSize={13}>{new Date(elem?.joining_date).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.joining_date).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
-                  </Grid>
               </Grid>
-              </>
-              )
-            })} */}
+            </MDBox>
 
-            {/* {!isLoading && data?.length>0 &&
-          <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
-              <MDButton variant='outlined' color='warning' disabled={currentPage === 1 ? true : false} size="small" onClick={handlePrevPage}>Back</MDButton>
-              <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Data: {filteredUsers.length} | Page {currentPage} of {Math.ceil(filteredUsers.length/perPage)}</MDTypography>
-              <MDButton variant='outlined' color='warning' disabled={Math.ceil(filteredUsers.length/perPage) === currentPage ? true : false} size="small" onClick={handleNextPage}>Next</MDButton>
-          </MDBox>
-          } */}
-        </>
-      
-    }
-  </>
+        </Grid>
+    </>
   );
 }
