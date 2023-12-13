@@ -174,7 +174,7 @@ exports.sendGroupNotifications = async (req,res, next) => {
         let groupUsers = group.users;
         for(let user of groupUsers){
             const userDoc = await User.findById(user).select("fcmTokens");
-            if(userDoc.fcmTokens.length >0){
+            if(userDoc?.fcmTokens?.length >0){
                 console.log('tokens', userDoc?.fcmTokens?.map(item=>item.token))
                 await sendMultiNotifications(title, body,
                 userDoc?.fcmTokens?.map(item=>item.token), req?.uploadUrl, {route:actions}

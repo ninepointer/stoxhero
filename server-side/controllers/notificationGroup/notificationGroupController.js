@@ -99,8 +99,44 @@ async function getUsersFromCriteria(criteria){
             yesterday.setHours(0, 0, 0, 0);
             users = getInactiveUsersSet(yesterday, new Date());
             break;
+        case 'TenX Lifetime Users':
+            users = await getTenXLifetimeUsers();
+            break;    
+        case 'TenX Active Users':
+            users = await getTenXActiveUsers();
+            break;    
+        case 'TenX Inactive Users':
+            users = await getTenXInactiveUsers();
+            break;    
+        case 'TenX Expired Today Payout':
+            users = await getTenXExpiredWithPayout();
+            break;    
+        case 'TenX Expired Today Without Payout':
+            users = await getTenXExpiredWithoutPayout();
+            break;    
+        case 'TestZone Lifetime Active Users':
+            users = await getTestZoneLifeTimeUsers();
+            break;    
+        case 'TestZone Monthly Active Users':
+            users = await getTestZoneMonthlyActiveUsers();
+            break;    
+        case 'TestZone Paid Users':
+            users = await getTestZonePaidUsers();
+            break;    
+        case 'TestZone Free Users':
+            users = await getTestZoneFreeUsers();
+            break;    
+        case 'Joined Users(7 days)':
+            users = await getUsersin7days();
+            break;    
+        case 'Joined Users(7 days) Active':
+            users = await getActiveUsersin7days();
+            break;    
+        case 'Joined Users(7 days) Inactive':
+            users = await getInactiveUsersin7days();
+            break;    
         case 'Test':
-            users = ['642c6434573edbfcb2ac45a5', '6453c1435509f00c92fd59b7'];
+            users = ['642c6434573edbfcb2ac45a5', '6453c1435509f00c92fd59b7', '63971eec2ca5ce5b52f900b7', '63987c34223c3fc074683f37'];
             break;    
         default:
             console.log('no such criteria');
@@ -360,6 +396,285 @@ let getActiveUsersDuringTheMonth = async() => {
   
     return Array.from(uniqueUsersSet);
   }
+let getTenXLifetimeUsers = async () => {
+    const pipeline = [
+        {
+          $unwind:
+            {
+              path: "$users",
+            },
+        },
+        {
+          $group:
+            {
+              _id: "$users.userId",
+            },
+        },
+      ];
+    const tenXUsers = await TenX.aggregate(pipeline);
+    const uniqueUsersSet = new Set();
+    tenXUsers.forEach(trader => uniqueUsersSet.add(trader._id.toString()));
+    return Array.from(uniqueUsersSet); 
+}
+
+let getTenXActiveUsers = async () => {
+    const pipeline = [
+        {
+          $unwind:
+            {
+              path: "$users",
+            },
+        },
+        {
+            $match:
+                {
+                    "users.status":"Live"
+                }
+        },
+        {
+          $group:
+            {
+              _id: "$users.userId",
+            },
+        },
+      ];
+    const tenXUsers = await TenX.aggregate(pipeline);
+    const uniqueUsersSet = new Set();
+    tenXUsers.forEach(trader => uniqueUsersSet.add(trader._id.toString()));
+    return Array.from(uniqueUsersSet); 
+}
+
+let getTenXInactiveUsers = async () => {
+    const tenXLifeTime = await getTenXLifetimeUsers();
+    const tenXActive = await getTenXActiveUsers();
+    const tenXInactive = tenXLifeTime.filter(user=>!tenXActive.includes(user));
+    return tenXInactive; 
+}
+
+let getTenXExpiredWithPayout = async () =>{
+    const yesterday = moment().subtract(1,'day').startOf('day').format('YYYY-MM-DD');
+    let payoutUsersPipeline = [
+        {
+          $unwind: {
+            path: "$users",
+          },
+        },
+        {
+          $match: {
+            "users.status": "Expired",
+            "users.expiredOn":{$gte: yesterday},
+            "users.payout": {
+              $gt: 0,
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$users.userId",
+          },
+        },
+      ];
+    const payoutUsers = await TenX.aggregate(payoutUsersPipeline);
+    const uniqueUsersSet = new Set();
+    payoutUsers.forEach(trader=>uniqueUsersSet.add(trader?._id?.toString()));
+    return Array.from(uniqueUsersSet); 
+}
+
+let getTenXAllExpired = async () => {
+    const yesterday = moment().subtract(1,'day').startOf('day');
+    let allUsersPipeline = [
+        {
+          $unwind: {
+            path: "$users",
+          },
+        },
+        {
+          $match: {
+            "users.status": "Expired",
+            "users.expiredOn":{$gte: yesterday}
+          },
+        },
+        {
+          $group: {
+            _id: "$users.userId",
+          },
+        },
+      ];
+      const allUsers = await TenX.aggregate(allUsersPipeline);
+      const uniqueUsersSet = new Set();
+      allUsers.forEach(trader=>uniqueUsersSet.add(trader?._id?.toString()));
+      return Array.from(uniqueUsersSet);   
+}
+
+let getTenXExpiredWithoutPayout = async() => {
+    const allExpired = await getTenXAllExpired();
+    const payoutExpired = await getTenXExpiredWithPayout();
+    const withoutPayout = allExpired.filter(user=>!payoutExpired.includes(user));
+    return withoutPayout;
+}
+
+let getTestZoneLifeTimeUsers = async () => {
+    let pipeline = [
+        {
+          $unwind:
+            {
+              path: "$participants",
+            },
+        },
+        {
+          $group:
+            {
+              _id: "$participants.userId",
+            },
+        },
+      ]
+      const allUsers = await Contest.aggregate(pipeline);
+      const uniqueUsersSet = new Set();
+      allUsers.forEach(trader=>uniqueUsersSet.add(trader?._id?.toString()));
+      return Array.from(uniqueUsersSet);   
+}
+
+let getTestZonePaidUsers = async () => {
+    let pipeline = [
+        {
+          $unwind:
+            {
+              path: "$participants",
+            },
+        },
+        {
+          $match:
+            {
+              entryFee: {
+                $gt: 0,
+              },
+            },
+        },
+        {
+          $group:
+            {
+              _id: "$participants.userId",
+            },
+        },
+      ];
+      const allUsers = await Contest.aggregate(pipeline);
+      const uniqueUsersSet = new Set();
+      allUsers.forEach(trader=>uniqueUsersSet.add(trader?._id?.toString()));
+      return Array.from(uniqueUsersSet);
+}
+let getTestZoneFreeUsers = async() =>{
+    const allUsers = await getTestZoneLifeTimeUsers();
+    const paidUsers = await getTestZonePaidUsers();
+    const freeUsers = allUsers.filter(user=>!paidUsers.includes(user));
+    return freeUsers;
+}
+
+let getTestZoneMonthlyActiveUsers = async () => {
+    let pipeline = [
+        {
+          $unwind:
+            {
+              path: "$participants",
+            },
+        },
+        {
+            $match:
+              {
+                "participants.participatedOn":{
+                    $gte:new Date(moment().startOf('month').format('YYYY-MM-DD')),
+                    $lte:new Date(moment().endOf('month').format('YYYY-MM-DD')),
+                }
+              }
+
+        },
+        {
+          $group:
+            {
+              _id: "$participants.userId",
+            },
+        },
+      ];
+      const allUsers = await Contest.aggregate(pipeline);
+      const uniqueUsersSet = new Set();
+      allUsers.forEach(trader=>uniqueUsersSet.add(trader?._id?.toString()));
+      return Array.from(uniqueUsersSet);
+}
+
+let getUsersin7days = async () => {
+    let pipeline = [
+        {
+          $match:
+            {
+              joining_date: {
+                $gte: new Date(moment().subtract(7, 'days').startOf('day').format('YYYY-MM-DD')),
+              }
+            },
+        },
+        {
+            $group:
+              {
+                _id: "$_id",
+              },
+          },
+      ];
+    const allUsers = await User.aggregate(pipeline);
+    const uniqueUsersSet = new Set();
+    allUsers.forEach(trader=>uniqueUsersSet.add(trader?._id?.toString()));
+    return Array.from(uniqueUsersSet);  
+}
+
+let getActiveUsersin7days = async () =>{
+    let pipeline = [
+        {
+          $match:
+            {
+              joining_date: {
+                $gte: new Date(moment().subtract(7, 'days').startOf('day').format('YYYY-MM-DD')),
+              },
+              "activationDetails.activationDate": {
+                $ne: null,
+              },
+            },
+        },
+        {
+            $group:
+              {
+                _id: "$_id",
+              },
+          },
+      ];
+    const allUsers = await User.aggregate(pipeline);
+    const uniqueUsersSet = new Set();
+    allUsers.forEach(trader=>uniqueUsersSet.add(trader?._id?.toString()));
+    return Array.from(uniqueUsersSet);   
+}
+
+let getInactiveUsersin7days = async () => {
+    let pipeline = [
+        {
+          $match:
+            {
+              joining_date: {
+                $gte: new Date(moment().subtract(7, 'days').startOf('day').format('YYYY-MM-DD')),
+              },
+              "activationDetails.activationDate": {
+                $eq: null,
+              },
+            },
+        },
+        {
+            $group:
+              {
+                _id: "$_id",
+              },
+          },
+      ];
+    const allUsers = await User.aggregate(pipeline);
+    const uniqueUsersSet = new Set();
+    allUsers.forEach(trader=>uniqueUsersSet.add(trader?._id?.toString()));
+    return Array.from(uniqueUsersSet); 
+}
+
 
 exports.refreshNotificationGroup = async (req,res) => {
     const {id} = req.params;
