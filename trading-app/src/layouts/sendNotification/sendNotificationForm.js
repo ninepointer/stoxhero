@@ -38,6 +38,7 @@ import DefaultCarouselImage from '../../assets/images/defaultcarousel.png'
 // import CreateRewards from './data/reward/createReward';
 // import ContestRewards from './data/reward/contestReward';
 import {apiUrl} from  '../../constants/constants';
+import moment from 'moment';
 
 const CustomAutocomplete = styled(Autocomplete)`
   .MuiAutocomplete-clearIndicator {
@@ -516,10 +517,13 @@ function Index() {
                   }}>
                     <MDBox>
                     <MDTypography fontSize={16}>
-                      title: {item?.title}
+                      Title: {item?.title}
                     </MDTypography>
                     <MDTypography fontSize={14}>
-                      body:{item?.body}
+                      Body:{item?.body}
+                    </MDTypography>
+                    <MDTypography fontSize={12}>
+                      Notification Date:{moment(item?.createdOn).format('DD-MM-YY hh:mm a')}
                     </MDTypography>
                     {/* <MDButton>Send Again</MDButton> */}
                     </MDBox>
