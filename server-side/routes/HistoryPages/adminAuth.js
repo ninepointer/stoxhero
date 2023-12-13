@@ -3643,5 +3643,29 @@ requirment:
 2. today pnl is in unrealised pnl
 3. give some insights, max profit, max loss, avg profit, avg loss, roi, ..etc. 
 
+
+
+
+1. 500 open positon Nifty 19000PE
+    400 stop loss ---> pending order api
+
+  500-400 = 100 sl quanity
+  500-0 = 500 sp quantity
+
+
+  
+2. 5000 open positon Nifty 19000PE
+    400 stop loss
+
+    max lot = 1800
+    slQ > maxLot ? maxLot : slQ
+  5000-400 = 4600 sl quanity 
+  5000-0 = 5000 sp quantity
+
+
+
+
 Steps:
 */
+
+
