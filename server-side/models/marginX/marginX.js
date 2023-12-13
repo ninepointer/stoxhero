@@ -31,7 +31,8 @@ const marginXSchema = new Schema({
         accountBlown: {type: Boolean},
         accountBlownAt:{type:Date},
         fee:Number,
-        actualPrice:Number
+        actualPrice:Number,
+        herocashPayout: Number
     }],
     potentialParticipants:[
         {type:Schema.Types.ObjectId, ref: 'user-personal-detail'},

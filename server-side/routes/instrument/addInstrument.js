@@ -47,14 +47,14 @@ router.post("/addInstrument", authentication, async (req, res) => {
                 }
             })
             try {
-                // if (isRedisConnected) {
-                //     let obj = {
-                //         instrumentToken: instrumentToken,
-                //         exchangeInstrumentToken: exchangeInstrumentToken
-                //     }
-                //     const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
-                //     const allinstrument = await client.SADD(`${(_id).toString()}allInstrument`, JSON.stringify(obj));
-                // }
+                if (isRedisConnected) {
+                    let obj = {
+                        instrumentToken: instrumentToken,
+                        exchangeInstrumentToken: exchangeInstrumentToken
+                    }
+                    const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
+                    const allinstrument = await client.SADD(`${(_id).toString()}allInstrument`, JSON.stringify(obj));
+                }
                 const token = JSON.parse(await client.get('all-token')) || [];
                 token.push(instrumentToken);
                 const uniqueTokenArr = [...new Set(token)];
@@ -102,14 +102,14 @@ router.post("/addInstrument", authentication, async (req, res) => {
                     users: [_id?.toString()]
                 });
     
-                // if (isRedisConnected) {
-                //     let obj = {
-                //         instrumentToken: instrumentToken,
-                //         exchangeInstrumentToken: exchangeInstrumentToken
-                //     }
-                //     const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
-                //     const allinstrument = await client.SADD(`${(_id).toString()}allInstrument`, JSON.stringify(obj));
-                // }
+                if (isRedisConnected) {
+                    let obj = {
+                        instrumentToken: instrumentToken,
+                        exchangeInstrumentToken: exchangeInstrumentToken
+                    }
+                    const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
+                    const allinstrument = await client.SADD(`${(_id).toString()}allInstrument`, JSON.stringify(obj));
+                }
     
                 await client.LPUSH(`${req.user._id.toString()}: instrument`, JSON.stringify({
                     _id: addingInstruments._id,

@@ -82,7 +82,7 @@ const TenXSubscription = new mongoose.Schema({
         actualPrice:Number,
         payout:{type:Number},
         tdsAmount: {type: Number},
-
+        herocashPayout: Number,
         gpnl: {type: Number},
         npnl: {type: Number},
         brokerage: {type: Number},
