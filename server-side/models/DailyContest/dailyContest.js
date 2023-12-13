@@ -82,7 +82,7 @@ const contestSchema = new Schema({
     visibility:{
         type:Boolean,
         required: true,
-        default: true
+        default: false
     },
     rewards:[{
         rankStart:{type:Number},

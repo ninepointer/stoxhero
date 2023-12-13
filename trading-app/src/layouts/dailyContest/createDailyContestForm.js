@@ -358,14 +358,14 @@ function Index() {
     }
   };
 
-  const date = new Date(contest?.contestStartTime);
+  const date = new Date(contest?.contestStartTime || dailyContest?.contestStartTime);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
 
   const formattedDate = `${year}${month}${day}`;
   const contestFor = contest?.contestFor
-  const visibility = contest?.visibility;
+  const visibility = contest?.visibility || dailyContest?.visibility;
   const link = (contestFor === 'College' ? 'collegecontest' : '')
   return (
     <>
@@ -381,8 +381,8 @@ function Index() {
               <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
                 Fill TestZone Details
               </MDTypography>
-              {(contestFor === 'College' || !visibility) && <MDTypography variant="caption" fontWeight="bold" color="text">
-                Link: {Url}{contestFor === 'College' ? "collegetestzone" : "testzone"}/{contest?.slug}/{formattedDate}{!visibility && "?campaigncode=****&referral=****"}
+              {(contestFor === 'College' || visibility===false) && <MDTypography variant="caption" fontWeight="bold" color="text">
+                Link: {Url}{contestFor === 'College' ? "collegetestzone" : "testzone"}/{contest?.slug || dailyContest?.slug}/{formattedDate}{!visibility && "?campaigncode=****&referral=****"}
               </MDTypography>}
             </MDBox>
 

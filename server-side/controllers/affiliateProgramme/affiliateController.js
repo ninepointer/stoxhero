@@ -339,6 +339,157 @@ exports.removeAffiliateUser = async (req, res) => {
     }
 };
 
+exports.affiliateLeaderboard = async (req, res) => {
+  const {programme, startDate, endDate} = req.params;
+  try {
+      const leaderboard = await AffiliateTransaction.aggregate([
+        {
+          $match: {
+            affiliate: new ObjectId(programme),
+            transactionDate: {
+              $gte: new Date(startDate),
+              $lte: new Date(endDate)
+            }
+          }
+        },
+        {
+          $group: {
+            _id: {
+              affiliate: "$affiliate",
+              product: "$product",
+            },
+            payout: {
+              $sum: "$affiliatePayout",
+            },
+            totalAmount: {
+              $sum: "$productDiscountedPrice",
+            },
+            count: {
+              $count: {},
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "_id.affiliate",
+            foreignField: "_id",
+            as: "affiliate",
+          },
+        },
+        {
+          $lookup: {
+            from: "products",
+            localField: "_id.product",
+            foreignField: "_id",
+            as: "product",
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            first_name: {
+              $arrayElemAt: [
+                "$affiliate.first_name",
+                0,
+              ],
+            },
+            last_name: {
+              $arrayElemAt: ["$affiliate.last_name", 0],
+            },
+            code: {
+              $arrayElemAt: [
+                "$affiliate.myReferralCode",
+                0,
+              ],
+            },
+            product: {
+              $concat: [
+                {
+                  $toLower: {
+                    $arrayElemAt: [
+                      "$product.productName",
+                      0,
+                    ],
+                  },
+                },
+                "_payout",
+              ],
+            },
+            payout: 1,
+            totalAmount: 1,
+            count: 1,
+          },
+        },
+        {
+          $group: {
+            _id: {
+              first_name: "$first_name",
+              last_name: "$last_name",
+              code: "$code",
+            },
+            data: {
+              $push: {
+                k: "$product",
+                v: "$$ROOT.payout",
+              },
+            },
+            totalAmount: {
+              $push: {
+                k: {
+                  $concat: ["$product", "_totalAmount"],
+                },
+                v: "$$ROOT.totalAmount",
+              },
+            },
+            allCount: {
+              $push: {
+                k: {
+                  $concat: ["$product", "_count"],
+                },
+                v: "$$ROOT.count",
+              },
+            },
+          },
+        },
+        {
+          $replaceRoot: {
+            newRoot: {
+              $mergeObjects: [
+                {
+                  first_name: "$_id.first_name",
+                  last_name: "$_id.last_name",
+                  code: "$_id.code",
+                },
+                {
+                  $arrayToObject: "$data",
+                },
+                {
+                  $arrayToObject: "$totalAmount",
+                },
+                {
+                  $arrayToObject: "$allCount",
+                },
+              ],
+            },
+          },
+        },
+      ])
+      res.status(200).json({
+          status: "success",
+          message: "Affiliate leaderboard fetched successfully",
+          data: leaderboard
+      });
+      
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Something went wrong",
+          error: error.message
+      });
+  }
+};
+
 exports.getAffiliateProgramTransactions = async (req, res) => {
     const {id} = req.params;
     try {
