@@ -1,19 +1,21 @@
 const TenXTrader = require("../models/mock-trade/tenXTraderSchema");
 const User = require("../models/User/userDetailSchema");
-const Portfolio = require("../models/userPortfolio/UserPortfolio");
+// const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema")
 const whatsAppService = require("../utils/whatsAppService")
-const mediaURL = "https://dmt-trade.s3.amazonaws.com/carousels/WhastAp%20Msg%20Photo/photos/1697228055934Welcome%20to%20the%20world%20of%20Virtual%20Trading%20but%20real%20earning%21.png";
-const mediaFileName = 'StoxHero'
+// const mediaURL = "https://dmt-trade.s3.amazonaws.com/carousels/WhastAp%20Msg%20Photo/photos/1697228055934Welcome%20to%20the%20world%20of%20Virtual%20Trading%20but%20real%20earning%21.png";
+// const mediaFileName = 'StoxHero'
 const { client, getValue } = require('../marketData/redisClient');
 const Wallet = require("../models/UserWallet/userWalletSchema");
 const uuid = require('uuid');
 const { ObjectId } = require("mongodb");
 const sendMail = require('../utils/emailService');
+const {sendMultiNotifications} = require('../utils/fcmService');
 const moment = require('moment');
 const mongoose = require('mongoose');
 const {createUserNotification} = require('../controllers/notification/notificationController');
 const Setting = require("../models/settings/setting")
+const PendingOrder = require("../models/PendingOrder/pendingOrderSchema")
 
 exports.overallPnl = async (req, res, next) => {
   let isRedisConnected = getValue();
@@ -50,7 +52,7 @@ exports.overallPnl = async (req, res, next) => {
 
     } else {
 
-      let pnlDetails = await TenXTrader.aggregate([
+      const pnlDetails = await TenXTrader.aggregate([
         {
           $match: {
             trade_time_utc: {
@@ -62,6 +64,11 @@ exports.overallPnl = async (req, res, next) => {
           },
         },
         {
+          $sort: {
+            trade_time_utc: 1,
+          },
+        },
+        {
           $group: {
             _id: {
               symbol: "$symbol",
@@ -70,7 +77,8 @@ exports.overallPnl = async (req, res, next) => {
               exchangeInstrumentToken: "$exchangeInstrumentToken",
               exchange: "$exchange",
               validity: "$validity",
-              variety: "$variety"
+              variety: "$variety",
+              // order_type: "$order_type"
             },
             amount: {
               $sum: { $multiply: ["$amount", -1] },
@@ -88,6 +96,9 @@ exports.overallPnl = async (req, res, next) => {
             lastaverageprice: {
               $last: "$average_price",
             },
+            margin: {
+              $last: "$margin",
+            },
           },
         },
         {
@@ -96,12 +107,87 @@ exports.overallPnl = async (req, res, next) => {
           },
         },
       ])
+
+      const limitMargin = await PendingOrder.aggregate([
+        {
+          $match: {
+            createdBy: new ObjectId(
+              userId
+            ),
+            type: "Limit",
+            status: "Pending",
+            createdOn: {
+              $gte: today,
+            },
+            product_type: new ObjectId("6517d3803aeb2bb27d650de0")
+          },
+        },
+        {
+          $sort: {
+            createdOn: 1,
+          },
+        },
+        {
+          $group:
+          {
+            _id: {
+              symbol: "$symbol",
+              product: "$Product",
+              instrumentToken: "$instrumentToken",
+              exchangeInstrumentToken: "$exchangeInstrumentToken",
+              exchange: "$exchange",
+              validity: "$validity",
+              variety: "$variety",
+              // order_type: "$order_type"
+            },
+            amount: {
+              $sum: { $multiply: ["$amount", -1] },
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$brokerage",
+              },
+            },
+            lots: {
+              $sum: {
+                $toInt: "$Quantity",
+              },
+            },
+            margin: {
+              $last: "$margin",
+            },
+          }
+        }
+      ])
+
+      const arr = [];
+      for(let elem of limitMargin){
+        arr.push({
+          _id: {
+            symbol: elem._id.symbol,
+            product: elem._id.product,
+            instrumentToken: elem._id.instrumentToken,
+            exchangeInstrumentToken: elem._id.exchangeInstrumentToken,
+            exchange: elem._id.exchange,
+            validity: elem._id.validity,
+            variety: elem._id.variety,
+            isLimit: true
+          },
+          // amount: (tenxDoc.amount * -1),
+          // brokerage: Number(tenxDoc.brokerage),
+          lots: Number(elem.lots),
+          // lastaverageprice: tenxDoc.average_price,
+          margin: elem.margin
+        });
+      }
+
+      const newPnl = pnlDetails.concat(arr);
       if (isRedisConnected) {
-        await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlDetails))
+        await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(newPnl))
         await client.expire(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, secondsRemaining);
       }
 
-      res.status(201).json({ message: "pnl received", data: pnlDetails });
+      res.status(201).json({ message: "pnl received", data: newPnl });
     }
 
   } catch (e) {
@@ -110,6 +196,89 @@ exports.overallPnl = async (req, res, next) => {
   }
 
 
+}
+
+exports.liveSubscriptionAnalytics = async (req, res, next) => {
+
+  try {
+    const userId = req.user._id;
+    const subscriptionId = req.params.id;
+    const subscriptionTime = req.params.starttime;
+  
+    let date = new Date();
+    const currentTime = new Date();
+    const endTime = new Date(currentTime);
+    endTime.setHours(10, 0, 0, 0);
+  
+    let time;
+    if(currentTime >= endTime){
+      let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()+1).padStart(2, '0')}`
+      todayDate = todayDate + "T00:00:00.000Z";
+      time = new Date(todayDate);  
+    } else{
+      let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+      todayDate = todayDate + "T00:00:00.000Z";
+      time = new Date(todayDate);  
+    }
+  
+    const pnlDetails = await TenXTrader.aggregate([
+      {
+        $match: {
+          trade_time_utc: {
+            $gte: new Date(subscriptionTime),
+            $lte: new Date(time)
+          },
+          status: "COMPLETE",
+          trader: new ObjectId(userId),
+          subscriptionId: new ObjectId(subscriptionId)
+        },
+      },
+      {
+        $group: {
+          _id: {
+          },
+          amount: {
+            $sum: { $multiply: ["$amount", -1] },
+          },
+          brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
+          },
+          trades: {
+            $count: {},
+          },
+          tradingDays: {
+            $addToSet: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$trade_time_utc",
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          grossPnl: "$amount",
+          brokerage: "$brokerage",
+          _id: 0,
+          npnl: {
+            $subtract: ["$amount", "$brokerage"],
+          },
+          tradingDays: {
+            $size: "$tradingDays",
+          },
+          trades: 1,
+        }
+      }
+    ])
+    res.status(201).json({ message: "pnl received", data: pnlDetails });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ status: 'success', message: 'something went wrong.' })
+  }
 }
 
 exports.myTodaysTrade = async (req, res, next) => {
@@ -143,8 +312,8 @@ exports.myTodaysTrade = async (req, res, next) => {
 exports.myHistoryTrade = async (req, res, next) => {
 
   let {subscriptionId, subscribedOn, expiredOn  } = req.params;
-  expiredOn = expiredOn && new Date(expiredOn);
-  subscribedOn = subscribedOn && new Date(subscribedOn);
+  expiredOn = expiredOn ? new Date(expiredOn) : new Date();
+  subscribedOn = subscribedOn ? new Date(subscribedOn): new Date();
 
   const userId = req.user._id;
   let date = new Date();
@@ -160,7 +329,7 @@ exports.myHistoryTrade = async (req, res, next) => {
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
   const count = await TenXTrader.countDocuments({subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time_utc: {$gte: subscribedOn, $lt: expiredOn } })
-  // console.log("Under my today orders", userId, today)
+  console.log("Under my today orders", subscriptionId, subscribedOn, expiredOn, userId)
   try {
     const myHistoryTrade = await TenXTrader.find({subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time_utc: {$gte: subscribedOn, $lt: expiredOn } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time_utc': 1, 'order_id': 1, 'subscriptionId': 1 }).populate('subscriptionId', 'plan_name')
       .sort({ _id: -1 })
@@ -537,7 +706,7 @@ exports.autoExpireTenXSubscription = async () => {
     let users = subscription[i].users;
     let subscriptionId = subscription[i]._id
     let validity = subscription[i].validity;
-    let payoutPercentage = subscription[i].payoutPercentage;
+    let payoutPercentage = subscription[i].payoutPercentage || 10;
     let expiryDays = subscription[i].expiryDays;
     for (let j = 0; j < users.length; j++) {
       const session = await mongoose.startSession();
@@ -546,7 +715,12 @@ exports.autoExpireTenXSubscription = async () => {
         let userId = users[j].userId;
         let fee = users[j]?.fee;
         let subscribedOn = users[j].subscribedOn;
+        // let expiredOn = users[j].expiredOn;
         let status = users[j].status;
+        const timeDifference = (new Date()).getTime() - (new Date(subscribedOn)).getTime();
+        // Convert milliseconds to days
+        const daysDifference = Math.floor(timeDifference / (1000 * 3600 * 24));
+
 
         const today = new Date();  // Get the current date
 
@@ -685,7 +859,7 @@ exports.autoExpireTenXSubscription = async () => {
                 },
               },
             },
-          ])
+          ], { allowDiskUse: true })
     
           let pnlDetails = await TenXTrader.aggregate([
             {
@@ -711,6 +885,9 @@ exports.autoExpireTenXSubscription = async () => {
                     $toDouble: "$brokerage",
                   },
                 },
+                trades: {
+                  $count: {},
+                },
               },
             },
             {
@@ -720,27 +897,36 @@ exports.autoExpireTenXSubscription = async () => {
                   npnl: {
                     $subtract: ["$amount", "$brokerage"],
                   },
+                  gpnl: "$amount",
+                  brokerage: "$brokerage",
+                  trades: 1,
                 },
             },
-          ])
+          ], { allowDiskUse: true })
+
 
           let pnl = pnlDetails[0]?.npnl * payoutPercentage/100;
           let profitCap = subscription[i].profitCap;
           let payoutAmountWithoutTDS = Math.min(pnl, profitCap);
           let payoutAmount = payoutAmountWithoutTDS;
           if(payoutAmountWithoutTDS>users[j]?.fee){
-            payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100;
+            if (subscription[i]?.rewardType === "Cash") {
+              payoutAmount = payoutAmountWithoutTDS - (payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100;
+              // payoutAmountAdjusted = payoutAmount - (payoutAmount - fee) * setting[0]?.tdsPercentage / 100;
+            } else {
+              payoutAmount = payoutAmountWithoutTDS;
+            }
           }
     
+          const tdsAmount = subscription[i]?.rewardType === "Cash" ? (payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100 : 0;
 
-          // console.log("payoutAmount", (payoutAmount > 0 && tradingDays[0]?.totalTradingDays === validity))
+          console.log("payoutAmount",pnlDetails[0]?.npnl, pnl, profitCap, subscription[i].profitCap, payoutPercentage, payoutAmountWithoutTDS, users[j]?.fee, daysDifference >= expiryDays)
 
-          if (tradingDays.length && Math.floor(tradingDays[0]?.actualRemainingDay) <= 0) {
-            // console.log(pnlDetails[0]?.npnl, pnl, profitCap, payoutAmount, userId)
+          if ((tradingDays.length && Math.floor(tradingDays[0]?.actualRemainingDay) <= 0) || (daysDifference >= expiryDays)) {
+            console.log(daysDifference >= expiryDays)
 
             const user = await User.findOne({ _id: new ObjectId(userId), status: "Active" });
             if(user){
-
 
               let len = user.subscription.length;
               
@@ -749,12 +935,21 @@ exports.autoExpireTenXSubscription = async () => {
                   user.subscription[k].status = "Expired";
                   user.subscription[k].expiredOn = new Date();
                   user.subscription[k].expiredBy = "System";
+
+                  user.subscription[k].npnl = pnlDetails[0]?.npnl || 0;
+                  user.subscription[k].gpnl = pnlDetails[0]?.gpnl  || 0;
+                  user.subscription[k].brokerage = pnlDetails[0]?.brokerage  || 0;
+                  user.subscription[k].tradingDays = tradingDays[0]?.totalTradingDays  || 0;
+                  user.subscription[k].trades = pnlDetails[0]?.trades  || 0;
+                  const tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100) : 0;
                   if(tradingDays[0]?.totalTradingDays >= validity){
-                    user.subscription[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0) 
-                    user.subscription[k].tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0;
+                    user.subscription[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0);
+                    user.subscription[k].tdsAmount = tdsAmount > 0 ? tdsAmount : 0;
+                    user.subscription[k].herocashPayout = tdsAmount > 0 ? tdsAmount : 0
                   }else{
                     user.subscription[k].payout=0;
                     user.subscription[k].tdsAmount=0;
+                    user.subscription[k].herocashPayout = 0;
                   }
                   // console.log("this is user", user)
                   await user.save({session, validateBeforeSave:false});
@@ -770,13 +965,22 @@ exports.autoExpireTenXSubscription = async () => {
                   subs.users[k].status = "Expired";
                   subs.users[k].expiredOn = new Date();
                   subs.users[k].expiredBy = "System";
+
+                  subs.users[k].npnl = pnlDetails[0]?.npnl || 0;
+                  subs.users[k].gpnl = pnlDetails[0]?.gpnl || 0;
+                  subs.users[k].brokerage = pnlDetails[0]?.brokerage || 0;
+                  subs.users[k].tradingDays = tradingDays[0]?.totalTradingDays || 0;
+                  subs.users[k].trades = pnlDetails[0]?.trades || 0;
+                  const tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100) : 0; 
                   if(tradingDays[0]?.totalTradingDays >= validity){
                     subs.users[k].payout = (payoutAmount>0 ? payoutAmount?.toFixed(2) : 0) 
-                    subs.users[k].tdsAmount = payoutAmountWithoutTDS>users[j]?.fee? ((payoutAmountWithoutTDS-users[j]?.fee)*setting[0]?.tdsPercentage/100).toFixed(2):0; 
+                    subs.users[k].tdsAmount = tdsAmount>0 ? tdsAmount : 0;
+                    subs.users[k].herocashPayout = tdsAmount>0 ? tdsAmount : 0;
                     subscribedOn = subs.users[k]?.subscribedOn;
                   }else{
                     subs.users[k].payout=0;
                     subs.users[k].tdsAmount=0;
+                    subs.users[k].herocashPayout = 0;
                   }
                   // console.log("this is subs", subs)
                   await subs.save({session, validateBeforeSave:false});
@@ -791,11 +995,34 @@ exports.autoExpireTenXSubscription = async () => {
                 const wallet = await Wallet.findOne({userId: new ObjectId(userId)});
                 wallet.transactions = [...wallet.transactions, {
                       title: 'TenX Trading Payout',
-                      description: `Amount Credited for the profit of ${subscription[i]?.plan_name} subscription`,
+                      description: `Payout Credited for the profit of ${subscription[i]?.plan_name} subscription`,
                       amount: (payoutAmount?.toFixed(2)),
                       transactionId: uuid.v4(),
-                      transactionType: 'Cash'
+                      transactionType: subscription[i]?.rewardType === "Cash" ? 'Cash' : "Bonus"
                 }];
+
+                if (tdsAmount > 0 && subscription[i]?.tdsRelief) {
+                  wallet.transactions = [...wallet.transactions, {
+                      title: 'StoxHero CashBack',
+                      description: `Cashback of ${tdsAmount?.toFixed(2)} HeroCash - TenX ${subscription[i]?.plan_name} subscription TDS`,
+                      amount: (tdsAmount?.toFixed(2)),
+                      transactionId: uuid.v4(),
+                      transactionType: "Bonus"
+                  }];
+
+                  await createUserNotification({
+                      title: 'StoxHero CashBack',
+                      description: `Cashback of ${tdsAmount?.toFixed(2)} HeroCash - TenX ${subscription[i]?.plan_name} subscription TDS`,
+                      notificationType: 'Individual',
+                      notificationCategory: 'Informational',
+                      productCategory: 'TenX',
+                      user: user?._id,
+                      priority: 'Medium',
+                      channels: ['App', 'Email'],
+                      createdBy: '63ecbc570302e7cf0153370c',
+                      lastModifiedBy: '63ecbc570302e7cf0153370c'
+                  });
+              }
                 await wallet.save({session, validateBeforeSave:false});
 
                 if (process.env.PROD == 'true') {
@@ -873,7 +1100,7 @@ exports.autoExpireTenXSubscription = async () => {
                       <p>Great news! We're thrilled to inform you that your TenX Subscription 💰 payout has been processed, and ${subscription[i]?.payoutPercentage}% of the Net P&L made under this subscription has been credited to your StoxHero Wallet 🎉. Please find the details below:</p>
                       <p>TenX Subscription: ${subscription[i]?.plan_name}</p>
                       <p>Subscription Purchase Date: ${moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a")}</p>
-                      <p>Amount Credited in StoxHero Wallet: ₹${payoutAmount.toLocaleString('en-IN')}</p>
+                      <p>Payout Credited in StoxHero Wallet: ${subscription[i]?.rewardType === "Cash" ? "₹"+payoutAmount.toLocaleString('en-IN') : "HeroCash "+payoutAmount.toLocaleString('en-IN')}</p>
                       <p>We are delighted to have traders like you on our platform. Keep learning and earning!</p>
                       <p>Note: 30% TDS has been deducted from your net payout amount.</p>
                       
@@ -890,17 +1117,18 @@ exports.autoExpireTenXSubscription = async () => {
                 }
 
                 if(process.env.PROD == 'true'){
-                  whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage).toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
-                  whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage).toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                  whatsAppService.sendWhatsApp({destination : user?.mobile, campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage)?.toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount?.toLocaleString('en-IN')], tags : '', attributes : ''});
+                  whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage)?.toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount?.toLocaleString('en-IN')], tags : '', attributes : ''});
                 }
                 else {
-                  whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage).toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
+                  whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, (subscription[i]?.payoutPercentage)?.toString(),subscription[i]?.plan_name, moment.utc(subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount?.toLocaleString('en-IN')], tags : '', attributes : ''});
                   // whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'tenx_payout_campaign', userName : user.first_name, source : user.creationProcess, templateParams : [user.first_name, subscription[i]?.payoutPercentage,subscription[i]?.plan_name, moment.utc(subs.users[k].subscribedOn).utcOffset('+05:30').format("DD-MMM hh:mm a"), payoutAmount.toLocaleString('en-IN')], tags : '', attributes : ''});
                 }
                 
                 await createUserNotification({
                   title:'TenX Payout Credited',
-                  description:`₹${payoutAmount?.toFixed(2)} credited for your profit in TenX plan ${subscription[i]?.plan_name}`,
+                  description:`${subscription[i]?.rewardType === "Cash" ? "₹"+payoutAmount?.toFixed(2) : "HeroCash "+payoutAmount?.toFixed(2)} credited for your profit in TenX plan ${subscription[i]?.plan_name}`,
+                  // description:`₹${payoutAmount?.toFixed(2)} credited for your profit in TenX plan ${subscription[i]?.plan_name}`,
                   notificationType:'Individual',
                   notificationCategory:'Informational',
                   productCategory:'TenX',
@@ -910,6 +1138,12 @@ exports.autoExpireTenXSubscription = async () => {
                   createdBy:'63ecbc570302e7cf0153370c',
                   lastModifiedBy:'63ecbc570302e7cf0153370c'  
                 }, session);
+                if(user?.fcmTokens?.length>0){
+                  await sendMultiNotifications('TenX Payout Credited', 
+                    `${subscription[i]?.rewardType === "Cash" ? "₹"+payoutAmount?.toFixed(2) : "HeroCash "+payoutAmount?.toFixed(2)} credited for your profit in TenX plan ${subscription[i]?.plan_name}`,
+                    user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                    )  
+                }
 
               }
               await session.commitTransaction();
@@ -1109,89 +1343,6 @@ exports.liveTotalTradersCount = async (req, res, next) => {
       res.status(201).json({ message: "pnl received", data: pnlDetails });
 }
 
-// exports.overallTenXPnlYesterday = async (req, res, next) => {
-  
-//   let date;
-//   let i = 1;
-//   async function pnlDetails(i){
-//     console.log("i",i)
-//     let yesterdayDate = new Date();
-//     yesterdayDate.setDate(yesterdayDate.getDate() - i);
-//     let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
-//     yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
-//     let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
-//     yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
-//     const startTime = new Date(yesterdayStartTime); 
-//     date = startTime;
-//     const endTime = new Date(yesterdayEndTime); 
-//     console.log("STime & ETime:",startTime,endTime)
-   
-//     let pnlDetailsData = await TenXTrader.aggregate([
-//       {
-//         $match: {
-//           trade_time_utc: {
-//             $gte: startTime, $lte: endTime
-//             // $gte: new Date("2023-06-23T00:00:00.000+00:00"), $lte: new Date("2023-06-23T23:59:59.000+00:00")
-//             // $gte: new Date("2023-05-26T00:00:00.000+00:00")
-//           },
-//           status: "COMPLETE",
-//         },
-//       },
-//         {
-//           $group: {
-//             _id: null,
-
-//             amount: {
-//               $sum: {$multiply : ["$amount",-1]},
-//             },
-//             turnover: {
-//               $sum: {
-//                 $toInt: {$abs : "$amount"},
-//               },
-//             },
-//             brokerage: {
-//               $sum: {
-//                 $toDouble: "$brokerage",
-//               },
-//             },
-//             lots: {
-//               $sum: {
-//                 $toInt: "$Quantity",
-//               },
-//             },
-//             totallots: {
-//               $sum: {
-//                 $toInt: {$abs : "$Quantity"},
-//               },
-//             },
-//             trades: {
-//               $count:{}
-//             },
-//           },
-//         },
-//         {
-//           $sort: {
-//             _id: -1,
-//           },
-//         },
-//       ])
-//       console.log("Length:",pnlDetailsData.length,pnlDetailsData)
-//       if(!pnlDetailsData || pnlDetailsData.length === 0){
-//         console.log("Inside length check")
-//         await pnlDetails(i+1);
-//       }
-//       else{
-//         console.log("inside else statement:",pnlDetailsData)
-//         return pnlDetailsData;
-        
-//       }    
-//     }
-    
-//     let pnlData = await pnlDetails(i)
-//     console.log("PNL Data:",i,pnlData)
-//     res.status(201).json({ message: "pnl received", data: pnlData, results:(pnlData ? pnlData.length : 0), date:date });
-// }
-
 exports.overallTenXPnlYesterday = async (req, res, next) => {
   let date;
   let i = 1;
@@ -1253,7 +1404,7 @@ exports.overallTenXPnlYesterday = async (req, res, next) => {
 
   res.status(201).json({
     message: "pnl received", 
-    data: pnlDetailsData, 
+    data: pnlDetailsData ? pnlDetailsData : [], 
     results: pnlDetailsData ? pnlDetailsData.length : 0, 
     date: date
   });

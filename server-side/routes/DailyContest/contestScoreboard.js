@@ -5,5 +5,6 @@ const contestController = require('../../controllers/contestScoreboard');
 
 router.get('/scoreboard', Authenticate, contestController.getContestScoreboard);
 router.get('/collegescoreboard', Authenticate, contestController.getCollegeContestScoreboard);
+router.get('/earnings', contestController.getHomePageContestEarnings);
 
 module.exports=router;

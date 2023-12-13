@@ -13,11 +13,11 @@ const uuid = require('uuid');
 // Controller for creating a affiliate
 exports.createAffiliate = async (req, res) => {
     try {
-        const { affiliateProgramName ,startDate ,endDate ,commissionPercentage, maxDiscount, minOrderValue ,discountPercentage, 
+        const { affiliateProgramName, startDate ,endDate ,commissionPercentage, affiliateType, maxDiscount, minOrderValue ,discountPercentage, 
             eligiblePlatforms, eligibleProducts, description, status  } = req.body;
 
         const affiliate = await Affiliate.create({
-            affiliateProgramName ,startDate ,endDate ,commissionPercentage ,discountPercentage, 
+            affiliateProgramName ,startDate ,endDate ,commissionPercentage , affiliateType, discountPercentage, 
             eligiblePlatforms, eligibleProducts, description, status, maxDiscount, minOrderValue,
             createdBy: req.user._id, lastModifiedBy: req.user._id,
         });
@@ -243,6 +243,9 @@ exports.addAffiliateUser = async (req, res) => {
 exports.creditAffiliateAmount = async(affiliate, affiliateProgram, product, specificProduct, actualPrice, buyer) => {
     // console.log(product, specificProduct, actualPrice, buyer);
     //add amount to wallet
+    if(affiliate?.userId?.toString() === buyer?.toString()){
+      return;
+    }
     const wallet = await Wallet.findOne({userId: new ObjectId(affiliate?.userId)});
     const user = await User.findOne({_id:buyer}).select('first_name last_name');
     const productDoc = await Product.findOne({_id: product});
@@ -303,6 +306,7 @@ exports.creditAffiliateAmount = async(affiliate, affiliateProgram, product, spec
     
 
 }
+
 exports.removeAffiliateUser = async (req, res) => {
     try {
         const { id, userId } = req.params; // ID of the contest and the user to remove
@@ -335,6 +339,178 @@ exports.removeAffiliateUser = async (req, res) => {
     }
 };
 
+exports.affiliateLeaderboard = async (req, res) => {
+  const {programme, startDate, endDate, lifetime} = req.query;
+  console.log(programme, new Date(startDate), endDate, (lifetime))
+  const matchStage = {
+    affiliateProgram: programme!=="Cummulative" && new ObjectId(programme),
+    transactionDate: {
+      $gte: new Date((lifetime) ? "2000-01-01" : startDate),
+      $lte: new Date((lifetime) ? new Date() : endDate)
+    }
+  }
+  try {
+      const leaderboard = await AffiliateTransaction.aggregate([
+        {
+          $match: programme==="Cummulative" ? {
+            transactionDate: {
+              $gte: new Date((lifetime) ? "2000-01-01" : startDate),
+              $lte: new Date((lifetime) ? new Date() : endDate)
+            }
+          } : matchStage
+        },
+        {
+          $group: {
+            _id: {
+              affiliate: "$affiliate",
+              product: "$product",
+            },
+            payout: {
+              $sum: "$affiliatePayout",
+            },
+            totalAmount: {
+              $sum: "$productDiscountedPrice",
+            },
+            count: {
+              $count: {},
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "_id.affiliate",
+            foreignField: "_id",
+            as: "affiliate",
+          },
+        },
+        {
+          $lookup: {
+            from: "products",
+            localField: "_id.product",
+            foreignField: "_id",
+            as: "product",
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            first_name: {
+              $arrayElemAt: [
+                "$affiliate.first_name",
+                0,
+              ],
+            },
+            last_name: {
+              $arrayElemAt: ["$affiliate.last_name", 0],
+            },
+            affiliate: "$_id.affiliate",
+            code: {
+              $arrayElemAt: [
+                "$affiliate.myReferralCode",
+                0,
+              ],
+            },
+            product: {
+              $concat: [
+                {
+                  $toLower: {
+                    $arrayElemAt: [
+                      "$product.productName",
+                      0,
+                    ],
+                  },
+                },
+                "_payout",
+              ],
+            },
+            payout: 1,
+            totalAmount: 1,
+            count: 1,
+          },
+        },
+        {
+          $group: {
+            _id: {
+              first_name: "$first_name",
+              last_name: "$last_name",
+              code: "$code",
+              affiliate: "$affiliate",
+            },
+            data: {
+              $push: {
+                k: "$product",
+                v: "$$ROOT.payout",
+              },
+            },
+            totalAmount: {
+              $push: {
+                k: {
+                  $concat: ["$product", "_totalAmount"],
+                },
+                v: "$$ROOT.totalAmount",
+              },
+            },
+            allCount: {
+              $push: {
+                k: {
+                  $concat: ["$product", "_count"],
+                },
+                v: "$$ROOT.count",
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "_id.code",
+            foreignField: "referrerCode",
+            as: "signup",
+          },
+        },
+        {
+          $replaceRoot: {
+            newRoot: {
+              $mergeObjects: [
+                {
+                  first_name: "$_id.first_name",
+                  last_name: "$_id.last_name",
+                  code: "$_id.code",
+                  affiliate: "$_id.affiliate",
+                  signup: {
+                    $size: "$signup",
+                  },
+                },
+                {
+                  $arrayToObject: "$data",
+                },
+                {
+                  $arrayToObject: "$totalAmount",
+                },
+                {
+                  $arrayToObject: "$allCount",
+                },
+              ],
+            },
+          },
+        },
+      ])
+      res.status(200).json({
+          status: "success",
+          message: "Affiliate leaderboard fetched successfully",
+          data: leaderboard
+      });
+      
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Something went wrong",
+          error: error.message
+      });
+  }
+};
+
 exports.getAffiliateProgramTransactions = async (req, res) => {
     const {id} = req.params;
     try {
@@ -343,6 +519,535 @@ exports.getAffiliateProgramTransactions = async (req, res) => {
             status: "success",
             message: "Affiliate Transactions fetched successfully",
             data: result
+        });
+        
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+exports.getAffiliateOverview = async (req, res) => {
+    const {id} = req.params;
+
+    const pipeline = [
+        {
+          $group: {
+            _id: null,
+            totalGMV: {
+              $sum: "$productActualPrice",
+            },
+            totalRevenue: {
+              $sum: "$productDiscountedPrice",
+            },
+            totalCommission: {
+              $sum: "$affiliatePayout",
+            },
+            totalOrders: {
+              $sum: 1,
+            },
+            uniqueUsers: {
+              $addToSet: "$buyer",
+            },
+            activeAffiliateUsers: {
+              $addToSet: "$affiliate"
+            },
+          },
+        },
+        {
+          $addFields: {
+            uniqueUsersCount: {
+              $size: "$uniqueUsers",
+            },
+            activeAffiliateCount: {
+              $size: "$activeAffiliateUsers",
+            },
+          },
+        },
+        {
+          $addFields: {
+            totalDiscount: {
+              $subtract: ["$totalGMV", "$totalRevenue"],
+            },
+            arpu: {
+              $divide: [
+                "$totalRevenue",
+                "$uniqueUsersCount",
+              ],
+            },
+            aov: {
+              $divide: [
+                "$totalRevenue",
+                "$totalOrders",
+              ],
+            },
+          },
+        },
+      ]
+
+    const referralPipeline = [
+        {
+          $unwind: "$affiliates",
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "affiliates.userId",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $unwind: "$user",
+        },
+        {
+          $addFields: {
+            referrals: {
+              $size: "$user.referrals",
+            },
+            referralPayout: {
+              $sum: "$user.referrals.referralEarning",
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            referrals: {
+              $sum: "$referrals",
+            },
+            referralPayout: {
+              $sum: "$referralPayout",
+            },
+            affiliateCount: {
+                $sum: 1,
+              },
+          },
+        },
+      ]
+
+    try {
+        const result = await AffiliateTransaction.aggregate(pipeline)
+        const referrals = await Affiliate.aggregate(referralPipeline)
+        res.status(200).json({
+            status: "success",
+            message: "Affiliate Data fetched successfully",
+            data: result,
+            referrals: referrals[0]
+        });
+        
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+exports.getYoutubeAffiliateOverview = async (req, res) => {
+    const {id} = req.params;
+
+    const pipeline = [
+        {
+          $lookup: {
+            from: "affiliate-programs",
+            localField: "affiliateProgram",
+            foreignField: "_id",
+            as: "program",
+          },
+        },
+        {
+          $match: {
+            "program.affiliateType":
+              "Youtube Influencer",
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalGMV: {
+              $sum: "$productActualPrice",
+            },
+            totalRevenue: {
+              $sum: "$productDiscountedPrice",
+            },
+            totalCommission: {
+              $sum: "$affiliatePayout",
+            },
+            totalOrders: {
+              $sum: 1,
+            },
+            uniqueUsers: {
+              $addToSet: "$buyer",
+            },
+            activeAffiliateUsers: {
+              $addToSet: "$affiliate",
+            },
+          },
+        },
+        {
+          $addFields: {
+            uniqueUsersCount: {
+              $size: "$uniqueUsers",
+            },
+            activeAffiliateCount: {
+              $size: "$activeAffiliateUsers",
+            },
+          },
+        },
+        {
+          $addFields: {
+            totalDiscount: {
+              $subtract: ["$totalGMV", "$totalRevenue"],
+            },
+            arpu: {
+              $divide: [
+                "$totalRevenue",
+                "$uniqueUsersCount",
+              ],
+            },
+            aov: {
+              $divide: [
+                "$totalRevenue",
+                "$totalOrders",
+              ],
+            },
+          },
+        },
+      ]
+
+    const referralPipeline = [
+        {
+            $match: {
+            affiliateType : 'Youtube Influencer'
+          },
+        },
+        {
+          $unwind: "$affiliates",
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "affiliates.userId",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $unwind: "$user",
+        },
+        {
+          $addFields: {
+            referrals: {
+              $size: "$user.referrals",
+            },
+            referralPayout: {
+              $sum: "$user.referrals.referralEarning",
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            referrals: {
+              $sum: "$referrals",
+            },
+            referralPayout: {
+              $sum: "$referralPayout",
+            },
+            affiliateCount: {
+                $sum: 1,
+              },
+          },
+        },
+      ]
+
+    try {
+        const result = await AffiliateTransaction.aggregate(pipeline)
+        const referrals = await Affiliate.aggregate(referralPipeline)
+        res.status(200).json({
+            status: "success",
+            message: "Youtube Affiliate Data fetched successfully",
+            data: result,
+            referrals: referrals[0]
+        });
+        
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+exports.getStoxHeroAffiliateOverview = async (req, res) => {
+    const {id} = req.params;
+
+    const pipeline = [
+        {
+          $lookup: {
+            from: "affiliate-programs",
+            localField: "affiliateProgram",
+            foreignField: "_id",
+            as: "program",
+          },
+        },
+        {
+          $match: {
+            "program.affiliateType":
+              "StoxHero User",
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalGMV: {
+              $sum: "$productActualPrice",
+            },
+            totalRevenue: {
+              $sum: "$productDiscountedPrice",
+            },
+            totalCommission: {
+              $sum: "$affiliatePayout",
+            },
+            totalOrders: {
+              $sum: 1,
+            },
+            uniqueUsers: {
+              $addToSet: "$buyer",
+            },
+            activeAffiliateUsers: {
+              $addToSet: "$affiliate",
+            },
+          },
+        },
+        {
+          $addFields: {
+            uniqueUsersCount: {
+              $size: "$uniqueUsers",
+            },
+            activeAffiliateCount: {
+              $size: "$activeAffiliateUsers",
+            },
+          },
+        },
+        {
+          $addFields: {
+            totalDiscount: {
+              $subtract: ["$totalGMV", "$totalRevenue"],
+            },
+            arpu: {
+              $divide: [
+                "$totalRevenue",
+                "$uniqueUsersCount",
+              ],
+            },
+            aov: {
+              $divide: [
+                "$totalRevenue",
+                "$totalOrders",
+              ],
+            },
+          },
+        },
+      ]
+
+    const referralPipeline = [
+        {
+            $match: {
+            affiliateType : 'StoxHero User'
+          },
+        },
+        {
+          $unwind: "$affiliates",
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "affiliates.userId",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $unwind: "$user",
+        },
+        {
+          $addFields: {
+            referrals: {
+              $size: "$user.referrals",
+            },
+            referralPayout: {
+              $sum: "$user.referrals.referralEarning",
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            referrals: {
+              $sum: "$referrals",
+            },
+            referralPayout: {
+              $sum: "$referralPayout",
+            },
+            affiliateCount: {
+                $sum: 1,
+              },
+          },
+        },
+      ]
+
+    try {
+        const result = await AffiliateTransaction.aggregate(pipeline)
+        const referrals = await Affiliate.aggregate(referralPipeline)
+        res.status(200).json({
+            status: "success",
+            message: "StoxHero Affiliate Data fetched successfully",
+            data: result,
+            referrals: referrals[0]
+        });
+        
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+exports.getOfflineInstituteAffiliateOverview = async (req, res) => {
+    const {id} = req.params;
+
+    const pipeline = [
+        {
+          $lookup: {
+            from: "affiliate-programs",
+            localField: "affiliateProgram",
+            foreignField: "_id",
+            as: "program",
+          },
+        },
+        {
+          $match: {
+            "program.affiliateType":
+              "Offline Institute",
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalGMV: {
+              $sum: "$productActualPrice",
+            },
+            totalRevenue: {
+              $sum: "$productDiscountedPrice",
+            },
+            totalCommission: {
+              $sum: "$affiliatePayout",
+            },
+            totalOrders: {
+              $sum: 1,
+            },
+            uniqueUsers: {
+              $addToSet: "$buyer",
+            },
+            activeAffiliateUsers: {
+              $addToSet: "$affiliate",
+            },
+          },
+        },
+        {
+          $addFields: {
+            uniqueUsersCount: {
+              $size: "$uniqueUsers",
+            },
+            activeAffiliateCount: {
+              $size: "$activeAffiliateUsers",
+            },
+          },
+        },
+        {
+          $addFields: {
+            totalDiscount: {
+              $subtract: ["$totalGMV", "$totalRevenue"],
+            },
+            arpu: {
+              $divide: [
+                "$totalRevenue",
+                "$uniqueUsersCount",
+              ],
+            },
+            aov: {
+              $divide: [
+                "$totalRevenue",
+                "$totalOrders",
+              ],
+            },
+          },
+        },
+      ]
+
+    const referralPipeline = [
+        {
+            $match: {
+            affiliateType : 'Offline Institute'
+          },
+        },
+        {
+          $unwind: "$affiliates",
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "affiliates.userId",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $unwind: "$user",
+        },
+        {
+          $addFields: {
+            referrals: {
+              $size: "$user.referrals",
+            },
+            referralPayout: {
+              $sum: "$user.referrals.referralEarning",
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            referrals: {
+              $sum: "$referrals",
+            },
+            referralPayout: {
+              $sum: "$referralPayout",
+            },
+            affiliateCount: {
+                $sum: 1,
+              },
+          },
+        },
+      ]
+
+    try {
+        const result = await AffiliateTransaction.aggregate(pipeline)
+        const referrals = await Affiliate.aggregate(referralPipeline)
+        res.status(200).json({
+            status: "success",
+            message: "Offline Affiliate Data fetched successfully",
+            data: result,
+            referrals: referrals[0]
         });
         
     } catch (error) {

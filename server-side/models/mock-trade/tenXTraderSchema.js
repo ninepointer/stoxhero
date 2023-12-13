@@ -100,6 +100,11 @@ const tenXTraderSchema = new mongoose.Schema({
     deviceDetails:{
         deviceType: { type: String },
         platformType: { type: String }
+    },
+    margin: {
+        type: Number,
+        required: true,
+        default: 0
     }
 
 })

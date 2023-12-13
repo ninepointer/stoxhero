@@ -1,5 +1,6 @@
 const UserWallet = require('../models/UserWallet/userWalletSchema');
 const emailService = require("../utils/emailService")
+const {sendMultiNotifications} = require("../utils/fcmService")
 const User = require('../models/User/userDetailSchema');
 const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema")
 const ObjectId = require('mongodb').ObjectId;
@@ -74,7 +75,12 @@ exports.myWallet = async (req, res, next) => {
             { $match: { "userId": mongoose.Types.ObjectId(userId) } },
 
             // Unwinding the transactions to sort them
-            { $unwind: "$transactions" },
+            { $unwind: 
+                {
+                    path: "$transactions",
+                    preserveNullAndEmptyArrays: true,
+                  },
+            },
 
             // Sorting transactions by transactionDate in descending order
             { $sort: { "transactions.transactionDate": -1 } },
@@ -98,7 +104,7 @@ exports.myWallet = async (req, res, next) => {
         // Since aggregation doesn't allow direct use of populate, using it separately
         const myWallet = await UserWallet.populate(wallets[0], {
             path: 'userId',
-            select: 'first_name last_name profilePhoto KYCStatus'
+            select: 'first_name last_name profilePhoto KYCStatus state bankName accountNumber ifscCode nameAsPerBankAccount'
         });
 
         res.status(200).json({ status: 'success', data: myWallet });
@@ -421,6 +427,12 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
                 createdBy:'63ecbc570302e7cf0153370c',
                 lastModifiedBy:'63ecbc570302e7cf0153370c'  
               });
+            if(user?.fcmTokens?.length>0){
+                await sendMultiNotifications('StoxHero Cashback', 
+                    `${cashbackAmount?.toFixed(2)}HeroCash added as bonus in your wallet`,
+                    user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                    )  
+            }  
         }
         await createUserNotification({
             title:'TenX Subscription Deducted',
@@ -434,6 +446,12 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
             createdBy:'63ecbc570302e7cf0153370c',
             lastModifiedBy:'63ecbc570302e7cf0153370c'  
           }, session);
+          if(user?.fcmTokens?.length>0){
+            await sendMultiNotifications('TenX Plan Unlocked', 
+              `${subscription.plan_name} TenX plan unlocked. Good luck trading.`,
+              user?.fcmTokens?.map(item=>item.token), null, {route:'tenx'}
+              )  
+          }
           await session.commitTransaction();
           if(coupon){
             const product = await Product.findOne({productName:'TenX'}).select('_id');

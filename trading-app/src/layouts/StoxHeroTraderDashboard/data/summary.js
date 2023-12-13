@@ -11,7 +11,7 @@ function Summary({summary}) {
   return (
     <MDBox bgColor="light" border='1px solid lightgrey' borderRadius={5} minHeight='auto'>
         <Grid container display='flex' justifyContent='space-between' alignItems='center'>
-            <Grid item xs={12} md={6} lg={12} m={1}>
+            <Grid item xs={12} md={12} lg={12} m={1}>
                 <MDBox display='flex' mb={1} justifyContent='space-between' alignItems='center'>
                 <Grid container alignItems='center'>
                     <Grid item xs={12} md={6} lg={4}>

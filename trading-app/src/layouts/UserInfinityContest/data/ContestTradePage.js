@@ -360,7 +360,7 @@ function ContestTradeView () {
               Battle was cancelled as minimum participant quota was not fulfilled.         
            </MDTypography>
           <MDTypography mt={2} style={{fontWeight: 600, fontSize: "13px"}} color="light">
-            But dont worry you can participate in other battles          
+            But don't worry you can participate in other battles          
           </MDTypography>
           <MDButton mt={2} onClick={()=>{navigate("/battlestreet")}} color="light">
             Join other battles

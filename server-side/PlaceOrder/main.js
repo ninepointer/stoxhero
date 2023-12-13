@@ -17,7 +17,7 @@ const {contestChecks, marginxChecks, battleChecks} = require("../PlaceOrder/dail
 router.post("/placingOrder", authentication, isInfinityLive, ApplyAlgo, authoizeTrade.fundCheck,  async (req, res)=>{
     // console.log("caseStudy 4: placing")
     const setting = await Setting.find();
-    // console.log("settings", setting, req.user?.role?.roleName )
+
     if(req.body.apiKey && req.body.accessToken){
         if(setting[0]?.toggle?.liveOrder !== zerodhaAccountType || setting[0]?.toggle?.complete !== zerodhaAccountType){
             // console.log("in xts if")
@@ -35,6 +35,7 @@ router.post("/placingOrder", authentication, isInfinityLive, ApplyAlgo, authoize
 router.post("/placingOrderDailyContest", isAppLive, authentication, contestChecks, DailyContestApplyAlgo, authoizeTrade.fundCheckDailyContest,  async (req, res)=>{
     req.dailyContest = true;
     const setting = await Setting.find();
+
 
     // console.log("settings", setting, req.user?.role?.roleName )
     if(req.body.apiKey && req.body.accessToken){
@@ -83,14 +84,10 @@ router.post("/battleTrade", isAppLive, authentication, battleChecks, authoizeTra
 })
 //authoizeTrade.fundCheckPaperTrade
 router.post("/tenxPlacingOrder", isAppLive, authentication, authoizeTrade.fundCheckTenxTrader,  async (req, res)=>{
-
-
     MockTradeFunc.mockTrade(req, res)
-    
 })
 
 router.post("/internPlacingOrder", isAppLive, authentication, authoizeTrade.fundCheckInternship,  async (req, res)=>{
-
     MockTradeFunc.mockTrade(req, res)
 })
 

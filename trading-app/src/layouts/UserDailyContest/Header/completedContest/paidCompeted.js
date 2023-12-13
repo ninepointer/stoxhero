@@ -8,6 +8,7 @@ import MDTypography from "../../../../components/MDTypography";
 import MDSnackbar from "../../../../components/MDSnackbar";
 import WinnerImage from '../../../../assets/images/cup-image.png'
 import { Link, useNavigate } from "react-router-dom";
+import RewardTable from "../rulesAndRewardTable";
 
 
 
@@ -93,11 +94,11 @@ function Header({ contest }) {
         })
             .then((res) => {
                 if (res.data.count > 0) {
-                    navigate(`/completedcontests/${name}`, {
+                    navigate(`/completedtestzone/${name}`, {
                         state: { data: id }
                     });
                 } else {
-                    openSuccessSB("error", "You dont have any trade for this contest.")
+                    openSuccessSB("error", "You do not have any trade for this TestZone.")
                 }
             }).catch((err) => {
                 return new Error(err);
@@ -116,11 +117,11 @@ function Header({ contest }) {
         })
             .then((res) => {
                 if (res.data.count > 0) {
-                    navigate(`/completedcontests/${name}/leaderboard`, {
+                    navigate(`/completedtestzone/${name}/leaderboard`, {
                         state: { data: id }
                     });
                 } else {
-                    openSuccessSB("error", "No leaderboard for this contest.")
+                    openSuccessSB("error", "No leaderboard for this TestZones.")
                 }
             }).catch((err) => {
                 return new Error(err);
@@ -223,7 +224,9 @@ function Header({ contest }) {
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                                 <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Reward</MDTypography></MDBox>
-                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>{elem.payoutPercentage}% of the net P&L</MDTypography></MDBox>
+                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>
+                                                                {/* {elem?.payoutType !== "Reward" ? `${elem.payoutPercentage}% of the net P&L` : <RewardTable reward={elem?.rewards} paid={true}/> }    */} <RewardTable data={elem} paid={true}/>
+                                                                </MDTypography></MDBox>
                                                             </MDBox>
                                                         </MDBox>
                                                     </Grid>
@@ -231,7 +234,7 @@ function Header({ contest }) {
                                                     <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDTypography style={{color: "white", fontSize: 12, fontWeight: 600}}>
-                                                                CONTEST COMPLETED
+                                                                TestZone Completed
                                                             </MDTypography>
                                                         </MDBox>
                                                     </Grid>

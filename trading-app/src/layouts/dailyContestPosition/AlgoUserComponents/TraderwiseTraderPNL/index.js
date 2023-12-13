@@ -87,7 +87,7 @@ function TraderwiseTraderPNL({ socket }) {
       })
 
       let obj = mapForParticularUser.get(allTrade[i]._id.traderId)
-      obj.totalPnl += ((allTrade[i].amount + ((allTrade[i].lots) * marketDataInstrument[0]?.last_price)));
+      obj.totalPnl += allTrade[i].lots !== 0 ? ((allTrade[i].amount + ((allTrade[i].lots) * marketDataInstrument[0]?.last_price))) : allTrade[i].amount;
       obj.lotUsed += Math.abs(allTrade[i].lotUsed)
       obj.runninglots += allTrade[i].lots;
       obj.brokerage += allTrade[i].brokerage;
@@ -99,7 +99,7 @@ function TraderwiseTraderPNL({ socket }) {
       })
       mapForParticularUser.set(allTrade[i]._id.traderId, {
         name: allTrade[i]._id.traderName,
-        totalPnl: ((allTrade[i].amount + ((allTrade[i].lots) * marketDataInstrument[0]?.last_price))),
+        totalPnl: allTrade[i].lots !== 0 ? ((allTrade[i].amount + ((allTrade[i].lots) * marketDataInstrument[0]?.last_price))) : allTrade[i].amount,
         lotUsed: Math.abs(allTrade[i].lotUsed),
         runninglots: allTrade[i].lots,
         brokerage: allTrade[i].brokerage,
@@ -276,7 +276,7 @@ const switchToMock = async () => {
           <MDBox display="flex" justifyContent="space-between" alignItems="center">
             <MDBox>
               <MDTypography variant="h6" gutterBottom p={3}>
-                Daily Contest Trader Position(Company Side)
+                Daily TestZone Trader Position(Company Side)
               </MDTypography>
             </MDBox>
 
@@ -349,13 +349,13 @@ const switchToMock = async () => {
                   </Grid>
                   <Grid item xs={12} md={12} lg={2}>
                     <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-                      <MDTypography fontSize={11}>Contest Type:&nbsp;</MDTypography>
+                      <MDTypography fontSize={11}>TestZone Type:&nbsp;</MDTypography>
                       <MDTypography fontSize={13} fontWeight="bold" >{(selectedContest?.contestType)}</MDTypography>
                     </MDBox>
                   </Grid>
                   <Grid item xs={12} md={12} lg={2}>
                     <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-                      <MDTypography fontSize={11}>Contest For:&nbsp;</MDTypography>
+                      <MDTypography fontSize={11}>TestZone For:&nbsp;</MDTypography>
                       <MDTypography fontSize={13} fontWeight="bold" >{(selectedContest?.contestFor)}</MDTypography>
                     </MDBox>
                   </Grid>

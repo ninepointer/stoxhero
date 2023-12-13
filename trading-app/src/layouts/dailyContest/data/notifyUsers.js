@@ -15,32 +15,6 @@ export default function AllowedUsers({saving,dailyContest, action, updatedDocume
     const [allowedUsers,setAllowedUsers] = React.useState([]);
     let [update,setUpdate] = React.useState(true);
     const [allowedUserCount,setAllowedUserCount] = useState(0);
-    // async function getAllowedUsers() {
-    //   let call1 = axios.get(`${baseUrl}api/v1/dailycontest/contest/${dailyContest?._id}`, {
-    //     withCredentials: true,
-    //     headers: {
-    //       Accept: "application/json",
-    //       "Content-Type": "application/json",
-    //       "Access-Control-Allow-Credentials": true
-    //     },
-    //   })
-    //   Promise.all([call1])
-    //     .then(([api1Response]) => {
-    //       // Process the responses here
-    //       setAllowedUsers(api1Response.data.data?.allowedUsers)
-    //       setAllowedUserCount(api1Response.data?.allowedUsers?.length);
-    //     })
-    //     .catch((error) => {
-    //       // Handle errors here
-    //       console.error(error);
-    //     });
-    // }
-
-    // useEffect(()=>{
-    //   getAllowedUsers();
-    // },[saving, open, update, updatedDocument])
-
-    console.log("dailyContest", dailyContest)
 
     let columns = [
         { Header: "Name", accessor: "name", align: "center" },
@@ -52,25 +26,6 @@ export default function AllowedUsers({saving,dailyContest, action, updatedDocume
 
     let rows = []
 
-    // async function removeUser(userId){
-    //   axios.put(`${baseUrl}api/v1/dailycontest/contest/${dailyContest._id}/remove/${userId}`, {
-    //     withCredentials: true,
-    //     headers: {
-    //         Accept: "application/json",
-    //         "Content-Type": "application/json",
-    //         "Access-Control-Allow-Credentials": true
-    //     },
-    //   })
-    //   .then((res)=>{
-    //     //console.log("instrumentData", res.data)
-    //     // setUser(res.data)
-    //     // dispatch({ type: 'setUser', payload: (res?.data?.data) });
-    //     setUpdate(!update);
-  
-    //   }).catch((err)=>{
-    //     //console.log(err);
-    //   })
-    // }
 
     dailyContest?.interestedUsers?.map((elem, index) => {
     let featureObj = {}

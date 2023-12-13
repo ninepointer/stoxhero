@@ -3,7 +3,9 @@ const Contest = require('../models/DailyContest/dailyContest'); // Assuming your
 const User = require("../models/User/userDetailSchema");
 const Wallet = require("../models/UserWallet/userWalletSchema");
 const { ObjectId } = require('mongodb');
+// const Contest = require('../models/DailyContest/dailyContest')
 const DailyContestMockUser = require("../models/DailyContest/dailyContestMockUser");
+const dailyContest = require('../models/DailyContest/dailyContestMockUser');
 
 
 
@@ -360,6 +362,78 @@ exports.getCollegeContestScoreboard = async (req, res) => {
           status:"success",
           message: "Contest Scoreboard fetched successfully",
           data: contestScoreboard
+      });
+  } catch (error) {
+      res.status(500).json({
+          status:"error",
+          message: "Something went wrong",
+          error: error.message
+      });
+  }
+};
+
+exports.getHomePageContestEarnings = async (req, res) => {
+  try {
+      const pipeline = [
+        {
+          $match: {
+            contestStatus: "Completed",
+          },
+        },
+        {
+          $unwind: {
+            path: "$participants",
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "participants.userId",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $unwind: {
+            path: "$user",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              id: "$user._id",
+              first_name: "$user.first_name",
+            },
+            reward: {
+              $sum: {
+                $ifNull: ["$participants.payout", 0],
+              },
+            },
+          },
+        },
+        { 
+          $sort: {
+            reward: -1,
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            first_name: "$_id.first_name",
+            reward: 1,
+          },
+        },
+        {
+          $limit: 10,
+        },
+      ]
+
+      const contestEarnings = await Contest.aggregate(pipeline)
+      console.log(contestEarnings)
+      res.status(200).json({
+          status:"success",
+          message: "Contest Earnings fetched successfully",
+          data: contestEarnings
       });
   } catch (error) {
       res.status(500).json({

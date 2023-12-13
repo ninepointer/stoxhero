@@ -25,9 +25,9 @@ const restrictTo = require('../../authentication/authorization');
 
 
 router.post("/signup", async (req, res) => {
-    const { first_name, last_name, email, mobile, dob } = req.body;
-    console.log(req.body)
-    if (!first_name || !last_name || !email || !mobile || !dob) {
+    const { first_name, last_name, email, mobile } = req.body;
+    // console.log(req.body)
+    if (!first_name || !last_name || !email || !mobile) {
         return res.status(400).json({ status: 'error', message: "Please fill all fields to proceed." })
     }
     const isExistingUser = await User.findOne({ $or: [{ email: email }, { mobile: mobile }] })
@@ -51,13 +51,12 @@ router.post("/signup", async (req, res) => {
             signedupuser.mobile = mobile.trim();
             signedupuser.email = email.trim();
             signedupuser.mobile_otp = mobile_otp.trim();
-            signedupuser.dob = new Date(dob).setHours(0,0,0,0);
             await signedupuser.save({ validateBeforeSave: false })
         }
         else {
             await SignedUpUser.create({
                 first_name: first_name.trim(), last_name: last_name.trim(), email: email.trim(),
-                mobile: mobile.trim(), mobile_otp: mobile_otp, dob: new Date(dob).setHours(0,0,0,0)
+                mobile: mobile.trim(), mobile_otp: mobile_otp
             });
         }
 
@@ -98,15 +97,14 @@ async function generateUniqueReferralCode() {
 }
 
 router.patch("/verifyotp", async (req, res) => {
-    const {
+    let {
         first_name,
         last_name,
         email,
         mobile,
-        dob,
         mobile_otp,
         referrerCode,
-        password
+        fcmTokenData
     } = req.body
 
 
@@ -137,7 +135,7 @@ router.patch("/verifyotp", async (req, res) => {
     let campaign;
     if (referrerCode) {
         const referrerCodeMatch = await User.findOne({ myReferralCode: referrerCode });
-        const campaignCodeMatch = await Campaign.findOne({ campaignCode: referrerCode })
+        const campaignCodeMatch = await Campaign.findOne({ campaignCode: referrerCode });
         
         if (!referrerCodeMatch && !campaignCodeMatch) {
             return res.status(404).json({ status: 'error', message: "No such referrer code exists. Please enter a valid referrer code" });
@@ -147,7 +145,7 @@ router.patch("/verifyotp", async (req, res) => {
         user.last_modifiedOn = new Date()
         await user.save({validateBeforeSave: false});
         if (referrerCodeMatch) { referredBy = referrerCodeMatch?._id; }
-        if (campaignCodeMatch) { campaign = campaignCodeMatch }
+        if (campaignCodeMatch) { campaign = campaignCodeMatch; referrerCode=referrerCode}
     }
     user.status = 'OTP Verified';
     user.last_modifiedOn = new Date();
@@ -182,9 +180,7 @@ router.patch("/verifyotp", async (req, res) => {
             first_name: first_name.trim(), last_name: last_name.trim(), designation: 'Trader', email: email.trim(),
             mobile: mobile.trim(),
             name: first_name.trim() + ' ' + last_name.trim().substring(0, 1),
-            // password: password,
             status: 'Active',
-            dob: new Date(dob).setHours(0,0,0,0),
             employeeid: userId,
             joining_date: user.last_modifiedOn,
             myReferralCode: (await myReferralCode).toString(),
@@ -196,12 +192,22 @@ router.patch("/verifyotp", async (req, res) => {
             referredBy: referredBy && referredBy,
             creationProcess: referredBy ? 'Referral SignUp' : 'Auto SignUp',
         }
-        // console.log('password', password);
-        if(password){
-            obj.password = password;
+        if(fcmTokenData){
+            fcmTokenData.lastUsedAt = new Date();
+            obj.fcmTokens = [fcmTokenData];
         }
+        // console.log('password', password);
+        // if(password){
+        //     obj.password = password;
+        // }
 
         const newuser = await User.create(obj);
+        await UserWallet.create(
+            {
+                userId: newuser._id,
+                createdOn: new Date(),
+                createdBy: newuser._id
+        })
         const populatedUser = await User.findById(newuser._id).populate('role', 'roleName')
         .populate('portfolio.portfolioId','portfolioName portfolioValue portfolioType portfolioAccount')
         .populate({
@@ -236,10 +242,14 @@ router.patch("/verifyotp", async (req, res) => {
         .select('pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
         const token = await newuser.generateAuthToken();
 
+        console.log("Token:",token)
+
         res.cookie("jwtoken", token, {
             expires: new Date(Date.now() + 25892000000),
         });    
-        res.status(201).json({ status: "Success", data: populatedUser, message: "Welcome! Your account is created, please login with your credentials.", token });
+       
+        console.log("res:",res)
+        res.status(201).json({ status: "Success", data: populatedUser, message: "Welcome! Your account is created, please login with your credentials.", token: token });
         
         // now inserting userId in free portfolio's
         const idOfUser = newuser._id;
@@ -273,6 +283,9 @@ router.patch("/verifyotp", async (req, res) => {
                     referralEarning: referralProgramme.rewardPerReferral,
                     referralCurrency: referralProgramme.currency,
                 }];
+                if(referralProgramme?.referralSignupBonus?.amount){
+                    await addSignupBonus(newuser?._id, referralProgramme?.referralSignupBonus?.amount, referralProgramme?.referralSignupBonus?.currency);
+                }
                 await referrerCodeMatch.save({ validateBeforeSave: false });
                 const wallet = await UserWallet.findOne({ userId: referrerCodeMatch._id });
                 wallet.transactions = [...wallet.transactions, {
@@ -290,15 +303,10 @@ router.patch("/verifyotp", async (req, res) => {
         if (campaign) {
             campaign?.users?.push({ userId: newuser._id, joinedOn: new Date() })
             await campaign.save();
+            if(campaign?.campaignType == 'Invite'){
+                await addSignupBonus(newuser?._id, campaign?.campaignSignupBonus?.amount ?? 90, campaign?.campaignSignupBonus?.currency ?? 'INR');
+            }
         }
-
-        await UserWallet.create(
-            {
-                userId: newuser._id,
-                createdOn: new Date(),
-                createdBy: newuser._id
-        })
-
 
         if (!newuser) return res.status(400).json({ status: 'error', message: 'Something went wrong' });
 
@@ -380,19 +388,19 @@ router.patch("/verifyotp", async (req, res) => {
                     <p>Welcome to StoxHero - Your Gateway to the Exciting World of Options Trading and Earning! </p>
                     <p> StoxHero is a specialized Intraday Options Trading Platform focusing on indices such as NIFTY, BANKNIFTY & FINNIFTY.</p>
                     <p>Congratulations on joining our ever-growing community of traders and learners. We are thrilled to have you onboard and can't wait to embark on this exciting journey together. At StoxHero, we offer a range of programs designed to help you learn and excel in trading while providing you with opportunities to earn real profits from virtual currency. Let's dive into the fantastic programs that await you:</p>
-                    <p>1. Virtual Trading:
+                    <p>1. F&O Trading:
                     Start your trading experience with a risk-free environment! In Virtual Trading, you get INR 10L worth of virtual currency to practice your trading skills, test strategies, and build your profit and loss (P&L) under real market scenarios without any investment. It's the perfect platform to refine your trading strategies and gain confidence before entering the real market.</p>
-                    <p>2. Ten X:
+                    <p>2. TenX:
                     Participate in our Ten X program and explore various trading opportunities. Trade with virtual currency and, after completing 20 trading days, you become eligible for a remarkable 10% profit share or profit CAP amount from the net profit you make in the program. You'll not only learn trading but also earn real money while doing so - a win-win situation!</p>
-                    <p>3. Contests:
-                    Challenge yourself in daily contests where you compete with other users based on your P&L. You'll receive virtual currency to trade with, and your profit share from the net P&L you achieve in each contest will add to your earnings. With different contests running, you have the flexibility to choose and participate as per your preference.</p>
-                    <p>4. College Contest:
-                    Attention college students! Our College Contest is tailored just for you. Engage in daily intraday trading contests, and apart from receiving profit share from your net P&L, the top 3 performers will receive an appreciation certificate highlighting their outstanding performance.</p>
+                    <p>3. TestZone:
+                    Challenge yourself in daily TestZones where you compete with other users based on your P&L. You'll receive virtual currency to trade with, and your profit share from the net P&L you achieve in each TestZone will add to your earnings. With different TestZones running, you have the flexibility to choose and participate as per your preference.</p>
+                    <p>4. College TestZone:
+                    Attention college students! Our College TestZone is tailored just for you. Engage in daily intraday trading TestZones, and apart from receiving profit share from your net P&L, the top 3 performers will receive an appreciation certificate highlighting their outstanding performance.</p>
                     <p>To help you get started and make the most of our programs, we've prepared comprehensive tutorial videos for each of them:</p>
                     <p><a href='https://youtu.be/6wW8k-8zTXY'>Virtual Trading Tutorial</a></br>
                     <a href='https://www.youtube.com/watch?v=a3_bmjv5tXQ'>Ten X Tutorial</a></br>
-                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>Contests Tutorial</a></br>
-                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>College Contest Tutorial</a></p>
+                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>TestZones Tutorial</a></br>
+                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>College TestZone Tutorial</a></p>
                     <p>For any queries or assistance, our dedicated team is always here to support you. Feel free to connect with us on different platforms:
                     </p>
                     <p><a href='https://t.me/stoxhero_official'>Telegram</a></br>
@@ -412,11 +420,11 @@ router.patch("/verifyotp", async (req, res) => {
 
             `
         if(process.env.PROD == 'true'){
-            emailService(newuser.email, subject, message);
+            await emailService(newuser.email, subject, message);
         }
 
         if(process.env.PROD == 'true'){
-            whatsAppService.sendWhatsApp({destination : newuser.mobile, campaignName : 'direct_signup', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
+            await whatsAppService.sendWhatsApp({destination : newuser.mobile, campaignName : 'direct_signup', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
         }
         else {
             whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'direct_signup', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
@@ -428,6 +436,25 @@ router.patch("/verifyotp", async (req, res) => {
         res.status(500).json({status:'error', message:'Something wenr wrong', error: error.message})
     }
 })
+
+const addSignupBonus = async (userId, amount, currency) => {
+    const wallet = await UserWallet.findOne({userId:userId});
+    console.log("Wallet, Amount, Currency:",wallet, userId, amount, currency)
+    try{
+        wallet?.transactions?.push({
+            title: 'Sign up Bonus',
+            description: `Amount credited for as sign up bonus.`,
+            amount: amount,
+            transactionId: uuid.v4(),
+            transactionDate: new Date(),
+            transactionType: currency
+        });
+        await wallet?.save({validateBeforeSave:false});
+        console.log("Saved Wallet:",wallet)
+    }catch(e){
+        console.log(e);
+    }
+}
 
 router.patch("/resendotp", async (req, res)=>{
     const {email, mobile, type} = req.body

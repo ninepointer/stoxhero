@@ -83,13 +83,13 @@ function Performance({tradingData, tradeType, setTradeType, timeframe, setTimefr
   return (
     <MDBox bgColor="light" border='1px solid lightgrey' borderRadius={5} minHeight='40vh'>
         <Grid container spacing={1} display='flex' justifyContent='space-between' alignItems='center'>
-            <Grid item xs={12} md={6} lg={12} ml={1} mr={1} mb={1}>
+            <Grid item xs={12} md={12} lg={12} ml={1} mr={1} mb={1}>
                 <MDBox display='flex' mb={1} justifyContent='space-between' alignItems='center'>
                 <Grid container spacing={1} alignItems='center'>
                     <Grid item xs={12} md={6} lg={6}>
                     <MDTypography m={1} fontSize={13} fontWeight="bold">Performance</MDTypography>
                     </Grid>
-                    <Grid item xs={12} md={6} lg={3} display='flex' justifyContent='flex-end'>
+                    <Grid item xs={12} md={3} lg={3} display='flex' justifyContent='flex-end'>
                     <FormControl sx={{ m: 1, minWidth: 175 }}>
                         <Select
                         labelId="demo-controlled-open-select-label"
@@ -101,13 +101,13 @@ function Performance({tradingData, tradeType, setTradeType, timeframe, setTimefr
                         // defaultValue="Jun 23"
                         onChange={handleChange}
                         >
-                        <MenuItem value="Virtual Trading">Virtual Trading</MenuItem>
-                        <MenuItem value="TenX Trading">TenX Trading</MenuItem>
-                        <MenuItem value="Contest Trading">Contest Trading</MenuItem>
+                        <MenuItem value="Virtual Trading">F&O</MenuItem>
+                        <MenuItem value="TenX Trading">TenX</MenuItem>
+                        <MenuItem value="Contest Trading">TestZones</MenuItem>
                         </Select>
                     </FormControl>
                     </Grid>
-                    <Grid item xs={12} md={6} lg={3} display='flex' justifyContent='flex-end'>
+                    <Grid item xs={12} md={3} lg={3} display='flex' justifyContent='flex-end'>
                     <FormControl sx={{ m: 1, minWidth: 150 }}>
                         <Select
                         labelId="demo-controlled-open-select-label"
@@ -146,19 +146,19 @@ function Performance({tradingData, tradeType, setTradeType, timeframe, setTimefr
                         </Grid>
                         <Grid item xs={12} md={4} lg={6}>
                             <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
-                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">{tradeType=='contest'?`Contests participated`:`Trading Days`}</MDTypography>
+                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">{tradeType=='contest'?`TestZones participated`:`Trading Days`}</MDTypography>
                                 <MDTypography minWidth='55%' fontSize={13} color={'success'} fontWeight="bold" textAlign='right'>{tradeType =='contest'?tradingData?.participatedContests:tradingData?.totalTradingDays}</MDTypography>
                             </MDBox>
                         </Grid>
                         <Grid item xs={12} md={4} lg={6}>
                             <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
-                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">{tradeType=='contest'?`Positive P&L Contests `:`Profit Days`}</MDTypography>
+                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">{tradeType=='contest'?`Positive P&L TestZones `:`Profit Days`}</MDTypography>
                                 <MDTypography minWidth='55%' fontSize={13} color={tradingData?.profitDays>=0?'success':'error'} fontWeight="bold" textAlign='right'>{tradingData?.profitDays}</MDTypography>
                             </MDBox>
                         </Grid>
                         <Grid item xs={12} md={4} lg={6}>
                             <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
-                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">{tradeType == 'contest'?`Negative P&L Contests `:`Loss Days`}</MDTypography>
+                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">{tradeType == 'contest'?`Negative P&L TestZones `:`Loss Days`}</MDTypography>
                                 <MDTypography minWidth='55%' fontSize={13} color='error' fontWeight="bold" textAlign='right'>{tradingData?.lossDays}</MDTypography>
                             </MDBox>
                         </Grid>

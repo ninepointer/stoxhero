@@ -13,6 +13,7 @@ const Campaign = require("../../models/campaigns/campaignSchema")
 const UserWallet = require("../../models/UserWallet/userWalletSchema");
 const emailService = require("../../utils/emailService");
 const { ObjectId } = require('mongodb');
+const uuid = require('uuid')
 
 const s3 = new aws.S3();
 
@@ -29,8 +30,8 @@ const filterObj = (obj, ...allowedFields) => {
 exports.getUploadsApplication = (async(req, res, next) => {
 
 try {
-  const { firstName, lastName, email, mobile, dob, gender, collegeName, linkedInProfileLink, priorTradingExperience, source, career, campaignCode } = req.body;
-  // console.log(req.body)
+  const { firstName, lastName, email, mobile, dob, gender, college, collegeName, course, passingoutyear, linkedInProfileLink, priorTradingExperience, source, career, campaignCode } = req.body;
+  console.log(req.body)
   const data = await CareerApplication.create({
     first_name: firstName.trim(),
     last_name: lastName.trim(),
@@ -38,7 +39,10 @@ try {
     mobileNo: mobile.trim(),
     dob: dob,
     gender: gender,
+    college: college,
     collegeName: collegeName,
+    course: course,
+    passingoutyear: passingoutyear,
     linkedInProfileLink: linkedInProfileLink,
     priorTradingExperience: priorTradingExperience,
     source: source,
@@ -46,7 +50,7 @@ try {
     career: career,
     campaignCode: campaignCode.trim(),
     });
-    // console.log(data)
+    console.log(data)
     res.status(201).json({message: "Your application has been submitted successfully!"});
 
 
@@ -59,9 +63,9 @@ try {
 });
 
 exports.generateOTP = async(req, res, next)=>{
-  // console.log(req.body)
+  console.log(req.body)
 
-  const{ firstName, lastName, email, mobile, dob, gender, collegeName, linkedInProfileLink, priorTradingExperience, source, career, campaignCode
+  const{ firstName, lastName, email, mobile, dob, gender, college, collegeName, course, passingoutyear, linkedInProfileLink, priorTradingExperience, source, career, campaignCode
   } = req.body
 
   const inactiveUser = await User.findOne({ $or: [{ email: email }, { mobile: mobile }], status: "Inactive" });
@@ -80,7 +84,10 @@ exports.generateOTP = async(req, res, next)=>{
       mobileNo: mobile.trim(),
       dob: dob,
       gender: gender,
+      college: college,
       collegeName: collegeName,
+      course: course,
+      passingoutyear: passingoutyear,
       linkedInProfileLink: linkedInProfileLink,
       priorTradingExperience: priorTradingExperience,
       source: source.trim(),
@@ -90,7 +97,7 @@ exports.generateOTP = async(req, res, next)=>{
       status: 'OTP Verification Pending',
       applicationStatus: 'Applied'
       });
-      // console.log(data)
+      console.log(data)
       if(process.env.PROD == 'true')sendOTP(mobile.toString(), mobile_otp);
      if(process.env.PROD!=='true')sendOTP("9319671094", mobile_otp);
       res.status(201).json({info: "OTP Sent on your mobile number!"}); 
@@ -101,13 +108,11 @@ exports.generateOTP = async(req, res, next)=>{
 
 exports.confirmOTP = async(req, res, next)=>{
   
-  const{ firstName, lastName, email, mobile, campaignCode, mobile_otp, career, dob, gender,
+  const{ firstName, lastName, email, mobile, campaignCode, mobile_otp, career, college, collegeName, course, passingoutyear, dob, gender,
   } = req.body
-  // console.log(req.body)
   const correctOTP = await CareerApplication.findOne({$or : [{mobile: mobile}], mobile_otp: mobile_otp})
   const careerDetails = await Career.findOne({_id:career})
-  const careerName = careerDetails.jobTitle
-  // console.log(correctOTP)
+  const careerName = careerDetails?.jobTitle
   if(!correctOTP){
     return res.status(400).json({info:'Please enter the correct OTP'})
   }
@@ -116,9 +121,6 @@ exports.confirmOTP = async(req, res, next)=>{
   await correctOTP.save({validateBeforeSave:false})
   res.status(201).json({info:"Application Submitted Successfully."})
   const existingUser = await User.findOne({mobile: mobile})
-  // if(existingUser){
-  //   return res.status(400).json({info:"User Already Exists"})
-  // }
 
   let campaign;
     if(campaignCode){
@@ -151,7 +153,7 @@ exports.confirmOTP = async(req, res, next)=>{
   const myReferralCode = generateUniqueReferralCode();
   let userId = email.split('@')[0]
   let userIds = await User.find({employeeid:userId})
-  // console.log("User Ids: ",userIds)
+  console.log("User Ids: ",userIds)
     if(userIds.length > 0)
     {
         userId = userId?.toString()+(userIds?.length+1).toString()
@@ -176,6 +178,9 @@ exports.confirmOTP = async(req, res, next)=>{
         name: firstName.trim() + ' ' + lastName.trim().substring(0,1), 
         password: 'sh' + lastName.trim() + '@123' + mobile.trim().slice(1,3), 
         status: 'Active', 
+        college: college,
+        degree: course,
+        passingoutyear: passingoutyear,
         employeeid: userId, 
         creationProcess: 'Career SignUp',
         joining_date:new Date(),
@@ -186,8 +191,14 @@ exports.confirmOTP = async(req, res, next)=>{
         campaign: campaign && campaign._id,
         campaignCode: campaign && campaignCode,
     }
-        console.log("Obj:",obj)
+        // console.log("Obj:",obj)
         const newuser = await User.create(obj);
+        await UserWallet.create(
+          {
+              userId: newuser._id,
+              createdOn: new Date(),
+              createdBy:newuser._id
+        })
         const token = await newuser.generateAuthToken();
 
         const idOfUser = newuser._id;
@@ -210,15 +221,13 @@ exports.confirmOTP = async(req, res, next)=>{
                     users: campaign?.users
                 }
             })
+            if(campaign?.campaignSignupBonus?.amount){
+              await addSignupBonus(newuser?._id, campaign?.campaignSignupBonus?.amount, campaign?.campaignSignupBonus?.currency);
+          }
             // console.log(campaignData)
         }
 
-        await UserWallet.create(
-          {
-              userId: newuser._id,
-              createdOn: new Date(),
-              createdBy:newuser._id
-        })
+      
 
         // res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
             // let email = newuser.email;
@@ -298,19 +307,19 @@ exports.confirmOTP = async(req, res, next)=>{
                     <p>Welcome to StoxHero - Your Gateway to the Exciting World of Virtual Options Trading and Earning! </p>
                     <p>StoxHero is a specialized Intraday Options Trading Platform focusing on indices such as NIFTY, BANKNIFTY & FINNIFTY.</p>
                     <p>Congratulations on joining our ever-growing community of traders and learners. We are thrilled to have you onboard and can't wait to embark on this exciting journey together. At StoxHero, we offer a range of programs designed to help you learn and excel in trading while providing you with opportunities to earn real profits from virtual currency. Let's dive into the fantastic programs that await you:</p>
-                    <p>1. Virtual Trading:
+                    <p>1. F&O Trading:
                     Start your trading experience with a risk-free environment! In Virtual Trading, you get INR 10L worth of virtual currency to practice your trading skills, test strategies, and build your profit and loss (P&L) under real market scenarios without any investment. It's the perfect platform to refine your trading strategies and gain confidence before entering the real market.</p>
-                    <p>2. Ten X:
+                    <p>2. TenX:
                     Participate in our Ten X program and explore various trading opportunities. Trade with virtual currency and, after completing 20 trading days, you become eligible for a remarkable 10% profit share or profit CAP amount from the net profit you make in the program. You'll not only learn trading but also earn real money while doing so - a win-win situation!</p>
-                    <p>3. Contests:
-                    Challenge yourself in daily contests where you compete with other users based on your P&L. You'll receive virtual currency to trade with, and your profit share from the net P&L you achieve in each contest will add to your earnings. With different contests running, you have the flexibility to choose and participate as per your preference.</p>
-                    <p>4. College Contest:
-                    Attention college students! Our College Contest is tailored just for you. Engage in daily intraday trading contests, and apart from receiving profit share from your net P&L, the top 3 performers will receive an appreciation certificate highlighting their outstanding performance.</p>
+                    <p>3. TestZones:
+                    Challenge yourself in daily TestZones where you compete with other users based on your P&L. You'll receive virtual currency to trade with, and your profit share from the net P&L you achieve in each TestZone will add to your earnings. With different TestZones running, you have the flexibility to choose and participate as per your preference.</p>
+                    <p>4. College TestZones:
+                    Attention college students! Our College TestZones is tailored just for you. Engage in daily intraday trading TestZones, and apart from receiving profit share from your net P&L, the top 3 performers will receive an appreciation certificate highlighting their outstanding performance.</p>
                     <p>To help you get started and make the most of our programs, we've prepared comprehensive tutorial videos for each of them:</p>
                     <p><a href='https://youtu.be/6wW8k-8zTXY'>Virtual Trading Tutorial</a></br>
                     <a href='https://www.youtube.com/watch?v=a3_bmjv5tXQ'>Ten X Tutorial</a></br>
-                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>Contests Tutorial</a></br>
-                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>College Contest Tutorial</a></p>
+                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>TestZone Tutorial</a></br>
+                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>College TestZone Tutorial</a></p>
                     <p>For any queries or assistance, our dedicated team is always here to support you. Feel free to connect with us on different platforms:
                     </p>
                     <p><a href='https://t.me/stoxhero_official'>Telegram</a></br>
@@ -340,13 +349,13 @@ exports.confirmOTP = async(req, res, next)=>{
               whatsAppService.sendWhatsApp({destination : newuser?.mobile, campaignName : 'career_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, careerName], tags : '', attributes : ''});
             }
             else {
-                whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'career_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, careerName], tags : '', attributes : ''});
-                // whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'career_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, careerName], tags : '', attributes : ''});
+                // whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'career_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, careerName], tags : '', attributes : ''});
+                whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'career_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, careerName], tags : '', attributes : ''});
             }
   
-  }catch(error){
-    console.log(error)
-  }
+        }catch(error){
+          console.log(error)
+        }
   }else{
     if(campaign){
       // console.log("Inside setting user to campaign")
@@ -359,20 +368,41 @@ exports.confirmOTP = async(req, res, next)=>{
       await campaign.save({validateBeforeSave:false});
       // console.log(campaignData)
   }
-    if(process.env.PROD == 'true'){
-      whatsAppService.sendWhatsApp({destination : existingUser?.mobile, campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName], tags : '', attributes : ''});
-    }
-    else {
-      whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName], tags : '', attributes : ''});
-      whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName], tags : '', attributes : ''});
+  try{
+      if(process.env.PROD == 'true'){
+        whatsAppService.sendWhatsApp({destination : existingUser?.mobile, campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName.toString()], tags : '', attributes : ''});
+      }
+      else {
+        // whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName], tags : '', attributes : ''});
+        whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'career_application_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, careerName.toString()], tags : '', attributes : ''});
+      }
+    }catch(e){
+      console.log(e)
     }
   }
 
 }
 
+const addSignupBonus = async (userId, amount, currency) => {
+  const wallet = await UserWallet.findOne({userId:userId});
+  try{
+      wallet.transactions?.push({
+          title: 'Sign up Bonus',
+          description: `Amount credited for as sign up bonus.`,
+          amount: amount,
+          transactionId: uuid.v4(),
+          transactionDate: new Date(),
+          transactionType: currency
+      });
+      await wallet.save({validateBeforeSave:false});
+  }catch(e){
+      console.log(e);
+  }
+}
+
 exports.applyForCareer = async(req,res, next) => {
 
-  const{ campaignCode, career, dob, linkedInProfileLink, priorTradingExperience, source, gender, collegeName
+  const{ campaignCode, career, dob, linkedInProfileLink, priorTradingExperience, source, gender, collegeName, course, passingoutyear
   } = req.body
   const user = await User.findById(req.user._id).select('first_name last_name email mobile');
   try{
@@ -390,7 +420,10 @@ exports.applyForCareer = async(req,res, next) => {
       career: career,
       campaignCode: campaignCode?.trim(),
       status: 'OTP Verified',
-      applicationStatus: 'Applied'
+      applicationStatus: 'Applied',
+      course: course,
+      passingoutyear: passingoutyear,
+
     });
     res.status(201).json({status:"success", message:"Application Submitted Successfully."});
 
@@ -403,11 +436,11 @@ exports.applyForCareer = async(req,res, next) => {
 exports.createCareer = async(req, res, next)=>{
     // console.log(req.body)
     const{
-        jobTitle, jobDescription, rolesAndResponsibilities, jobType, jobLocation,
+        jobTitle, jobDescription, rolesAndResponsibilities, jobType, jobLocation, activelyRecruiting,
         status, listingType } = req.body;
     if(await Career.findOne({jobTitle, status: "Live" })) return res.status(400).json({info:'This job post is already live.'});
 
-    const career = await Career.create({jobTitle: jobTitle.trim(), jobDescription, rolesAndResponsibilities, jobType, jobLocation,
+    const career = await Career.create({jobTitle: jobTitle.trim(), jobDescription, rolesAndResponsibilities, jobType, jobLocation, activelyRecruiting,
         status, createdBy: req.user._id, lastModifiedBy: req.user._id, listingType});
     // console.log("Career: ",career)
     res.status(201).json({message: 'Career post successfully created.', data:career});
@@ -419,7 +452,7 @@ exports.editCareer = async(req, res, next) => {
     // console.log("id is ,", id)
     const career = await Career.findById(id);
 
-    const filteredBody = filterObj(req.body, "jobTitle", "jobDescription", "jobType", "jobLocation", "status");
+    const filteredBody = filterObj(req.body, "jobTitle", "jobDescription", "jobType", "activelyRecruiting", "jobLocation", "status");
     if(req.body.rolesAndResponsibilities)filteredBody.rolesAndResponsibilities=[...career.rolesAndResponsibilities,
         {orderNo:req.body.rolesAndResponsibilities.orderNo,
             description:req.body.rolesAndResponsibilities.description,}]
@@ -429,6 +462,31 @@ exports.editCareer = async(req, res, next) => {
     const updated = await Career.findByIdAndUpdate(id, filteredBody, { new: true });
 
     res.status(200).json({message: 'Successfully edited Career.', data: updated});
+}
+
+exports.getAllCareers = async(req, res, next)=>{
+  const type = req.query.type;
+  const cond = !type? {}:{listingType:type}
+  const career = await Career.aggregate(
+    [
+      {
+        $match: cond
+      },
+      {
+        $project: {
+          jobTitle: 1,
+          jobDescription: 1,
+          jobType: 1,
+          jobLocation: 1,
+          status: 1,
+          activelyRecruiting: 1,
+          rolesAndResponsibilities: 1,
+          listingType: 1
+        },
+      },
+    ]
+  )
+  res.status(201).json({message: 'success', data:career});
 }
 
 exports.getCareers = async(req, res, next)=>{
@@ -459,6 +517,7 @@ exports.getCareers = async(req, res, next)=>{
             jobType: 1,
             jobLocation: 1,
             status: 1,
+            activelyRecruiting: 1,
             applicants: 1,
             rolesAndResponsibilities: 1,
             listingType: 1
@@ -468,6 +527,7 @@ exports.getCareers = async(req, res, next)=>{
     )
     res.status(201).json({message: 'success', data:career});
 }
+
 exports.fetchCareers = async (req,res, next) => {
   try{
     const type = req.query.type;
@@ -507,6 +567,7 @@ exports.getRejectedCareers = async(req, res, next)=>{
           jobLocation: 1,
           status: 1,
           applicants: 1,
+          activelyRecruiting:1,
           rolesAndResponsibilities: 1,
           listingType: 1
         },
@@ -545,6 +606,7 @@ exports.getDraftCareers = async(req, res, next)=>{
           jobLocation: 1,
           status: 1,
           applicants: 1,
+          activelyRecruiting:1,
           rolesAndResponsibilities: 1,
           listingType: 1
         },
@@ -578,6 +640,13 @@ exports.getCareerApplications = async(req, res, next)=>{
                               .select('first_name last_name mobileNo email collegeName dob appliedOn priorTradingExperience source campaignCode applicationStatus linkedInProfileLink')
   res.status(201).json({message: 'success', data:careerApplications, count:careerApplications.length});
 }
+
+exports.getCareerApplicationCount = async(req, res, next)=>{
+  const {id} = req.params;
+  const careerApplications = await CareerApplication.find({career: id})
+  res.status(201).json({message: 'success', count:careerApplications.length});
+}
+
 exports.getCareerApplicantions = async(req, res, next) => {
   const { id } = req.params;
   const careerApplications = await CareerApplication.find({career: id, applicationStatus: 'Applied', status:'OTP Verified'})
@@ -665,7 +734,6 @@ const completedBatches = result[0]?.completedBatches;
   res.status(200).json({ message: 'success', data: combinedData, count: combinedData.length });
 }
 
-
 exports.getSelectedCareerApplicantions = async(req, res, next)=>{
   const {id} = req.params;
   const careerApplications = await CareerApplication.find({career: id, $or:[
@@ -698,5 +766,27 @@ exports.getRejectedApplications = async(req, res, next)=>{
   }catch(e){
     console.log(e);
     res.status(500).json({status:'error', message:'Something went wrong.'});
+  }
+}
+
+exports.findCareerByName = async(req,res,next)=>{
+  try{
+      const {name} = req.query;
+      const result = await Career.findOne({jobTitle: name, status: 'Live'})
+      // console.log(result)
+      if(!result){
+          return res.status(404).json({
+              status: "error",
+              message: "No Career found",
+          });
+      }
+      res.status(200).json({data:result, status:'success'});
+  }catch(e){
+      console.log(e);
+      res.status(500).json({
+          status: "error",
+          message: "Something went wrong",
+          error: e.message
+      });
   }
 }

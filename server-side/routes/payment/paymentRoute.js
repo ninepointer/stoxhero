@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
 const {createPayment, getPayment, getUserPayment, getUsers, initiatePayment, handleCallback,
-     checkPaymentStatus, getSuccessfulPayment, getFailedPayment, getInitiatedPayment} = require('../../controllers/paymentController');
+     checkPaymentStatus, getSuccessfulPayment, getFailedPayment, getInitiatedPayment, makePayment} = require('../../controllers/paymentController');
 const Authenticate = require('../../authentication/authentication');
 const restrictTo = require('../../authentication/authorization');
 
@@ -15,6 +15,7 @@ router.route('/failed').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), get
 router.route('/users').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getUsers)
 router.route('/checkstatus/:merchantTransactionId').get(Authenticate, checkPaymentStatus);
 router.route('/user/:id').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getUserPayment);
+router.route('/makepayment').post(Authenticate, makePayment);
 
 
 module.exports = router;

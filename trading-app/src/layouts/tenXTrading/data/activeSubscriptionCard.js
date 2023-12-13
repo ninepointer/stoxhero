@@ -168,15 +168,15 @@ function Header({ subscription, checkPayment, setCheckPayment, amount, name, id,
                                     <MDTypography fontSize={10} fontWeight='bold'>{moment.utc(subscription?.subscribedOn).utcOffset('+05:30').format("DD-MMM-YY hh:mm a")}</MDTypography>
                                 </Grid>
                                 <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center'>
-                                    <MDTypography fontSize={10} fontWeight='bold'>{moment.utc(subscription?.subscribedOn).utcOffset('+05:30').add(subscription?.expiryDays, 'days').hours(16).minutes(0).format("DD-MMM-YY hh:mm a")}</MDTypography>
+                                    <MDTypography fontSize={10} fontWeight='bold'>{moment.utc(subscription?.subscribedOn).utcOffset('+05:30').add(subscription?.expiryDays-1, 'days').hours(16).minutes(0).format("DD-MMM-YY hh:mm a")}</MDTypography>
                                 </Grid>
                             </Grid>
                         </Grid>    
                           <Grid item xs={12} md={12} lg={12} mt={1} mb={1} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
                               <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
-                              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
-                                <DialogueAnalytics subscription={subscription} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={amount} name={name} id={id} walletCash={walletCash} allowRenewal={allowRenewal} />
-                              </Grid>
+                              {/* <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
+                                <DialogueAnalytics subscription={subscription} isActive={true} />
+                              </Grid> */}
                               <Grid item xs={12} md={12} lg={12} mt={.5} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
                                   {/* <MDButton varaint='contained' color='error' size="small" style={{fontSize:'8px',width:'88%', padding:2}} onClick={captureTutorialViews}>Watch Tutorial Video</MDButton> */}
                                   <Dialogue subscription={subscription} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={amount} name={name} id={id} walletCash={walletCash} bonusCash={bonusCash} allowRenewal={allowRenewal} />   

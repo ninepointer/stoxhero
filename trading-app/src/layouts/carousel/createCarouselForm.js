@@ -42,7 +42,7 @@ function Index() {
     const { register, handleSubmit, formState: { errors }, watch } = useForm();
     const location = useLocation();
     const  id  = location?.state?.data;
-    console.log("Carousel:",id)
+    // console.log("Carousel:",id)
     let [photo,setPhoto] = useState(id ? id?.carouselImage : DefaultCarouselImage)
     const [imageFile, setImageFile] = useState(id ? id?.carouselImage : DefaultCarouselImage);
     const [previewUrl, setPreviewUrl] = useState('');
@@ -58,7 +58,7 @@ function Index() {
         carouselName:'' || id?.carouselName,
         description:'' || id?.description,
         carouselStartDate: dayjs(id?.carouselStartDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
-        carouselEndDate: dayjs(id?.carouselEndDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
+         carouselEndDate: dayjs(id?.carouselEndDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
         carouselImage:'' || id?.carouselImage,
         status:'' || id?.status,
         clickable: '' || id?.clickable,
@@ -67,7 +67,6 @@ function Index() {
         carouselPosition: '' || id?.carouselPosition,
         visibility: '' || id?.visibility
     });
-    console.log("Initial FormState:", formState)
 
     useEffect(()=>{
       setTimeout(()=>{
@@ -103,14 +102,15 @@ function Index() {
     async function onSubmit(e,data){
         e.preventDefault();
         setCreating(true)
-        console.log("Form Data: ",data)
+        // console.log("Form Data: ",data)
         try{
           const formData = new FormData();
           Object.keys(data).forEach((key) => {
-            console.log("data to be appended")
-            formData.append(key, data[key])
-            console.log("data appended",formData)
-            console.log("formState",formState)
+            // console.log("data to be appended")
+            formData.append('blogContent', data[key])
+            // formData.append('blogContent', JSON.stringify(childFormState.blogContent));
+            // console.log("data appended",formData)
+            // console.log("formState",formState)
           });
           
             if(!formState.carouselName || !formState.description || 
@@ -122,7 +122,7 @@ function Index() {
               setCreating(false);
               return openErrorSB("Error","Please fill the mandatory fields.")
             }
-          console.log("Calling API")
+          
           const res = await fetch(`${baseUrl}api/v1/carousels`, {
   
             method: "POST",
@@ -135,7 +135,7 @@ function Index() {
           });
 
           let data1 = await res.json()
-          console.log("Response:",data1)
+          // console.log("Response:",data1)
           if (data1.data) {
             openSuccessSB("Success", data1.message)
             setIsSubmitted(true)

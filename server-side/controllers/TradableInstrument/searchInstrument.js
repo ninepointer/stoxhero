@@ -2,7 +2,7 @@
 // const zlib = require('zlib');
 // const csv = require('csv-parser');
 const TradableInstrument = require("../../models/Instruments/tradableInstrumentsSchema")
-// const getKiteCred = require('../../marketData/getKiteCred');
+const EquityInstrument = require("../../models/Instruments/equityStocks");
 const { xtsAccountType, zerodhaAccountType } = require("../../constant");
 //TODO toggle between 
 const Setting = require("../../models/settings/setting");
@@ -17,7 +17,7 @@ exports.search = async (searchString, res, req) => {
   const page = parseInt(req.query.page);
   const size = parseInt(req.query.size);
   let {isNifty, isBankNifty, isFinNifty, dailyContest} = req.query;
-  // console.log(isNifty, isBankNifty, isFinNifty)
+  console.log(isNifty, isBankNifty, isFinNifty, dailyContest)
 
   let query = [];
   if(isNifty){
@@ -113,7 +113,7 @@ exports.search = async (searchString, res, req) => {
             {
               expiry: {
                 $gte: todayDate, // expiry is greater than or equal to today's date
-                $lt: fromLessThen
+                $lte: fromLessThen
               }
             },
             {
@@ -164,6 +164,108 @@ exports.search = async (searchString, res, req) => {
   }
 
 }
+
+exports.equitySearch = async (searchString, res, req) => {
+  // const size = parseInt(req.query.size);
+
+  console.log(searchString)
+  try {
+    let data = await EquityInstrument.find({
+      $and: [
+        {
+          $or: [
+            { tradingsymbol: { $regex: searchString, $options: 'i' } },
+            { name: { $regex: searchString, $options: 'i' } },
+            // { exchange: { $regex: searchString, $options: 'i' } },
+            // { expiry: { $regex: searchString, $options: 'i' } },
+          ]
+        },
+        {
+          status: 'Active',
+          isEquity: true
+        },
+      ]
+    })
+    .sort({ expiry: 1 })
+    // .limit(size)
+    .exec();
+
+    res.status(200).json({ status: "success", data: data, message: "List Received" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+exports.equityInstrumentArray = [
+  6401,
+  3861249,
+  40193,
+  1510401,
+  5436929,
+  60417,
+  579329,
+  4268801,
+  81153,
+  4267265,
+  2714625,
+  1195009,
+  140033,
+  134657,
+  177665,
+  175361,
+  5215745,
+  225537,
+  2800641,
+  232961,
+  261889,
+  315393,
+  1086465,
+  1850625,
+  119553,
+  341249,
+  348929,
+  356865,
+  345089,
+  1270529,
+  5573121,
+  4774913,
+  2863105,
+  56321,
+  408065,
+  424961,
+  1346049,
+  3001089,
+  511233,
+  4561409,
+  492033,
+  2939649,
+  519937,
+  2815745,
+  2977281,
+  6054401,
+  4598529,
+  633601,
+  3660545,
+  2730497,
+  3834113,
+  738561,
+  3930881,
+  4600577,
+  779521,
+  5582849,
+  1102337,
+  884737,
+  878593,
+  857857,
+  3465729,
+  897537,
+  2953217,
+  895745,
+  2952193,
+  2889473,
+  969473
+]
 
 
 

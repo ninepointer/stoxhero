@@ -412,27 +412,12 @@ function Basic() {
           {!otpGen&&<MDButton variant="gradient" color="dark" onClick={phoneLogin} fullWidth>
           Send OTP
         </MDButton>}
-        {otpGen && <><Grid item xs={12} md={12} xl={12} width="100%" display="flex" justifyContent="center">
+                  {otpGen && <><Grid item xs={12} md={12} xl={12} width="100%" display="flex" justifyContent="center">
                   <MDBox mt={1}>
                   <TextField
                     value={mobileOtp}
                     onChange={(e)=>{setMobileOtp(e.target.value)}}
-                    // onChange={(e)=>{console.log(e)}}
-                    // numInputs={6}
-                    // renderSeparator={<span>-</span>}
-                    // renderInput={(props) => <input {...props} />}
-                    // inputStyle={{width:40, height:50}}
                   />
-
-                  {/* <OtpInput
-                    value={mobileOtp}
-                    onChange={(e)=>{setMobileOtp(e)}}
-                    // onChange={(e)=>{console.log(e)}}
-                    numInputs={6}
-                    renderSeparator={<span>-</span>}
-                    renderInput={(props) => <input {...props} />}
-                    inputStyle={{width:40, height:50}}
-                  /> */}
                   </MDBox>
                   </Grid>
                   <Grid item xs={12} md={6} xl={12} mt={1} display="flex" justifyContent="flex-start">

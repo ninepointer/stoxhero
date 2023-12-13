@@ -30,6 +30,16 @@ const TenXSubscription = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    rewardType:{
+        type:String,
+        required: true,
+        enum: ['Cash','HeroCash']
+    },
+    tdsRelief:{
+        type:Boolean,
+        // required: true,
+        default: false
+    },
     isRecommended:{
         type: Boolean,
         default: false,
@@ -72,6 +82,12 @@ const TenXSubscription = new mongoose.Schema({
         actualPrice:Number,
         payout:{type:Number},
         tdsAmount: {type: Number},
+        herocashPayout: Number,
+        gpnl: {type: Number},
+        npnl: {type: Number},
+        brokerage: {type: Number},
+        tradingDays: {type: Number},
+        trades: {type: Number},
     }],
     status: {
         type: String,

@@ -5,7 +5,7 @@ import moment, { min } from 'moment';
 
 export default function TraderDetails({completedContest, isLoading}) {
   const chartRef = useRef(null);
-  console.log("Completed Contest Data:", completedContest, isLoading);
+  // console.log("Completed TestZone Data:", completedContest, isLoading);
 
   let dates = []
   let npnl = []
@@ -41,7 +41,7 @@ export default function TraderDetails({completedContest, isLoading}) {
 
     const option = {
       title: {
-        text: 'Contest NPNL & Payouts(Trader)',
+        text: 'TestZone NPNL & Payouts(Trader)',
         left: 'left',
       },
       tooltip: {
@@ -62,7 +62,7 @@ export default function TraderDetails({completedContest, isLoading}) {
         }
       },
       legend: {
-        data: ['Net P&L/100', 'Payout','# of Contests']
+        data: ['Net P&L/100', 'Payout','# of TestZones']
       },
       grid: {
         right: '2.5%', // Adjust the right margin as per your requirement
@@ -92,7 +92,7 @@ export default function TraderDetails({completedContest, isLoading}) {
         },
         {
           type: 'value',
-          name: '# of Contests',
+          name: '# of TestZones',
           min: -3.2,
           max: 8,
           offset: 0,
@@ -122,7 +122,7 @@ export default function TraderDetails({completedContest, isLoading}) {
           data: payout
         },
         {
-          name: '# of Contests',
+          name: '# of TestZones',
           type: 'bar',
           yAxisIndex: 1,
           tooltip: {

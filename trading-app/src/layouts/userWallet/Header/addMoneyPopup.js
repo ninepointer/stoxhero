@@ -132,10 +132,14 @@ export default function AddMoney() {
   return (
 
     <>
-      <MDBox>
+      <MDBox style={{width:'100%'}}>
+        <Grid container xs={3} md={6} lg={12} display="flex" justifyContent="space-between" alignItems="center">
+        <Grid item xs={3} md={6} lg={12} display="flex" justifyContent="center" alignItems="center">
         <MDButton size="small" style={{ width: '95%' }} onClick={() => { setOpen(true) }}>
-          Add Money
+          Top-Up
         </MDButton>
+        </Grid>
+        </Grid>
       </MDBox>
 
       <Dialog

@@ -277,7 +277,7 @@ export default function LabTabs({socket}) {
                         :
                         <MDBox style={{minHeight:"10vh", minWidth:'100%'}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
                             <img src={WinnerImage} width={50} height={50}/>
-                            <MDTypography color="dark" fontSize={15}>No Live Contest(s)</MDTypography>
+                            <MDTypography color="dark" fontSize={15}>No Live TestZone(s)</MDTypography>
                         </MDBox>
                         }
                     </>

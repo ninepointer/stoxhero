@@ -11,10 +11,11 @@ const Holiday = require("../models/TradingHolidays/tradingHolidays");
 const moment = require('moment');
 const { ObjectId } = require("mongodb");
 const sendMail = require('../utils/emailService');
+const {sendMultiNotifications} = require('../utils/fcmService');
 const {createUserNotification} = require('./notification/notificationController');
 const mongoose = require('mongoose');
 const Setting = require("../models/settings/setting")
-
+const PendingOrder = require("../models/PendingOrder/pendingOrderSchema")
 
 exports.overallPnl = async (req, res, next) => {
   let isRedisConnected = getValue();
@@ -55,6 +56,11 @@ exports.overallPnl = async (req, res, next) => {
               },
           },
           {
+            $sort: {
+              trade_time: 1,
+            },
+          },
+          {
             $group: {
               _id: {
                 symbol: "$symbol",
@@ -62,7 +68,9 @@ exports.overallPnl = async (req, res, next) => {
                 instrumentToken: "$instrumentToken",
                 exchangeInstrumentToken: "$exchangeInstrumentToken",
                 exchangeInstrumentToken: "$exchangeInstrumentToken",
-                exchange: "$exchange"
+                exchange: "$exchange",
+                validity: "$validity",
+                variety: "$variety",
               },
               amount: {
                 $sum: {$multiply : ["$amount",-1]},
@@ -80,6 +88,9 @@ exports.overallPnl = async (req, res, next) => {
               lastaverageprice: {
                 $last: "$average_price",
               },
+              margin: {
+                $last: "$margin",
+              },
             },
           },
           {
@@ -88,13 +99,89 @@ exports.overallPnl = async (req, res, next) => {
             },
           },
         ])
+
+        const limitMargin = await PendingOrder.aggregate([
+          {
+            $match: {
+              createdBy: new ObjectId(
+                userId
+              ),
+              type: "Limit",
+              status: "Pending",
+              createdOn: {
+                $gte: today,
+              },
+              product_type: new ObjectId("6517d46e3aeb2bb27d650de3")
+            },
+          },
+          {
+            $sort: {
+              createdOn: 1,
+            },
+          },
+          {
+            $group:
+            {
+              _id: {
+                symbol: "$symbol",
+                product: "$Product",
+                instrumentToken: "$instrumentToken",
+                exchangeInstrumentToken: "$exchangeInstrumentToken",
+                exchange: "$exchange",
+                validity: "$validity",
+                variety: "$variety",
+                // order_type: "$order_type"
+              },
+              amount: {
+                $sum: { $multiply: ["$amount", -1] },
+              },
+              brokerage: {
+                $sum: {
+                  $toDouble: "$brokerage",
+                },
+              },
+              lots: {
+                $sum: {
+                  $toInt: "$Quantity",
+                },
+              },
+              margin: {
+                $last: "$margin",
+              },
+            }
+          }
+        ])
+  
+        const arr = [];
+        for(let elem of limitMargin){
+          arr.push({
+            _id: {
+              symbol: elem._id.symbol,
+              product: elem._id.product,
+              instrumentToken: elem._id.instrumentToken,
+              exchangeInstrumentToken: elem._id.exchangeInstrumentToken,
+              exchange: elem._id.exchange,
+              validity: elem._id.validity,
+              variety: elem._id.variety,
+              isLimit: true
+            },
+            // amount: (tenxDoc.amount * -1),
+            // brokerage: Number(tenxDoc.brokerage),
+            lots: Number(elem.lots),
+            // lastaverageprice: tenxDoc.average_price,
+            margin: elem.margin
+          });
+        }
+  
+        const newPnl = pnlDetails.concat(arr);
+  
         // console.log("pnlDetails in else", pnlDetails)
         if(isRedisConnected){
-          await client.set(`${req.user._id.toString()}${batch.toString()}: overallpnlIntern`, JSON.stringify(pnlDetails))
+          await client.set(`${req.user._id.toString()}${batch.toString()}: overallpnlIntern`, JSON.stringify(newPnl))
           await client.expire(`${req.user._id.toString()}${batch.toString()}: overallpnlIntern`, secondsRemaining);  
         }
 
-        res.status(201).json({message: "pnl received", data: pnlDetails});
+        res.status(201).json({message: "pnl received", data: newPnl});
       }
 
     }catch(e){
@@ -998,6 +1085,30 @@ exports.internshipPnlReport = async (req, res, next) => {
   res.status(201).json({ message: "data received", data: x });
 }
 
+const getHoliday = async (startDate, enddate)=>{
+  let endDate = new Date(enddate)
+  let endDateDateComponent = endDate.toISOString().split('T')[0];
+
+  const fullEndDate = new Date(`${endDateDateComponent}T23:59:59.000Z`);
+
+  // console.log(startDate, fullEndDate, enddate)
+  const holiday = await Holiday.find({
+    holidayDate: {
+      $gte: new Date(startDate),
+      $lte: fullEndDate
+    },
+    $expr: {
+      $and: [
+        { $ne: [{ $dayOfWeek: "$holidayDate" }, 1] }, // 1 represents Sunday
+        { $ne: [{ $dayOfWeek: "$holidayDate" }, 7] }  // 7 represents Saturday
+      ]
+    }
+  });
+
+  console.log(holiday)
+  return holiday;
+}
+
 exports.internshipDailyPnlTWise = async (req, res, next) => {
 
   let { batch } = req.params
@@ -1009,17 +1120,13 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
   .populate('referrals.referredUserId', 'joining_date')
   .select("referrals")
 
-  const holiday = await Holiday.find({
-    holidayDate: {
-      $gte: internship.batchStartDate,
-      $lte: internship.batchEndDate
-    },
-    $expr: {
-      $ne: [{ $dayOfWeek: "$holidayDate" }, 1], // 1 represents Sunday
-      $ne: [{ $dayOfWeek: "$holidayDate" }, 7], // 7 represents Saturday
-    }
-  });
+  const batchEndDate = moment(internship.batchEndDate);
+  const currentDate = moment();
+  const endDate = batchEndDate.isBefore(currentDate) ? batchEndDate.format("YYYY-MM-DD") : currentDate.format("YYYY-MM-DD");
+  const endDate1 = batchEndDate.isBefore(currentDate) ? batchEndDate.clone().set({ hour: 19, minute: 0, second: 0, millisecond: 0 }) : currentDate.clone().set({ hour: 19, minute: 0, second: 0, millisecond: 0 });
 
+
+  const holiday = await getHoliday(internship.batchStartDate, endDate)
   let traderWisePnlInfo = [];
   if (internship.batchStatus === "Completed") {
     const pipeline = [
@@ -1094,6 +1201,12 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
   } else {
     const pipeline = [
       {
+        $match: {
+          status: "COMPLETE",
+          batch: new ObjectId(batch),
+        },
+      },
+      {
         $lookup: {
           from: "user-personal-details",
           localField: "trader",
@@ -1101,12 +1214,7 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
           as: "user",
         },
       },
-      {
-        $match: {
-          status: "COMPLETE",
-          batch: new ObjectId(batch),
-        },
-      },
+
       // {
       //   $lookup: {
       //     from: "intern-batches",
@@ -1136,37 +1244,6 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
                 },
               ],
             },
-            // batchStartDate: {
-            //   $arrayElemAt: [
-            //     "$batch.batchStartDate",
-            //     0,
-            //   ],
-            // },
-            // batchEndDate: {
-            //   $arrayElemAt: [
-            //     "$batch.batchEndDate",
-            //     0,
-            //   ],
-            // },
-
-            // payoutPercentage: {
-            //   $arrayElemAt: [
-            //     "$batch.payoutPercentage",
-            //     0,
-            //   ],
-            // },
-            // attendancePercentage: {
-            //   $arrayElemAt: [
-            //     "$batch.attendancePercentage",
-            //     0,
-            //   ],
-            // },
-            // referralCount: {
-            //   $arrayElemAt: [
-            //     "$batch.referralCount",
-            //     0,
-            //   ],
-            // },
           },
           gpnl: {
             $sum: {
@@ -1233,28 +1310,21 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
         return subelem?._id?.toString() == elem?.userId?.toString();
       })
 
-      const batchEndDate = moment(internship.batchEndDate);
-      const currentDate = moment();
-      const endDate = batchEndDate.isBefore(currentDate) ? batchEndDate.format("YYYY-MM-DD") : currentDate.format("YYYY-MM-DD");
-      const endDate1 = batchEndDate.isBefore(currentDate) ? batchEndDate.clone().set({ hour: 19, minute: 0, second: 0, millisecond: 0 }) : currentDate.clone().set({ hour: 19, minute: 0, second: 0, millisecond: 0 });
-      const attendance = (elem?.tradingDays * 100 / (calculateWorkingDays(internship.batchStartDate, endDate) - holiday.length));
+      const attendance = (elem?.tradingDays * 100 / (calculateWorkingDays(internship.batchStartDate, endDate) - holiday.length), calculateWorkingDays(internship.batchStartDate, endDate));
+      // console.log("attendance", attendance, calculateWorkingDays(internship.batchStartDate, endDate), holiday.length)
       let refCount = 0;
       if(referral[0]?.referrals){
         for (let subelem of referral[0]?.referrals) {
           const joiningDate = moment(subelem?.referredUserId?.joining_date);
         
-          // console.log("joiningDate", moment(moment(internship.batchStartDate).format("YYYY-MM-DD")), joiningDate ,endDate, endDate1, moment(endDate).set({ hour: 19, minute: 0, second: 0, millisecond: 0 }).format("YYYY-MM-DD HH:mm:ss"))
           if (joiningDate.isSameOrAfter(moment(moment(internship.batchStartDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(endDate1)) {
-            // console.log("joiningDate if", batchEndDate, batchEndDate.format("YYYY-MM-DD"))
             refCount += 1;
-            // console.log("joiningDate if")
           }
         }
       } else{
         refCount = 0;
       }
 
-      // referral[0]?.referrals?.length;
       elem.isPayout = false;
       const profitCap = 15000;
 
@@ -1278,18 +1348,10 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
       elem.payout = elem.isPayout ? Math.min((elem?.npnl * payoutPercentage / 100).toFixed(0), profitCap) : 0;
       // elem.tradingDays = (elem?.tradingDays * 100 / (calculateWorkingDays(internship.batchStartDate, endDate) - holiday.length)).toFixed(0)
       elem.attendancePercentage = (elem?.tradingDays * 100 / (calculateWorkingDays(internship.batchStartDate, endDate) - holiday.length)).toFixed(0);
+      // console.log(elem?.tradingDays, internship.batchStartDate, endDate, holiday.length, (calculateWorkingDays(internship.batchStartDate, endDate) - holiday.length) )
       traderWisePnlInfo.push(elem);
     })
   }
-
-
-
-
-
-
-
-  // res.status(201).json(x);
-
   res.status(201).json({ message: "data received", data: traderWisePnlInfo });
 }
 
@@ -1377,6 +1439,7 @@ function calculateWorkingDays(startDate, endDate) {
   end = new Date(end)
   end.setDate(end.getDate() + 1);
 
+  // console.log(start, end)
   // Check if the start date is after the end date
   if (start > end) {
     return 0;
@@ -1388,7 +1451,8 @@ function calculateWorkingDays(startDate, endDate) {
   // Iterate over each day between the start and end dates
   while (currentDate <= end) {
     // Check if the current day is a weekday (Monday to Friday)
-    if (currentDate.getDay() >= 1 && currentDate.getDay() <= 5) {
+    if (currentDate.getDay() > 0 && currentDate.getDay() < 6) {
+      
       workingDays++;
     }
 
@@ -1426,14 +1490,14 @@ exports.updateUserWallet = async () => {
     let date = new Date();
 
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    // let todayDate = `2023-09-26`
+    // let todayDate = `2023-11-27`
 
     let endOfToday = todayDate + "T23:59:59.400Z"
     const setting = await Setting.find();
 
     const internship = await InternBatch.find({batchStatus: "Active", batchEndDate: {$gte: new Date(todayDate)}, batchEndDate: { $lte: new Date(endOfToday) }})
     .populate('career', 'listingType')
-    .select('batchName participants batchStartDate batchEndDate attendancePercentage payoutPercentage referralCount')
+    .select('batchName participants batchStartDate batchEndDate attendancePercentage payoutPercentage referralCount rewardType tdsRelief payoutCap')
   
     console.log(internship)
 
@@ -1454,12 +1518,15 @@ exports.updateUserWallet = async () => {
             $lte: elem.batchEndDate
           },
           $expr: {
-            $ne: [{ $dayOfWeek: "$holidayDate" }, 1], // 1 represents Sunday
-            $ne: [{ $dayOfWeek: "$holidayDate" }, 7], // 7 represents Saturday
+            $and: [
+              { $ne: [{ $dayOfWeek: "$holidayDate" }, 1] }, // 1 represents Sunday
+              { $ne: [{ $dayOfWeek: "$holidayDate" }, 7] }  // 7 represents Saturday
+            ]
           }
         });
 
-        const profitCap = 15000;
+        const profitCap = elem.payoutCap;
+        // 15000;
         for (let i = 0; i < users.length; i++) {
           const session = await mongoose.startSession();
           try {
@@ -1472,13 +1539,18 @@ exports.updateUserWallet = async () => {
               const attendance = (tradingdays * 100) / (workingDays - holiday.length);
               const referral = await referrals(user, elem);
               const pnl = await pnlFunc(users[i].user, batchId);
-              const payoutAmountWithoutTDS = Math.min(pnl.npnl * payoutPercentage / 100, profitCap)
-              const creditAmount = payoutAmountWithoutTDS;
-              // const creditAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
+              const payoutAmountWithoutTDS = Math.min(pnl.npnl * payoutPercentage / 100, profitCap);
+              let creditAmount;
+              const tdsAmount = elem.rewardType === "Cash" ? payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100 : 0;
+              if(elem?.rewardType === "Cash"){
+                creditAmount = payoutAmountWithoutTDS - payoutAmountWithoutTDS*setting[0]?.tdsPercentage/100;
+              } else{
+                creditAmount = payoutAmountWithoutTDS;
+              }
 
               const wallet = await Wallet.findOne({ userId: new ObjectId(users[i].user) }).session(session);
 
-              // console.log( users[i].user, referral, creditAmount);
+              console.log( users[i].user, referral, creditAmount);
               if (creditAmount > 0) {
                 if (attendance >= attendanceLimit && referral >= referralLimit && pnl.npnl > 0) {
                   eligible = true;
@@ -1569,7 +1641,7 @@ exports.updateUserWallet = async () => {
                     <div class="container">
                     <h1>Amount Credited</h1>
                     <p>Hello ${user.first_name},</p>
-                    <p>Amount of ${creditAmount?.toFixed(2)}INR has been credited in you wallet</p>
+                    <p>${elem.rewardType === "Cash" ? "₹" + creditAmount?.toFixed(2) : "HeroCash " + creditAmount?.toFixed(2)} has been credited in you wallet</p>
                     <p>You can now purchase Tenx and participate in contest.</p>
                     
                     <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
@@ -1581,11 +1653,11 @@ exports.updateUserWallet = async () => {
                     </div>
                     </body>
                     </html>
-                    `);
+                  `);
                 }
                 await createUserNotification({
                   title: 'Internship Payout Credited',
-                  description: `₹${creditAmount?.toFixed(2)} credited for your internship profit`,
+                  description: `${elem.rewardType === "Cash" ? "₹"+creditAmount?.toFixed(2) : "HeroCash "+creditAmount?.toFixed(2)} credited for your internship profit`,
                   notificationType: 'Individual',
                   notificationCategory: 'Informational',
                   productCategory: 'Internship',
@@ -1595,15 +1667,38 @@ exports.updateUserWallet = async () => {
                   createdBy: '63ecbc570302e7cf0153370c',
                   lastModifiedBy: '63ecbc570302e7cf0153370c'
                 }, session);
+
                 wallet.transactions = [...wallet.transactions, {
                   title: 'Internship Payout',
-                  description: `Amount credited for your internship profit`,
+                  description: `Internship profit credited`,
                   amount: (creditAmount?.toFixed(2)),
                   transactionId: uuid.v4(),
-                  transactionType: 'Cash'
+                  transactionType: elem.rewardType === "Cash" ? 'Cash' : "Bonus"
                 }];
-                await wallet.save({ session });
 
+                if(tdsAmount > 0 && elem.tdsRelief){
+                  wallet.transactions = [...wallet.transactions, {
+                    title: 'StoxHero CashBack',
+                    description: `Cashback of ${tdsAmount?.toFixed(2)} HeroCash - Internship TDS`,
+                    amount: (tdsAmount?.toFixed(2)),
+                    transactionId: uuid.v4(),
+                    transactionType: "Bonus"
+                  }];
+
+                  await createUserNotification({
+                    title: 'StoxHero CashBack',
+                    description: `${elem.rewardType === "Cash" ? "₹"+creditAmount?.toFixed(2) : "HeroCash "+creditAmount?.toFixed(2)} HeroCash - Internship TDS`,
+                    notificationType: 'Individual',
+                    notificationCategory: 'Informational',
+                    productCategory: 'Internship',
+                    user: user?._id,
+                    priority: 'High',
+                    channels: ['App', 'Email'],
+                    createdBy: '63ecbc570302e7cf0153370c',
+                    lastModifiedBy: '63ecbc570302e7cf0153370c'
+                  }, session);
+                }
+                await wallet.save({ session });
                 users[i].payout = creditAmount.toFixed(2);
                 users[i].tradingdays = tradingdays;
                 users[i].attendance = attendance.toFixed(2);
@@ -1611,7 +1706,15 @@ exports.updateUserWallet = async () => {
                 users[i].gpnl = pnl?.gpnl?.toFixed(2);
                 users[i].npnl = pnl?.npnl?.toFixed(2);
                 users[i].noOfTrade = pnl?.noOfTrade;
-
+                users[i].tdsAmount = tdsAmount;
+                users[i].herocashPayout = elem.tdsRelief ? tdsAmount : 0;
+                
+                if(user?.fcmTokens?.length>0){
+                  await sendMultiNotifications('Internship Payout Credited', 
+                    `${elem.rewardType === "Cash" ? "₹"+creditAmount?.toFixed(2) : "HeroCash "+creditAmount?.toFixed(2)} credited to your wallet for your Internship profit as payout`,
+                    user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                    )
+                }
               } else {
                 users[i].payout = 0;
                 users[i].tradingdays = tradingdays;
@@ -1620,6 +1723,8 @@ exports.updateUserWallet = async () => {
                 users[i].gpnl = pnl?.gpnl?.toFixed(2);
                 users[i].npnl = pnl?.npnl?.toFixed(2);
                 users[i].noOfTrade = pnl?.noOfTrade?.toFixed(2);
+                users[i].tdsAmount = 0;
+                users[i].herocashPayout = 0;
 
               }
               await session.commitTransaction();

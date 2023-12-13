@@ -6,6 +6,10 @@ const contestSchema = new Schema({
         type: String,
         required: true
     },
+    slug:{
+        type: String,
+        required: true
+    },
     contestStartTime:{
         type: Date,
         required: true
@@ -13,6 +17,9 @@ const contestSchema = new Schema({
     contestEndTime:{
         type:Date,
         required: true
+    },
+    contestLiveTime:{
+        type:Date,
     },
     contestOn:{
         type:String,
@@ -53,15 +60,34 @@ const contestSchema = new Schema({
         type: Number,
         // required: true,
     },
+    featured:{
+        type: Boolean,
+        default: false,
+    },
     payoutType:{
         type: String,
         enum: ["Reward", "Percentage"]
         // required: true,
     },
+    rewardType:{
+        type:String,
+        required: true,
+        enum: ['Cash','HeroCash']
+    },
+    tdsRelief:{
+        type:Boolean,
+        required: true,
+        default: false
+    },
+    visibility:{
+        type:Boolean,
+        required: true,
+        default: false
+    },
     rewards:[{
         rankStart:{type:Number},
         rankEnd:Number,
-        prize:{type:String},
+        prize:{type:Number},
         // prizeValue:Number
     }],
     portfolio:{
@@ -101,8 +127,13 @@ const contestSchema = new Schema({
         payout: {type: Number},
         tdsAmount: {type: Number},
         isLive: {type: Boolean},
+        npnl: {type: Number},
+        gpnl: {type: Number},
+        trades: {type: Number},
+        brokerage: {type: Number},
         rank: {type: Number},
-        bonusRedemption:Number
+        bonusRedemption:Number,
+        herocashPayout: Number
     }],
     maxParticipants:{
         type:Number,
@@ -141,21 +172,25 @@ const contestSchema = new Schema({
         required: true,
         enum: ["Day", "Monthly", "Weekly"]
     },
+    payoutPercentageType:{
+        type:String,
+        // required: true,
+        enum: ["Daily", "Contest End"]
+    },
     isNifty:{
         type:Boolean,
-        required: true
+        required: true,
+        default: false
     },
     isBankNifty:{
         type:Boolean,
-        required: true
+        required: true,
+        default: false
     },
     isFinNifty:{
         type:Boolean,
-        required: true
-    },
-    isAllIndex:{
-        type:Boolean,
-        required: true
+        required: true,
+        default: false
     },
     product:{
         type: Schema.Types.ObjectId,

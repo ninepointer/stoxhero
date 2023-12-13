@@ -23,22 +23,34 @@ import DailyContestMyRank from '../data/newMyRank';
 import {useNavigate} from "react-router-dom"
 import PnlAndMarginData from "./pnlAndMarginData";
 import TradingHeader from '../Header/TradingHeader';
+import Order from '../../tradingCommonComponent/Order/Order';
+import PendingOrder from '../../tradingCommonComponent/Order/PendingOrder';
+import ExecutedOrders from '../../tradingCommonComponent/Order/ExecutedOrders';
+
 
 
 function Header({ socket, data }) {
     const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
     const [watchList, setWatchList] = useState([]);
+    const [updatePendingOrder, setUpdatePendingOrder] = useState();
+    const [rank, setRank] = useState();
     const navigate = useNavigate();
     let contestId = data?.data;
     let endTime = data?.endTime;
-    console.log("all data", data.allData)
+    // console.log("all data", data.allData)
     useEffect(() => {
+        const newendTime = new Date(endTime); // Replace this with your actual newendTime value
+        newendTime.setSeconds(newendTime.getSeconds() + 10);
+
+        const endTimeString = newendTime.toISOString().slice(0, 19);
+        // console.log("endTimeString", endTimeString);
+
         socket.on("serverTime", (time) => {
             const serverTimeString = new Date(time).toISOString().slice(0, 19); // Extract relevant parts
-            const endTimeString = new Date(endTime).toISOString().slice(0, 19); // Extract relevant parts
-            // console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
+            // const endTimeString = newEndTimeString
+            console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
             if (serverTimeString === endTimeString) {
-                navigate(`/contests/result`, {
+                navigate(`/testzone/result`, {
                     state: { contestId: contestId}
                 })
             }
@@ -53,13 +65,13 @@ function Header({ socket, data }) {
         return <StockIndexDailyContest socket={socket} />;
       }, [socket]);
 
-      const memoizedLeaderboard = useMemo(() => {
-        return <Leaderboard socket={socket} name={data?.name} id={contestId} />;
-      }, [socket, data?.name, contestId]);
+    //   const memoizedLeaderboard = useMemo(() => {
+    //     return <Leaderboard socket={socket} name={data?.name} id={contestId} />;
+    //   }, [socket, data?.name, contestId]);
 
       const memoizedDailyContestMyRank = useMemo(() => {
-        return <DailyContestMyRank socket={socket} id={contestId} data={data} />;
-      }, [socket, contestId, data]);
+        return <DailyContestMyRank socket={socket} id={contestId} data={data} setRank={setRank} />;
+      }, [socket, contestId, data, setRank]);
 
     const memoizedTradableInstrument = useMemo(() => {
         return <TradableInstrument
@@ -83,18 +95,6 @@ function Header({ socket, data }) {
           setWatchList={setWatchList}
         />;
       }, [setWatchList, data, contestId, socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
-    
-      const memoizedOverallPnl = useMemo(() => {
-        return <OverallPnl
-          socket={socket}
-          isGetStartedClicked={isGetStartedClicked}
-          setIsGetStartedClicked={handleSetIsGetStartedClicked}
-          from={dailyContest}
-          subscriptionId={contestId}
-        //   setAvailbleMargin={setAvailbleMargin}
-          moduleData={data}
-        />;
-      }, [data, contestId, handleSetIsGetStartedClicked, isGetStartedClicked, socket]);
     
 
     return (
@@ -134,28 +134,22 @@ function Header({ socket, data }) {
                     </Grid>
                 </Grid>
 
-                <Grid container spacing={0.5} p={0} mt={0.5} sx={{ display: 'flex', flexDirection: 'row' }}>
-                    
-                    {/* <Grid item xs={12} md={12} lg={8} >
-                        <MDBox sx={{ backgroundColor: '#1A73E8', height: '100%' }} borderRadius={3}>
-                            {memoizedLeaderboard}
-                        </MDBox>
-                    </Grid> */}
-                    
-                    {/* <Grid item xs={12} md={12} lg={4} >
-                        <MDBox sx={{ backgroundColor: '#1A73E8', height: '100%' }} borderRadius={3}>
-                            {memoizedDailyContestMyRank}
-                        </MDBox>
-                    </Grid> */}
-                    
-                </Grid>
-
-                <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
+                {/* <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}> */}
                     <Grid item xs={12} md={6} lg={12} >
-                        <TradingHeader socket={socket} data={data}/>
+                        <TradingHeader socket={socket} data={data} myRank={rank}/>
                         {/* {memoizedOverallPnl} */}
                     </Grid>
+                {/* </Grid> */}
+
+                <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
+                    <Grid item xs={12} md={6} lg={12}>
+                        <PendingOrder from={dailyContest} socket={socket} id={contestId} setUpdatePendingOrder={setUpdatePendingOrder} updatePendingOrder={updatePendingOrder} />
+                        <ExecutedOrders from={dailyContest} socket={socket} id={contestId} updatePendingOrder={updatePendingOrder} />
+                        <Order from={dailyContest} id={contestId} updatePendingOrder={updatePendingOrder} />
+                    </Grid>
                 </Grid>
+
+
             </MDBox>
         </>
     );

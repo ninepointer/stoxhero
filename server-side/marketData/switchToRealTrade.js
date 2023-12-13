@@ -12,7 +12,7 @@ router.post("/switchToRealTrade", (async (req, res)=>{
     let responseErr;
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-    let { apiKey, accessToken, userId, tradeBy, exchange, symbol, buyOrSell, realBuyOrSell, Quantity, realQuantity, Product, OrderType, 
+    let { apiKey, accessToken, userId, tradeBy, exchange, symbol, buyOrSell, realBuyOrSell, Quantity, realQuantity, Product, order_type, 
         validity, variety, createdBy, createdOn, uId, instrumentToken, algoBox, checkingMultipleAlgoFlag} = req.body
 
        console.log("switching", req.body, new Date(Date.now()).toISOString())
@@ -39,7 +39,7 @@ router.post("/switchToRealTrade", (async (req, res)=>{
             "tradingsymbol":symbol,
             "exchange":exchange,
             "transaction_type":realBuyOrSell,
-            "order_type":OrderType,
+            "order_type":order_type,
             "quantity":realQuantity,
             "product":Product,
             "validity":validity,
@@ -51,7 +51,7 @@ router.post("/switchToRealTrade", (async (req, res)=>{
             "tradingsymbol":symbol,
             "exchange":exchange,
             "transaction_type":realBuyOrSell,
-            "order_type":OrderType,
+            "order_type":order_type,
             "quantity":realQuantity,
             "product":Product,
             "validity":validity
@@ -272,7 +272,7 @@ router.post("/switchToRealTrade", (async (req, res)=>{
                             disclosed_quantity, price, filled_quantity, pending_quantity, cancelled_quantity, market_protection, guid,
                             status, uId, createdBy, average_price, Quantity: Quantity, 
                             Product:Product, buyOrSell:buyOrSell, order_timestamp: new_order_timestamp,
-                            variety, validity, exchange, order_type: OrderType, symbol:symbol, placed_by: placed_by, userId,
+                            variety, validity, exchange, order_type: order_type, symbol:symbol, placed_by: placed_by, userId,
                             order_id, instrumentToken, brokerage: brokerageUser,
                             tradeBy, isRealTrade: true, amount: (Number(Quantity)*average_price), trade_time:trade_time,
                             order_req_time: createdOn, order_save_time: order_save_time, exchange_order_id, exchange_timestamp, isMissed
@@ -584,7 +584,7 @@ router.post("/switchToRealTrade", (async (req, res)=>{
                     disclosed_quantity, price, filled_quantity, pending_quantity, cancelled_quantity, market_protection, guid,
                     status, uId, createdBy, average_price: originalLastPriceUser, Quantity: Quantity, 
                     Product:Product, buyOrSell:buyOrSell, order_timestamp: new_order_timestamp,
-                    variety, validity, exchange, order_type: OrderType, symbol:symbol, placed_by: placed_by, userId,
+                    variety, validity, exchange, order_type: order_type, symbol:symbol, placed_by: placed_by, userId,
                     order_id, instrumentToken, brokerage: brokerageUser,
                     tradeBy: createdBy, isRealTrade: true, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
                     order_req_time: createdOn, order_save_time: order_save_time, exchange_order_id, exchange_timestamp, isMissed
@@ -633,7 +633,7 @@ router.post("/switchToRealTrade", (async (req, res)=>{
                 "tradingsymbol":realSymbol,
                 "exchange":exchange,
                 "transaction_type":transactionType,
-                "order_type":OrderType,
+                "order_type":order_type,
                 "quantity":realQuantity,
                 "product":Product,
                 "validity":validity,
@@ -645,7 +645,7 @@ router.post("/switchToRealTrade", (async (req, res)=>{
                 "tradingsymbol":realSymbol,
                 "exchange":exchange,
                 "transaction_type":transactionType,
-                "order_type":OrderType,
+                "order_type":order_type,
                 "quantity":realQuantity,
                 "product":Product,
                 "validity":validity

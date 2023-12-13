@@ -51,6 +51,8 @@ import InternshipTrade from './layouts/internshipTrading/TradeView/main'
 import InternshipAnalytics from './layouts/internshipAnalytics/index';
 import WorkShopOrders from './layouts/userorders/workshopOrder'
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
+import TopContestPerformersList from './layouts/StoxHeroTraderDashboard/topPerformerIndex'
+import ContestProfile from './layouts/StoxHeroTraderDashboard/contestProfileIndex'
 import UserDailyContest from './layouts/UserDailyContest'
 import UserDailyContestCollage from './layouts/UserDailyContestCollage';
 import UserBattle from './layouts/UserBattle'
@@ -90,11 +92,19 @@ import PaymentStatus from "./layouts/paymentTest/paymentStatus";
 const routes = [
 
   {
-    route: "/completedcontests",
+    route: "/completedtestzone",
     component: <CompletedDailyContest />,
   },
   {
-    route: "/completedcollegecontests",
+    route: "/testzoneprofile/:name",
+    component: <ContestProfile />,
+  },
+  {
+    route: "/toptestzoneportfolios",
+    component: <TopContestPerformersList />,
+  },
+  {
+    route: "/completedcollegetestzone",
     component: <CompletedDailyCollegeContest />,
   },
   {
@@ -106,11 +116,11 @@ const routes = [
     component: <BattleDetails />,
   },
   {
-    route: "/completedcontests/:name",
+    route: "/completedtestzone/:name",
     component: <DailyContestOrder />,
   },
   {
-    route: "/completedcontests/:name/leaderboard",
+    route: "/completedtestzone/:name/leaderboard",
     component: <CompletedContestLeaderboard />,
   },
   {
@@ -122,7 +132,7 @@ const routes = [
     component: <BattleOrder />,
   },
   {
-    route: "/completedcollegecontests/:name",
+    route: "/completedcollegetestzone/:name",
     component: <DailyCollegeContestOrder />,
   },
   {
@@ -144,47 +154,39 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Dashboard",
-    key: "stoxherodashboard",
+    name: "Home",
+    key: "home",
     icon: <DashboardIcon/>,
-    route: "/stoxherodashboard",
+    route: "/home",
     component: <StoxHeroDashboard />,
   },
   {
     type: "collapse",
-    name: "Virtual Trading",
-    key: "virtualtrading",
+    name: "Market",
+    key: "market",
     icon: <MilitaryTechIcon/>,
-    route: "/virtualtrading",
+    route: "/market",
     component: <UserPosition />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Paper Trading",
-  //   key: "papertrading",
-  //   icon: <MilitaryTechIcon/>,
-  //   route: "/papertrading",
-  //   component: <VirtualTrading />,
-  // },
   {
     type: "collapse",
-    name: "TenX Trading",
+    name: "TestZone",
+    key: "testzone",
+    icon: <EmojiEventsIcon/>,
+    route: "/testzone",
+    component: <UserDailyContest />,
+  },
+  {
+    type: "collapse",
+    name: "TenX",
     key: "tenxtrading",
     icon: <CurrencyRupeeIcon/>,
     route: "/tenxtrading",
     component: <TenXTrading />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Battle Ground",
-  //   key: "battles",
-  //   icon: <LocalFireDepartmentIcon/>,
-  //   route: "/battles",
-  //   component: <Battle />,
-  // },
   {
     type: "collapse",
-    name: "MarginXs",
+    name: "MarginX",
     key: "marginxs",
     icon: <MarginIcon/>,
     route: "/marginxs",
@@ -192,18 +194,10 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Contests",
-    key: "contests",
-    icon: <EmojiEventsIcon/>,
-    route: "/contests",
-    component: <UserDailyContest />,
-  },
-  {
-    type: "collapse",
-    name: "College Contests",
-    key: "collegecontests",
+    name: "College TestZone",
+    key: "collegetestzone",
     icon: <SchoolIcon/>,
-    route: "/collegecontests",
+    route: "/collegetestzone",
     component: <UserDailyContestCollage />,
   },
   {
@@ -233,7 +227,7 @@ const routes = [
     component: <ContestPage />,
   },
   {
-    route: "/contests/:name",
+    route: "/testzone/:name",
     component: <ContestTradingWindow />,
   },
   {
@@ -245,7 +239,7 @@ const routes = [
     component: <BattleTradingWindow />,
   },
   {
-    route: "/collegecontests/:name",
+    route: "/collegetestzone/:name",
     component: <CollegeContestTradingWindow />,
   },
   {
@@ -261,7 +255,7 @@ const routes = [
     component: <ResultPage />,
   },
   {
-    route: "contests/result",
+    route: "testzone/result",
     component: <DailyContestResultPage />,
   },
 
@@ -274,7 +268,7 @@ const routes = [
     component: <BattleResultPage />,
   },
   {
-    route: "collegecontests/result",
+    route: "collegetestzone/result",
     component: <DailyCollegeContestResultPage />,
   },
   {
@@ -288,9 +282,9 @@ const routes = [
   {
     // type: "collapse",
     // name: "Contest Scoreboard",
-    key: "contestscoreboard",
+    key: "testzonescoreboard",
     // icon: <EmojiEventsIcon/>,
-    route: "/contestscoreboard",
+    route: "/testzonescoreboard",
     component: <ContestScoreboard />,
   },
   {
@@ -311,10 +305,10 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Analytics",
-    key: "analytics",
+    name: "MarketGuru",
+    key: "marketguru",
     icon: <AnalyticsIcon/>,
-    route: "/analytics",
+    route: "/marketguru",
     component: <UserAnalytics />,
   },
   {

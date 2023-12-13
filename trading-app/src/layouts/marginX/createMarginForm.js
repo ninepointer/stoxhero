@@ -66,7 +66,7 @@ function Index() {
   const [templates, setTemplate] = useState([]);
   const [createdMarginX, setCreatedMarginX] = useState();
   const [action, setAction] = useState(false);
-  console.log("marginX:",marginx)
+  // console.log("marginX:",marginx)
   
   const [formState, setFormState] = useState({
     marginXName: '' || marginx?.marginXName,
@@ -83,6 +83,9 @@ function Index() {
     isNifty:false || marginx?.isNifty,
     isBankNifty: false || marginx?.isBankNifty,
     isFinNifty: false || marginx?.isFinNifty,
+    rewardType: '' || marginx?.rewardType,
+    tdsRelief: '' || marginx?.tdsRelief,
+
 
   });
 
@@ -130,13 +133,13 @@ function Index() {
       if(formState.startTime > formState.endTime){
         return openErrorSB("Error", "Date range is not valid.")
       }
-      if (!formState.marginXName || !formState.liveTime || !formState.startTime || !formState.endTime || !formState.status || !formState.marginXExpiry || !formState.maxParticipants || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty) ) {
+      if (!formState.rewardType || !formState.marginXName || !formState.liveTime || !formState.startTime || !formState.endTime || !formState.status || !formState.marginXExpiry || !formState.maxParticipants || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty) ) {
         setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
         return openErrorSB("Missing Field", "Please fill all the mandatory fields")
       }
 
       setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-      const { marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty, marginXTemplate } = formState;
+      const {tdsRelief, rewardType, marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty, marginXTemplate } = formState;
       const res = await fetch(`${apiUrl}marginx/`, {
         method: "POST",
         credentials: "include",
@@ -145,7 +148,7 @@ function Index() {
           "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-          marginXTemplate: marginXTemplate?.id, marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty
+          tdsRelief, rewardType, marginXTemplate: marginXTemplate?.id, marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty
         })
       });
   
@@ -176,11 +179,11 @@ function Index() {
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Error", "Date range is not valid.")
     }
-    if (!formState.marginXName || !formState.liveTime || !formState.startTime || !formState.endTime || !formState.status || !formState.marginXExpiry || !formState.maxParticipants || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty)  ) {
+    if (!formState.rewardType || !formState.marginXName || !formState.liveTime || !formState.startTime || !formState.endTime || !formState.status || !formState.marginXExpiry || !formState.maxParticipants || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty)  ) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false); setSaving(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const { marginXTemplate, marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty } = formState;
+    const {tdsRelief, rewardType, marginXTemplate, marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty } = formState;
 
     const res = await fetch(`${apiUrl}marginx/${marginx?._id}`, {
       method: "PUT",
@@ -190,7 +193,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        marginXTemplate: marginXTemplate?.id, marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty
+        tdsRelief, rewardType, marginXTemplate: marginXTemplate?.id, marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty
       })
     });
 
@@ -458,8 +461,48 @@ function Index() {
                     </Select>
                   </FormControl>
                 </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormControl sx={{ width: "100%" }}>
+                    <InputLabel id="demo-simple-select-autowidth-label">Reward Type *</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-autowidth-label"
+                      id="demo-simple-select-autowidth"
+                      name='rewardType'
+                      value={formState?.rewardType || marginx?.rewardType}
+                      disabled={((isSubmitted || marginx) && (!editing || saving))}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          rewardType: e.target.value
+                        }))
+                      }}
+                      label="Batch Status"
+                      sx={{ minHeight: 43 }}
+                    >
+                      <MenuItem value="Cash">Cash</MenuItem>
+                      <MenuItem value="HeroCash">HeroCash</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormGroup>
+                    <FormControlLabel
+                      checked={(marginx?.tdsRelief !== undefined && !editing && formState?.tdsRelief === undefined) ? marginx?.tdsRelief : formState?.tdsRelief}
+                      disabled={((isSubmitted || marginx) && (!editing || saving))}
+                      onChange={(e) => {
+                        console.log('checkbox', e.target.checked, e.target.value);
+                        setFormState(prevState => ({
+                          ...prevState,
+                          tdsRelief: e.target.checked
+                        }))
+                      }}
+                      control={<Checkbox />}
+                      label="TDS Relief" />
+                  </FormGroup>
+                </Grid>
                 
-              
                 <Grid item xs={12} md={6} xl={3}>
                   <FormGroup>
                     <FormControlLabel  

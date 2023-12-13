@@ -84,10 +84,10 @@ const ContestRewards = ({ contest }) => {
             <MDBox display="flex" justifyContent="space-between" alignItems="left">
                 <MDBox width="100%" display="flex" justifyContent="space-between" alignItems="center" sx={{ backgroundColor: "lightgrey", borderRadius: "2px" }} p={1}>
                     <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-                        Battle Rewards
+                        Contest Rewards
                     </MDTypography>
                     <MDButton hidden={true} variant="outlined" size="small" color="black" onClick={() => setCreateRewardForm(true)}>
-                        Create Battle Reward
+                        Create Contest Reward
                     </MDButton>
 
                 </MDBox>

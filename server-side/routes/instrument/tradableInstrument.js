@@ -10,5 +10,10 @@ router.get("/tradableInstruments", authentication, async (req, res)=>{
     await SearchInstrument.search(input, res, req)
 })
 
+router.get("/equityInstrument", authentication, async (req, res)=>{
+    const input = req.query.search;
+    await SearchInstrument.equitySearch(input, res, req)
+})
+
 
 module.exports = router;

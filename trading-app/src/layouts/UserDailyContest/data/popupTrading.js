@@ -19,7 +19,7 @@ const PopupTrading = ({elem, timeDifference}) => {
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-    const [data, setData] = useState("The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest.");
+    const [data, setData] = useState("The TestZone is already full. We sincerely appreciate your enthusiasm to participate in our TestZone. Please join in our future TestZone.");
     const getDetails = useContext(userContext);
     
 
@@ -38,7 +38,7 @@ const PopupTrading = ({elem, timeDifference}) => {
         })
         // console.log("isParticipated", isParticipated)
         if (isParticipated) {
-            navigate(`/contests/${elem.contestName}`, {
+            navigate(`/testzone/${elem.contestName}`, {
                 state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, timeDifference: timeDifference, name: elem?.contestName, endTime: elem?.contestEndTime, allData: elem }
             });
             return;
@@ -61,7 +61,7 @@ const PopupTrading = ({elem, timeDifference}) => {
             setOpen(true);
             setData(data.message)
         } else {
-            navigate(`/contests/${elem.contestName}`, {
+            navigate(`/testzone/${elem.contestName}`, {
                 state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, name: elem?.contestName, endTime: elem?.contestEndTime, allData: elem }
             });
         }

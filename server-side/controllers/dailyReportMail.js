@@ -14,6 +14,8 @@ const emailService = require("../utils/emailService")
 const fs = require('fs');
 const util = require('util');
 const writeFile = util.promisify(fs.writeFile);
+const whatsAppService = require("../utils/whatsAppService")
+
 
 exports.mail = async () => {
     try{
@@ -422,7 +424,7 @@ exports.mail = async () => {
         const signup = await signupusersdata();
         // console.log(revenue, dau, signup);
 
-        await emailService('vvv201214@gmail.com', `Daily report(${todayDate}) - StoxHero`, `
+        await emailService('team@stoxhero.com', `Daily report(${todayDate}) - StoxHero`, `
         <!DOCTYPE html>
         <html>
         
@@ -492,61 +494,61 @@ exports.mail = async () => {
                 <th></th>
                 <th>Tenx</th>
                 <th>MarginX</th>
-                <th>Contest</th>
+                <th>TestZone</th>
             </tr>
             <tr>
                 <td>Today</td>
                 <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueToday.toFixed(2))}</td>
                 <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueToday.toFixed(2))}</td>
-                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueToday.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`TestZone Fee`]?.revenueToday.toFixed(2))}</td>
             </tr>
             <tr>
                 <td>Yesterday</td>
                 <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueYesterday.toFixed(2))}</td>
                 <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueYesterday.toFixed(2))}</td>
-                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueYesterday.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`TestZone Fee`]?.revenueYesterday.toFixed(2))}</td>
             </tr>
             <tr>
                 <td>This Week</td>
                 <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueThisWeek.toFixed(2))}</td>
                 <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueThisWeek.toFixed(2))}</td>
-                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueThisWeek.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`TestZone Fee`]?.revenueThisWeek.toFixed(2))}</td>
             </tr>
             <tr>
                 <td>Last Week</td>
                 <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueLastWeek.toFixed(2))}</td>
                 <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueLastWeek.toFixed(2))}</td>
-                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueLastWeek.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`TestZone Fee`]?.revenueLastWeek.toFixed(2))}</td>
             </tr>
             <tr>
                 <td>This Month</td>
                 <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueThisMonth.toFixed(2))}</td>
                 <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueThisMonth.toFixed(2))}</td>
-                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueThisMonth.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`TestZone Fee`]?.revenueThisMonth.toFixed(2))}</td>
             </tr>
             <tr>
                 <td>Last Month</td>
                 <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueLastMonth.toFixed(2))}</td>
                 <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueLastMonth.toFixed(2))}</td>
-                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueLastMonth.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`TestZone Fee`]?.revenueLastMonth.toFixed(2))}</td>
             </tr>
             <tr>
                 <td>This Year</td>
                 <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueThisYear.toFixed(2))}</td>
                 <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueThisYear.toFixed(2))}</td>
-                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueThisYear.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`TestZone Fee`]?.revenueThisYear.toFixed(2))}</td>
             </tr>
             <tr>
                 <td>Last Year</td>
                 <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.revenueLastYear.toFixed(2))}</td>
                 <td>₹${Math.abs(revenue[`MarginX Fee`]?.revenueLastYear.toFixed(2))}</td>
-                <td>₹${Math.abs(revenue[`Contest Fee`]?.revenueLastYear.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`TestZone Fee`]?.revenueLastYear.toFixed(2))}</td>
             </tr>
             <tr>
                 <td>Total</td>
                 <td>₹${Math.abs(revenue[`Bought TenX Trading Subscription`]?.totalRevenue.toFixed(2))}</td>
                 <td>₹${Math.abs(revenue[`MarginX Fee`]?.totalRevenue.toFixed(2))}</td>
-                <td>₹${Math.abs(revenue[`Contest Fee`]?.totalRevenue.toFixed(2))}</td>
+                <td>₹${Math.abs(revenue[`TestZone Fee`]?.totalRevenue.toFixed(2))}</td>
             </tr>
         </table>
         
@@ -569,6 +571,9 @@ exports.mail = async () => {
         
         </html>        
         `, [tenxAttachment, internAttachment, contestAttachment, marginxAttachment]);
+
+        // whatsAppService.sendWhatsApp({destination : "7976671752", campaignName : 'wallet_credited_campaign', userName : "Vijay Verma", source : "Admin", media: {url: 'tenx_payout.csv', filename: 'tenx_payout.csv'}, templateParams : ["vv", "234","334", "556"], tags : '', attributes : ''});
+
 
         fs.unlinkSync('tenx_payout.csv');
         fs.unlinkSync('intern_payout.csv');
@@ -610,7 +615,7 @@ const getOverallRevenue = async () => {
                 $match: {
                     $or: [
                         {
-                            "transactions.title": "Contest Fee",
+                            "transactions.title": "TestZone Fee",
                         },
                         {
                             "transactions.title": "MarginX Fee",
@@ -894,7 +899,7 @@ const signupusersdata = async () => {
     ]
 
     const signupusers = await UserDetail.aggregate(pipeline)
-    return signupusers[0].count;
+    return signupusers[0]?.count;
 }
 
 const createTenxFile = async (data) => {
@@ -943,12 +948,12 @@ const createContestFile = async (data) => {
         ].join(',');
     }).join('\n');
     
-    await writeFile('dailyContest_payout.csv', contestHeader.join(',') + '\n' + csvData, 'utf8');
+    await writeFile('dailyTestZone_payout.csv', contestHeader.join(',') + '\n' + csvData, 'utf8');
 
     // Send email with attachment
     const attachment = {
-        filename: 'dailyContest_payout.csv',
-        path: 'dailyContest_payout.csv'
+        filename: 'dailyTestZone_payout.csv',
+        path: 'dailyTestZone_payout.csv'
     };
 
     return attachment;
@@ -972,3 +977,35 @@ const createMarginxFile = async (data) => {
 
     return attachment;
 }
+
+
+
+
+
+/*
+500 of 19500 and margin: 1 lakh
+
+1. adding more like +300
+2. release some margin like -300
+3. square off all like -500
+4. squareoff and add more like -700
+
+
+trade db me save kr diya margin: 100000
+
+1st find out case, case konsa h ? by running lots and new quantity
+
+case 1. next trade me wo add krne aaya to i findout last trade on that symbol and got margin, margin is 100000
+and new magin for 300 lot is 50,000 then i add and total margin is 1,50,000 and saved it
+
+case 2. similar i findout last symbol or margin that is 100000 and not i calculated quantity percentage if squaring off
+like 300 * 100/500 = 60% quantity i am squaring off so that release 60% margin
+100000*60/100 = 60,000 margin released, remaininig margin is 100000-60000 = 40,000
+save new margin of 40,000
+
+case 3. if square off all quantity then release all 100% margin should release
+and margin is 0 now
+
+case 4. in this square off 500 quantity and add 200 quantity more also calculate margin accroding 
+new quantity
+*/

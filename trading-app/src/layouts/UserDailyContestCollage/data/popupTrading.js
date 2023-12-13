@@ -20,7 +20,7 @@ const PopupTrading = ({elem, timeDifference}) => {
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-    const [data, setData] = useState("Enter your College Code shared by your college POC to participate in the contest.")
+    const [data, setData] = useState("Enter your College Code shared by your college POC to participate in the TestZone.")
     const getDetails = useContext(userContext);
     const [collegeCode, setCollegeCode] = useState();
     const [errorMsg, setErrorMsg] = useState("");
@@ -41,7 +41,7 @@ const PopupTrading = ({elem, timeDifference}) => {
             return elem?.userId?._id?.toString() === getDetails?.userDetails?._id?.toString()
         })
         if (isParticipated) {
-            navigate(`/collegecontests/${elem.contestName}`, {
+            navigate(`/collegetestzone/${elem.contestName}`, {
                 state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, timeDifference: timeDifference, name: elem?.contestName, endTime: elem?.contestEndTime, allData: elem }
             });
             return;
@@ -75,7 +75,7 @@ const PopupTrading = ({elem, timeDifference}) => {
                 setData(data.message)
             }
         } else {
-            navigate(`/collegecontests/${elem.contestName}`, {
+            navigate(`/collegetestzone/${elem.contestName}`, {
                 state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, name: elem?.contestName, endTime: elem?.contestEndTime, allData: elem }
             });
         }

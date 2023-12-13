@@ -26,18 +26,48 @@ import { NetPnlContext } from "../../../../PnlContext";
 
 function ContestResultPage () {
     const getDetails = useContext(userContext);
-    const [myRank, setMyRankProps] = useState([]);
-    // const [myPnl, setMyPnl] = useState([]);
+    // const [resultData?.rank, setresultData?.rankProps] = useState([]);
     const location = useLocation();
     const  contestId  = location?.state?.contestId;
     const nevigate = useNavigate();
-    const [isLoading,setIsLoading] = useState(true)
+    // const [isLoading,setIsLoading] = useState(true)
     const [contestData, setContest] = useState([]);
-    const pnl = useContext(NetPnlContext);
+    // const pnl = useContext(NetPnlContext);
 
+    const [resultData, setResultData] = useState([]);
+    const [firstLoading, setFirstLoading] = useState(true);
+    const [secondLoading, setSecondLoading] = useState(true);
+    // console.log("contestId", contestId)
     useEffect(() => {
         ReactGA.pageview(window.location.pathname)
-      }, []);
+    }, []);
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            axios.get(`${baseUrl}api/v1/dailycontest/trade/${contestId}/result`, { withCredentials: true })
+                .then((res) => {
+                    const responseData = res?.data?.data;
+                    setResultData(responseData);
+                    setSecondLoading(false);
+    
+                    // Check the condition, and if data is not true, continue polling
+                    if (!responseData?.npnl) {
+                        // Continue polling
+                    } else {
+                        // Stop the interval if data is true
+                        clearInterval(intervalId);
+                    }
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+        }, 2000);
+    
+        // Cleanup the interval when the component unmounts or when contestId changes
+        return () => clearInterval(intervalId);
+    
+    }, [contestId]);
+    
       
     let style = {
       textAlign: "center", 
@@ -53,36 +83,60 @@ function ContestResultPage () {
 
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-    React.useEffect(()=>{
-      
-      axios.get(`${baseUrl}api/v1/dailycontest/contest/${contestId}`)
-      .then((res)=>{
-            setContest(res?.data?.data);
-            // console.log("data is", res?.data?.data)
-            setIsLoading(false)
-      }).catch((err)=>{
-          return new Error(err);
-      })
 
-      axios.get(`${baseUrl}api/v1/dailycontest/trade/${contestId}/myRank`, {withCredentials: true})
-      .then((res)=>{
-            setMyRankProps(res?.data?.data);
-            // console.log("data is", res?.data?.data)
-            // setIsLoading(false)
-      }).catch((err)=>{
-          return new Error(err);
-      })
+    useEffect(() => {
+        setTimeout(()=>{
+            setFirstLoading(false)
+        }, 5000)
+        // console.log("contestId in use effect", contestId)
+        axios.get(`${baseUrl}api/v1/dailycontest/contest/${contestId}`, {withCredentials: true})
+            .then((res) => {
+                setContest(res?.data?.data);
+                // console.log("data is", res?.data?.data)
+                // setIsLoading(false)
+            }).catch((err) => {
+                return new Error(err);
+            })
 
-    },[])
+        // axios.get(`${baseUrl}api/v1/dailycontest/trade/${contestId}/resultData?.rank`, { withCredentials: true })
+        //     .then((res) => {
+        //         setresultData?.rankProps(res?.data?.data);
+        //         // console.log("data is", res?.data?.data)
+        //         // setIsLoading(false)
+        //     }).catch((err) => {
+        //         return new Error(err);
+        //     })
+    }, [contestId])
 
+    console.log("contestId after", contestId, resultData);
+    // const reward = (resultData?.npnl) > 0 ? (resultData?.npnl)*contestData?.payoutPercentage/100 : 0;
 
-    const reward = (pnl?.netPnl) > 0 ? (pnl?.netPnl)*contestData?.payoutPercentage/100 : 0;
-   
+    let myReward;
+    if(contestData?.payoutType === "Percentage"){
+        let payoutCap;
+        if(contestData?.entryFee > 0){
+            payoutCap = contestData?.entryFee * contestData?.payoutCapPercentage/100;
+        } else{
+            payoutCap = contestData?.portfolio?.portfolioValue * contestData?.payoutCapPercentage/100;
+        }
+        myReward = Math.min(payoutCap, ((resultData?.npnl)*contestData?.payoutPercentage/100>0?(resultData?.npnl)*contestData?.payoutPercentage/100:0)) ;
+    } else{
+        const rewards = contestData?.rewards;
+        if(rewards){
+            for(let elem of rewards){
+                if(Number(resultData?.rank) >= Number(elem.rankStart) && Number(resultData?.rank) <= Number(elem.rankEnd)){
+                    myReward = elem.prize;
+                }else{
+                    myReward = "+₹" + "0.00";
+                }
+            }
+        }
+    }
     return (
         <>
-            {isLoading ?
-                <Grid mt={1} mb={1} display="flex" width="100%" justifyContent="center" alignItems="center">
-                    <CircularProgress color="light" />
+            {firstLoading ?
+                <Grid mt={5} mb={1} display="flex" width="100%" justifyContent="center" alignItems="center">
+                    <CircularProgress color="dark" />
                 </Grid>
 
                 :
@@ -90,7 +144,7 @@ function ContestResultPage () {
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6} lg={1} mb={2}>
                             <MDBox display="flex" alignItems="center" gap={"130px"} mt={1.3} >
-                                <Button color="light" style={{ border: "1px solid white", borderRadius: "7px" }} onClick={() => { nevigate('/contest') }}>< FastRewindIcon /></Button>
+                                <Button color="light" style={{ border: "1px solid white", borderRadius: "7px" }} onClick={() => { nevigate('/testzone') }}>< FastRewindIcon /></Button>
                             </MDBox>
                         </Grid>
                         <Grid item xs={12} md={6} lg={11} mb={2}>
@@ -103,7 +157,7 @@ function ContestResultPage () {
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6} lg={6} >
                             <MDBox color="light" >
-                                {reward ?
+                                {myReward ?
                                     <div style={{ position: 'relative' }}>
                                         <img style={{ marginTop: '10px', maxWidth: '100%', height: 'auto', borderRadius: '5px', display: 'block' }} src={winnerCup} />
                                         <div style={{ position: 'absolute', top: '10%', left: '50%', transform: 'translate(-50%, -50%)', color: '#ffffff', textAlign: 'center', width: '100%', maxWidth: '600px' }}>
@@ -111,7 +165,7 @@ function ContestResultPage () {
                                                 {`Congratulations ${getDetails?.userDetails?.first_name} ${getDetails?.userDetails?.last_name}`}
                                             </MDTypography>
                                             <MDTypography mt={2} style={{ fontWeight: 600, fontSize: "13px" }} color="dark" display="flex" justifyContent="center">
-                                                {myRank ? `Your rank is ${myRank} and you have won ₹${reward.toFixed(2)}` : "Please wait while your rank is loading"}
+                                                {resultData?.rank ? `Your rank is ${resultData?.rank} and you have won ₹${myReward.toFixed(2)}` : "Please wait while your rank is loading"}
                                             </MDTypography>
                                             <MDTypography mt={2} style={{ fontWeight: 700 }} color="dark" display="flex" justifyContent="center">
                                                 {/* {`${myReward[0]?.reward} ${myReward[0]?.currency}`} */}
@@ -178,14 +232,14 @@ function ContestResultPage () {
 
                                                 </Grid>
 
-                                                {myRank !== null ?
+                                                {!secondLoading ?
                                                     <>
                                                         <Grid item xs={12} lg={12} mt={5}>
 
                                                             <Grid item xs={12} lg={12}>
                                                                 <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                                     <Grid item xs={12} lg={2} display='flex' justifyContent='center' alignItems='center'>
-                                                                        <MDTypography fontSize={25} color='light' fontWeight='bold'>#{myRank}</MDTypography>
+                                                                        <MDTypography fontSize={25} color='light' fontWeight='bold'>#{resultData?.rank}</MDTypography>
                                                                     </Grid>
                                                                 </Grid>
                                                                 <Divider style={{ backgroundColor: 'white' }} />
@@ -226,13 +280,13 @@ function ContestResultPage () {
                                                             <Grid item xs={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
                                                                 <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
                                                                     <Grid item xs={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
-                                                                        <MDTypography fontSize={20} color='light' fontWeight='bold'>Net P&L: {((pnl?.netPnl)) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((pnl?.netPnl))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-(pnl?.netPnl)))}</MDTypography>
+                                                                        <MDTypography fontSize={20} color='light' fontWeight='bold'>Net P&L: {((resultData?.npnl)) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((resultData?.npnl))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-(resultData?.npnl)))}</MDTypography>
                                                                     </Grid>
                                                                 </Grid>
                                                                 <Divider style={{ backgroundColor: 'white' }} />
                                                                 <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
                                                                     <Grid item xs={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
-                                                                        <MDTypography fontSize={20} color='light' fontWeight='bold'>Payout: {(reward) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(reward)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-reward))}</MDTypography>
+                                                                        <MDTypography fontSize={20} color='light' fontWeight='bold'>Reward: {(myReward) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(myReward)) : "₹" + "0.00"}</MDTypography>
                                                                     </Grid>
                                                                 </Grid>
                                                             </Grid>
@@ -241,9 +295,12 @@ function ContestResultPage () {
                                                     </>
                                                     :
 
-                                                    <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center'>
-                                                        <MDBox mb={2}><MDTypography fontSize={15} color='light' fontWeight='bold' style={{ cursor: 'pointer' }}>Your ranking will be displayed here.</MDTypography></MDBox>
-                                                    </Grid>
+                                                    <Grid mt={5} mb={1} display="flex" width="100%" justifyContent="center" alignItems="center">
+                                                    <CircularProgress color="light" />
+                                                </Grid>
+                                                    // <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center'>
+                                                    //     <MDBox mb={2}><MDTypography fontSize={15} color='light' fontWeight='bold' style={{ cursor: 'pointer' }}>Your ranking will be displayed here.</MDTypography></MDBox>
+                                                    // </Grid>
 
                                                 }
 

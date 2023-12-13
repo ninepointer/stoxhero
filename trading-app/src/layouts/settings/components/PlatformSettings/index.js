@@ -42,6 +42,7 @@ function PlatformSettings({settingData, setReRender, reRender}) {
   const [maxWithdrawalHigh, setMaxWithdrawalHigh] = useState(0);
   const [walletBalanceUpperLimit, setWalletBalanceUpperLimit] = useState(0);
   const [minWithdrawal, setMinWithdrawal] = useState(0);
+  const [minWalletBalance, setMinWalletBalance] = useState(200);
   const [gstPercentage, setGstPercentage] = useState(28);
   const [tdsPercentage, setTdsPercentage] = useState(30);
   const [fund, setFund] = useState(0);
@@ -85,6 +86,7 @@ function PlatformSettings({settingData, setReRender, reRender}) {
       setMaxBonusRedemptionPercentage(settingData[0]?.maxBonusRedemptionPercentage)
       setBonusToUnitCashRatio(settingData[0]?.bonusToUnitCashRatio)
       setMinWithdrawal(settingData[0]?.minWithdrawal)
+      setMinWalletBalance(settingData[0]?.minWalletBalance)
       accountData.upiId = settingData[0]?.contest?.upiId
       accountData.email = settingData[0]?.contest?.email
       accountData.mobile = settingData[0]?.contest?.mobile
@@ -165,6 +167,7 @@ function PlatformSettings({settingData, setReRender, reRender}) {
         maxWithdrawalHigh,
         walletBalanceUpperLimit,
         minWithdrawal,
+        minWalletBalance,
         gstPercentage,
         tdsPercentage,
         upiId, email, mobile,
@@ -321,6 +324,18 @@ function PlatformSettings({settingData, setReRender, reRender}) {
           sx={{marginTop: "15px"}}
           // defaultValue={infinityPrice ? infinityPrice: settingData[0]?.infinityPrice}
           onChange={(e)=>{setMinWithdrawal(e.target.value)}}
+        />
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='Minimum Wallet Balance'
+          fullWidth
+          type="number"
+          value={minWalletBalance}
+          
+          sx={{marginTop: "15px"}}
+          // defaultValue={infinityPrice ? infinityPrice: settingData[0]?.infinityPrice}
+          onChange={(e)=>{setMinWalletBalance(e.target.value)}}
         />
         <TextField
           disabled={!editable}

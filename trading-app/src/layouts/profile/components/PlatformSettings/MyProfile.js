@@ -35,18 +35,12 @@ import { apiUrl } from '../../../../constants/constants';
 
 function MyProfile({profilePhoto,setProfilePhoto}) {
 
-  console.log('Rendering again');
-
-
-  const [followsMe, setFollowsMe] = useState(true);
-  const [answersPost, setAnswersPost] = useState(false);
-  const [mentionsMe, setMentionsMe] = useState(true);
   const [editablePD, setEditablePD] = useState(false);
   const [editableBD, setEditableBD] = useState(false);
   const [editableKYC, setEditableKYC] = useState(false);
   const getDetails = useContext(userContext);
 
-  // console.log('rendering',getDetails?.userDetails?.degree);
+  console.log('rendering',getDetails?.userDetails);
 
   const blankImageUrl = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%' height='130px'%3E%3Crect width='100%' height='130px' fill='lightgrey'/%3E%3Ctext x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='15px' fill='black'%3EDocument Preview%3C/text%3E%3C/svg%3E`;
 
@@ -83,6 +77,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
       phonePe_number:getDetails?.userDetails?.phonePe_number || "",
       payTM_number:getDetails?.userDetails?.payTM_number || "",
       nameAsPerBankAccount:getDetails?.userDetails?.nameAsPerBankAccount || "",
+      bankState:getDetails?.userDetails?.bankState || "",
       bankName:getDetails?.userDetails?.bankName || "",
       accountNumber:getDetails?.userDetails?.accountNumber || "",
       ifscCode:getDetails?.userDetails?.ifscCode || "",
@@ -108,6 +103,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
       addressProofDocumentPreview:"",
       KYCStatus:getDetails?.userDetails?.KYCStatus || "",
       role:getDetails?.userDetails?.role,
+      dob:getDetails?.userDetails?.dob || '',
     }
   );
 
@@ -155,6 +151,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
           phonePe_number:res?.data?.phonePe_number,
           payTM_number:res?.data?.payTM_number,
           nameAsPerBankAccount:res?.data?.nameAsPerBankAccount,
+          bankState:res?.data?.bankState,
           bankName:res?.data?.bankName,
           accountNumber:res?.data?.accountNumber,
           ifscCode:res?.data?.ifscCode,
@@ -179,6 +176,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
           addressProofDocumentPreview:"",
           KYCStatus:res?.data?.KYCStatus,
           role:res?.data?.role,
+          dob:res.data?.dob,
         }
       );
     }catch(e){
@@ -200,14 +198,14 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
         // console.log("KYC FormData: ",data)
         if(!formStateKYC.aadhaarNumber || !formStateKYC.panNumber || 
           !formStateKYC.aadhaarCardFrontImage || !formStateKYC.aadhaarCardBackImage ||
-          !formStateKYC.panCardFrontImage
-          ) return openErrorSB("KYC Details","Please upload the required fields.")
+          !formStateKYC.panCardFrontImage || !formStateKYC.dob
+          ) return openErrorSB("KYC Details","Please fill/upload the required fields.")
         formData.append("KYCStatus","Pending Approval")
         // setFormStateKYC(formStateKYC.KYCStatus,"Pending Approval")
       }
       if(section==="Bank Details"){
         if(!formStateBD.nameAsPerBankAccount || !formStateBD.bankName || 
-          !formStateBD.accountNumber || !formStateBD.ifscCode 
+          !formStateBD.accountNumber || !formStateBD.ifscCode || !formStateBD.bankState
           ) return openErrorSB("Bank Details","Please fill all the required fields.")
       }
 
@@ -227,7 +225,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
         // console.log("Response: ",response.data,data);
         setFormStateKYC(prev=>({...prev, drivingLicenseNumber:response.data?.drivingLicenseNumber??'',passportNumber:response.data?.passportNumber??'',panNumber:response.data?.panNumber??'',aadhaarNumber:response.data?.aadhaarNumber??'' ,aadhaarCardBackImage:response.data?.aadhaarCardBackImage??'', 
         aadhaarCardFrontImage: response.data?.aadhaarCardFrontImage??'', panCardFrontImage: response.data?.panCardFrontImage??'',
-        addressProofDocument: response.data?.addressProofDocument??'', passportPhoto: response.data?.passportPhoto??''
+        addressProofDocument: response.data?.addressProofDocument??'', passportPhoto: response.data?.passportPhoto??'', dob: response.data?.dob??''
       }));
         openSuccessSB(section,`Your ${section} updated successfully`)
       }
@@ -617,27 +615,27 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
           </Grid>
 
           <Grid item xs={12} md={6} xl={3}>
-                    <FormControl sx={{width: "100%" }}>
-                      <InputLabel id="demo-simple-select-autowidth-label">Gender *</InputLabel>
-                      <Select
-                        labelId="demo-simple-select-autowidth-label"
-                        id="demo-simple-select-autowidth"
-                        value={formStatePD?.gender}
-                        disabled={!editablePD}
-                        required
-                        onChange={(e) => {setFormStatePD(prevState => ({
-                          ...prevState,
-                          gender: e.target.value
-                        }))}}
-                        label="Gender"
-                        sx={{ minHeight:43 }}
-                      >
-                        <MenuItem value="Male">Male</MenuItem>
-                        <MenuItem value="Female">Female</MenuItem>
-                        <MenuItem value="Other">Other</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Grid>
+            <FormControl sx={{width: "100%" }}>
+              <InputLabel id="demo-simple-select-autowidth-label">Gender *</InputLabel>
+              <Select
+                labelId="demo-simple-select-autowidth-label"
+                id="demo-simple-select-autowidth"
+                value={formStatePD?.gender}
+                disabled={!editablePD}
+                required
+                onChange={(e) => {setFormStatePD(prevState => ({
+                  ...prevState,
+                  gender: e.target.value
+                }))}}
+                label="Gender"
+                sx={{ minHeight:43 }}
+              >
+                <MenuItem value="Male">Male</MenuItem>
+                <MenuItem value="Female">Female</MenuItem>
+                <MenuItem value="Other">Other</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
 
           <Grid item xs={12} md={6} xl={3}>
             <TextField
@@ -780,7 +778,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 <DatePicker
                   label="Date of Birth"
                   disabled={!editablePD}
-                  value={dayjs(formStatePD.dob)}
+                  value={formStatePD.dob ? dayjs(formStatePD.dob) : ''}
                   // onChange={(e) => {setFormStatePD({dob: dayjs(e)})}}
                   onChange={(e) => {setFormStatePD(prevState => ({
                     ...prevState,
@@ -1018,6 +1016,55 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
               />
           </Grid>
 
+          <Grid item xs={12} md={6} xl={3}>
+            <FormControl sx={{width: "100%" }}>
+              <InputLabel id="demo-simple-select-autowidth-label">State(Account State)</InputLabel>
+              <Select
+                labelId="demo-simple-select-autowidth-label"
+                id="demo-simple-select-autowidth"
+                value={formStateBD?.bankState}
+                disabled={!editableBD}
+                required
+                onChange={(e) => {setFormStateBD(prevState => ({
+                  ...prevState,
+                  bankState: e.target.value
+                }))}}
+                label="State(Bank Account State)"
+                sx={{ minHeight:43 }}
+              >
+                <MenuItem value="Bihar">Bihar</MenuItem>
+                <MenuItem value="Chhattisgarh">Chhattisgarh</MenuItem>
+                <MenuItem value="Goa">Goa</MenuItem>
+                <MenuItem value="Punjab">Punjab</MenuItem>
+                <MenuItem value="Andhra Pradesh">Andhra Pradesh</MenuItem>
+                <MenuItem value="West Bengal">West Bengal</MenuItem>
+                <MenuItem value="Jharkhand">Jharkhand</MenuItem>
+                <MenuItem value="Odisha">Odisha</MenuItem>
+                <MenuItem value="Rajasthan">Rajasthan</MenuItem>
+                <MenuItem value="Maharashtra">Maharashtra</MenuItem>
+                <MenuItem value="Nagaland">Nagaland</MenuItem>
+                <MenuItem value="Sikkim">Sikkim</MenuItem>
+                <MenuItem value="Haryana">Haryana</MenuItem>
+                <MenuItem value="Himachal Pradesh">Himachal Pradesh</MenuItem>
+                <MenuItem value="Arunachal Pradesh">Arunachal Pradesh</MenuItem>
+                <MenuItem value="Gujarat">Gujarat</MenuItem>
+                <MenuItem value="Assam">Assam</MenuItem>
+                <MenuItem value="Manipur">Manipur</MenuItem>
+                <MenuItem value="Madhya Pradesh">Madhya Pradesh</MenuItem>
+                <MenuItem value="Tamil Nadu">Tamil Nadu</MenuItem>
+                <MenuItem value="Kerala">Kerala</MenuItem>
+                <MenuItem value="Mizoram">Mizoram</MenuItem>
+                <MenuItem value="Uttar Pradesh">Uttar Pradesh</MenuItem>
+                <MenuItem value="Delhi">Delhi</MenuItem>
+                <MenuItem value="Tripura">Tripura</MenuItem>
+                <MenuItem value="Meghalaya">Meghalaya</MenuItem>
+                <MenuItem value="Uttarakhand">Uttarakhand</MenuItem>
+                <MenuItem value="Telangana">Telangana</MenuItem>
+                <MenuItem value="Jammu & Kashmir">Jammu & Kashmir</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+
           </Grid>
       </MDBox>
 
@@ -1146,7 +1193,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
 
         <Grid container spacing={2} mt={0}>
           
-          <Grid item xs={12} md={6} xl={3}>
+          <Grid item xs={12} md={6} xl={4}>
               <TextField
                 disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 id="outlined-required"
@@ -1160,7 +1207,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
               />
           </Grid>
 
-          <Grid item xs={12} md={6} xl={3}>
+          <Grid item xs={12} md={6} xl={4}>
               <TextField
                 disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 id="outlined-required"
@@ -1174,7 +1221,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
               />
           </Grid>
 
-          <Grid item xs={12} md={6} xl={3}>
+          {/* <Grid item xs={12} md={6} xl={3}>
               <TextField
                 disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 id="outlined-required"
@@ -1186,9 +1233,9 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                   passportNumber: e.target.value
                 }))}}
               />
-          </Grid>
+          </Grid> */}
 
-          <Grid item xs={12} md={6} xl={3}>
+          {/* <Grid item xs={12} md={6} xl={3}>
               <TextField
                 disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 id="outlined-required"
@@ -1200,6 +1247,24 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                   drivingLicenseNumber: e.target.value
                 }))}}
               />
+          </Grid> */}
+
+          <Grid item xs={12} md={6} xl={4} mt={-1}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={['DatePicker']}>
+                <DatePicker
+                  label="Date of Birth"
+                  disabled={!editableKYC}
+                  value={formStateKYC.dob ? dayjs(formStateKYC.dob) : ''}
+                  // onChange={(e) => {setFormStatePD({dob: dayjs(e)})}}
+                  onChange={(e) => {setFormStateKYC(prevState => ({
+                    ...prevState,
+                    dob: dayjs(e)
+                  }))}}
+                  sx={{ width: '100%' }}
+                />
+              </DemoContainer>
+            </LocalizationProvider>
           </Grid>
 
           <Grid item xs={12} md={6} xl={2.4}>

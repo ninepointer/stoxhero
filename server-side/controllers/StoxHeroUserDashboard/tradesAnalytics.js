@@ -9,54 +9,6 @@ const BattleTrading = require("../../models/battle/battleTrade");
 const { ObjectId } = require('mongodb');
 
 
-// exports.getDailyActiveUsers = async (req, res) => {
-//     try {
-//         const pipeline = [
-//             {
-//               $group: {
-//                 _id: {
-//                   date: {
-//                     $substr: ["$trade_time", 0, 10],
-//                   },
-//                   trader: "$trader",
-//                 },
-//               },
-//             },
-//             {
-//               $group: {
-//                 _id: "$_id.date",
-//                 traders: { $sum: 1 },
-//               },
-//             },
-//             {
-//               $sort: {
-//                 "_id": -1,
-//               },
-//             },
-//           ]
-          
-
-//         const virtualTraders = await PaperTrading.aggregate(pipeline);
-//         const tenXTraders = await TenXTrading.aggregate(pipeline);
-//         const contestTraders = await ContestTrading.aggregate(pipeline);
-
-//         res.status(200).json({
-//             status:"success",
-//             message: "Contest Scoreboard fetched successfully",
-//             data: [{virtualTraders, tenXTraders, contestTraders}]
-//         });
-//     } catch (error) {
-//         res.status(500).json({
-//             status:"error",
-//             message: "Something went wrong",
-//             error: error.message
-//         });
-//     }
-// };
-
-// Controller for getting all contests
-// Controller for getting all contests
-// Controller for getting all contests
 exports.getTradeInformation = async (req, res) => {
   try {
     const pipeline = [
@@ -281,6 +233,8 @@ exports.getMonthlyActiveUsers = async (req, res) => {
         monthWiseMAUs[month].uniqueUsers.push(...uniqueUsers);
       }
     });
+
+    console.log('monthwisemaus', monthWiseMAUs);
 
     // Calculate the month-wise total MAUs and unique users
     Object.keys(monthWiseMAUs).forEach(month => {

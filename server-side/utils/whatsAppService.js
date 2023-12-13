@@ -10,8 +10,11 @@ async function sendWhatsApp({destination, campaignName, userName, source, media,
         campaignName: campaignName,
         destination: destination,
         userName: userName,
+        source: source,
         media: media,
-        templateParams : templateParams
+        templateParams : templateParams,
+        tags: tags,
+        attributes: attributes
     }
     
     try{

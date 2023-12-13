@@ -41,7 +41,13 @@ function Index() {
         campaignCode: '',
         campaignLink: '',
         campaignCost: '',
-        status:''
+        status:'',
+        campaignType:"",
+        maxUsers: "",
+        campaignSignupBonus: {
+          amount: "",
+          currency: ""
+        }
     });
 
     useEffect(()=>{
@@ -69,6 +75,14 @@ function Index() {
               campaignLink: res.data.data?.campaignLink || '',
               campaignCost: res.data.data?.campaignCost || '',
               status: res.data.data?.status || '',
+              campaignType:res.data.data?.campaignType || "",
+              maxUsers:res.data.data?.maxUsers ||  "",
+              campaignSignupBonus:{
+                amount:res.data.data?.campaignSignupBonus?.amount ||  "",
+                currency:res.data.data?.campaignSignupBonus?.currency ||  "",
+  
+              },
+              isDefault:res.data.data?.isDefault || ""
             });
               setTimeout(()=>{setIsLoading(false)},500) 
       }).catch((err)=>{
@@ -87,7 +101,7 @@ function Index() {
       }
       // console.log("Is Submitted before State Update: ",isSubmitted)
       setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-      const {campaignName, description, campaignCode, campaignFor, campaignLink, campaignCost, status } = formState;
+      const {campaignSignupBonus, currency, campaignType, maxUsers, amount, campaignName, description, campaignCode, campaignFor, campaignLink, campaignCost, status, isDefault } = formState;
       const res = await fetch(`${baseUrl}api/v1/campaign/create`, {
           method: "POST",
           credentials:"include",
@@ -96,7 +110,7 @@ function Index() {
               "Access-Control-Allow-Credentials": true
           },
           body: JSON.stringify({
-            campaignName, description, campaignCode, campaignFor, campaignLink, campaignCost, status
+            campaignSignupBonus:campaignSignupBonus , campaignType, maxUsers, campaignName, description, campaignCode, campaignFor, campaignLink, campaignCost, status, isDefault
           })
       });
       
@@ -124,7 +138,7 @@ function Index() {
           setTimeout(()=>{setSaving(false);setEditing(true)},500)
           return openErrorSB("Missing Field","Please fill all the mandatory fields")
       }
-      const { campaignName, description, campaignFor, campaignLink, campaignCode, campaignCost, status } = formState;
+      const { campaignSignupBonus, currency, campaignType, maxUsers, amount, campaignName, description, campaignFor, campaignLink, campaignCode, campaignCost, status, isDefault } = formState;
   
       const res = await fetch(`${baseUrl}api/v1/campaign/${id._id}`, {
           method: "PATCH",
@@ -134,7 +148,7 @@ function Index() {
               "Access-Control-Allow-Credentials": true
           },
           body: JSON.stringify({
-            campaignName, description, campaignFor, campaignLink, campaignCost, campaignCode, status, 
+            campaignSignupBonus:campaignSignupBonus , campaignType, maxUsers, campaignName, description, campaignFor, campaignLink, campaignCost, campaignCode, status, isDefault 
           })
       });
   
@@ -226,6 +240,24 @@ function Index() {
 
         <Grid container display="flex" flexDirection="row" justifyContent="space-between">
         <Grid container spacing={1} mt={0.5} mb={0} xs={12} md={9} xl={12}>
+          {/* <Grid item xs={12} md={6} xl={3} mt={2}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
+                name="campaignName"
+                label='Campaign Name *'
+                fullWidth
+                // value={formState?.campaignName || id?.campaignName}
+                // onChange={(e) => {setFormState(prevState => ({
+                //     ...prevState,
+                //     campaignName: e.target.value
+                //   }))}}
+
+                defaultValue={editing ? formState.campaignName:id?.campaignName}
+                onChange={handleChange}
+              />
+          </Grid> */}
+
           <Grid item xs={12} md={6} xl={3} mt={2}>
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
@@ -248,17 +280,130 @@ function Index() {
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
-                label='Campaign Code *'
                 name="campaignCode"
+                label='Campaign Code *'
                 fullWidth
                 // value={formState?.campaignCode || id?.campaignCode}
                 // onChange={(e) => {setFormState(prevState => ({
                 //     ...prevState,
                 //     campaignCode: e.target.value
                 //   }))}}
+
                 defaultValue={editing ? formState.campaignCode:id?.campaignCode}
                 onChange={handleChange}
               />
+          </Grid>
+
+          <Grid item xs={12} md={6} xl={3} mt={2}>
+              <FormControl sx={{width: "100%" }}>
+                <InputLabel id="demo-simple-select-autowidth-label">Campaign Type *</InputLabel>
+                <Select
+                labelId="demo-simple-select-autowidth-label"
+                id="demo-simple-select-autowidth"
+                name="campaignType"
+                value={formState?.campaignType || id?.campaignType}
+                // value={oldObjectId ? contestData?.status : formState?.status}
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                onChange={(e) => {setFormState(prevState => ({
+                    ...prevState,
+                    campaignType: e.target.value
+                }))}}
+                label="Job Type"
+                sx={{ minHeight:43 }}
+                >
+                <MenuItem value="Campaign">Campaign</MenuItem>
+                <MenuItem value="Invite">Invite</MenuItem>
+                </Select>
+              </FormControl>
+          </Grid>
+
+          <Grid item xs={12} md={6} xl={3} mt={2}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
+                name="maxUsers"
+                label='Max User *'
+                fullWidth
+                // value={formState?.maxUsers || id?.maxUsers}
+                // onChange={(e) => {setFormState(prevState => ({
+                //     ...prevState,
+                //     maxUsers: e.target.value
+                //   }))}}
+
+                defaultValue={editing ? formState.maxUsers:id?.maxUsers}
+                onChange={handleChange}
+              />
+          </Grid>
+
+          <Grid item xs={12} md={6} xl={3} mt={2}>
+              <FormControl sx={{width: "100%" }}>
+                <InputLabel id="demo-simple-select-autowidth-label">Is Default *</InputLabel>
+                <Select
+                labelId="demo-simple-select-autowidth-label"
+                id="demo-simple-select-autowidth"
+                name="isDefault"
+                value={formState?.isDefault || id?.isDefault}
+                // value={oldObjectId ? contestData?.status : formState?.status}
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                onChange={(e) => {setFormState(prevState => ({
+                    ...prevState,
+                    isDefault: e.target.value
+                }))}}
+                label="Is Default"
+                sx={{ minHeight:43 }}
+                >
+                <MenuItem value={true}>true</MenuItem>
+                <MenuItem value={false}>false</MenuItem>
+                </Select>
+              </FormControl>
+          </Grid>
+
+          <Grid item xs={12} md={6} xl={3} mt={2}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
+                name="amount"
+                label='Amount *'
+                fullWidth
+                defaultValue={editing ? formState?.campaignSignupBonus?.amount : id?.campaignSignupBonus?.amount}
+                onChange={(e) => {
+                  setFormState((prevState) => ({
+                    ...prevState,
+                    campaignSignupBonus: {
+                      ...prevState.campaignSignupBonus,
+                      amount: e.target.value,
+                    },
+                  }));
+                }}    
+              />
+          </Grid>
+
+          <Grid item xs={12} md={6} xl={3} mt={2}>
+              <FormControl sx={{width: "100%" }}>
+                <InputLabel id="demo-simple-select-autowidth-label">Currency *</InputLabel>
+                <Select
+                labelId="demo-simple-select-autowidth-label"
+                id="demo-simple-select-autowidth"
+                name="currency"
+                value={formState?.campaignSignupBonus?.currency || id?.campaignSignupBonus?.currency}
+                // value={oldObjectId ? contestData?.status : formState?.status}
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                onChange={(e) => {
+                  setFormState((prevState) => ({
+                    ...prevState,
+                    campaignSignupBonus: {
+                      ...prevState.campaignSignupBonus,
+                      currency: e.target.value,
+                    },
+                  }));
+                }}                
+                label="Job Type"
+                sx={{ minHeight:43 }}
+                >
+                <MenuItem value="Cash">Cash</MenuItem>
+                <MenuItem value="Bonus">Bonus</MenuItem>
+                </Select>
+              </FormControl>
           </Grid>
 
           <Grid item xs={12} md={6} xl={3} mt={2}>

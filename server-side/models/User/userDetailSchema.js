@@ -79,6 +79,10 @@ const userDetailSchema = new mongoose.Schema({
         type: String,
         // required: true
     },
+    college:{
+        type: Schema.Types.ObjectId,
+        ref: 'college',
+    },
     stayingWith:{
         type: String,
         // required: true
@@ -109,7 +113,7 @@ const userDetailSchema = new mongoose.Schema({
     },
     gender:{
         type: String,
-        enum: ['Male','Female','Other']
+        enum: ['Male','Female','Other', ""]
     },
     address:{
         type: String,
@@ -146,6 +150,9 @@ const userDetailSchema = new mongoose.Schema({
     joining_date:{
         type: Date,
     },
+    passingoutyear:{
+        type: String,
+    },
     purpose_of_joining:{
         type: String,
     },
@@ -161,7 +168,7 @@ const userDetailSchema = new mongoose.Schema({
     creationProcess:{
         type: String,
         // required: true,
-        enum: ['Auto SignUp','By Admin','Career SignUp', 'College Contest SignUp', 'Referral SignUp']
+        enum: ['Auto SignUp','By Admin','Career SignUp', 'College Contest SignUp', 'Referral SignUp', 'Contest SignUp']
     },
     employeeid:{
         type: String,
@@ -192,6 +199,10 @@ const userDetailSchema = new mongoose.Schema({
         // required: true
     },
     nameAsPerBankAccount:{
+        type: String,
+        // required: true
+    },
+    bankState:{
         type: String,
         // required: true
     },
@@ -272,6 +283,14 @@ const userDetailSchema = new mongoose.Schema({
     KYCActionDate:{
         type: Date,
     },
+    activationDetails:{
+        activationDate: {type: Date},
+        activationProduct: {type: Schema.Types.ObjectId},
+        activationType: {type: String},
+        activationStatus: {type: String},
+        activationProductPrice: {type: Number},
+        
+    },
     KYCRejectionReason: String,
     myReferralCode:{
         type: String,
@@ -339,6 +358,12 @@ const userDetailSchema = new mongoose.Schema({
         bonusRedemption:Number,
         payout:{type:Number},
         tdsAmount:{type:Number},
+        herocashPayout: Number,
+        gpnl: {type: Number},
+        npnl: {type: Number},
+        brokerage: {type: Number},
+        tradingDays: {type: Number},
+        trades: {type: Number},
     }],
     internshipBatch:[{
         type: Schema.Types.ObjectId,
@@ -348,11 +373,30 @@ const userDetailSchema = new mongoose.Schema({
     lastLoggedInDevice:{
         deviceType: String,
         deviceDetails: String
-    }
+    },
+    fcmTokens:[{
+        token: String,
+        brand: String,
+        model: String,
+        platform: String,
+        osVersion: String,
+        createdAt: {
+            type: Date,
+            default: ()=>new Date()
+        },
+        lastUsedAt:{
+            type: Date,
+        },
+        tags: [{type: String}],
+    }]
 })
 
 //Adding the ninepointer id before saving
 userDetailSchema.pre('save', async function(next){
+    if (this.isModified('activationDetails')) {
+        // Skip the pre-save logic for activationDate updates
+        return next();
+    }
     // console.log("inside employee id generator code")
     if(!this.employeeid || this.isNew){
         const count = await this.constructor.countDocuments();

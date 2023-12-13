@@ -73,7 +73,7 @@ router.post('/phonelogin', async (req,res, next)=>{
         if(process.env.PROD=='true') sendOTP(mobile.toString(), mobile_otp);
         console.log(process.env.PROD, mobile_otp, 'sending');
         if(process.env.PROD!=='true'){
-            console.log('sending kamal ji')
+            sendOTP("8076284368", mobile_otp)
             sendOTP("9319671094", mobile_otp)
         }
     
@@ -86,16 +86,32 @@ router.post('/phonelogin', async (req,res, next)=>{
 });
 
 router.post('/verifyphonelogin', async(req,res,next)=>{
-    const {mobile, mobile_otp} = req.body;
+    const {mobile, mobile_otp, fcmTokenData} = req.body;
 
     try {
+        console.log("fcm data", fcmTokenData);
         const user = await UserDetail.findOne({mobile});
         if(!user){
             return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'});
         }
         if(process.env.PROD!='true' && mobile == '7737384957' && mobile_otp== '987654'){
           const token = await user.generateAuthToken();
-
+        console.log(fcmTokenData?.token);    
+        if(fcmTokenData?.token){
+            console.log('inside if');
+            const tokenExists = user?.fcmTokens?.some(token => token?.token === fcmTokenData.token);
+        // If the token does not exist, add it to the fcmTokens array
+            console.log('token exists', tokenExists);
+            if (!tokenExists) {
+                console.log('saving fcm token');
+                fcmTokenData.lastUsedAt = new Date();
+                user.fcmTokens.push(fcmTokenData);
+                await user.save({validateBeforeSave:false});
+                console.log('FCM token added successfully.');
+            } else {
+                console.log('FCM token already exists.');
+            }
+        }    
         res.cookie("jwtoken", token, {
             expires: new Date(Date.now() + 25892000000),
             // httpOnly: true
@@ -112,6 +128,22 @@ router.post('/verifyphonelogin', async(req,res,next)=>{
         }
 
         const token = await user.generateAuthToken();
+        console.log(fcmTokenData?.token);    
+        if(fcmTokenData?.token){
+            console.log('inside if');
+            const tokenExists = user?.fcmTokens?.some(token => token?.token === fcmTokenData.token);
+        // If the token does not exist, add it to the fcmTokens array
+            console.log('token exists', tokenExists);
+            if (!tokenExists) {
+                console.log('saving fcm token');
+                fcmTokenData.lastUsedAt = new Date();
+                user.fcmTokens.push(fcmTokenData);
+                await user.save({validateBeforeSave:false});
+                console.log('FCM token added successfully.');
+            } else {
+                console.log('FCM token already exists.');
+            }
+        }    
 
         res.cookie("jwtoken", token, {
             expires: new Date(Date.now() + 25892000000),
@@ -159,7 +191,7 @@ router.post("/resendmobileotp", async(req, res)=>{
 
 router.get("/loginDetail", authentication, async (req, res)=>{
     const id = req.user._id;
-    
+    // console.log("ID:",id)
     
     const user = await UserDetail.findOne({_id: id, status: "Active"})
     .populate('role', 'roleName')
@@ -193,7 +225,7 @@ router.get("/loginDetail", authentication, async (req, res)=>{
         }
     ],
     })
-    .select('pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
+    .select('pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch bankState')
 
     res.json(user);
 })
@@ -203,6 +235,30 @@ router.get("/logout", authentication, (req, res)=>{
     res
     .status(200)
     .json({ success: true, message: "User logged out successfully" });
+})
+router.post("/addfcmtoken", authentication, async (req, res)=>{
+    const {fcmTokenData} = req.body;
+    console.log('fcm', fcmTokenData);
+    try{
+        const user = await UserDetail.findById(req.user._id);
+        if(fcmTokenData?.token){
+            const tokenExists = user?.fcmTokens?.some(token => token?.token === fcmTokenData?.token);
+        // If the token does not exist, add it to the fcmTokens array
+            if (!tokenExists) {
+                fcmTokenData.lastUsedAt = new Date();
+                user.fcmTokens.push(fcmTokenData);
+                await user.save({validateBeforeSave:false});
+                console.log('FCM token added successfully.');
+                res.status(200).json({status:'success', message:'Fcm data added.'})
+            } else {
+                console.log('FCM token already exists.');
+                res.status(200).json({status:'success', message:'Fcm token already exists.'})
+            }
+        }
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status:'error', message:'Something went wrong.', error: e?.message});
+    }
 })
 
 

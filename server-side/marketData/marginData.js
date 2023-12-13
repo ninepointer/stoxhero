@@ -10,7 +10,7 @@ const InfinityLiveCompanyMargin = require("../models/marginUsed/infinityLiveComp
 const marginApi = async (tradeData, quantity) => {
 
     const { exchange, symbol, realBuyOrSell, variety,
-            Product, OrderType } = tradeData;
+            Product, order_type } = tradeData;
 
     // console.log("inside margin api")
     try {
@@ -30,7 +30,7 @@ const marginApi = async (tradeData, quantity) => {
             "transaction_type": realBuyOrSell,
             "variety": variety,
             "product": Product,
-            "order_type": OrderType,
+            "order_type": order_type,
             "quantity": quantity,
             "price": 0,
             "trigger_price": 0

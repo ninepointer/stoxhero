@@ -9,6 +9,7 @@ const Wallet = require("../models/UserWallet/userWalletSchema");
 const uuid = require('uuid');
 const {client, getValue} = require("../marketData/redisClient");
 const emailService = require("../utils/emailService");
+const {sendMultiNotifications} = require("../utils/fcmService");
 const mongoose = require('mongoose');
 const {createUserNotification} = require('./notification/notificationController');
 const Product = require('../models/Product/product');
@@ -32,12 +33,13 @@ const filterObj = (obj, ...allowedFields) => {
 exports.createTenXSubscription = async(req, res, next)=>{
     // console.log(req.body)
     const{
-        plan_name, actual_price, discounted_price, features, validity, validityPeriod,
+        plan_name, actual_price, discounted_price, features, validity, validityPeriod, rewardType, tdsRelief,
         status, portfolio, profitCap, allowPurchase, allowRenewal, payoutPercentage, expiryDays } = req.body;
     if(await TenXSubscription.findOne({plan_name, status: "Active" })) return res.status(400).json({message:'This subscription already exists.'});
 
     const tenXSubs = await TenXSubscription.create({plan_name:plan_name.trim(), actual_price, discounted_price, features, validity, validityPeriod,
-        status, createdBy: req.user._id, lastModifiedBy: req.user._id, portfolio, profitCap, allowPurchase, allowRenewal, payoutPercentage, expiryDays});
+        status, createdBy: req.user._id, lastModifiedBy: req.user._id, portfolio, profitCap, allowPurchase, allowRenewal, payoutPercentage,
+        expiryDays, rewardType, tdsRelief: tdsRelief || false});
     
     res.status(201).json({message: 'TenX Subscription successfully created.', data:tenXSubs});
 }
@@ -49,7 +51,7 @@ exports.editTanx = async(req, res, next) => {
     const tenx = await TenXSubscription.findById(id);
 
     const filteredBody = filterObj(req.body, "plan_name", "actual_price", "discounted_price", "validity", "validityPeriod", 
-        "status", "profitCap", "portfolio", "allowPurchase", "allowRenewal", "payoutPercentage", "expiryDays");
+        "status", "profitCap", "portfolio", "allowPurchase", "allowRenewal", "payoutPercentage", "expiryDays", "rewardType", "tdsRelief",);
     if(req.body.features)filteredBody.features=[...tenx.features,
         {orderNo:req.body.features.orderNo,
             description:req.body.features.description,}]
@@ -100,7 +102,7 @@ exports.getActiveTenXSubs = async(req, res, next)=>{
     try{
         const tenXSubs = await TenXSubscription.find({status: "Active"}).select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features allowPurchase allowRenewal expiryDays payoutPercentage')
         .populate('portfolio', 'portfolioName portfolioValue')
-        .sort({discounted_price: 1, validity:1})
+        .sort({ validity:1, discounted_price: 1})
         
         res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
     }catch(e){
@@ -831,6 +833,12 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
           createdBy:'63ecbc570302e7cf0153370c',
           lastModifiedBy:'63ecbc570302e7cf0153370c'  
         });
+        if(user?.fcmTokens?.length>0){
+          await sendMultiNotifications('StoxHero Cashback', 
+            `${cashbackAmount?.toFixed(2)}HeroCash added as bonus in your wallet.`,
+            user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+            )  
+        }
   }
     await createUserNotification({
       title:'TenX Subscription Renewed',
@@ -844,6 +852,12 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
       createdBy:'63ecbc570302e7cf0153370c',
       lastModifiedBy:'63ecbc570302e7cf0153370c'  
     }, session);
+    if(user?.fcmTokens?.length>0){
+      await sendMultiNotifications('TenX Subscription Renewed', 
+        `Your TenX subscription ${subscription?.plan_name} has been renewed.`,
+        user?.fcmTokens?.map(item=>item.token), null, {route:'tenx'}
+        )  
+    }
     await session.commitTransaction();
     if(coupon){
       const product = await Product.findOne({productName:'TenX'}).select('_id');
@@ -1021,6 +1035,14 @@ exports.myExpiredSubsciption = async(req, res, next)=>{
               status: "$users.status",
               subscribedOn: "$users.subscribedOn",
               expiredOn: "$users.expiredOn",
+              payout: "$users.payout",
+              tdsAmount: "$users.tdsAmount",
+              gpnl: "$users.gpnl",
+              npnl: "$users.npnl",
+              brokerage: "$users.brokerage",
+              tradingDays: "$users.tradingDays",
+              trades: "$users.trades",
+
             },
           },
           {

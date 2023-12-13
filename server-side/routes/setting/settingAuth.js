@@ -34,6 +34,12 @@ router.get("/readsetting", Authentication, (req, res)=>{
     })
 })
 
+router.get("/usersetting", Authentication, async (req, res)=>{
+
+    const setting = await Setting.find().select('isAppLive minWithdrawal maxWithdrawal maxWithdrawalHigh walletBalanceUpperLimit gstPercentage tdsPercentage contest time minWalletBalance maxBonusRedemptionPercentage bonusToUnitCashRatio')
+    return res.status(200).json({status: "success", data: setting});
+})
+
 router.get("/readsetting/:id", Authentication, (req, res)=>{
     //console.log(req.params)
     const {id} = req.params
@@ -111,6 +117,7 @@ router.patch("/settings/:id", Authentication, restrictTo('Admin', 'SuperAdmin'),
                 maxWithdrawalHigh:req.body.maxWithdrawalHigh,
                 walletBalanceUpperLimit:req.body.walletBalanceUpperLimit,
                 minWithdrawal:req.body.minWithdrawal,
+                minWalletBalance:req.body.minWalletBalance,
                 gstPercentage:req.body.gstPercentage,
                 tdsPercentage:req.body.tdsPercentage,
                 mobileAppVersion:req.body.mobileAppVersion,
@@ -213,7 +220,7 @@ router.get("/deletetxns", async (req, res)=>{
             const userWallet = await Wallet.findOne({userId: elem?.userId});
             const txns = userWallet.transactions;
             // console.log(userWallet);
-            const contestTxns = txns?.filter((item) => { return item?.title == 'Contest Credit' && new Date(item?.transactionDate)>= new Date('2023-10-25') && item?.description == 'Amount credited for contest Campus Financial Faceoff (Day 1)'});
+            const contestTxns = txns?.filter((item) => { return item?.title == 'TestZone Credit' && new Date(item?.transactionDate)>= new Date('2023-10-25') && item?.description == 'Amount credited for contest Campus Financial Faceoff (Day 1)'});
             // const sumPayouts = contestTxns?.reduce()
             if(contestTxns.length > 1){
                 console.log('red', elem?.userId, elem?.payout);
@@ -320,16 +327,16 @@ router.get("/deletenotifs", async (req, res)=>{
 }
 })    
 
-exports.cancelPendingOrders = async(req,res,next) => {
+exports.cancelPendingOrders = async() => {
     const today = new Date().setHours(0,0,0,0);
     try{
         const updates = await PendingOrder.updateMany(
             {
                 status:'Pending', createdOn:{$gte: new Date(today)}
             },{
-                    $set: {
-                        status: "Cancelled"
-                    }
+                $set: {
+                    status: "Cancelled"
+                }
             }
         )
     }catch(e){
@@ -337,6 +344,7 @@ exports.cancelPendingOrders = async(req,res,next) => {
     }
 }
 
+<<<<<<< HEAD
 router.get('/uniqueactivated', async(req,res) => {
         const contest1 = await Contest.findById('652c0af86365ad15659986ed').select('participants potentialParticipants');
         const contest2 = await Contest.findById('652c0cd8921a308fe75aafe5').select('participants potentialParticipants');
@@ -685,6 +693,24 @@ console.log(finalData.length);
 res.json(finalData);
 
 });
+
+router.get("/checkextra", async (req, res)=>{
+    const today = new Date().setHours(0,0,0,0);
+    try{
+        const contest = await Contest.findById('654240e691586db318590372');
+        const participants = contest.participants;
+        const participantIds = participants.map(item=>item.userId.toString());
+        const pot = contest.potentialParticipants.map(item=>item?.toString());
+        const potSet = new Set(pot);
+        console.log(pot, participantIds);
+        let arr = [];
+        const difference = participantIds.filter(item => !potSet.has(item.toString()));
+        console.log('only',difference);
+    }catch(e){
+        console.log(e);
+    }
+})
+
 
 
 module.exports = router;

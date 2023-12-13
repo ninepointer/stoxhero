@@ -80,7 +80,7 @@ async function secondaryProcess() {
     getKiteCred.getAccess().then(async (data) => {
         // console.log(data)
         let interval;
-        await createNewTicker(data.getApiKey, data.getAccessToken);
+        // await createNewTicker(data.getApiKey, data.getAccessToken);
         await subscribeInstrument();
         io.on("connection", async (socket) => {
             // console.log(socket.id, "socket id") 
@@ -386,6 +386,7 @@ async function secondaryProcess() {
     app.use('/api/v1/KYC', require("./routes/KYCApproval/KYCRoutes"));
     app.use('/api/v1/paymenttest', require("./routes/paymentTest/paymentTestRoutes"));
     app.use('/api/v1/stoxherouserdashboard', require("./routes/StoxHeroDashboard/userAnalytics"));
+    app.use('/api/v1/revenue', require("./routes/revenuDashboardRoutes/revenueDashboardRoute"));
     app.use('/api/v1/marginused', require("./routes/marginUsed/marginUsed"));
     app.use('/api/v1/userdashboard', require('./routes/UserDashboard/dashboardRoutes'));
     app.use('/api/v1/post', require("./routes/post/postRoutes"));

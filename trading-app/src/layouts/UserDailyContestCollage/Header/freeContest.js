@@ -26,6 +26,7 @@ import PopupMessage from "../data/popupMessage";
 import PopupTrading from "../data/popupTrading";
 import { Link } from "react-router-dom";
 import Payment from "../data/payment"
+import RewardTable from "../../UserDailyContest/Header/rulesAndRewardTable";
 // import axios from "axios";
 
 function Header({toggleContest, setToggleContest, contest, socket, setIsInterested, showPay, setShowPay }) {
@@ -67,7 +68,7 @@ function Header({toggleContest, setToggleContest, contest, socket, setIsInterest
     const [isInterestedState, setIsInterestedState] = useState(initialInterestedCounts);
 
     const handleCopy = async (id) => {
-        let text = 'https://stoxhero.com/contest'
+        let text = 'https://stoxhero.com/testzone'
         const textarea = document.createElement('textarea');
         textarea.value = text;
         document.body.appendChild(textarea);
@@ -240,7 +241,10 @@ function Header({toggleContest, setToggleContest, contest, socket, setIsInterest
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                                 <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Reward</MDTypography></MDBox>
-                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "dark" }}>{elem?.payoutPercentage}% of the net P&L{elem?.payoutCapPercentage?`(upto ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue * (elem?.payoutCapPercentage??10)/100)})`:''}</MDTypography></MDBox>
+                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "dark" }}>
+                                                                    {/* {elem?.payoutPercentage}% of the net P&L{elem?.payoutCapPercentage?`(upto ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue * (elem?.payoutCapPercentage??10)/100)})`:''} */}
+                                                                    <RewardTable data={elem} paid={false}/>
+                                                                </MDTypography></MDBox>
                                                             </MDBox>
                                                         </MDBox>
                                                     </Grid>
@@ -259,7 +263,7 @@ function Header({toggleContest, setToggleContest, contest, socket, setIsInterest
                                                         </MDBox>
 
                                                         <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                            <MDBox color={"dark"}><MDTypography fontSize={10} style={{ backgroundColor: 'black', padding: '2px 2px 1px 2px', border: '1px solid black', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Portfolio: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue)}</MDTypography></MDBox>
+                                                            <MDBox color={"dark"}><MDTypography fontSize={10} style={{ backgroundColor: 'black', padding: '2px 2px 1px 2px', border: '1px solid black', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Virtual Margin: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue)}</MDTypography></MDBox>
                                                         </MDBox>
                                                     </Grid>
 
@@ -289,7 +293,7 @@ function Header({toggleContest, setToggleContest, contest, socket, setIsInterest
 
                                                             <MDBox display='flex' justifyContent='flex-start' width='50%'>
                                                                 {(particularContestTime[0]?.value > 0 && !checkIsInterested) &&
-                                                                    <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} isInterestedState={isInterestedState} setIsInterestedState={setIsInterestedState} elem={elem} data={`Thanks for showing interest in ${elem.contestName} contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} />
+                                                                    <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} isInterestedState={isInterestedState} setIsInterestedState={setIsInterestedState} elem={elem} data={`Thanks for showing interest in ${elem.contestName} TestZone. You will be notified 10 mins before the TestZone starts.`} />
                                                                 }
                                                                 {checkIsInterested &&
                                                                     <MDTypography color='info' fontWeight='bold' fontSize={13} mt={.5}>Thanks for expressing your interest.</MDTypography>

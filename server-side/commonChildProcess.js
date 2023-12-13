@@ -10,8 +10,8 @@ const xssClean = require("xss-clean");
 const hpp = require("hpp")
 const { zerodhaAccountType } = require("./constant")
 const Product = require('./models/Product/product');
-const { tenxTradeStopLoss } = require("./PlaceStopLossOrder")
-
+const { pendingOrderMain } = require("./PlaceStopLossOrder")
+// const bodyParser = require('body-parser');
 
 async function commonProcess() {
     // await setIOValue();
@@ -30,8 +30,10 @@ async function commonProcess() {
         })
 
     
-    app.use(express.json({ limit: "20kb" }));
-
+    // app.use(express.json({ limit: "20kb" }));
+    app.use(express.json({ limit: '10mb' }));
+    app.use(express.urlencoded({ limit: '10mb' }));
+    
     app.use(cors({
         credentials: true,
 
@@ -149,6 +151,7 @@ async function commonProcess() {
     app.use('/api/v1', require("./PlaceOrder/switching"));
     app.use('/api/v1/analytics', require("./routes/analytics/analytics"));
     app.use('/api/v1/appmetrics', require("./routes/appMetrics/appMetricsRoutes"));
+    app.use('/api/v1/newappmetrics', require("./routes/appMetrics/newAppMetricesRoutes"));
     app.use('/api/v1/infinitymining', require("./routes/infinityMining/infinityMiningRoutes"));
     app.use('/api/v1/virtualtradingperformance', require("./routes/performance/virtualTradingRoute"));
     app.use('/api/v1/user', require("./routes/user/userRoutes"));
@@ -156,7 +159,8 @@ async function commonProcess() {
     app.use('/api/v1/KYC', require("./routes/KYCApproval/KYCRoutes"));
     app.use('/api/v1/paymenttest', require("./routes/paymentTest/paymentTestRoutes"));
     app.use('/api/v1/stoxherouserdashboard', require("./routes/StoxHeroDashboard/userAnalytics"));
-    app.use('/api/v1/marginused', require("./routes/marginUsed/marginUsed"));
+    app.use('/api/v1/revenue', require("./routes/revenuDashboardRoutes/revenueDashboardRoute"));
+    app.use('/api/v1/marginrequired', require("./routes/marginRequired/marginRequired"));
     app.use('/api/v1/userdashboard', require('./routes/UserDashboard/dashboardRoutes'));
     app.use('/api/v1/post', require("./routes/post/postRoutes"));
     app.use('/api/v1/signup', require("./routes/UserRoute/signUpUser"));
@@ -166,19 +170,16 @@ async function commonProcess() {
     app.use('/api/v1/marginxtemplates', require("./routes/marginx/marginxTemplateRoutes"));
     app.use('/api/v1/notifications', require("./routes/notification/notificationRoutes"));
     app.use('/api/v1/coupons', require("./routes/coupon/couponRoutes"));
-
+    app.use('/api/v1/blogs', require("./routes/blog/blogRoutes"));
+    app.use('/api/v1/learningmodule', require("./routes/learningModule/learningModuleRoutes"));
+    app.use('/api/v1/alltradeview', require("./routes/viewRoutes/allTradesViewRoute"));
+    app.use('/api/v1/push', require("./routes/pushNotifications/pushNotificationRoutes"));
+    app.use('/api/v1/notificationgroup', require("./routes/notificationGroup/notificationGroupRoutes"));
     const PORT = process.env.PORT || 5002;
     const server = app.listen(PORT);
-    
-    await tenxTradeStopLoss();
 
-    // try{
-    //     await client.SUBSCRIBE("place-order", (message) => {
-    //     console.log(message);
-    // });  
-    // } catch(err){
-    //     console.log(err);
-    // }
+    
+    await pendingOrderMain();
 
 }
 

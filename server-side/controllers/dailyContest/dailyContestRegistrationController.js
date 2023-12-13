@@ -1,8 +1,10 @@
 const ContestRegistration  =require('../../models/DailyContest/contestRegistration');
 const otpGenerator = require('otp-generator');
+const whatsAppService = require("../../utils/whatsAppService")
+const mediaURL = "https://dmt-trade.s3.amazonaws.com/carousels/WhastAp%20Msg%20Photo/photos/1697228055934Welcome%20to%20the%20world%20of%20Virtual%20Trading%20but%20real%20earning%21.png";
+const mediaFileName = 'StoxHero'
+const moment = require('moment');
 const {sendSMS, sendOTP} = require('../../utils/smsService');
-const InternBatch = require("../../models/Careers/internBatch");
-const Career = require("../../models/Careers/careerSchema");
 const User = require("../../models/User/userDetailSchema")
 const PortFolio = require("../../models/userPortfolio/UserPortfolio")
 const Campaign = require("../../models/campaigns/campaignSchema")
@@ -11,25 +13,27 @@ const emailService = require("../../utils/emailService");
 const DailyContest = require('../../models/DailyContest/dailyContest');
 const ReferralProgram = require('../../models/campaigns/referralProgram');
 const uuid = require('uuid');
+const dailyContest = require('../../models/DailyContest/dailyContestMockUser');
+const ObjectId = require('mongodb').ObjectId;
 
 
 
 exports.generateOTP = async(req, res, next)=>{
     console.log(req.body)   
   
-    const{ firstName, lastName, email, mobile, dob, collegeName, source, contest, campaignCode, referrerCode
+    const{ firstName, lastName, email, mobile, dob, gender, college, collegeName, course, passingoutyear, source, contest, campaignCode, referrerCode, linkedInProfileLink
     } = req.body
-    console.log('ref',referrerCode);
+    
     if(!contest){
         return res.status(400).json({
-            message: "Contest doesn't exist",
+            message: "This College TestZone doesn't exist!",
             status: 'error'
           });
     }
     const dailyContest = await DailyContest.findById(contest).select('contestEndTime');
     if(dailyContest?.contestEndTime<new Date()){
         return res.status(400).json({
-            message: "Contest has ended",
+            message: "This TestZone has already ended",
             status: 'error'
           });
     }
@@ -45,7 +49,7 @@ exports.generateOTP = async(req, res, next)=>{
     try {
         if(await ContestRegistration.findOne({mobileNo: mobile, status:'OTP Verified', contest:contest})){
             return res.status(400).json({
-                message: "You have already registered for this contest.",
+                message: "You have already registered for this TestZone.",
                 status: 'error'
               });
         }
@@ -55,7 +59,12 @@ exports.generateOTP = async(req, res, next)=>{
         email: email.trim(),
         mobileNo: mobile.trim(),
         dob: dob,
+        gender:gender,
+        college:college,
         collegeName: collegeName,
+        course: course,
+        passingoutyear: passingoutyear,
+        linkedInProfileLink: linkedInProfileLink,
         source: source.trim(),
         contest: contest,
         campaignCode: campaignCode?.trim(),
@@ -76,7 +85,7 @@ exports.generateOTP = async(req, res, next)=>{
 exports.confirmOTP = async(req, res, next)=>{
 
 
-const{ firstName, lastName, email, mobile, campaignCode, mobile_otp, contest, referrerCode
+const{ firstName, lastName, email, mobile, gender, college, course, passingoutyear, campaignCode, mobile_otp, contest, referrerCode
 } = req.body
 console.log(req.body)
 const correctOTP = await ContestRegistration.findOne({$and : [{mobileNo: mobile}], mobile_otp: mobile_otp}).select('status');
@@ -85,21 +94,20 @@ if(!correctOTP){
     return res.status(400).json({message:'Please enter the correct OTP'})
 }
 
-if(referrerCode && !await User.findOne({myReferralCode:referrerCode})){
-    return res.status(404).json({status:'error', message:'The referral code doesn\'t exist. Please check again'});
-}
+// if(referrerCode && !await User.findOne({myReferralCode:referrerCode})){
+//     return res.status(404).json({status:'error', message:'The referral code doesn\'t exist. Please check again'});
+// }
 
-if(campaignCode && !await Campaign.findOne({campaignCode})){
-    return res.status(404).json({status:'error', message:'The campaign code doesn\'t exist. Please check again'});
-}
+// if(campaignCode && !await Campaign.findOne({campaignCode})){
+//     return res.status(404).json({status:'error', message:'The campaign code doesn\'t exist. Please check again'});
+// }
 
 correctOTP.status = 'OTP Verified'
 await correctOTP.save({validateBeforeSave:false});
 res.status(201).json({info:"Application Submitted Successfully."})
 const existingUser = await User.findOne({mobile: mobile})
-// if(existingUser){
-//   return res.status(400).json({info:"User Already Exists"})
-// }
+
+
 
 let campaign;
     if(campaignCode){
@@ -110,7 +118,6 @@ if(!existingUser){
     const myReferralCode = generateUniqueReferralCode();
     let userId = email.split('@')[0]
     let userIds = await User.find({employeeid:userId})
-    // console.log("User Ids: ",userIds)
     if(userIds.length > 0)
     {
         userId = userId?.toString()+(userIds?.length+1).toString()
@@ -125,7 +132,7 @@ if(!existingUser){
         portfolioArr.push(obj);
     }
     let referralUser;
-    if(referrerCode)referralUser = await User.findOne({myReferralCode:referrerCode}).select('_id referrals employeeid email');
+    if(referrerCode){referralUser = await User.findOne({myReferralCode:referrerCode}).select('_id referrals employeeid email')};
     try{
         let obj = {
             first_name : firstName.trim(), 
@@ -133,6 +140,10 @@ if(!existingUser){
             designation: 'Trader', 
             email : email, 
             mobile : mobile,
+            gender: gender,
+            college:college,
+            passingoutyear:passingoutyear,
+            degree:course,
             name: firstName.trim() + ' ' + lastName.trim().substring(0,1), 
             password: 'sh' + lastName.trim() + '@123' + mobile.trim().slice(1,3), 
             status: 'Active', 
@@ -148,6 +159,12 @@ if(!existingUser){
         }
 
             const newuser = await User.create(obj);
+            await UserWallet.create(
+                {
+                    userId: newuser._id,
+                    createdOn: new Date(),
+                    createdBy:newuser._id
+                });
             const token = await newuser.generateAuthToken();
 
             const idOfUser = newuser._id;
@@ -161,26 +178,22 @@ if(!existingUser){
                 );
             }
             
-            // console.log("Campaign: ",campaign)
             if(campaign){
-                // console.log("Inside setting user to campaign")
                 campaign?.users?.push({userId:newuser._id,joinedOn: new Date()})
                 const campaignData = await Campaign.findOneAndUpdate({_id: campaign._id}, {
                     $set:{ 
                         users: campaign?.users
                     }
                 })
-                // console.log(campaignData)
+                if(campaign?.campaignSignupBonus?.amount){
+                    await addSignupBonus(newuser?._id, campaign?.campaignSignupBonus?.amount, campaign?.campaignSignupBonus?.currency);
+                }
             }
 
-            await UserWallet.create(
-            {
-                userId: newuser._id,
-                createdOn: new Date(),
-                createdBy:newuser._id
-            });
 
-            const dailyContest = await DailyContest.findById(contest).select('potentialParticipants');
+            const dailyContest = await DailyContest.findById(contest).select('_id contestName entryFee contestStartDate contestEndDate payoutPercentage potentialParticipants portfolio').populate('portfolio','portfolioValue');
+            // let dailyContest = await DailyContest.findOne({_id: new ObjectId(contest)}).select('_id contestName entryFee contestStartDate contestEndDate payoutPercentage').populate('portfolio','portfolioValue')
+            // const dcontest = dailyContest;
             dailyContest.potentialParticipants.push(newuser._id);
             await dailyContest.save({validateBeforeSave:false});
             if(referrerCode){
@@ -192,7 +205,9 @@ if(!existingUser){
                     referralProgram: referralProgram?._id
                 });
                 const referralUserWallet = await UserWallet.findOne({userId: referralUser?._id});
-                console.log('referral user wallet',referralUserWallet)
+                if(referralProgram?.referralSignupBonus?.amount && !campaign?.campaignSignupBonus?.amount){
+                    await addSignupBonus(newuser?._id, referral?.referralSignupBonus?.amount, referral?.referralSignupBonus?.currency);
+                }
                 referralUserWallet?.transactions?.push({
                     title:'Referral Credit',
                     description:`Amount credited for referral of ${newuser?.first_name} ${newuser?.last_name}`,
@@ -210,8 +225,6 @@ if(!existingUser){
                 if(referralUserWallet) await referralUserWallet.save({validateBeforeSave:false});
             }
 
-            // res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
-                // let email = newuser.email;
                 let subject = "Welcome to StoxHero - Learn, Trade, and Earn!";
                 let message =
                 `
@@ -288,19 +301,19 @@ if(!existingUser){
                         <p>Welcome to StoxHero - Your Gateway to the Exciting World of Options Trading and Earning! </p>
                         <p>StoxHero is a specialized Intraday Options Trading Platform focusing on indices such as NIFTY, BANKNIFTY & FINNIFTY.</p>
                         <p>Congratulations on joining our ever-growing community of traders and learners. We are thrilled to have you onboard and can't wait to embark on this exciting journey together. At StoxHero, we offer a range of programs designed to help you learn and excel in trading while providing you with opportunities to earn real profits from virtual currency. Let's dive into the fantastic programs that await you:</p>
-                        <p>1. Virtual Trading:
+                        <p>1. F&O Trading:
                         Start your trading experience with a risk-free environment! In Virtual Trading, you get INR 10L worth of virtual currency to practice your trading skills, test strategies, and build your profit and loss (P&L) under real market scenarios without any investment. It's the perfect platform to refine your trading strategies and gain confidence before entering the real market.</p>
-                        <p>2. Ten X:
+                        <p>2. TenX:
                         Participate in our Ten X program and explore various trading opportunities. Trade with virtual currency and, after completing 20 trading days, you become eligible for a remarkable 10% profit share or profit CAP amount from the net profit you make in the program. You'll not only learn trading but also earn real money while doing so - a win-win situation!</p>
-                        <p>3. Contests:
-                        Challenge yourself in daily contests where you compete with other users based on your P&L. You'll receive virtual currency to trade with, and your profit share from the net P&L you achieve in each contest will add to your earnings. With different contests running, you have the flexibility to choose and participate as per your preference.</p>
-                        <p>4. College Contest:
-                        Attention college students! Our College Contest is tailored just for you. Engage in daily intraday trading contests, and apart from receiving profit share from your net P&L, the top 3 performers will receive an appreciation certificate highlighting their outstanding performance.</p>
+                        <p>3. TestZones:
+                        Challenge yourself in daily TestZones where you compete with other users based on your P&L. You'll receive virtual currency to trade with, and your profit share from the net P&L you achieve in each TestZone will add to your earnings. With different TestZones running, you have the flexibility to choose and participate as per your preference.</p>
+                        <p>4. College TestZones:
+                        Attention college students! Our College TestZone is tailored just for you. Engage in daily intraday trading TestZones, and apart from receiving profit share from your net P&L, the top 3 performers will receive an appreciation certificate highlighting their outstanding performance.</p>
                         <p>To help you get started and make the most of our programs, we've prepared comprehensive tutorial videos for each of them:</p>
                         <p><a href='https://youtu.be/6wW8k-8zTXY'>Virtual Trading Tutorial</a></br>
                         <a href='https://www.youtube.com/watch?v=a3_bmjv5tXQ'>Ten X Tutorial</a></br>
-                        <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>Contests Tutorial</a></br>
-                        <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>College Contest Tutorial</a></p>
+                        <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>TestZones Tutorial</a></br>
+                        <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>College TestZones Tutorial</a></p>
                         <p>For any queries or assistance, our dedicated team is always here to support you. Feel free to connect with us on different platforms:
                         </p>
                         <p><a href='https://t.me/stoxhero_official'>Telegram</a></br>
@@ -324,31 +337,96 @@ if(!existingUser){
 
                 `
                 if(process.env.PROD=='true'){
-                emailService(newuser?.email,subject,message);
+                    emailService(newuser?.email,subject,message);
                 }
+
+                if(process.env.PROD == 'true'){
+                    // whatsAppService.sendWhatsApp({destination : newuser?.mobile, campaignName : 'college_contest_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser?.first_name, contest?.contestName, contest?.contestName, moment.utc(contest?.contestStartTime).utcOffset('+05:30').format("DD-MMM hh:mm a"), moment.utc(contest?.contestEndTime).utcOffset('+05:30').format("DD-MMM hh:mm a"), (contest?.portfolio?.portfolioValue)?.toString(), (contest?.payoutPercentage)?.toString(), (contest?.entryFee)?.toString()], tags : '', attributes : ''});
+                  }
+                  else {
+                      // whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'college_contest_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, contest?.contestName, contest?.contestName, contest?.contestStartTime, contest?.contestEndTime, contest?.portfolio?.portfolioValue, contest?.payoutPercentage, contest?.entryFee], tags : '', attributes : ''});
+                    //   whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'college_contest_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser?.first_name, contest?.contestName, contest?.contestName, moment.utc(contest?.contestStartTime).utcOffset('+05:30').format("DD-MMM hh:mm a"), moment.utc(contest?.contestEndTime).utcOffset('+05:30').format("DD-MMM hh:mm a"), (contest?.portfolio?.portfolioValue)?.toString(), (contest?.payoutPercentage)?.toString(), (contest?.entryFee)?.toString()], tags : '', attributes : ''});
+                  }
 
     }catch(error){
         console.log(error)
     }
 }else{
     if(campaign){
-        // console.log("Inside setting user to campaign")
         campaign?.users?.push({userId:existingUser._id,joinedOn: new Date()});
-        // const campaignData = await Campaign.findOneAndUpdate({_id: campaign._id}, {
-        //     $set:{ 
-        //         users: campaign?.users
-        //     }
-        // })
         await campaign.save({validateBeforeSave:false});
-        // console.log(campaignData)
       }
         const dailyContest = await DailyContest.findById(contest).select('potentialParticipants');
+        // const dailyContest = await DailyContest.findById(contest).select('_id contestName entryFee contestStartDate contestEndDate payoutPercentage potentialParticipants portfolio').populate('portfolio','portfolioValue');
         dailyContest.potentialParticipants.push(existingUser._id);
         await dailyContest.save({validateBeforeSave:false});
     }
+    const dailyContest = await DailyContest.findById(contest).select('_id contestName entryFee contestStartTime contestEndTime payoutPercentage potentialParticipants portfolio').populate('portfolio','portfolioValue');
+    if(process.env.PROD == 'true'){
+        // whatsAppService.sendWhatsApp(
+        //     {
+        //         destination : existingUser?.mobile, 
+        //         campaignName : 'col_contest_signup_campaign', 
+        //         userName : existingUser?.first_name, 
+        //         source : existingUser?.creationProcess, 
+        //         media : {url : mediaURL, filename : mediaFileName}, 
+        //         templateParams : [
+        //                 existingUser?.first_name, 
+        //                 dailyContest?.contestName, 
+        //                 dailyContest?.contestName, 
+        //                 moment.utc(dailyContest?.contestStartTime).utcOffset('+05:30').format("DD-MMM hh:mm a"), 
+        //                 moment.utc(dailyContest?.contestEndTime).utcOffset('+05:30').format("DD-MMM hh:mm a"), 
+        //                 (dailyContest?.portfolio?.portfolioValue).toLocaleString('en-IN'), 
+        //                 (dailyContest?.payoutPercentage).toLocaleString('en-IN'), 
+        //                 (dailyContest?.entryFee).toLocaleString('en-IN')
+        //             ], 
+        //         tags : '', 
+        //         attributes : ''
+        //     });
+      }
+      else {
+        // whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'college_contest_signup_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, contest?.contestName, contest?.contestName, contest?.contestStartTime, contest?.contestEndTime, contest?.portfolio?.portfolioValue, contest?.payoutPercentage, contest?.entryFee], tags : '', attributes : ''});
+        // whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'college_contest_signup_campaign', userName : existingUser.first_name, source : existingUser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [existingUser.first_name, contest?.contestName, contest?.contestName, contest?.contestStartTime, contest?.contestEndTime, contest?.portfolio?.portfolioValue, contest?.payoutPercentage, contest?.entryFee], tags : '', attributes : ''});
+        // whatsAppService.sendWhatsApp(
+        //     {
+        //         destination : '8076284368', 
+        //         campaignName : 'col_contest_signup_campaign', 
+        //         userName : existingUser?.first_name, 
+        //         source : existingUser?.creationProcess, 
+        //         media : {url : mediaURL, filename : mediaFileName}, 
+        //         templateParams : [
+        //                 existingUser?.first_name, 
+        //                 dailyContest?.contestName, 
+        //                 dailyContest?.contestName, 
+        //                 moment.utc(dailyContest?.contestStartTime).utcOffset('+05:30').format("DD-MMM hh:mm a"), 
+        //                 moment.utc(dailyContest?.contestEndTime).utcOffset('+05:30').format("DD-MMM hh:mm a"), 
+        //                 (dailyContest?.portfolio?.portfolioValue).toLocaleString('en-IN'), 
+        //                 (dailyContest?.payoutPercentage).toLocaleString('en-IN'), 
+        //                 (dailyContest?.entryFee).toLocaleString('en-IN')
+        //             ], 
+        //         tags : '', 
+        //         attributes : ''
+        //     });
+      }
 
 }
 
+const addSignupBonus = async (userId, amount, currency) => {
+    const wallet = await UserWallet.findOne({userId:userId});
+    try{
+        wallet.transactions?.push({
+            title: 'Sign up Bonus',
+            description: `Amount credited for as sign up bonus.`,
+            amount: amount,
+            transactionId: uuid.v4(),
+            transactionDate: new Date(),
+            transactionType: currency
+        });
+        await wallet.save({validateBeforeSave:false});
+    }catch(e){
+        console.log(e);
+    }
+}
 async function generateUniqueReferralCode() {
 const length = 8; // change this to modify the length of the referral code
 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -392,7 +470,7 @@ exports.registeredCount = async (req, res, next) => {
     } catch (error) {
         res.status(500).json({
             status: "error",
-            message: "Error in fetching upcoming contests",
+            message: "Error in fetching upcoming TestZones",
             error: error.message
         });
     }

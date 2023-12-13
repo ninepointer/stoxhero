@@ -22,6 +22,10 @@ const pendingOrderSchema = new Schema({
     },
     execution_price:{
         type: Number,
+        // required: true,
+    },
+    price:{
+        type: Number,
         required: true,
     },
     last_price:{
@@ -66,7 +70,12 @@ const pendingOrderSchema = new Schema({
     },
     exchangeInstrumentToken:{
         type: Number,
-        required : true
+        required : true,
+    },
+    margin:{
+        type: Number,
+        required : true,
+        default: 0
     },
     execution_time:{
         type: Date,
@@ -85,7 +94,11 @@ const pendingOrderSchema = new Schema({
     sub_product_id: {
         type: Schema.Types.ObjectId,
         required: true
-    }
+    },
+    deviceDetails:{
+        deviceType: { type: String },
+        platformType: { type: String }
+    },
 
 })
 

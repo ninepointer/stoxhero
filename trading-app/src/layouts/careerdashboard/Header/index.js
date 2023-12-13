@@ -474,13 +474,13 @@ try {
             </Grid>
         </Grid>
 
-        <Grid style={{borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
+        {/* <Grid style={{borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
             <Grid item xs={12} md={12} lg={12}>
                 <MDBox p={0.5}>
                     <CollegeWiseData />
                 </MDBox>
             </Grid>
-        </Grid>
+        </Grid> */}
 
         <Grid container spacing={2} mt={1}>
             
