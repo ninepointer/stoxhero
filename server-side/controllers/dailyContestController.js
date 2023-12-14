@@ -3489,7 +3489,7 @@ exports.findContestByName = async(req,res,next)=>{
         console.log("Body:",req.query)
         let dateString = date.includes('-') ? date.split('-').join('') : date.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
         console.log(new Date(dateString))
-        const result = await Contest.findOne({contestName: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'College'}).
+        const result = await Contest.findOne({slug: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'College'}).
         populate('portfolio', 'portfolioValue portfolioName').
             select('_id contestName contestStartTime contestEndTime payoutPercentage entryFee description');
         console.log(result)
