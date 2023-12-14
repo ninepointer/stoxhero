@@ -974,7 +974,11 @@ exports.todaysContest = async (req, res) => {
 
     try {
         const contests = await Contest.find({
-            contestEndTime: { $gte: today }
+            contestEndTime: { $gte: today },
+            $or: [
+              {contestStatus: "Active"},
+              {contestStatus: "Completed"}
+            ]
         }).populate('portfolio', 'portfolioName _id portfolioValue')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .sort({ contestStartTime: 1 })

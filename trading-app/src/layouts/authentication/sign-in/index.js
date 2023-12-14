@@ -32,7 +32,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { adminRole } from '../../../variables';
 import { userRole } from '../../../variables';
-import { InfinityTraderRole } from '../../../variables';
+import { InfinityTraderRole, Affiliate } from '../../../variables';
 
 function Basic() {
   // console.log('Rendering sign in');
@@ -167,6 +167,10 @@ function Basic() {
               navigate(from);
             } 
             else if(userData.role?.roleName === userRole){
+              const from = location.state?.from || "/stoxherodashboard";
+              navigate(from,{ state: { showPopup: true } });
+            }
+            else if(userData.role?.roleName === Affiliate){
               const from = location.state?.from || "/stoxherodashboard";
               navigate(from,{ state: { showPopup: true } });
             }

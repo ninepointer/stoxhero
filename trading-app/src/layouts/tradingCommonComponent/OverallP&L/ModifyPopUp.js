@@ -77,7 +77,7 @@ function ModifyPopUp({ data, id, handleCloseMenu, setMsg, from }) {
     return item.type === "StopProfit" ? acc + item.quantity : acc;
   }, 0)
 
-  console.log("slPendingQuantity", lots-slPendingQuantity, lots-spPendingQuantity)
+  // console.log("slPendingQuantity", lots-slPendingQuantity, lots-spPendingQuantity)
 
   id = from === paperTrader ? "6433e2e5500dc2f2d20d686d" : id;
 

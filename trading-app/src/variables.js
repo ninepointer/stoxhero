@@ -1,6 +1,8 @@
 export const adminRole = "Admin";
 export const userRole = "User";
 export const InfinityTraderRole = "Infinity Trader";
+export const Affiliate = "Affiliate";
+
 export const paperTrader = "paperTrade";
 export const infinityTrader = "Infinity Trader";
 export const dailyContest = "Daily Contest";
