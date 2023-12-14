@@ -58,7 +58,7 @@ const PnlAndMarginData = ({marginxId}) => {
   const runningPnl = Number(netPnl?.toFixed(0));
   const openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
   const availableMargin = ((runningPnl < 0) ? totalRunningLots===0 ? (openingBalance-todayMargin+runningPnl) : openingBalance-(Math.abs(amount)+margin) : openingBalance-todayMargin)?.toFixed(0);
-  const availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toFixed(0)?.toLocaleString() : "₹" + (-Number(availableMargin)?.toFixed(0))?.toLocaleString()
+  const availableMarginpnlstring =  (availableMargin) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(availableMargin)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-availableMargin))
   const usedMargin = runningPnl >= 0 ? 0 : runningPnl
   const usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin)?.toLocaleString() : "₹" + (-Number(usedMargin))?.toLocaleString()
   const unrealisedPnl = runningPnl >= 0 ? runningPnl : 0

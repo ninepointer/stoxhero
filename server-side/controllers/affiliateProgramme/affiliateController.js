@@ -243,6 +243,9 @@ exports.addAffiliateUser = async (req, res) => {
 exports.creditAffiliateAmount = async(affiliate, affiliateProgram, product, specificProduct, actualPrice, buyer) => {
     // console.log(product, specificProduct, actualPrice, buyer);
     //add amount to wallet
+    if(affiliate?.userId?.toString() === buyer?.toString()){
+      return;
+    }
     const wallet = await Wallet.findOne({userId: new ObjectId(affiliate?.userId)});
     const user = await User.findOne({_id:buyer}).select('first_name last_name');
     const productDoc = await Product.findOne({_id: product});
@@ -334,6 +337,178 @@ exports.removeAffiliateUser = async (req, res) => {
             error: error.message
         });
     }
+};
+
+exports.affiliateLeaderboard = async (req, res) => {
+  const {programme, startDate, endDate, lifetime} = req.query;
+  console.log(programme, new Date(startDate), endDate, (lifetime))
+  const matchStage = {
+    affiliateProgram: programme!=="Cummulative" && new ObjectId(programme),
+    transactionDate: {
+      $gte: new Date((lifetime) ? "2000-01-01" : startDate),
+      $lte: new Date((lifetime) ? new Date() : endDate)
+    }
+  }
+  try {
+      const leaderboard = await AffiliateTransaction.aggregate([
+        {
+          $match: programme==="Cummulative" ? {
+            transactionDate: {
+              $gte: new Date((lifetime) ? "2000-01-01" : startDate),
+              $lte: new Date((lifetime) ? new Date() : endDate)
+            }
+          } : matchStage
+        },
+        {
+          $group: {
+            _id: {
+              affiliate: "$affiliate",
+              product: "$product",
+            },
+            payout: {
+              $sum: "$affiliatePayout",
+            },
+            totalAmount: {
+              $sum: "$productDiscountedPrice",
+            },
+            count: {
+              $count: {},
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "_id.affiliate",
+            foreignField: "_id",
+            as: "affiliate",
+          },
+        },
+        {
+          $lookup: {
+            from: "products",
+            localField: "_id.product",
+            foreignField: "_id",
+            as: "product",
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            first_name: {
+              $arrayElemAt: [
+                "$affiliate.first_name",
+                0,
+              ],
+            },
+            last_name: {
+              $arrayElemAt: ["$affiliate.last_name", 0],
+            },
+            affiliate: "$_id.affiliate",
+            code: {
+              $arrayElemAt: [
+                "$affiliate.myReferralCode",
+                0,
+              ],
+            },
+            product: {
+              $concat: [
+                {
+                  $toLower: {
+                    $arrayElemAt: [
+                      "$product.productName",
+                      0,
+                    ],
+                  },
+                },
+                "_payout",
+              ],
+            },
+            payout: 1,
+            totalAmount: 1,
+            count: 1,
+          },
+        },
+        {
+          $group: {
+            _id: {
+              first_name: "$first_name",
+              last_name: "$last_name",
+              code: "$code",
+              affiliate: "$affiliate",
+            },
+            data: {
+              $push: {
+                k: "$product",
+                v: "$$ROOT.payout",
+              },
+            },
+            totalAmount: {
+              $push: {
+                k: {
+                  $concat: ["$product", "_totalAmount"],
+                },
+                v: "$$ROOT.totalAmount",
+              },
+            },
+            allCount: {
+              $push: {
+                k: {
+                  $concat: ["$product", "_count"],
+                },
+                v: "$$ROOT.count",
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "_id.code",
+            foreignField: "referrerCode",
+            as: "signup",
+          },
+        },
+        {
+          $replaceRoot: {
+            newRoot: {
+              $mergeObjects: [
+                {
+                  first_name: "$_id.first_name",
+                  last_name: "$_id.last_name",
+                  code: "$_id.code",
+                  affiliate: "$_id.affiliate",
+                  signup: {
+                    $size: "$signup",
+                  },
+                },
+                {
+                  $arrayToObject: "$data",
+                },
+                {
+                  $arrayToObject: "$totalAmount",
+                },
+                {
+                  $arrayToObject: "$allCount",
+                },
+              ],
+            },
+          },
+        },
+      ])
+      res.status(200).json({
+          status: "success",
+          message: "Affiliate leaderboard fetched successfully",
+          data: leaderboard
+      });
+      
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Something went wrong",
+          error: error.message
+      });
+  }
 };
 
 exports.getAffiliateProgramTransactions = async (req, res) => {

@@ -359,8 +359,8 @@ export default function App() {
           <Route path='/blogs' element={<BlogCard/>}/>
           <Route path='/calculators' element={<Calculator/>}/>
           <Route path='/blogs/:id' element={<BlogData/>}/>
-          <Route path='/collegecontest/:id/:date' element={<ContestRegistration/>}/>
-          <Route path='/featuredcontest/:id/:date' element={<FeaturedContestRegistration/>}/>
+          <Route path='/collegetestzone/:id/:date' element={<ContestRegistration/>}/>
+          <Route path='/testzone/:id/:date' element={<FeaturedContestRegistration/>}/>
           <Route path='/' element={<Navigate 
             to={getDetails?.userDetails?.role ? getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/home':'/'} 
             />}/>

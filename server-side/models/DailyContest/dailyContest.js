@@ -6,6 +6,10 @@ const contestSchema = new Schema({
         type: String,
         required: true
     },
+    slug:{
+        type: String,
+        required: true
+    },
     contestStartTime:{
         type: Date,
         required: true
@@ -71,6 +75,11 @@ const contestSchema = new Schema({
         enum: ['Cash','HeroCash']
     },
     tdsRelief:{
+        type:Boolean,
+        required: true,
+        default: false
+    },
+    visibility:{
         type:Boolean,
         required: true,
         default: false
