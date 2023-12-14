@@ -43,7 +43,7 @@ import Subscription from './subscriptionsBought'
 import Interns from './internCounter'
 // Images
 import axios from 'axios';
-import { adminRole, userRole } from '../../../variables';
+import { adminRole, userRole, Affiliate } from '../../../variables';
 import { userContext } from '../../../AuthContext';
 import Footer from "../components/Footer";
 import { apiUrl } from '../../../constants/constants';
@@ -261,6 +261,10 @@ function Cover(props) {
         const from = location.state?.from || "/home";
         navigate(from);
       }
+      else if(userData?.role?.roleName === Affiliate){
+        const from = location.state?.from || "/home";
+        navigate(from);
+      }
       return openSuccessSB("Account Created", data.message);
     } else {
       return openInfoSB("Error", data.message);
@@ -374,6 +378,10 @@ function Cover(props) {
               navigate(from);
             }
             else if(userData?.role?.roleName === userRole){
+              const from = location.state?.from || "/home";
+                navigate(from);
+            }
+            else if(userData?.role?.roleName === Affiliate){
               const from = location.state?.from || "/home";
                 navigate(from);
             }

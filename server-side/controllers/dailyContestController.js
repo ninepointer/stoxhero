@@ -829,10 +829,10 @@ exports.getFeaturedUpcomingContests = async (req, res) => {
     contestStartTime: { $gte: new Date() },
     contestStatus: "Active",
     contestLiveTime: { $lte: new Date()},
-    $or: [
-      { visibility: true },
-      { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
-    ]
+    // $or: [
+    //   { visibility: true },
+    //   { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
+    // ]
   })
   try {
       const contests = await Contest.find({
@@ -840,10 +840,10 @@ exports.getFeaturedUpcomingContests = async (req, res) => {
         contestStartTime: { $gte: new Date() },
         contestStatus: "Active",
         contestLiveTime: { $lte: new Date()},
-        $or: [
-          { visibility: true },
-          { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
-        ]
+        // $or: [
+        //   { visibility: true },
+        //   { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
+        // ]
           }).populate('portfolio', 'portfolioName _id portfolioValue')
           .populate('participants.userId', 'first_name last_name email mobile creationProcess')
           .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
@@ -974,7 +974,11 @@ exports.todaysContest = async (req, res) => {
 
     try {
         const contests = await Contest.find({
-            contestEndTime: { $gte: today }
+            contestEndTime: { $gte: today },
+            $or: [
+              {contestStatus: "Active"},
+              {contestStatus: "Completed"}
+            ]
         }).populate('portfolio', 'portfolioName _id portfolioValue')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .sort({ contestStartTime: 1 })
