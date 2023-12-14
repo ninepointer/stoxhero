@@ -829,10 +829,10 @@ exports.getFeaturedUpcomingContests = async (req, res) => {
     contestStartTime: { $gte: new Date() },
     contestStatus: "Active",
     contestLiveTime: { $lte: new Date()},
-    $or: [
-      { visibility: true },
-      { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
-    ]
+    // $or: [
+    //   { visibility: true },
+    //   { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
+    // ]
   })
   try {
       const contests = await Contest.find({
@@ -840,10 +840,10 @@ exports.getFeaturedUpcomingContests = async (req, res) => {
         contestStartTime: { $gte: new Date() },
         contestStatus: "Active",
         contestLiveTime: { $lte: new Date()},
-        $or: [
-          { visibility: true },
-          { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
-        ]
+        // $or: [
+        //   { visibility: true },
+        //   { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
+        // ]
           }).populate('portfolio', 'portfolioName _id portfolioValue')
           .populate('participants.userId', 'first_name last_name email mobile creationProcess')
           .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
@@ -974,7 +974,11 @@ exports.todaysContest = async (req, res) => {
 
     try {
         const contests = await Contest.find({
-            contestEndTime: { $gte: today }
+            contestEndTime: { $gte: today },
+            $or: [
+              {contestStatus: "Active"},
+              {contestStatus: "Completed"}
+            ]
         }).populate('portfolio', 'portfolioName _id portfolioValue')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .sort({ contestStartTime: 1 })
@@ -3485,7 +3489,7 @@ exports.findContestByName = async(req,res,next)=>{
         console.log("Body:",req.query)
         let dateString = date.includes('-') ? date.split('-').join('') : date.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
         console.log(new Date(dateString))
-        const result = await Contest.findOne({contestName: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'College'}).
+        const result = await Contest.findOne({slug: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'College'}).
         populate('portfolio', 'portfolioValue portfolioName').
             select('_id contestName contestStartTime contestEndTime payoutPercentage entryFee description');
         console.log(result)
