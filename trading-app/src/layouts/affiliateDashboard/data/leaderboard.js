@@ -12,13 +12,21 @@ import MDTypography from "../../../components/MDTypography/index.js";
 // import { Link} from "react-router-dom";
 // import moment from 'moment'
 import DataTable from '../../../examples/Tables/DataTable/index.js';
-import { CircularProgress, Grid } from '@mui/material';
+import { CardActionArea, CircularProgress, Grid } from '@mui/material';
 import FilteredUsers from './filteredUser.js';
 // import FilteredUsers from "./filteredUser";
 
 const LeaderBoard = () => {
 
     const [leaderboard, setFilteredUsers] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        setIsLoading(true)
+        setTimeout(() => {
+            setIsLoading(false)
+        }, 10000)
+    }, [leaderboard])
 
     let columns = [
         { Header: "#", accessor: "index", align: "center" },
@@ -42,7 +50,7 @@ const LeaderBoard = () => {
     ]
 
     let rows = [];
-    
+
     let arr = [];
     leaderboard?.map((elem, index) => {
         let totalAmount = (
@@ -52,16 +60,16 @@ const LeaderBoard = () => {
             ((elem?.signup || 0) * 15)
         );
         elem.total = totalAmount;
-    
+
         arr.push(JSON.parse(JSON.stringify(elem)));
     });
-    
+
 
     arr.sort((a, b) => {
         // Extract numerical values from the strings and remove commas
         // const aValue = parseFloat(a.total.props.children.replace(/[^0-9.-]+/g,""));
         // const bValue = parseFloat(b.total.props.children.replace(/[^0-9.-]+/g,""));
-    
+
         // Compare numerical values in descending order
         if (a.total > b.total) {
             return -1; // a should come before b
@@ -71,7 +79,7 @@ const LeaderBoard = () => {
             return 0; // a is equal to b
         }
     });
-    
+
     console.log("Arr", arr)
 
     arr?.map((elem, index) => {
@@ -128,7 +136,7 @@ const LeaderBoard = () => {
             </MDTypography>
         );
 
-        
+
         featureObj.marginxPayout = (
             <MDTypography component="a" variant="caption" fontWeight="medium">
                 {/* {elem?.marginx_payout || "-"} */}
@@ -139,7 +147,7 @@ const LeaderBoard = () => {
         featureObj.signupPayout = (
             <MDTypography component="a" variant="caption" fontWeight="medium">
                 {/* {elem?.marginx_payout || "-"} */}
-                {elem?.signup ? ("₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.signup*15))) : "-"}
+                {elem?.signup ? ("₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.signup * 15))) : "-"}
             </MDTypography>
         );
 
@@ -153,31 +161,20 @@ const LeaderBoard = () => {
         rows.push(featureObj)
     })
 
-    // console.log("rows", rows)
-    // rows.sort((a, b) => {
-    //     // Extract numerical values from the strings and remove commas
-    //     const aValue = parseFloat(a.total.props.children.replace(/[^0-9.-]+/g,""));
-    //     const bValue = parseFloat(b.total.props.children.replace(/[^0-9.-]+/g,""));
-    
-    //     // Compare numerical values in descending order
-    //     if (aValue > bValue) {
-    //         return -1; // a should come before b
-    //     } else if (aValue < bValue) {
-    //         return 1; // b should come before a
-    //     } else {
-    //         return 0; // a is equal to b
-    //     }
-    // });
-    
-
     return (
         <Card>
             <MDBox display="flex" justifyContent="space-between" alignItems="left">
-                <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{ backgroundColor: "lightgrey", borderRadius: "2px" }}>
+                {/* <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{ backgroundColor: "lightgrey", borderRadius: "2px" }}>
                     <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
                         LeaderBoard({leaderboard?.length})
                     </MDTypography>
-                </MDBox>
+                </MDBox> */}
+
+                <Grid item p={1} xs={12} md={12} lg={8} display='flex' justifyContent='flex-start'
+                    sx={{ minWidth: '100%', cursor: 'pointer', borderRadius: 1, backgroundColor: 'lightgrey' }}
+                >
+                    <MDTypography variant="h6" style={{ textAlign: 'center' }}>Affiliate Program Overview</MDTypography>
+                </Grid>
             </MDBox>
 
             <Grid mt={2} p={1} container style={{ border: '1px solid white', borderRadius: 5 }}>
@@ -193,9 +190,19 @@ const LeaderBoard = () => {
                     />
                 </MDBox>
                 :
-                <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ minWidth: '100%', minHeight: '380px' }}>
-                    <CircularProgress />
-                </Grid>}
+                isLoading ?
+                    <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ minWidth: '100%', minHeight: '380px' }}>
+                        <CircularProgress />
+                    </Grid>
+                    :
+                    <Card sx={{ minWidth: '100%', cursor: 'pointer', borderRadius: 1 }} >
+                        <CardActionArea>
+                            <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ minHeight: '20vH', width: '100%' }}>
+                                <MDTypography>No Data</MDTypography>
+                            </MDBox>
+                        </CardActionArea>
+                    </Card>
+            }
         </Card>
 
     )
