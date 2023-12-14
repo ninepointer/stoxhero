@@ -1,7 +1,7 @@
 const ContestRegistration  =require('../../models/DailyContest/dailyContestRegistration');
 const otpGenerator = require('otp-generator');
 const whatsAppService = require("../../utils/whatsAppService")
-const mediaURL = "https://dmt-trade.s3.amazonaws.com/blogs/Vijay/photos/1702573537294Frame%202.png";
+const mediaURL = "https://dmt-trade.s3.amazonaws.com/blogs/Vijay/photos/1702575002734logo.jpg";
 const mediaFileName = 'StoxHero'
 const moment = require('moment');
 const {sendSMS, sendOTP} = require('../../utils/smsService');
@@ -346,8 +346,8 @@ if(!existingUser){
                     // whatsAppService.sendWhatsApp({destination : newuser?.mobile, campaignName : 'college_contest_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser?.first_name, contest?.contestName, contest?.contestName, moment.utc(contest?.contestStartTime).utcOffset('+05:30').format("DD-MMM hh:mm a"), moment.utc(contest?.contestEndTime).utcOffset('+05:30').format("DD-MMM hh:mm a"), (contest?.portfolio?.portfolioValue)?.toString(), (contest?.payoutPercentage)?.toString(), (contest?.entryFee)?.toString()], tags : '', attributes : ''});
                   }
                   else {
-                      // whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'college_contest_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, contest?.contestName, contest?.contestName, contest?.contestStartTime, contest?.contestEndTime, contest?.portfolio?.portfolioValue, contest?.payoutPercentage, contest?.entryFee], tags : '', attributes : ''});
-                    //   whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'college_contest_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser?.first_name, contest?.contestName, contest?.contestName, moment.utc(contest?.contestStartTime).utcOffset('+05:30').format("DD-MMM hh:mm a"), moment.utc(contest?.contestEndTime).utcOffset('+05:30').format("DD-MMM hh:mm a"), (contest?.portfolio?.portfolioValue)?.toString(), (contest?.payoutPercentage)?.toString(), (contest?.entryFee)?.toString()], tags : '', attributes : ''});
+                    //   whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'college_contest_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name, contest?.contestName, contest?.contestName, contest?.contestStartTime, contest?.contestEndTime, contest?.portfolio?.portfolioValue, contest?.payoutPercentage, contest?.entryFee], tags : '', attributes : ''});
+                    //   whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'college_contest_signup_campaign', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser?.first_name, contest?.contestName, contest?.contestName, moment.utc(contest?.contestStartTime).utcOffset('+05:30').format("DD-MMM hh:mm a"), moment.utc(contest?.contestEndTime).utcOffset('+05:30').format("DD-MMM hh:mm a"), (contest?.portfolio?.portfolioValue)?.toString(), (contest?.payoutPercentage)?.toString(), (contest?.entryFee)?.toString()], tags : '', attributes : ''});
                   }
 
     }catch(error){
