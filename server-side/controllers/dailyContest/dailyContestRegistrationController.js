@@ -1,7 +1,7 @@
 const ContestRegistration  =require('../../models/DailyContest/contestRegistration');
 const otpGenerator = require('otp-generator');
 const whatsAppService = require("../../utils/whatsAppService")
-const mediaURL = "https://dmt-trade.s3.amazonaws.com/carousels/WhastAp%20Msg%20Photo/photos/1697228055934Welcome%20to%20the%20world%20of%20Virtual%20Trading%20but%20real%20earning%21.png";
+const mediaURL = "https://dmt-trade.s3.amazonaws.com/blogs/Vijay/photos/1702573537294Frame%202.png";
 const mediaFileName = 'StoxHero'
 const moment = require('moment');
 const {sendSMS, sendOTP} = require('../../utils/smsService');

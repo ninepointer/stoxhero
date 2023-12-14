@@ -1,7 +1,7 @@
 const ContestRegistration  =require('../../models/DailyContest/dailyContestRegistration');
 const otpGenerator = require('otp-generator');
 const whatsAppService = require("../../utils/whatsAppService")
-const mediaURL = "https://dmt-trade.s3.amazonaws.com/carousels/WhastAp%20Msg%20Photo/photos/1697228055934Welcome%20to%20the%20world%20of%20Virtual%20Trading%20but%20real%20earning%21.png";
+const mediaURL = "https://dmt-trade.s3.amazonaws.com/blogs/Vijay/photos/1702573537294Frame%202.png";
 const mediaFileName = 'StoxHero'
 const moment = require('moment');
 const {sendSMS, sendOTP} = require('../../utils/smsService');
@@ -170,6 +170,8 @@ if(!existingUser){
                 );
             }
             
+            const referralProgram = await ReferralProgram.findOne({status:'Active'})
+
             if(campaign){
                 campaign?.users?.push({userId:newuser._id,joinedOn: new Date()})
                 const campaignData = await Campaign.findOneAndUpdate({_id: campaign._id}, {
@@ -177,7 +179,7 @@ if(!existingUser){
                         users: campaign?.users
                     }
                 })
-                if(campaign?.campaignSignupBonus?.amount){
+                if(campaign?.campaignSignupBonus?.amount && !referralProgram?.referralSignupBonus?.amount){
                     await addSignupBonus(newuser?._id, campaign?.campaignSignupBonus?.amount, campaign?.campaignSignupBonus?.currency);
                 }
             }
@@ -189,7 +191,6 @@ if(!existingUser){
             dailyContest.potentialParticipants.push(newuser._id);
             await dailyContest.save({validateBeforeSave:false});
             if(referrerCode){
-                const referralProgram = await ReferralProgram.findOne({status:'Active'})
                 // console.log("referralProgram", referralProgram)
                 referralUser?.referrals?.push({
                     referredUserId:newuser._id,
@@ -200,7 +201,7 @@ if(!existingUser){
                 const referralUserWallet = await UserWallet.findOne({userId: referralUser?._id});
                 // const referralUserWallet = await UserWallet.findOne({userId: referralUser?._id});
                 // console.log("rffrl", referralProgram?.referralSignupBonus?.amount , !campaign?.campaignSignupBonus?.amount)
-                if(referralProgram?.referralSignupBonus?.amount && !campaign?.campaignSignupBonus?.amount){
+                if(referralProgram?.referralSignupBonus?.amount){
                     await addSignupBonus(newuser?._id, referralProgram?.referralSignupBonus?.amount, referralProgram?.referralSignupBonus?.currency);
                 }
                 referralUserWallet?.transactions?.push({
