@@ -38,6 +38,7 @@ import DefaultCarouselImage from '../../assets/images/defaultcarousel.png'
 // import CreateRewards from './data/reward/createReward';
 // import ContestRewards from './data/reward/contestReward';
 import {apiUrl} from  '../../constants/constants';
+import moment from 'moment';
 
 const CustomAutocomplete = styled(Autocomplete)`
   .MuiAutocomplete-clearIndicator {
@@ -75,6 +76,8 @@ function Index() {
   const [notification, setNotification] = useState([]);
   const [image, setImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState([]);
+  const [previousNotifications, setPreviousNotifications] = useState([]);
+  const [isSending, setIsSending] = useState(false);
   // const [featuredRegistrations, setFeaturedRegistrations] = useState([]);
   // // const [careers,setCareers] = useState([]);
   // const [action, setAction] = useState(false);
@@ -89,6 +92,7 @@ function Index() {
       id: "" || sendNotification?.notificationGroup?._id,
       name: "" || sendNotification?.notificationGroup?.notificationGroupName
     },
+    actions:'' || sendNotification?.actions
   });
 
 
@@ -103,6 +107,12 @@ function Index() {
 
   }, [])
 
+  const getPreviousNotifications = async(id) =>{
+    console.log('id hai', id);
+    const res = await axios.get(`${baseUrl}api/v1/notificationgroup/${id}/previousnotifications`, {withCredentials: true});
+    console.log('data ye aaya', res.data.data);
+    setPreviousNotifications(res.data.data);
+  }
 
   // console.log("College:", collegeSelectedOption)
   const handleGroupChange = (event) => {
@@ -112,6 +122,7 @@ function Index() {
     let notificationId = notification?.filter((elem) => {
       return elem.notificationGroupName === value;
     })
+    getPreviousNotifications(notificationId[0]?._id);
     setFormState(prevState => ({
       ...prevState,
       notificationGroup: {
@@ -155,6 +166,7 @@ function Index() {
     }
     formData.append('title', title);
     formData.append('body', body);
+    setIsSending(true);
     const res = await fetch(`${baseUrl}api/v1/push/group/${notificationGroup?.id}`, {
       method: "POST",
       credentials: "include",
@@ -164,15 +176,18 @@ function Index() {
       },
       body: formData
     });
-
-
+    
+    
     const data = await res.json();
+    setIsSending(false);
     console.log(data, res.status);
     if (res.status!= 200) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       openErrorSB("Notifications not sent", data?.message)
     } else {
-      openSuccessSB("Group Notifications sent", data?.message)
+      openSuccessSB("Group Notifications sent", data?.message);
+      console.log('data hai ye', formState?.notificationGroup?.id);
+      await getPreviousNotifications(formState?.notificationGroup?.id);  
       setNewObjectId(data?.data?._id)
       setIsSubmitted(true)
       setSendNotification(data?.data);
@@ -330,12 +345,14 @@ function Index() {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6} xl={9}>
+                <Grid item xs={12} md={6} xl={6}>
                   <TextField
                     disabled={((isSubmitted || sendNotification) && (!editing || saving))}
                     id="outlined-required"
                     label='Body *'
                     name='body'
+                    multiline
+                    maxRows={4}
                     fullWidth
                     defaultValue={editing ? formState?.body : sendNotification?.body}
                     onChange={(e) => {
@@ -346,6 +363,45 @@ function Index() {
                     }}
                   />
                 </Grid>
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormControl sx={{ width: '100%' }}>
+                    <InputLabel id="demo-multiple-name-label">Route</InputLabel>
+                    <Select
+                      labelId="demo-multiple-name-label"
+                      id="demo-multiple-name"
+                      name='route'
+                      disabled={((isSubmitted || sendNotification) && (!editing || saving))}
+                      // defaultValue={id ? portfolios?.portfolio : ''}
+                      value={formState?.actions}
+                      // onChange={handleTypeChange}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          actions: e.target.value
+                        }))
+                      }}
+                      input={<OutlinedInput label="TestZone For" />}
+                      sx={{ minHeight: 45 }}
+                      MenuProps={MenuProps}
+                    >
+                      <MenuItem value='home'>home</MenuItem>
+                      <MenuItem value='wallet'>wallet</MenuItem>
+                      <MenuItem value='market'>market</MenuItem>
+                      <MenuItem value='marginxs'>marginxs</MenuItem>
+                      <MenuItem value='tenxtrading'>tenxtrading</MenuItem>
+                      <MenuItem value='testzone'>testzone</MenuItem>
+                      <MenuItem value='collegetestzone'>collegetestzone</MenuItem>
+                      <MenuItem value='portfolio'>portfolio</MenuItem>
+                      <MenuItem value='internship'>internship</MenuItem>
+                      <MenuItem value='marketguru'>marketguru</MenuItem>
+                      <MenuItem value='tutorials'>tutorials</MenuItem>
+                      <MenuItem value='profile'>profile</MenuItem>
+                      <MenuItem value='referrals'>referrals</MenuItem>
+                      <MenuItem value='faqs'>faqs</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+
 
                 <Grid item xs={12} md={6} xl={3}>
                   <MDButton variant="outlined" style={{ fontSize: 10, color:'black', border:'1px black solid' }} fullWidth component="label">
@@ -386,7 +442,11 @@ function Index() {
                       name='notificationGroup'
                       disabled={((isSubmitted || sendNotification) && (!editing || saving))}
                       value={formState?.notificationGroup?.name || sendNotificationData?.notificationGroup?.notificationGroupName || sendNotification?.notificationGroup?.notificationGroupName}
-                      onChange={handleGroupChange}
+                      onChange={(event)=>{
+                        handleGroupChange(event);
+
+
+                      }}
                       input={<OutlinedInput label="Portfolio" />}
                       sx={{ minHeight: 45 }}
                       MenuProps={MenuProps}
@@ -432,7 +492,7 @@ function Index() {
                       disabled={creating}
                       onClick={(e) => { onSubmit(e, formState) }}
                     >
-                      {creating ? <CircularProgress size={20} color="inherit" /> : "Send"}
+                      {creating || isSending ? <CircularProgress size={20} color="inherit" /> : "Send"}
                     </MDButton>
                     <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/tenxdashboard") }}>
                       Cancel
@@ -441,7 +501,41 @@ function Index() {
                 }
 
               </Grid>
-
+            <>
+              <Grid xl ={12}>
+                {previousNotifications?.length>0 && <MDTypography>Previous Notifications</MDTypography>}
+                {previousNotifications?.map(item=>{
+                  return(
+                   <> 
+                  <Grid xl={12} >
+                  <MDBox display='flex' justifyContent='space-between' style={{
+                    padding:'12px',
+                    marginBottom:'12px', 
+                    padding:'12px', 
+                    borderRadius:'16px', 
+                    boxShadow:"0px 4px 6px -2px rgba(0, 0, 0, 0.5)"
+                  }}>
+                    <MDBox>
+                    <MDTypography fontSize={16}>
+                      Title: {item?.title}
+                    </MDTypography>
+                    <MDTypography fontSize={14}>
+                      Body:{item?.body}
+                    </MDTypography>
+                    <MDTypography fontSize={12}>
+                      Notification Date:{moment(item?.createdOn).format('DD-MM-YY hh:mm a')}
+                    </MDTypography>
+                    {/* <MDButton>Send Again</MDButton> */}
+                    </MDBox>
+                    <MDBox>
+                    {item?.mediaUrl&&<img width='200px' height='100px' src ={item?.mediaUrl}/>}
+                    </MDBox>
+                  </MDBox>
+                  </Grid>  
+                   </> 
+                )})}
+              </Grid>
+              </>
 
             </Grid>
 
