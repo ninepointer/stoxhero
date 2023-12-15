@@ -210,7 +210,7 @@ router.get('/updatepaidDate', async (req, res) => {
         paidDetails.paidProduct = elem?.activationDetails.activationProduct;
         paidDetails.paidDate = elem?.activationDetails.activationDate;
         paidDetails.paidProductPrice = elem?.activationDetails.activationProductPrice;
-        paidDetails.status = "Active";
+        paidDetails.paidStatus = "Active";
       } else{
         let contest = await DailyContestMockUser.aggregate([
           {
@@ -372,6 +372,188 @@ router.get('/updatepaidDate', async (req, res) => {
 })
 
 
+router.get('/updatepaidstatus', async(req,res) =>{
+  const user = await UserDetail.find({"paidDetails.paidStatus": null, "paidDetails.paidDate": {$ne : null}});
+  for(let elem of user){
+    
+    elem.paidDetails.paidStatus = "Active";
+    console.log(elem);
+    await elem.save({validateBeforeSave: false});
+  }
+})
+
+
+router.get('/updatenewpaid', async(req,res) =>{
+  const contest = await DailyContest.aggregate([
+    {
+      $match: {
+        entryFee: {
+          $gt: 0,
+        },
+      },
+    },
+    {
+      $project: {
+        allParticipants: "$participants",
+        entryFee: 1,
+      },
+    },
+    {
+      $unwind: "$allParticipants",
+    },
+    {
+      $project:
+
+      {
+        fee: "$entryFee",
+        boughtAt:
+          "$allParticipants.participatedOn",
+        _id: 0,
+        userId: "$allParticipants.userId",
+        product: new ObjectId("6517d48d3aeb2bb27d650de5")
+      },
+    },
+
+  ]);
+  console.log(contest.length);
+  const tenx = await TenxSubscription.aggregate([
+    {
+      $project: {
+        allParticipants: "$users",
+        discounted_price: 1
+      },
+    },
+    {
+      $unwind: "$allParticipants",
+    },
+    {
+      $project: {
+        fee: "$discounted_price",
+        userId: "$allParticipants.userId",
+        _id: 0,
+        boughtAt: "$allParticipants.subscribedOn",
+        product: new ObjectId("6517d3803aeb2bb27d650de0")
+      }
+    }
+  ]);
+
+  console.log(tenx.length);
+  const marginx = await MarginX.aggregate([
+    {
+      $lookup: {
+        from: "marginx-templates",
+        localField: "marginXTemplate",
+        foreignField: "_id",
+        as: "template",
+      },
+    },
+    {
+      $project: {
+        allParticipants: "$participants",
+        fee: {
+          $arrayElemAt: ["$template.entryFee", 0],
+        },
+      },
+    },
+    {
+      $unwind:
+
+      {
+        path: "$allParticipants",
+      },
+    },
+    {
+      $project:
+      {
+        userId: "$allParticipants.userId",
+        _id: 0,
+        fee: 1,
+        boughtAt: "$allParticipants.boughtAt",
+        product: new ObjectId("6517d40e3aeb2bb27d650de1")
+      },
+    },
+  ])
+
+  console.log(marginx.length);
+  const battle = await Battle.aggregate([
+    {
+      $lookup: {
+        from: "battle-templates",
+        localField: "battleTemplate",
+        foreignField: "_id",
+        as: "template",
+      },
+    },
+    {
+      $project: {
+        allParticipants: "$participants",
+        fee: {
+          $arrayElemAt: ["$template.entryFee", 0],
+        },
+      },
+    },
+    {
+      $unwind:
+      {
+        path: "$allParticipants",
+      },
+    },
+    {
+      $project:
+      {
+        userId: "$allParticipants.userId",
+        _id: 0,
+        fee: 1,
+        boughtAt: "$allParticipants.boughtAt",
+        product: new ObjectId("6517d4623aeb2bb27d650de2")
+      },
+    },
+  ]);
+
+  console.log(battle.length);
+
+  let concatenatedArray = contest.concat(tenx, marginx, battle);
+
+  let uniqueMap = new Map();
+
+// Iterate through the array and update the map
+
+
+concatenatedArray.forEach((element) => {
+  const userId = (element.userId).toString();
+  if (!uniqueMap.has(userId) || new Date(element.boughtAt) < new Date(uniqueMap.get(userId).boughtAt)) {
+    console.log(element);
+    uniqueMap.set(userId, element);
+  }
+});
+
+// Convert the map values back to an array
+let uniqueArray = Array.from(uniqueMap.values());
+
+console.log(uniqueArray.length);
+
+  // const paidUsers = [];
+let count = 0;
+  for(let elem of uniqueArray){
+    const user = await UserDetail.findOneAndUpdate({_id: new ObjectId(elem.userId), "paidDetails.paidDate": {$eq: null}},
+    {
+      $set: {
+        "paidDetails.paidProduct": elem.product,
+        "paidDetails.paidDate": elem.boughtAt,
+        "paidDetails.paidStatus": "Inactive",
+        "paidDetails.paidProductPrice": elem.fee,
+      }
+    }
+    );
+    console.log(user?.name)
+    if(user){
+      console.log(count)
+      count += 1;
+    }
+  }
+console.log(count)
+  res.send(count);
+})
 
 router.get('/updatecreationprocess', async(req,res) =>{
   const user = await UserDetail.find({creationProcess: "Auto SignUp"});
