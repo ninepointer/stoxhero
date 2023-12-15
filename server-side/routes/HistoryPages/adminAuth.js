@@ -3112,7 +3112,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2023-12-13T20:00:00.000+00:00"
+  let expiryDate = "2023-12-14T20:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(
@@ -3120,10 +3120,10 @@ router.get("/updateInstrumentStatus", async (req, res) => {
     { $set: { status: "Inactive" } }
   )
 
-  let infinityInstrument = await InfinityInstrument.updateMany(
-    { contractDate: { $lte: expiryDate }, status: "Active" },
-    { $set: { status: "Inactive" } }
-  )
+  // let infinityInstrument = await InfinityInstrument.updateMany(
+  //   { contractDate: { $lte: expiryDate }, status: "Active" },
+  //   { $set: { status: "Inactive" } }
+  // )
 
 
   // const userIns = await UserDetail.find()
@@ -3154,7 +3154,7 @@ router.get("/updateInstrumentStatus", async (req, res) => {
 
   await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "", allInstruments: "" } });
 
-  res.send({ message: "updated", data: instrument, data1: infinityInstrument })
+  res.send({ message: "updated", data: instrument })
 })
 
 router.get("/updatePortfolio", async (req, res) => {
