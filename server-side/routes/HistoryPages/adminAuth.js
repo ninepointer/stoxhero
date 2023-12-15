@@ -187,147 +187,180 @@ router.get('/pendingorder', async (req, res) => {
 })
 
 
-router.get('/updateactivationdate', async (req, res) => {
-  // let ids = ["64e4d0bb3901d36ce7730549", "64ab9b1bbc383a1888d605ce",
-  //             "64e5562e28367dee0f88df6f", "64b63326dc241119b4d7f342",
-  //             "65544e834bddc04764a77d7c", "656587ddc28f5b5c1bac9da1"
-  //           ]
+router.get('/updatepaidDate', async (req, res) => {
+  let ids = ["64e4d0bb3901d36ce7730549", "64ab9b1bbc383a1888d605ce",
+              "64e5562e28367dee0f88df6f", "64b63326dc241119b4d7f342",
+              "65544e834bddc04764a77d7c", "656587ddc28f5b5c1bac9da1"
+            ]
 
   // let ids = [
   //   "63788f3991fc4bf629de6df0", "63971eec2ca5ce5b52f900b7", "642c6434573edbfcb2ac45a5", "6453c1435509f00c92fd59b7"
   // ]
-  // for(let id of ids){
-    const user = await UserDetail.find({ activationDetails: null }).select('_id subscription')
+  for(let id of ids){
+    const user = await UserDetail.find({_id: new ObjectId(id) }).select('_id subscription activationDetails')
+
+    // const user = await UserDetail.find({ "activationDetails.activationStatus": "Active" }).select('_id subscription activationDetails')
     let count = 0;
     for (let elem of user) {
-      // console.log(elem)
+      let paidDetails = {};
       count += 1;
-      let intern = await InternTrade.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } }).select('trade_time')
-      let contest = await DailyContestMockUser.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } })
-        .populate('contestId', 'entryFee')
-        .select('trade_time contestId')
-      let paper = await PaperTrade.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } })
-        .select('trade_time')
-      let marginx = await MarginXUser.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } })
-        .populate({
-          path: 'marginxId',
-          select: 'marginXTemplate',
-          populate: {
-            path: 'marginXTemplate',
-            select: 'entryFee' // Add the fields you want to select from marginXTemplate
-          }
-        })
-        .select('trade_time marginxId')
-      let battle = await BattleMock.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } })
-        .populate({
-          path: 'battleId',
-          select: 'battleTemplate',
-          populate: {
-            path: 'battleTemplate',
-            select: 'entryFee' // Add the fields you want to select from marginXTemplate
-          }
-        })
-        .select('trade_time battleId')
-      // .select('trade_time')
-      let tenx = await TenXTrade.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } })
-        .populate('subscriptionId', 'discounted_price')
-        .select('trade_time subscriptionId')
-  
-      console.log(intern,
-        contest,
-        paper,
-        marginx,
-        battle,
-        tenx, elem.subscription[0])
-  
-      let date1 = new Date(intern?.trade_time);
-      let date2 = new Date(contest?.trade_time);
-      let date3 = new Date(paper?.trade_time);
-      let date4 = new Date(marginx?.trade_time);
-      let date5 = new Date(tenx?.trade_time);
-      let date6 = new Date(battle?.trade_time);
-  
-      let old = [intern && date1, contest && date2,
-      paper && date3, marginx && date4, tenx && date5, battle && date6];
-  
-      let dates = [];
-      for (let suubelem of old) {
-        if (suubelem) {
-          dates.push(suubelem);
-        }
-      }
-      console.log(dates)
-      // Sort the dates in ascending order
-      dates.sort((a, b) => a - b);
-  
-      // The smallest date is now the first element in the array
-      let smallestDate = dates[0];
-  
-      let activationDetails = {};
-      if (dates[0] == date1) {
-  
-        activationDetails.activationDate = dates[0];
-        activationDetails.activationProduct = "6517d46e3aeb2bb27d650de3"
-        activationDetails.activationType = "Free"
-        activationDetails.activationStatus = "Active"
-        activationDetails.activationProductPrice = 0
-      } else if (dates[0] == date2) {
-        activationDetails.activationDate = dates[0];
-        activationDetails.activationProduct = "6517d48d3aeb2bb27d650de5"
-  
-        if (contest?.contestId?.entryFee > 0) {
-          activationDetails.activationType = "Paid"
-          activationDetails.activationProductPrice = contest?.contestId?.entryFee
-        } else {
-          activationDetails.activationType = "Free"
-          activationDetails.activationProductPrice = 0
-        }
-        activationDetails.activationStatus = "Active"
-  
-
-      } else if (dates[0] == date3) {
-        activationDetails.activationDate = dates[0];
-        activationDetails.activationProduct = "65449ee06932ba3a403a681a"
-        activationDetails.activationType = "Free"
-        activationDetails.activationStatus = "Active"
-        activationDetails.activationProductPrice = 0
-  
-      } else if (dates[0] == date4) {
-        activationDetails.activationDate = dates[0];
-        activationDetails.activationProduct = "6517d40e3aeb2bb27d650de1"
-        activationDetails.activationType = "Paid"
-        activationDetails.activationProductPrice = marginx?.marginxId?.marginXTemplate?.entryFee
-        activationDetails.activationStatus = "Active"
-  
-      } else if (dates[0] == date6) {
-        activationDetails.activationDate = dates[0];
-        activationDetails.activationProduct = "6517d4623aeb2bb27d650de2"
-        activationDetails.activationType = "Paid"
-        activationDetails.activationProductPrice = battle?.battleId?.battleTemplate?.entryFee
-        activationDetails.activationStatus = "Active"
-  
-      } else if (dates[0] == date5) {
-        activationDetails.activationDate = dates[0];
-        activationDetails.activationProduct = "6517d3803aeb2bb27d650de0"
-        activationDetails.activationType = "Paid"
-        activationDetails.activationProductPrice = elem.subscription[0]?.fee || tenx?.subscriptionId?.discounted_price
-        activationDetails.activationStatus = "Active"
-  
+      if(elem?.activationDetails.activationType === "Paid"){
+        paidDetails.paidProduct = elem?.activationDetails.activationProduct;
+        paidDetails.paidDate = elem?.activationDetails.activationDate;
+        paidDetails.paidProductPrice = elem?.activationDetails.activationProductPrice;
+        paidDetails.paidStatus = "Active";
       } else{
-        activationDetails.activationStatus = "Inactive"
+
+        let contest = await DailyContestMockUser.aggregate([
+          {
+            $match: {
+              trader: new ObjectId(
+                elem?._id
+              ),
+            },
+          },
+          {
+            $lookup: {
+              from: "daily-contests",
+              localField: "contestId",
+              foreignField: "_id",
+              as: "contest",
+            },
+          },
+          {
+            $match: {
+              "contest.entryFee": {
+                $gt: 0,
+              },
+              trade_time: {
+                $gte: new Date("2020-01-01"),
+              },
+            },
+          },
+          {
+            $project: {
+              trade_time: 1,
+              entryFee: {
+                $arrayElemAt: ["$contest.entryFee", 0],
+              },
+              _id: 0,
+            },
+          },
+          {
+            $sort: {
+              trade_time: 1,
+            },
+          },
+          {
+            $limit: 1,
+          },
+        ])
+
+        let marginx = await MarginXUser.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } })
+          .populate({
+            path: 'marginxId',
+            select: 'marginXTemplate',
+            populate: {
+              path: 'marginXTemplate',
+              select: 'entryFee' // Add the fields you want to select from marginXTemplate
+            }
+          })
+          .select('trade_time marginxId')
+
+        let battle = await BattleMock.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } })
+          .populate({
+            path: 'battleId',
+            select: 'battleTemplate',
+            populate: {
+              path: 'battleTemplate',
+              select: 'entryFee' // Add the fields you want to select from marginXTemplate
+            }
+          })
+          .select('trade_time battleId')
+        
+        let tenx = await TenXTrade.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } })
+          .populate('subscriptionId', 'discounted_price')
+          .select('trade_time subscriptionId')
+    
+        let contestData = new Date(contest[0]?.trade_time);
+        let marginxData = new Date(marginx?.trade_time);
+        let tenxData = new Date(tenx?.trade_time);
+        let battleData = new Date(battle?.trade_time);
+    
+        let old = [contest && contestData,
+         marginx && marginxData, tenx && tenxData, battle && battleData];
+    
+        let dates = [];
+        for (let suubelem of old) {
+          if (suubelem) {
+            dates.push(suubelem);
+          }
+        }
+        // console.log(dates)
+        // Sort the dates in ascending order
+        dates.sort((a, b) => a - b);
+    
+        // The smallest date is now the first element in the array
+        let smallestDate = dates[0];
+    
+       
+       if (dates[0] == contestData) {
+          paidDetails.paidDate = dates[0];
+          paidDetails.paidProduct = "6517d48d3aeb2bb27d650de5"
+    
+          // console.log(contest)
+          if (contest[0]?.entryFee > 0) {
+            // paidDetails.activationType = "Paid"
+            paidDetails.paidProductPrice = contest[0]?.entryFee
+          } else {
+            console.log("Free contest found")
+            throw new Error();
+          }
+          paidDetails.paidStatus = "Active"
+    
+  
+        } else if (dates[0] == marginxData) {
+          paidDetails.paidDate = dates[0];
+          paidDetails.paidProduct = "6517d40e3aeb2bb27d650de1"
+          // paidDetails.activationType = "Paid"
+          paidDetails.paidProductPrice = marginx?.marginxId?.marginXTemplate?.entryFee
+          paidDetails.paidStatus = "Active"
+    
+        } else if (dates[0] == battleData) {
+          paidDetails.paidDate = dates[0];
+          paidDetails.paidProduct = "6517d4623aeb2bb27d650de2"
+          // paidDetails.activationType = "Paid"
+          paidDetails.paidProductPrice = battle?.battleId?.battleTemplate?.entryFee
+          paidDetails.paidStatus = "Active"
+    
+        } else if (dates[0] == tenxData) {
+          paidDetails.paidDate = dates[0];
+          paidDetails.paidProduct = "6517d3803aeb2bb27d650de0"
+          // paidDetails.activationType = "Paid"
+          paidDetails.paidProductPrice = elem.subscription[0]?.fee || tenx?.subscriptionId?.discounted_price
+          paidDetails.paidStatus = "Active"
+    
+        } else{
+          paidDetails.paidStatus = "Inactive"
+        }
+    
+        // console.log(smallestDate, count);
+    
+        console.log(paidDetails)
+        elem.paidDetails = paidDetails;
+        // await elem.save({validateBeforeSave: false});
+  
       }
-  
-      console.log(smallestDate, count);
-  
-      console.log(activationDetails)
-      elem.activationDetails = activationDetails;
-      await elem.save({validationBeforeSave: false});
+      // console.log(elem)
+      
     }
-  // }
+  }
 
 
   res.send("ok")
 })
+
+
 
 router.get('/updatecreationprocess', async(req,res) =>{
   const user = await UserDetail.find({creationProcess: "Auto SignUp"});
@@ -3169,7 +3202,7 @@ router.get("/updatePortfolio", async (req, res) => {
     for (const portfolio of activeFreePortfolios) {
       let obj = {};
       obj.portfolioId = portfolio._id;
-      obj.activationDate = new Date();
+      obj.paidDate = new Date();
       portfolioArr.push(obj);
     }
 
