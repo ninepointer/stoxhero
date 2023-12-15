@@ -158,7 +158,7 @@ function Index() {
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const {title, body, notificationGroup} = formState;
+    const {title, body, notificationGroup, actions} = formState;
     const formData = new FormData();
     if (image) {
       console.log('image hai');
@@ -166,6 +166,9 @@ function Index() {
     }
     formData.append('title', title);
     formData.append('body', body);
+    if(actions){
+      formData.append('actions', actions);
+    }
     setIsSending(true);
     const res = await fetch(`${baseUrl}api/v1/push/group/${notificationGroup?.id}`, {
       method: "POST",
