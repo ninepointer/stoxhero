@@ -27,7 +27,7 @@ const Authenticate = async (req, res, next) => {
             if(user?.role?.toString()=='644903ac236de3fd7cfd755c'){
                 return res.status(400).json({status:'error', message:'Invalid request'});
             }
-            user._id = new ObjectId(user._id);
+            // user._id = new ObjectId(user._id);
             await client.expire(`${verifyToken._id.toString()}authenticatedUser`, 180);
             if(new Date(user?.passwordChangedAt)>new Date(verifyToken?.iat)){
                 // console.log('password changed');

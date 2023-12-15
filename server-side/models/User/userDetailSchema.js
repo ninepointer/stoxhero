@@ -398,10 +398,10 @@ const userDetailSchema = new mongoose.Schema({
 
 //Adding the ninepointer id before saving
 userDetailSchema.pre('save', async function(next){
-    if (this.isModified('paidDetails')) {
-        // Skip the pre-save logic for activationDate updates
-        return next();
-    }
+    // if (this.isModified('paidDetails')) {
+    //     // Skip the pre-save logic for activationDate updates
+    //     return next();
+    // }
     // console.log("inside employee id generator code")
     if(!this.employeeid || this.isNew){
         const count = await this.constructor.countDocuments();

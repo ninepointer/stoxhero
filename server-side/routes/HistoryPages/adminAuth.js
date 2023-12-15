@@ -196,21 +196,22 @@ router.get('/updatepaidDate', async (req, res) => {
   // let ids = [
   //   "63788f3991fc4bf629de6df0", "63971eec2ca5ce5b52f900b7", "642c6434573edbfcb2ac45a5", "6453c1435509f00c92fd59b7"
   // ]
-  for(let id of ids){
-    const user = await UserDetail.find({_id: new ObjectId(id) }).select('_id subscription activationDetails')
+  // for(let id of ids){
+  //   const user = await UserDetail.find({ _id: new ObjectId(id) }).select('_id subscription activationDetails')
 
-    // const user = await UserDetail.find({ "activationDetails.activationStatus": "Active" }).select('_id subscription activationDetails')
+    const user = await UserDetail.find({ "activationDetails.activationStatus": "Active" }).select('_id subscription activationDetails')
     let count = 0;
+
     for (let elem of user) {
-      let paidDetails = {};
+      // console.log(elem._id)
       count += 1;
+      let paidDetails = {};
       if(elem?.activationDetails.activationType === "Paid"){
         paidDetails.paidProduct = elem?.activationDetails.activationProduct;
         paidDetails.paidDate = elem?.activationDetails.activationDate;
         paidDetails.paidProductPrice = elem?.activationDetails.activationProductPrice;
-        paidDetails.paidStatus = "Active";
+        paidDetails.status = "Active";
       } else{
-
         let contest = await DailyContestMockUser.aggregate([
           {
             $match: {
@@ -255,7 +256,9 @@ router.get('/updatepaidDate', async (req, res) => {
             $limit: 1,
           },
         ])
-
+        // let intern = await InternTrade.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } }).select('trade_time')
+        // let paper = await PaperTrade.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } })
+          // .select('trade_time')
         let marginx = await MarginXUser.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } })
           .populate({
             path: 'marginxId',
@@ -266,7 +269,6 @@ router.get('/updatepaidDate', async (req, res) => {
             }
           })
           .select('trade_time marginxId')
-
         let battle = await BattleMock.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } })
           .populate({
             path: 'battleId',
@@ -277,17 +279,25 @@ router.get('/updatepaidDate', async (req, res) => {
             }
           })
           .select('trade_time battleId')
-        
+        // .select('trade_time')
         let tenx = await TenXTrade.findOne({ trader: elem?._id, status: "COMPLETE", trade_time: { $gt: new Date("2020-01-01") } })
           .populate('subscriptionId', 'discounted_price')
           .select('trade_time subscriptionId')
     
+        // console.log(
+        //   contest,
+        //   marginx,
+        //   battle,
+        //   tenx, elem.subscription[0])
+    
+        // let date1 = new Date(intern?.trade_time);
         let contestData = new Date(contest[0]?.trade_time);
+        // let date3 = new Date(paper?.trade_time);
         let marginxData = new Date(marginx?.trade_time);
         let tenxData = new Date(tenx?.trade_time);
         let battleData = new Date(battle?.trade_time);
     
-        let old = [contest && contestData,
+        let old = [contest.length && contestData,
          marginx && marginxData, tenx && tenxData, battle && battleData];
     
         let dates = [];
@@ -301,14 +311,15 @@ router.get('/updatepaidDate', async (req, res) => {
         dates.sort((a, b) => a - b);
     
         // The smallest date is now the first element in the array
+        // console.log(dates)
         let smallestDate = dates[0];
     
-       
+      //  console.log(dates[0] == contestData, dates[0] , contestData)
        if (dates[0] == contestData) {
           paidDetails.paidDate = dates[0];
           paidDetails.paidProduct = "6517d48d3aeb2bb27d650de5"
     
-          // console.log(contest)
+          console.log(contest)
           if (contest[0]?.entryFee > 0) {
             // paidDetails.activationType = "Paid"
             paidDetails.paidProductPrice = contest[0]?.entryFee
@@ -346,14 +357,14 @@ router.get('/updatepaidDate', async (req, res) => {
     
         // console.log(smallestDate, count);
     
-        console.log(paidDetails)
-        elem.paidDetails = paidDetails;
-        // await elem.save({validateBeforeSave: false});
   
       }
       // console.log(elem)
       
-    }
+      console.log(paidDetails, count)
+      elem.paidDetails = paidDetails;
+      await elem.save({validationBeforeSave: false});
+    // }
   }
 
 
