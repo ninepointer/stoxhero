@@ -23,7 +23,7 @@ router.post("/login", async (req, res) => {
         return res.status(422).json({ status: 'error', message: "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.", error: "deactivated" });
     }
 
-    const userLogin = await UserDetail.findOne({ email: userId, status: "Active" }).select('_id role password');
+    const userLogin = await UserDetail.findOne({ email: userId, status: "Active" }).select('_id role password collegeDetails');
 
     if (!userLogin || !(await userLogin.correctPassword(pass, userLogin.password))) {
         return res.status(422).json({ error: "invalid details" })
@@ -86,7 +86,7 @@ router.post('/phonelogin', async (req,res, next)=>{
 });
 
 router.post('/verifyphonelogin', async(req,res,next)=>{
-    const {mobile, mobile_otp, fcmTokenData} = req.body;
+    const {mobile, mobile_otp, fcmTokenData, college, rollno} = req.body;
 
     try {
         console.log("fcm data", fcmTokenData);
@@ -94,30 +94,40 @@ router.post('/verifyphonelogin', async(req,res,next)=>{
         if(!user){
             return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'});
         }
-        if(process.env.PROD!='true' && mobile == '7737384957' && mobile_otp== '987654'){
-          const token = await user.generateAuthToken();
-        console.log(fcmTokenData?.token);    
-        if(fcmTokenData?.token){
-            console.log('inside if');
-            const tokenExists = user?.fcmTokens?.some(token => token?.token === fcmTokenData.token);
-        // If the token does not exist, add it to the fcmTokens array
-            console.log('token exists', tokenExists);
-            if (!tokenExists) {
-                console.log('saving fcm token');
-                fcmTokenData.lastUsedAt = new Date();
-                user.fcmTokens.push(fcmTokenData);
-                await user.save({validateBeforeSave:false});
-                console.log('FCM token added successfully.');
-            } else {
-                console.log('FCM token already exists.');
+        console.log((college && user?.collegeDetails) && (user?.collegeDetails?.college?.toString() !== college.toString()), (college , user?.collegeDetails) , (user?.collegeDetails?.college?.toString() , college.toString()))
+        if((college && user?.collegeDetails?.college) && (user?.collegeDetails?.college?.toString() !== college.toString())){
+            return res.status(404).json({status: 'error', message: "Kindly access your account by logging in through the designated URL associated with your registration."});
+        }
+        if (process.env.PROD != 'true' && mobile == '7737384957' && mobile_otp == '987654') {
+            const token = await user.generateAuthToken();
+            console.log(fcmTokenData?.token);
+            if (fcmTokenData?.token) {
+                console.log('inside if');
+                const tokenExists = user?.fcmTokens?.some(token => token?.token === fcmTokenData.token);
+                // If the token does not exist, add it to the fcmTokens array
+                console.log('token exists', tokenExists);
+                if (!tokenExists) {
+                    console.log('saving fcm token');
+                    fcmTokenData.lastUsedAt = new Date();
+                    user.fcmTokens.push(fcmTokenData);
+                    await user.save({ validateBeforeSave: false });
+                    console.log('FCM token added successfully.');
+                } else {
+                    console.log('FCM token already exists.');
+                }
             }
-        }    
-        res.cookie("jwtoken", token, {
-            expires: new Date(Date.now() + 25892000000),
-            // httpOnly: true
-        });
-        // res.json(token);
-        return res.status(200).json({status: 'success', message : "User login successful", token: token});
+
+            if (!user.collegeDetails.college && college) {
+                user.collegeDetails.college = college;
+                user.collegeDetails.rollno = rollno;
+                await user.save({ validateBeforeSave: false });
+            }
+            res.cookie("jwtoken", token, {
+                expires: new Date(Date.now() + 25892000000),
+                // httpOnly: true
+            });
+            // res.json(token);
+            return res.status(200).json({ status: 'success', message: "User login successful", token: token });
         }
 
 
@@ -125,6 +135,12 @@ router.post('/verifyphonelogin', async(req,res,next)=>{
 
         if(user.mobile_otp != mobile_otp){
             return res.status(400).json({status: 'error', message: 'OTP didn\'t match. Please check again.'});
+        }
+
+        if(!user.collegeDetails.college && college){
+            user.collegeDetails.college = college;
+            user.collegeDetails.rollno = rollno;
+            await user.save({validateBeforeSave: false});
         }
 
         const token = await user.generateAuthToken();
@@ -196,6 +212,7 @@ router.get("/loginDetail", authentication, async (req, res)=>{
     const user = await UserDetail.findOne({_id: id, status: "Active"})
     .populate('role', 'roleName')
     .populate('portfolio.portfolioId','portfolioName portfolioValue portfolioType portfolioAccount')
+    .populate('collegeDetails.college','name route')
     .populate({
         path : 'subscription.subscriptionId',
         select: 'portfolio',
@@ -225,7 +242,7 @@ router.get("/loginDetail", authentication, async (req, res)=>{
         }
     ],
     })
-    .select('pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch bankState')
+    .select('collegeDetails pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch bankState')
 
     res.json(user);
 })

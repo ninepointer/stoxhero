@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
 const signedUpUserSchema = new mongoose.Schema({
 
@@ -39,6 +40,14 @@ const signedUpUserSchema = new mongoose.Schema({
     lastOtpTime:Date,
     email_otp:{
         type: String,
+        // required: true
+    },
+    collegeDetails:{
+        rollno: String,
+        college: {
+            type: Schema.Types.ObjectId,
+            ref: 'college-detail'    
+        }
         // required: true
     },
     status:{

@@ -307,6 +307,14 @@ const userDetailSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail'
     },
+    collegeDetails:{
+        rollno: String,
+        college: {
+            type: Schema.Types.ObjectId,
+            ref: 'college-detail'    
+        }
+        // required: true
+    },
     campaignCode:{
         type: String,
     },

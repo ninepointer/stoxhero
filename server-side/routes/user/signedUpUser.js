@@ -30,7 +30,7 @@ const restrictTo = require('../../authentication/authorization');
 // })
 
 router.post("/signup", async (req, res) => {
-    const { first_name, last_name, email, mobile } = req.body;
+    const { first_name, last_name, email, mobile, collegeDetails } = req.body;
     // console.log(req.body)
     if (!first_name || !last_name || !email || !mobile) {
         return res.status(400).json({ status: 'error', message: "Please fill all fields to proceed." })
@@ -56,12 +56,13 @@ router.post("/signup", async (req, res) => {
             signedupuser.mobile = mobile.trim();
             signedupuser.email = email.trim();
             signedupuser.mobile_otp = mobile_otp.trim();
+            signedupuser.collegeDetails = collegeDetails
             await signedupuser.save({ validateBeforeSave: false })
         }
         else {
             await SignedUpUser.create({
                 first_name: first_name.trim(), last_name: last_name.trim(), email: email.trim(),
-                mobile: mobile.trim(), mobile_otp: mobile_otp
+                mobile: mobile.trim(), mobile_otp: mobile_otp, collegeDetails
             });
         }
 
@@ -109,7 +110,8 @@ router.patch("/verifyotp", async (req, res) => {
         mobile,
         mobile_otp,
         referrerCode,
-        fcmTokenData
+        fcmTokenData,
+        collegeDetails
     } = req.body
 
 
@@ -196,6 +198,7 @@ router.patch("/verifyotp", async (req, res) => {
             campaignCode: campaign && referrerCode,
             referredBy: referredBy && referredBy,
             creationProcess: referredBy ? 'Referral SignUp' : 'Auto SignUp',
+            collegeDetails: collegeDetails || ""
         }
         if(fcmTokenData){
             fcmTokenData.lastUsedAt = new Date();
