@@ -740,6 +740,20 @@ export default function LabTabs({socket}) {
                                 Affiliate Program
                             </MDButton>
                         </Grid>
+
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"info"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/fullcollege`,
+                                  }}
+                            >
+                                Create College
+                            </MDButton>
+                        </Grid>
                         <Grid item fullWidth>
                             <MDButton 
                                 variant="contained" 
