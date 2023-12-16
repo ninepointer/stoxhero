@@ -289,7 +289,12 @@ const userDetailSchema = new mongoose.Schema({
         activationType: {type: String},
         activationStatus: {type: String},
         activationProductPrice: {type: Number},
-        
+    },
+    paidDetails:{
+        paidDate: {type: Date},
+        paidProduct: {type: Schema.Types.ObjectId},
+        paidStatus: {type: String},
+        paidProductPrice: {type: Number},
     },
     KYCRejectionReason: String,
     myReferralCode:{
@@ -393,7 +398,7 @@ const userDetailSchema = new mongoose.Schema({
 
 //Adding the ninepointer id before saving
 userDetailSchema.pre('save', async function(next){
-    if (this.isModified('activationDetails')) {
+    if (this.isModified('paidDetails')) {
         // Skip the pre-save logic for activationDate updates
         return next();
     }
