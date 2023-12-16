@@ -235,7 +235,7 @@ exports.getByRoute = async (req, res, next) => {
       // const limit = parseInt(req.query.limit) || 10
       const count = await College.countDocuments({ route: route });
 
-      const active = await College.find({ route: route })
+      const active = await College.findOne({ route: route })
           .select('-createdBy -createdOn -lastModifiedOn -lastModifiedBy')
           // .sort({ createdOn: -1 })
           // .skip(skip)

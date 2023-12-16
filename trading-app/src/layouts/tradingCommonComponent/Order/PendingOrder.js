@@ -41,6 +41,7 @@ function PendingOrders({ id, socket, setUpdatePendingOrder, updatePendingOrder, 
     const { render, setRender } = useContext(renderContext);
     const [trackEvent, setTrackEvent] = useState({});
     const getDetails = useContext(userContext);
+    //portfolioid in virtual case
     id = from===paperTrader ? "6433e2e5500dc2f2d20d686d" : id;
 
     let url =  `pendingorder/my/todaysPending/${id}/${from}`;

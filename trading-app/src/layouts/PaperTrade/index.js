@@ -1,139 +1,81 @@
-import React, { useEffect, useState, useRef,useContext, useMemo, useReducer, useCallback } from "react";
-// import { io } from "socket.io-client";
-// @mui material components
-import { Chart } from 'chart.js/auto';
-// Chart.register(...registerables);
-import Grid from "@mui/material/Grid";
-import ReactGA from "react-ga"
+import React, {useContext} from "react";
 import MDBox from "../../components/MDBox";
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
-import InstrumentDetails from "../tradingCommonComponent/InstrumentDetails";
-import OverallGrid from "../tradingCommonComponent/OverallP&L/OverallGrid";
-import MarginGrid from "../tradingCommonComponent/MarginDetails/MarginGrid";
-import TradableInstrument from "../tradingCommonComponent/TradableInstrument/TradableInstrument";
-import StockIndex from "../tradingCommonComponent/StockIndex/StockIndex";
+import FnOImage from "../../assets/images/fnoImage.jpg";
+import equityImage from "../../assets/images/equityImage.jpg";
 import { userContext } from "../../AuthContext";
-import { socketContext } from "../../socketContext";
-import Order from '../tradingCommonComponent/Order/Order';
-import PendingOrder from '../tradingCommonComponent/Order/PendingOrder';
-import ExecutedOrders from '../tradingCommonComponent/Order/ExecutedOrders';
-import { paperTrader } from '../../variables';
+import { Link } from "react-router-dom";
+
+import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 
 
-function UserPosition() {
+function PreTrading() {
   const getDetails = useContext(userContext);
-  const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
-  const [updatePendingOrder, setUpdatePendingOrder] = useState();
-  const [watchList, setWatchList] = useState([]);
-  const socket = useContext(socketContext);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  
-  useEffect(() => {
-    ReactGA.pageview(window.location.pathname)
-    capturePageView()
-  }, []);
-  let page = 'VirtualTrading'
-  let pageLink = window.location.pathname;
-
-  async function capturePageView(){
-        await fetch(`${baseUrl}api/v1/pageview/${page}${pageLink}`, {
-        method: "POST",
-        credentials:"include",
-        headers: {
-            "content-type" : "application/json",
-            "Access-Control-Allow-Credentials": true
-        },
-    });
-  }
-  
-  useEffect(() => {
-    socket.emit('userId', getDetails.userDetails._id)
-    socket.emit("user-ticks", getDetails.userDetails._id)
-  }, []);
-
-  const memoizedStockIndex = useMemo(() => {
-    return <StockIndex socket={socket} />;
-  }, [socket]);
-
-  const handleSetIsGetStartedClicked = useCallback((value) => {
-    setIsGetStartedClicked(value);
-  }, []);
-
-  const memoizedTradableInstrument = useMemo(() => {
-    return <TradableInstrument
-      isGetStartedClicked={isGetStartedClicked}
-      setIsGetStartedClicked={handleSetIsGetStartedClicked}
-      from={'paperTrade'}
-      watchList={watchList}
-    />;
-  }, [watchList, isGetStartedClicked, handleSetIsGetStartedClicked]);
-
-  const memoizedInstrumentDetails = useMemo(() => {
-    return <InstrumentDetails
-      socket={socket}
-      setIsGetStartedClicked={handleSetIsGetStartedClicked}
-      from={"paperTrade"}
-      setWatchList={setWatchList}
-    />;
-  }, [setWatchList, socket, handleSetIsGetStartedClicked]);
-
-  const memoizedOverallPnl = useMemo(() => {
-    return <OverallGrid
-      socket={socket}
-      setIsGetStartedClicked={handleSetIsGetStartedClicked}
-      from={"paperTrade"}
-    />;
-  }, [ handleSetIsGetStartedClicked, socket]);
 
 
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <MDBox py={0} mt={1}>
+      <MDBox py={0} mt={5} display="flex" justifyContent='space-around' alignContent='center' alignItem='center'>
 
-        {memoizedStockIndex}
+        <Card sx={{ maxWidth: 345 }}>
+          <CardMedia
+            component="img"
+            alt="green iguana"
+            height="140"
+            image={FnOImage}
+          />
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="div">
+              F&O Trading
+            </Typography>
+            <Typography variant="body2" color="text.secondary" textAlign={"justify"}>
+              Futures and options are financial derivatives that allow traders to speculate on the price movements of an underlying asset without actually owning it.
+            </Typography>
+          </CardContent>
+          <CardActions>
+            <Button 
+            size="small"
+            component = {Link}
+            to={{
+                pathname: `/college/${getDetails.userDetails.collegeDetails.college.route}/market`,
+              }}
+            >Start Trading</Button>
+          </CardActions>
+        </Card>
 
-        {memoizedTradableInstrument}
+        <Card sx={{ maxWidth: 345 }}>
+          <CardMedia
+            component="img"
+            alt="green iguana"
+            height="140"
+            image={equityImage}
+          />
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="div">
+              Stock Trading
+            </Typography>
+            <Typography variant="body2" color="text.secondary" textAlign={"justify"}>
+              Stock trading broadly refers to any buying and selling of stock, but is colloquially used to refer to more shorter-term investments made by very active investors.
+            </Typography>
+            {/* <Typography variant="body2" color="#4F93ED" textAlign={"center"}>
+            Comming Soon!
+            </Typography> */}
+          </CardContent>
+          <CardActions>
+            <Button size="small">Comming Soon!</Button>
+          </CardActions>
+        </Card>
 
-        <MDBox mt={0}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={12}>
-              {memoizedInstrumentDetails}
-            </Grid>
-          </Grid>
-        </MDBox>
-
-        <MDBox mt={3}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={12}>
-              {memoizedOverallPnl}
-             {/* <OverallGrid socket={socket} Render={{ reRender, setReRender }} setIsGetStartedClicked={setIsGetStartedClicked}/> */}
-            </Grid>
-          </Grid>
-        </MDBox>
-
-        <Grid item xs={12} md={6} lg={12} mt={3}>
-          <PendingOrder from={paperTrader} socket={socket} setUpdatePendingOrder={setUpdatePendingOrder} updatePendingOrder={updatePendingOrder} />
-          <ExecutedOrders from={paperTrader} socket={socket} updatePendingOrder={updatePendingOrder} />
-          <Order from={paperTrader} updatePendingOrder={updatePendingOrder} />
-        </Grid>
-
-        <MDBox mt={3}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={12}>
-              <MarginGrid/>
-            </Grid>
-          </Grid>
-        </MDBox>
       </MDBox>
     </DashboardLayout>
   );
 }
 
-export default UserPosition;
-
-
-
-
-
+export default PreTrading;

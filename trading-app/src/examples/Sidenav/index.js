@@ -47,6 +47,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const getDetails = useContext(userContext);
   const batchInfo = getDetails.userDetails.internshipBatch
   let textColor = "white";
+  const isCollegeRoute = location.pathname.includes(getDetails.userDetails.collegeDetails.college.route);
 
   if (transparentSidenav || (whiteSidenav && !darkMode)) {
     textColor = "dark";
@@ -60,13 +61,8 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   async function goOut(){
     await axios.get(`${baseUrl}api/v1/logout`, {
       withCredentials: true,
-      // headers: {
-      //     Accept: "application/json",
-      //     "Content-Type": "application/json",
-      //     "Access-Control-Allow-Credentials": true
-      // },
   });
-    navigate("/");
+  isCollegeRoute ? navigate(`/college/${getDetails.userDetails.collegeDetails.college.route}`) : navigate("/");
     getDetails.setUserDetail('');
   }
 

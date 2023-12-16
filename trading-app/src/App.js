@@ -37,6 +37,7 @@ import userRoutes from "./routesUser";
 import analyticsRoutes from "./analyticsRoutes"
 // import routesAffiliate from "./routesAffiliate";
 import routesAffiliate from "./routesAffiliate";
+import routesCollegeFunc from "./routesCollege";
 
 // Material Dashboard 2 React contexts
 import { useMaterialUIController, setMiniSidenav, setOpenConfigurator, setLayout } from "./context";
@@ -78,6 +79,7 @@ import AdminLogin from "./layouts/authentication/sign-in/adminLogin";
 import BlogCard from "./layouts/HomePage/pages/BlogCards";
 import BlogData from "./layouts/HomePage/pages/BlogData";
 import Calculator from "./layouts/HomePage/pages/Calculator";
+import CollegeSignUp from './layouts/authentication/sign-up/collegeSignupLogin'
 
 const TRACKING_ID = "UA-264098426-2"
 ReactGA.initialize(TRACKING_ID);
@@ -93,6 +95,7 @@ function NotFound() {
 }
 
 export default function App() {
+  const routesCollege = routesCollegeFunc();
   const cookieValue = Cookies.get("jwtoken");
   const [controller, dispatch] = useMaterialUIController();
   const {
@@ -253,7 +256,8 @@ export default function App() {
     return <div></div>;
   }
 
-  // console.log("cookieValue", cookieValue, pathname)
+  // console.log("cookieValue", cookieValue, pathname, !cookieValue)
+  const isCollegeRoute = pathname.includes(getDetails?.userDetails?.collegeDetails?.college?.route)
 
   return direction === "rtl" ? (
     
@@ -271,7 +275,7 @@ export default function App() {
                 routes={(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole)
                 ? routes : (detailUser.role?.roleName === Affiliate || getDetails?.userDetails?.role?.roleName === Affiliate) 
                 ? routesAffiliate : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
-                ? userRoutes : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
+                ? ((isCollegeRoute) ? routesCollege : userRoutes) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
                 ? analyticsRoutes : homeRoutes
                 }  
                   onMouseEnter={handleOnMouseEnter}
@@ -302,7 +306,7 @@ export default function App() {
               routes={
                 (detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole)
                 ? routes : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
-                ? userRoutes : (detailUser.role?.roleName === Affiliate || getDetails?.userDetails?.role?.roleName === Affiliate) 
+                ? ((detailUser?.collegeDetails || getDetails?.userDetails?.collegeDetails) ? routesCollege : userRoutes) : (detailUser.role?.roleName === Affiliate || getDetails?.userDetails?.role?.roleName === Affiliate) 
                 ? routesAffiliate : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
                 ? analyticsRoutes : homeRoutes
               }
@@ -322,7 +326,7 @@ export default function App() {
         {(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole) 
         ? getRoutes(routes) : (detailUser.role?.roleName === Affiliate || getDetails?.userDetails?.role?.roleName === Affiliate) 
         ? getRoutes(routesAffiliate) : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
-        ? getRoutes(userRoutes) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
+        ? ((detailUser?.collegeDetails || getDetails?.userDetails?.collegeDetails) ? getRoutes(routesCollege) : getRoutes(userRoutes)) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
         ? getRoutes(analyticsRoutes) : getRoutes(homeRoutes)
         }
 {/* 65659e451aac3cb5490d2e526579442a7a6c4ec430d7b219 overallpnlDailyContest */}
@@ -333,6 +337,9 @@ export default function App() {
           // :
           pathname == "/" ?
           <Route path="/" element={<SignUp location={myLocation.current} />} />
+          :
+          pathname == "/college/:collegename" ?
+          <Route path="/college/:collegename" element={<CollegeSignUp location={myLocation.current} />} />
           :
           pathname == "/resetpassword" ?
           <Route path="/resetpassword" element={<ResetPassword/>} />
@@ -362,6 +369,7 @@ export default function App() {
           <Route path='/blogs/:id' element={<BlogData/>}/>
           <Route path='/collegetestzone/:id/:date' element={<ContestRegistration/>}/>
           <Route path='/testzone/:id/:date' element={<FeaturedContestRegistration/>}/>
+          <Route path="/college/:collegename" element={<CollegeSignUp location={myLocation.current} />} />
           <Route path='/' element={<Navigate 
             to={getDetails?.userDetails?.role ? getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/home':'/'} 
             />}/>
