@@ -23,7 +23,7 @@ import VirtualTrading from './layouts/VirtualTrading'
 //page routes
 import Tnc from "./layouts/terms/tnc";
 import UserOrders from "./layouts/userorders";
-import UserPosition from "./layouts/PaperTrade/index";
+import UserPosition from "./layouts/PaperTrade/userPosition";
 // import UserReport from "./layouts/userreports";
 import MyReferrals from "./layouts/referrals"
 // import UserContest from "./layouts/UserContest"
