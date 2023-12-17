@@ -163,7 +163,8 @@ exports.getAllActiveTokens = async () => {
 }
 
 exports.sendGroupNotifications = async (req,res, next) => {
-    let {title, body, tokens, mediaUrl, actions}  = req.body;
+    let {title, body, tokens, mediaUrl, actions, external}  = req.body;
+    console.log('actions', external, actions);
     const {id} = req.params;
     if(!actions){
         actions = 'home'
@@ -177,7 +178,7 @@ exports.sendGroupNotifications = async (req,res, next) => {
             if(userDoc?.fcmTokens?.length >0){
                 console.log('tokens', userDoc?.fcmTokens?.map(item=>item.token))
                 await sendMultiNotifications(title, body,
-                userDoc?.fcmTokens?.map(item=>item.token), req?.uploadUrl, {route:actions}
+                userDoc?.fcmTokens?.map(item=>item.token), req?.uploadUrl, {route:actions, external:external == 'true'?true:false}
                 )
             }
         }
