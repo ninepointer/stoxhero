@@ -42,13 +42,12 @@ router.post("/signup", async (req, res) => {
             status: 'error'
         });
     } 
-    // else if(!collegeDetails && !isExistingUser?.collegeDetails?.college){
-    //     return res.status(400).json({
-    //         message: "Your account already exists. Please login with mobile or email",
-    //         status: 'error'
-    //     });
-    // } 
-    else if(!collegeDetails && isExistingUser?.collegeDetails?.college){
+    else if(!collegeDetails && !isExistingUser?.collegeDetails?.college && isExistingUser){
+        return res.status(400).json({
+            message: "Your account already exists. Please login with mobile or email",
+            status: 'error'
+        });
+    } else if(!collegeDetails && isExistingUser?.collegeDetails?.college){
         return res.status(400).json({
             message: "Your account already exists. Please login with mobile or email",
             status: 'error'
