@@ -54,6 +54,7 @@ const FeaturedContestRegistration = () => {
   const params = new URLSearchParams(location?.search);
   const referrerCode = params.get('referral');
   campaignCode = params.get('campaigncode');
+  console.log('referral', referrerCode, campaignCode )
   const getDetails = useContext(userContext);
   let columns = [
     { Header: "# Rank", accessor: "rank", align: "center" },
@@ -73,8 +74,8 @@ let rows = []
     referrerCode: referrerCode
   })
 
-  const [file, setFile] = useState(null);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  // const [file, setFile] = useState(null);
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const getContestDetails = async (name, date) => {
     try {
@@ -259,18 +260,28 @@ useEffect(()=>{
     let featureObj = {}
 
     featureObj.rank = (
-        <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            {Number(elem?.rankStart) === Number(elem?.rankEnd) ? Number(elem?.rankStart) : `${Number(elem?.rankStart)}-${Number(elem?.rankEnd)}`}
-        </MDTypography>
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {Number(elem?.rankStart) === Number(elem?.rankEnd) ? Number(elem?.rankStart) : `${Number(elem?.rankStart)}-${Number(elem?.rankEnd)}`}
+      </MDTypography>
     );
     featureObj.reward = (
-        <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            ₹{elem?.prize}
-        </MDTypography>
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        ₹{elem?.prize}
+      </MDTypography>
     );
 
     rows.push(featureObj)
-})
+  })
+
+  let cap;
+  if(contestDetails?.entryFee > 0){
+      cap = new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(contestDetails?.entryFee * (contestDetails?.payoutCapPercentage??1000)/100);
+  } else{
+      cap = new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(contestDetails?.portfolio?.portfolioValue * (contestDetails?.payoutCapPercentage??10)/100);
+  }
+
+  console.log("contestDetails", contestDetails)
+
   return (
    
     <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{backgroundColor:'white', minHeight:'100vH', height: 'auto', width: 'auto', minWidth:'100vW'}}>
@@ -326,35 +337,64 @@ useEffect(()=>{
                     </MDTypography>
                   </Grid>
 
-                  <Grid item xs={12} md={12} xl={6} pl={2} pr={2} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                    <MDTypography fontSize={12} fontColor='dark' fontWeight='bold'>
-                      🏆 Reward : Exciting prizes for top rankers
-                    </MDTypography>
-                  </Grid>
+                    {contestDetails?.payoutType === "Percentage"
+                      ?
+                      <>
+                        <Grid item xs={12} md={12} xl={6} pl={2} pr={2} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                          <MDTypography fontSize={12} fontColor='dark' fontWeight='bold'>
+                            🏆 Reward : {    
+                            contestDetails?.entryFee > 0 ?
+                            `${contestDetails?.payoutPercentage}% of the net P&L${contestDetails?.payoutCapPercentage?`(upto ₹${cap})`:''}` : 
+                            `${contestDetails?.payoutPercentage}% of the net P&L${contestDetails?.payoutCapPercentage?`(upto ₹${cap})`:''}`
+                            }
+                          </MDTypography>
+                        </Grid>
 
-                  <Grid item xs={12} md={12} xl={12} pl={2} pr={2} mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                    <MDTypography fontSize={12} fontColor='dark' fontWeight='bold' sx={{ textAlign: 'center' }}>
-                        Rewards will be based on your rank during the TestZone period.
-                    </MDTypography>
-                  </Grid>  
+                        <Grid item xs={12} md={12} xl={12} pl={2} pr={2} mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                          <MDTypography fontSize={12} fontColor='dark' fontWeight='bold' sx={{ textAlign: 'center' }}>
+                            Rewards will be based on your net Profit and Loss during the TestZone period. So, bigger the P&L, the bigger you can earn!
+                          </MDTypography>
+                        </Grid>
 
-                  <Grid item xs={12} md={12} xl={12} lg={12} mt={1} mb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                    <MDBox width="100%" xl={12}>
-                      <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{ backgroundColor: "#315C45", borderRadius: "2px" }}>
-                        <MDTypography variant="text" fontSize={12} color="white" mt={0.7} alignItems="center" gutterBottom>
-                          Reward Table
-                        </MDTypography>
-                      </MDBox>
-                      <MDBox mt={1}>
-                        <DataTable
-                          table={{ columns, rows }}
-                          showTotalEntries={false}
-                          isSorted={false}
-                          entriesPerPage={false}
-                        />
-                      </MDBox>
-                    </MDBox>
-                  </Grid>     
+                      </>
+
+                      :
+
+                      <>
+                        <Grid item xs={12} md={12} xl={6} pl={2} pr={2} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                          <MDTypography fontSize={12} fontColor='dark' fontWeight='bold'>
+                            🏆 Reward : Exciting prizes for top rankers
+                          </MDTypography>
+                        </Grid>
+
+                        <Grid item xs={12} md={12} xl={12} pl={2} pr={2} mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                          <MDTypography fontSize={12} fontColor='dark' fontWeight='bold' sx={{ textAlign: 'center' }}>
+                            Rewards will be based on your rank during the TestZone period.
+                          </MDTypography>
+                        </Grid>
+
+                        <Grid item xs={12} md={12} xl={12} lg={12} mt={1} mb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                          <MDBox width="100%" xl={12}>
+                            <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{ backgroundColor: "#315C45", borderRadius: "2px" }}>
+                              <MDTypography variant="text" fontSize={12} color="white" mt={0.7} alignItems="center" gutterBottom>
+                                Reward Table
+                              </MDTypography>
+                            </MDBox>
+                            <MDBox mt={1}>
+                              <DataTable
+                                table={{ columns, rows }}
+                                showTotalEntries={false}
+                                isSorted={false}
+                                entriesPerPage={false}
+                              />
+                            </MDBox>
+                          </MDBox>
+                        </Grid>
+                      </>
+                    }
+
+
+   
                   
                 </Grid>
             </MDBox>
@@ -470,9 +510,9 @@ useEffect(()=>{
                       <MDButton 
                         onClick={()=>{confirmOTP()}} 
                         variant="gradient" 
-                        color="warning"
+                        style={{backgroundColor:'#65BA0D', color:'white',width:'90%'}}
                         disabled={creating} 
-                        style={{width:'90%'}}
+                        // style={{width:'90%'}}
                       >
                       {creating ? 
                         <CircularProgress size={20} color="inherit" /> : "Register & Apply"

@@ -58,7 +58,6 @@ export default function LabTabs({setClicked}) {
         return elem?.entryFee !== 0;
     })
 
-
     return (
 
         <MDBox bgColor="dark" color="light" display='flex' justifyContent='center' flexDirection='column'  mb={0.5} borderRadius={10} minHeight='auto' width='100%'>

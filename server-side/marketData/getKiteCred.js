@@ -25,8 +25,8 @@ exports.getAccess = async () => {
             }
         }
 
-        await disconnectTicker();
-        await createNewTicker(getApiKey, getAccessToken);
+        // await disconnectTicker();
+        // await createNewTicker(getApiKey, getAccessToken);
 
         try{
             await client.set(`kiteCredToday:${process.env.PROD}`, JSON.stringify({getApiKey, getAccessToken}));

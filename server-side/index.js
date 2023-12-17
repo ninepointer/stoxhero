@@ -55,5 +55,7 @@ async function childProcess() {
   } else{
     await commonProcess();
   }
+      // await singleProcess();
+
 }
 

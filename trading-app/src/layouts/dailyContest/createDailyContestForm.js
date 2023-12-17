@@ -112,6 +112,7 @@ function Index() {
     payoutCapPercentage: "" || contest?.payoutCapPercentage,
     rewardType: "" || contest?.rewardType,
     tdsRelief: "" || contest?.tdsRelief,
+    visibility: "" || contest?.visibility,
 
     payoutPercentageType : "" || contest?.payoutPercentageType,
     registeredUsers: {
@@ -222,7 +223,7 @@ function Index() {
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const {rewardType, tdsRelief, contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage } = formState;
+    const {visibility, rewardType, tdsRelief, contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage } = formState;
     const res = await fetch(`${baseUrl}api/v1/dailycontest/contest`, {
       method: "POST",
       credentials: "include",
@@ -231,7 +232,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        rewardType, tdsRelief, contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage
+        visibility, rewardType, tdsRelief, contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage
       })
     });
 
@@ -272,7 +273,7 @@ function Index() {
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const {rewardType, tdsRelief, contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, featured, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage } = formState;
+    const {visibility, rewardType, tdsRelief, contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, featured, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage } = formState;
 
     const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${contest?._id}`, {
       method: "PUT",
@@ -282,7 +283,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        rewardType, tdsRelief, contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage
+        visibility, rewardType, tdsRelief, contestLiveTime, payoutPercentageType, payoutType, liveThreshold, currentLiveStatus, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, payoutCapPercentage
       })
     });
 
@@ -357,13 +358,16 @@ function Index() {
     }
   };
 
-  const date = new Date(contest?.contestStartTime);
+  const date = new Date(contest?.contestStartTime || dailyContest?.contestStartTime);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
 
   const formattedDate = `${year}${month}${day}`;
   const contestFor = contest?.contestFor
+  const visibility = contest?.visibility || dailyContest?.visibility;
+
+  console.log("visibility", visibility)
   const link = (contestFor === 'College' ? 'collegecontest' : '')
   return (
     <>
@@ -379,8 +383,8 @@ function Index() {
               <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
                 Fill TestZone Details
               </MDTypography>
-              {contestFor === 'College' && <MDTypography variant="caption" fontWeight="bold" color="text">
-                Link: {Url}collegecontest/{contest?.contestName?.replace(/\s/g, '%20')}/{formattedDate}
+              {(contestFor === 'College' || !visibility) && <MDTypography variant="caption" fontWeight="bold" color="text">
+                Link: {Url}{contestFor === 'College' ? "collegetestzone" : "testzone"}/{contest?.slug || dailyContest?.slug}/{formattedDate}{!visibility && "?campaigncode=****&referral=****"}
               </MDTypography>}
             </MDBox>
 
@@ -819,6 +823,22 @@ function Index() {
                         }))
                       }}
                       label="TDS Relief" />
+                  </FormGroup>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormGroup>
+                    <FormControlLabel
+                      checked={(contest?.visibility !== undefined && !editing && formState?.visibility === undefined) ? contest?.visibility : formState?.visibility}
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      control={<Checkbox />}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          visibility: e.target.checked
+                        }))
+                      }}
+                      label="Visibility" />
                   </FormGroup>
                 </Grid>
 

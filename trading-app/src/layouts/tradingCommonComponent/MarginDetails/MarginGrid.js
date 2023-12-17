@@ -15,6 +15,17 @@ const MarginGrid = () => {
     return total + acc.margin;
   }, 0);
 
+  let amount = 0;
+  let margin = 0;
+  pnlData.map((elem) => {
+    console.log(elem._id.isLimit)
+    if(elem._id.isLimit){
+      margin += elem.margin;
+    } else{
+      amount += (elem.amount - elem.brokerage)
+    }
+  });
+
   useEffect(() => {
     axios.get(`${baseUrl}api/v1/paperTrade/margin`,{
       withCredentials: true,
@@ -38,7 +49,7 @@ const MarginGrid = () => {
   const runningPnl = Number(netPnl?.toFixed(0));
   const openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
 
-  const availableMargin = (runningPnl < 0) ? totalRunningLots===0 ? (openingBalance-todayMargin+runningPnl) : openingBalance-todayMargin : openingBalance-todayMargin;
+  const availableMargin = ((runningPnl < 0) ? totalRunningLots===0 ? (openingBalance-todayMargin+runningPnl) : openingBalance-(Math.abs(amount)+margin) : openingBalance-todayMargin)?.toFixed(0);
   const availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹0"
 
   const usedMargin = runningPnl >= 0 ? 0 : runningPnl

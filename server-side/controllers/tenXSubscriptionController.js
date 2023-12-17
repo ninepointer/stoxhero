@@ -33,12 +33,13 @@ const filterObj = (obj, ...allowedFields) => {
 exports.createTenXSubscription = async(req, res, next)=>{
     // console.log(req.body)
     const{
-        plan_name, actual_price, discounted_price, features, validity, validityPeriod,
+        plan_name, actual_price, discounted_price, features, validity, validityPeriod, rewardType, tdsRelief,
         status, portfolio, profitCap, allowPurchase, allowRenewal, payoutPercentage, expiryDays } = req.body;
     if(await TenXSubscription.findOne({plan_name, status: "Active" })) return res.status(400).json({message:'This subscription already exists.'});
 
     const tenXSubs = await TenXSubscription.create({plan_name:plan_name.trim(), actual_price, discounted_price, features, validity, validityPeriod,
-        status, createdBy: req.user._id, lastModifiedBy: req.user._id, portfolio, profitCap, allowPurchase, allowRenewal, payoutPercentage, expiryDays});
+        status, createdBy: req.user._id, lastModifiedBy: req.user._id, portfolio, profitCap, allowPurchase, allowRenewal, payoutPercentage,
+        expiryDays, rewardType, tdsRelief: tdsRelief || false});
     
     res.status(201).json({message: 'TenX Subscription successfully created.', data:tenXSubs});
 }
@@ -50,7 +51,7 @@ exports.editTanx = async(req, res, next) => {
     const tenx = await TenXSubscription.findById(id);
 
     const filteredBody = filterObj(req.body, "plan_name", "actual_price", "discounted_price", "validity", "validityPeriod", 
-        "status", "profitCap", "portfolio", "allowPurchase", "allowRenewal", "payoutPercentage", "expiryDays");
+        "status", "profitCap", "portfolio", "allowPurchase", "allowRenewal", "payoutPercentage", "expiryDays", "rewardType", "tdsRelief",);
     if(req.body.features)filteredBody.features=[...tenx.features,
         {orderNo:req.body.features.orderNo,
             description:req.body.features.description,}]

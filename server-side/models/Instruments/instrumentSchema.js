@@ -80,7 +80,13 @@ const instrumentSchema = new mongoose.Schema({
     },
     chartInstrument: {
         type: String,
-    }
+    },
+    users: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "user-personal-details"
+        } 
+    ]
 })
 
 const instrumentDetail = mongoose.model("instrument-detail", instrumentSchema);

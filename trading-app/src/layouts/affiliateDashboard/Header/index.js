@@ -3,18 +3,19 @@ import axios from "axios";
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton'
 import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
+// import CardContent from '@mui/material/CardContent';
+// import CardMedia from '@mui/material/CardMedia';
 import { CardActionArea, Divider, Grid } from '@mui/material';
-import { userContext } from '../../../AuthContext';
+// import { userContext } from '../../../AuthContext';
 import MDTypography from '../../../components/MDTypography';
-import { CircularProgress, LinearProgress, Paper } from '@mui/material';
+import { CircularProgress } from '@mui/material';
 import LifetimeAffiliateData from '../data/lifetimeAffiliateData'
 import LifetimeYouTubeAffiliateData from '../data/lifetimeYouTubeAffiliateData'
 import LifetimeStoxHeroAffiliateData from '../data/lifetimeStoxHeroAffiliateData'
 import LifetimeOfflineAffiliateData from '../data/lifetimeOfflineAffiliateData'
 import { saveAs } from 'file-saver';
 import moment from 'moment'
+import LeaderBoard from '../data/leaderboard';
 
 export default function Dashboard() {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
@@ -27,47 +28,55 @@ export default function Dashboard() {
   const [shaffiliateOverview,setSHAffiliateOverview] = useState([])
   const [oiaffiliateReferrals,setOIAffiliateReferrals] = useState([])
   const [oiaffiliateOverview,setOIAffiliateOverview] = useState([])
-  
+  const [leaderboard, setLeaderboard] = useState([]);
   const [downloadingTestZoneData,setDownloadingTestZoneRevenueData] = useState(false)
   const [downloadingMarginXData,setDownloadingMarginXRevenueData] = useState(false)
   
   
-  useEffect(()=>{
+  useEffect(() => {
     setIsLoading(true)
-    let call1 = axios.get((`${baseUrl}api/v1/affiliate/affiliateoverview`),{
-                withCredentials: true,
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Credentials": true
-                  },
-                })
-    let call2 = axios.get((`${baseUrl}api/v1/affiliate/ytaffiliateoverview`),{
-                withCredentials: true,
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Credentials": true
-                  },
-                })
-    let call3 = axios.get((`${baseUrl}api/v1/affiliate/shaffiliateoverview`),{
-        withCredentials: true,
-        headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Credentials": true
-            },
-        })
-    let call4 = axios.get((`${baseUrl}api/v1/affiliate/oiaffiliateoverview`),{
-        withCredentials: true,
-        headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Credentials": true
-            },
-        })
-    Promise.all([call1, call2, call3, call4])
-    .then(([api1Response, api2Response, api3Response, api4Response]) => {
+    let call1 = axios.get((`${baseUrl}api/v1/affiliate/affiliateoverview`), {
+      withCredentials: true,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Credentials": true
+      },
+    })
+    let call2 = axios.get((`${baseUrl}api/v1/affiliate/ytaffiliateoverview`), {
+      withCredentials: true,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Credentials": true
+      },
+    })
+    let call3 = axios.get((`${baseUrl}api/v1/affiliate/shaffiliateoverview`), {
+      withCredentials: true,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Credentials": true
+      },
+    })
+    let call4 = axios.get((`${baseUrl}api/v1/affiliate/oiaffiliateoverview`), {
+      withCredentials: true,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Credentials": true
+      },
+    })
+    let call5 = axios.get((`${baseUrl}api/v1/affiliate/leaderboard`), {
+      withCredentials: true,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Credentials": true
+      },
+    })
+    Promise.all([call1, call2, call3, call4, call5])
+      .then(([api1Response, api2Response, api3Response, api4Response, api5Response]) => {
         setAffiliateOverview(api1Response?.data?.data[0])
         setAffiliateReferrals(api1Response?.data?.referrals)
         setYTAffiliateOverview(api2Response?.data?.data[0])
@@ -76,14 +85,15 @@ export default function Dashboard() {
         setSHAffiliateReferrals(api3Response?.data?.referrals)
         setOIAffiliateOverview(api4Response?.data?.data[0])
         setOIAffiliateReferrals(api4Response?.data?.referrals)
+        setLeaderboard(api5Response?.data?.data)
         setIsLoading(false)
-    })
-    .catch((error) => {
-    //   Handle errors here
-      console.error(error);
-    });
-    
-  },[])
+      })
+      .catch((error) => {
+        //   Handle errors here
+        console.error(error);
+      });
+
+  }, [])
 
   function TruncatedName(name) {
     const originalName = name;
@@ -430,6 +440,52 @@ export default function Dashboard() {
                 </Grid>
     
               </Grid>
+    
+          </Grid>
+          :
+          <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'380px'}}>
+            <CircularProgress/>
+          </Grid>
+        }
+
+{!isLoading ? 
+          <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
+              
+              {/* <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
+              
+                <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
+                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                      <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1, backgroundColor:'lightgrey' }} >
+                      
+                          <Grid container xs={12} md={12} lg={12}>
+                            <Grid item p={1} xs={12} md={12} lg={8} display='flex' justifyContent='flex-start'>
+                              <MDTypography variant="h6" style={{textAlign:'center'}}>Offline Institute Affiliates Overview</MDTypography>
+                            </Grid>
+                            <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='flex-end'>
+                              <MDButton variant='text' color='success'>
+                                Download Data
+                              </MDButton>
+                            </Grid>
+                          </Grid>
+                        
+                      </Card>
+                    </Grid>
+                </Grid>
+    
+              </Grid> */}
+
+              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
+              
+                <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
+                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                    <LeaderBoard leaderboard={leaderboard} />
+                    </Grid>
+    
+                </Grid>
+    
+              </Grid>
+
+              
     
           </Grid>
           :

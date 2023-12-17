@@ -1,7 +1,7 @@
 const express = require("express");
 const Authenticate = require('../../authentication/authentication');
 const router = express.Router({ mergeParams: true });
-const { removeAffiliateUser, createAffiliate, editAffiliate, getAffiliates, 
+const { removeAffiliateUser, createAffiliate, editAffiliate, getAffiliates, affiliateLeaderboard,
     getAffiliateById, addAffiliateUser, getActiveAffiliatePrograms, getStoxHeroAffiliateOverview, getOfflineInstituteAffiliateOverview,
     getInactiveAffiliatePrograms, getDraftAffiliatePrograms, getAffiliateOverview, getYoutubeAffiliateOverview,
     getExpiredAffiliatePrograms, getAffiliateProgramTransactions } = require('../../controllers/affiliateProgramme/affiliateController');
@@ -10,6 +10,8 @@ const restrictTo = require('../../authentication/authorization');
 router.route('/').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createAffiliate).
     get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getAffiliates);
 router.route('/active').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getActiveAffiliatePrograms);
+router.route('/leaderboard').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), affiliateLeaderboard);
+
 router.route('/affiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getAffiliateOverview);
 router.route('/ytaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getYoutubeAffiliateOverview);
 router.route('/shaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getStoxHeroAffiliateOverview);

@@ -25,11 +25,11 @@ router.post("/account", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, r
 
             account.save().then(() => {
 
-                disconnectTicker();
-                getKiteCred.getAccess().then((data) => {
-                    //console.log(data);
-                    createNewTicker(data.getApiKey, data.getAccessToken);
-                });
+                // disconnectTicker();
+                // getKiteCred.getAccess().then((data) => {
+                //     //console.log(data);
+                //     createNewTicker(data.getApiKey, data.getAccessToken);
+                // });
 
 
                 res.status(201).json({ massage: "data enter succesfully" });
@@ -77,11 +77,11 @@ router.put("/readAccountDetails/:id", Authenticate, restrictTo('Admin', 'SuperAd
             }
         });
 
-        disconnectTicker();
-        getKiteCred.getAccess().then((data) => {
-            //console.log(data);
-            createNewTicker(data.getApiKey, data.getAccessToken);
-        });
+        // disconnectTicker();
+        // getKiteCred.getAccess().then((data) => {
+        //     //console.log(data);
+        //     createNewTicker(data.getApiKey, data.getAccessToken);
+        // });
 
         //console.log("this is role", account);
         res.send(account)

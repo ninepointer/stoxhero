@@ -12,6 +12,7 @@ const {xtsAccountType, zerodhaAccountType} = require("../../constant");
 const { ObjectId } = require("mongodb");
 const Authenticate = require('../../authentication/authentication');
 const restrictTo = require('../../authentication/authorization');
+const KiteConnect = require("kiteconnect").KiteConnect;
 
 router.post("/requestToken", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
 
@@ -25,11 +26,11 @@ router.post("/requestToken", Authenticate, restrictTo('Admin', 'SuperAdmin'), (r
     requestTokens.save().then(async ()=>{
 
         await client.del(`kiteCredToday:${process.env.PROD}`);
-        disconnectTicker();
-        getKiteCred.getAccess().then((data) => {
-            //console.log(data);
-            createNewTicker(data.getApiKey, data.getAccessToken);
-        });
+        // disconnectTicker();
+        // getKiteCred.getAccess().then((data) => {
+        //     //console.log(data);
+        //     createNewTicker(data.getApiKey, data.getAccessToken);
+        // });
         
         res.status(201).json({massage : "data enter succesfully"});
     }).catch((err)=> res.status(500).json({error:"Failed to enter data"}));
@@ -48,7 +49,7 @@ router.post("/autologin", Authenticate, restrictTo('Admin', 'SuperAdmin'), async
     }
     let password = (accountId === process.env.KUSH_ACCOUNT_ID) ? process.env.KUSH_PASS : accountId === process.env.PRATEEK_ACCOUNT_ID && process.env.PRATEEK_PASS
 
-    await deletePnlKey();
+    // await deletePnlKey();
 
     if(process.env.PROD === "true"){
         return;
@@ -132,11 +133,11 @@ router.put("/readRequestToken/:id", Authenticate, restrictTo('Admin', 'SuperAdmi
                 lastModified: req.body.lastModified
             }
         });
-        disconnectTicker();
-        getKiteCred.getAccess().then((data) => {
-            //console.log(data);
-            createNewTicker(data.getApiKey, data.getAccessToken);
-        });
+        // disconnectTicker();
+        // getKiteCred.getAccess().then((data) => {
+        //     //console.log(data);
+        //     createNewTicker(data.getApiKey, data.getAccessToken);
+        // });
         
         //console.log("this is role", requestToken);
         res.send(requestToken)

@@ -4,7 +4,7 @@ const otpGenerator = require('otp-generator')
 const express = require("express");
 const router = express.Router();
 const path = require('path');
-const mediaURL = "https://dmt-trade.s3.amazonaws.com/carousels/WhastAp%20Msg%20Photo/photos/1697228055934Welcome%20to%20the%20world%20of%20Virtual%20Trading%20but%20real%20earning%21.png";
+const mediaURL = "https://dmt-trade.s3.amazonaws.com/blogs/Vijay/photos/1702575002734logo.jpg";
 // const mediaURL = require("../../../trading-app/src/assets/images/signup_whatsapp.png")
 const mediaFileName = 'StoxHero'
 require("../../db/conn");
@@ -23,6 +23,11 @@ const uuid = require('uuid');
 const Authenticate = require('../../authentication/authentication');
 const restrictTo = require('../../authentication/authorization');
 
+
+// router.get("/send", async (req, res) => {
+//     whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'direct_signup', userName : "vijay", source : "vijay", media : {url : mediaURL, filename : mediaFileName}, templateParams : ["newuser.first_name"], tags : '', attributes : ''});
+
+// })
 
 router.post("/signup", async (req, res) => {
     const { first_name, last_name, email, mobile } = req.body;

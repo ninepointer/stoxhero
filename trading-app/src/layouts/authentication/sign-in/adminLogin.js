@@ -32,7 +32,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { adminRole } from '../../../variables';
 import { userRole } from '../../../variables';
-import { InfinityTraderRole } from '../../../variables';
+import { InfinityTraderRole,Affiliate } from '../../../variables';
 
 function AdminLogin() {
   // console.log('Rendering sign in');
@@ -74,6 +74,7 @@ function AdminLogin() {
     const navigate = useNavigate();
     const location = useLocation();
     
+    console.log("location", location)
 
     useEffect(() => {
       let countdownTimer = null;
@@ -167,6 +168,10 @@ function AdminLogin() {
               navigate(from);
             } 
             else if(userData.role?.roleName === userRole){
+              const from = location.state?.from || "/stoxherodashboard";
+              navigate(from,{ state: { showPopup: true } });
+            }
+            else if(userData.role?.roleName === Affiliate){
               const from = location.state?.from || "/stoxherodashboard";
               navigate(from,{ state: { showPopup: true } });
             }

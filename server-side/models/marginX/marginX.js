@@ -31,7 +31,8 @@ const marginXSchema = new Schema({
         accountBlown: {type: Boolean},
         accountBlownAt:{type:Date},
         fee:Number,
-        actualPrice:Number
+        actualPrice:Number,
+        herocashPayout: Number
     }],
     potentialParticipants:[
         {type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
@@ -57,6 +58,16 @@ const marginXSchema = new Schema({
         type:String,
         // required: true,
         enum: ['Completed','Not started','Processing']
+    },
+    rewardType:{
+        type:String,
+        required: true,
+        enum: ['Cash','HeroCash']
+    },
+    tdsRelief:{
+        type:Boolean,
+        required: true,
+        default: false
     },
     createdOn:{
         type: Date,

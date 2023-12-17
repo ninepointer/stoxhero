@@ -175,7 +175,7 @@ function Header({ subscription, checkPayment, setCheckPayment, amount, name, id,
                           <Grid item xs={12} md={12} lg={12} mt={1} mb={1} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
                               <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
                               {/* <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
-                                <DialogueAnalytics subscription={subscription} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={amount} name={name} id={id} walletCash={walletCash} allowRenewal={allowRenewal} />
+                                <DialogueAnalytics subscription={subscription} isActive={true} />
                               </Grid> */}
                               <Grid item xs={12} md={12} lg={12} mt={.5} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
                                   {/* <MDButton varaint='contained' color='error' size="small" style={{fontSize:'8px',width:'88%', padding:2}} onClick={captureTutorialViews}>Watch Tutorial Video</MDButton> */}

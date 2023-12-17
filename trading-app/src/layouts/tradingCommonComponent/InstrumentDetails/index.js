@@ -70,6 +70,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
         return new Error(err);
     })
     socket?.on("tick-room", (data) => {
+      console.log("this is tick data", data);
       marketDetails.setMarketData(prevInstruments => {
         const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
         data.forEach(instrument => {

@@ -524,7 +524,7 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     .populate({
         path: 'internshipBatch',
         model: 'intern-batch',
-        select:'career batchName batchStartDate batchEndDate attendancePercentage payoutPercentage referralCount payoutCap',
+        select:'career batchName batchStartDate batchEndDate attendancePercentage payoutPercentage referralCount payoutCap rewardType',
         populate: {
             path: 'career',
             model: 'career',
@@ -1090,7 +1090,7 @@ exports.downloadCertificate = async (req,res, next) => {
     const start = moment(batch?.batchStartDate).format('Do MMM YY').toString();
     const end = moment(batch?.batchEndDate).format('Do MMM YY').toString();
     console.log('start and end', start, end, batch?.batchStartDate, batch?.batchEndDate);
-    const existingPdfBytes = fs.readFileSync(path.join(__dirname, '/template2.pdf'));
+    const existingPdfBytes = fs.readFileSync(path.join(__dirname, '/template.pdf'));
     // console.log(existingPdfBytes);
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
     //Get the first page of the document
@@ -1105,13 +1105,13 @@ exports.downloadCertificate = async (req,res, next) => {
         size: 16
     });
     firstPage.drawText(start, {
-        x: 440,
-        y: 340,
+        x: 450,
+        y: 344,
         size: 14
     });
     firstPage.drawText(end, {
-        x: 610,
-        y: 340,
+        x: 620,
+        y: 344,
         size: 14,
     });
     // console.log(firstPage);
@@ -1130,6 +1130,7 @@ exports.downloadCertificate = async (req,res, next) => {
     res.status(500).send('Error generating certificate: ' + err.message);
 }
 }
+
 
 
 
@@ -1158,73 +1159,3 @@ async function countTradingDays(startDate, endDate) {
 
   return count;
 }
-
-
-
-
-  // [
-  //   {
-  //     $match: {
-  //       _id: ObjectId("646f5295035caf88a30dd5da"),
-  //     },
-  //   },
-  //   {
-  //     $unwind: "$participants",
-  //   },
-  //   {
-  //     $lookup: {
-  //       from: "intern-trades",
-  //       localField: "participants.user",
-  //       foreignField: "trader",
-  //       as: "tradeData",
-  //     },
-  //   },
-  //   {
-  //     $match:
-  //       {
-  //         "participants.college": ObjectId(
-  //           "64708c99ae1d4cffe2779742"
-  //         ),
-  //       },
-  //   },
-  //   {
-  //     $lookup:
-  //       {
-  //         from: "user-personal-details",
-  //         localField: "participants.user",
-  //         foreignField: "_id",
-  //         as: "userData",
-  //       },
-  //   },
-  //   {
-  //     $project:
-  //       {
-  //         first_name: {
-  //           $arrayElemAt: [
-  //             "$userData.first_name",
-  //             0,
-  //           ],
-  //         },
-  //         last_name: {
-  //           $arrayElemAt: [
-  //             "$userData.last_name",
-  //             0,
-  //           ],
-  //         },
-  //         mobile: {
-  //           $arrayElemAt: ["$userData.mobile", 0],
-  //         },
-  //         email: {
-  //           $arrayElemAt: ["$userData.email", 0],
-  //         },
-  //         _id: 0,
-  //         tradeData: {
-  //           $size: "tradeData"
-  //         }
-  //       },
-  //   },
-  // ]
-
-  // 64708c99ae1d4cffe2779742
-  // 64709adde5ef90f4210d64d5
-  
