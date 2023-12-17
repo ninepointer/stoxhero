@@ -256,8 +256,8 @@ export default function App() {
     return <div></div>;
   }
 
-  // console.log("cookieValue", cookieValue, pathname, !cookieValue)
-  const isCollegeRoute = pathname.includes(getDetails?.userDetails?.collegeDetails?.college?.route)
+  const isCollegeRoute = pathname.includes(getDetails?.userDetails?.collegeDetails?.college)
+  console.log("cookieValue",isCollegeRoute, pathname, !cookieValue)
 
   return direction === "rtl" ? (
     
@@ -306,7 +306,7 @@ export default function App() {
               routes={
                 (detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole)
                 ? routes : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
-                ? ((detailUser?.collegeDetails || getDetails?.userDetails?.collegeDetails) ? routesCollege : userRoutes) : (detailUser.role?.roleName === Affiliate || getDetails?.userDetails?.role?.roleName === Affiliate) 
+                ? ((isCollegeRoute) ? routesCollege : userRoutes) : (detailUser.role?.roleName === Affiliate || getDetails?.userDetails?.role?.roleName === Affiliate) 
                 ? routesAffiliate : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
                 ? analyticsRoutes : homeRoutes
               }
@@ -326,7 +326,7 @@ export default function App() {
         {(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole) 
         ? getRoutes(routes) : (detailUser.role?.roleName === Affiliate || getDetails?.userDetails?.role?.roleName === Affiliate) 
         ? getRoutes(routesAffiliate) : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
-        ? ((detailUser?.collegeDetails || getDetails?.userDetails?.collegeDetails) ? getRoutes(routesCollege) : getRoutes(userRoutes)) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
+        ? ((isCollegeRoute) ? getRoutes(routesCollege) : getRoutes(userRoutes)) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
         ? getRoutes(analyticsRoutes) : getRoutes(homeRoutes)
         }
 {/* 65659e451aac3cb5490d2e526579442a7a6c4ec430d7b219 overallpnlDailyContest */}

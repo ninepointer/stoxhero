@@ -36,12 +36,28 @@ router.post("/signup", async (req, res) => {
         return res.status(400).json({ status: 'error', message: "Please fill all fields to proceed." })
     }
     const isExistingUser = await User.findOne({ $or: [{ email: email }, { mobile: mobile }] })
-    if (isExistingUser) {
+    if(collegeDetails && isExistingUser?.collegeDetails?.college){
+        return res.status(400).json({
+            message: "Your account already exists. Please login with mobile or email",
+            status: 'error'
+        });
+    } else if(!collegeDetails && !isExistingUser?.collegeDetails?.college){
+        return res.status(400).json({
+            message: "Your account already exists. Please login with mobile or email",
+            status: 'error'
+        });
+    } else if(!collegeDetails && isExistingUser?.collegeDetails?.college){
         return res.status(400).json({
             message: "Your account already exists. Please login with mobile or email",
             status: 'error'
         });
     }
+    // if (isExistingUser) {
+    //     return res.status(400).json({
+    //         message: "Your account already exists. Please login with mobile or email",
+    //         status: 'error'
+    //     });
+    // }
     const signedupuser = await SignedUpUser.findOne({ $or: [{ email: email }, { mobile: mobile }] });
     if (signedupuser?.lastOtpTime && moment().subtract(29, 'seconds').isBefore(signedupuser?.lastOtpTime)) {
         return res.status(429).json({ message: 'Please wait a moment before requesting a new OTP' });
@@ -58,8 +74,7 @@ router.post("/signup", async (req, res) => {
             signedupuser.mobile_otp = mobile_otp.trim();
             signedupuser.collegeDetails = collegeDetails
             await signedupuser.save({ validateBeforeSave: false })
-        }
-        else {
+        } else {
             await SignedUpUser.create({
                 first_name: first_name.trim(), last_name: last_name.trim(), email: email.trim(),
                 mobile: mobile.trim(), mobile_otp: mobile_otp, collegeDetails
@@ -130,7 +145,13 @@ router.patch("/verifyotp", async (req, res) => {
         })
     }
 
-    if(await User.findOne({mobile:user?.mobile})){
+    const checkUser = await User.findOne({mobile:user?.mobile});
+    if(!checkUser?.collegeDetails?.college && collegeDetails){
+        checkUser.collegeDetails = collegeDetails;
+        const newuser = await checkUser.save({validateBeforeSave: false, new: true});
+        return res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials."});
+    }
+    if(checkUser){
         return res.status(400).json({
             status: 'error',
             message: "Account already exists with this mobile number."
