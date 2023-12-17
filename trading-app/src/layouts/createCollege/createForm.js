@@ -499,7 +499,7 @@ function Index() {
               color="info"
               size="small"
               sx={{ mr: 1, ml: 1 }}
-              onClick={() => { navigate('/allblogs') }}
+              onClick={() => { navigate('/fullcollege') }}
             >
               Back
             </MDButton>}
