@@ -146,7 +146,7 @@ router.patch("/verifyotp", async (req, res) => {
     }
 
     const checkUser = await User.findOne({mobile:user?.mobile});
-    if(!checkUser?.collegeDetails?.college && collegeDetails){
+    if(checkUser && !checkUser?.collegeDetails?.college && collegeDetails){
         checkUser.collegeDetails = collegeDetails;
         const newuser = await checkUser.save({validateBeforeSave: false, new: true});
         return res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials."});
