@@ -94,8 +94,11 @@ router.post('/verifyphonelogin', async(req,res,next)=>{
         if(!user){
             return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'});
         }
-        console.log((college && user?.collegeDetails) && (user?.collegeDetails?.college?.toString() !== college.toString()), (college , user?.collegeDetails) , (user?.collegeDetails?.college?.toString() , college.toString()))
-        if((college && user?.collegeDetails?.college) && (user?.collegeDetails?.college?.toString() !== college.toString())){
+        if(!user?.collegeDetails?.college && college){
+            return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'});
+        }
+        console.log((college && user?.collegeDetails) && (user?.collegeDetails?.college?.toString() !== college?.toString()), (college , user?.collegeDetails) , (user?.collegeDetails?.college?.toString() , college?.toString()))
+        if((college && user?.collegeDetails?.college) && (user?.collegeDetails?.college?.toString() !== college?.toString())){
             return res.status(404).json({status: 'error', message: "Kindly access your account by logging in through the designated URL associated with your registration."});
         }
         if (process.env.PROD != 'true' && mobile == '7737384957' && mobile_otp == '987654') {
@@ -117,11 +120,11 @@ router.post('/verifyphonelogin', async(req,res,next)=>{
                 }
             }
 
-            if (!user.collegeDetails.college && college) {
-                user.collegeDetails.college = college;
-                user.collegeDetails.rollno = rollno;
-                await user.save({ validateBeforeSave: false });
-            }
+            // if (!user.collegeDetails.college && college) {
+            //     user.collegeDetails.college = college;
+            //     user.collegeDetails.rollno = rollno;
+            //     await user.save({ validateBeforeSave: false });
+            // }
             res.cookie("jwtoken", token, {
                 expires: new Date(Date.now() + 25892000000),
                 // httpOnly: true
@@ -137,11 +140,11 @@ router.post('/verifyphonelogin', async(req,res,next)=>{
             return res.status(400).json({status: 'error', message: 'OTP didn\'t match. Please check again.'});
         }
 
-        if(!user.collegeDetails.college && college){
-            user.collegeDetails.college = college;
-            user.collegeDetails.rollno = rollno;
-            await user.save({validateBeforeSave: false});
-        }
+        // if(!user.collegeDetails.college && college){
+        //     user.collegeDetails.college = college;
+        //     user.collegeDetails.rollno = rollno;
+        //     await user.save({validateBeforeSave: false});
+        // }
 
         const token = await user.generateAuthToken();
         console.log(fcmTokenData?.token);    

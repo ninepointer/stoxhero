@@ -5,16 +5,16 @@ import { ThemeProvider } from 'styled-components';
 import ReactGA from "react-ga"
 import playstore from '../../../assets/images/playstore.png'
 import Navbar from '../../HomePage/components/Navbars/Navbar';
-import register from '../../../assets/images/register.png'
-import virtualcurrency from '../../../assets/images/virtualcurrency.png'
-import protrader from '../../../assets/images/protrader.png'
-import zerorisk from '../../../assets/images/zerorisk.png'
-import earningsimage from '../../../assets/images/earnings.png'
-import lives from '../../../assets/images/lives.png'
-import analytics from '../../../assets/images/analytics.png'
-import internship from '../../../assets/images/internship.png'
+// import register from '../../../assets/images/register.png'
+// import virtualcurrency from '../../../assets/images/virtualcurrency.png'
+// import protrader from '../../../assets/images/protrader.png'
+// import zerorisk from '../../../assets/images/zerorisk.png'
+// import earningsimage from '../../../assets/images/earnings.png'
+// import lives from '../../../assets/images/lives.png'
+// import analytics from '../../../assets/images/analytics.png'
+// import internship from '../../../assets/images/internship.png'
 import collegeStudent from '../../../assets/images/collegeStudent.png'
-import MDAvatar from "../../../components/MDAvatar";
+// import MDAvatar from "../../../components/MDAvatar";
 // react-router-dom components
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -30,17 +30,17 @@ import TextField from '@mui/material/TextField';
 
 // Authentication layout components
 import Carousel from './carousel'
-import Earnings from './earnings'
-import SignUps from './signupCounter'
-import Trades from './tradesCounter'
-import TradeVolume from './tradeVolumeCounter'
-import Withdrawals from './withdrawalsCounter'
-import FNOTurnover from './optionTurnoverCounter'
-import CollegeContest from './collegeContestCounter'
-import TotalContest from './totalContestCounter'
-import Rewards from './rewardsCounter'
-import Subscription from './subscriptionsBought'
-import Interns from './internCounter'
+// import Earnings from './earnings'
+// import SignUps from './signupCounter'
+// import Trades from './tradesCounter'
+// import TradeVolume from './tradeVolumeCounter'
+// import Withdrawals from './withdrawalsCounter'
+// import FNOTurnover from './optionTurnoverCounter'
+// import CollegeContest from './collegeContestCounter'
+// import TotalContest from './totalContestCounter'
+// import Rewards from './rewardsCounter'
+// import Subscription from './subscriptionsBought'
+// import Interns from './internCounter'
 // Images
 import axios from 'axios';
 import { adminRole, userRole, Affiliate } from '../../../variables';
@@ -58,7 +58,7 @@ function Cover(props) {
   const [timerActive, setTimerActive] = useState(false); // Flag to check if timer is active
   const [submitClicked, setSubmitClicked] = useState(false);
   const location = useLocation();
-  const [showPassword, setShowPassword] = useState(false);
+  // const [showPassword, setShowPassword] = useState(false);
   const setDetails = useContext(userContext);
   const [signup, setSignup] = useState(false);
   const [mobile, setMobile] = useState('');
@@ -293,7 +293,7 @@ function Cover(props) {
         navigate(from);
       }
       else if (userData?.role?.roleName === userRole) {
-        const from = location.state?.from || `/college/${userData?.collegeDetails?.college?.route}/market`;
+        const from = location.state?.from || `/college/${userData?.collegeDetails?.college?.route}/home`;
         navigate(from);
       }
       else if (userData?.role?.roleName === Affiliate) {
