@@ -256,8 +256,8 @@ export default function App() {
     return <div></div>;
   }
 
-  const isCollegeRoute = pathname.includes(getDetails?.userDetails?.collegeDetails?.college)
-  console.log("cookieValue",isCollegeRoute, pathname, !cookieValue)
+  const isCollegeRoute = pathname.includes(getDetails?.userDetails?.collegeDetails?.college?.route)
+  // console.log("cookieValue",isCollegeRoute, pathname, !cookieValue)
 
   return direction === "rtl" ? (
     

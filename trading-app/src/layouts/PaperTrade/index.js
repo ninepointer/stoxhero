@@ -44,7 +44,7 @@ function PreTrading() {
             size="small"
             component = {Link}
             to={{
-                pathname: `/college/${getDetails.userDetails.collegeDetails.college.route}/market`,
+                pathname: `/${getDetails.userDetails.collegeDetails.college.route}/market`,
               }}
             >Start Trading</Button>
           </CardActions>

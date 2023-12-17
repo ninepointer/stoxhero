@@ -18,11 +18,11 @@ const MyRoutes = () => {
       name: "Market",
       key: "market",
       icon: <MilitaryTechIcon />,
-      route: `/college/${getDetails?.userDetails?.collegeDetails?.college?.route}/home`,
+      route: `/${getDetails?.userDetails?.collegeDetails?.college?.route}/home`,
       component: <PreTrading />,
     },
     {
-      route: `/college/:collegename/market`,
+      route: `/:collegename/market`,
       component: <UserPosition />,
     },
     {
@@ -30,7 +30,7 @@ const MyRoutes = () => {
       name: "MarketGuru",
       key: "marketguru",
       icon: <AnalyticsIcon />,
-      route: `/college/${getDetails?.userDetails?.collegeDetails?.college?.route}/marketguru`,
+      route: `/${getDetails?.userDetails?.collegeDetails?.college?.route}/marketguru`,
       component: <UserAnalytics />,
     },
   ];

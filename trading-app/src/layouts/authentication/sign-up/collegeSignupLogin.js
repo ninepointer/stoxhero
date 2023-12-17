@@ -90,23 +90,24 @@ function Cover(props) {
   }, []);
 
   async function getCollege(route) {
-
-    const res = await axios.get(`${apiUrl}fullcollege/byroute/${route}`, {
-      withCredentials: true,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": true
-      },
-    })
-
-    if(res?.data?.status === "error"){
-      navigate('/')
+    try {
+      const res = await axios.get(`${apiUrl}fullcollege/byroute/${route}`, {
+        withCredentials: true,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true,
+        },
+      });
+      setCollegeData(res?.data?.data);
+    } catch (error) {
+      // Handle other types of errors, e.g., network issues
+      console.error("Error fetching data:", error);
+      navigate('/');
+      // You might want to handle the error accordingly, e.g., show a user-friendly message
     }
-
-    setCollegeData(res?.data?.data)
-
   }
+  
 
   // const getMetrics = async () => {
   //   const res = await axios.get(`${apiUrl}newappmetrics`);
@@ -298,7 +299,7 @@ function Cover(props) {
         navigate(from);
       }
       else if (userData?.role?.roleName === userRole) {
-        const from = location.state?.from || `/college/${userData?.collegeDetails?.college?.route}/home`;
+        const from = location.state?.from || `/${userData?.collegeDetails?.college?.route}/home`;
         navigate(from);
       }
       else if (userData?.role?.roleName === Affiliate) {
@@ -418,7 +419,7 @@ function Cover(props) {
           navigate(from);
         }
         else if (userData?.role?.roleName === userRole) {
-          const from = location.state?.from || `/college/${userData?.collegeDetails?.college?.route}/home`;
+          const from = location.state?.from || `/${userData?.collegeDetails?.college?.route}/home`;
           navigate(from);
         }
         else if (userData?.role?.roleName === Affiliate) {
@@ -573,6 +574,8 @@ function Cover(props) {
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"))
 
   return (
+    <>
+    {Object.keys(collegeData || {}).length > 0 &&
     <>
       <MDBox mt={-1} display='flex' justifyContent='center' flexDirection='column' alignContent='center' alignItems='flex-start' style={{ backgroundColor: 'white', minHeight: 'auto', height: 'relative', width: 'auto', minWidth: '100vW' }}>
         <ThemeProvider theme={theme}>
@@ -953,6 +956,7 @@ function Cover(props) {
       <MDBox>
         <Footer />
       </MDBox>
+    </>}
     </>
 
   );
