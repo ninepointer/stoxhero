@@ -338,9 +338,6 @@ export default function App() {
           pathname == "/" ?
           <Route path="/" element={<SignUp location={myLocation.current} />} />
           :
-          pathname == "/college/:collegename" ?
-          <Route path="/college/:collegename" element={<CollegeSignUp location={myLocation.current} />} />
-          :
           pathname == "/resetpassword" ?
           <Route path="/resetpassword" element={<ResetPassword/>} />
           :
@@ -350,6 +347,9 @@ export default function App() {
           <Route path="/" element={<Navigate 
             to={getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/home'} 
             />} />
+            :
+            pathname == "/:collegename" ?
+            <Route path="/:collegename" element={<CollegeSignUp location={myLocation.current} />} />
             :
             <Route path="*" element={<NotFound />} />
           // <Route path="/" element={<Navigate to={pathname} />} />
@@ -366,10 +366,6 @@ export default function App() {
           <Route path='/careers/careerform/:name' element={<JobApply/>}/>
           <Route path='/blogs' element={<BlogCard/>}/>
           <Route path='/calculators' element={<Calculator/>}/>
-          <Route path='/blogs/:id' element={<BlogData/>}/>
-          <Route path='/collegetestzone/:id/:date' element={<ContestRegistration/>}/>
-          <Route path='/testzone/:id/:date' element={<FeaturedContestRegistration/>}/>
-          <Route path="/college/:collegename" element={<CollegeSignUp location={myLocation.current} />} />
           <Route path='/' element={<Navigate 
             to={getDetails?.userDetails?.role ? getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/home':'/'} 
             />}/>
@@ -378,6 +374,11 @@ export default function App() {
           
           <Route path='/contact' element={<Contact/>}/>
           <Route path='/workshops' element={<Workshops location={myLocation.current}/>}/>
+          <Route path='/blogs/:id' element={<BlogData/>}/>
+          <Route path='/collegetestzone/:id/:date' element={<ContestRegistration/>}/>
+          <Route path='/testzone/:id/:date' element={<FeaturedContestRegistration/>}/>
+          <Route path="/:collegename" element={<CollegeSignUp location={myLocation.current} />} />
+
           <Route path="*" element={<NotFound />} />
 
         </Routes>

@@ -83,7 +83,7 @@ function Cover(props) {
   useEffect(() => {
     const url = location?.pathname?.split('/');
     console.log("url", url)
-    const route = decodeURIComponent(url[2]);
+    const route = decodeURIComponent(url[1]);
     // const date = url[3];
 
     getCollege(route);
@@ -100,25 +100,30 @@ function Cover(props) {
       },
     })
 
+    if(res?.data?.status === "error"){
+      navigate('/')
+    }
+
     setCollegeData(res?.data?.data)
+
   }
 
-  const getMetrics = async () => {
-    const res = await axios.get(`${apiUrl}newappmetrics`);
-    // console.log("New App Metrics:",res.data.data)
-    setData(res.data.data);
-  }
-  const getEarnings = async () => {
-    const res = await axios.get(`${apiUrl}contestscoreboard/earnings`);
-    console.log('Earnings Leaderboard', res?.data?.data);
-    setEarnings(res?.data?.data);
-  }
+  // const getMetrics = async () => {
+  //   const res = await axios.get(`${apiUrl}newappmetrics`);
+  //   // console.log("New App Metrics:",res.data.data)
+  //   setData(res.data.data);
+  // }
+  // const getEarnings = async () => {
+  //   const res = await axios.get(`${apiUrl}contestscoreboard/earnings`);
+  //   console.log('Earnings Leaderboard', res?.data?.data);
+  //   setEarnings(res?.data?.data);
+  // }
 
-  const getDefaultInvite = async () => {
-    const res = await axios.get(`${apiUrl}campaign/defaultinvite`);
-    console.log('defaultInvite', res.data?.data);
-    setDefaultInvite(res.data.data);
-  }
+  // const getDefaultInvite = async () => {
+  //   const res = await axios.get(`${apiUrl}campaign/defaultinvite`);
+  //   console.log('defaultInvite', res.data?.data);
+  //   setDefaultInvite(res.data.data);
+  // }
 
   const handleSUClick = () => {
     // Set the state to true when the link is clicked
@@ -142,8 +147,8 @@ function Cover(props) {
 
   useEffect(() => {
     setformstate(prevState => ({ ...prevState, referrerCode: referrerCodeString }));
-    getMetrics();
-    getEarnings();
+    // getMetrics();
+    // getEarnings();
     ReactGA.pageview(window.location.pathname)
   }, []);
 
@@ -190,9 +195,9 @@ function Cover(props) {
     } catch (err) {
     }
   }
-  useEffect(() => {
-    getDefaultInvite();
-  }, []);
+  // useEffect(() => {
+  //   getDefaultInvite();
+  // }, []);
   async function formSubmit() {
     setSubmitClicked(true)
     setformstate(formstate);

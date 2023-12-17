@@ -241,6 +241,14 @@ exports.getByRoute = async (req, res, next) => {
           // .skip(skip)
           // .limit(limit);
 
+          if(!active){
+            return res.status(500).json({
+                status: 'error',
+                data: active,
+                count: count
+            });
+          }
+
       res.status(200).json({
           status: 'success',
           data: active,
