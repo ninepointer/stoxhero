@@ -20,13 +20,13 @@ exports.search = async (searchString, res, req) => {
   console.log(isNifty, isBankNifty, isFinNifty, dailyContest)
 
   let query = [];
-  if(isNifty){
+  if(isNifty==="true"){
     query.push({ $and: [{ isNifty: true }, { name: 'NIFTY50' }] })
   }
-  if(isBankNifty){
+  if(isBankNifty==="true"){
     query.push({ $and: [{ isBankNifty: true }, { name: 'BANKNIFTY' }] })
   }
-  if(isFinNifty){
+  if(isFinNifty==="true"){
     query.push({ $and: [{ isFinNifty: true }, { name: 'FINNIFTY' }] })
   }
   // let isNifty, isBankNifty, isFinNifty;
