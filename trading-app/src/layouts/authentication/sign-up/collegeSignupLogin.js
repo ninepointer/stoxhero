@@ -83,42 +83,48 @@ function Cover(props) {
   useEffect(() => {
     const url = location?.pathname?.split('/');
     console.log("url", url)
-    const route = decodeURIComponent(url[2]);
+    const route = decodeURIComponent(url[1]);
     // const date = url[3];
 
     getCollege(route);
   }, []);
 
   async function getCollege(route) {
-
-    const res = await axios.get(`${apiUrl}fullcollege/byroute/${route}`, {
-      withCredentials: true,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": true
-      },
-    })
-
-    setCollegeData(res?.data?.data)
+    try {
+      const res = await axios.get(`${apiUrl}fullcollege/byroute/${route}`, {
+        withCredentials: true,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true,
+        },
+      });
+      setCollegeData(res?.data?.data);
+    } catch (error) {
+      // Handle other types of errors, e.g., network issues
+      console.error("Error fetching data:", error);
+      navigate('/');
+      // You might want to handle the error accordingly, e.g., show a user-friendly message
+    }
   }
+  
 
-  const getMetrics = async () => {
-    const res = await axios.get(`${apiUrl}newappmetrics`);
-    // console.log("New App Metrics:",res.data.data)
-    setData(res.data.data);
-  }
-  const getEarnings = async () => {
-    const res = await axios.get(`${apiUrl}contestscoreboard/earnings`);
-    console.log('Earnings Leaderboard', res?.data?.data);
-    setEarnings(res?.data?.data);
-  }
+  // const getMetrics = async () => {
+  //   const res = await axios.get(`${apiUrl}newappmetrics`);
+  //   // console.log("New App Metrics:",res.data.data)
+  //   setData(res.data.data);
+  // }
+  // const getEarnings = async () => {
+  //   const res = await axios.get(`${apiUrl}contestscoreboard/earnings`);
+  //   console.log('Earnings Leaderboard', res?.data?.data);
+  //   setEarnings(res?.data?.data);
+  // }
 
-  const getDefaultInvite = async () => {
-    const res = await axios.get(`${apiUrl}campaign/defaultinvite`);
-    console.log('defaultInvite', res.data?.data);
-    setDefaultInvite(res.data.data);
-  }
+  // const getDefaultInvite = async () => {
+  //   const res = await axios.get(`${apiUrl}campaign/defaultinvite`);
+  //   console.log('defaultInvite', res.data?.data);
+  //   setDefaultInvite(res.data.data);
+  // }
 
   const handleSUClick = () => {
     // Set the state to true when the link is clicked
@@ -142,8 +148,8 @@ function Cover(props) {
 
   useEffect(() => {
     setformstate(prevState => ({ ...prevState, referrerCode: referrerCodeString }));
-    getMetrics();
-    getEarnings();
+    // getMetrics();
+    // getEarnings();
     ReactGA.pageview(window.location.pathname)
   }, []);
 
@@ -190,9 +196,9 @@ function Cover(props) {
     } catch (err) {
     }
   }
-  useEffect(() => {
-    getDefaultInvite();
-  }, []);
+  // useEffect(() => {
+  //   getDefaultInvite();
+  // }, []);
   async function formSubmit() {
     setSubmitClicked(true)
     setformstate(formstate);
@@ -293,7 +299,7 @@ function Cover(props) {
         navigate(from);
       }
       else if (userData?.role?.roleName === userRole) {
-        const from = location.state?.from || `/college/${userData?.collegeDetails?.college?.route}/home`;
+        const from = location.state?.from || `/${userData?.collegeDetails?.college?.route}/home`;
         navigate(from);
       }
       else if (userData?.role?.roleName === Affiliate) {
@@ -413,7 +419,7 @@ function Cover(props) {
           navigate(from);
         }
         else if (userData?.role?.roleName === userRole) {
-          const from = location.state?.from || `/college/${userData?.collegeDetails?.college?.route}/home`;
+          const from = location.state?.from || `/${userData?.collegeDetails?.college?.route}/home`;
           navigate(from);
         }
         else if (userData?.role?.roleName === Affiliate) {
@@ -568,6 +574,8 @@ function Cover(props) {
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"))
 
   return (
+    <>
+    {Object.keys(collegeData || {}).length > 0 &&
     <>
       <MDBox mt={-1} display='flex' justifyContent='center' flexDirection='column' alignContent='center' alignItems='flex-start' style={{ backgroundColor: 'white', minHeight: 'auto', height: 'relative', width: 'auto', minWidth: '100vW' }}>
         <ThemeProvider theme={theme}>
@@ -948,6 +956,7 @@ function Cover(props) {
       <MDBox>
         <Footer />
       </MDBox>
+    </>}
     </>
 
   );

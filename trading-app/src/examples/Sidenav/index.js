@@ -62,7 +62,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     await axios.get(`${baseUrl}api/v1/logout`, {
       withCredentials: true,
   });
-  isCollegeRoute ? navigate(`/college/${getDetails?.userDetails?.collegeDetails?.college?.route}`) : navigate("/");
+  isCollegeRoute ? navigate(`/${getDetails?.userDetails?.collegeDetails?.college?.route}`) : navigate("/");
     getDetails.setUserDetail('');
   }
 
