@@ -500,11 +500,11 @@ exports.renewSubscription = async(req, res, next)=>{
   let isRedisConnected = getValue();
   const userId = req.user._id;
   const {subscriptionAmount, subscriptionName, subscriptionId, coupon, bonusRedemption} = req.body;
-  const result = await exports.handleSubscriptionRenewal(userId, subscriptionAmount, subscriptionName, subscriptionId, isRedisConnected, coupon, bonusRedemption);
+  const result = await exports.handleSubscriptionRenewal(userId, subscriptionAmount, subscriptionName, subscriptionId, isRedisConnected, coupon, bonusRedemption, req);
   res.status(result.statusCode).json(result.data);     
 };
 
-exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscriptionName, subscriptionId, isRedisConnected, coupon, bonusRedemption) =>{
+exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscriptionName, subscriptionId, isRedisConnected, coupon, bonusRedemption, req) =>{
   const today = new Date();
   const session = await mongoose.startSession();
   try{
@@ -695,6 +695,22 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
         },
         { new: true, session:session }
     );
+
+    if (!req?.user?.paidDetails?.paidDate) {
+      const updatePaidDetails = await User.findOneAndUpdate(
+        { _id: new ObjectId(userId) },
+        {
+          $set: {
+            'paidDetails.paidDate': new Date(),
+            'paidDetails.paidStatus': 'Inactive',
+            'paidDetails.paidProduct': new ObjectId('6517d3803aeb2bb27d650de0'),
+            'paidDetails.paidProductPrice': subscriptionAmount
+          }
+        },
+        { new: true, session: session }
+      );
+      await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+    }
 
     const subscription = await TenXSubscription.findOneAndUpdate(
     { _id: new ObjectId(subscriptionId) },

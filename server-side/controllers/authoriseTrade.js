@@ -670,12 +670,17 @@ const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
     let runningLots = 0;
     let amount = 0;
     let margin = 0;
+    let subtractAmount = 0;
     for(let acc of pnlData){
         totalMargin += acc.margin;
         runningLots += acc.lots;
         if (acc._id.isLimit) {
             margin += acc.margin;
         } else {
+            if(acc?.lots < 0) {
+                margin += acc?.margin;
+                subtractAmount += Math.abs(acc?.lots*acc?.lastaverageprice);
+            }
             amount += (acc.amount - acc.brokerage)
         }
     }
@@ -684,8 +689,8 @@ const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
         if (runningLots === 0) {
             return openingBalance - totalMargin + npnl;
         } else {
-            console.log("margin", openingBalance  - (Math.abs(amount)+margin))
-            return openingBalance  - (Math.abs(amount)+margin);
+            console.log("margin", openingBalance  - (Math.abs(amount-subtractAmount)+margin))
+            return openingBalance  - (Math.abs(amount-subtractAmount)+margin);
         }
     else{
         return openingBalance - totalMargin;

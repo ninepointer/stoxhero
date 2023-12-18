@@ -9,7 +9,7 @@ exports.myTodaysProcessedTrade = async (req, res, next) => {
     let {id, from} = req.params;
     // console.log(from)
     // from = from.includes("%20") ? from.split("%20")[0] + " " + from.split("%20")[1] : from;
-    const userId = req.user._id;
+    const userId = req?.user?._id;
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
