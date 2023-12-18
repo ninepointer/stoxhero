@@ -32,7 +32,12 @@ const marginXSchema = new Schema({
         accountBlownAt:{type:Date},
         fee:Number,
         actualPrice:Number,
-        herocashPayout: Number
+        herocashPayout: Number,
+        gpnl:Number,
+        npnl:Number,
+        brokerage:Number,
+        trades:Number ,
+        tradingDays: Number
     }],
     potentialParticipants:[
         {type:Schema.Types.ObjectId, ref: 'user-personal-detail'},

@@ -123,7 +123,7 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
     try {
         const result = await exports.handleDeductSubscriptionAmount(userId, subscriptionAmount, subscriptionName, subscribedId, coupon, bonusRedemption, req);
         res.status(result.statusCode).json(result.data);
-        console.log(result, result.statusCode, result.data);
+        // console.log(result, result.statusCode, result.data);
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -221,7 +221,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
             }
         }
         const totalAmount = (subs?.discounted_price - discountAmount - bonusRedemption)*(1+setting[0]?.gstPercentage/100)
-        console.log(Number(totalAmount) , Number(subscriptionAmount))
+        // console.log(Number(totalAmount) , Number(subscriptionAmount))
         if(Number(totalAmount) != Number(subscriptionAmount)){
           return {
             statusCode:400,
@@ -293,6 +293,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
             { new: true, session: session}
         );
 
+        console.log("!req?.user?.paidDetails?.paidDate", !req?.user?.paidDetails?.paidDate)
         if (!req?.user?.paidDetails?.paidDate) {
             const updatePaidDetails = await User.findOneAndUpdate(
                 { _id: new ObjectId(userId) },
@@ -300,12 +301,15 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
                     $set: {
                         'paidDetails.paidDate': new Date(),
                         'paidDetails.paidStatus': 'Inactive',
-                        'paidDetails.paidProduct': '6517d3803aeb2bb27d650de0',
+                        'paidDetails.paidProduct': new ObjectId('6517d3803aeb2bb27d650de0'),
                         'paidDetails.paidProductPrice': subscriptionAmount
                     }
                 },
                 {  new: true, session: session }
+
             );
+            console.log("updatePaidDetails", updatePaidDetails)
+
             await client.del(`${req?.user?._id.toString()}authenticatedUser`);
 
         }

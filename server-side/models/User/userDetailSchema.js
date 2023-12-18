@@ -406,15 +406,16 @@ const userDetailSchema = new mongoose.Schema({
 
 //Adding the ninepointer id before saving
 userDetailSchema.pre('save', async function(next){
-    if (this.isModified('paidDetails')) {
+    if (this.isModified('paidDetails') || this.isModified('activationDetails')) {
         // Skip the pre-save logic for activationDate updates
         return next();
     }
     // console.log("inside employee id generator code")
     if(!this.employeeid || this.isNew){
         const count = await this.constructor.countDocuments();
-        // console.log("Count of Documents: ",count)
-        let userId = this?.email?.split('@')[0];
+        
+        let userId = this?.email?.split('@')[0] || this?.email;
+        console.log("Count of Documents: ",userId, this?.email)
         let userIds = await userPersonalDetail.find({employeeid:userId})
         if(userIds.length > 0)
         {

@@ -280,7 +280,6 @@ exports.getAllContests = async (req, res) => {
     }
 };
 
-
 // Controller for getting all contests , 
 exports.getAllLiveContests = async (req, res) => {
     let date = new Date();
@@ -416,7 +415,7 @@ exports.getCollegeUserUpcomingContests = async (req, res) => {
           contestStartTime: { $gte: new Date() }, 
           contestFor: "College", 
           contestStatus: "Active",
-          potentialParticipants: { $elemMatch: { $eq: userId } } // checks if the user is in the potentialParticipants array
+          potentialParticipants: { $elemMatch: { $eq: new ObjectId(userId) } } // checks if the user is in the potentialParticipants array
       },
       {
           allowedUsers: 0,
@@ -451,7 +450,7 @@ exports.getUserUpcomingContestss = async (req, res) => {
           contestStartTime: { $gte: new Date() }, contestFor: "StoxHero", contestStatus:"Active",
           $or: [
             { visibility: true },
-            { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
+            { visibility: false, potentialParticipants: { $elemMatch: { $eq: new ObjectId(userId) } } }
         ]
       },
       {
@@ -486,6 +485,8 @@ exports.getUserUpcomingContestss = async (req, res) => {
       });
   }
 };
+
+
 exports.getUserUpcomingContests = async (req, res) => {
 try {
     const userId = req.user._id; // Assuming this is the logged-in user's ID
@@ -502,14 +503,14 @@ try {
                 contestLiveTime: { $lte: new Date()},
                 $or: [
                   { visibility: true },
-                  { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
+                  { visibility: false, potentialParticipants: { $elemMatch: { $eq: new ObjectId(userId) } } }
               ]
             }
         },
         {
             $addFields: {
                 isUserParticipating: {
-                    $in: [userId, "$participants.userId"]
+                    $in: [new ObjectId(userId), "$participants.userId"]
                 },
                 isPaid: {
                     $gt: ["$entryFee", 0]
@@ -567,14 +568,14 @@ try {
                 contestEndTime: { $gte: new Date() },
                 $or: [
                   { visibility: true },
-                  { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
+                  { visibility: false, potentialParticipants: { $elemMatch: { $eq: new ObjectId(userId) } } }
               ]
             }
         },
         {
             $addFields: {
                 isUserParticipating: {
-                    $in: [userId, "$participants.userId"]
+                    $in: [new ObjectId(userId), "$participants.userId"]
                 },
                 isPaid: {
                     $gt: ["$entryFee", 0]
@@ -604,12 +605,15 @@ try {
       { path: 'portfolio', select: 'portfolioName _id portfolioValue' }
   ]);
 
+  // console.log(contest)
+
   res.status(200).json({
       status: "success",
       message: "Live TestZones fetched successfully",
       data: contests
   });
 } catch (error) {
+  console.log(error)
   res.status(500).json({
       status: "error",
       message: "Error in fetching live TestZones",
@@ -627,7 +631,7 @@ exports.getUserLiveContestss = async (req, res) => {
           contestStatus:"Active",
           $or: [
             { visibility: true },
-            { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
+            { visibility: false, potentialParticipants: { $elemMatch: { $eq: new ObjectId(userId) } } }
         ]
       },
       {
@@ -673,7 +677,7 @@ exports.getUserFeaturedContests = async (req, res) => {
       contestFor: "StoxHero",
       $or: [
         { visibility: true },
-        { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
+        { visibility: false, potentialParticipants: { $elemMatch: { $eq: new ObjectId(userId) } } }
       ]
     },
       {
@@ -690,7 +694,7 @@ exports.getUserFeaturedContests = async (req, res) => {
     const collegeContests = await Contest.find({
       contestStatus: "Active",
       contestFor: "College",
-      potentialParticipants: { $elemMatch: { $eq: userId } }
+      potentialParticipants: { $elemMatch: { $eq: new ObjectId(userId) } }
     },
       {
         allowedUsers: 0,
@@ -736,7 +740,7 @@ exports.getCollegeUserLiveContests = async (req, res) => {
         contestEndTime: { $gte: new Date() },
         contestFor: "College", 
         contestStatus:"Active",
-        potentialParticipants: { $elemMatch: { $eq: userId } } // checks if the user is in the potentialParticipants array
+        potentialParticipants: { $elemMatch: { $eq: new ObjectId(userId) } } // checks if the user is in the potentialParticipants array
       },
       {
           allowedUsers: 0,
@@ -1122,7 +1126,7 @@ exports.getUserCompletedContests = async (req, res) => {
       contestFor: "StoxHero",
       $or: [
         { visibility: true },
-        { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
+        { visibility: false, potentialParticipants: { $elemMatch: { $eq: new ObjectId(userId) } } }
     ]
     }
     const data = await userCompletedHelper(matchStage, userId);
@@ -3262,13 +3266,12 @@ exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, co
           $set: {
             'paidDetails.paidDate': new Date(),
             'paidDetails.paidStatus': 'Inactive',
-            'paidDetails.paidProduct': '6517d48d3aeb2bb27d650de',
+            'paidDetails.paidProduct': new ObjectId('6517d48d3aeb2bb27d650de5'),
             'paidDetails.paidProductPrice': contestFee
           }
         },
         { new: true }
       );
-
       await client.del(`${req?.user?._id.toString()}authenticatedUser`);
     }
     return {

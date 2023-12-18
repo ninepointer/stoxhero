@@ -171,6 +171,9 @@ exports.mockTrade = async (req, res) => {
         if (req?.user?.paidDetails?.paidDate && req?.user?.paidDetails?.paidStatus === "Inactive") {
             const paidDetailsUpdate = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id) })
             paidDetailsUpdate.paidDetails.paidStatus = "Active";
+            paidDetailsUpdate.paidDetails.paidDate = new Date();
+            await paidDetailsUpdate.save({validateBeforeSave:false})
+
             await client.del(`${req?.user?._id.toString()}authenticatedUser`);
         }
     }
@@ -233,9 +236,12 @@ exports.mockTrade = async (req, res) => {
         if (req?.user?.paidDetails?.paidDate && req?.user?.paidDetails?.paidStatus === "Inactive") {
             const paidDetailsUpdate = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id) })
             paidDetailsUpdate.paidDetails.paidStatus = "Active";
-            await paidDetailsUpdate.save({validateBeforeSave: false});
+            paidDetailsUpdate.paidDetails.paidDate = new Date();
+            await paidDetailsUpdate.save({validateBeforeSave:false})
+
             await client.del(`${req?.user?._id.toString()}authenticatedUser`);
         }
+
     }
 
     if(internPath){
@@ -285,9 +291,12 @@ exports.mockTrade = async (req, res) => {
         if (req?.user?.paidDetails?.paidDate && req?.user?.paidDetails?.paidStatus === "Inactive") {
             const paidDetailsUpdate = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id) })
             paidDetailsUpdate.paidDetails.paidStatus = "Active";
-            await paidDetailsUpdate.save({validateBeforeSave: false});
+            paidDetailsUpdate.paidDetails.paidDate = new Date();
+            await paidDetailsUpdate.save({validateBeforeSave:false})
+
             await client.del(`${req?.user?._id.toString()}authenticatedUser`);
         }
+
     }
 
     if(battle){

@@ -613,14 +613,32 @@ exports.creditAmountToWallet = async () => {
                                     $toDouble: "$brokerage",
                                 },
                             },
+                            trades: {
+                                $count: {},
+                            },
+                            tradingDays: {
+                                $addToSet: {
+                                    $dateToString: {
+                                        format: "%Y-%m-%d",
+                                        date: "$trade_time_utc",
+                                    },
+                                },
+                            },
                         },
                     },
                     {
                         $project:
                         {
+                            gpnl: "$amount",
+                            brokerage: "$brokerage",
+                            _id: 0,
                             npnl: {
-                                $subtract: ["$amount", "$brokerage"],
+                              $subtract: ["$amount", "$brokerage"],
                             },
+                            tradingDays: {
+                              $size: "$tradingDays",
+                            },
+                            trades: 1,
                         },
                     },
                 ])
@@ -792,9 +810,16 @@ exports.creditAmountToWallet = async () => {
                     marginxs[j].participants[i].payout = payoutAmountAdjusted?.toFixed(2);
                     marginxs[j].participants[i].tdsAmount = tdsAmount > 0 ? tdsAmount : 0;
                     marginxs[j].participants[i].herocashPayout = tdsAmount > 0 ? tdsAmount : 0;
-
+            
                     await marginxs[j].save();
                 }
+
+                marginxs[j].participants[i].gpnl = pnlDetails[0]?.gpnl ? pnlDetails[0]?.gpnl : 0;
+                marginxs[j].participants[i].npnl = pnlDetails[0]?.npnl ? pnlDetails[0]?.npnl : 0;
+                marginxs[j].participants[i].brokerage = pnlDetails[0]?.brokerage ? pnlDetails[0]?.brokerage : 0;
+                marginxs[j].participants[i].tradingDays = pnlDetails[0]?.tradingDays ? pnlDetails[0]?.tradingDays : 0;
+                marginxs[j].participants[i].trades = pnlDetails[0]?.trades ? pnlDetails[0]?.trades : 0;
+
             }
             marginxs[j].payoutStatus = 'Completed'
             marginxs[j].status = "Completed";
@@ -1287,7 +1312,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
                     $set: {
                         'paidDetails.paidDate': new Date(),
                         'paidDetails.paidStatus': 'Inactive',
-                        'paidDetails.paidProduct': '6517d40e3aeb2bb27d650de1',
+                        'paidDetails.paidProduct': new ObjectId('6517d40e3aeb2bb27d650de1'),
                         'paidDetails.paidProductPrice': entryFee
                     }
                 },

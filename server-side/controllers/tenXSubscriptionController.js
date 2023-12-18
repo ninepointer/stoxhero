@@ -703,7 +703,7 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
           $set: {
             'paidDetails.paidDate': new Date(),
             'paidDetails.paidStatus': 'Inactive',
-            'paidDetails.paidProduct': '6517d3803aeb2bb27d650de0',
+            'paidDetails.paidProduct': new ObjectId('6517d3803aeb2bb27d650de0'),
             'paidDetails.paidProductPrice': subscriptionAmount
           }
         },
