@@ -92,7 +92,8 @@ function Index() {
       id: "" || sendNotification?.notificationGroup?._id,
       name: "" || sendNotification?.notificationGroup?.notificationGroupName
     },
-    actions:'' || sendNotification?.actions
+    actions:'' || sendNotification?.actions,
+    external:false || sendNotification?.external
   });
 
 
@@ -158,7 +159,7 @@ function Index() {
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const {title, body, notificationGroup, actions} = formState;
+    const {title, body, notificationGroup, actions, external} = formState;
     const formData = new FormData();
     if (image) {
       console.log('image hai');
@@ -166,6 +167,7 @@ function Index() {
     }
     formData.append('title', title);
     formData.append('body', body);
+    formData.append('external', external);
     if(actions){
       formData.append('actions', actions);
     }
@@ -348,7 +350,7 @@ function Index() {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6} xl={6}>
+                <Grid item xs={12} md={6} xl={9}>
                   <TextField
                     disabled={((isSubmitted || sendNotification) && (!editing || saving))}
                     id="outlined-required"
@@ -365,44 +367,6 @@ function Index() {
                       }))
                     }}
                   />
-                </Grid>
-                <Grid item xs={12} md={6} xl={3}>
-                  <FormControl sx={{ width: '100%' }}>
-                    <InputLabel id="demo-multiple-name-label">Route</InputLabel>
-                    <Select
-                      labelId="demo-multiple-name-label"
-                      id="demo-multiple-name"
-                      name='route'
-                      disabled={((isSubmitted || sendNotification) && (!editing || saving))}
-                      // defaultValue={id ? portfolios?.portfolio : ''}
-                      value={formState?.actions}
-                      // onChange={handleTypeChange}
-                      onChange={(e) => {
-                        setFormState(prevState => ({
-                          ...prevState,
-                          actions: e.target.value
-                        }))
-                      }}
-                      input={<OutlinedInput label="TestZone For" />}
-                      sx={{ minHeight: 45 }}
-                      MenuProps={MenuProps}
-                    >
-                      <MenuItem value='home'>home</MenuItem>
-                      <MenuItem value='wallet'>wallet</MenuItem>
-                      <MenuItem value='market'>market</MenuItem>
-                      <MenuItem value='marginxs'>marginxs</MenuItem>
-                      <MenuItem value='tenxtrading'>tenxtrading</MenuItem>
-                      <MenuItem value='testzone'>testzone</MenuItem>
-                      <MenuItem value='collegetestzone'>collegetestzone</MenuItem>
-                      <MenuItem value='portfolio'>portfolio</MenuItem>
-                      <MenuItem value='internship'>internship</MenuItem>
-                      <MenuItem value='marketguru'>marketguru</MenuItem>
-                      <MenuItem value='tutorials'>tutorials</MenuItem>
-                      <MenuItem value='profile'>profile</MenuItem>
-                      <MenuItem value='referrals'>referrals</MenuItem>
-                      <MenuItem value='faqs'>faqs</MenuItem>
-                    </Select>
-                  </FormControl>
                 </Grid>
 
 
@@ -465,6 +429,85 @@ function Index() {
                     </Select>
                   </FormControl>
                 </Grid>
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormGroup>
+                    <FormControlLabel
+                      checked={(sendNotification?.external !== undefined && !editing && formState?.external === undefined) ? sendNotification?.external : formState?.external}
+                      disabled={((isSubmitted || sendNotification) && (!editing || saving))}
+                      control={<Checkbox />}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          actions: ""
+                        }))
+                        setFormState(prevState => ({
+                          ...prevState,
+                          external: e.target.checked
+                        }))
+                      }}
+                      label="External Link" />
+                  </FormGroup>
+                </Grid>
+                
+                {!formState?.external ? 
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormControl sx={{ width: '100%' }}>
+                    <InputLabel id="demo-multiple-name-label">Route</InputLabel>
+                    <Select
+                      labelId="demo-multiple-name-label"
+                      id="demo-multiple-name"
+                      name='route'
+                      disabled={((isSubmitted || sendNotification) && (!editing || saving))}
+                      // defaultValue={id ? portfolios?.portfolio : ''}
+                      value={formState?.actions}
+                      // onChange={handleTypeChange}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          actions: e.target.value
+                        }))
+                      }}
+                      input={<OutlinedInput label="TestZone For" />}
+                      sx={{ minHeight: 45 }}
+                      MenuProps={MenuProps}
+                    >
+                      <MenuItem value='home'>home</MenuItem>
+                      <MenuItem value='wallet'>wallet</MenuItem>
+                      <MenuItem value='market'>market</MenuItem>
+                      <MenuItem value='marginxs'>marginxs</MenuItem>
+                      <MenuItem value='tenxtrading'>tenxtrading</MenuItem>
+                      <MenuItem value='testzone'>testzone</MenuItem>
+                      <MenuItem value='collegetestzone'>collegetestzone</MenuItem>
+                      <MenuItem value='portfolio'>portfolio</MenuItem>
+                      <MenuItem value='internship'>internship</MenuItem>
+                      <MenuItem value='marketguru'>marketguru</MenuItem>
+                      <MenuItem value='tutorials'>tutorials</MenuItem>
+                      <MenuItem value='profile'>profile</MenuItem>
+                      <MenuItem value='referrals'>referrals</MenuItem>
+                      <MenuItem value='faqs'>faqs</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                :  
+                <Grid item xs={12} md={6} xl={6}>
+                  <TextField
+                    disabled={((isSubmitted || sendNotification) && (!editing || saving))}
+                    id="outlined-required"
+                    label='External Link *'
+                    name='externalLink'
+                    fullWidth
+                    value={formState?.actions}
+                    // defaultValue={editing ? formState?.title : sendNotification?.actions}
+                    onChange={(e) => {
+                      setFormState(prevState => ({
+                        ...prevState,
+                        actions: e.target.value
+                      }))
+                    }}
+                  />
+                </Grid>}
+                
+
 
 
               </Grid>
