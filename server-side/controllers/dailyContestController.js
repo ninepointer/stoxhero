@@ -21,6 +21,7 @@ const {saveSuccessfulCouponUse} = require('./coupon/couponController');
 const {creditAffiliateAmount} = require('./affiliateProgramme/affiliateController');
 const AffiliateProgram = require('../models/affiliateProgram/affiliateProgram');
 const {sendMultiNotifications} = require('../utils/fcmService');
+const {client, getValue} = require('../marketData/redisClient');
 
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
@@ -2818,309 +2819,309 @@ exports.getDailyContestUsers = async (req, res) => {
 
 exports.deductSubscriptionAmount = async (req, res, next) => {
 
-    try {
-        const { contestFee, contestName, contestId, coupon, bonusRedemption } = req.body
-        const userId = req.user._id;
-        const result = await exports.handleSubscriptionDeduction(userId, contestFee, contestName, contestId, coupon, bonusRedemption);
-        
-        res.status(result.statusCode).json(result.data);
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({
-            status: "error",
-            message: "Something went wrong..."
+  try {
+    const { contestFee, contestName, contestId, coupon, bonusRedemption } = req.body
+    const userId = req.user._id;
+    const result = await exports.handleSubscriptionDeduction(userId, contestFee, contestName, contestId, coupon, bonusRedemption, req);
+
+    res.status(result.statusCode).json(result.data);
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong..."
+    });
+  }
+}
+
+exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, contestId, coupon, bonusRedemption, req) => {
+  try {
+    let affiliate, affiliateProgram;
+    const contest = await Contest.findOne({ _id: contestId });
+    const wallet = await UserWallet.findOne({ userId: userId });
+    const user = await User.findOne({ _id: userId });
+    const setting = await Setting.find({});
+    let discountAmount = 0;
+    let cashbackAmount = 0;
+    const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
+      return transaction.transactionType === "Cash";
+    });
+    const bonusTransactions = (wallet)?.transactions?.filter((transaction) => {
+      return transaction.transactionType === "Bonus";
+    });
+
+
+    const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
+      return total + transaction?.amount;
+    }, 0);
+    const totalBonusAmount = bonusTransactions?.reduce((total, transaction) => {
+      return total + transaction?.amount;
+    }, 0);
+
+    //Check if Bonus Redemption is valid
+    if (bonusRedemption > totalBonusAmount || bonusRedemption > contest?.entryFee * setting[0]?.maxBonusRedemptionPercentage) {
+      return {
+        statusCode: 400,
+        data: {
+          status: "error",
+          message: "Incorrect HeroCash Redemption",
+        }
+      };
+    }
+
+    if (Number(bonusRedemption)) {
+      wallet?.transactions?.push({
+        title: 'StoxHero HeroCash Redeemed',
+        description: `${bonusRedemption} HeroCash used.`,
+        transactionDate: new Date(),
+        amount: -(bonusRedemption?.toFixed(2)),
+        transactionId: uuid.v4(),
+        transactionType: 'Bonus'
+      });
+    }
+
+
+    if (coupon) {
+      let couponDoc = await Coupon.findOne({ code: coupon });
+      if (!couponDoc) {
+        const affiliatePrograms = await AffiliateProgram.find({ status: 'Active' });
+        if (affiliatePrograms.length != 0)
+          for (let program of affiliatePrograms) {
+            let match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
+            if (match) {
+              affiliate = match;
+              affiliateProgram = program;
+              couponDoc = { rewardType: 'Discount', discountType: 'Percentage', discount: program?.discountPercentage, maxDiscount: program?.maxDiscount }
+            }
+          }
+
+      }
+      if (couponDoc?.rewardType == 'Discount') {
+        if (couponDoc?.discountType == 'Flat') {
+          //Calculate amount and match
+          discountAmount = couponDoc?.discount;
+        } else {
+          discountAmount = Math.min(couponDoc?.discount / 100 * contest?.entryFee, couponDoc?.maxDiscount);
+
+        }
+      } else {
+        if (couponDoc?.discountType == 'Flat') {
+          //Calculate amount and match
+          cashbackAmount = couponDoc?.discount;
+        } else {
+          cashbackAmount = Math.min(couponDoc?.discount / 100 * (contest?.entryFee - bonusRedemption), couponDoc?.maxDiscount);
+
+        }
+        wallet?.transactions?.push({
+          title: 'StoxHero CashBack',
+          description: `Cashback of ${cashbackAmount?.toFixed(2)} HeroCash - code ${coupon} used`,
+          transactionDate: new Date(),
+          amount: cashbackAmount?.toFixed(2),
+          transactionId: uuid.v4(),
+          transactionType: 'Bonus'
         });
       }
     }
-    
-exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, contestId, coupon, bonusRedemption)=>{
-      try{
-        let affiliate, affiliateProgram;
-        const contest = await Contest.findOne({ _id: contestId });
-        const wallet = await UserWallet.findOne({ userId: userId });
-        const user = await User.findOne({ _id: userId });
-        const setting = await Setting.find({});
-        let discountAmount = 0;
-        let cashbackAmount = 0;
-        const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
-            return transaction.transactionType === "Cash";
-        });
-        const bonusTransactions = (wallet)?.transactions?.filter((transaction) => {
-            return transaction.transactionType === "Bonus";
-        });
-
-
-        const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
-            return total + transaction?.amount;
-        }, 0);
-        const totalBonusAmount = bonusTransactions?.reduce((total, transaction) => {
-            return total + transaction?.amount;
-        }, 0);
-        
-        //Check if Bonus Redemption is valid
-        if(bonusRedemption > totalBonusAmount || bonusRedemption > contest?.entryFee*setting[0]?.maxBonusRedemptionPercentage){
-          return {
-            statusCode:400,
-            data:{
-            status: "error",
-            message:"Incorrect HeroCash Redemption",
-            }
-          }; 
-        }
-
-        if(Number(bonusRedemption)){
-          wallet?.transactions?.push({
-            title: 'StoxHero HeroCash Redeemed',
-            description: `${bonusRedemption} HeroCash used.`,
-            transactionDate: new Date(),
-            amount:-(bonusRedemption?.toFixed(2)),
-            transactionId: uuid.v4(),
-            transactionType: 'Bonus'
-        });
-        }
-
-
-        if(coupon){
-          let couponDoc = await Coupon.findOne({code:coupon});
-          if(!couponDoc){
-            const affiliatePrograms = await AffiliateProgram.find({status:'Active'});
-            if(affiliatePrograms.length != 0)
-                for(let program of affiliatePrograms){
-                    let match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
-                    if(match){
-                        affiliate = match;
-                        affiliateProgram = program;
-                        couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: program?.discountPercentage, maxDiscount:program?.maxDiscount }
-                    }
-                }
-
-        }
-          if(couponDoc?.rewardType == 'Discount'){
-              if(couponDoc?.discountType == 'Flat'){
-                  //Calculate amount and match
-                  discountAmount = couponDoc?.discount;
-              }else{
-                  discountAmount = Math.min(couponDoc?.discount/100*contest?.entryFee, couponDoc?.maxDiscount);
-                  
-              }
-          }else{
-            if(couponDoc?.discountType == 'Flat'){
-              //Calculate amount and match
-              cashbackAmount = couponDoc?.discount;
-          }else{
-              cashbackAmount = Math.min(couponDoc?.discount/100*(contest?.entryFee-bonusRedemption), couponDoc?.maxDiscount);
-              
-          }
-          wallet?.transactions?.push({
-              title: 'StoxHero CashBack',
-              description: `Cashback of ${cashbackAmount?.toFixed(2)} HeroCash - code ${coupon} used`,
-              transactionDate: new Date(),
-              amount:cashbackAmount?.toFixed(2),
-              transactionId: uuid.v4(),
-              transactionType: 'Bonus'
-          });
-          }
-      }
-      const totalAmount = (contest?.entryFee - discountAmount - bonusRedemption)*(1+setting[0]?.gstPercentage/100)
-      if(Number(totalAmount)?.toFixed(2) != Number(contestFee)?.toFixed(2)){
-        return {
-          statusCode:400,
-          data:{
+    const totalAmount = (contest?.entryFee - discountAmount - bonusRedemption) * (1 + setting[0]?.gstPercentage / 100)
+    if (Number(totalAmount)?.toFixed(2) != Number(contestFee)?.toFixed(2)) {
+      return {
+        statusCode: 400,
+        data: {
           status: "error",
-          message:"Incorrect TestZone fee amount",
+          message: "Incorrect TestZone fee amount",
+        }
+      };
+    }
+    if (totalCashAmount < (Number(contestFee))) {
+      return {
+        statusCode: 400,
+        data: {
+          status: "error",
+          message: "You do not have enough balance to join this TestZone. Please add money to your StoxHero Wallet.",
+        }
+      };
+    }
+
+    for (let i = 0; i < contest.participants?.length; i++) {
+      if (contest.participants[i]?.userId?.toString() === userId?.toString()) {
+        return {
+          statusCode: 400,
+          data: {
+            status: "error",
+            message: "You have already participated in this TestZone.",
           }
-        };  
-      } 
-        if (totalCashAmount < (Number(contestFee))) {
-          return {
-            statusCode:400,
-            data:{
-            status: "error",
-            message:"You do not have enough balance to join this TestZone. Please add money to your StoxHero Wallet.",
-            }
-          };  
+        };
+      }
+    }
+
+    if (contest?.maxParticipants <= contest?.participants?.length) {
+      if (!contest.potentialParticipants.includes(userId)) {
+        contest.potentialParticipants.push(userId);
+        await contest.save();
+      }
+      return {
+        statusCode: 400,
+        data: {
+          status: "error",
+          message: "The TestZone is already full. We sincerely appreciate your enthusiasm to participate in our TestZone. Please join in our future TestZone.",
         }
+      };
+    }
 
-        for (let i = 0; i < contest.participants?.length; i++) {
-            if (contest.participants[i]?.userId?.toString() === userId?.toString()) {
-              return {
-                statusCode:400,
-                data:{
-                status: "error",
-                message:"You have already participated in this TestZone.",
-                }
-            };  
-            }
+    const noOfContest = await Contest.aggregate([
+      // Match the contest with the given id
+      // {
+      //     $match: {
+      //         _id: new ObjectId(contestId),
+      //     },
+      // },
+      // Deconstruct the participants array to output a document for each participant
+      {
+        $unwind: "$participants",
+      },
+      {
+        $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          "participants.userId": new ObjectId(
+            userId
+          ),
+        },
+      },
+      // Gather the userIds of the participants
+      {
+        $group: {
+          _id: null,
+          userIds: {
+            $addToSet: "$participants.userId",
+          },
+        },
+      },
+      // Match all contests that these users have participated in
+      {
+        $unwind: "$userIds",
+      },
+      {
+        $lookup: {
+          from: "daily-contests",
+          localField: "userIds",
+          foreignField: "participants.userId",
+          as: "userContests",
+        },
+      },
+      // Determine if the contest is free or paid
+      {
+        $unwind: "$userContests",
+      },
+      {
+        $addFields: {
+          "userContests.isFree": {
+            $eq: ["$userContests.entryFee", 0],
+          },
+          "userContests.isPaid": {
+            $ne: ["$userContests.entryFee", 0],
+          },
+        },
+      },
+      // Group by userId to count and aggregate required fields
+      {
+        $group: {
+          _id: "$userIds",
+          totalContestsCount: {
+            $sum: 1,
+          },
+          uniqueTradingDays: {
+            $addToSet: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$userContests.contestStartTime",
+              },
+            },
+          },
+          totalFreeContests: {
+            $sum: {
+              $cond: ["$userContests.isFree", 1, 0],
+            },
+          },
+          totalPaidContests: {
+            $sum: {
+              $cond: ["$userContests.isPaid", 1, 0],
+            },
+          },
+        },
+      },
+      // Format the output
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id",
+          totalContestsCount: 1,
+          totalTradingDays: {
+            $size: "$uniqueTradingDays",
+          },
+          // Note: Ensure "contestExpiry" can be represented as a numerical value to sum
+          totalFreeContests: 1,
+          totalPaidContests: 1,
+        },
+      },
+    ])
+
+    const result = await Contest.findOne({ _id: new ObjectId(contestId) });
+
+    let obj = {
+      userId: userId,
+      participatedOn: new Date(),
+      fee: contestFee,
+      actualPrice: contest?.entryFee,
+    }
+    if (Number(bonusRedemption)) {
+      obj.bonusRedemption = bonusRedemption;
+    }
+
+    console.log(noOfContest, noOfContest[0]?.totalContestsCount, result?.liveThreshold, result.currentLiveStatus)
+    // Now update the isLive field based on the liveThreshold value
+    if ((noOfContest[0]?.totalContestsCount < result?.liveThreshold) && result.currentLiveStatus === "Live") {
+      obj.isLive = true;
+      console.log("in if")
+    } else {
+      console.log("in else")
+      obj.isLive = false;
+    }
+
+    result.participants.push(obj);
+
+    // console.log(result)
+    // Save the updated document
+    await result.save();
+
+
+    wallet.transactions = [...wallet.transactions, {
+      title: 'TestZone Fee',
+      description: `Amount deducted for the TestZone fee of ${contestName} TestZone`,
+      transactionDate: new Date(),
+      amount: (-contestFee),
+      transactionId: uuid.v4(),
+      transactionType: 'Cash'
+    }];
+    await wallet.save();
+
+    if (!result || !wallet) {
+      return {
+        statusCode: 404,
+        data: {
+          status: "error",
+          message: "Not found",
         }
+      };
+    }
 
-        if (contest?.maxParticipants <= contest?.participants?.length) {
-            if (!contest.potentialParticipants.includes(userId)) {
-                contest.potentialParticipants.push(userId);
-                await contest.save();
-            }
-            return {
-              statusCode:400,
-              data:{
-              status: "error",
-              message:"The TestZone is already full. We sincerely appreciate your enthusiasm to participate in our TestZone. Please join in our future TestZone.",
-              }
-          };  
-        }
-
-        const noOfContest = await Contest.aggregate([
-            // Match the contest with the given id
-            // {
-            //     $match: {
-            //         _id: new ObjectId(contestId),
-            //     },
-            // },
-            // Deconstruct the participants array to output a document for each participant
-            {
-                $unwind: "$participants",
-            },
-            {
-                $match:
-                /**
-                 * query: The query in MQL.
-                 */
-                {
-                    "participants.userId": new ObjectId(
-                        userId
-                    ),
-                },
-            },
-            // Gather the userIds of the participants
-            {
-                $group: {
-                    _id: null,
-                    userIds: {
-                        $addToSet: "$participants.userId",
-                    },
-                },
-            },
-            // Match all contests that these users have participated in
-            {
-                $unwind: "$userIds",
-            },
-            {
-                $lookup: {
-                    from: "daily-contests",
-                    localField: "userIds",
-                    foreignField: "participants.userId",
-                    as: "userContests",
-                },
-            },
-            // Determine if the contest is free or paid
-            {
-                $unwind: "$userContests",
-            },
-            {
-                $addFields: {
-                    "userContests.isFree": {
-                        $eq: ["$userContests.entryFee", 0],
-                    },
-                    "userContests.isPaid": {
-                        $ne: ["$userContests.entryFee", 0],
-                    },
-                },
-            },
-            // Group by userId to count and aggregate required fields
-            {
-                $group: {
-                    _id: "$userIds",
-                    totalContestsCount: {
-                        $sum: 1,
-                    },
-                    uniqueTradingDays: {
-                        $addToSet: {
-                            $dateToString: {
-                                format: "%Y-%m-%d",
-                                date: "$userContests.contestStartTime",
-                            },
-                        },
-                    },
-                    totalFreeContests: {
-                        $sum: {
-                            $cond: ["$userContests.isFree", 1, 0],
-                        },
-                    },
-                    totalPaidContests: {
-                        $sum: {
-                            $cond: ["$userContests.isPaid", 1, 0],
-                        },
-                    },
-                },
-            },
-            // Format the output
-            {
-                $project: {
-                    _id: 0,
-                    userId: "$_id",
-                    totalContestsCount: 1,
-                    totalTradingDays: {
-                        $size: "$uniqueTradingDays",
-                    },
-                    // Note: Ensure "contestExpiry" can be represented as a numerical value to sum
-                    totalFreeContests: 1,
-                    totalPaidContests: 1,
-                },
-            },
-        ])
-
-        const result = await Contest.findOne({ _id: new ObjectId(contestId) });
-
-        let obj = {
-            userId: userId,
-            participatedOn: new Date(),
-            fee:contestFee,
-            actualPrice:contest?.entryFee,
-        }
-        if(Number(bonusRedemption)){
-          obj.bonusRedemption = bonusRedemption;
-        }
-
-        console.log(noOfContest, noOfContest[0]?.totalContestsCount, result?.liveThreshold , result.currentLiveStatus)
-        // Now update the isLive field based on the liveThreshold value
-        if ((noOfContest[0]?.totalContestsCount < result?.liveThreshold) && result.currentLiveStatus === "Live") {
-            obj.isLive = true;
-            console.log("in if")
-        } else {
-            console.log("in else")
-            obj.isLive = false;
-        }
-
-        result.participants.push(obj);
-
-        // console.log(result)
-        // Save the updated document
-        await result.save();
-
-
-        wallet.transactions = [...wallet.transactions, {
-            title: 'TestZone Fee',
-            description: `Amount deducted for the TestZone fee of ${contestName} TestZone`,
-            transactionDate: new Date(),
-            amount: (-contestFee),
-            transactionId: uuid.v4(),
-            transactionType: 'Cash'
-        }];
-        await wallet.save();
-
-        if (!result || !wallet) {
-          return {
-            statusCode:404,
-            data:{
-            status: "error",
-            message:"Not found",
-            }
-        };  
-        }
-
-        let recipients = [user.email,'team@stoxhero.com'];
-        let recipientString = recipients.join(",");
-        let subject = "TestZone Fee - StoxHero";
-        let message = 
-        `
+    let recipients = [user.email, 'team@stoxhero.com'];
+    let recipientString = recipients.join(",");
+    let subject = "TestZone Fee - StoxHero";
+    let message =
+      `
         <!DOCTYPE html>
             <html>
             <head>
@@ -3203,74 +3204,91 @@ exports.handleSubscriptionDeduction = async(userId, contestFee, contestName, con
             </html>
 
         `
-        if(process.env.PROD === "true"){
-            emailService(recipientString,subject,message);
-            // console.log("Subscription Email Sent")
-        }
-        if(coupon && cashbackAmount>0){
-          await createUserNotification({
-              title:'StoxHero Cashback',
-              description:`${cashbackAmount?.toFixed(2)} HeroCash added as bonus - ${coupon} code used.`,
-              notificationType:'Individual',
-              notificationCategory:'Informational',
-              productCategory:'TestZone',
-              user: user?._id,
-              priority:'Medium',
-              channels:['App', 'Email'],
-              createdBy:'63ecbc570302e7cf0153370c',
-              lastModifiedBy:'63ecbc570302e7cf0153370c'  
-            });
-            if(user?.fcmTokens?.length>0){
-              await sendMultiNotifications('StoxHero Cashback', 
-                `${cashbackAmount?.toFixed(2)}HeroCash credited as bonus in your wallet.`,
-                user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
-                )  
-            }  
+    if (process.env.PROD === "true") {
+      emailService(recipientString, subject, message);
+      // console.log("Subscription Email Sent")
+    }
+    if (coupon && cashbackAmount > 0) {
+      await createUserNotification({
+        title: 'StoxHero Cashback',
+        description: `${cashbackAmount?.toFixed(2)} HeroCash added as bonus - ${coupon} code used.`,
+        notificationType: 'Individual',
+        notificationCategory: 'Informational',
+        productCategory: 'TestZone',
+        user: user?._id,
+        priority: 'Medium',
+        channels: ['App', 'Email'],
+        createdBy: '63ecbc570302e7cf0153370c',
+        lastModifiedBy: '63ecbc570302e7cf0153370c'
+      });
+      if (user?.fcmTokens?.length > 0) {
+        await sendMultiNotifications('StoxHero Cashback',
+          `${cashbackAmount?.toFixed(2)}HeroCash credited as bonus in your wallet.`,
+          user?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
+        )
       }
-        await createUserNotification({
-            title:'TestZone Fee Deducted',
-            description:`₹${contestFee} deducted as TestZone fee for ${contest?.contestName}`,
-            notificationType:'Individual',
-            notificationCategory:'Informational',
-            productCategory:'TestZone',
-            user: user?._id,
-            priority:'Low',
-            channels:['App', 'Email'],
-            createdBy:'63ecbc570302e7cf0153370c',
-            lastModifiedBy:'63ecbc570302e7cf0153370c'  
-          });
-          if(user?.fcmTokens?.length>0){
-            await sendMultiNotifications('TestZone Fee Deducted', 
-              `₹${contestFee} deducted as TestZone fee for ${contest?.contestName}`,
-              user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
-              )  
-          }  
-          if(coupon){
-            const product = await Product.findOne({productName:'TestZone'}).select('_id');
-            if(affiliate){
-              await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, contest?._id, contest?.entryFee, userId);
-            }else{
-              await saveSuccessfulCouponUse(userId, coupon, product?._id, contest?._id);
-            }
+    }
+    await createUserNotification({
+      title: 'TestZone Fee Deducted',
+      description: `₹${contestFee} deducted as TestZone fee for ${contest?.contestName}`,
+      notificationType: 'Individual',
+      notificationCategory: 'Informational',
+      productCategory: 'TestZone',
+      user: user?._id,
+      priority: 'Low',
+      channels: ['App', 'Email'],
+      createdBy: '63ecbc570302e7cf0153370c',
+      lastModifiedBy: '63ecbc570302e7cf0153370c'
+    });
+    if (user?.fcmTokens?.length > 0) {
+      await sendMultiNotifications('TestZone Fee Deducted',
+        `₹${contestFee} deducted as TestZone fee for ${contest?.contestName}`,
+        user?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
+      )
+    }
+    if (coupon) {
+      const product = await Product.findOne({ productName: 'TestZone' }).select('_id');
+      if (affiliate) {
+        await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, contest?._id, contest?.entryFee, userId);
+      } else {
+        await saveSuccessfulCouponUse(userId, coupon, product?._id, contest?._id);
+      }
+    }
+
+    if (!req?.user?.paidDetails?.paidDate) {
+      const updatePaidDetails = await User.findOneAndUpdate(
+        { _id: new ObjectId(userId) },
+        {
+          $set: {
+            'paidDetails.paidDate': new Date(),
+            'paidDetails.paidStatus': 'Inactive',
+            'paidDetails.paidProduct': '6517d48d3aeb2bb27d650de',
+            'paidDetails.paidProductPrice': contestFee
           }
-          return {
-            statusCode:200,
-            data:{
-              status:'success',
-              message: "Paid successfully",
-              data: result
-            }
-        };  
-  }catch(e){
+        },
+        { new: true }
+      );
+
+      await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+    }
+    return {
+      statusCode: 200,
+      data: {
+        status: 'success',
+        message: "Paid successfully",
+        data: result
+      }
+    };
+  } catch (e) {
     console.log(e);
     return {
-      statusCode:500,
-      data:{
-        status:'error',
+      statusCode: 500,
+      data: {
+        status: 'error',
         message: "Something went wrong",
         error: e.message
       }
-  };  
+    };
   }
 }
 
