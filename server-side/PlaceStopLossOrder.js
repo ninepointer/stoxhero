@@ -876,6 +876,8 @@ exports.pendingOrderMain = async () => {
     try {
 
         await client2.SUBSCRIBE("place-order", async (message) => {
+            // console.log(message)
+
             message = JSON.parse(message);
 
 
@@ -920,6 +922,7 @@ exports.pendingOrderMain = async () => {
                 }
 
 
+                // console.log("pnlData", pnlData)
 
                 data = await client.get('stoploss-stopprofit');
                 data = JSON.parse(data);
@@ -1002,6 +1005,7 @@ exports.pendingOrderMain = async () => {
                 // console.log("symbolArr", symbolArr)
                 data[`${instrumentToken}`] = symbolArr;
                 const myDAta = await client.set('stoploss-stopprofit', JSON.stringify(data));
+                console.log("data", { symbol: symbol, createdBy: createdBy, Quantity: Quantity, execution_price: last_price, type: type })
                 await client4.PUBLISH("order-notification", JSON.stringify({ symbol: symbol, createdBy: createdBy, Quantity: Quantity, execution_price: last_price, type: type }))
 
 
