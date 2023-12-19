@@ -43,8 +43,8 @@ const LeaderBoard = () => {
 
         { Header: "MarginX Referred", accessor: "marginxReferred", align: "center" },
         { Header: "MarginX Payout", accessor: "marginxPayout", align: "center" },
-        { Header: "SignUp", accessor: "signupPayout", align: "center" },
-
+        { Header: "SignUps", accessor: "signup", align: "center" },
+        { Header: "SignUp Payout", accessor: "signupPayout", align: "center" },
         { Header: "Total", accessor: "total", align: "center" },
 
     ]
@@ -141,6 +141,13 @@ const LeaderBoard = () => {
             <MDTypography component="a" variant="caption" fontWeight="medium">
                 {/* {elem?.marginx_payout || "-"} */}
                 {elem?.marginx_payout ? ("₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.marginx_payout))) : "-"}
+            </MDTypography>
+        );
+
+        featureObj.signup = (
+            <MDTypography component="a" variant="caption" fontWeight="medium">
+                {/* {elem?.marginx_payout || "-"} */}
+                {elem?.signup || "-"}
             </MDTypography>
         );
 
