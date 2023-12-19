@@ -103,7 +103,7 @@ export default function AllowedUsers({ registrations }) {
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
           </MDTypography>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-            Contest Registrations({registrations?.length})
+            TestZone Registrations({registrations?.length})
           </MDTypography>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} gutterBottom >
             <Tooltip title="Download CSV"><MDBox sx={{ backgroundColor: "lightgrey", borderRadius: "2px", cursor: "pointer", marginRight: "5px" }} onClick={() => { handleDownload(pnlData, `contest-registration`) }}><DownloadIcon /></MDBox></Tooltip>
