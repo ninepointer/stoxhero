@@ -106,9 +106,10 @@ const CareerForm = () => {
     }) 
   },[])
 
+  const [buttonClicked, setButtonClicked] = useState(false);
   async function confirmOTP(){
     setDetails(prevState => ({...prevState, mobile_otp: detail.mobile_otp}));
-    
+    setButtonClicked(true);
     const { 
       firstName,
       lastName,
@@ -162,9 +163,11 @@ const CareerForm = () => {
     if(res.status === 201){ 
         setSubmitted(true);
         setCreating(false);
+        setButtonClicked(false);
         return openSuccessSB("TestZone Registration Completed",data.message,"SUCCESS");  
     }else{
-        return openSuccessSB("Error",data.message,"Error")
+      setButtonClicked(false);
+      return openSuccessSB("Error",data.message,"Error")
     }
   }
 
@@ -675,7 +678,7 @@ const CareerForm = () => {
                         onClick={()=>{confirmOTP()}} 
                         variant="gradient" 
                         // color="#65BA0D"
-                        disabled={creating} 
+                        disabled={creating || buttonClicked} 
                         // style={{width:'90%'}}
                         style={{backgroundColor:'#65BA0D', color:'white',width:'90%'}}
                       >
