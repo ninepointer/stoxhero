@@ -22,7 +22,7 @@ const App = (props) => {
   const [campaignCode,setCampaignCode] = useState();
   const [isLoading,setIsLoading] = useState(false);
   const location = useLocation();
-  const [clicked,setClicked] = useState(false);
+  // const [clicked,setClicked] = useState(false);
   const [value, setValue] = React.useState('1');
   const handleChange = (event, newValue) => {
     setIsLoading(true)

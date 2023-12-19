@@ -223,9 +223,10 @@ function Cover(props) {
     }
 }
 
+const [buttonClicked, setButtonClicked] = useState(false);
   async function otpConfirmation() {
     // console.log(formstate.email_otp)
-
+    setButtonClicked(true);
     const res = await fetch(`${baseUrl}api/v1/verifyotp`, {
 
       method: "PATCH",
@@ -265,8 +266,11 @@ function Cover(props) {
         const from = location.state?.from || "/home";
         navigate(from);
       }
+
+      setButtonClicked(false);
       return openSuccessSB("Account Created", data.message);
     } else {
+      setButtonClicked(false);
       return openInfoSB("Error", data.message);
     }
 
@@ -857,7 +861,7 @@ function Cover(props) {
                               </Grid>
                               
                               <Grid item xs={12} md={12} lg={12} mt={.25} display="flex" justifyContent="center">
-                                <MDButton variant="gradient" style={{backgroundColor:"#65BA0D", color:'white'}} fullWidth onClick={otpConfirmation}>
+                                <MDButton variant="gradient" style={{backgroundColor:"#65BA0D", color:'white'}} fullWidth onClick={otpConfirmation} disabled={buttonClicked}>
                                   Confirm
                                 </MDButton>
                             </Grid>

@@ -58,11 +58,13 @@ const CareerForm = () => {
   },[])
   
 
+  const [buttonClicked, setButtonClicked] = useState(false);
+
   async function confirmOTP(){
 
     setCreating(true);
     setDetails(prevState => ({...prevState, mobile_otp: detail.mobile_otp}));
-
+    setButtonClicked(true);
     const { 
       firstName,
       lastName,
@@ -108,8 +110,10 @@ const CareerForm = () => {
     if(res.status === 201){ 
         setSubmitted(true);
         setCreating(false);
+        setButtonClicked(false);
         return openSuccessSB("Application Submitted",data.info,"SUCCESS");  
     }else{
+        setButtonClicked(false);
         return openSuccessSB("Error",data.info,"Error")
     }
 
@@ -424,7 +428,7 @@ const CareerForm = () => {
                         onClick={()=>{confirmOTP()}} 
                         variant="gradient" 
                         color="info"
-                        disabled={creating} 
+                        disabled={creating || buttonClicked} 
                       >
                       {creating ? <CircularProgress size={20} color="inherit" /> : "Confirm"}
                       </MDButton>
