@@ -1328,7 +1328,7 @@ const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
             return openingBalance - totalMargin + npnl;
         } else {
             console.log("margin", openingBalance  - (Math.abs(amount-subtractAmount)+margin))
-            return openingBalance  - (Math.abs(amoun-subtractAmount)+margin);
+            return openingBalance  - (Math.abs(amount-subtractAmount)+margin);
         }
     else{
         return openingBalance - totalMargin;
