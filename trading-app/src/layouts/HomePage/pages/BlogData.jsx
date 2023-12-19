@@ -18,13 +18,14 @@ import Footer from '../../authentication/components/Footer/index.js'
 import { CircularProgress } from '@mui/material';
 import MDButton from '../../../components/MDButton/index.js';
 import playstore from '../../../assets/images/playstore.png'
+import ReactGA from "react-ga"
 
 export default function BlogCard() {
   const [blogData, setBlogData] = useState();
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(true);
 
-  console.log("location", location, location?.pathname?.split("/"))
+  // console.log("location", location, location?.pathname?.split("/"))
   useEffect(() => {
     let call1 = axios.get(`${apiUrl}blogs/bytitle/${location?.pathname?.split("/")[2]}`, {
       headers: {
@@ -41,6 +42,10 @@ export default function BlogCard() {
       .catch((error) => {
         console.error(error);
       });
+  }, []);
+
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
   }, []);
 
   useEffect(()=>{
