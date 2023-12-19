@@ -97,9 +97,11 @@ useEffect(()=>{
 },[])
   
 
+const [buttonClicked, setButtonClicked] = useState(false);
+
   async function confirmOTP(){
     setDetails(prevState => ({...prevState, mobile_otp: detail.mobile_otp}));
-    
+    setButtonClicked(true);
     const { 
       firstName,
       lastName,
@@ -137,8 +139,10 @@ useEffect(()=>{
     if(res.status === 201){ 
         setSubmitted(true);
         setCreating(false);
+        setButtonClicked(false);
         return openSuccessSB("TestZone Registration Completed",data?.info,"SUCCESS");  
     }else{
+        setButtonClicked(false);
         return openSuccessSB("Error",data.info,"Error")
     }
   }
@@ -511,7 +515,7 @@ useEffect(()=>{
                         onClick={()=>{confirmOTP()}} 
                         variant="gradient" 
                         style={{backgroundColor:'#65BA0D', color:'white',width:'90%'}}
-                        disabled={creating} 
+                        disabled={creating || buttonClicked} 
                         // style={{width:'90%'}}
                       >
                       {creating ? 
