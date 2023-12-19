@@ -252,11 +252,19 @@ const changeContestStatus = async () => {
 
             const contest = await Contest.find({ contestStatus: "Active", contestEndTime: { $gte: today, $lte: todayEnd } });
 
-            for (let j = 0; j < contest.length; j++) {
-                console.log(contest[j].contestEndTime, new Date())
-                contest[j].contestStatus = "Completed";
-                await contest[j].save();
-            }
+            // for (let j = 0; j < contest.length; j++) {
+            //     console.log(contest[j].contestEndTime, new Date())
+            //     contest[j].contestStatus = "Completed";
+            //     await contest[j].save();
+            // }
+
+            const updatePromises = contest.map(async (elem) => {
+                console.log(elem.contestEndTime, new Date())
+                elem.contestStatus = "Completed";
+                await elem.save();
+            });
+
+            await Promise.all(updatePromises); 
 
             resolve();
 
@@ -491,10 +499,18 @@ const changeMarginXDocStatus = async () => {
 
             const marginx = await MarginX.find({ status: "Active", endTime: { $gte: today, $lte: todayEnd } });
 
-            for (let j = 0; j < marginx.length; j++) {
-                marginx[j].status = "Completed";
-                await marginx[j].save();
-            }
+            // for (let j = 0; j < marginx.length; j++) {
+            //     marginx[j].status = "Completed";
+            //     await marginx[j].save();
+            // }
+
+            const updatePromises = marginx.map(async (elem) => {
+                elem.status = "Completed";
+                await elem.save();
+            });
+
+            await Promise.all(updatePromises); 
+
 
             resolve();
 
