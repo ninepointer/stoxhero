@@ -670,7 +670,7 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
               tenXSubs.users[k].expiredOn = new Date();
               tenXSubs.users[k].expiredBy = "User";
               // console.log("this is tenXSubs", tenXSubs)
-              await tenXSubs.save({ session });
+              await tenXSubs.save({validateBeforeSave: false ,session });
               break;
             }
           }
