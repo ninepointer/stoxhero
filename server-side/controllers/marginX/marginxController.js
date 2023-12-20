@@ -17,6 +17,7 @@ const AffiliateProgram = require('../../models/affiliateProgram/affiliateProgram
 const{creditAffiliateAmount} = require('../affiliateProgramme/affiliateController');
 const {TDS} = require("../../constant")
 const {client, getValue} = require('../../marketData/redisClient');
+const ReferralProgram = require("../../models/campaigns/referralProgram")
 
 exports.createMarginX = async (req, res) => {
     try {
@@ -1002,17 +1003,31 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
         if (coupon) {
             let couponDoc = await Coupon.findOne({ code: coupon });
             if (!couponDoc) {
+                let match = false;
                 let affiliatePrograms = await AffiliateProgram.find({ status: 'Active' });
-                if (affiliatePrograms.length != 0)
+                if (affiliatePrograms.length != 0){
                     for (let program of affiliatePrograms) {
-                        let match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
+                        match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
                         if (match) {
                             affiliate = match;
                             affiliateProgram = program;
                             couponDoc = { rewardType: 'Discount', discountType: 'Percentage', discount: program?.discountPercentage, maxDiscount: program?.maxDiscount }
                         }
                     }
+                }
 
+                if(!match){
+                    const userCoupon = await User.findOne({myReferralCode: coupon?.toString()})
+                    const referralProgram = await ReferralProgram.findOne({status: "Active"});
+    
+                    // console.log("referralProgram", referralProgram, userCoupon)
+                    if(userCoupon){
+                        affiliate = {userId: userCoupon?._id};
+                        affiliateProgram = referralProgram?.affiliateDetails;
+                        couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: referralProgram?.affiliateDetails?.discountPercentage, maxDiscount: referralProgram?.affiliateDetails?.maxDiscount }
+
+                    }
+                }
             }
             console.log('couponDoc', couponDoc);
             if (couponDoc?.rewardType == 'Discount') {
