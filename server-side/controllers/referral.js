@@ -334,7 +334,7 @@ exports.getReferredProduct = async (req, res) => {
           },
       },
     ])
-    console.log(product);
+    // console.log(product);
     res.status(200).json({status: "success", data: product, message: "Data received"});
   } catch (err) {
     console.log(err);
