@@ -1,6 +1,8 @@
 const Referral = require('../models/campaigns/referralProgram');
 const User = require('../models/User/userDetailSchema');
 const {client, getValue} = require('../marketData/redisClient');
+const {ObjectId} = require('mongodb');
+const AffiliateTransaction = require('../models/affiliateProgram/affiliateTransactions');
 
 const filterObj = (obj, ...allowedFields) => {
     const newObj = {};
@@ -254,6 +256,79 @@ exports.getMyLeaderBoardRank = async(req,res,next) => {
   
   }
 
-exports.referralBetweenDate = async(req,res)=>{
-  
+exports.getReferredProduct = async (req, res) => {
+  try {
+    const { userId } = req.user._id;
+    const product = AffiliateTransaction.aggregate([
+      {
+        $match:
+        {
+          affiliate: new ObjectId(
+            userId
+          ),
+        },
+      },
+      {
+        $group: {
+          _id: {
+            buyer: "$buyer",
+            product: "$product",
+          },
+          count: {
+            $sum: 1
+          },
+          payout: {
+            $sum: "$affiliatePayout",
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id.product",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "_id.buyer",
+          foreignField: "_id",
+          as: "buyerData",
+        },
+      },
+      {
+        $project: {
+          payout: 1,
+          _id: 0,
+          productReferred: "$count",
+          buyer_name: {
+            $concat: [
+              {
+                $arrayElemAt: [
+                  "$buyerData.first_name",
+                  0,
+                ],
+              },
+              " ",
+              {
+                $arrayElemAt: [
+                  "$buyerData.last_name",
+                  0,
+                ],
+              },
+            ],
+          },
+          product: {
+            $arrayElemAt: ["$product.productName", 0],
+          },
+        },
+      },
+    ])
+    res.status(200).json({status: "success", data: product, message: "Data received"});
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({status: "error", message: "Something went wrong"});
+  }
 }

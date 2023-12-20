@@ -5,7 +5,7 @@ const router = express.Router();
 // const sharp = require('sharp');
 // const axios = require('axios');
 // const Contest = require('../../models/Contest/contestSchema');
-const {getReferralName, createReferral, getReferral, editReferral, getReferrals, 
+const {getReferredProduct, getReferralName, createReferral, getReferral, editReferral, getReferrals, 
     getActiveReferral, editReferralWithId, getReferralLeaderboard, getMyLeaderBoardRank} = require('../../controllers/referral');
 const Authenticate = require('../../authentication/authentication');
 const restrictTo = require('../../authentication/authorization');
@@ -18,5 +18,7 @@ router.route('/active').get(getActiveReferral)
 router.route('/name').get(Authenticate, restrictTo('Admin', 'Super Admin'), getReferralName)
 router.route('/leaderboard').get(getReferralLeaderboard);
 router.route('/myrank').get(Authenticate, getMyLeaderBoardRank);
+router.route('/referredproduct').get(Authenticate, getReferredProduct);
+
 router.route('/:id').patch(Authenticate, restrictTo('Admin', 'Super Admin'), editReferralWithId).get(getReferral)
 module.exports = router;

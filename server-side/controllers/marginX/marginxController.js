@@ -1012,6 +1012,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
                             affiliate = match;
                             affiliateProgram = program;
                             couponDoc = { rewardType: 'Discount', discountType: 'Percentage', discount: program?.discountPercentage, maxDiscount: program?.maxDiscount }
+                            break;
                         }
                     }
                 }
