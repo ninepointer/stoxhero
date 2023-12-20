@@ -24,6 +24,8 @@ const marketingNotificationSchema = new Schema({
     notificationTime:{
         type: Date,
     },
+    userCount:Number,
+    successfulDeliveryCount:Number,
     notificationExpiryDate:{
         type:Date,
     },
