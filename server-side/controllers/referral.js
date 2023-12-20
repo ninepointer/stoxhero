@@ -258,12 +258,14 @@ exports.getMyLeaderBoardRank = async(req,res,next) => {
 
 exports.getReferredProduct = async (req, res) => {
   try {
-    const { userId } = req.user._id;
-    const product = AffiliateTransaction.aggregate([
+    const userId = req.user._id;
+    console.log(userId)
+    const product = await AffiliateTransaction.aggregate([
       {
         $match:
         {
           affiliate: new ObjectId(
+            // "63788f3991fc4bf629de6df0"
             userId
           ),
         },
@@ -326,6 +328,7 @@ exports.getReferredProduct = async (req, res) => {
         },
       },
     ])
+    console.log(product);
     res.status(200).json({status: "success", data: product, message: "Data received"});
   } catch (err) {
     console.log(err);
