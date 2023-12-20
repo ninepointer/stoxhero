@@ -274,7 +274,7 @@ exports.verifyCouponCode = async (req, res) => {
                 if(req.user._id.toString() === userCoupon._id.toString()){
                     return res.status(400).json({
                         status: 'error',
-                        message: "You cannot apply a self-coupon to your own purchase.",
+                        message: "You cannot apply a self-coupon for your own purchase.",
                     });
                 }
                 const referralProgram = await ReferralProgram.findOne({status: "Active"});
