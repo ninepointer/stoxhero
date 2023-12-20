@@ -2,7 +2,7 @@ const TenXSubscription = require("../models/TenXSubscription/TenXSubscriptionSch
 const TenXPurchaseIntent = require("../models/TenXSubscription/TenXPurchaseIntentSchema");
 const TenXTutorialView = require("../models/TenXSubscription/TenXVideoTutorialSchema");
 const { ObjectId } = require("mongodb");
-const TenXTrader = require("../models/mock-trade/tenXTraderSchema");
+// const TenXTrader = require("../models/mock-trade/tenXTraderSchema");
 const User = require("../models/User/userDetailSchema");
 const Campaign = require("../models/campaigns/campaignSchema")
 const Wallet = require("../models/UserWallet/userWalletSchema");
@@ -18,6 +18,7 @@ const Setting = require('../models/settings/setting');
 const {saveSuccessfulCouponUse} = require('./coupon/couponController');
 const AffiliateProgram = require('../models/affiliateProgram/affiliateProgram');
 const{creditAffiliateAmount} = require('./affiliateProgramme/affiliateController');
+const ReferralProgram = require("../models/campaigns/referralProgram")
 
 
 const filterObj = (obj, ...allowedFields) => {
@@ -504,196 +505,217 @@ exports.renewSubscription = async(req, res, next)=>{
   res.status(result.statusCode).json(result.data);     
 };
 
-exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscriptionName, subscriptionId, isRedisConnected, coupon, bonusRedemption, req) =>{
+exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscriptionName, subscriptionId, isRedisConnected, coupon, bonusRedemption, req) => {
   const today = new Date();
   const session = await mongoose.startSession();
-  try{
+  try {
     let affiliate, affiliateProgram;
-    let discountAmount =0;
-    let cashbackAmount =0;
+    let discountAmount = 0;
+    let cashbackAmount = 0;
     session.startTransaction();
-    const tenXSubs = await TenXSubscription.findOne({_id: new ObjectId(subscriptionId)})
-    if(!subscriptionAmount){
+    const tenXSubs = await TenXSubscription.findOne({ _id: new ObjectId(subscriptionId) })
+    if (!subscriptionAmount) {
       subscriptionAmount = tenXSubs?.discounted_price;
     }
-    
+
     const setting = await Setting.find({});
-    const wallet = await Wallet.findOne({userId: userId});
+    const wallet = await Wallet.findOne({ userId: userId });
     let amount = 0;
     let bonusAmount = 0;
-    for(elem of wallet.transactions){
-      if(elem?.transactionType == 'Cash'){
+    for (elem of wallet.transactions) {
+      if (elem?.transactionType == 'Cash') {
         amount += elem.amount;
       }
-      else if(elem?.transactionType == 'Bonus'){
-        bonusAmount += elem.amount;  
-      }  
+      else if (elem?.transactionType == 'Bonus') {
+        bonusAmount += elem.amount;
+      }
     }
-    if(bonusRedemption > bonusAmount || bonusRedemption > tenXSubs?.discounted_price*setting[0]?.maxBonusRedemptionPercentage){
+    if (bonusRedemption > bonusAmount || bonusRedemption > tenXSubs?.discounted_price * setting[0]?.maxBonusRedemptionPercentage) {
       return {
-        statusCode:400,
-        data:{
-        status: "error",
-        message:"Incorrect HeroCash Redemption",
+        statusCode: 400,
+        data: {
+          status: "error",
+          message: "Incorrect HeroCash Redemption",
         }
-      }; 
+      };
     }
-    if(Number(bonusRedemption)){
+    if (Number(bonusRedemption)) {
       wallet?.transactions?.push({
-          title: 'StoxHero HeroCash Redeemed',
-          description: `${bonusRedemption} HeroCash used.`,
-          transactionDate: new Date(),
-          amount:-(bonusRedemption?.toFixed(2)),
-          transactionId: uuid.v4(),
-          transactionType: 'Bonus'
+        title: 'StoxHero HeroCash Redeemed',
+        description: `${bonusRedemption} HeroCash used.`,
+        transactionDate: new Date(),
+        amount: -(bonusRedemption?.toFixed(2)),
+        transactionId: uuid.v4(),
+        transactionType: 'Bonus'
       });
-    }  
-    if(coupon){
-      let couponDoc = await Coupon.findOne({code:coupon});
-      if(!couponDoc){
-        const affiliatePrograms = await AffiliateProgram.find({status:'Active'});
-        if(affiliatePrograms.length != 0)
-            for(let program of affiliatePrograms){
-                let match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
-                if(match){
-                    affiliate = match;
-                    affiliateProgram = program;
-                    couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: program?.discountPercentage, maxDiscount:program?.maxDiscount }
-                }
-            }
-
     }
-      if(couponDoc?.rewardType == 'Discount'){
-          if(couponDoc?.discountType == 'Flat'){
-              //Calculate amount and match
-              discountAmount = couponDoc?.discount;
-          }else{
-              discountAmount = Math.min(couponDoc?.discount/100*tenXSubs?.discounted_price, couponDoc?.maxDiscount);
-              
+    if (coupon) {
+      let couponDoc = await Coupon.findOne({ code: coupon });
+      if (!couponDoc) {
+        let match = false;
+        const affiliatePrograms = await AffiliateProgram.find({ status: 'Active' });
+        if (affiliatePrograms.length != 0){
+          for (let program of affiliatePrograms) {
+            match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
+            // console.log("match in aff", match)
+            if (match) {
+              affiliate = match;
+              affiliateProgram = program;
+              couponDoc = { rewardType: 'Discount', discountType: 'Percentage', discount: program?.discountPercentage, maxDiscount: program?.maxDiscount }
+              break;
+            }
           }
-      }else{
-        if(couponDoc?.discountType == 'Flat'){
+        }
+
+        // console.log("match", match)
+        if (!match) {
+          const userCoupon = await User.findOne({ myReferralCode: coupon?.toString() })
+          const referralProgram = await ReferralProgram.findOne({ status: "Active" });
+
+          // console.log("referralProgram", referralProgram, userCoupon)
+          if (userCoupon) {
+            affiliate = { userId: userCoupon?._id };
+            affiliateProgram = referralProgram?.affiliateDetails;
+            couponDoc = { rewardType: 'Discount', discountType: 'Percentage', discount: referralProgram?.affiliateDetails?.discountPercentage, maxDiscount: referralProgram?.affiliateDetails?.maxDiscount }
+
+          }
+        }
+
+      }
+      // console.log("affiliate", affiliate)
+      // console.log(couponDoc?.rewardType, couponDoc?.discountType, couponDoc)
+      if (couponDoc?.rewardType == 'Discount') {
+        if (couponDoc?.discountType == 'Flat') {
+          //Calculate amount and match
+          discountAmount = couponDoc?.discount;
+        } else {
+          discountAmount = Math.min(couponDoc?.discount / 100 * tenXSubs?.discounted_price, couponDoc?.maxDiscount);
+
+        }
+      } else {
+        if (couponDoc?.discountType == 'Flat') {
           //Calculate amount and match
           cashbackAmount = couponDoc?.discount;
-      }else{
-          cashbackAmount = Math.min(couponDoc?.discount/100*(tenXSubs?.discounted_price-bonusRedemption), couponDoc?.maxDiscount);
-          
-      }
-      wallet?.transactions?.push({
+        } else {
+          cashbackAmount = Math.min(couponDoc?.discount / 100 * (tenXSubs?.discounted_price - bonusRedemption), couponDoc?.maxDiscount);
+
+        }
+        wallet?.transactions?.push({
           title: 'StoxHero CashBack',
           description: `Cashback of ${cashbackAmount?.toFixed(2)} HeroCash - code ${coupon} used`,
           transactionDate: new Date(),
-          amount:cashbackAmount?.toFixed(2),
+          amount: cashbackAmount?.toFixed(2),
           transactionId: uuid.v4(),
           transactionType: 'Bonus'
-      });
-    }
-  }
-
-  const totalAmount = (tenXSubs?.discounted_price - discountAmount -bonusRedemption)*(1+setting[0]?.gstPercentage/100)
-  console.log(Number(totalAmount) , Number(subscriptionAmount))
-  if(Number(totalAmount) != Number(subscriptionAmount)){
-    return {
-      statusCode:400,
-      data:{
-      status: "error",
-      message:"Incorrect TenX fee amount",
+        });
       }
-    };  
-  } 
-    if(amount < subscriptionAmount){
+    }
+
+    const totalAmount = (tenXSubs?.discounted_price - discountAmount - bonusRedemption) * (1 + setting[0]?.gstPercentage / 100)
+    // console.log(tenXSubs?.discounted_price , discountAmount , bonusRedemption) , (1 + setting[0]?.gstPercentage / 100)
+    console.log(Number(totalAmount), Number(subscriptionAmount))
+    if (Number(totalAmount) != Number(subscriptionAmount)) {
       return {
-        statusCode:400,
-        data:{
+        statusCode: 400,
+        data: {
+          status: "error",
+          message: "Incorrect TenX fee amount",
+        }
+      };
+    }
+    if (amount < subscriptionAmount) {
+      return {
+        statusCode: 400,
+        data: {
           status: "error",
           message: "You do not have sufficient funds to renew this subscription. Please add money to your wallet."
         }
-    };
+      };
     }
-    if(!tenXSubs.allowRenewal){
+    if (!tenXSubs.allowRenewal) {
       return {
-        statusCode:404,
-        data:{
+        statusCode: 404,
+        data: {
           status: "error",
           message: "This subscription is no longer available for purchase or renewal. Please purchase a different plan."
         }
-    };
+      };
     }
     const users = tenXSubs.users;
     const Subslen = tenXSubs.users.length;
     for (let j = 0; j < users.length; j++) {
-      if(users[j].userId.toString() === userId.toString()){
+      if (users[j].userId.toString() === userId.toString()) {
         const status = users[j].status;
         const subscribedOn = users[j].subscribedOn;
 
-        if(status === "Live"){
+        if (status === "Live") {
           // console.log(new Date(subscribedOn))
 
           const user = await User.findOne({ _id: new ObjectId(userId) });
           let len = user.subscription.length;
-          
+
           for (let k = len - 1; k >= 0; k--) {
             if (user.subscription[k].subscriptionId?.toString() === tenXSubs._id?.toString()) {
               user.subscription[k].status = "Expired";
               user.subscription[k].expiredOn = new Date();
               user.subscription[k].expiredBy = "User";
               // console.log("this is user", user)
-              await user.save({session});
+              await user.save({ session });
               break;
             }
           }
-          
+
           for (let k = Subslen - 1; k >= 0; k--) {
             if (tenXSubs.users[k].userId?.toString() === userId?.toString()) {
               tenXSubs.users[k].status = "Expired";
               tenXSubs.users[k].expiredOn = new Date();
               tenXSubs.users[k].expiredBy = "User";
               // console.log("this is tenXSubs", tenXSubs)
-              await tenXSubs.save({session});
+              await tenXSubs.save({ session });
               break;
             }
           }
         }
       }
     }
-      
-    for(let i = 0; i < tenXSubs.users.length; i++){
-        if(tenXSubs.users[i].userId.toString() == userId.toString() && tenXSubs.users[i].status == "Live"){
-          return {
-            statusCode:400,
-            data:{
-              status: "error",
-              message: "Something went wrong"
-            }
+
+    for (let i = 0; i < tenXSubs.users.length; i++) {
+      if (tenXSubs.users[i].userId.toString() == userId.toString() && tenXSubs.users[i].status == "Live") {
+        return {
+          statusCode: 400,
+          data: {
+            status: "error",
+            message: "Something went wrong"
+          }
         };
-        }
+      }
     }
 
 
     // const wallet = await Wallet.findOne({userId: userId});
     wallet.transactions = [...wallet.transactions, {
-          title: 'Bought TenX Trading Subscription',
-          description: `Amount deducted for the purchase of ${subscriptionName} subscription`,
-          amount: (-subscriptionAmount),
-          transactionId: uuid.v4(),
-          transactionType: 'Cash'
+      title: 'Bought TenX Trading Subscription',
+      description: `Amount deducted for the purchase of ${subscriptionName} subscription`,
+      amount: (-subscriptionAmount),
+      transactionId: uuid.v4(),
+      transactionType: 'Cash'
     }];
-    await wallet.save({session});
+    await wallet.save({ session });
 
     const user = await User.findOneAndUpdate(
-        { _id: userId },
-        {
-          $push: {
-            subscription: {
-              subscriptionId: new ObjectId(subscriptionId),
-              subscribedOn: new Date(),
-              isRenew: true,
-              fee: subscriptionAmount,
-              bonusRedemption: bonusRedemption??0
-            }
+      { _id: userId },
+      {
+        $push: {
+          subscription: {
+            subscriptionId: new ObjectId(subscriptionId),
+            subscribedOn: new Date(),
+            isRenew: true,
+            fee: subscriptionAmount,
+            bonusRedemption: bonusRedemption ?? 0
           }
-        },
-        { new: true, session:session }
+        }
+      },
+      { new: true, session: session }
     );
 
     if (!req?.user?.paidDetails?.paidDate) {
@@ -713,42 +735,42 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
     }
 
     const subscription = await TenXSubscription.findOneAndUpdate(
-    { _id: new ObjectId(subscriptionId) },
-    {
+      { _id: new ObjectId(subscriptionId) },
+      {
         $push: {
           users: {
-              userId: new ObjectId(userId),
-              subscribedOn: new Date(),
-              isRenew: true,
-              fee: subscriptionAmount,
-              bonusRedemption: bonusRedemption ?? 0
+            userId: new ObjectId(userId),
+            subscribedOn: new Date(),
+            isRenew: true,
+            fee: subscriptionAmount,
+            bonusRedemption: bonusRedemption ?? 0
           }
         }
-    },
-    { new: true, session:session }
+      },
+      { new: true, session: session }
     );
 
-    if(isRedisConnected){
+    if (isRedisConnected) {
       await client.del(`${user._id.toString()}authenticatedUser`);
       await client.del(`${userId.toString()}${subscriptionId.toString()} openingBalanceAndMarginTenx`)
       await client.del(`${userId.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
     }
 
-    if(!wallet){
+    if (!wallet) {
       return {
-        statusCode:404,
-        data:{
+        statusCode: 404,
+        data: {
           status: "error",
           message: "Not found"
         }
-    };
-    } 
+      };
+    }
 
-    let recipients = [user.email,'team@stoxhero.com'];
+    let recipients = [user.email, 'team@stoxhero.com'];
     let recipientString = recipients.join(",");
     let subject = "Subscription Renew - StoxHero";
-    let message = 
-    `
+    let message =
+      `
     <!DOCTYPE html>
         <html>
         <head>
@@ -832,75 +854,75 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
         </html>
 
     `
-    if(process.env.PROD === "true"){
-      emailService(recipientString,subject,message);
+    if (process.env.PROD === "true") {
+      emailService(recipientString, subject, message);
       console.log("Subscription Email Sent")
     }
-    if(coupon && cashbackAmount>0){
+    if (coupon && cashbackAmount > 0) {
       await createUserNotification({
-          title:'StoxHero Cashback',
-          description:`${cashbackAmount?.toFixed(2)}HeroCash added as bonus - ${coupon} code used.`,
-          notificationType:'Individual',
-          notificationCategory:'Informational',
-          productCategory:'TenX',
-          user: user?._id,
-          priority:'Medium',
-          channels:['App', 'Email'],
-          createdBy:'63ecbc570302e7cf0153370c',
-          lastModifiedBy:'63ecbc570302e7cf0153370c'  
-        });
-        if(user?.fcmTokens?.length>0){
-          await sendMultiNotifications('StoxHero Cashback', 
-            `${cashbackAmount?.toFixed(2)}HeroCash added as bonus in your wallet.`,
-            user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
-            )  
-        }
-  }
+        title: 'StoxHero Cashback',
+        description: `${cashbackAmount?.toFixed(2)}HeroCash added as bonus - ${coupon} code used.`,
+        notificationType: 'Individual',
+        notificationCategory: 'Informational',
+        productCategory: 'TenX',
+        user: user?._id,
+        priority: 'Medium',
+        channels: ['App', 'Email'],
+        createdBy: '63ecbc570302e7cf0153370c',
+        lastModifiedBy: '63ecbc570302e7cf0153370c'
+      });
+      if (user?.fcmTokens?.length > 0) {
+        await sendMultiNotifications('StoxHero Cashback',
+          `${cashbackAmount?.toFixed(2)}HeroCash added as bonus in your wallet.`,
+          user?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
+        )
+      }
+    }
     await createUserNotification({
-      title:'TenX Subscription Renewed',
-      description:`₹${subscriptionAmount} deducted for renewal of TenX plan ${subscription.plan_name}`,
-      notificationType:'Individual',
-      notificationCategory:'Informational',
-      productCategory:'TenX',
+      title: 'TenX Subscription Renewed',
+      description: `₹${subscriptionAmount} deducted for renewal of TenX plan ${subscription.plan_name}`,
+      notificationType: 'Individual',
+      notificationCategory: 'Informational',
+      productCategory: 'TenX',
       user: user?._id,
-      priority:'Medium',
-      channels:['App', 'Email'],
-      createdBy:'63ecbc570302e7cf0153370c',
-      lastModifiedBy:'63ecbc570302e7cf0153370c'  
+      priority: 'Medium',
+      channels: ['App', 'Email'],
+      createdBy: '63ecbc570302e7cf0153370c',
+      lastModifiedBy: '63ecbc570302e7cf0153370c'
     }, session);
-    if(user?.fcmTokens?.length>0){
-      await sendMultiNotifications('TenX Subscription Renewed', 
+    if (user?.fcmTokens?.length > 0) {
+      await sendMultiNotifications('TenX Subscription Renewed',
         `Your TenX subscription ${subscription?.plan_name} has been renewed.`,
-        user?.fcmTokens?.map(item=>item.token), null, {route:'tenx'}
-        )  
+        user?.fcmTokens?.map(item => item.token), null, { route: 'tenx' }
+      )
     }
     await session.commitTransaction();
-    if(coupon){
-      const product = await Product.findOne({productName:'TenX'}).select('_id');
-      if(affiliate){
+    if (coupon) {
+      const product = await Product.findOne({ productName: 'TenX' }).select('_id');
+      if (affiliate) {
         await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, subscription?._id, subscription?.discounted_price, userId);
-      }else{
+      } else {
         await saveSuccessfulCouponUse(userId, coupon, product?._id, subscription?._id);
       }
     }
     return {
-      statusCode:201,
-      data:{
+      statusCode: 201,
+      data: {
         status: "success",
         message: "Subscription renewed successfully."
       }
-  };       
-}catch(e){
+    };
+  } catch (e) {
     console.log(e);
     await session.abortTransaction();
     return {
-      statusCode:500,
-      data:{
+      statusCode: 500,
+      data: {
         status: "error",
         message: "Something went wrong"
       }
-  };
-  }finally{
+    };
+  } finally {
     await session.endSession();
   }
 

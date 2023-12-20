@@ -14,6 +14,7 @@ const Setting = require('../models/settings/setting');
 const Coupon = require('../models/coupon/coupon');
 const {creditAffiliateAmount}= require('./affiliateProgramme/affiliateController');
 const AffiliateProgram = require('../models/affiliateProgram/affiliateProgram');
+const ReferralProgram = require("../models/campaigns/referralProgram")
 
 
 exports.createUserWallet = async(req, res, next)=>{
@@ -182,17 +183,32 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         if(coupon){
             let couponDoc = await Coupon.findOne({code:coupon});
             if(!couponDoc){
+                let match = false;
                 const affiliatePrograms = await AffiliateProgram.find({status:'Active'});
-                if(affiliatePrograms.length != 0)
+                if(affiliatePrograms.length != 0){
                     for(let program of affiliatePrograms){
-                        let match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
+                        match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
                         if(match){
                             affiliate = match;
                             affiliateProgram = program;
                             couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: program?.discountPercentage, maxDiscount:program?.maxDiscount }
+                            break;
                         }
                     }
+                }
 
+                if(!match){
+                    const userCoupon = await User.findOne({myReferralCode: coupon?.toString()})
+                    const referralProgram = await ReferralProgram.findOne({status: "Active"});
+    
+                    // console.log("referralProgram", referralProgram, userCoupon)
+                    if(userCoupon){
+                        affiliate = {userId: userCoupon?._id};
+                        affiliateProgram = referralProgram?.affiliateDetails;
+                        couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: referralProgram?.affiliateDetails?.discountPercentage, maxDiscount: referralProgram?.affiliateDetails?.maxDiscount }
+
+                    }
+                }
             }
             if(couponDoc?.rewardType == 'Discount'){
                 if(couponDoc?.discountType == 'Flat'){
@@ -293,7 +309,6 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
             { new: true, session: session}
         );
 
-        console.log("!req?.user?.paidDetails?.paidDate", !req?.user?.paidDetails?.paidDate)
         if (!req?.user?.paidDetails?.paidDate) {
             const updatePaidDetails = await User.findOneAndUpdate(
                 { _id: new ObjectId(userId) },
@@ -449,11 +464,11 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
                 lastModifiedBy:'63ecbc570302e7cf0153370c'  
               });
             if(user?.fcmTokens?.length>0){
-                await sendMultiNotifications('StoxHero Cashback', 
+                await sendMultiNotifications('StoxHero Cashback',
                     `${cashbackAmount?.toFixed(2)}HeroCash added as bonus in your wallet`,
-                    user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
-                    )  
-            }  
+                    user?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
+                )  
+            }
         }
         await createUserNotification({
             title:'TenX Subscription Deducted',
@@ -474,6 +489,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
               )  
           }
           await session.commitTransaction();
+        //   console.log(coupon, affiliate)
           if(coupon){
             const product = await Product.findOne({productName:'TenX'}).select('_id');
             if(affiliate){

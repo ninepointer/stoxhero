@@ -241,7 +241,7 @@ exports.addAffiliateUser = async (req, res) => {
 };
 
 exports.creditAffiliateAmount = async (affiliate, affiliateProgram, product, specificProduct, actualPrice, buyer) => {
-  // console.log(product, specificProduct, actualPrice, buyer);
+  // console.log("in transaction", product, specificProduct, actualPrice, buyer);
   //add amount to wallet
   if (affiliate?.userId?.toString() === buyer?.toString()) {
     return;
@@ -255,7 +255,7 @@ exports.creditAffiliateAmount = async (affiliate, affiliateProgram, product, spe
   let walletTransactionId = uuid.v4();
   wallet?.transactions?.push({
     title: 'StoxHero Affiliate Reward Credit',
-    description: `Amount credited for affiliate reward for ${user?.first_name} ${user?.last_name}'s product purchase`,
+    description: `Amount credited for affiliate reward for ${user?.first_name}'s product purchase`,
     transactionDate: new Date(),
     amount: affiliatePayout?.toFixed(2),
     transactionId: walletTransactionId,
@@ -276,6 +276,8 @@ exports.creditAffiliateAmount = async (affiliate, affiliateProgram, product, spe
     lastModifiedBy: new ObjectId(buyer),
     affiliatePayout: affiliatePayout
   })
+
+  // console.log("in create transaction", product, specificProduct, actualPrice, buyer);
 
   //send whatsapp message
   try {
