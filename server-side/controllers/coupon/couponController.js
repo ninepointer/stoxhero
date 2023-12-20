@@ -241,6 +241,14 @@ exports.verifyCouponCode = async (req, res) => {
                                 message: "This coupon is not valid for your device platform",
                             });
                         }
+
+                        if(program?.minOrderValue && orderValue<program?.minOrderValue){
+                            console.log("Inside Min Order and order value check:",paymentMode,program?.rewardType )
+                            return res.status(400).json({
+                                status: 'error',
+                                message: `Your order is not eligible for this coupon. The minimum order value for this coupon is ₹${program?.minOrderValue}`,
+                            });
+                        }
                         //check for eligible products
                         if(program?.eligibleProducts?.length != 0 && !program?.eligibleProducts.includes(product)){
                             return res.status(400).json({
@@ -284,6 +292,13 @@ exports.verifyCouponCode = async (req, res) => {
                         return res.status(400).json({
                             status: 'error',
                             message: "This coupon is not valid for the product you're purchasing.",
+                        });
+                    }
+                    if(referralProgram?.affiliateDetails?.minOrderValue && orderValue<referralProgram?.affiliateDetails?.minOrderValue){
+                        console.log("Inside Min Order and order value check:",paymentMode,referralProgram?.affiliateDetails?.rewardType )
+                        return res.status(400).json({
+                            status: 'error',
+                            message: `Your order is not eligible for this coupon. The minimum order value for this coupon is ₹${referralProgram?.affiliateDetails?.minOrderValue}`,
                         });
                     }
                     return res.status(200).json({

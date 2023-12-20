@@ -582,15 +582,15 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
 
       }
 
-      if(subscriptionAmount < couponDoc?.minOrderValue){
-        return {
-          statusCode: 404,
-          data: {
-            status: "error",
-            message: `Code is valid for minimum purchase of ₹${couponDoc?.minOrderValue}.`
-          }
-        };
-      }
+      // if(subscriptionAmount < couponDoc?.minOrderValue){
+      //   return {
+      //     statusCode: 404,
+      //     data: {
+      //       status: "error",
+      //       message: `Code is valid for minimum purchase of ₹${couponDoc?.minOrderValue}.`
+      //     }
+      //   };
+      // }
       // console.log("affiliate", affiliate)
       // console.log(couponDoc?.rewardType, couponDoc?.discountType, couponDoc)
       if (couponDoc?.rewardType == 'Discount') {
