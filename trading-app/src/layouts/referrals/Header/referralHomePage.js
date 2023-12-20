@@ -9,16 +9,16 @@ import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import MDTypography from "../../../components/MDTypography";
 import DataTable from "../../../examples/Tables/DataTable";
-import InviteFriendModal from './InviteFriendModel'
-import { CircularProgress, Typography } from "@mui/material";
+// import InviteFriendModal from './InviteFriendModel'
+// import { CircularProgress, Typography } from "@mui/material";
 import MDSnackbar from "../../../components/MDSnackbar";
-import { FaUsers } from 'react-icons/fa';
-import QrCode2Icon from '@mui/icons-material/QrCode2';
+// import { FaUsers } from 'react-icons/fa';
+// import QrCode2Icon from '@mui/icons-material/QrCode2';
 import { IoLogoWhatsapp } from 'react-icons/io';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import QRCode from "react-qr-code";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-
+import ReferredProduct from "../data/referredProduct";
 
 // Icons
 import SendIcon from '@mui/icons-material/Send';
@@ -585,6 +585,43 @@ function ReferralHomePage() {
                     </Grid>
                 </Grid>
             </MDBox>
+
+            <MDBox pt={6} pb={3}>
+                <Grid container spacing={6}>
+                    <Grid item xs={12} md={12} lg={12}>
+                        <Card>
+                            <MDBox
+                                mx={2}
+                                mt={-3}
+                                py={1}
+                                px={2}
+                                variant="gradient"
+                                bgColor="dark"
+                                borderRadius="lg"
+                                coloredShadow="dark"
+                                sx={{
+                                    display: 'flex',
+                                    justifyContent: "space-between",
+                                }}>
+                                <MDTypography variant="h6" color="white" py={1}>
+                                    Your friends who joined the platform
+                                </MDTypography>
+                            </MDBox>
+                            <MDBox pt={2}>
+                                <DataTable
+                                    table={{ columns : referralColumns, rows : referralRows }}
+                                    isSorted={false}
+                                    entriesPerPage={false}
+                                    showTotalEntries={false}
+                                    noEndBorder
+                                />
+                            </MDBox>
+                        </Card>
+                    </Grid>
+                </Grid>
+            </MDBox>
+
+            <ReferredProduct />
             {renderSuccessSB}
         </MDBox>
     </>

@@ -561,7 +561,7 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
             if (match) {
               affiliate = match;
               affiliateProgram = program;
-              couponDoc = { rewardType: 'Discount', discountType: 'Percentage', discount: program?.discountPercentage, maxDiscount: program?.maxDiscount }
+              couponDoc = { rewardType: 'Discount', discountType: 'Percentage', discount: program?.discountPercentage, maxDiscount: program?.maxDiscount, minOrderValue: program?.minOrderValue }
               break;
             }
           }
@@ -576,11 +576,20 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
           if (userCoupon) {
             affiliate = { userId: userCoupon?._id };
             affiliateProgram = referralProgram?.affiliateDetails;
-            couponDoc = { rewardType: 'Discount', discountType: 'Percentage', discount: referralProgram?.affiliateDetails?.discountPercentage, maxDiscount: referralProgram?.affiliateDetails?.maxDiscount }
-
+            couponDoc = { rewardType: 'Discount', discountType: 'Percentage', discount: referralProgram?.affiliateDetails?.discountPercentage, maxDiscount: referralProgram?.affiliateDetails?.maxDiscount, minOrderValue: referralProgram?.affiliateDetails?.minOrderValue }
           }
         }
 
+      }
+
+      if(subscriptionAmount < couponDoc?.minOrderValue){
+        return {
+          statusCode: 404,
+          data: {
+            status: "error",
+            message: `Code is valid for minimum purchase of ₹${couponDoc?.minOrderValue}.`
+          }
+        };
       }
       // console.log("affiliate", affiliate)
       // console.log(couponDoc?.rewardType, couponDoc?.discountType, couponDoc)

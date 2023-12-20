@@ -2898,6 +2898,7 @@ exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, co
               affiliate = match;
               affiliateProgram = program;
               couponDoc = { rewardType: 'Discount', discountType: 'Percentage', discount: program?.discountPercentage, maxDiscount: program?.maxDiscount }
+              break;
             }
           }
         }
