@@ -876,8 +876,8 @@ exports.pendingOrderMain = async () => {
     try {
 
         await client2.SUBSCRIBE("place-order", async (message) => {
-
             // console.log(message)
+
             message = JSON.parse(message);
 
 
@@ -924,6 +924,7 @@ exports.pendingOrderMain = async () => {
                 }
 
 
+                // console.log("pnlData", pnlData)
 
                 data = await client.get('stoploss-stopprofit');
                 data = JSON.parse(data);
@@ -1007,6 +1008,7 @@ exports.pendingOrderMain = async () => {
                 // console.log("symbolArr", symbolArr)
                 data[`${instrumentToken}`] = symbolArr;
                 const myDAta = await client.set('stoploss-stopprofit', JSON.stringify(data));
+                console.log("data", { symbol: symbol, createdBy: createdBy, Quantity: Quantity, execution_price: last_price, type: type })
                 await client4.PUBLISH("order-notification", JSON.stringify({ symbol: symbol, createdBy: createdBy, Quantity: Quantity, execution_price: last_price, type: type }))
 
 
@@ -1306,39 +1308,40 @@ const calculateRequiredMargin = async (tradeData, Quantity, data) => {
 
 const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
 
-    try{
-        const openingBalance = fundDetail?.openingBalance ? fundDetail?.openingBalance : fundDetail?.totalFund;
-        // const withoutLimitData = pnlData.filter((elem) => !elem._id.isLimit);
-        if (!pnlData?.length) {
-            return openingBalance;
-        }
-    
-        let totalMargin = 0
-        let runningLots = 0;
-        let amount = 0;
-        let margin = 0;
-        for(let acc of pnlData){
-            totalMargin += acc?.margin;
-            runningLots += acc?.lots;
-            if (acc?._id?.isLimit) {
+    const openingBalance = fundDetail?.openingBalance ? fundDetail?.openingBalance : fundDetail?.totalFund;
+    const withoutLimitData = pnlData.filter((elem) => !elem._id.isLimit);
+    if (!pnlData.length) {
+        return openingBalance;
+    }
+
+    let totalMargin = 0
+    let runningLots = 0;
+    let amount = 0;
+    let margin = 0;
+    let subtractAmount = 0;
+    for(let acc of pnlData){
+        totalMargin += acc.margin;
+        runningLots += acc.lots;
+        if (acc._id.isLimit) {
+            margin += acc.margin;
+        } else {
+            if(acc?.lots < 0) {
                 margin += acc?.margin;
-            } else {
-                amount += (acc?.amount - acc?.brokerage)
+                subtractAmount += Math.abs(acc?.lots*acc?.lastaverageprice);
             }
+            amount += (acc.amount - acc.brokerage)
         }
-        if (npnl < 0)
-            // substract npnl for those positions only which are closed
-            if (runningLots === 0) {
-                return openingBalance - totalMargin + npnl;
-            } else {
-                console.log("margin", openingBalance  - (Math.abs(amount)+margin))
-                return openingBalance  - (Math.abs(amount)+margin);
-            }
-        else{
-            return openingBalance - totalMargin;
+    }
+    if (npnl < 0)
+        // substract npnl for those positions only which are closed
+        if (runningLots === 0) {
+            return openingBalance - totalMargin + npnl;
+        } else {
+            console.log("margin", openingBalance  - (Math.abs(amount-subtractAmount)+margin))
+            return openingBalance  - (Math.abs(amount-subtractAmount)+margin);
         }
-    } catch(err){
-        console.log(err);
+    else{
+        return openingBalance - totalMargin;
     }
 }
 

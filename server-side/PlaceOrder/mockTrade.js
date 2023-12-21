@@ -8,7 +8,7 @@ const {dailyContestTrade} = require("./saveDataInDB/dailycontest")
 const {virtualTrade} = require("./saveDataInDB/paperTrade")
 const {tenxTrade} = require("./saveDataInDB/tenx")
 const {internTrade} = require("./saveDataInDB/internship")
-const {infinityTrade} = require("./saveDataInDB/infinity")
+// const {infinityTrade} = require("./saveDataInDB/infinity")
 const {marginxTrade} = require("./saveDataInDB/marginx")
 const {battleTrade} = require("./saveDataInDB/battle");
 const UserDetail = require("../models/User/userDetailSchema")
@@ -31,6 +31,7 @@ exports.mockTrade = async (req, res) => {
         validity, variety, instrumentToken, tenxTraderPath, internPath, battle,
         realBuyOrSell, realQuantity, isAlgoTrader, paperTrade, dailyContest, marginx, deviceDetails } = req.body 
 
+        console.log("req data", req.body)
     if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety){
         return res.status(422).json({error : "Something went wrong"})
     }
@@ -164,24 +165,17 @@ exports.mockTrade = async (req, res) => {
                     }
                 }
             })
+            await paidDetailsUpdate.save({validateBeforeSave: false});
             await client.del(`${req?.user?._id.toString()}authenticatedUser`);
         }
 
-        if (!req?.user?.paidDetails?.paidDate) {
-            const contest = await DailyContest.findOne({_id: new ObjectId(req.body.contestId)})
-            if(contest?.entryFee > 0){
-                const userActivationDateUpdate = await UserDetail.findOneAndUpdate({ _id: new ObjectId(req?.user?._id) }, {
-                    $set: {
-                        paidDetails: {
-                            paidDate: new Date(),
-                            paidProduct: "6517d48d3aeb2bb27d650de5",
-                            paidStatus: "Active",
-                            paidProductPrice: contest?.entryFee
-                        }
-                    }
-                })
-                await client.del(`${req?.user?._id.toString()}authenticatedUser`);
-            }
+        if (req?.user?.paidDetails?.paidDate && req?.user?.paidDetails?.paidStatus === "Inactive") {
+            const paidDetailsUpdate = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id) })
+            paidDetailsUpdate.paidDetails.paidStatus = "Active";
+            paidDetailsUpdate.paidDetails.paidDate = new Date();
+            await paidDetailsUpdate.save({validateBeforeSave:false})
+
+            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
         }
     }
     
@@ -240,33 +234,15 @@ exports.mockTrade = async (req, res) => {
             await client.del(`${req?.user?._id.toString()}authenticatedUser`);
         }
 
-        if (!req?.user?.paidDetails?.paidDate) {
-            let tenx = [];
-            const user = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id) }).select('subscription');
-            let data;
-            for(let elem of user.subscription){
-                if(elem.status === "Live"){
-                    data = JSON.parse(JSON.stringify(elem));
-                }
-            }
-
-            if(!data?.fee){
-                tenx = await TenxSubscription.findOne({_id: new ObjectId(req?.body?.subscriptionId)}).select('discounted_price');
-            }
-
-            const userActivationDateUpdate = await UserDetail.findOneAndUpdate({ _id: new ObjectId(req?.user?._id) }, {
-                $set: {
-                    paidDetails: {
-                        paidDate: new Date(),
-                        paidProduct: "6517d3803aeb2bb27d650de0",
-                        paidStatus: "Active",
-                        paidProductPrice: data?.fee || tenx?.discounted_price
-                    }
-                }
-            })
+        if (req?.user?.paidDetails?.paidDate && req?.user?.paidDetails?.paidStatus === "Inactive") {
+            const paidDetailsUpdate = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id) })
+            paidDetailsUpdate.paidDetails.paidStatus = "Active";
+            paidDetailsUpdate.paidDetails.paidDate = new Date();
+            await paidDetailsUpdate.save({validateBeforeSave:false})
 
             await client.del(`${req?.user?._id.toString()}authenticatedUser`);
         }
+
     }
 
     if(internPath){
@@ -313,22 +289,15 @@ exports.mockTrade = async (req, res) => {
             await client.del(`${req?.user?._id.toString()}authenticatedUser`);
         }
 
-        if (!req?.user?.paidDetails?.paidDate) {
-            const marginx = await MarginX.findOne({_id: new ObjectId(req?.body?.marginxId)})
-            .populate('marginXTemplate', 'entryFee')
-            const userActivationDateUpdate = await UserDetail.findOneAndUpdate({ _id: new ObjectId(req?.user?._id) }, {
-                $set: {
-                    paidDetails: {
-                        paidDate: new Date(),
-                        paidProduct: "6517d40e3aeb2bb27d650de1",
-                        paidStatus: "Active",
-                        paidProductPrice: marginx?.marginXTemplate?.entryFee
-                    }
-                }
-            })
+        if (req?.user?.paidDetails?.paidDate && req?.user?.paidDetails?.paidStatus === "Inactive") {
+            const paidDetailsUpdate = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id) })
+            paidDetailsUpdate.paidDetails.paidStatus = "Active";
+            paidDetailsUpdate.paidDetails.paidDate = new Date();
+            await paidDetailsUpdate.save({validateBeforeSave:false})
 
             await client.del(`${req?.user?._id.toString()}authenticatedUser`);
         }
+
     }
 
     if(battle){

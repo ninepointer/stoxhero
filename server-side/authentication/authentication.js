@@ -35,7 +35,7 @@ const Authenticate = async (req, res, next) => {
         } else {
             
             user = await User.findOne({ _id: new ObjectId(verifyToken._id), status: "Active" })
-                .select('collegeDetails _id employeeid first_name last_name mobile name role isAlgoTrader passwordChangedAt activationDetails');
+                .select('collegeDetails _id employeeid first_name last_name mobile name role isAlgoTrader passwordChangedAt activationDetails paidDetails');
 
                 // console.log(user)
             if (!user) { 

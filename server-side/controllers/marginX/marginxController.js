@@ -16,6 +16,8 @@ const Coupon = require('../../models/coupon/coupon');
 const AffiliateProgram = require('../../models/affiliateProgram/affiliateProgram');
 const{creditAffiliateAmount} = require('../affiliateProgramme/affiliateController');
 const {TDS} = require("../../constant")
+const {client, getValue} = require('../../marketData/redisClient');
+const ReferralProgram = require("../../models/campaigns/referralProgram")
 
 exports.createMarginX = async (req, res) => {
     try {
@@ -612,14 +614,32 @@ exports.creditAmountToWallet = async () => {
                                     $toDouble: "$brokerage",
                                 },
                             },
+                            trades: {
+                                $count: {},
+                            },
+                            tradingDays: {
+                                $addToSet: {
+                                    $dateToString: {
+                                        format: "%Y-%m-%d",
+                                        date: "$trade_time_utc",
+                                    },
+                                },
+                            },
                         },
                     },
                     {
                         $project:
                         {
+                            gpnl: "$amount",
+                            brokerage: "$brokerage",
+                            _id: 0,
                             npnl: {
-                                $subtract: ["$amount", "$brokerage"],
+                              $subtract: ["$amount", "$brokerage"],
                             },
+                            tradingDays: {
+                              $size: "$tradingDays",
+                            },
+                            trades: 1,
                         },
                     },
                 ])
@@ -791,9 +811,16 @@ exports.creditAmountToWallet = async () => {
                     marginxs[j].participants[i].payout = payoutAmountAdjusted?.toFixed(2);
                     marginxs[j].participants[i].tdsAmount = tdsAmount > 0 ? tdsAmount : 0;
                     marginxs[j].participants[i].herocashPayout = tdsAmount > 0 ? tdsAmount : 0;
-
+            
                     await marginxs[j].save();
                 }
+
+                marginxs[j].participants[i].gpnl = pnlDetails[0]?.gpnl ? pnlDetails[0]?.gpnl : 0;
+                marginxs[j].participants[i].npnl = pnlDetails[0]?.npnl ? pnlDetails[0]?.npnl : 0;
+                marginxs[j].participants[i].brokerage = pnlDetails[0]?.brokerage ? pnlDetails[0]?.brokerage : 0;
+                marginxs[j].participants[i].tradingDays = pnlDetails[0]?.tradingDays ? pnlDetails[0]?.tradingDays : 0;
+                marginxs[j].participants[i].trades = pnlDetails[0]?.trades ? pnlDetails[0]?.trades : 0;
+
             }
             marginxs[j].payoutStatus = 'Completed'
             marginxs[j].status = "Completed";
@@ -884,7 +911,6 @@ exports.participateUsers = async (req, res) => {
     try {
         const { id } = req.params; // ID of the contest 
         const userId = req.user._id;
-
         const marginx = await MarginX.findOne({ _id: id });
 
         for (let i = 0; i < marginx.participants?.length; i++) {
@@ -961,11 +987,11 @@ exports.deductMarginXAmount = async (req, res, next) => {
     const userId = req.user._id;
     const { entryFee, marginXName, marginXId, coupon, bonusRedemption } = req.body;
 
-    const result = await exports.handleDeductMarginXAmount(userId, entryFee, marginXName, marginXId, coupon, bonusRedemption);
+    const result = await exports.handleDeductMarginXAmount(userId, entryFee, marginXName, marginXId, coupon, bonusRedemption, req);
     res.status(result.statusCode).json(result.data);
 }
 
-exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, marginXId ,coupon, bonusRedemption) =>{
+exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, marginXId, coupon, bonusRedemption, req) => {
     try {
         let affiliate, affiliateProgram;
         const marginx = await MarginX.findOne({ _id: marginXId }).populate('marginXTemplate', 'entryFee');
@@ -974,56 +1000,71 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
         let discountAmount = 0;
         let cashbackAmount = 0;
         const setting = await Setting.find({});
-        if(coupon){
-            let couponDoc = await Coupon.findOne({code:coupon});
-            if(!couponDoc){
-                let affiliatePrograms = await AffiliateProgram.find({status:'Active'});
-                if(affiliatePrograms.length != 0)
-                    for(let program of affiliatePrograms){
-                        let match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
-                        if(match){
+        if (coupon) {
+            let couponDoc = await Coupon.findOne({ code: coupon });
+            if (!couponDoc) {
+                let match = false;
+                let affiliatePrograms = await AffiliateProgram.find({ status: 'Active' });
+                if (affiliatePrograms.length != 0){
+                    for (let program of affiliatePrograms) {
+                        match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
+                        if (match) {
                             affiliate = match;
                             affiliateProgram = program;
-                            couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: program?.discountPercentage, maxDiscount:program?.maxDiscount }
+                            couponDoc = { rewardType: 'Discount', discountType: 'Percentage', discount: program?.discountPercentage, maxDiscount: program?.maxDiscount }
+                            break;
                         }
                     }
+                }
 
+                if(!match){
+                    const userCoupon = await User.findOne({myReferralCode: coupon?.toString()})
+                    const referralProgram = await ReferralProgram.findOne({status: "Active"});
+    
+                    // console.log("referralProgram", referralProgram, userCoupon)
+                    if(userCoupon){
+                        affiliate = {userId: userCoupon?._id};
+                        affiliateProgram = referralProgram?.affiliateDetails;
+                        couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: referralProgram?.affiliateDetails?.discountPercentage, maxDiscount: referralProgram?.affiliateDetails?.maxDiscount }
+
+                    }
+                }
             }
             console.log('couponDoc', couponDoc);
-            if(couponDoc?.rewardType == 'Discount'){
-                if(couponDoc?.discountType == 'Flat'){
+            if (couponDoc?.rewardType == 'Discount') {
+                if (couponDoc?.discountType == 'Flat') {
                     //Calculate amount and match
                     discountAmount = couponDoc?.discount;
-                }else{
-                    discountAmount = Math.min(couponDoc?.discount/100*(marginx?.marginXTemplate?.entryFee), couponDoc?.maxDiscount);
-                    
+                } else {
+                    discountAmount = Math.min(couponDoc?.discount / 100 * (marginx?.marginXTemplate?.entryFee), couponDoc?.maxDiscount);
+
                 }
-            }else{
-                if(couponDoc?.discountType == 'Flat'){
+            } else {
+                if (couponDoc?.discountType == 'Flat') {
                     //Calculate amount and match
                     cashbackAmount = couponDoc?.discount;
-                }else{
-                    cashbackAmount = Math.min(couponDoc?.discount/100*marginx?.marginXTemplate?.entryFee, couponDoc?.maxDiscount);
-                    
+                } else {
+                    cashbackAmount = Math.min(couponDoc?.discount / 100 * marginx?.marginXTemplate?.entryFee, couponDoc?.maxDiscount);
+
                 }
                 wallet?.transactions?.push({
                     title: 'StoxHero CashBack',
                     description: `Cashback of ${cashbackAmount?.toFixed(2)} HeroCash - code ${coupon} used`,
                     transactionDate: new Date(),
-                    amount:cashbackAmount?.toFixed(2),
+                    amount: cashbackAmount?.toFixed(2),
                     transactionId: uuid.v4(),
                     transactionType: 'Bonus'
                 });
             }
         }
-        const totalAmount = ((marginx?.marginXTemplate?.entryFee - discountAmount- bonusRedemption)*(1+setting[0]?.gstPercentage/100)).toFixed(2);
-        console.log('entry fee', entryFee, totalAmount, marginx?.marginXTemplate?.entryFee , discountAmount, bonusRedemption);
-        if(totalAmount != entryFee){
+        const totalAmount = ((marginx?.marginXTemplate?.entryFee - discountAmount - bonusRedemption) * (1 + setting[0]?.gstPercentage / 100)).toFixed(2);
+        console.log('entry fee', entryFee, totalAmount, marginx?.marginXTemplate?.entryFee, discountAmount, bonusRedemption);
+        if (totalAmount != entryFee) {
             return {
-                statusCode:400,
-                data:{
-                status: "error",
-                message:"Incorrect amount",
+                statusCode: 400,
+                data: {
+                    status: "error",
+                    message: "Incorrect amount",
                 }
             }
         }
@@ -1044,44 +1085,44 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
             return total + transaction?.amount;
         }, 0);
 
-        
+
         if (totalCashAmount < (Number(entryFee))) {
             return {
-                statusCode:400,
-                data:{
+                statusCode: 400,
+                data: {
                     status: "error",
-                    message:"You do not have enough balance to join this marginx. Please add money to your wallet.",
+                    message: "You do not have enough balance to join this marginx. Please add money to your wallet.",
                 }
             };
         }
-        if(bonusRedemption > totalBonusAmount || bonusRedemption > marginx?.marginXTemplate?.entryFee*setting[0]?.maxBonusRedemptionPercentage){
+        if (bonusRedemption > totalBonusAmount || bonusRedemption > marginx?.marginXTemplate?.entryFee * setting[0]?.maxBonusRedemptionPercentage) {
             return {
-              statusCode:400,
-              data:{
-              status: "error",
-              message:"Incorrect HeroCash Redemption",
-              }
-            }; 
-          }
-  
-          if(Number(bonusRedemption)){
+                statusCode: 400,
+                data: {
+                    status: "error",
+                    message: "Incorrect HeroCash Redemption",
+                }
+            };
+        }
+
+        if (Number(bonusRedemption)) {
             wallet?.transactions?.push({
-              title: 'StoxHero HeroCash Redeemed',
-              description: `${bonusRedemption} HeroCash used.`,
-              transactionDate: new Date(),
-              amount:-(bonusRedemption?.toFixed(2)),
-              transactionId: uuid.v4(),
-              transactionType: 'Bonus'
-          });
-          }  
+                title: 'StoxHero HeroCash Redeemed',
+                description: `${bonusRedemption} HeroCash used.`,
+                transactionDate: new Date(),
+                amount: -(bonusRedemption?.toFixed(2)),
+                transactionId: uuid.v4(),
+                transactionType: 'Bonus'
+            });
+        }
 
         for (let i = 0; i < marginx?.participants?.length; i++) {
             if (marginx?.participants[i]?.userId?.toString() === userId?.toString()) {
                 return {
-                    statusCode:400,
-                    data:{
-                    status: "error",
-                    message:"You have already participated in this MarginX",
+                    statusCode: 400,
+                    data: {
+                        status: "error",
+                        message: "You have already participated in this MarginX",
                     }
                 };
             }
@@ -1093,10 +1134,10 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
                 marginx.save();
             }
             return {
-                statusCode:400,
-                data:{
-                status: "error",
-                message: "The marginx is already full. We sincerely appreciate your enthusiasm. Please join another marginx",
+                statusCode: 400,
+                data: {
+                    status: "error",
+                    message: "The marginx is already full. We sincerely appreciate your enthusiasm. Please join another marginx",
                 }
             };
 
@@ -1107,13 +1148,13 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
         let obj = {
             userId: userId,
             boughtAt: new Date(),
-            fee:entryFee,
-            actualPrice:marginx?.marginXTemplate?.entryFee
+            fee: entryFee,
+            actualPrice: marginx?.marginXTemplate?.entryFee
         }
-        if(Number(bonusRedemption)){
+        if (Number(bonusRedemption)) {
             obj.bonusRedemption = bonusRedemption;
-          }
-  
+        }
+
 
         result.participants.push(obj);
 
@@ -1134,19 +1175,19 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
 
         if (!result || !wallet) {
             return {
-                statusCode:404,
-                data:{
-                status: "error",
-                message: "Not found"
+                statusCode: 404,
+                data: {
+                    status: "error",
+                    message: "Not found"
                 }
             };
         }
 
-        let recipients = [user.email,'team@stoxhero.com'];
+        let recipients = [user.email, 'team@stoxhero.com'];
         let recipientString = recipients.join(",");
         let subject = "MarginX Fee - StoxHero";
-        let message = 
-        `
+        let message =
+            `
         <!DOCTYPE html>
             <html>
             <head>
@@ -1229,59 +1270,76 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
             </html>
 
         `
-        if(process.env.PROD === "true"){
-            emailService(recipientString,subject,message);
+        if (process.env.PROD === "true") {
+            emailService(recipientString, subject, message);
             console.log("Subscription Email Sent")
         }
-        if(coupon && cashbackAmount>0){
+        if (coupon && cashbackAmount > 0) {
             await createUserNotification({
-                title:'StoxHero Cashback',
-                description:`${cashbackAmount?.toFixed(2)} HeroCash added as bonus - ${coupon} code used.`,
-                notificationType:'Individual',
-                notificationCategory:'Informational',
-                productCategory:'MarginX',
+                title: 'StoxHero Cashback',
+                description: `${cashbackAmount?.toFixed(2)} HeroCash added as bonus - ${coupon} code used.`,
+                notificationType: 'Individual',
+                notificationCategory: 'Informational',
+                productCategory: 'MarginX',
                 user: user?._id,
-                priority:'Medium',
-                channels:['App', 'Email'],
-                createdBy:'63ecbc570302e7cf0153370c',
-                lastModifiedBy:'63ecbc570302e7cf0153370c'  
-              });
-              if(user?.fcmTokens?.length>0){
-                await sendMultiNotifications('StoxHero Cashback', 
-                  `${cashbackAmount?.toFixed(2)}HeroCash credited as bonus in your wallet.`,
-                  user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
-                  )  
-              }
+                priority: 'Medium',
+                channels: ['App', 'Email'],
+                createdBy: '63ecbc570302e7cf0153370c',
+                lastModifiedBy: '63ecbc570302e7cf0153370c'
+            });
+            if (user?.fcmTokens?.length > 0) {
+                await sendMultiNotifications('StoxHero Cashback',
+                    `${cashbackAmount?.toFixed(2)}HeroCash credited as bonus in your wallet.`,
+                    user?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
+                )
+            }
         }
         await createUserNotification({
-            title:'MarginX Fee Deducted',
-            description:`₹${entryFee} deducted for ${marginx?.marginXName} MarginX Fee`,
-            notificationType:'Individual',
-            notificationCategory:'Informational',
-            productCategory:'MarginX',
+            title: 'MarginX Fee Deducted',
+            description: `₹${entryFee} deducted for ${marginx?.marginXName} MarginX Fee`,
+            notificationType: 'Individual',
+            notificationCategory: 'Informational',
+            productCategory: 'MarginX',
             user: user?._id,
-            priority:'Medium',
-            channels:['App', 'Email'],
-            createdBy:'63ecbc570302e7cf0153370c',
-            lastModifiedBy:'63ecbc570302e7cf0153370c'  
-          });
-          if(user?.fcmTokens?.length>0){
-            await sendMultiNotifications('MarginX Fee Deducted', 
-              `₹${entryFee} deducted for ${marginx?.marginXName} MarginX Fee`,
-              user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
-              )  
-          }
-          if(coupon){
-            const product = await Product.findOne({productName:'MarginX'}).select('_id');
-            if(affiliate){
+            priority: 'Medium',
+            channels: ['App', 'Email'],
+            createdBy: '63ecbc570302e7cf0153370c',
+            lastModifiedBy: '63ecbc570302e7cf0153370c'
+        });
+        if (user?.fcmTokens?.length > 0) {
+            await sendMultiNotifications('MarginX Fee Deducted',
+                `₹${entryFee} deducted for ${marginx?.marginXName} MarginX Fee`,
+                user?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
+            )
+        }
+        if (coupon) {
+            const product = await Product.findOne({ productName: 'MarginX' }).select('_id');
+            if (affiliate) {
                 await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, marginx?._id, marginx?.marginXTemplate?.entryFee, userId);
-            }else{
+            } else {
                 await saveSuccessfulCouponUse(userId, coupon, product?._id, marginx?._id);
             }
-          }
-          return {
-            statusCode:200,
-            data:{
+        }
+
+        if (!req?.user?.paidDetails?.paidDate) {
+            const updatePaidDetails = await User.findOneAndUpdate(
+                { _id: new ObjectId(userId) },
+                {
+                    $set: {
+                        'paidDetails.paidDate': new Date(),
+                        'paidDetails.paidStatus': 'Inactive',
+                        'paidDetails.paidProduct': new ObjectId('6517d40e3aeb2bb27d650de1'),
+                        'paidDetails.paidProductPrice': entryFee
+                    }
+                },
+                { new: true }
+            );
+            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+        }
+        
+        return {
+            statusCode: 200,
+            data: {
                 status: "success",
                 message: "Paid successfully",
                 data: result
@@ -1290,11 +1348,11 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
     } catch (error) {
         console.log(error);
         return {
-            statusCode:500,
-            data:{
-            status: "error",
-            message: "Something went wrong",
-            error: error.message
+            statusCode: 500,
+            data: {
+                status: "error",
+                message: "Something went wrong",
+                error: error.message
             }
         };
     }

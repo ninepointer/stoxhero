@@ -16,6 +16,7 @@ import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
 import { CircularProgress } from '@mui/material';
 import NoData from "../../../assets/images/noBlogFound.png"
+import ReactGA from "react-ga"
 
 
 export default function BlogCard() {
@@ -28,6 +29,10 @@ export default function BlogCard() {
   useEffect(()=>{
     fetchData();
   },[skip])
+
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+  }, []);
 
   async function fetchData() {
     let call1 = axios.get(`${apiUrl}${"blogs/userpublished"}?skip=${skip}&limit=${limitSetting}`, {

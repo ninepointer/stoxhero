@@ -39,7 +39,7 @@ admin.initializeApp({
 //         console.log('Error sending message:', e);    
 //     }  
 // }
-
+const messaging = admin.messaging();
 exports.sendIndividualNotification = async (title, body, token, mediaUrl = null, actions = null) => {
   const message = {
       notification: {
@@ -64,7 +64,7 @@ exports.sendIndividualNotification = async (title, body, token, mediaUrl = null,
 
   try {
       console.log('sending this', message);  
-      const res = await admin.messaging().send(message);
+      const res = await messaging.send(message);
       console.log('Successfully sent message:', res);
       return res;
   } catch (e) {
@@ -96,9 +96,9 @@ exports.sendMultiNotifications = async (title, body, tokens, mediaUrl = null, ac
   }
 
   try {
-      console.log('sending this', message);  
-      const res = await admin.messaging().sendEachForMulticast(message);
-      console.log('Successfully sent message:', res);
+      // console.log('sending this', message);  
+      const res = await messaging.sendEachForMulticast(message);
+      console.log('Successfully sent message');
       return res;
   } catch (e) {
       console.log('Error sending message:', e);    

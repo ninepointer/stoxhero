@@ -1,6 +1,8 @@
 const Referral = require('../models/campaigns/referralProgram');
 const User = require('../models/User/userDetailSchema');
 const {client, getValue} = require('../marketData/redisClient');
+const {ObjectId} = require('mongodb');
+const AffiliateTransaction = require('../models/affiliateProgram/affiliateTransactions');
 
 const filterObj = (obj, ...allowedFields) => {
     const newObj = {};
@@ -254,6 +256,100 @@ exports.getMyLeaderBoardRank = async(req,res,next) => {
   
   }
 
-exports.referralBetweenDate = async(req,res)=>{
-  
+exports.getReferredProduct = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    console.log(userId)
+    const product = await AffiliateTransaction.aggregate([
+      {
+        $facet:
+          {
+            transaction: [
+              {
+                $match: {
+                  affiliate: new ObjectId(
+                    userId
+                  ),
+                },
+              },
+              {
+                $lookup: {
+                  from: "user-personal-details",
+                  localField: "buyer",
+                  foreignField: "_id",
+                  as: "buyer",
+                },
+              },
+              {
+                $lookup: {
+                  from: "products",
+                  localField: "product",
+                  foreignField: "_id",
+                  as: "product",
+                },
+              },
+              {
+                $project:
+                  {
+                    buyer_first_name: {
+                      $arrayElemAt: [
+                        "$buyer.first_name",
+                        0,
+                      ],
+                    },
+                    product_name: {
+                      $arrayElemAt: [
+                        "$product.productName",
+                        0,
+                      ],
+                    },
+                    _id: 0,
+                    payout: "$affiliatePayout",
+                    productDiscountedPrice:
+                      "$productDiscountedPrice",
+                    date: "$createdOn",
+                    transactionId: "$transactionId"
+                  },
+              },
+              {
+                $sort: {
+                  date: -1,
+                },
+              },
+            ],
+            summery: [
+              {
+                $match: {
+                  affiliate: new ObjectId(
+                    userId
+                  ),
+                },
+              },
+              {
+                $group: {
+                  _id: {},
+                  payout: {
+                    $sum: "$affiliatePayout",
+                  },
+                  count: {
+                    $sum: 1,
+                  },
+                },
+              },
+              {
+                $project: {
+                  count: 1,
+                  _id: 0,
+                  payout: 1,
+                },
+              },
+            ],
+          },
+      },
+    ])
+    res.status(200).json({status: "success", data: product, message: "Data received"});
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({status: "error", message: "Something went wrong"});
+  }
 }

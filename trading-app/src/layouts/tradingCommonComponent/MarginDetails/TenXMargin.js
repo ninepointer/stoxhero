@@ -19,12 +19,17 @@ const TenxMarginGrid = ({subscriptionId, setyesterdayData}) => {
 
   let amount = 0;
   let margin = 0;
+  let subtractAmount = 0;
   pnlData.map((elem) => {
-    console.log(elem._id.isLimit)
-    if(elem._id.isLimit){
-      margin += elem.margin;
+    console.log(elem?._id?.isLimit)
+    if(elem?._id.isLimit){
+      margin += elem?.margin;
     } else{
-      amount += (elem.amount - elem.brokerage)
+      if(elem?.lots < 0) {
+        margin += elem?.margin;
+        subtractAmount += Math.abs(elem?.lots*elem?.lastaverageprice);
+      }
+      amount += (elem?.amount - elem?.brokerage)
     }
   });
 
@@ -46,7 +51,9 @@ const TenxMarginGrid = ({subscriptionId, setyesterdayData}) => {
   const totalCreditString = fundDetail?.totalFund ? fundDetail?.totalFund >= 0 ? "+₹" + fundDetail?.totalFund?.toLocaleString() : "-₹" + ((-fundDetail?.totalFund)?.toLocaleString()): "+₹0";
   const runningPnl = Number(netPnl?.toFixed(0));
   const openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
-  const availableMargin = ((runningPnl < 0) ? totalRunningLots===0 ? (openingBalance-todayMargin+runningPnl) : openingBalance-(Math.abs(amount)+margin) : openingBalance-todayMargin)?.toFixed(0);
+  const availableMargin = ((runningPnl < 0) ? totalRunningLots===0 ? (openingBalance-todayMargin+runningPnl) : openingBalance-(Math.abs(amount-subtractAmount)+margin) : openingBalance-todayMargin)?.toFixed(0);
+  // console.log("margin", margin, amount, availableMargin, totalRunningLots, todayMargin)
+
   const availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹0"
   const usedMargin = runningPnl >= 0 ? 0 : runningPnl
   const usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin)?.toLocaleString() : "₹" + (-Number(usedMargin))?.toLocaleString()

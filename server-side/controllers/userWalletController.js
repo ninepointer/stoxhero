@@ -14,6 +14,7 @@ const Setting = require('../models/settings/setting');
 const Coupon = require('../models/coupon/coupon');
 const {creditAffiliateAmount}= require('./affiliateProgramme/affiliateController');
 const AffiliateProgram = require('../models/affiliateProgram/affiliateProgram');
+const ReferralProgram = require("../models/campaigns/referralProgram")
 
 
 exports.createUserWallet = async(req, res, next)=>{
@@ -115,15 +116,14 @@ exports.myWallet = async (req, res, next) => {
     }
 };
 
-
 exports.deductSubscriptionAmount = async(req,res,next) => {
     const userId = req.user._id;
     let {subscriptionAmount, subscriptionName, subscribedId, coupon, bonusRedemption} = req.body
 
     try {
-        const result = await exports.handleDeductSubscriptionAmount(userId, subscriptionAmount, subscriptionName, subscribedId, coupon, bonusRedemption);
+        const result = await exports.handleDeductSubscriptionAmount(userId, subscriptionAmount, subscriptionName, subscribedId, coupon, bonusRedemption, req);
         res.status(result.statusCode).json(result.data);
-        console.log(result, result.statusCode, result.data);
+        // console.log(result, result.statusCode, result.data);
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -133,7 +133,7 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
     }
 }
 
-exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subscriptionName, subscribedId, coupon, bonusRedemption) => {
+exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subscriptionName, subscribedId, coupon, bonusRedemption, req) => {
     let isRedisConnected = getValue();
     // console.log("all three", subscriptionAmount, subscriptionName, subscribedId)
     const session = await mongoose.startSession();
@@ -182,17 +182,32 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         if(coupon){
             let couponDoc = await Coupon.findOne({code:coupon});
             if(!couponDoc){
+                let match = false;
                 const affiliatePrograms = await AffiliateProgram.find({status:'Active'});
-                if(affiliatePrograms.length != 0)
+                if(affiliatePrograms.length != 0){
                     for(let program of affiliatePrograms){
-                        let match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
+                        match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
                         if(match){
                             affiliate = match;
                             affiliateProgram = program;
                             couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: program?.discountPercentage, maxDiscount:program?.maxDiscount }
+                            break;
                         }
                     }
+                }
 
+                if(!match){
+                    const userCoupon = await User.findOne({myReferralCode: coupon?.toString()})
+                    const referralProgram = await ReferralProgram.findOne({status: "Active"});
+    
+                    // console.log("referralProgram", referralProgram, userCoupon)
+                    if(userCoupon){
+                        affiliate = {userId: userCoupon?._id};
+                        affiliateProgram = referralProgram?.affiliateDetails;
+                        couponDoc = {rewardType: 'Discount', discountType:'Percentage', discount: referralProgram?.affiliateDetails?.discountPercentage, maxDiscount: referralProgram?.affiliateDetails?.maxDiscount }
+
+                    }
+                }
             }
             if(couponDoc?.rewardType == 'Discount'){
                 if(couponDoc?.discountType == 'Flat'){
@@ -221,7 +236,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
             }
         }
         const totalAmount = (subs?.discounted_price - discountAmount - bonusRedemption)*(1+setting[0]?.gstPercentage/100)
-        console.log(Number(totalAmount) , Number(subscriptionAmount))
+        // console.log(Number(totalAmount) , Number(subscriptionAmount))
         if(Number(totalAmount) != Number(subscriptionAmount)){
           return {
             statusCode:400,
@@ -292,6 +307,26 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
             },
             { new: true, session: session}
         );
+
+        if (!req?.user?.paidDetails?.paidDate) {
+            const updatePaidDetails = await User.findOneAndUpdate(
+                { _id: new ObjectId(userId) },
+                {
+                    $set: {
+                        'paidDetails.paidDate': new Date(),
+                        'paidDetails.paidStatus': 'Inactive',
+                        'paidDetails.paidProduct': new ObjectId('6517d3803aeb2bb27d650de0'),
+                        'paidDetails.paidProductPrice': subscriptionAmount
+                    }
+                },
+                {  new: true, session: session }
+
+            );
+            console.log("updatePaidDetails", updatePaidDetails)
+
+            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+
+        }
 
         const subscription = await Subscription.findOneAndUpdate(
         { _id: new ObjectId(subscribedId) },
@@ -428,11 +463,11 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
                 lastModifiedBy:'63ecbc570302e7cf0153370c'  
               });
             if(user?.fcmTokens?.length>0){
-                await sendMultiNotifications('StoxHero Cashback', 
+                await sendMultiNotifications('StoxHero Cashback',
                     `${cashbackAmount?.toFixed(2)}HeroCash added as bonus in your wallet`,
-                    user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
-                    )  
-            }  
+                    user?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
+                )  
+            }
         }
         await createUserNotification({
             title:'TenX Subscription Deducted',
@@ -453,6 +488,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
               )  
           }
           await session.commitTransaction();
+        //   console.log(coupon, affiliate)
           if(coupon){
             const product = await Product.findOne({productName:'TenX'}).select('_id');
             if(affiliate){
@@ -484,4 +520,3 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         return result;
     }
 }
-

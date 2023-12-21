@@ -99,8 +99,10 @@ const App = (props) => {
     mobile_otp: "",
   })
   
-  async function confirmOTP(){
+  const [buttonClicked, setButtonClicked] = useState(false);
 
+  async function confirmOTP(){
+    setButtonClicked(true);
     setCreating(true);
     setDetails(prevState => ({...prevState, mobile_otp: detail.mobile_otp}));
 
@@ -155,8 +157,10 @@ const App = (props) => {
     if(res.status === 201){ 
         setSubmitted(true);
         setCreating(false);
+        setButtonClicked(false);
         return openSuccessSB("Application Submitted",data.info,"SUCCESS");  
     }else{
+        setButtonClicked(false);
         return openSuccessSB("Error",data.info,"Error")
     }
 
@@ -611,7 +615,7 @@ const App = (props) => {
                             onClick={()=>{confirmOTP()}} 
                             variant="gradient" 
                             color="warning"
-                            disabled={creating} 
+                            disabled={creating || buttonClicked} 
                             style={{width:'90%'}}
                           >
                           {creating ? 

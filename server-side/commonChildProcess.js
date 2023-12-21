@@ -11,7 +11,6 @@ const hpp = require("hpp")
 const { zerodhaAccountType } = require("./constant")
 const Product = require('./models/Product/product');
 const { pendingOrderMain } = require("./PlaceStopLossOrder")
-// const bodyParser = require('body-parser');
 
 async function commonProcess() {
     // await setIOValue();

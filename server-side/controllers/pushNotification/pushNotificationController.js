@@ -163,22 +163,28 @@ exports.getAllActiveTokens = async () => {
 }
 
 exports.sendGroupNotifications = async (req,res, next) => {
-    let {title, body, tokens, mediaUrl, actions}  = req.body;
+    let {title, body, tokens, mediaUrl, actions, external}  = req.body;
+    // console.log('actions', external, actions);
     const {id} = req.params;
     if(!actions){
         actions = 'home'
     }
     try{
-        console.log('upload url', req?.uploadUrl)
+        let users = 0; 
+        let success = 0;
         const group = await NotificationGroup.findById(id);
         let groupUsers = group.users;
         for(let user of groupUsers){
             const userDoc = await User.findById(user).select("fcmTokens");
             if(userDoc?.fcmTokens?.length >0){
-                console.log('tokens', userDoc?.fcmTokens?.map(item=>item.token))
-                await sendMultiNotifications(title, body,
-                userDoc?.fcmTokens?.map(item=>item.token), req?.uploadUrl, {route:actions}
-                )
+                users+=1;
+                // console.log('tokens', userDoc?.fcmTokens?.map(item=>item.token))
+                const res = await sendMultiNotifications(title, body,
+                userDoc?.fcmTokens?.map(item=>item.token), req?.uploadUrl, {route:actions, external:external == 'true'?true:false}
+                );
+                if(res?.successCount>0){
+                    success+=1;
+                }    
             }
         }
         const marketingNotification = await MarketingNotification.create({
@@ -188,11 +194,14 @@ exports.sendGroupNotifications = async (req,res, next) => {
             actions: actions??'',
             notificationGroup: group._id,
             createdBy: req.user._id,
-            lastModifiedBy: req.user._id
-        })
+            lastModifiedBy: req.user._id,
+            userCount:users,
+            successfulDeliveryCount:success
+        });
         group.notifications?.push(marketingNotification._id);
         group.lastNotificationTime = new Date();
         await group.save({validateBeforeSave:false});
+        console.log('count', users, success);
         res.status(200).json({status:'success', message:'Notifications sent'});
     }catch(e){
         console.log(e)

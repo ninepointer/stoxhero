@@ -22,6 +22,19 @@ const referralProgramSchema = new mongoose.Schema({
         type:Number,
         required: true
     },
+    affiliateDetails: {
+        commissionPercentage: Number,
+        discountPercentage: Number,
+        maxDiscount: Number,
+        minOrderValue: Number,
+        eligiblePlatforms: [{
+            type: 'String',
+            enum:['Android', 'iOS', 'Web'],
+        }],
+        eligibleProducts: [{
+            type:mongoose.Schema.Types.ObjectId,
+        }]
+    },
     referralSignupBonus:{
         amount: Number,
         currency: {
