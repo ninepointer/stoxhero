@@ -516,7 +516,7 @@ function ReferralHomePage() {
                               <PeopleAltIcon color="success" fontSize="large" style={{ width: "80%", height: "80%" }} />
                           </MDBox>
                           <MDBox style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", width: "60%" }}>
-                              <MDTypography fontSize="30px" lineHeight={1}> {affiliateSummery?.count} </MDTypography>
+                              <MDTypography fontSize="30px" lineHeight={1}> {affiliateSummery?.count || 0} </MDTypography>
                               <MDTypography fontSize="15px" lineHeight={1}>Product Transactions</MDTypography>
                           </MDBox>
                       </MDBox>
@@ -538,7 +538,7 @@ function ReferralHomePage() {
                               <CurrencyRupeeIcon color="info" fontSize="large" style={{ width: "80%", height: "80%" }} />
                           </MDBox>
                           <MDBox style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", width: "60%" }}>
-                              <MDTypography fontSize="30px" lineHeight={1}>{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(affiliateSummery?.payout))}</MDTypography>
+                              <MDTypography fontSize="30px" lineHeight={1}>{affiliateSummery?.payout ? (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(affiliateSummery?.payout)) : 0}</MDTypography>
                               <MDTypography fontSize="15px" lineHeight={1}>Earnings (Product) in INR</MDTypography>
                           </MDBox>
                       </MDBox>
@@ -560,7 +560,7 @@ function ReferralHomePage() {
                               < ViewStreamIcon color="success"  fontSize="large" style={{ width: "80%", height: "80%" }} />
                           </MDBox>
                           <MDBox style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", width: "60%" }}>
-                              <MDTypography fontSize="30px" lineHeight={1}>{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(earnings + affiliateSummery?.payout))}</MDTypography>
+                              <MDTypography fontSize="30px" lineHeight={1}>{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((earnings || 0) + (affiliateSummery?.payout || 0)))}</MDTypography>
                               <MDTypography fontSize="15px" lineHeight={1}>Total Earnings in INR</MDTypography>
                           </MDBox>
                       </MDBox>
@@ -637,6 +637,7 @@ function ReferralHomePage() {
                     </Grid>
                 </Grid>
             </MDBox>
+
 
             <ReferredProduct setAffiliateSummery={setAffiliateSummery} />
             {renderSuccessSB}
