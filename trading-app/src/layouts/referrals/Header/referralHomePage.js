@@ -24,11 +24,12 @@ import ReferredProduct from "../data/referredProduct";
 import SendIcon from '@mui/icons-material/Send';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
+import ViewStreamIcon from '@mui/icons-material/ViewStream';
 // import ReferralHeader from "./Header";
 //Images
 import ReferralProgramImage from '../../../assets/images/referral-program.png'
 import ReferralImage from '../../../assets/images/referral.png'
-import Invited from '../data/invitedData'
+// import Invited from '../data/invitedData'
 import {BiCopy} from 'react-icons/bi'
 import { Link } from 'react-router-dom';
 function ReferralHomePage() {
@@ -36,11 +37,11 @@ function ReferralHomePage() {
   const getDetails = useContext(userContext);
 //   const {columns, rows} = Invited();
   const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+//   const handleOpen = () => setOpen(true);
+//   const handleClose = () => setOpen(false);
   const [activeReferralProgram,setActiveReferralProgram] = useState();
-  const [invitedData,setInvitedData] = useState([]);
-  const [invitedCount,setInvitedCount] = useState([]);
+  const [affiliateSummery,setAffiliateSummery] = useState([]);
+//   const [invitedCount,setInvitedCount] = useState([]);
   const [joinedData,setJoinedData] = useState([]);
   const [joinedCount,setJoinedCount] = useState([]);
   const [earnings, setEarnings] = useState(0);
@@ -405,35 +406,35 @@ function ReferralHomePage() {
                 </Grid>
             </MDBox>
 
-            <MDBox mt={3}>
-                <Grid container >
-                <Grid items xs={12} md={6} lg={4}>
-                    <MDBox 
-                        style={{
-                            backgroundColor:"white",
-                            margin:4,height:100,
-                            borderRadius:8,
-                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                            fontFamily: "Proxima Nova",
-                            display:"flex",
-                            justifyContent:"center"
-                            }}
-                        >
-                        <MDBox style={{display:"flex", alignItems: "center", justifyContent: "center", width:"40%"}}>
-                            {/* <QrCode2Icon color="success" fontSize="large" style={{width:"80%", height:"80%"}}/> */}
-                            <QRCode value = {`https://stoxhero.com?referral=${referralCode}`} fgColor='green' style={{padding:'20px'}}/>
-                        </MDBox>
-                        <MDBox style={{display:"flex", alignItems: "center", justifyContent: "center", flexDirection:"column", width:"60%"}}>
-                                <MDTypography fontSize="13px" lineHeight={1}>My Referral Code</MDTypography>
-                                <MDTypography 
-                                    style={{borderRadius:8,backgroundColor:"lightgrey",padding:6,margin:6}} 
-                                    fontSize="17px" 
-                                    lineHeight={1}
-                                >
-                                    {getDetails?.userDetails?.myReferralCode}
-                                </MDTypography>  
-                                <a 
-                                href={`https://api.whatsapp.com/send?text=Hey,
+              <MDBox mt={3}>
+                  <Grid container >
+                      <Grid items xs={12} md={6} lg={3}>
+                          <MDBox
+                              style={{
+                                  backgroundColor: "white",
+                                  margin: 4, height: 100,
+                                  borderRadius: 8,
+                                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                  fontFamily: "Proxima Nova",
+                                  display: "flex",
+                                  justifyContent: "center"
+                              }}
+                          >
+                              <MDBox style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "40%" }}>
+                                  {/* <QrCode2Icon color="success" fontSize="large" style={{width:"80%", height:"80%"}}/> */}
+                                  <QRCode value={`https://stoxhero.com?referral=${referralCode}`} fgColor='green' style={{ padding: '20px' }} />
+                              </MDBox>
+                              <MDBox style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", width: "60%" }}>
+                                  <MDTypography fontSize="11px" lineHeight={1}>My Referral Code</MDTypography>
+                                  <MDTypography
+                                      style={{ borderRadius: 8, backgroundColor: "lightgrey", padding: 6, margin: 6 }}
+                                      fontSize="15px"
+                                      lineHeight={1}
+                                  >
+                                      {getDetails?.userDetails?.myReferralCode}
+                                  </MDTypography>
+                                  <a
+                                      href={`https://api.whatsapp.com/send?text=Hey,
                                 %0A%0A*AB INDIA SIKHEGA OPTIONS TRADING AUR BANEGA ATMANIRBHAR*
                                 %0A%0AJoin me at StoxHero - India's First Options Trading and Investment Platform 🤝 
                                 %0A%0A👉 Get 10,00,000 virtual currency in your account to start option trading using my referral code.
@@ -442,79 +443,91 @@ function ReferralHomePage() {
                                 %0A%0A📲 Visit https://www.stoxhero.com
                                 %0A%0AUse my below invitation code 👇 and get virtual currency of ₹10,00,000 in your wallet and start trading.
                                 %0A%0AMy Referral Code to join the StoxHero: *${getDetails.userDetails.myReferralCode}*`}
-                                target="_blank">
-                                {/* <MDTypography variant="contained" display="flex" justifyContent="center" style={{fontSize:"12px",lineHeight:1}}>
+                                      target="_blank">
+                                      {/* <MDTypography variant="contained" display="flex" justifyContent="center" style={{fontSize:"12px",lineHeight:1}}>
                                     Click to Share on &nbsp;<IoLogoWhatsapp color="green" lineHeight={1} />
                                 </MDTypography> */}
-                                </a>
-                        </MDBox>
-                    </MDBox>
-                </Grid>
-                {/* <Grid items xs={12} md={6} lg={3}>
-                    <MDBox 
-                        style={{
-                            backgroundColor:"white",
-                            margin:4,height:100,
-                            borderRadius:8,
-                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                            fontFamily: "Proxima Nova",
-                            display:"flex",
-                            justifyContent:"center"
-                            }}
-                        >
-                        <MDBox style={{display:"flex", alignItems: "center", justifyContent: "center", width:"40%"}}>
-                            <FaUsers color="grey" fontSize="large" style={{width:"80%", height:"80%"}}/>
-                        </MDBox>
-                        <MDBox style={{display:"flex", alignItems: "center", justifyContent: "center", flexDirection:"column", width:"60%"}}>
-                                <MDTypography fontSize="30px" lineHeight={1}>{invitedCount + joinedCount}</MDTypography>
-                                <MDTypography fontSize="12px" lineHeight={1}>Friends Invited</MDTypography>  
-                        </MDBox>
-                    </MDBox>
-                </Grid> */}
-                <Grid items xs={12} md={6} lg={4}>
-                    <MDBox 
-                        style={{
-                            backgroundColor:"white",
-                            margin:4,height:100,
-                            borderRadius:8,
-                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                            fontFamily: "Proxima Nova",
-                            display:"flex",
-                            justifyContent:"center"
-                            }}
-                        >
-                        <MDBox style={{display:"flex", alignItems: "center", justifyContent: "center", width:"40%"}}>
-                            <PeopleAltIcon color="success" fontSize="large" style={{width:"80%", height:"80%"}}/>
-                        </MDBox>
-                        <MDBox style={{display:"flex", alignItems: "center", justifyContent: "center", flexDirection:"column", width:"60%"}}>
-                                <MDTypography fontSize="30px" lineHeight={1}> {joinedCount} </MDTypography>
-                                <MDTypography fontSize="12px" lineHeight={1}>Friends Joined</MDTypography>  
-                        </MDBox>
-                    </MDBox>
-                </Grid>
-                <Grid items xs={12} md={6} lg={4}>
-                    <MDBox 
-                        style={{
-                            backgroundColor:"white",
-                            margin:4,height:100,
-                            borderRadius:8,
-                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                            fontFamily: "Proxima Nova",
-                            display:"flex",
-                            justifyContent:"center"
-                            }}
-                        >
-                        <MDBox style={{display:"flex", alignItems: "center", justifyContent: "center", width:"40%"}}>
-                            <CurrencyRupeeIcon color="info" fontSize="large" style={{width:"80%", height:"80%"}}/>
-                        </MDBox>
-                        <MDBox style={{display:"flex", alignItems: "center", justifyContent: "center", flexDirection:"column", width:"60%"}}>
-                                <MDTypography fontSize="30px" lineHeight={1}>{earnings}</MDTypography>
-                                <MDTypography fontSize="12px" lineHeight={1}>Earnings in INR</MDTypography>  
-                        </MDBox>
-                    </MDBox>
-                </Grid>
-                </Grid>
-            </MDBox>
+                                  </a>
+                              </MDBox>
+                          </MDBox>
+                      </Grid>
+
+                      <Grid items xs={12} md={6} lg={3}>
+                          <MDBox
+                              style={{
+                                  backgroundColor: "white",
+                                  margin: 4, height: 100,
+                                  borderRadius: 8,
+                                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                  fontFamily: "Proxima Nova",
+                                  display: "flex",
+                                  justifyContent: "center"
+                              }}
+                          >
+                              <MDBox style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "40%" }}>
+                                  <PeopleAltIcon color="success" fontSize="large" style={{ width: "80%", height: "80%" }} />
+                              </MDBox>
+                              <MDBox style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", width: "60%" }}>
+                                  <MDTypography fontSize="20px" lineHeight={1}> {joinedCount} </MDTypography>
+                                  <MDTypography fontSize="10px" lineHeight={1}>Friends Joined</MDTypography>
+                              </MDBox>
+                              <MDBox style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", width: "60%" }}>
+                                  <MDTypography fontSize="20px" lineHeight={1}>{affiliateSummery?.count} </MDTypography>
+                                  <MDTypography fontSize="10px" lineHeight={1}>Product Referred</MDTypography>
+                              </MDBox>
+                          </MDBox>
+                      </Grid>
+
+                      <Grid items xs={12} md={6} lg={4}>
+                          <MDBox
+                              style={{
+                                  backgroundColor: "white",
+                                  margin: 4, height: 100,
+                                  borderRadius: 8,
+                                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                  fontFamily: "Proxima Nova",
+                                  display: "flex",
+                                  justifyContent: "center"
+                              }}
+                          >
+                              <MDBox style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "40%" }}>
+                                  <CurrencyRupeeIcon color="info" fontSize="large" style={{ width: "80%", height: "80%" }} />
+                              </MDBox>
+                              <MDBox style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", width: "60%" }}>
+                              <MDTypography fontSize="20px" lineHeight={1}>{ (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(earnings)) }</MDTypography>
+                                  <MDTypography fontSize="10px" lineHeight={1}>Signup Earnings in INR</MDTypography>
+                              </MDBox>
+                              <MDBox style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", width: "60%" }}>
+                              <MDTypography fontSize="20px" lineHeight={1}>{ (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(affiliateSummery?.payout)) }</MDTypography>
+                                  <MDTypography fontSize="10px" lineHeight={1}>Product Earnings in INR</MDTypography>
+                              </MDBox>
+                          </MDBox>
+                      </Grid>
+
+                      <Grid items xs={12} md={6} lg={2}>
+                          <MDBox
+                              style={{
+                                  backgroundColor: "white",
+                                  margin: 4, height: 100,
+                                  borderRadius: 8,
+                                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                  fontFamily: "Proxima Nova",
+                                  display: "flex",
+                                  justifyContent: "center"
+                              }}
+                          >
+                            
+                             <MDBox style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "40%" }}>
+                                  <ViewStreamIcon color="success" fontSize="large" style={{ width: "80%", height: "80%" }} />
+                              </MDBox>
+                              <MDBox style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", width: "60%" }}>
+                                  <MDTypography fontSize="20px" lineHeight={1}>{ (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(earnings+affiliateSummery?.payout)) }</MDTypography>
+                                  <MDTypography fontSize="10px" lineHeight={1} textAlign="center">Total Earnings in INR</MDTypography>
+                              </MDBox>
+                          </MDBox>
+                      </Grid>
+                  </Grid>
+              </MDBox>
 
             <MDBox pt={6} pb={3}>
                 <Grid container spacing={6}>
@@ -621,7 +634,7 @@ function ReferralHomePage() {
                 </Grid>
             </MDBox>
 
-            <ReferredProduct />
+            <ReferredProduct setAffiliateSummery={setAffiliateSummery} />
             {renderSuccessSB}
         </MDBox>
     </>
