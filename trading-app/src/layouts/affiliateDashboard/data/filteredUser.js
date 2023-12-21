@@ -34,11 +34,8 @@ export default function FilteredUsers({ setFilteredUsers }) {
   // const [referralProgramme, setReferralProgramme] = React.useState([]);
   const [affiliate, setAffiliate] = React.useState([]);
   const date = new Date();
-  // const lastMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-  // lastMonth.setDate(date.getDate());
-  // const [startDate, setStartDate] = React.useState(dayjs(lastMonth));
   const lastMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-const [startDate, setStartDate] = React.useState(dayjs(lastMonth));
+  const [startDate, setStartDate] = React.useState(dayjs(lastMonth));
 
   const [endDate, setEndDate] = React.useState(dayjs(date));
 
@@ -138,7 +135,7 @@ const [startDate, setStartDate] = React.useState(dayjs(lastMonth));
 
       <Grid item xs={12} md={6} lg={12}>
         <MDBox display="flex" alignContent="center" alignItems="center">
-          <Grid container display="flex"  alignContent="center" alignItems="center">
+          <Grid container display="flex" alignContent="center" alignItems="center">
 
             <Grid container xs={12} md={6} lg={12} display="flex" alignContent="center" alignItems="center" justifyContent='space-between'>
 

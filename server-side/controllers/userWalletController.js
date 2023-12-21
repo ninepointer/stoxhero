@@ -116,7 +116,6 @@ exports.myWallet = async (req, res, next) => {
     }
 };
 
-
 exports.deductSubscriptionAmount = async(req,res,next) => {
     const userId = req.user._id;
     let {subscriptionAmount, subscriptionName, subscribedId, coupon, bonusRedemption} = req.body
@@ -521,4 +520,3 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         return result;
     }
 }
-

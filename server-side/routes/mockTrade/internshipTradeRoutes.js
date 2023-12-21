@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
-const {overallPnl,myTodaysTrade,myHistoryTrade, overallInternshipPnlYesterday, liveTotalTradersCountYesterday,
+const {overallPnl,myTodaysTrade,myHistoryTrade, overallInternshipPnlYesterday, liveTotalTradersCountYesterday, internshipLeaderboard,
     marginDetail, overallInternshipPnl,myInternshipTradingDays, myOverallInternshipPnl, liveTotalTradersCount, tradingDays, overallPnlAllTrader, 
     traderWiseMockTrader, internshipPnlReport, internshipDailyPnlTWise, myWorkshopOrder, getDailyInternshipUsers, downloadCompletedInternshipReport, getReferralCount} = require('../../controllers/internshipTradeController');
 const Authenticate = require('../../authentication/authentication');
@@ -26,7 +26,9 @@ router.route('/pnl/:batch').get(Authenticate, overallPnl);
 router.route('/pnlAllTrader/:batchId').get(Authenticate, overallPnlAllTrader);
 router.route('/traderwiseAllTrader/:batchId').get(Authenticate, traderWiseMockTrader);
 router.route('/marginDetail/:batch').get(Authenticate, marginDetail)
-router.route('/traderwisecompanypnlreport/:batch').get(internshipDailyPnlTWise)
+router.route('/traderwisecompanypnlreport/:batch').get(internshipDailyPnlTWise);
+router.route('/leaderboard/:batch').get(internshipLeaderboard)
+
 router.route('/companypnlreport/:batch').get(internshipPnlReport)
 
 
