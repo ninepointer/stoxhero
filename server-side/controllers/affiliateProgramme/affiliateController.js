@@ -241,7 +241,7 @@ exports.addAffiliateUser = async (req, res) => {
 };
 
 exports.creditAffiliateAmount = async (affiliate, affiliateProgram, product, specificProduct, actualPrice, buyer) => {
-  // console.log(product, specificProduct, actualPrice, buyer);
+  // console.log("in transaction", product, specificProduct, actualPrice, buyer);
   //add amount to wallet
   if (affiliate?.userId?.toString() === buyer?.toString()) {
     return;
@@ -255,7 +255,7 @@ exports.creditAffiliateAmount = async (affiliate, affiliateProgram, product, spe
   let walletTransactionId = uuid.v4();
   wallet?.transactions?.push({
     title: 'StoxHero Affiliate Reward Credit',
-    description: `Amount credited for affiliate reward for ${user?.first_name} ${user?.last_name}'s product purchase`,
+    description: `Amount credited for affiliate reward for ${user?.first_name}'s product purchase`,
     transactionDate: new Date(),
     amount: affiliatePayout?.toFixed(2),
     transactionId: walletTransactionId,
@@ -277,12 +277,15 @@ exports.creditAffiliateAmount = async (affiliate, affiliateProgram, product, spe
     affiliatePayout: affiliatePayout
   })
 
+  // console.log("in create transaction", product, specificProduct, actualPrice, buyer);
+
   //send whatsapp message
   try {
     if (process.env.PROD == 'true') {
       whatsAppService.sendWhatsApp({ destination: affiliateUser?.mobile, campaignName: 'affiliate_transaction_campaign', userName: affiliateUser?.first_name, source: affiliateUser?.creationProcess, templateParams: [affiliateUser.first_name, `${user.first_name} ${user.last_name}`, productDoc?.productName, (actualPrice - discount).toLocaleString('en-IN'), moment.utc(new Date()).utcOffset('+05:30').format("DD-MMM hh:mm a"), affiliatePayout.toLocaleString('en-IN')], tags: '', attributes: '' });
       whatsAppService.sendWhatsApp({ destination: '8076284368', campaignName: 'affiliate_transaction_campaign', userName: user?.first_name, source: user?.creationProcess, templateParams: [affiliateUser.first_name, `${user.first_name} ${user.last_name}`, productDoc?.productName, (actualPrice - discount).toLocaleString('en-IN'), moment.utc(new Date()).utcOffset('+05:30').format("DD-MMM hh:mm a"), affiliatePayout.toLocaleString('en-IN')], tags: '', attributes: '' });
     } else {
+      console.log("sending msg")
       whatsAppService.sendWhatsApp({ destination: '9319671094', campaignName: 'affiliate_transaction_campaign', userName: affiliateUser?.first_name, source: affiliateUser?.creationProcess, templateParams: [affiliateUser.first_name, `${user.first_name} ${user.last_name}`, productDoc?.productName, (actualPrice - discount).toLocaleString('en-IN'), moment.utc(new Date()).utcOffset('+05:30').format("DD-MMM hh:mm a"), affiliatePayout.toLocaleString('en-IN')], tags: '', attributes: '' });
       whatsAppService.sendWhatsApp({ destination: '8076284368', campaignName: 'affiliate_transaction_campaign', userName: affiliateUser?.first_name, source: affiliateUser?.creationProcess, templateParams: [affiliateUser.first_name, `${user.first_name} ${user.last_name}`, productDoc?.productName, (actualPrice - discount).toLocaleString('en-IN'), moment.utc(new Date()).utcOffset('+05:30').format("DD-MMM hh:mm a"), affiliatePayout.toLocaleString('en-IN')], tags: '', attributes: '' });
     }
@@ -344,7 +347,7 @@ exports.affiliateLeaderboard = async (req, res) => {
   lifetime = lifetime === "false" ? false : lifetime === "true" && true;
   startDate = (lifetime) ? "2000-01-01" : startDate;
   endDate = (lifetime) ? new Date() : endDate;
-  // console.log(programme, new Date(startDate), endDate, (lifetime))
+  console.log(programme, new Date(startDate), new Date(endDate), (lifetime))
   const matchStage = {
     affiliateProgram: programme !== "Cummulative" && new ObjectId(programme),
     transactionDate: {

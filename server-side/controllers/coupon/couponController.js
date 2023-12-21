@@ -8,7 +8,8 @@ const DailyContest = require('../../models/DailyContest/dailyContest');
 const{stringify} = require('flatted');
 const moment = require('moment');
 const AffiliateProgram = require('../../models/affiliateProgram/affiliateProgram');
-
+const ReferralProgram = require("../../models/campaigns/referralProgram")
+const User = require("../../models/User/userDetailSchema")
 
 exports.createCouponCode = async (req, res) => {
     try {
@@ -225,10 +226,12 @@ exports.verifyCouponCode = async (req, res) => {
         let coupon = await Coupon.findOne({ code: code, expiryDate:{$gte: new Date()}, status:'Active' });
         console.log("Coupon:",coupon)
         if(!coupon){
+            let match = false;
             const affiliatePrograms = await AffiliateProgram.find({status:'Active'});
             if(affiliatePrograms.length != 0){
+                
                 for(program of affiliatePrograms){
-                    let match = program?.affiliates?.some(item => item?.affiliateCode.toString() == code?.toString());
+                    match = program?.affiliates?.some(item => item?.affiliateCode.toString() == code?.toString());
                     if(match){
                         console.log('match', match, program?.maxDiscount);
                         //check for eligible platforms
@@ -236,6 +239,14 @@ exports.verifyCouponCode = async (req, res) => {
                             return res.status(400).json({
                                 status: 'error',
                                 message: "This coupon is not valid for your device platform",
+                            });
+                        }
+
+                        if(program?.minOrderValue && orderValue<program?.minOrderValue){
+                            console.log("Inside Min Order and order value check:",paymentMode,program?.rewardType )
+                            return res.status(400).json({
+                                status: 'error',
+                                message: `Your order is not eligible for this coupon. The minimum order value for this coupon is ₹${program?.minOrderValue}`,
                             });
                         }
                         //check for eligible products
@@ -256,7 +267,51 @@ exports.verifyCouponCode = async (req, res) => {
                         })
                     }
                 }
-            }    
+            }   
+            console.log("this is match", match)
+            if(!match){
+                const userCoupon = await User.findOne({myReferralCode: code?.toString()})
+                if(req.user._id.toString() === userCoupon._id.toString()){
+                    return res.status(400).json({
+                        status: 'error',
+                        message: "You cannot apply a self-coupon for your own purchase.",
+                    });
+                }
+                const referralProgram = await ReferralProgram.findOne({status: "Active"});
+
+                // console.log("referralProgram", referralProgram, userCoupon)
+                if(userCoupon){
+                    if(referralProgram?.affiliateDetails?.eligiblePlatforms?.length != 0 && !referralProgram?.affiliateDetails?.eligiblePlatforms.includes(platform)){
+                        return res.status(400).json({
+                            status: 'error',
+                            message: "This coupon is not valid for your device platform",
+                        });
+                    }
+                    //check for eligible products
+                    if(referralProgram?.affiliateDetails?.eligibleProducts?.length != 0 && !referralProgram?.affiliateDetails?.eligibleProducts.includes(product)){
+                        return res.status(400).json({
+                            status: 'error',
+                            message: "This coupon is not valid for the product you're purchasing.",
+                        });
+                    }
+                    if(referralProgram?.affiliateDetails?.minOrderValue && orderValue<referralProgram?.affiliateDetails?.minOrderValue){
+                        console.log("Inside Min Order and order value check:",paymentMode,referralProgram?.affiliateDetails?.rewardType )
+                        return res.status(400).json({
+                            status: 'error',
+                            message: `Your order is not eligible for this coupon. The minimum order value for this coupon is ₹${referralProgram?.affiliateDetails?.minOrderValue}`,
+                        });
+                    }
+                    return res.status(200).json({
+                        status: 'success',
+                        data: {
+                            discount: referralProgram?.affiliateDetails?.discountPercentage,
+                            discountType: 'Percentage',
+                            rewardType: 'Discount',
+                            maxDiscount: referralProgram?.affiliateDetails?.maxDiscount
+                        }
+                    })
+                }
+            }
         }
         
         if (!coupon) {

@@ -22,6 +22,7 @@ const {creditAffiliateAmount} = require('./affiliateProgramme/affiliateControlle
 const AffiliateProgram = require('../models/affiliateProgram/affiliateProgram');
 const {sendMultiNotifications} = require('../utils/fcmService');
 const {client, getValue} = require('../marketData/redisClient');
+const ReferralProgram = require("../models/campaigns/referralProgram")
 
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
@@ -2888,17 +2889,32 @@ exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, co
     if (coupon) {
       let couponDoc = await Coupon.findOne({ code: coupon });
       if (!couponDoc) {
+        let match = false;
         const affiliatePrograms = await AffiliateProgram.find({ status: 'Active' });
-        if (affiliatePrograms.length != 0)
+        if (affiliatePrograms.length != 0){
           for (let program of affiliatePrograms) {
-            let match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
+            match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
             if (match) {
               affiliate = match;
               affiliateProgram = program;
               couponDoc = { rewardType: 'Discount', discountType: 'Percentage', discount: program?.discountPercentage, maxDiscount: program?.maxDiscount }
+              break;
             }
           }
+        }
 
+        if (!match) {
+          const userCoupon = await User.findOne({ myReferralCode: coupon?.toString() })
+          const referralProgram = await ReferralProgram.findOne({ status: "Active" });
+
+          // console.log("referralProgram", referralProgram, userCoupon)
+          if (userCoupon) {
+            affiliate = { userId: userCoupon?._id };
+            affiliateProgram = referralProgram?.affiliateDetails;
+            couponDoc = { rewardType: 'Discount', discountType: 'Percentage', discount: referralProgram?.affiliateDetails?.discountPercentage, maxDiscount: referralProgram?.affiliateDetails?.maxDiscount }
+
+          }
+        }
       }
       if (couponDoc?.rewardType == 'Discount') {
         if (couponDoc?.discountType == 'Flat') {
