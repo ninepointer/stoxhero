@@ -119,86 +119,91 @@ function ReferralProduct({ setAffiliateSummery }) {
     }
 
     return (
-        <MDBox pt={6} pb={3}>
-            <Grid container spacing={6}>
-                <Grid item xs={12} md={12} lg={12}>
-                    <Card>
-                        <MDBox
-                            mx={2}
-                            mt={-3}
-                            py={1}
-                            px={2}
-                            variant="gradient"
-                            bgColor="dark"
-                            borderRadius="lg"
-                            coloredShadow="dark"
-                            sx={{
-                                display: 'flex',
-                                justifyContent: "space-between",
-                            }}>
-                            <MDTypography variant="h6" color="white" py={1}>
-                                Affiliate Transactions
-                            </MDTypography>
-                        </MDBox>
-                        <MDBox pt={2}>
-                            {
-                                data.map((elem) => {
-                                    return (
-                                        <>
-                                            <List
-                                                component="nav"
-                                                sx={{
-                                                    px: 0,
-                                                    py: 0,
-                                                    '& .MuiListItemButton-root': {
-                                                        py: 1.5,
-                                                        '& .MuiAvatar-root': avatarSX,
-                                                        '& .MuiListItemSecondaryAction-root': { ...actionSX, position: 'relative' }
-                                                    }
-                                                }}
-                                            >
-                                                <ListItemButton divider>
-                                                    <ListItemAvatar>
-                                                        <Avatar
-                                                            sx={{
-                                                                color: 'success.main',
-                                                                bgcolor: 'success.lighter'
-                                                            }}
-                                                        >
-                                                            <CurrencyRupeeIcon />
-                                                        </Avatar>
-                                                    </ListItemAvatar>
-                                                    <ListItemText primary={<Typography variant="subtitle1" color='black' fontSize={12}>TransactionId #{elem?.transactionId}</Typography>} secondary={<Typography variant="subtitle1" color='black' fontSize={16} fontWeight={500}> {`Received ₹${elem.payout} as commission on ${elem.buyer_first_name}'s ${elem?.product_name} purchase.`}</Typography>} />
-                                                    <ListItemSecondaryAction>
-                                                        <Stack alignItems="flex-end">
-                                                            <Typography color='green' variant="subtitle1" noWrap>
-                                                                +₹{elem.payout}
-                                                            </Typography>
-                                                            <Typography  fontSize={12} color="black" noWrap>
-                                                            {dateConvert(elem?.date)}
-                                                                {/* {moment.utc(elem?.date).format('DD-MM-YY HH:mm:ss')} */}
-                                                            </Typography>
-                                                        </Stack>
-                                                    </ListItemSecondaryAction>
-                                                </ListItemButton>
-                                            </List>
-                                        </>
-                                    )
-                                })
-                            }
-
-                            {data?.length > 0 &&
-                                <MDBox mt={1} p={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
-                                    <MDButton variant='outlined' color='secondary' disabled={currentPage === 1 ? true : false} size="small" onClick={handlePrevPage}>Back</MDButton>
-                                    <MDTypography color="secondary" fontSize={12} fontWeight='bold'>Transactions: {transaction.length} | Page {currentPage} of {Math.ceil(transaction.length / perPage)}</MDTypography>
-                                    <MDButton variant='outlined' color='secondary' disabled={Math.ceil(transaction.length / perPage) === currentPage ? true : false} size="small" onClick={handleNextPage}>Next</MDButton>
+        <>
+            {transaction?.length &&
+                <MDBox pt={6} pb={3}>
+                    <Grid container spacing={6}>
+                        <Grid item xs={12} md={12} lg={12}>
+                            <Card>
+                                <MDBox
+                                    mx={2}
+                                    mt={-3}
+                                    py={1}
+                                    px={2}
+                                    variant="gradient"
+                                    bgColor="dark"
+                                    borderRadius="lg"
+                                    coloredShadow="dark"
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: "space-between",
+                                    }}>
+                                    <MDTypography variant="h6" color="white" py={1}>
+                                        Affiliate Transactions
+                                    </MDTypography>
                                 </MDBox>
-                            }
-                        </MDBox>
-                    </Card>
-                </Grid>
-            </Grid>
-        </MDBox>
+                                <MDBox pt={2}>
+                                    {
+                                        data.map((elem) => {
+                                            return (
+                                                <>
+                                                    <List
+                                                        component="nav"
+                                                        sx={{
+                                                            px: 0,
+                                                            py: 0,
+                                                            '& .MuiListItemButton-root': {
+                                                                py: 1.5,
+                                                                '& .MuiAvatar-root': avatarSX,
+                                                                '& .MuiListItemSecondaryAction-root': { ...actionSX, position: 'relative' }
+                                                            }
+                                                        }}
+                                                    >
+                                                        <ListItemButton divider>
+                                                            <ListItemAvatar>
+                                                                <Avatar
+                                                                    sx={{
+                                                                        color: 'success.main',
+                                                                        bgcolor: 'success.lighter'
+                                                                    }}
+                                                                >
+                                                                    <CurrencyRupeeIcon />
+                                                                </Avatar>
+                                                            </ListItemAvatar>
+                                                            <ListItemText primary={<Typography variant="subtitle1" color='black' fontSize={12}>TransactionId #{elem?.transactionId}</Typography>} secondary={<Typography variant="subtitle1" color='black' fontSize={16} fontWeight={500}> {`Received ₹${elem?.payout?.toFixed(2)} as commission on ${elem?.buyer_first_name}'s ${elem?.product_name} purchase.`}</Typography>} />
+                                                            <ListItemSecondaryAction>
+                                                                <Stack alignItems="flex-end">
+                                                                    <Typography color='green' variant="subtitle1" noWrap>
+                                                                        +₹{elem?.payout?.toFixed(2)}
+                                                                    </Typography>
+                                                                    <Typography fontSize={12} color="black" noWrap>
+                                                                        {dateConvert(elem?.date)}
+                                                                        {/* {moment.utc(elem?.date).format('DD-MM-YY HH:mm:ss')} */}
+                                                                    </Typography>
+                                                                </Stack>
+                                                            </ListItemSecondaryAction>
+                                                        </ListItemButton>
+                                                    </List>
+                                                </>
+                                            )
+                                        })
+                                    }
+
+                                    {data?.length > 0 &&
+                                        <MDBox mt={1} p={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
+                                            <MDButton variant='outlined' color='secondary' disabled={currentPage === 1 ? true : false} size="small" onClick={handlePrevPage}>Back</MDButton>
+                                            <MDTypography color="secondary" fontSize={12} fontWeight='bold'>Transactions: {transaction.length} | Page {currentPage} of {Math.ceil(transaction.length / perPage)}</MDTypography>
+                                            <MDButton variant='outlined' color='secondary' disabled={Math.ceil(transaction.length / perPage) === currentPage ? true : false} size="small" onClick={handleNextPage}>Next</MDButton>
+                                        </MDBox>
+                                    }
+                                </MDBox>
+                            </Card>
+                        </Grid>
+                    </Grid>
+                </MDBox>
+            }
+        </>
+
     );
 }
 
