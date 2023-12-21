@@ -37,11 +37,10 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
   }
 
   const tradeSound = getDetails.tradeSound;
-  const { updateNetPnl, setPnlData } = useContext(NetPnlContext);
+  const { updateNetPnl, setPnlData, pendingOrderQuantity } = useContext(NetPnlContext);
   const marketDetails = useContext(marketDataContext)
   const setting = useContext(settingContext)
 
-  console.log("settingContext", setting)
   const [exitState, setExitState] = useState(false);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
@@ -64,7 +63,6 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
                     from === marginX ? `marginxtrade/${subscriptionId}/pnl` :
                     from === battle && `battletrade/${subscriptionId}/pnl`;
   const [trackEvent, setTrackEvent] = useState({});
-
 
   useEffect(() => {
 
@@ -367,7 +365,7 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
     }
   }
 
-  console.log("tdsAmount", tdsAmount, myReward)
+  // console.log("tdsAmount", tdsAmount, myReward)
   return (
     <Card>
       <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>

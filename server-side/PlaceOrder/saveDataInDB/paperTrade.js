@@ -27,7 +27,7 @@ exports.virtualTrade = async (req, res, otherData) => {
       order_id, instrumentToken, brokerage: brokerageUser, portfolioId, exchangeInstrumentToken,
       createdBy: req.user._id, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
       deviceDetails: { deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType },
-      margin
+      margin, college: req?.user?.collegeDetails?.college
     }
 
     const save = (order_type !== "LIMIT") && await PaperTrade.create([paperDoc], { session }); 

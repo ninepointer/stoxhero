@@ -95,6 +95,10 @@ const paperTrade = new mongoose.Schema({
         ref: 'user-portfolio',
         required : true
     },
+    college: {
+        type: Schema.Types.ObjectId,
+        ref: 'college-detail'    
+    },
     deviceDetails:{
         deviceType: { type: String },
         platformType: { type: String }

@@ -45,6 +45,7 @@ import CareerDetails from './layouts/career/careerDetails'
 import BatchDetails from './layouts/internBatch/batchDetails'
 import DailyContestDetails from './layouts/dailyContest/dailyContestDetails'
 import NotificationDetails from './layouts/notificationGroup/notificationDetails'
+import FullCollegeDetail from './layouts/createCollege/collegeDetails'
 
 import SendNotificationDetails from './layouts/sendNotification/sendNotificationDetails'
 import CampaignDetails from './layouts/campaign/campaignDetails'
@@ -130,6 +131,8 @@ import College from "./layouts/college";
 import InternBatch from "./layouts/internBatch";
 import DailyContest from "./layouts/dailyContest";
 import NotificationGroup from "./layouts/notificationGroup";
+import FullCollege from "./layouts/createCollege";
+
 import NotificationSend from "./layouts/sendNotification";
 
 import Battles from "./layouts/battle";
@@ -481,6 +484,10 @@ const routes = [
     component: <SendNotificationDetails />,
   },
   {
+    route: "/fullcollegedetails",
+    component: <FullCollegeDetail />,
+  },
+  {
     route: "/campaigndetails",
     component: <CampaignDetails />,
   },
@@ -816,6 +823,14 @@ const routes = [
     // icon: <BatchIcon/>,
     route: "/notification",
     component: <NotificationGroup />,
+  },
+  {
+    // type: "collapse",
+    // name: "Internship Batch",
+    key: "fullcollege",
+    // icon: <BatchIcon/>,
+    route: "/fullcollege",
+    component: <FullCollege />,
   },
   {
     // type: "collapse",

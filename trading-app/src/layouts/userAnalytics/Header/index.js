@@ -1,25 +1,25 @@
 import React, {useState, useEffect, useContext} from 'react';
 import axios from 'axios';
 import ReactGA from "react-ga"
-import { CircularProgress, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
 import MDButton from '../../../components/MDButton';
-import MDAvatar from '../../../components/MDAvatar';
+// import MDAvatar from '../../../components/MDAvatar';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import {Tooltip} from '@mui/material';
-import stock from "../../../assets/images/analyticspnl.png"
+// import {Tooltip} from '@mui/material';
+// import stock from "../../../assets/images/analyticspnl.png"
 import PNLMetrics from '../data/PNLMetrics';
 import MonthLineChart from '../data/MonthLineChart'
-import DayLineChart from '../data/DayLineChart'
-import BrokerageChart from '../data/BrokerageChart'
+// import DayLineChart from '../data/DayLineChart'
+// import BrokerageChart from '../data/BrokerageChart'
 import OrdersChart from '../data/OrderChart'
-import NetPNLChart from '../data/NetPNLChart'
+// import NetPNLChart from '../data/NetPNLChart'
 import GrossPNLChart from '../data/GrossPNLChart'
 import ExpectedPnlChart from '../data/expectedPnlChart'
 import ExpectedProfitLossChart from '../data/expectedProfitLossChart'
-import DateRangeComponent from '../data/dateRangeSelection'
+// import DateRangeComponent from '../data/dateRangeSelection'
 import dayjs from 'dayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -27,11 +27,13 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { apiUrl } from '../../../constants/constants';
 import { userContext } from '../../../AuthContext';
-import { userRole } from '../../../variables';
+// import { userRole } from '../../../variables';
 import { InfinityTraderRole } from '../../../variables';
+import { useLocation } from "react-router-dom";
 
 
 export default function LabTabs() {
+  const { pathname } = useLocation();
   const paperTrading = "F&O";
   const infinityTrading = "Infinity Trading";
   const stoxheroTrading = "TenX Trading"
@@ -48,9 +50,10 @@ export default function LabTabs() {
   const [monthWiseData, setMonthWiseData] = useState([]);
   const [dateWiseData, setDateWiseData] = useState([]);
   const[expected, setExpected] = useState([]);
-  const[tradeType, setTradeType] = useState('virtual');
+  // const[tradeType, setTradeType] = useState('virtual');
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
+  const checkRoute = pathname.includes(getDetails?.userDetails?.collegeDetails?.college?.route)
   useEffect(() => {
     ReactGA.pageview(window.location.pathname)
     capturePageView()
@@ -162,9 +165,7 @@ export default function LabTabs() {
       aria-label="Platform"
       >
       <ToggleButton style={{paddingLeft:14,paddingRight:14,fontSize:10,fontWeight:700}} value={paperTrading}> {paperTrading}</ToggleButton>
-      { getDetails.userDetails.role.roleName === InfinityTraderRole ?
-      <ToggleButton style={{paddingLeft:14,paddingRight:14,fontSize:10,fontWeight:700}} value={infinityTrading}>{infinityTrading}</ToggleButton>
-      :
+      {!checkRoute &&
       <ToggleButton style={{paddingLeft:14,paddingRight:14,fontSize:10,fontWeight:700}} value={stoxheroTrading}>{stoxheroTrading}</ToggleButton>
       }
       </ToggleButtonGroup>
