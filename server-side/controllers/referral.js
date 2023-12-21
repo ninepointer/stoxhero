@@ -308,6 +308,7 @@ exports.getReferredProduct = async (req, res) => {
                     productDiscountedPrice:
                       "$productDiscountedPrice",
                     date: "$createdOn",
+                    transactionId: "$transactionId"
                   },
               },
               {
