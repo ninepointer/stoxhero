@@ -50,6 +50,8 @@ function UserPosition() {
   useEffect(() => {
     socket.emit('userId', getDetails.userDetails._id)
     socket.emit("user-ticks", getDetails.userDetails._id)
+    // socket.emit('equity-watchlist', getDetails.userDetails._id)
+
   }, []);
 
   const memoizedStockIndex = useMemo(() => {
