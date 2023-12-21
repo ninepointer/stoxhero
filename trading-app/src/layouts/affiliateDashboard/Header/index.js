@@ -448,51 +448,21 @@ export default function Dashboard() {
           </Grid>
         }
 
-{!isLoading ? 
-          <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-              
-              {/* <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
-                <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                      <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1, backgroundColor:'lightgrey' }} >
-                      
-                          <Grid container xs={12} md={12} lg={12}>
-                            <Grid item p={1} xs={12} md={12} lg={8} display='flex' justifyContent='flex-start'>
-                              <MDTypography variant="h6" style={{textAlign:'center'}}>Offline Institute Affiliates Overview</MDTypography>
-                            </Grid>
-                            <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='flex-end'>
-                              <MDButton variant='text' color='success'>
-                                Download Data
-                              </MDButton>
-                            </Grid>
-                          </Grid>
-                        
-                      </Card>
-                    </Grid>
-                </Grid>
-    
-              </Grid> */}
-
-              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
-                <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                    <LeaderBoard leaderboard={leaderboard} />
-                    </Grid>
-    
-                </Grid>
-    
+      {!isLoading ?
+        // <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ minWidth: '100%', minHeight: 'auto' }}>
+          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ width: '100%', minHeight: 'auto' }}>
+            <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ minWidth: '100%', minHeight: 'auto' }}>
+              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                <LeaderBoard leaderboard={leaderboard} />
               </Grid>
-
-              
-    
+            </Grid>
           </Grid>
-          :
-          <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'380px'}}>
-            <CircularProgress/>
-          </Grid>
-        }
+        // </Grid>
+        :
+        <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ minWidth: '100%', minHeight: '380px' }}>
+          <CircularProgress />
+        </Grid>
+      }
 
     </MDBox>
   );

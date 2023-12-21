@@ -346,7 +346,7 @@ exports.affiliateLeaderboard = async (req, res) => {
   lifetime = lifetime === "false" ? false : lifetime === "true" && true;
   startDate = (lifetime) ? "2000-01-01" : startDate;
   endDate = (lifetime) ? new Date() : endDate;
-  // console.log(programme, new Date(startDate), endDate, (lifetime))
+  console.log(programme, new Date(startDate), new Date(endDate), (lifetime))
   const matchStage = {
     affiliateProgram: programme !== "Cummulative" && new ObjectId(programme),
     transactionDate: {
