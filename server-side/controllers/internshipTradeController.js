@@ -1908,27 +1908,29 @@ exports.updateUserWallet = async () => {
 
               }
 
-              await createUserNotification({
-                title: 'Internship Consolation Credited',
-                description: `${consolationReward.currency === "Cash" ? "₹"+consolationReward?.amount?.toFixed(2) : "HeroCash "+consolationReward?.amount?.toFixed(2)} credited for your internship consolation`,
-                notificationType: 'Individual',
-                notificationCategory: 'Informational',
-                productCategory: 'Internship',
-                user: user?._id,
-                priority: 'High',
-                channels: ['App', 'Email'],
-                createdBy: '63ecbc570302e7cf0153370c',
-                lastModifiedBy: '63ecbc570302e7cf0153370c'
-              }, session);
-
-              wallet.transactions = [...wallet.transactions, {
-                title: 'Internship Consolation',
-                description: `Internship consolation credited`,
-                amount: (consolationReward?.amount?.toFixed(2)),
-                transactionId: uuid.v4(),
-                transactionType: consolationReward.currency === "Cash" ? 'Cash' : "Bonus"
-              }];
-
+              // giving consolation rewards
+              if(attendance >= 80){
+                await createUserNotification({
+                  title: 'Internship Consolation Credited',
+                  description: `${consolationReward.currency === "Cash" ? "₹"+consolationReward?.amount?.toFixed(2) : "HeroCash "+consolationReward?.amount?.toFixed(2)} credited for your internship consolation`,
+                  notificationType: 'Individual',
+                  notificationCategory: 'Informational',
+                  productCategory: 'Internship',
+                  user: user?._id,
+                  priority: 'High',
+                  channels: ['App', 'Email'],
+                  createdBy: '63ecbc570302e7cf0153370c',
+                  lastModifiedBy: '63ecbc570302e7cf0153370c'
+                }, session);
+  
+                wallet.transactions = [...wallet.transactions, {
+                  title: 'Internship Consolation',
+                  description: `Internship consolation credited`,
+                  amount: (consolationReward?.amount?.toFixed(2)),
+                  transactionId: uuid.v4(),
+                  transactionType: consolationReward.currency === "Cash" ? 'Cash' : "Bonus"
+                }];
+              }
 
               await session.commitTransaction();
             }
