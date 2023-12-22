@@ -20,8 +20,8 @@ router.post("/switchToRealTrade", (async (req, res)=>{
     const {algoName, transactionChange, instrumentChange
        , exchangeChange, lotMultipler, productChange, tradingAccount, _id, marginDeduction, isDefault } = algoBox
 
-       const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY"});
-       const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL"});
+       const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", type: "Option"});
+       const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", type: "Option"});
 
     const api_key = apiKey;
     const access_token = accessToken;

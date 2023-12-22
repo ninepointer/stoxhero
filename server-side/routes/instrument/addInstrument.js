@@ -11,7 +11,7 @@ const {client, getValue, client5} = require("../../marketData/redisClient");
 const {infinityTrader} = require("../../constant")
 const InfinityInstrument = require("../../models/Instruments/infinityInstrument");
 const Role = require("../../models/User/everyoneRoleSchema");
-// const { pathToFileURL } = require("url");
+const EquityInstrument = require("../../models/Instruments/equityStockWatchlist");
 
 client5.connect().then(()=>{})
 router.post("/addInstrument", authentication, async (req, res) => {
@@ -122,6 +122,132 @@ router.post("/addInstrument", authentication, async (req, res) => {
                     exchangeInstrumentToken: addingInstruments.exchangeInstrumentToken,
                     contractDate: addingInstruments.contractDate,
                     maxLot: addingInstruments.maxLot,
+                    chartInstrument: addingInstruments.chartInstrument
+                }))
+    
+                const updateInstrument = await User.findOneAndUpdate({ _id: _id }, {
+                    $push: {
+                        watchlistInstruments: addingInstruments._id,
+                        allInstruments: addingInstruments._id
+                    }
+    
+                })
+                res.status(201).json({ message: "Instrument Added" });
+    
+            } catch(err){
+                console.log(err);
+            }
+        }
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ error: err });
+        return new Error(err);
+    }
+})
+
+router.post("/addstock", authentication, async (req, res) => {
+    let isRedisConnected = getValue();
+    const { _id } = req.user;
+    
+    try {
+        let { exchangeInstrumentToken, instrument, exchange, symbol, status, instrumentToken, accountType, exchangeSegment, chartInstrument } = req.body;
+
+        const setInstrument = JSON.parse(await client.get('instrument-user') || JSON.stringify({}));
+        let userArr = setInstrument[instrumentToken] || [];
+        userArr.push(_id.toString());
+        const uniqueUserArr = [...new Set(userArr)];
+        setInstrument[instrumentToken] = uniqueUserArr;
+        await client.set('instrument-user', JSON.stringify(setInstrument));
+
+        if (exchangeSegment === "NFO-OPT") {
+            exchangeSegment = 2;
+        }
+        if (!instrument || !exchange || !symbol || !status || !instrumentToken) {
+            if (!instrumentToken) {
+                return res.status(422).json({ error: "Please enter a valid Instrument." })
+            }
+            return res.status(422).json({ error: "Any of one feild is incorrect..." })
+        }
+
+        const dataExist = await EquityInstrument.findOne({ instrumentToken: instrumentToken, status: "Active" });
+        if (dataExist) {
+            const updateInstrument = await User.findOneAndUpdate({ _id: _id }, {
+                $push: {
+                    watchlistInstruments: dataExist._id,
+                    allInstruments: dataExist._id
+                }
+            })
+            try {
+                if (isRedisConnected) {
+                    let obj = {
+                        instrumentToken: instrumentToken,
+                        exchangeInstrumentToken: exchangeInstrumentToken
+                    }
+                    const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
+                    const allinstrument = await client.SADD(`${(_id).toString()}allInstrument`, JSON.stringify(obj));
+                }
+                const token = JSON.parse(await client.get('all-token')) || [];
+                token.push(instrumentToken);
+                const uniqueTokenArr = [...new Set(token)];
+                await client.set('all-token', JSON.stringify(uniqueTokenArr));
+
+                await client.LPUSH(`${req.user._id.toString()}: equity-instrument`, JSON.stringify({
+                    _id: dataExist._id,
+                    instrument: dataExist.instrument,
+                    exchange: dataExist.exchange,
+                    symbol: dataExist.symbol,
+                    status: dataExist.status,
+                    instrumentToken: dataExist.instrumentToken,
+                    exchangeInstrumentToken: dataExist.exchangeInstrumentToken,
+                    chartInstrument: dataExist.chartInstrument
+                }))
+
+                dataExist.users.push(_id?.toString());
+                const uniqueUsers = [...new Set(dataExist.users.map(obj => obj.toString()))]
+                dataExist.users = uniqueUsers;
+                await dataExist.save({ validateBeforeSave: false });
+
+            } catch (err) {
+                console.log(err)
+            }
+            res.status(200).json({ message: "Instrument Added" })
+            return;
+        } else {
+            try{
+                console.log("instrumentToken", instrumentToken)
+                await client5.PUBLISH("subscribe-single-token", JSON.stringify({ instrumentToken }));
+
+                const token = JSON.parse(await client.get('all-token')) || [];
+                token.push(instrumentToken);
+                await client.set('all-token', JSON.stringify(token));
+                // const d = await subscribeSingleToken(instrumentToken);//TODO toggle
+                // await subscribeSingleXTSToken(exchangeInstrumentToken, Number(exchangeSegment))
+                // console.log("adding ins", d);
+                const addingInstruments = await EquityInstrument.create({
+                    exchangeInstrumentToken, instrument, exchange, symbol, status, chartInstrument,
+                    uId, createdBy: _id, lastModifiedBy: _id, instrumentToken,
+                    accountType, exchangeSegment: Number(exchangeSegment),
+                    users: [_id?.toString()]
+                });
+    
+                if (isRedisConnected) {
+                    let obj = {
+                        instrumentToken: instrumentToken,
+                        exchangeInstrumentToken: exchangeInstrumentToken
+                    }
+                    const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
+                    const allinstrument = await client.SADD(`${(_id).toString()}allInstrument`, JSON.stringify(obj));
+                }
+    
+                await client.LPUSH(`${req.user._id.toString()}: equity-instrument`, JSON.stringify({
+                    _id: addingInstruments._id,
+                    instrument: addingInstruments.instrument,
+                    exchange: addingInstruments.exchange,
+                    symbol: addingInstruments.symbol,
+                    status: addingInstruments.status,
+                    instrumentToken: addingInstruments.instrumentToken,
+                    exchangeInstrumentToken: addingInstruments.exchangeInstrumentToken,
                     chartInstrument: addingInstruments.chartInstrument
                 }))
     

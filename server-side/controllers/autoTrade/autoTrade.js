@@ -24,8 +24,8 @@ exports.takeAutoTrade = async (tradeDetails) => {
             exchangeSegment = 2;
         }
 
-      const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", accountType: xtsAccountType});
-      const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", accountType: xtsAccountType});
+      const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", accountType: xtsAccountType, type: "Option"});
+      const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", accountType: xtsAccountType, type: "Option"});
 
     //   console.log("req body", req.body)
 
