@@ -79,6 +79,10 @@ function Index() {
     },
     rewardType: '' || id?.rewardType,
     tdsRelief: '' || id?.tdsRelief,
+    consolationReward: {
+      currency: "" || id?.consolationReward?.currency,
+      amount: "" || id?.consolationReward?.amount
+    }
   });
 
   const [childFormState, setChildFormState] = useState({
@@ -138,6 +142,10 @@ function Index() {
           },
           rewardType: '' || res?.data?.data?.rewardType,
           tdsRelief: '' || res?.data?.data?.tdsRelief,
+          consolationReward: {
+            currency: "" || res?.data?.data?.consolationReward?.currency,
+            amount: "" || res?.data?.data?.consolationReward?.amount
+          }
       
         })
         setTimeout(() => {
@@ -205,7 +213,9 @@ function Index() {
       !formState.rewardType ||
       !formState.orientationDate ||
       !formState.orientationMeetingLink ||
-      !formState.referralCount) {
+      !formState.referralCount ||
+      !formState?.consolationReward?.currency ||
+      !formState?.consolationReward?.amount) {
 
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
@@ -215,7 +225,7 @@ function Index() {
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const { rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = formState;
+    const {consolationReward, rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = formState;
     const res = await fetch(`${baseUrl}api/v1/internbatch/`, {
       method: "POST",
       credentials: "include",
@@ -224,7 +234,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id, payoutPercentage, attendancePercentage, payoutCap, referralCount, orientationDate, orientationMeetingLink
+        consolationReward, rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id, payoutPercentage, attendancePercentage, payoutCap, referralCount, orientationDate, orientationMeetingLink
       })
     });
 
@@ -288,11 +298,14 @@ function Index() {
       !formState.attendancePercentage ||
       !formState.orientationDate ||
       !formState.orientationMeetingLink ||
-      !formState.referralCount) {
+      !formState.referralCount ||
+      !formState?.consolationReward?.currency ||
+      !formState?.consolationReward?.amount) {
+
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const {rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = formState;
+    const {consolationReward, rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = formState;
 
     const res = await fetch(`${baseUrl}api/v1/internbatch/${id._id}`, {
       method: "PATCH",
@@ -302,7 +315,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink
+        consolationReward, rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink
       })
     });
 
@@ -613,7 +626,7 @@ function Index() {
                   </FormControl>
                 </Grid>
 
-                <Grid item xs={12} md={6} xl={3}>
+                <Grid item xs={12} md={6} xl={3} mt={-2}>
                   <FormControl sx={{ width: "100%" }}>
                     <InputLabel id="demo-simple-select-autowidth-label">Batch Status *</InputLabel>
                     <Select
@@ -640,6 +653,55 @@ function Index() {
 
                 <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
+                    <InputLabel id="demo-simple-select-autowidth-label">Consolation Reward Currency *</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-autowidth-label"
+                      id="demo-simple-select-autowidth"
+                      name='currency'
+                      value={formState?.consolationReward?.currency || id?.consolationReward?.currency}
+                      disabled={((isSubmitted || id) && (!editing || saving))}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          consolationReward: {
+                            ...prevState.consolationReward,
+                            currency: e.target.value
+                          }
+                        }))
+                      }}                      
+                      label="Consolation Reward Currency"
+                      sx={{ minHeight: 43 }}
+                    >
+                      <MenuItem value="Cash">Cash</MenuItem>
+                      <MenuItem value="HeroCash">HeroCash</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <TextField
+                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    id="outlined-required"
+                    label='Consolation Reward Amount *'
+                    name='amount'
+                    type='text'
+                    fullWidth
+                    defaultValue={formState?.consolationReward?.amount || id?.consolationReward?.amount}
+                    onChange={(e) => {
+                      setFormState(prevState => ({
+                        ...prevState,
+                        consolationReward: {
+                          ...prevState.consolationReward,
+                          amount: e.target.value
+                        }
+                      }))
+                    }} 
+                  />
+                </Grid>
+
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormControl sx={{ width: "100%" }}>
                     <InputLabel id="demo-simple-select-autowidth-label">Reward Type *</InputLabel>
                     <Select
                       labelId="demo-simple-select-autowidth-label"
@@ -653,7 +715,7 @@ function Index() {
                           rewardType: e.target.value
                         }))
                       }}
-                      label="Batch Status"
+                      label="Reward Status"
                       sx={{ minHeight: 43 }}
                     >
                       <MenuItem value="Cash">Cash</MenuItem>
