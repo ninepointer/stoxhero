@@ -1,21 +1,21 @@
 
 import React, {useState, useEffect} from 'react'
-import axios from "axios";
-import {apiUrl} from "../../../constants/constants.js"
+// import axios from "axios";
+// import {apiUrl} from "../../../constants/constants.js"
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
+// import CardMedia from '@mui/material/CardMedia';
 import { CardActionArea, Divider, Grid } from '@mui/material';
 // Material Dashboard 2 React components
-import MDBox from "../../../components/MDBox/index.js";
+// import MDBox from "../../../components/MDBox/index.js";
 import MDTypography from "../../../components/MDTypography/index.js";
-import { Link} from "react-router-dom";
-import moment from 'moment'
+// import { Link} from "react-router-dom";
+// import moment from 'moment'
 
 
 const PublishedBlogs = ({affiliateOverview, affiliateReferrals}) => {
 
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+// let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
     return (
     <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{minWidth: '100%',height: 'auto'}}>

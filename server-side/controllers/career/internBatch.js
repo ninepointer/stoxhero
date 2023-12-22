@@ -16,7 +16,7 @@ const InternTrades = require("../../models/mock-trade/internshipTrade");
 exports.createBatch = async(req, res, next)=>{
     // console.log(req.body) // batchID
     const{batchName, batchStartDate, batchEndDate, rewardType, tdsRelief,
-        batchStatus, career, portfolio, payoutPercentage, payoutCap,
+        batchStatus, career, portfolio, payoutPercentage, payoutCap, consolationReward,
         attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = req.body;
 
     const date = new Date();
@@ -26,7 +26,7 @@ exports.createBatch = async(req, res, next)=>{
     // console.log(month.toUpperCase());
     if(await Batch.findOne({batchName})) return res.status(400).json({message:'This batch already exists.'});
 
-    const batch = await Batch.create({batchID, batchName:batchName.trim(), batchStartDate, batchEndDate,
+    const batch = await Batch.create({batchID, batchName:batchName.trim(), batchStartDate, batchEndDate, consolationReward,
         batchStatus, createdBy: req.user._id, lastModifiedBy: req.user._id, career, portfolio, rewardType, tdsRelief, 
         payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink});
     
@@ -122,7 +122,8 @@ exports.editBatch = async(req, res, next) => {
             attendancePercentage: req.body.attendancePercentage,
             referralCount: req.body.referralCount,
             lastModifiedBy: req.user._id,
-            lastModifiedOn: new Date()
+            lastModifiedOn: new Date(),
+            consolationReward: req.body.consolationReward
         }
     })
     const updatedBatch = await Batch.findByIdAndUpdate(req.params.id, req.body, { new: true });

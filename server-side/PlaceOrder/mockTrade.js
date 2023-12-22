@@ -8,7 +8,7 @@ const {dailyContestTrade} = require("./saveDataInDB/dailycontest")
 const {virtualTrade} = require("./saveDataInDB/paperTrade")
 const {tenxTrade} = require("./saveDataInDB/tenx")
 const {internTrade} = require("./saveDataInDB/internship")
-const {infinityTrade} = require("./saveDataInDB/infinity")
+// const {infinityTrade} = require("./saveDataInDB/infinity")
 const {marginxTrade} = require("./saveDataInDB/marginx")
 const {battleTrade} = require("./saveDataInDB/battle");
 const UserDetail = require("../models/User/userDetailSchema")
@@ -31,6 +31,7 @@ exports.mockTrade = async (req, res) => {
         validity, variety, instrumentToken, tenxTraderPath, internPath, battle,
         realBuyOrSell, realQuantity, isAlgoTrader, paperTrade, dailyContest, marginx, deviceDetails } = req.body 
 
+        console.log("req data", req.body)
     if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety){
         return res.status(422).json({error : "Something went wrong"})
     }

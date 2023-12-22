@@ -169,15 +169,9 @@ const LeaderBoard = () => {
     })
 
     return (
-        <Card>
+        <Card sx={{width: "100%"}}>
             <MDBox display="flex" justifyContent="space-between" alignItems="left">
-                {/* <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{ backgroundColor: "lightgrey", borderRadius: "2px" }}>
-                    <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-                        LeaderBoard({leaderboard?.length})
-                    </MDTypography>
-                </MDBox> */}
-
-                <Grid item p={1} xs={12} md={12} lg={8} display='flex' justifyContent='flex-start'
+                <Grid item p={1} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start'
                     sx={{ minWidth: '100%', cursor: 'pointer', borderRadius: 1, backgroundColor: 'lightgrey' }}
                 >
                     <MDTypography variant="h6" style={{ textAlign: 'center' }}>Affiliate Program Overview</MDTypography>

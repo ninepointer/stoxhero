@@ -79,6 +79,10 @@ const batchSchema = new mongoose.Schema({
         required: true,
         default: false
     },
+    consolationReward: {
+        currency: String,
+        amount: Number
+    },
     batchID:{
         type:String,
         // required: true,

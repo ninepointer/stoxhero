@@ -285,6 +285,7 @@ exports.creditAffiliateAmount = async (affiliate, affiliateProgram, product, spe
       whatsAppService.sendWhatsApp({ destination: affiliateUser?.mobile, campaignName: 'affiliate_transaction_campaign', userName: affiliateUser?.first_name, source: affiliateUser?.creationProcess, templateParams: [affiliateUser.first_name, `${user.first_name} ${user.last_name}`, productDoc?.productName, (actualPrice - discount).toLocaleString('en-IN'), moment.utc(new Date()).utcOffset('+05:30').format("DD-MMM hh:mm a"), affiliatePayout.toLocaleString('en-IN')], tags: '', attributes: '' });
       whatsAppService.sendWhatsApp({ destination: '8076284368', campaignName: 'affiliate_transaction_campaign', userName: user?.first_name, source: user?.creationProcess, templateParams: [affiliateUser.first_name, `${user.first_name} ${user.last_name}`, productDoc?.productName, (actualPrice - discount).toLocaleString('en-IN'), moment.utc(new Date()).utcOffset('+05:30').format("DD-MMM hh:mm a"), affiliatePayout.toLocaleString('en-IN')], tags: '', attributes: '' });
     } else {
+      console.log("sending msg")
       whatsAppService.sendWhatsApp({ destination: '9319671094', campaignName: 'affiliate_transaction_campaign', userName: affiliateUser?.first_name, source: affiliateUser?.creationProcess, templateParams: [affiliateUser.first_name, `${user.first_name} ${user.last_name}`, productDoc?.productName, (actualPrice - discount).toLocaleString('en-IN'), moment.utc(new Date()).utcOffset('+05:30').format("DD-MMM hh:mm a"), affiliatePayout.toLocaleString('en-IN')], tags: '', attributes: '' });
       whatsAppService.sendWhatsApp({ destination: '8076284368', campaignName: 'affiliate_transaction_campaign', userName: affiliateUser?.first_name, source: affiliateUser?.creationProcess, templateParams: [affiliateUser.first_name, `${user.first_name} ${user.last_name}`, productDoc?.productName, (actualPrice - discount).toLocaleString('en-IN'), moment.utc(new Date()).utcOffset('+05:30').format("DD-MMM hh:mm a"), affiliatePayout.toLocaleString('en-IN')], tags: '', attributes: '' });
     }
@@ -346,7 +347,7 @@ exports.affiliateLeaderboard = async (req, res) => {
   lifetime = lifetime === "false" ? false : lifetime === "true" && true;
   startDate = (lifetime) ? "2000-01-01" : startDate;
   endDate = (lifetime) ? new Date() : endDate;
-  // console.log(programme, new Date(startDate), endDate, (lifetime))
+  console.log(programme, new Date(startDate), new Date(endDate), (lifetime))
   const matchStage = {
     affiliateProgram: programme !== "Cummulative" && new ObjectId(programme),
     transactionDate: {

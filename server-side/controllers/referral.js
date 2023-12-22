@@ -262,79 +262,91 @@ exports.getReferredProduct = async (req, res) => {
     console.log(userId)
     const product = await AffiliateTransaction.aggregate([
       {
-        $match:
-        {
-          affiliate: new ObjectId(
-            // "63788f3991fc4bf629de6df0"
-            userId
-          ),
-        },
-      },
-      {
-        $group: {
-          _id: {
-            buyer: "$buyer",
-            product: "$product",
-          },
-          count: {
-            $sum: 1
-          },
-          payout: {
-            $sum: "$affiliatePayout",
-          },
-        },
-      },
-      {
-        $lookup: {
-          from: "products",
-          localField: "_id.product",
-          foreignField: "_id",
-          as: "product",
-        },
-      },
-      {
-        $lookup: {
-          from: "user-personal-details",
-          localField: "_id.buyer",
-          foreignField: "_id",
-          as: "buyerData",
-        },
-      },
-      {
-        $project: {
-          payout: 1,
-          _id: 0,
-          productReferred: "$count",
-          buyer_name: {
-            $concat: [
+        $facet:
+          {
+            transaction: [
               {
-                $arrayElemAt: [
-                  "$buyerData.first_name",
-                  0,
-                ],
+                $match: {
+                  affiliate: new ObjectId(
+                    userId
+                  ),
+                },
               },
-              " ",
               {
-                $arrayElemAt: [
-                  "$buyerData.last_name",
-                  0,
-                ],
+                $lookup: {
+                  from: "user-personal-details",
+                  localField: "buyer",
+                  foreignField: "_id",
+                  as: "buyer",
+                },
+              },
+              {
+                $lookup: {
+                  from: "products",
+                  localField: "product",
+                  foreignField: "_id",
+                  as: "product",
+                },
+              },
+              {
+                $project:
+                  {
+                    buyer_first_name: {
+                      $arrayElemAt: [
+                        "$buyer.first_name",
+                        0,
+                      ],
+                    },
+                    product_name: {
+                      $arrayElemAt: [
+                        "$product.productName",
+                        0,
+                      ],
+                    },
+                    _id: 0,
+                    payout: "$affiliatePayout",
+                    productDiscountedPrice:
+                      "$productDiscountedPrice",
+                    date: "$createdOn",
+                    transactionId: "$transactionId"
+                  },
+              },
+              {
+                $sort: {
+                  date: -1,
+                },
+              },
+            ],
+            summery: [
+              {
+                $match: {
+                  affiliate: new ObjectId(
+                    userId
+                  ),
+                },
+              },
+              {
+                $group: {
+                  _id: {},
+                  payout: {
+                    $sum: "$affiliatePayout",
+                  },
+                  count: {
+                    $sum: 1,
+                  },
+                },
+              },
+              {
+                $project: {
+                  count: 1,
+                  _id: 0,
+                  payout: 1,
+                },
               },
             ],
           },
-          product: {
-            $arrayElemAt: ["$product.productName", 0],
-          },
-        },
-      },
-      {
-        $sort:
-          {
-            payout: -1,
-          },
       },
     ])
-    // console.log(product);
     res.status(200).json({status: "success", data: product, message: "Data received"});
   } catch (err) {
     console.log(err);

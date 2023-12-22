@@ -1116,9 +1116,9 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
   const internship = await InternBatch.findOne({_id: new ObjectId(batch)})
   .select('batchStatus batchStartDate batchEndDate attendancePercentage referralCount payoutPercentage')
 
-  const userData = await User.find()
-  .populate('referrals.referredUserId', 'joining_date')
-  .select("referrals")
+  // const userData = await User.find()
+  // .populate('referrals.referredUserId', 'joining_date')
+  // .select("referrals")
 
   const batchEndDate = moment(internship.batchEndDate);
   const currentDate = moment();
@@ -1298,6 +1298,12 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
 
     const data = await InternTrades.aggregate(pipeline)
 
+    const userIds = data.map((elem)=>elem.userId);
+
+    const userData = await User.find({ _id: { $in: userIds } })
+      .populate('referrals.referredUserId', 'joining_date')
+      .select('referrals');
+
     data?.map((elem)=>{
       const attendanceLimit = internship.attendancePercentage;
       const referralLimit = internship.referralCount;
@@ -1356,6 +1362,179 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
 }
 
 
+exports.internshipLeaderboard = async (req, res, next) => {
+
+    let { batch } = req.params
+
+    const internship = await InternBatch.findOne({_id: new ObjectId(batch)})
+    .populate({
+      path: 'portfolio',
+      model: 'user-portfolio',
+      select:'portfolioValue'
+    })
+    // .populate('user-portfolio', 'portfolioValue')
+    .select('batchStatus batchStartDate batchEndDate attendancePercentage referralCount payoutPercentage')
+
+    let date = new Date();
+    const currentTime = new Date();
+    const endTime = new Date(currentTime);
+    endTime.setHours(10, 0, 0, 0);
+
+    let endDate;
+    if(currentTime >= endTime){
+      let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()+1).padStart(2, '0')}`
+      todayDate = todayDate + "T00:00:00.000Z";
+      endDate = new Date(todayDate);  
+    } else{
+      let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+      todayDate = todayDate + "T00:00:00.000Z";
+      endDate = new Date(todayDate);  
+    }
+
+
+    const holiday = await getHoliday(internship.batchStartDate, endDate)
+    let traderWisePnlInfo = [];
+
+    const pipeline = [
+      {
+        $match: {
+          status: "COMPLETE",
+          batch: new ObjectId(batch),
+          trade_time: {$lte: endDate}
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$trader",
+            name: {
+              $concat: [
+                {
+                  $arrayElemAt: [
+                    "$user.first_name",
+                    0,
+                  ],
+                },
+                " ",
+                {
+                  $arrayElemAt: [
+                    "$user.last_name",
+                    0,
+                  ],
+                },
+              ],
+            },
+            profileImage: {
+              $arrayElemAt: [
+                "$user.profilePhoto.url",
+                0,
+              ],
+            },
+          },
+          gpnl: {
+            $sum: {
+              $multiply: ["$amount", -1],
+            },
+          },
+          brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
+          },
+          trades: {
+            $count: {},
+          },
+          tradingDays: {
+            $addToSet: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$trade_time",
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          profileImage: "$_id.profileImage",
+          userId: "$_id.userId",
+          name: "$_id.name",
+          tradingDays: {
+            $size: "$tradingDays",
+          },
+          gpnl: 1,
+          brokerage: 1,
+          npnl: {
+            $subtract: ["$gpnl", "$brokerage"],
+          },
+          noOfTrade: "$trades",
+        },
+      },
+      {
+        $sort: {
+          npnl: -1,
+        },
+      },
+    ]
+
+    const data = await InternTrades.aggregate(pipeline);
+    const userIds = data.map((elem)=>elem.userId);
+
+  const userData = await User.find({ _id: { $in: userIds } })
+    .populate('referrals.referredUserId', 'joining_date')
+    .select('referrals');
+
+    const calculateWorkingDay = calculateWorkingDays(internship.batchStartDate, endDate) - holiday.length;
+
+    data?.map((elem)=>{
+
+      const referral = userData?.filter((subelem) => {
+        return subelem?._id?.toString() == elem?.userId?.toString();
+      })
+
+      let refCount = 0;
+      if(referral[0]?.referrals){
+        for (let subelem of referral[0]?.referrals) {
+          const joiningDate = moment(subelem?.referredUserId?.joining_date);
+        
+          if (joiningDate.isSameOrAfter(moment(moment(internship.batchStartDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(endDate)) {
+            refCount += 1;
+          }
+        }
+      } else{
+        refCount = 0;
+      }
+
+      elem.referralCount = refCount;
+      elem.return = elem?.npnl/internship?.portfolio?.portfolioValue;
+      elem.attendancePercentage = (elem?.tradingDays * 100 / (calculateWorkingDay)).toFixed(0);
+      traderWisePnlInfo.push(elem);
+    })
+
+  const sortOrder = ['npnl', 'attendancePercentage', 'referralCount'];
+
+  const sortedArray = traderWisePnlInfo.sort((a, b) => {
+    for (const key of sortOrder) {
+      if (a[key] < b[key]) {
+        return 1;
+      } else if (a[key] > b[key]) {
+        return -1;
+      }
+    }
+    return 0;
+  });
+  
+  res.status(201).json({ message: "data received", data: sortedArray });
+}
 
 
 const tradingDays = async (userId, batchId) => {
@@ -1511,6 +1690,7 @@ exports.updateUserWallet = async () => {
         const workingDays = calculateWorkingDays(elem.batchStartDate, elem.batchEndDate);
         const users = elem.participants;
         const batchId = elem._id;
+        const consolationReward = elem.consolationReward;
 
         const holiday = await Holiday.find({
           holidayDate: {
@@ -1727,6 +1907,29 @@ exports.updateUserWallet = async () => {
                 users[i].herocashPayout = 0;
 
               }
+
+              await createUserNotification({
+                title: 'Internship Consolation Credited',
+                description: `${consolationReward.currency === "Cash" ? "₹"+consolationReward?.amount?.toFixed(2) : "HeroCash "+consolationReward?.amount?.toFixed(2)} credited for your internship consolation`,
+                notificationType: 'Individual',
+                notificationCategory: 'Informational',
+                productCategory: 'Internship',
+                user: user?._id,
+                priority: 'High',
+                channels: ['App', 'Email'],
+                createdBy: '63ecbc570302e7cf0153370c',
+                lastModifiedBy: '63ecbc570302e7cf0153370c'
+              }, session);
+
+              wallet.transactions = [...wallet.transactions, {
+                title: 'Internship Consolation',
+                description: `Internship consolation credited`,
+                amount: (consolationReward?.amount?.toFixed(2)),
+                transactionId: uuid.v4(),
+                transactionType: consolationReward.currency === "Cash" ? 'Cash' : "Bonus"
+              }];
+
+
               await session.commitTransaction();
             }
 

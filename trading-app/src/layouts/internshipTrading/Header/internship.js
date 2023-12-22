@@ -31,6 +31,7 @@ import GaugeChartAttendance from '../data/GaugeChartAttendance'
 import GaugeChartReturns from '../data/GaugeChartReturns'
 import { renderContext } from '../../../renderContext';
 import { marketDataContext } from '../../../MarketDataContext';
+import LeaderBoard from '../data/LeaderBoard';
 // import { myInternshipTradingDays, myOverallInternshipPnl } from '../../../../../server-side/controllers/internshipTradeController';
 
 
@@ -99,26 +100,20 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
         responseType: 'blob',
         withCredentials: true
       });
-        console.log(response.data);
-        console.log(response.data.size, response.data.type);
-        const blob = new Blob([response.data], { type: 'application/pdf' });
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'certificate.pdf');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);  
-      // const blob = new Blob([response.data], { type: 'application/pdf' });
-      // const url = window.URL.createObjectURL(blob);
-      // const link = document.createElement('a');
-      // link.href = url;
-      // link.setAttribute('download', 'certificate.pdf');
-      // document.body.appendChild(link);
-      // link.click();
-  } catch (error) {
+      console.log(response.data);
+      console.log(response.data.size, response.data.type);
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'certificate.pdf');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+    } catch (error) {
       console.error('Error generating certificate:', error);
-  }
+    }
   }
   useEffect(()=>{
     const startDate = currentBatch ? (currentBatch?.batchStartDate).toString().split('T')[0] : ''
@@ -575,21 +570,25 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
             </Grid>
         {/* </MDButton> */}
       </MDBox> 
-      </Grid>              
+      </Grid> 
+
+      <Grid item minWidth='100%'>
+      <LeaderBoard id={batchId}/>  
+      </Grid>            
     </Grid>
     :
     <MDBox display='flex' alignItems='center' minWidth='100%' justifyContent='center'>
       <MDButton onClick={()=>{window.open('/careers','_blank')}}>Apply for Internships</MDButton>
     </MDBox>
     }
-    <Grid item lg ={12} style={{minWidth:'100%'}}>
-    {certificateBatches.length !=0 && certificateBatches.map((elem)=>{
-      return <MDBox mt={2} display='flex' style={{minWidth:'100%'}} alignItems='center' justifyContent='center'>
-         <MDButton style={{minWidth:'100%'}} onClick={()=>{handleDownload(elem?.id)}}>Internship Certificate - {elem.name} [{moment(elem?.startDate).format("Do MMM YY").toString()} - {moment(elem?.endDate).format("Do MMM YY").toString()}] <Tooltip title='Download Intenship Certificate' placement='top'><BiDownload style={{marginLeft:'12px'}} color='green'/></Tooltip></MDButton>
-        </MDBox>
-    })
-    }
-    </Grid>
+      <Grid item lg={12} style={{ minWidth: '100%' }}>
+        {certificateBatches.length != 0 && certificateBatches.map((elem) => {
+          return <MDBox mt={2} display='flex' style={{ minWidth: '100%' }} alignItems='center' justifyContent='center'>
+            <MDButton style={{ minWidth: '100%' }} onClick={() => { handleDownload(elem?.id) }}>Internship Certificate - {elem.name} [{moment(elem?.startDate).format("Do MMM YY").toString()} - {moment(elem?.endDate).format("Do MMM YY").toString()}] <Tooltip title='Download Intenship Certificate' placement='top'><BiDownload style={{ marginLeft: '12px' }} color='green' /></Tooltip></MDButton>
+          </MDBox>
+        })
+        }
+      </Grid>
     </MDBox>
   );
 }
