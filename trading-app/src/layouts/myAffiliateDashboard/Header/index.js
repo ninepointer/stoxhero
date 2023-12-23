@@ -161,7 +161,7 @@ export default function Dashboard() {
                     Product Transaction
                   </MDTypography>
                   <MDTypography variant="body2" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
-                    {affiliateOverview?.summery ? affiliateOverview?.summery[0]?.totalProductCount : 0}
+                    {(affiliateOverview?.summery && affiliateOverview?.summery[0]?.totalProductCount) || 0}
                   </MDTypography>
                 </CardContent>
               </Card>
@@ -238,7 +238,7 @@ export default function Dashboard() {
                     Total Earning
                   </MDTypography>
                   <MDTypography variant="body2" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
-                  { "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((affiliateOverview?.summery?.totalProductCount + affiliateRafferalSummery?.affiliateRefferalPayout) || 0))}
+                  { "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((affiliateOverview?.summery?.[0]?.totalProductCPayout ?? 0) +(affiliateRafferalSummery?.affiliateRefferalPayout ?? 0)))}
 
                   </MDTypography>
                 </CardContent>
