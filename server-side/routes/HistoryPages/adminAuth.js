@@ -90,7 +90,7 @@ const Notification = require("../../models/notifications/notification")
 const Referrals = require("../../models/campaigns/referralProgram")
 const {dailyContestTimeStore, dailyContestTradeCut} = require("../../dailyContestTradeCut")
 const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema");
-
+const Affiliate = require("../../models/affiliateProgram/affiliateProgram")
 
 router.get('/negetivetds', async(req,res) =>{
   // const tenx = await TenxSubscription.find();
@@ -2855,6 +2855,24 @@ router.get("/saveMissedData", async (req, res) => {
 
   res.send("ok")
 })
+
+router.get('/updateaffiliate', async(req,res)=>{
+  const affiliates = await Affiliate.find();
+  let users = [];
+  for(let affiliate of affiliates){
+    let affiliateUsers = affiliate.affiliates;
+    for(let item of affiliateUsers){
+      users.push(item?.userId);
+    }   
+  }
+  for(let user of users){
+    const userDoc = await UserDetail.findById(user);
+    userDoc.isAffiliate = true;
+    userDoc.affiliateStatus = 'Active';
+    console.log("Active")
+    userDoc.save({validateBeforeSave: false});
+  }
+});
 
 router.get("/walletUpdate", async (req, res) => {
   await updateUserWallet();

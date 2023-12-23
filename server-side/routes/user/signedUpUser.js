@@ -25,6 +25,7 @@ const restrictTo = require('../../authentication/authorization');
 const AffiliatePrograme = require("../../models/affiliateProgram/affiliateProgram")
 const {createUserNotification} = require('../../controllers/notification/notificationController');
 const {sendMultiNotifications} = require("../../utils/fcmService");
+const AffiliateTransaction = require("../../models/affiliateProgram/affiliateTransactions");
 
 router.get("/send", async (req, res) => {
     // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'direct_signup_campaign_new', userName : "vijay", source : "vijay", media : {url : mediaURL, filename : mediaFileName}, templateParams : ["newuser.first_name"], tags : '', attributes : ''});
@@ -490,6 +491,19 @@ router.patch("/verifyotp", async (req, res) => {
                           referrerCodeMatch?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
                         )
                       }
+                     
+                      await AffiliateTransaction.create({
+                        affiliateProgram: new ObjectId(affiliateObj?._id),
+                        affiliateWalletTId: uuid.v4(),
+                        product: new ObjectId(product),
+                        specificProduct: new ObjectId(specificProduct),
+                        productActualPrice: affiliateObj?.referralSignupBonus?.amount,
+                        productDiscountedPrice: affiliateObj?.referralSignupBonus?.amount,
+                        buyer: new ObjectId(newuser?._id),
+                        affiliate: new ObjectId(referrerCodeMatch._id),
+                        lastModifiedBy: new ObjectId(referrerCodeMatch._id),
+                        affiliatePayout: affiliateObj.rewardPerSignup
+                      })
                 }
             } else{
                 referral?.users?.push({ userId: newuser._id, joinedOn: new Date() })

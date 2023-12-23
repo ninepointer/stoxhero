@@ -79,32 +79,32 @@ const LeaderBoard = ({id}) => {
                 :
                 <Box sx={{ maxWidth: '100%', width: '100%', margin: '0 auto' }} component={Paper}>
                     <Grid container mt={1} display='flex' justifyContent='center'>
-                        <Grid item xs={12} md={6} lg={1} mt={1} display='flex' justifyContent='center'>
+                        <Grid item xs={12} md={6} lg={2.4} mt={1} display='flex' justifyContent='center'>
                             <MDTypography fontSize={15} fontWeight='bold' color='dark'>Rank</MDTypography>
                         </Grid>
-                        <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='left'>
+                        <Grid item xs={12} md={6} lg={2.4} mt={1} display='flex' justifyContent='left'>
                             <MDBox display='flex' justifyContent='center' alignItems='center' width='100%'>
                                 <MDBox display='flex' justifyContent='center' alignItems='center' width='100%'>
                                     <MDTypography fontSize={15} fontWeight='bold' color='dark'>Trader</MDTypography>
                                 </MDBox>
                             </MDBox>
                         </Grid>
-                        <Grid item xs={12} md={6} lg={1.5} mt={1} display='flex' justifyContent='center'>
+                        {/* <Grid item xs={12} md={6} lg={1.5} mt={1} display='flex' justifyContent='center'>
                             <MDTypography fontSize={15} fontWeight='bold' color='dark'>Gross P&L</MDTypography>
                         </Grid>
                         <Grid item xs={12} md={6} lg={1.5} mt={1} display='flex' justifyContent='center'>
                             <MDTypography fontSize={15} fontWeight='bold' color='dark'>Brokerage</MDTypography>
-                        </Grid>
-                        <Grid item xs={12} md={6} lg={1.5} mt={1} display='flex' justifyContent='center'>
+                        </Grid> */}
+                        <Grid item xs={12} md={6} lg={2.4} mt={1} display='flex' justifyContent='center'>
                             <MDTypography fontSize={15} fontWeight='bold' color='dark'>Net P&L</MDTypography>
                         </Grid>
-                        <Grid item xs={12} md={6} lg={1.5} mt={1} display='flex' justifyContent='center'>
+                        {/* <Grid item xs={12} md={6} lg={2.4} mt={1} display='flex' justifyContent='center'>
                             <MDTypography fontSize={15} fontWeight='bold' color='dark'># Referrals</MDTypography>
+                        </Grid> */}
+                        <Grid item xs={12} md={6} lg={2.4} mt={1} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={15} fontWeight='bold' color='dark'>Portfolio Value</MDTypography>
                         </Grid>
-                        <Grid item xs={12} md={6} lg={1.5} mt={1} display='flex' justifyContent='center'>
-                            <MDTypography fontSize={15} fontWeight='bold' color='dark'>Attendance</MDTypography>
-                        </Grid>
-                        <Grid item xs={12} md={6} lg={1.5} mt={1} display='flex' justifyContent='center'>
+                        <Grid item xs={12} md={6} lg={2.4} mt={1} display='flex' justifyContent='center'>
                             <MDTypography fontSize={15} fontWeight='bold' color='dark'>Return</MDTypography>
                         </Grid>
                     </Grid>
@@ -117,12 +117,12 @@ const LeaderBoard = ({id}) => {
                         return (
                             <>
                                 <Grid container mb={1} display='flex' justifyContent='center' alignItems='center' sx={{ '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}>
-                                    <Grid item xs={12} md={6} lg={1} display='flex' justifyContent='center'>
+                                    <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
                                         <MDTypography fontSize={15} color='dark'>
                                             {index + 1}
                                         </MDTypography>
                                     </Grid>
-                                    <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center' width='100%'>
+                                    <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center' width='100%'>
                                         <MDBox display='flex' justifyContent='flex-start' alignItems='center' alignContent='center' width='100%' gap={1}>
                                             <MDBox display='flex' justifyContent='flex-start' alignItems='center' ml={1}>
                                                 <Avatar
@@ -136,32 +136,32 @@ const LeaderBoard = ({id}) => {
                                                 </MDTypography></MDBox>
                                         </MDBox>
                                     </Grid>
-                                    <Grid item xs={12} md={6} lg={1.5} display='flex' justifyContent='center'>
+                                    {/* <Grid item xs={12} md={6} lg={1.5} display='flex' justifyContent='center'>
                                         <MDTypography fontSize={15} color={gpnlColor}>
                                             {(trader?.gpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(trader?.gpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-trader?.gpnl))}
                                         </MDTypography>
-                                    </Grid>
-                                    <Grid item xs={12} md={6} lg={1.5} display='flex' justifyContent='center'>
+                                    </Grid> */}
+                                    {/* <Grid item xs={12} md={6} lg={1.5} display='flex' justifyContent='center'>
                                         <MDTypography fontSize={15} color='dark'>
                                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(trader?.brokerage)}
                                         </MDTypography>
-                                    </Grid>
-                                    <Grid item xs={12} md={6} lg={1.5} display='flex' justifyContent='center'>
+                                    </Grid> */}
+                                    <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
                                         <MDTypography fontSize={15} color={npnlColor}>
                                             {(trader?.npnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(trader?.npnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-trader?.npnl))}
                                         </MDTypography>
                                     </Grid>
-                                    <Grid item xs={12} md={6} lg={1.5} display='flex' justifyContent='center'>
+                                    {/* <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
                                         <MDTypography fontSize={15} color='dark'>
                                             {(trader?.referralCount)}
                                         </MDTypography>
-                                    </Grid>
-                                    <Grid item xs={12} md={6} lg={1.5} display='flex' justifyContent='center'>
+                                    </Grid> */}
+                                    <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
                                         <MDTypography fontSize={15} color='dark'>
-                                            {(trader?.attendancePercentage)}%
+                                        {"₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(trader?.portfolioValue))}
                                         </MDTypography>
                                     </Grid>
-                                    <Grid item xs={12} md={6} lg={1.5} display='flex' justifyContent='center'>
+                                    <Grid item xs={12} md={6} lg={2.4} display='flex' justifyContent='center'>
                                         <MDTypography fontSize={15} color={npnlColor}>
                                             {(trader?.return?.toFixed(2))}%
                                         </MDTypography>
