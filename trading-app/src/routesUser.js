@@ -83,14 +83,25 @@ import CompletedDailyCollegeContest from "./layouts/UserDailyContestCollage/past
 import DailyContestResultPage from "./layouts/UserDailyContest/data/result-page/resultIndex"
 import ContestScoreboard from './layouts/contestScoreboard'
 import DailyCollegeContestResultPage from "./layouts/UserDailyContestCollage/data/result-page/resultIndex"
-import BattleIcon from "./assets/images/swords.png"
-import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
+// import BattleIcon from "./assets/images/swords.png"
+// import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import Notifications from './layouts/userNotification';
 import CompletedContestLeaderboard from './layouts/UserDailyContest/Header/completedContest/completedContestLeaderboard';
 import PaymentStatus from "./layouts/paymentTest/paymentStatus";
 // import Challenge from './layouts/UserDailyChallenge'
-const routes = [
+import { FaAffiliatetheme } from "react-icons/fa";
+import AffiliateDashboard from "./layouts/myAffiliateDashboard"
 
+
+const routes = [
+  {
+    type: "collapse",
+    name: "Affiliate Dashboard",
+    key: "myaffiliatedashboard",
+    icon: <FaAffiliatetheme/>,
+    route: "/myaffiliatedashboard",
+    component: <AffiliateDashboard />,
+  },
   {
     route: "/completedtestzone",
     component: <CompletedDailyContest />,

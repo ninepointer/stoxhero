@@ -5,7 +5,7 @@ import MDButton from '../../../components/MDButton'
 import Card from '@mui/material/Card';
 // import CardContent from '@mui/material/CardContent';
 // import CardMedia from '@mui/material/CardMedia';
-import { CardActionArea, Divider, Grid } from '@mui/material';
+import { CardActionArea, Divider, FormControl, Grid, InputLabel, Select } from '@mui/material';
 // import { userContext } from '../../../AuthContext';
 import MDTypography from '../../../components/MDTypography';
 import { CircularProgress } from '@mui/material';
@@ -233,267 +233,216 @@ export default function Dashboard() {
 
 
   return (
-   
+
     <MDBox mt={2} mb={1} borderRadius={10} minHeight='auto' display='flex' justifyContent='center' alignItems='center' flexDirection='column'>
+      <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+        <Grid item xs={12} md={12} lg={12}>
+          <MDTypography fontSize={15} fontWeight='bold'>User Enagagement Dashboard</MDTypography>
+        </Grid>
+        <Grid item xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='center'>
+          <Grid container spacing={2} xs={12} md={12} lg={12} display='flex' justifyContent='center'>
 
-        {!isLoading ? 
-          <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-              
-              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
-                <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                      <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1, backgroundColor:'lightgrey' }} >
-                      
-                          <Grid container xs={12} md={12} lg={12}>
-                            <Grid item p={1} xs={12} md={12} lg={8} display='flex' justifyContent='flex-start'>
-                              <MDTypography variant="h6" style={{textAlign:'center'}}>Affiliate Program Overview</MDTypography>
-                            </Grid>
-                            <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='flex-end'>
-                              <MDButton variant='text' color='success'>
-                                Download Data
-                              </MDButton>
-                            </Grid>
-                          </Grid>
-                        
-                      </Card>
-                    </Grid>
-                </Grid>
-    
-              </Grid>
+            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120 }}>
+              <FormControl fullWidth sx={{ mt: 1 }}>
+                <InputLabel id="demo-simple-select-label">Source</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={age}
+                  label="Source"
+                  sx={{ minHeight: 44 }}
+                  onChange={handleSourceChange}
+                >
+                  <MenuItem value={"All Sources"}>All Sources</MenuItem>
+                  <MenuItem value={"Auto SingUp"}>Auto SingUp</MenuItem>
+                  <MenuItem value={"Career SignUp"}>Career SignUp</MenuItem>
+                  <MenuItem value={"Contest SignUp"}>Contest SignUp</MenuItem>
+                  <MenuItem value={"College Contest SignUp"}>College Contest SignUp</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
 
-              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
-                <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                            {affiliateOverview && <LifetimeAffiliateData affiliateOverview={affiliateOverview} affiliateReferrals={affiliateReferrals}/>}
-                    </Grid>
-    
-                </Grid>
-    
-              </Grid>
-    
+            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120 }}>
+              <FormControl fullWidth sx={{ mt: 1 }}>
+                <InputLabel id="demo-simple-select-label">Channel</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={channel}
+                  label="Source"
+                  sx={{ minHeight: 44 }}
+                  onChange={handleChannelChange}
+                >
+                  <MenuItem value={"All Channels"}>All Channels</MenuItem>
+                  <MenuItem value={"Organic"}>Organic</MenuItem>
+                  <MenuItem value={"Referral"}>Referral</MenuItem>
+                  <MenuItem value={"Affiliate"}>Affiliate</MenuItem>
+                  <MenuItem value={"Camapign"}>Campaign</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120 }}>
+              <FormControl fullWidth sx={{ mt: 1 }}>
+                <InputLabel id="demo-simple-select-label">Period</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={period}
+                  label="Period"
+                  sx={{ minHeight: 44 }}
+                  onChange={handlePeriodChange}
+                >
+                  <MenuItem value={"Today"}>Today</MenuItem>
+                  <MenuItem value={"Yesterday"}>Yesterday</MenuItem>
+                  <MenuItem value={"This Week"}>This Week</MenuItem>
+                  <MenuItem value={"Last Week"}>Last Week</MenuItem>
+                  <MenuItem value={"This Month"}>This Month</MenuItem>
+                  <MenuItem value={"Last Month"}>Last Month</MenuItem>
+                  <MenuItem value={"Overall"}>Overall</MenuItem>
+                  <MenuItem value={"Custom"}>Custom</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} md={12} lg={2.4}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer
+                  components={[
+                    'DatePicker',
+                    'MobileDatePicker',
+                    'DesktopDatePicker',
+                    'StaticDatePicker',
+                  ]}
+                >
+                  <DemoItem>
+                    <DatePicker label="Start Date" defaultValue={dayjs('2022-04-17')} />
+                  </DemoItem>
+                </DemoContainer>
+              </LocalizationProvider>
+            </Grid>
+
+            <Grid item xs={12} md={12} lg={2.4}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer
+                  components={[
+                    'DatePicker',
+                    'MobileDatePicker',
+                    'DesktopDatePicker',
+                    'StaticDatePicker',
+                  ]}
+                >
+                  <DemoItem>
+                    <DatePicker label="End Date" defaultValue={dayjs('2022-04-17')} />
+                  </DemoItem>
+                </DemoContainer>
+              </LocalizationProvider>
+            </Grid>
+
           </Grid>
-          :
-          <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'380px'}}>
-            <CircularProgress/>
+        </Grid>
+
+        <Grid item xs={12} md={12} lg={12} mt={2} display='flex' justifyContent='center'>
+          <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+
+            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120 }}>
+              <Card sx={{ maxWidth: 345, alignContent: 'center', alignItems: 'center' }}>
+                <CardMedia
+                  component="img"
+                  alt="signup"
+                  height="20"
+                  image={signupcount}
+                />
+                <CardContent>
+                  <MDTypography variant="h6" gutterBottom style={{ textAlign: 'center' }}>
+                    Sign-Ups
+                  </MDTypography>
+                  <MDTypography variant="body2" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    10,000
+                  </MDTypography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120 }}>
+              <Card sx={{ maxWidth: 345, alignContent: 'center', alignItems: 'center' }}>
+                <CardMedia
+                  component="img"
+                  alt="signup"
+                  height="20"
+                  image={signupcount}
+                />
+                <CardContent>
+                  <MDTypography variant="h6" gutterBottom style={{ textAlign: 'center' }}>
+                    Active
+                  </MDTypography>
+                  <MDTypography variant="body2" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    1,000 (10%)
+                  </MDTypography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120 }}>
+              <Card sx={{ maxWidth: 345, alignContent: 'center', alignItems: 'center' }}>
+                <CardMedia
+                  component="img"
+                  alt="signup"
+                  height="20"
+                  image={signupcount}
+                />
+                <CardContent>
+                  <MDTypography variant="h6" gutterBottom style={{ textAlign: 'center' }}>
+                    Paid
+                  </MDTypography>
+                  <MDTypography variant="body2" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    100 (10%)
+                  </MDTypography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120 }}>
+              <Card sx={{ maxWidth: 345, alignContent: 'center', alignItems: 'center' }}>
+                <CardMedia
+                  component="img"
+                  alt="signup"
+                  height="20"
+                  image={signupcount}
+                />
+                <CardContent>
+                  <MDTypography variant="h6" gutterBottom style={{ textAlign: 'center' }}>
+                    Revenue
+                  </MDTypography>
+                  <MDTypography variant="body2" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    ₹10,000
+                  </MDTypography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120 }}>
+              <Card sx={{ maxWidth: 345, alignContent: 'center', alignItems: 'center' }}>
+                <CardMedia
+                  component="img"
+                  alt="signup"
+                  height="20"
+                  image={signupcount}
+                />
+                <CardContent>
+                  <MDTypography variant="h6" gutterBottom style={{ textAlign: 'center' }}>
+                    ARPU
+                  </MDTypography>
+                  <MDTypography variant="body2" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    ₹350
+                  </MDTypography>
+                </CardContent>
+              </Card>
+            </Grid>
           </Grid>
-        }
+        </Grid>
 
-        {!isLoading ? 
-          <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-              
-              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
-                <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                      <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1, backgroundColor:'lightgrey' }} >
-                      
-                          <Grid container xs={12} md={12} lg={12}>
-                            <Grid item p={1} xs={12} md={12} lg={8} display='flex' justifyContent='flex-start'>
-                              <MDTypography variant="h6" style={{textAlign:'center'}}>YouTube Affiliates Overview</MDTypography>
-                            </Grid>
-                            <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='flex-end'>
-                              <MDButton variant='text' color='success'>
-                                Download Data
-                              </MDButton>
-                            </Grid>
-                          </Grid>
-                        
-                      </Card>
-                    </Grid>
-                </Grid>
-    
-              </Grid>
-
-              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
-                <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                        {ytaffiliateOverview ? 
-                                <LifetimeYouTubeAffiliateData ytaffiliateOverview={ytaffiliateOverview} ytaffiliateReferrals={ytaffiliateReferrals}/>
-                            :
-                                
-                                <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1 }} >
-                                    <CardActionArea>
-                                    <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{minHeight:'20vH', width:'100%'}}>
-                                        <MDTypography>No Data</MDTypography> 
-                                    </MDBox>
-                                    </CardActionArea> 
-                                </Card>
-                                
-                            }
-                    </Grid>
-    
-                </Grid>
-    
-              </Grid>
-    
-          </Grid>
-          :
-          <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'380px'}}>
-            <CircularProgress/>
-          </Grid>
-        }
-
-        {!isLoading ? 
-          <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-              
-              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
-                <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                      <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1, backgroundColor:'lightgrey' }} >
-                      
-                          <Grid container xs={12} md={12} lg={12}>
-                            <Grid item p={1} xs={12} md={12} lg={8} display='flex' justifyContent='flex-start'>
-                              <MDTypography variant="h6" style={{textAlign:'center'}}>StoxHero Affiliates Overview</MDTypography>
-                            </Grid>
-                            <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='flex-end'>
-                              <MDButton variant='text' color='success'>
-                                Download Data
-                              </MDButton>
-                            </Grid>
-                          </Grid>
-                        
-                      </Card>
-                    </Grid>
-                </Grid>
-    
-              </Grid>
-
-              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
-                <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                        {shaffiliateOverview ? 
-                                <LifetimeStoxHeroAffiliateData shaffiliateOverview={shaffiliateOverview} shaffiliateReferrals={shaffiliateReferrals}/>
-                            :
-                                
-                                <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1 }} >
-                                    <CardActionArea>
-                                    <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{minHeight:'20vH', width:'100%'}}>
-                                        <MDTypography>No Data</MDTypography> 
-                                    </MDBox>
-                                    </CardActionArea> 
-                                </Card>
-                                
-                        }
-                    </Grid>
-    
-                </Grid>
-    
-              </Grid>
-    
-          </Grid>
-          :
-          <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'380px'}}>
-            <CircularProgress/>
-          </Grid>
-        }
-
-        {!isLoading ? 
-          <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-              
-              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
-                <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                      <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1, backgroundColor:'lightgrey' }} >
-                      
-                          <Grid container xs={12} md={12} lg={12}>
-                            <Grid item p={1} xs={12} md={12} lg={8} display='flex' justifyContent='flex-start'>
-                              <MDTypography variant="h6" style={{textAlign:'center'}}>Offline Institute Affiliates Overview</MDTypography>
-                            </Grid>
-                            <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='flex-end'>
-                              <MDButton variant='text' color='success'>
-                                Download Data
-                              </MDButton>
-                            </Grid>
-                          </Grid>
-                        
-                      </Card>
-                    </Grid>
-                </Grid>
-    
-              </Grid>
-
-              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
-                <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                            {oiaffiliateOverview ? 
-                                <LifetimeOfflineAffiliateData oiaffiliateOverview={oiaffiliateOverview} oiaffiliateReferrals={oiaffiliateReferrals}/>
-                            :
-                                
-                                <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1 }} >
-                                    <CardActionArea>
-                                    <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{minHeight:'20vH', width:'100%'}}>
-                                        <MDTypography>No Data</MDTypography> 
-                                    </MDBox>
-                                    </CardActionArea> 
-                                </Card>
-                                
-                            }
-                    </Grid>
-    
-                </Grid>
-    
-              </Grid>
-    
-          </Grid>
-          :
-          <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'380px'}}>
-            <CircularProgress/>
-          </Grid>
-        }
-
-{!isLoading ? 
-          <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-              
-              {/* <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
-                <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                      <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1, backgroundColor:'lightgrey' }} >
-                      
-                          <Grid container xs={12} md={12} lg={12}>
-                            <Grid item p={1} xs={12} md={12} lg={8} display='flex' justifyContent='flex-start'>
-                              <MDTypography variant="h6" style={{textAlign:'center'}}>Offline Institute Affiliates Overview</MDTypography>
-                            </Grid>
-                            <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='flex-end'>
-                              <MDButton variant='text' color='success'>
-                                Download Data
-                              </MDButton>
-                            </Grid>
-                          </Grid>
-                        
-                      </Card>
-                    </Grid>
-                </Grid>
-    
-              </Grid> */}
-
-              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
-                <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                    <LeaderBoard leaderboard={leaderboard} />
-                    </Grid>
-    
-                </Grid>
-    
-              </Grid>
-
-              
-    
-          </Grid>
-          :
-          <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'380px'}}>
-            <CircularProgress/>
-          </Grid>
-        }
-
+      </Grid>
     </MDBox>
   );
 }

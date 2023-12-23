@@ -1089,8 +1089,8 @@ exports.getOfflineInstituteAffiliateOverview = async (req, res) => {
 exports.getMyAffiliateTransactionAndPayout = async (req, res) => {
   try {
     const userId = req.user._id;
-    const {startDate, endDate} = req.params;
-    console.log(userId)
+    const {startDate, endDate} = req.query;
+    console.log(userId, startDate, endDate)
     const product = await AffiliateTransaction.aggregate([
       {
         $facet:
