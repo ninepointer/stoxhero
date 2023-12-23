@@ -168,7 +168,7 @@ const userDetailSchema = new mongoose.Schema({
     creationProcess:{
         type: String,
         // required: true,
-        enum: ['Auto SignUp','By Admin','Career SignUp', 'College Contest SignUp', 'Referral SignUp', 'Contest SignUp']
+        enum: ['Affiliate SignUp', 'Auto SignUp','By Admin','Career SignUp', 'College Contest SignUp', 'Referral SignUp', 'Contest SignUp']
     },
     employeeid:{
         type: String,
@@ -240,7 +240,6 @@ const userDetailSchema = new mongoose.Schema({
             type: Schema.Types.ObjectId,
             ref: "instrument-detail"
         }
-        
     ],
     referralProgramme: 
         {
@@ -337,6 +336,25 @@ const userDetailSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    isAffiliate: {type: Boolean, default: false},
+    affiliateStatus: {type: String, default: "Inactive"},
+    affiliateProgramme: {type:Schema.Types.ObjectId,ref: 'affiliate-programme'},
+    affiliateCode: String,
+    affiliateReferrals:[{
+        referredUserId: {
+            type: Schema.Types.ObjectId,
+            ref: 'user-personal-detail'
+        },
+        affiliateEarning: Number,
+        affiliateProgram:  {
+            type: Schema.Types.ObjectId,
+            ref: "affiliate-programme"
+        },
+        joiningDate:{
+            type: Date,
+        },
+        affiliateCurrency: String
+    }],
     referrals:[{
         referredUserId: {
             type: Schema.Types.ObjectId,

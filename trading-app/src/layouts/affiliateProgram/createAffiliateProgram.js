@@ -71,6 +71,12 @@ function CreateAffiliateProgram() {
     eligiblePlatforms: id?.eligiblePlatforms || [],
     maxDiscount: id?.maxDiscount || '',
     minOrderValue: id?.minOrderValue || '',
+    rewardPerSignup: id?.rewardPerSignup || "",
+    referralSignupBonus: {
+      currency: id?.currency || "",
+      amount: id?.amount || ""
+    },
+    currency: id?.currency || ""
   });
   async function getProducts() {
     const res = await axios.get(`${apiUrl}products`, { withCredentials: true });
@@ -87,13 +93,13 @@ function CreateAffiliateProgram() {
     console.log(formState)
     setCreating(true)
 
-    if (!formState?.affiliateProgramName || !formState?.discountPercentage || !formState?.commissionPercentage || !formState?.status || !formState?.affiliateType || !formState?.startDate || !formState?.endDate || !formState?.eligibleProducts.length || !formState?.eligiblePlatforms.length) {
+    if (!formState?.currency || !formState?.rewardPerSignup || !formState?.referralSignupBonus?.amount || !formState?.affiliateProgramName || !formState?.discountPercentage || !formState?.commissionPercentage || !formState?.status || !formState?.affiliateType || !formState?.startDate || !formState?.endDate || !formState?.eligibleProducts.length || !formState?.eligiblePlatforms.length) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500);
       return openErrorSB("Missing Field", "Please fill all the mandatory fields");
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const { affiliateProgramName, discountPercentage, commissionPercentage, affiliateType, status, startDate, endDate, eligibleProducts, description, maxDiscount, minOrderValue, eligiblePlatforms } = formState;
+    const {currency, rewardPerSignup, referralSignupBonus, affiliateProgramName, discountPercentage, commissionPercentage, affiliateType, status, startDate, endDate, eligibleProducts, description, maxDiscount, minOrderValue, eligiblePlatforms } = formState;
     const res = await fetch(`${apiUrl}affiliate`, {
       method: "POST",
       credentials: "include",
@@ -102,7 +108,7 @@ function CreateAffiliateProgram() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        affiliateProgramName, discountPercentage, commissionPercentage, status, affiliateType, startDate, endDate, eligibleProducts, description, maxDiscount, minOrderValue, eligiblePlatforms
+        currency, rewardPerSignup, referralSignupBonus, affiliateProgramName, discountPercentage, commissionPercentage, status, affiliateType, startDate, endDate, eligibleProducts, description, maxDiscount, minOrderValue, eligiblePlatforms
       })
     });
 
@@ -124,12 +130,12 @@ function CreateAffiliateProgram() {
   async function onEdit(e, formState) {
     e.preventDefault()
     setSaving(true)
-    if (!formState?.affiliateProgramName || !formState?.discountPercentage || !formState?.commissionPercentage || !formState?.status || !formState?.affiliateType || !formState?.startDate || !formState?.endDate || !formState?.eligibleProducts.length || !formState?.eligiblePlatforms.length) {
+    if (!formState?.currency || !formState?.rewardPerSignup || !formState?.referralSignupBonus?.amount || !formState?.affiliateProgramName || !formState?.discountPercentage || !formState?.commissionPercentage || !formState?.status || !formState?.affiliateType || !formState?.startDate || !formState?.endDate || !formState?.eligibleProducts.length || !formState?.eligiblePlatforms.length) {
       // setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500);
       return openErrorSB("Missing Field", "Please fill all the mandatory fields");
     }
 
-    const { affiliateProgramName, discountPercentage, commissionPercentage, affiliateType, status, startDate, endDate, eligibleProducts, description, maxDiscount, minOrderValue, eligiblePlatforms } = formState;
+    const {currency, rewardPerSignup, referralSignupBonus, affiliateProgramName, discountPercentage, commissionPercentage, affiliateType, status, startDate, endDate, eligibleProducts, description, maxDiscount, minOrderValue, eligiblePlatforms } = formState;
     const res = await fetch(`${apiUrl}affiliate/${id?._id}`, {
       method: "PUT",
       credentials: "include",
@@ -138,7 +144,7 @@ function CreateAffiliateProgram() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        affiliateProgramName, discountPercentage, commissionPercentage, affiliateType, status, startDate, endDate, eligibleProducts, description, maxDiscount, minOrderValue, eligiblePlatforms
+        currency, rewardPerSignup, referralSignupBonus, affiliateProgramName, discountPercentage, commissionPercentage, affiliateType, status, startDate, endDate, eligibleProducts, description, maxDiscount, minOrderValue, eligiblePlatforms
       })
 
     });
@@ -348,6 +354,8 @@ function CreateAffiliateProgram() {
                     <MenuItem value={'LinkedIn Influencer'}>LinkedIn Influencer</MenuItem>
                     <MenuItem value={'StoxHero User'}>StoxHero User</MenuItem>
                     <MenuItem value={'Offline Institute'}>Offline Institute</MenuItem>
+                    <MenuItem value={'Partnership'}>Partnership</MenuItem>
+
                   </Select>
                 </FormControl>
               </Grid>
@@ -486,6 +494,97 @@ function CreateAffiliateProgram() {
                   </Select>
                 </FormControl>
               </Grid>
+
+              <Grid item xs={12} md={6} xl={3}>
+                <FormControl sx={{ width: '100%' }}>
+                  <InputLabel id="demo-simple-select-autowidth-label">Currency*</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-autowidth-label"
+                    id="demo-simple-select-autowidth"
+                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    value={formState?.currency || affiliateProgramData?.currency}
+                    onChange={(e) => {
+                      setFormState(prevState => ({
+                        ...prevState,
+                        currency: e.target.value
+                      }))
+                    }}
+                    label="Amount*"
+                    sx={{
+                      minHeight: 43,
+                    }}
+                  >
+                    <MenuItem value={'INR'}>INR</MenuItem>
+                    <MenuItem value={'HeroCash'}>HeroCash</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={3}>
+                <TextField
+                  disabled={((isSubmitted || id) && (!editing || saving))}
+                  id="outlined-required"
+                  type="number"
+                  label='Reward Per Signup *'
+                  value={formState?.rewardPerSignup || editing ? formState?.rewardPerSignup : affiliateProgramData?.rewardPerSignup}
+                  fullWidth
+                  onChange={(e) => {
+                    setFormState(prevState => ({
+                      ...prevState,
+                      rewardPerSignup: e.target.value
+                    }))
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={3}>
+                <TextField
+                  disabled={((isSubmitted || id) && (!editing || saving))}
+                  id="outlined-required"
+                  type="number"
+                  label='Signup Bonus Amount *'
+                  value={formState?.referralSignupBonus?.amount || editing ? formState?.referralSignupBonus?.amount : affiliateProgramData?.referralSignupBonus?.amount}
+                  fullWidth
+                  onChange={(e) => {
+                    setFormState(prevState => ({
+                      ...prevState,
+                      referralSignupBonus: {
+                        ...prevState.referralSignupBonus,
+                        amount: e.target.value
+                      }
+                    }))
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={3}>
+                <FormControl sx={{ width: '100%' }}>
+                  <InputLabel id="demo-simple-select-autowidth-label">SignUp Bonus Currency*</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-autowidth-label"
+                    id="demo-simple-select-autowidth"
+                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    value={formState?.referralSignupBonus?.currency || affiliateProgramData?.referralSignupBonus?.currency}
+                    onChange={(e) => {
+                      setFormState(prevState => ({
+                        ...prevState,
+                        referralSignupBonus: {
+                          ...prevState.referralSignupBonus,
+                          currency: e.target.value
+                        }
+                      }))
+                    }}
+                    label="Amount*"
+                    sx={{
+                      minHeight: 43,
+                    }}
+                  >
+                    <MenuItem value={'Cash'}>Cash</MenuItem>
+                    <MenuItem value={'HeroCash'}>HeroCash</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
 
               {/* Description */}
               <Grid item xs={12} md={6} xl={6}>

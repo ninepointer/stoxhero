@@ -13,13 +13,13 @@ const uuid = require('uuid');
 // Controller for creating a affiliate
 exports.createAffiliate = async (req, res) => {
   try {
-    const { affiliateProgramName, startDate, endDate, commissionPercentage, affiliateType, maxDiscount, minOrderValue, discountPercentage,
-      eligiblePlatforms, eligibleProducts, description, status } = req.body;
+    const {referralSignupBonus, rewardPerSignup, affiliateProgramName, startDate, endDate, commissionPercentage, affiliateType, maxDiscount, minOrderValue, discountPercentage,
+      eligiblePlatforms, eligibleProducts, description, status, currency } = req.body;
 
     const affiliate = await Affiliate.create({
       affiliateProgramName, startDate, endDate, commissionPercentage, affiliateType, discountPercentage,
       eligiblePlatforms, eligibleProducts, description, status, maxDiscount, minOrderValue,
-      createdBy: req.user._id, lastModifiedBy: req.user._id,
+      createdBy: req.user._id, lastModifiedBy: req.user._id, referralSignupBonus, rewardPerSignup, currency
     });
 
     res.status(201).json({
