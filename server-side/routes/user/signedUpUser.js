@@ -26,6 +26,7 @@ const AffiliatePrograme = require("../../models/affiliateProgram/affiliateProgra
 const {createUserNotification} = require('../../controllers/notification/notificationController');
 const {sendMultiNotifications} = require("../../utils/fcmService");
 const AffiliateTransaction = require("../../models/affiliateProgram/affiliateTransactions");
+const {ObjectId} = require('mongodb')
 
 router.get("/send", async (req, res) => {
     // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'direct_signup_campaign_new', userName : "vijay", source : "vijay", media : {url : mediaURL, filename : mediaFileName}, templateParams : ["newuser.first_name"], tags : '', attributes : ''});
@@ -495,8 +496,8 @@ router.patch("/verifyotp", async (req, res) => {
                       await AffiliateTransaction.create({
                         affiliateProgram: new ObjectId(affiliateObj?._id),
                         affiliateWalletTId: uuid.v4(),
-                        product: new ObjectId(product),
-                        specificProduct: new ObjectId(specificProduct),
+                        product: new ObjectId("6586e95dcbc91543c3b6c181"),
+                        specificProduct: new ObjectId("6586e95dcbc91543c3b6c181"),
                         productActualPrice: affiliateObj?.referralSignupBonus?.amount,
                         productDiscountedPrice: affiliateObj?.referralSignupBonus?.amount,
                         buyer: new ObjectId(newuser?._id),
