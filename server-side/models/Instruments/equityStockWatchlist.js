@@ -4,10 +4,10 @@ const {xtsAccountType, zerodhaAccountType} = require("../../constant");
 
 
 const equityInstrumentSchema = new mongoose.Schema({
-    instrument:{
-        type: String,
-        required: true
-    },
+    // instrument:{
+    //     type: String,
+    //     required: true
+    // },
     exchange:{
         type: String,
         required : true
