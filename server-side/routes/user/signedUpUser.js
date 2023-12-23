@@ -26,10 +26,133 @@ const AffiliatePrograme = require("../../models/affiliateProgram/affiliateProgra
 const {createUserNotification} = require('../../controllers/notification/notificationController');
 const {sendMultiNotifications} = require("../../utils/fcmService");
 
-// router.get("/send", async (req, res) => {
-//     whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'direct_signup_campaign_new', userName : "vijay", source : "vijay", media : {url : mediaURL, filename : mediaFileName}, templateParams : ["newuser.first_name"], tags : '', attributes : ''});
+router.get("/send", async (req, res) => {
+    // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'direct_signup_campaign_new', userName : "vijay", source : "vijay", media : {url : mediaURL, filename : mediaFileName}, templateParams : ["newuser.first_name"], tags : '', attributes : ''});
+    let subject = "Welcome to StoxHero - Learn, Trade, and Earn!";
+    let message =
+        `
+        <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Account Created</title>
+                <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    font-size: 16px;
+                    line-height: 1.5;
+                    margin: 0;
+                    padding: 0;
+                }
 
-// })
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    border: 1px solid #ccc;
+                }
+
+                h1 {
+                    font-size: 24px;
+                    margin-bottom: 20px;
+                }
+
+                p {
+                    margin: 0 0 20px;
+                }
+
+                .userid {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
+
+                .password {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
+
+                .login-button {
+                    display: inline-block;
+                    background-color: #007bff;
+                    color: #fff;
+                    padding: 10px 20px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    text-decoration: none;
+                    border-radius: 5px;
+                }
+
+                .login-button:hover {
+                    background-color: #0069d9;
+                }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                <h1>Account Created</h1>
+                <p>Dear Vijay,</p>
+                <p>Welcome to the StoxHero family!</p>
+                
+                <p>Discover Stock Market success with our Paper Trading &amp; Learning App. Experience real market data, actionable insights, and a clutter-free interface on both our mobile app and web platform.</p>
+                
+                <p>What StoxHero offers:</p>
+                
+                <ol>
+                    <li><strong>Learning Content:</strong> Enhance your market understanding.</li>
+                    <li><strong>Real Data Trading:</strong> Practice with virtual currency and real-world data.</li>
+                    <li><strong>Actionable Insights:</strong> Understand your trading style with valuable analytics.</li>
+                    <li><strong>User-Friendly Interface:</strong> Navigate seamlessly for an optimal trading experience.</li>
+                    <li><strong>Rewards for Success:</strong> Earn rewards for your winning trades.</li>
+                </ol>
+                
+                <p>StoxHero is your all-in-one package for Stock Market success.</p>
+                
+                <p>In case you face any issues, feel free to whatsApp support at 9354010914<a href="tel:+919830994402" rel="noreferrer" target="_blank">&nbsp;</a>or drop in an email at <a href="mailto:team@stoxhero.com">team@stoxhero.com</a></p>
+                
+                <p>To get started, visit our youtube channel to learn more about the App and StoxHero: <a href="https://www.youtube.com/channel/UCgslF4zuDhDyttD9P3ZOHbg">Visit</a></p>
+                
+                <p>Happy Trading!</p>
+                
+                <p>Best,&nbsp;</p>
+                
+                <p>StoxHero Team</p>
+                
+                <p>&nbsp;</p>
+                
+                <hr />
+                <h4 style="text-align:center"><strong>DOWNLOAD OUR APP FOR BETTER EXPERIENCE</strong></h4>
+                
+                <p>&nbsp;</p>
+                
+                <p style="text-align:center">
+                <a href="https://play.google.com/store/apps/details?id=com.stoxhero.app">
+                <img alt="" src="https://dmt-trade.s3.ap-south-1.amazonaws.com/blogs/VC%20Funding/photos/1703332463874playStore.png" style="height:100px; width:250px" />
+                </a>&nbsp;&nbsp;
+                <a href="http://www.stoxhero.com">
+                <img alt="" src="https://dmt-trade.s3.ap-south-1.amazonaws.com/blogs/VC%20Funding/photos/1703332463880logoWeb.png" style="height:100px; width:250px" />
+                </a>
+                </p>
+                
+                <p>&nbsp;</p>
+              </body>
+            </html>
+
+        `
+    // if(process.env.PROD == 'true'){
+        await emailService("vvv201214@gmail.com", subject, message);
+    // }
+
+})
 
 router.post("/signup", async (req, res) => {
     const { first_name, last_name, email, mobile, collegeDetails } = req.body;
@@ -438,111 +561,124 @@ router.patch("/verifyotp", async (req, res) => {
         // let email = newuser.email;
         let subject = "Welcome to StoxHero - Learn, Trade, and Earn!";
         let message =
-            `
-            <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <title>Account Created</title>
-                    <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        font-size: 16px;
-                        line-height: 1.5;
-                        margin: 0;
-                        padding: 0;
-                    }
+        `
+        <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Account Created</title>
+                <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    font-size: 16px;
+                    line-height: 1.5;
+                    margin: 0;
+                    padding: 0;
+                }
 
-                    .container {
-                        max-width: 600px;
-                        margin: 0 auto;
-                        padding: 20px;
-                        border: 1px solid #ccc;
-                    }
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    border: 1px solid #ccc;
+                }
 
-                    h1 {
-                        font-size: 24px;
-                        margin-bottom: 20px;
-                    }
+                h1 {
+                    font-size: 24px;
+                    margin-bottom: 20px;
+                }
 
-                    p {
-                        margin: 0 0 20px;
-                    }
+                p {
+                    margin: 0 0 20px;
+                }
 
-                    .userid {
-                        display: inline-block;
-                        background-color: #f5f5f5;
-                        padding: 10px;
-                        font-size: 15px;
-                        font-weight: bold;
-                        border-radius: 5px;
-                        margin-right: 10px;
-                    }
+                .userid {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
 
-                    .password {
-                        display: inline-block;
-                        background-color: #f5f5f5;
-                        padding: 10px;
-                        font-size: 15px;
-                        font-weight: bold;
-                        border-radius: 5px;
-                        margin-right: 10px;
-                    }
+                .password {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
 
-                    .login-button {
-                        display: inline-block;
-                        background-color: #007bff;
-                        color: #fff;
-                        padding: 10px 20px;
-                        font-size: 18px;
-                        font-weight: bold;
-                        text-decoration: none;
-                        border-radius: 5px;
-                    }
+                .login-button {
+                    display: inline-block;
+                    background-color: #007bff;
+                    color: #fff;
+                    padding: 10px 20px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    text-decoration: none;
+                    border-radius: 5px;
+                }
 
-                    .login-button:hover {
-                        background-color: #0069d9;
-                    }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                    <h1>Account Created</h1>
-                    <p>Dear ${newuser.first_name} ${newuser.last_name},</p>
-                    <p>Welcome to StoxHero - Your Gateway to the Exciting World of Options Trading and Earning! </p>
-                    <p> StoxHero is a specialized Intraday Options Trading Platform focusing on indices such as NIFTY, BANKNIFTY & FINNIFTY.</p>
-                    <p>Congratulations on joining our ever-growing community of traders and learners. We are thrilled to have you onboard and can't wait to embark on this exciting journey together. At StoxHero, we offer a range of programs designed to help you learn and excel in trading while providing you with opportunities to earn real profits from virtual currency. Let's dive into the fantastic programs that await you:</p>
-                    <p>1. F&O Trading:
-                    Start your trading experience with a risk-free environment! In Virtual Trading, you get INR 10L worth of virtual currency to practice your trading skills, test strategies, and build your profit and loss (P&L) under real market scenarios without any investment. It's the perfect platform to refine your trading strategies and gain confidence before entering the real market.</p>
-                    <p>2. TenX:
-                    Participate in our Ten X program and explore various trading opportunities. Trade with virtual currency and, after completing 20 trading days, you become eligible for a remarkable 10% profit share or profit CAP amount from the net profit you make in the program. You'll not only learn trading but also earn real money while doing so - a win-win situation!</p>
-                    <p>3. TestZone:
-                    Challenge yourself in daily TestZones where you compete with other users based on your P&L. You'll receive virtual currency to trade with, and your profit share from the net P&L you achieve in each TestZone will add to your earnings. With different TestZones running, you have the flexibility to choose and participate as per your preference.</p>
-                    <p>4. College TestZone:
-                    Attention college students! Our College TestZone is tailored just for you. Engage in daily intraday trading TestZones, and apart from receiving profit share from your net P&L, the top 3 performers will receive an appreciation certificate highlighting their outstanding performance.</p>
-                    <p>To help you get started and make the most of our programs, we've prepared comprehensive tutorial videos for each of them:</p>
-                    <p><a href='https://youtu.be/6wW8k-8zTXY'>Virtual Trading Tutorial</a></br>
-                    <a href='https://www.youtube.com/watch?v=a3_bmjv5tXQ'>Ten X Tutorial</a></br>
-                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>TestZones Tutorial</a></br>
-                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>College TestZone Tutorial</a></p>
-                    <p>For any queries or assistance, our dedicated team is always here to support you. Feel free to connect with us on different platforms:
-                    </p>
-                    <p><a href='https://t.me/stoxhero_official'>Telegram</a></br>
-                    <a href='https://www.facebook.com/profile.php?id=100091564856087'>Facebook</a></br>
-                    <a href='https://instagram.com/stoxhero_official?igshid=MzRlODBiNWFlZA=='>Instagram</a></br>
-                    <a href='https://www.youtube.com/@stoxhero_official/videos'>YouTube</a></p>
-                    <p>StoxHero is open to everyone who aspires to learn options intraday trading in a risk-free environment and analyze their performance to enhance their strategies. Moreover, with the chance to earn real profits through our programs, StoxHero provides an excellent platform for everyone to learn and earn. Be your own boss, take charge, and unlock the potential within you!</p>
-                    <p>We are excited to inform you that our system goes online every day at 09:20 AM, and all trades get automatically squared off at 3:20 PM. This ensures that your trading process remains smooth and consistent.</p>
-                    <p>We hope you enjoy your trading journey with StoxHero. Should you have any questions or require assistance at any stage, don't hesitate to reach out to us.</p>
-                    <p>Happy Trading and Learning!</p>
-                    <p>Best regards,</br>
-                    Team StoxHero</p>
-                    <a href="https://www.stoxhero.com/" class="login-button">Start your journey now</a>
-                    </div>
-                </body>
-                </html>
+                .login-button:hover {
+                    background-color: #0069d9;
+                }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                <h1>Account Created</h1>
+                <p>Dear ${newuser.first_name} ${newuser.last_name},</p>
+                <p>Welcome to the StoxHero family!</p>
+                
+                <p>Discover Stock Market success with our Paper Trading &amp; Learning App. Experience real market data, actionable insights, and a clutter-free interface on both our mobile app and web platform.</p>
+                
+                <p>What StoxHero offers:</p>
+                
+                <ol>
+                    <li><strong>Learning Content:</strong> Enhance your market understanding.</li>
+                    <li><strong>Real Data Trading:</strong> Practice with virtual currency and real-world data.</li>
+                    <li><strong>Actionable Insights:</strong> Understand your trading style with valuable analytics.</li>
+                    <li><strong>User-Friendly Interface:</strong> Navigate seamlessly for an optimal trading experience.</li>
+                    <li><strong>Rewards for Success:</strong> Earn rewards for your winning trades.</li>
+                </ol>
+                
+                <p>StoxHero is your all-in-one package for Stock Market success.</p>
+                
+                <p>In case you face any issues, feel free to whatsApp support at 9354010914<a href="tel:+919830994402" rel="noreferrer" target="_blank">&nbsp;</a>or drop in an email at <a href="mailto:team@stoxhero.com">team@stoxhero.com</a></p>
+                
+                <p>To get started, visit our youtube channel to learn more about the App and StoxHero: <a href="https://www.youtube.com/channel/UCgslF4zuDhDyttD9P3ZOHbg">Visit</a></p>
+                
+                <p>Happy Trading!</p>
+                
+                <p>Best,&nbsp;</p>
+                
+                <p>StoxHero Team</p>
+                
+                <p>&nbsp;</p>
+                
+                <hr />
+                <h4 style="text-align:center"><strong>DOWNLOAD OUR APP FOR BETTER EXPERIENCE</strong></h4>
+                
+                <p>&nbsp;</p>
+                
+                <p style="text-align:center">
+                <a href="https://play.google.com/store/apps/details?id=com.stoxhero.app">
+                <img alt="" src="https://dmt-trade.s3.ap-south-1.amazonaws.com/blogs/VC%20Funding/photos/1703332463874playStore.png" style="height:100px; width:250px" />
+                </a>&nbsp;&nbsp;
+                <a href="http://www.stoxhero.com">
+                <img alt="" src="https://dmt-trade.s3.ap-south-1.amazonaws.com/blogs/VC%20Funding/photos/1703332463880logoWeb.png" style="height:100px; width:250px" />
+                </a>
+                </p>
+                
+                <p>&nbsp;</p>
+              </body>
+            </html>
 
-            `
+        `
         if(process.env.PROD == 'true'){
             await emailService(newuser.email, subject, message);
         }

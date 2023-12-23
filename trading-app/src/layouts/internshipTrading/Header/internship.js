@@ -572,9 +572,9 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
       </MDBox> 
       </Grid> 
 
-      <Grid item minWidth='100%'>
+      {/* <Grid item minWidth='100%'>
       <LeaderBoard id={batchId}/>  
-      </Grid>            
+      </Grid>             */}
     </Grid>
     :
     <MDBox display='flex' alignItems='center' minWidth='100%' justifyContent='center'>
