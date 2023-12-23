@@ -171,7 +171,7 @@ function ReferralProduct({ transactions }) {
                                                                     <CurrencyRupeeIcon />
                                                                 </Avatar>
                                                             </ListItemAvatar>
-                                                            <ListItemText primary={<Typography variant="subtitle1" color='black' fontSize={12}>TransactionId #{elem?.transactionId}</Typography>} secondary={<Typography variant="subtitle1" color='black' fontSize={16} fontWeight={500}> {`Received ₹${elem?.payout?.toFixed(2)} as commission on ${elem?.buyer_first_name}'s ${elem?.product_name} purchase.`}</Typography>} />
+                                                            <ListItemText primary={<Typography variant="subtitle1" color='black' fontSize={12}>TransactionId #{elem?.transactionId}</Typography>} secondary={<Typography variant="subtitle1" color='black' fontSize={16} fontWeight={500}> {`Received ₹${elem?.payout?.toFixed(2)} as commission on ${elem?.buyer_first_name}'s ${elem?.product_name === "SignUp" ? elem?.product_name : elem?.product_name + " purchase."}`}</Typography>} />
                                                             <ListItemSecondaryAction>
                                                                 <Stack alignItems="flex-end">
                                                                     <Typography color='green' variant="subtitle1" noWrap>

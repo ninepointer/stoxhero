@@ -28,7 +28,6 @@ import RaferralGrid from "../data/affiliateRaferrals"
 import logo from '../../../assets/images/logo1.jpeg'
 
 export default function Dashboard() {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let [isLoading,setIsLoading] = useState([])
   const [affiliateOverview,setAffiliateOverview] = useState([]);
   const [affiliateRafferalSummery,setAffiliateRafferalSummery] = useState([]);
@@ -162,7 +161,7 @@ export default function Dashboard() {
                     Product Transaction
                   </MDTypography>
                   <MDTypography variant="body2" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
-                    {affiliateOverview?.summery[0]?.totalProductCount || 0}
+                    {affiliateOverview?.summery ? affiliateOverview?.summery[0]?.totalProductCount : 0}
                   </MDTypography>
                 </CardContent>
               </Card>
@@ -181,7 +180,7 @@ export default function Dashboard() {
                     Earning (Product)
                   </MDTypography>
                   <MDTypography variant="body2" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
-                  { "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(affiliateOverview?.summery[0]?.totalProductCPayout || 0))}
+                  { "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(affiliateOverview?.summery ? (affiliateOverview?.summery[0]?.totalProductCPayout || 0) : 0))}
                   </MDTypography>
                 </CardContent>
               </Card>
