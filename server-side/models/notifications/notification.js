@@ -37,7 +37,7 @@ const notificationSchema = new Schema({
     },
     productCategory:{
         type:'String',
-        enum:['TenX', 'Internship', 'Virtual', 'MarginX', 'Battle', 'TestZone', 'College TestZone', 'Challenge','General']
+        enum:['TenX', 'Internship', 'Virtual', 'MarginX', 'Battle', 'TestZone', 'College TestZone', 'Challenge','General', 'SignUp']
     },
     user:{
         type: Schema.Types.ObjectId,

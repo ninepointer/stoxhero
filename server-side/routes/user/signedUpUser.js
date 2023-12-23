@@ -23,6 +23,8 @@ const uuid = require('uuid');
 const Authenticate = require('../../authentication/authentication');
 const restrictTo = require('../../authentication/authorization');
 const AffiliatePrograme = require("../../models/affiliateProgram/affiliateProgram")
+const {createUserNotification} = require('../../controllers/notification/notificationController');
+const {sendMultiNotifications} = require("../../utils/fcmService");
 
 // router.get("/send", async (req, res) => {
 //     whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'direct_signup_campaign_new', userName : "vijay", source : "vijay", media : {url : mediaURL, filename : mediaFileName}, templateParams : ["newuser.first_name"], tags : '', attributes : ''});
@@ -189,9 +191,6 @@ router.patch("/verifyotp", async (req, res) => {
         userId = userId.toString() + (userIds.length + 1).toString()
     }
 
-    // 1. campaign
-    // 2. Affiliate
-    // 3. referral
     let match = false;
     let affiliateObj = {};
     let referral;
@@ -349,6 +348,25 @@ router.patch("/verifyotp", async (req, res) => {
                         transactionType: affiliateObj.currency == 'INR' ? 'Cash' : 'Bonus'
                     }];
                     await wallet.save({ validateBeforeSave: false });
+
+                    await createUserNotification({
+                        title: 'Affiliate Signup Credit',
+                        description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                        notificationType: 'Individual',
+                        notificationCategory: 'Informational',
+                        productCategory: 'SignUp',
+                        user: user?._id,
+                        priority: 'Medium',
+                        channels: ['App', 'Email'],
+                        createdBy: '63ecbc570302e7cf0153370c',
+                        lastModifiedBy: '63ecbc570302e7cf0153370c'
+                      });
+                      if (user?.fcmTokens?.length > 0) {
+                        await sendMultiNotifications('Affiliate Signup Credit',
+                          `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                          user?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
+                        )
+                      }
                 }
             } else{
                 referral?.users?.push({ userId: newuser._id, joinedOn: new Date() })
