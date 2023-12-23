@@ -12,6 +12,7 @@ router.route('/').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createAf
 router.route('/active').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getActiveAffiliatePrograms);
 router.route('/leaderboard').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), affiliateLeaderboard);
 router.route('/myaffiliaterafferals').get(Authenticate, getAffiliateReferralsSummery);
+router.route('/mysummery').get(Authenticate, getMyAffiliateTransactionAndPayout);
 
 router.route('/affiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getAffiliateOverview);
 router.route('/ytaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getYoutubeAffiliateOverview);
@@ -27,7 +28,6 @@ router.route('/:id').put(Authenticate, restrictTo('Admin', 'SuperAdmin'), editAf
 router.patch('/:id/:userId', Authenticate, addAffiliateUser);
 router.patch('/remove/:id/:userId', Authenticate, removeAffiliateUser);
 
-router.get('/mysummery/:startDate/:endDate', Authenticate, getMyAffiliateTransactionAndPayout);
 
 
 module.exports = router;
