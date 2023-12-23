@@ -245,7 +245,7 @@ router.patch("/verifyotp", async (req, res) => {
             referredBy: referredBy && referredBy,
             creationProcess: creation,
             collegeDetails: collegeDetails || "",
-            affiliateProgramme: match && affiliateObj?._id
+            affiliateProgramme: match ? affiliateObj?._id : null
         }
 
         if(fcmTokenData){
@@ -355,7 +355,7 @@ router.patch("/verifyotp", async (req, res) => {
                         notificationType: 'Individual',
                         notificationCategory: 'Informational',
                         productCategory: 'SignUp',
-                        user: user?._id,
+                        user: referrerCodeMatch?._id,
                         priority: 'Medium',
                         channels: ['App', 'Email'],
                         createdBy: '63ecbc570302e7cf0153370c',
@@ -364,7 +364,7 @@ router.patch("/verifyotp", async (req, res) => {
                       if (user?.fcmTokens?.length > 0) {
                         await sendMultiNotifications('Affiliate Signup Credit',
                           `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
-                          user?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
+                          referrerCodeMatch?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
                         )
                       }
                 }
@@ -401,6 +401,25 @@ router.patch("/verifyotp", async (req, res) => {
                         transactionType: referralProgramme.currency == 'INR' ? 'Cash' : 'Bonus'
                     }];
                     await wallet.save({ validateBeforeSave: false });
+
+                    await createUserNotification({
+                        title: 'Referral Signup Credit',
+                        description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                        notificationType: 'Individual',
+                        notificationCategory: 'Informational',
+                        productCategory: 'SignUp',
+                        user: referrerCodeMatch?._id,
+                        priority: 'Medium',
+                        channels: ['App', 'Email'],
+                        createdBy: '63ecbc570302e7cf0153370c',
+                        lastModifiedBy: '63ecbc570302e7cf0153370c'
+                      });
+                      if (user?.fcmTokens?.length > 0) {
+                        await sendMultiNotifications('Referral Signup Credit',
+                          `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                          referrerCodeMatch?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
+                        )
+                      }
                 }
             }
         }
