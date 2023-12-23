@@ -1090,7 +1090,7 @@ exports.getMyAffiliateTransactionAndPayout = async (req, res) => {
   try {
     const userId = req.user._id;
     const {startDate, endDate} = req.query;
-    console.log(userId, startDate, endDate)
+    // console.log(userId, startDate, endDate)
     const product = await AffiliateTransaction.aggregate([
       {
         $facet:
