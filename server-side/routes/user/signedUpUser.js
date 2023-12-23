@@ -427,9 +427,9 @@ router.patch("/verifyotp", async (req, res) => {
         if (campaign) {
             campaign?.users?.push({ userId: newuser._id, joinedOn: new Date() })
             await campaign.save();
-            if(campaign?.campaignType == 'Invite'){
+            // if(campaign?.campaignType == 'Invite'){
                 await addSignupBonus(newuser?._id, campaign?.campaignSignupBonus?.amount ?? 90, campaign?.campaignSignupBonus?.currency ?? 'INR');
-            }
+            // }
         }
 
         if (!newuser) return res.status(400).json({ status: 'error', message: 'Something went wrong' });

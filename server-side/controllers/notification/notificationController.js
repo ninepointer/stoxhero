@@ -2,12 +2,10 @@ const Notification = require('../../models/notifications/notification');
 const moment = require('moment');  
 
 exports.createUserNotification = async(notificationOptions, session) => {
-    console.log("in notification")
     if(session){
         const notification = await Notification.create([notificationOptions], { session: session });
     }else{
         const notification = await Notification.create(notificationOptions);
-        console.log("in notification", notification)
     }
 }
 

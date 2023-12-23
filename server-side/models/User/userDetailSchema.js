@@ -168,7 +168,7 @@ const userDetailSchema = new mongoose.Schema({
     creationProcess:{
         type: String,
         // required: true,
-        enum: ['Affiliate SignUp', 'Auto SignUp','By Admin','Career SignUp', 'College Contest SignUp', 'Referral SignUp', 'Contest SignUp']
+        enum: ['Affiliate SignUp', 'Auto SignUp','By Admin','Career SignUp', 'College Contest SignUp', 'Referral SignUp', 'Contest SignUp', 'Campaign SignUp']
     },
     employeeid:{
         type: String,
