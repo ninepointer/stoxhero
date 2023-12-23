@@ -80,6 +80,10 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
       });
     })
 
+    // socket?.on('equity-ticks', (data)=>{
+    //   console.log(data)
+    // })
+
   }, [])
 
   useEffect(() => {
