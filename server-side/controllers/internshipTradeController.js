@@ -1911,7 +1911,7 @@ exports.updateUserWallet = async () => {
               console.log("attendance", attendance , attendanceLimit, consolationReward.currency, consolationReward?.amount?.toFixed(2))
               if(attendance >= attendanceLimit){
                 await createUserNotification({
-                  title: 'Internship Credited',
+                  title: 'Internship Bonus Credited',
                   description: `${consolationReward.currency === "Cash" ? "₹"+consolationReward?.amount?.toFixed(2) : "HeroCash "+consolationReward?.amount?.toFixed(2)} credited for your internship participation bonus`,
                   notificationType: 'Individual',
                   notificationCategory: 'Informational',
@@ -1924,7 +1924,7 @@ exports.updateUserWallet = async () => {
                 }, session);
   
                 wallet.transactions = [...wallet.transactions, {
-                  title: 'Internship Credited',
+                  title: 'Internship Bonus Credited',
                   description: `Internship participation bonus`,
                   amount: (consolationReward?.amount?.toFixed(2)),
                   transactionId: uuid.v4(),
