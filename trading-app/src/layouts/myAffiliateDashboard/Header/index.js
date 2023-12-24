@@ -13,8 +13,8 @@ import MDTypography from '../../../components/MDTypography';
 // import LifetimeYouTubeAffiliateData from '../data/lifetimeYouTubeAffiliateData'
 // import LifetimeStoxHeroAffiliateData from '../data/lifetimeStoxHeroAffiliateData'
 // import LifetimeOfflineAffiliateData from '../data/lifetimeOfflineAffiliateData'
-import { saveAs } from 'file-saver';
-import moment from 'moment'
+// import { saveAs } from 'file-saver';
+// import moment from 'moment'
 // import LeaderBoard from '../data/leaderboard';
 import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -101,7 +101,7 @@ export default function Dashboard() {
         "Access-Control-Allow-Credentials": true
       },
     })
-    let call2 = axios.get((`${apiUrl}affiliate/myaffiliaterafferals`), {
+    let call2 = axios.get((`${apiUrl}affiliate/myaffiliaterafferals?startDate=${startDate}&endDate=${endDate}`), {
       withCredentials: true,
       headers: {
         Accept: "application/json",
@@ -122,7 +122,7 @@ export default function Dashboard() {
         console.error(error);
       });
 
-  }, [])
+  }, [startDate, endDate])
 
 
 

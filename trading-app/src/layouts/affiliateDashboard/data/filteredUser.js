@@ -3,7 +3,7 @@ import axios from "axios";
 import { Checkbox, CircularProgress, FormControlLabel, FormGroup, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 // import MDTypography from '../../../components/MDTypography';
-// import MDAvatar from '../../../components/MDAvatar';
+import MDSnackbar from '../../../components/MDSnackbar';
 // import todaysignup from '../../../assets/images/todaysignup.png'
 // import netpnlicon from '../../../assets/images/netpnlicon.png'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -38,6 +38,51 @@ export default function FilteredUsers({ setFilteredUsers }) {
   const [startDate, setStartDate] = React.useState(dayjs(lastMonth));
 
   const [endDate, setEndDate] = React.useState(dayjs(date));
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+
+  const [successSB, setSuccessSB] = useState(false);
+  const openSuccessSB = (title, content) => {
+    setTitle(title)
+    setContent(content)
+    setSuccessSB(true);
+  }
+  const closeSuccessSB = () => setSuccessSB(false);
+
+
+  const renderSuccessSB = (
+    <MDSnackbar
+      color="success"
+      icon="check"
+      title={title}
+      content={content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite="info"
+    />
+  );
+
+  const [errorSB, setErrorSB] = useState(false);
+  const openErrorSB = (title, content) => {
+    setTitle(title)
+    setContent(content)
+    setErrorSB(true);
+  }
+  const closeErrorSB = () => setErrorSB(false);
+
+  const renderErrorSB = (
+    <MDSnackbar
+      color="error"
+      icon="warning"
+      title={title}
+      content={content}
+      open={errorSB}
+      onClose={closeErrorSB}
+      close={closeErrorSB}
+      bgWhite
+    />
+  );
 
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -84,9 +129,11 @@ export default function FilteredUsers({ setFilteredUsers }) {
 
 
   async function handleShowDetails(startDate, endDate, programe, lifetime) {
+    if(new Date(startDate) > new Date(endDate)){
+      return openErrorSB('Invalid date range', 'Start date is greater than end date');
+    }
     setFilteredUsers([]);
     try {
-
       const res = await axios.get(`${apiUrl}affiliate/leaderboard?programme=${programe}&startDate=${startDate}&endDate=${endDate}&lifetime=${lifetime} `, { withCredentials: true });
       if (res.status == 200) {
         setFilteredUsers(res.data.data);
@@ -227,6 +274,8 @@ export default function FilteredUsers({ setFilteredUsers }) {
 
           </Grid>
         </MDBox>
+        {renderSuccessSB}
+      {renderErrorSB}
       </Grid>
     </>
   );

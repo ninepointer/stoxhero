@@ -9,6 +9,7 @@ const whatsAppService = require("../../utils/whatsAppService")
 const moment = require('moment');
 const Product = require('../../models/Product/product');
 const uuid = require('uuid');
+const {sendMultiNotifications} = require('../../utils/fcmService')
 
 // Controller for creating a affiliate
 exports.createAffiliate = async (req, res) => {
@@ -247,9 +248,9 @@ exports.creditAffiliateAmount = async (affiliate, affiliateProgram, product, spe
     return;
   }
   const wallet = await Wallet.findOne({ userId: new ObjectId(affiliate?.userId) });
-  const user = await User.findOne({ _id: buyer }).select('first_name last_name');
+  const user = await User.findOne({ _id: buyer }).select('first_name last_name fcmTokens');
   const productDoc = await Product.findOne({ _id: product });
-  const affiliateUser = await User.findOne({ _id: affiliate?.userId }).select('first_name last_name mobile');
+  const affiliateUser = await User.findOne({ _id: affiliate?.userId }).select('first_name last_name mobile fcmTokens');
   let discount = Math.min(affiliateProgram?.discountPercentage / 100 * actualPrice, affiliateProgram?.maxDiscount);
   const affiliatePayout = affiliateProgram?.commissionPercentage / 100 * (actualPrice - discount);
   let walletTransactionId = uuid.v4();
@@ -300,12 +301,19 @@ exports.creditAffiliateAmount = async (affiliate, affiliateProgram, product, spe
     notificationType: 'Individual',
     notificationCategory: 'Informational',
     productCategory: 'General',
-    user: user?._id,
+    user: affiliateUser?._id,
     priority: 'Medium',
     channels: ['App', 'Email'],
     createdBy: '63ecbc570302e7cf0153370c',
     lastModifiedBy: '63ecbc570302e7cf0153370c'
   });
+
+  if(affiliateUser?.fcmTokens?.length>0){
+      await sendMultiNotifications('StoxHero Affiliate Reward Credited',
+        `₹${affiliatePayout} credited for affiliate reward for ${user?.first_name} ${user?.last_name}'s product purchase`,
+        affiliateUser?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+        )
+    }
 
 
 }
@@ -1248,12 +1256,43 @@ exports.getMyAffiliateTransactionAndPayout = async (req, res) => {
   }
 }
 
-exports.getAffiliateReferralsSummery = async(req, res)=>{
-  const userId = req.user._id;
-  console.log(userId)
-  const rafferalTransaction = await User.findOne({_id: new ObjectId(userId)})
-  .select('affiliateReferrals')
-  .populate('affiliateReferrals.referredUserId', 'first_name last_name joining_date');
+exports.getAffiliateReferralsSummery = async(req, res) => {
+  try {
+    const userId = req.user._id;
+    const {startDate, endDate} = req.query;
+    if(new Date(startDate) > new Date(endDate)){
+      return res.status(400).json({status:'error', message:"Invalid Date Range"});
+    }
 
-  res.status(200).json({status: "success", data: rafferalTransaction})
+    // Fetch the user and populate the referrals
+    const user = await User.findOne({_id: new ObjectId(userId)})
+      .select('affiliateReferrals')
+      .populate({
+        path: 'affiliateReferrals.referredUserId',
+        select: 'first_name last_name joining_date',
+        match: {
+          joining_date: {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate)
+          }
+        }
+      });
+
+    // Filter out referrals where the referredUserId is null
+    const filteredReferrals = user && user.affiliateReferrals 
+      ? user.affiliateReferrals.filter(referral => referral.referredUserId != null) 
+      : [];
+
+    // Construct the response object with filtered referrals
+    const response = {
+      status: "success",
+      data: {...user.toObject(), affiliateReferrals: filteredReferrals}  // maintain structure, but with filtered referrals
+    };
+
+    // Send the response
+    res.status(200).json(response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({status: "error", message: "Internal server error"});
+  }
 }
