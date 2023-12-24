@@ -27,6 +27,9 @@ const AffiliateRafferals = ({ affiliateReferrals }) => {
     affiliateReferrals?.map((elem, index) => {
         let refData = {}
 
+        if(elem?.referredUserId){
+
+        
         refData.sNo = (
             <MDTypography variant="Contained" color='dark' >
                 {index + 1}
@@ -50,6 +53,7 @@ const AffiliateRafferals = ({ affiliateReferrals }) => {
 
 
         rows.push(refData);
+        }
     });
 
     return (

@@ -1251,9 +1251,19 @@ exports.getMyAffiliateTransactionAndPayout = async (req, res) => {
 exports.getAffiliateReferralsSummery = async(req, res)=>{
   const userId = req.user._id;
   console.log(userId)
+  const {startDate, endDate} = req.query;
   const rafferalTransaction = await User.findOne({_id: new ObjectId(userId)})
   .select('affiliateReferrals')
-  .populate('affiliateReferrals.referredUserId', 'first_name last_name joining_date');
+  .populate({
+    path: 'affiliateReferrals.referredUserId',
+    select: 'first_name last_name joining_date',
+    match: {
+      joining_date: {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      }
+    }
+  });
 
   res.status(200).json({status: "success", data: rafferalTransaction})
 }
