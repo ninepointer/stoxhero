@@ -348,6 +348,9 @@ exports.affiliateLeaderboard = async (req, res) => {
   startDate = (lifetime) ? "2000-01-01" : startDate;
   endDate = (lifetime) ? new Date() : endDate;
   console.log(programme, new Date(startDate), new Date(endDate), (lifetime))
+  if(new Date(startDate)>new Date(endDate)){
+    return res.status(400).json({status:'error', message:'Invalid Date range'});
+  }
   const matchStage = {
     affiliateProgram: programme !== "Cummulative" && new ObjectId(programme),
     transactionDate: {
@@ -1090,6 +1093,9 @@ exports.getMyAffiliateTransactionAndPayout = async (req, res) => {
   try {
     const userId = req.user._id;
     const {startDate, endDate} = req.query;
+    if(new Date(startDate)>new Date(endDate)){
+      return res.status(400).json({status:'error', message:'Invalid Date range'});
+    }
     // console.log(userId, startDate, endDate)
     const product = await AffiliateTransaction.aggregate([
       {

@@ -26,6 +26,7 @@ import { apiUrl } from '../../../constants/constants';
 import ReferredProduct from "../data/transactions"
 import RaferralGrid from "../data/affiliateRaferrals"
 import logo from '../../../assets/images/logo1.jpeg'
+import MDSnackbar from "../../../components/MDSnackbar";
 
 export default function Dashboard() {
   let [isLoading,setIsLoading] = useState([])
@@ -44,7 +45,51 @@ export default function Dashboard() {
   // const [leaderboard, setLeaderboard] = useState([]);
   // const [downloadingTestZoneData,setDownloadingTestZoneRevenueData] = useState(false)
   // const [downloadingMarginXData,setDownloadingMarginXRevenueData] = useState(false)
-  
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+
+  const [successSB, setSuccessSB] = useState(false);
+  const openSuccessSB = (title, content) => {
+    setTitle(title)
+    setContent(content)
+    setSuccessSB(true);
+  }
+  const closeSuccessSB = () => setSuccessSB(false);
+
+
+  const renderSuccessSB = (
+    <MDSnackbar
+      color="success"
+      icon="check"
+      title={title}
+      content={content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite="info"
+    />
+  );
+
+  const [errorSB, setErrorSB] = useState(false);
+  const openErrorSB = (title, content) => {
+    setTitle(title)
+    setContent(content)
+    setErrorSB(true);
+  }
+  const closeErrorSB = () => setErrorSB(false);
+
+  const renderErrorSB = (
+    <MDSnackbar
+      color="error"
+      icon="warning"
+      title={title}
+      content={content}
+      open={errorSB}
+      onClose={closeErrorSB}
+      close={closeErrorSB}
+      bgWhite
+    />
+  );
   
   useEffect(() => {
     setIsLoading(true)
@@ -82,6 +127,9 @@ export default function Dashboard() {
 
 
   async function handleShowDetails(start, end){
+    if(new Date(start)>new Date(end)){
+      return openErrorSB("Invalid Date Range", "Start Date is greater than End Date");
+    }
     let call1 = axios.get((`${apiUrl}affiliate/mysummery?startDate=${start}&endDate=${end}`), {
       withCredentials: true,
       headers: {
@@ -255,6 +303,8 @@ export default function Dashboard() {
           <ReferredProduct transactions={affiliateOverview?.transaction} />
         </Grid>
       </Grid>
+      {renderSuccessSB}
+      {renderErrorSB}
     </MDBox>
   );
 }
