@@ -151,6 +151,8 @@ exports.confirmOTP = async (req, res, next) => {
             }
             referral = await Referral.findOne({ status: "Active" });
         }
+
+        // console.log("match", match , "affiliateObj", affiliateObj)
         try {
             let obj = {
                 first_name: firstName.trim(),
@@ -178,6 +180,8 @@ exports.confirmOTP = async (req, res, next) => {
                 affiliateProgramme: match ? affiliateObj?._id : null
 
             }
+
+            // console.log(obj)
 
             const newuser = await User.create(obj);
             await UserWallet.create(

@@ -127,27 +127,27 @@ exports.confirmOTP = async(req, res, next)=>{
       campaign = await Campaign.findOne({campaignCode:campaignCode})
     }
   
-    async function generateUniqueReferralCode() {
-      const length = 8; // change this to modify the length of the referral code
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let myReferralCode = '';
-      let codeExists = true;
-  
-      // Keep generating new codes until a unique one is found
-      while (codeExists) {
-          for (let i = 0; i < length; i++) {
-              myReferralCode += chars.charAt(Math.floor(Math.random() * chars.length));
-          }
-  
-          // Check if the generated code already exists in the database
-          const existingCode = await User.findOne({ myReferralCode: myReferralCode });
-          if (!existingCode) {
-          codeExists = false;
-          }
+  async function generateUniqueReferralCode() {
+    const length = 8; // change this to modify the length of the referral code
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let myReferralCode = '';
+    let codeExists = true;
+
+    // Keep generating new codes until a unique one is found
+    while (codeExists) {
+      for (let i = 0; i < length; i++) {
+        myReferralCode += chars.charAt(Math.floor(Math.random() * chars.length));
       }
-  
-      return myReferralCode;
+
+      // Check if the generated code already exists in the database
+      const existingCode = await User.findOne({ myReferralCode: myReferralCode });
+      if (!existingCode) {
+        codeExists = false;
       }
+    }
+
+    return myReferralCode;
+  }
 
   if(!existingUser){
   const myReferralCode = generateUniqueReferralCode();

@@ -1910,7 +1910,7 @@ exports.updateUserWallet = async () => {
               }
 
               console.log("attendance", attendance , attendanceLimit, consolationReward.currency, consolationReward?.amount?.toFixed(2))
-              if(attendance >= attendanceLimit){
+              if(attendance >= consolationReward?.minAttendance){
                 await createUserNotification({
                   title: 'Internship Bonus Credited',
                   description: `${consolationReward.currency === "Cash" ? "₹"+consolationReward?.amount?.toFixed(2) : "HeroCash "+consolationReward?.amount?.toFixed(2)} credited for your internship participation bonus`,
