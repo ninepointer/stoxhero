@@ -25,7 +25,7 @@ exports.applyingSLSP = async (req, otherData, session, docId, from) => {
     let {exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId, 
         exchangeInstrumentToken, validity, variety, order_id, instrumentToken, last_price,
         stopProfitPrice, stopLossPrice, createdBy, deviceDetails, id, margin, price,
-        marginxId, contestId, portfolioId } = req.body ? req.body : req ;
+        marginxId, contestId, portfolioId, stopLossQuantity, stopProfitQuantity } = req.body ? req.body : req ;
 
 
     last_price = last_price && String(last_price)?.includes("₹") && last_price?.slice(1);
@@ -44,14 +44,14 @@ exports.applyingSLSP = async (req, otherData, session, docId, from) => {
     if (stopProfitPrice && stopLossPrice) {
       const pendingOrderStopLoss = {
         order_referance_id: docId, status: "Pending", product_type: product_type, execution_price: stopLossPrice,
-        Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: order_type ? order_type : order_type, symbol,
+        Quantity: Math.abs(stopLossQuantity) || Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: order_type ? order_type : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, price: stopLossPrice,
         createdBy: req?.user?._id ? req?.user?._id : createdBy, type: "StopLoss", sub_product_id: id, margin, deviceDetails
       }
 
       const pendingOrderStopProfit = {
         order_referance_id: docId, status: "Pending", product_type: product_type, execution_price: stopProfitPrice,
-        Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: order_type ? order_type : order_type, symbol,
+        Quantity: Math.abs(stopProfitQuantity) || Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: order_type ? order_type : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, price: stopProfitPrice,
         createdBy: req?.user?._id ? req?.user?._id : createdBy, type: "StopProfit", sub_product_id: id, margin, deviceDetails
       }
@@ -61,9 +61,12 @@ exports.applyingSLSP = async (req, otherData, session, docId, from) => {
     } else if (stopProfitPrice || stopLossPrice) {
       let executionPrice = stopProfitPrice ? stopProfitPrice : stopLossPrice;
       let type = stopProfitPrice ? "StopProfit" : "StopLoss";
+      let newQuantity = stopProfitPrice ? stopProfitQuantity : stopLossQuantity;
+
       pendingOrder = [{
         order_referance_id: docId, status: "Pending", product_type: product_type,  price: executionPrice,
-        Quantity: Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: order_type ? order_type : order_type, symbol,
+        Quantity: Math.abs(Quantity) || Math.abs(newQuantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, 
+        order_type: order_type ? order_type : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, margin,
         createdBy: req?.user?._id ? req?.user?._id : createdBy, type, sub_product_id: id, deviceDetails
       }]

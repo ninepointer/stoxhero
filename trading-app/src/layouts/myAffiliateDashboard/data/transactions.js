@@ -122,7 +122,7 @@ function ReferralProduct({ transactions }) {
     return (
         <>
            
-                <MDBox pt={6} pb={3}>
+                <MDBox pt={3} pb={3}>
                     <Grid container spacing={6}>
                         <Grid item xs={12} md={12} lg={12}>
                             <Card>
@@ -174,8 +174,9 @@ function ReferralProduct({ transactions }) {
                                                             <ListItemText primary={<Typography variant="subtitle1" color='black' fontSize={12}>TransactionId #{elem?.transactionId}</Typography>} secondary={<Typography variant="subtitle1" color='black' fontSize={16} fontWeight={500}> {`Received ₹${elem?.payout?.toFixed(2)} as commission on ${elem?.buyer_first_name}'s ${elem?.product_name === "SignUp" ? elem?.product_name : elem?.product_name + " purchase."}`}</Typography>} />
                                                             <ListItemSecondaryAction>
                                                                 <Stack alignItems="flex-end">
-                                                                    <Typography color='green' variant="subtitle1" noWrap>
-                                                                        +₹{elem?.payout?.toFixed(2)}
+                                                                    <Typography color='green' variant="subtitle2" noWrap>
+                                                                        {/* +₹{elem?.payout?.toFixed(2)} */}
+                                                                        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.payout)}
                                                                     </Typography>
                                                                     <Typography fontSize={12} color="black" noWrap>
                                                                         {dateConvert(elem?.date)}

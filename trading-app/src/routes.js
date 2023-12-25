@@ -77,6 +77,7 @@ import BackReportXTS from "./layouts/backReportXTS";
 import OverallPnlTrader from "./layouts/overallPnlTrader";
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import RevenueDashboard from './layouts/revenueDashboard'
+import AdminDashboard from './layouts/AdminDashboard'
 import AffiliateDashboard from './layouts/affiliateDashboard'
 import ChallengeDashboard from './layouts/challengeDashboard'
 import DailyContestDashboard from './layouts/dailyContestDashboard'
@@ -193,6 +194,14 @@ const routes = [
     icon: <AllInclusiveIcon/>,
     route: "/stoxherouserdashboard",
     component: <StoxHeroUserDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "User Dashboard",
+    key: "userdashboard",
+    icon: <FaRupeeSign/>,
+    route: "/userdashboard",
+    component: <AdminDashboard />,
   },
   {
     type: "collapse",

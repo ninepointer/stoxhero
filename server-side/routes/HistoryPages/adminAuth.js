@@ -120,7 +120,7 @@ router.get('/negetivetds', async(req,res) =>{
         // }
       }
   
-      await elem.save({validateBeforeSave: false});
+      // await elem.save({validateBeforeSave: false});
   
     }
   });
@@ -128,7 +128,6 @@ router.get('/negetivetds', async(req,res) =>{
   // Wait for all promises to resolve before continuing
   await Promise.all(promises);
 })
-
 
 router.get('/pendingorder', async (req, res) => {
 
@@ -3345,10 +3344,10 @@ router.get("/updateInstrumentStatus", async (req, res) => {
     { $set: { status: "Inactive" } }
   )
 
-  let infinityInstrument = await InfinityInstrument.updateMany(
-    { contractDate: { $lte: expiryDate }, status: "Active" },
-    { $set: { status: "Inactive" } }
-  )
+  // let infinityInstrument = await InfinityInstrument.updateMany(
+  //   { contractDate: { $lte: expiryDate }, status: "Active" },
+  //   { $set: { status: "Inactive" } }
+  // )
 
 
   // const userIns = await UserDetail.find()
@@ -3379,7 +3378,7 @@ router.get("/updateInstrumentStatus", async (req, res) => {
 
   await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "", allInstruments: "" } });
 
-  res.send({ message: "updated", data: instrument, data1: infinityInstrument })
+  res.send({ message: "updated", data: instrument })
 })
 
 router.get("/updatePortfolio", async (req, res) => {
@@ -3849,8 +3848,6 @@ router.get("/insertDocument", async (req, res) => {
 
 module.exports = router;
 
-
-
 /*
 requirment: 
 1. testzone is only visible to registered user, if thats visibility is false
@@ -3863,4 +3860,36 @@ Steps:
 2. regiteration page with clear routing
 3. in admin dashboard show full leaderboard of affiliates
 */
+
+/*
+requirment: 
+1. tenx running lots > 0 = previous day else total pnl
+2. today pnl is in unrealised pnl
+3. give some insights, max profit, max loss, avg profit, avg loss, roi, ..etc. 
+
+
+
+
+1. 500 open positon Nifty 19000PE
+    400 stop loss ---> pending order api
+
+  500-400 = 100 sl quanity
+  500-0 = 500 sp quantity
+
+
+  
+2. 5000 open positon Nifty 19000PE
+    400 stop loss
+
+    max lot = 1800
+    slQ > maxLot ? maxLot : slQ
+  5000-400 = 4600 sl quanity 
+  5000-0 = 5000 sp quantity
+
+
+
+
+Steps:
+*/
+
 

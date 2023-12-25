@@ -9,7 +9,7 @@ exports.contestChecks = async(req,res,next) => {
         const dailyContest = await DailyContest.findById(req.body.contestId);
         const userId = req.user._id;
         if(dailyContest?.contestEndTime < new Date()){
-            return res.status(201).json({ status: 'error', message: 'This TestZone has ended.' });
+            return res.status(201).json({ status: 'error', message: 'This TestZone has ended. Please participate in another TestZones.' });
         }
 
         if(dailyContest?.contestStartTime > new Date()){

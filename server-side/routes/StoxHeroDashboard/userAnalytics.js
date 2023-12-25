@@ -5,7 +5,7 @@ const {getDailyActiveUsers, getMonthlyActiveUsers, getDateWiseTradeInformation, 
     getMonthlyActiveUsersOnPlatform, getWeeklyActiveUsersOnPlatform, getMonthWiseCummActiveUsers, getDateWiseAverageActiveUsers, 
     getMarketingFunnelData, getMarketingFunnelDataOptimised, getMarketingFunnelDataLifetime, getMonthlyActiveUsersMarketingFunnel,
     downloadThisMonthSignUp, downloadThisMonthPaid,downloadLifetimeSignUp, downloadLifetimeActive, downloadLifetimePaid,
-    downloadThisMonthActive} = require('../../controllers/StoxHeroUserDashboard/userAnalytics');
+    downloadThisMonthActive, retentionRate} = require('../../controllers/StoxHeroUserDashboard/userAnalytics');
 
 const Authenticate = require('../../authentication/authentication');
 const restrictTo = require('../../authentication/authorization');
@@ -40,6 +40,5 @@ router.route('/averagedatewiseactiveusers').get(Authenticate, getDateWiseAverage
 router.route('/cummMonthactiveuser').get(Authenticate, getCummMonthlyActiveUsersOnPlatform);
 
 router.route('/getsignupandcummsignup').get(Authenticate, getSignUpAndCummSignup);
-
 
 module.exports = router;

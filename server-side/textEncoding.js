@@ -34,31 +34,31 @@
 
 // console.log(decodedHtml);
 
-// const io = require('socket.io-client');
-// const url = 'http://43.204.7.180'; // Replace with your server URL
-// const options = {
-//     transports: ['websocket'],
-//     'force new connection': true
-// };
+const io = require('socket.io-client');
+const url = 'http://43.204.7.180'; // Replace with your server URL
+const options = {
+    transports: ['websocket'],
+    'force new connection': true
+};
 
-// const numberOfClients = 300; // Number of simulated clients
+const numberOfClients = 380; // Number of simulated clients
 
-// for (let i = 0; i < numberOfClients; i++) {
-//     const client = io.connect(url, options);
+for (let i = 0; i < numberOfClients; i++) {
+    const client = io.connect(url, options);
 
-//     client.on('connect', () => {
-//         console.log('Client connected:', client.id);
+    client.on('connect', () => {
+        console.log('Client connected:', client.id);
 
-//         // Perform actions through the socket as needed
-//         client.emit('connection', true);
+        // Perform actions through the socket as needed
+        client.emit('connection', true);
 
-//         // Optionally, disconnect after some time or actions
-//         // setTimeout(() => client.disconnect(), 10000);
-//     });
+        // Optionally, disconnect after some time or actions
+        // setTimeout(() => client.disconnect(), 10000);
+    });
 
-//     client.on('disconnect', () => {
-//         console.log('Client disconnected:', client.id);
-//     });
+    client.on('disconnect', () => {
+        console.log('Client disconnected:', client.id);
+    });
 
-//     // Handle other events and errors as needed
-// }
+    // Handle other events and errors as needed
+}

@@ -42,8 +42,8 @@ const tenxTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDetai
 
         try {
             if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`)) {
-                todayPnlData = await client.get(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`)
-                todayPnlData = JSON.parse(todayPnlData);
+                todayPnlData = await client.get(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`) || JSON.stringify([])
+                todayPnlData = JSON.parse(todayPnlData)
             }
 
             if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()} openingBalanceAndMarginTenx`)) {
@@ -59,9 +59,9 @@ const tenxTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDetai
         const netPnl = await calculateNetPnl(message.data, todayPnlData, kiteData);
         const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
         const marginAndCase = getLastTradeMarginAndCaseNumber(message.data, todayPnlData, tenxTrader);
-        const caseNumber = (await marginAndCase).caseNumber;
-        const margin = (await marginAndCase).margin;
-        const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
+        const caseNumber = (await marginAndCase)?.caseNumber;
+        const margin = (await marginAndCase)?.margin;
+        const runningLotForSymbol = (await marginAndCase)?.runningLotForSymbol;
 
         switch (caseNumber) {
             case 0:
@@ -182,7 +182,7 @@ const paperTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDeta
         try {
             if (isRedisConnected && await client.exists(`${createdBy.toString()}: overallpnlPaperTrade`)) {
                 todayPnlData = await client.get(`${createdBy.toString()}: overallpnlPaperTrade`)
-                todayPnlData = JSON.parse(todayPnlData);
+                todayPnlData = JSON || JSON.stringify([]).parse(todayPnlData) || []
             }
 
             if (isRedisConnected && await client.exists(`${createdBy.toString()} openingBalanceAndMarginPaper`)) {
@@ -198,9 +198,9 @@ const paperTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDeta
         const netPnl = await calculateNetPnl(message.data, todayPnlData, kiteData);
         const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
         const marginAndCase = getLastTradeMarginAndCaseNumber(message.data, todayPnlData, virtualTrader);
-        const caseNumber = (await marginAndCase).caseNumber;
-        const margin = (await marginAndCase).margin;
-        const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
+        const caseNumber = (await marginAndCase)?.caseNumber;
+        const margin = (await marginAndCase)?.margin;
+        const runningLotForSymbol = (await marginAndCase)?.runningLotForSymbol;
 
         switch (caseNumber) {
             case 0:
@@ -321,8 +321,8 @@ const internTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDet
 
         try {
             if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlIntern`)) {
-                todayPnlData = await client.get(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlIntern`)
-                todayPnlData = JSON.parse(todayPnlData);
+                todayPnlData = await client.get(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlIntern`) || JSON.stringify([])
+                todayPnlData = JSON.parse(todayPnlData)
             }
 
             if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()} openingBalanceAndMarginInternship`)) {
@@ -338,9 +338,9 @@ const internTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDet
         const netPnl = await calculateNetPnl(message.data, todayPnlData, kiteData);
         const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
         const marginAndCase = getLastTradeMarginAndCaseNumber(message.data, todayPnlData, tenxTrader);
-        const caseNumber = (await marginAndCase).caseNumber;
-        const margin = (await marginAndCase).margin;
-        const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
+        const caseNumber = (await marginAndCase)?.caseNumber;
+        const margin = (await marginAndCase)?.margin;
+        const runningLotForSymbol = (await marginAndCase)?.runningLotForSymbol;
 
         switch (caseNumber) {
             case 0:
@@ -461,8 +461,8 @@ const dailyContestTradeStopLoss = async (message, brokerageDetailBuyUser, broker
 
         try {
             if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()} overallpnlDailyContest`)) {
-                todayPnlData = await client.get(`${createdBy.toString()}${sub_product_id.toString()} overallpnlDailyContest`)
-                todayPnlData = JSON.parse(todayPnlData);
+                todayPnlData = await client.get(`${createdBy.toString()}${sub_product_id.toString()} overallpnlDailyContest`) || JSON.stringify([])
+                todayPnlData = JSON.parse(todayPnlData)
             }
 
             if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()} openingBalanceAndMarginDailyContest`)) {
@@ -478,9 +478,9 @@ const dailyContestTradeStopLoss = async (message, brokerageDetailBuyUser, broker
         const netPnl = await calculateNetPnl(message.data, todayPnlData, kiteData);
         const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
         const marginAndCase = getLastTradeMarginAndCaseNumber(message.data, todayPnlData, dailyContest);
-        const caseNumber = (await marginAndCase).caseNumber;
-        const margin = (await marginAndCase).margin;
-        const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
+        const caseNumber = (await marginAndCase)?.caseNumber;
+        const margin = (await marginAndCase)?.margin;
+        const runningLotForSymbol = (await marginAndCase)?.runningLotForSymbol;
 
         switch (caseNumber) {
             case 0:
@@ -666,8 +666,8 @@ const marginxTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDe
 
         try {
             if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()} overallpnlMarginX`)) {
-                todayPnlData = await client.get(`${createdBy.toString()}${sub_product_id.toString()} overallpnlMarginX`)
-                todayPnlData = JSON.parse(todayPnlData);
+                todayPnlData = await client.get(`${createdBy.toString()}${sub_product_id.toString()} overallpnlMarginX`) || JSON.stringify([])
+                todayPnlData = JSON.parse(todayPnlData)
             }
 
             if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()} openingBalanceAndMarginMarginx`)) {
@@ -684,9 +684,9 @@ const marginxTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDe
         const netPnl = await calculateNetPnl(message.data, todayPnlData, kiteData);
         const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
         const marginAndCase = getLastTradeMarginAndCaseNumber(message.data, todayPnlData, marginx);
-        const caseNumber = (await marginAndCase).caseNumber;
-        const margin = (await marginAndCase).margin;
-        const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
+        const caseNumber = (await marginAndCase)?.caseNumber;
+        const margin = (await marginAndCase)?.margin;
+        const runningLotForSymbol = (await marginAndCase)?.runningLotForSymbol;
 
         switch (caseNumber) {
             case 0:
@@ -887,6 +887,8 @@ exports.pendingOrderMain = async () => {
             let index = message.index;
             let last_price = message.ltp;
 
+            // console.log(last_price, )
+
             const lockKey = `${createdBy}-${symbol}-${Quantity}-${_id}`
             const lockValue = Date.now().toString() + Math.random * 1000;
             const release = await mutex.acquire();
@@ -969,7 +971,8 @@ exports.pendingOrderMain = async () => {
 
                 // console.log(pnlData)
                 pnlData = JSON.parse(pnlData)
-                for (let elem of pnlData) {
+                // console.log(pnlData)
+                for (let elem of (pnlData || [])) {
                     // console.log("pnl dtata", elem, pnlData)
                     const buyOrSellPnl = elem.lots > 0 ? "BUY" : "SELL";
                     if (elem._id.symbol === symbol && elem._id.isLimit && buyOrSellPnl === buyOrSell) {
@@ -1110,73 +1113,80 @@ async function buyBrokerageUser(zerodhaAccountType, isRedisConnected) {
 }
 
 const getLastTradeMarginAndCaseNumber = async (data, pnlData, from) => {
-    const mySymbol = pnlData.filter((elem) => {
-        return elem?._id?.symbol === data.symbol && !elem?._id?.isLimit;
-    })
-
-    const runningLotForSymbol = mySymbol[0]?.lots;
-    const transactionTypeForSymbol = mySymbol[0]?.lots >= 0 ? "BUY" : mySymbol[0]?.lots < 0 && "SELL";
-    const quantity = data.Quantity;
-    const transaction_type = data.buyOrSell;
-    const symbol = mySymbol[0]?.symbol;
-    let margin = 0;
-    let caseNumber = 0;
-
-
-    const DataBase = from === virtualTrader ? PaperTrade :
-        from === internTrader ? InternshipTrade :
-            from === dailyContest ? DailyContestMockUser :
-                from === marginx ? MarginXMockUser :
-                    from === tenxTrader && TenXTrader;
-
-
-    if (pnlData?.length > 0) {
-        margin = mySymbol[0]?.margin;
-    } else {
-        const lastTradeData = await DataBase.findOne({ symbol: symbol, trader: new ObjectId(data.createdBy), trade_time: { $gte: new Date() } })
-            .sort({ _id: -1 })
-            .limit(1)
-        margin = lastTradeData && lastTradeData.margin;
+    try{
+        const mySymbol = pnlData?.filter((elem) => {
+            return elem?._id?.symbol === data.symbol && !elem?._id?.isLimit;
+        }) || []
+    
+        const runningLotForSymbol = mySymbol[0]?.lots;
+        const transactionTypeForSymbol = mySymbol[0]?.lots >= 0 ? "BUY" : mySymbol[0]?.lots < 0 && "SELL";
+        const quantity = data.Quantity;
+        const transaction_type = data.buyOrSell;
+        const symbol = mySymbol[0]?.symbol;
+        let margin = 0;
+        let caseNumber = 0;
+    
+    
+        const DataBase = from === virtualTrader ? PaperTrade :
+            from === internTrader ? InternshipTrade :
+                from === dailyContest ? DailyContestMockUser :
+                    from === marginx ? MarginXMockUser :
+                        from === tenxTrader && TenXTrader;
+    
+    
+        if (pnlData?.length > 0) {
+            margin = mySymbol[0]?.margin;
+        } else {
+            const lastTradeData = await DataBase.findOne({ symbol: symbol, trader: new ObjectId(data.createdBy), trade_time: { $gte: new Date() } })
+                .sort({ _id: -1 })
+                .limit(1)
+            margin = lastTradeData && lastTradeData.margin;
+        }
+    
+        if (Math.abs(runningLotForSymbol) > Math.abs(quantity) && transactionTypeForSymbol !== transaction_type) {
+            // if squaring of some quantity
+            caseNumber = 2;
+        } else if (Math.abs(runningLotForSymbol) < Math.abs(quantity) && transactionTypeForSymbol !== transaction_type) {
+            // if squaring of all quantity and adding more in reverse direction (square off more quantity)
+            caseNumber = 4;
+        } else if (Math.abs(runningLotForSymbol) === Math.abs(quantity) && transactionTypeForSymbol !== transaction_type) {
+            // if squaring off all quantity
+            caseNumber = 3;
+        } else if (transactionTypeForSymbol === transaction_type) {
+            // if adding more quantity
+            caseNumber = 1;
+        } else {
+            caseNumber = 0;
+        }
+    
+        return { margin: margin, caseNumber: caseNumber, runningLotForSymbol: runningLotForSymbol } || {}
+    
+    } catch(err){
+        console.log(err);
     }
-
-    if (Math.abs(runningLotForSymbol) > Math.abs(quantity) && transactionTypeForSymbol !== transaction_type) {
-        // if squaring of some quantity
-        caseNumber = 2;
-    } else if (Math.abs(runningLotForSymbol) < Math.abs(quantity) && transactionTypeForSymbol !== transaction_type) {
-        // if squaring of all quantity and adding more in reverse direction (square off more quantity)
-        caseNumber = 4;
-    } else if (Math.abs(runningLotForSymbol) === Math.abs(quantity) && transactionTypeForSymbol !== transaction_type) {
-        // if squaring off all quantity
-        caseNumber = 3;
-    } else if (transactionTypeForSymbol === transaction_type) {
-        // if adding more quantity
-        caseNumber = 1;
-    } else {
-        caseNumber = 0;
-    }
-
-    return { margin: margin, caseNumber: caseNumber, runningLotForSymbol: runningLotForSymbol }
 }
 
 const calculateNetPnl = async (tradeData, pnlData, data) => {
-    let addUrl = 'i=' + tradeData.exchange + ':' + tradeData.symbol;
-    pnlData.forEach((elem, index) => {
-        addUrl += ('&i=' + elem._id.exchange + ':' + elem._id.symbol);
-    });
 
-    let url = `https://api.kite.trade/quote/ltp?${addUrl}`;
-    const api_key = data.getApiKey;
-    const access_token = data.getAccessToken;
-    let auth = 'token' + api_key + ':' + access_token;
-    let authOptions = {
-        headers: {
-            'X-Kite-Version': '3',
-            Authorization: auth,
-        },
-    };
-
-    const arr = [];
     try {
+        let addUrl = 'i=' + tradeData.exchange + ':' + tradeData.symbol;
+        pnlData?.forEach((elem, index) => {
+            addUrl += ('&i=' + elem?._id?.exchange + ':' + elem?._id?.symbol);
+        });
+    
+        let url = `https://api.kite.trade/quote/ltp?${addUrl}`;
+        const api_key = data.getApiKey;
+        const access_token = data.getAccessToken;
+        let auth = 'token' + api_key + ':' + access_token;
+        let authOptions = {
+            headers: {
+                'X-Kite-Version': '3',
+                Authorization: auth,
+            },
+        };
+    
+        const arr = [];
+
         const response = await axios.get(url, authOptions);
 
         for (let instrument in response.data.data) {
@@ -1191,14 +1201,14 @@ const calculateNetPnl = async (tradeData, pnlData, data) => {
         let totalGrossPnl = 0
 
 
-        const ltp = arr.filter((subelem) => {
+        const ltp = arr?.filter((subelem) => {
             return subelem?.instrument_token == tradeData?.instrumentToken;
         })
 
         tradeData.last_price = ltp[0]?.last_price;
 
 
-        for (let elem of pnlData) {
+        for (let elem of (pnlData || [])) {
             let grossPnl = (elem?.amount + (elem?.lots) * ltp[0]?.last_price);
             totalGrossPnl += grossPnl;
             totalBrokerage += Number(elem?.brokerage);

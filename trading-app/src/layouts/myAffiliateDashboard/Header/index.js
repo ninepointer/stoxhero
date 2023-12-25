@@ -6,29 +6,35 @@ import Card from '@mui/material/Card';
 // import CardContent from '@mui/material/CardContent';
 // import CardMedia from '@mui/material/CardMedia';
 import { CardActionArea, CardContent, CardMedia, Divider, FormControl, Grid, InputLabel, Select } from '@mui/material';
-// import { userContext } from '../../../AuthContext';
 import MDTypography from '../../../components/MDTypography';
-// import { CircularProgress } from '@mui/material';
-// import LifetimeAffiliateData from '../data/lifetimeAffiliateData'
-// import LifetimeYouTubeAffiliateData from '../data/lifetimeYouTubeAffiliateData'
-// import LifetimeStoxHeroAffiliateData from '../data/lifetimeStoxHeroAffiliateData'
-// import LifetimeOfflineAffiliateData from '../data/lifetimeOfflineAffiliateData'
-// import { saveAs } from 'file-saver';
-// import moment from 'moment'
-// import LeaderBoard from '../data/leaderboard';
+
 import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import MenuItem from '@mui/material/MenuItem';
+import ListItemText from '@mui/material/ListItemText';
+import Checkbox from '@mui/material/Checkbox';
+import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
 // import signupcount from 
 import { apiUrl } from '../../../constants/constants';
 import ReferredProduct from "../data/transactions"
 import RaferralGrid from "../data/affiliateRaferrals"
+import RecentReferralGrid from "../data/recentAffiliateRaferrals"
 import logo from '../../../assets/images/logo1.jpeg'
 import MDSnackbar from "../../../components/MDSnackbar";
+import { userContext } from "../../../AuthContext";
+import EarningsChart from '../data/last30daysEarningsChart'
+import Referral2ActiveChart from '../data/pieChartReferral2Active'
+import Referral2PaidChart from '../data/pieChartReferrals2Paid'
+import MDButton from '../../../components/MDButton';
 
 export default function Dashboard() {
+  const getDetails = useContext(userContext);
+  const userDetails = getDetails.userDetails
+  const [period, setPeriod] = React.useState('Today');
   let [isLoading,setIsLoading] = useState([])
   const [affiliateOverview,setAffiliateOverview] = useState([]);
   const [affiliateRafferalSummery,setAffiliateRafferalSummery] = useState([]);
@@ -36,18 +42,9 @@ export default function Dashboard() {
   const date = new Date();
   const lastMonth = new Date(date.getFullYear(), date.getMonth(), 1);
   const [startDate, setStartDate] = React.useState(dayjs(lastMonth));
-
   const [endDate,setEndDate] = useState(dayjs(date))
-  // const [shaffiliateReferrals,setSHAffiliateReferrals] = useState([])
-  // const [shaffiliateOverview,setSHAffiliateOverview] = useState([])
-  // const [oiaffiliateReferrals,setOIAffiliateReferrals] = useState([])
-  // const [oiaffiliateOverview,setOIAffiliateOverview] = useState([])
-  // const [leaderboard, setLeaderboard] = useState([]);
-  // const [downloadingTestZoneData,setDownloadingTestZoneRevenueData] = useState(false)
-  // const [downloadingMarginXData,setDownloadingMarginXRevenueData] = useState(false)
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
-
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = (title, content) => {
     setTitle(title)
@@ -152,18 +149,198 @@ export default function Dashboard() {
       });
   }
 
+  const handlePeriodChange = (event) => {
+    setPeriod(event.target.value);
+  };
+
 
   return (
 
     <MDBox mt={2} mb={1} borderRadius={10} minHeight='auto' display='flex' justifyContent='center' alignItems='center' flexDirection='column'>
       <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
         <Grid item xs={12} md={12} lg={12}>
-          <MDTypography fontSize={15} fontWeight='bold'>User Affiliate Dashboard</MDTypography>
+          <MDTypography fontSize={15} ml={1.5} fontWeight='bold'>My Affiliate Dashboard</MDTypography>
         </Grid>
-        <Grid item xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='center'>
-          <Grid container spacing={2} xs={12} md={12} lg={12} display='flex' justifyContent='center'>
 
-            <Grid item xs={12} md={6} xl={3} mt={-1} mb={1}>
+        <Grid item xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='center'>
+          <Grid container spacing={2} xs={12} md={12} lg={12} display='flex' justifyContent='center' style={{width:'100%'}}>
+            
+            <Grid item xs={12} md={12} lg={4} style={{width:'100%', minHeight:'410px'}}>
+              <Card sx={{minWidth:'100%', minHeight:'410px', alignContent: 'center', alignItems: 'center' }}>
+                <CardMedia
+                  component="img"
+                  alt="signup"
+                  height="80"
+                  image={userDetails?.profilePhoto?.url}
+                />
+                <CardContent style={{mt:-1, width:'100%'}} display='flex' justifyContent='center'>
+                <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+                  <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+                    <MDTypography variant="h6" fontSize={15} gutterBottom style={{ textAlign: 'center' }}>
+                    {userDetails?.first_name} {userDetails?.last_name}
+                    </MDTypography>
+                  </Grid>
+                  <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={10} fontWeight="bold" color="text.secondary" gutterBottom style={{ textAlign: 'center',padding:'2.5px 5px 2.5px 5px', borderRadius:'3px', backgroundColor:'lightgrey' }}>
+                      Lifetime Earnings
+                    </MDTypography>
+                  </Grid>
+                  <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+                    <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                      { "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((affiliateOverview?.summery?.[0]?.totalProductCPayout ?? 0) +(affiliateRafferalSummery?.affiliateRefferalPayout ?? 0)))}
+                    </MDTypography>
+                  </Grid>
+
+                  <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+                    <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='center'>
+                      <MDTypography fontSize={10} fontWeight="bold" color="warning" gutterBottom style={{ textAlign: 'center',padding:'2.5px 5px 2.5px 5px', borderRadius:'3px'}}>
+                        Total Referrals 
+                      </MDTypography>
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='center'>
+                      <MDTypography fontSize={10} fontWeight="bold" color="info" gutterBottom style={{ textAlign: 'center',padding:'2.5px 5px 2.5px 5px', borderRadius:'3px'}}>
+                        Active Referrals 
+                      </MDTypography>
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='center'>
+                      <MDTypography fontSize={10} fontWeight="bold" color="success" gutterBottom style={{ textAlign: 'center',padding:'2.5px 5px 2.5px 5px', borderRadius:'3px'}}>
+                        Paid Referrals
+                      </MDTypography>
+                    </Grid>
+                  </Grid>
+                  <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+                    <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='center'>
+                      <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                        {(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((affiliateOverview?.summery?.[0]?.totalProductCPayout ?? 0) +(affiliateRafferalSummery?.affiliateRefferalPayout ?? 0)))}
+                      </MDTypography>
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='center'>
+                      <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                        {(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((affiliateOverview?.summery?.[0]?.totalProductCPayout ?? 0) +(affiliateRafferalSummery?.affiliateRefferalPayout ?? 0)))}
+                      </MDTypography>
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='center'>
+                      <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                        {(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((affiliateOverview?.summery?.[0]?.totalProductCPayout ?? 0) +(affiliateRafferalSummery?.affiliateRefferalPayout ?? 0)))}
+                      </MDTypography>
+                    </Grid>
+                  </Grid>
+
+                  <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+                    <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center'>
+                      <MDTypography fontSize={10} fontWeight="bold" color="warning" gutterBottom style={{ textAlign: 'center',padding:'2.5px 5px 2.5px 5px', borderRadius:'3px'}}>
+                        Total/Active
+                      </MDTypography>
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center'>
+                      <MDTypography fontSize={10} fontWeight="bold" color="info" gutterBottom style={{ textAlign: 'center',padding:'2.5px 5px 2.5px 5px', borderRadius:'3px'}}>
+                        Total/Paid
+                      </MDTypography>
+                    </Grid>
+                  </Grid>
+                  <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+                    <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center'>
+                      <MDTypography variant="h6" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                        2.4%
+                      </MDTypography>
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center'>
+                      <MDTypography variant="h6" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                        1.2%
+                      </MDTypography>
+                    </Grid>
+                  </Grid>
+                  </Grid>
+                  <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+                    <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center'>
+                      <MDTypography fontSize={10} fontWeight="bold" color="text.secondary" gutterBottom style={{ textAlign: 'center',padding:'2.5px 5px 2.5px 5px', borderRadius:'3px', backgroundColor:'lightgrey' }}>
+                        Amount/Referral 
+                      </MDTypography>
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center'>
+                      <MDTypography fontSize={10} fontWeight="bold" color="text.secondary" gutterBottom style={{ textAlign: 'center',padding:'2.5px 5px 2.5px 5px', borderRadius:'3px', backgroundColor:'lightgrey' }}>
+                        Commission %
+                      </MDTypography>
+                    </Grid>
+                  </Grid>
+                  <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+                    <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center'>
+                      <MDTypography variant="h6" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                        { "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((affiliateOverview?.summery?.[0]?.totalProductCPayout ?? 0) +(affiliateRafferalSummery?.affiliateRefferalPayout ?? 0)))}
+                      </MDTypography>
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center'>
+                      <MDTypography variant="h6" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                        12%
+                      </MDTypography>
+                    </Grid>
+                  </Grid>
+                  
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={12} lg={8} style={{width:'100%', minHeight:'410px'}}>
+              <Card sx={{ minWidth: '100%', minHeight:'410px'}}>
+                <CardContent sx={{ minWidth: '100%'}}>
+                  <EarningsChart sx={{ minWidth: '100%'}}/>
+                </CardContent>
+              </Card>
+            </Grid>
+
+          </Grid>
+        </Grid>
+
+        <Grid item xs={12} md={12} lg={12} mt={2} display='flex' justifyContent='center' style={{width:'100%'}}>
+          <Grid container spacing={2} xs={12} md={12} lg={12} display='flex' justifyContent='center' style={{width:'100%'}}>
+
+            <Grid item xs={12} md={12} lg={4} style={{width:'100%', minHeight:'410px'}}>
+              <Card sx={{ minWidth: '100%', minHeight:'410px'}}>
+                <CardContent sx={{ minWidth: '100%'}}>
+                  <Referral2ActiveChart sx={{ minWidth: '100%'}} affiliateReferrals={affiliateReferrals} />
+                  <Referral2PaidChart sx={{ minWidth: '100%'}} affiliateReferrals={affiliateReferrals} />
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={12} lg={8} style={{width:'100%', minHeight:'410px'}}>
+              <Card sx={{ minWidth: '100%', minHeight:'410px'}}>
+                <CardContent sx={{ minWidth: '100%'}}>
+                  <RecentReferralGrid style={{width:'100%', minHeight:'410px'}} affiliateReferrals={affiliateReferrals} />
+                </CardContent>
+              </Card>
+            </Grid>
+
+          </Grid>
+        </Grid>  
+
+        <Grid item xs={12} md={12} lg={12} mt={3} display='flex' justifyContent='center' style={{width:'100%'}}>
+          <Grid container spacing={2} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+
+            <Grid item xs={12} md={12} lg={3} display='flex' justifyContent='center' alignItems='center'>
+              <FormControl fullWidth sx={{mt:1}}>
+                <InputLabel id="demo-simple-select-label">Period</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={period}
+                  label="Period"
+                  sx={{minHeight:44}}
+                  onChange={handlePeriodChange}
+                >
+                  <MenuItem value={"Today"}>Today</MenuItem>
+                  <MenuItem value={"Yesterday"}>Yesterday</MenuItem>
+                  <MenuItem value={"This Week"}>This Week</MenuItem>
+                  <MenuItem value={"Last Week"}>Last Week</MenuItem>
+                  <MenuItem value={"This Month"}>This Month</MenuItem>
+                  <MenuItem value={"Last Month"}>Last Month</MenuItem>
+                  <MenuItem value={"Lifetime"}>Lifetime</MenuItem>
+                  <MenuItem value={"Custom"}>Custom</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            <Grid item xs={12} md={6} lg={3} display='flex' justifyContent='center' alignItems='center'>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={['DatePicker']}>
                   <DatePicker
@@ -177,7 +354,7 @@ export default function Dashboard() {
               </LocalizationProvider>
             </Grid>
 
-            <Grid item xs={12} md={6} xl={3} mt={-1} mb={1}>
+            <Grid item xs={12} md={6} lg={3} display='flex' justifyContent='center' alignItems='center'>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={['DatePicker']}>
                   <DatePicker
@@ -190,109 +367,243 @@ export default function Dashboard() {
                 </DemoContainer>
               </LocalizationProvider>
             </Grid>
+
+            <Grid item xs={12} md={6} lg={3} mt={.5} display='flex' justifyContent='center' alignItems='center'>
+              <MDButton variant="contained" color="info" style={{minWidth:'100%'}}>Show</MDButton>
+            </Grid>
+            
           </Grid>
-        </Grid>
+        </Grid>      
 
         <Grid item xs={12} md={12} lg={12} mt={2} display='flex' justifyContent='center'>
+
           <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center'>
-
-            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120 }}>
-              <Card sx={{ maxWidth: 345, alignContent: 'center', alignItems: 'center' }}>
-                <CardMedia
-                  component="img"
-                  alt="signup"
-                  height="20"
-                  image={logo}
-                />
-                <CardContent>
-                  <MDTypography variant="h6" fontSize={15} gutterBottom style={{ textAlign: 'center' }}>
-                    Product Transaction
-                  </MDTypography>
-                  <MDTypography variant="body2" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
-                    {(affiliateOverview?.summery && affiliateOverview?.summery[0]?.totalProductCount) || 0}
-                  </MDTypography>
-                </CardContent>
-              </Card>
+            <Grid item xs={12} md={12} lg={12} sx={{ minWidth: 120, ml:0.5 }}>
+              <MDTypography fontSize={15} fontWeight='bold'>Summary for the selected period</MDTypography>
             </Grid>
 
-            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120 }}>
+            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120, minHeight: 135 }}>
               <Card sx={{ maxWidth: 345, alignContent: 'center', alignItems: 'center' }}>
                 <CardMedia
                   component="img"
                   alt="signup"
-                  height="20"
+                  height="30"
                   image={logo}
                 />
-                <CardContent>
+                <CardContent sx={{ minWidth: 120, minHeight: 135 }}>
                   <MDTypography variant="h6" fontSize={15} gutterBottom style={{ textAlign: 'center' }}>
-                    Earning (Product)
+                    Referrals
                   </MDTypography>
-                  <MDTypography variant="body2" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
-                  { "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(affiliateOverview?.summery ? (affiliateOverview?.summery[0]?.totalProductCPayout || 0) : 0))}
-                  </MDTypography>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120 }}>
-              <Card sx={{ maxWidth: 345, alignContent: 'center', alignItems: 'center' }}>
-                <CardMedia
-                  component="img"
-                  alt="signup"
-                  height="20"
-                  image={logo}
-                />
-                <CardContent>
-                  <MDTypography variant="h6" fontSize={15} gutterBottom style={{ textAlign: 'center' }}>
-                    Total SignUp
-                  </MDTypography>
-                  <MDTypography variant="body2" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                  <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
                     {affiliateRafferalSummery?.affiliateRefferalCount || 0}
                   </MDTypography>
+                  <MDTypography fontSize={10} color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    Total signups through your affiliate code
+                  </MDTypography>
                 </CardContent>
               </Card>
             </Grid>
 
-            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120 }}>
+            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120, minHeight: 135 }}>
               <Card sx={{ maxWidth: 345, alignContent: 'center', alignItems: 'center' }}>
                 <CardMedia
                   component="img"
                   alt="signup"
-                  height="20"
+                  height="30"
                   image={logo}
                 />
-                <CardContent>
+                <CardContent sx={{ minWidth: 120, minHeight: 135 }}>
                   <MDTypography variant="h6" fontSize={15} gutterBottom style={{ textAlign: 'center' }}>
-                    Earning (SignUp)
+                    Active Referrals
                   </MDTypography>
-                  <MDTypography variant="body2" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
-                  { "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(affiliateRafferalSummery?.affiliateRefferalPayout || 0))}
-
+                  <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    {affiliateRafferalSummery?.affiliateRefferalCount || 0}
+                  </MDTypography>
+                  <MDTypography fontSize={10} color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    Users activiated who joined through your affiliate code
                   </MDTypography>
                 </CardContent>
               </Card>
             </Grid>
 
-            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120 }}>
+            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120, minHeight: 135 }}>
               <Card sx={{ maxWidth: 345, alignContent: 'center', alignItems: 'center' }}>
                 <CardMedia
                   component="img"
                   alt="signup"
-                  height="20"
+                  height="30"
                   image={logo}
                 />
-                <CardContent>
+                <CardContent sx={{ minWidth: 120, minHeight: 135 }}>
                   <MDTypography variant="h6" fontSize={15} gutterBottom style={{ textAlign: 'center' }}>
-                    Total Earning
+                    Act. Conversion
                   </MDTypography>
-                  <MDTypography variant="body2" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
-                  { "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((affiliateOverview?.summery?.[0]?.totalProductCPayout ?? 0) +(affiliateRafferalSummery?.affiliateRefferalPayout ?? 0)))}
-
+                  <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    2.3%
+                  </MDTypography>
+                  <MDTypography fontSize={10} color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    Active Referrals/Total Referrals  
                   </MDTypography>
                 </CardContent>
               </Card>
             </Grid>
+
+            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120, minHeight: 135 }}>
+              <Card sx={{ maxWidth: 345, alignContent: 'center', alignItems: 'center' }}>
+                <CardMedia
+                  component="img"
+                  alt="signup"
+                  height="30"
+                  image={logo}
+                />
+                <CardContent sx={{ minWidth: 120, minHeight: 135 }}>
+                  <MDTypography variant="h6" fontSize={15} gutterBottom style={{ textAlign: 'center' }}>
+                    Paid Referrals
+                  </MDTypography>
+                  <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    {affiliateRafferalSummery?.affiliateRefferalCount || 0}
+                  </MDTypography>
+                  <MDTypography fontSize={10} color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    # of referrals who purchased any product 
+                  </MDTypography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120, minHeight: 135 }}>
+              <Card sx={{ maxWidth: 345, alignContent: 'center', alignItems: 'center' }}>
+                <CardMedia
+                  component="img"
+                  alt="signup"
+                  height="30"
+                  image={logo}
+                />
+                <CardContent sx={{ minWidth: 120, minHeight: 135 }}>
+                  <MDTypography variant="h6" fontSize={15} gutterBottom style={{ textAlign: 'center' }}>
+                    Paid Conversion
+                  </MDTypography>
+                  <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    2.3%
+                  </MDTypography>
+                  <MDTypography fontSize={10} color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    Paid Referrals/Total Referrals  
+                  </MDTypography> 
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120, minHeight: 135 }}>
+              <Card sx={{ maxWidth: 345, alignContent: 'center', alignItems: 'center' }}>
+                <CardMedia
+                  component="img"
+                  alt="signup"
+                  height="30"
+                  image={logo}
+                />
+                <CardContent sx={{ minWidth: 120, minHeight: 135 }}>
+                  <MDTypography variant="h6" fontSize={15} gutterBottom style={{ textAlign: 'center' }}>
+                   Referral Amount
+                  </MDTypography>
+                  <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    { "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(affiliateRafferalSummery?.affiliateRefferalPayout || 0))}
+                  </MDTypography>
+                  <MDTypography fontSize={10} color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    Amount recieved for referrals  
+                  </MDTypography> 
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120, minHeight: 135 }}>
+              <Card sx={{ maxWidth: 345, alignContent: 'center', alignItems: 'center' }}>
+                <CardMedia
+                  component="img"
+                  alt="signup"
+                  height="30"
+                  image={logo}
+                />
+                <CardContent sx={{ minWidth: 120, minHeight: 135 }}>
+                  <MDTypography variant="h6" fontSize={15} gutterBottom style={{ textAlign: 'center' }}>
+                    Activation Amount
+                  </MDTypography>
+                  <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                  { "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(affiliateRafferalSummery?.affiliateRefferalPayout || 0))}
+                  </MDTypography>
+                  <MDTypography fontSize={10} color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    Amount recieved for activating referrals  
+                  </MDTypography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120, minHeight: 135 }}>
+              <Card sx={{ maxWidth: 345, alignContent: 'center', alignItems: 'center' }}>
+                <CardMedia
+                  component="img"
+                  alt="signup"
+                  height="30"
+                  image={logo}
+                />
+                <CardContent sx={{ minWidth: 120, minHeight: 135 }}>
+                  <MDTypography variant="h6" fontSize={15} gutterBottom style={{ textAlign: 'center' }}>
+                    # of Purchases
+                  </MDTypography>
+                  <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                  {(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(affiliateRafferalSummery?.affiliateRefferalPayout || 0))}
+                  </MDTypography>
+                  <MDTypography fontSize={10} color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    # of products purchased using your affiliate code 
+                  </MDTypography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120, minHeight: 135 }}>
+              <Card sx={{ maxWidth: 345, alignContent: 'center', alignItems: 'center' }}>
+                <CardMedia
+                  component="img"
+                  alt="signup"
+                  height="30"
+                  image={logo}
+                />
+                <CardContent sx={{ minWidth: 120, minHeight: 135 }}>
+                  <MDTypography variant="h6" fontSize={15} gutterBottom style={{ textAlign: 'center' }}>
+                    Commission
+                  </MDTypography>
+                  <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                  { "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(affiliateRafferalSummery?.affiliateRefferalPayout || 0))}
+                  </MDTypography>
+                  <MDTypography fontSize={10} color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    Commission from purchases using your affiliate code 
+                  </MDTypography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={12} lg={2.4} sx={{ minWidth: 120, minHeight: 135 }}>
+              <Card sx={{ maxWidth: 345, alignContent: 'center', alignItems: 'center' }}>
+                <CardMedia
+                  component="img"
+                  alt="signup"
+                  height="30"
+                  image={logo}
+                />
+                <CardContent sx={{ minWidth: 120, minHeight: 135 }}>
+                  <MDTypography variant="h6" fontSize={15} gutterBottom style={{ textAlign: 'center' }}>
+                    Total Amount
+                  </MDTypography>
+                  <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                  { "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(affiliateRafferalSummery?.affiliateRefferalPayout || 0))}
+                  </MDTypography>
+                  <MDTypography fontSize={10} color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
+                    Total amount earned from referrals and commission
+                  </MDTypography>
+                </CardContent>
+              </Card>
+            </Grid>
+            
           </Grid>
+
         </Grid>
 
         <Grid item xs={12} md={12} lg={12} sx={{ minWidth: 120 }}>
@@ -302,6 +613,7 @@ export default function Dashboard() {
         <Grid item xs={12} md={12} lg={12} sx={{ minWidth: 120 }}>
           <ReferredProduct transactions={affiliateOverview?.transaction} />
         </Grid>
+
       </Grid>
       {renderSuccessSB}
       {renderErrorSB}
