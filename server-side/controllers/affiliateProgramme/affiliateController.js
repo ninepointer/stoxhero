@@ -211,7 +211,13 @@ exports.addAffiliateUser = async (req, res) => {
       return res.status(404).json({ status: "error", message: "Affiliate not found" });
     }
 
-    let user = await User.findOne({ _id: new ObjectId(userId) });
+    let user = await User.findOneAndUpdate({ _id: new ObjectId(userId) },
+    {
+      $set: {
+        isAffiliate: true,
+        affiliateStatus: "Active"
+      }
+    });
 
     try {
       if (process.env.PROD == 'true') {
@@ -335,6 +341,13 @@ exports.removeAffiliateUser = async (req, res) => {
 
     affiliate.affiliates = [...participants];
     await affiliate.save({ validateBeforeSave: false });
+
+    let user = await User.findOneAndUpdate({ _id: new ObjectId(userId) },
+    {
+      $set: {
+        affiliateStatus: "Inactive"
+      }
+    });
 
     res.status(200).json({
       status: "success",
