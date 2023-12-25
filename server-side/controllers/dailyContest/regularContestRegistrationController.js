@@ -239,7 +239,7 @@ exports.confirmOTP = async (req, res, next) => {
                         transactionType: affiliateObj.currency == 'INR' ? 'Cash' : 'Bonus'
                     });
 
-                    affiliateObj?.referrals?.push({ userId: newuser._id, joinedOn: new Date(), affiliateUserId: referrerCodeMatch?._id })
+                    affiliateObj?.referrals?.push({ userId: newuser._id, joinedOn: new Date(), affiliateUserId: referralUser?._id })
 
                     await affiliateObj.save();
                     // if (referralProgram) await referralProgram?.save({ validateBeforeSave: false });

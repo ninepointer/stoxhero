@@ -91,6 +91,18 @@ const Referrals = require("../../models/campaigns/referralProgram")
 const {dailyContestTimeStore, dailyContestTradeCut} = require("../../dailyContestTradeCut")
 const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema");
 const Affiliate = require("../../models/affiliateProgram/affiliateProgram")
+const AffiliateTransaction = require("../../models/affiliateProgram/affiliateTransactions");
+
+router.get('/transaction', async(req,res) =>{
+  const transaction = await AffiliateTransaction.find({product: new ObjectId("6586e95dcbc91543c3b6c181")});
+  for(let elem of transaction){
+    elem.productActualPrice = 0;
+    elem.productDiscountedPrice = 0;
+    await elem.save({validateBeforeSave: false});
+  }
+  
+  res.send("ok")
+})
 
 router.get('/negetivetds', async(req,res) =>{
   // const tenx = await TenxSubscription.find();
