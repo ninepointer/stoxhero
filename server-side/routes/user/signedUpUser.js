@@ -333,6 +333,7 @@ router.patch("/verifyotp", async (req, res) => {
         referral = await Referral.findOne({ status: "Active" });
     }
 
+
     // free portfolio adding in user collection
     const activeFreePortfolios = await PortFolio.find({ status: "Active", portfolioAccount: "Free" });
     let portfolioArr = [];
@@ -447,32 +448,65 @@ router.patch("/verifyotp", async (req, res) => {
         if (referredBy) {
             if(match){
                 let referrerCodeMatch = await User.findOne({ myReferralCode: referrerCode });
+                const updateProgramme = await AffiliatePrograme.findOneAndUpdate(
+                    { _id: new ObjectId(affiliateObj?._id) },
+                    {
+                        $push: {
+                            referrals: {
+                                userId: newuser._id,
+                                joinedOn: new Date(),
+                                affiliateUserId: referrerCodeMatch?._id
+                            }
+                        }
+                    },
 
-                affiliateObj?.referrals?.push({ userId: newuser._id, joinedOn: new Date(), affiliateUserId: referrerCodeMatch?._id})
+                    { new: true, validateBeforeSave: false }
+                  );
+                  
+                //   console.log("updateProgramme",updateProgramme)
+                // affiliateObj?.referrals?.push({ userId: newuser._id, joinedOn: new Date(), affiliateUserId: referrerCodeMatch?._id})
                 await affiliateObj.save();
     
                 if (referrerCode) {
-                    referrerCodeMatch.affiliateReferrals = [...referrerCodeMatch.affiliateReferrals, {
-                        referredUserId: newuser._id,
-                        joining_date: newuser.createdOn,
-                        affiliateProgram: affiliateObj._id,
-                        affiliateEarning: affiliateObj.rewardPerSignup,
-                        affiliateCurrency: affiliateObj.currency,
-                    }];
+
+                    const saveAffiliate = await User.findOneAndUpdate(
+                        { _id: new ObjectId(referrerCodeMatch?._id) },
+                        {
+                            $push: {
+                                affiliateReferrals: {
+                                    referredUserId : newuser._id,
+                                    joiningDate : newuser.createdOn,
+                                    affiliateProgram : affiliateObj._id,
+                                    affiliateEarning : affiliateObj.rewardPerSignup,
+                                    affiliateCurrency : affiliateObj.currency
+                              }
+                            }
+                          },
+                      );
+
                     if(affiliateObj?.referralSignupBonus?.amount){
                         await addSignupBonus(newuser?._id, affiliateObj?.referralSignupBonus?.amount, affiliateObj?.referralSignupBonus?.currency);
                     }
                     await referrerCodeMatch.save({ validateBeforeSave: false });
-                    const wallet = await UserWallet.findOne({ userId: referrerCodeMatch._id });
-                    wallet.transactions = [...wallet.transactions, {
-                        title: 'Affiliate Signup Credit',
-                        description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
-                        amount: affiliateObj.rewardPerSignup,
-                        transactionId: uuid.v4(),
-                        transactionDate: new Date(),
-                        transactionType: affiliateObj.currency == 'INR' ? 'Cash' : 'Bonus'
-                    }];
-                    await wallet.save({ validateBeforeSave: false });
+
+                    const wallet = await UserWallet.findOneAndUpdate(
+                        { userId: referrerCodeMatch._id },
+                        {
+                          $push: {
+                            transactions: {
+                              title: 'Affiliate Signup Credit',
+                              description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                              amount: affiliateObj.rewardPerSignup,
+                              transactionId: uuid.v4(),
+                              transactionDate: new Date(),
+                              transactionType: affiliateObj.currency === 'INR' ? 'Cash' : 'Bonus'
+                            }
+                          }
+                        },
+                        { new: true, validateBeforeSave: false }
+                      );
+                      
+                      // Access the updated wallet document using the 'wallet' variable
 
                     await createUserNotification({
                         title: 'Affiliate Signup Credit',
