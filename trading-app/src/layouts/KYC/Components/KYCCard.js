@@ -128,7 +128,7 @@ const KYCCard = ({user, action, setAction}) => {
             </MDBox>
             <MDBox sx={{display:'flex', justifyContent:'space-between'}}>
                 <MDTypography style={{fontSize:'14px', marginBottom:'8px', marginRight:'16px'}}>Bank Name:{user?.bankName}</MDTypography>
-                <MDTypography style={{fontSize:'14px', marginBottom:'8px',marginRight:'16px'}}>Account Name:{user?.nameAsPerBankAccount}</MDTypography>
+                <MDTypography style={{fontSize:'14px', marginBottom:'8px',marginRight:'16px'}}>Account Holder Name:{user?.nameAsPerBankAccount}</MDTypography>
                 <MDTypography style={{fontSize:'14px', marginBottom:'8px',marginRight:'16px'}}>Ifsc:{user?.ifscCode}</MDTypography>
                 <MDTypography style={{fontSize:'14px', marginBottom:'8px',marginRight:'16px'}}>Account No.:{user?.accountNumber}</MDTypography>
             </MDBox>       

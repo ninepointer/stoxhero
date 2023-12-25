@@ -452,27 +452,60 @@ router.patch("/verifyotp", async (req, res) => {
                 await affiliateObj.save();
     
                 if (referrerCode) {
-                    referrerCodeMatch.affiliateReferrals = [...referrerCodeMatch.affiliateReferrals, {
-                        referredUserId: newuser._id,
-                        joining_date: newuser.createdOn,
-                        affiliateProgram: affiliateObj._id,
-                        affiliateEarning: affiliateObj.rewardPerSignup,
-                        affiliateCurrency: affiliateObj.currency,
-                    }];
+
+                    const saveAffiliate = await User.updateOne(
+                        { _id: new ObjectId(referrerCodeMatch?._id) },
+                        {
+                          $set: {
+                            'affiliateReferrals.referredUserId': newuser._id,
+                            'affiliateReferrals.joiningDate': newuser.createdOn,
+                            'affiliateReferrals.affiliateProgram': affiliateObj._id,
+                            'affiliateReferrals.affiliateEarning': affiliateObj.rewardPerSignup,
+                            'affiliateReferrals.affiliateCurrency': affiliateObj.currency
+                          }
+                        }
+                      );
+                    // referrerCodeMatch.affiliateReferrals.push({
+                    //     affiliateReferrals.referredUserId: newuser._id,
+                    //     affiliateReferrals.joiningDate: newuser.createdOn,
+                    //     affiliateReferrals.affiliateProgram: affiliateObj._id,
+                    //     affiliateReferrals.affiliateEarning: affiliateObj.rewardPerSignup,
+                    //     affiliateReferrals.affiliateCurrency: affiliateObj.currency,
+                    // });
                     if(affiliateObj?.referralSignupBonus?.amount){
                         await addSignupBonus(newuser?._id, affiliateObj?.referralSignupBonus?.amount, affiliateObj?.referralSignupBonus?.currency);
                     }
                     await referrerCodeMatch.save({ validateBeforeSave: false });
-                    const wallet = await UserWallet.findOne({ userId: referrerCodeMatch._id });
-                    wallet.transactions = [...wallet.transactions, {
-                        title: 'Affiliate Signup Credit',
-                        description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
-                        amount: affiliateObj.rewardPerSignup,
-                        transactionId: uuid.v4(),
-                        transactionDate: new Date(),
-                        transactionType: affiliateObj.currency == 'INR' ? 'Cash' : 'Bonus'
-                    }];
-                    await wallet.save({ validateBeforeSave: false });
+                    // const wallet = await UserWallet.findOne({ userId: referrerCodeMatch._id });
+                    // wallet.transactions = [...wallet.transactions, {
+                    //     title: 'Affiliate Signup Credit',
+                    //     description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                    //     amount: affiliateObj.rewardPerSignup,
+                    //     transactionId: uuid.v4(),
+                    //     transactionDate: new Date(),
+                    //     transactionType: affiliateObj.currency == 'INR' ? 'Cash' : 'Bonus'
+                    // }];
+                    // await wallet.save({ validateBeforeSave: false });
+
+                    const wallet = await UserWallet.findOneAndUpdate(
+                        { userId: referrerCodeMatch._id },
+                        {
+                          $push: {
+                            transactions: {
+                              title: 'Affiliate Signup Credit',
+                              description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                              amount: affiliateObj.rewardPerSignup,
+                              transactionId: uuid.v4(),
+                              transactionDate: new Date(),
+                              transactionType: affiliateObj.currency === 'INR' ? 'Cash' : 'Bonus'
+                            }
+                          }
+                        },
+                        { new: true, validateBeforeSave: false }
+                      );
+                      
+                      // Access the updated wallet document using the 'wallet' variable
+                      
 
                     await createUserNotification({
                         title: 'Affiliate Signup Credit',
@@ -498,8 +531,8 @@ router.patch("/verifyotp", async (req, res) => {
                         affiliateWalletTId: uuid.v4(),
                         product: new ObjectId("6586e95dcbc91543c3b6c181"),
                         specificProduct: new ObjectId("6586e95dcbc91543c3b6c181"),
-                        productActualPrice: affiliateObj?.referralSignupBonus?.amount,
-                        productDiscountedPrice: affiliateObj?.referralSignupBonus?.amount,
+                        productActualPrice: 0,
+                        productDiscountedPrice: 0,
                         buyer: new ObjectId(newuser?._id),
                         affiliate: new ObjectId(referrerCodeMatch._id),
                         lastModifiedBy: new ObjectId(referrerCodeMatch._id),
