@@ -17,6 +17,8 @@ const uuid = require('uuid');
 // const ObjectId = require('mongodb').ObjectId;
 const AffiliatePrograme = require("../../models/affiliateProgram/affiliateProgram")
 const Referral = require("../../models/campaigns/referralProgram");
+const AffiliateTransaction = require("../../models/affiliateProgram/affiliateTransactions");
+const {ObjectId} = require('mongodb')
 
 
 
@@ -250,6 +252,18 @@ exports.confirmOTP = async (req, res, next) => {
                     if (referralUser) await referralUser.save({ validateBeforeSave: false });
                     if (referralUserWallet) await referralUserWallet.save({ validateBeforeSave: false });
     
+                    await AffiliateTransaction.create({
+                        affiliateProgram: new ObjectId(affiliateObj?._id),
+                        affiliateWalletTId: uuid.v4(),
+                        product: new ObjectId("6586e95dcbc91543c3b6c181"),
+                        specificProduct: new ObjectId("6586e95dcbc91543c3b6c181"),
+                        productActualPrice: affiliateObj?.referralSignupBonus?.amount,
+                        productDiscountedPrice: affiliateObj?.referralSignupBonus?.amount,
+                        buyer: new ObjectId(newuser?._id),
+                        affiliate: new ObjectId(referralUser._id),
+                        lastModifiedBy: new ObjectId(referralUser._id),
+                        affiliatePayout: affiliateObj.rewardPerSignup
+                    })
                 } else{
                     const referralProgram = await ReferralProgram.findOne({ status: 'Active' })
                     referralUser?.referrals?.push({
