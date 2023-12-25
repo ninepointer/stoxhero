@@ -227,10 +227,6 @@ exports.confirmOTP = async(req, res, next)=>{
             // console.log(campaignData)
         }
 
-      
-
-        // res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
-            // let email = newuser.email;
             let subject = "Welcome to StoxHero - Learn, Trade, and Earn!";
             let message =
             `

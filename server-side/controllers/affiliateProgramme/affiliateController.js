@@ -13,13 +13,13 @@ const uuid = require('uuid');
 // Controller for creating a affiliate
 exports.createAffiliate = async (req, res) => {
   try {
-    const { affiliateProgramName, startDate, endDate, commissionPercentage, affiliateType, maxDiscount, minOrderValue, discountPercentage,
-      eligiblePlatforms, eligibleProducts, description, status } = req.body;
+    const {referralSignupBonus, rewardPerSignup, affiliateProgramName, startDate, endDate, commissionPercentage, affiliateType, maxDiscount, minOrderValue, discountPercentage,
+      eligiblePlatforms, eligibleProducts, description, status, currency } = req.body;
 
     const affiliate = await Affiliate.create({
       affiliateProgramName, startDate, endDate, commissionPercentage, affiliateType, discountPercentage,
       eligiblePlatforms, eligibleProducts, description, status, maxDiscount, minOrderValue,
-      createdBy: req.user._id, lastModifiedBy: req.user._id,
+      createdBy: req.user._id, lastModifiedBy: req.user._id, referralSignupBonus, rewardPerSignup, currency
     });
 
     res.status(201).json({
@@ -348,6 +348,9 @@ exports.affiliateLeaderboard = async (req, res) => {
   startDate = (lifetime) ? "2000-01-01" : startDate;
   endDate = (lifetime) ? new Date() : endDate;
   console.log(programme, new Date(startDate), new Date(endDate), (lifetime))
+  if(new Date(startDate)>new Date(endDate)){
+    return res.status(400).json({status:'error', message:'Invalid Date range'});
+  }
   const matchStage = {
     affiliateProgram: programme !== "Cummulative" && new ObjectId(programme),
     transactionDate: {
@@ -1084,3 +1087,183 @@ exports.getOfflineInstituteAffiliateOverview = async (req, res) => {
     });
   }
 };
+
+
+exports.getMyAffiliateTransactionAndPayout = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const {startDate, endDate} = req.query;
+    if(new Date(startDate)>new Date(endDate)){
+      return res.status(400).json({status:'error', message:'Invalid Date range'});
+    }
+    // console.log(userId, startDate, endDate)
+    const product = await AffiliateTransaction.aggregate([
+      {
+        $facet:
+          {
+            transaction: [
+              {
+                $match: {
+                  affiliate: new ObjectId(
+                    userId
+                  ),
+                  createdOn: {
+                    $gte: new Date(startDate),
+                    $lte: new Date(endDate)
+                  }
+                },
+              },
+              {
+                $lookup: {
+                  from: "user-personal-details",
+                  localField: "buyer",
+                  foreignField: "_id",
+                  as: "buyer",
+                },
+              },
+              {
+                $lookup: {
+                  from: "products",
+                  localField: "product",
+                  foreignField: "_id",
+                  as: "product",
+                },
+              },
+              {
+                $project:
+                  {
+                    buyer_first_name: {
+                      $arrayElemAt: [
+                        "$buyer.first_name",
+                        0,
+                      ],
+                    },
+                    product_name: {
+                      $arrayElemAt: [
+                        "$product.productName",
+                        0,
+                      ],
+                    },
+                    _id: 0,
+                    payout: "$affiliatePayout",
+                    productDiscountedPrice:
+                      "$productDiscountedPrice",
+                    date: "$createdOn",
+                    transactionId: "$transactionId"
+                  },
+              },
+              {
+                $sort: {
+                  date: -1,
+                },
+              },
+            ],
+            summery: [
+              {
+                $match: {
+                  affiliate: new ObjectId(
+                    userId
+                  ),
+                  createdOn: {
+                    $gte: new Date(startDate),
+                    $lte: new Date(endDate)
+                  },
+                  product: {$ne: new ObjectId('6586e95dcbc91543c3b6c181')}
+                },
+              },
+              {
+                $group: {
+                  _id: {},
+                  payout: {
+                    $sum: "$affiliatePayout",
+                  },
+                  count: {
+                    $sum: 1,
+                  },
+                },
+              },
+              {
+                $project: {
+                  totalProductCount: "$count",
+                  _id: 0,
+                  totalProductCPayout: "$payout",
+                },
+              },
+            ],
+          },
+      },
+    ])
+
+    const affiliateRaffrelData = await User.aggregate([
+      {
+        $match: {
+          _id: new ObjectId(userId),
+        },
+      },
+      {
+        $unwind: {
+          path: "$affiliateReferrals",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField:
+            "affiliateReferrals.referredUserId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $match: {
+          "user.joining_date": {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {},
+          count: {
+            $count: {},
+          },
+          payout: {
+            $sum: "$affiliateReferrals.affiliateEarning",
+          },
+        },
+      },
+      {
+        $project: {
+          affiliateRefferalCount: "$count",
+          _id: 0,
+          affiliateRefferalPayout: "$payout",
+        },
+      },
+    ])
+    res.status(200).json({status: "success", data: product, affiliateRafferalSummery: affiliateRaffrelData, message: "Data received"});
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({status: "error", message: "Something went wrong"});
+  }
+}
+
+exports.getAffiliateReferralsSummery = async(req, res)=>{
+  const userId = req.user._id;
+  console.log(userId)
+  const {startDate, endDate} = req.query;
+  const rafferalTransaction = await User.findOne({_id: new ObjectId(userId)})
+  .select('affiliateReferrals')
+  .populate({
+    path: 'affiliateReferrals.referredUserId',
+    select: 'first_name last_name joining_date',
+    match: {
+      joining_date: {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      }
+    }
+  });
+
+  res.status(200).json({status: "success", data: rafferalTransaction})
+}

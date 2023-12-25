@@ -1116,9 +1116,9 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
   const internship = await InternBatch.findOne({_id: new ObjectId(batch)})
   .select('batchStatus batchStartDate batchEndDate attendancePercentage referralCount payoutPercentage')
 
-  const userData = await User.find()
-  .populate('referrals.referredUserId', 'joining_date')
-  .select("referrals")
+  // const userData = await User.find()
+  // .populate('referrals.referredUserId', 'joining_date')
+  // .select("referrals")
 
   const batchEndDate = moment(internship.batchEndDate);
   const currentDate = moment();
@@ -1298,6 +1298,12 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
 
     const data = await InternTrades.aggregate(pipeline)
 
+    const userIds = data.map((elem)=>elem.userId);
+
+    const userData = await User.find({ _id: { $in: userIds } })
+      .populate('referrals.referredUserId', 'joining_date')
+      .select('referrals');
+
     data?.map((elem)=>{
       const attendanceLimit = internship.attendancePercentage;
       const referralLimit = internship.referralCount;
@@ -1361,10 +1367,14 @@ exports.internshipLeaderboard = async (req, res, next) => {
     let { batch } = req.params
 
     const internship = await InternBatch.findOne({_id: new ObjectId(batch)})
-    .populate('user-portfolios', 'portfolioValue')
+    .populate({
+      path: 'portfolio',
+      model: 'user-portfolio',
+      select:'portfolioValue'
+    })
+    // .populate('user-portfolio', 'portfolioValue')
     .select('batchStatus batchStartDate batchEndDate attendancePercentage referralCount payoutPercentage')
 
-    console.log(internship)
     let date = new Date();
     const currentTime = new Date();
     const endTime = new Date(currentTime);
@@ -1382,7 +1392,7 @@ exports.internshipLeaderboard = async (req, res, next) => {
     }
 
 
-    const holiday = await getHoliday(internship.batchStartDate, endDate)
+    // const holiday = await getHoliday(internship.batchStartDate, endDate)
     let traderWisePnlInfo = [];
 
     const pipeline = [
@@ -1390,6 +1400,7 @@ exports.internshipLeaderboard = async (req, res, next) => {
         $match: {
           status: "COMPLETE",
           batch: new ObjectId(batch),
+          trade_time: {$lte: endDate}
         },
       },
       {
@@ -1421,6 +1432,12 @@ exports.internshipLeaderboard = async (req, res, next) => {
                 },
               ],
             },
+            profileImage: {
+              $arrayElemAt: [
+                "$user.profilePhoto.url",
+                0,
+              ],
+            },
           },
           gpnl: {
             $sum: {
@@ -1448,6 +1465,7 @@ exports.internshipLeaderboard = async (req, res, next) => {
       {
         $project: {
           _id: 0,
+          profileImage: "$_id.profileImage",
           userId: "$_id.userId",
           name: "$_id.name",
           tradingDays: {
@@ -1469,43 +1487,54 @@ exports.internshipLeaderboard = async (req, res, next) => {
     ]
 
     const data = await InternTrades.aggregate(pipeline);
-    const userIds = data.map((elem)=>elem.userId);
+    // const userIds = data.map((elem)=>elem.userId);
 
-  const userData = await User.find({ _id: { $in: userIds } })
-    .populate('referrals.referredUserId', 'joining_date')
-    .select('referrals');
+  // const userData = await User.find({ _id: { $in: userIds } })
+  //   .populate('referrals.referredUserId', 'joining_date')
+  //   .select('referrals');
 
-    console.log("userId", userIds)
-    const calculateWorkingDay = calculateWorkingDays(internship.batchStartDate, endDate) - holiday.length;
+    // const calculateWorkingDay = calculateWorkingDays(internship.batchStartDate, endDate) - holiday.length;
 
     data?.map((elem)=>{
-      // const attendanceLimit = internship.attendancePercentage;
-      // const referralLimit = internship.referralCount;
 
-      const referral = userData?.filter((subelem) => {
-        return subelem?._id?.toString() == elem?.userId?.toString();
-      })
+      // const referral = userData?.filter((subelem) => {
+      //   return subelem?._id?.toString() == elem?.userId?.toString();
+      // })
 
-      let refCount = 0;
-      if(referral[0]?.referrals){
-        for (let subelem of referral[0]?.referrals) {
-          const joiningDate = moment(subelem?.referredUserId?.joining_date);
+      // let refCount = 0;
+      // if(referral[0]?.referrals){
+      //   for (let subelem of referral[0]?.referrals) {
+      //     const joiningDate = moment(subelem?.referredUserId?.joining_date);
         
-          if (joiningDate.isSameOrAfter(moment(moment(internship.batchStartDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(endDate)) {
-            refCount += 1;
-          }
-        }
-      } else{
-        refCount = 0;
-      }
+      //     if (joiningDate.isSameOrAfter(moment(moment(internship.batchStartDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(endDate)) {
+      //       refCount += 1;
+      //     }
+      //   }
+      // } else{
+      //   refCount = 0;
+      // }
 
-      elem.referralCount = refCount;
+      elem.portfolioValue = internship?.portfolio?.portfolioValue;
+      // elem.referralCount = refCount;
       elem.return = elem?.npnl/internship?.portfolio?.portfolioValue;
-      elem.attendancePercentage = (elem?.tradingDays * 100 / (calculateWorkingDay)).toFixed(0);
+      // elem.attendancePercentage = (elem?.tradingDays * 100 / (calculateWorkingDay)).toFixed(0);
       traderWisePnlInfo.push(elem);
     })
+
+  const sortOrder = ['npnl'];
+
+  const sortedArray = traderWisePnlInfo.sort((a, b) => {
+    for (const key of sortOrder) {
+      if (a[key] < b[key]) {
+        return 1;
+      } else if (a[key] > b[key]) {
+        return -1;
+      }
+    }
+    return 0;
+  });
   
-  res.status(201).json({ message: "data received", data: traderWisePnlInfo });
+  res.status(201).json({ message: "data received", data: sortedArray });
 }
 
 
@@ -1648,7 +1677,7 @@ exports.updateUserWallet = async () => {
 
     const internship = await InternBatch.find({batchStatus: "Active", batchEndDate: {$gte: new Date(todayDate)}, batchEndDate: { $lte: new Date(endOfToday) }})
     .populate('career', 'listingType')
-    .select('batchName participants batchStartDate batchEndDate attendancePercentage payoutPercentage referralCount rewardType tdsRelief payoutCap')
+    .select('consolationReward batchName participants batchStartDate batchEndDate attendancePercentage payoutPercentage referralCount rewardType tdsRelief payoutCap')
   
     console.log(internship)
 
@@ -1662,6 +1691,7 @@ exports.updateUserWallet = async () => {
         const workingDays = calculateWorkingDays(elem.batchStartDate, elem.batchEndDate);
         const users = elem.participants;
         const batchId = elem._id;
+        const consolationReward = elem.consolationReward;
 
         const holiday = await Holiday.find({
           holidayDate: {
@@ -1878,6 +1908,33 @@ exports.updateUserWallet = async () => {
                 users[i].herocashPayout = 0;
 
               }
+
+              console.log("attendance", attendance , attendanceLimit, consolationReward.currency, consolationReward?.amount?.toFixed(2))
+              if(attendance >= attendanceLimit){
+                await createUserNotification({
+                  title: 'Internship Bonus Credited',
+                  description: `${consolationReward.currency === "Cash" ? "₹"+consolationReward?.amount?.toFixed(2) : "HeroCash "+consolationReward?.amount?.toFixed(2)} credited for your internship participation bonus`,
+                  notificationType: 'Individual',
+                  notificationCategory: 'Informational',
+                  productCategory: 'Internship',
+                  user: user?._id,
+                  priority: 'High',
+                  channels: ['App', 'Email'],
+                  createdBy: '63ecbc570302e7cf0153370c',
+                  lastModifiedBy: '63ecbc570302e7cf0153370c'
+                }, session);
+  
+                wallet.transactions = [...wallet.transactions, {
+                  title: 'Internship Bonus Credited',
+                  description: `Internship participation bonus`,
+                  amount: (consolationReward?.amount?.toFixed(2)),
+                  transactionId: uuid.v4(),
+                  transactionType: consolationReward.currency === "Cash" ? 'Cash' : "Bonus"
+                }];
+
+                await wallet.save({ session });
+              }
+
               await session.commitTransaction();
             }
 

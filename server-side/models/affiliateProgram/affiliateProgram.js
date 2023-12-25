@@ -10,10 +10,22 @@ const affiliateProgramSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    referralSignupBonus: {
+        currency: String,
+        amount: Number
+    },
+    rewardPerSignup: {
+        type: Number,
+        required: true
+    },
+    currency: {
+        type: String,
+        required: true
+    },
     affiliateType: {
         type: String,
         required: true,
-        enum: ['Youtube Influencer','Instagram Influencer','LinkedIn Influencer','StoxHero User','Offline Institute']
+        enum: ['Youtube Influencer','Instagram Influencer','LinkedIn Influencer','StoxHero User','Offline Institute', 'Partnership']
     },
     startDate:{
         type: Date,
@@ -44,6 +56,13 @@ const affiliateProgramSchema = new mongoose.Schema({
             userId:{type:Schema.Types.ObjectId,ref: 'user-personal-detail'},
             joinedOn:{type:Date, default: ()=>new Date()},
             affiliateCode: {type:String, required:true}
+        }
+    ],
+    referrals: [
+        {
+            userId:{type:Schema.Types.ObjectId,ref: 'user-personal-detail'},
+            affiliateUserId :{type:Schema.Types.ObjectId,ref: 'user-personal-detail'},
+            joinedOn:{type:Date, default: ()=>new Date()}
         }
     ],
     eligiblePlatforms:[{

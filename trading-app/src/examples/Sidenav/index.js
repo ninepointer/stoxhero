@@ -91,7 +91,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     let returnValue;
 
     if (type === "collapse" ) {
-      if(key=="internship" && batchInfo.length == 0){
+      if((key=="internship" && batchInfo.length == 0) || (key==="myaffiliatedashboard" && !getDetails?.userDetails?.isAffiliate)){
         // console.log("in route if", key)
       } else{
         // console.log("in route else", key, batchInfo.length)
