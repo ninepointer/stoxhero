@@ -3,8 +3,8 @@ const Authenticate = require('../../authentication/authentication');
 const router = express.Router({ mergeParams: true });
 const { removeAffiliateUser, createAffiliate, editAffiliate, getAffiliates, affiliateLeaderboard,
     getAffiliateById, addAffiliateUser, getActiveAffiliatePrograms, getStoxHeroAffiliateOverview, getOfflineInstituteAffiliateOverview,
-    getInactiveAffiliatePrograms, getDraftAffiliatePrograms, getAffiliateOverview, getYoutubeAffiliateOverview,
-    getExpiredAffiliatePrograms, getAffiliateProgramTransactions, getMyAffiliateTransactionAndPayout, getAffiliateReferralsSummery } = require('../../controllers/affiliateProgramme/affiliateController');
+    getInactiveAffiliatePrograms, getDraftAffiliatePrograms, getAffiliateOverview, getYoutubeAffiliateOverview, getMyAffiliateTransaction,
+    getExpiredAffiliatePrograms, getAffiliateProgramTransactions, getMyAffiliatePayout, getAffiliateReferralsSummery } = require('../../controllers/affiliateProgramme/affiliateController');
 const restrictTo = require('../../authentication/authorization');
 
 router.route('/').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createAffiliate).
@@ -12,7 +12,8 @@ router.route('/').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createAf
 router.route('/active').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getActiveAffiliatePrograms);
 router.route('/leaderboard').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), affiliateLeaderboard);
 router.route('/myaffiliaterafferals').get(Authenticate, getAffiliateReferralsSummery);
-router.route('/mysummery').get(Authenticate, getMyAffiliateTransactionAndPayout);
+router.route('/mysummery').get(Authenticate, getMyAffiliatePayout);
+router.route('/mytransactions').get(Authenticate, getMyAffiliateTransaction);
 
 router.route('/affiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getAffiliateOverview);
 router.route('/ytaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getYoutubeAffiliateOverview);

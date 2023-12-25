@@ -1110,7 +1110,7 @@ exports.getOfflineInstituteAffiliateOverview = async (req, res) => {
 };
 
 
-exports.getMyAffiliateTransactionAndPayout = async (req, res) => {
+exports.getMyAffiliatePayout = async (req, res) => {
   try {
     const userId = req.user._id;
     const {startDate, endDate} = req.query;
@@ -1269,37 +1269,231 @@ exports.getMyAffiliateTransactionAndPayout = async (req, res) => {
   }
 }
 
+exports.getMyAffiliateTransaction = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const {startDate, endDate} = req.query;
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 1000
+
+    if(new Date(startDate)>new Date(endDate)){
+      return res.status(400).json({status:'error', message:'Invalid Date range'});
+    }
+    // console.log(userId, startDate, endDate)
+    const count = await AffiliateTransaction.countDocuments({
+      affiliate: new ObjectId(
+        userId
+      ),
+      createdOn: {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      }
+
+    });
+    const product = await AffiliateTransaction.aggregate([
+      {
+        $match: {
+          affiliate: new ObjectId(
+            userId
+          ),
+          createdOn: {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate)
+          }
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "buyer",
+          foreignField: "_id",
+          as: "buyer",
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "product",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      {
+        $project:
+          {
+            buyer_first_name: {
+              $arrayElemAt: [
+                "$buyer.first_name",
+                0,
+              ],
+            },
+            product_name: {
+              $arrayElemAt: [
+                "$product.productName",
+                0,
+              ],
+            },
+            _id: 0,
+            payout: "$affiliatePayout",
+            productDiscountedPrice:
+              "$productDiscountedPrice",
+            date: "$createdOn",
+            transactionId: "$transactionId"
+          },
+      },
+      {
+        $sort: {
+          date: -1,
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+    ])
+
+    res.status(200).json({status: "success", data: product, count: count, message: "Data received"});
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({status: "error", message: "Something went wrong"});
+  }
+}
+
 exports.getAffiliateReferralsSummery = async(req, res) => {
   try {
     const userId = req.user._id;
     const {startDate, endDate} = req.query;
+    // endDate.setHours(23, 59, 59, 999);
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 1000
+
     if(new Date(startDate) > new Date(endDate)){
       return res.status(400).json({status:'error', message:"Invalid Date Range"});
     }
+    const newEndDate = new Date(endDate).setHours(23, 59, 59, 999)
 
     // Fetch the user and populate the referrals
-    const user = await User.findOne({_id: new ObjectId(userId)})
-      .select('affiliateReferrals')
-      .populate({
-        path: 'affiliateReferrals.referredUserId',
-        select: 'first_name last_name joining_date',
-        match: {
-          joining_date: {
+    const count = await User.aggregate([
+      {
+        $match: { _id: new ObjectId(userId) },
+      },
+      {
+        $project: {
+          affiliateReferrals: 1,
+        },
+      },
+      {
+        $unwind: "$affiliateReferrals",
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "affiliateReferrals.referredUserId",
+          foreignField: "_id",
+          as: "referredUser",
+        },
+      },
+      {
+        $match: {
+          "referredUser.joining_date": {
             $gte: new Date(startDate),
-            $lte: new Date(endDate)
-          }
-        }
-      });
+            $lte: new Date(newEndDate),
+          },
+          "affiliateReferrals.referredUserId": { $ne: null }, // Exclude null userId
+        },
+      },
+      {
+        $count: "string",
+      },
+    ])
+
+      console.log(count)
+
+    // console.log(count?.affiliateReferrals?.length)
+    const user = await User.aggregate([
+      {
+        $match: { _id: new ObjectId(userId) },
+      },
+      {
+        $project: {
+          affiliateReferrals: 1,
+        },
+      },
+      {
+        $unwind: "$affiliateReferrals",
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "affiliateReferrals.referredUserId",
+          foreignField: "_id",
+          as: "referredUser",
+        },
+      },
+      {
+        $match: {
+          "referredUser.joining_date": {
+            $gte: new Date(startDate),
+            $lte: new Date(newEndDate),
+          },
+          "affiliateReferrals.referredUserId": { $ne: null }, // Exclude null userId
+        },
+      },
+      {
+        $sort: { "referredUser.joining_date": -1 },
+      },
+      {
+        $project: {
+          _id: 0,
+          name: {
+            $concat: [
+              {
+                $arrayElemAt: [
+                  "$referredUser.first_name",
+                  0,
+                ],
+              },
+              " ",
+              {
+                $arrayElemAt: [
+                  "$referredUser.last_name",
+                  0,
+                ],
+              },
+            ],
+          },
+          joining_date: {
+            $arrayElemAt: [
+              "$referredUser.joining_date",
+              0,
+            ],
+          },
+          payout:
+            "$affiliateReferrals.affiliateEarning",
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+    ])
+  
 
     // Filter out referrals where the referredUserId is null
-    const filteredReferrals = user && user.affiliateReferrals 
-      ? user.affiliateReferrals.filter(referral => referral.referredUserId != null) 
-      : [];
+    // const filteredReferrals = user && user.affiliateReferrals 
+    //   ? user.affiliateReferrals.filter(referral => referral.referredUserId != null) 
+    //   : [];
 
     // Construct the response object with filtered referrals
     const response = {
       status: "success",
-      data: {...user.toObject(), affiliateReferrals: filteredReferrals}  // maintain structure, but with filtered referrals
+      data: user,
+      count: count?.[0]?.string || 0
+      //  {...user.toObject(), affiliateReferrals: filteredReferrals}  // maintain structure, but with filtered referrals
     };
 
     // Send the response

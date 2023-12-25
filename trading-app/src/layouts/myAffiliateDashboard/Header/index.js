@@ -93,7 +93,7 @@ export default function Dashboard() {
   
   useEffect(() => {
     setIsLoading(true)
-    let call1 = axios.get((`${apiUrl}affiliate/mysummery?startDate=${startDate}&endDate=${endDate}`), {
+    let call1 = axios.get((`${apiUrl}affiliate/mysummery?startDate=${startDate}&endDate=${endDate}&skip=${0}&limit=${10}`), {
       withCredentials: true,
       headers: {
         Accept: "application/json",
@@ -101,7 +101,7 @@ export default function Dashboard() {
         "Access-Control-Allow-Credentials": true
       },
     })
-    let call2 = axios.get((`${apiUrl}affiliate/myaffiliaterafferals?startDate=${startDate}&endDate=${endDate}`), {
+    let call2 = axios.get((`${apiUrl}affiliate/myaffiliaterafferals?startDate=${startDate}&endDate=${endDate}&skip=${0}&limit=${10}`), {
       withCredentials: true,
       headers: {
         Accept: "application/json",
@@ -296,11 +296,11 @@ export default function Dashboard() {
         </Grid>
 
         <Grid item xs={12} md={12} lg={12} sx={{ minWidth: 120 }}>
-          <RaferralGrid affiliateReferrals={affiliateReferrals} />
+          <RaferralGrid start={startDate} end={endDate}/>
         </Grid>
 
         <Grid item xs={12} md={12} lg={12} sx={{ minWidth: 120 }}>
-          <ReferredProduct transactions={affiliateOverview?.transaction} />
+          <ReferredProduct start={startDate} end={endDate} />
         </Grid>
       </Grid>
       {renderSuccessSB}
