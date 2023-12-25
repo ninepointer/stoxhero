@@ -4,13 +4,15 @@ const router = express.Router({ mergeParams: true });
 const { removeAffiliateUser, createAffiliate, editAffiliate, getAffiliates, affiliateLeaderboard,
     getAffiliateById, addAffiliateUser, getActiveAffiliatePrograms, getStoxHeroAffiliateOverview, getOfflineInstituteAffiliateOverview,
     getInactiveAffiliatePrograms, getDraftAffiliatePrograms, getAffiliateOverview, getYoutubeAffiliateOverview,
-    getExpiredAffiliatePrograms, getAffiliateProgramTransactions } = require('../../controllers/affiliateProgramme/affiliateController');
+    getExpiredAffiliatePrograms, getAffiliateProgramTransactions, getMyAffiliateTransactionAndPayout, getAffiliateReferralsSummery } = require('../../controllers/affiliateProgramme/affiliateController');
 const restrictTo = require('../../authentication/authorization');
 
 router.route('/').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createAffiliate).
     get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getAffiliates);
 router.route('/active').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getActiveAffiliatePrograms);
 router.route('/leaderboard').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), affiliateLeaderboard);
+router.route('/myaffiliaterafferals').get(Authenticate, getAffiliateReferralsSummery);
+router.route('/mysummery').get(Authenticate, getMyAffiliateTransactionAndPayout);
 
 router.route('/affiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getAffiliateOverview);
 router.route('/ytaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getYoutubeAffiliateOverview);
@@ -25,6 +27,7 @@ router.route('/:id').put(Authenticate, restrictTo('Admin', 'SuperAdmin'), editAf
 
 router.patch('/:id/:userId', Authenticate, addAffiliateUser);
 router.patch('/remove/:id/:userId', Authenticate, removeAffiliateUser);
+
 
 
 module.exports = router;

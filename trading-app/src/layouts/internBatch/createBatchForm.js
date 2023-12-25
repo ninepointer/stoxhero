@@ -81,7 +81,9 @@ function Index() {
     tdsRelief: '' || id?.tdsRelief,
     consolationReward: {
       currency: "" || id?.consolationReward?.currency,
-      amount: "" || id?.consolationReward?.amount
+      amount: "" || id?.consolationReward?.amount,
+      minAttendance: "" || id?.consolationReward?.minAttendance,
+
     }
   });
 
@@ -144,7 +146,8 @@ function Index() {
           tdsRelief: '' || res?.data?.data?.tdsRelief,
           consolationReward: {
             currency: "" || res?.data?.data?.consolationReward?.currency,
-            amount: "" || res?.data?.data?.consolationReward?.amount
+            amount: "" || res?.data?.data?.consolationReward?.amount,
+            minAttendance: "" || res?.data?.data?.consolationReward?.minAttendance,
           }
       
         })
@@ -215,7 +218,8 @@ function Index() {
       !formState.orientationMeetingLink ||
       !formState.referralCount ||
       !formState?.consolationReward?.currency ||
-      !formState?.consolationReward?.amount) {
+      !formState?.consolationReward?.amount ||
+      !formState?.consolationReward?.minAttendance) {
 
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
@@ -225,7 +229,7 @@ function Index() {
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const {consolationReward, rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = formState;
+    const {minAttendance, consolationReward, rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = formState;
     const res = await fetch(`${baseUrl}api/v1/internbatch/`, {
       method: "POST",
       credentials: "include",
@@ -234,7 +238,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        consolationReward, rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id, payoutPercentage, attendancePercentage, payoutCap, referralCount, orientationDate, orientationMeetingLink
+        minAttendance, consolationReward, rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id, payoutPercentage, attendancePercentage, payoutCap, referralCount, orientationDate, orientationMeetingLink
       })
     });
 
@@ -300,12 +304,13 @@ function Index() {
       !formState.orientationMeetingLink ||
       !formState.referralCount ||
       !formState?.consolationReward?.currency ||
-      !formState?.consolationReward?.amount) {
+      !formState?.consolationReward?.amount ||
+      !formState?.consolationReward?.minAttendance) {
 
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const {consolationReward, rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = formState;
+    const {minAttendance, consolationReward, rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = formState;
 
     const res = await fetch(`${baseUrl}api/v1/internbatch/${id._id}`, {
       method: "PATCH",
@@ -315,7 +320,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        consolationReward, rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink
+        minAttendance, consolationReward, rewardType, tdsRelief, batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id, payoutPercentage, payoutCap, attendancePercentage, referralCount, orientationDate, orientationMeetingLink
       })
     });
 
@@ -684,7 +689,7 @@ function Index() {
                     id="outlined-required"
                     label='Consolation Reward Amount *'
                     name='amount'
-                    type='text'
+                    type='number'
                     fullWidth
                     defaultValue={formState?.consolationReward?.amount || id?.consolationReward?.amount}
                     onChange={(e) => {
@@ -693,6 +698,27 @@ function Index() {
                         consolationReward: {
                           ...prevState.consolationReward,
                           amount: e.target.value
+                        }
+                      }))
+                    }} 
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <TextField
+                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    id="outlined-required"
+                    label='Consolation Min Attendance *'
+                    name='minAttendance'
+                    type='number'
+                    fullWidth
+                    defaultValue={formState?.consolationReward?.minAttendance || id?.consolationReward?.minAttendance}
+                    onChange={(e) => {
+                      setFormState(prevState => ({
+                        ...prevState,
+                        consolationReward: {
+                          ...prevState.consolationReward,
+                          minAttendance: e.target.value
                         }
                       }))
                     }} 

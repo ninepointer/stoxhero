@@ -14,20 +14,147 @@ const User = require("../../models/User/userDetailSchema");
 // const signedUpUser = require("../../models/User/signedUpUser");
 const {sendSMS, sendOTP} = require('../../utils/smsService');
 const Referral = require("../../models/campaigns/referralProgram");
-const Lead = require("../../models/leads/leads");
-const MarginAllocation = require("../../models/marginAllocation/marginAllocationSchema")
+// const Lead = require("../../models/leads/leads");
+// const MarginAllocation = require("../../models/marginAllocation/marginAllocationSchema")
 const PortFolio = require("../../models/userPortfolio/UserPortfolio")
 const UserWallet = require("../../models/UserWallet/userWalletSchema");
 const Campaign = require("../../models/campaigns/campaignSchema")
 const uuid = require('uuid');
 const Authenticate = require('../../authentication/authentication');
 const restrictTo = require('../../authentication/authorization');
+const AffiliatePrograme = require("../../models/affiliateProgram/affiliateProgram")
+const {createUserNotification} = require('../../controllers/notification/notificationController');
+const {sendMultiNotifications} = require("../../utils/fcmService");
+const AffiliateTransaction = require("../../models/affiliateProgram/affiliateTransactions");
+const {ObjectId} = require('mongodb')
 
+router.get("/send", async (req, res) => {
+    // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'direct_signup_campaign_new', userName : "vijay", source : "vijay", media : {url : mediaURL, filename : mediaFileName}, templateParams : ["newuser.first_name"], tags : '', attributes : ''});
+    let subject = "Welcome to StoxHero - Learn, Trade, and Earn!";
+    let message =
+        `
+        <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Account Created</title>
+                <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    font-size: 16px;
+                    line-height: 1.5;
+                    margin: 0;
+                    padding: 0;
+                }
 
-// router.get("/send", async (req, res) => {
-//     whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'direct_signup_campaign_new', userName : "vijay", source : "vijay", media : {url : mediaURL, filename : mediaFileName}, templateParams : ["newuser.first_name"], tags : '', attributes : ''});
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    border: 1px solid #ccc;
+                }
 
-// })
+                h1 {
+                    font-size: 24px;
+                    margin-bottom: 20px;
+                }
+
+                p {
+                    margin: 0 0 20px;
+                }
+
+                .userid {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
+
+                .password {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
+
+                .login-button {
+                    display: inline-block;
+                    background-color: #007bff;
+                    color: #fff;
+                    padding: 10px 20px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    text-decoration: none;
+                    border-radius: 5px;
+                }
+
+                .login-button:hover {
+                    background-color: #0069d9;
+                }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                <h1>Account Created</h1>
+                <p>Dear Vijay,</p>
+                <p>Welcome to the StoxHero family!</p>
+                
+                <p>Discover Stock Market success with our Paper Trading &amp; Learning App. Experience real market data, actionable insights, and a clutter-free interface on both our mobile app and web platform.</p>
+                
+                <p>What StoxHero offers:</p>
+                
+                <ol>
+                    <li><strong>Learning Content:</strong> Enhance your market understanding.</li>
+                    <li><strong>Real Data Trading:</strong> Practice with virtual currency and real-world data.</li>
+                    <li><strong>Actionable Insights:</strong> Understand your trading style with valuable analytics.</li>
+                    <li><strong>User-Friendly Interface:</strong> Navigate seamlessly for an optimal trading experience.</li>
+                    <li><strong>Rewards for Success:</strong> Earn rewards for your winning trades.</li>
+                </ol>
+                
+                <p>StoxHero is your all-in-one package for Stock Market success.</p>
+                
+                <p>In case you face any issues, feel free to whatsApp support at 9354010914<a href="tel:+919830994402" rel="noreferrer" target="_blank">&nbsp;</a>or drop in an email at <a href="mailto:team@stoxhero.com">team@stoxhero.com</a></p>
+                
+                <p>To get started, visit our youtube channel to learn more about the App and StoxHero: <a href="https://www.youtube.com/channel/UCgslF4zuDhDyttD9P3ZOHbg">Visit</a></p>
+                
+                <p>Happy Trading!</p>
+                
+                <p>Best,&nbsp;</p>
+                
+                <p>StoxHero Team</p>
+                
+                <p>&nbsp;</p>
+                
+                <hr />
+                <h4 style="text-align:center"><strong>DOWNLOAD OUR APP FOR BETTER EXPERIENCE</strong></h4>
+                
+                <p>&nbsp;</p>
+                
+                <p style="text-align:center">
+                <a href="https://play.google.com/store/apps/details?id=com.stoxhero.app">
+                <img alt="" src="https://dmt-trade.s3.ap-south-1.amazonaws.com/blogs/VC%20Funding/photos/1703332463874playStore.png" style="height:100px; width:250px" />
+                </a>&nbsp;&nbsp;
+                <a href="http://www.stoxhero.com">
+                <img alt="" src="https://dmt-trade.s3.ap-south-1.amazonaws.com/blogs/VC%20Funding/photos/1703332463880logoWeb.png" style="height:100px; width:250px" />
+                </a>
+                </p>
+                
+                <p>&nbsp;</p>
+              </body>
+            </html>
+
+        `
+    // if(process.env.PROD == 'true'){
+        await emailService("vvv201214@gmail.com", subject, message);
+    // }
+
+})
 
 router.post("/signup", async (req, res) => {
     const { first_name, last_name, email, mobile, collegeDetails } = req.body;
@@ -189,8 +316,20 @@ router.patch("/verifyotp", async (req, res) => {
         userId = userId.toString() + (userIds.length + 1).toString()
     }
 
+    let match = false;
+    let affiliateObj = {};
     let referral;
     if (referredBy) {
+        const checkAffiliate = await AffiliatePrograme.find().
+        populate('affiliates.userId', 'myReferralCode');
+
+        for(let elem of checkAffiliate){
+            match = elem?.affiliates?.some((subelem)=> subelem?.userId?.myReferralCode === referrerCode);
+            if(match){
+                affiliateObj = elem;
+                break;
+            }
+        }
         referral = await Referral.findOne({ status: "Active" });
     }
 
@@ -205,6 +344,16 @@ router.patch("/verifyotp", async (req, res) => {
     }
 
     try {
+        let creation;
+        if(campaign){
+            creation = "Campaign SignUp";
+        } else if(referredBy && !match){
+            creation = 'Referral SignUp';
+        } else if(match){
+            creation = "Affiliate SignUp";
+        } else{
+            creation = "Auto SignUp";
+        }
         let obj = {
             first_name: first_name.trim(), last_name: last_name.trim(), designation: 'Trader', email: email.trim(),
             mobile: mobile.trim(),
@@ -215,13 +364,15 @@ router.patch("/verifyotp", async (req, res) => {
             myReferralCode: (await myReferralCode).toString(),
             referrerCode: referredBy && referrerCode,
             portfolio: portfolioArr,
-            referralProgramme: referredBy && referral._id,
+            referralProgramme: (referredBy && !match) ? referral._id : null,
             campaign: campaign && campaign._id,
             campaignCode: campaign && referrerCode,
             referredBy: referredBy && referredBy,
-            creationProcess: referredBy ? 'Referral SignUp' : 'Auto SignUp',
-            collegeDetails: collegeDetails || ""
+            creationProcess: creation,
+            collegeDetails: collegeDetails || "",
+            affiliateProgramme: match ? affiliateObj?._id : null
         }
+
         if(fcmTokenData){
             fcmTokenData.lastUsedAt = new Date();
             obj.fcmTokens = [fcmTokenData];
@@ -272,13 +423,13 @@ router.patch("/verifyotp", async (req, res) => {
         .select('pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
         const token = await newuser.generateAuthToken();
 
-        console.log("Token:",token)
+        // console.log("Token:",token)
 
         res.cookie("jwtoken", token, {
             expires: new Date(Date.now() + 25892000000),
         });    
        
-        console.log("res:",res)
+        // console.log("res:",res)
         res.status(201).json({ status: "Success", data: populatedUser, message: "Welcome! Your account is created, please login with your credentials.", token: token });
         
         // now inserting userId in free portfolio's
@@ -294,48 +445,129 @@ router.patch("/verifyotp", async (req, res) => {
 
         //inserting user details to referredBy user and updating wallet balance
         if (referredBy) {
-            
-            referral?.users?.push({ userId: newuser._id, joinedOn: new Date() })
-            await referral.save();
-            
-            const referralProgramme = await Referral.findOneAndUpdate({ status: "Active" }, {
-                $set: {
-                    users: referral?.users
-                }
-            })
-
-            if (referrerCode) {
+            if(match){
                 let referrerCodeMatch = await User.findOne({ myReferralCode: referrerCode });
-                referrerCodeMatch.referrals = [...referrerCodeMatch.referrals, {
-                    referredUserId: newuser._id,
-                    joining_date: newuser.createdOn,
-                    referralProgram: referralProgramme._id,
-                    referralEarning: referralProgramme.rewardPerReferral,
-                    referralCurrency: referralProgramme.currency,
-                }];
-                if(referralProgramme?.referralSignupBonus?.amount){
-                    await addSignupBonus(newuser?._id, referralProgramme?.referralSignupBonus?.amount, referralProgramme?.referralSignupBonus?.currency);
+
+                affiliateObj?.referrals?.push({ userId: newuser._id, joinedOn: new Date(), affiliateUserId: referrerCodeMatch?._id})
+                await affiliateObj.save();
+    
+                if (referrerCode) {
+                    referrerCodeMatch.affiliateReferrals = [...referrerCodeMatch.affiliateReferrals, {
+                        referredUserId: newuser._id,
+                        joining_date: newuser.createdOn,
+                        affiliateProgram: affiliateObj._id,
+                        affiliateEarning: affiliateObj.rewardPerSignup,
+                        affiliateCurrency: affiliateObj.currency,
+                    }];
+                    if(affiliateObj?.referralSignupBonus?.amount){
+                        await addSignupBonus(newuser?._id, affiliateObj?.referralSignupBonus?.amount, affiliateObj?.referralSignupBonus?.currency);
+                    }
+                    await referrerCodeMatch.save({ validateBeforeSave: false });
+                    const wallet = await UserWallet.findOne({ userId: referrerCodeMatch._id });
+                    wallet.transactions = [...wallet.transactions, {
+                        title: 'Affiliate Signup Credit',
+                        description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                        amount: affiliateObj.rewardPerSignup,
+                        transactionId: uuid.v4(),
+                        transactionDate: new Date(),
+                        transactionType: affiliateObj.currency == 'INR' ? 'Cash' : 'Bonus'
+                    }];
+                    await wallet.save({ validateBeforeSave: false });
+
+                    await createUserNotification({
+                        title: 'Affiliate Signup Credit',
+                        description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                        notificationType: 'Individual',
+                        notificationCategory: 'Informational',
+                        productCategory: 'SignUp',
+                        user: referrerCodeMatch?._id,
+                        priority: 'Medium',
+                        channels: ['App', 'Email'],
+                        createdBy: '63ecbc570302e7cf0153370c',
+                        lastModifiedBy: '63ecbc570302e7cf0153370c'
+                      });
+                      if (user?.fcmTokens?.length > 0) {
+                        await sendMultiNotifications('Affiliate Signup Credit',
+                          `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                          referrerCodeMatch?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
+                        )
+                      }
+                     
+                      await AffiliateTransaction.create({
+                        affiliateProgram: new ObjectId(affiliateObj?._id),
+                        affiliateWalletTId: uuid.v4(),
+                        product: new ObjectId("6586e95dcbc91543c3b6c181"),
+                        specificProduct: new ObjectId("6586e95dcbc91543c3b6c181"),
+                        productActualPrice: affiliateObj?.referralSignupBonus?.amount,
+                        productDiscountedPrice: affiliateObj?.referralSignupBonus?.amount,
+                        buyer: new ObjectId(newuser?._id),
+                        affiliate: new ObjectId(referrerCodeMatch._id),
+                        lastModifiedBy: new ObjectId(referrerCodeMatch._id),
+                        affiliatePayout: affiliateObj.rewardPerSignup
+                      })
                 }
-                await referrerCodeMatch.save({ validateBeforeSave: false });
-                const wallet = await UserWallet.findOne({ userId: referrerCodeMatch._id });
-                wallet.transactions = [...wallet.transactions, {
-                    title: 'Referral Credit',
-                    description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
-                    amount: referralProgramme.rewardPerReferral,
-                    transactionId: uuid.v4(),
-                    transactionDate: new Date(),
-                    transactionType: referralProgramme.currency == 'INR' ? 'Cash' : 'Bonus'
-                }];
-                await wallet.save({ validateBeforeSave: false });
+            } else{
+                referral?.users?.push({ userId: newuser._id, joinedOn: new Date() })
+                await referral.save();
+                
+                const referralProgramme = await Referral.findOneAndUpdate({ status: "Active" }, {
+                    $set: {
+                        users: referral?.users
+                    }
+                })
+    
+                if (referrerCode) {
+                    let referrerCodeMatch = await User.findOne({ myReferralCode: referrerCode });
+                    referrerCodeMatch.referrals = [...referrerCodeMatch.referrals, {
+                        referredUserId: newuser._id,
+                        joining_date: newuser.createdOn,
+                        referralProgram: referralProgramme._id,
+                        referralEarning: referralProgramme.rewardPerReferral,
+                        referralCurrency: referralProgramme.currency,
+                    }];
+                    if(referralProgramme?.referralSignupBonus?.amount){
+                        await addSignupBonus(newuser?._id, referralProgramme?.referralSignupBonus?.amount, referralProgramme?.referralSignupBonus?.currency);
+                    }
+                    await referrerCodeMatch.save({ validateBeforeSave: false });
+                    const wallet = await UserWallet.findOne({ userId: referrerCodeMatch._id });
+                    wallet.transactions = [...wallet.transactions, {
+                        title: 'Referral Credit',
+                        description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                        amount: referralProgramme.rewardPerReferral,
+                        transactionId: uuid.v4(),
+                        transactionDate: new Date(),
+                        transactionType: referralProgramme.currency == 'INR' ? 'Cash' : 'Bonus'
+                    }];
+                    await wallet.save({ validateBeforeSave: false });
+
+                    await createUserNotification({
+                        title: 'Referral Signup Credit',
+                        description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                        notificationType: 'Individual',
+                        notificationCategory: 'Informational',
+                        productCategory: 'SignUp',
+                        user: referrerCodeMatch?._id,
+                        priority: 'Medium',
+                        channels: ['App', 'Email'],
+                        createdBy: '63ecbc570302e7cf0153370c',
+                        lastModifiedBy: '63ecbc570302e7cf0153370c'
+                      });
+                      if (user?.fcmTokens?.length > 0) {
+                        await sendMultiNotifications('Referral Signup Credit',
+                          `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                          referrerCodeMatch?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
+                        )
+                      }
+                }
             }
         }
 
         if (campaign) {
             campaign?.users?.push({ userId: newuser._id, joinedOn: new Date() })
             await campaign.save();
-            if(campaign?.campaignType == 'Invite'){
+            // if(campaign?.campaignType == 'Invite'){
                 await addSignupBonus(newuser?._id, campaign?.campaignSignupBonus?.amount ?? 90, campaign?.campaignSignupBonus?.currency ?? 'INR');
-            }
+            // }
         }
 
         if (!newuser) return res.status(400).json({ status: 'error', message: 'Something went wrong' });
@@ -344,111 +576,124 @@ router.patch("/verifyotp", async (req, res) => {
         // let email = newuser.email;
         let subject = "Welcome to StoxHero - Learn, Trade, and Earn!";
         let message =
-            `
-            <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <title>Account Created</title>
-                    <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        font-size: 16px;
-                        line-height: 1.5;
-                        margin: 0;
-                        padding: 0;
-                    }
+        `
+        <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Account Created</title>
+                <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    font-size: 16px;
+                    line-height: 1.5;
+                    margin: 0;
+                    padding: 0;
+                }
 
-                    .container {
-                        max-width: 600px;
-                        margin: 0 auto;
-                        padding: 20px;
-                        border: 1px solid #ccc;
-                    }
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    border: 1px solid #ccc;
+                }
 
-                    h1 {
-                        font-size: 24px;
-                        margin-bottom: 20px;
-                    }
+                h1 {
+                    font-size: 24px;
+                    margin-bottom: 20px;
+                }
 
-                    p {
-                        margin: 0 0 20px;
-                    }
+                p {
+                    margin: 0 0 20px;
+                }
 
-                    .userid {
-                        display: inline-block;
-                        background-color: #f5f5f5;
-                        padding: 10px;
-                        font-size: 15px;
-                        font-weight: bold;
-                        border-radius: 5px;
-                        margin-right: 10px;
-                    }
+                .userid {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
 
-                    .password {
-                        display: inline-block;
-                        background-color: #f5f5f5;
-                        padding: 10px;
-                        font-size: 15px;
-                        font-weight: bold;
-                        border-radius: 5px;
-                        margin-right: 10px;
-                    }
+                .password {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
 
-                    .login-button {
-                        display: inline-block;
-                        background-color: #007bff;
-                        color: #fff;
-                        padding: 10px 20px;
-                        font-size: 18px;
-                        font-weight: bold;
-                        text-decoration: none;
-                        border-radius: 5px;
-                    }
+                .login-button {
+                    display: inline-block;
+                    background-color: #007bff;
+                    color: #fff;
+                    padding: 10px 20px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    text-decoration: none;
+                    border-radius: 5px;
+                }
 
-                    .login-button:hover {
-                        background-color: #0069d9;
-                    }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                    <h1>Account Created</h1>
-                    <p>Dear ${newuser.first_name} ${newuser.last_name},</p>
-                    <p>Welcome to StoxHero - Your Gateway to the Exciting World of Options Trading and Earning! </p>
-                    <p> StoxHero is a specialized Intraday Options Trading Platform focusing on indices such as NIFTY, BANKNIFTY & FINNIFTY.</p>
-                    <p>Congratulations on joining our ever-growing community of traders and learners. We are thrilled to have you onboard and can't wait to embark on this exciting journey together. At StoxHero, we offer a range of programs designed to help you learn and excel in trading while providing you with opportunities to earn real profits from virtual currency. Let's dive into the fantastic programs that await you:</p>
-                    <p>1. F&O Trading:
-                    Start your trading experience with a risk-free environment! In Virtual Trading, you get INR 10L worth of virtual currency to practice your trading skills, test strategies, and build your profit and loss (P&L) under real market scenarios without any investment. It's the perfect platform to refine your trading strategies and gain confidence before entering the real market.</p>
-                    <p>2. TenX:
-                    Participate in our Ten X program and explore various trading opportunities. Trade with virtual currency and, after completing 20 trading days, you become eligible for a remarkable 10% profit share or profit CAP amount from the net profit you make in the program. You'll not only learn trading but also earn real money while doing so - a win-win situation!</p>
-                    <p>3. TestZone:
-                    Challenge yourself in daily TestZones where you compete with other users based on your P&L. You'll receive virtual currency to trade with, and your profit share from the net P&L you achieve in each TestZone will add to your earnings. With different TestZones running, you have the flexibility to choose and participate as per your preference.</p>
-                    <p>4. College TestZone:
-                    Attention college students! Our College TestZone is tailored just for you. Engage in daily intraday trading TestZones, and apart from receiving profit share from your net P&L, the top 3 performers will receive an appreciation certificate highlighting their outstanding performance.</p>
-                    <p>To help you get started and make the most of our programs, we've prepared comprehensive tutorial videos for each of them:</p>
-                    <p><a href='https://youtu.be/6wW8k-8zTXY'>Virtual Trading Tutorial</a></br>
-                    <a href='https://www.youtube.com/watch?v=a3_bmjv5tXQ'>Ten X Tutorial</a></br>
-                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>TestZones Tutorial</a></br>
-                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>College TestZone Tutorial</a></p>
-                    <p>For any queries or assistance, our dedicated team is always here to support you. Feel free to connect with us on different platforms:
-                    </p>
-                    <p><a href='https://t.me/stoxhero_official'>Telegram</a></br>
-                    <a href='https://www.facebook.com/profile.php?id=100091564856087'>Facebook</a></br>
-                    <a href='https://instagram.com/stoxhero_official?igshid=MzRlODBiNWFlZA=='>Instagram</a></br>
-                    <a href='https://www.youtube.com/@stoxhero_official/videos'>YouTube</a></p>
-                    <p>StoxHero is open to everyone who aspires to learn options intraday trading in a risk-free environment and analyze their performance to enhance their strategies. Moreover, with the chance to earn real profits through our programs, StoxHero provides an excellent platform for everyone to learn and earn. Be your own boss, take charge, and unlock the potential within you!</p>
-                    <p>We are excited to inform you that our system goes online every day at 09:20 AM, and all trades get automatically squared off at 3:20 PM. This ensures that your trading process remains smooth and consistent.</p>
-                    <p>We hope you enjoy your trading journey with StoxHero. Should you have any questions or require assistance at any stage, don't hesitate to reach out to us.</p>
-                    <p>Happy Trading and Learning!</p>
-                    <p>Best regards,</br>
-                    Team StoxHero</p>
-                    <a href="https://www.stoxhero.com/" class="login-button">Start your journey now</a>
-                    </div>
-                </body>
-                </html>
+                .login-button:hover {
+                    background-color: #0069d9;
+                }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                <h1>Account Created</h1>
+                <p>Dear ${newuser.first_name} ${newuser.last_name},</p>
+                <p>Welcome to the StoxHero family!</p>
+                
+                <p>Discover Stock Market success with our Paper Trading &amp; Learning App. Experience real market data, actionable insights, and a clutter-free interface on both our mobile app and web platform.</p>
+                
+                <p>What StoxHero offers:</p>
+                
+                <ol>
+                    <li><strong>Learning Content:</strong> Enhance your market understanding.</li>
+                    <li><strong>Real Data Trading:</strong> Practice with virtual currency and real-world data.</li>
+                    <li><strong>Actionable Insights:</strong> Understand your trading style with valuable analytics.</li>
+                    <li><strong>User-Friendly Interface:</strong> Navigate seamlessly for an optimal trading experience.</li>
+                    <li><strong>Rewards for Success:</strong> Earn rewards for your winning trades.</li>
+                </ol>
+                
+                <p>StoxHero is your all-in-one package for Stock Market success.</p>
+                
+                <p>In case you face any issues, feel free to whatsApp support at 9354010914<a href="tel:+919830994402" rel="noreferrer" target="_blank">&nbsp;</a>or drop in an email at <a href="mailto:team@stoxhero.com">team@stoxhero.com</a></p>
+                
+                <p>To get started, visit our youtube channel to learn more about the App and StoxHero: <a href="https://www.youtube.com/channel/UCgslF4zuDhDyttD9P3ZOHbg">Visit</a></p>
+                
+                <p>Happy Trading!</p>
+                
+                <p>Best,&nbsp;</p>
+                
+                <p>StoxHero Team</p>
+                
+                <p>&nbsp;</p>
+                
+                <hr />
+                <h4 style="text-align:center"><strong>DOWNLOAD OUR APP FOR BETTER EXPERIENCE</strong></h4>
+                
+                <p>&nbsp;</p>
+                
+                <p style="text-align:center">
+                <a href="https://play.google.com/store/apps/details?id=com.stoxhero.app">
+                <img alt="" src="https://dmt-trade.s3.ap-south-1.amazonaws.com/blogs/VC%20Funding/photos/1703332463874playStore.png" style="height:100px; width:250px" />
+                </a>&nbsp;&nbsp;
+                <a href="http://www.stoxhero.com">
+                <img alt="" src="https://dmt-trade.s3.ap-south-1.amazonaws.com/blogs/VC%20Funding/photos/1703332463880logoWeb.png" style="height:100px; width:250px" />
+                </a>
+                </p>
+                
+                <p>&nbsp;</p>
+              </body>
+            </html>
 
-            `
+        `
         if(process.env.PROD == 'true'){
             await emailService(newuser.email, subject, message);
         }
@@ -473,7 +718,7 @@ const addSignupBonus = async (userId, amount, currency) => {
     try{
         wallet?.transactions?.push({
             title: 'Sign up Bonus',
-            description: `Amount credited for as sign up bonus.`,
+            description: `Amount credited for sign up bonus.`,
             amount: amount,
             transactionId: uuid.v4(),
             transactionDate: new Date(),

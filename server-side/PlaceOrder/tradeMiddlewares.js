@@ -1,6 +1,7 @@
 const AppSettings = require('../models/settings/setting');
-const User = require('../models/User/userDetailSchema');
-const { ObjectId } = require('mongodb');
+// const User = require('../models/User/userDetailSchema');
+// const { ObjectId } = require('mongodb');
+const Holiday = require("../models/TradingHolidays/tradingHolidays")
 
 
 exports.isAppLive = async(req,res,next) => {
@@ -17,7 +18,22 @@ exports.isAppLive = async(req,res,next) => {
             const currentTime = new Date();
             const hours = currentTime.getHours();
             const minutes = currentTime.getMinutes();
-    
+            const dayOfWeek = currentTime.getDay();
+
+            const startTimeOfToday = new Date(currentTime);
+            startTimeOfToday.setHours(0, 0, 0, 0);
+
+            // Set the time to the beginning of the next day (midnight)
+            const startTimeOfTomorrow = new Date(currentTime);
+            startTimeOfTomorrow.setDate(currentTime.getDate() + 1);
+            startTimeOfTomorrow.setHours(0, 0, 0, 0);
+            const holiday = await Holiday.find({$gt: new Date(startTimeOfToday), $lt: new Date(startTimeOfTomorrow)});
+
+            // Check if it's Saturday or Sunday
+            if (dayOfWeek === 0 || dayOfWeek === 6 || holiday.length > 0) {
+                return res.status(401).send({ message: "Market is currently closed. Please take trade during market hours." });
+            }
+
             // Check if the current time is between 9:15 and 15:30
             if ((hours > 3 || (hours === 3 && minutes >= 50)) && (hours < 9 || (hours === 9 && minutes <= 50))) {
                 return res.status(401).send({message: "Something went wrong."}) ;

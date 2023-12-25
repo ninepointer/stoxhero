@@ -1392,7 +1392,7 @@ exports.internshipLeaderboard = async (req, res, next) => {
     }
 
 
-    const holiday = await getHoliday(internship.batchStartDate, endDate)
+    // const holiday = await getHoliday(internship.batchStartDate, endDate)
     let traderWisePnlInfo = [];
 
     const pipeline = [
@@ -1487,40 +1487,41 @@ exports.internshipLeaderboard = async (req, res, next) => {
     ]
 
     const data = await InternTrades.aggregate(pipeline);
-    const userIds = data.map((elem)=>elem.userId);
+    // const userIds = data.map((elem)=>elem.userId);
 
-  const userData = await User.find({ _id: { $in: userIds } })
-    .populate('referrals.referredUserId', 'joining_date')
-    .select('referrals');
+  // const userData = await User.find({ _id: { $in: userIds } })
+  //   .populate('referrals.referredUserId', 'joining_date')
+  //   .select('referrals');
 
-    const calculateWorkingDay = calculateWorkingDays(internship.batchStartDate, endDate) - holiday.length;
+    // const calculateWorkingDay = calculateWorkingDays(internship.batchStartDate, endDate) - holiday.length;
 
     data?.map((elem)=>{
 
-      const referral = userData?.filter((subelem) => {
-        return subelem?._id?.toString() == elem?.userId?.toString();
-      })
+      // const referral = userData?.filter((subelem) => {
+      //   return subelem?._id?.toString() == elem?.userId?.toString();
+      // })
 
-      let refCount = 0;
-      if(referral[0]?.referrals){
-        for (let subelem of referral[0]?.referrals) {
-          const joiningDate = moment(subelem?.referredUserId?.joining_date);
+      // let refCount = 0;
+      // if(referral[0]?.referrals){
+      //   for (let subelem of referral[0]?.referrals) {
+      //     const joiningDate = moment(subelem?.referredUserId?.joining_date);
         
-          if (joiningDate.isSameOrAfter(moment(moment(internship.batchStartDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(endDate)) {
-            refCount += 1;
-          }
-        }
-      } else{
-        refCount = 0;
-      }
+      //     if (joiningDate.isSameOrAfter(moment(moment(internship.batchStartDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(endDate)) {
+      //       refCount += 1;
+      //     }
+      //   }
+      // } else{
+      //   refCount = 0;
+      // }
 
-      elem.referralCount = refCount;
+      elem.portfolioValue = internship?.portfolio?.portfolioValue;
+      // elem.referralCount = refCount;
       elem.return = elem?.npnl/internship?.portfolio?.portfolioValue;
-      elem.attendancePercentage = (elem?.tradingDays * 100 / (calculateWorkingDay)).toFixed(0);
+      // elem.attendancePercentage = (elem?.tradingDays * 100 / (calculateWorkingDay)).toFixed(0);
       traderWisePnlInfo.push(elem);
     })
 
-  const sortOrder = ['npnl', 'attendancePercentage', 'referralCount'];
+  const sortOrder = ['npnl'];
 
   const sortedArray = traderWisePnlInfo.sort((a, b) => {
     for (const key of sortOrder) {
@@ -1909,7 +1910,7 @@ exports.updateUserWallet = async () => {
               }
 
               console.log("attendance", attendance , attendanceLimit, consolationReward.currency, consolationReward?.amount?.toFixed(2))
-              if(attendance >= attendanceLimit){
+              if(attendance >= consolationReward?.minAttendance){
                 await createUserNotification({
                   title: 'Internship Bonus Credited',
                   description: `${consolationReward.currency === "Cash" ? "₹"+consolationReward?.amount?.toFixed(2) : "HeroCash "+consolationReward?.amount?.toFixed(2)} credited for your internship participation bonus`,
