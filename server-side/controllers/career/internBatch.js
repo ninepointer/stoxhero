@@ -62,9 +62,10 @@ exports.getBatch = async(req, res, next)=>{
 exports.getActiveBatches = async(req, res, next)=>{
     // console.log("inside ActiveBatches")
     try {
-        const batch = await Batch.find({ batchEndDate: { $gte: new Date() }, batchStatus: 'Active' })
+        const batch = await Batch.find({  batchStatus: 'Active' })
                                 .populate('career','jobTitle')
-                                .populate('portfolio','portfolioName portfolioValue');; 
+                                .populate('portfolio','portfolioName portfolioValue')
+                                .sort({batchEndDate: -1})
         res.status(201).json({status: 'success', data: batch, results: batch.length}); 
         
     } catch (e) {
@@ -76,9 +77,13 @@ exports.getActiveBatches = async(req, res, next)=>{
 exports.getCompletedBatches = async(req, res, next)=>{
     // console.log("inside CompletedBatches")
     try {
-        const batch = await Batch.find({ batchEndDate: { $lt: new Date() }, batchStatus: 'Completed' })
-                                .populate('career','jobTitle')
-                                .populate('portfolio','portfolioName portfolioValue');; 
+      const batch = await Batch.find({
+       batchEndDate: { $lt: new Date() } ,
+       batchStatus: 'Completed'
+      })
+      .populate('career','jobTitle')
+      .populate('portfolio','portfolioName portfolioValue')
+      .sort({batchEndDate: -1}) 
         res.status(201).json({status: 'success', data: batch, results: batch.length}); 
         // console.log(batch)
     } catch (e) {
@@ -92,7 +97,8 @@ exports.getInactiveBatches = async(req, res, next)=>{
     try {
         const batch = await Batch.find({ batchStatus: 'Inactive' })
                                 .populate('career','jobTitle')
-                                .populate('portfolio','portfolioName portfolioValue');; 
+                                .populate('portfolio','portfolioName portfolioValue')
+                                .sort({batchEndDate: -1});
         res.status(201).json({status: 'success', data: batch, results: batch.length}); 
         // console.log(batch)
     } catch (e) {

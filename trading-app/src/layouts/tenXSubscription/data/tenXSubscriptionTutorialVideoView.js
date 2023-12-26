@@ -49,6 +49,12 @@ export default function SubscriptionTutorialVideoView({tenXSubscription, tutoria
 
     let rows = []
 
+    tenXSubsTutorialView?.sort((a, b)=>{
+      if(new Date(b.clicked_On) < new Date(a.clicked_On)) return -1;
+      else if(new Date(b.clicked_On) > new Date(a.clicked_On)) return 1;
+      else return 0;
+    })
+
   tenXSubsTutorialView?.map((elem, index)=>{
   let featureObj = {}
   featureObj.index = (

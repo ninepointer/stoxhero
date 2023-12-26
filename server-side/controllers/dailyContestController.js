@@ -5234,8 +5234,44 @@ exports.getTopContestWeeklyPortfolio = async (req, res) => {
   let startDate = startOfWeek;
   let endDate = endOfWeek;
   // console.log(startOfWeek,endOfWeek)
+
+  // const newDate = new Date();
+  // const dayStartDate = newDate.setHours(0,0,0,0);
+  // const dayEndDate = newDate.setHours(23,59,0,0);
+  // const checkPayout = await Contest.find({
+  //   payoutStatus: null,
+  //   contestStartTime: {
+  //     $gte: dayStartDate,
+  //     $lte: dayEndDate,
+  //   },
+  // })
+
+  // let matchStage;
+  // if(checkPayout.length > 0){
+  //   matchStage = {
+  //     contestStatus: "Completed",
+  //     payoutStatus: "Completed",
+  //     contestStartTime: {
+  //       $gte: startDate,
+  //       $lte: dayStartDate,
+  //     },
+  //     "participants.rank": { $ne: null },
+  //   }
+  // } else{
+  //   matchStage = {
+  //     contestStatus: "Completed",
+  //     payoutStatus: "Completed",
+  //     contestStartTime: {
+  //       $gte: startDate,
+  //       $lte: dayEndDate,
+  //     },
+  //     "participants.rank": { $ne: null },
+  //   }
+  // }
+
   try {
-      const pipeline = 
+
+    const pipeline =
       [
         {
           $unwind: {
@@ -5250,7 +5286,7 @@ exports.getTopContestWeeklyPortfolio = async (req, res) => {
               $gte: startDate,
               $lte: endDate,
             },
-            "participants.rank": {$ne : null},
+            "participants.rank": { $ne: null },
           },
         },
         {
@@ -5301,8 +5337,8 @@ exports.getTopContestWeeklyPortfolio = async (req, res) => {
           $project: {
             _id: 0,
             trader: "$user._id",
-            contestFor:1,
-            entryFee:1,
+            contestFor: 1,
+            entryFee: 1,
             first_name: "$user.first_name",
             last_name: "$user.last_name",
             userid: "$user.employeeid",

@@ -41,6 +41,11 @@ export default function TenXSubscribers({tenXSubscription}) {
 
     let rows = []
 
+    tenXSubscription?.sort((a, b)=>{
+      if(new Date(b.subscribedOn) < new Date(a.subscribedOn)) return -1;
+      else if(new Date(b.subscribedOn) > new Date(a.subscribedOn)) return 1;
+      else return 0;
+    })
 
   tenXSubscription?.map((elem, index)=>{
   let featureObj = {}
