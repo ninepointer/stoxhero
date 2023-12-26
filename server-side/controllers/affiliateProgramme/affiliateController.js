@@ -253,22 +253,35 @@ exports.creditAffiliateAmount = async (affiliate, affiliateProgram, product, spe
   if (affiliate?.userId?.toString() === buyer?.toString()) {
     return;
   }
-  const wallet = await Wallet.findOne({ userId: new ObjectId(affiliate?.userId) });
+  // const wallet = await Wallet.findOne({ userId: new ObjectId(affiliate?.userId) });
   const user = await User.findOne({ _id: buyer }).select('first_name last_name fcmTokens');
   const productDoc = await Product.findOne({ _id: product });
   const affiliateUser = await User.findOne({ _id: affiliate?.userId }).select('first_name last_name mobile fcmTokens');
   let discount = Math.min(affiliateProgram?.discountPercentage / 100 * actualPrice, affiliateProgram?.maxDiscount);
   const affiliatePayout = affiliateProgram?.commissionPercentage / 100 * (actualPrice - discount);
   let walletTransactionId = uuid.v4();
-  wallet?.transactions?.push({
-    title: 'StoxHero Affiliate Reward Credit',
-    description: `Amount credited for affiliate reward for ${user?.first_name}'s product purchase`,
-    transactionDate: new Date(),
-    amount: affiliatePayout?.toFixed(2),
-    transactionId: walletTransactionId,
-    transactionType: 'Cash'
+
+  const wallet = await Wallet.findOneAndUpdate({ userId: new ObjectId(affiliate?.userId) }, {
+    $push: {
+      transactions: {
+        title: 'StoxHero Affiliate Reward Credit',
+        description: `Amount credited for affiliate reward for ${user?.first_name}'s product purchase`,
+        transactionDate: new Date(),
+        amount: affiliatePayout?.toFixed(2),
+        transactionId: walletTransactionId,
+        transactionType: 'Cash'    
+      }
+    }
   });
-  await wallet.save();
+  // wallet?.transactions?.push({
+  //   title: 'StoxHero Affiliate Reward Credit',
+  //   description: `Amount credited for affiliate reward for ${user?.first_name}'s product purchase`,
+  //   transactionDate: new Date(),
+  //   amount: affiliatePayout?.toFixed(2),
+  //   transactionId: walletTransactionId,
+  //   transactionType: 'Cash'
+  // });
+  // await wallet.save();
 
   //create affiliate transaction
   await AffiliateTransaction.create({

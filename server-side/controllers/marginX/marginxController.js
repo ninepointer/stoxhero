@@ -1130,8 +1130,13 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
 
         if (marginx?.maxParticipants <= marginx?.participants?.length) {
             if (!marginx.potentialParticipants.includes(userId)) {
-                marginx.potentialParticipants.push(userId);
-                marginx.save();
+                const marginxupdate = await MarginX.findOneAndUpdate({ _id: new ObjectId(marginXId) }, {
+                    $push: {
+                      potentialParticipants: userId
+                    }
+                  });
+                // marginx.potentialParticipants.push(userId);
+                // marginx.save();
             }
             return {
                 statusCode: 400,
@@ -1143,7 +1148,7 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
 
         }
 
-        const result = await MarginX.findOne({ _id: new ObjectId(marginXId) });
+        // const result = await MarginX.findOne({ _id: new ObjectId(marginXId) });
 
         let obj = {
             userId: userId,
@@ -1155,12 +1160,17 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
             obj.bonusRedemption = bonusRedemption;
         }
 
+        const result = await MarginX.findOneAndUpdate({ _id: new ObjectId(marginXId) }, {
+            $push: {
+                participants: obj
+            }
+          });
 
-        result.participants.push(obj);
+        // result.participants.push(obj);
 
         // console.log(result)
         // Save the updated document
-        await result.save();
+        // await result.save();
 
 
         wallet.transactions = [...wallet.transactions, {
