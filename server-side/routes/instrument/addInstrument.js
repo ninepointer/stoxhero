@@ -209,7 +209,7 @@ router.post("/addstock", authentication, async (req, res) => {
             } catch (err) {
                 console.log(err)
             }
-            res.status(200).json({ message: "Instrument Added" })
+            res.status(200).json({status: "success", message: "Instrument Added" })
             return;
         } else {
             try{
@@ -257,7 +257,7 @@ router.post("/addstock", authentication, async (req, res) => {
                     }
     
                 })
-                res.status(201).json({ message: "Instrument Added" });
+                res.status(201).json({status: "success", message: "Instrument Added" });
     
             } catch(err){
                 console.log(err);
