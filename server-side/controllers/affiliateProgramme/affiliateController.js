@@ -1118,6 +1118,8 @@ exports.getMyAffiliatePayout = async (req, res) => {
       return res.status(400).json({status:'error', message:'Invalid Date range'});
     }
     // console.log(userId, startDate, endDate)
+    const newEndDate = new Date(endDate).setHours(23, 59, 59, 999)
+
     const product = await AffiliateTransaction.aggregate([
       {
         $facet:
@@ -1130,7 +1132,7 @@ exports.getMyAffiliatePayout = async (req, res) => {
                   ),
                   createdOn: {
                     $gte: new Date(startDate),
-                    $lte: new Date(endDate)
+                    $lte: new Date(newEndDate)
                   }
                 },
               },
@@ -1187,7 +1189,7 @@ exports.getMyAffiliatePayout = async (req, res) => {
                   ),
                   createdOn: {
                     $gte: new Date(startDate),
-                    $lte: new Date(endDate)
+                    $lte: new Date(newEndDate)
                   },
                   product: {$ne: new ObjectId('6586e95dcbc91543c3b6c181')}
                 },
@@ -1239,7 +1241,7 @@ exports.getMyAffiliatePayout = async (req, res) => {
         $match: {
           "user.joining_date": {
             $gte: new Date(startDate),
-            $lte: new Date(endDate),
+            $lte: new Date(newEndDate),
           },
         },
       },
@@ -1279,6 +1281,9 @@ exports.getMyAffiliateTransaction = async (req, res) => {
     if(new Date(startDate)>new Date(endDate)){
       return res.status(400).json({status:'error', message:'Invalid Date range'});
     }
+
+    const newEndDate = new Date(endDate).setHours(23, 59, 59, 999)
+
     // console.log(userId, startDate, endDate)
     const count = await AffiliateTransaction.countDocuments({
       affiliate: new ObjectId(
@@ -1286,7 +1291,7 @@ exports.getMyAffiliateTransaction = async (req, res) => {
       ),
       createdOn: {
         $gte: new Date(startDate),
-        $lte: new Date(endDate)
+        $lte: new Date(newEndDate)
       }
 
     });
@@ -1298,7 +1303,7 @@ exports.getMyAffiliateTransaction = async (req, res) => {
           ),
           createdOn: {
             $gte: new Date(startDate),
-            $lte: new Date(endDate)
+            $lte: new Date(newEndDate)
           }
         },
       },
