@@ -531,7 +531,7 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     .populate({
         path: 'internshipBatch',
         model: 'intern-batch',
-        select:'career batchName batchStartDate batchEndDate attendancePercentage payoutPercentage referralCount payoutCap rewardType',
+        select:'career batchName batchStartDate batchEndDate attendancePercentage payoutPercentage referralCount payoutCap rewardType consolationReward',
         populate: {
             path: 'career',
             model: 'career',

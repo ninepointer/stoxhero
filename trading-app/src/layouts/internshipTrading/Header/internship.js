@@ -474,6 +474,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
         </MDTypography>
         <MDTypography fontSize = {12}>1. As part of the internship program, you will receive a stipend calculated at {currentBatch ? currentBatch?.payoutPercentage + '%' : 'certain %'} of the net profit and loss (P&L) for the duration of your internship.</MDTypography>
         <MDTypography fontSize = {12}>2. Upon completion of your internship, you will be awarded an internship certificate from StoxHero.</MDTypography>
+        <MDTypography fontSize = {12}>3. Upon successful completion of the internship with at least {currentBatch ? currentBatch?.consolationReward?.minAttendance : 80}% attendance, you will receive a participation bonus of {currentBatch?.consolationReward?.currency==="Cash" ? "₹"+ (currentBatch ? currentBatch?.consolationReward?.amount : 0) : (currentBatch ? currentBatch?.consolationReward?.amount : 0)+" HeroCash"}.</MDTypography>
         <MDTypography></MDTypography>
         <MDTypography fontSize={15} fontWeight='bold' color="dark">
           Internship Completion Rules and Issuance of Internship Certificate
