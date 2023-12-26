@@ -122,6 +122,7 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
 
     try {
         const result = await exports.handleDeductSubscriptionAmount(userId, subscriptionAmount, subscriptionName, subscribedId, coupon, bonusRedemption, req);
+        console.log("result", result)
         res.status(result.statusCode).json(result.data);
         // console.log(result, result.statusCode, result.data);
     } catch (error) {
@@ -159,14 +160,16 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
           }  
         }
 
+        // console.log("bonusRedemption", bonusRedemption, bonusAmount)
         if(bonusRedemption > bonusAmount || bonusRedemption > subs?.discounted_price*setting[0]?.maxBonusRedemptionPercentage){
-            return {
+            result= {
               statusCode:400,
               data:{
               status: "error",
               message:"Incorrect HeroCash Redemption",
               }
             }; 
+            return;
           }
         if(Number(bonusRedemption)){
         wallet?.transactions?.push({
@@ -179,8 +182,12 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         });
         }  
 
+        // console.log("bonusRedemption 2", bonusRedemption)
+
         if(coupon){
             let couponDoc = await Coupon.findOne({code:coupon});
+            // console.log("coupon", couponDoc)
+
             if(!couponDoc){
                 let match = false;
                 const affiliatePrograms = await AffiliateProgram.find({status:'Active'});
@@ -196,6 +203,8 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
                     }
                 }
 
+                // console.log("match", match)
+
                 if(!match){
                     const userCoupon = await User.findOne({myReferralCode: coupon?.toString()})
                     const referralProgram = await ReferralProgram.findOne({status: "Active"});
@@ -209,6 +218,8 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
                     }
                 }
             }
+
+            // console.log("coupon 3", couponDoc)
             if(couponDoc?.rewardType == 'Discount'){
                 if(couponDoc?.discountType == 'Flat'){
                     //Calculate amount and match
@@ -236,46 +247,55 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
             }
         }
         const totalAmount = (subs?.discounted_price - discountAmount - bonusRedemption)*(1+setting[0]?.gstPercentage/100)
-        // console.log(Number(totalAmount) , Number(subscriptionAmount))
+        console.log(Number(totalAmount) , Number(subscriptionAmount))
         if(Number(totalAmount) != Number(subscriptionAmount)){
-          return {
+            result= {
             statusCode:400,
             data:{
             status: "error",
             message:"Incorrect TenX fee amount",
             }
-          };  
+          }; 
+          return; 
         } 
   
         if(amount < subscriptionAmount){
-            return {
+            result= {
                 statusCode:400,
                 data:{
                 status: "error",
                 message:"You do not have sufficient funds to purchase this subscription. Please add money to your wallet.",
                 }
-            };  
+            }; 
+            return; 
         }
+
+        // console.log("next step", amount , subscriptionAmount)
         if(!subs.allowPurchase){
-            return {
+            result= {
                 statusCode:400,
                 data:{
                 status: "error",
                 message:"This subscription is no longer available for purchase or renewal. Please purchase a different plan.",
                 }
-            };  
+            }; 
+            return; 
         }
 
+        // console.log("one more step", amount , subscriptionAmount, subs.users.length)
+
         for(let i = 0; i < subs.users.length; i++){
+            // console.log("subs.users[i]", subs.users[i])
             if(subs.users[i].userId.toString() == userId.toString() && subs.users[i].status == "Live"){
                 // console.log("getting that user")
-                return {
+                result = {
                     statusCode:400,
                     data:{
                     status: "error",
                     message:"You already have subscribed this subscription",
                     }
                 };
+                return;
                 // break;
             }
         }
@@ -292,6 +312,8 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         }];
         await wallet.save({session});
 
+        // console.log("again" , subscriptionAmount)
+
         const user = await User.findOneAndUpdate(
             { _id: userId },
             {
@@ -307,6 +329,8 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
             },
             { new: true, session: session}
         );
+
+        // console.log("user", user?._id)
 
         if (!req?.user?.paidDetails?.paidDate) {
             const updatePaidDetails = await User.findOneAndUpdate(
@@ -348,14 +372,18 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
             await client.del(`${user._id.toString()}authenticatedUser`);
         }
 
+        // console.log("wallet", wallet )
+
+
         if(!wallet){
-            return {
+            result= {
                 statusCode:404,
                 data:{
                 status: "error",
                 message:"No Wallet found",
                 }
             };
+            return;
         } 
         let recipients = [user.email,'team@stoxhero.com'];
         let recipientString = recipients.join(",");
@@ -449,6 +477,8 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
             emailService(recipientString,subject,message);
             console.log("Subscription Email Sent")
         }
+        // console.log("mail gya" )
+
         if(coupon && cashbackAmount>0){
             await createUserNotification({
                 title:'StoxHero Cashback',
@@ -488,7 +518,7 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
               )  
           }
           await session.commitTransaction();
-        //   console.log(coupon, affiliate)
+        //   console.log("end", coupon, affiliate)
           if(coupon){
             const product = await Product.findOne({productName:'TenX'}).select('_id');
             if(affiliate){
@@ -497,6 +527,9 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
                 await saveSuccessfulCouponUse(userId, coupon, product?._id, subscription?._id);
             }
           }
+
+        //   console.log("result now", result )
+
           result = {
             statusCode:200,
             data:{
