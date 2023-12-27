@@ -178,7 +178,6 @@ async function commonProcess() {
     app.use('/api/v1/notificationgroup', require("./routes/notificationGroup/notificationGroupRoutes"));
     const PORT = process.env.PORT || 5002;
     const server = app.listen(PORT);
-
     
     await pendingOrderMain();
 

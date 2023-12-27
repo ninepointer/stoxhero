@@ -106,11 +106,13 @@ const AffiliateRafferals = ({ start, end }) => {
         { Header: "Name", accessor: "name", align: "center" },
         { Header: "Joining Date", accessor: "joiningDate", align: "center" },
         { Header: "Earnings", accessor: "earnings", align: "center" },
+        { Header: "Status", accessor: "status", align: "center" },
     ];
     let rows = [];
     //   console.log('checking',referralRanks, getDetails.userDetails.employeeid);
     data?.map((elem, index) => {
         let refData = {}
+        let userStatus = elem?.paidDetails?.paidStatus ? (elem?.paidDetails?.paidStatus === 'Active' ? 'Paid' : 'Free') : (elem?.activationDetails?.activationStatus ? elem?.activationDetails?.activationStatus : 'Inactive')
 
         refData.sNo = (
             <MDTypography variant="Contained" color='dark' >
@@ -130,6 +132,11 @@ const AffiliateRafferals = ({ start, end }) => {
         refData.earnings = (
             <MDTypography variant="Contained" color='dark' >
                 ₹{elem?.payout}
+            </MDTypography>
+        );
+        refData.status = (
+            <MDTypography variant="Contained" color='dark' >
+                {userStatus}
             </MDTypography>
         );
 

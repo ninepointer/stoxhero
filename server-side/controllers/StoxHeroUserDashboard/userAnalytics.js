@@ -1515,7 +1515,7 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
     const pipeline = [
       {
         $match:{
-          trade_time : {$gte: new Date('2023-05-01:00:00:00'), $lt: new Date('2023-11-01:00:00:00')}
+          trade_time : {$gte: new Date('2023-11-01:00:00:00'), $lt: new Date('2023-12-01:00:00:00')}
         }
       },
       {
@@ -7400,6 +7400,8 @@ exports.downloadLifetimePaid = async (req, res) => {
     });
   }
 };
+
+
 
 
 

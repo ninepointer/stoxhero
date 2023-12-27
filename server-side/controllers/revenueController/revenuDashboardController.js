@@ -5,6 +5,12 @@ const TenX = require("../../models/TenXSubscription/TenXSubscriptionSchema")
 const MarginX = require("../../models/marginX/marginX")
 const Battle = require("../../models/battle/battle")
 const User = require("../../models/User/userDetailSchema")
+const PaperTrading = require("../../models/mock-trade/paperTrade")
+const TenXTrading = require("../../models/mock-trade/tenXTraderSchema")
+const TestZoneTrading = require("../../models/DailyContest/dailyContestMockUser")
+const MarginXTrading = require("../../models/marginX/marginXUserMock")
+const InternshipTrading = require("../../models/mock-trade/internshipTrade")
+const BattleTrading = require("../../models/battle/battleTrade")
 
 
 exports.getTestZoneRevenue = async (req, res) => {
@@ -2475,6 +2481,364 @@ exports.downloadMarginXRevenueData = async (req, res) => {
     });
   }
 };
+
+exports.getRetentionPercentageForMonth = async(req,res,next) => {
+  try{
+    
+    let getActiveUsersBeforeTheMonth = async() => {
+
+    const traderpipeline =[
+      {
+          $match: {
+              trade_time: {
+                  $gte: new Date("2023-05-01"),
+                  $lte: new Date("2023-12-01")
+              }
+          }
+      },
+      {
+          $group: {
+              _id: '$trader',
+          }
+      },
+      {
+          $project: {
+              _id: 0, 
+              trader: '$_id'
+          }
+      }
+    ]
+
+    const collections = [PaperTrading, TenXTrading, TestZoneTrading, InternshipTrading, MarginXTrading, BattleTrading];
+    const uniqueUsersSet = new Set();
+
+    for (const collection of collections) {
+      const traders = await collection.aggregate(traderpipeline);
+      traders.forEach(trader => uniqueUsersSet.add(trader.trader.toString()));
+    }
+
+    return Array.from(uniqueUsersSet);
+    }
+
+    let getActiveUsersDuringTheMonth = async() => {
+
+      const pipeline = [
+          {
+              $match: {
+                  trade_time: {
+                      $gte: new Date("2023-11-01"),
+                      $lte: new Date("2023-12-01")
+                  }
+              }
+          },
+          {
+              $group: {
+                  _id: '$trader',
+              }
+          },
+          {
+              $project: {
+                  _id: 0, 
+                  trader: '$_id'
+              }
+          }
+      ];
+
+      const collections = [PaperTrading, TenXTrading, TestZoneTrading, InternshipTrading, MarginXTrading, BattleTrading];
+      const uniqueUsersSet = new Set();
+
+      // Iterate over each collection and add unique traders to the set
+      for (const collection of collections) {
+          const traders = await collection.aggregate(pipeline);
+          traders.forEach(trader => uniqueUsersSet.add(trader.trader.toString()));
+      }
+
+      return Array.from(uniqueUsersSet);
+    }
+
+    const getRetentionPercentageForMonth = async () => {
+      // Get traders from the last 180 days before the month
+      const tradersLast180Days = await getActiveUsersBeforeTheMonth();
+      console.log("tradersLast180Days",tradersLast180Days?.length)
+      // Get traders during the month
+      const tradersDuringMonth = await getActiveUsersDuringTheMonth();
+      console.log("tradersDuringMonth",tradersDuringMonth?.length)
+      // Find the overlap between the two lists
+      const overlap = tradersDuringMonth.filter(trader => tradersLast180Days.includes(trader));
+      const lostUsers = tradersLast180Days.filter(trader => !tradersDuringMonth.includes(trader))
+      console.log("Lost Users:",lostUsers?.length)
+      console.log("Retained Users:",overlap?.length)
+      console.log("Last Months Users:",tradersLast180Days?.length)
+      console.log("This Months Users:",tradersDuringMonth?.length)
+      // Calculate the retention percentage
+      const retentionPercentage = overlap.length / tradersLast180Days.length * 100;
+    
+      return retentionPercentage;
+    };
+  
+    const retentionPercentage = await getRetentionPercentageForMonth();
+  
+  const response = {
+    data: retentionPercentage,
+    status: "success",
+    message: "Revenue Data fetched successfully",
+  }
+  res.status(200).json(response);
+  }catch(e){
+    console.log(e);
+  }
+}
+
+exports.getPaidRetentionPercentageForMonth = async(req,res,next) => {
+  try{
+    let field;
+    let getActiveUsersBeforeTheMonth = async() => {
+
+    const testzonepipeline =[
+      {
+        $unwind: "$participants",
+      },
+      {
+        $match: {
+          entryFee: {
+            $gt: 0,
+          },
+          "participants.participatedOn": {
+            $gte: new Date("2023-05-01"),
+            $lt: new Date("2023-11-01"),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            trader: "$participants.userId",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          trader: "$_id.trader",
+        },
+      },
+    ]
+
+    const tenxpipeline=[
+      {
+        $unwind: "$users",
+      },
+      {
+        $match: {
+          "users.subscribedOn": {
+            $gte: new Date("2023-05-01"),
+            $lt: new Date("2023-11-01"),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            trader: "$users.userId",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          trader: "$_id.trader",
+        },
+      },
+    ]
+
+    const battleandmarginxpipeline=[
+      {
+        $unwind: "$participants",
+      },
+      {
+        $match: {
+          "participants.boughtAt": {
+            $gte: new Date("2023-05-01"),
+            $lt: new Date("2023-11-01"),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            trader: "$participants.userId",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          trader: "$_id.trader",
+        },
+      },
+    ]
+
+    const collections = [TenX, TestZone, MarginX, Battle];
+    const uniqueUsersSet = new Set();
+
+    // for (const collection of collections) {
+      const tenxtraders = await TenX.aggregate(tenxpipeline);
+      const testzonetraders = await TestZone.aggregate(testzonepipeline);
+      const marginxtraders = await MarginX.aggregate(battleandmarginxpipeline);
+      const battletraders = await TestZone.aggregate(battleandmarginxpipeline);
+      const traders = [
+        ...tenxtraders,
+        ...testzonetraders,
+        ...marginxtraders,
+        ...battletraders
+      ];
+      traders.forEach(trader => uniqueUsersSet.add(trader.trader.toString()));
+    // }
+
+    return Array.from(uniqueUsersSet);
+    }
+
+    let getActiveUsersDuringTheMonth = async() => {
+
+      const testzonepipeline =[
+        {
+          $unwind: "$participants",
+        },
+        {
+          $match: {
+            entryFee: {
+              $gt: 0,
+            },
+            "participants.participatedOn": {
+              $gte: new Date("2023-11-01"),
+              $lt: new Date("2023-12-01"),
+            },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              trader: "$participants.userId",
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            trader: "$_id.trader",
+          },
+        },
+      ]
+  
+      const tenxpipeline=[
+        {
+          $unwind: "$users",
+        },
+        {
+          $match: {
+            "users.subscribedOn": {
+              $gte: new Date("2023-11-01"),
+              $lt: new Date("2023-12-01"),
+            },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              trader: "$users.userId",
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            trader: "$_id.trader",
+          },
+        },
+      ]
+  
+      const battleandmarginxpipeline=[
+        {
+          $unwind: "$participants",
+        },
+        {
+          $match: {
+            "participants.boughtAt": {
+              $gte: new Date("2023-11-01"),
+              $lt: new Date("2023-12-01"),
+            },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              trader: "$participants.userId",
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            trader: "$_id.trader",
+          },
+        },
+      ]
+  
+      const collections = [TenX, TestZone, MarginX, Battle];
+      const uniqueUsersSet = new Set();
+  
+      // for (const collection of collections) {
+        const tenxtraders = await TenX.aggregate(tenxpipeline);
+        const testzonetraders = await TestZone.aggregate(testzonepipeline);
+        const marginxtraders = await MarginX.aggregate(battleandmarginxpipeline);
+        const battletraders = await TestZone.aggregate(battleandmarginxpipeline);
+        const traders = [
+          ...tenxtraders,
+          ...testzonetraders,
+          ...marginxtraders,
+          ...battletraders
+        ];
+        traders.forEach(trader => uniqueUsersSet.add(trader.trader.toString()));
+      // }
+  
+      return Array.from(uniqueUsersSet);
+    }
+
+    const getRetentionPercentageForMonth = async () => {
+      // Get traders from the last 180 days before the month
+      const tradersLast180Days = await getActiveUsersBeforeTheMonth();
+      console.log("tradersLast180Days",tradersLast180Days?.length)
+      // Get traders during the month
+      const tradersDuringMonth = await getActiveUsersDuringTheMonth();
+      console.log("tradersDuringMonth",tradersDuringMonth?.length)
+      // Find the overlap between the two lists
+      const overlap = tradersDuringMonth.filter(trader => tradersLast180Days.includes(trader));
+      const lostUsers = tradersLast180Days.filter(trader => !tradersDuringMonth.includes(trader))
+      console.log("Lost Users:",lostUsers?.length)
+      console.log("Retained Users:",overlap?.length)
+      console.log("Last Months Users:",tradersLast180Days?.length)
+      console.log("This Months Users:",tradersDuringMonth?.length)
+    
+      // Calculate the retention percentage
+      const retentionPercentage = overlap.length / tradersLast180Days.length * 100;
+    
+      return retentionPercentage;
+    };
+  
+    const retentionPercentage = await getRetentionPercentageForMonth();
+  
+  const response = {
+    data: retentionPercentage,
+    status: "success",
+    message: "Revenue Data fetched successfully",
+  }
+  res.status(200).json(response);
+  }catch(e){
+    console.log(e);
+  }
+}
+
+
 
 
 

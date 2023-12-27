@@ -1002,7 +1002,7 @@ exports.myActiveSubs = async(req, res, next)=>{
         },
       ]
     )
-      res.status(201).json({status: 'success', data: tenXSubs});    
+    res.status(201).json({status: 'success', data: tenXSubs});    
   }catch(e){
       console.log(e);
       res.status(500).json({status: 'error', message: 'Something went wrong'});

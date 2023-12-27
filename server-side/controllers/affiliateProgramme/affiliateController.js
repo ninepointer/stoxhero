@@ -1264,6 +1264,24 @@ exports.getMyAffiliatePayout = async (req, res) => {
           count: {
             $count: {},
           },
+          activeCount: {
+            $sum: {
+              $cond: [
+                { $eq: ["$affiliateReferrals.referredUserId.activationDetails.activationStatus", "Active"] },
+                1,
+                0
+              ]
+            }
+          },
+          paidCount: {
+            $sum: {
+              $cond: [
+                { $eq: ["$affiliateReferrals.referredUserId.paidDetails.paidStatus", "Active"] },
+                1,
+                0
+              ]
+            }
+          },
           payout: {
             $sum: "$affiliateReferrals.affiliateEarning",
           },
@@ -1272,6 +1290,8 @@ exports.getMyAffiliatePayout = async (req, res) => {
       {
         $project: {
           affiliateRefferalCount: "$count",
+          activeAffiliateRefferalCount: "$activeCount",
+          paidAffiliateRefferalCount: "$paidCount",
           _id: 0,
           affiliateRefferalPayout: "$payout",
         },
@@ -1521,3 +1541,5 @@ exports.getAffiliateReferralsSummery = async(req, res) => {
     res.status(500).json({status: "error", message: "Internal server error"});
   }
 }
+
+

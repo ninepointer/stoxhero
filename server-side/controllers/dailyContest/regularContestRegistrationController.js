@@ -35,7 +35,7 @@ exports.generateOTP = async (req, res, next) => {
     const dailyContest = await DailyContest.findById(contest).select('contestEndTime');
     if (dailyContest?.contestEndTime < new Date()) {
         return res.status(400).json({
-            message: "This Contest has already ended",
+            message: "This TestZone has ended. Please participate in another TestZones.",
             status: 'error'
         });
     }

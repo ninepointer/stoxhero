@@ -1097,7 +1097,7 @@ exports.downloadCertificate = async (req,res, next) => {
     const start = moment(batch?.batchStartDate).format('Do MMM YY').toString();
     const end = moment(batch?.batchEndDate).format('Do MMM YY').toString();
     console.log('start and end', start, end, batch?.batchStartDate, batch?.batchEndDate);
-    const existingPdfBytes = fs.readFileSync(path.join(__dirname, '/template3.pdf'));
+    const existingPdfBytes = fs.readFileSync(path.join(__dirname, '/template.pdf'));
     // console.log(existingPdfBytes);
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
     //Get the first page of the document
@@ -1112,13 +1112,13 @@ exports.downloadCertificate = async (req,res, next) => {
         size: 16
     });
     firstPage.drawText(start, {
-        x: 460,
-        y: 340,
+        x: 450,
+        y: 344,
         size: 14
     });
     firstPage.drawText(end, {
-        x: 625,
-        y: 340,
+        x: 620,
+        y: 344,
         size: 14,
     });
     // console.log(firstPage);
