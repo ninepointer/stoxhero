@@ -1543,3 +1543,176 @@ exports.getAffiliateReferralsSummery = async(req, res) => {
 }
 
 
+// exports.getAffiliateReferralsSummery = async(req, res) => {
+//   try {
+//     const userId = req.user._id;
+//     const {startDate, endDate} = req.query;
+//     if(new Date(startDate) > new Date(endDate)){
+//       return res.status(400).json({status:'error', message:"Invalid Date Range"});
+//     }
+
+//     // Fetch the user and populate the referrals
+//     const user = await User.findOne({_id: new ObjectId(userId)})
+//       .select('affiliateReferrals')
+//       .populate({
+//         path: 'affiliateReferrals.referredUserId',
+//         select: 'first_name last_name joining_date',
+//         match: {
+//           joining_date: {
+//             $gte: new Date(startDate),
+//             $lte: new Date(endDate)
+//           }
+//         }
+//       });
+
+//     // Filter out referrals where the referredUserId is null
+//     const filteredReferrals = user && user.affiliateReferrals 
+//       ? user.affiliateReferrals.filter(referral => referral.referredUserId != null) 
+//       : [];
+
+//     // Construct the response object with filtered referrals
+//     const response = {
+//       status: "success",
+//       data: {...user.toObject(), affiliateReferrals: filteredReferrals}  // maintain structure, but with filtered referrals
+//     };
+
+//     // Send the response
+//     res.status(200).json(response);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({status: "error", message: "Internal server error"});
+//   }
+// }
+
+exports.getAffiliateOverview = async(req,res) => {
+  const userId = req.user._id;
+  const user = await User.findById(userId).select('first_name last_name');
+  const affiliateProgram = await Affiliate.findOne({
+    "affiliates.userId": userId
+  }).select('rewardPerSignup commissionPercentage');
+
+  const affiliateRaffrelData = await User.aggregate([
+    {
+      $match: {
+        _id: new ObjectId(userId),
+      },
+    },
+    {
+      $unwind: {
+        path: "$affiliateReferrals",
+      },
+    },
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField:
+          "affiliateReferrals.referredUserId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+      $unwind:{
+        path:"$user"
+      }
+    },
+    {
+      $group: {
+        _id: {},
+        count: {
+          $count: {},
+        },
+        activeCount: {
+          $sum: {
+            $cond: [
+              { $eq: ["user.activationDetails.activationStatus", "Active"] },
+              1,
+              0
+            ]
+          }
+        },
+        paidCount: {
+          $sum: {
+            $cond: [
+              { $ne: ["user.paidDetails.paidDate", null] },
+              1,
+              0
+            ]
+          }
+        },
+        paidActiveCount:{
+          $sum: {
+            $cond: [
+              { $eq: ["user.paidDetails.paidStatus", "Active"] },
+              1,
+              0
+            ]
+          }
+        },
+        payout: {
+          $sum: "$affiliateReferrals.affiliateEarning",
+        },
+      },
+    },
+    {
+      $project: {
+        affiliateRefferalCount: "$count",
+        activeAffiliateRefferalCount: "$activeCount",
+        paidAffiliateRefferalCount: "$paidCount",
+        paidActiveAffiliateRefferalCount: "$paidActiveCount",
+        _id: 0,
+        affiliateRefferalPayout: "$payout",
+      },
+    },
+  ]);
+
+  res.status(200).json({status:"success", data:{...affiliateRaffrelData[0], rewardPerReferral:affiliateProgram?.rewardPerSignup, commissionPercentage: affiliateProgram?.commissionPercentage, userName: `${user?.first_name} ${user?.last_name}`}})
+
+}
+
+exports.getLast30daysAffiliateData = async(req,res) => {
+  const endDate = moment();
+  const startDate = moment().subtract(30, 'days').startOf('day');
+  const userId = req.user._id;
+  const SIGNUP_PRODUCT_ID = '6586e95dcbc91543c3b6c181';
+  const TESTZONE_PRODUCT_ID = '6517d48d3aeb2bb27d650de5';
+  const TENX_PRODUCT_ID = '6517d3803aeb2bb27d650de0';
+  const data = await AffiliateTransaction.aggregate([
+    {
+      $match: {
+        affiliate: mongoose.Types.ObjectId(userId),
+        transactionDate: {
+          $gte: new Date(startDate),
+          // $lte: new Date(endDate)
+        },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          $dateToString: { format: "%Y-%m-%d", date: "$transactionDate" },
+        },
+        totalSignupEarnings: {
+          $sum: {
+            $cond: [{ $eq: ["$product", new ObjectId(SIGNUP_PRODUCT_ID)] }, "$affiliatePayout", 0],
+          },
+        },
+        totalTestzoneEarnings: {
+          $sum: {
+            $cond: [{ $eq: ["$product", new ObjectId(TESTZONE_PRODUCT_ID)] }, "$affiliatePayout", 0],
+          },
+        },
+        totalTenxEarnings: {
+          $sum: {
+            $cond: [{ $eq: ["$product", new ObjectId(TENX_PRODUCT_ID)] }, "$affiliatePayout", 0],
+          },
+        },
+        totalEarnings:{
+          $sum: "$affiliatePayout"
+        },
+      },
+    },
+    { $sort: { _id: 1 } },
+  ]);
+  res.status(200).json({status:'success', data:data});
+}
