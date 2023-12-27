@@ -478,6 +478,7 @@ exports.getdeactivateUser = async (req, res) => {
     const user = await DeactivateUser.find()
     .populate("deactivatedUser", 'first_name last_name')
     .select('deactivatedUser email mobile createdOn')
+    .sort({createdOn: -1})
 
     res.status(201).json({
       status: 'success',

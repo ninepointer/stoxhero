@@ -52,9 +52,13 @@ export default function Applicants({campaign, campaignUserCount}) {
       ]
 
     let rows = []
-
+    campaign.users?.sort((a, b)=>{
+      if(new Date(b.joinedOn) < new Date(a.joinedOn)) return -1;
+      else if(new Date(b.joinedOn) > new Date(a.joinedOn)) return 1;
+      else return 0;
+    })
   campaign.users?.map((elem, index)=>{
-  console.log("elem:",elem)
+  // console.log("elem:",elem)
   let featureObj = {}
   featureObj.index = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">

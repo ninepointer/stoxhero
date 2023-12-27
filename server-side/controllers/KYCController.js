@@ -87,17 +87,20 @@ exports.uploadToS3 = async(req, res, next) => {
 
 
 exports.getAllPendingApprovalKYC = async (req, res, next) => {
-    const pendingKYCUsers = await User.find({KYCStatus:'Pending Approval'});
+    const pendingKYCUsers = await User.find({KYCStatus:'Pending Approval'})
+    .sort({KYCActionDate: -1})
     res.status(200).json({status:'success', data: pendingKYCUsers, results: pendingKYCUsers.length})
 }
 
 exports.getApporvedKYC = async (req,res,next) => {
     const approvedKYCs = await User.find({KYCStatus:'Approved'})
+    .sort({KYCActionDate: -1})
     res.status(200).json({status:'success', data: approvedKYCs, results: approvedKYCs.length})
 }
 
 exports.getRejectedKYCS = async (req,res,next) => {
     const rejectedKYCS = await User.find({KYCStatus:'Rejected'})
+    .sort({KYCActionDate: -1})
     res.status(200).json({status:'success', data: rejectedKYCS, results: rejectedKYCS.length})
 }
 

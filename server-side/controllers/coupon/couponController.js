@@ -462,12 +462,22 @@ exports.saveSuccessfulCouponUse = async (userId, code, product, specificProduct)
         }
 
         // Add user to the usedBySuccessful array field
-        coupon.usedBySuccessful.push({
-            user: userId,
-            appliedOn: new Date(),
-            product: productDoc._id,
-            specificProduct:specificProduct
-        });
+        const updateCoupon = await Coupon.findOneAndUpdate({ code }, {
+            $push: {
+                usedBySuccessful: {
+                    user: userId,
+                    appliedOn: new Date(),
+                    product: productDoc._id,
+                    specificProduct:specificProduct
+                }
+            }
+        })
+        // coupon.usedBySuccessful.push({
+        //     user: userId,
+        //     appliedOn: new Date(),
+        //     product: productDoc._id,
+        //     specificProduct:specificProduct
+        // });
 
         // Remove the last user element from the usedBySuccessful array if exists
         let userAppliedCoupons = coupon.usedBy.filter(item => item?.user.toString() === userId.toString());

@@ -1678,8 +1678,13 @@ exports.participateUsers = async (req, res) => {
 
         if (getActiveContest.length > 0) {
             if (!contest.potentialParticipants.includes(userId)) {
-                contest.potentialParticipants.push(userId);
-                await contest.save();
+                // contest.potentialParticipants.push(userId);
+                const contest = await Contest.findOneAndUpdate({ _id: ObjectId(id) }, {
+                  $push: {
+                    potentialParticipants: userId
+                  }
+                });
+                // await contest.save();
             }
             return res.status(404).json({ status: "error", message: "You can only participate in another TestZone once your current TestZone ends!" });
         }
@@ -1816,14 +1821,18 @@ exports.participateUsers = async (req, res) => {
             obj.isLive = false;
         }
 
-        result.participants.push(obj);
+        // result.participants.push(obj);
 
 
+        const updateParticipants = await Contest.findOneAndUpdate({ _id: new ObjectId(id) }, {
+          $push: {
+            participants: obj
+          }
+        });
 
-
-        console.log(result)
+        // console.log(result)
         // Save the updated document
-        await result.save();
+        // await result.save();
 
 
         res.status(200).json({
@@ -2842,7 +2851,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
 exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, contestId, coupon, bonusRedemption, req) => {
   try {
     let affiliate, affiliateProgram;
-    const contest = await Contest.findOne({ _id: contestId });
+    const contest = await Contest.findOne({ _id: new ObjectId(contestId) });
     const wallet = await UserWallet.findOne({ userId: userId });
     const user = await User.findOne({ _id: userId });
     const setting = await Setting.find({});
@@ -2976,8 +2985,13 @@ exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, co
 
     if (contest?.maxParticipants <= contest?.participants?.length) {
       if (!contest.potentialParticipants.includes(userId)) {
-        contest.potentialParticipants.push(userId);
-        await contest.save();
+        const contest = await Contest.findOneAndUpdate({ _id: new ObjectId(contestId) }, {
+          $push: {
+            potentialParticipants: userId
+          }
+        });
+        // contest.potentialParticipants.push(userId);
+        // await contest.save();
       }
       return {
         statusCode: 400,
@@ -3088,33 +3102,45 @@ exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, co
       },
     ])
 
-    const result = await Contest.findOne({ _id: new ObjectId(contestId) });
+    // const result = await Contest.findOne({ _id: new ObjectId(contestId) });
 
     let obj = {
       userId: userId,
       participatedOn: new Date(),
       fee: contestFee,
       actualPrice: contest?.entryFee,
+      isLive: false
     }
     if (Number(bonusRedemption)) {
       obj.bonusRedemption = bonusRedemption;
     }
 
-    console.log(noOfContest, noOfContest[0]?.totalContestsCount, result?.liveThreshold, result.currentLiveStatus)
+    // console.log(noOfContest, noOfContest[0]?.totalContestsCount, result?.liveThreshold, result.currentLiveStatus)
     // Now update the isLive field based on the liveThreshold value
-    if ((noOfContest[0]?.totalContestsCount < result?.liveThreshold) && result.currentLiveStatus === "Live") {
-      obj.isLive = true;
-      console.log("in if")
-    } else {
-      console.log("in else")
-      obj.isLive = false;
-    }
+    // if ((noOfContest[0]?.totalContestsCount < result?.liveThreshold) && result.currentLiveStatus === "Live") {
+    //   obj.isLive = true;
+    //   console.log("in if")
+    // } else {
+    //   console.log("in else")
+    //   obj.isLive = false;
+    // }
 
-    result.participants.push(obj);
+    // result.participants.push(obj);
+
+    const updateParticipants = await Contest.findOneAndUpdate(
+      { _id: new ObjectId(contestId) },
+      {
+        $push: {
+          participants: obj
+        }
+      },
+      { new: true }
+    );
+    
 
     // console.log(result)
     // Save the updated document
-    await result.save();
+    // await result.save();
 
 
     wallet.transactions = [...wallet.transactions, {
@@ -3127,7 +3153,7 @@ exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, co
     }];
     await wallet.save();
 
-    if (!result || !wallet) {
+    if (!updateParticipants || !wallet) {
       return {
         statusCode: 404,
         data: {
@@ -3295,7 +3321,7 @@ exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, co
       data: {
         status: 'success',
         message: "Paid successfully",
-        data: result
+        data: updateParticipants
       }
     };
   } catch (e) {
@@ -5234,8 +5260,44 @@ exports.getTopContestWeeklyPortfolio = async (req, res) => {
   let startDate = startOfWeek;
   let endDate = endOfWeek;
   // console.log(startOfWeek,endOfWeek)
+
+  // const newDate = new Date();
+  // const dayStartDate = newDate.setHours(0,0,0,0);
+  // const dayEndDate = newDate.setHours(23,59,0,0);
+  // const checkPayout = await Contest.find({
+  //   payoutStatus: null,
+  //   contestStartTime: {
+  //     $gte: dayStartDate,
+  //     $lte: dayEndDate,
+  //   },
+  // })
+
+  // let matchStage;
+  // if(checkPayout.length > 0){
+  //   matchStage = {
+  //     contestStatus: "Completed",
+  //     payoutStatus: "Completed",
+  //     contestStartTime: {
+  //       $gte: startDate,
+  //       $lte: dayStartDate,
+  //     },
+  //     "participants.rank": { $ne: null },
+  //   }
+  // } else{
+  //   matchStage = {
+  //     contestStatus: "Completed",
+  //     payoutStatus: "Completed",
+  //     contestStartTime: {
+  //       $gte: startDate,
+  //       $lte: dayEndDate,
+  //     },
+  //     "participants.rank": { $ne: null },
+  //   }
+  // }
+
   try {
-      const pipeline = 
+
+    const pipeline =
       [
         {
           $unwind: {
@@ -5250,7 +5312,7 @@ exports.getTopContestWeeklyPortfolio = async (req, res) => {
               $gte: startDate,
               $lte: endDate,
             },
-            "participants.rank": {$ne : null},
+            "participants.rank": { $ne: null },
           },
         },
         {
@@ -5301,8 +5363,8 @@ exports.getTopContestWeeklyPortfolio = async (req, res) => {
           $project: {
             _id: 0,
             trader: "$user._id",
-            contestFor:1,
-            entryFee:1,
+            contestFor: 1,
+            entryFee: 1,
             first_name: "$user.first_name",
             last_name: "$user.last_name",
             userid: "$user.employeeid",

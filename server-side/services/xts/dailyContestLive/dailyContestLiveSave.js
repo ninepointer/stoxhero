@@ -104,7 +104,7 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
         brokerageDetailBuy = await client.HGET('brokerage', `buy-company`);
         brokerageDetailBuy = JSON.parse(brokerageDetailBuy);
     } else{
-        brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", accountType: xtsAccountType});
+        brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", accountType: xtsAccountType, type: "Option"});
         await client.HSET('brokerage', `buy-company`, JSON.stringify(brokerageDetailBuy));
     }
 
@@ -112,7 +112,7 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
         brokerageDetailSell = await client.HGET('brokerage', `sell-company`);
         brokerageDetailSell = JSON.parse(brokerageDetailSell);
     } else{
-        brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", accountType: xtsAccountType});
+        brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", accountType: xtsAccountType, type: "Option"});
         await client.HSET('brokerage', `sell-company`, JSON.stringify(brokerageDetailSell));
     }
 
@@ -120,7 +120,7 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
         brokerageDetailBuyUser = await client.HGET('brokerage', `buy-user`);
         brokerageDetailBuyUser = JSON.parse(brokerageDetailBuyUser);
     } else{
-        brokerageDetailBuyUser = await BrokerageDetail.find({ transaction: "BUY", accountType: zerodhaAccountType });
+        brokerageDetailBuyUser = await BrokerageDetail.find({ transaction: "BUY", accountType: zerodhaAccountType, type: "Option" });
         await client.HSET('brokerage', `buy-user`, JSON.stringify(brokerageDetailBuyUser));
     }
 
@@ -128,7 +128,7 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
         brokerageDetailSellUser = await client.HGET('brokerage', `sell-user`);
         brokerageDetailSellUser = JSON.parse(brokerageDetailSellUser);
     } else{
-        brokerageDetailSellUser = await BrokerageDetail.find({ transaction: "SELL", accountType: zerodhaAccountType });
+        brokerageDetailSellUser = await BrokerageDetail.find({ transaction: "SELL", accountType: zerodhaAccountType, type: "Option" });
         await client.HSET('brokerage', `sell-user`, JSON.stringify(brokerageDetailSellUser));
     }  
     const session = await mongoose.startSession();

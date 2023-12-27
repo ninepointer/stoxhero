@@ -91,6 +91,18 @@ const Referrals = require("../../models/campaigns/referralProgram")
 const {dailyContestTimeStore, dailyContestTradeCut} = require("../../dailyContestTradeCut")
 const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema");
 const Affiliate = require("../../models/affiliateProgram/affiliateProgram")
+const AffiliateTransaction = require("../../models/affiliateProgram/affiliateTransactions");
+
+router.get('/transaction', async(req,res) =>{
+  const transaction = await AffiliateTransaction.find({product: new ObjectId("6586e95dcbc91543c3b6c181")});
+  for(let elem of transaction){
+    elem.productActualPrice = 0;
+    elem.productDiscountedPrice = 0;
+    await elem.save({validateBeforeSave: false});
+  }
+  
+  res.send("ok")
+})
 
 router.get('/negetivetds', async(req,res) =>{
   // const tenx = await TenxSubscription.find();
@@ -120,7 +132,7 @@ router.get('/negetivetds', async(req,res) =>{
         // }
       }
   
-      await elem.save({validateBeforeSave: false});
+      // await elem.save({validateBeforeSave: false});
   
     }
   });
@@ -128,7 +140,6 @@ router.get('/negetivetds', async(req,res) =>{
   // Wait for all promises to resolve before continuing
   await Promise.all(promises);
 })
-
 
 router.get('/pendingorder', async (req, res) => {
 
@@ -3337,7 +3348,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2023-12-21T20:00:00.000+00:00"
+  let expiryDate = "2023-12-26T20:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(
@@ -3345,10 +3356,10 @@ router.get("/updateInstrumentStatus", async (req, res) => {
     { $set: { status: "Inactive" } }
   )
 
-  let infinityInstrument = await InfinityInstrument.updateMany(
-    { contractDate: { $lte: expiryDate }, status: "Active" },
-    { $set: { status: "Inactive" } }
-  )
+  // let infinityInstrument = await InfinityInstrument.updateMany(
+  //   { contractDate: { $lte: expiryDate }, status: "Active" },
+  //   { $set: { status: "Inactive" } }
+  // )
 
 
   // const userIns = await UserDetail.find()
@@ -3379,7 +3390,7 @@ router.get("/updateInstrumentStatus", async (req, res) => {
 
   await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "", allInstruments: "" } });
 
-  res.send({ message: "updated", data: instrument, data1: infinityInstrument })
+  res.send({ message: "updated", data: instrument })
 })
 
 router.get("/updatePortfolio", async (req, res) => {
@@ -3849,8 +3860,6 @@ router.get("/insertDocument", async (req, res) => {
 
 module.exports = router;
 
-
-
 /*
 requirment: 
 1. testzone is only visible to registered user, if thats visibility is false
@@ -3863,4 +3872,36 @@ Steps:
 2. regiteration page with clear routing
 3. in admin dashboard show full leaderboard of affiliates
 */
+
+/*
+requirment: 
+1. tenx running lots > 0 = previous day else total pnl
+2. today pnl is in unrealised pnl
+3. give some insights, max profit, max loss, avg profit, avg loss, roi, ..etc. 
+
+
+
+
+1. 500 open positon Nifty 19000PE
+    400 stop loss ---> pending order api
+
+  500-400 = 100 sl quanity
+  500-0 = 500 sp quantity
+
+
+  
+2. 5000 open positon Nifty 19000PE
+    400 stop loss
+
+    max lot = 1800
+    slQ > maxLot ? maxLot : slQ
+  5000-400 = 4600 sl quanity 
+  5000-0 = 5000 sp quantity
+
+
+
+
+Steps:
+*/
+
 

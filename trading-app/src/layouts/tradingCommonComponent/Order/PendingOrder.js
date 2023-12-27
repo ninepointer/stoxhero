@@ -17,9 +17,11 @@ import OrderHelper from "../Order/PendingOrderHelper";
 import { userContext } from "../../../AuthContext";
 import { marketDataContext } from "../../../MarketDataContext";
 import { paperTrader } from '../../../variables';
-
+import { NetPnlContext } from '../../../PnlContext';
 
 function PendingOrders({ id, socket, setUpdatePendingOrder, updatePendingOrder, from }) {
+
+    const { setPendingOrderQuantity} = useContext(NetPnlContext);
 
     let styleTD = {
         textAlign: "center",
@@ -47,18 +49,19 @@ function PendingOrders({ id, socket, setUpdatePendingOrder, updatePendingOrder, 
         setIsLoading(true)
         console.log("Inside Use Effect")
         axios.get(`${apiUrl}${url}?skip=${skip}&limit=${limitSetting}`, { withCredentials: true })
-            .then((res) => {
-                console.log(res.data)
-                setData(res.data.data);
-                setCount(res.data.count);
+        .then((res) => {
+            console.log(res.data)
+            setData(res.data.data);
+            setCount(res.data.count);
+            setIsLoading(false);
+            setPendingOrderQuantity(res.data.quantity)
+        }).catch((err) => {
+            //window.alert("Server Down");
+            setTimeout(() => {
                 setIsLoading(false)
-            }).catch((err) => {
-                //window.alert("Server Down");
-                setTimeout(() => {
-                    setIsLoading(false)
-                }, 500)
-                return new Error(err);
-            })
+            }, 500)
+            return new Error(err);
+        })
     }, [render, trackEvent, updatePendingOrder])
 
     useEffect(() => {
