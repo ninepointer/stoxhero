@@ -1669,8 +1669,8 @@ exports.updateUserWallet = async () => {
 
     let date = new Date();
 
-    // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    let todayDate = `2023-12-25`
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    // let todayDate = `2023-12-25`
 
     let endOfToday = todayDate + "T23:59:59.400Z"
     const setting = await Setting.find();
@@ -1931,6 +1931,10 @@ exports.updateUserWallet = async () => {
                   transactionId: uuid.v4(),
                   transactionType: consolationReward.currency === "Cash" ? 'Cash' : "Bonus"
                 }];
+
+                users[i].consolationBonus = consolationReward.amount;
+                users[i].consolationCurrency = consolationReward.currency;
+
 
                 await wallet.save({ session });
               }
