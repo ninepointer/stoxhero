@@ -33,7 +33,7 @@ import MDButton from '../../../components/MDButton';
 import {adminRole, userRole} from "../../../variables"
 import ChooseAfiliate from "../data/chooseAffiliate"
 import AfiliateBasicSummary from '../data/affiliateBasicSummary';
-
+import moment from "moment";
 
 export default function Dashboard() {
   const getDetails = useContext(userContext);
@@ -123,7 +123,7 @@ export default function Dashboard() {
   
   useEffect(() => {
     setIsLoading(true)
-    if (affiliateData) {
+    if (affiliateData || userDetails?.role?.roleName === userRole) {
       let call1 = axios.get((`${apiUrl}affiliate/mysummery?startDate=${startDate}&endDate=${endDate}&skip=${0}&limit=${10}&affiliateId=${affiliateData}`), {
         withCredentials: true,
         headers: {
@@ -185,8 +185,49 @@ export default function Dashboard() {
   }
 
   const handlePeriodChange = (event) => {
-    setPeriod(event.target.value);
+    const selectedPeriod = event.target.value;
+    setPeriod(selectedPeriod);
+
+    // Update start and end dates based on the selected period
+    const today = moment();
+
+    switch (selectedPeriod) {
+      case 'Today':
+        setStartDate(today.startOf('day'));
+        setEndDate(today);
+        break;
+      case 'Yesterday':
+        const yesterday = today.clone().subtract(1, 'day');
+        setStartDate(yesterday.startOf('day'));
+        setEndDate(yesterday);
+        break;
+      case 'This Week':
+        const startDateOfWeek = today.clone().startOf('week');
+        setStartDate(startDateOfWeek);
+        setEndDate(today);
+        break;
+      case 'Last Week':
+        const startDateOfLastWeek = today.clone().subtract(1, 'week').startOf('week');
+        const endDateOfLastWeek = today.clone().subtract(1, 'week').endOf('week');
+        setStartDate(startDateOfLastWeek);
+        setEndDate(endDateOfLastWeek);
+        break;
+      case 'This Month':
+        const firstDayOfMonth = today.clone().startOf('month');
+        setStartDate(firstDayOfMonth);
+        setEndDate(today);
+        break;
+      case 'Last Month':
+        const firstDayOfLastMonth = today.clone().subtract(1, 'month').startOf('month');
+        const lastDayOfLastMonth = today.clone().subtract(1, 'month').endOf('month');
+        setStartDate(firstDayOfLastMonth);
+        setEndDate(lastDayOfLastMonth);
+        break;
+      default:
+        break;
+    }
   };
+  
 
 
   return (
@@ -275,7 +316,7 @@ export default function Dashboard() {
                     value={startDate}
                     onChange={async (e) => { setStartDate(prev => dayjs(e)); await handleShowDetails(dayjs(e), endDate); }}
                     sx={{ width: '100%' }}
-                    // disabled={selectedTab?.isLifetime}
+                    disabled={period !== "Custom"}
                   />
                 </DemoContainer>
               </LocalizationProvider>
@@ -288,7 +329,7 @@ export default function Dashboard() {
                     label="End Date"
                     value={endDate}
                     onChange={async (e) => {setEndDate(prev => dayjs(e)); await handleShowDetails(startDate, dayjs(e)) }}
-                    // disabled={selectedTab?.isLifetime}
+                    disabled={period !== "Custom"}
                     sx={{ width: '100%' }}
                   />
                 </DemoContainer>
@@ -321,7 +362,7 @@ export default function Dashboard() {
                     Referrals
                   </MDTypography>
                   <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
-                    {affiliateRafferalSummery?.affiliateRefferalCount || 0}
+                    {referralData?.affiliateRefferalCount || 0}
                   </MDTypography>
                   <MDTypography fontSize={10} color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
                     Total signups through your affiliate code
@@ -343,7 +384,7 @@ export default function Dashboard() {
                     Active Referrals
                   </MDTypography>
                   <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
-                    {affiliateRafferalSummery?.affiliateRefferalCount || 0}
+                    {referralData?.activeAffiliateRefferalCount || 0}
                   </MDTypography>
                   <MDTypography fontSize={10} color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
                     Users activiated who joined through your affiliate code
@@ -365,7 +406,7 @@ export default function Dashboard() {
                     Act. Conversion
                   </MDTypography>
                   <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
-                    2.3%
+                  {referralData?.affiliateRefferalCount > 0 ? (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((referralData?.activeAffiliateRefferalCount*100/referralData?.affiliateRefferalCount) || 0)) : 0}%
                   </MDTypography>
                   <MDTypography fontSize={10} color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
                     Active Referrals/Total Referrals  
@@ -387,7 +428,7 @@ export default function Dashboard() {
                     Paid Referrals
                   </MDTypography>
                   <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
-                    {affiliateRafferalSummery?.affiliateRefferalCount || 0}
+                    {referralData?.paidAffiliateRefferalCount || 0}
                   </MDTypography>
                   <MDTypography fontSize={10} color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
                     # of referrals who purchased any product 
@@ -409,7 +450,7 @@ export default function Dashboard() {
                     Paid Conversion
                   </MDTypography>
                   <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
-                    2.3%
+                  {referralData?.affiliateRefferalCount>0 ? (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((referralData?.paidAffiliateRefferalCount*100/referralData?.affiliateRefferalCount) || 0)) : 0}%
                   </MDTypography>
                   <MDTypography fontSize={10} color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
                     Paid Referrals/Total Referrals  
@@ -453,7 +494,7 @@ export default function Dashboard() {
                     Activation Amount
                   </MDTypography>
                   <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
-                  { "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(affiliateRafferalSummery?.affiliateRefferalPayout || 0))}
+                  { "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format( 0))}
                   </MDTypography>
                   <MDTypography fontSize={10} color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
                     Amount recieved for activating referrals  
@@ -475,7 +516,7 @@ export default function Dashboard() {
                     # of Purchases
                   </MDTypography>
                   <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
-                  {(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(affiliateRafferalSummery?.affiliateRefferalPayout || 0))}
+                  {(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(affiliateOverview?.summery?.[0]?.totalProductCount || 0))}
                   </MDTypography>
                   <MDTypography fontSize={10} color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
                     # of products purchased using your affiliate code 
@@ -497,7 +538,7 @@ export default function Dashboard() {
                     Commission
                   </MDTypography>
                   <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
-                  { "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(affiliateRafferalSummery?.affiliateRefferalPayout || 0))}
+                  { "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format( affiliateOverview?.summery?.[0]?.totalProductCPayout || 0))}
                   </MDTypography>
                   <MDTypography fontSize={10} color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
                     Commission from purchases using your affiliate code 
@@ -519,7 +560,7 @@ export default function Dashboard() {
                     Total Amount
                   </MDTypography>
                   <MDTypography variant="h5" color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
-                  { "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(affiliateRafferalSummery?.affiliateRefferalPayout || 0))}
+                  { "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((affiliateRafferalSummery?.affiliateRefferalPayout + affiliateOverview?.summery?.[0]?.totalProductCPayout) || 0))}
                   </MDTypography>
                   <MDTypography fontSize={10} color="text.secondary" gutterBottom style={{ textAlign: 'center' }}>
                     Total amount earned from referrals and commission
@@ -532,11 +573,11 @@ export default function Dashboard() {
         </Grid>
 
         <Grid item xs={12} md={12} lg={12} sx={{ minWidth: 120 }}>
-          <RaferralGrid start={startDate} end={endDate}/>
+          <RaferralGrid start={startDate} end={endDate} affiliateData={affiliateData}/>
         </Grid>
 
         <Grid item xs={12} md={12} lg={12} sx={{ minWidth: 120 }}>
-          <ReferredProduct start={startDate} end={endDate} />
+          <ReferredProduct start={startDate} end={endDate} affiliateData={affiliateData} />
         </Grid>
 
       </Grid>

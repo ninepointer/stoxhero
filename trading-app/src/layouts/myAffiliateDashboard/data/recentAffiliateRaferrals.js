@@ -49,7 +49,7 @@ useEffect(() => {
       ],
       series: [
         {
-          name: 'Direct',
+          name: 'Order',
           type: 'line',
           barWidth: '60%',
           data: order,

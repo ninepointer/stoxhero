@@ -1125,7 +1125,11 @@ exports.getOfflineInstituteAffiliateOverview = async (req, res) => {
 
 exports.getMyAffiliatePayout = async (req, res) => {
   try {
-    const userId = req.user._id;
+    let userId = req.user._id;
+
+    if(req?.user?.role === "6448f834446977851c23b3f5"){
+      userId = req.query.affiliateId;
+    }
     const {startDate, endDate} = req.query;
     if(new Date(startDate)>new Date(endDate)){
       return res.status(400).json({status:'error', message:'Invalid Date range'});
@@ -1137,63 +1141,6 @@ exports.getMyAffiliatePayout = async (req, res) => {
       {
         $facet:
           {
-            transaction: [
-              {
-                $match: {
-                  affiliate: new ObjectId(
-                    userId
-                  ),
-                  createdOn: {
-                    $gte: new Date(startDate),
-                    $lte: new Date(newEndDate)
-                  }
-                },
-              },
-              {
-                $lookup: {
-                  from: "user-personal-details",
-                  localField: "buyer",
-                  foreignField: "_id",
-                  as: "buyer",
-                },
-              },
-              {
-                $lookup: {
-                  from: "products",
-                  localField: "product",
-                  foreignField: "_id",
-                  as: "product",
-                },
-              },
-              {
-                $project:
-                  {
-                    buyer_first_name: {
-                      $arrayElemAt: [
-                        "$buyer.first_name",
-                        0,
-                      ],
-                    },
-                    product_name: {
-                      $arrayElemAt: [
-                        "$product.productName",
-                        0,
-                      ],
-                    },
-                    _id: 0,
-                    payout: "$affiliatePayout",
-                    productDiscountedPrice:
-                      "$productDiscountedPrice",
-                    date: "$createdOn",
-                    transactionId: "$transactionId"
-                  },
-              },
-              {
-                $sort: {
-                  date: -1,
-                },
-              },
-            ],
             summery: [
               {
                 $match: {
@@ -1306,7 +1253,11 @@ exports.getMyAffiliatePayout = async (req, res) => {
 
 exports.getMyAffiliateTransaction = async (req, res) => {
   try {
-    const userId = req.user._id;
+    let userId = req.user._id;
+
+    if(req?.user?.role === "6448f834446977851c23b3f5"){
+      userId = req.query.affiliateId;
+    }
     const {startDate, endDate} = req.query;
     const skip = parseInt(req.query.skip) || 0;
     const limit = parseInt(req.query.limit) || 1000
@@ -1401,7 +1352,11 @@ exports.getMyAffiliateTransaction = async (req, res) => {
 
 exports.getAffiliateReferralsSummery = async(req, res) => {
   try {
-    const userId = req.user._id;
+    let userId = req.user._id;
+
+    if(req?.user?.role === "6448f834446977851c23b3f5"){
+      userId = req.query.affiliateId;
+    }
     const {startDate, endDate} = req.query;
     // endDate.setHours(23, 59, 59, 999);
     const skip = parseInt(req.query.skip) || 0;
@@ -1727,7 +1682,13 @@ exports.getLast30daysAffiliateData = async(req,res) => {
           $dateToString: { format: "%Y-%m-%d", date: "$transactionDate" },
         },
         totalOrder: {
-          $count: {}
+          $sum: {
+            $cond: [
+              { $ne: ['$product', new ObjectId(SIGNUP_PRODUCT_ID)] },
+              1,
+              0,
+            ],
+          },
         },
         totalSignupEarnings: {
           $sum: {

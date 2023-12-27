@@ -16,7 +16,7 @@ import { CircularProgress } from "@mui/material";
 import MDButton from '../../../components/MDButton/index.js';
 
 
-const AffiliateRafferals = ({ start, end }) => {
+const AffiliateRafferals = ({ start, end, affiliateData }) => {
 
     const [data, setData] = useState([]);
     const [count, setCount] = useState(0);
@@ -26,7 +26,7 @@ const AffiliateRafferals = ({ start, end }) => {
 
     useEffect(() => {
         setIsLoading(true)
-        axios.get(`${apiUrl}affiliate/myaffiliaterafferals?startDate=${start}&endDate=${end}&skip=${skip}&limit=${limitSetting}`, { withCredentials: true })
+        axios.get(`${apiUrl}affiliate/myaffiliaterafferals?startDate=${start}&endDate=${end}&skip=${skip}&limit=${limitSetting}&affiliateId=${affiliateData}`, { withCredentials: true })
             .then((res) => {
                 console.log(res.data)
                 setData(res.data.data);
@@ -39,7 +39,7 @@ const AffiliateRafferals = ({ start, end }) => {
                 }, 500)
                 return new Error(err);
             })
-    }, [start, end])
+    }, [start, end, affiliateData])
 
     function backHandler() {
         if (skip <= 0) {
@@ -48,7 +48,7 @@ const AffiliateRafferals = ({ start, end }) => {
         setSkip(prev => prev - limitSetting);
         setData([]);
         setIsLoading(true)
-        axios.get(`${apiUrl}affiliate/myaffiliaterafferals?startDate=${start}&endDate=${end}&skip=${skip - limitSetting}&limit=${limitSetting}`, {
+        axios.get(`${apiUrl}affiliate/myaffiliaterafferals?startDate=${start}&endDate=${end}&skip=${skip - limitSetting}&limit=${limitSetting}&affiliateId=${affiliateData}`, {
             withCredentials: true,
             headers: {
                 Accept: "application/json",
@@ -79,7 +79,7 @@ const AffiliateRafferals = ({ start, end }) => {
         setSkip(prev => prev + limitSetting);
         setData([]);
         setIsLoading(true)
-        axios.get(`${apiUrl}affiliate/myaffiliaterafferals?startDate=${start}&endDate=${end}&skip=${skip + limitSetting}&limit=${limitSetting}`, {
+        axios.get(`${apiUrl}affiliate/myaffiliaterafferals?startDate=${start}&endDate=${end}&skip=${skip + limitSetting}&limit=${limitSetting}&affiliateId=${affiliateData}`, {
             withCredentials: true,
             headers: {
                 Accept: "application/json",
