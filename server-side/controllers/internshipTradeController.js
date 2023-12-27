@@ -1669,8 +1669,8 @@ exports.updateUserWallet = async () => {
 
     let date = new Date();
 
-    // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    let todayDate = `2023-12-11`
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    // let todayDate = `2023-12-11`
 
     let endOfToday = todayDate + "T23:59:59.400Z"
     const setting = await Setting.find();
