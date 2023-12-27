@@ -1584,11 +1584,17 @@ exports.getAffiliateReferralsSummery = async(req, res) => {
 //   }
 // }
 
-exports.getAffiliateOverview = async(req,res) => {
-  const userId = req.user._id;
-  const user = await User.findById(userId).select('first_name last_name');
+exports.getBasicAffiliateOverview = async(req,res) => {
+  console.log(req.user.role)
+  let userId = req.user._id;
+
+  if(req?.user?.role === "6448f834446977851c23b3f5"){
+    userId = req.query.affiliateId;
+  }
+  console.log("userId", userId)
+  const user = await User.findById(new ObjectId(userId)).select('first_name last_name profilePhoto');
   const affiliateProgram = await Affiliate.findOne({
-    "affiliates.userId": userId
+    "affiliates.userId": new ObjectId(userId)
   }).select('rewardPerSignup commissionPercentage');
 
   const affiliateRaffrelData = await User.aggregate([
@@ -1666,14 +1672,42 @@ exports.getAffiliateOverview = async(req,res) => {
     },
   ]);
 
-  res.status(200).json({status:"success", data:{...affiliateRaffrelData[0], rewardPerReferral:affiliateProgram?.rewardPerSignup, commissionPercentage: affiliateProgram?.commissionPercentage, userName: `${user?.first_name} ${user?.last_name}`}})
+  const lifetimeearning = await AffiliateTransaction.aggregate([
+    {
+      $match: {
+        affiliate: new ObjectId(
+          userId
+        ),
+      },
+    },
+    {
+      $group: {
+        _id: {},
+        amount: {
+          $sum: "$affiliatePayout",
+        },
+      },
+    },
+    {
+      $project: {
+        amount: 1,
+        _id: 0,
+      },
+    },
+  ])
+
+  res.status(200).json({status:"success", data:{...affiliateRaffrelData[0], rewardPerReferral:affiliateProgram?.rewardPerSignup, commissionPercentage: affiliateProgram?.commissionPercentage, userName: `${user?.first_name} ${user?.last_name}`, image: user?.profilePhoto, lifetimeEarning: lifetimeearning[0]?.amount}})
 
 }
 
 exports.getLast30daysAffiliateData = async(req,res) => {
   const endDate = moment();
   const startDate = moment().subtract(30, 'days').startOf('day');
-  const userId = req.user._id;
+  let userId = req.user._id;
+
+  if(req?.user?.role === "6448f834446977851c23b3f5"){
+    userId = req.query.affiliateId;
+  }
   const SIGNUP_PRODUCT_ID = '6586e95dcbc91543c3b6c181';
   const TESTZONE_PRODUCT_ID = '6517d48d3aeb2bb27d650de5';
   const TENX_PRODUCT_ID = '6517d3803aeb2bb27d650de0';
@@ -1691,6 +1725,9 @@ exports.getLast30daysAffiliateData = async(req,res) => {
       $group: {
         _id: {
           $dateToString: { format: "%Y-%m-%d", date: "$transactionDate" },
+        },
+        totalOrder: {
+          $count: {}
         },
         totalSignupEarnings: {
           $sum: {
@@ -1715,4 +1752,115 @@ exports.getLast30daysAffiliateData = async(req,res) => {
     { $sort: { _id: 1 } },
   ]);
   res.status(200).json({status:'success', data:data});
+}
+
+exports.getAffiliateType = async(req, res)=>{
+  try{
+    const type = await Affiliate.aggregate([
+      {
+        $group:
+          {
+            _id: {
+              affiliateType: "$affiliateType",
+            },
+          },
+      },
+      {
+        $project:
+          {
+            type: "$_id.affiliateType",
+            _id: 0,
+          },
+      },
+    ])
+  
+    res.status(200).json({data: type, status: "success"})
+  
+  } catch(err){
+    res.status(500).json({message: "Something went wrong.", status: "error"})
+
+  }
+}
+
+exports.getAffiliateProgrammeByType = async(req, res)=>{
+  try{
+    const {type} = req.query;
+    const programme = await Affiliate.aggregate([
+      {
+        $match:
+          {
+            affiliateType: type,
+          },
+      },
+      {
+        $project:
+          {
+            _id: 1,
+            affiliateProgramName: 1,
+          },
+      },
+    ])
+  
+    res.status(200).json({data: programme, status: "success"})
+  
+  } catch(err){
+    res.status(500).json({message: "Something went wrong.", status: "error"})
+
+  }
+}
+
+exports.getAffiliateByProgramme = async(req, res)=>{
+  try{
+    const {id} = req.query;
+    const programme = await Affiliate.aggregate([
+      {
+        $match: {
+          _id: new ObjectId(id),
+        },
+      },
+      {
+        $unwind: {
+          path: "$affiliates",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "affiliates.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          affiliateProgramName: 1,
+          affiliateMobile: {
+            $arrayElemAt: ["$user.mobile", 0]
+          },
+          affiliateName: {
+            $concat: [
+              {
+                $arrayElemAt: ["$user.first_name", 0],
+              },
+              " ",
+              {
+                $arrayElemAt: ["$user.last_name", 0],
+              },
+            ],
+          },
+          affiliateId: "$affiliates.userId",
+          rewardPerSignup: "$rewardPerSignup",
+          commissionPercentage:
+            "$commissionPercentage",
+        },
+      },
+    ])
+  
+    res.status(200).json({data: programme, status: "success"})
+  
+  } catch(err){
+    res.status(500).json({message: "Something went wrong.", status: "error"})
+
+  }
 }

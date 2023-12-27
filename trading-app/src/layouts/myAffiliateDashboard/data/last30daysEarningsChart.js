@@ -1,9 +1,37 @@
 import React, { useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
 import MDBox from '../../../components/MDBox';
+import moment from 'moment'
 
-const EchartsBarChart = ({traderType, dateWiseData}) => {
+const EchartsBarChart = ({chartData}) => {
 const chartRef = useRef(null);
+// {
+//   "_id": "2023-12-23",
+//   "totalOrder": 1,
+//   "totalSignupEarnings": 10,
+//   "totalTestzoneEarnings": 0,
+//   "totalTenxEarnings": 0,
+//   "totalEarnings": 10
+// },
+const dates = chartData?.map((e)=>{
+  let newDate = new Date(e?._id)
+  let utcDateString = newDate.toLocaleString("en-US", { timeZone: "UTC" });
+  return moment.utc(utcDateString).utcOffset('+00:00').format('DD-MMM')
+})
+
+const testzone = chartData?.map((e)=>{
+  return (e?.totalTestzoneEarnings)?.toFixed(0)
+})
+
+const total = chartData?.map((e)=>{
+  return (e?.totalEarnings)?.toFixed(0)
+})
+
+const tenx = chartData?.map((e)=>{
+  return (e?.totalTenxEarnings)?.toFixed(0)
+})
+
+console.log(dates, testzone, total, tenx)
 
 useEffect(() => {
   const chartInstance = echarts.init(chartRef.current);
@@ -27,7 +55,7 @@ useEffect(() => {
       xAxis: [
         {
           type: 'category',
-          data: ['17 Dec', '18 Dec', '19 Dec', '20 Dec', '21 Dec', '22 Dec', '23 Dec', '24 Dec'],
+          data: dates,
           axisTick: {
             alignWithLabel: true,
           },
@@ -40,16 +68,28 @@ useEffect(() => {
       ],
       series: [
         {
-          name: 'Direct',
+          name: 'Total',
           type: 'bar',
-          barWidth: '60%',
-          data: [100 ,10, 52, 200, 334, 390, 330, 220],
+          barWidth: '10%',
+          data: total,
+        },
+        {
+          name: 'TenX',
+          type: 'bar',
+          barWidth: '10%',
+          data: tenx,
+        },
+        {
+          name: 'TestZone',
+          type: 'bar',
+          barWidth: '10%',
+          data: testzone,
         },
       ],
     };
 
     chartInstance.setOption(option);
-}, []); // The empty dependency array ensures that the effect runs only once on mount
+}, [chartData]); // The empty dependency array ensures that the effect runs only once on mount
 
   return <MDBox ref={chartRef} style={{ minWidth: '100%', height: '350px' }} />
 };

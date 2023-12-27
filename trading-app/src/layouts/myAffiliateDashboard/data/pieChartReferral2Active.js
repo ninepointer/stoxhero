@@ -4,9 +4,9 @@ import * as echarts from 'echarts';
 import MDBox from '../../../components/MDBox';
 
 
-const PieChart = () => {
+const PieChart = ({referralData}) => {
   const chartRef = useRef(null);
-  const creationProcess = [{creationProcess:"Referrals",count:12},{creationProcess:"Active",count:2}]
+  const creationProcess = [{creationProcess:"Referrals",count:referralData?.affiliateRefferalCount},{creationProcess:"Active",count: referralData?.activeAffiliateRefferalCount}]
   useEffect(() => {
     const chartDom = chartRef.current;
     if (!chartDom) return;
@@ -54,7 +54,7 @@ const PieChart = () => {
     return () => {
       myChart.dispose();
     };
-  }, []); // Empty dependency array ensures useEffect runs once after the initial render
+  }, [referralData]); // Empty dependency array ensures useEffect runs once after the initial render
 
 //   return <div ref={chartRef} style={{ minWidth: '100%', height: '380px' }} />;
 
