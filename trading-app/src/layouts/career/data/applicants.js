@@ -128,6 +128,8 @@ export default function Applicants({career, action, setAction}) {
         { Header: "Reject", accessor: "reject", align: "center" },
         { Header: "Full Name", accessor: "fullname", align: "center" },
         { Header: "Date of Birth", accessor: "dob", align: "center" },
+        { Header: "Campaign Code", accessor: "campaignCode", align: "center" },
+        { Header: "Referrer Code", accessor: "referrerCode", align: "center" },
         { Header: "Email", accessor: "email", align: "center" },
         { Header: "Mobile", accessor: "mobile", align: "center" },
         { Header: "In an Active Batch", accessor: "inActiveBatch", align: "center" },
@@ -164,6 +166,16 @@ export default function Applicants({career, action, setAction}) {
     <MDButton component="a" variant="caption" color="text" fontWeight="medium">
       {new Date(elem?.dob).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}
     </MDButton>
+  );
+  featureObj.campaignCode = (
+    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      {elem?.campaignCode || "-"}
+    </MDTypography>
+  );
+  featureObj.referrerCode = (
+    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      {elem?.referrerCode || "-"}
+    </MDTypography>
   );
   featureObj.email = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
