@@ -324,7 +324,7 @@ router.patch("/verifyotp", async (req, res) => {
         populate('affiliates.userId', 'myReferralCode');
 
         for(let elem of checkAffiliate){
-            match = elem?.affiliates?.some((subelem)=> subelem?.userId?.myReferralCode === referrerCode);
+            match = elem?.affiliates?.some((subelem)=> (subelem?.userId?.myReferralCode === referrerCode && subelem?.affiliateStatus === "Active"));
             if(match){
                 affiliateObj = elem;
                 break;

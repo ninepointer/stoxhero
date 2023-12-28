@@ -8,6 +8,7 @@ export default function ChooseAfiliate({setAffiliateData}) {
   const [affiliateType,setAffiliateType] = useState([])
   const [selectedType, setSelectedType] = useState("");
   const [affiliateProgram,setAffiliateProgram] = useState([])
+  const [isAll, setIsAll] = useState(false);
   const [selectedPrograme, setSelectedPrograme] = useState({
     id: "",
     name: ""
@@ -18,31 +19,63 @@ export default function ChooseAfiliate({setAffiliateData}) {
     name: ""
   });
 
+  const handleTypeChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+
+    if (value === "All") {
+      setSelectedType(value)
+      setIsAll(!isAll);
+    } else {
+      setSelectedType(value)
+    }
+
+  };
+
   const handleProgrammeChange = (event) => {
     const {
       target: { value },
     } = event;
-    let programeId = affiliateProgram?.filter((elem) => {
-      return elem.affiliateProgramName === value;
-    })
-    setSelectedPrograme({
+
+    if (value === "All") {
+      setSelectedPrograme({
+        id: "All",
+        name: "All"
+      });
+      setIsAll(!isAll);
+    } else {
+      let programeId = affiliateProgram?.filter((elem) => {
+        return elem.affiliateProgramName === value;
+      })
+      setSelectedPrograme({
         id: programeId[0]?._id,
         name: programeId[0]?.affiliateProgramName
       });
-    // console.log("portfolioId", portfolioId, formState)
+    }
+
   };
 
   const handleAffilateChange = (event) => {
     const {
       target: { value },
     } = event;
-    let affiliateId = affiliate?.filter((elem) => {
-      return elem.affiliateName === value;
-    })
-    setSelectedPrograme({
+
+    if (value === "All") {
+      setSelectedAffiliate({
+        id: "All",
+        name: "All"
+      });
+      setIsAll(!isAll);
+    } else {
+      let affiliateId = affiliate?.filter((elem) => {
+        return elem.affiliateName === value;
+      })
+      setSelectedAffiliate({
         id: affiliateId[0]?.affiliateId,
         name: affiliateId[0]?.affiliateName
       });
+    }
     // console.log("portfolioId", portfolioId, formState)
   };
   
@@ -126,9 +159,13 @@ export default function ChooseAfiliate({setAffiliateData}) {
 
   useEffect(()=>{
     if(selectedAffiliate?.id){
-        setAffiliateData(selectedAffiliate?.id);
+        setAffiliateData({
+          affiliateId: selectedAffiliate?.id,
+          affiliateType: selectedType,
+          affiliatePrograme: selectedPrograme?.id
+        });
     }
-  }, [selectedAffiliate])
+  }, [selectedAffiliate, isAll])
 
 
   return (
@@ -144,13 +181,14 @@ export default function ChooseAfiliate({setAffiliateData}) {
             value={selectedType}
             label="Affiliate Type"
             sx={{minHeight:44}}
-            onChange={(e)=>{setSelectedType(e.target.value)}}
+            onChange={handleTypeChange}
           >
             {affiliateType.map((elem)=>{
                 return(
                     <MenuItem key={elem?.type} value={elem?.type}>{elem?.type}</MenuItem>
                 )
             })}
+            <MenuItem key={"All"} value={"All"}>{"All"}</MenuItem>
             </Select>
         </FormControl>
       </Grid>
@@ -161,23 +199,18 @@ export default function ChooseAfiliate({setAffiliateData}) {
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
-            value={selectedPrograme?.name
-                // affiliateProgram.filter(elem=> elem?._id?.toString()===selectedPrograme?.toString())?.[0]?.affiliateProgramName
-                //  ||  affiliateProgram.filter(elem=> elem?._id?.toString()===e.target.value?.toString)?.[0]?.affiliateProgramName
-                }
+            value={selectedPrograme?.name}
             label="Affiliate Type"
             sx={{minHeight:44}}
-            onChange={
-                handleProgrammeChange
-                // setSelectedPrograme(e.target.value)
-            
-            }
+            onChange={handleProgrammeChange}
+            disabled={selectedType==="All"}
           >
             {affiliateProgram.map((elem)=>{
                 return(
                     <MenuItem key={elem?._id} value={elem?.affiliateProgramName}>{elem?.affiliateProgramName}</MenuItem>
                 )
             })}
+            <MenuItem key={"All"} value={"All"}>{"All"}</MenuItem>
             </Select>
         </FormControl>
       </Grid>
@@ -188,28 +221,22 @@ export default function ChooseAfiliate({setAffiliateData}) {
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
-            value={selectedAffiliate?.name
-                // affiliate.filter(elem=> elem?.affiliateId?.toString()===selectedAffiliate?.toString())?.[0]?.affiliateName 
-                // ||  affiliateProgram.filter(elem=> elem?.affiliateId?.toString()===e.target.value?.toString)?.[0]?.affiliateName
-            }
+            value={selectedAffiliate?.name}
             label="Affiliate Type"
             sx={{minHeight:44}}
-            onChange={
-                // setSelectedAffiliate(e.target.value)
-                handleAffilateChange
-            }
+            disabled={selectedType==="All" || selectedPrograme?.name==="All"}
+            onChange={handleAffilateChange}
           >
             {affiliate.map((elem)=>{
                 return(
                     <MenuItem key={elem?.affiliateId} value={elem?.affiliateName}>{elem?.affiliateName}</MenuItem>
                 )
             })}
+            <MenuItem key={"All"} value={"All"}>{"All"}</MenuItem>
             </Select>
         </FormControl>
       </Grid>
-      
 
-      
     </Grid>
   </Grid> 
   );

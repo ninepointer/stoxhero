@@ -231,7 +231,7 @@ exports.verifyCouponCode = async (req, res) => {
             if(affiliatePrograms.length != 0){
                 
                 for(program of affiliatePrograms){
-                    match = program?.affiliates?.some(item => item?.affiliateCode.toString() == code?.toString());
+                    match = program?.affiliates?.some(item => ((item?.affiliateCode.toString() == code?.toString()) && (item?.affiliateStatus == "Active")));
                     if(match){
                         console.log('match', match, program?.maxDiscount);
                         //check for eligible platforms

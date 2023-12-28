@@ -2902,7 +2902,7 @@ exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, co
         const affiliatePrograms = await AffiliateProgram.find({ status: 'Active' });
         if (affiliatePrograms.length != 0){
           for (let program of affiliatePrograms) {
-            match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
+            match = program?.affiliates?.find(item => (item?.affiliateCode?.toString() == coupon?.toString() && item?.affiliateStatus == "Active"));
             if (match) {
               affiliate = match;
               affiliateProgram = program;

@@ -1,5 +1,5 @@
 
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
 import axios from "axios";
 import {apiUrl} from "../../../constants/constants.js"
 import Card from '@mui/material/Card';
@@ -14,21 +14,24 @@ import moment from 'moment'
 import DataTable from '../../../examples/Tables/DataTable/index.js';
 import { CircularProgress } from "@mui/material";
 import MDButton from '../../../components/MDButton/index.js';
+import { adminRole } from '../../../variables';
+import { userContext } from '../../../AuthContext.jsx';
 
 
-const AffiliateRafferals = ({ start, end, affiliateData }) => {
+const AffiliateRafferals = ({showDetailClicked, start, end, affiliateData }) => {
 
     const [data, setData] = useState([]);
     const [count, setCount] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     let [skip, setSkip] = useState(0);
     const limitSetting = 5;
+    const getDetails = useContext(userContext)
 
     useEffect(() => {
         setIsLoading(true)
-        axios.get(`${apiUrl}affiliate/myaffiliaterafferals?startDate=${start}&endDate=${end}&skip=${skip}&limit=${limitSetting}&affiliateId=${affiliateData}`, { withCredentials: true })
+        axios.get(`${apiUrl}affiliate/${getDetails.userDetails.role.roleName===adminRole ? "adminaffiliaterafferals" : "myaffiliaterafferals"}?startDate=${start}&endDate=${end}&skip=${skip}&limit=${limitSetting}&affiliateId=${affiliateData?.affiliateId}&affiliateType=${affiliateData?.affiliateType}&affiliatePrograme=${affiliateData?.affiliatePrograme}`, { withCredentials: true })
             .then((res) => {
-                console.log(res.data)
+                // console.log(res.data)
                 setData(res.data.data);
                 setCount(res.data.count);
                 setIsLoading(false)
@@ -39,7 +42,7 @@ const AffiliateRafferals = ({ start, end, affiliateData }) => {
                 }, 500)
                 return new Error(err);
             })
-    }, [start, end, affiliateData])
+    }, [affiliateData, showDetailClicked])
 
     function backHandler() {
         if (skip <= 0) {
@@ -48,7 +51,7 @@ const AffiliateRafferals = ({ start, end, affiliateData }) => {
         setSkip(prev => prev - limitSetting);
         setData([]);
         setIsLoading(true)
-        axios.get(`${apiUrl}affiliate/myaffiliaterafferals?startDate=${start}&endDate=${end}&skip=${skip - limitSetting}&limit=${limitSetting}&affiliateId=${affiliateData}`, {
+        axios.get(`${apiUrl}affiliate/${getDetails.userDetails.role.roleName===adminRole ? "adminaffiliaterafferals" : "myaffiliaterafferals"}?startDate=${start}&endDate=${end}&skip=${skip - limitSetting}&limit=${limitSetting}&affiliateId=${affiliateData?.affiliateId}&affiliateType=${affiliateData?.affiliateType}&affiliatePrograme=${affiliateData?.affiliatePrograme}`, {
             withCredentials: true,
             headers: {
                 Accept: "application/json",
@@ -57,7 +60,7 @@ const AffiliateRafferals = ({ start, end, affiliateData }) => {
             },
         })
             .then((res) => {
-                console.log("Orders:", res.data)
+                // console.log("Orders:", res.data)
                 setData(res.data.data);
                 setCount(res.data.count)
                 setTimeout(() => {
@@ -72,14 +75,14 @@ const AffiliateRafferals = ({ start, end, affiliateData }) => {
 
     function nextHandler() {
         if (skip + limitSetting >= count) {
-            console.log("inside skip", count, skip + limitSetting)
+            // console.log("inside skip", count, skip + limitSetting)
             return;
         }
-        console.log("inside next handler")
+        // console.log("inside next handler")
         setSkip(prev => prev + limitSetting);
         setData([]);
         setIsLoading(true)
-        axios.get(`${apiUrl}affiliate/myaffiliaterafferals?startDate=${start}&endDate=${end}&skip=${skip + limitSetting}&limit=${limitSetting}&affiliateId=${affiliateData}`, {
+        axios.get(`${apiUrl}affiliate/${getDetails.userDetails.role.roleName===adminRole ? "adminaffiliaterafferals" : "myaffiliaterafferals"}?startDate=${start}&endDate=${end}&skip=${skip + limitSetting}&limit=${limitSetting}&affiliateId=${affiliateData?.affiliateId}&affiliateType=${affiliateData?.affiliateType}&affiliatePrograme=${affiliateData?.affiliatePrograme}`, {
             withCredentials: true,
             headers: {
                 Accept: "application/json",
@@ -88,7 +91,7 @@ const AffiliateRafferals = ({ start, end, affiliateData }) => {
             },
         })
             .then((res) => {
-                console.log("orders", res.data)
+                // console.log("orders", res.data)
                 setData(res.data.data);
                 setCount(res.data.count)
                 setTimeout(() => {

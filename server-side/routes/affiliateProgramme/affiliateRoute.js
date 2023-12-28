@@ -21,6 +21,14 @@ router.route('/affiliatetype').get(Authenticate, controller.getAffiliateType);
 router.route('/programbytype').get(Authenticate, controller.getAffiliateProgrammeByType);
 router.route('/affiliatebyprograme').get(Authenticate, controller.getAffiliateByProgramme);
 
+
+router.route('/adminsummery').get(Authenticate, controller.getAdminAffiliatePayout);
+router.route('/admintransactions').get(Authenticate, controller.getAdminAffiliateTransaction);
+router.route('/adminaffiliaterafferals').get(Authenticate, controller.getAdminAffiliateReferralsSummery);
+router.route('/adminlast30daysdata').get(Authenticate, controller.getAdminLast30daysAffiliateData);
+router.route('/adminoverview').get(Authenticate, controller.getAdminBasicAffiliateOverview);
+
+
 router.route('/affiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getAffiliateOverview);
 router.route('/ytaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getYoutubeAffiliateOverview);
 router.route('/shaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getStoxHeroAffiliateOverview);

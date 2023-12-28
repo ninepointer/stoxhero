@@ -556,7 +556,7 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
         const affiliatePrograms = await AffiliateProgram.find({ status: 'Active' });
         if (affiliatePrograms.length != 0){
           for (let program of affiliatePrograms) {
-            match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
+            match = program?.affiliates?.find(item => (item?.affiliateCode?.toString() == coupon?.toString() && item?.affiliateStatus == "Active"));
             // console.log("match in aff", match)
             if (match) {
               affiliate = match;

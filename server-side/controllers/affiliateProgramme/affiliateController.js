@@ -189,12 +189,28 @@ exports.addAffiliateUser = async (req, res) => {
       return res.status(400).json({ status: "success", message: "User Id invalid!" });
     }
 
-    const checkUser = await Affiliate.find({ "affiliates.userId": new ObjectId(userId), status: 'Active' });
+    const checkUser = await Affiliate.find({ "affiliates.userId": new ObjectId(userId), status: 'Active' })
+    .populate('affiliates.userId', 'first_name last_name mobile email creationProcess myReferralCode');
+
     if (checkUser.length > 0) {
-      return res.status(500).json({
-        status: "error",
-        message: "User already added in this or another affiliate programme.",
-      });
+      // console.log(checkUser)
+      const user = checkUser[0].affiliates.filter((elem)=>{
+        return elem?.userId?._id?.toString() === userId?.toString();
+      })
+      if(user[0].affiliateStatus === "Active"){
+        return res.status(500).json({
+          status: "error",
+          message: "User already added in this or another affiliate programme.",
+        });
+      } else{
+        user[0].affiliateStatus = "Active";
+        const result = await checkUser[0].save({validateBeforeSave: false, new: true});
+        return res.status(200).json({
+          status: "success",
+          message: "User added to allowedUsers successfully",
+          data: result
+        });
+      }
     }
 
     const result = await Affiliate.findByIdAndUpdate(
@@ -348,11 +364,17 @@ exports.removeAffiliateUser = async (req, res) => {
     const affiliate = await Affiliate.findOne({ _id: id })
       .populate('affiliates.userId', 'first_name last_name email mobile creationProcess myReferralCode');
 
-    let participants = affiliate?.affiliates?.filter((item) => {
-      return item.userId._id.toString() !== userId.toString()
-    })
+      console.log("userId", userId)
+      for(let elem of affiliate?.affiliates){
+        if(elem.userId._id.toString() === userId.toString()){
+          elem.affiliateStatus = "Inactive";
+        }
+      }
+    // let participants = affiliate?.affiliates?.filter((item) => {
+    //   return item.userId._id.toString() !== userId.toString()
+    // })
 
-    affiliate.affiliates = [...participants];
+    // affiliate.affiliates = [...participants];
     await affiliate.save({ validateBeforeSave: false });
 
     let user = await User.findOneAndUpdate({ _id: new ObjectId(userId) },
@@ -381,7 +403,7 @@ exports.affiliateLeaderboard = async (req, res) => {
   lifetime = lifetime === "false" ? false : lifetime === "true" && true;
   startDate = (lifetime) ? "2000-01-01" : startDate;
   endDate = (lifetime) ? new Date() : endDate;
-  console.log(programme, new Date(startDate), new Date(endDate), (lifetime))
+  // console.log(programme, new Date(startDate), new Date(endDate), (lifetime))
   if(new Date(startDate)>new Date(endDate)){
     return res.status(400).json({status:'error', message:'Invalid Date range'});
   }
@@ -1206,6 +1228,11 @@ exports.getMyAffiliatePayout = async (req, res) => {
         },
       },
       {
+        $unwind:{
+          path:"$user"
+        }
+      },
+      {
         $group: {
           _id: {},
           count: {
@@ -1214,7 +1241,7 @@ exports.getMyAffiliatePayout = async (req, res) => {
           activeCount: {
             $sum: {
               $cond: [
-                { $eq: ["$affiliateReferrals.referredUserId.activationDetails.activationStatus", "Active"] },
+                { $eq: ["$user.activationDetails.activationStatus", "Active"] },
                 1,
                 0
               ]
@@ -1223,7 +1250,7 @@ exports.getMyAffiliatePayout = async (req, res) => {
           paidCount: {
             $sum: {
               $cond: [
-                { $eq: ["$affiliateReferrals.referredUserId.paidDetails.paidStatus", "Active"] },
+                { $in: ["$user.paidDetails.paidStatus", ["Active", "Inactive"]] },
                 1,
                 0
               ]
@@ -1402,7 +1429,7 @@ exports.getAffiliateReferralsSummery = async(req, res) => {
       },
     ])
 
-      console.log(count)
+      // console.log(count)
 
     // console.log(count?.affiliateReferrals?.length)
     const user = await User.aggregate([
@@ -1540,13 +1567,13 @@ exports.getAffiliateReferralsSummery = async(req, res) => {
 // }
 
 exports.getBasicAffiliateOverview = async(req,res) => {
-  console.log(req.user.role)
+  // console.log(req.user.role)
   let userId = req.user._id;
 
   if(req?.user?.role === "6448f834446977851c23b3f5"){
     userId = req.query.affiliateId;
   }
-  console.log("userId", userId)
+  // console.log("userId", userId)
   const user = await User.findById(new ObjectId(userId)).select('first_name last_name profilePhoto');
   const affiliateProgram = await Affiliate.findOne({
     "affiliates.userId": new ObjectId(userId)
@@ -1586,7 +1613,7 @@ exports.getBasicAffiliateOverview = async(req,res) => {
         activeCount: {
           $sum: {
             $cond: [
-              { $eq: ["user.activationDetails.activationStatus", "Active"] },
+              { $eq: ["$user.activationDetails.activationStatus", "Active"] },
               1,
               0
             ]
@@ -1595,7 +1622,7 @@ exports.getBasicAffiliateOverview = async(req,res) => {
         paidCount: {
           $sum: {
             $cond: [
-              { $ne: ["user.paidDetails.paidDate", null] },
+              { $in: ["$user.paidDetails.paidStatus", ["Active", "Inactive"]] },
               1,
               0
             ]
@@ -1604,7 +1631,7 @@ exports.getBasicAffiliateOverview = async(req,res) => {
         paidActiveCount:{
           $sum: {
             $cond: [
-              { $eq: ["user.paidDetails.paidStatus", "Active"] },
+              { $eq: ["$user.paidDetails.paidStatus", "Active"] },
               1,
               0
             ]
@@ -1627,12 +1654,13 @@ exports.getBasicAffiliateOverview = async(req,res) => {
     },
   ]);
 
-  const lifetimeearning = await AffiliateTransaction.aggregate([
+  const lifetimeearningProduct = await AffiliateTransaction.aggregate([
     {
       $match: {
         affiliate: new ObjectId(
           userId
         ),
+        product: {$ne: new ObjectId("6586e95dcbc91543c3b6c181")}
       },
     },
     {
@@ -1651,7 +1679,42 @@ exports.getBasicAffiliateOverview = async(req,res) => {
     },
   ])
 
-  res.status(200).json({status:"success", data:{...affiliateRaffrelData[0], rewardPerReferral:affiliateProgram?.rewardPerSignup, commissionPercentage: affiliateProgram?.commissionPercentage, userName: `${user?.first_name} ${user?.last_name}`, image: user?.profilePhoto, lifetimeEarning: lifetimeearning[0]?.amount}})
+  const lifetimeearningSignUp = await User.aggregate([
+    {
+      $match: {
+        _id: new ObjectId(
+          userId
+        ),
+      },
+    },
+    {
+      $unwind: {
+        path: "$affiliateReferrals",
+      },
+    },
+    {
+      $group: {
+        _id: {},
+        payout: {
+          $sum: "$affiliateReferrals.affiliateEarning",
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        amount: "$payout",
+      },
+    },
+  ])
+
+  res.status(200).json({status:"success", data:{
+    ...affiliateRaffrelData[0], 
+    rewardPerReferral:affiliateProgram?.rewardPerSignup, 
+    commissionPercentage: affiliateProgram?.commissionPercentage, 
+    userName: `${user?.first_name} ${user?.last_name}`, 
+    image: user?.profilePhoto, 
+    lifetimeEarning: ((lifetimeearningSignUp[0]?.amount || 0) + (lifetimeearningProduct[0]?.amount || 0))}})
 
 }
 
@@ -1824,4 +1887,866 @@ exports.getAffiliateByProgramme = async(req, res)=>{
     res.status(500).json({message: "Something went wrong.", status: "error"})
 
   }
+}
+
+
+
+exports.getAdminAffiliatePayout = async (req, res) => {
+  try {
+    let userId = req.user._id;
+
+    if(req?.user?.role === "6448f834446977851c23b3f5"){
+      userId = req.query.affiliateId;
+    }
+    const {startDate, endDate} = req.query;
+    if(new Date(startDate)>new Date(endDate)){
+      return res.status(400).json({status:'error', message:'Invalid Date range'});
+    }
+    // console.log("check data", req.query.affiliateId)
+    const newEndDate = new Date(endDate).setHours(23, 59, 59, 999)
+
+    const {affiliateType, affiliatePrograme, affiliateId} = req.query;
+    let matchStageUser = {};
+    let matchStageTransactions = {};
+    let userIds = [];
+    if (affiliateType === "All") {
+      const allprogramme = await Affiliate.find();
+      for (let elem of allprogramme) {
+        for (let subelem of elem.affiliates) {
+          userIds.push(subelem.userId);
+        }
+      }
+  
+      matchStageUser = {
+        _id: { $in: userIds },
+      }
+  
+      matchStageTransactions = {
+        createdOn: {
+          $gte: new Date(startDate),
+          $lte: new Date(newEndDate)
+        },
+        product: {$ne: new ObjectId('6586e95dcbc91543c3b6c181')}
+      }
+  
+    } else if (affiliatePrograme === "All") {
+      const programmeId = [];
+      const getPrograme = await Affiliate.find({ affiliateType: affiliateType });
+      for (let elem of getPrograme) {
+        programmeId.push(elem._id);
+        for (let subelem of elem.affiliates) {
+          userIds.push(subelem.userId);
+        }
+      }
+  
+      matchStageUser = {
+        _id: { $in: userIds },
+      }
+  
+      matchStageTransactions = {
+        affiliateProgram: { $in: programmeId },
+        createdOn: {
+          $gte: new Date(startDate),
+          $lte: new Date(newEndDate)
+        },
+        product: {$ne: new ObjectId('6586e95dcbc91543c3b6c181')}
+      }
+  
+    } else if (affiliateId === "All"){
+      const programmeId = [];
+      const getPrograme = await Affiliate.find({ _id: new ObjectId(affiliatePrograme) });
+      for (let elem of getPrograme) {
+        programmeId.push(elem._id);
+        for (let subelem of elem.affiliates) {
+          userIds.push(subelem.userId);
+        }
+      }
+  
+      matchStageUser = {
+        _id: { $in: userIds },
+      }
+  
+      matchStageTransactions = {
+        affiliate: { $in: userIds },
+        createdOn: {
+          $gte: new Date(startDate),
+          $lte: new Date(newEndDate)
+        },
+        product: {$ne: new ObjectId('6586e95dcbc91543c3b6c181')}
+      }
+    } else{
+      matchStageUser = {
+        _id: new ObjectId(userId),
+      }
+  
+      matchStageTransactions = {
+        affiliate: new ObjectId(
+          userId
+        ),
+        createdOn: {
+          $gte: new Date(startDate),
+          $lte: new Date(newEndDate)
+        },
+        product: {$ne: new ObjectId('6586e95dcbc91543c3b6c181')}
+      }
+    }
+
+    const product = await AffiliateTransaction.aggregate([
+      {
+        $facet:
+          {
+            summery: [
+              {
+                $match: matchStageTransactions,
+              },
+              {
+                $group: {
+                  _id: {},
+                  payout: {
+                    $sum: "$affiliatePayout",
+                  },
+                  count: {
+                    $sum: 1,
+                  },
+                },
+              },
+              {
+                $project: {
+                  totalProductCount: "$count",
+                  _id: 0,
+                  totalProductCPayout: "$payout",
+                },
+              },
+            ],
+          },
+      },
+    ])
+
+    const affiliateRaffrelData = await User.aggregate([
+      {
+        $match: matchStageUser,
+      },
+      {
+        $unwind: {
+          path: "$affiliateReferrals",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField:
+            "affiliateReferrals.referredUserId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $match: {
+          "user.joining_date": {
+            $gte: new Date(startDate),
+            $lte: new Date(newEndDate),
+          },
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+        },
+      },
+      {
+        $group: {
+          _id: {},
+          count: {
+            $count: {},
+          },
+          activeCount: {
+            $sum: {
+              $cond: [
+                { $eq: ["$user.activationDetails.activationStatus", "Active"] },
+                1,
+                0
+              ]
+            }
+          },
+          paidCount: {
+            $sum: {
+              $cond: [
+                {
+                  $in: [
+                    "$user.paidDetails.paidStatus",
+                    ["Active", "Inactive"],
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          payout: {
+            $sum: "$affiliateReferrals.affiliateEarning",
+          },
+        },
+      },
+      {
+        $project: {
+          affiliateRefferalCount: "$count",
+          activeAffiliateRefferalCount: "$activeCount",
+          paidAffiliateRefferalCount: "$paidCount",
+          _id: 0,
+          affiliateRefferalPayout: "$payout",
+        },
+      },
+    ])
+    res.status(200).json({status: "success", data: product, affiliateRafferalSummery: affiliateRaffrelData, message: "Data received"});
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({status: "error", message: "Something went wrong"});
+  }
+}
+
+exports.getAdminAffiliateTransaction = async (req, res) => {
+  try {
+    let userId = req.user._id;
+
+    if(req?.user?.role === "6448f834446977851c23b3f5"){
+      userId = req.query.affiliateId;
+    }
+    const {startDate, endDate} = req.query;
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 1000
+
+    if(new Date(startDate)>new Date(endDate)){
+      return res.status(400).json({status:'error', message:'Invalid Date range'});
+    }
+
+    const newEndDate = new Date(endDate).setHours(23, 59, 59, 999)
+
+    const {affiliateType, affiliatePrograme, affiliateId} = req.query;
+    let matchStageTransactions = {};
+    let userIds = [];
+    if (affiliateType === "All") {
+  
+      matchStageTransactions = {
+        createdOn: {
+          $gte: new Date(startDate),
+          $lte: new Date(newEndDate)
+        }}
+  
+    } else if (affiliatePrograme === "All") {
+      const programmeId = [];
+      const getPrograme = await Affiliate.find({ affiliateType: affiliateType });
+      for (let elem of getPrograme) {
+        programmeId.push(elem._id);
+      }
+    
+      matchStageTransactions = {
+        affiliateProgram: { $in: programmeId }
+      }
+  
+    } else if (affiliateId === "All"){
+      const getPrograme = await Affiliate.find({ _id: new ObjectId(affiliatePrograme) });
+      for (let elem of getPrograme) {
+        for (let subelem of elem.affiliates) {
+          userIds.push(subelem.userId);
+        }
+      }
+  
+      matchStageTransactions = {
+        affiliate: { $in: userIds }
+        ,
+        createdOn: {
+          $gte: new Date(startDate),
+          $lte: new Date(newEndDate)
+        }
+      }
+    } else{
+  
+      matchStageTransactions ={
+        affiliate: new ObjectId(
+          userId
+        ),
+        createdOn: {
+          $gte: new Date(startDate),
+          $lte: new Date(newEndDate)
+        }
+      }
+    }
+
+    const count = await AffiliateTransaction.countDocuments(matchStageTransactions);
+    const product = await AffiliateTransaction.aggregate([
+      {
+        $match: matchStageTransactions,
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "buyer",
+          foreignField: "_id",
+          as: "buyer",
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "product",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      {
+        $project:
+          {
+            buyer_first_name: {
+              $arrayElemAt: [
+                "$buyer.first_name",
+                0,
+              ],
+            },
+            product_name: {
+              $arrayElemAt: [
+                "$product.productName",
+                0,
+              ],
+            },
+            _id: 0,
+            payout: "$affiliatePayout",
+            productDiscountedPrice:
+              "$productDiscountedPrice",
+            date: "$createdOn",
+            transactionId: "$transactionId"
+          },
+      },
+      {
+        $sort: {
+          date: -1,
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+    ])
+    
+
+    res.status(200).json({status: "success", data: product, count: count, message: "Data received"});
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({status: "error", message: "Something went wrong"});
+  }
+}
+
+exports.getAdminAffiliateReferralsSummery = async(req, res) => {
+  try {
+    let userId = req.user._id;
+
+    if(req?.user?.role === "6448f834446977851c23b3f5"){
+      userId = req.query.affiliateId;
+    }
+    const {startDate, endDate} = req.query;
+    // endDate.setHours(23, 59, 59, 999);
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 1000
+
+    if(new Date(startDate) > new Date(endDate)){
+      return res.status(400).json({status:'error', message:"Invalid Date Range"});
+    }
+    const newEndDate = new Date(endDate).setHours(23, 59, 59, 999)
+
+    const {affiliateType, affiliatePrograme, affiliateId} = req.query;
+    let matchStageUser = {};
+    let userIds = [];
+    if (affiliateType === "All") {
+      const allprogramme = await Affiliate.find();
+      for (let elem of allprogramme) {
+        for (let subelem of elem.affiliates) {
+          userIds.push(subelem.userId);
+        }
+      }
+  
+      matchStageUser = {
+        _id: { $in: userIds },
+      }
+    
+    } else if (affiliatePrograme === "All") {
+      const getPrograme = await Affiliate.find({ affiliateType: affiliateType });
+      for (let elem of getPrograme) {
+        for (let subelem of elem.affiliates) {
+          userIds.push(subelem.userId);
+        }
+      }
+  
+      matchStageUser = {
+        _id: { $in: userIds },
+      }
+  
+    } else if (affiliateId === "All"){
+      const getPrograme = await Affiliate.find({ _id: new ObjectId(affiliatePrograme) });
+      for (let elem of getPrograme) {
+        for (let subelem of elem.affiliates) {
+          userIds.push(subelem.userId);
+        }
+      }
+  
+      matchStageUser = {
+        _id: { $in: userIds },
+      }
+
+    } else{
+      matchStageUser = {
+        _id: new ObjectId(userId),
+      }
+  
+    }
+    // Fetch the user and populate the referrals
+    const count = await User.aggregate([
+      {
+        $match: matchStageUser,
+      },
+      {
+        $project: {
+          affiliateReferrals: 1,
+        },
+      },
+      {
+        $unwind: "$affiliateReferrals",
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "affiliateReferrals.referredUserId",
+          foreignField: "_id",
+          as: "referredUser",
+        },
+      },
+      {
+        $match: {
+          "referredUser.joining_date": {
+            $gte: new Date(startDate),
+            $lte: new Date(newEndDate),
+          },
+          "affiliateReferrals.referredUserId": { $ne: null }, // Exclude null userId
+        },
+      },
+      {
+        $count: "string",
+      },
+    ])
+
+      // console.log(count)
+
+    // console.log(count?.affiliateReferrals?.length)
+    const user = await User.aggregate([
+      {
+        $match: matchStageUser,
+      },
+      {
+        $project: {
+          affiliateReferrals: 1,
+        },
+      },
+      {
+        $unwind: "$affiliateReferrals",
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "affiliateReferrals.referredUserId",
+          foreignField: "_id",
+          as: "referredUser",
+        },
+      },
+      {
+        $match: {
+          "referredUser.joining_date": {
+            $gte: new Date(startDate),
+            $lte: new Date(newEndDate),
+          },
+          "affiliateReferrals.referredUserId": { $ne: null }, // Exclude null userId
+        },
+      },
+      {
+        $sort: { "referredUser.joining_date": -1 },
+      },
+      {
+        $project: {
+          _id: 0,
+          name: {
+            $concat: [
+              {
+                $arrayElemAt: [
+                  "$referredUser.first_name",
+                  0,
+                ],
+              },
+              " ",
+              {
+                $arrayElemAt: [
+                  "$referredUser.last_name",
+                  0,
+                ],
+              },
+            ],
+          },
+          joining_date: {
+            $arrayElemAt: [
+              "$referredUser.joining_date",
+              0,
+            ],
+          },
+          payout:
+            "$affiliateReferrals.affiliateEarning",
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+    ])
+  
+
+    // Filter out referrals where the referredUserId is null
+    // const filteredReferrals = user && user.affiliateReferrals 
+    //   ? user.affiliateReferrals.filter(referral => referral.referredUserId != null) 
+    //   : [];
+
+    // Construct the response object with filtered referrals
+    const response = {
+      status: "success",
+      data: user,
+      count: count?.[0]?.string || 0
+      //  {...user.toObject(), affiliateReferrals: filteredReferrals}  // maintain structure, but with filtered referrals
+    };
+
+    // Send the response
+    res.status(200).json(response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({status: "error", message: "Internal server error"});
+  }
+}
+
+exports.getAdminBasicAffiliateOverview = async(req,res) => {
+  // console.log(req.user.role)
+  let userId = req.user._id;
+
+  if(req?.user?.role === "6448f834446977851c23b3f5"){
+    userId = req.query.affiliateId;
+  }
+  const {affiliateType, affiliatePrograme, affiliateId} = req.query;
+  let matchStageUser = {};
+  let matchStageTransactions = {};
+  let userIds = [];
+  if (affiliateType === "All") {
+    const allprogramme = await Affiliate.find();
+    for (let elem of allprogramme) {
+      for (let subelem of elem.affiliates) {
+        userIds.push(subelem.userId);
+      }
+    }
+
+    matchStageUser = {
+      _id: { $in: userIds },
+    }
+
+    matchStageTransactions = {}
+    userId = "";
+  } else if (affiliatePrograme === "All") {
+    const programmeId = [];
+    const getPrograme = await Affiliate.find({ affiliateType: affiliateType });
+    for (let elem of getPrograme) {
+      programmeId.push(elem._id);
+      for (let subelem of elem.affiliates) {
+        userIds.push(subelem.userId);
+      }
+    }
+
+    matchStageUser = {
+      _id: { $in: userIds },
+    }
+
+    matchStageTransactions = {
+      affiliateProgram: { $in: programmeId }
+    }
+    userId = "";
+  } else if (affiliateId === "All"){
+    const programmeId = [];
+    const getPrograme = await Affiliate.find({ _id: new ObjectId(affiliatePrograme) });
+    for (let elem of getPrograme) {
+      programmeId.push(elem._id);
+      for (let subelem of elem.affiliates) {
+        userIds.push(subelem.userId);
+      }
+    }
+
+    matchStageUser = {
+      _id: { $in: userIds },
+    }
+
+    matchStageTransactions = {
+      affiliate: { $in: userIds }
+    }
+    userId = "";
+  } else{
+    matchStageUser = {
+      _id: new ObjectId(userId),
+    }
+
+    matchStageTransactions = {
+      affiliate: new ObjectId(
+        userId
+      ),
+    }
+  }
+
+  let user; let affiliateProgram;
+  if(userId){
+    user = await User.findById(new ObjectId(userId)).select('first_name last_name profilePhoto');
+    affiliateProgram = await Affiliate.findOne({
+      "affiliates.userId": new ObjectId(userId)
+    }).select('rewardPerSignup commissionPercentage');
+  
+  }
+
+  const affiliateRaffrelData = await User.aggregate([
+    {
+      $match: matchStageUser,
+    },
+    {
+      $unwind: {
+        path: "$affiliateReferrals",
+      },
+    },
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField:
+          "affiliateReferrals.referredUserId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+      $unwind:{
+        path:"$user"
+      }
+    },
+    {
+      $group: {
+        _id: {},
+        count: {
+          $count: {},
+        },
+        activeCount: {
+          $sum: {
+            $cond: [
+              { $eq: ["$user.activationDetails.activationStatus", "Active"] },
+              1,
+              0
+            ]
+          }
+        },
+        paidCount: {
+          $sum: {
+            $cond: [
+              { $in: ["$user.paidDetails.paidStatus", ["Active", "Inactive"]] },
+              1,
+              0,
+            ],
+          },
+        },
+        paidActiveCount:{
+          $sum: {
+            $cond: [
+              { $eq: ["$user.paidDetails.paidStatus", "Active"] },
+              1,
+              0
+            ]
+          }
+        },
+        payout: {
+          $sum: "$affiliateReferrals.affiliateEarning",
+        },
+      },
+    },
+    {
+      $project: {
+        affiliateRefferalCount: "$count",
+        activeAffiliateRefferalCount: "$activeCount",
+        paidAffiliateRefferalCount: "$paidCount",
+        paidActiveAffiliateRefferalCount: "$paidActiveCount",
+        _id: 0,
+        affiliateRefferalPayout: "$payout",
+      },
+    },
+  ]);
+
+  const lifetimeearningProduct = await AffiliateTransaction.aggregate([
+    {
+      $match: {
+        ...matchStageTransactions,
+        product: {$ne: new ObjectId("6586e95dcbc91543c3b6c181")}
+      },
+    },
+    {
+      $group: {
+        _id: {},
+        amount: {
+          $sum: "$affiliatePayout",
+        },
+      },
+    },
+    {
+      $project: {
+        amount: 1,
+        _id: 0,
+      },
+    },
+  ])
+
+  const lifetimeearningSignUp = await User.aggregate([
+    {
+      $match: matchStageUser,
+    },
+    {
+      $unwind: {
+        path: "$affiliateReferrals",
+      },
+    },
+    {
+      $group: {
+        _id: {},
+        payout: {
+          $sum: "$affiliateReferrals.affiliateEarning",
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        amount: "$payout",
+      },
+    },
+  ])
+
+  res.status(200).json({status:"success", data: {
+    ...affiliateRaffrelData[0], 
+    rewardPerReferral:affiliateProgram?.rewardPerSignup, 
+    commissionPercentage: affiliateProgram?.commissionPercentage, 
+    userName: `${user?.first_name} ${user?.last_name}`, 
+    image: user?.profilePhoto, 
+    lifetimeEarning: ((lifetimeearningSignUp[0]?.amount || 0) + (lifetimeearningProduct[0]?.amount || 0))}})
+
+}
+
+exports.getAdminLast30daysAffiliateData = async(req,res) => {
+  const endDate = moment();
+  const startDate = moment().subtract(30, 'days').startOf('day');
+  let userId = req.user._id;
+
+  if(req?.user?.role === "6448f834446977851c23b3f5"){
+    userId = req.query.affiliateId;
+  }
+  const SIGNUP_PRODUCT_ID = '6586e95dcbc91543c3b6c181';
+  const TESTZONE_PRODUCT_ID = '6517d48d3aeb2bb27d650de5';
+  const TENX_PRODUCT_ID = '6517d3803aeb2bb27d650de0';
+  const {affiliateType, affiliatePrograme, affiliateId} = req.query;
+  let matchStageTransactions = {};
+  let userIds = [];
+  if (affiliateType === "All") {
+
+    matchStageTransactions = {
+      transactionDate: {
+        $gte: new Date(startDate),
+        // $lte: new Date(endDate)
+      }
+    }
+
+  } else if (affiliatePrograme === "All") {
+    const programmeId = [];
+    const getPrograme = await Affiliate.find({ affiliateType: affiliateType });
+    for (let elem of getPrograme) {
+      programmeId.push(elem._id);
+    }
+
+    matchStageTransactions = {
+      affiliateProgram: { $in: programmeId },
+      transactionDate: {
+        $gte: new Date(startDate),
+        // $lte: new Date(endDate)
+      }
+    }
+
+  } else if (affiliateId === "All"){
+    const getPrograme = await Affiliate.find({ _id: new ObjectId(affiliatePrograme) });
+    for (let elem of getPrograme) {
+      for (let subelem of elem.affiliates) {
+        userIds.push(subelem.userId);
+      }
+    }
+
+    matchStageTransactions = {
+      transactionDate: {
+        $gte: new Date(startDate),
+        // $lte: new Date(endDate)
+      },
+      affiliate: { $in: userIds }
+    }
+  } else{
+    matchStageTransactions = {
+      affiliate: mongoose.Types.ObjectId(userId),
+      transactionDate: {
+        $gte: new Date(startDate),
+        // $lte: new Date(endDate)
+      },
+    }
+  }
+
+  // console.log("matchStageTransactions", matchStageTransactions)
+  const data = await AffiliateTransaction.aggregate([
+    {
+      $match: matchStageTransactions,
+    },
+    {
+      $group: {
+        _id: {
+          $dateToString: { format: "%Y-%m-%d", date: "$transactionDate" },
+        },
+        totalOrder: {
+          $sum: {
+            $cond: [
+              { $ne: ['$product', new ObjectId(SIGNUP_PRODUCT_ID)] },
+              1,
+              0,
+            ],
+          },
+        },
+        totalSignupEarnings: {
+          $sum: {
+            $cond: [{ $eq: ["$product", new ObjectId(SIGNUP_PRODUCT_ID)] }, "$affiliatePayout", 0],
+          },
+        },
+        totalTestzoneEarnings: {
+          $sum: {
+            $cond: [{ $eq: ["$product", new ObjectId(TESTZONE_PRODUCT_ID)] }, "$affiliatePayout", 0],
+          },
+        },
+        totalTenxEarnings: {
+          $sum: {
+            $cond: [{ $eq: ["$product", new ObjectId(TENX_PRODUCT_ID)] }, "$affiliatePayout", 0],
+          },
+        },
+        totalEarnings:{
+          $sum: "$affiliatePayout"
+        },
+      },
+    },
+    { $sort: { _id: 1 } },
+  ]);
+
+  // console.log("data", data)
+  res.status(200).json({status:'success', data:data});
 }

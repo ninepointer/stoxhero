@@ -5,14 +5,7 @@ import moment from 'moment'
 
 const EchartsBarChart = ({chartData}) => {
 const chartRef = useRef(null);
-// {
-//   "_id": "2023-12-23",
-//   "totalOrder": 1,
-//   "totalSignupEarnings": 10,
-//   "totalTestzoneEarnings": 0,
-//   "totalTenxEarnings": 0,
-//   "totalEarnings": 10
-// },
+
 const dates = chartData?.map((e)=>{
   let newDate = new Date(e?._id)
   let utcDateString = newDate.toLocaleString("en-US", { timeZone: "UTC" });
@@ -31,7 +24,7 @@ const tenx = chartData?.map((e)=>{
   return (e?.totalTenxEarnings)?.toFixed(0)
 })
 
-console.log(dates, testzone, total, tenx)
+// console.log(dates, testzone, total, tenx)
 
 useEffect(() => {
   const chartInstance = echarts.init(chartRef.current);

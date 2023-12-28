@@ -55,7 +55,8 @@ const affiliateProgramSchema = new mongoose.Schema({
         {
             userId:{type:Schema.Types.ObjectId,ref: 'user-personal-detail'},
             joinedOn:{type:Date, default: ()=>new Date()},
-            affiliateCode: {type:String, required:true}
+            affiliateCode: {type:String, required:true},
+            affiliateStatus: {type:String, required:true, default: "Active"}
         }
     ],
     referrals: [
