@@ -7,6 +7,8 @@ const PendingOrder = require("./models/PendingOrder/pendingOrderSchema");
 const { ObjectId } = require("mongodb");
 const TenXTrader = require("./models/mock-trade/tenXTraderSchema");
 const PaperTrade = require("./models/mock-trade/paperTrade");
+const StockTrade = require("./models/mock-trade/stockSchema");
+
 const InternshipTrade = require("./models/mock-trade/internshipTrade");
 const MarginXMockUser = require("./models/marginX/marginXUserMock");
 // const BattleMockUser = require("./models/battle/battleTrade");
@@ -16,7 +18,7 @@ const DailyContestMockCompany = require("./models/DailyContest/dailyContestMockC
 const MarginXMockCompany = require("./models/marginX/marginXCompanyMock");
 const { lastTradeDataMockMarginX, traderWiseMockPnlCompanyMarginX, overallMockPnlCompanyMarginX, overallpnlMarginX } = require("./services/adminRedis/Mock");
 const { lastTradeDataMockDailyContest, traderWiseMockPnlCompanyDailyContest, overallMockPnlCompanyDailyContest, overallpnlDailyContest } = require("./services/adminRedis/Mock");
-
+const {equityBrokerage} = require("./PlaceOrder/equity/brokerageEquity")
 const { virtualTrader, internTrader, dailyContest, marginx, tenxTrader, battle } = require("./constant")
 const getKiteCred = require('./marketData/getKiteCred');
 const axios = require('axios');
@@ -292,6 +294,158 @@ const paperTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDeta
 
             if (isRedisConnected) {
                 await client.expire(`${createdBy.toString()}: overallpnlPaperTrade`, secondsRemaining);
+            }
+
+            resolve();
+        }).catch((err) => {
+            reject(err);
+            console.log("in err", err)
+        });
+    });
+}
+
+const stockStopLoss = async (message) => {
+    return new Promise(async (resolve, reject) => {
+        const isRedisConnected = getValue();
+        let todayPnlData;
+        let fundDetail;
+
+        let date = new Date();
+        let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+        todayDate = todayDate + "T23:59:59.999Z";
+        const today = new Date(todayDate);
+        const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
+
+
+        let { exchange, symbol, buyOrSell, Quantity, Product, order_type, sub_product_id,
+            exchangeInstrumentToken, validity, variety, order_id, instrumentToken,
+            createdBy, deviceDetails } = message.data;
+
+        try {
+            // if (isRedisConnected && await client.exists(`${createdBy.toString()}: overallpnlPaperTrade`)) {
+            //     todayPnlData = await client.get(`${createdBy.toString()}: overallpnlPaperTrade`)
+            //     todayPnlData = JSON.parse(todayPnlData);
+            // }
+
+            if (isRedisConnected && (await client.exists(`${createdBy?.toString()}: overallpnlIntraday`) || await client.exists(`${createdBy?.toString()}: overallpnlDelivery`))) {
+                let todayPnlData
+                if(Product === "MIS"){
+                  todayPnlData = await client.get(`${createdBy?.toString()}: overallpnlIntraday`)
+                } else{
+                  todayPnlData = await client.get(`${createdBy?.toString()}: overallpnlDelivery`)
+                }
+                todayPnlData = JSON.parse(todayPnlData);
+            }
+
+            if (isRedisConnected && await client.exists(`${createdBy?.toString()} openingBalanceAndMarginStock`)) {
+                fundDetail = await client.get(`${createdBy?.toString()} openingBalanceAndMarginStock`)
+                fundDetail = JSON.parse(fundDetail);
+            }
+        } catch (e) {
+            console.log("errro fetching pnl 2", e);
+        }
+
+
+        const kiteData = await getKiteCred.getAccess();
+        const netPnl = await calculateNetPnl(message.data, todayPnlData, kiteData);
+        const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
+        const marginAndCase = getLastTradeMarginAndCaseNumber(message.data, todayPnlData, stock);
+        const caseNumber = (await marginAndCase).caseNumber;
+        const margin = (await marginAndCase).margin;
+        const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
+
+        switch (caseNumber) {
+            case 0:
+                await marginZeroCase(message.data, availableMargin, stock, kiteData)
+                break;
+            case 1:
+                await marginFirstCase(message.data, availableMargin, margin, stock, kiteData)
+                break;
+            case 2:
+                await marginSecondCase(message.data, margin, runningLotForSymbol)
+                break;
+            case 3:
+                await marginThirdCase(message.data, netPnl)
+                break;
+            case 4:
+                await marginFourthCase(message.data, availableMargin, runningLotForSymbol, stock, kiteData)
+                break;
+        }
+
+        let last_price = message.ltp;
+
+        let brokerageUser = await equityBrokerage(Math.abs(Number(Quantity)) * last_price, Product, buyOrSell)
+        let trade_time_zerodha = new Date();
+        order_id = `${(new Date()).getFullYear() - 2000}${String((new Date()).getMonth() + 1).padStart(2, '0')}${String((new Date()).getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
+
+        // Add 5 hours and 30 minutes
+        trade_time_zerodha.setHours(trade_time_zerodha.getHours() + 5);
+        trade_time_zerodha.setMinutes(trade_time_zerodha.getMinutes() + 30);
+
+
+        if (buyOrSell === "SELL") {
+            Quantity = "-" + Quantity;
+        }
+
+        const tradeDoc = new StockTrade({
+            status: "COMPLETE", average_price: last_price, Quantity, Product, buyOrSell,
+            variety, validity, exchange, order_type, symbol, placed_by: "stoxhero",
+            order_id, instrumentToken, brokerage: brokerageUser, portfolioId: sub_product_id, exchangeInstrumentToken,
+            createdBy: "63ecbc570302e7cf0153370c", trader: createdBy, amount: (Number(Quantity) * last_price), trade_time: trade_time_zerodha,
+            margin: message.data.margin, deviceDetails: { deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType },
+        });
+
+        tradeDoc.save().then(async () => {
+            if (isRedisConnected && (await client.exists(`${createdBy?.toString()}: overallpnlIntraday`) || await client.exists(`${createdBy?.toString()}: overallpnlDelivery`))) {
+                let pnl
+                if(Product === "MIS"){
+                  pnl = await client.get(`${createdBy?.toString()}: overallpnlIntraday`)
+                } else{
+                  pnl = await client.get(`${createdBy?.toString()}: overallpnlDelivery`)
+                }
+                pnl = JSON.parse(pnl);
+                // console.log("pnl", pnl);
+                const matchingElement = pnl.find((element) => (element._id.instrumentToken === tradeDoc.instrumentToken && element._id.product === tradeDoc.Product && !element._id.isLimit));
+                // console.log("matchingElement", matchingElement);
+                // if instrument is same then just updating value
+                if (matchingElement) {
+                    // Update the values of the matching element with the values of the first document
+                    matchingElement.amount += (tradeDoc.amount * -1);
+                    matchingElement.brokerage += Number(tradeDoc.brokerage);
+                    matchingElement.lastaverageprice = tradeDoc.average_price;
+                    matchingElement.lots += Number(tradeDoc.Quantity);
+                    matchingElement.margin = message.data.margin;
+
+                } else {
+                    // Create a new element if instrument is not matching
+                    pnl.push({
+                        _id: {
+                            symbol: tradeDoc.symbol,
+                            product: tradeDoc.Product,
+                            instrumentToken: tradeDoc.instrumentToken,
+                            exchangeInstrumentToken: tradeDoc.exchangeInstrumentToken,
+                            exchange: tradeDoc.exchange,
+                            validity: tradeDoc.validity,
+                            variety: tradeDoc.variety,                
+
+                        },
+                        amount: (tradeDoc.amount * -1),
+                        brokerage: Number(tradeDoc.brokerage),
+                        lots: Number(tradeDoc.Quantity),
+                        lastaverageprice: tradeDoc.average_price,
+                        margin: message.data.margin
+                    });
+                }
+
+                if (Product === "MIS") {
+                    data = await client.set(`${createdBy.toString()}: overallpnlIntraday`, JSON.stringify(pnl));
+                } else {
+                    data = await client.set(`${createdBy.toString()}: overallpnlDelivery`, JSON.stringify(pnl));
+                }
+            }
+
+            if (isRedisConnected) {
+                await client.expire(`${createdBy.toString()}: ${Product === "MIS" ? "overallpnlIntraday" : "overallpnlDelivery"}`, secondsRemaining);
             }
 
             resolve();
@@ -868,10 +1022,13 @@ exports.pendingOrderMain = async () => {
     }
 
     let isRedisConnected = getValue();
-    let brokerageDetailBuy = await buyBrokerageCompany(accountType, isRedisConnected);
-    let brokerageDetailSell = await sellBrokerageCompany(accountType, isRedisConnected);
-    let brokerageDetailBuyUser = await buyBrokerageUser(zerodhaAccountType, isRedisConnected);
-    let brokerageDetailSellUser = await sellBrokerageUser(zerodhaAccountType, isRedisConnected);
+    let brokerageDetailBuyUser, brokerageDetailSellUser, brokerageDetailBuy, brokerageDetailSell;
+    if(product_type?.toString() !== "6583c2012ef31a319cf888c9"){
+        brokerageDetailBuy = await buyBrokerageCompany(accountType, isRedisConnected);
+        brokerageDetailSell = await sellBrokerageCompany(accountType, isRedisConnected);
+        brokerageDetailBuyUser = await buyBrokerageUser(zerodhaAccountType, isRedisConnected);
+        brokerageDetailSellUser = await sellBrokerageUser(zerodhaAccountType, isRedisConnected);    
+    }
 
     try {
 
@@ -882,7 +1039,7 @@ exports.pendingOrderMain = async () => {
 
 
             let { exchange, symbol, buyOrSell, Quantity, sub_product_id, instrumentToken,
-                createdBy, _id, type, product_type, from } = message.data;
+                createdBy, _id, type, product_type, from, Product } = message.data;
 
             let index = message.index;
             let last_price = message.ltp;
@@ -919,6 +1076,9 @@ exports.pendingOrderMain = async () => {
                 } else if (product_type?.toString() === "65449ee06932ba3a403a681a") {
                     await paperTradeStopLoss(message, brokerageDetailBuyUser, brokerageDetailSellUser);
                     pnlData = await client.get(`${createdBy?.toString()}: overallpnlPaperTrade`)
+                } else if (product_type?.toString() === "6583c2012ef31a319cf888c9") {
+                    await stockStopLoss(message);
+                    pnlData = await client.get(`${createdBy?.toString()}: ${Product === "MIS" ? "overallpnlIntraday" : "overallpnlDelivery"}`)
                 }
 
 
@@ -1000,6 +1160,8 @@ exports.pendingOrderMain = async () => {
                     await client.set(`${createdBy?.toString()}${sub_product_id?.toString()}: overallpnlIntern`, JSON.stringify(pnlData))
                 } else if (product_type?.toString() === "65449ee06932ba3a403a681a") {
                     await client.set(`${createdBy?.toString()}: overallpnlPaperTrade`, JSON.stringify(pnlData))
+                } else if (product_type?.toString() === "6583c2012ef31a319cf888c9") {
+                    await client.set(`${createdBy?.toString()}: ${Product === "MIS" ? "overallpnlIntraday" : "overallpnlDelivery"}`, JSON.stringify(pnlData))
                 }
 
                 // console.log("symbolArr", symbolArr)
@@ -1213,7 +1375,7 @@ const calculateNetPnl = async (tradeData, pnlData, data) => {
 }
 
 const marginZeroCase = async (tradeData, availableMargin, from, data) => {
-    const requiredMargin = await calculateRequiredMargin(tradeData, tradeData.Quantity, data);
+    const requiredMargin = await calculateRequiredMargin(tradeData, tradeData.Quantity, data, (from===stock && true));
 
     if ((availableMargin - requiredMargin) > 0) {
         tradeData.margin = requiredMargin;
@@ -1224,7 +1386,7 @@ const marginZeroCase = async (tradeData, availableMargin, from, data) => {
 }
 
 const marginFirstCase = async (tradeData, availableMargin, prevMargin, from, data) => {
-    const requiredMargin = await calculateRequiredMargin(tradeData, tradeData.Quantity, data);
+    const requiredMargin = await calculateRequiredMargin(tradeData, tradeData.Quantity, data, (from===stock && true));
 
     if ((availableMargin - requiredMargin) > 0) {
         tradeData.margin = requiredMargin + prevMargin;
@@ -1251,7 +1413,7 @@ const marginThirdCase = async (tradeData, netPnl) => {
 
 const marginFourthCase = async (tradeData, availableMargin, prevQuantity, from, data) => {
     const quantityForTrade = Math.abs(Math.abs(tradeData.Quantity) - Math.abs(prevQuantity));
-    const requiredMargin = await calculateRequiredMargin(tradeData, quantityForTrade, data);
+    const requiredMargin = await calculateRequiredMargin(tradeData, quantityForTrade, data, (from===stock && true));
 
     if ((availableMargin - requiredMargin) > 0) {
         tradeData.margin = requiredMargin;
@@ -1261,7 +1423,7 @@ const marginFourthCase = async (tradeData, availableMargin, prevQuantity, from, 
     }
 }
 
-const calculateRequiredMargin = async (tradeData, Quantity, data) => {
+const calculateRequiredMargin = async (tradeData, Quantity, data, isStock) => {
     const { exchange, symbol, buyOrSell, variety, Product, order_type, last_price } = tradeData;
     let auth = 'token ' + data.getApiKey + ':' + data.getAccessToken;
     let headers = {
@@ -1282,6 +1444,9 @@ const calculateRequiredMargin = async (tradeData, Quantity, data) => {
     }]
 
     try {
+        if(isStock){
+            return (last_price * Math.abs(Quantity)); 
+        }
         if (buyOrSell === "SELL") {
             const marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers })
             const zerodhaMargin = marginData.data.data.orders[0].total;

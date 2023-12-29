@@ -92,6 +92,26 @@ const {dailyContestTimeStore, dailyContestTradeCut} = require("../../dailyContes
 const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema");
 const Affiliate = require("../../models/affiliateProgram/affiliateProgram")
 const AffiliateTransaction = require("../../models/affiliateProgram/affiliateTransactions");
+const totp = require("totp-generator");
+
+
+router.get('/updatePortfolioId', async(req,res) =>{
+  const trade = await PaperTrade.find({portfolioId: null})
+  console.log(trade.length);
+  for(let elem of trade){
+    elem.portfolioId = new ObjectId("6433e2e5500dc2f2d20d686d");
+
+    console.log(elem);
+    await elem.save({validateBeforeSave: false});
+  }
+  res.send("ok")
+})
+
+router.get('/getotp', async(req,res) =>{
+  const x = totp(process.env.KUSH_ACCOUNT_HASH_CODE)
+  console.log(x)
+  res.send("ok")
+})
 
 router.get('/transaction', async(req,res) =>{
   const transaction = await AffiliateTransaction.find({product: new ObjectId("6586e95dcbc91543c3b6c181")});

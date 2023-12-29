@@ -91,10 +91,16 @@ router.post("/internPlacingOrder", isAppLive, authentication, authoizeTrade.fund
     MockTradeFunc.mockTrade(req, res)
 })
 
+router.post("/stocksorderplace", isAppLive, authentication, authoizeTrade.fundCheckStock,  async (req, res)=>{
+    req.stockTrade = true;
+    MockTradeFunc.mockTrade(req, res);
+})
+
 router.get("/switchRealToMock", authentication,  async (req, res)=>{
 
     await infinityTradeLive(res)
 })
+
 router.get("/switchRealToMockContest/:id", authentication,  async (req, res)=>{
 
     await contestTradeLive(req,res)

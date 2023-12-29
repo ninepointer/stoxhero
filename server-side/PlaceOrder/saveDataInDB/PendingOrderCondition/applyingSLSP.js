@@ -1,7 +1,7 @@
 const PendingOrder = require("../../../models/PendingOrder/pendingOrderSchema")
 const { client, getValue } = require('../../../marketData/redisClient');
 const getKiteCred = require('../../../marketData/getKiteCred'); 
-const {internTrader, tenxTrader, marginx, dailyContest, virtualTrader} = require("../../../constant")
+const {stock, internTrader, tenxTrader, marginx, dailyContest, virtualTrader} = require("../../../constant")
 
 
 exports.applyingSLSP = async (req, otherData, session, docId, from) => {
@@ -17,6 +17,8 @@ exports.applyingSLSP = async (req, otherData, session, docId, from) => {
     product_type = "6517d46e3aeb2bb27d650de3"
   } else if(from === virtualTrader){
     product_type = "65449ee06932ba3a403a681a"
+  } else if(from === stock){
+    product_type = "6583c2012ef31a319cf888c9"
   }
 
 

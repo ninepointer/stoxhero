@@ -10,5 +10,5 @@ exports.battle = "Battle";
 exports.tenxTrader = "TenX Trader";
 exports.internTrader = "Internship Trader";
 exports.virtualTrader = "paperTrade";
+exports.stock = "Stock";
 exports.TDS = 30;
-

@@ -151,7 +151,7 @@ router.post("/addstock", authentication, async (req, res) => {
     const { _id } = req.user;
     
     try {
-        let { exchangeInstrumentToken, instrument, exchange, symbol, status, instrumentToken, accountType, chartInstrument } = req.body;
+        let { exchangeInstrumentToken, instrument, exchange, symbol, status, instrumentToken, accountType, chartInstrument, name } = req.body;
 
         const setInstrument = JSON.parse(await client.get('instrument-user') || JSON.stringify({}));
         let userArr = setInstrument[instrumentToken] || [];
@@ -198,7 +198,8 @@ router.post("/addstock", authentication, async (req, res) => {
                     status: dataExist.status,
                     instrumentToken: dataExist.instrumentToken,
                     exchangeInstrumentToken: dataExist.exchangeInstrumentToken,
-                    chartInstrument: dataExist.chartInstrument
+                    chartInstrument: dataExist.chartInstrument,
+                    name: dataExist.name
                 }))
 
                 dataExist.users.push(_id?.toString());
@@ -226,7 +227,7 @@ router.post("/addstock", authentication, async (req, res) => {
                     exchangeInstrumentToken, instrument, exchange, symbol, status, chartInstrument,
                     createdBy: _id, lastModifiedBy: _id, instrumentToken,
                     accountType, exchangeSegment: Number(exchangeSegment),
-                    users: [_id?.toString()]
+                    users: [_id?.toString()], name
                 });
     
                 if (isRedisConnected) {
@@ -247,7 +248,8 @@ router.post("/addstock", authentication, async (req, res) => {
                     status: addingInstruments.status,
                     instrumentToken: addingInstruments.instrumentToken,
                     exchangeInstrumentToken: addingInstruments.exchangeInstrumentToken,
-                    chartInstrument: addingInstruments.chartInstrument
+                    chartInstrument: addingInstruments.chartInstrument,
+                    name: addingInstruments.name
                 }))
     
                 const updateInstrument = await User.findOneAndUpdate({ _id: _id }, {
@@ -534,7 +536,7 @@ router.get("/equityinstrumentDetails", authentication, async (req, res) => {
             const user = await User.findOne({ _id: _id });
 
             let instrument = await EquityInstrument.find({ _id: { $in: user.watchlistInstruments }, status: "Active" })
-                .select('exchangeInstrumentToken instrument exchange symbol status instrumentToken _id chartInstrument')
+                .select('exchangeInstrumentToken instrument exchange symbol status instrumentToken _id chartInstrument name')
                 .sort({ $natural: -1 })
 
             const instrumentJSONs = instrument.map(instrument => JSON.stringify(instrument));
@@ -549,6 +551,71 @@ router.get("/equityinstrumentDetails", authentication, async (req, res) => {
     } catch (e) {
         console.log(e);
         return res.status(500).json({ status: 'success', message: 'something went wrong.' })
+    }
+})
+
+router.patch("/removestock/:instrumentToken/", authentication, async (req, res)=>{
+    let isRedisConnected = getValue();
+
+    try{ 
+        const {instrumentToken} = req.params
+        // const {isAddedWatchlist} = req.body;
+        const {_id} = req.user;
+
+        const user = await User.findOne({_id: _id});
+        const removeFromWatchlist = await EquityInstrument.findOne({instrumentToken : instrumentToken, status: "Active"})
+        
+        const index = user.watchlistInstruments.indexOf(removeFromWatchlist._id); // find the index of 3 in the array
+
+        console.log("index", index, isRedisConnected)
+        if (index !== -1 && isRedisConnected) {
+            try{
+            let removeInstrumentObject = {
+                _id: removeFromWatchlist._id,
+                instrument: removeFromWatchlist.instrument,
+                exchange: removeFromWatchlist.exchange,
+                symbol: removeFromWatchlist.symbol ,
+                status: removeFromWatchlist.status ,
+                instrumentToken: removeFromWatchlist.instrumentToken ,
+                exchangeInstrumentToken: removeFromWatchlist.exchangeInstrumentToken,
+                chartInstrument: removeFromWatchlist.chartInstrument,
+                name: removeFromWatchlist.name,
+            }
+
+                const instrument = await client.LRANGE(`${_id.toString()}: equity-instrument`, 0, -1)
+                const removeInstrument = await client.LREM(`${(_id).toString()}: equity-instrument`, 1, JSON.stringify(removeInstrumentObject))
+            
+
+            //   const obj = {
+            //     instrumentToken: instrumentToken,
+            //     exchangeInstrumentToken: removeFromWatchlist.exchangeInstrumentToken
+            //   }
+              
+              const instruments = await client.SMEMBERS((_id)?.toString());
+              const removeFromSet = instruments.filter((elem)=>{
+                return elem.includes(instrumentToken.toString())
+              })
+
+              user.watchlistInstruments.splice(index, 1); // remove the element at the index
+              await user.save();
+
+              const redisClient = await client.SREM((_id).toString(), JSON.stringify(removeFromSet[0]));
+
+            } catch(err){
+                console.log(err)
+            }
+        }
+
+        const removing = await User.findOneAndUpdate({_id: _id}, {
+            $set:{ 
+                watchlistInstruments: user.watchlistInstruments
+            }
+            
+        })
+        res.status(201).json({message : "data patch succesfully"});
+    } catch (e){
+        console.log(e)
+        res.status(500).json({error:"Failed to edit data"});
     }
 })
 
