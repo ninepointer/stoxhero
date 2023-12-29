@@ -645,14 +645,18 @@ exports.getCareerApplicationCount = async(req, res, next)=>{
 
 exports.getCareerApplicantions = async(req, res, next) => {
   const { id } = req.params;
-  const careerApplications = await CareerApplication.find({career: id, applicationStatus: 'Applied', status:'OTP Verified'})
-                              .sort({_id: -1})
-                              .select('first_name last_name mobileNo email collegeName dob appliedOn priorTradingExperience source campaignCode applicationStatus linkedInProfileLink');
+  const careerApplications = await CareerApplication.find({
+    career: id,
+    applicationStatus: 'Applied',
+    status: 'OTP Verified'
+})
+    .sort({ _id: -1 })
+    .select('first_name last_name mobileNo email collegeName dob appliedOn priorTradingExperience source campaignCode applicationStatus linkedInProfileLink');
 
   const mobileNos = careerApplications.map(app => app.mobileNo);
 
   // Fetch corresponding users based on the mobileNos
-  const users = await User.find({ mobile: { $in: mobileNos } }).select('last_name internshipBatch mobile');
+  const users = await User.find({ mobile: { $in: mobileNos } }).select('last_name internshipBatch mobile referrerCode');
   const currentDate = new Date();
   const aggregatePipeline = [
     // Lookup the associated career for each batch
@@ -701,6 +705,7 @@ const completedBatches = result[0]?.completedBatches;
       let inActiveBatch = false;
       let completed = 0;
       const correspondingUser = users.find(user => user.mobile === application.mobileNo);
+      // console.log("correspondingUser", correspondingUser)
       if(correspondingUser?.internshipBatch.length >0){
         for (let item of correspondingUser?.internshipBatch){
           for(let activeBatch of activeBatches){
@@ -723,6 +728,7 @@ const completedBatches = result[0]?.completedBatches;
           user_last_name: correspondingUser ? correspondingUser.last_name : null,
           user_internshipBatch: correspondingUser ? correspondingUser.internshipBatch : null,
           inActiveBatch: inActiveBatch,
+          referrerCode: correspondingUser ? correspondingUser.referrerCode : null,
           completed
       };
   });

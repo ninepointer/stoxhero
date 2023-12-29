@@ -169,12 +169,12 @@ export default function Applicants({career, action, setAction}) {
   );
   featureObj.campaignCode = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {elem?.campaignCode}
+      {elem?.campaignCode || "-"}
     </MDTypography>
   );
   featureObj.referrerCode = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {elem?.mobileNo?.referrerCode}
+      {elem?.referrerCode || "-"}
     </MDTypography>
   );
   featureObj.email = (
