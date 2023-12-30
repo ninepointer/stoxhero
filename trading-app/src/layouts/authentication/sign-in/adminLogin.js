@@ -162,6 +162,10 @@ function AdminLogin() {
             if(userData.role?.roleName === adminRole){
               const from = location.state?.from || "/tenxdashboard";
               navigate(from);
+              window.webengage.user.login(userData?._id?.toString());
+              window.webengage.user.setAttribute('logged_in_email', userData?.email);
+              window.webengage.user.setAttribute('logged_in_mobile', userData?.mobile);
+      
             }
             else if(userData.role?.roleName === "data"){
               const from = location.state?.from || "/analytics";
@@ -170,6 +174,10 @@ function AdminLogin() {
             else if(userData.role?.roleName === userRole){
               const from = location.state?.from || "/stoxherodashboard";
               navigate(from,{ state: { showPopup: true } });
+              window.webengage.user.login(userData?._id?.toString());
+              window.webengage.user.setAttribute('logged_in_email', userData?.email);
+              window.webengage.user.setAttribute('logged_in_mobile', userData?.mobile);
+      
             }
             else if(userData.role?.roleName === Affiliate){
               const from = location.state?.from || "/stoxherodashboard";
@@ -263,10 +271,18 @@ function AdminLogin() {
           if(userData?.role?.roleName === adminRole){
             const from = location.state?.from || "/tenxdashboard";
             navigate(from);
+            window.webengage.user.login(userData?._id?.toString());
+            window.webengage.user.setAttribute('logged_in_email', userData?.email);
+            window.webengage.user.setAttribute('logged_in_mobile', userData?.mobile);
+    
           }
           else if(userData?.role?.roleName === userRole){
             const from = location.state?.from || "/stoxherodashboard";
               navigate(from);
+              window.webengage.user.login(userData?._id?.toString());
+              window.webengage.user.setAttribute('logged_in_email', userData?.email);
+              window.webengage.user.setAttribute('logged_in_mobile', userData?.mobile);
+      
           }
         }
 

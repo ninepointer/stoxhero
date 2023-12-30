@@ -253,21 +253,33 @@ const [buttonClicked, setButtonClicked] = useState(false);
       if(userData?.role?.roleName === adminRole){
         const from = location.state?.from || "/tenxdashboard";
         window.webengage.user.login(userData?._id?.toString());
+        window.webengage.user.setAttribute('logged_in_email', userData?.email);
+        window.webengage.user.setAttribute('logged_in_mobile', userData?.mobile);
+
         navigate(from);
       }
       else if(userData?.role?.roleName === "data"){
         const from = location.state?.from || "/analytics";
         window.webengage.user.login(userData?._id?.toString());
+        window.webengage.user.setAttribute('logged_in_email', userData?.email);
+        window.webengage.user.setAttribute('logged_in_mobile', userData?.mobile);
+
         navigate(from);
       } 
       else if(userData?.role?.roleName === userRole){
         const from = location.state?.from || "/home";
         window.webengage.user.login(userData?._id?.toString());
+        window.webengage.user.setAttribute('logged_in_email', userData?.email);
+        window.webengage.user.setAttribute('logged_in_mobile', userData?.mobile);
+
         navigate(from);
       }
       else if(userData?.role?.roleName === Affiliate){
         const from = location.state?.from || "/home";
         window.webengage.user.login(userData?._id?.toString());
+        window.webengage.user.setAttribute('logged_in_email', userData?.email);
+        window.webengage.user.setAttribute('logged_in_mobile', userData?.mobile);
+
         navigate(from);
       }
 
