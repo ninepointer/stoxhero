@@ -58,12 +58,13 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const closeSidenav = () => setMiniSidenav(dispatch, true);
 
   const navigate = useNavigate();
-  async function goOut(){
+  async function goOut() {
     await axios.get(`${baseUrl}api/v1/logout`, {
       withCredentials: true,
-  });
-  isCollegeRoute ? navigate(`/${getDetails?.userDetails?.collegeDetails?.college?.route}`) : navigate("/");
+    });
+    isCollegeRoute ? navigate(`/${getDetails?.userDetails?.collegeDetails?.college?.route}`) : navigate("/");
     getDetails.setUserDetail('');
+    window.webengage.user.logout();
   }
 
   useEffect(() => {

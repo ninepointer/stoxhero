@@ -252,18 +252,22 @@ const [buttonClicked, setButtonClicked] = useState(false);
       const userData = await userDetail();
       if(userData?.role?.roleName === adminRole){
         const from = location.state?.from || "/tenxdashboard";
+        window.webengage.user.login(userData?._id?.toString());
         navigate(from);
       }
       else if(userData?.role?.roleName === "data"){
         const from = location.state?.from || "/analytics";
+        window.webengage.user.login(userData?._id?.toString());
         navigate(from);
       } 
       else if(userData?.role?.roleName === userRole){
         const from = location.state?.from || "/home";
+        window.webengage.user.login(userData?._id?.toString());
         navigate(from);
       }
       else if(userData?.role?.roleName === Affiliate){
         const from = location.state?.from || "/home";
+        window.webengage.user.login(userData?._id?.toString());
         navigate(from);
       }
 
