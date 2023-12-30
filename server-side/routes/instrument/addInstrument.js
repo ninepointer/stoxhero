@@ -612,10 +612,10 @@ router.patch("/removestock/:instrumentToken/", authentication, async (req, res)=
             }
             
         })
-        res.status(201).json({message : "data patch succesfully"});
+        res.status(201).json({message : "Instrument removed."});
     } catch (e){
         console.log(e)
-        res.status(500).json({error:"Failed to edit data"});
+        res.status(500).json({message:"Something went wrong."});
     }
 })
 

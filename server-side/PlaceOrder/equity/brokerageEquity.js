@@ -1,7 +1,10 @@
 const BrokerageDetail = require("../../models/Trading Account/brokerageSchema");
+const { client, getValue } = require('../../marketData/redisClient');
+const {zerodhaAccountType} = require("../../constant");
 
 
 exports.equityBrokerage = async(amount, product, buyOrSell)=>{
+    const isRedisConnected = getValue();
     let brokerageIntradayBuy;
     let brokerageIntradaySell;
     let brokerageDeliveryBuy;
@@ -11,7 +14,7 @@ exports.equityBrokerage = async(amount, product, buyOrSell)=>{
         brokerageIntradayBuy = await client.HGET('brokerage-equity', `buy-intraday`);
         brokerageIntradayBuy = JSON.parse(brokerageIntradayBuy);
     } else{
-        brokerageIntradayBuy = await BrokerageDetail.find({transaction:"BUY", accountType: accountType, type: "Equity", product: "Intraday"});
+        brokerageIntradayBuy = await BrokerageDetail.find({transaction:"BUY", accountType: zerodhaAccountType, type: "Equity", product: "Intraday"});
         await client.HSET('brokerage-equity', `buy-intraday`, JSON.stringify(brokerageIntradayBuy));
     }
 
@@ -19,7 +22,7 @@ exports.equityBrokerage = async(amount, product, buyOrSell)=>{
         brokerageIntradaySell = await client.HGET('brokerage-equity', `sell-intraday`);
         brokerageIntradaySell = JSON.parse(brokerageIntradaySell);
     } else{
-        brokerageIntradaySell = await BrokerageDetail.find({transaction:"SELL", accountType: accountType, type: "Equity", product: "Intraday"});
+        brokerageIntradaySell = await BrokerageDetail.find({transaction:"SELL", accountType: zerodhaAccountType, type: "Equity", product: "Intraday"});
         await client.HSET('brokerage-equity', `sell-intraday`, JSON.stringify(brokerageIntradaySell));
     }
 

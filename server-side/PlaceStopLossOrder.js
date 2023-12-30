@@ -328,7 +328,6 @@ const stockStopLoss = async (message) => {
             // }
 
             if (isRedisConnected && (await client.exists(`${createdBy?.toString()}: overallpnlIntraday`) || await client.exists(`${createdBy?.toString()}: overallpnlDelivery`))) {
-                let todayPnlData
                 if(Product === "MIS"){
                   todayPnlData = await client.get(`${createdBy?.toString()}: overallpnlIntraday`)
                 } else{
@@ -1023,12 +1022,12 @@ exports.pendingOrderMain = async () => {
 
     let isRedisConnected = getValue();
     let brokerageDetailBuyUser, brokerageDetailSellUser, brokerageDetailBuy, brokerageDetailSell;
-    if(product_type?.toString() !== "6583c2012ef31a319cf888c9"){
+    // if(product_type?.toString() !== "6583c2012ef31a319cf888c9"){
         brokerageDetailBuy = await buyBrokerageCompany(accountType, isRedisConnected);
         brokerageDetailSell = await sellBrokerageCompany(accountType, isRedisConnected);
         brokerageDetailBuyUser = await buyBrokerageUser(zerodhaAccountType, isRedisConnected);
         brokerageDetailSellUser = await sellBrokerageUser(zerodhaAccountType, isRedisConnected);    
-    }
+    // }
 
     try {
 

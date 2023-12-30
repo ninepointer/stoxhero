@@ -9,6 +9,7 @@ exports.stockTradeHelper = async (req, res, otherData) => {
   let {exchange, symbol, buyOrSell, Quantity, Product, order_type, 
       exchangeInstrumentToken, validity, variety, order_id, instrumentToken, 
       portfolioId, trader, deviceDetails, margin, price, stopProfitPrice, stopLossPrice} = req.body 
+      trader = req.user._id;
 
   let {isRedisConnected, brokerageUser, originalLastPriceUser, secondsRemaining, trade_time} = otherData;
   const session = await mongoose.startSession();

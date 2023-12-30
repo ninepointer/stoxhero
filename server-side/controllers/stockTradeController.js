@@ -28,7 +28,7 @@ exports.pnlPosition = async (req, res, next) => {
         pnl = JSON.parse(pnl);
         // console.log("pnl redis", pnl)
         
-        res.status(201).json({message: "pnl received", data: pnl});
+        res.status(201).json({message: "position received", data: pnl});
 
       } else{
 
@@ -38,6 +38,7 @@ exports.pnlPosition = async (req, res, next) => {
                   trade_time:{
                       $gte: today
                   },
+                  Product: "MIS",
                   status: "COMPLETE",
                   trader: new ObjectId(userId)
               },
@@ -95,6 +96,7 @@ exports.pnlPosition = async (req, res, next) => {
               ),
               type: "Limit",
               status: "Pending",
+              Product: "MIS",
               createdOn: {
                 $gte: today,
               },
@@ -166,12 +168,12 @@ exports.pnlPosition = async (req, res, next) => {
           await client.set(`${req.user._id.toString()}: overallpnlIntraday`, JSON.stringify(newPnl))
           await client.expire(`${req.user._id.toString()}: overallpnlIntraday`, secondsRemaining);
         }
-        res.status(201).json({message: "pnl received", data: newPnl});
+        res.status(201).json({message: "position received", data: newPnl});
       }
 
     }catch(e){
         console.log(e);
-        return res.status(500).json({status:'success', message: 'something went wrong.'})
+        return res.status(500).json({status:'error', message: 'something went wrong.'})
     }
 
 
@@ -200,16 +202,17 @@ exports.pnlHolding = async (req, res, next) => {
       pnl = JSON.parse(pnl);
       // console.log("pnl redis", pnl)
       
-      res.status(201).json({message: "pnl received", data: pnl});
+      res.status(201).json({message: "Holding received", data: pnl});
 
     } else{
 
       let pnlDetails = await StockTrade.aggregate([
         {
             $match: {
-                trade_time:{
-                    $gte: today
-                },
+                // trade_time:{
+                //     $gte: today
+                // },
+                Product: "CNC",
                 status: "COMPLETE",
                 trader: new ObjectId(userId)
             },
@@ -265,6 +268,7 @@ exports.pnlHolding = async (req, res, next) => {
             createdBy: new ObjectId(
               userId
             ),
+            Product: "CNC",
             type: "Limit",
             status: "Pending",
             createdOn: {
@@ -338,12 +342,12 @@ exports.pnlHolding = async (req, res, next) => {
         await client.set(`${req.user._id.toString()}: overallpnlDelivery`, JSON.stringify(newPnl))
         await client.expire(`${req.user._id.toString()}: overallpnlDelivery`, secondsRemaining);
       }
-      res.status(201).json({message: "pnl received", data: newPnl});
+      res.status(201).json({message: "Holding received", data: newPnl});
     }
 
   }catch(e){
       console.log(e);
-      return res.status(500).json({status:'success', message: 'something went wrong.'})
+      return res.status(500).json({status:'error', message: 'something went wrong.'})
   }
 
 
@@ -418,7 +422,7 @@ exports.marginDetail = async (req, res, next) => {
       let marginDetail = await client.get(`${req.user._id.toString()} openingBalanceAndMarginStock`)
       marginDetail = JSON.parse(marginDetail);
 
-      res.status(201).json({ message: "pnl received", data: marginDetail });
+      res.status(201).json({ message: "Margin received", data: marginDetail });
 
     } else {
 
@@ -506,7 +510,7 @@ exports.marginDetail = async (req, res, next) => {
           await client.set(`${req.user._id.toString()} openingBalanceAndMarginStock`, JSON.stringify(portfoliosFund[0]))
           await client.expire(`${req.user._id.toString()} openingBalanceAndMarginStock`, secondsRemaining);
         }
-        res.status(200).json({ status: 'success', data: portfoliosFund[0] });
+        res.status(200).json({ status: 'Margin received', data: portfoliosFund[0] });
       } else {
         const portfoliosFund = await Portfolio.aggregate([
           {
@@ -538,7 +542,7 @@ exports.marginDetail = async (req, res, next) => {
           await client.set(`${req.user._id.toString()} openingBalanceAndMarginStock`, JSON.stringify(portfoliosFund[0]))
           await client.expire(`${req.user._id.toString()} openingBalanceAndMarginStock`, secondsRemaining);
         }
-        res.status(200).json({ status: 'success', data: portfoliosFund[0] });
+        res.status(200).json({ status: 'Margin received', data: portfoliosFund[0] });
       }
 
     }

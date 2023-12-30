@@ -536,6 +536,7 @@ const getLastTradeMarginAndCaseNumber = async (req, pnlData, from) => {
                     from===internship ? InternshipTrade : 
                     from===dailyContest ? DailyContestMockUser : 
                     from===marginx ? MarginXMockUser :
+                    from===stock ? StockTrade :
                     from===tenx && TenXTrader;
 
     
@@ -739,7 +740,7 @@ const takeRejectedTrade = async(req, res, from)=>{
                 status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
                 variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero", exchangeInstrumentToken,
                 order_id: order_id, instrumentToken, brokerage: 0, createdBy: req.user._id,
-                trader: trader, amount: 0, trade_time: myDate, portfolioId: portfolioId, margin: 0
+                trader: req?.user?._id, amount: 0, trade_time: myDate, portfolioId: portfolioId, margin: 0
 
             });
             console.log("margincall saving")
@@ -1159,12 +1160,15 @@ exports.fundCheckBattle = async (req, res, next) => {
 
 exports.fundCheckStock = async (req, res, next) => {
     const {Product} = req.body;
+    req.body.portfolioId = "658fa372557e6ee9182e91aa";
     const isRedisConnected = getValue();
     let todayPnlData;
     let fundDetail;
+    console.log(Product, isRedisConnected, await client.exists(`${req.user._id.toString()}: overallpnlIntraday`));
+    console.log(await client.exists(`${req.user._id.toString()}: overallpnlDelivery`))
+
     try {
         if (isRedisConnected && (await client.exists(`${req.user._id.toString()}: overallpnlIntraday`) || await client.exists(`${req.user._id.toString()}: overallpnlDelivery`))) {
-            let todayPnlData
             if(Product === "MIS"){
               todayPnlData = await client.get(`${req.user._id.toString()}: overallpnlIntraday`)
             } else{
@@ -1182,7 +1186,6 @@ exports.fundCheckStock = async (req, res, next) => {
         console.log("errro fetching pnl 2", e);
     }
 
-    console.log(todayPnlData)
     const data = await getKiteCred.getAccess();
     const netPnl = await calculateNetPnl(req, todayPnlData, data );
     const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
@@ -1190,6 +1193,14 @@ exports.fundCheckStock = async (req, res, next) => {
     const caseNumber = (await marginAndCase).caseNumber;
     const margin = (await marginAndCase).margin; 
     const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
+
+    console.log("netPnl", netPnl, fundDetail);
+    console.log("availableMargin", availableMargin)
+    console.log("caseNumber", caseNumber)
+    console.log("margin", margin)
+    console.log("runningLotForSymbol", runningLotForSymbol)
+
+
 
     switch (caseNumber) {
         case 0:

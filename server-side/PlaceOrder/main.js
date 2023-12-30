@@ -91,8 +91,8 @@ router.post("/internPlacingOrder", isAppLive, authentication, authoizeTrade.fund
     MockTradeFunc.mockTrade(req, res)
 })
 
-router.post("/stocksorderplace", isAppLive, authentication, authoizeTrade.fundCheckStock,  async (req, res)=>{
-    req.stockTrade = true;
+router.post("/stockorderplace", isAppLive, authentication, authoizeTrade.fundCheckStock,  async (req, res)=>{
+    req.body.stockTrade = true;
     MockTradeFunc.mockTrade(req, res);
 })
 
@@ -112,3 +112,4 @@ router.get("/switchRealToMockSingleUser/:userId", authentication,  async (req, r
 })
 
 module.exports = router;
+

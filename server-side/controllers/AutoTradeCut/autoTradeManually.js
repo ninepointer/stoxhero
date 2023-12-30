@@ -9,6 +9,7 @@ const DailyContestMockUser = require("../../models/DailyContest/dailyContestMock
 const MarginXMockCompany = require("../../models/marginX/marginXCompanyMock");
 const MarginXMockUser = require("../../models/marginX/marginXUserMock");
 const PaperTrade = require("../../models/mock-trade/paperTrade");
+const StockTrade = require("../../models/mock-trade/stockSchema");
 const InternshipTrade = require("../../models/mock-trade/internshipTrade");
 const BattleTrade = require("../../models/battle/battleTrade");
 const InfinityTradeCompany = require("../../models/mock-trade/infinityTradeCompany")
@@ -16,6 +17,7 @@ const mongoose = require('mongoose');
 const {getIOValue} = require('../../marketData/socketio');
 const { xtsAccountType, zerodhaAccountType } = require("../../constant");
 const {marginCalculationTrader, marginCalculationCompany} = require("../../marketData/marginData");
+const {equityBrokerage} = require("../../PlaceOrder/equity/brokerageEquity")
 
 const takeAutoTenxTrade = async (tradeDetails) => {
   return new Promise(async (resolve, reject) => {
@@ -364,6 +366,117 @@ const takeAutoPaperTrade = async (tradeDetails) => {
           }
 
           io?.emit(`${trader.toString()}autoCut`, paperTrade);
+          resolve();
+        }).catch((err) => {
+          console.log("in err autotrade", err)
+          reject(err);
+        });
+
+      }).catch(err => { console.log("fail", err); reject(err); });
+  });
+
+}
+
+const takeAutoStockTrade = async (tradeDetails) => {
+  return new Promise(async (resolve, reject) => {
+    const io = getIOValue();
+    let isRedisConnected = getValue();
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T23:59:59.999Z";
+    const today = new Date(todayDate);
+    const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
+
+    let { exchange, symbol, buyOrSell, Quantity, Product, order_type,
+      validity, variety, order_id, instrumentToken, portfolioId,
+      trader, dontSendResp, exchangeInstrumentToken, createdBy } = tradeDetails;
+
+    if (!exchange || !symbol || !buyOrSell || !Quantity) {
+      
+      if (!dontSendResp) {
+        console.log("Please fill all fields, autotrade");
+      } else {
+        return;
+      }
+    }
+
+    if (buyOrSell === "SELL") {
+      Quantity = "-" + Quantity;
+    }
+
+    let originalLastPriceUser;
+    let newTimeStamp = "";
+    let trade_time = "";
+    try {
+
+      let liveData = await singleLivePrice(exchange, symbol)
+      
+      newTimeStamp = liveData?.timestamp;
+      originalLastPriceUser = liveData?.last_price;
+      trade_time = new Date(newTimeStamp);
+      
+    } catch (err) {
+      console.log(err)
+      return new Error(err);
+    }
+
+    let brokerageUser = equityBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, Product, buyOrSell);
+    
+    StockTrade.findOne({ order_id: order_id })
+      .then((dateExist) => {
+        if (dateExist) {
+          console.log("data already exist in paper autotrade")
+          return;
+        }
+
+        const stockTrade = new StockTrade({
+          status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product: "NRML", buyOrSell,
+          variety:"regular", validity: "DAY", exchange, order_type: "MARKET", symbol, placed_by: "stoxhero",
+          order_id, instrumentToken, brokerage: brokerageUser, portfolioId, exchangeInstrumentToken,
+          createdBy, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
+
+        });
+
+        stockTrade.save().then(async () => {
+          
+          if (isRedisConnected && await client.exists(`${trader.toString()}: overallpnlIntraday`)) {
+            let pnl = await client.get(`${trader.toString()}: overallpnlIntraday`)
+            pnl = JSON.parse(pnl);
+            const matchingElement = pnl.find((element) => (element._id.instrumentToken === stockTrade.instrumentToken && element._id.product === stockTrade.Product));
+
+            // if instrument is same then just updating value
+            if (matchingElement) {
+              // Update the values of the matching element with the values of the first document
+              matchingElement.amount += (stockTrade.amount * -1);
+              matchingElement.brokerage += Number(stockTrade.brokerage);
+              matchingElement.lastaverageprice = stockTrade.average_price;
+              matchingElement.lots += Number(stockTrade.Quantity);
+
+            } else {
+              // Create a new element if instrument is not matching
+              pnl.push({
+                _id: {
+                  symbol: stockTrade.symbol,
+                  product: stockTrade.Product,
+                  instrumentToken: stockTrade.instrumentToken,
+                  exchange: stockTrade.exchange,
+                },
+                amount: (stockTrade.amount * -1),
+                brokerage: Number(stockTrade.brokerage),
+                lots: Number(stockTrade.Quantity),
+                lastaverageprice: stockTrade.average_price,
+              });
+            }
+
+            await client.set(`${trader.toString()}: overallpnlIntraday`, JSON.stringify(pnl))
+
+          }
+
+          if (isRedisConnected) {
+            await client.expire(`${trader.toString()}: overallpnlIntraday`, secondsRemaining);
+          }
+
+          io?.emit(`${trader.toString()}autoCut`, stockTrade);
           resolve();
         }).catch((err) => {
           console.log("in err autotrade", err)
@@ -1357,7 +1470,7 @@ const takeBattleTrades = async(tradeObjs)=>{
 
 
 
-module.exports = { takeAutoDailyContestMockTrade, takeAutoTenxTrade, takeAutoPaperTrade, 
+module.exports = { takeAutoStockTrade, takeAutoDailyContestMockTrade, takeAutoTenxTrade, takeAutoPaperTrade, 
   takeAutoInfinityTrade, takeAutoInternshipTrade, takeInternshipTrades, 
   takeDailyContestMockTrades, takeMarginXMockTrades, takeBattleTrades };
 
