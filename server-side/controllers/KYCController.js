@@ -1,5 +1,6 @@
 const User = require('../models/User/userDetailSchema');
 const sendMail = require('../utils/emailService');
+const {generateAadhaarOtp, verifyAadhaarOtp, verifyPan, verifyBankAccount} = require('../utils/kycService');
 const {sendMultiNotifications} = require('../utils/fcmService');
 const Settings = require('../models/settings/setting');
 
@@ -342,4 +343,23 @@ exports.rejectKYC = async(req,res,next) => {
 
     res.status(200).json({status:'success', message:'KYC Rejected'});
 
+}
+
+exports.generateOtp = async(req,res) => {
+  const {aadhaarNumber} = req.body;
+  try{
+    const client_id = await generateAadhaarOtp(aadhaarNumber);
+    res.status(200).json({status:'success', data:client_id});  
+  }catch(e){
+    console.log(e);
+    res.status(500).json({status:'error', message:'Something went wrong', error:e.message});
+
+  }
+}
+
+exports.verifyOtp = async(req,res) =>{
+  const{client_id, otp, panNumber, bankAccountNumber} = req.body;
+  const aadhaarData =  await verifyAadhaarOtp(client_id, otp);
+  const panData = await verifyPan(panNumber);
+  const bankAccountData = await verifyBankAccount(bankAccountNumber);
 }
