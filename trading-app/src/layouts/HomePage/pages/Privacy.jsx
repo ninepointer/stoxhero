@@ -26,7 +26,9 @@ import { fontWeight } from '@mui/system';
 const About = () => {
     
     useEffect(()=>{
-        ReactGA.pageview(window.location.pathname)
+        ReactGA.pageview(window.location.pathname);
+        window.webengage.track('privacy_clicked', {
+        })
       }, [])
    
       return (

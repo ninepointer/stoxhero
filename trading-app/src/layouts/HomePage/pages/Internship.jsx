@@ -49,67 +49,73 @@ const Internship = ({campaignCode}) => {
         {!isLoading ?
         <>
           {career.length > 0 ? (
-            career.map((elem, index) => (
-                  <Grid key={elem._id} item xs={12} md={12} lg={12}>
-                    <MDBox style={{ borderRadius: 4 }}>
-                      <Tooltip title="Click me!">
-                        <MDButton
-                          variant="contained"
-                          color="secondary"
-                          size="small"
-                          style={{minWidth: "100%", backgroundColor:'#315c45', color:'white'}}
-                          component={Link}
-                          to={{
-                            pathname: `/careers/${elem?.jobTitle}/jobdescription`,
-                          }}
-                          state={{ data: elem, campaignCode: campaignCode }}
+            career.map((elem, index) => {
+              window.webengage.track('career_selection', {
+                career_name: elem?.jobTitle,
+                career_id: elem?._id 
+              })
+              return (
+                <Grid key={elem._id} item xs={12} md={12} lg={12}>
+                  <MDBox style={{ borderRadius: 4 }}>
+                    <Tooltip title="Click me!">
+                      <MDButton
+                        variant="contained"
+                        color="secondary"
+                        size="small"
+                        style={{minWidth: "100%", backgroundColor:'#315c45', color:'white'}}
+                        component={Link}
+                        to={{
+                          pathname: `/careers/${elem?.jobTitle}/jobdescription`,
+                        }}
+                        state={{ data: elem, campaignCode: campaignCode }}
+                      >
+                        <Grid
+                          item
+                          xs={12}
+                          md={6}
+                          lg={12}
+                          mb={1}
+                          display="flex"
+                          alignContent="center"
+                          alignItems="center"
+                          justifyContent="center"
                         >
-                          <Grid
-                            item
-                            xs={12}
-                            md={6}
-                            lg={12}
-                            mb={1}
-                            display="flex"
-                            alignContent="center"
-                            alignItems="center"
-                            justifyContent="center"
-                          >
-                            <Grid container xs={12} md={12} lg={12} display="flex" justifyContent="center" alignItems="center" style={{ width: "100%" }}>
+                          <Grid container xs={12} md={12} lg={12} display="flex" justifyContent="center" alignItems="center" style={{ width: "100%" }}>
+                            
+                            <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center" style={{ width: "100%" }}>
                               
-                              <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center" style={{ width: "100%" }}>
+                              <MDBox display="flex" justifyContent="center" style={{ width: "100%" }}>
                                 
-                                <MDBox display="flex" justifyContent="center" style={{ width: "100%" }}>
-                                  
-                                  <Grid container xs={12} md={12} lg={12} display="flex" justifyContent="center" style={{ width: "100%" }}>
-                                    <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="left" style={{ width: "100%" }}>
-                                      <MDTypography fontSize={18} fontWeight="bold" style={{ color: "white" }}>
-                                        {elem?.jobTitle}
-                                      </MDTypography>
-                                    </Grid>
-            
-                                    <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="left" style={{ width: "100%" }}>
-                                      <MDTypography fontSize={14} style={{ color: "#f4f1bb" }}>
-                                        {elem?.jobType} | {elem?.jobLocation === "WFH" ? "Remote" : "In-Office"} 
-                                      </MDTypography>
-                                    </Grid>
-            
-                                    <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="left" style={{ width: "100%" }}>
-                                      <MDTypography fontWeight='bold' fontSize={12} style={{ color: "white" }}>
-                                       👩🏻‍💻 {(careerApplicationCounts[index])?.toLocaleString()} applicants {elem?.activelyRecruiting === true ? " | 👨‍💼👩‍💼 Actively recruiting" : ""} 
-                                      </MDTypography>
-                                    </Grid>
-            
+                                <Grid container xs={12} md={12} lg={12} display="flex" justifyContent="center" style={{ width: "100%" }}>
+                                  <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="left" style={{ width: "100%" }}>
+                                    <MDTypography fontSize={18} fontWeight="bold" style={{ color: "white" }}>
+                                      {elem?.jobTitle}
+                                    </MDTypography>
                                   </Grid>
-                                </MDBox>
-                              </Grid>
+          
+                                  <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="left" style={{ width: "100%" }}>
+                                    <MDTypography fontSize={14} style={{ color: "#f4f1bb" }}>
+                                      {elem?.jobType} | {elem?.jobLocation === "WFH" ? "Remote" : "In-Office"} 
+                                    </MDTypography>
+                                  </Grid>
+          
+                                  <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="left" style={{ width: "100%" }}>
+                                    <MDTypography fontWeight='bold' fontSize={12} style={{ color: "white" }}>
+                                     👩🏻‍💻 {(careerApplicationCounts[index])?.toLocaleString()} applicants {elem?.activelyRecruiting === true ? " | 👨‍💼👩‍💼 Actively recruiting" : ""} 
+                                    </MDTypography>
+                                  </Grid>
+          
+                                </Grid>
+                              </MDBox>
                             </Grid>
                           </Grid>
-                        </MDButton>
-                      </Tooltip>
-                    </MDBox>
-                  </Grid>
-                )
+                        </Grid>
+                      </MDButton>
+                    </Tooltip>
+                  </MDBox>
+                </Grid>
+              )
+            }
             )
           ) : (
 

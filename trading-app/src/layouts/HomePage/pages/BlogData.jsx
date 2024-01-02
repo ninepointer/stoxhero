@@ -50,6 +50,9 @@ export default function BlogCard() {
 
   useEffect(()=>{
     blogData && fetchDeviceDetail(blogData?._id);
+    blogData && window.webengage.track('blog_reading', {
+      blog_id: blogData?._id
+    })
   }, [blogData])
   const fetchDeviceDetail = async (id)=>{
     const ipData = await axios.get('https://geolocation-db.com/json/');

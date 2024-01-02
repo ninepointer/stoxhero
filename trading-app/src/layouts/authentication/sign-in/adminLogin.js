@@ -159,13 +159,14 @@ function AdminLogin() {
             // this function is extracting data of user who is logged in
             let userData = await userDetail();
 
+            // console.log(userData?._id?.toString(), userData?.email, `+91${userData?.mobile.slice(-10)}`);
+            window.webengage.user.login(userData?._id?.toString());
+            window.webengage.user.setAttribute('logged_in_email', userData?.email);
+            window.webengage.user.setAttribute('logged_in_mobile', `+91${userData?.mobile.slice(-10)}`);
+
             if(userData.role?.roleName === adminRole){
               const from = location.state?.from || "/tenxdashboard";
-              navigate(from);
-              window.webengage.user.login(userData?._id?.toString());
-              window.webengage.user.setAttribute('logged_in_email', userData?.email);
-              window.webengage.user.setAttribute('logged_in_mobile', userData?.mobile);
-      
+              navigate(from);      
             }
             else if(userData.role?.roleName === "data"){
               const from = location.state?.from || "/analytics";
@@ -174,9 +175,6 @@ function AdminLogin() {
             else if(userData.role?.roleName === userRole){
               const from = location.state?.from || "/stoxherodashboard";
               navigate(from,{ state: { showPopup: true } });
-              window.webengage.user.login(userData?._id?.toString());
-              window.webengage.user.setAttribute('logged_in_email', userData?.email);
-              window.webengage.user.setAttribute('logged_in_mobile', userData?.mobile);
       
             }
             else if(userData.role?.roleName === Affiliate){

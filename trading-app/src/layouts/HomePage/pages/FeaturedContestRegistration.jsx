@@ -94,6 +94,8 @@ useEffect(()=>{
         const date = url[3];
         getContestDetails(name,date);
     }
+    window.webengage.track('featuredTestzone_registration_clicked', {
+    })
 },[])
   
 
@@ -112,6 +114,14 @@ const [buttonClicked, setButtonClicked] = useState(false);
       campaignCode,
       mobile_otp,
     } = detail;
+
+    window.webengage.track('featuredTestzone_confirmation_clicked', {
+      campaignCode: campaignCode,
+      referrerCode: referrerCode,
+      contest: contest,
+      mobile: mobile,
+      email: email
+    })
     if(!mobile_otp || !mobile){
       return openSuccessSB("Form Incomplete", "Please fill all the required fields", "Error");
     }

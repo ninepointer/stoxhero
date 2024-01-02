@@ -101,6 +101,7 @@ function Cover(props) {
   };
   const handleSIClick = () => {
     // Set the state to true when the link is clicked
+    window.webengage.track('signup_clicked', {});
     setSignup(true);
   };
 
@@ -226,6 +227,7 @@ function Cover(props) {
 const [buttonClicked, setButtonClicked] = useState(false);
   async function otpConfirmation() {
     // console.log(formstate.email_otp)
+    window.webengage.track('signup_confirmation_clicked', {});
     setButtonClicked(true);
     const res = await fetch(`${baseUrl}api/v1/verifyotp`, {
 
@@ -250,36 +252,24 @@ const [buttonClicked, setButtonClicked] = useState(false);
       setDetails.setUserDetail(data.data);
       setShowConfirmation(false);
       const userData = await userDetail();
+      window.webengage.user.login(userData?._id?.toString());
+      window.webengage.user.setAttribute('logged_in_email', userData?.email);
+      window.webengage.user.setAttribute('logged_in_mobile', `+91${userData?.mobile.slice(-10)}`);
+
       if(userData?.role?.roleName === adminRole){
         const from = location.state?.from || "/tenxdashboard";
-        window.webengage.user.login(userData?._id?.toString());
-        window.webengage.user.setAttribute('logged_in_email', userData?.email);
-        window.webengage.user.setAttribute('logged_in_mobile', userData?.mobile);
-
         navigate(from);
       }
       else if(userData?.role?.roleName === "data"){
         const from = location.state?.from || "/analytics";
-        window.webengage.user.login(userData?._id?.toString());
-        window.webengage.user.setAttribute('logged_in_email', userData?.email);
-        window.webengage.user.setAttribute('logged_in_mobile', userData?.mobile);
-
         navigate(from);
       } 
       else if(userData?.role?.roleName === userRole){
         const from = location.state?.from || "/home";
-        window.webengage.user.login(userData?._id?.toString());
-        window.webengage.user.setAttribute('logged_in_email', userData?.email);
-        window.webengage.user.setAttribute('logged_in_mobile', userData?.mobile);
-
         navigate(from);
       }
       else if(userData?.role?.roleName === Affiliate){
         const from = location.state?.from || "/home";
-        window.webengage.user.login(userData?._id?.toString());
-        window.webengage.user.setAttribute('logged_in_email', userData?.email);
-        window.webengage.user.setAttribute('logged_in_mobile', userData?.mobile);
-
         navigate(from);
       }
 
@@ -293,7 +283,7 @@ const [buttonClicked, setButtonClicked] = useState(false);
   }
 
   const resendOTP = async (type) => {
-    
+    setButtonClicked(false);
       setTimerActive(true);
       setResendTimer(30);
     

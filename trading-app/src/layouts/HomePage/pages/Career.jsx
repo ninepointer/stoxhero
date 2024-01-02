@@ -34,6 +34,7 @@ const App = (props) => {
   useEffect(()=>{
     setCampaignCode(location.search.split('=')[1]??props.location?.search?.split('=')[1]??'');
     ReactGA.pageview(window.location.pathname)
+    window.webengage.track('career_clicked', {})
   },[]);
   return (
     <>

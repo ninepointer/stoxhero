@@ -42,9 +42,10 @@ const LinkButton = ({ children, ...props }) => (
   );
 
 const About = () => {
-    console.log(theme);
     useEffect(()=>{
         ReactGA.pageview(window.location.pathname)
+        window.webengage.track('about_clicked', {
+        })
     })
 
     return (

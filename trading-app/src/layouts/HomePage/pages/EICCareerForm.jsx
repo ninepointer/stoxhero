@@ -127,6 +127,9 @@ const App = (props) => {
       newCourse
     } = detail;
     
+    window.webengage.track('career_confirmation_clicked', {
+      career_id: career 
+    })
     const res = await fetch(`${apiUrl}career/confirmotp`, {
       method: "POST",
       // credentials:"include",

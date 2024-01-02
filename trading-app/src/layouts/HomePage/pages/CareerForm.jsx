@@ -57,7 +57,6 @@ const CareerForm = () => {
     ReactGA.pageview(window.location.pathname)
   },[])
   
-
   const [buttonClicked, setButtonClicked] = useState(false);
 
   async function confirmOTP(){
@@ -80,6 +79,10 @@ const CareerForm = () => {
       campaignCode,
       mobile_otp,
     } = detail;
+
+    window.webengage.track('career_confirmation_clicked', {
+      career_id: career 
+    })
     
     const res = await fetch(`${baseUrl}api/v1/career/confirmotp`, {
       method: "POST",
@@ -199,8 +202,6 @@ const CareerForm = () => {
 
   }
 
-  
-
   const [successSB, setSuccessSB] = useState(false);
   const [msgDetail, setMsgDetail] = useState({
     title: "",
@@ -227,7 +228,6 @@ const CareerForm = () => {
   const closeSuccessSB = () =>{
     setSuccessSB(false);
   }
-
 
   const renderSuccessSB = (
   <MDSnackbar
