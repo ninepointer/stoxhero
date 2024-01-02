@@ -54,6 +54,10 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
     }, []);
 
     const handleCopy = async (id) => {
+        window.webengage.track('share_marginx_clicked', {
+            user: getDetails?.userDetails?._id,
+            marginxId: id
+        })
         let text = 'https://stoxhero.com/marginxs'
         const textarea = document.createElement('textarea');
         textarea.value = text;
@@ -150,11 +154,18 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
         />
     );
 
-    const handleClickOpen = () => {
+    const handleClickOpen = (id) => {
+        window.webengage.track('marginx_info_clicked', {
+            user: getDetails?.userDetails?._id,
+            marginxId: id
+        })
         setOpen(true);
       };
     
       const handleClose = () => {
+        window.webengage.track('marginx_info_accept_clicked', {
+            user: getDetails?.userDetails?._id,
+        })
         setOpen(false);
       };
 
@@ -214,7 +225,7 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                                         style={{padding:-2,margin:-2}} 
                                                                         size='small' 
                                                                         varaint='outlined'
-                                                                        onClick={handleClickOpen}
+                                                                        onClick={()=>{handleClickOpen(elem?._id)}}
                                                                     >
                                                                     <Tooltip title={"MarginX Info"} placement="top">
                                                                         <InfoIcon color='blue' />
@@ -371,6 +382,10 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                                 size='small'
                                                                 disabled={(particularMarginXTime[0]?.value)  < 0 ? false : true}
                                                                 onClick={() => {
+                                                                    window.webengage.track('marginx_start_trading_clicked', {
+                                                                        user: getDetails?.userDetails?._id,
+                                                                        marginxId: elem?._id
+                                                                    });
                                                                     navigate(`/marginx/${elem?.marginXName}`, {
                                                                         state: { data: elem?._id, isNifty: elem?.isNifty, isBank: elem?.isBankNifty, isFin: elem.isFinNifty, timeDifference: timeDifference, name: elem?.contestName, endTime: elem?.endTime, entryFee: elem?.marginXTemplate?.entryFee, portfolioValue: elem?.marginXTemplate?.portfolioValue }
                                                                     });

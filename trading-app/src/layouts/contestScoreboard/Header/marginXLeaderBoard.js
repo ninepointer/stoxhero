@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from "axios";
 import ReactGA from "react-ga"
 import {
@@ -9,29 +9,30 @@ import {
   CircularProgress,
 } from '@mui/material';
 
-import {Grid} from '@mui/material'
+// import {Grid} from '@mui/material'
 import MDTypography from '../../../components/MDTypography';
 import MDBox from '../../../components/MDBox';
-import MDAvatar from '../../../components/MDAvatar';
+// import MDAvatar from '../../../components/MDAvatar';
 import logo from '../../../assets/images/logo1.jpeg'
+import { userContext } from '../../../AuthContext';
 
 const Scoreboard = () => {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  const [sortedTraders, setSortedTraders] = useState([]);
+  // const [sortedTraders, setSortedTraders] = useState([]);
   const [traders, setTraders] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  function convertName(name){
-    // const name = 'SARTHAK SINGHAL';
+  const getDetails = useContext(userContext);
+  // function convertName(name){
+  //   // const name = 'SARTHAK SINGHAL';
   
-    const cname = name
-      .toLowerCase()
-      .split(' ')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+  //   const cname = name
+  //     .toLowerCase()
+  //     .split(' ')
+  //     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+  //     .join(' ');
   
-    return cname;
-  };
+  //   return cname;
+  // };
 
   useEffect(()=>{
     setIsLoading(true)
@@ -58,6 +59,10 @@ const Scoreboard = () => {
       console.error(error);
       setIsLoading(true)
     });
+
+    window.webengage.track('marginx_leaderboard_clicked', {
+      user: getDetails?.userDetails?._id,
+  });
   },[])
 
   return (

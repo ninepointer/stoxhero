@@ -1,4 +1,4 @@
-import React, {memo, useEffect, useState} from 'react';
+import React, {memo, useContext, useEffect, useState} from 'react';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import Dialog from '@mui/material/Dialog';
@@ -23,11 +23,13 @@ import {apiUrl} from '../../../constants/constants';
 import MDSnackbar from '../../../components/MDSnackbar';
 import Checkbox from '@mui/material/Checkbox';
 import Input from '@mui/material/Input';
+import { userContext } from '../../../AuthContext';
 
 
 const ariaLabel = { 'aria-label': 'description' };
 
 const Payment = ({ elem, setShowPay, showPay }) => {
+  const getDetails = useContext(userContext)
   const [open, setOpen] = React.useState(false);
   const [userWallet, setUserWallet] = useState(0);
   const [bonusBalance, setBonusBalance] = useState(0);
@@ -155,6 +157,11 @@ const Payment = ({ elem, setShowPay, showPay }) => {
   }, [open])
 
   const handleClickOpen = () => {
+    window.webengage.track('testzone_payment_clicked', {
+      user: getDetails?.userDetails?._id,
+      contestId: elem?._id,
+      amount: amount
+    })
     setOpen(true);
   };
 
@@ -182,8 +189,19 @@ const Payment = ({ elem, setShowPay, showPay }) => {
 
   const buySubscription = async () => {
     if (userWallet < Number(amount - discountAmount - bonusRedemption)) {
+      window.webengage.track('testzone_payment_low_balance', {
+        user: getDetails?.userDetails?._id,
+        contestId: elem?._id,
+        walletBalance: userWallet,
+        amount: Number(amount - discountAmount - bonusRedemption)
+      })
       return openErrorSB('Low Balance', 'You don\'t have enough wallet balance for this purchase.');
     }
+    window.webengage.track('testzone_payment_process_clicked', {
+      user: getDetails?.userDetails?._id,
+      contestId: elem?._id,
+      amount: Number(amount - discountAmount - bonusRedemption)
+    })
     const res = await fetch(`${baseUrl}api/v1/dailycontest/feededuct`, {
       method: "PATCH",
       credentials: "include",

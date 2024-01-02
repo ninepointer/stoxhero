@@ -1,4 +1,4 @@
-import React, {useState } from "react";
+import React, {useContext, useState } from "react";
 import { memo } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -11,6 +11,7 @@ import MDButton from '../../../components/MDButton';
 import MDBox from "../../../components/MDBox";
 import MDTypography from "../../../components/MDTypography";
 import { Button } from "@mui/material";
+import { userContext } from "../../../AuthContext";
 
 
 const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedState, setIsInterestedState }) => {
@@ -19,7 +20,7 @@ const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedS
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
     const [showThanksMessage, setShowThanksMessage] = useState(false);
-
+    const getDetails = useContext(userContext);
 
     const handleClose = async (e) => {
         setOpen(false);
@@ -37,7 +38,10 @@ const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedS
         }));
     
         setShowThanksMessage(true); 
-  
+        window.webengage.track('testzone_get_notified_clicked', {
+            user: getDetails?.userDetails?._id,
+            contestId: id
+        })
         const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${id}/register`, {
             method: "PUT",
             credentials:"include",

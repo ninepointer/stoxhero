@@ -126,6 +126,10 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
     setButtonClicked(false);
     // await checkMargin();
     setMargin("0.00")
+    window.webengage.track('exit_clicked', {
+      user: getDetails?.userDetails?._id,
+      instrument_token: instrumentToken,
+    })
     exitPositionFormDetails.Quantity = ((Math.abs(quantity) > maxLot) ? maxLot : Math.abs(quantity));
     setFilledQuantity((Math.abs(quantity) > maxLot) ? maxLot : Math.abs(quantity));
     setOpen(true);
@@ -203,7 +207,12 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
   async function placeOrder() {
 
     const { exchange, symbol, buyOrSell, Quantity, Price, Product, order_type, TriggerPrice, stopLoss, validity, variety } = exitPositionFormDetails;
-
+    window.webengage.track('exit_process_order_clicked', {
+      user: getDetails?.userDetails?._id,
+      instrument_token: instrumentToken,
+      quantity: Quantity,
+      exchange: exchange,
+    })
     let endPoint
     let paperTrade = false;
     let tenxTraderPath;
@@ -363,6 +372,9 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
   }
 
   const checkMargin = async()=>{
+    window.webengage.track('exit_margin_clicked', {
+      user: getDetails?.userDetails?._id
+    })
     const { Product, validity, variety, price } = exitPositionFormDetails;
     const response = await fetch(`${baseUrl}api/v1/marginrequired`, {
       method: "PATCH",
@@ -416,7 +428,10 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
     setErrorMessageQuantity("")
   }
 
-  function notAvailable(){
+  function notAvailable(value){
+    window.webengage.track(`exit_${value}_clicked`, {
+      user: getDetails?.userDetails?._id,
+    });
     openSuccessSB('notAvailable', "This feature is not available on stoxhero currently.");
   }
 
@@ -469,7 +484,7 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
                 <MDBox sx={{backgroundColor: "#FB8C00", color: "#ffffff", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}>
                   Intraday (Same day)
                 </MDBox>
-                <MDBox onClick={notAvailable} sx={{color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
+                <MDBox onClick={()=>{notAvailable("Delivery")}} sx={{color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
                   Delivery (Longterm)
                 </MDBox>
               </MDBox>
@@ -508,11 +523,11 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
                   Day
                 </MDBox>
 
-                <MDBox onClick={notAvailable} sx={{color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
+                <MDBox onClick={()=>{notAvailable("Immediate")}} sx={{color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
                   Immediate
                 </MDBox>
 
-                <MDBox onClick={notAvailable} sx={{color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
+                <MDBox onClick={()=>{notAvailable("Minute")}} sx={{color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
                  Minute
                 </MDBox>
               </MDBox>

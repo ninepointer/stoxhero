@@ -7,10 +7,12 @@ import MDTypography from "../../../components/MDTypography";
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import { userContext } from "../../../AuthContext";
 
 
 function Performance({tradingData, tradeType, setTradeType, timeframe, setTimeframe}) {
     const currentDate = new Date();
+    const getDetails = useContext(userContext)
     // Get current month as "Jun 23, 2023"
     const currentMonth = currentDate.toLocaleString('en-us', {
         month: 'short',
@@ -38,6 +40,7 @@ function Performance({tradingData, tradeType, setTradeType, timeframe, setTimefr
     
     const handleChange = (event) => {
         setTrading(event.target.value);
+
         let tradingTypeValue;
         if(event.target.value == 'Virtual Trading'){
             tradingTypeValue = 'virtual'
@@ -46,11 +49,17 @@ function Performance({tradingData, tradeType, setTradeType, timeframe, setTimefr
         }else{
             tradingTypeValue = 'contest'
         }
+        window.webengage.track('performance_category_selection', {
+            category: tradingTypeValue,
+            timeframe: timeframe,
+            user: getDetails?.userDetails?._id
+        })
         setTradeType(tradingTypeValue);
     };
     
   const handleChange1 = (event) => {
     setMonthYear(event.target.value);
+
     let timeframeValue;
     if(event.target.value == currentMonth){
         timeframeValue = 'this month'
@@ -61,6 +70,11 @@ function Performance({tradingData, tradeType, setTradeType, timeframe, setTimefr
     }else{
         timeframeValue = 'lifetime'
     }
+    window.webengage.track('performance_category_selection', {
+        category: tradeType,
+        timeframe: timeframeValue,
+        user: getDetails?.userDetails?._id
+    })
     setTimeframe(timeframeValue);
   };
 

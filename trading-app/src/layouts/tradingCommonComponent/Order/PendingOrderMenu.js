@@ -9,13 +9,14 @@ import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import { apiUrl } from '../../../constants/constants';
 import EditPriceModal from './editPriceModal';
 import { renderContext } from '../../../renderContext';
+import { userContext } from '../../../AuthContext';
 
 
 export default function AccountMenu({id, setUpdate, lots, symbol, type, buyOrSell, ltp, from}) {
   const [anchorEl, setAnchorEl] = useState(null);
   const { render, setRender } = useContext(renderContext);
   const open = Boolean(anchorEl);
-
+  const getDetails = useContext(userContext);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -25,6 +26,9 @@ export default function AccountMenu({id, setUpdate, lots, symbol, type, buyOrSel
   };
 
   const cancelOrder = async () => {
+    window.webengage.track('cancel_order_clicked', {
+      user: getDetails?.userDetails?._id,
+    })
     const res = await fetch(`${apiUrl}pendingorder/${id}/${from}`, {
         method: "PATCH",
         credentials: "include",

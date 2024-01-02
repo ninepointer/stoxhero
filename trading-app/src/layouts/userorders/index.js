@@ -15,14 +15,18 @@ import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
 import DataTable from "../../examples/Tables/DataTable";
 import Header from "./Header";
+import { userContext } from "../../AuthContext";
 
 // Data
 
 function UserOrders() {
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
-
+  const getDetails = useContext(userContext);
   useEffect(() => {
+    window.webengage.track('order_tab_clicked', {
+      user: getDetails?.userDetails?._id,
+    });
     ReactGA.pageview(window.location.pathname)
     capturePageView()
   }, []);

@@ -30,8 +30,11 @@ function UserPosition() {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   
   useEffect(() => {
-    ReactGA.pageview(window.location.pathname)
-    capturePageView()
+    ReactGA.pageview(window.location.pathname);
+    capturePageView();
+    window.webengage.track('virtual_trade_clicked', {
+      user: getDetails?.userDetails?._id
+    })
   }, []);
   let page = 'VirtualTrading'
   let pageLink = window.location.pathname;

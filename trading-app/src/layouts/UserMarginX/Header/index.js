@@ -1,4 +1,4 @@
-import { React, useEffect } from "react";
+import { React, useContext, useEffect } from "react";
 // import axios from "axios";
 // import { userContext } from '../../../AuthContext';
 import ReactGA from "react-ga"
@@ -13,16 +13,22 @@ import MDBox from "../../../components/MDBox";
 
 import MarginXHeader from './marginXHeader'
 import MarginXs from './marginXs'
+import { userContext } from "../../../AuthContext";
 
 
 function Header() {
   
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  
+  const getDetails = useContext(userContext);
+
   useEffect(() => {
-    ReactGA.pageview(window.location.pathname)
+    ReactGA.pageview(window.location.pathname);
+    window.webengage.track('marginx_tab_clicked', {
+      user: getDetails?.userDetails?._id,
+    })
     capturePageView()
   }, []);
+  
   let page = 'MarginX'
   let pageLink = window.location.pathname
   async function capturePageView(){

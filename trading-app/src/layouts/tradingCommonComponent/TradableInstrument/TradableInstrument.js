@@ -119,6 +119,10 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
 
     setTimeoutId(
       setTimeout(() => {
+        window.webengage.track('search_instrument_clicked', {
+          user: getDetails?.userDetails?._id,
+          searchString: value
+        })
         sendRequest(value);
       }, 400)
     );
@@ -188,6 +192,10 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
 
     dispatch({ type: 'setInstrumentName', payload: `${strike} ${instrument_type}` });
     if(addOrRemove === "Add"){
+      window.webengage.track('instrument_add_clicked', {
+        user: getDetails?.userDetails?._id,
+        instrument_token: instrumentData
+      })
       dispatch({ type: 'setAddOrRemoveCheckTrue', payload: true });
       const res = await fetch(`${baseUrl}api/v1/addInstrument`, {
         method: "POST",
@@ -214,7 +222,10 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
       
     } else{
       dispatch({ type: 'setAddOrRemoveCheckFalse', payload: false });
-
+      window.webengage.track('instrument_remove_clicked', {
+        user: getDetails?.userDetails?._id,
+        instrument_token: instrumentData
+      })
       // setAddOrRemoveCheck(false);
       const response = await fetch(`${baseUrl}api/v1/inactiveInstrument/${instrument_token}`, {
         method: "PATCH",
@@ -261,12 +272,18 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
   );
 
   const handleSellClick = (index) => {
+    window.webengage.track('sell_clicked_from_searchInstrument', {
+      user: getDetails?.userDetails?._id
+    })
     setSellState(true)
     const newRows = [...state.instrumentsData];
     newRows[index].sellState = true;
     state.instrumentsData = (newRows);
   };
   const handleBuyClick = (index) => {
+    window.webengage.track('buy_clicked_from_searchInstrument', {
+      user: getDetails?.userDetails?._id
+    })
     setBuyState(true)
     const newRows = [...state.instrumentsData];
     newRows[index].sellState = true;

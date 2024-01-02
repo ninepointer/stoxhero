@@ -42,6 +42,10 @@ function Header({toggleContest, setToggleContest, contest, socket, setIsInterest
     const [isInterestedState, setIsInterestedState] = useState(initialInterestedCounts);
 
     const handleCopy = async (id) => {
+        window.webengage.track('testzone_share_clicked_in_free', {
+            user: getDetails?.userDetails?._id,
+            contestId: id
+        })
         let text = 'https://stoxhero.com/testzone'
         const textarea = document.createElement('textarea');
         textarea.value = text;

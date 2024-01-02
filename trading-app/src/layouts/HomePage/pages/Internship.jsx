@@ -50,10 +50,7 @@ const Internship = ({campaignCode}) => {
         <>
           {career.length > 0 ? (
             career.map((elem, index) => {
-              window.webengage.track('career_selection', {
-                career_name: elem?.jobTitle,
-                career_id: elem?._id 
-              })
+
               return (
                 <Grid key={elem._id} item xs={12} md={12} lg={12}>
                   <MDBox style={{ borderRadius: 4 }}>
@@ -64,6 +61,10 @@ const Internship = ({campaignCode}) => {
                         size="small"
                         style={{minWidth: "100%", backgroundColor:'#315c45', color:'white'}}
                         component={Link}
+                        onClick={window.webengage.track('career_selection', {
+                          career_name: elem?.jobTitle,
+                          career_id: elem?._id 
+                        })}
                         to={{
                           pathname: `/careers/${elem?.jobTitle}/jobdescription`,
                         }}

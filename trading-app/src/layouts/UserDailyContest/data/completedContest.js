@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 // import ReactGA from "react-ga"
 import { CircularProgress, Divider, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
@@ -10,14 +10,19 @@ import PaidContest from "../Header/completedContest/paidCompeted";
 // import MDButton from '../../../components/MDButton';
 // import { Link } from "react-router-dom"
 import axios from "axios";
+import { userContext } from '../../../AuthContext';
 
 export default function LabTabs() {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [isLoading, setIsLoading] = useState(false);
     const [contest, setContest] = useState([]);
+    const getDetails = useContext(userContext);
 
     useEffect(() => {
         setIsLoading(true)
+        window.webengage.track('completed_testzone_clicked', {
+            user: getDetails?.userDetails?._id,
+        })
         axios.get(`${baseUrl}api/v1/dailycontest/contests/completed`, {
             withCredentials: true,
             headers: {
@@ -26,16 +31,16 @@ export default function LabTabs() {
                 "Access-Control-Allow-Credentials": true
             },
         })
-        .then((res) => {
-            setContest(res.data.data);
-            setTimeout(()=>{
+            .then((res) => {
+                setContest(res.data.data);
+                setTimeout(() => {
+                    setIsLoading(false)
+                }, 1000)
+
+            }).catch((err) => {
                 setIsLoading(false)
-            },1000)
-            
-        }).catch((err) => {
-            setIsLoading(false)
-            return new Error(err);
-        })
+                return new Error(err);
+            })
     }, [])
 
     return (

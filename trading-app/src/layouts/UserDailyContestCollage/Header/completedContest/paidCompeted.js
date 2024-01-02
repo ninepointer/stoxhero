@@ -10,6 +10,7 @@ import WinnerImage from '../../../../assets/images/cup-image.png'
 import { Link, useNavigate } from "react-router-dom";
 import DownloadIcon from '@mui/icons-material/Download';
 import RewardTable from "../../../UserDailyContest/Header/rulesAndRewardTable";
+import { userContext } from "../../../../AuthContext";
 
 
 
@@ -19,6 +20,7 @@ function Header({ contest }) {
     const [loading, setIsLoading] = useState(true);
     let [pnlData, setPnlData] = useState([]);
     const navigate = useNavigate();
+    const getDetails = useContext(userContext);
 
     useEffect(() => {
         if (serverTime) {
@@ -49,13 +51,17 @@ function Header({ contest }) {
             })
     }, [])
     const handleDownload = async (id) => {
+        window.webengage.track('college_testzone_certificate_clicked', {
+            user: getDetails?.userDetails?._id,
+            contestId: id
+        })
         try {
           const response = await axios.get(`${baseUrl}api/v1/dailycontest/download/${id}`, {
             responseType: 'blob',
             withCredentials: true
           });
-            console.log(response.data);
-            console.log(response.data.size, response.data.type);
+            // console.log(response.data);
+            // console.log(response.data.size, response.data.type);
             const blob = new Blob([response.data], { type: 'application/pdf' });
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -109,10 +115,11 @@ function Header({ contest }) {
 
     }
 
-
-
     async function handleNavigate(id, name) {
-
+        window.webengage.track('college_testzone_order_in_completed_clicked', {
+            user: getDetails?.userDetails?._id,
+            contestId: id
+        })
         axios.get(`${baseUrl}api/v1/dailycontest/trade/${id}/my/todayorders`, {
             withCredentials: true,
             headers: {
@@ -135,7 +142,10 @@ function Header({ contest }) {
     }
 
     async function handleLeaderboardNavigate(id, name) {
-
+        window.webengage.track('college_testzone_leaderboard_in_completed_clicked', {
+            user: getDetails?.userDetails?._id,
+            contestId: id
+        })
         axios.get(`${baseUrl}api/v1/dailycontest/contestleaderboard/${id}`, {
             withCredentials: true,
             headers: {

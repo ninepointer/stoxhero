@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 // import ReactGA from "react-ga"
 import { CircularProgress, Divider, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
@@ -7,17 +7,22 @@ import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
 import FreeContest from "../Header/completedContest/freeCompleted";
 import PaidContest from "../Header/completedContest/paidCompeted";
-import MDButton from '../../../components/MDButton';
-import { Link } from "react-router-dom"
+// import MDButton from '../../../components/MDButton';
+// import { Link } from "react-router-dom"
 import axios from "axios";
+import { userContext } from '../../../AuthContext';
 
 export default function LabTabs() {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [isLoading, setIsLoading] = useState(false);
     const [contest, setContest] = useState([]);
+    const getDetails = useContext(userContext);
 
     useEffect(() => {
-        setIsLoading(true)
+        setIsLoading(true);
+        window.webengage.track('college_completed_testzone_clicked', {
+            user: getDetails?.userDetails?._id,
+        })
         axios.get(`${baseUrl}api/v1/dailycontest/contests/collegecompleted`, {
             withCredentials: true,
             headers: {

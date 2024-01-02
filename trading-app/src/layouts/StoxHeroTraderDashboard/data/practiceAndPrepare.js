@@ -17,6 +17,7 @@ import market from "../../../assets/images/market.png";
 import { useNavigate } from 'react-router-dom';
 import { Link, useLocation } from "react-router-dom";
 import { useMediaQuery, makeStyles } from '@material-ui/core';
+import { userContext } from "../../../AuthContext";
 
 const useStyles = makeStyles((theme) => ({
     container: {
@@ -27,135 +28,143 @@ const useStyles = makeStyles((theme) => ({
     },
   }));
 
-function Summary({lastPaidContests, lastContestDate}) {
-    console.log(lastPaidContests)
-    const navigate = useNavigate();
-    function TruncatedName(name) {
-        const originalName = name;
-        const convertedName = originalName
-          .toLowerCase() // Convert the entire name to lowercase
-          .split(' ') // Split the name into words
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
-          .join(' '); // Join the words back together with a space
+function Summary() {
+    // console.log(lastPaidContests)
+    // const navigate = useNavigate();
+    // function TruncatedName(name) {
+    //     const originalName = name;
+    //     const convertedName = originalName
+    //       .toLowerCase() // Convert the entire name to lowercase
+    //       .split(' ') // Split the name into words
+    //       .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
+    //       .join(' '); // Join the words back together with a space
       
-        // Trim the name to a maximum of 30 characters
-        const truncatedName = convertedName.length > 20 ? convertedName.substring(0, 20) + '...' : convertedName;
+    //     // Trim the name to a maximum of 30 characters
+    //     const truncatedName = convertedName.length > 20 ? convertedName.substring(0, 20) + '...' : convertedName;
       
-        return truncatedName;
-      }
+    //     return truncatedName;
+    //   }
 
-      function formattedDate(date) {
+    //   function formattedDate(date) {
 
-        const formattedDate = new Date(date).toLocaleDateString('en-GB', {
-            day: 'numeric',
-            month: 'short',
-          });
+    //     const formattedDate = new Date(date).toLocaleDateString('en-GB', {
+    //         day: 'numeric',
+    //         month: 'short',
+    //       });
       
-        return formattedDate;
-      }
+    //     return formattedDate;
+    //   }
 
-  return (
-    <MDBox bgColor="light" minHeight='auto'>
-        <Grid container mt={.5} mb={.5} display='flex' justifyContent='center' alignItems='center'>
-            <Grid item xs={12} md={12} lg={12}>
+    const getDetails = useContext(userContext)
+
+    return (
+        <MDBox bgColor="light" minHeight='auto'>
+            <Grid container mt={.5} mb={.5} display='flex' justifyContent='center' alignItems='center'>
+                <Grid item xs={12} md={12} lg={12}>
                     <Grid container spacing={1} xs={12} md={12} lg={12} sx={{ minWidth: '100%' }} display='flex' justifyContent='center' alignItems='center'>
-                            <Grid item xs={12} md={3} lg={3} sx={{ minWidth: '100%' }}>
-                            <Card style={{backgroundColor:'rgb(49, 92, 69)'}} sx={{ minWidth: '100%' }}>
-                            <CardContent>
-                            <Grid container xs={12} md={12} lg={12} mt={2} sx={{ minWidth: '100%' }} display='flex' justifyContent='center' alignItems='center'>
-                                <Grid item xs={12} md={4} lg={4} p={1} style={{backgroundColor:'rgb(49, 92, 69)'}} display='flex' justifyContent='flex-start' alignItems='center' alignContent='center'>
-                                    <Grid container xs={12} md={12} lg={12}>
-                                    <Grid item xs={12} md={12} lg={12}>
-                                    <MDTypography color='light' fontSize={15} fontWeight='bold'>
-                                        Practice And Prepare for Stock Market
-                                    </MDTypography>
-                                    </Grid>
-                                    <Grid item xs={12} md={12} lg={12}>
-                                        <img src={trading} width={200}/>
-                                    </Grid>
-                                    <Grid item xs={12} md={12} lg={12}>
-                                    <MDTypography color='light' fontSize={12}>
-                                        Start your trading learning journey by participating in different TestZones and Virtual Trading!
-                                    </MDTypography>
-                                    </Grid>
-                                    </Grid>
-                                </Grid>
-
-                                <Grid item xs={12} md={4} lg={4} p={1} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
-                                    <Card style={{background:'linear-gradient(195deg, #66BB6A, #43A047)'}} sx={{ minWidth: '100%', minHeight: '20vH' }}>
-                                    <MDButton 
-                                        style={{background:'linear-gradient(195deg, #66BB6A, #43A047)'}} 
-                                        sx={{ minWidth: '100%', minHeight: '20vH' }}
-                                        component = {Link}
-                                        to={{
-                                            pathname: `/testzone`,
-                                        }}
-                                    >
-                                        <CardContent>
-                                        <Grid container xs={12} md={12} lg={12} mt={2} sx={{ minWidth: '100%' }} display='flex' justifyContent='center' alignItems='center'>
-                                            <Grid item xs={12} md={12} lg={12} p={1} display='flex' justifyContent='flex-start' alignItems='center' alignContent='center'>
-                                                <Grid container xs={12} md={12} lg={12}>
+                        <Grid item xs={12} md={3} lg={3} sx={{ minWidth: '100%' }}>
+                            <Card style={{ backgroundColor: 'rgb(49, 92, 69)' }} sx={{ minWidth: '100%' }}>
+                                <CardContent>
+                                    <Grid container xs={12} md={12} lg={12} mt={2} sx={{ minWidth: '100%' }} display='flex' justifyContent='center' alignItems='center'>
+                                        <Grid item xs={12} md={4} lg={4} p={1} style={{ backgroundColor: 'rgb(49, 92, 69)' }} display='flex' justifyContent='flex-start' alignItems='center' alignContent='center'>
+                                            <Grid container xs={12} md={12} lg={12}>
                                                 <Grid item xs={12} md={12} lg={12}>
-                                                    <img src={testzone} width={100}/>
+                                                    <MDTypography color='light' fontSize={15} fontWeight='bold'>
+                                                        Practice And Prepare for Stock Market
+                                                    </MDTypography>
                                                 </Grid>
                                                 <Grid item xs={12} md={12} lg={12}>
-                                                <MDTypography color='light' fontSize={15} fontWeight='bold'>
-                                                    Join TestZone
-                                                </MDTypography>
+                                                    <img src={trading} width={200} />
                                                 </Grid>
-                                                <Grid container xs={12} md={12} lg={12}>
-                                                <MDTypography color='light' fontSize={12}>
-                                                    Join different TestZones and test your F&O strategies and earn cash rewards when your strategies work.
-                                                </MDTypography>
-                                                </Grid>
+                                                <Grid item xs={12} md={12} lg={12}>
+                                                    <MDTypography color='light' fontSize={12}>
+                                                        Start your trading learning journey by participating in different TestZones and Virtual Trading!
+                                                    </MDTypography>
                                                 </Grid>
                                             </Grid>
                                         </Grid>
-                                        </CardContent>
-                                    </MDButton>
-                                    </Card>
-                                </Grid>
 
-                                <Grid item xs={12} md={4} lg={4} p={1} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
-                                    
-                                    <Card style={{background:'linear-gradient(195deg, #66BB6A, #43A047)'}} sx={{ minWidth: '100%', minHeight: '20vH' }}>
-                                    <MDButton 
-                                        style={{background:'linear-gradient(195deg, #66BB6A, #43A047)'}} 
-                                        sx={{ minWidth: '100%', minHeight: '20vH' }}
-                                        component = {Link}
-                                        to={{
-                                            pathname: `/market`,
-                                        }}
-                                    >
-                                        <CardContent>
-                                        <Grid container xs={12} md={12} lg={12} mt={2} sx={{ minWidth: '100%' }} display='flex' justifyContent='center' alignItems='center'>
-                                            <Grid item xs={12} md={12} lg={12} p={1} display='flex' justifyContent='flex-start' alignItems='center' alignContent='center'>
-                                                <Grid container xs={12} md={12} lg={12}>
-                                                <Grid item xs={12} md={12} lg={12}>
-                                                    <img src={market} width={100}/>
-                                                </Grid>
-                                                <Grid item xs={12} md={12} lg={12}>
-                                                <MDTypography color='light' fontSize={15} fontWeight='bold'>
-                                                    Practice F&O
-                                                </MDTypography>
-                                                </Grid>
-                                                <Grid container xs={12} md={12} lg={12}>
-                                                <MDTypography color='light' fontSize={12}>
-                                                    Practice F&O trading in a virtual environment with real-time market data with a virtual currency of ₹10,00,000
-                                                </MDTypography>
-                                                </Grid>
-                                                </Grid>
-                                            </Grid>
+                                        <Grid item xs={12} md={4} lg={4} p={1} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
+                                            <Card style={{ background: 'linear-gradient(195deg, #66BB6A, #43A047)' }} sx={{ minWidth: '100%', minHeight: '20vH' }}>
+                                                <MDButton
+                                                    style={{ background: 'linear-gradient(195deg, #66BB6A, #43A047)' }}
+                                                    sx={{ minWidth: '100%', minHeight: '20vH' }}
+                                                    component={Link}
+                                                    onClick={window.webengage.track('join_testzone_clicked', {
+                                                        user: getDetails?.userDetails?._id
+                                                    })}
+                                                    to={{
+                                                        pathname: `/testzone`,
+                                                    }}
+                                                >
+                                                    <CardContent>
+                                                        <Grid container xs={12} md={12} lg={12} mt={2} sx={{ minWidth: '100%' }} display='flex' justifyContent='center' alignItems='center'>
+                                                            <Grid item xs={12} md={12} lg={12} p={1} display='flex' justifyContent='flex-start' alignItems='center' alignContent='center'>
+                                                                <Grid container xs={12} md={12} lg={12}>
+                                                                    <Grid item xs={12} md={12} lg={12}>
+                                                                        <img src={testzone} width={100} />
+                                                                    </Grid>
+                                                                    <Grid item xs={12} md={12} lg={12}>
+                                                                        <MDTypography color='light' fontSize={15} fontWeight='bold'>
+                                                                            Join TestZone
+                                                                        </MDTypography>
+                                                                    </Grid>
+                                                                    <Grid container xs={12} md={12} lg={12}>
+                                                                        <MDTypography color='light' fontSize={12}>
+                                                                            Join different TestZones and test your F&O strategies and earn cash rewards when your strategies work.
+                                                                        </MDTypography>
+                                                                    </Grid>
+                                                                </Grid>
+                                                            </Grid>
+                                                        </Grid>
+                                                    </CardContent>
+                                                </MDButton>
+                                            </Card>
                                         </Grid>
-                                        </CardContent>
-                                    </MDButton>
-                                    </Card>
-                                    
-                                </Grid>
-                            </Grid>
 
-                            </CardContent>
-                            {/* <CardActions>
+                                        <Grid item xs={12} md={4} lg={4} p={1} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
+
+                                            <Card style={{ background: 'linear-gradient(195deg, #66BB6A, #43A047)' }} sx={{ minWidth: '100%', minHeight: '20vH' }}>
+                                                <MDButton
+                                                    style={{ background: 'linear-gradient(195deg, #66BB6A, #43A047)' }}
+                                                    sx={{ minWidth: '100%', minHeight: '20vH' }}
+                                                    component={Link}
+                                                    onClick={window.webengage.track('practice_market_clicked', {
+                                                        user: getDetails?.userDetails?._id
+                                                    })}
+                                                    to={{
+                                                        pathname: `/market`,
+                                                    }}
+                                                >
+                                                    <CardContent>
+                                                        <Grid container xs={12} md={12} lg={12} mt={2} sx={{ minWidth: '100%' }} display='flex' justifyContent='center' alignItems='center'>
+                                                            <Grid item xs={12} md={12} lg={12} p={1} display='flex' justifyContent='flex-start' alignItems='center' alignContent='center'>
+                                                                <Grid container xs={12} md={12} lg={12}>
+                                                                    <Grid item xs={12} md={12} lg={12}>
+                                                                        <img src={market} width={100} />
+                                                                    </Grid>
+                                                                    <Grid item xs={12} md={12} lg={12}>
+                                                                        <MDTypography color='light' fontSize={15} fontWeight='bold'>
+                                                                            Practice F&O
+                                                                        </MDTypography>
+                                                                    </Grid>
+                                                                    <Grid container xs={12} md={12} lg={12}>
+                                                                        <MDTypography color='light' fontSize={12}>
+                                                                            Practice F&O trading in a virtual environment with real-time market data with a virtual currency of ₹10,00,000
+                                                                        </MDTypography>
+                                                                    </Grid>
+                                                                </Grid>
+                                                            </Grid>
+                                                        </Grid>
+                                                    </CardContent>
+                                                </MDButton>
+                                            </Card>
+
+                                        </Grid>
+                                    </Grid>
+
+                                </CardContent>
+                                {/* <CardActions>
                                 <Grid container xs={12} md={12} lg={12} mt={-2} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
                                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
                                         <MDButton 
@@ -173,13 +182,13 @@ function Summary({lastPaidContests, lastContestDate}) {
                                 </Grid>
                             </CardActions> */}
                             </Card>
-                            </Grid>
-                       
+                        </Grid>
+
                     </Grid>
+                </Grid>
             </Grid>
-        </Grid>
-    </MDBox>
-)
+        </MDBox>
+    )
 }
 
 export default Summary;

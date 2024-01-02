@@ -29,7 +29,7 @@ import ScreenshotMonitorIcon from '@mui/icons-material/ScreenshotMonitor';
 function Header({ marginX }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     // const [timeDifference, setTimeDifference] = useState([]);
-    // const getDetails = useContext(userContext);
+    const getDetails = useContext(userContext);
     const navigate = useNavigate();
     const [showDownloadButton, setShowDownloadButton] = useState(true);
 
@@ -40,7 +40,11 @@ function Header({ marginX }) {
     }, []);
 
     async function handleNavigate(id, name) {
-        console.log("Details MarginX:", id, name)
+        // console.log("Details MarginX:", id, name)
+        window.webengage.track('completed_marginx_order_clicked', {
+            user: getDetails?.userDetails?._id,
+            marginxId: id
+        });
         axios.get(`${baseUrl}api/v1/marginxtrade/${id}/my/allorders`, {
             withCredentials: true,
             headers: {
@@ -63,6 +67,10 @@ function Header({ marginX }) {
     }
 
     const captureScreenshot = (id, name) => {
+        window.webengage.track('screenshot_captured_marginx_clicked', {
+            user: getDetails?.userDetails?._id,
+            marginxId: id
+        });
         const screenshotElement = document.getElementById(id);
         setTimeout(() => {
             setShowDownloadButton(false)
@@ -81,7 +89,6 @@ function Header({ marginX }) {
         }, 500)
 
     };
-
 
     function changeDateFormat(givenDate) {
 
@@ -296,7 +303,12 @@ function Header({ marginX }) {
                                                             </MDButton>
                                                         </Grid>
                                                         <Grid item xs={4} md={4} lg={4} display='flex' justifyContent='center' alignItems='center'>
-                                                            <MDButton style={{ minWidth: '95%', fontSize: 10 }} size='small' color='warning'>Share P&L</MDButton>
+                                                            <MDButton style={{ minWidth: '95%', fontSize: 10 }} size='small' color='warning' onClick={
+                                                               ()=>{  window.webengage.track('marginx_sharepnl_clicked', {
+                                                                user: getDetails?.userDetails?._id,
+                                                                marginxId: elem?._id
+                                                            })}
+                                                            }>Share P&L</MDButton>
                                                         </Grid>
                                                         <Grid item xs={4} md={4} lg={4} display='flex' justifyContent='center' alignItems='center'>
                                                             <MDButton

@@ -36,11 +36,15 @@ function Header() {
     const getDetails = useContext(userContext);
     let [showPay, setShowPay] = useState(true)
     const [isLoading,setIsLoading] = useState(true);
-    console.log("isLoading",isLoading)
+    // console.log("isLoading",isLoading)
     const getMarginXDetails = async (name, date) => {
         try {
             const res = await axios.get(`${apiUrl}marginxs/findbyname?name=${name}&date=${date}`, { withCredentials: true });
             setMarginXDetails(res?.data?.data);
+            window.webengage.track('marginx_view_details_clicked', {
+                user: getDetails?.userDetails?._id,
+                marginxId: res?.data?.data?._id
+            });
         } catch (e) {
             console.log(e);
         }
@@ -53,12 +57,23 @@ function Header() {
             const date = url[3];
             getMarginXDetails(name, date);       
         }
+        if(id){
+            window.webengage.track('marginx_view_details_clicked', {
+                user: getDetails?.userDetails?._id,
+                marginxId: id
+            });
+        }
         setTimeout(()=>{
             setIsLoading(false);
         },1000)
     }, [id, location]);
     const elem = {};
+
     const handleCopy = async (id) => {
+        window.webengage.track('share_marginx_clicked', {
+            user: getDetails?.userDetails?._id,
+            marginxId: id
+        })
         let text = `https://stoxhero.com${location?.pathname}`
         const textarea = document.createElement('textarea');
         textarea.value = text;
@@ -127,7 +142,7 @@ function Header() {
             return subelem?.userId?.toString() === getDetails?.userDetails?._id?.toString()
         })
     }
-    console.log("isLoading",state?.return, state?.entryFee, state?.entryFee)
+    // console.log("isLoading",state?.return, state?.entryFee, state?.entryFee)
     return (
         <Grid xs={12} md={12} lg={12} mt={2} container spacing={1} display='flex' flexDirection='row' alignItems='start'>
             {!isLoading ?

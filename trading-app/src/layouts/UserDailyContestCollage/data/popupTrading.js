@@ -37,6 +37,10 @@ const PopupTrading = ({elem, timeDifference}) => {
     };
 
     async function openPopupAndCheckParticipant(elem){
+        window.webengage.track('college_testzone_start_trading_clicked', {
+            user: getDetails?.userDetails?._id,
+            contestId: elem?._id
+        })
         let isParticipated = elem?.participants.some(elem => {
             return elem?.userId?._id?.toString() === getDetails?.userDetails?._id?.toString()
         })

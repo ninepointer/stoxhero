@@ -13,6 +13,7 @@ import WinnerImage from '../../../assets/images/cup-image.png'
 // import { io } from 'socket.io-client';
 import { socketContext } from '../../../socketContext';
 import UpcomingMarginXList from '../Header/upcomingMarginXList'
+import { userContext } from '../../../AuthContext';
 
 export default function LabTabs({setClicked}) {
     const [isLoading, setIsLoading] = useState(false); 
@@ -22,8 +23,12 @@ export default function LabTabs({setClicked}) {
     let [showPay, setShowPay] = useState(true);
     const [isInterested, setIsInterested] = useState(false);
     const [marginX, setMarginX] = useState([]);
-  
+    const getDetails = useContext(userContext);
+
     useEffect(() => {
+        window.webengage.track('upcoming_marginx_clicked', {
+            user: getDetails?.userDetails?._id,
+        })
       ReactGA.pageview(window.location.pathname)
     }, []);
 
@@ -72,7 +77,11 @@ export default function LabTabs({setClicked}) {
                 <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
                     <img src={WinnerImage} width={50} height={50}/>
                     <MDTypography color="light" fontSize={15} mb={1}>No Upcoming MarginX Program(s)</MDTypography>
-                    <MDButton color="info" size='small' fontSize={10}  onClick={()=>{setClicked("live")}}>Check Live MarginX Programs</MDButton>
+                    <MDButton color="info" size='small' fontSize={10}  onClick={()=>{
+                            window.webengage.track('no_upcoming_marginx_clicked', {
+                                user: getDetails?.userDetails?._id,
+                            });
+                        setClicked("live")}}>Check Live MarginX Programs</MDButton>
                 </MDBox>
                 }
             </>

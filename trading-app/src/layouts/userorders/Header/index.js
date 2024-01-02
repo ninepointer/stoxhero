@@ -412,8 +412,16 @@ function Header() {
             <Grid container spacing={2} display="flex" justifyContent="space-between">
               <Grid item xs={12} md={6} lg={6} display="flex" justifyContent="space-between">
               <MDBox display="flex" justifyContent="space-between">
-                <MDButton color={todayInfinityColor} size="small" style={{marginRight:4}} onClick={()=>{setInfinityView('today');setInfinitySkip(0)}}>Today's Order(s)</MDButton>
-                <MDButton color={historyInfinityColor} size="small" style={{marginRight:4}} onClick={()=>{setInfinityView('history');setInfinitySkip(0)}}>All Order(s)</MDButton>
+                <MDButton color={todayInfinityColor} size="small" style={{marginRight:4}} onClick={()=>{
+                      window.webengage.track("tenx_today's_order_clicked", {
+                        user: getDetails?.userDetails?._id,
+                    });
+                  setInfinityView('today');setInfinitySkip(0)}}>Today's Order(s)</MDButton>
+                <MDButton color={historyInfinityColor} size="small" style={{marginRight:4}} onClick={()=>{
+                                        window.webengage.track("tenx_history_order_clicked", {
+                                          user: getDetails?.userDetails?._id,
+                                      });
+                  setInfinityView('history');setInfinitySkip(0)}}>All Order(s)</MDButton>
               </MDBox>
               </Grid>
               <Grid item xs={8} md={6} lg={6} display="flex" justifyContent="flex-end">
@@ -608,8 +616,16 @@ function Header() {
             <Grid container spacing={2} display="flex" justifyContent="space-between">
               <Grid item xs={12} md={6} lg={6} display="flex" justifyContent="space-between">
               <MDBox display="flex" justifyContent="space-between">
-                <MDButton color={todayColor} size="small" style={{marginRight:4}} onClick={()=>{setView('today');setSkip(0)}}>Today's Order(s)</MDButton>
-                <MDButton color={historyColor} size="small" style={{marginRight:4}} onClick={()=>{setView('history');setSkip(0)}}>All Order(s)</MDButton>
+                <MDButton color={todayColor} size="small" style={{marginRight:4}} onClick={()=>{
+                                        window.webengage.track("virtual_today's_order_clicked", {
+                                          user: getDetails?.userDetails?._id,
+                                      });
+                  setView('today');setSkip(0)}}>Today's Order(s)</MDButton>
+                <MDButton color={historyColor} size="small" style={{marginRight:4}} onClick={()=>{
+                                        window.webengage.track("virtual_history_order_clicked", {
+                                          user: getDetails?.userDetails?._id,
+                                      });
+                  setView('history');setSkip(0)}}>All Order(s)</MDButton>
               </MDBox>
               </Grid>
               <Grid item xs={8} md={6} lg={6} display="flex" justifyContent="flex-end">
@@ -721,10 +737,20 @@ function Header() {
             <MDBox display="flex" justifyContent="space-between" mb={2}>
             <Grid container spacing={2} display="flex" justifyContent="space-between">
               <Grid item xs={12} md={6} lg={6} display="flex" justifyContent="space-between">
-              <MDBox display="flex" justifyContent="space-between">
-                <MDButton color={todayInternshipColor} size="small" style={{marginRight:4}} onClick={()=>{setInternshipView('today');setInternshipSkip(0)}}>Today's Order(s)</MDButton>
-                <MDButton color={historyInternshipColor} size="small" style={{marginRight:4}} onClick={()=>{setInternshipView('history');setInternshipSkip(0)}}>All Order(s)</MDButton>
-              </MDBox>
+                  <MDBox display="flex" justifyContent="space-between">
+                    <MDButton color={todayInternshipColor} size="small" style={{ marginRight: 4 }} onClick={() => {
+                      window.webengage.track("internship_today's_order_clicked", {
+                        user: getDetails?.userDetails?._id,
+                      });
+                      setInternshipView('today'); setInternshipSkip(0)
+                    }}>Today's Order(s)</MDButton>
+                    <MDButton color={historyInternshipColor} size="small" style={{ marginRight: 4 }} onClick={() => {
+                      window.webengage.track("internship_history_order_clicked", {
+                        user: getDetails?.userDetails?._id,
+                      });
+                      setInternshipView('history'); setInternshipSkip(0)
+                    }}>All Order(s)</MDButton>
+                  </MDBox>
               </Grid>
               <Grid item xs={8} md={6} lg={6} display="flex" justifyContent="flex-end">
               <MDBox display="flex" justifyContent="flex-end" alignItems='center'>

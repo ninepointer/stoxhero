@@ -35,7 +35,7 @@ export default function Dashboard() {
   const getDetails = useContext(userContext);
   const userId = getDetails.userDetails._id;
   const [posts, setPosts] = useState([]);
-  const [postCount, setPostCount] = useState(true);
+  // const [postCount, setPostCount] = useState(true);
   const [stats, setStats] = useState();
   const [timeframe, setTimeframe] = useState('this month');
   const [tradeType, setTradeType] = useState('virtual');
@@ -61,16 +61,16 @@ export default function Dashboard() {
     });
   }
 
-  async function captureCarouselClick(id){
+  async function captureCarouselClick(id) {
     await fetch(`${baseUrl}api/v1/carousels/carouselclick/${id}`, {
-    method: "PATCH",
-    credentials:"include",
-    headers: {
-        "content-type" : "application/json",
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
         "Access-Control-Allow-Credentials": true
-    },
-});
-}
+      },
+    });
+  }
 
   const settings = {
     dots: true,
@@ -216,6 +216,11 @@ export default function Dashboard() {
   });
 
   const handleButtonClick = (e) => {
+    window.webengage.track('carousel_clicked', {
+      id: e?._id,
+      name: e?.carouselName,
+      user: getDetails?.userDetails?._id
+    })
     if (e?.clickable) {
       navigate(`/${e?.linkToCarousel}`);
       captureCarouselClick(e?._id);

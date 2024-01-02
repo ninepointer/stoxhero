@@ -11,21 +11,25 @@ import axios from "axios";
 import WinnerImage from '../../../assets/images/cup-image.png'
 import { io } from 'socket.io-client';
 import { socketContext } from '../../../socketContext';
+import { userContext } from '../../../AuthContext';
 
 export default function LabTabs({setClicked}) {
     // const [clicked, setClicked] = useState('live')
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-    let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
+    // let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
     const [isLoading, setIsLoading] = useState(false);
     let [showPay, setShowPay] = useState(true);
     const [isInterested, setIsInterested] = useState(false);
     const [contest, setContest] = useState([]);
     const socket = useContext(socketContext);
     let [toggleContest, setToggleContest] = useState(false)
-
+    const getDetails = useContext(userContext);
   
     useEffect(() => {
-      ReactGA.pageview(window.location.pathname)
+        window.webengage.track('upcoming_testzone_clicked', {
+            user: getDetails?.userDetails?._id,
+        })
+        ReactGA.pageview(window.location.pathname)
     }, []);
 
     useEffect(() => {
@@ -66,45 +70,50 @@ export default function LabTabs({setClicked}) {
                     <CircularProgress color='info' />
                 </MDBox>
                 :
-            <>
-            {contest.length != 0 ?
-                <Grid container xs={12} md={12} lg={12} display='flex'>
+                <>
+                    {contest.length != 0 ?
+                        <Grid container xs={12} md={12} lg={12} display='flex'>
 
-                    <Grid item xs={12} md={6} lg={12}>
-                        {free.length !== 0 &&
-                        <>
-                            <MDBox>
-                                <MDTypography color="light" fontSize={15} fontWeight="bold" ml={1} mb={0.5} alignItems='center'>Free TestZone(s)</MDTypography>
-                            </MDBox>
-                            <MDBox style={{ minWidth: '100%' }}>
-                                <FreeContest socket={socket} contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay} toggleContest={toggleContest} setToggleContest={setToggleContest} />
-                            </MDBox>
-                        </>
-                        }
-                    </Grid>
+                            <Grid item xs={12} md={6} lg={12}>
+                                {free.length !== 0 &&
+                                    <>
+                                        <MDBox>
+                                            <MDTypography color="light" fontSize={15} fontWeight="bold" ml={1} mb={0.5} alignItems='center'>Free TestZone(s)</MDTypography>
+                                        </MDBox>
+                                        <MDBox style={{ minWidth: '100%' }}>
+                                            <FreeContest socket={socket} contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay} toggleContest={toggleContest} setToggleContest={setToggleContest} />
+                                        </MDBox>
+                                    </>
+                                }
+                            </Grid>
 
-                    <Grid item xs={12} md={6} lg={12} mt={.5}>
-                        {paid.length !== 0 &&
-                        <>
-                            <MDBox>
-                                <MDTypography color="light" fontSize={15} ml={1} mb={0.5} fontWeight="bold">Paid TestZone(s)</MDTypography>
-                            </MDBox>
-                            <MDBox style={{ minWidth: '100%' }}>
-                                <PaidContest socket={socket} contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay} toggleContest={toggleContest} setToggleContest={setToggleContest} />
-                            </MDBox>
-                        </>
-                        }
-                    </Grid>
+                            <Grid item xs={12} md={6} lg={12} mt={.5}>
+                                {paid.length !== 0 &&
+                                    <>
+                                        <MDBox>
+                                            <MDTypography color="light" fontSize={15} ml={1} mb={0.5} fontWeight="bold">Paid TestZone(s)</MDTypography>
+                                        </MDBox>
+                                        <MDBox style={{ minWidth: '100%' }}>
+                                            <PaidContest socket={socket} contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay} toggleContest={toggleContest} setToggleContest={setToggleContest} />
+                                        </MDBox>
+                                    </>
+                                }
+                            </Grid>
 
-                </Grid>
-            :
-            <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
-                <img src={WinnerImage} width={50} height={50}/>
-                <MDTypography color="light" fontSize={15} mb={1}>No Upcoming TestZone(s)</MDTypography>
-                <MDButton color="info" size='small' fontSize={10}  onClick={()=>{setClicked("live")}} >Check Live TestZone(s)</MDButton>
-            </MDBox>
-            }
-            </>
+                        </Grid>
+                        :
+                        <MDBox style={{ minHeight: "20vh" }} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
+                            <img src={WinnerImage} width={50} height={50} />
+                            <MDTypography color="light" fontSize={15} mb={1}>No Upcoming TestZone(s)</MDTypography>
+                            <MDButton color="info" size='small' fontSize={10} onClick={() => {
+                                window.webengage.track('testzone_no_upcoming_clicked', {
+                                    user: getDetails?.userDetails?._id,
+                                });
+                                setClicked("live")
+                            }} >Check Live TestZone(s)</MDButton>
+                        </MDBox>
+                    }
+                </>
             }
         </MDBox>
 

@@ -270,6 +270,9 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
   })
 
   const handleBuyClick = (index) => {
+    window.webengage.track('buy_clicked_from_position', {
+      user: getDetails?.userDetails?._id
+    })
     setBuyState(true)
     const newRows = [...rows];
     newRows[index].sellState = true;
@@ -277,6 +280,9 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
   };
 
   const handleExitClick = (index) => {
+    window.webengage.track('exit_clicked_from_position', {
+      user: getDetails?.userDetails?._id
+    })
     setExitState(true)
     const newRows = [...rows];
     newRows[index].sellState = true;
@@ -284,6 +290,9 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
   };
 
   const handleSellClick = (index) => {
+    window.webengage.track('sell_clicked_from_position', {
+      user: getDetails?.userDetails?._id
+    })
     setSellState(true)
     const newRows = [...rows];
     newRows[index].sellState = true;

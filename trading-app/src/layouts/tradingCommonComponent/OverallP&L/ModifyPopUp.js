@@ -1,10 +1,6 @@
 import React, { useContext, useState, memo, useEffect } from 'react'
-// import axios from "axios";
-// import { userContext } from '../../../AuthContext';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
-// import uniqid from "uniqid"
-// import MDSnackbar from '../../../components/MDSnackbar';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -12,20 +8,11 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import FormControl from '@mui/material/FormControl';
 import MDButton from '../../../components/MDButton';
-// import Radio from '@mui/material/Radio';
-// import RadioGroup from '@mui/material/RadioGroup';
-// import FormControlLabel from '@mui/material/FormControlLabel';
-// import FormLabel from '@mui/material/FormLabel';
 import { Box, Checkbox, TextField, Typography } from '@mui/material';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
-// import { renderContext } from '../../../renderContext';
-// import { Howl } from "howler";
-// import sound from "../../../assets/sound/tradeSound.mp3"
-// import { marginX, paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest, battle } from "../../../variables";
 import { maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, lotSize_BankNifty, lotSize_FinNifty, lotSize_Nifty, paperTrader } from "../../../variables";
-
 import EditIcon from '@mui/icons-material/Edit';
 import MDBox from '../../../components/MDBox';
 import { renderContext } from '../../../renderContext';
@@ -97,6 +84,11 @@ function ModifyPopUp({ data, id, handleCloseMenu, setMsg, from }) {
     if (data?.Quantity?.props?.children === 0) {
       return openSuccessSB("error", "You do not have any open position for modify.")
     }
+
+    window.webengage.track('modify_order_clicked', {
+      user: getDetails?.userDetails?._id,
+      instrument_token: data?.instrumentToken?.props?.children,
+    })
     setAnchorEl(event.currentTarget);
   };
 
@@ -167,9 +159,12 @@ function ModifyPopUp({ data, id, handleCloseMenu, setMsg, from }) {
       return;
     }
     
-    // ${((stopLossQuantity && !stopLossPrice) || (!stopLossQuantity && stopLossPrice)) && "stop loss quantity or price"}
-    // ${((stopProfitQuantity && !stopProfitPrice) || (!stopProfitQuantity && stopProfitPrice)) && "stop profit quantity or price"}
-
+    window.webengage.track('modify_process_order_clicked', {
+      user: getDetails?.userDetails?._id,
+      instrument_token: data?.instrumentToken?.props?.children,
+      exchange: data?.exchange?.props?.children,
+      stopLossQuantity, stopProfitQuantity, stopLossPrice, stopProfitPrice
+    })
 
     const res = await fetch(`${apiUrl}pendingorder/modify`, {
       method: "POST",

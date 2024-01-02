@@ -1,4 +1,4 @@
-import React, {memo, useEffect, useState} from 'react';
+import React, {memo, useContext, useEffect, useState} from 'react';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import Dialog from '@mui/material/Dialog';
@@ -22,6 +22,7 @@ import {apiUrl} from '../../../constants/constants';
 import MDSnackbar from '../../../components/MDSnackbar';
 import Input from '@mui/material/Input';
 import Checkbox from '@mui/material/Checkbox';
+import { userContext } from '../../../AuthContext';
 
 const ariaLabel = { 'aria-label': 'description' };
 const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
@@ -31,6 +32,7 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
   const [checked, setChecked] = useState(false);
   const [setting, setSetting] = useState([]);
   const [code, setCode] = useState('');
+  const getDetails = useContext(userContext);
   const [verifiedCode, setVerifiedCode] = useState('');
   const [invalidCode, setInvalidCode] = useState('');
   const [discountData, setDiscountData] = useState();
@@ -145,6 +147,11 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
   }, [open])
 
   const handleClickOpen = () => {
+    window.webengage.track('marginx_payment_clicked', {
+      user: getDetails?.userDetails?._id,
+      amount: amount,
+      marginxId: elem?._id
+    })
     setOpen(true);
   };
 
@@ -172,8 +179,20 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
 
   const buySubscription = async () => {
     if (userWallet < Number(amount-discountAmount-bonusRedemption)) {
+      window.webengage.track('marginx_low_wallet_balance', {
+        user: getDetails?.userDetails?._id,
+        amount: Number(amount-discountAmount-bonusRedemption),
+        walletBalance: userWallet,
+        marginxId: elem?._id
+      })
       return openErrorSB('Low Wallet Balance', 'You don\'t have enough wallet balance for this purchase');
     }
+
+    window.webengage.track('marginx_payment_process_clicked', {
+      user: getDetails?.userDetails?._id,
+      amount: Number(amount-discountAmount-bonusRedemption),
+      marginxId: elem?._id
+    })
     const res = await fetch(`${baseUrl}api/v1/marginx/feededuct`, {
       method: "PATCH",
       credentials: "include",

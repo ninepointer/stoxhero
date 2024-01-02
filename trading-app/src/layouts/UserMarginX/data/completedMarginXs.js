@@ -4,25 +4,27 @@ import { CircularProgress, Divider, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
 import MDButton from '../../../components/MDButton';
-import { Link } from "react-router-dom"
+// import { Link } from "react-router-dom"
 import axios from "axios";
-import SchoolIcon from '@mui/icons-material/School';
+// import SchoolIcon from '@mui/icons-material/School';
 import WinnerImage from '../../../assets/images/cup-image.png'
-import SportsScoreIcon from '@mui/icons-material/SportsScore';
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import { io } from 'socket.io-client';
+// import SportsScoreIcon from '@mui/icons-material/SportsScore';
+// import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+// import { io } from 'socket.io-client';
 import { socketContext } from '../../../socketContext';
 import CompletedMarginXList from '../Header/completedMarginXList'
+import { userContext } from '../../../AuthContext';
 
 export default function LabTabs({setClicked}) {
     const [isLoading, setIsLoading] = useState(false); 
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-    let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
+    // let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
     const socket = useContext(socketContext);
     let [showPay, setShowPay] = useState(true);
     const [isInterested, setIsInterested] = useState(false);
     const [marginX, setMarginX] = useState([]);
-  
+    const getDetails = useContext(userContext);
+    
     useEffect(() => {
       ReactGA.pageview(window.location.pathname)
     }, []);
@@ -72,7 +74,11 @@ export default function LabTabs({setClicked}) {
                 <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
                     <img src={WinnerImage} width={50} height={50}/>
                     <MDTypography color="light" fontSize={15} mb={1}>No Completed MarginX Program(s)</MDTypography>
-                    <MDButton color="info" size='small' fontSize={10}  onClick={()=>{setClicked("upcoming")}}>Check Upcoming MarginX Programs</MDButton>
+                    <MDButton color="info" size='small' fontSize={10}  onClick={()=>{
+                        window.webengage.track('no_completed_marginx_clicked', {
+                            user: getDetails?.userDetails?._id,
+                        });
+                        setClicked("upcoming")}}>Check Upcoming MarginX Programs</MDButton>
                 </MDBox>
                 }
             </>

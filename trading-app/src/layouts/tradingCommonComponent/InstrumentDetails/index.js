@@ -61,7 +61,8 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
   const [showTimer, setShowTimer] = useState("");
   const openSuccessSB = () => setSuccessSB(true);
   const closeSuccessSB = () => setSuccessSB(false);
-
+  const getDetails = useContext(userContext);
+  
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/getliveprice`)
     .then((res) => {
@@ -249,6 +250,9 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
   })
 
   const handleBuyClick = (index) => {
+    window.webengage.track('buy_clicked_from_watchlist', {
+      user: getDetails?.userDetails?._id
+    })
     setBuyState(true)
     const newRows = [...instrumentDetailArr];
     newRows[index].sellState = true;
@@ -256,6 +260,9 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
   };
 
   const handleSellClick = (index) => {
+    window.webengage.track('sell_clicked_from_watchlist', {
+      user: getDetails?.userDetails?._id
+    })
     setSellState(true)
     const newRows = [...instrumentDetailArr];
     newRows[index].sellState = true;
@@ -264,6 +271,10 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
 
   async function removeInstrument(instrumentToken, instrument){
     setInstrumentName(instrument)
+    window.webengage.track('remove_clicked_from_watchlist', {
+      user: getDetails?.userDetails?._id,
+      instrument_token: instrumentToken
+    })
     const response = await fetch(`${baseUrl}api/v1/inactiveInstrument/${instrumentToken}`, {
       method: "PATCH",
       credentials:"include",

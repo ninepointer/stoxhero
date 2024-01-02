@@ -13,8 +13,10 @@ import stock from "../../../assets/images/analyticspnl.png";
 import logo from "../../../assets/images/logo1.jpeg";
 import { useNavigate } from 'react-router-dom';
 import { Link, useLocation } from "react-router-dom";
+import { userContext } from "../../../AuthContext";
 
 function Summary({topPerformer, startOfWeek, endOfWeek}) {
+    const getDetails = useContext(userContext)
     const navigate = useNavigate();
     function TruncatedName(name) {
         const originalName = name;
@@ -49,7 +51,10 @@ function Summary({topPerformer, startOfWeek, endOfWeek}) {
                         <MDTypography ml={1} fontSize={15} fontWeight="bold">TestZone Leaderboard of the Week [{formattedDate(startOfWeek)} - {formattedDate(endOfWeek)}]</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='flex-end'>
-                        <MDButton variant='text' color='dark' size="small" onClick={()=>{navigate('/toptestzoneportfolios')}}>View All</MDButton>
+                        <MDButton variant='text' color='dark' size="small" onClick={()=>{
+                            window.webengage.track('viewall_testzone_profile_clicked', {
+                                user: getDetails?.userDetails?._id
+                        }); navigate('/toptestzoneportfolios')}}>View All</MDButton>
                     </Grid>
                 </Grid>
                     <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
@@ -113,6 +118,10 @@ function Summary({topPerformer, startOfWeek, endOfWeek}) {
                                         pathname: `/testzoneprofile/${e?.userid}`,
                                       }}
                                     state={{data: e}}
+                                    onClick={window.webengage.track('user_testzone_profile_clicked', {
+                                        userId: e?.trader,
+                                        user: getDetails?.userDetails?._id
+                                      })}
                                 >
                                     Zone Profile
                                 </MDButton>

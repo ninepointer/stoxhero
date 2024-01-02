@@ -6,14 +6,15 @@ import MDTypography from '../../../components/MDTypography';
 import FreeContest from "../Header/freeContest";
 import PaidContest from "../Header/paidContest";
 import MDButton from '../../../components/MDButton';
-import { Link } from "react-router-dom"
+// import { Link } from "react-router-dom"
 import axios from "axios";
-import SchoolIcon from '@mui/icons-material/School';
+// import SchoolIcon from '@mui/icons-material/School';
 import WinnerImage from '../../../assets/images/cup-image.png'
-import SportsScoreIcon from '@mui/icons-material/SportsScore';
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import { io } from 'socket.io-client';
+// import SportsScoreIcon from '@mui/icons-material/SportsScore';
+// import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+// import { io } from 'socket.io-client';
 import { socketContext } from '../../../socketContext';
+import { userContext } from '../../../AuthContext';
 
 export default function LabTabs({setClicked}) {
     // const [clicked, setClicked] = useState('live')
@@ -24,9 +25,12 @@ export default function LabTabs({setClicked}) {
     let [showPay, setShowPay] = useState(true);
     const [isInterested, setIsInterested] = useState(false);
     const [contest, setContest] = useState([]);
-  
+    const getDetails = useContext(userContext);
     useEffect(() => {
-      ReactGA.pageview(window.location.pathname)
+        ReactGA.pageview(window.location.pathname);
+        window.webengage.track('college_live_testzone_clicked', {
+            user: getDetails?.userDetails?._id,
+        })
     }, []);
 
 

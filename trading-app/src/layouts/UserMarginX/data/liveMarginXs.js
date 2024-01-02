@@ -13,6 +13,7 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { io } from 'socket.io-client';
 import { socketContext } from '../../../socketContext';
 import LiveMarginXList from '../Header/liveMarginXList'
+import { userContext } from '../../../AuthContext';
 
 export default function LabTabs({setClicked}) {
     const [isLoading, setIsLoading] = useState(false); 
@@ -22,11 +23,14 @@ export default function LabTabs({setClicked}) {
     let [showPay, setShowPay] = useState(true);
     const [isInterested, setIsInterested] = useState(false);
     const [marginX, setMarginX] = useState([]);
-  
-    useEffect(() => {
-      ReactGA.pageview(window.location.pathname)
-    }, []);
+    const getDetails = useContext(userContext);
 
+    useEffect(() => {
+        ReactGA.pageview(window.location.pathname);
+        window.webengage.track('live_marginx_clicked', {
+            user: getDetails?.userDetails?._id,
+        })
+    }, []);
 
     useEffect(() => {
         setIsLoading(true)
@@ -50,7 +54,6 @@ export default function LabTabs({setClicked}) {
         })
     }, [isInterested, showPay])
 
-
     return (
 
         <MDBox bgColor="dark" color="light" display='flex' justifyContent='center' flexDirection='column'  mb={0.5} borderRadius={10} minHeight='auto' width='100%'>
@@ -72,7 +75,11 @@ export default function LabTabs({setClicked}) {
                 <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
                     <img src={WinnerImage} width={50} height={50}/>
                     <MDTypography color="light" fontSize={15} mb={1}>No Live MarginX Program(s)</MDTypography>
-                    <MDButton color="info" size='small' fontSize={10}  onClick={()=>{setClicked("upcoming")}}>Check Upcoming MarginX Programs</MDButton>
+                    <MDButton color="info" size='small' fontSize={10}  onClick={()=>{
+                                window.webengage.track('no_live_marginx_clicked', {
+                                    user: getDetails?.userDetails?._id,
+                                });
+                        setClicked("upcoming")}}>Check Upcoming MarginX Programs</MDButton>
                 </MDBox>
                 }
             </>
