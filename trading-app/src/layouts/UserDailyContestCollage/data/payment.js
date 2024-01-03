@@ -97,10 +97,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
     setValue(event.target.value);
   };
 
-
-
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-
 
   useEffect(() => {
     if (open) {
@@ -235,12 +232,10 @@ const Payment = ({ elem, setShowPay, showPay }) => {
   const redeemableBonus = Math.min((amount - discountAmount) * setting?.maxBonusRedemptionPercentage / 100, bonusBalance / setting?.bonusToUnitCashRatio ?? 1) ?? 0;
   const bonusRedemption = checked ? Math.min((amount - discountAmount) * setting?.maxBonusRedemptionPercentage / 100, bonusBalance / setting?.bonusToUnitCashRatio ?? 1) : 0;
   const actualAmount = (elem?.entryFee - discountAmount - bonusRedemption) * setting.gstPercentage / 100;
-  console.log('amounts', amount, actualAmount, discountAmount, bonusRedemption);
 
   const initiatePayment = async () => {
     try {
       const res = await axios.post(`${apiUrl}payment/initiate`, { amount: Number((amount - discountAmount - bonusRedemption) * 100) + actualAmount * 100, redirectTo: window.location.href, paymentFor: 'Contest', productId: elem?._id, coupon: verifiedCode, bonusRedemption }, { withCredentials: true });
-      console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
       window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
     } catch (e) {
       console.log(e);
@@ -262,6 +257,11 @@ const Payment = ({ elem, setShowPay, showPay }) => {
     }
   }
   const applyPromoCode = async () => {
+    window.webengage.track('college_testzone_apply_couponcode_clicked', {
+      user: getDetails?.userDetails?._id,
+      contestId: elem?._id,
+      amount: Number(amount - discountAmount - bonusRedemption)
+    });
     try {
       if (verifiedCode) {
         setVerifiedCode('');
@@ -340,7 +340,13 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                         {value == 'wallet' &&
                           <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="flex-start" mt={0} mb={2} style={{ minWidth: '40vw' }}  >
                             {!showPromoCode ? <MDBox display='flex' justifyContent='flex-start' width='100%' mt={1}
-                              onClick={() => { setShowPromoCode(true) }} style={{ cursor: 'pointer' }}>
+                              onClick={() => { 
+                                window.webengage.track('college_testzone_intent_to_apply_couponcode_clicked', {
+                                  user: getDetails?.userDetails?._id,
+                                  contestId: elem?._id,
+                                  amount: Number(amount - discountAmount - bonusRedemption)
+                                });
+                                setShowPromoCode(true) }} style={{ cursor: 'pointer' }}>
                               <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Have a promo code?</Typography>
                             </MDBox>
                               :
@@ -365,7 +371,13 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                               `Cashback (FLAT ₹ ${discountData?.discount} Cashback) as Wallet Bonus: ₹${cashbackAmount}`}</Typography>}
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(amount - discountAmount - bonusRedemption).toFixed(2)}</Typography>
                             {bonusBalance > 0 && <MDBox display='flex' justifyContent='flex-start' alignItems='center' ml={-1}>
-                              <Checkbox checked={checked} onChange={() => setChecked(!checked)} />
+                              <Checkbox checked={checked} onChange={()=>{
+                                window.webengage.track('college_testzone_herocash_apply_clicked', {
+                                  user: getDetails?.userDetails?._id,
+                                  contestId: elem?._id,
+                                });
+                                setChecked(!checked)
+                              }} />
                               <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Use {redeemableBonus * (setting?.bonusToUnitCashRatio ?? 1)} HeroCash (1 HeroCash = {1 / (setting?.bonusToUnitCashRatio ?? 1)}₹)</Typography>
                             </MDBox>}
                           </MDBox>}
@@ -374,7 +386,13 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                           <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="flex-start" mt={0} mb={0} >
                             <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new government regulations. However you don't need to pay anything extra. StoxHero will be taking care of the GST on your behalf. To offset it, we've increased our pricing by a bit. </Typography>
                             {!showPromoCode ? <MDBox display='flex' justifyContent='flex-start' width='100%' mt={1}
-                              onClick={() => { setShowPromoCode(true) }} style={{ cursor: 'pointer' }}>
+                              onClick={() => {
+                                window.webengage.track('college_testzone_intent_to_apply_couponcode_clicked', {
+                                  user: getDetails?.userDetails?._id,
+                                  contestId: elem?._id,
+                                  amount: Number(amount - discountAmount - bonusRedemption)
+                                });
+                                setShowPromoCode(true) }} style={{ cursor: 'pointer' }}>
                               <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Have a promo code?</Typography>
                             </MDBox>
                               :
@@ -399,7 +417,13 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                               `Cashback (FLAT ₹ ${discountData?.discount} Cashback) as Wallet Bonus: ₹${cashbackAmount}`}</Typography>}
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{(Number(amount - discountAmount - bonusRedemption) + actualAmount).toFixed(2)}</Typography>
                             {bonusBalance > 0 && <MDBox display='flex' justifyContent='flex-start' alignItems='center' ml={-1}>
-                              <Checkbox checked={checked} onChange={() => setChecked(!checked)} />
+                              <Checkbox checked={checked} onChange={()=>{
+                                window.webengage.track('college_testzone_herocash_apply_clicked', {
+                                  user: getDetails?.userDetails?._id,
+                                  contestId: elem?._id,
+                                });
+                                setChecked(!checked)
+                              }} />
                               <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Use {redeemableBonus * (setting?.bonusToUnitCashRatio ?? 1)} HeroCash (1 HeroCash = {1 / (setting?.bonusToUnitCashRatio ?? 1)}₹)</Typography>
                             </MDBox>}
                           </MDBox>}

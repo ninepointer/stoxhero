@@ -895,7 +895,8 @@ exports.getFeaturedOngoingContests = async (req, res) => {
       .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
       .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
       .populate('college', 'collegeName zone')
-      .sort({ contestStartTime: 1 }).skip(skip).limit(limit)
+      .sort({ contestStartTime: 1 }).skip(skip).limit(limit);
+
       res.status(200).json({
           status: "success",
           message: "Featured Ongoing TestZones fetched successfully",
@@ -903,6 +904,7 @@ exports.getFeaturedOngoingContests = async (req, res) => {
           count: count
       });
   } catch (error) {
+    console.log(error)
       res.status(500).json({
           status: "error",
           message: "Error in fetching featured Ongoing TestZones",
@@ -5834,8 +5836,8 @@ exports.getLastPaidContestChampions = async (req, res) => {
         date.setDate(date.getUTCDate() - 1);
         lastPaidContests = await Contest.aggregate(pipeline);
       }
-      // if(lastPaidContests.length === 0){
-      // }
+
+      console.log("lastPaidContests", lastPaidContests)
       const response = {
           status: "success",
           message: "Last Paid TestZone Data fetched successfully",
@@ -5845,6 +5847,8 @@ exports.getLastPaidContestChampions = async (req, res) => {
 
       res.status(200).json(response);
   } catch (error) {
+    console.log("erorr", error)
+
       res.status(500).json({
           status: "error",
           message: "Something went wrong",

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
 import { apiUrl } from '../../../constants/constants';
@@ -13,17 +13,22 @@ import MDButton from '../../../components/MDButton';
 import { useNavigate} from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { userContext } from '../../../AuthContext';
 
 
 const Workshops = () => {
   const [currentworkshop, setCurrentWorkshop] = useState();
-  const Navigate = useNavigate();
+  // const Navigate = useNavigate();
   const [workshops, setWorkshops] = useState();
   const[isLoading, setIsLoading] = useState(true);  
   const [serverTime, setServerTime] = useState();
   // const navigate = useNavigate();
+  const getDetails = useContext(userContext);
 
   useEffect(()=>{
+    window.webengage.track('workshop_tab_clicked', {
+      user: getDetails?.userDetails?._id,
+    });
     fetchData();
   },[])
 
@@ -43,7 +48,7 @@ const Workshops = () => {
         setServerTime(res2.data.data)
   }
 
-  console.log("Checking dates:",currentworkshop?.batchStartDate, serverTime)
+  // console.log("Checking dates:",currentworkshop?.batchStartDate, serverTime)
   
   return (
     <MDBox bgColor="dark" color="light" mt={0} mb={0} p={1} borderRadius={10} minHeight='auto' >
@@ -97,11 +102,21 @@ const Workshops = () => {
             <Card name={currentworkshop?.career?.jobTitle} goTo='/workshop/trade' 
                 state={currentworkshop._id} startDate= {moment.utc(currentworkshop?.batchStartDate).utcOffset('+05:30').format('DD-MMM-YY HH:mm a')}
                 endDate={moment.utc(currentworkshop?.batchEndDate).utcOffset('+05:30').format('DD-MMM-YY HH:mm a')}
-                buttonText='Start Trading' disabled={currentworkshop?.batchStartDate >= serverTime}/> 
+                buttonText='Start Trading' disabled={currentworkshop?.batchStartDate >= serverTime} onClick={
+                  ()=>{
+                    window.webengage.track('workshop_start_trading_clicked', {
+                      user: getDetails?.userDetails?._id,
+                    });
+                  }
+                }/> 
                 </MDBox> :
            <MDBox display="flex" flexDirection='column' mb={2} justifyContent="center" alignItems="center" mt={2} minHeight='auto' border='1px solid white' borderRadius='12px'>
            <MDTypography fontSize={15} mb={2} mt={2} color='light'>You don't have any upcoming registered workshop(s)</MDTypography>
-           <MDButton variant='outlined' color='light' style={{marginBottom:20}} fontSize={15} onClick={()=>{window.open('/workshops','_blank')}}>Apply for workshops here</MDButton> 
+           <MDButton variant='outlined' color='light' style={{marginBottom:20}} fontSize={15} onClick={()=>{
+             window.webengage.track('workshop_apply_clicked', {
+              user: getDetails?.userDetails?._id,
+            });
+            window.open('/workshops','_blank')}}>Apply for workshops here</MDButton> 
           </MDBox>  
           }
             </MDBox>

@@ -118,10 +118,12 @@ function Summary({topPerformer, startOfWeek, endOfWeek}) {
                                         pathname: `/testzoneprofile/${e?.userid}`,
                                       }}
                                     state={{data: e}}
-                                    onClick={window.webengage.track('user_testzone_profile_clicked', {
-                                        userId: e?.trader,
-                                        user: getDetails?.userDetails?._id
-                                      })}
+                                    onClick={()=>{
+                                        window.webengage.track('user_testzone_profile_clicked', {
+                                            userId: e?.trader,
+                                            user: getDetails?.userDetails?._id
+                                          })
+                                    }}
                                 >
                                     Zone Profile
                                 </MDButton>

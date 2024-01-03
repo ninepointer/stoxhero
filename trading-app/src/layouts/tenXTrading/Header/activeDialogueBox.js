@@ -121,6 +121,11 @@ export default function Dialogue({subscription ,amount, name, id, walletCash, bo
 
 
   const handleClickOpen = () => {
+    window.webengage.track('tenx_payment_clicked', {
+      user: getDetails?.userDetails?._id,
+      subscriptionId: id?.toString(),
+      amount: amount
+    });
     setOpen(true);
   };
 
@@ -149,8 +154,20 @@ export default function Dialogue({subscription ,amount, name, id, walletCash, bo
 
   const buySubscription = async () => {
     if(walletCash <  Number(amount-discountAmount-bonusRedemption)){
+      window.webengage.track('tenx_payment_low_balance', {
+        user: getDetails?.userDetails?._id,
+        subscriptionId: id?.toString(),
+        walletBalance: walletCash,
+        amount: Number(amount - discountAmount - bonusRedemption)
+      })
       return openSuccessSB("error", "You don't have enough wallet balance for this purchase.");
     }
+
+    window.webengage.track('tenx_payment_process_clicked', {
+      user: getDetails?.userDetails?._id,
+      subscriptionId: id,
+      amount: Number(amount - discountAmount - bonusRedemption)
+    })
 
     const res = await fetch(`${baseUrl}api/v1/userwallet/deduct`, {
       method: "PATCH",
@@ -260,6 +277,11 @@ export default function Dialogue({subscription ,amount, name, id, walletCash, bo
     }
   }
   const applyPromoCode = async () => {
+    window.webengage.track('tenx_apply_couponcode_clicked', {
+      user: getDetails?.userDetails?._id,
+      subscriptionId: id,
+      amount: Number(amount - discountAmount - bonusRedemption)
+    });
     try{
       if(verifiedCode){
         setVerifiedCode('');
@@ -362,7 +384,13 @@ export default function Dialogue({subscription ,amount, name, id, walletCash, bo
                         {value == 'wallet' &&
                           <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="flex-start" mt={0} mb={2} style={{minWidth:'40vw'}} >
                             {!showPromoCode?<MDBox display='flex' justifyContent='flex-start' width='100%' mt={1} 
-                            onClick={()=>{setShowPromoCode(true)}} style={{cursor:'pointer'}}>
+                            onClick={()=>{
+                              window.webengage.track('tenx_intent_to_apply_couponcode_clicked', {
+                                user: getDetails?.userDetails?._id,
+                                subscriptionId: id,
+                                amount: Number(amount - discountAmount - bonusRedemption)
+                              });
+                              setShowPromoCode(true)}} style={{cursor:'pointer'}}>
                                 <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Have a promo code?</Typography>
                               </MDBox>
                             :
@@ -387,7 +415,13 @@ export default function Dialogue({subscription ,amount, name, id, walletCash, bo
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{0}</Typography>
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(subs_amount - discountAmount - bonusRedemption).toFixed(2)}</Typography>
                             {bonusCash > 0 && <MDBox display='flex' justifyContent='flex-start' alignItems='center' ml={-1}>
-                            <Checkbox checked={checked} onChange={()=>setChecked(!checked)}/>
+                            <Checkbox checked={checked} onChange={()=>{
+                                window.webengage.track('tenx_herocash_apply_clicked', {
+                                  user: getDetails?.userDetails?._id,
+                                  subscriptionId: id,
+                                });
+                                setChecked(!checked)
+                              }} />
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Use {redeemableBonus*(setting?.bonusToUnitCashRatio??1)} HeroCash (1 HeroCash = {1/(setting?.bonusToUnitCashRatio??1)}₹)</Typography>      
                           </MDBox>}
                           </MDBox>}
@@ -396,7 +430,13 @@ export default function Dialogue({subscription ,amount, name, id, walletCash, bo
                           <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="flex-start" mt={0} mb={0} >
                             <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new government regulations. However you don't need to pay anything extra. StoxHero will be taking care of the GST on your behalf. To offset it, we've increased our pricing by a bit.</Typography>
                             {!showPromoCode?<MDBox display='flex' justifyContent='flex-start' width='100%' mt={1} 
-                            onClick={()=>{setShowPromoCode(true)}} style={{cursor:'pointer'}}>
+                            onClick={()=>{
+                              window.webengage.track('tenx_intent_to_apply_couponcode_clicked', {
+                                user: getDetails?.userDetails?._id,
+                                subscriptionId: id,
+                                amount: Number(amount - discountAmount - bonusRedemption)
+                              });
+                              setShowPromoCode(true)}} style={{cursor:'pointer'}}>
                                 <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Have a promo code?</Typography>
                               </MDBox>
                             :

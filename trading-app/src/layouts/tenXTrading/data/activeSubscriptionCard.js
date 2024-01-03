@@ -145,7 +145,7 @@ function Header({ subscription, checkPayment, setCheckPayment, amount, name, id,
                           <Grid item xs={12} md={12} lg={12} mt={0.5} display='flex' justifyContent='center'>
                               <MDBox display='flex' justifyContent='center' flexDirection='column'>
                               {subscription?.features?.map((e)=>{
-                                  console.log(e?.description)
+                                //   console.log(e?.description)
                                   return(
                                   <MDBox mt={0.5} display='flex' justifyContent='flex-start' alignItems='center'>
                                      <MDBox mr={0.5} display='flex' justifyContent='center'>
@@ -199,91 +199,3 @@ function Header({ subscription, checkPayment, setCheckPayment, amount, name, id,
 }
 
 export default Header;
-
-
-{/* <>
-      <Grid container spacing={0.5} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start'>
-            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start'>
-                <MDBox 
-                    style={{background: 'linear-gradient(to bottom, #FFFAF0 0%, #F0EBE1 100%)'}}
-                    height='auto' 
-                    minWidth='100%' 
-                    borderRadius={5}
-                >
-                    <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='flex-start'>
-                        <Grid item xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='center'>
-                            <img src={TenXIcon} width='75px' height='75px'/>
-                        </Grid>
-                        <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
-                            <MDTypography 
-                                color='dark' 
-                                fontWeight='bold' 
-                                fontSize={15} 
-                                textAlign='center'
-                                style={{padding:'2px 4px 2px 4px', borderRadius:5}}
-                            >
-                                {subscription?.plan_name}
-                            </MDTypography>
-                        </Grid>
-                        <Grid item xs={12} md={12} lg={12} mt={0.5} display='flex' justifyContent='center'>
-                            <MDBox display='flex' justifyContent='center' flexDirection='column'>
-                                <MDBox display='flex' justifyContent='center'>
-                                    <MDTypography 
-                                        fontSize={15} 
-                                        fontWeight='bold'
-                                        color='light'
-                                        sx={{background:'linear-gradient(195deg, #49a3f1, #1A73E8)',padding:'2px 6px 2px 6px', borderRadius:2}}
-                                    >
-                                        Subscription: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(subscription?.fee)}
-                                    </MDTypography>
-                                </MDBox>
-                            </MDBox>
-                        </Grid>
-                        <Grid item xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='center'>
-                            <MDBox display='flex' justifyContent='center' flexDirection='column'>
-                            {subscription?.features?.map((e)=>{
-                                console.log(e?.description)
-                                return(
-                                <MDBox mt={0.1} display='flex' justifyContent='flex-start' alignItems='center'>
-                                   <MDBox mr={1} display='flex' justifyContent='center'>
-                                    <MDAvatar 
-                                            src={checklist} 
-                                            size="xs" 
-                                        />
-                                    </MDBox>
-                                    <MDBox display='flex' justifyContent='center'>
-                                        <MDTypography color='dark' fontSize={12} fontWeight='bold'>{e?.description}</MDTypography>
-                                    </MDBox>
-                                </MDBox>
-                                )
-                            })}
-                            </MDBox>
-                        </Grid>
-                        <Grid item xs={12} md={12} lg={12} mt={1.5} mb={1} display='flex' justifyContent='center' style={{width:'100%'}}>
-                            <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' style={{width:'100%'}}>
-                                <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center'>
-                                    <MDTypography fontSize={12} fontWeight='bold'>{moment.utc(subscription?.subscribedOn).utcOffset('+05:30').format("DD-MMM-YY hh:mm a")}</MDTypography>
-                                </Grid>
-                                <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center'>
-                                    <MDTypography fontSize={12} fontWeight='bold'>{moment.utc(subscription?.subscribedOn).utcOffset('+05:30').add(subscription?.expiryDays, 'days').hours(19).minutes(0).format("DD-MMM-YY hh:mm a")}</MDTypography>
-                                </Grid>
-                            </Grid>
-                        </Grid>
-                        <Grid item xs={12} md={12} lg={12} mt={1} mb={1} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
-                            <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
-                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%'}}>
-                                <DialogueAnalytics subscription={subscription} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={amount} name={name} id={id} walletCash={walletCash} allowRenewal={allowRenewal} />
-                            </Grid>
-                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
-                                <Dialogue subscription={subscription} checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={amount} name={name} id={id} walletCash={walletCash} bonusCash={bonusCash} allowRenewal={allowRenewal} />
-                            </Grid>
-                            </Grid>
-                        </Grid>
-                        <Grid item xs={12} md={12} lg={12} mb={2} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{width:'100%'}}>
-                            <MDTypography fontSize={10} fontWeight='bold'>{55 + userCount} Traders have already purchased this subscription</MDTypography>
-                        </Grid>
-                    </Grid>   
-                </MDBox>
-            </Grid>
-      </Grid>
-      </> */}

@@ -89,6 +89,9 @@ function Header({ subscription, checkPayment, setCheckPayment, amount, name, id,
 
     async function captureTutorialViews(){
     openYouTubeVideo();
+    window.webengage.track('tenx_tutorial_clicked', {
+        user: getDetails?.userDetails?._id,
+    });
     console.log("Inside Capture Tutorial View")
     const res = await fetch(`${baseUrl}api/v1/tenX/tenxtutorialview`, {
         method: "POST",

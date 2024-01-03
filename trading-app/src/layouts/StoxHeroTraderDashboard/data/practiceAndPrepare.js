@@ -29,31 +29,6 @@ const useStyles = makeStyles((theme) => ({
   }));
 
 function Summary() {
-    // console.log(lastPaidContests)
-    // const navigate = useNavigate();
-    // function TruncatedName(name) {
-    //     const originalName = name;
-    //     const convertedName = originalName
-    //       .toLowerCase() // Convert the entire name to lowercase
-    //       .split(' ') // Split the name into words
-    //       .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
-    //       .join(' '); // Join the words back together with a space
-      
-    //     // Trim the name to a maximum of 30 characters
-    //     const truncatedName = convertedName.length > 20 ? convertedName.substring(0, 20) + '...' : convertedName;
-      
-    //     return truncatedName;
-    //   }
-
-    //   function formattedDate(date) {
-
-    //     const formattedDate = new Date(date).toLocaleDateString('en-GB', {
-    //         day: 'numeric',
-    //         month: 'short',
-    //       });
-      
-    //     return formattedDate;
-    //   }
 
     const getDetails = useContext(userContext)
 
@@ -90,9 +65,11 @@ function Summary() {
                                                     style={{ background: 'linear-gradient(195deg, #66BB6A, #43A047)' }}
                                                     sx={{ minWidth: '100%', minHeight: '20vH' }}
                                                     component={Link}
-                                                    onClick={window.webengage.track('join_testzone_clicked', {
-                                                        user: getDetails?.userDetails?._id
-                                                    })}
+                                                    onClick={()=>{
+                                                        window.webengage.track('join_testzone_clicked', {
+                                                            user: getDetails?.userDetails?._id
+                                                        })
+                                                    }}
                                                     to={{
                                                         pathname: `/testzone`,
                                                     }}
@@ -129,9 +106,11 @@ function Summary() {
                                                     style={{ background: 'linear-gradient(195deg, #66BB6A, #43A047)' }}
                                                     sx={{ minWidth: '100%', minHeight: '20vH' }}
                                                     component={Link}
-                                                    onClick={window.webengage.track('practice_market_clicked', {
-                                                        user: getDetails?.userDetails?._id
-                                                    })}
+                                                    onClick={()=>{
+                                                        window.webengage.track('practice_market_clicked', {
+                                                            user: getDetails?.userDetails?._id
+                                                        })
+                                                    }}
                                                     to={{
                                                         pathname: `/market`,
                                                     }}

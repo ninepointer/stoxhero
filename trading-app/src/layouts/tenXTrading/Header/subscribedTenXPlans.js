@@ -1,29 +1,30 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import axios from "axios";
 import { CircularProgress, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import MDTypography from '../../../components/MDTypography';
-import beginner from '../../../assets/images/beginner.png'
-import intermediate from '../../../assets/images/intermediate.png'
-import pro from '../../../assets/images/pro.png'
-import checklist from '../../../assets/images/checklist.png'
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Dialogue from './dialogueBox';
+// import beginner from '../../../assets/images/beginner.png'
+// import intermediate from '../../../assets/images/intermediate.png'
+// import pro from '../../../assets/images/pro.png'
+// import checklist from '../../../assets/images/checklist.png'
+// import Card from '@mui/material/Card';
+// import CardContent from '@mui/material/CardContent';
+// import Dialogue from './dialogueBox';
 import ActiveSubscriptionCard from '../data/activeSubscriptionCard'
 import WinnerImage from '../../../assets/images/TenXHeader.png'
+import { userContext } from '../../../AuthContext';
 
 
 export default function TenXSubscriptions({setClicked}) {
   const [cashBalance, setCashBalance] = React.useState(0);
   const [bonusBalance, setBonusBalance] = React.useState(0);
-  const [activeTenXSubs,setActiveTenXSubs] = useState([]);
+  // const [activeTenXSubs,setActiveTenXSubs] = useState([]);
   const [currentTenXSubs,setCurrentTenXSubs] = useState([]);
   const [isLoading,setIsLoading] = useState(false)
   let [checkPayment, setCheckPayment] = useState(true)
   const [selectedValidity, setSelectedValidity] = useState(null);
-  
+  const getDetails = useContext(userContext);
   // Filter data based on validity
   const filteredData = selectedValidity 
     ? currentTenXSubs.filter(item => item.validity === selectedValidity) 
@@ -114,7 +115,15 @@ export default function TenXSubscriptions({setClicked}) {
             {uniqueValidities.map(validity => (
               <button 
                 key={validity}
-                onClick={() => setSelectedValidity(validity)}
+                onClick={
+                  ()=>{
+                    window.webengage.track('tenx_validity_filter_clicked', {
+                      user: getDetails?.userDetails?._id,
+                      validity: validity
+                    });
+                    setSelectedValidity(validity)
+                  }
+                }
                 style={{
                   borderRadius:'12px',
                   border:'none',
@@ -147,7 +156,11 @@ export default function TenXSubscriptions({setClicked}) {
         <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
             <img src={WinnerImage} width={50} height={50}/>
             <MDTypography color="light" fontSize={15} mb={1}>No Subscribed TenX Plan(s)</MDTypography>
-            <MDButton color="info" size='small' fontSize={10}  onClick={()=>{setClicked("live")}}>Check Available TenX Subscriptions</MDButton>
+            <MDButton color="info" size='small' fontSize={10}  onClick={()=>{
+                              window.webengage.track('tenx_no_subscribed_plan_clicked', {
+                                user: getDetails?.userDetails?._id,
+                              });
+              setClicked("live")}}>Check Available TenX Subscriptions</MDButton>
         </MDBox>
     }
     </>

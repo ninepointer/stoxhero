@@ -36,7 +36,7 @@ function ReferralHomePage() {
   const [invited,setInvited] = useState(false)
   const getDetails = useContext(userContext);
 //   const {columns, rows} = Invited();
-  const [open, setOpen] = React.useState(false);
+//   const [open, setOpen] = React.useState(false);
 //   const handleOpen = () => setOpen(true);
 //   const handleClose = () => setOpen(false);
   const [activeReferralProgram,setActiveReferralProgram] = useState();
@@ -97,13 +97,17 @@ function ReferralHomePage() {
     fetchData(); // run once on mount
     return () => clearInterval(intervalId);
   }, []);
-  const handleCopy = () => {
+
+const handleCopy = () => {
+    window.webengage.track('referral_share_clicked', {
+        user: getDetails?.userDetails?._id,
+    });
     setCopied(true);
     openSuccessSB('success', 'Copied');
-  }
+}
   const [title,setTitle] = useState('')
   const [content,setContent] = useState('')
-  const [time,setTime] = useState('')
+//   const [time,setTime] = useState('')
  
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = (value,content) => {
@@ -389,7 +393,13 @@ function ReferralHomePage() {
                                         %0A%0A📲 Visit https://www.stoxhero.com?referral=${referralCode}
                                         %0A%0AUse my below invitation code 👇 and get virtual currency of ₹10,00,000 in your wallet and start trading.
                                         %0A%0AMy Referral Code to join the StoxHero: *${getDetails.userDetails.myReferralCode}*`}
-                                        target="_blank">
+                                        target="_blank" onClick={
+                                            () => {
+                                                window.webengage.track('referral_whatsapp_share_clicked', {
+                                                    user: getDetails?.userDetails?._id,
+                                                });
+                                            }
+                                        }>
                                         <MDTypography variant="contained">
                                            <IoLogoWhatsapp color="green" lineHeight={1} size={40} />
                                         </MDTypography>

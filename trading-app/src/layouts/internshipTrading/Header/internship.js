@@ -95,6 +95,9 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
     return workingDays;
   }
   const handleDownload = async (id) => {
+    window.webengage.track('internship_certificate_download_clicked', {
+      user: getDetails?.userDetails?._id,
+    });
     try {
       const response = await axios.get(`${baseUrl}api/v1/internbatch/download/${id}`, {
         responseType: 'blob',
@@ -540,7 +543,11 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
                         variant="contained" 
                         color="info" 
                         sx={{width: "60%", height: "20px", fontSize: "500x" , margin: '0 20%'}} 
-                        onClick={()=>{navigate(`/orders`)}} size='small'
+                        onClick={()=>{
+                          window.webengage.track('internship_order_clicked', {
+                            user: getDetails?.userDetails?._id,
+                          });
+                          navigate(`/orders`)}} size='small'
                       >
                         View Orders
                       </MDButton>
@@ -550,7 +557,11 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
                       variant="contained" 
                       color="info" 
                       sx={{width: "60%", height: "20px", fontSize: "500x" , margin: '0 20%'}} 
-                      onClick={()=>{navigate(`/internship/trade`, { state: { batchId: batchId } })}} size='small'
+                      onClick={()=>{
+                        window.webengage.track('internship_start_trading_clicked', {
+                          user: getDetails?.userDetails?._id,
+                        });
+                        navigate(`/internship/trade`, { state: { batchId: batchId } })}} size='small'
                       disabled={serverTime>=batchEndDate}
                     >
                       Start Trading
@@ -561,7 +572,11 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
                       variant="contained" 
                       color="info" 
                       sx={{width: "60%", height: "20px", fontSize: "500x" , margin: '0 20%'}} 
-                      onClick={()=>{navigate(`/internship/analytics`)}} size='small'
+                      onClick={()=>{
+                        window.webengage.track('internship_analytics_clicked', {
+                          user: getDetails?.userDetails?._id,
+                        });
+                        navigate(`/internship/analytics`)}} size='small'
                     >
                       View Analytics
                     </MDButton>

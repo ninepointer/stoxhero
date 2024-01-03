@@ -7,10 +7,15 @@ import Footer from "../../examples/Footer";
 
 // Data
 import ReferralHomePage from "./Header/referralHomePage";
+import { userContext } from "../../AuthContext";
 
 function RefferalTable() {
+  const getDetails = useContext(userContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   useEffect(() => {
+    window.webengage.track('referral_tab_clicked', {
+      user: getDetails?.userDetails?._id,
+    });
     ReactGA.pageview(window.location.pathname)
     capturePageView()
   }, []);

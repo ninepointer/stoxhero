@@ -1,19 +1,20 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import axios from "axios";
 import { CircularProgress, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
-import MDAvatar from '../../../components/MDAvatar';
+// import MDAvatar from '../../../components/MDAvatar';
 import MDTypography from '../../../components/MDTypography';
-import beginner from '../../../assets/images/beginner.png'
-import intermediate from '../../../assets/images/intermediate.png'
-import pro from '../../../assets/images/pro.png'
-import checklist from '../../../assets/images/checklist.png'
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Dialogue from './dialogueBox';
+// import beginner from '../../../assets/images/beginner.png'
+// import intermediate from '../../../assets/images/intermediate.png'
+// import pro from '../../../assets/images/pro.png'
+// import checklist from '../../../assets/images/checklist.png'
+// import Card from '@mui/material/Card';
+// import CardContent from '@mui/material/CardContent';
+// import Dialogue from './dialogueBox';
 import ExpiredSubscriptionCard from '../data/expiredSubscriptionCard'
 import WinnerImage from '../../../assets/images/TenXHeader.png'
+import { userContext } from '../../../AuthContext';
 
 
 export default function TenXSubscriptions({setClicked}) {
@@ -22,7 +23,7 @@ export default function TenXSubscriptions({setClicked}) {
   let [checkPayment, setCheckPayment] = useState(true);
   const [isLoading,setIsLoading] = useState(false)
   const [selectedValidity, setSelectedValidity] = useState(null);
-  
+  const getDetails = useContext(userContext)
   // Filter data based on validity
   const filteredData = selectedValidity 
     ? expiredTenXSubs.filter(item => item.validity === selectedValidity) 
@@ -58,7 +59,7 @@ export default function TenXSubscriptions({setClicked}) {
     setIsLoading(true)
     let call2 = axios.get(`${baseUrl}api/v1/tenX/myexpiredsubscription`, {
       withCredentials:true
-    })            
+    })
     Promise.all([call2])
     .then(([api2Response]) => {
       // Process the responses here
@@ -104,7 +105,15 @@ export default function TenXSubscriptions({setClicked}) {
             {uniqueValidities.map(validity => (
               <button 
                 key={validity}
-                onClick={() => setSelectedValidity(validity)}
+                onClick={
+                  ()=>{
+                    window.webengage.track('tenx_validity_filter_clicked', {
+                      user: getDetails?.userDetails?._id,
+                      validity: validity
+                    });
+                    setSelectedValidity(validity)
+                  }
+                }
                 style={{
                   borderRadius:'12px',
                   border:'none',
@@ -136,7 +145,11 @@ export default function TenXSubscriptions({setClicked}) {
         <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
             <img src={WinnerImage} width={50} height={50}/>
             <MDTypography color="light" fontSize={15} mb={1}>No Expired TenX Subscription(s)</MDTypography>
-            <MDButton color="info" size='small' fontSize={10}  onClick={()=>{setClicked("live")}}>Check Available TenX Subscriptions</MDButton>
+            <MDButton color="info" size='small' fontSize={10}  onClick={()=>{
+                              window.webengage.track('tenx_no_expiredplan_clicked', {
+                                user: getDetails?.userDetails?._id,
+                              });
+              setClicked("live")}}>Check Available TenX Subscriptions</MDButton>
         </MDBox>
     }
     </>

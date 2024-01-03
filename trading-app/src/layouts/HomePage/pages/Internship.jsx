@@ -61,10 +61,12 @@ const Internship = ({campaignCode}) => {
                         size="small"
                         style={{minWidth: "100%", backgroundColor:'#315c45', color:'white'}}
                         component={Link}
-                        onClick={window.webengage.track('career_selection', {
-                          career_name: elem?.jobTitle,
-                          career_id: elem?._id 
-                        })}
+                        onClick={()=>{
+                          window.webengage.track('career_selection', {
+                            career_name: elem?.jobTitle,
+                            career_id: elem?._id 
+                          })
+                        }}
                         to={{
                           pathname: `/careers/${elem?.jobTitle}/jobdescription`,
                         }}
