@@ -19,18 +19,23 @@ exports.generateAadhaarOtp = async(aadhaarNo) => {
         if(!res.data.success){
             throw new Error(res.data.message);
         }
-        const clientId = res.data.data.client_id;
+        const clientId = res.data.data;
         return clientId;
         }catch(e){
-            console.log(e.message);
-            throw new Error(e);
+            console.log('error',e?.response?.data?.message);
+            const message = e?.response?.data?.message || "Something went wrong";
+            const statusCode = e?.response?.status || 500;
+            const errorToThrow = new Error(message);
+            errorToThrow.statusCode = statusCode;
+            throw errorToThrow;
     }
 }
 
 exports.verifyAadhaarOtp = async(clientId, otp) => {
+    console.log(clientId, otp);
     try{
         const res = await axios.post(
-            `${aadhaarEndPoint}/submit-otp`, 
+            `https://kyc-api.surepass.io/api/v1/aadhaar-v2/submit-otp`, 
             { client_id: clientId, otp:otp }, 
             { 
                 headers: {
@@ -43,14 +48,18 @@ exports.verifyAadhaarOtp = async(clientId, otp) => {
         }
         return res.data.data;
     }catch(e){
-        console.log(e);
-        throw new Error(e.message);
+        console.log('error',e?.response?.data?.message);
+        const message = e?.response?.data?.message || "Something went wrong";
+        const statusCode = e?.response?.status || 500;
+        const errorToThrow = new Error(message);
+        errorToThrow.statusCode = statusCode;
+        throw errorToThrow;
     }
 }
 exports.verifyBankAccount = async(bankAccountNumber, ifscCode) => {
     try{
         const res = await axios.post(
-            `${bankEndPoint}`, 
+            `https://kyc-api.surepass.io/api/v1/bank-verification`, 
             { id_number: bankAccountNumber, ifsc:ifscCode, ifsc_details:true }, 
             { 
                 headers: {
@@ -63,14 +72,18 @@ exports.verifyBankAccount = async(bankAccountNumber, ifscCode) => {
         }
         return res.data.data;
     }catch(e){
-        console.log(e);
-        throw new Error(e.message);
+        console.log('error',e?.response?.data?.message);
+        const message = e?.response?.data?.message || "Something went wrong";
+        const statusCode = e?.response?.status || 500;
+        const errorToThrow = new Error(message);
+        errorToThrow.statusCode = statusCode;
+        throw errorToThrow;
     }
 }
 exports.verifyPan = async(panNumber) => {
     try{
         const res = await axios.post(
-            `${panEndPoint}`, 
+            `https://kyc-api.surepass.io/api/v1/pan/pan`, 
             { id_number: panNumber}, 
             { 
                 headers: {
@@ -83,7 +96,11 @@ exports.verifyPan = async(panNumber) => {
         }
         return res.data.data;
     }catch(e){
-        console.log(e);
-        throw new Error(e.message);
+        console.log('error',e?.response?.data?.message);
+        const message = e?.response?.data?.message || "Something went wrong";
+        const statusCode = e?.response?.status || 500;
+        const errorToThrow = new Error(message);
+        errorToThrow.statusCode = statusCode;
+        throw errorToThrow;
     }
 }
