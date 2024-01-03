@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import MDBox from '../../../components/MDBox'
 import MDButton from '../../../components/MDButton';
 import ReactGA from "react-ga"
@@ -21,18 +21,19 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { userContext } from '../../../AuthContext';
 
 
 const CareerForm = () => {
 
   const [submitted,setSubmitted] = useState(false)
-  const [saving,setSaving] = useState(false)
+  // const [saving,setSaving] = useState(false)
   const [creating,setCreating] = useState(false)
   const [otpGenerated,setOTPGenerated] = useState(false);
   const location = useLocation();
   const career = location?.state?.data;
   const campaignCode = location?.state?.campaignCode;
-
+  const getDetails = useContext(userContext);
   const [detail, setDetails] = useState({
     firstName: "",
     lastName: "",
@@ -81,7 +82,8 @@ const CareerForm = () => {
     } = detail;
 
     window.webengage.track('career_confirmation_clicked', {
-      career_id: career 
+      career_id: career,
+      user: getDetails?.userDetails?._id
     })
     
     const res = await fetch(`${baseUrl}api/v1/career/confirmotp`, {

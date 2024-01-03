@@ -18,7 +18,7 @@ const MarginXMockCompany = require("../models/marginX/marginXCompanyMock");
 const BattleMockUser = require("../models/battle/battleTrade");
 const {virtual, internship, dailyContest, marginx, tenx, battle, stock} = require("../constant")
 const StockTrade = require("../models/mock-trade/stockSchema");
-
+const {marginDetailDataBase, pnlPositionDatabase, pnlHoldingDatabase} = require("../controllers/stockTradeController");
 
 exports.fundCheck = async (req, res, next) => {
     let isRedisConnected = getValue();
@@ -543,9 +543,12 @@ const getLastTradeMarginAndCaseNumber = async (req, pnlData, from) => {
     if(pnlData?.length > 0){
         margin = mySymbol[0]?.margin;
     } else{
-        const lastTradeData = await DataBase.findOne({symbol: symbol, trader: new ObjectId(req.user._id), trade_time: {$gte: new Date()}})
+        // const lastTradeData = await DataBase.findOne({symbol: symbol, trader: new ObjectId(req.user._id), trade_time: {$gte: new Date()}})
+        const lastTradeData = await DataBase.findOne({symbol: symbol, trader: new ObjectId(req.user._id)})
         .sort({ _id: -1 })
         .limit(1)
+
+        console.log(lastTradeData, "lastTradeData")
         margin = lastTradeData && lastTradeData.margin;
     }
 
@@ -570,7 +573,7 @@ const getLastTradeMarginAndCaseNumber = async (req, pnlData, from) => {
 
 const marginZeroCase = async (req, res, next, availableMargin, from, data) => {
     const requiredMargin = await calculateRequiredMargin(req, req.body.Quantity, data, (from===stock && true));
-    // console.log("0th case", availableMargin, requiredMargin);
+    console.log("0th case", availableMargin, requiredMargin);
 
     if((availableMargin-requiredMargin) > 0){
         req.body.margin = requiredMargin;
@@ -640,6 +643,7 @@ const calculateRequiredMargin = async (req, Quantity, data, isStock) => {
         "trigger_price": 0
     }]
 
+    console.log("body", req.body)
     try{
         if(isStock){
             return (last_price * Math.abs(Quantity)); 
@@ -1168,18 +1172,28 @@ exports.fundCheckStock = async (req, res, next) => {
     console.log(await client.exists(`${req.user._id.toString()}: overallpnlDelivery`))
 
     try {
-        if (isRedisConnected && (await client.exists(`${req.user._id.toString()}: overallpnlIntraday`) || await client.exists(`${req.user._id.toString()}: overallpnlDelivery`))) {
-            if(Product === "MIS"){
-              todayPnlData = await client.get(`${req.user._id.toString()}: overallpnlIntraday`)
-            } else{
-              todayPnlData = await client.get(`${req.user._id.toString()}: overallpnlDelivery`)
+        if (isRedisConnected && (await client.exists(`${req.user._id.toString()}: overallpnlIntraday`) && await client.exists(`${req.user._id.toString()}: overallpnlDelivery`))) {
+            if (Product === "MIS") {
+                todayPnlData = await client.get(`${req.user._id.toString()}: overallpnlIntraday`)
+            } else {
+                todayPnlData = await client.get(`${req.user._id.toString()}: overallpnlDelivery`)
             }
             todayPnlData = JSON.parse(todayPnlData);
+        } else {
+            if (Product === "MIS") {
+                todayPnlData = await pnlPositionDatabase(req?.user?._id)
+            } else {
+                todayPnlData = await pnlHoldingDatabase(req.user._id);
+            }
         }
+        console.log(todayPnlData)
 
         if (isRedisConnected && await client.exists(`${req.user._id.toString()} openingBalanceAndMarginStock`)) {
             fundDetail = await client.get(`${req.user._id.toString()} openingBalanceAndMarginStock`)
             fundDetail = JSON.parse(fundDetail);
+            req.body.portfolioId = fundDetail?.portfolioId;
+        } else {
+            fundDetail = await marginDetailDataBase(req?.user?._id);
             req.body.portfolioId = fundDetail?.portfolioId;
         }
     } catch (e) {

@@ -93,6 +93,7 @@ router.post("/internPlacingOrder", isAppLive, authentication, authoizeTrade.fund
 
 router.post("/stockorderplace", isAppLive, authentication, authoizeTrade.fundCheckStock,  async (req, res)=>{
     req.body.stockTrade = true;
+    console.log("me vijay hu")
     MockTradeFunc.mockTrade(req, res);
 })
 
