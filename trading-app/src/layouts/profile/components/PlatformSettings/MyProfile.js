@@ -497,7 +497,11 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
               >
                 Click on pencil icon to update personal details
               </Typography>
-              <Icon sx={{ cursor: "pointer" }} fontSize="small" onClick={()=>{setEditablePD(true)}}>
+              <Icon sx={{ cursor: "pointer" }} fontSize="small" onClick={()=>{
+                 window.webengage.track('profile_update_personal_detail_clicked', {
+                  user: getDetails?.userDetails?._id,
+                });
+                setEditablePD(true)}}>
                 edit
               </Icon>
               </Box>
@@ -512,7 +516,11 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
               >
                 Click on tick icon to save personal details
               </Typography>
-              <Icon sx={{ cursor: "pointer" }} fontSize="small" onClick={()=>{setEditablePD(false);formSubmit(formStatePD,"Personal Details")}}>
+              <Icon sx={{ cursor: "pointer" }} fontSize="small" onClick={()=>{
+                 window.webengage.track('profile_save_personal_detail_clicked', {
+                  user: getDetails?.userDetails?._id,
+                });
+                setEditablePD(false);formSubmit(formStatePD,"Personal Details")}}>
                 done
               </Icon>
               </Box>
@@ -863,6 +871,9 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
               <Icon
                 fontSize="small"
                 onClick={() => {
+                  window.webengage.track('profile_update_bank_detail_clicked', {
+                    user: getDetails?.userDetails?._id,
+                  });
                   if(formStateKYC.KYCStatus != 'Approved'){
                     setEditableBD(true);
                   }
@@ -886,7 +897,11 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
               </Typography>
               <Icon
                 fontSize="small"
-                onClick={()=>{setEditableBD(false);formSubmit(formStateBD,"Bank Details")}}
+                onClick={()=>{
+                  window.webengage.track('profile_save_bank_detail_clicked', {
+                    user: getDetails?.userDetails?._id,
+                  });
+                  setEditableBD(false);formSubmit(formStateBD,"Bank Details")}}
               >
                 done
               </Icon>
@@ -1155,6 +1170,9 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
               <Icon
                 fontSize="small"
                 onClick={() => {
+                  window.webengage.track('profile_update_kyc_detail_clicked', {
+                    user: getDetails?.userDetails?._id,
+                  });
                   if(formStateKYC.KYCStatus != 'Approved'){
                     setEditableKYC(true);
                   }
@@ -1177,6 +1195,9 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 <Icon
                   fontSize="small"
                   onClick={() => {
+                    window.webengage.track('profile_save_kyc_detail_clicked', {
+                      user: getDetails?.userDetails?._id,
+                    });
                     setEditableKYC(false);
                     formSubmit(formStateKYC,"KYC Details");
                   }}

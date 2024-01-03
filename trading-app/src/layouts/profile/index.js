@@ -3,52 +3,22 @@ import ReactGA from "react-ga"
 import axios from "axios";
 import { useEffect, useState, useContext } from "react";
 import { userContext } from "../../AuthContext";
-
-// @mui material components
-import Grid from "@mui/material/Grid";
-import Divider from "@mui/material/Divider";
-
-// @mui icons
-import FacebookIcon from "@mui/icons-material/Facebook";
-import TwitterIcon from "@mui/icons-material/Twitter";
-import InstagramIcon from "@mui/icons-material/Instagram";
-
-// Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
-import MDTypography from "../../components/MDTypography";
-
-// Material Dashboard 2 React example components
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
-import Footer from "../../examples/Footer";
-import ProfileInfoCard from "../../examples/Cards/InfoCards/ProfileInfoCard";
-import ProfilesList from "../../examples/Lists/ProfilesList";
-import DefaultProjectCard from "../../examples/Cards/ProjectCards/DefaultProjectCard";
-
-// Overview page components
 import Header from "./components/Header";
-import PlatformSettings from "./components/PlatformSettings";
 
-// Data
-import profilesListData from "./data/profilesListData";
-
-// Images
-import homeDecor1 from "../../assets/images/home-decor-1.jpg";
-import homeDecor2 from "../../assets/images/home-decor-2.jpg";
-import homeDecor3 from "../../assets/images/home-decor-3.jpg";
-import homeDecor4 from "../../assets/images/home-decor-4.jpeg";
-import team1 from "../../assets/images/team-1.jpg";
-import team2 from "../../assets/images/team-2.jpg";
-import team3 from "../../assets/images/team-3.jpg";
-import team4 from "../../assets/images/team-4.jpg";
 
 function Overview() {
 
-  const [userDetail,setuserDetail] = useState([]);
+  // const [userDetail,setuserDetail] = useState([]);
   const getDetails = useContext(userContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   
   useEffect(() => {
+    window.webengage.track('profile_clicked', {
+      user: getDetails?.userDetails?._id,
+    });
     ReactGA.pageview(window.location.pathname)
     capturePageView()
   }, []);
@@ -64,16 +34,16 @@ function Overview() {
         },
     });
   }
- useEffect(()=>{
-       axios.get(`${baseUrl}api/v1/readparticularuserdetails/${getDetails.userDetails.email}`)
-      .then((res)=>{
-          console.log(res.data);
-          setuserDetail(res.data)
-      }).catch((err)=>{
-          //window.alert("Server Down");
-          return new Error(err);
-      })
-  },[getDetails])
+//  useEffect(()=>{
+//        axios.get(`${baseUrl}api/v1/readparticularuserdetails/${getDetails.userDetails.email}`)
+//       .then((res)=>{
+//           console.log(res.data);
+//           setuserDetail(res.data)
+//       }).catch((err)=>{
+//           //window.alert("Server Down");
+//           return new Error(err);
+//       })
+//   },[getDetails])
 
 
   return (

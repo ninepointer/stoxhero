@@ -159,7 +159,12 @@ const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
           <TextField label='Withdrawal Amount' type= "number" value={amount} onChange={(e)=>{setAmount(e.target.value)}} outerWidth='40%'/>
           <MDBox sx={{display:'flex', justifyContent:'flex-end', marginTop:'12px' }}>
             <MDButton onClick={()=>{handleClose()}}>Cancel</MDButton>
-            <MDButton color='success' onClick={()=>{handleSubmit()}}>Confirm</MDButton>
+            <MDButton color='success' onClick={()=>{
+              window.webengage.track('wallet_withdraw_process_clicked', {
+                user: getDetails?.userDetails?._id,
+                amount: amount
+              });
+              handleSubmit()}}>Confirm</MDButton>
           </MDBox>
         </MDBox>
       </Box>

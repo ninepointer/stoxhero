@@ -16,25 +16,29 @@ import Internship from './Internship';
 import MDBox from "../../../components/MDBox";
 // import { CircularProgress } from '@mui/material';
 import MDTypography from "../../../components/MDTypography";
+import { userContext } from "../../../AuthContext";
 // import CareerJD from './careerJD';
 
 const App = (props) => {
+  const getDetails = useContext(userContext);
   const [campaignCode,setCampaignCode] = useState();
   const [isLoading,setIsLoading] = useState(false);
   const location = useLocation();
-  const [clicked,setClicked] = useState(false);
+  // const [clicked,setClicked] = useState(false);
   const [value, setValue] = React.useState('1');
-  const handleChange = (event, newValue) => {
-    setIsLoading(true)
-    setValue(newValue);
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 500);
-  };
+  // const handleChange = (event, newValue) => {
+  //   setIsLoading(true)
+  //   setValue(newValue);
+  //   setTimeout(() => {
+  //     setIsLoading(false)
+  //   }, 500);
+  // };
   useEffect(()=>{
     setCampaignCode(location.search.split('=')[1]??props.location?.search?.split('=')[1]??'');
     ReactGA.pageview(window.location.pathname)
-    window.webengage.track('career_clicked', {})
+    window.webengage.track('career_clicked', {
+      user: getDetails?.userDetails?._id
+    })
   },[]);
   return (
     <>

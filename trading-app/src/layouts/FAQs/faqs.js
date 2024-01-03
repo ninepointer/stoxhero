@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import MDBox from "../../components/MDBox";
 import { Grid } from "@mui/material";
 import MDTypography from "../../components/MDTypography";
@@ -6,6 +6,7 @@ import MDTypography from "../../components/MDTypography";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import MDButton from "../../components/MDButton";
+import { userContext } from "../../AuthContext";
 
 
 // Data
@@ -24,6 +25,7 @@ function FAQs() {
     5: false,
   });
   
+  const getDetails = useContext(userContext);
   const expansion = (id) => {
     setExpanded(prevExpanded => ({
       ...prevExpanded,
@@ -48,7 +50,11 @@ function FAQs() {
                         variant="text" 
                         size="large" 
                         color="dark"
-                        onClick={()=>expansion(1)}
+                        onClick={()=>{
+                            window.webengage.track('faq_aboutstoxhero_clicked', {
+                                user: getDetails?.userDetails?._id,
+                              });
+                            expansion(1)}}
                         style={{transition: "all 0.8s ease-out"}}
                         >
                             {!expanded[1] ?  <ExpandMoreIcon/> : <ExpandLessIcon/>}
@@ -85,7 +91,11 @@ function FAQs() {
                         variant="text" 
                         size="large" 
                         color="dark"
-                        onClick={()=>expansion(2)}
+                        onClick={()=>{
+                            window.webengage.track('faq_login_registration_clicked', {
+                                user: getDetails?.userDetails?._id,
+                              });
+                            expansion(2)}}
                         style={{transition: "all 0.8s ease-out"}}
                         >
                             {!expanded[2] ?  <ExpandMoreIcon/> : <ExpandLessIcon/>}
@@ -139,7 +149,11 @@ function FAQs() {
                         variant="text" 
                         size="large" 
                         color="dark"
-                        onClick={()=>expansion(3)}
+                        onClick={()=>{
+                            window.webengage.track('faq_portfolio_clicked', {
+                                user: getDetails?.userDetails?._id,
+                              });
+                            expansion(3)}}
                         style={{transition: "all 0.8s ease-out"}}
                         >
                             {!expanded[3] ?  <ExpandMoreIcon/> : <ExpandLessIcon/>}
@@ -403,7 +417,11 @@ function FAQs() {
                         variant="text" 
                         size="large" 
                         color="dark"
-                        onClick={()=>expansion(6)}
+                        onClick={()=>{
+                            window.webengage.track('faq_account_clicked', {
+                                user: getDetails?.userDetails?._id,
+                              });
+                            expansion(6)}}
                         style={{transition: "all 0.8s ease-out"}}
                         >
                             {!expanded[6] ?  <ExpandMoreIcon/> : <ExpandLessIcon/>}

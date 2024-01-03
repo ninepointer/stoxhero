@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import Dialog from '@mui/material/Dialog';
@@ -19,6 +19,7 @@ import Grid from '@mui/material/Grid'
 import MDTypography from '../../../components/MDTypography';
 import {apiUrl} from '../../../constants/constants';
 import Input from '@mui/material/Input';
+import { userContext } from '../../../AuthContext';
 
 
 const ariaLabel = { 'aria-label': 'description' };
@@ -34,6 +35,7 @@ export default function AddMoney() {
   const [discountAmount, setDiscountAmount] = useState(0);
   const [cashbackAmount, setCashbackAmount] = useState(0);
   const [showPromoCode, setShowPromoCode] = useState(false);
+  const getDetails = useContext(userContext);
   //   const [messege, setMessege] = useState({
   //     lowBalanceMessage: "",
   //     thanksMessege: "",
@@ -135,9 +137,14 @@ export default function AddMoney() {
       <MDBox style={{width:'100%'}}>
         <Grid container xs={3} md={6} lg={12} display="flex" justifyContent="space-between" alignItems="center">
         <Grid item xs={3} md={6} lg={12} display="flex" justifyContent="center" alignItems="center">
-        <MDButton size="small" style={{ width: '95%' }} onClick={() => { setOpen(true) }}>
-          Top-Up
-        </MDButton>
+          <MDButton size="small" style={{ width: '95%' }} onClick={() => {
+            window.webengage.track('wallet_top-up_clicked', {
+              user: getDetails?.userDetails?._id,
+            });
+            setOpen(true)
+          }}>
+            Top-Up
+          </MDButton>
         </Grid>
         </Grid>
       </MDBox>
@@ -215,7 +222,11 @@ export default function AddMoney() {
                   size="small"
                   sx={{ mr: 2, ml: 2 }}
                   disabled={!amount}
-                  onClick={(e) => { initiatePayment() }}
+                  onClick={(e) => { 
+                    window.webengage.track('wallet_top-up_payment_clicked', {
+                      user: getDetails?.userDetails?._id,
+                    });
+                    initiatePayment() }}
                 >
                   <MDBox display='flex' alignItems='center' justifyContent='center' gap={1} style={{color:'#fff'}}>
                     

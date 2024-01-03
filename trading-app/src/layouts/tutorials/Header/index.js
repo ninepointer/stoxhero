@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import YouTube from 'react-youtube';
 import axios from "axios";
 import { CircularProgress, Grid } from '@mui/material';
@@ -13,11 +13,13 @@ import MDTypography from '../../../components/MDTypography';
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
 import VideoTutorial from '../../../assets/images/VideoTutorial.jpg'
+import { userContext } from '../../../AuthContext';
 
 
 
 function YouTubeVideo() {
     // YouTube video options
+    const getDetails = useContext(userContext);
     const [tutorialCategories,setTutorialCategories] = useState([])
     const [isLoading,setIsLoading] = useState(false)
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -81,6 +83,14 @@ function YouTubeVideo() {
                           // style={{minWidth:'100%'}}
                           style={buttonStyle}
                           component={Link}
+                          onClick={
+                            ()=>{
+                              window.webengage.track('tutorials_categoty_clicked', {
+                                user: getDetails?.userDetails?._id,
+                                categoryName: elem?.categoryName
+                              });
+                            }
+                          }
                           to={{
                             pathname: `/tutorials/${elem?.categoryName}`,
                           }}
