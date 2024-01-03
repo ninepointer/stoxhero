@@ -353,6 +353,312 @@ exports.pnlHolding = async (req, res, next) => {
 
 }
 
+exports.pnlPositionDatabase = async (userId ) => {
+
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+
+  let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  tempTodayDate = tempTodayDate + "T23:59:59.999Z";
+  const tempDate = new Date(tempTodayDate);
+
+  try{
+
+    let pnlDetails = await StockTrade.aggregate([
+      {
+          $match: {
+              trade_time:{
+                  $gte: today
+              },
+              Product: "MIS",
+              status: "COMPLETE",
+              trader: new ObjectId(userId)
+          },
+      },
+      {
+        $sort: {
+          trade_time: 1,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            symbol: "$symbol",
+            product: "$Product",
+            instrumentToken: "$instrumentToken",
+            exchangeInstrumentToken: "$exchangeInstrumentToken",
+            // exchangeInstrumentToken: "$exchangeInstrumentToken",
+            exchange: "$exchange",
+            validity: "$validity",
+            variety: "$variety",
+          },
+          amount: {
+            $sum: {$multiply : ["$amount",-1]},
+          },
+          brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
+          },
+          lots: {
+            $sum: {
+              $toInt: "$Quantity",
+            },
+          },
+          lastaverageprice: {
+            $last: "$average_price",
+          },
+          margin: {
+            $last: "$margin",
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: -1,
+        },
+      },
+    ])
+
+    const limitMargin = await PendingOrder.aggregate([
+      {
+        $match: {
+          createdBy: new ObjectId(
+            userId
+          ),
+          type: "Limit",
+          status: "Pending",
+          Product: "MIS",
+          createdOn: {
+            $gte: today,
+          },
+          product_type: new ObjectId("65449ee06932ba3a403a681a")
+        },
+      },
+      {
+        $sort: {
+          createdOn: 1,
+        },
+      },
+      {
+        $group:
+        {
+          _id: {
+            symbol: "$symbol",
+            product: "$Product",
+            instrumentToken: "$instrumentToken",
+            exchangeInstrumentToken: "$exchangeInstrumentToken",
+            exchange: "$exchange",
+            validity: "$validity",
+            variety: "$variety",
+            // order_type: "$order_type"
+          },
+          amount: {
+            $sum: { $multiply: ["$amount", -1] },
+          },
+          brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
+          },
+          lots: {
+            $sum: {
+              $toInt: "$Quantity",
+            },
+          },
+          margin: {
+            $last: "$margin",
+          },
+        }
+      }
+    ])
+
+    const arr = [];
+    for(let elem of limitMargin){
+      arr.push({
+        _id: {
+          symbol: elem._id.symbol,
+          product: elem._id.product,
+          instrumentToken: elem._id.instrumentToken,
+          exchangeInstrumentToken: elem._id.exchangeInstrumentToken,
+          exchange: elem._id.exchange,
+          validity: elem._id.validity,
+          variety: elem._id.variety,
+          isLimit: true
+        },
+        // amount: (tenxDoc.amount * -1),
+        // brokerage: Number(tenxDoc.brokerage),
+        lots: Number(elem.lots),
+        // lastaverageprice: tenxDoc.average_price,
+        margin: elem.margin
+      });
+    }
+
+    const newPnl = pnlDetails.concat(arr);
+
+    await client.set(`${userId.toString()}: overallpnlIntraday`, JSON.stringify(newPnl))
+
+    return newPnl
+
+  }catch(e){
+  }
+}
+
+exports.pnlHoldingDatabase = async (userId) => {
+let date = new Date();
+let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+todayDate = todayDate + "T00:00:00.000Z";
+const today = new Date(todayDate);
+
+let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+tempTodayDate = tempTodayDate + "T23:59:59.999Z";
+const tempDate = new Date(tempTodayDate);
+
+
+try{
+
+
+    let pnlDetails = await StockTrade.aggregate([
+      {
+          $match: {
+              // trade_time:{
+              //     $gte: today
+              // },
+              Product: "CNC",
+              status: "COMPLETE",
+              trader: new ObjectId(userId)
+          },
+      },
+      {
+        $sort: {
+          trade_time: 1,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            symbol: "$symbol",
+            product: "$Product",
+            instrumentToken: "$instrumentToken",
+            exchangeInstrumentToken: "$exchangeInstrumentToken",
+            // exchangeInstrumentToken: "$exchangeInstrumentToken",
+            exchange: "$exchange",
+            validity: "$validity",
+            variety: "$variety",
+          },
+          amount: {
+            $sum: {$multiply : ["$amount",-1]},
+          },
+          brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
+          },
+          lots: {
+            $sum: {
+              $toInt: "$Quantity",
+            },
+          },
+          lastaverageprice: {
+            $last: "$average_price",
+          },
+          margin: {
+            $last: "$margin",
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: -1,
+        },
+      },
+    ])
+
+    const limitMargin = await PendingOrder.aggregate([
+      {
+        $match: {
+          createdBy: new ObjectId(
+            userId
+          ),
+          Product: "CNC",
+          type: "Limit",
+          status: "Pending",
+          createdOn: {
+            $gte: today,
+          },
+          product_type: new ObjectId("65449ee06932ba3a403a681a")
+        },
+      },
+      {
+        $sort: {
+          createdOn: 1,
+        },
+      },
+      {
+        $group:
+        {
+          _id: {
+            symbol: "$symbol",
+            product: "$Product",
+            instrumentToken: "$instrumentToken",
+            exchangeInstrumentToken: "$exchangeInstrumentToken",
+            exchange: "$exchange",
+            validity: "$validity",
+            variety: "$variety",
+            // order_type: "$order_type"
+          },
+          amount: {
+            $sum: { $multiply: ["$amount", -1] },
+          },
+          brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
+          },
+          lots: {
+            $sum: {
+              $toInt: "$Quantity",
+            },
+          },
+          margin: {
+            $last: "$margin",
+          },
+        }
+      }
+    ])
+
+    const arr = [];
+    for(let elem of limitMargin){
+      arr.push({
+        _id: {
+          symbol: elem._id.symbol,
+          product: elem._id.product,
+          instrumentToken: elem._id.instrumentToken,
+          exchangeInstrumentToken: elem._id.exchangeInstrumentToken,
+          exchange: elem._id.exchange,
+          validity: elem._id.validity,
+          variety: elem._id.variety,
+          isLimit: true
+        },
+        // amount: (tenxDoc.amount * -1),
+        // brokerage: Number(tenxDoc.brokerage),
+        lots: Number(elem.lots),
+        // lastaverageprice: tenxDoc.average_price,
+        margin: elem.margin
+      });
+    }
+
+    const newPnl = pnlDetails.concat(arr);
+    await client.set(`${userId.toString()}: overallpnlDelivery`, JSON.stringify(newPnl))
+    return newPnl
+  
+
+}catch(e){
+}
+}
+
 exports.myTodaysTrade = async (req, res, next) => {
   
   // const id = req.params.id
@@ -550,6 +856,134 @@ exports.marginDetail = async (req, res, next) => {
   } catch (e) {
     console.log(e);
     return res.status(500).json({ status: 'success', message: 'something went wrong.' })
+  }
+}
+
+exports.marginDetailDataBase = async (userId) => {
+
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+
+
+  try {
+
+    const portfoliosFund = await Portfolio.aggregate([
+      {
+        $match:
+        {
+          status: "Active",
+          portfolioType: "Stock Trading",
+        },
+      },
+      {
+        $lookup:
+        {
+          from: "stock-trades",
+          localField: "_id",
+          foreignField: "portfolioId",
+          as: "trades",
+        },
+      },
+      {
+        $unwind:
+        {
+          path: "$trades",
+        },
+      },
+      {
+        $match:
+        {
+          "trades.trade_time": {
+            $lt: today,
+          },
+          "trades.status": "COMPLETE",
+          "trades.trader": new ObjectId(
+            userId
+          ),
+        },
+      },
+      {
+        $group: {
+          _id: {
+            portfolioId: "$_id",
+            portfolioName: "$portfolioName",
+            totalFund: "$portfolioValue",
+          },
+          totalAmount: {
+            $sum: {
+              $multiply: ["$trades.amount", -1],
+            },
+          },
+          totalBrokerage: {
+            $sum: "$trades.brokerage",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          portfolioId: "$_id.portfolioId",
+          portfolioName: "$_id.portfolioName",
+          totalFund: "$_id.totalFund",
+          npnl: {
+            $subtract: [
+              "$totalAmount",
+              "$totalBrokerage",
+            ],
+          },
+          openingBalance: {
+            $sum: [
+              "$_id.totalFund",
+              {
+                $subtract: [
+                  "$totalAmount",
+                  "$totalBrokerage",
+                ],
+              },
+            ],
+          },
+        },
+      },
+    ])
+
+    if (portfoliosFund.length > 0) {
+      await client.set(`${userId.toString()} openingBalanceAndMarginStock`, JSON.stringify(portfoliosFund[0]))
+      return portfoliosFund[0];
+    } else {
+      const portfoliosFund = await Portfolio.aggregate([
+        {
+          $match:
+          {
+            status: "Active",
+            portfolioType: "Stock Trading",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              portfolioId: "$_id",
+              portfolioName: "$portfolioName",
+              totalFund: "$portfolioValue",
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            portfolioId: "$_id.portfolioId",
+            portfolioName: "$_id.portfolioName",
+            totalFund: "$_id.totalFund",
+          },
+        },
+      ])
+      await client.set(`${userId.toString()} openingBalanceAndMarginStock`, JSON.stringify(portfoliosFund[0]))
+      return portfoliosFund[0];
+    }
+
+  } catch (e) {
+    console.log(e);
   }
 }
 
