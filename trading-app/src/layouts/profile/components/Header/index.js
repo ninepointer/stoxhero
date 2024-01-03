@@ -39,7 +39,7 @@ function Header({ children }) {
   const [userDetail,setuserDetail] = useState([]);
   const [profilePhoto,setProfilePhoto] = useState(DefaultProfilePic);
   const getDetails = useContext(userContext);
-  console.log("getDetails", getDetails)
+  // console.log("getDetails", getDetails)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
  useEffect(()=>{
