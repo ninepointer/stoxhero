@@ -8,6 +8,9 @@ import ReactGA from "react-ga"
 function Tables() {
 
   useEffect(()=>{
+    window.webengage.track('dashboard_tab_clicked', {
+      user: getDetails?.userDetails?._id
+    })
     ReactGA.pageview(window.location.pathname)
   },[]);
 

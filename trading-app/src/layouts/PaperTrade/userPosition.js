@@ -32,7 +32,7 @@ function UserPosition() {
   useEffect(() => {
     ReactGA.pageview(window.location.pathname);
     capturePageView();
-    window.webengage.track('virtual_trade_clicked', {
+    window.webengage.track('virtual_trade_tab_clicked', {
       user: getDetails?.userDetails?._id
     })
   }, []);
