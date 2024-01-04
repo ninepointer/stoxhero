@@ -274,6 +274,9 @@ function AdminLogin() {
           let userData = await userDetail();
           // console.log(userData)
           window.webengage.user.login(userData?._id?.toString());
+          window.webengage.user.setAttribute('user_email', userData?.email);
+          window.webengage.user.setAttribute('user_mobile', `+91${userData?.mobile.slice(-10)}`);
+    
           window.webengage.user.setAttribute('user_first_name', userData?.first_name);
           window.webengage.user.setAttribute('user_last_name', userData?.last_name);
           window.webengage.user.setAttribute('user_dob', userData?.dob);
