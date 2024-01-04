@@ -5,8 +5,10 @@ import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
 import Header from "./Header";
 import ReactGA from "react-ga"
+import { userContext } from "../../AuthContext";
 function Tables() {
 
+  const getDetails = useContext(userContext);
   useEffect(()=>{
     window.webengage.track('dashboard_tab_clicked', {
       user: getDetails?.userDetails?._id
