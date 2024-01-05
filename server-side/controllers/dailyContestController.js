@@ -2874,6 +2874,17 @@ exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, co
       return total + transaction?.amount;
     }, 0);
 
+    //check contest is live
+    if ((contest?.contestEndTime <= new Date()) || (contest?.contestStatus === "Completed")) {
+      return {
+        statusCode: 400,
+        data: {
+          status: "error",
+          message: "This contest has ended. Please join another one.",
+        }
+      };
+    }
+
     //Check if Bonus Redemption is valid
     if (bonusRedemption > totalBonusAmount || bonusRedemption > contest?.entryFee * setting[0]?.maxBonusRedemptionPercentage) {
       return {

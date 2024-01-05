@@ -1104,6 +1104,10 @@ exports.pendingOrderMain = async () => {
                     pnlData = await client.get(`${createdBy?.toString()}: ${Product === "MIS" ? "overallpnlIntraday" : "overallpnlDelivery"}`)
                 }
 
+                if(!pnlData){
+                    return;
+                }
+
 
                 // console.log("pnlData", pnlData)
 
