@@ -4,9 +4,9 @@ const Battle = require("../../models/battle/battleTrade");
 exports.battleTrade = async (req, res, otherData) => {
   let {exchange, symbol, buyOrSell, Quantity, Product, order_type, exchangeInstrumentToken,
     validity, variety, order_id, instrumentToken, battleId,
-    trader} = req.body 
+    trader, originalLastPriceUser, originalLastPriceCompany, trade_time} = req.body 
 
-  let {isRedisConnected, brokerageUser, originalLastPriceUser, secondsRemaining, trade_time} = otherData;
+  let {isRedisConnected, brokerageUser, secondsRemaining} = otherData;
 
     Battle.findOne({order_id : order_id})
     .then((dateExist)=>{

@@ -28,8 +28,8 @@ exports.mockTrade = async (req, res) => {
     const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
 
-    let {exchange, symbol, buyOrSell, Quantity, Product, order_type, stockTrade,
-        validity, variety, instrumentToken, tenxTraderPath, internPath, battle,
+    let {exchange, symbol, buyOrSell, Quantity, Product, order_type, stockTrade, originalLastPriceUser, trade_time,
+        validity, variety, instrumentToken, tenxTraderPath, internPath, battle, originalLastPriceCompany,
         realBuyOrSell, realQuantity, isAlgoTrader, paperTrade, dailyContest, marginx, deviceDetails } = req.body 
 
         console.log("req data", req.body)
@@ -97,35 +97,38 @@ exports.mockTrade = async (req, res) => {
         req.body.realQuantity = "-"+realQuantity;
     }
 
-    let originalLastPriceUser;
-    let originalLastPriceCompany;
-    let newTimeStamp = "";
-    let trade_time = "";
-    try {
-        let liveData;
-        if (setting.ltp == xtsAccountType || setting.complete == xtsAccountType) {
-            liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
-        } else {
-            liveData = await singleLivePrice(exchange, symbol)
-        }
+    if (!originalLastPriceUser) {
+        try {
+            let liveData;
+            if (setting.ltp == xtsAccountType || setting.complete == xtsAccountType) {
+                liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
+            } else {
+                liveData = await singleLivePrice(exchange, symbol)
+            }
 
-        newTimeStamp = liveData?.timestamp;
-        originalLastPriceUser = liveData?.last_price ;
-        originalLastPriceCompany = liveData?.last_price ;
+            newTimeStamp = liveData?.timestamp;
+            originalLastPriceUser = liveData?.last_price;
+            originalLastPriceCompany = liveData?.last_price;
 
-        if(!liveData?.last_price){
-            return res.status(400).json({status: "error", message: "Market orders are blocked for in the money options due to illiquidity. Try again later."})
-        }
+            if (!liveData?.last_price) {
+                return res.status(400).json({ status: "error", message: "Market orders are blocked for in the money options due to illiquidity. Try again later." })
+            }
 
-        trade_time = new Date(newTimeStamp);
-        if(trade_time < new Date()){
-            const subtractedTime = 5 * 60 * 60 * 1000 + 30 * 60 * 1000;
-            trade_time = trade_time.getTime() + subtractedTime;
+            trade_time = new Date(newTimeStamp);
+            if (trade_time < new Date()) {
+                const subtractedTime = 5 * 60 * 60 * 1000 + 30 * 60 * 1000;
+                trade_time = trade_time.getTime() + subtractedTime;
+            }
+
+            req.body.originalLastPriceUser = originalLastPriceUser;
+            req.body.originalLastPriceCompany = originalLastPriceCompany;
+            req.body.trade_time = trade_time;
+        } catch (err) {
+            console.log(err)
+            return new Error(err);
         }
-    } catch (err) {
-        console.log(err)
-        return new Error(err);
     }
+
 
     let brokerageUser;
     let brokerageCompany;
@@ -150,9 +153,7 @@ exports.mockTrade = async (req, res) => {
     }
 
     let otherData={
-        originalLastPriceUser: originalLastPriceUser,
-        originalLastPriceCompany: originalLastPriceCompany,
-        trade_time: trade_time,
+
         brokerageUser: brokerageUser,
         brokerageCompany: brokerageCompany,
         isRedisConnected: isRedisConnected,

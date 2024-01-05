@@ -8,10 +8,13 @@ const mongoose = require('mongoose')
 exports.stockTradeHelper = async (req, res, otherData) => {
   let {exchange, symbol, buyOrSell, Quantity, Product, order_type, 
       exchangeInstrumentToken, validity, variety, order_id, instrumentToken, 
-      portfolioId, trader, deviceDetails, margin, price, stopProfitPrice, stopLossPrice} = req.body 
+      portfolioId, trader, deviceDetails, margin, price, stopProfitPrice, stopLossPrice,
+      originalLastPriceUser, originalLastPriceCompany, trade_time} = req.body;
       trader = req.user._id;
 
-  let {isRedisConnected, brokerageUser, originalLastPriceUser, secondsRemaining, trade_time} = otherData;
+      console.log("final body", req.body)
+
+  let {isRedisConnected, brokerageUser, secondsRemaining} = otherData;
   const session = await mongoose.startSession();
 
   try{

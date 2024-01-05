@@ -29,7 +29,10 @@ exports.myTodaysProcessedTrade = async (req, res, next) => {
         product_type = "6517d46e3aeb2bb27d650de3"
       } else if(from === virtualTrader){
         product_type = "65449ee06932ba3a403a681a"
+      } else if(from === stock){
+        product_type = "6583c2012ef31a319cf888c9"
       }
+
 
       console.log(from , tenxTrader, product_type, userId, id)
 
@@ -130,6 +133,8 @@ exports.myTodaysPendingTrade = async (req, res, next) => {
       product_type = "6517d46e3aeb2bb27d650de3"
     } else if(from === virtualTrader){
       product_type = "65449ee06932ba3a403a681a"
+    } else if(from === stock){
+      product_type = "6583c2012ef31a319cf888c9"
     }
 
     console.log(from, product_type)
@@ -287,7 +292,13 @@ exports.cancelOrder = async (req, res, next) => {
               pnlData = await client.get(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id?.toString()}: overallpnlIntern`)
             } else if(from === virtualTrader){
               pnlData = await client.get(`${symbolArr[i]?.createdBy?.toString()}: overallpnlPaperTrade`)
+            }else if(from === stock){
+              symbolArr[i]?.Product==="MIS" ?
+              pnlData = await client.get(`${symbolArr[i]?.createdBy?.toString()}: overallpnlIntraday`)
+              :
+              pnlData = await client.get(`${symbolArr[i]?.createdBy?.toString()}: overallpnlDelivery`)
             }
+
             pnlData = JSON.parse(pnlData)
             for(let elem of pnlData){
               console.log("pnl dtata", elem, pnlData)
@@ -320,6 +331,11 @@ exports.cancelOrder = async (req, res, next) => {
               await client.set(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id?.toString()}: overallpnlIntern`, JSON.stringify(pnlData))
             } else if(from === virtualTrader){
               await client.set(`${symbolArr[i]?.createdBy?.toString()}: overallpnlPaperTrade`, JSON.stringify(pnlData))
+            }else if(from === stock){
+              symbolArr[i]?.Product==="MIS" ?
+              await client.set(`${symbolArr[i]?.createdBy?.toString()}: overallpnlIntraday`, JSON.stringify(pnlData))
+              :
+              await client.set(`${symbolArr[i]?.createdBy?.toString()}: overallpnlDelivery`, JSON.stringify(pnlData))
             }
             // await client.set(`${symbolArr[i]?.createdBy?.toString()}${symbolArr[i]?.sub_product_id?.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlData));
             symbolArr.splice(i, 1, {});
@@ -381,29 +397,6 @@ exports.modifyOrder = async (req, res, next) => {
     const {instrumentToken, symbol, from} = req.body;
     const userId = req.user._id
     console.log(req.body)
-    // data = await client.get('stoploss-stopprofit');
-    // data = JSON.parse(data);
-    // if (data && data[`${instrumentToken}`]) {
-    //     let symbolArray = data[`${instrumentToken}`];
-    //     let indicesToRemove = [];
-    //     for(let i = symbolArray.length-1; i >= 0; i--){
-    //         if(symbolArray[i]?.createdBy?.toString() === userId.toString() && symbolArray[i]?.symbol === symbol){
-    //             // remove this element
-    //             indicesToRemove.push(i);
-    //             const update = await PendingOrder.updateOne({_id: new ObjectId(symbolArray[i]?._id)},{
-    //               $set: {
-    //                 status: "Cancelled",
-    //                 execution_price: 0
-    //               }
-    //           })
-    //         }
-    //     }
-  
-    //     // Remove elements after the loop
-    //     indicesToRemove.forEach(index => symbolArray.splice(index, 1, {}));
-    // }
-  
-    // await client.set('stoploss-stopprofit', JSON.stringify(data));
     const result = await applyingSLSP(req, {}, null ,null, from);
   
     return res.status(200).json({status: "Success", message: `Your SL/SP-M order placed for ${req.body.symbol}`});

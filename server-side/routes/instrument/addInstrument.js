@@ -169,6 +169,13 @@ router.post("/addstock", authentication, async (req, res) => {
         }
 
         const dataExist = await EquityInstrument.findOne({ instrumentToken: instrumentToken, status: "Active" });
+        const checkIsAdded = await User.findOne({ _id: _id })
+        .select('watchlistInstruments');
+
+        const match = checkIsAdded.watchlistInstruments.some(item=> dataExist?._id?.toString()===item?.toString());
+        if(match){
+            return res.status(400).json({status: "error", message: "This instrument is already exist in your watchlist." })
+        }
         if (dataExist) {
             const updateInstrument = await User.findOneAndUpdate({ _id: _id }, {
                 $push: {

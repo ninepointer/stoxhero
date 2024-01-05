@@ -31,7 +31,9 @@ exports.applyingSLSP = async (req, otherData, session, docId, from) => {
 
 
     last_price = last_price && String(last_price)?.includes("₹") && last_price?.slice(1);
-    id = id ? id : from === tenxTrader ? subscriptionId : from === marginx ? marginxId : from === dailyContest ? contestId : from === internTrader ? subscriptionId : from === virtualTrader && portfolioId;
+    
+    id = id ? id : from === tenxTrader ? subscriptionId : from === marginx ? marginxId : from === dailyContest ? contestId : from === internTrader ? subscriptionId : (from === virtualTrader || from === stock) && portfolioId;
+    
     if(Object.keys(otherData).length > 0){
         Quantity = otherData.quantity ? otherData.quantity : Quantity;
         stopProfitPrice = otherData.stopProfitPrice ? otherData.stopProfitPrice : stopProfitPrice;
