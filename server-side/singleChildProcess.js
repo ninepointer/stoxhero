@@ -10,6 +10,9 @@ const { sendMyRankDataBattle, sendLeaderboardDataBattle } = require("./controlle
 
 const { saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, saveXtsMargin } = require("./controllers/marginRequired")
 const { autoCutMainManually, autoCutMainManuallyMock} = require("./controllers/AutoTradeCut/mainManually");
+const { removeInstrumentFromWatchlist} = require("./controllers/instrument");
+const {tradableInstrument} = require("./controllers/TradableInstrument/tradableInstrument")
+
 const { createNewTicker, disconnectTicker, getDummyTicks,
     subscribeTokens, subscribeWatchListInstrument, tempGetTicks,
 } = require('./marketData/kiteTicker');
@@ -247,6 +250,7 @@ async function singleProcess() {
                 subscribeTokens();
             });
         }
+
         const autoExpire = nodeCron.schedule(`0 30 10 * * *`, autoExpireTenXSubscription);
         const internshipPayout = nodeCron.schedule(`0 30 17 * * *`, updateUserWallet);
         const reportMail = nodeCron.schedule(`0 0 18 * * *`, mail);
@@ -255,6 +259,9 @@ async function singleProcess() {
         const dailyContesttimeStore = nodeCron.schedule(`49 3 * * *`, dailyContestTimeStore);
 
     }
+    const tradableInstrumentPopulate = nodeCron.schedule(`0 54 8 * * *`, tradableInstrument);
+    const removeInstrumentFromWatch = nodeCron.schedule(`0 30 10 * * *`, removeInstrumentFromWatchlist);
+
 
     // const dailyContesttimeStore = nodeCron.schedule(`*/5 * * * * *`, dailyContestTradeCut);
     // const dailyContest = nodeCron.schedule(`*/59 * * * * *`, dailyContestTimeStore);
