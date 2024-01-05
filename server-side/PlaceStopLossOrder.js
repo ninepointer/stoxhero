@@ -48,6 +48,10 @@ const tenxTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDetai
                 todayPnlData = JSON.parse(todayPnlData);
             }
 
+            if(!todayPnlData){
+                return;
+            }
+
             if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()} openingBalanceAndMarginTenx`)) {
                 fundDetail = await client.get(`${createdBy.toString()}${sub_product_id.toString()} openingBalanceAndMarginTenx`)
                 fundDetail = JSON.parse(fundDetail);
@@ -185,6 +189,10 @@ const paperTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDeta
             if (isRedisConnected && await client.exists(`${createdBy.toString()}: overallpnlPaperTrade`)) {
                 todayPnlData = await client.get(`${createdBy.toString()}: overallpnlPaperTrade`)
                 todayPnlData = JSON.parse(todayPnlData);
+            }
+
+            if(!todayPnlData){
+                return;
             }
 
             if (isRedisConnected && await client.exists(`${createdBy.toString()} openingBalanceAndMarginPaper`)) {
@@ -478,6 +486,10 @@ const internTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDet
                 todayPnlData = JSON.parse(todayPnlData);
             }
 
+            if(!todayPnlData){
+                return;
+            }
+
             if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()} openingBalanceAndMarginInternship`)) {
                 fundDetail = await client.get(`${createdBy.toString()}${sub_product_id.toString()} openingBalanceAndMarginInternship`)
                 fundDetail = JSON.parse(fundDetail);
@@ -616,6 +628,10 @@ const dailyContestTradeStopLoss = async (message, brokerageDetailBuyUser, broker
             if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()} overallpnlDailyContest`)) {
                 todayPnlData = await client.get(`${createdBy.toString()}${sub_product_id.toString()} overallpnlDailyContest`)
                 todayPnlData = JSON.parse(todayPnlData);
+            }
+
+            if(!todayPnlData){
+                return;
             }
 
             if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()} openingBalanceAndMarginDailyContest`)) {
@@ -821,6 +837,10 @@ const marginxTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDe
             if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()} overallpnlMarginX`)) {
                 todayPnlData = await client.get(`${createdBy.toString()}${sub_product_id.toString()} overallpnlMarginX`)
                 todayPnlData = JSON.parse(todayPnlData);
+            }
+
+            if(!todayPnlData){
+                return;
             }
 
             if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()} openingBalanceAndMarginMarginx`)) {
@@ -1078,6 +1098,10 @@ exports.pendingOrderMain = async () => {
                 } else if (product_type?.toString() === "6583c2012ef31a319cf888c9") {
                     await stockStopLoss(message);
                     pnlData = await client.get(`${createdBy?.toString()}: ${Product === "MIS" ? "overallpnlIntraday" : "overallpnlDelivery"}`)
+                }
+
+                if(!pnlData){
+                    return;
                 }
 
 

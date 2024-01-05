@@ -2,7 +2,7 @@ const { ObjectId } = require("mongodb");
 const PendingOrder = require("../models/PendingOrder/pendingOrderSchema")
 let { client } = require("../marketData/redisClient");
 const {applyingSLSP} = require("../PlaceOrder/saveDataInDB/PendingOrderCondition/applyingSLSP")
-const {virtualTrader, internTrader, tenxTrader, dailyContest, marginx} = require("../constant");
+const {virtualTrader, internTrader, tenxTrader, dailyContest, marginx, stock} = require("../constant");
 
 exports.myTodaysProcessedTrade = async (req, res, next) => {
 

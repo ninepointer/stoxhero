@@ -24,7 +24,7 @@ function TraderwiseTraderPNL({socket }) {
   const [selectedSubscription, setselectedSubscription] = useState();
 
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/tenX/allsubscription`, {withCredentials: true})
+    axios.get(`${baseUrl}api/v1/tenX/subswithliveuser`, {withCredentials: true})
     .then((res)=>{
       setSubscription(res.data.data);
       setselectedSubscription(res.data.data[0]?._id)
@@ -63,12 +63,6 @@ function TraderwiseTraderPNL({socket }) {
     })
 
   }, [selectedSubscription]) 
-
-  // useEffect(() => {
-  //   return () => {
-  //       socket.close();
-  //   }
-  // }, [])
 
   let mapForParticularUser = new Map();
     for(let i = 0; i < allTrade.length; i++){

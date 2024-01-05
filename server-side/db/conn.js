@@ -24,17 +24,3 @@ const infinityDB = process.env.INFINITYDB;
     console.log("no connection");
 })
 
-
-
-
-/*
-
-2. Multiple days contest
-    a. payout option (lastday or daily)
-    b. payout backend integration
-    c. In trading screen, all days pnl and cumm pnl
-    d. leaderboard as daily and cumm.
-    e. After complete show
-    f. payout feild as array
-
-*/

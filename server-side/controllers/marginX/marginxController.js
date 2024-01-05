@@ -1057,6 +1057,18 @@ exports.handleDeductMarginXAmount = async (userId, entryFee, marginXName, margin
                 });
             }
         }
+
+        //check marginx is live
+        if ((marginx?.endTime <= new Date()) || (marginx?.status === "Completed")) {
+            return {
+                statusCode: 400,
+                data: {
+                    status: "error",
+                    message: "This marginx has ended. Please join another one.",
+                }
+            };
+        }
+
         const totalAmount = ((marginx?.marginXTemplate?.entryFee - discountAmount - bonusRedemption) * (1 + setting[0]?.gstPercentage / 100)).toFixed(2);
         console.log('entry fee', entryFee, totalAmount, marginx?.marginXTemplate?.entryFee, discountAmount, bonusRedemption);
         if (totalAmount != entryFee) {

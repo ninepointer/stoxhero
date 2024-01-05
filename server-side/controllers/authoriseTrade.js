@@ -893,6 +893,10 @@ exports.fundCheckPaperTrade = async (req, res, next) => {
             todayPnlData = JSON.parse(todayPnlData);
         }
 
+        if(!todayPnlData){
+            return;
+        }
+
         if (isRedisConnected && await client.exists(`${req.user._id.toString()} openingBalanceAndMarginPaper`)) {
             fundDetail = await client.get(`${req.user._id.toString()} openingBalanceAndMarginPaper`)
             fundDetail = JSON.parse(fundDetail);
@@ -939,6 +943,10 @@ exports.fundCheckTenxTrader = async (req, res, next) => {
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.subscriptionId.toString()}: overallpnlTenXTrader`)) {
             todayPnlData = await client.get(`${req.user._id.toString()}${req.body.subscriptionId.toString()}: overallpnlTenXTrader`)
             todayPnlData = JSON.parse(todayPnlData);
+        }
+
+        if(!todayPnlData){
+            return;
         }
 
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.subscriptionId.toString()} openingBalanceAndMarginTenx`)) {
@@ -989,6 +997,10 @@ exports.fundCheckInternship = async (req, res, next) => {
             todayPnlData = JSON.parse(todayPnlData);
         }
 
+        if(!todayPnlData){
+            return;
+        }
+
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.subscriptionId.toString()} openingBalanceAndMarginInternship`)) {
             fundDetail = await client.get(`${req.user._id.toString()}${req.body.subscriptionId.toString()} openingBalanceAndMarginInternship`)
             fundDetail = JSON.parse(fundDetail);
@@ -1036,6 +1048,10 @@ exports.fundCheckMarginX = async (req, res, next) => {
             todayPnlData = JSON.parse(todayPnlData);
         }
 
+        if(!todayPnlData){
+            return;
+        }
+
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.marginxId.toString()} openingBalanceAndMarginMarginx`)) {
             fundDetail = await client.get(`${req.user._id.toString()}${req.body.marginxId.toString()} openingBalanceAndMarginMarginx`)
             fundDetail = JSON.parse(fundDetail);
@@ -1079,6 +1095,10 @@ exports.fundCheckDailyContest = async (req, res, next) => {
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.contestId.toString()} overallpnlDailyContest`)) {
             todayPnlData = await client.get(`${req.user._id.toString()}${req.body.contestId.toString()} overallpnlDailyContest`)
             todayPnlData = JSON.parse(todayPnlData);
+        }
+
+        if(!todayPnlData){
+            return;
         }
 
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.contestId.toString()} openingBalanceAndMarginDailyContest`)) {
@@ -1125,6 +1145,10 @@ exports.fundCheckBattle = async (req, res, next) => {
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.battleId.toString()} overallpnlBattle`)) {
             todayPnlData = await client.get(`${req.user._id.toString()}${req.body.battleId.toString()} overallpnlBattle`)
             todayPnlData = JSON.parse(todayPnlData);
+        }
+
+        if(!todayPnlData){
+            return;
         }
 
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.battleId.toString()} openingBalanceAndMarginBattle`)) {
