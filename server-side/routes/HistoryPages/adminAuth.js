@@ -128,6 +128,28 @@ router.get('/transaction', async(req,res) =>{
   res.send("ok")
 })
 
+router.get('/checkTenxLive', async(req,res) =>{
+  const tenx = await TenxSubscription.find();
+  let data = [];
+  for(let elem of tenx){
+    // console.log(elem?._id)
+    let match = elem.users.some((item)=>{
+      return item.status === "Live"
+    })
+
+    console.log(match)
+    if(match){
+      data.push({
+        name: elem?.plan_name,
+        id: elem?._id
+      })
+    }
+   
+  }
+  
+  res.send(data)
+})
+
 router.get('/negetivetds', async(req,res) =>{
   // const tenx = await TenxSubscription.find();
 
@@ -3372,7 +3394,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2023-12-26T20:00:00.000+00:00"
+  let expiryDate = "2024-01-04T20:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(

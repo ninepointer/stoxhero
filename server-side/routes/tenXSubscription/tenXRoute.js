@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
-const {createTenXSubscription, editTanx, getActiveTenXSubs, renewSubscription,
+const {createTenXSubscription, editTanx, getActiveTenXSubs, renewSubscription, getLiveUserTenxSubs,
     getTenXSubscription, editFeature, getBeginnerSubscription, getIntermediateSubscription, 
     getProSubscription, removeFeature, getAdminActiveTenXSubs, getInactiveTenXSubs, getDraftTenXSubs, 
     createTenXPurchaseIntent, getAllTenXSubs, getTenXSubscriptionPurchaseIntent, myActiveSubsciption, 
@@ -20,6 +20,7 @@ router.route('/tenxleaderboard').get(Authenticate, TenXLeaderboard);
 router.route('/active').get(Authenticate, getActiveTenXSubs);
 router.route('/adminactive').get(Authenticate, getAdminActiveTenXSubs);
 router.route('/allsubscription').get(Authenticate, getAllTenXSubs);
+router.route('/subswithliveuser').get(Authenticate, getLiveUserTenxSubs);
 
 router.route('/inactive').get(Authenticate, getInactiveTenXSubs);
 router.route('/beginner').get(Authenticate, getBeginnerSubscription);
