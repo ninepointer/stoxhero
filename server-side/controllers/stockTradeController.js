@@ -206,61 +206,134 @@ exports.pnlHolding = async (req, res, next) => {
 
     } else{
 
-      let pnlDetails = await StockTrade.aggregate([
+      const pnlData = await StockTrade.aggregate([
         {
-            $match: {
-                // trade_time:{
-                //     $gte: today
-                // },
-                Product: "CNC",
-                status: "COMPLETE",
-                trader: new ObjectId(userId)
-            },
-        },
-        {
-          $sort: {
-            trade_time: 1,
-          },
-        },
-        {
-          $group: {
-            _id: {
-              symbol: "$symbol",
-              product: "$Product",
-              instrumentToken: "$instrumentToken",
-              exchangeInstrumentToken: "$exchangeInstrumentToken",
-              // exchangeInstrumentToken: "$exchangeInstrumentToken",
-              exchange: "$exchange",
-              validity: "$validity",
-              variety: "$variety",
-            },
-            amount: {
-              $sum: {$multiply : ["$amount",-1]},
-            },
-            brokerage: {
-              $sum: {
-                $toDouble: "$brokerage",
+          $facet: {
+            "today": [
+              {
+                  $match: {
+                      trade_time:{
+                          $gte: new Date("2024-01-05")
+                      },
+                      Product: "CNC",
+                      status: "COMPLETE",
+                      trader: new ObjectId(userId)
+                  },
               },
-            },
-            lots: {
-              $sum: {
-                $toInt: "$Quantity",
+              {
+                $sort: {
+                  trade_time: 1,
+                },
               },
-            },
-            lastaverageprice: {
-              $last: "$average_price",
-            },
-            margin: {
-              $last: "$margin",
-            },
-          },
-        },
+              {
+                $group: {
+                  _id: {
+                    symbol: "$symbol",
+                    product: "$Product",
+                    instrumentToken: "$instrumentToken",
+                    exchangeInstrumentToken: "$exchangeInstrumentToken",
+                    // exchangeInstrumentToken: "$exchangeInstrumentToken",
+                    exchange: "$exchange",
+                    validity: "$validity",
+                    variety: "$variety",
+                  },
+                  amount: {
+                    $sum: {$multiply : ["$amount",-1]},
+                  },
+                  brokerage: {
+                    $sum: {
+                      $toDouble: "$brokerage",
+                    },
+                  },
+                  lots: {
+                    $sum: {
+                      $toInt: "$Quantity",
+                    },
+                  },
+                  lastaverageprice: {
+                    $last: "$average_price",
+                  },
+                  margin: {
+                    $last: "$margin",
+                  },
+                },
+              },
+              {
+                $match: {
+                  lots: 0
+                }
+              },
+              {
+                $sort: {
+                  _id: -1,
+                },
+              },
+            ],
+            "all": [
+              {
+                  $match: {
+                      // trade_time:{
+                      //     $gte: today
+                      // },
+                      Product: "CNC",
+                      status: "COMPLETE",
+                      trader: new ObjectId(userId)
+                  },
+              },
+              {
+                $sort: {
+                  trade_time: 1,
+                },
+              },
+              {
+                $group: {
+                  _id: {
+                    symbol: "$symbol",
+                    product: "$Product",
+                    instrumentToken: "$instrumentToken",
+                    exchangeInstrumentToken: "$exchangeInstrumentToken",
+                    // exchangeInstrumentToken: "$exchangeInstrumentToken",
+                    exchange: "$exchange",
+                    validity: "$validity",
+                    variety: "$variety",
+                  },
+                  amount: {
+                    $sum: {$multiply : ["$amount",-1]},
+                  },
+                  brokerage: {
+                    $sum: {
+                      $toDouble: "$brokerage",
+                    },
+                  },
+                  lots: {
+                    $sum: {
+                      $toInt: "$Quantity",
+                    },
+                  },
+                  lastaverageprice: {
+                    $last: "$average_price",
+                  },
+                  margin: {
+                    $last: "$margin",
+                  },
+                },
+              },
         {
-          $sort: {
-            _id: -1,
-          },
+          $match: {
+            lots: {$gt: 0}
+          }
         },
+              {
+                $sort: {
+                  _id: -1,
+                },
+              },
+            ]
+          }
+        }
       ])
+
+      const pnlDetails = pnlData[0]?.today?.concat(pnlData[0]?.all);
 
       const limitMargin = await PendingOrder.aggregate([
         {

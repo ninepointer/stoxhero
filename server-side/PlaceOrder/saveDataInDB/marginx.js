@@ -14,10 +14,11 @@ exports.marginxTrade = async (req, res, otherData) => {
     const io = getIOValue();
     let {exchange, symbol, buyOrSell, Quantity, Product, order_type, exchangeInstrumentToken, fromAdmin,
         validity, variety, algoBoxId, order_id, instrumentToken, marginxId, deviceDetails,
-        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, margin, stopLossPrice, stopProfitPrice, price } = req.body 
+        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, margin, stopLossPrice, stopProfitPrice, price,
+        originalLastPriceUser, originalLastPriceCompany, trade_time} = req.body 
 
         // let marginxId = subscriptionId;
-        let {secondsRemaining, isRedisConnected, brokerageCompany, brokerageUser, originalLastPriceUser, originalLastPriceCompany, trade_time} = otherData;
+        let {secondsRemaining, isRedisConnected, brokerageCompany, brokerageUser} = otherData;
 
     const session = await mongoose.startSession();
     try{
