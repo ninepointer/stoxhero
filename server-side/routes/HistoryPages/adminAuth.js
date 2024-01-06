@@ -95,6 +95,112 @@ const AffiliateTransaction = require("../../models/affiliateProgram/affiliateTra
 const totp = require("totp-generator");
 
 
+
+router.get('/removeuserid', async(req,res) =>{
+  const programeId = "654192220068c82a56e717c8";
+
+  const updatedAffiliateProgramme = await Referrals.findOneAndUpdate(
+    { _id: new ObjectId(programeId) },
+    { $pull: { users: { userId: new ObjectId(
+      "655db3caf26d07670a772889"
+      // "6586ba8c9a64b7734789cd74"
+      ) } } },
+    { new: true }
+  );
+  res.send("ok")
+})
+
+router.get('/backfillherody3', async(req,res) =>{
+  const arr1 = [
+    '655db3caf26d07670a772889'
+  ];
+  const arr = arr1.map((elem)=> new ObjectId(elem));
+  
+  const users = await UserDetail.find({_id: {$in: arr}});
+  console.log("arr", users.length);
+  const programmeFee = 15;
+  const programeId = "654192220068c82a56e717c8";
+  const affiliateId = "655b519138e04eb74a3f493e";
+  const affiliateProgrameReferrals = [];
+  const userAffiliateReferrals = [];
+  const walletTransactions = [];
+  const affiliateTransactionArr = [];
+  
+  for(let elem of users){
+    console.log("in forloop")
+    const walletId = uuid.v4();
+    affiliateProgrameReferrals.push({
+      userId: elem?._id,
+      // affiliateUserId: affiliateId,
+      joinedOn: elem?.joining_date
+    });
+
+    // userAffiliateReferrals.push({
+    //   referredUserId: elem?._id,
+    //   referralEarning: 15,
+    //   referralProgram: programeId,
+    //   joiningDate: elem?.joining_date,
+    //   referralCurrency: "Cash"
+    // })
+
+    // walletTransactions.push({
+    //   title: "Referral Credit",
+    //   description: `Amount credited for referral of ${elem?.first_name} ${elem?.last_name}`,
+    //   transactionDate: elem?.joining_date,
+    //   amount: 15,
+    //   transactionId: walletId,
+    //   transactionType: "Cash"
+    // })
+
+    // affiliateTransactionArr.push({
+    //   affiliateProgram: new ObjectId(programeId),
+    //   affiliateWalletTId: walletId,
+    //   product: new ObjectId("6586e95dcbc91543c3b6c181"),
+    //   specificProduct: new ObjectId("6586e95dcbc91543c3b6c181"),
+    //   productActualPrice: 0,
+    //   productDiscountedPrice: 0,
+    //   buyer: new ObjectId(elem?._id),
+    //   affiliate: new ObjectId(affiliateId),
+    //   lastModifiedBy: new ObjectId(elem?._id),
+    //   affiliatePayout: 25
+    // })
+  }
+
+  console.log("affiliateProgrameReferrals", affiliateProgrameReferrals.length)
+  // console.log("userAffiliateReferrals", userAffiliateReferrals.length)
+  // console.log("walletTransactions", walletTransactions.length)
+  // console.log("affiliateTransactionArr", affiliateTransactionArr.length)
+
+  const updatedAffiliateProgramme = await Referrals.findOneAndUpdate(
+    { _id: new ObjectId(programeId) },
+    { $push: { users: { $each: affiliateProgrameReferrals } } },
+    { new: true } // Set new to true to return the modified document
+  );
+
+  console.log("programe done")
+
+  // const updatedUserAffiliate = await UserDetail.findOneAndUpdate(
+  //   { _id: new ObjectId(affiliateId) },
+  //   { $push: { referrals: { $each: userAffiliateReferrals } } },
+  //   { new: true } // Set new to true to return the modified document
+  // );
+
+  // console.log("user done")
+
+  // const updatedUserAffiliateWallet = await userWallet.findOneAndUpdate(
+  //   { userId: new ObjectId(affiliateId) },
+  //   { $push: { transactions: { $each: walletTransactions } } },
+  //   { new: true } // Set new to true to return the modified document
+  // );
+
+  // console.log("wallet done")
+
+  // const createAffiliate = await AffiliateTransaction.create(affiliateTransactionArr);
+  
+  // console.log("transaction done")
+  res.send("ok")
+})
+
 router.get('/updatePortfolioId', async(req,res) =>{
   const trade = await PaperTrade.find({portfolioId: null})
   console.log(trade.length);
@@ -112,9 +218,6 @@ router.get('/getotp', async(req,res) =>{
   console.log(x)
   res.send("ok")
 })
-
-
-
 
 router.get('/cancelPendeing', async(req,res) =>{
 
