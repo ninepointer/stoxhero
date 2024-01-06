@@ -381,7 +381,7 @@ exports.affiliateLeaderboard = async (req, res) => {
   lifetime = lifetime === "false" ? false : lifetime === "true" && true;
   startDate = (lifetime) ? "2000-01-01" : startDate;
   endDate = (lifetime) ? new Date() : endDate;
-  console.log(programme, new Date(startDate), new Date(endDate), (lifetime))
+  // console.log(programme, new Date(startDate), new Date(endDate), (lifetime))
   if(new Date(startDate)>new Date(endDate)){
     return res.status(400).json({status:'error', message:'Invalid Date range'});
   }
@@ -392,15 +392,18 @@ exports.affiliateLeaderboard = async (req, res) => {
       $lte: new Date(endDate)
     }
   }
+
+  const newMatchStage = 
+  programme === "Cummulative" ? {
+    transactionDate: {
+      $gte: new Date(startDate),
+      $lte: new Date(endDate)
+    }
+  } : matchStage;
   try {
     const leaderboard = await AffiliateTransaction.aggregate([
       {
-        $match: programme === "Cummulative" ? {
-          transactionDate: {
-            $gte: new Date(startDate),
-            $lte: new Date(endDate)
-          }
-        } : matchStage
+        $match: newMatchStage
       },
       {
         $group: {
@@ -517,7 +520,8 @@ exports.affiliateLeaderboard = async (req, res) => {
           "signup.joining_date": {
             $gte: new Date(startDate),
             $lte: new Date(endDate)
-          }
+          },
+          "signup.creationProcess": "Affiliate SignUp",
         }
       },
       {
@@ -538,7 +542,13 @@ exports.affiliateLeaderboard = async (req, res) => {
                       cond: {
                         $and: [
                           { $gte: ["$$signupUser.joining_date", new Date(startDate)] },
-                          { $lte: ["$$signupUser.joining_date", new Date(endDate)] }
+                          { $lte: ["$$signupUser.joining_date", new Date(endDate)] },
+                          {
+                            $eq: [
+                              "$$signupUser.creationProcess",
+                              "Affiliate SignUp",
+                            ],
+                          },
                         ]
                       }
                     }
@@ -559,6 +569,32 @@ exports.affiliateLeaderboard = async (req, res) => {
         },
       }
     ])
+
+    const userIds = leaderboard.map((elem)=>{
+      return elem.affiliate;
+    })
+    // console.log(userIds)
+    const affilifateUser = await User.find({_id: {$in: userIds}}).select('affiliateReferrals')
+    .populate('affiliateReferrals.referredUserId', 'joining_date');
+
+    console.log("affilifateUser.length", affilifateUser[0].affiliateReferrals[0])
+    for(let elem of leaderboard){
+      let filteredUser = affilifateUser.filter((item)=>{
+        // console.log(elem?.affiliate, item?.referredUserId?._id ,  item?.referredUserId?.joining_date , new Date(startDate) , item?.referredUserId?.joining_date , new Date(endDate))
+        // console.log("elem", elem)
+        console.log( elem?.affiliate?.toString() , item?._id?.toString())
+        return elem?.affiliate?.toString() === item?._id?.toString()
+        // return (elem?.affiliate===item?.referredUserId?._id && item?.referredUserId?.joining_date >= new Date(startDate) && item?.referredUserId?.joining_date <= new Date(endDate))
+      })
+
+
+
+      console.log("filteredUser", filteredUser?.[0]?.affiliateReferrals?.length, elem.first_name)
+      // elem.signup = filteredUser?.[0]?.affiliateReferrals?.length;
+      elem.signup_payout = filteredUser?.[0]?.affiliateReferrals.reduce((total, acc)=>{
+        return (acc?.referredUserId?.joining_date >= new Date(startDate) && acc?.referredUserId?.joining_date <= new Date(endDate)) && (total + acc?.affiliateEarning);
+      }, 0)
+    }
     res.status(200).json({
       status: "success",
       message: "Affiliate leaderboard fetched successfully",
@@ -566,6 +602,7 @@ exports.affiliateLeaderboard = async (req, res) => {
     });
 
   } catch (error) {
+    console.log(error)
     res.status(500).json({
       status: "error",
       message: "Something went wrong",

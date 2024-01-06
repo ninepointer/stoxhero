@@ -57,7 +57,7 @@ const LeaderBoard = () => {
             (elem?.tenx_payout || 0) +
             (elem?.testzone_payout || 0) +
             (elem?.marginx_payout || 0) +
-            ((elem?.signup || 0) * 15)
+            (elem?.signup_payout || 0)
         );
         elem.total = totalAmount;
 
@@ -154,7 +154,7 @@ const LeaderBoard = () => {
         featureObj.signupPayout = (
             <MDTypography component="a" variant="caption" fontWeight="medium">
                 {/* {elem?.marginx_payout || "-"} */}
-                {elem?.signup ? ("₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.signup * 15))) : "-"}
+                {elem?.signup_payout ? ("₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.signup_payout))) : "-"}
             </MDTypography>
         );
 

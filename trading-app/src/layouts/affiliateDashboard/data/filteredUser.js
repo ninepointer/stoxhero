@@ -236,10 +236,10 @@ export default function FilteredUsers({ setFilteredUsers }) {
               <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                 <CustomTextField
                   select
-                  label="Affiliate Type"
+                  label="Affiliate Programe"
                   value={selectedTab?.affiliate?.id}
                   minHeight="6em"
-                  placeholder="Affiliate Type"
+                  placeholder="Affiliate Programe"
                   variant="outlined"
                   sx={{ width: "250px" }}
                   onChange={(e) => { handleAffiliateChange(e) }}
@@ -256,7 +256,7 @@ export default function FilteredUsers({ setFilteredUsers }) {
                 >
                   {affiliate?.map((option) => (
                     <MenuItem key={option?._id} value={option?._id} minHeight="4em" width='300px'>
-                      {option?.affiliateType}
+                      {option?.affiliateProgramName}
                     </MenuItem>
                   ))}
                   <MenuItem value={"Cummulative"} minHeight="4em" width='300px'>

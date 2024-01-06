@@ -20,5 +20,5 @@ router.route('/leaderboard').get(getReferralLeaderboard);
 router.route('/myrank').get(Authenticate, getMyLeaderBoardRank);
 router.route('/referredproduct').get(Authenticate, getReferredProduct);
 
-router.route('/:id').patch(Authenticate, restrictTo('Admin', 'Super Admin'), editReferralWithId).get(getReferral)
+router.route('/:id').patch(Authenticate, restrictTo('Admin', 'Super Admin'), editReferral).get(getReferral)
 module.exports = router;
