@@ -46,12 +46,18 @@ exports.sendIndividualNotification = async (title, body, token, mediaUrl = null,
         title: title,
         body: body,
       },
-      token: token
+      token: token,
+      to: token,
+      data:{
+        title,
+        body,
+        actionLable: "View"
+      }
+
   };
   
   // Add mediaUrl and actions if they are provided
   if (mediaUrl || actions) {
-      message.data = {};
       if (mediaUrl) {
           console.log('This is the image url', mediaUrl);  
           message.data.mediaUrl = mediaUrl;
