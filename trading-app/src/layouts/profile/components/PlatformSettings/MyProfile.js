@@ -18,6 +18,7 @@ import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import { MuiFileInput } from 'mui-file-input'
+import { Radio, RadioGroup, FormControlLabel } from '@material-ui/core';
 
 import { useState, useContext, useEffect } from "react";
 
@@ -42,6 +43,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
   const [aadhaarClientId, setAadhaarClientId] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [action, setAction] = useState(false);
+  const [selectedOption, setSelectedOption] = useState('automatic');
 
   console.log('rendering',getDetails?.userDetails);
 
@@ -126,6 +128,10 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
     getData();
     console.log('setting data again');
   },[action]);
+
+  const handleRadioChange = (event) => {
+    setSelectedOption(event.target.value);
+  };
 
   const getData = async () => {
     try{
@@ -1143,8 +1149,16 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
       
 
       <Divider orientation="horizontal" sx={{ ml: 1, mr: 1, color:'rgba(0, 0, 0, 0.87)' }} />
-
-      <MDBox pl={2} pr={2}>
+      <MDBox px={2}>
+      <MDTypography style={{fontSize:18}}>Select your method of KYC Verification</MDTypography>  
+      <FormControl component="fieldset">
+        <RadioGroup row aria-label="mdbox" name="mdbox" value={selectedOption} onChange={handleRadioChange}>
+          <FormControlLabel value="automatic" control={<Radio color='blue' />} label="Automatic Instant KYC" />
+          <FormControlLabel value="manual" control={<Radio color='blue'/>} label="Admin approved KYC" />
+        </RadioGroup>
+      </FormControl>
+      </MDBox>
+      {selectedOption =='automatic' && (<MDBox pl={2} pr={2}>
 
       <MDBox display="flex" justifyContent="space-between" alignItems="center">
         
@@ -1387,7 +1401,441 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
 
           </Grid>
 
+      </MDBox>)}
+  {selectedOption == 'manual' && (<MDBox pl={2} pr={2}>
+
+  <MDBox display="flex" justifyContent="space-between" alignItems="center">
+    
+    <MDBox>
+    
+    {/* KYC Details Header */}
+
+    <MDBox display="flex" justifyContent="center">
+    <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
+      KYC Details 
+    </MDTypography>
+
+    <MDBox display="flex">
+        <MDTypography 
+        variant="caption" 
+        fontWeight="bold"
+        sx={{
+          // pt:0.5,
+          // pb:0.5,
+          ml:3
+        }}
+        >
+          STATUS : 
+        </MDTypography>
+          <MDTypography
+              variant="caption"
+              ml={1}
+              mt={-0.6}
+              fontWeight="bold"
+              textTransform="uppercase"
+              sx={{
+                border: '1px solid',
+                borderColor: 'gray.400',
+                borderRadius: 2,
+                pt:0.5,
+                pb:0.5,
+                pr:1,
+                pl:1,
+                backgroundColor: `${
+                  formStateKYC?.KYCStatus === 'Not Initiated'
+                    ? '#1A73E8'
+                    : formStateKYC?.KYCStatus === 'Approved'
+                    ? '#4CAF50'
+                    : formStateKYC?.KYCStatus === 'Rejected'
+                    ? '#F44335'
+                    : formStateKYC?.KYCStatus === 'Under Verification'
+                    ? '#fb8c00'
+                    : '#1A73E8'
+                }`,
+                color: `${
+                  formStateKYC?.KYCStatus === 'Not Initiated'
+                    ? 'white!important'
+                    : formStateKYC?.KYCStatus === 'Approved'
+                    ? 'white!important'
+                    : formStateKYC?.KYCStatus === 'Rejected'
+                    ? 'white!important'
+                    : formStateKYC?.KYCStatus === 'Under Verification'
+                    ? 'black!important'
+                    : 'white!important'
+                }`,
+              }}
+            >
+              {getDetails?.userDetails?.KYCStatus ? getDetails?.userDetails?.KYCStatus : formStateKYC.KYCStatus}
+            </MDTypography>
       </MDBox>
+      </MDBox>
+
+    {/* KYC Details Header End */}
+
+    </MDBox>
+
+        {!editableKYC ? 
+        <Tooltip title="Edit KYC Details" placement="top">
+        <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+          <Typography
+            variant="caption"
+            fontWeight="bold"
+            sx={{ marginRight: 1 }}
+          >
+            Click on pencil icon to update KYC details
+          </Typography>
+          <Icon
+            fontSize="small"
+            onClick={() => {
+              if(formStateKYC.KYCStatus != 'Approved'){
+                setEditableKYC(true);
+              }
+            }}
+          >
+            edit
+          </Icon>
+        </Box>
+        </Tooltip>
+        :
+        <Tooltip title="Save KYC Details" placement="top">
+          <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+            <Typography
+              variant="caption"
+              fontWeight="bold"
+              sx={{ marginRight: 1 }}
+            >
+              Click on tick icon to save KYC details
+            </Typography>
+            <Icon
+              fontSize="small"
+              onClick={() => {
+                setEditableKYC(false);
+                formSubmit(formStateKYC,"KYC Details");
+              }}
+            >
+              done
+            </Icon>
+          </Box>
+        </Tooltip>
+        }
+        
+    </MDBox>
+
+    <Divider orientation="horizontal" sx={{ ml: 1, mr: 1, color:'rgba(0, 0, 0, 0.87)' }} />
+
+    <Grid container spacing={2} mt={0}>
+      
+      <Grid item xs={12} md={6} xl={4}>
+          <TextField
+            disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
+            id="outlined-required"
+            label="Aadhaar Number *"
+            value={formStateKYC?.aadhaarNumber}
+            fullWidth
+            onChange={(e) => {setFormStateKYC(prevState => ({
+              ...prevState,
+              aadhaarNumber: e.target.value
+            }))}}
+          />
+      </Grid>
+
+      <Grid item xs={12} md={6} xl={4}>
+          <TextField
+            disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
+            id="outlined-required"
+            label="PAN Number *"
+            value={formStateKYC?.panNumber}
+            fullWidth
+            onChange={(e) => {setFormStateKYC(prevState => ({
+              ...prevState,
+              panNumber: e.target.value
+            }))}}
+          />
+      </Grid>
+
+      {/* <Grid item xs={12} md={6} xl={3}>
+          <TextField
+            disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
+            id="outlined-required"
+            label="Passport Number"
+            value={formStateKYC?.passportNumber}
+            fullWidth
+            onChange={(e) => {setFormStateKYC(prevState => ({
+              ...prevState,
+              passportNumber: e.target.value
+            }))}}
+          />
+      </Grid> */}
+
+      {/* <Grid item xs={12} md={6} xl={3}>
+          <TextField
+            disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
+            id="outlined-required"
+            label="Driving License Number"
+            value={formStateKYC?.drivingLicenseNumber}
+            fullWidth
+            onChange={(e) => {setFormStateKYC(prevState => ({
+              ...prevState,
+              drivingLicenseNumber: e.target.value
+            }))}}
+          />
+      </Grid> */}
+
+      <Grid item xs={12} md={6} xl={4} mt={-1}>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DemoContainer components={['DatePicker']}>
+            <DatePicker
+              label="Date of Birth"
+              disabled={!editableKYC}
+              value={formStateKYC.dob ? dayjs(formStateKYC.dob) : ''}
+              // onChange={(e) => {setFormStatePD({dob: dayjs(e)})}}
+              onChange={(e) => {setFormStateKYC(prevState => ({
+                ...prevState,
+                dob: dayjs(e)
+              }))}}
+              sx={{ width: '100%' }}
+            />
+          </DemoContainer>
+        </LocalizationProvider>
+      </Grid>
+
+      <Grid item xs={12} md={6} xl={2.4}>
+          <MuiFileInput 
+            value={null} 
+            disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
+            placeholder={(formStateKYC?.aadhaarCardFrontImage ? formStateKYC?.aadhaarCardFrontImage?.name?.slice(0, 15)  : "Click to upload") +
+            (formStateKYC?.aadhaarCardFrontImage?.name?.length > 15 ? "..." : "")}
+            label="Aadhaar Card Front"
+            onChange={(e)=>{handleFileSelect(e,"aadhaarCardFront")}}
+          />
+      </Grid>
+
+      <Grid item xs={12} md={6} xl={2.4}>
+          <MuiFileInput 
+            value={null} 
+            disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
+            placeholder={(formStateKYC?.aadhaarCardBackImage ? formStateKYC?.aadhaarCardBackImage?.name?.slice(0, 15)  : "Click to upload") +
+            (formStateKYC?.aadhaarCardBackImage?.name?.length > 15 ? "..." : "")}
+            label="Aadhaar Card Back"
+            onChange={(e)=>{handleFileSelect(e,"aadhaarCardBack")}}
+          />
+      </Grid>
+
+      <Grid item xs={12} md={6} xl={2.4}>
+      <MuiFileInput 
+            value={null}
+            placeholder={(formStateKYC?.panCardFrontImage ? formStateKYC?.panCardFrontImage?.name?.slice(0, 15)  : "Click to upload") +
+            (formStateKYC?.panCardFrontImage?.name?.length > 15 ? "..." : "")}
+            disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
+            label="PAN Card Photo"
+            onChange={(e)=>{handleFileSelect(e,"panCardFront")}}
+          />
+      </Grid>
+
+      <Grid item xs={12} md={6} xl={2.4}>
+      <MuiFileInput 
+            value={null} 
+            disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
+            placeholder={(formStateKYC?.passportPhoto ? formStateKYC?.passportPhoto?.name?.slice(0, 10)  : "Click to upload") +
+            (formStateKYC?.passportPhoto?.name?.length > 15 ? "..." : "")}
+            label="Passport Size Photo"
+            onChange={(e)=>{handleFileSelect(e,"passportPhoto")}}
+          />
+      </Grid>
+      
+      <Grid item xs={12} md={6} xl={2.4}>
+          <MuiFileInput  
+            placeholder={(formStateKYC?.addressProofDocument ? formStateKYC?.addressProofDocument?.name?.slice(0, 15)  : "Click to upload") +
+            (formStateKYC?.addressProofDocument?.name?.length > 15 ? "..." : "")}
+            value={null}
+            disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
+            label="Address Proof"
+            onChange={(e)=>{handleFileSelect(e,"addressProofDocument")}}
+          />
+      </Grid>
+
+      {!editableKYC && 
+      <Grid item xs={12} md={6} xl={2.4}>
+          <MDBox position="relative" display="inline-block">
+              <img 
+                  style={{width:'100%',height:'130px', fontSize:15}} 
+                  src={formStateKYC?.aadhaarCardFrontImage?.url}
+                  alt="Save to upload" 
+              />
+                  {editableKYC && (
+                    <button
+                      onClick={(e)=>{onRemove("aadhaarCardFront")}}
+                      style={{
+                        position: 'absolute',
+                        top: '1px',
+                        right: '5px',
+                        borderRadius: '50%',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        color: 'red',
+                        fontSize: '1.5rem',
+                        padding: '5px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                    &times;
+                    </button>
+                  )}
+          </MDBox>
+            {formStateKYC?.aadhaarCardFrontPreview ? 
+            <Typography sx={{fontSize:10,mt:-1}}>Aadhaar Card Front Uploaded</Typography> 
+            :
+            <Typography sx={{fontSize:10,mt:-1}}>Please Upload Aadhaar Card Back</Typography>
+            }
+      </Grid>}
+
+      {!editableKYC &&
+      <Grid item xs={12} md={6} xl={2.4}>
+          <MDBox position="relative" display="inline-block">
+              <img 
+                  style={{width:'100%',height:'130px', fontSize:15}} 
+                  src={formStateKYC?.aadhaarCardBackImage?.url}
+                  alt="Save to upload" 
+              />
+                  {editableKYC && (
+                    <button
+                      onClick={(e)=>{onRemove("aadhaarCardBack")}}
+                      style={{
+                        position: 'absolute',
+                        top: '1px',
+                        right: '5px',
+                        borderRadius: '50%',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        color: 'red',
+                        fontSize: '1.5rem',
+                        padding: '5px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                    &times;
+                    </button>
+                  )}
+          </MDBox>
+            {formStateKYC?.aadhaarCardBackPreview ? 
+            <Typography sx={{fontSize:10,mt:-1}}>Aadhaar Card Back Uploaded</Typography> 
+            :
+            <Typography sx={{fontSize:10,mt:-1}}>Please Upload Aadhaar Card Back</Typography>
+            }
+      </Grid>
+      }
+
+      {!editableKYC &&
+      <Grid item xs={12} md={6} xl={2.4}>
+          <MDBox position="relative" display="inline-block">
+              <img 
+                  style={{width:'100%',height:'130px', fontSize:15}} 
+                  src={formStateKYC?.panCardFrontImage?.url}
+                  alt="Save to upload" 
+              />
+                  {editableKYC && (
+                    <button
+                      onClick={(e)=>{onRemove("panCardFront")}}
+                      style={{
+                        position: 'absolute',
+                        top: '1px',
+                        right: '5px',
+                        borderRadius: '50%',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        color: 'red',
+                        fontSize: '1.5rem',
+                        padding: '5px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                    &times;
+                    </button>
+                  )}
+          </MDBox>
+            {formStateKYC?.panCardFrontPreview ? 
+            <Typography sx={{fontSize:10,mt:-1}}>Pan Card Uploaded</Typography> 
+            :
+            <Typography sx={{fontSize:10,mt:-1}}>Please Upload Pan Card</Typography>
+            }
+      </Grid>
+      }
+
+      {!editableKYC &&
+      <Grid item xs={12} md={6} xl={2.4}>
+          <MDBox position="relative" display="inline-block">
+              <img 
+                  style={{width:'100%',height:'130px', fontSize:15}} 
+                  src={formStateKYC?.passportPhoto?.url}
+                  alt="Save to upload" 
+              />
+                  {editableKYC && (
+                    <button
+                      onClick={(e)=>{onRemove("passportPhoto")}}
+                      style={{
+                        position: 'absolute',
+                        top: '1px',
+                        right: '5px',
+                        borderRadius: '50%',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        color: 'red',
+                        fontSize: '1.5rem',
+                        padding: '5px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                    &times;
+                    </button>
+                  )}
+          </MDBox>
+            {formStateKYC?.passportPhotoPreview ? 
+            <Typography sx={{fontSize:10,mt:-1}}>Passport Size Photo Uploaded</Typography> 
+            :
+            <Typography sx={{fontSize:10,mt:-1}}>Please Upload Passport Size Photo</Typography>
+            }
+      </Grid>
+      }
+
+      {!editableKYC &&
+      <Grid item xs={12} md={6} xl={2.4}>
+          <MDBox position="relative" display="inline-block">
+              <img 
+                  style={{width:'100%',height:'130px', fontSize:15}} 
+                  src={formStateKYC?.addressProofDocument?.url} 
+                  alt="Save to upload" 
+              />
+                  {editableKYC && (
+                    <button
+                      onClick={(e)=>{onRemove("addressProofDocument")}}
+                      style={{
+                        position: 'absolute',
+                        top: '1px',
+                        right: '5px',
+                        borderRadius: '50%',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        color: 'red',
+                        fontSize: '1.5rem',
+                        padding: '5px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                    &times;
+                    </button>
+                  )}
+          </MDBox>
+            {formStateKYC?.addressProofDocumentPreview ? 
+            <Typography sx={{fontSize:10,mt:-1}}>Address Proof Document Uploaded</Typography> 
+            :
+            <Typography sx={{fontSize:10,mt:-1}}>Please Upload Address Proof Document</Typography>
+            }
+      </Grid>
+      }
+
+      </Grid>
+
+</MDBox>)}         
 
       {renderSuccessSB}
       {renderErrorSB}

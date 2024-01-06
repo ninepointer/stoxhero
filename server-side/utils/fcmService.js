@@ -42,12 +42,11 @@ admin.initializeApp({
 const messaging = admin.messaging();
 exports.sendIndividualNotification = async (title, body, token, mediaUrl = null, actions = null) => {
   const message = {
-      notification: {
-        title: title,
-        body: body,
-      },
+      // notification: {
+      //   title: title,
+      //   body: body,
+      // },
       token: token,
-      to: token,
       data:{
         title,
         body,
@@ -61,7 +60,7 @@ exports.sendIndividualNotification = async (title, body, token, mediaUrl = null,
       if (mediaUrl) {
           console.log('This is the image url', mediaUrl);  
           message.data.mediaUrl = mediaUrl;
-          message.notification.image = mediaUrl;
+          // message.notification.image = mediaUrl;
       }
       if (actions) {
           message.data.actions = JSON.stringify(actions);
