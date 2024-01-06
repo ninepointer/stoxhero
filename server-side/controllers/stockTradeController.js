@@ -746,7 +746,7 @@ exports.myTodaysTrade = async (req, res, next) => {
   // console.log("Under my today orders",userId, today)
   try {
     const myTodaysTrade = await StockTrade.find({trader: userId, trade_time: {$gte:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1})
-      .sort({_id: -1})
+      .sort({trade_time: -1})
       .skip(skip)
       .limit(limit);
     // console.log(myTodaysTrade)
@@ -770,7 +770,7 @@ exports.myHistoryTrade = async (req, res, next) => {
   // console.log("Under my today orders",userId, today)
   try {
     const myHistoryTrade = await StockTrade.find({trader: userId, trade_time: {$lt:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1})
-      .sort({_id: -1})
+      .sort({trade_time: -1})
       .skip(skip)
       .limit(limit);
     // console.log(myHistoryTrade)
