@@ -40,7 +40,7 @@ exports.removeInstrumentFromWatchlist = async () => {
         }
       })
       // await userWatchlist[i].save({validateBeforeSave: false});
-      console.log("check", updateUserWatchlist)
+      // console.log("check", updateUserWatchlist)
     }
   
     await Instrument.updateMany(
