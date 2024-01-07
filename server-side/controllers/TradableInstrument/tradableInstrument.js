@@ -8,9 +8,10 @@ const EquityStock = require('../../models/Instruments/equityStocks');
 
 exports.tradableInstrument = async (req,res,next) => {
 
-    let userId = req.user._id;
+    console.log("trade instrument")
+    let userId = "63ecbc570302e7cf0153370c";
     getKiteCred.getAccess().then((data)=>{
-        // console.log(data)
+        console.log(data)
         // createNewTicker(data.getApiKey, data.getAccessToken);
         const url = 'https://api.kite.trade/instruments/NFO';
 
@@ -77,6 +78,7 @@ exports.tradableInstrument = async (req,res,next) => {
             })
             .on('end', () => {
                 console.log('CSV file successfully processed');
+                res &&
                 res.send('CSV file successfully processed')
             });
         })
