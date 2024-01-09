@@ -281,6 +281,149 @@ exports.liveSubscriptionAnalytics = async (req, res, next) => {
   }
 }
 
+exports.liveSubscriptionAnalyticsWeb = async (req, res, next) => {
+
+  try {
+    const userId = req.user._id;
+    const subscriptionId = req.params.id;
+    const subscriptionTime = req.params.starttime;  
+  
+    const pnlDetails = await TenXTrader.aggregate([
+      {
+        $match: {
+          trade_time_utc: {
+            $gte: new Date(subscriptionTime),
+          },
+          status: "COMPLETE",
+          trader: new ObjectId(userId),
+          subscriptionId: new ObjectId(subscriptionId)
+        },
+      },
+      {
+        $group: {
+          _id: {
+            date: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$trade_time_utc",
+              },
+            },
+          },
+          amount: {
+            $sum: {
+              $multiply: ["$amount", -1],
+            },
+          },
+          brokerage: {
+            $sum: "$brokerage",
+          },
+          lots: {
+            $sum: "$Quantity",
+          },
+          trades: {
+            $count: {}
+          }
+        },
+      },
+      {
+        $match: {
+          lots: {
+            $eq: 0,
+          },
+        },
+      },
+      {
+        $project: {
+          date: "$_id.date",
+          _id: 0,
+          npnl: {
+            $subtract: ["$amount", "$brokerage"],
+          },
+          trades: 1,
+          brokerage: 1
+        },
+      },
+    ])
+
+    obj = {
+      profitDays: 0,
+      totalProfit: 0,
+      lossDays: 0,
+      totalLoss: 0,
+      maximumProfit: 0,
+      minimumProfit: 0,
+      avgProfit: 0,
+      maximumLoss: 0,
+      minimumLoss: 0,
+      avgLoss: 0,
+      totalNpnl: 0,
+      totalTrades: 0,
+      totalBrokerage: 0
+    };
+    obj.tradingDay = pnlDetails.length;
+
+    let profit = pnlDetails.map((elem) => {
+      if (elem.npnl >= 0) {
+        obj.profitDays += 1;
+        obj.totalProfit += elem.npnl;
+        return elem;
+      }
+      return null;
+    }).filter((elem) => elem !== null);
+    
+
+    let loss = pnlDetails.filter((elem)=>{
+      if(elem.npnl < 0){
+        obj.lossDays += 1;
+        obj.totalLoss += elem.npnl;
+        return elem;
+      }
+      return null;
+    }).filter((elem) => elem !== null);
+
+
+    const profit_result = profit.reduce((acc, curr) => {
+      // Find minimum npnl
+      acc.minNpnl = (curr.npnl < acc.minNpnl || acc.minNpnl === undefined) ? curr.npnl : acc.minNpnl;
+    
+      // Find maximum npnl
+      acc.maxNpnl = (curr.npnl > acc.maxNpnl || acc.maxNpnl === undefined) ? curr.npnl : acc.maxNpnl;
+    
+      return acc;
+    }, {});
+
+    const loss_result = loss.reduce((acc, curr) => {
+      // Find minimum npnl
+      acc.minNpnl = (curr.npnl < acc.minNpnl || acc.minNpnl === undefined) ? curr.npnl : acc.minNpnl;
+    
+      // Find maximum npnl
+      acc.maxNpnl = (curr.npnl > acc.maxNpnl || acc.maxNpnl === undefined) ? curr.npnl : acc.maxNpnl;
+    
+      return acc;
+    }, {});
+
+    obj.maximumProfit = profit_result.maxNpnl;
+    obj.minimumProfit = profit_result.minNpnl;
+    obj.avgProfit = obj.totalProfit/obj.profitDays;
+
+    obj.maximumLoss = loss_result.maxNpnl;
+    obj.minimumLoss = loss_result.minNpnl;
+    obj.avgLoss = obj.totalLoss/obj.lossDays;
+
+    for(let elem of pnlDetails){
+      obj.totalNpnl += elem.npnl;
+      obj.totalTrades += elem.trades;
+      obj.totalBrokerage += elem.brokerage;
+    }
+    console.log( obj);
+
+    res.status(201).json({ message: "pnl received", data: obj });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ status: 'success', message: 'something went wrong.' })
+  }
+}
+
 exports.myTodaysTrade = async (req, res, next) => {
 
   let {subscriptionId} = req.params;

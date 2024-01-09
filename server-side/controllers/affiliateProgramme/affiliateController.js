@@ -599,14 +599,14 @@ exports.affiliateLeaderboard = async (req, res) => {
     const affilifateUser = await User.find({_id: {$in: userIds}}).select('affiliateReferrals')
     .populate('affiliateReferrals.referredUserId', 'joining_date');
 
-    console.log("affilifateUser.length", affilifateUser[0].affiliateReferrals[0])
+    // console.log("affilifateUser.length", affilifateUser[0].affiliateReferrals[0])
     for(let elem of leaderboard){
       let filteredUser = affilifateUser.filter((item)=>{
         // console.log(elem?.affiliate, item?.referredUserId?._id ,  item?.referredUserId?.joining_date , new Date(startDate) , item?.referredUserId?.joining_date , new Date(endDate))
         // console.log("elem", elem)
         console.log( elem?.affiliate?.toString() , item?._id?.toString())
         return elem?.affiliate?.toString() === item?._id?.toString()
-        // return (elem?.affiliate===item?.referredUserId?._id && item?.referredUserId?.joining_date >= new Date(startDate) && item?.referredUserId?.joining_date <= new Date(endDate))
+        // 645cc77c2f0bba5a7a3ff427 63788f3991fc4bf629de6df0 return (elem?.affiliate===item?.referredUserId?._id && item?.referredUserId?.joining_date >= new Date(startDate) && item?.referredUserId?.joining_date <= new Date(endDate))
       })
 
 
