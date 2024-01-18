@@ -332,6 +332,7 @@ exports.marginDetail = async (req, res, next) => {
       ])
 
       if (portfoliosFund.length > 0) {
+        portfoliosFund[0].openingBalance = portfoliosFund[0].openingBalance <= 0 ? 0 : portfoliosFund[0].openingBalance;
         if (isRedisConnected) {
           await client.set(`${req.user._id.toString()} openingBalanceAndMarginPaper`, JSON.stringify(portfoliosFund[0]))
           await client.expire(`${req.user._id.toString()} openingBalanceAndMarginPaper`, secondsRemaining);
