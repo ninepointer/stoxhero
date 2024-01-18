@@ -237,6 +237,20 @@ function Index() {
     }
   }
 
+  const config = React.useMemo(
+    () => ({
+      disabled: editingBlogData ? false : true,
+      readonly: false,
+      enableDragAndDropFileToEditor: false,
+      toolbarAdaptive: false,
+      toolbarSticky: true,
+      addNewLine: false,
+      useSearch: false,
+      hidePoweredByJodit: true,
+    }),
+    [editingBlogData],
+  )
+
   function handleCopyClick(textToCopy) {
     console.log("TextToCopy:", textToCopy)
     // Create a temporary textarea element to copy the text
@@ -292,19 +306,7 @@ function Index() {
     />
   );
 
-  const config = React.useMemo(
-    () => ({
-      disabled: editingBlogData ? false : true,
-      readonly: false,
-      enableDragAndDropFileToEditor: false,
-      toolbarAdaptive: false,
-      toolbarSticky: true,
-      addNewLine: false,
-      useSearch: false,
-      hidePoweredByJodit: true,
-    }),
-    [editingBlogData],
-  )
+
 
 
   // console.log("formState", formstate)

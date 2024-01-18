@@ -20,6 +20,9 @@ const pendingOrderSchema = new Schema({
         required: true,
         enum: ['Open', 'Pending', 'Cancelled', 'Executed']
     },
+    status_message:{
+        type: String,
+    },
     execution_price:{
         type: Number,
         // required: true,

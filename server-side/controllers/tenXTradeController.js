@@ -119,7 +119,8 @@ exports.overallPnl = async (req, res, next) => {
             createdOn: {
               $gte: today,
             },
-            product_type: new ObjectId("6517d3803aeb2bb27d650de0")
+            product_type: new ObjectId("6517d3803aeb2bb27d650de0"),
+            sub_product_id: new ObjectId(subscriptionId)
           },
         },
         {

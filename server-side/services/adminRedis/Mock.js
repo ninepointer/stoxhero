@@ -892,7 +892,7 @@ exports.overallpnlMarginX = async (pnlData, trader, data, marginxId, fromPlaceLi
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
-  const today = new Date(todayDate);
+  const today = new Date(todayDate); 
   if(isRedisConnected && await client.exists(`${trader.toString()}${marginxId.toString()} overallpnlMarginX`)){
     pnl = JSON.parse(data);
 

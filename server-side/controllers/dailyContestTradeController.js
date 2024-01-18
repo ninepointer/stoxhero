@@ -62,7 +62,8 @@ exports.overallPnlTrader = async (req, res, next) => {
                     ),
                     type: "Limit",
                     status: "Pending",
-                    product_type: new ObjectId("6517d48d3aeb2bb27d650de5")
+                    product_type: new ObjectId("6517d48d3aeb2bb27d650de5"),
+                    sub_product_id: new ObjectId(id)
                 }
             } else {
                 matchStage = {
@@ -83,7 +84,8 @@ exports.overallPnlTrader = async (req, res, next) => {
                     createdOn: {
                         $gte: today,
                     },
-                    product_type: new ObjectId("6517d48d3aeb2bb27d650de5")
+                    product_type: new ObjectId("6517d48d3aeb2bb27d650de5"),
+                    sub_product_id: new ObjectId(id)
                 }
             }
 

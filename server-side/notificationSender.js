@@ -18,8 +18,8 @@ exports.notificationSender = async () => {
         await client3.SUBSCRIBE("order-notification", async (message) => {
     
             message = JSON.parse(message);
-            console.log("this is notification data", message)
-            io?.emit(`sendOrderResponse${message.createdBy}`, {status: "Success", message: `Your ${message.type==="StopLoss" ? "Stop Loss" : message.type==="StopProfit" ? "Stop Profit" : "Limit order"} of ${message.symbol} has been executed at ₹${message.execution_price}.`, data: Math.random() * 1000000 })
+            console.log("this is notification data", message.response)
+            io?.emit(`sendOrderResponse${message.createdBy}`, {status: "Success", message: `${message.response}`, data: Math.random() * 1000000 })
         })
     } catch(err){
         console.log(err);

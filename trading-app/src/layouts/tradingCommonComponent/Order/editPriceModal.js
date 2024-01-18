@@ -6,12 +6,12 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import FormControl from '@mui/material/FormControl';
+// import FormControl from '@mui/material/FormControl';
 import MDButton from '../../../components/MDButton';
 import { Box, TextField, Typography } from '@mui/material';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import InputLabel from '@mui/material/InputLabel';
+// import Select from '@mui/material/Select';
+// import MenuItem from '@mui/material/MenuItem';
+// import InputLabel from '@mui/material/InputLabel';
 
 import EditIcon from '@mui/icons-material/Edit';
 import MDBox from '../../../components/MDBox';
@@ -20,7 +20,7 @@ import { userContext } from '../../../AuthContext';
 import { apiUrl } from '../../../constants/constants';
 import MDSnackbar from '../../../components/MDSnackbar';
 
-function ModifyPopUp({ id, lots, symbol, type, buyOrSell, ltp }) {
+function ModifyPopUp({id, lots, symbol, type, buyOrSell, ltp, setMsg}) {
 
   const newLtp = parseFloat(ltp.slice(1))
   const [errorMessageStopLoss, setErrorMessageStopLoss] = useState("");
@@ -112,26 +112,31 @@ function ModifyPopUp({ id, lots, symbol, type, buyOrSell, ltp }) {
       })
     });
     const dataResp = await res.json();
+
     if (dataResp.status === 422 || dataResp.error || !dataResp) {
-      openSuccessSB('error', dataResp.error)
+      // openSuccessSB('error', dataResp.error)
+      setMsg(prev => ({ ...prev, error: dataResp.error }))
+
     } else {
       tradeSound.play();
-      openSuccessSB(dataResp.status, dataResp.message)
+      setMsg(prev => ({ ...prev, success: dataResp.message }))
+      render ? setRender(false) : setRender(true)
+
     }
     setPrice(0);
-    render ? setRender(false) : setRender(true)
     handleClose();
   }
 
   const [successSB, setSuccessSB] = useState(false);
 
-  const openSuccessSB = (value, content) => {
-    if (value === "Success") {
-      messageObj.color = 'success'
-      messageObj.icon = 'check'
-      messageObj.title = "Successful";
-      messageObj.content = content;
-      setSuccessSB(true);
+  const openSuccessSB = (value,content) => {
+
+    if(value === "Success"){
+        messageObj.color = 'success'
+        messageObj.icon = 'check'
+        messageObj.title = "Successful";
+        messageObj.content = content;
+        setSuccessSB(true);
     };
     if (value === "error") {
       messageObj.color = 'error'
@@ -144,6 +149,7 @@ function ModifyPopUp({ id, lots, symbol, type, buyOrSell, ltp }) {
     setSuccessSB(true);
   }
   const closeSuccessSB = () => setSuccessSB(false);
+
   const renderSuccessSB = (
     <MDSnackbar
       color={messageObj.color}
