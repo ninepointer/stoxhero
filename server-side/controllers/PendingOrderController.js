@@ -387,6 +387,7 @@ exports.editPrice = async (req, res, next) => {
            symbolArr[i]?.createdBy?.toString() === updatedOrder.createdBy.toString())
         {
             updatedOrder.price = execution_price;
+            updatedOrder.margin = margin;
             const doc = await updatedOrder.save({new: true});
             symbolArr[i].price = execution_price;
             symbolArr[i].margin = margin;
@@ -568,7 +569,7 @@ const calculateNetPnl = async (modifyData, pnlData, data) => {
 
 const fundCheck = async (modifyData, price) => {
   try{
-    const {product_type, createdBy, sub_product_id} = modifyData;
+    const {product_type, createdBy, sub_product_id, Quantity, symbol} = modifyData;
     const isRedisConnected = getValue();
     let todayPnlData;
     let fundDetail;
@@ -642,6 +643,29 @@ const fundCheck = async (modifyData, price) => {
     const requiredMargin = await calculateRequiredMargin(modifyData, data, price)
   
     if ((availableMargin - requiredMargin) > 0) {
+      for(let elem of todayPnlData){
+        console.log(elem?._id?.isLimit , elem?._id?.symbol , symbol)
+        if(elem?._id?.isLimit && (elem?._id?.symbol === symbol)){
+          const marginPrevData = elem?.margin - modifyData.price*Quantity;
+          const marginRequiredOnOne = requiredMargin/Quantity;
+          elem.margin = marginPrevData + price * Quantity;
+          break;
+        }
+      }
+
+      console.log(todayPnlData)
+
+      if (product_type?.toString() === "6517d3803aeb2bb27d650de0") {
+          await client.set(`${createdBy?.toString()}${sub_product_id?.toString()}: overallpnlTenXTrader`, JSON.stringify(todayPnlData))
+      } else if (product_type?.toString() === "6517d40e3aeb2bb27d650de1") {
+          await client.set(`${createdBy?.toString()}${sub_product_id?.toString()} overallpnlMarginX`, JSON.stringify(todayPnlData))
+      } else if (product_type?.toString() === "6517d48d3aeb2bb27d650de5") {
+          await client.set(`${createdBy?.toString()}${sub_product_id?.toString()} overallpnlDailyContest`, JSON.stringify(todayPnlData))
+      } else if (product_type?.toString() === "6517d46e3aeb2bb27d650de3") {
+          await client.set(`${createdBy?.toString()}${sub_product_id?.toString()}: overallpnlIntern`, JSON.stringify(todayPnlData))
+      } else if (product_type?.toString() === "65449ee06932ba3a403a681a") {
+          await client.set(`${createdBy?.toString()}: overallpnlPaperTrade`, JSON.stringify(todayPnlData))
+      }
       return requiredMargin;
     } else {
       return false;
