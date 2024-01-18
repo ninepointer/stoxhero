@@ -587,240 +587,245 @@ exports.creditAmountToWallet = async () => {
             let entryFee = marginxs[j]?.marginXTemplate?.entryFee;
             for (let i = 0; i < marginxs[j]?.participants?.length; i++) {
                 let userId = marginxs[j]?.participants[i]?.userId;
-                let fee = marginxs[j]?.participants[i]?.fee;
-                let id = marginxs[j]._id;
-                let pnlDetails = await MarginXMockUser.aggregate([
-                    {
-                        $match: {
-                            trade_time: {
-                                $gte: today
+                const arr = ["64f4d1c90692182de0c3ceb9", "6583fd6a2071fe4c365621d7"]
+                const match = arr.some(elem => elem===userId?.toString());
+
+                if(!match){
+                    let fee = marginxs[j]?.participants[i]?.fee;
+                    let id = marginxs[j]._id;
+                    let pnlDetails = await MarginXMockUser.aggregate([
+                        {
+                            $match: {
+                                trade_time: {
+                                    $gte: today
+                                },
+                                status: "COMPLETE",
+                                trader: new ObjectId(userId),
+                                marginxId: new ObjectId(id)
                             },
-                            status: "COMPLETE",
-                            trader: new ObjectId(userId),
-                            marginxId: new ObjectId(id)
                         },
-                    },
-                    {
-                        $group: {
-                            _id: {
-                            },
-                            amount: {
-                                $sum: {
-                                    $multiply: ["$amount", -1],
+                        {
+                            $group: {
+                                _id: {
                                 },
-                            },
-                            brokerage: {
-                                $sum: {
-                                    $toDouble: "$brokerage",
+                                amount: {
+                                    $sum: {
+                                        $multiply: ["$amount", -1],
+                                    },
                                 },
-                            },
-                            trades: {
-                                $count: {},
-                            },
-                            tradingDays: {
-                                $addToSet: {
-                                    $dateToString: {
-                                        format: "%Y-%m-%d",
-                                        date: "$trade_time_utc",
+                                brokerage: {
+                                    $sum: {
+                                        $toDouble: "$brokerage",
+                                    },
+                                },
+                                trades: {
+                                    $count: {},
+                                },
+                                tradingDays: {
+                                    $addToSet: {
+                                        $dateToString: {
+                                            format: "%Y-%m-%d",
+                                            date: "$trade_time_utc",
+                                        },
                                     },
                                 },
                             },
                         },
-                    },
-                    {
-                        $project:
                         {
-                            gpnl: "$amount",
-                            brokerage: "$brokerage",
-                            _id: 0,
-                            npnl: {
-                              $subtract: ["$amount", "$brokerage"],
+                            $project:
+                            {
+                                gpnl: "$amount",
+                                brokerage: "$brokerage",
+                                _id: 0,
+                                npnl: {
+                                  $subtract: ["$amount", "$brokerage"],
+                                },
+                                tradingDays: {
+                                  $size: "$tradingDays",
+                                },
+                                trades: 1,
                             },
-                            tradingDays: {
-                              $size: "$tradingDays",
-                            },
-                            trades: 1,
                         },
-                    },
-                ])
-
-                // console.log(pnlDetails);
-                let payoutAmount = entryFee;
-                if(pnlDetails?.length != 0 && pnlDetails[0]?.npnl){
-                    payoutAmount = (pnlDetails[0]?.npnl/leverage) + entryFee;
-                    console.log("in if ", payoutAmount)
-                }
-                if(payoutAmount >=0){
-                    let payoutAmountAdjusted = payoutAmount;
-                    if(payoutAmount>fee){
-                        if(marginxs[j]?.rewardType === "Cash"){
-                            payoutAmountAdjusted = payoutAmount - (payoutAmount-fee)*setting[0]?.tdsPercentage/100;
-                        } else{
-                            payoutAmountAdjusted = payoutAmount;
-                        }
+                    ])
+    
+                    // console.log(pnlDetails);
+                    let payoutAmount = entryFee;
+                    if(pnlDetails?.length != 0 && pnlDetails[0]?.npnl){
+                        payoutAmount = (pnlDetails[0]?.npnl/leverage) + entryFee;
+                        console.log("in if ", payoutAmount)
                     }
-                    
-                    const tdsAmount = marginxs[j]?.rewardType === "Cash" ? (payoutAmount-fee)*setting[0]?.tdsPercentage/100 : 0;
-                    const user = await User.findById(userId).select('email first_name last_name');
-
-                    const wallet = await Wallet.findOne({ userId: userId });
-                    console.log("second if", userId, pnlDetails[0], payoutAmount);
-                    const existingTransaction = wallet?.transactions?.some(transaction => (transaction?.description?.includes(marginxs[j].marginXName) && transaction?.description?.includes("credited") && transaction.transactionDate >= today))
-
-                    if(!existingTransaction){
-                        wallet.transactions = [...wallet.transactions, {
-                            title: 'Marginx Credit',
-                            description: `Payout credited for Marginx ${marginxs[j].marginXName}`,
-                            transactionDate: new Date(),
-                            amount: payoutAmountAdjusted?.toFixed(2),
-                            transactionId: uuid.v4(),
-                            transactionType: marginxs[j]?.rewardType === "Cash" ? 'Cash' : "Bonus"
-                        }];
+                    if(payoutAmount >=0){
+                        let payoutAmountAdjusted = payoutAmount;
+                        if(payoutAmount>fee){
+                            if(marginxs[j]?.rewardType === "Cash"){
+                                payoutAmountAdjusted = payoutAmount - (payoutAmount-fee)*setting[0]?.tdsPercentage/100;
+                            } else{
+                                payoutAmountAdjusted = payoutAmount;
+                            }
+                        }
                         
-                        if (tdsAmount > 0 && marginxs[j]?.tdsRelief) {
+                        const tdsAmount = marginxs[j]?.rewardType === "Cash" ? (payoutAmount-fee)*setting[0]?.tdsPercentage/100 : 0;
+                        const user = await User.findById(userId).select('email first_name last_name');
+    
+                        const wallet = await Wallet.findOne({ userId: userId });
+                        console.log("second if", userId, pnlDetails[0], payoutAmount);
+                        const existingTransaction = wallet?.transactions?.some(transaction => (transaction?.description?.includes(marginxs[j].marginXName) && transaction?.description?.includes("credited") && transaction.transactionDate >= today))
+    
+                        if(!existingTransaction){
                             wallet.transactions = [...wallet.transactions, {
-                                title: 'StoxHero CashBack',
-                                description: `Cashback of ${tdsAmount?.toFixed(2)} HeroCash - MarginX ${marginxs[j].marginXName} TDS`,
-                                amount: (tdsAmount?.toFixed(2)),
+                                title: 'Marginx Credit',
+                                description: `Payout credited for Marginx ${marginxs[j].marginXName}`,
+                                transactionDate: new Date(),
+                                amount: payoutAmountAdjusted?.toFixed(2),
                                 transactionId: uuid.v4(),
-                                transactionType: "Bonus"
+                                transactionType: marginxs[j]?.rewardType === "Cash" ? 'Cash' : "Bonus"
                             }];
-
+                            
+                            if (tdsAmount > 0 && marginxs[j]?.tdsRelief) {
+                                wallet.transactions = [...wallet.transactions, {
+                                    title: 'StoxHero CashBack',
+                                    description: `Cashback of ${tdsAmount?.toFixed(2)} HeroCash - MarginX ${marginxs[j].marginXName} TDS`,
+                                    amount: (tdsAmount?.toFixed(2)),
+                                    transactionId: uuid.v4(),
+                                    transactionType: "Bonus"
+                                }];
+    
+                                await createUserNotification({
+                                    title: 'StoxHero CashBack',
+                                    description: `Cashback of ${tdsAmount?.toFixed(2)} HeroCash - MarginX ${marginxs[j].marginXName} TDS`,
+                                    notificationType: 'Individual',
+                                    notificationCategory: 'Informational',
+                                    productCategory: 'MarginX',
+                                    user: user?._id,
+                                    priority: 'Medium',
+                                    channels: ['App', 'Email'],
+                                    createdBy: '63ecbc570302e7cf0153370c',
+                                    lastModifiedBy: '63ecbc570302e7cf0153370c'
+                                });
+                            }
+    
+                            await wallet.save();
+                          //  if (process.env.PROD == 'true') {
+                                emailService(user?.email, 'MarginX Payout Credited - StoxHero', `
+                                <!DOCTYPE html>
+                                <html>
+                                <head>
+                                    <meta charset="UTF-8">
+                                    <title>Amount Credited</title>
+                                    <style>
+                                    body {
+                                        font-family: Arial, sans-serif;
+                                        font-size: 16px;
+                                        line-height: 1.5;
+                                        margin: 0;
+                                        padding: 0;
+                                    }
+                          
+                                    .container {
+                                        max-width: 600px;
+                                        margin: 0 auto;
+                                        padding: 20px;
+                                        border: 1px solid #ccc;
+                                    }
+                          
+                                    h1 {
+                                        font-size: 24px;
+                                        margin-bottom: 20px;
+                                    }
+                          
+                                    p {
+                                        margin: 0 0 20px;
+                                    }
+                          
+                                    .userid {
+                                        display: inline-block;
+                                        background-color: #f5f5f5;
+                                        padding: 10px;
+                                        font-size: 15px;
+                                        font-weight: bold;
+                                        border-radius: 5px;
+                                        margin-right: 10px;
+                                    }
+                          
+                                    .password {
+                                        display: inline-block;
+                                        background-color: #f5f5f5;
+                                        padding: 10px;
+                                        font-size: 15px;
+                                        font-weight: bold;
+                                        border-radius: 5px;
+                                        margin-right: 10px;
+                                    }
+                          
+                                    .login-button {
+                                        display: inline-block;
+                                        background-color: #007bff;
+                                        color: #fff;
+                                        padding: 10px 20px;
+                                        font-size: 18px;
+                                        font-weight: bold;
+                                        text-decoration: none;
+                                        border-radius: 5px;
+                                    }
+                          
+                                    .login-button:hover {
+                                        background-color: #0069d9;
+                                    }
+                                    </style>
+                                </head>
+                                <body>
+                                    <div class="container">
+                                    <h1>Amount Credited</h1>
+                                    <p>Hello ${user.first_name},</p>
+                                    <p>${marginxs[j]?.rewardType === "Cash" ? "₹"+payoutAmountAdjusted?.toFixed(2) : "HeroCash "+payoutAmountAdjusted?.toFixed(2)} has been credited in your wallet for ${marginxs[j].marginXName}.</p>
+                                    <p>You can now purchase Tenx and participate in various activities on stoxhero.</p>
+                                    
+                                    <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                                    <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                                    <br/><br/>
+                                    <p>Thanks,</p>
+                                    <p>StoxHero Team</p>
+                          
+                                    </div>
+                                </body>
+                                </html>
+                                `);
+                            //}
                             await createUserNotification({
-                                title: 'StoxHero CashBack',
-                                description: `Cashback of ${tdsAmount?.toFixed(2)} HeroCash - MarginX ${marginxs[j].marginXName} TDS`,
-                                notificationType: 'Individual',
-                                notificationCategory: 'Informational',
-                                productCategory: 'MarginX',
+                                title:'MarginX Payout Credited',
+                                description:`${marginxs[j]?.rewardType === "Cash" ? "₹"+payoutAmountAdjusted?.toFixed(2) : "HeroCash "+payoutAmountAdjusted?.toFixed(2)} credited for your MarginX return`,
+                                // description:`₹${payoutAmountAdjusted?.toFixed(2)} credited for your MarginX return`,
+                                notificationType:'Individual',
+                                notificationCategory:'Informational',
+                                productCategory:'MarginX',
                                 user: user?._id,
-                                priority: 'Medium',
-                                channels: ['App', 'Email'],
-                                createdBy: '63ecbc570302e7cf0153370c',
-                                lastModifiedBy: '63ecbc570302e7cf0153370c'
-                            });
+                                priority:'Medium',
+                                channels:['App', 'Email'],
+                                createdBy:'63ecbc570302e7cf0153370c',
+                                lastModifiedBy:'63ecbc570302e7cf0153370c'  
+                              });
+                              if(user?.fcmTokens?.length>0){
+                                await sendMultiNotifications('MarginX Payout Credited', 
+                                `${marginxs[j]?.rewardType === "Cash" ? "₹"+payoutAmountAdjusted?.toFixed(2) : "HeroCash "+payoutAmountAdjusted?.toFixed(2)} credited for your MarginX return`,
+                                  user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
+                                  )  
+                              } 
                         }
-
-                        await wallet.save();
-                        if (process.env.PROD == 'true') {
-                            emailService(user?.email, 'MarginX Payout Credited - StoxHero', `
-                            <!DOCTYPE html>
-                            <html>
-                            <head>
-                                <meta charset="UTF-8">
-                                <title>Amount Credited</title>
-                                <style>
-                                body {
-                                    font-family: Arial, sans-serif;
-                                    font-size: 16px;
-                                    line-height: 1.5;
-                                    margin: 0;
-                                    padding: 0;
-                                }
-                      
-                                .container {
-                                    max-width: 600px;
-                                    margin: 0 auto;
-                                    padding: 20px;
-                                    border: 1px solid #ccc;
-                                }
-                      
-                                h1 {
-                                    font-size: 24px;
-                                    margin-bottom: 20px;
-                                }
-                      
-                                p {
-                                    margin: 0 0 20px;
-                                }
-                      
-                                .userid {
-                                    display: inline-block;
-                                    background-color: #f5f5f5;
-                                    padding: 10px;
-                                    font-size: 15px;
-                                    font-weight: bold;
-                                    border-radius: 5px;
-                                    margin-right: 10px;
-                                }
-                      
-                                .password {
-                                    display: inline-block;
-                                    background-color: #f5f5f5;
-                                    padding: 10px;
-                                    font-size: 15px;
-                                    font-weight: bold;
-                                    border-radius: 5px;
-                                    margin-right: 10px;
-                                }
-                      
-                                .login-button {
-                                    display: inline-block;
-                                    background-color: #007bff;
-                                    color: #fff;
-                                    padding: 10px 20px;
-                                    font-size: 18px;
-                                    font-weight: bold;
-                                    text-decoration: none;
-                                    border-radius: 5px;
-                                }
-                      
-                                .login-button:hover {
-                                    background-color: #0069d9;
-                                }
-                                </style>
-                            </head>
-                            <body>
-                                <div class="container">
-                                <h1>Amount Credited</h1>
-                                <p>Hello ${user.first_name},</p>
-                                <p>${marginxs[j]?.rewardType === "Cash" ? "₹"+payoutAmountAdjusted?.toFixed(2) : "HeroCash "+payoutAmountAdjusted?.toFixed(2)} has been credited in your wallet for ${marginxs[j].marginXName}.</p>
-                                <p>You can now purchase Tenx and participate in various activities on stoxhero.</p>
-                                
-                                <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-                                <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-                                <br/><br/>
-                                <p>Thanks,</p>
-                                <p>StoxHero Team</p>
-                      
-                                </div>
-                            </body>
-                            </html>
-                            `);
-                        }
-                        await createUserNotification({
-                            title:'MarginX Payout Credited',
-                            description:`${marginxs[j]?.rewardType === "Cash" ? "₹"+payoutAmountAdjusted?.toFixed(2) : "HeroCash "+payoutAmountAdjusted?.toFixed(2)} credited for your MarginX return`,
-                            // description:`₹${payoutAmountAdjusted?.toFixed(2)} credited for your MarginX return`,
-                            notificationType:'Individual',
-                            notificationCategory:'Informational',
-                            productCategory:'MarginX',
-                            user: user?._id,
-                            priority:'Medium',
-                            channels:['App', 'Email'],
-                            createdBy:'63ecbc570302e7cf0153370c',
-                            lastModifiedBy:'63ecbc570302e7cf0153370c'  
-                          });
-                          if(user?.fcmTokens?.length>0){
-                            await sendMultiNotifications('MarginX Payout Credited', 
-                            `${marginxs[j]?.rewardType === "Cash" ? "₹"+payoutAmountAdjusted?.toFixed(2) : "HeroCash "+payoutAmountAdjusted?.toFixed(2)} credited for your MarginX return`,
-                              user?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
-                              )  
-                          } 
+     
+                        marginxs[j].participants[i].payout = payoutAmountAdjusted?.toFixed(2);
+                        marginxs[j].participants[i].tdsAmount = tdsAmount > 0 ? tdsAmount : 0;
+                        marginxs[j].participants[i].herocashPayout = tdsAmount > 0 ? tdsAmount : 0;
+                
+                        await marginxs[j].save();
                     }
- 
-                    marginxs[j].participants[i].payout = payoutAmountAdjusted?.toFixed(2);
-                    marginxs[j].participants[i].tdsAmount = tdsAmount > 0 ? tdsAmount : 0;
-                    marginxs[j].participants[i].herocashPayout = tdsAmount > 0 ? tdsAmount : 0;
-            
-                    await marginxs[j].save();
+    
+                    marginxs[j].participants[i].gpnl = pnlDetails[0]?.gpnl ? pnlDetails[0]?.gpnl : 0;
+                    marginxs[j].participants[i].npnl = pnlDetails[0]?.npnl ? pnlDetails[0]?.npnl : 0;
+                    marginxs[j].participants[i].brokerage = pnlDetails[0]?.brokerage ? pnlDetails[0]?.brokerage : 0;
+                    marginxs[j].participants[i].tradingDays = pnlDetails[0]?.tradingDays ? pnlDetails[0]?.tradingDays : 0;
+                    marginxs[j].participants[i].trades = pnlDetails[0]?.trades ? pnlDetails[0]?.trades : 0;
+    
                 }
-
-                marginxs[j].participants[i].gpnl = pnlDetails[0]?.gpnl ? pnlDetails[0]?.gpnl : 0;
-                marginxs[j].participants[i].npnl = pnlDetails[0]?.npnl ? pnlDetails[0]?.npnl : 0;
-                marginxs[j].participants[i].brokerage = pnlDetails[0]?.brokerage ? pnlDetails[0]?.brokerage : 0;
-                marginxs[j].participants[i].tradingDays = pnlDetails[0]?.tradingDays ? pnlDetails[0]?.tradingDays : 0;
-                marginxs[j].participants[i].trades = pnlDetails[0]?.trades ? pnlDetails[0]?.trades : 0;
-
             }
             marginxs[j].payoutStatus = 'Completed'
             marginxs[j].status = "Completed";

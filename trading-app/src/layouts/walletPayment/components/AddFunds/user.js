@@ -64,7 +64,6 @@ function Users({ setPaymentBy }) {
               '& .MuiAutocomplete-clearIndicator': {
                 color: 'dark',
               },
-              
             }}
             options={trader}
             value={value}

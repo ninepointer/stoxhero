@@ -785,10 +785,7 @@ const routes = [
     component: <Carousel />,
   },
   {
-    // type: "collapse",
-    // name: "Broker Reports",
-    // key: "brokerreports",
-    // icon: <ViewCarouselIcon/>,
+
     route: "/brokerreports",
     component: <BrokerReport />,
   },

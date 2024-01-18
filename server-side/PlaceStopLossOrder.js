@@ -67,24 +67,29 @@ const tenxTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDetai
         const margin = (await marginAndCase).margin;
         const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
 
+        let functionValue;
         switch (caseNumber) {
             case 0:
-                await marginZeroCase(message.data, availableMargin, tenxTrader, kiteData)
+                functionValue = await marginZeroCase(message.data, availableMargin, tenxTrader, kiteData)
                 break;
             case 1:
-                await marginFirstCase(message.data, availableMargin, margin, tenxTrader, kiteData)
+                functionValue = await marginFirstCase(message.data, availableMargin, margin, tenxTrader, kiteData)
                 break;
             case 2:
-                await marginSecondCase(message.data, margin, runningLotForSymbol)
+                functionValue = await marginSecondCase(message.data, margin, runningLotForSymbol)
                 break;
             case 3:
-                await marginThirdCase(message.data, netPnl)
+                functionValue = await marginThirdCase(message.data, netPnl)
                 break;
             case 4:
-                await marginFourthCase(message.data, availableMargin, runningLotForSymbol, tenxTrader, kiteData)
+                functionValue = await marginFourthCase(message.data, availableMargin, runningLotForSymbol, tenxTrader, kiteData)
                 break;
         }
 
+        if(functionValue === "No Margin"){
+            resolve("No Margin")
+            return;
+        }
         let last_price = message.ltp;
 
         let brokerageUser;
@@ -210,22 +215,30 @@ const paperTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDeta
         const margin = (await marginAndCase).margin;
         const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
 
+
+        let functionValue;
+
         switch (caseNumber) {
             case 0:
-                await marginZeroCase(message.data, availableMargin, virtualTrader, kiteData)
+                functionValue = await marginZeroCase(message.data, availableMargin, virtualTrader, kiteData)
                 break;
             case 1:
-                await marginFirstCase(message.data, availableMargin, margin, virtualTrader, kiteData)
+                functionValue = await marginFirstCase(message.data, availableMargin, margin, virtualTrader, kiteData)
                 break;
             case 2:
-                await marginSecondCase(message.data, margin, runningLotForSymbol)
+                functionValue = await marginSecondCase(message.data, margin, runningLotForSymbol)
                 break;
             case 3:
-                await marginThirdCase(message.data, netPnl)
+                functionValue = await marginThirdCase(message.data, netPnl)
                 break;
             case 4:
-                await marginFourthCase(message.data, availableMargin, runningLotForSymbol, virtualTrader, kiteData)
+                functionValue = await marginFourthCase(message.data, availableMargin, runningLotForSymbol, virtualTrader, kiteData)
                 break;
+        }
+
+        if(functionValue === "No Margin"){
+            resolve("No Margin")
+            return;
         }
 
         let last_price = message.ltp;
@@ -353,25 +366,30 @@ const internTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDet
         const caseNumber = (await marginAndCase).caseNumber;
         const margin = (await marginAndCase).margin;
         const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
-
+        
+        let functionValue;
         switch (caseNumber) {
             case 0:
-                await marginZeroCase(message.data, availableMargin, tenxTrader, kiteData)
+                functionValue = await marginZeroCase(message.data, availableMargin, tenxTrader, kiteData)
                 break;
             case 1:
-                await marginFirstCase(message.data, availableMargin, margin, tenxTrader, kiteData)
+                functionValue = await marginFirstCase(message.data, availableMargin, margin, tenxTrader, kiteData)
                 break;
             case 2:
-                await marginSecondCase(message.data, margin, runningLotForSymbol)
+                functionValue = await marginSecondCase(message.data, margin, runningLotForSymbol)
                 break;
             case 3:
-                await marginThirdCase(message.data, netPnl)
+                functionValue = await marginThirdCase(message.data, netPnl)
                 break;
             case 4:
-                await marginFourthCase(message.data, availableMargin, runningLotForSymbol, internTrader, kiteData)
+                functionValue = await marginFourthCase(message.data, availableMargin, runningLotForSymbol, internTrader, kiteData)
                 break;
         }
 
+        if(functionValue === "No Margin"){
+            resolve("No Margin")
+            return;
+        }
         let last_price = message.ltp;
 
         let brokerageUser;
@@ -498,22 +516,28 @@ const dailyContestTradeStopLoss = async (message, brokerageDetailBuyUser, broker
         const margin = (await marginAndCase).margin;
         const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
 
+        let functionValue;
         switch (caseNumber) {
             case 0:
-                await marginZeroCase(message.data, availableMargin, dailyContest, kiteData)
+                functionValue = await marginZeroCase(message.data, availableMargin, dailyContest, kiteData)
                 break;
             case 1:
-                await marginFirstCase(message.data, availableMargin, margin, dailyContest, kiteData)
+                functionValue = await marginFirstCase(message.data, availableMargin, margin, dailyContest, kiteData)
                 break;
             case 2:
-                await marginSecondCase(message.data, margin, runningLotForSymbol)
+                functionValue = await marginSecondCase(message.data, margin, runningLotForSymbol)
                 break;
             case 3:
-                await marginThirdCase(message.data, netPnl)
+                functionValue = await marginThirdCase(message.data, netPnl)
                 break;
             case 4:
-                await marginFourthCase(message.data, availableMargin, runningLotForSymbol, dailyContest, kiteData)
+                functionValue = await marginFourthCase(message.data, availableMargin, runningLotForSymbol, dailyContest, kiteData)
                 break;
+        }
+
+        if(functionValue === "No Margin"){
+            resolve("No Margin")
+            return;
         }
 
         let last_price = message.ltp;
@@ -707,23 +731,29 @@ const marginxTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDe
         const caseNumber = (await marginAndCase).caseNumber;
         const margin = (await marginAndCase).margin;
         const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
-
+        
+        let functionValue;
         switch (caseNumber) {
             case 0:
-                await marginZeroCase(message.data, availableMargin, marginx, kiteData)
+                functionValue = await marginZeroCase(message.data, availableMargin, marginx, kiteData)
                 break;
             case 1:
-                await marginFirstCase(message.data, availableMargin, margin, marginx, kiteData)
+                functionValue = await marginFirstCase(message.data, availableMargin, margin, marginx, kiteData)
                 break;
             case 2:
-                await marginSecondCase(message.data, margin, runningLotForSymbol)
+                functionValue = await marginSecondCase(message.data, margin, runningLotForSymbol)
                 break;
             case 3:
-                await marginThirdCase(message.data, netPnl)
+                functionValue = await marginThirdCase(message.data, netPnl)
                 break;
             case 4:
-                await marginFourthCase(message.data, availableMargin, runningLotForSymbol, marginx, kiteData)
+                functionValue = await marginFourthCase(message.data, availableMargin, runningLotForSymbol, marginx, kiteData)
                 break;
+        }
+
+        if(functionValue === "No Margin"){
+            resolve("No Margin")
+            return;
         }
 
         let last_price = message.ltp;
@@ -924,29 +954,28 @@ exports.pendingOrderMain = async () => {
 
 
                 let pnlData;
+                let responseData;
                 if (product_type?.toString() === "6517d3803aeb2bb27d650de0") {
-                    await tenxTradeStopLoss(message, brokerageDetailBuyUser, brokerageDetailSellUser);
+                    responseData = await tenxTradeStopLoss(message, brokerageDetailBuyUser, brokerageDetailSellUser);
                     pnlData = await client.get(`${createdBy?.toString()}${sub_product_id?.toString()}: overallpnlTenXTrader`)
                 } else if (product_type?.toString() === "6517d40e3aeb2bb27d650de1") {
-                    await marginxTradeStopLoss(message, brokerageDetailBuyUser, brokerageDetailSellUser, brokerageDetailBuy, brokerageDetailSell);
+                    responseData = await marginxTradeStopLoss(message, brokerageDetailBuyUser, brokerageDetailSellUser, brokerageDetailBuy, brokerageDetailSell);
                     pnlData = await client.get(`${createdBy?.toString()}${sub_product_id?.toString()} overallpnlMarginX`)
                 } else if (product_type?.toString() === "6517d48d3aeb2bb27d650de5") {
-                    await dailyContestTradeStopLoss(message, brokerageDetailBuyUser, brokerageDetailSellUser, brokerageDetailBuy, brokerageDetailSell);
+                    responseData = await dailyContestTradeStopLoss(message, brokerageDetailBuyUser, brokerageDetailSellUser, brokerageDetailBuy, brokerageDetailSell);
                     pnlData = await client.get(`${createdBy?.toString()}${sub_product_id?.toString()} overallpnlDailyContest`)
                 } else if (product_type?.toString() === "6517d46e3aeb2bb27d650de3") {
-                    await internTradeStopLoss(message, brokerageDetailBuyUser, brokerageDetailSellUser);
+                    responseData = await internTradeStopLoss(message, brokerageDetailBuyUser, brokerageDetailSellUser);
                     pnlData = await client.get(`${createdBy?.toString()}${sub_product_id?.toString()}: overallpnlIntern`)
                 } else if (product_type?.toString() === "65449ee06932ba3a403a681a") {
-                    await paperTradeStopLoss(message, brokerageDetailBuyUser, brokerageDetailSellUser);
+                    responseData = await paperTradeStopLoss(message, brokerageDetailBuyUser, brokerageDetailSellUser);
+                    console.log("paperTradeStopLoss", responseData)
                     pnlData = await client.get(`${createdBy?.toString()}: overallpnlPaperTrade`)
                 }
 
                 if(!pnlData){
                     return;
                 }
-
-
-                // console.log("pnlData", pnlData)
 
                 data = await client.get('stoploss-stopprofit');
                 data = JSON.parse(data);
@@ -959,6 +988,7 @@ exports.pendingOrderMain = async () => {
                         symbolArr[i]?.createdBy.toString() === createdBy.toString() &&
                         Math.abs(symbolArr[i]?.Quantity) === Math.abs(Number(Quantity)) &&
                         symbolArr[i]?.buyOrSell === buyOrSell &&
+                        symbolArr[i]?.sub_product_id?.toString() === sub_product_id?.toString() &&
                         symbolArr[i]?.type !== type) {
 
                         const update = await PendingOrder.findOne({ _id: new ObjectId(symbolArr[i]?._id) })
@@ -982,56 +1012,69 @@ exports.pendingOrderMain = async () => {
                     symbolArr.splice(index, 1, {});
                 }
 
-                const update = await PendingOrder.updateOne({ _id: new ObjectId(_id) }, {
-                    $set: {
-                        status: "Executed",
-                        execution_time: new Date(),
-                        execution_price: last_price
-                    }
-                })
-
-
-                // console.log(pnlData)
-                pnlData = JSON.parse(pnlData)
-                for (let elem of pnlData) {
-                    // console.log("pnl dtata", elem, pnlData)
-                    const buyOrSellPnl = elem.lots > 0 ? "BUY" : "SELL";
-                    if (elem._id.symbol === symbol && elem._id.isLimit && buyOrSellPnl === buyOrSell) {
-                        if (Math.abs(elem.lots) > Math.abs(Quantity)) {
-                            elem.margin = elem.margin - (elem.margin * Math.abs(Quantity) / Math.abs(elem.lots));
-                            elem.lots = Math.abs(elem.lots) - Math.abs(Quantity)
-                            elem.lots = buyOrSellPnl === "SELL" ? -elem.lots : elem.lots;
-                            // console.log("if elem", elem);
-                            break;
-                        } else if (Math.abs(elem.lots) === Math.abs(Quantity)) {
-                            elem.margin = 0;
-                            elem.lots = Math.abs(elem.lots) - Math.abs(Quantity)
-                            // console.log("else elem", elem);
-                            break;
-                        }
-                    }
-                }
-
-
-                // console.log("pnlData", pnlData)
-                if (product_type?.toString() === "6517d3803aeb2bb27d650de0") {
-                    await client.set(`${createdBy?.toString()}${sub_product_id?.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlData))
-                } else if (product_type?.toString() === "6517d40e3aeb2bb27d650de1") {
-                    await client.set(`${createdBy?.toString()}${sub_product_id?.toString()} overallpnlMarginX`, JSON.stringify(pnlData))
-                } else if (product_type?.toString() === "6517d48d3aeb2bb27d650de5") {
-                    await client.set(`${createdBy?.toString()}${sub_product_id?.toString()} overallpnlDailyContest`, JSON.stringify(pnlData))
-                } else if (product_type?.toString() === "6517d46e3aeb2bb27d650de3") {
-                    await client.set(`${createdBy?.toString()}${sub_product_id?.toString()}: overallpnlIntern`, JSON.stringify(pnlData))
-                } else if (product_type?.toString() === "65449ee06932ba3a403a681a") {
-                    await client.set(`${createdBy?.toString()}: overallpnlPaperTrade`, JSON.stringify(pnlData))
-                }
-
-                // console.log("symbolArr", symbolArr)
                 data[`${instrumentToken}`] = symbolArr;
                 const myDAta = await client.set('stoploss-stopprofit', JSON.stringify(data));
-                console.log("data", { symbol: symbol, createdBy: createdBy, Quantity: Quantity, execution_price: last_price, type: type })
-                await client4.PUBLISH("order-notification", JSON.stringify({ symbol: symbol, createdBy: createdBy, Quantity: Quantity, execution_price: last_price, type: type }))
 
+                if(responseData !== "No Margin"){
+                    const update = await PendingOrder.updateOne({ _id: new ObjectId(_id) }, {
+                        $set: {
+                            status: "Executed",
+                            execution_time: new Date(),
+                            execution_price: last_price
+                        }
+                    })
+    
+                    pnlData = JSON.parse(pnlData)
+                    for (let elem of pnlData) {
+                        // console.log("pnl dtata", elem, pnlData)
+                        const buyOrSellPnl = elem.lots > 0 ? "BUY" : "SELL";
+                        if (elem._id.symbol === symbol && elem._id.isLimit && buyOrSellPnl === buyOrSell) {
+                            if (Math.abs(elem.lots) > Math.abs(Quantity)) {
+                                elem.margin = elem.margin - (elem.margin * Math.abs(Quantity) / Math.abs(elem.lots));
+                                elem.lots = Math.abs(elem.lots) - Math.abs(Quantity)
+                                elem.lots = buyOrSellPnl === "SELL" ? -elem.lots : elem.lots;
+                                // console.log("if elem", elem);
+                                break;
+                            } else if (Math.abs(elem.lots) === Math.abs(Quantity)) {
+                                elem.margin = 0;
+                                elem.lots = Math.abs(elem.lots) - Math.abs(Quantity)
+                                // console.log("else elem", elem);
+                                break;
+                            }
+                        }
+                    }
+    
+                    if (product_type?.toString() === "6517d3803aeb2bb27d650de0") {
+                        await client.set(`${createdBy?.toString()}${sub_product_id?.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlData))
+                    } else if (product_type?.toString() === "6517d40e3aeb2bb27d650de1") {
+                        await client.set(`${createdBy?.toString()}${sub_product_id?.toString()} overallpnlMarginX`, JSON.stringify(pnlData))
+                    } else if (product_type?.toString() === "6517d48d3aeb2bb27d650de5") {
+                        await client.set(`${createdBy?.toString()}${sub_product_id?.toString()} overallpnlDailyContest`, JSON.stringify(pnlData))
+                    } else if (product_type?.toString() === "6517d46e3aeb2bb27d650de3") {
+                        await client.set(`${createdBy?.toString()}${sub_product_id?.toString()}: overallpnlIntern`, JSON.stringify(pnlData))
+                    } else if (product_type?.toString() === "65449ee06932ba3a403a681a") {
+                        await client.set(`${createdBy?.toString()}: overallpnlPaperTrade`, JSON.stringify(pnlData))
+                    }
+
+                    await client4.PUBLISH("order-notification", JSON.stringify({ 
+                        response: `Your ${type==="StopLoss" ? "Stop Loss" : type==="StopProfit" ? "Stop Profit" : "Limit order"} of ${symbol} has been executed at ₹${last_price}.`, 
+                        createdBy: createdBy, 
+                     }))
+                } else if(responseData === "No Margin"){
+                    const update = await PendingOrder.updateOne({ _id: new ObjectId(_id) }, {
+                        $set: {
+                            status: "Cancelled",
+                            execution_time: new Date(),
+                            execution_price: last_price,
+                            status_message: "Insufficient fund"
+                        }
+                    })
+
+                    await client4.PUBLISH("order-notification", JSON.stringify({ 
+                        response: `You do not have sufficient funds to place ${type==="StopLoss" ? "stoploss" : type==="StopProfit" ? "stopprofit" : "limit order"} of ${symbol}.`, 
+                        createdBy: createdBy, 
+                     }))
+                }
 
             } catch (error) {
                 console.error('Error saving data:', error);
@@ -1243,24 +1286,29 @@ const marginZeroCase = async (tradeData, availableMargin, from, data) => {
         tradeData.margin = requiredMargin;
         return;
     } else {
-        // await takeRejectedTrade(req, res, from);
+        return "No Margin";
     }
 }
 
 const marginFirstCase = async (tradeData, availableMargin, prevMargin, from, data) => {
     const requiredMargin = await calculateRequiredMargin(tradeData, tradeData.Quantity, data);
 
+    console.log("in 1st case", requiredMargin, availableMargin - requiredMargin, requiredMargin + prevMargin)
     if ((availableMargin - requiredMargin) > 0) {
+        console.log("In if")
         tradeData.margin = requiredMargin + prevMargin;
         return;
     } else {
-        // await takeRejectedTrade(req, res, from);
+        console.log("In else")
+        return "No Margin";
     }
 }
 
 const marginSecondCase = async (tradeData, prevMargin, prevQuantity) => {
     const quantityPer = Math.abs(tradeData.Quantity) * 100 / Math.abs(prevQuantity);
     const marginReleased = prevMargin * quantityPer / 100;
+
+    console.log("in 2nd case", marginReleased, prevMargin - marginReleased)
     tradeData.margin = prevMargin - marginReleased;
 
     return;
@@ -1281,7 +1329,7 @@ const marginFourthCase = async (tradeData, availableMargin, prevQuantity, from, 
         tradeData.margin = requiredMargin;
         return;
     } else {
-        // await takeRejectedTrade(req, res, from);
+        return "No Margin";
     }
 }
 
@@ -1306,6 +1354,7 @@ const calculateRequiredMargin = async (tradeData, Quantity, data) => {
     }]
 
     try {
+        console.log("in calculate margin", buyOrSell, last_price, Math.abs(Quantity))
         if (buyOrSell === "SELL") {
             const marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers })
             const zerodhaMargin = marginData.data.data.orders[0].total;

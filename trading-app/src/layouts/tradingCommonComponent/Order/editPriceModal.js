@@ -20,7 +20,7 @@ import { userContext } from '../../../AuthContext';
 import { apiUrl } from '../../../constants/constants';
 import MDSnackbar from '../../../components/MDSnackbar';
 
-function ModifyPopUp({id, lots, symbol, type, buyOrSell, ltp}) {
+function ModifyPopUp({id, lots, symbol, type, buyOrSell, ltp, setMsg}) {
 
     const newLtp = parseFloat(ltp.slice(1))
     const [errorMessageStopLoss, setErrorMessageStopLoss] = useState("");
@@ -105,20 +105,25 @@ function ModifyPopUp({id, lots, symbol, type, buyOrSell, ltp}) {
       })
     });
     const dataResp = await res.json();
+
     if (dataResp.status === 422 || dataResp.error || !dataResp) {
-      openSuccessSB('error', dataResp.error)
+      // openSuccessSB('error', dataResp.error)
+      setMsg(prev => ({ ...prev, error: dataResp.error }))
+
     } else {
       tradeSound.play();
-      openSuccessSB(dataResp.status, dataResp.message)
+      setMsg(prev => ({ ...prev, success: dataResp.message }))
+      render ? setRender(false) : setRender(true)
+
     }
     setPrice(0);
-    render ? setRender(false) : setRender(true)
     handleClose();
   }
     
   const [successSB, setSuccessSB] = useState(false);
 
   const openSuccessSB = (value,content) => {
+
     if(value === "Success"){
         messageObj.color = 'success'
         messageObj.icon = 'check'
@@ -137,6 +142,7 @@ function ModifyPopUp({id, lots, symbol, type, buyOrSell, ltp}) {
     setSuccessSB(true);
   }
   const closeSuccessSB = () => setSuccessSB(false);
+
   const renderSuccessSB = (
     <MDSnackbar
       color= {messageObj.color}

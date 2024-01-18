@@ -91,6 +91,7 @@ const BuyModel = ({fromTradable, chartInstrument, isOption, setOpenOptionChain, 
   useEffect(() => {
     socket?.on(`sendResponse${trader.toString()}`, (data) => {
       // render ? setRender(false) : setRender(true);
+      console.log("response", data.status, data.message)
       openSuccessSB(data.status, data.message)
     })
   }, [])

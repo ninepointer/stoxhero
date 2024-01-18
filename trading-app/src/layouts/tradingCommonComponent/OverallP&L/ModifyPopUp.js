@@ -65,7 +65,7 @@ function ModifyPopUp({ data, id, handleCloseMenu, setMsg, from }) {
   let lotSize = symbolName.includes("BANK") ? lotSize_BankNifty : symbolName.includes("FIN") ? lotSize_FinNifty : lotSize_Nifty;
   let maxLot = symbolName.includes("BANK") ? maxLot_BankNifty : symbolName.includes("FIN") ? maxLot_FinNifty : maxLot_Nifty;
 
-  const instrumentsPendingOrder = pendingOrderQuantity.filter((elem)=>{
+  const instrumentsPendingOrder = pendingOrderQuantity.filter((elem) => {
     return elem.symbol === symbolName;
   })
   const slPendingQuantity = instrumentsPendingOrder?.reduce((acc, item) => {
@@ -161,12 +161,12 @@ function ModifyPopUp({ data, id, handleCloseMenu, setMsg, from }) {
     // }
 
     if (((stopLossQuantity && !stopLossPrice) || (!stopLossQuantity && stopLossPrice))
-    || (stopProfitQuantity && !stopProfitPrice) || (!stopProfitQuantity && stopProfitPrice)
+      || (stopProfitQuantity && !stopProfitPrice) || (!stopProfitQuantity && stopProfitPrice)
     ) {
       openSuccessSB('error', `Please select quantity or price.`);
       return;
     }
-    
+
     // ${((stopLossQuantity && !stopLossPrice) || (!stopLossQuantity && stopLossPrice)) && "stop loss quantity or price"}
     // ${((stopProfitQuantity && !stopProfitPrice) || (!stopProfitQuantity && stopProfitPrice)) && "stop profit quantity or price"}
 
@@ -320,7 +320,7 @@ function ModifyPopUp({ data, id, handleCloseMenu, setMsg, from }) {
                   id="outlined-basic" variant="outlined"
                   label={<Typography sx={{ fontSize: "12px" }} >SL Price</Typography>}
                   onChange={(e) => { { stopLoss(e) } }}
-                  value={Math.abs(modifyData?.stopLossPrice)===0 ? "" : Math.abs(modifyData?.stopLossPrice)}
+                  value={Math.abs(modifyData?.stopLossPrice) === 0 ? "" : Math.abs(modifyData?.stopLossPrice)}
                   disabled={!Math.abs(lots - slPendingQuantity)}
                   sx={{
                     marginTop: 1,
@@ -359,7 +359,7 @@ function ModifyPopUp({ data, id, handleCloseMenu, setMsg, from }) {
                   id="outlined-basic" label={<Typography sx={{ fontSize: "12px" }} >SP Price</Typography>}
                   variant="outlined" onChange={(e) => { { stopProfit(e) } }}
                   disabled={!Math.abs(lots - spPendingQuantity)}
-                  value={Math.abs(modifyData?.stopProfitPrice)===0 ? "" : Math.abs(modifyData?.stopProfitPrice)}
+                  value={Math.abs(modifyData?.stopProfitPrice) === 0 ? "" : Math.abs(modifyData?.stopProfitPrice)}
                   sx={{
                     marginTop: 1,
                     //  padding: 1, 
@@ -379,18 +379,18 @@ function ModifyPopUp({ data, id, handleCloseMenu, setMsg, from }) {
                 <Typography sx={{ fontSize: "11px", display: "flex" }} >SL/SP-M</Typography>
               </Box>
 
-{Math.abs(lots - slPendingQuantity)===0 && 
-  <Typography fontSize={12} mt={1} color={"red"}>
- You can not modify stop loss order as you have already pending stop loss order.
-</Typography>
-}
+              {Math.abs(lots - slPendingQuantity) === 0 &&
+                <Typography fontSize={12} mt={1} color={"red"}>
+                  You can not modify stop loss order as you have already pending stop loss order.
+                </Typography>
+              }
 
-{Math.abs(lots - spPendingQuantity)===0 && 
-  <Typography fontSize={12} mt={1} color={"red"}>
- You can not modify stop profit order as you have already pending stop profit order.
-</Typography>
-}
-            
+              {Math.abs(lots - spPendingQuantity) === 0 &&
+                <Typography fontSize={12} mt={1} color={"red"}>
+                  You can not modify stop profit order as you have already pending stop profit order.
+                </Typography>
+              }
+
 
             </DialogContentText>
           </DialogContent>
