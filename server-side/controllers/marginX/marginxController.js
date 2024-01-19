@@ -587,7 +587,7 @@ exports.creditAmountToWallet = async () => {
             let entryFee = marginxs[j]?.marginXTemplate?.entryFee;
             for (let i = 0; i < marginxs[j]?.participants?.length; i++) {
                 let userId = marginxs[j]?.participants[i]?.userId;
-                const arr = ["64f4d1c90692182de0c3ceb9", "6583fd6a2071fe4c365621d7"]
+                const arr = ["64e4d5c70e5dd147fef3768d", "6583fd6a2071fe4c365621d7"]
                 const match = arr.some(elem => elem===userId?.toString());
 
                 if(!match){

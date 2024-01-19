@@ -177,25 +177,7 @@ exports.nextTradingDay = async (req, res, next) => {
             date.setDate(date.getDate() + i);
             const endOfTomorrow = new Date(date);
             endOfTomorrow.setHours(23, 59, 59, 999);
-            // console.log(date.getDate() + i);
-            // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate() + i).padStart(2, '0')}`
-            // const currentDate = new Date(todayDate);
-            // let secondDate = new Date(`${todayDate}T23:59:00.000Z`);
-            // console.log(currentDate, secondDate)
-            // const currentDate = new Date();
 
-            // // Get tomorrow's date
-            // const tomorrowDate = new Date(currentDate);
-            // tomorrowDate.setDate(currentDate.getDate() + 1);
-            
-            // // Start of tomorrow
-            // const startOfTomorrow = new Date(tomorrowDate);
-            // startOfTomorrow.setHours(0, 0, 0, 0);
-            
-            // // End of tomorrow
-            // const endOfTomorrow = new Date(tomorrowDate);
-            // endOfTomorrow.setHours(23, 59, 59, 999);
-            // console.log( date, endOfTomorrow, new Date(date.toISOString().split("T")[0]), new Date(`${endOfTomorrow.toISOString().split("T")[0]}T23:59:00.000Z`) )
             const holiday = await TradingHoliday.find({
                 holidayDate: {
                     $gte: new Date(date.toISOString().split("T")[0]),
@@ -218,7 +200,8 @@ exports.nextTradingDay = async (req, res, next) => {
 
 function isTradingDay(date, holidays) {
     // Check if the date is a weekend (Saturday or Sunday)
-    if (date.getDay() === 0 || date.getDay() === 6) {
+    // todo-vijay change to 6
+    if (date.getDay() === 0 || date.getDay() === 7) {
         return false;
     }
 

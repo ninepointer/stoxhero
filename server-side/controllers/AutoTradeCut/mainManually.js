@@ -97,7 +97,7 @@ const autoCutMainManuallyMock = async () => {
         await dailyContestMockMod();
         await marginXMockMod();
         // await changeStatus();
-        await changeMarginXStatus();
+        // await changeMarginXStatus();
         return;
     }
 
