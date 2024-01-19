@@ -7,13 +7,13 @@ const { client } = require("../../marketData/redisClient");
 const {tenxTrader} = require("../../constant");
 
 exports.tenxTrade = async (req, res, otherData) => {
-  let {exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId, 
-      exchangeInstrumentToken, validity, variety, order_id, instrumentToken, 
+  let {exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId, trade_time,  
+      exchangeInstrumentToken, validity, variety, order_id, instrumentToken, originalLastPriceUser,
       portfolioId, trader, stopProfitPrice, stopLossPrice, deviceDetails, margin, price } = req.body 
 
-      // console.log(req.body)
-  let {isRedisConnected, brokerageUser, originalLastPriceUser, secondsRemaining, trade_time} = otherData;
-
+      
+  let {isRedisConnected, brokerageUser, secondsRemaining} = otherData;
+  console.log(req.body, otherData)
   const session = await mongoose.startSession();
 
   try {
@@ -159,86 +159,3 @@ const saveInRedis = async (req, tenxDoc, subscriptionId)=>{
     return pnlRedis;
   }
 }
-
-
-
-
-
-    /*
-    1. equal
-    2. greater
-    3. less
-
-    100 buy 19800CE @ rs. 10
-    Stoploss : 8  StopProfit: 12
-
-    1. 100 sell
-    1.a Sell me stoploss nhi h
-    Remove existing stploss or stopprofit(redis and db)
-    1.b sell me stoploss h
-    Remove existing stploss or stopprofit(redis and db)
-    Koi stoploss ya stopprofit order na create ho
-
-    2. 150 sell (greater wala)
-    2.a Sell me stoploss nhi h
-    Remove existing stploss or stopprofit(redis and db)
-    2.b sell me stoploss h
-    (100-150) quantity pe stoploss ya stopprofit lgana h
-
-    3. 50 sell (less wala)
-    3.a Sell me stoploss nhi h
-    (100-50) quantity update ho jaegi redis and db me
-
-
-
-
-    50 buy 19800CE @ rs. 10 , 50 buy 19800CE @ rs. 10
-    Stoploss : 8  StopProfit: 12   Stoploss : 9  StopProfit: 11
-
-    1. 100 sell
-    1.a Sell me stoploss nhi h
-    Remove existing stploss or stopprofit(redis and db), loop lgana pdega
-    1.b sell me stoploss h
-    Remove existing stploss or stopprofit(redis and db)
-    Koi stoploss ya stopprofit order na create ho
-
-    2. 150 sell (greater wala)
-    2.a Sell me stoploss nhi h
-    Remove existing stploss or stopprofit(redis and db)
-    2.b sell me stoploss h
-    (100-150) quantity pe stoploss ya stopprofit lgana h
-
-    3. 50 sell (less wala)
-    3.a Sell me stoploss nhi h
-    (100-50) quantity update ho jaegi redis and db me, make sure quantity is in +ve
-
-
-
-    -------------------------------------------------------------
-
-    Quantity Update
-
-    Actual quantity 100 @10 of 19800CE
-    Stoploss @ 8 of 100 quantity
-    StopProfit @ 12 of 100 quantity
-
-
-    1. Stoploss @ 8 of 50 quantity
-      1.a Stoploss Hit
-        x. 
-
-
-
-    --------------------------------------------------------------
-
-    matchingElement.lots === Number(tenxDoc.Quantity);
-    1. remove all stoploss of user and instrument matching also cancel in db
-    2. do not apply new stoploss
-    
-    matchingElement.lots > Number(tenxDoc.Quantity);
-    1. sustain all stoploss and do not apply new stoploss
-
-    matchingElement.lots < Number(tenxDoc.Quantity);
-    1. remove existing stoploss and cancel in db
-    */
-

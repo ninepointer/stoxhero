@@ -130,6 +130,8 @@ exports.mockTrade = async (req, res) => {
     }
 
 
+    console.log("req", req.body)
+
     let brokerageUser;
     let brokerageCompany;
 

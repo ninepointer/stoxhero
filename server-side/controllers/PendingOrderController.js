@@ -368,7 +368,7 @@ exports.editPrice = async (req, res, next) => {
 
       const margin = await fundCheck(updatedOrder, execution_price);
 
-      if(!margin){
+      if(!margin && updatedOrder.type === 'Limit'){
         return res.status(422).json({status: "error", error: "You do not have sufficient funds to take this trade at this price." });
       }
 
