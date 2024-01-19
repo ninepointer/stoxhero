@@ -631,11 +631,12 @@ const fundCheck = async (modifyData, price) => {
     const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
     const requiredMargin = await calculateRequiredMargin(modifyData, data, price)
   
-    if ((availableMargin - requiredMargin) > 0) {
+    if (((availableMargin+(modifyData.margin)) - requiredMargin) > 0) {
       for(let elem of todayPnlData){
         console.log(elem?._id?.isLimit , elem?._id?.symbol , symbol)
         if(elem?._id?.isLimit && (elem?._id?.symbol === symbol)){
-          const marginPrevData = elem?.margin - modifyData.price*Quantity;
+          //marginPrevData is the margin without editing instrument margin, we are subtracting it.
+          const marginPrevData = elem?.margin - modifyData.margin;
           const marginRequiredOnOne = requiredMargin/Quantity;
           elem.margin = marginPrevData + price * Quantity;
           break;
