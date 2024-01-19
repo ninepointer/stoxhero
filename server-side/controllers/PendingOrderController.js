@@ -356,8 +356,9 @@ exports.cancelOrder = async (req, res, next) => {
 
 exports.editPrice = async (req, res, next) => {
   const { id } = req.params;
-  const{execution_price} = req.body;
+  let {execution_price} = req.body;
 
+  execution_price = Math.abs(execution_price);
   // console.log(id, execution_price)
 
   try {
@@ -647,10 +648,11 @@ const fundCheck = async (modifyData, price) => {
     const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
     const requiredMargin = await calculateRequiredMargin(modifyData, data, price)
   
-    if (((availableMargin+(modifyData.price*Quantity)) - requiredMargin) > 0) {
+    if (((availableMargin+(modifyData.margin)) - requiredMargin) > 0) {
       for(let elem of todayPnlData){
         if(elem?._id?.isLimit && (elem?._id?.symbol === symbol)){
-          const marginPrevData = elem?.margin - modifyData.price*Quantity;
+          //marginPrevData is the margin without editing instrument margin, we are subtracting it.
+          const marginPrevData = elem?.margin - modifyData.margin;
           elem.margin = marginPrevData + price * Quantity;
           break;
         }
