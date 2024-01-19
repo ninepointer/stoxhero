@@ -647,7 +647,7 @@ const fundCheck = async (modifyData, price) => {
     const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
     const requiredMargin = await calculateRequiredMargin(modifyData, data, price)
   
-    if ((availableMargin - requiredMargin) > 0) {
+    if (((availableMargin+(modifyData.price*Quantity)) - requiredMargin) > 0) {
       for(let elem of todayPnlData){
         if(elem?._id?.isLimit && (elem?._id?.symbol === symbol)){
           const marginPrevData = elem?.margin - modifyData.price*Quantity;
