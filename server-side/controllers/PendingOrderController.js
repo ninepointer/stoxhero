@@ -340,8 +340,9 @@ exports.cancelOrder = async (req, res, next) => {
 
 exports.editPrice = async (req, res, next) => {
   const { id } = req.params;
-  const{execution_price} = req.body;
+  let {execution_price} = req.body;
 
+  execution_price = Math.abs(execution_price);
   // console.log(id, execution_price)
 
   try {
