@@ -1214,22 +1214,9 @@ exports.pendingOrderMain = async () => {
                             }
                         }
                     }
-    
-                    if (product_type?.toString() === "6517d3803aeb2bb27d650de0") {
-                        await client.set(`${createdBy?.toString()}${sub_product_id?.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlData))
-                    } else if (product_type?.toString() === "6517d40e3aeb2bb27d650de1") {
-                        await client.set(`${createdBy?.toString()}${sub_product_id?.toString()} overallpnlMarginX`, JSON.stringify(pnlData))
-                    } else if (product_type?.toString() === "6517d48d3aeb2bb27d650de5") {
-                        await client.set(`${createdBy?.toString()}${sub_product_id?.toString()} overallpnlDailyContest`, JSON.stringify(pnlData))
-                    } else if (product_type?.toString() === "6517d46e3aeb2bb27d650de3") {
-                        await client.set(`${createdBy?.toString()}${sub_product_id?.toString()}: overallpnlIntern`, JSON.stringify(pnlData))
-                    } else if (product_type?.toString() === "65449ee06932ba3a403a681a") {
-                        await client.set(`${createdBy?.toString()}: overallpnlPaperTrade`, JSON.stringify(pnlData))
-                    }else if (product_type?.toString() === "6583c2012ef31a319cf888c9") {
-                        await client.set(`${createdBy?.toString()}: ${Product === "MIS" ? "overallpnlIntraday" : "overallpnlDelivery"}`, JSON.stringify(pnlData))
-                    }
 
                     await client4.PUBLISH("order-notification", JSON.stringify({ 
+                        status: "Success",
                         response: `Your ${type==="StopLoss" ? "Stop Loss" : type==="StopProfit" ? "Stop Profit" : "Limit order"} of ${symbol} has been executed at ₹${last_price}.`, 
                         createdBy: createdBy, 
                      }))
@@ -1243,10 +1230,34 @@ exports.pendingOrderMain = async () => {
                         }
                     })
 
+                    pnlData = JSON.parse(pnlData)
+                    for (let elem of pnlData) {
+                        // console.log("pnl dtata", elem, pnlData)
+                        const buyOrSellPnl = elem.lots > 0 ? "BUY" : "SELL";
+                        if (elem?._id?.symbol === symbol && elem?._id?.isLimit && buyOrSellPnl === buyOrSell) {
+                            elem.margin = 0;
+                        }
+                    }
+
                     await client4.PUBLISH("order-notification", JSON.stringify({ 
+                        status: "error",
                         response: `You do not have sufficient funds to place ${type==="StopLoss" ? "stoploss" : type==="StopProfit" ? "stopprofit" : "limit order"} of ${symbol}.`, 
                         createdBy: createdBy, 
                      }))
+                }
+
+                if (product_type?.toString() === "6517d3803aeb2bb27d650de0") {
+                    await client.set(`${createdBy?.toString()}${sub_product_id?.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlData))
+                } else if (product_type?.toString() === "6517d40e3aeb2bb27d650de1") {
+                    await client.set(`${createdBy?.toString()}${sub_product_id?.toString()} overallpnlMarginX`, JSON.stringify(pnlData))
+                } else if (product_type?.toString() === "6517d48d3aeb2bb27d650de5") {
+                    await client.set(`${createdBy?.toString()}${sub_product_id?.toString()} overallpnlDailyContest`, JSON.stringify(pnlData))
+                } else if (product_type?.toString() === "6517d46e3aeb2bb27d650de3") {
+                    await client.set(`${createdBy?.toString()}${sub_product_id?.toString()}: overallpnlIntern`, JSON.stringify(pnlData))
+                } else if (product_type?.toString() === "65449ee06932ba3a403a681a") {
+                    await client.set(`${createdBy?.toString()}: overallpnlPaperTrade`, JSON.stringify(pnlData))
+                } else if (product_type?.toString() === "6583c2012ef31a319cf888c9") {
+                    await client.set(`${createdBy?.toString()}: ${Product === "MIS" ? "overallpnlIntraday" : "overallpnlDelivery"}`, JSON.stringify(pnlData))
                 }
 
             } catch (error) {
@@ -1453,10 +1464,13 @@ const calculateNetPnl = async (tradeData, pnlData, data) => {
 }
 
 const marginZeroCase = async (tradeData, availableMargin, from, data) => {
-    const requiredMargin = await calculateRequiredMargin(tradeData, tradeData.Quantity, data, (from===stock && true));
-    console.log("0st case", requiredMargin, (availableMargin - requiredMargin))
+    const requiredMargin = await calculateRequiredMargin(tradeData, tradeData.Quantity, data);
+    let prevLimitMargin = 0
+    if(tradeData.type === "Limit"){
+        prevLimitMargin = tradeData.margin
+    }
 
-    if ((availableMargin - requiredMargin) > 0) {
+    if (((availableMargin+prevLimitMargin) - requiredMargin) > 0) {
         tradeData.margin = requiredMargin;
         return;
     } else {
@@ -1465,10 +1479,14 @@ const marginZeroCase = async (tradeData, availableMargin, from, data) => {
 }
 
 const marginFirstCase = async (tradeData, availableMargin, prevMargin, from, data) => {
-    const requiredMargin = await calculateRequiredMargin(tradeData, tradeData.Quantity, data, (from===stock && true));
+    const requiredMargin = await calculateRequiredMargin(tradeData, tradeData.Quantity, data);
+    let prevLimitMargin = 0
+    if(tradeData.type === "Limit"){
+        prevLimitMargin = tradeData.margin
+    }
 
-    console.log("1st case", requiredMargin, (availableMargin - requiredMargin),  prevMargin)
-    if ((availableMargin - requiredMargin) > 0) {
+    if (((availableMargin+prevLimitMargin) - requiredMargin) > 0) {
+        console.log("In if")
         tradeData.margin = requiredMargin + prevMargin;
         return;
     } else {
@@ -1481,6 +1499,7 @@ const marginSecondCase = async (tradeData, prevMargin, prevQuantity) => {
     const marginReleased = prevMargin * quantityPer / 100;
     console.log("2st case", marginReleased,  prevMargin)
 
+    
     tradeData.margin = prevMargin - marginReleased;
 
     return;
@@ -1497,7 +1516,12 @@ const marginFourthCase = async (tradeData, availableMargin, prevQuantity, from, 
     const quantityForTrade = Math.abs(Math.abs(tradeData.Quantity) - Math.abs(prevQuantity));
     const requiredMargin = await calculateRequiredMargin(tradeData, quantityForTrade, data, (from===stock && true));
 
-    if ((availableMargin - requiredMargin) > 0) {
+    let prevLimitMargin = 0
+    if(tradeData.type === "Limit"){
+        prevLimitMargin = tradeData.margin
+    }
+
+    if (((availableMargin+prevLimitMargin) - requiredMargin) > 0) {
         tradeData.margin = requiredMargin;
         return;
     } else {

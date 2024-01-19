@@ -19,7 +19,7 @@ exports.notificationSender = async () => {
     
             message = JSON.parse(message);
             console.log("this is notification data", message.response)
-            io?.emit(`sendOrderResponse${message.createdBy}`, {status: "Success", message: `${message.response}`, data: Math.random() * 1000000 })
+            io?.emit(`sendOrderResponse${message.createdBy}`, {status: message.status, message: `${message.response}`, data: Math.random() * 1000000 })
         })
     } catch(err){
         console.log(err);
