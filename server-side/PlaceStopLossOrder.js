@@ -217,6 +217,7 @@ const paperTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDeta
         const margin = (await marginAndCase).margin;
         const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
 
+        console.log("caseNumber", caseNumber)
 
         let functionValue;
 
@@ -1141,6 +1142,8 @@ exports.pendingOrderMain = async () => {
                     pnlData = await client.get(`${createdBy?.toString()}: ${Product === "MIS" ? "overallpnlIntraday" : "overallpnlDelivery"}`)
                 }
 
+                console.log("responseData", responseData)
+
                 if(!pnlData){
                     return;
                 }
@@ -1451,6 +1454,7 @@ const calculateNetPnl = async (tradeData, pnlData, data) => {
 
 const marginZeroCase = async (tradeData, availableMargin, from, data) => {
     const requiredMargin = await calculateRequiredMargin(tradeData, tradeData.Quantity, data, (from===stock && true));
+    console.log("0st case", requiredMargin, (availableMargin - requiredMargin))
 
     if ((availableMargin - requiredMargin) > 0) {
         tradeData.margin = requiredMargin;
@@ -1463,6 +1467,7 @@ const marginZeroCase = async (tradeData, availableMargin, from, data) => {
 const marginFirstCase = async (tradeData, availableMargin, prevMargin, from, data) => {
     const requiredMargin = await calculateRequiredMargin(tradeData, tradeData.Quantity, data, (from===stock && true));
 
+    console.log("1st case", requiredMargin, (availableMargin - requiredMargin),  prevMargin)
     if ((availableMargin - requiredMargin) > 0) {
         tradeData.margin = requiredMargin + prevMargin;
         return;
@@ -1474,6 +1479,7 @@ const marginFirstCase = async (tradeData, availableMargin, prevMargin, from, dat
 const marginSecondCase = async (tradeData, prevMargin, prevQuantity) => {
     const quantityPer = Math.abs(tradeData.Quantity) * 100 / Math.abs(prevQuantity);
     const marginReleased = prevMargin * quantityPer / 100;
+    console.log("2st case", marginReleased,  prevMargin)
 
     tradeData.margin = prevMargin - marginReleased;
 

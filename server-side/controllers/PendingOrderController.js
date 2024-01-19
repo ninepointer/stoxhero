@@ -653,7 +653,7 @@ const fundCheck = async (modifyData, price) => {
         if(elem?._id?.isLimit && (elem?._id?.symbol === symbol)){
           //marginPrevData is the margin without editing instrument margin, we are subtracting it.
           const marginPrevData = elem?.margin - modifyData.margin;
-          elem.margin = marginPrevData + price * Quantity;
+          elem.margin = marginPrevData + requiredMargin;
           break;
         }
       }
