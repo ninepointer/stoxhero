@@ -555,7 +555,7 @@ const calculateNetPnl = async (modifyData, pnlData, data) => {
 
 const fundCheck = async (modifyData, price) => {
   try{
-    const {product_type, createdBy, sub_product_id, Quantity, symbol} = modifyData;
+    const {product_type, createdBy, sub_product_id, Quantity, symbol, buyOrSell} = modifyData;
     const isRedisConnected = getValue();
     let todayPnlData;
     let fundDetail;
@@ -633,8 +633,8 @@ const fundCheck = async (modifyData, price) => {
   
     if (((availableMargin+(modifyData.margin)) - requiredMargin) > 0) {
       for(let elem of todayPnlData){
-        console.log(elem?._id?.isLimit , elem?._id?.symbol , symbol)
-        if(elem?._id?.isLimit && (elem?._id?.symbol === symbol)){
+        const buyOrSellPnl = elem.lots > 0 ? "BUY" : "SELL";
+        if(elem?._id?.isLimit && (elem?._id?.symbol === symbol) && (buyOrSellPnl === buyOrSell)){
           //marginPrevData is the margin without editing instrument margin, we are subtracting it.
           const marginPrevData = elem?.margin - modifyData.margin;
           const marginRequiredOnOne = requiredMargin/Quantity;
