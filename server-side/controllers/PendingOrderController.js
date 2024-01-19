@@ -363,6 +363,8 @@ exports.editPrice = async (req, res, next) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
+
+
     data = await client.get('stoploss-stopprofit');
     data = JSON.parse(data);
     let symbolArr = data[`${updatedOrder.instrumentToken}`];
@@ -620,6 +622,9 @@ const fundCheck = async (modifyData, price) => {
       console.log("errro fetching pnl 2", e);
     }
   
+    if(modifyData.type !== "Limit"){
+      return modifyData.margin;
+    }
   
     const data = await getKiteCred.getAccess();
     const netPnl = await calculateNetPnl(modifyData, todayPnlData, data);
