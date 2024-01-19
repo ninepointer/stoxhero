@@ -638,7 +638,7 @@ const fundCheck = async (modifyData, price) => {
           //marginPrevData is the margin without editing instrument margin, we are subtracting it.
           const marginPrevData = elem?.margin - modifyData.margin;
           const marginRequiredOnOne = requiredMargin/Quantity;
-          elem.margin = marginPrevData + price * Quantity;
+          elem.margin = marginPrevData + requiredMargin;
           break;
         }
       }
