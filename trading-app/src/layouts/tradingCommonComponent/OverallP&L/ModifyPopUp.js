@@ -64,8 +64,6 @@ function ModifyPopUp({ data, id, handleCloseMenu, setMsg, from }) {
     return item.type === "StopProfit" ? acc + item.quantity : acc;
   }, 0)
 
-  // console.log("slPendingQuantity", lots-slPendingQuantity, lots-spPendingQuantity)
-
   id = from === paperTrader ? "6433e2e5500dc2f2d20d686d" : id;
 
   let finalLotSL = Math.abs((lots - slPendingQuantity) > maxLot ? maxLot : (lots - slPendingQuantity)) / lotSize;

@@ -142,7 +142,6 @@ exports.myTodaysPendingTrade = async (req, res, next) => {
       product_type = "6583c2012ef31a319cf888c9"
     }
 
-    console.log(from, product_type)
     const count = await PendingOrder.countDocuments({
       product_type: new ObjectId(
         product_type
@@ -409,11 +408,21 @@ exports.editPrice = async (req, res, next) => {
 
 exports.modifyOrder = async (req, res, next) => {
   try {
-    const { stopLossQuantity, stopProfitPrice, symbol, from } = req.body;
+    const { stopLossQuantity, stopProfitQuantity, symbol, from } = req.body;
 
-    const maxLot = symbol.includes("BANK") ? maxLot_BankNifty : symbol.includes("FIN") ? maxLot_FinNifty : maxLot_Nifty;
-    if ((stopLossQuantity > maxLot) || (stopProfitPrice > maxLot)) {
-      return res.status(406).send({ message: `You can place maximum ${maxLot} quantity in this trade.` });
+    if (from === stock) {
+      const check = await checkStockModifyQuantity(req.body, req.user._id);
+      if(!check){
+        const showPrice = (stopLossQuantity && stopProfitQuantity) ? `${stopLossQuantity} stoploss and ${stopProfitQuantity} stopprofit quantity`
+        : (stopLossQuantity) ? `${stopLossQuantity} quantity of stoploss`
+        : (stopProfitQuantity) && `${stopProfitQuantity} quantity of stopprofit`
+        return res.status(406).send({ message: `You can not modify ${showPrice}`});
+      }
+    } else {
+      const maxLot = symbol.includes("BANK") ? maxLot_BankNifty : symbol.includes("FIN") ? maxLot_FinNifty : maxLot_Nifty;
+      if ((stopLossQuantity > maxLot) || (stopProfitQuantity > maxLot)) {
+        return res.status(406).send({ message: `You can place maximum ${maxLot} quantity in this trade.` });
+      }
     }
 
     const result = await applyingSLSP(req, {}, null, null, from);
@@ -425,7 +434,97 @@ exports.modifyOrder = async (req, res, next) => {
     return res.status(200).json({ status: "Error", message: "Something went wrong." });
 
   }
+
 };
+
+const checkStockModifyQuantity = async (data, userId) =>{
+  const {product_type, id, Product, symbol, stopLossQuantity, stopProfitQuantity} = data;
+  const isRedisConnected = getValue();
+  let todayPnlData;
+  const date = new Date();
+
+  if (Product === "MIS") {
+    if (isRedisConnected && (await client.exists(`${userId.toString()}: overallpnlIntraday`))) {
+      todayPnlData = await client.get(`${userId.toString()}: overallpnlIntraday`);
+      todayPnlData = JSON.parse(todayPnlData);
+    }
+  }
+
+  if (Product === "CNC") {
+    if (isRedisConnected && (await client.exists(`${userId.toString()}: overallpnlDelivery`))) {
+      todayPnlData = await client.get(`${userId.toString()}: overallpnlDelivery`);
+      todayPnlData = JSON.parse(todayPnlData);
+    }
+  }
+
+  let filterSymbol = todayPnlData.filter((elem) => {
+    return (elem?._id?.symbol === symbol)
+  })
+
+  const lots = filterSymbol[0]?.lots;
+
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+
+  const totalQuantity = await PendingOrder.aggregate([
+    {
+      $match: {
+        product_type: new ObjectId(
+          product_type
+        ),
+        createdBy: new ObjectId(
+          userId
+        ),
+        createdOn: {
+          $gte: today,
+        },
+        status: "Pending",
+        sub_product_id: new ObjectId(id)
+      },
+    },
+    {
+      $group: {
+        _id: {
+          type: "$type",
+          symbol: "$symbol"
+        },
+        totalQuantity: {
+          $sum: "$Quantity", // Assuming "amount" is the field you want to sum
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        type: "$_id.type",
+        quantity: "$totalQuantity",
+        symbol: "$_id.symbol"
+      }
+    }
+  ])
+
+  const instrumentsPendingOrder = totalQuantity.filter((elem) => {
+    return elem.symbol === symbol;
+  })
+
+  const slPendingQuantity = instrumentsPendingOrder?.reduce((acc, item) => {
+    return item.type === "StopLoss" ? acc + item.quantity : acc;
+  }, 0);
+
+  const spPendingQuantity = instrumentsPendingOrder?.reduce((acc, item) => {
+    return item.type === "StopProfit" ? acc + item.quantity : acc;
+  }, 0)
+
+  // console.log(stopLossQuantity, slPendingQuantity, lots, stopProfitQuantity, spPendingQuantity)
+  if(stopLossQuantity && stopProfitQuantity){
+    return (lots - slPendingQuantity - stopLossQuantity) >= 0 && (lots - spPendingQuantity - stopProfitQuantity) >= 0;
+  } else if(stopLossQuantity){
+    return (lots - slPendingQuantity - stopLossQuantity) >= 0;
+  } else if(stopProfitQuantity){
+    return (lots - spPendingQuantity - stopProfitQuantity) >= 0;
+  }
+}
 
 const calculateRequiredMargin = async (data, kiteData, price) => {
   const { exchange, symbol, buyOrSell, variety, Product, order_type, Quantity } = data;

@@ -1217,6 +1217,8 @@ exports.fundCheckStock = async (req, res, next) => {
     let todayPnlData;
     let fundDetail;
 
+    console.log(req.body)
+
     try {
         if(Product === "MIS"){
             if(isRedisConnected && (await client.exists(`${req.user._id.toString()}: overallpnlIntraday`))){
@@ -1242,12 +1244,11 @@ exports.fundCheckStock = async (req, res, next) => {
                  || (elem?._id?.instrumentToken === instrumentToken))
             })
 
-
-            if(!checkInstrument?.[0]?.lots && buyOrSell==="SELL"){
+            if(!checkInstrument?.[0]?.lots && buyOrSell==="SELL" && !checkInstrument?.[0]?._id?.isLimit){
                 return res.status(400).json({status: "error", message: ` Insufficient holdings, or you are placing a short sell order using CNC. Try placing MIS.`});
             }
 
-            if(checkInstrument?.length>0 && buyOrSell==="SELL"){
+            if(checkInstrument?.length>0 && buyOrSell==="SELL" && !checkInstrument?.[0]?._id?.isLimit){
                 if(Number(checkInstrument[0]?.lots) < Number(Quantity)){
                     return res.status(400).json({status: "error", message: `You can sell upto ${checkInstrument[0]?.lots} quantity on this stock.`});
                 }
