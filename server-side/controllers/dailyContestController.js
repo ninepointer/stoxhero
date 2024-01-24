@@ -2105,7 +2105,7 @@ exports.creditAmountToWallet = async () => {
 
                     console.log(contest[j].participants[i])
 
-                    // if (process.env.PROD == 'true') {
+                    if (process.env.PROD == 'true') {
                       try{
                         if(!existingTransaction){
                           console.log(user?.email, 'sent')
@@ -2197,7 +2197,7 @@ exports.creditAmountToWallet = async () => {
                       }catch(e){
                         console.log('error sending mail')
                       }
-                    // }
+                    }
                     if(!existingTransaction){
                       await createUserNotification({
                           title:'TestZone Reward Credited',

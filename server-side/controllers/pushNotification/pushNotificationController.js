@@ -106,6 +106,7 @@ exports.sendMultiNotifications = async (req,res, next) => {
     }
 
 }
+
 exports.sendNotificationToSingleUser = async(req,res,next) => {
     const{id} = req.params;
     const{title, body, token, mediaUrl, actions}  = req.body;
@@ -153,8 +154,8 @@ const fetchTokens = async(userGroup) => {
 }
 
 exports.getMAUTokens = async () => {
-    
 }
+
 exports.getNonMAUTokens = async () => {
 
 }

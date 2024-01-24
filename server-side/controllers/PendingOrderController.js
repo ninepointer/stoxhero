@@ -461,7 +461,7 @@ const checkStockModifyQuantity = async (data, userId) =>{
     return (elem?._id?.symbol === symbol)
   })
 
-  const lots = filterSymbol[0]?.lots;
+  const lots = Math.abs(filterSymbol[0]?.lots);
 
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
