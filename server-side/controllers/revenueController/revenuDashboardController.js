@@ -2959,7 +2959,7 @@ exports.getRevenueBetweenDate = async (req, res, next) => {
                   $gt: new Date(startDate),
                 },
                 "transactions.transactionDate": {
-                  $lt: new Date(enddate),
+                  $lt: new Date(endDate),
                 },
               },
             },
