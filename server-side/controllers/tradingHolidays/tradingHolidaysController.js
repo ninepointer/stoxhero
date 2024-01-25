@@ -12,25 +12,37 @@ const filterObj = (obj, ...allowedFields) => {
     return newObj;
 };
 
-exports.createTradingHoliday = async(req, res, next)=>{
-    
-    const{holidayName, description, holidayDate, status } = req.body;
-    const holidayModDate = new Date(holidayDate.toString());
-    holidayModDate.setDate(holidayDate.getDate()+1);
+exports.createTradingHoliday = async (req, res, next) => {
+    const { holidayName, description, holidayDate, status } = req.body;
 
-    if(await TradingHoliday.findOne({holidayDate:{$gt: new Date(holidayDate.toString().setHours(0,0,0)), $lte: new Date(holidayDate.toString().setHours(23,59,59))}})) return res.status(400).json({message:'This holiday already exists.'});
+    // Convert the holidayDate to a Date object
+    const holidayDateObject = new Date(holidayDate);
 
+    // Set the time to the beginning of the day (midnight)
+    const startTimeOfDay = new Date(holidayDateObject);
+    startTimeOfDay.setHours(0, 0, 0, 0);
+
+    // Set the time to the end of the day (11:59:59 PM)
+    const endTimeOfDay = new Date(holidayDateObject);
+    endTimeOfDay.setHours(23, 59, 59, 999);
+
+    // Check if a holiday already exists for the given date
+    if (await TradingHoliday.findOne({ holidayDate: { $gte: startTimeOfDay, $lte: endTimeOfDay } })) {
+        return res.status(400).json({ message: 'This holiday already exists.' });
+    }
+
+    // Create the trading holiday
     const holiday = await TradingHoliday.create({
-        holidayName:holidayName.trim(), 
-        description, 
-        holidayDate,
-        createdBy: req.user._id, 
-        lastModifiedBy: req.user._id
+        holidayName: holidayName.trim(),
+        description,
+        holidayDate: holidayDateObject,
+        createdBy: req.user._id,
+        lastModifiedBy: req.user._id,
     });
-    
-    res.status(201).json({status: 'success', message: 'Trading Holiday successfully created.', data: holiday});
 
-}
+    res.status(201).json({ status: 'success', message: 'Trading Holiday successfully created.', data: holiday });
+};
+
 
 exports.getTradingHolidays = async(req, res, next)=>{
     try{

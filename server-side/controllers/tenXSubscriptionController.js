@@ -112,6 +112,44 @@ exports.getActiveTenXSubs = async(req, res, next)=>{
     }     
 };
 
+exports.getLiveUserTenxSubs = async(req, res, next)=>{
+  try{
+      const tenXSubs = await TenXSubscription.find().select('users actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features allowPurchase allowRenewal expiryDays payoutPercentage')
+      .populate('portfolio', 'portfolioName portfolioValue')
+      .sort({ validity:1, discounted_price: 1})
+      
+      let data = [];
+      for(let elem of tenXSubs){
+        let match = elem.users.some((item)=>{
+          return item.status === "Live"
+        })
+    
+        // console.log(match)
+        if(match){
+          data.push({
+            actual_price: elem?.actual_price,
+            discounted_price: elem?.discounted_price,
+            plan_name: elem?.plan_name,
+            portfolio: elem?.portfolio,
+            profitCap: elem?.profitCap,
+            status: elem?.status,
+            validity: elem?.validity,
+            validityPeriod: elem?.validityPeriod,
+            features: elem?.features,
+            allowPurchase: elem?.allowPurchase,
+            allowRenewal: elem?.allowRenewal,
+            expiryDays: elem?.expiryDays,
+            payoutPercentage: elem?.payoutPercentage,
+          })
+        }
+      }
+      res.status(201).json({status: 'success', data: data, results: data.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
 exports.getAdminActiveTenXSubs = async(req, res, next)=>{
   try{
       const tenXSubs = await TenXSubscription.find({status: "Active"}).select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features users payoutPercentage expiryDays')
@@ -556,7 +594,7 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
         const affiliatePrograms = await AffiliateProgram.find({ status: 'Active' });
         if (affiliatePrograms.length != 0){
           for (let program of affiliatePrograms) {
-            match = program?.affiliates?.find(item => item?.affiliateCode?.toString() == coupon?.toString());
+            match = program?.affiliates?.find(item => (item?.affiliateCode?.toString() == coupon?.toString() && item?.affiliateStatus == "Active"));
             // console.log("match in aff", match)
             if (match) {
               affiliate = match;

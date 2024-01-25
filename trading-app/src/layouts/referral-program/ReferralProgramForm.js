@@ -1,6 +1,8 @@
 import * as React from 'react';
-import {useContext, useState} from "react";
+import {useContext, useState, useEffect} from "react";
 import Box from '@mui/material/Box';
+import OutlinedInput from '@mui/material/OutlinedInput';
+
 import TextField from '@mui/material/TextField';
 import Grid from "@mui/material/Grid";
 import Icon from "@mui/material/Icon";
@@ -16,27 +18,49 @@ import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import dayjs from 'dayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { apiUrl } from '../../constants/constants';
+import ListItemText from '@mui/material/ListItemText';
+import Checkbox from '@mui/material/Checkbox';
 
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
 
-
-function Index({createIndexForm, setCreateIndexForm, id}) {
+function Index({createIndexForm, setCreateIndexForm}) {
+  const location = useLocation();
+  const id = location?.state?.data;
 
     const [isSubmitted,setIsSubmitted] = useState(false);
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     // const getDetails = useContext(userContext);
     // const [indexData,setIndexData] = useState([]);
-    const [formState,setFormState] = useState();
+    const [formState,setFormState] = useState({
+      ...id,
+      referralProgramStartDate: dayjs(id?.referralProgramStartDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
+      referralProgramEndDate: dayjs(id?.referralProgramEndDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
+    });
     // const [id,setIsObjectNew] = useState(id ? true : false)
-    const [isLoading,setIsLoading] = useState(id ? true : false)
+    const [isLoading,setIsLoading] = useState(false)
     const [editing,setEditing] = useState(false)
     const [saving,setSaving] = useState(false)
     const [creating,setCreating] = useState(false)
+    const [products, setProducts] = useState([]);
+    const [selectedProduct, setSelectedProduct] = useState(id?.affiliateDetails?.eligibleProducts ? id?.affiliateDetails?.eligibleProducts : []);
+    const [selectedPlatform, setSelectedPlatform] = useState(id?.affiliateDetails?.eligiblePlatforms ? id?.affiliateDetails?.eligiblePlatforms : []);
+  
     // const [newObjectId,setNewObjectId] = useState()
     const navigate = useNavigate();
 
@@ -45,16 +69,27 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
       currency: ""
     })
 
+    async function getProducts() {
+      const res = await axios.get(`${apiUrl}products`, { withCredentials: true });
+      if (res.status == 200) {
+        setProducts(res?.data?.data?.filter((item) => item?.productName != 'Internship'));
+      }
+    }
+    useEffect(() => {
+      getProducts();
+    }, [])
+
     async function onEdit(e,formState){
         e.preventDefault()
         setSaving(true)
         console.log(formState)
-        if(!formState?.referralProgramName || !formState?.referralProgramStartDate || !formState?.referralProgramEndDate || !formState?.rewardPerReferral || !formState?.currency || !formState?.status){
+        if(!formState?.affiliateDetails?.minOrderValue || !formState?.affiliateDetails?.maxDiscount || !formState?.affiliateDetails?.discountPercentage || !formState?.affiliateDetails?.commissionPercentage || !formState?.referralProgramName || !formState?.referralProgramStartDate || !formState?.referralProgramEndDate || !formState?.rewardPerReferral || !formState?.currency || !formState?.status){
             setTimeout(()=>{setSaving(false);setEditing(true)},500)
             return openErrorSB("Missing Field","Please fill all the mandatory fields")
         }
-        const {  referralProgramName, referralProgramStartDate, referralProgramEndDate, rewardPerReferral, currency, status, description } = formState;
-        const res = await fetch(`${baseUrl}api/v1/referrals`, {
+        // minOrderValue, maxDiscount, discountPercentage, commissionPercentage,
+        const {referralSignupBonus, affiliateDetails, referralProgramName, referralProgramStartDate, referralProgramEndDate, rewardPerReferral, currency, status, description } = formState;
+        const res = await fetch(`${apiUrl}referrals/${id?._id}`, {
             method: "PATCH",
             credentials:"include",
             headers: {
@@ -62,7 +97,7 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
                 "Access-Control-Allow-Credentials": true
             },
             body: JSON.stringify({
-              referralSignupBonus, referralProgramName, referralProgramStartDate, referralProgramEndDate, rewardPerReferral, currency, status, description})
+              referralSignupBonus, affiliateDetails, referralSignupBonus, referralProgramName, referralProgramStartDate, referralProgramEndDate, rewardPerReferral, currency, status, description})
             });
 
         const data = await res.json();
@@ -79,14 +114,14 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
     async function onSubmit(e,formState){
         e.preventDefault()
         setSaving(true)
-        console.log(formState)
+        console.log(formState, !formState?.affiliateDetails?.minOrderValue , !formState?.affiliateDetails?.maxDiscount , !formState?.affiliateDetails?.discountPercentage , !formState?.affiliateDetails?.commissionPercentage , !formState?.referralProgramName , !formState?.referralProgramStartDate , !formState?.referralProgramEndDate , !formState?.rewardPerReferral , !formState?.currency , !formState?.status)
         
-        if(!formState?.referralProgramName || !formState?.referralProgramStartDate || !formState?.referralProgramEndDate || !formState?.rewardPerReferral || !formState?.currency || !formState?.status){
+        if(!formState?.affiliateDetails?.minOrderValue || !formState?.affiliateDetails?.maxDiscount || !formState?.affiliateDetails?.discountPercentage || !formState?.affiliateDetails?.commissionPercentage || !formState?.referralProgramName || !formState?.referralProgramStartDate || !formState?.referralProgramEndDate || !formState?.rewardPerReferral || !formState?.currency || !formState?.status){
             setTimeout(()=>{setSaving(false)},500)
             return openErrorSB("Missing Field","Please fill all the mandatory fields")
         }
-        const {  referralProgramName, referralProgramStartDate, referralProgramEndDate, rewardPerReferral, currency, status, description } = formState;
-        const res = await fetch(`${baseUrl}api/v1/referrals`, {
+        const {referralSignupBonus, affiliateDetails, referralProgramName, referralProgramStartDate, referralProgramEndDate, rewardPerReferral, currency, status, description } = formState;
+        const res = await fetch(`${apiUrl}referrals`, {
             method: "POST",
             credentials:"include",
             headers: {
@@ -94,7 +129,7 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
                 "Access-Control-Allow-Credentials": true
             },
             body: JSON.stringify({
-              referralSignupBonus, referralProgramName, referralProgramStartDate, referralProgramEndDate, rewardPerReferral, currency, status, description
+              referralSignupBonus, affiliateDetails, referralSignupBonus, referralProgramName, referralProgramStartDate, referralProgramEndDate, rewardPerReferral, currency, status, description
             })
         });
   
@@ -165,6 +200,31 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
     console.log("Editing: ",editing)
     // console.log("Id:",id)
 
+    const handleChange = (event) => {
+      const selectedIds = event.target.value;
+      setSelectedProduct(selectedIds);
+  
+      setFormState(prevState => ({
+        ...prevState,
+        affiliateDetails: {
+          ...prevState.affiliateDetails,
+          eligibleProducts: selectedIds
+        }
+      }));
+      
+    };
+    const handlePlatformChange = (event) => {
+      const selectedIds = event.target.value;
+      setSelectedPlatform(selectedIds);
+  
+      setFormState(prevState => ({
+        ...prevState,
+        affiliateDetails: {
+          ...prevState.affiliateDetails,
+          eligiblePlatforms: selectedIds
+        }
+      }));
+    };
     return (
     <>
     {isLoading ? (
@@ -265,7 +325,7 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
                 sx={{ minHeight:43 }}
                 >
                 <MenuItem value="INR">INR</MenuItem>
-                <MenuItem value="CREDOS">CREDOS</MenuItem>
+                <MenuItem value="HeroCash">HeroCash</MenuItem>
                 </Select>
               </FormControl>
           </Grid>
@@ -276,14 +336,168 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
                 id="outlined-required"
                 label='Amount *'
                 type="number"
-                defaultValue={referralSignupBonus?.amount}
+                defaultValue={formState?.referralSignupBonus?.amount}
                 fullWidth 
-                onChange={(e) => {setreferralSignupBonus(prevState => ({
+              //   onChange={(e) => {setreferralSignupBonus(prevState => ({
+              //     ...prevState,
+              //     amount: e.target.value
+              // }))}}
+
+              onChange={(e) => {
+                setFormState(prevState => ({
                   ...prevState,
-                  amount: e.target.value
-              }))}}
+                  referralSignupBonus: {
+                    ...prevState.referralSignupBonus,
+                    amount: e.target.value
+                  }
+                }));
+              }}
+              
               />
           </Grid>
+          
+{/* -------------- */}
+          <Grid item xs={12} md={6} xl={3}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
+                label='Affiliate Comission % *'
+                type="number"
+                defaultValue={formState?.affiliateDetails?.commissionPercentage}
+                fullWidth 
+                onChange={(e) => {
+                  setFormState(prevState => ({
+                    ...prevState,
+                    affiliateDetails: {
+                      ...prevState.affiliateDetails,
+                      commissionPercentage: e.target.value
+                    }
+                  }));
+                }}
+              />
+          </Grid>
+
+          <Grid item xs={12} md={6} xl={3}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
+                label='Affiliate Discount % *'
+                type="number"
+                defaultValue={formState?.affiliateDetails?.discountPercentage}
+                fullWidth 
+                onChange={(e) => {
+                  setFormState(prevState => ({
+                    ...prevState,
+                    affiliateDetails: {
+                      ...prevState.affiliateDetails,
+                      discountPercentage: e.target.value
+                    }
+                  }));
+                }}
+              />
+          </Grid>
+
+          <Grid item xs={12} md={6} xl={3}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
+                label='Affiliate Max Discount *'
+                type="number"
+                defaultValue={formState?.affiliateDetails?.maxDiscount}
+                fullWidth 
+                onChange={(e) => {
+                  setFormState(prevState => ({
+                    ...prevState,
+                    affiliateDetails: {
+                      ...prevState.affiliateDetails,
+                      maxDiscount: e.target.value
+                    }
+                  }));
+                }}
+              />
+          </Grid>
+
+          <Grid item xs={12} md={6} xl={3}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
+                label='Affiliate Min Order *'
+                type="number"
+                defaultValue={formState?.affiliateDetails?.minOrderValue}
+                fullWidth 
+                onChange={(e) => {
+                  setFormState(prevState => ({
+                    ...prevState,
+                    affiliateDetails: {
+                      ...prevState.affiliateDetails,
+                      minOrderValue: e.target.value
+                    }
+                  }));
+                }}
+              />
+          </Grid>
+                {/* Select Product */}
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormControl sx={{ width: '100%' }}>
+                    <InputLabel id="demo-multiple-checkbox-label">Select Products</InputLabel>
+                    <Select
+                      labelId="demo-multiple-checkbox-label"
+                      id="demo-multiple-checkbox"
+                      multiple
+                      disabled={((isSubmitted || id) && (!editing || saving))}
+                      value={selectedProduct}
+                      onChange={handleChange}
+                      input={<OutlinedInput label="Tag" />}
+                      renderValue={(selectedIds) =>
+                        selectedIds.map(id => products.find(prod => prod._id === id)?.productName).join(', ')
+                      }
+                      sx={{ minHeight: "44px" }}
+                      MenuProps={MenuProps}
+                    >
+                      {products?.map((elem) => (
+                        <MenuItem key={elem?._id} value={elem?._id}>
+                          <Checkbox checked={selectedProduct.indexOf(elem?._id) > -1} />
+                          <ListItemText primary={elem?.productName} />
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                {/* Eligible Platform */}
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormControl sx={{ width: '100%' }}>
+                    <InputLabel id="demo-multiple-checkbox-label">Eligible Platforms</InputLabel>
+                    <Select
+                      labelId="demo-multiple-checkbox-label"
+                      id="demo-multiple-checkbox"
+                      multiple
+                      disabled={((isSubmitted || id) && (!editing || saving))}
+                      value={selectedPlatform}
+                      onChange={handlePlatformChange}
+                      input={<OutlinedInput label="Tag" />}
+                      renderValue={(selectedIds) =>
+                        selectedIds.map(id => id).join(', ')
+                        // console.log(selectedIds)
+                      }
+                      sx={{ minHeight: "44px" }}
+                      MenuProps={MenuProps}
+                    >
+                      <MenuItem key={1} value='Web'>
+                        <Checkbox checked={selectedPlatform.indexOf('Web') > -1} />
+                        <ListItemText primary={'Web'} />
+                      </MenuItem>
+                      <MenuItem key={2} value='Android'>
+                        <Checkbox checked={selectedPlatform.indexOf('Android') > -1} />
+                        <ListItemText primary={'Android'} />
+                      </MenuItem>
+                      <MenuItem key={3} value='iOS'>
+                        <Checkbox checked={selectedPlatform.indexOf('iOS') > -1} />
+                        <ListItemText primary={'iOS'} />
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
 
           <Grid item xs={12} md={6} xl={3}>
               <FormControl sx={{width: "100%" }}>
@@ -292,12 +506,22 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
                 labelId="demo-simple-select-autowidth-label"
                 id="demo-simple-select-autowidth"
                 // value={oldObjectId ? contestData?.portfolioType : formState?.portfolioType}
-                value={referralSignupBonus?.currency}
+                value={formState?.referralSignupBonus?.currency}
                 disabled={((isSubmitted || id) && (!editing || saving))}
-                onChange={(e) => {setreferralSignupBonus(prevState => ({
+              //   onChange={(e) => {setreferralSignupBonus(prevState => ({
+              //     ...prevState,
+              //     currency: e.target.value
+              // }))}}
+
+              onChange={(e) => {
+                setFormState(prevState => ({
                   ...prevState,
-                  currency: e.target.value
-              }))}}
+                  referralSignupBonus: {
+                    ...prevState.referralSignupBonus,
+                    currency: e.target.value
+                  }
+                }));
+              }}
                 label="Bonus Currency"
                 sx={{ minHeight:43 }}
                 >
@@ -336,11 +560,11 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
                 label='Referral Program ID *'
                 fullWidth
                 // defaultValue={indexData?.displayName}
-                value={formState?.referralProgramId}
+                value={formState?.referrralProgramId}
               />
           </Grid>
 
-          <Grid item xs={12} md={6} xl={3}>
+          {/* <Grid item xs={12} md={6} xl={3}>
             <TextField
                 disabled
                 id="outlined-required"
@@ -349,7 +573,7 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
                 // defaultValue={indexData?.displayName}
                 value={formState?.createdBy}
               />
-          </Grid>
+          </Grid> */}
 
           <Grid item xs={12} md={6} xl={12}>
             <TextField
@@ -376,7 +600,7 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
                     <MDButton variant="contained" color="success" size="small" sx={{mr:1, ml:2}} disabled={creating} onClick={(e)=>{onSubmit(e,formState)}}>
                         {creating ? <CircularProgress size={20} color="inherit" /> : "Save"}
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={()=>{navigate("/referralProgramme")}}>
+                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={()=>{navigate("/referralprogram")}}>
                         Cancel
                     </MDButton>
                     </>
@@ -386,7 +610,7 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
                     <MDButton variant="contained" color="warning" size="small" sx={{mr:1, ml:2}} onClick={()=>{setEditing(true)}}>
                         Edit
                     </MDButton>
-                    <MDButton variant="contained" color="info" size="small" onClick={()=>{setIsSubmitted(false)}}>
+                    <MDButton variant="contained" color="info" size="small" onClick={()=>{ navigate('/referralprogram')}}>
                         Back
                     </MDButton>
                     </>

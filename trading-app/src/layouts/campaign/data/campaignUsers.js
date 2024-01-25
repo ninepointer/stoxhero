@@ -14,7 +14,7 @@ import moment from 'moment';
 
 export default function Applicants({campaign, campaignUserCount}) {
     console.log("Campaign", campaign)
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [campaignUsers,setCampaignUsers] = React.useState([]);
     // async function getCampaignUsers(){
     //     let call1 = axios.get(`${baseUrl}api/v1/campaign/${campaign}`,{
@@ -52,9 +52,13 @@ export default function Applicants({campaign, campaignUserCount}) {
       ]
 
     let rows = []
-
+    campaign.users?.sort((a, b)=>{
+      if(new Date(b.joinedOn) < new Date(a.joinedOn)) return -1;
+      else if(new Date(b.joinedOn) > new Date(a.joinedOn)) return 1;
+      else return 0;
+    })
   campaign.users?.map((elem, index)=>{
-  console.log("elem:",elem)
+  // console.log("elem:",elem)
   let featureObj = {}
   featureObj.index = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">

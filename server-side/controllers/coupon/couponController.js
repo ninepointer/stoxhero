@@ -231,7 +231,7 @@ exports.verifyCouponCode = async (req, res) => {
             if(affiliatePrograms.length != 0){
                 
                 for(program of affiliatePrograms){
-                    match = program?.affiliates?.some(item => item?.affiliateCode.toString() == code?.toString());
+                    match = program?.affiliates?.some(item => ((item?.affiliateCode.toString() == code?.toString()) && (item?.affiliateStatus == "Active")));
                     if(match){
                         console.log('match', match, program?.maxDiscount);
                         //check for eligible platforms
@@ -462,12 +462,22 @@ exports.saveSuccessfulCouponUse = async (userId, code, product, specificProduct)
         }
 
         // Add user to the usedBySuccessful array field
-        coupon.usedBySuccessful.push({
-            user: userId,
-            appliedOn: new Date(),
-            product: productDoc._id,
-            specificProduct:specificProduct
-        });
+        const updateCoupon = await Coupon.findOneAndUpdate({ code }, {
+            $push: {
+                usedBySuccessful: {
+                    user: userId,
+                    appliedOn: new Date(),
+                    product: productDoc._id,
+                    specificProduct:specificProduct
+                }
+            }
+        })
+        // coupon.usedBySuccessful.push({
+        //     user: userId,
+        //     appliedOn: new Date(),
+        //     product: productDoc._id,
+        //     specificProduct:specificProduct
+        // });
 
         // Remove the last user element from the usedBySuccessful array if exists
         let userAppliedCoupons = coupon.usedBy.filter(item => item?.user.toString() === userId.toString());

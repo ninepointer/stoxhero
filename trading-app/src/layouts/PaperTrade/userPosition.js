@@ -27,11 +27,14 @@ function UserPosition() {
   const [updatePendingOrder, setUpdatePendingOrder] = useState();
   const [watchList, setWatchList] = useState([]);
   const socket = useContext(socketContext);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   
   useEffect(() => {
-    ReactGA.pageview(window.location.pathname)
-    capturePageView()
+    ReactGA.pageview(window.location.pathname);
+    capturePageView();
+    window.webengage.track('virtual_trade_tab_clicked', {
+      user: getDetails?.userDetails?._id
+    })
   }, []);
   let page = 'VirtualTrading'
   let pageLink = window.location.pathname;
@@ -50,6 +53,8 @@ function UserPosition() {
   useEffect(() => {
     socket.emit('userId', getDetails.userDetails._id)
     socket.emit("user-ticks", getDetails.userDetails._id)
+    // socket.emit('equity-watchlist', getDetails.userDetails._id)
+
   }, []);
 
   const memoizedStockIndex = useMemo(() => {

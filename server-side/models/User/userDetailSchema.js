@@ -43,6 +43,7 @@ const userDetailSchema = new mongoose.Schema({
         type: String,
         required : true
     },
+    full_name:String,
     cohort:{
         type: String,
         // required : true

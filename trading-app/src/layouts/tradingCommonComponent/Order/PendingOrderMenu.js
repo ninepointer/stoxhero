@@ -3,19 +3,25 @@ import Box from '@mui/material/Box';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
+// import Tooltip from '@mui/material/Tooltip';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import { apiUrl } from '../../../constants/constants';
 import EditPriceModal from './editPriceModal';
 import { renderContext } from '../../../renderContext';
+import { userContext } from '../../../AuthContext';
+import MDSnackbar from '../../../components/MDSnackbar';
 
 
 export default function AccountMenu({id, setUpdate, lots, symbol, type, buyOrSell, ltp, from}) {
   const [anchorEl, setAnchorEl] = useState(null);
   const { render, setRender } = useContext(renderContext);
   const open = Boolean(anchorEl);
-
+  const getDetails = useContext(userContext);
+  const [msg, setMsg] = useState({
+    error: "",
+    success: ""
+  })
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -25,6 +31,9 @@ export default function AccountMenu({id, setUpdate, lots, symbol, type, buyOrSel
   };
 
   const cancelOrder = async () => {
+    window.webengage.track('cancel_order_clicked', {
+      user: getDetails?.userDetails?._id,
+    })
     const res = await fetch(`${apiUrl}pendingorder/${id}/${from}`, {
         method: "PATCH",
         credentials: "include",
@@ -46,6 +55,61 @@ export default function AccountMenu({id, setUpdate, lots, symbol, type, buyOrSel
 
     handleClose();
     render ? setRender(false) : setRender(true);
+  }
+
+  const [messageObj, setMessageObj] = useState({
+    color: '',
+    icon: '',
+    title: '',
+    content: ''
+  })
+  const [successSB, setSuccessSB] = useState(false);
+
+  const openSuccessSB = (value,content) => {
+    if(value === "Success"){
+        messageObj.color = 'success'
+        messageObj.icon = 'check'
+        messageObj.title = "Successful";
+        messageObj.content = content;
+        setSuccessSB(true);
+    };
+    if(value === "error"){
+      messageObj.color = 'error'
+      messageObj.icon = 'error'
+      messageObj.title = "Error";
+      messageObj.content = content;
+    };
+
+    setMessageObj(messageObj);
+    setSuccessSB(true);
+  }
+
+  const closeSuccessSB = () => setSuccessSB(false);
+  const renderSuccessSB = (
+    <MDSnackbar
+      color= {messageObj.color}
+      icon= {messageObj.icon}
+      title={messageObj.title}
+      content={messageObj.content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite="info"
+      sx={{
+        borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`,
+        borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`,
+        borderRadius: "15px", width: "auto",
+        fontWeight: "normal"
+      }}
+    />
+  );
+
+  if(msg.error){
+    openSuccessSB("error", msg.error);
+    setMsg({});
+  } else if(msg.success){
+    openSuccessSB("Success", msg.success);
+    setMsg({});
   }
 
   return (
@@ -103,9 +167,10 @@ export default function AccountMenu({id, setUpdate, lots, symbol, type, buyOrSel
           <HighlightOffIcon sx={{ mr: 2 }} /> Cancel Order
         </MenuItem>
         <MenuItem>
-          <EditPriceModal id={id} lots={lots} symbol={symbol} type={type} buyOrSell={buyOrSell} ltp={ltp} />
+          <EditPriceModal id={id} lots={lots} symbol={symbol} type={type} buyOrSell={buyOrSell} ltp={ltp} setMsg={setMsg}  />
         </MenuItem>
       </Menu>
+      {renderSuccessSB}
       {/* <EditPriceModal openEditModal = {openEditModal} setOpenEditModal={setOpenEditModal}/> */}
     </React.Fragment>
   );

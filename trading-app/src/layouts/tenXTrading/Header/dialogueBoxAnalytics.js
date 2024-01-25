@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import axios from 'axios';
 import Box from '@mui/material/Box';
 import MDBox from '../../../components/MDBox';
@@ -12,15 +12,20 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { Grid, Typography } from '@mui/material'
 import MDTypography from '../../../components/MDTypography';
 import {apiUrl} from "../../../constants/constants"
+import { userContext } from '../../../AuthContext';
 
 export default function MaxWidthDialog({ subscription, isActive }) {
   const [open, setOpen] = React.useState(false);
   const [fullWidth, setFullWidth] = React.useState(true);
   const [maxWidth, setMaxWidth] = React.useState('sm');
-
+  const getDetails = useContext(userContext)
   const [data, setData] = useState([]);
 
   const handleClickOpen = () => {
+    window.webengage.track('tenx_expired_analytics_clicked', {
+      user: getDetails?.userDetails?._id,
+      subscriptionId: subscription?._id,
+    });
     setOpen(true);
   };
 
@@ -176,32 +181,6 @@ export default function MaxWidthDialog({ subscription, isActive }) {
             }
 
           </Grid>
-
-      
-
-       {/* <Grid container spacing={0.5} mt={1}>
-       <Grid container p={1} style={{ border: '1px solid #344767', borderRadius: 5 }}>
-    //     <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-    //       <MDTypography color="black" fontSize={9} fontWeight="bold">GROSS P&L</MDTypography>
-    //     </Grid>
-    //     <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-    //       <MDTypography color="black" fontSize={9} fontWeight="bold">NET P&L</MDTypography>
-    //     </Grid>
-    //     <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-    //       <MDTypography color="black" fontSize={9} fontWeight="bold">BROKERAGE</MDTypography>
-    //     </Grid>
-    //     <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-    //       <MDTypography color="black" fontSize={9} fontWeight="bold">TRADING DAYS</MDTypography>
-    //     </Grid>
-    //     <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-    //       <MDTypography color="black" fontSize={9} fontWeight="bold">TRADE</MDTypography>
-    //     </Grid>
-       </Grid>
-
-
-
-     </Grid> */}
-        {/* } */}
 
         </DialogContent>
 

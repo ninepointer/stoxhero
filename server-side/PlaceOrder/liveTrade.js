@@ -31,8 +31,8 @@ exports.liveTrade = async (reqBody, res) => {
     const {algoName, transactionChange, instrumentChange
        , exchangeChange, lotMultipler, productChange, tradingAccount, _id, marginDeduction, isDefault} = algoBox
 
-       const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY"});
-       const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL"});
+       const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", type: "Option"});
+       const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", type: "Option"});
 
     const api_key = apiKey;
     const access_token = accessToken;
@@ -186,7 +186,7 @@ exports.liveTrade = async (reqBody, res) => {
                     Quantity = -Quantity;
                 }
 
-                let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+                let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
                 let originalLastPriceUser;
 
@@ -568,7 +568,7 @@ exports.liveTrade = async (reqBody, res) => {
             Quantity = -Quantity;
         }
 
-        let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+        let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
         let originalLastPriceUser;
 

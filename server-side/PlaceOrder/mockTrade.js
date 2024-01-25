@@ -8,7 +8,7 @@ const {dailyContestTrade} = require("./saveDataInDB/dailycontest")
 const {virtualTrade} = require("./saveDataInDB/paperTrade")
 const {tenxTrade} = require("./saveDataInDB/tenx")
 const {internTrade} = require("./saveDataInDB/internship")
-// const {infinityTrade} = require("./saveDataInDB/infinity")
+const {stockTradeHelper} = require("./saveDataInDB/stockTradeHelper")
 const {marginxTrade} = require("./saveDataInDB/marginx")
 const {battleTrade} = require("./saveDataInDB/battle");
 const UserDetail = require("../models/User/userDetailSchema")
@@ -16,6 +16,7 @@ const {ObjectId} = require("mongodb")
 const DailyContest = require("../models/DailyContest/dailyContest")
 const MarginX = require("../models/marginX/marginX");
 const TenxSubscription = require("../models/TenXSubscription/TenXSubscriptionSchema");
+const {equityBrokerage} = require("./equity/brokerageEquity")
 
 exports.mockTrade = async (req, res) => {
     const setting = await Setting.find().select('toggle');
@@ -27,8 +28,8 @@ exports.mockTrade = async (req, res) => {
     const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
 
-    let {exchange, symbol, buyOrSell, Quantity, Product, order_type,
-        validity, variety, instrumentToken, tenxTraderPath, internPath, battle,
+    let {exchange, symbol, buyOrSell, Quantity, Product, order_type, stockTrade, originalLastPriceUser, trade_time,
+        validity, variety, instrumentToken, tenxTraderPath, internPath, battle, originalLastPriceCompany,
         realBuyOrSell, realQuantity, isAlgoTrader, paperTrade, dailyContest, marginx, deviceDetails } = req.body 
 
         console.log("req data", req.body)
@@ -55,36 +56,38 @@ exports.mockTrade = async (req, res) => {
     let brokerageDetailBuyUser;
     let brokerageDetailSellUser;
 
-    if(isRedisConnected && await client.HEXISTS('brokerage', `buy-company`)){
-        brokerageDetailBuy = await client.HGET('brokerage', `buy-company`);
-        brokerageDetailBuy = JSON.parse(brokerageDetailBuy);
-    } else{
-        brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", accountType: accountType});
-        await client.HSET('brokerage', `buy-company`, JSON.stringify(brokerageDetailBuy));
-    }
-
-    if(isRedisConnected && await client.HEXISTS('brokerage', `sell-company`)){
-        brokerageDetailSell = await client.HGET('brokerage', `sell-company`);
-        brokerageDetailSell = JSON.parse(brokerageDetailSell);
-    } else{
-        brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", accountType: accountType});
-        await client.HSET('brokerage', `sell-company`, JSON.stringify(brokerageDetailSell));
-    }
-
-    if(isRedisConnected && await client.HEXISTS('brokerage', `buy-user`)){
-        brokerageDetailBuyUser = await client.HGET('brokerage', `buy-user`);
-        brokerageDetailBuyUser = JSON.parse(brokerageDetailBuyUser);
-    } else{
-        brokerageDetailBuyUser = await BrokerageDetail.find({ transaction: "BUY", accountType: zerodhaAccountType });
-        await client.HSET('brokerage', `buy-user`, JSON.stringify(brokerageDetailBuyUser));
-    }
-
-    if(isRedisConnected && await client.HEXISTS('brokerage', `sell-user`)){
-        brokerageDetailSellUser = await client.HGET('brokerage', `sell-user`);
-        brokerageDetailSellUser = JSON.parse(brokerageDetailSellUser);
-    } else{
-        brokerageDetailSellUser = await BrokerageDetail.find({ transaction: "SELL", accountType: zerodhaAccountType });
-        await client.HSET('brokerage', `sell-user`, JSON.stringify(brokerageDetailSellUser));
+    if(!stockTrade){
+        if(isRedisConnected && await client.HEXISTS('brokerage', `buy-company`)){
+            brokerageDetailBuy = await client.HGET('brokerage', `buy-company`);
+            brokerageDetailBuy = JSON.parse(brokerageDetailBuy);
+        } else{
+            brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", accountType: accountType, type: "Option"});
+            await client.HSET('brokerage', `buy-company`, JSON.stringify(brokerageDetailBuy));
+        }
+    
+        if(isRedisConnected && await client.HEXISTS('brokerage', `sell-company`)){
+            brokerageDetailSell = await client.HGET('brokerage', `sell-company`);
+            brokerageDetailSell = JSON.parse(brokerageDetailSell);
+        } else{
+            brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", accountType: accountType, type: "Option"});
+            await client.HSET('brokerage', `sell-company`, JSON.stringify(brokerageDetailSell));
+        }
+    
+        if(isRedisConnected && await client.HEXISTS('brokerage', `buy-user`)){
+            brokerageDetailBuyUser = await client.HGET('brokerage', `buy-user`);
+            brokerageDetailBuyUser = JSON.parse(brokerageDetailBuyUser);
+        } else{
+            brokerageDetailBuyUser = await BrokerageDetail.find({ transaction: "BUY", accountType: zerodhaAccountType, type: "Option" });
+            await client.HSET('brokerage', `buy-user`, JSON.stringify(brokerageDetailBuyUser));
+        }
+    
+        if(isRedisConnected && await client.HEXISTS('brokerage', `sell-user`)){
+            brokerageDetailSellUser = await client.HGET('brokerage', `sell-user`);
+            brokerageDetailSellUser = JSON.parse(brokerageDetailSellUser);
+        } else{
+            brokerageDetailSellUser = await BrokerageDetail.find({ transaction: "SELL", accountType: zerodhaAccountType, type: "Option" });
+            await client.HSET('brokerage', `sell-user`, JSON.stringify(brokerageDetailSellUser));
+        }
     }
 
     if(buyOrSell === "SELL"){
@@ -94,55 +97,65 @@ exports.mockTrade = async (req, res) => {
         req.body.realQuantity = "-"+realQuantity;
     }
 
-    let originalLastPriceUser;
-    let originalLastPriceCompany;
-    let newTimeStamp = "";
-    let trade_time = "";
-    try {
-        let liveData;
-        if (setting.ltp == xtsAccountType || setting.complete == xtsAccountType) {
-            liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
-        } else {
-            liveData = await singleLivePrice(exchange, symbol)
-        }
+    if (!originalLastPriceUser) {
+        try {
+            let liveData;
+            if (setting.ltp == xtsAccountType || setting.complete == xtsAccountType) {
+                liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
+            } else {
+                liveData = await singleLivePrice(exchange, symbol)
+            }
 
-        newTimeStamp = liveData?.timestamp;
-        originalLastPriceUser = liveData?.last_price ;
-        originalLastPriceCompany = liveData?.last_price ;
+            newTimeStamp = liveData?.timestamp;
+            originalLastPriceUser = liveData?.last_price;
+            originalLastPriceCompany = liveData?.last_price;
 
-        if(!liveData?.last_price){
-            return res.status(400).json({status: "error", message: "Market orders are blocked for in the money options due to illiquidity. Try again later."})
-        }
+            if (!liveData?.last_price) {
+                return res.status(400).json({ status: "error", message: "Market orders are blocked for in the money options due to illiquidity. Try again later." })
+            }
 
-        trade_time = new Date(newTimeStamp);
-        if(trade_time < new Date()){
-            const subtractedTime = 5 * 60 * 60 * 1000 + 30 * 60 * 1000;
-            trade_time = trade_time.getTime() + subtractedTime;
+            trade_time = new Date(newTimeStamp);
+            if (trade_time < new Date()) {
+                const subtractedTime = 5 * 60 * 60 * 1000 + 30 * 60 * 1000;
+                trade_time = trade_time.getTime() + subtractedTime;
+            }
+
+            req.body.originalLastPriceUser = originalLastPriceUser;
+            req.body.originalLastPriceCompany = originalLastPriceCompany;
+            req.body.trade_time = trade_time;
+        } catch (err) {
+            console.log(err)
+            return new Error(err);
         }
-    } catch (err) {
-        console.log(err)
-        return new Error(err);
     }
+
+
+    console.log("req", req.body)
 
     let brokerageUser;
     let brokerageCompany;
 
-    if(realBuyOrSell === "BUY"){
-        brokerageCompany = buyBrokerage(Math.abs(Number(realQuantity)) * originalLastPriceCompany, brokerageDetailBuy[0]);
-    } else if(realBuyOrSell === "SELL"){
-        brokerageCompany = sellBrokerage(Math.abs(Number(realQuantity)) * originalLastPriceCompany, brokerageDetailSell[0]);
+    if(!stockTrade){
+        if(realBuyOrSell === "BUY"){
+            brokerageCompany = buyBrokerage(Math.abs(Number(realQuantity)) * originalLastPriceCompany, brokerageDetailBuy[0]);
+        } else if(realBuyOrSell === "SELL"){
+            brokerageCompany = sellBrokerage(Math.abs(Number(realQuantity)) * originalLastPriceCompany, brokerageDetailSell[0]);
+        }
+    
+        if(buyOrSell === "BUY"){
+            brokerageUser = buyBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, brokerageDetailBuyUser[0]);
+        } else if(buyOrSell === "SELL"){
+            brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, brokerageDetailSellUser[0]);
+        }
     }
 
-    if(buyOrSell === "BUY"){
-        brokerageUser = buyBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, brokerageDetailBuyUser[0]);
-    } else if(buyOrSell === "SELL"){
-        brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, brokerageDetailSellUser[0]);
+
+    if(stockTrade){
+        brokerageUser = await equityBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, Product, buyOrSell)
     }
 
     let otherData={
-        originalLastPriceUser: originalLastPriceUser,
-        originalLastPriceCompany: originalLastPriceCompany,
-        trade_time: trade_time,
+
         brokerageUser: brokerageUser,
         brokerageCompany: brokerageCompany,
         isRedisConnected: isRedisConnected,
@@ -187,6 +200,24 @@ exports.mockTrade = async (req, res) => {
                     activationDetails: {
                         activationDate: new Date(),
                         activationProduct: "65449ee06932ba3a403a681a",
+                        activationType: "Free",
+                        activationStatus: "Active",
+                        activationProductPrice: 0
+                    }
+                }
+            })
+            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+        }
+    }
+
+    if(stockTrade){
+        await stockTradeHelper(req, res, otherData);
+        if (!req?.user?.activationDetails?.activationDate) {
+            const userActivationDateUpdate = await UserDetail.findOneAndUpdate({ _id: new ObjectId(req?.user?._id) }, {
+                $set: {
+                    activationDetails: {
+                        activationDate: new Date(),
+                        activationProduct: "6583c2012ef31a319cf888c9",
                         activationType: "Free",
                         activationStatus: "Active",
                         activationProductPrice: 0

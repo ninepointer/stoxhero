@@ -36,8 +36,8 @@ const takeAutoTenxTrade = async (tradeDetails) => {
   }
   //console.log("req.body", tradeDetails)
 
-  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY" });
-  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL" });
+  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY", type: "Option" });
+  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL", type: "Option" });
 
 
   if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety) {
@@ -204,8 +204,8 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
   }
   //console.log("req.body", tradeDetails)
 
-  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY" });
-  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL" });
+  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY", type: "Option" });
+  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL", type: "Option" });
 
 
   if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety) {
@@ -376,8 +376,8 @@ const takeAutoPaperTrade = async (tradeDetails) => {
   }
   //console.log("req.body", tradeDetails)
 
-  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY" });
-  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL" });
+  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY", type: "Option" });
+  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL", type: "Option" });
 
 
   if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety) {
@@ -545,8 +545,8 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
   }
   //console.log("req.body", tradeDetails)
 
-  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY" });
-  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL" });
+  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY", type: "Option" });
+  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL", type: "Option" });
 
 
   if (!exchange || !symbol || !buyOrSell || !userQuantity || !Product || !order_type || !validity || !variety) {

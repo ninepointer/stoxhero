@@ -25,7 +25,7 @@ import ActiveDialogue from "../Header/activeDialogueBox";
 import DialogueKnowMore from "../Header/dialogueBoxKnowMore";
 
 function Header({ subscription, checkPayment, setCheckPayment, amount, name, id, walletCash, bonusCash, allowRenewal}) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
     const navigate = useNavigate();
@@ -89,6 +89,9 @@ function Header({ subscription, checkPayment, setCheckPayment, amount, name, id,
 
     async function captureTutorialViews(){
     openYouTubeVideo();
+    window.webengage.track('tenx_tutorial_clicked', {
+        user: getDetails?.userDetails?._id,
+    });
     console.log("Inside Capture Tutorial View")
     const res = await fetch(`${baseUrl}api/v1/tenX/tenxtutorialview`, {
         method: "POST",

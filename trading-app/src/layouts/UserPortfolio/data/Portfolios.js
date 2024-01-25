@@ -52,7 +52,7 @@ const MyPortfolioCard = ({virtualPortfolio, marginDetails}) => {
                                   <MDBox display="flex" flexDirection="column">
                                   <MDTypography fontSize={12} display="flex" justifyContent="right" style={{color:"black"}}>Available Margin</MDTypography>
                                   <MDTypography fontSize={12} display="flex" justifyContent="right" style={{color:"black"}}>
-                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(e?.portfolioId?.portfolioValue + marginDetails?.npnl)}
+                                    ₹{e?.portfolioId?.portfolioValue + marginDetails?.npnl < 0 ? "0.00" : new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(e?.portfolioId?.portfolioValue + marginDetails?.npnl)}
                                   </MDTypography>
                                   </MDBox>
                               </Grid>

@@ -1,10 +1,6 @@
 import React, { useContext, useState, memo, useEffect } from 'react'
-// import axios from "axios";
-// import { userContext } from '../../../AuthContext';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
-// import uniqid from "uniqid"
-// import MDSnackbar from '../../../components/MDSnackbar';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -12,20 +8,11 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import FormControl from '@mui/material/FormControl';
 import MDButton from '../../../components/MDButton';
-// import Radio from '@mui/material/Radio';
-// import RadioGroup from '@mui/material/RadioGroup';
-// import FormControlLabel from '@mui/material/FormControlLabel';
-// import FormLabel from '@mui/material/FormLabel';
 import { Box, Checkbox, TextField, Typography } from '@mui/material';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
-// import { renderContext } from '../../../renderContext';
-// import { Howl } from "howler";
-// import sound from "../../../assets/sound/tradeSound.mp3"
-// import { marginX, paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest, battle } from "../../../variables";
 import { maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, lotSize_BankNifty, lotSize_FinNifty, lotSize_Nifty, paperTrader } from "../../../variables";
-
 import EditIcon from '@mui/icons-material/Edit';
 import MDBox from '../../../components/MDBox';
 import { renderContext } from '../../../renderContext';
@@ -65,7 +52,7 @@ function ModifyPopUp({ data, id, handleCloseMenu, setMsg, from }) {
   let lotSize = symbolName.includes("BANK") ? lotSize_BankNifty : symbolName.includes("FIN") ? lotSize_FinNifty : lotSize_Nifty;
   let maxLot = symbolName.includes("BANK") ? maxLot_BankNifty : symbolName.includes("FIN") ? maxLot_FinNifty : maxLot_Nifty;
 
-  const instrumentsPendingOrder = pendingOrderQuantity.filter((elem)=>{
+  const instrumentsPendingOrder = pendingOrderQuantity.filter((elem) => {
     return elem.symbol === symbolName;
   })
   const slPendingQuantity = instrumentsPendingOrder?.reduce((acc, item) => {
@@ -76,8 +63,6 @@ function ModifyPopUp({ data, id, handleCloseMenu, setMsg, from }) {
   const spPendingQuantity = instrumentsPendingOrder?.reduce((acc, item) => {
     return item.type === "StopProfit" ? acc + item.quantity : acc;
   }, 0)
-
-  // console.log("slPendingQuantity", lots-slPendingQuantity, lots-spPendingQuantity)
 
   id = from === paperTrader ? "6433e2e5500dc2f2d20d686d" : id;
 
@@ -97,6 +82,11 @@ function ModifyPopUp({ data, id, handleCloseMenu, setMsg, from }) {
     if (data?.Quantity?.props?.children === 0) {
       return openSuccessSB("error", "You do not have any open position for modify.")
     }
+
+    window.webengage.track('modify_order_clicked', {
+      user: getDetails?.userDetails?._id,
+      instrument_token: data?.instrumentToken?.props?.children,
+    })
     setAnchorEl(event.currentTarget);
   };
 
@@ -161,15 +151,18 @@ function ModifyPopUp({ data, id, handleCloseMenu, setMsg, from }) {
     // }
 
     if (((stopLossQuantity && !stopLossPrice) || (!stopLossQuantity && stopLossPrice))
-    || (stopProfitQuantity && !stopProfitPrice) || (!stopProfitQuantity && stopProfitPrice)
+      || (stopProfitQuantity && !stopProfitPrice) || (!stopProfitQuantity && stopProfitPrice)
     ) {
       openSuccessSB('error', `Please select quantity or price.`);
       return;
     }
     
-    // ${((stopLossQuantity && !stopLossPrice) || (!stopLossQuantity && stopLossPrice)) && "stop loss quantity or price"}
-    // ${((stopProfitQuantity && !stopProfitPrice) || (!stopProfitQuantity && stopProfitPrice)) && "stop profit quantity or price"}
-
+    window.webengage.track('modify_process_order_clicked', {
+      user: getDetails?.userDetails?._id,
+      instrument_token: data?.instrumentToken?.props?.children,
+      exchange: data?.exchange?.props?.children,
+      stopLossQuantity, stopProfitQuantity, stopLossPrice, stopProfitPrice
+    })
 
     const res = await fetch(`${apiUrl}pendingorder/modify`, {
       method: "POST",
@@ -320,7 +313,7 @@ function ModifyPopUp({ data, id, handleCloseMenu, setMsg, from }) {
                   id="outlined-basic" variant="outlined"
                   label={<Typography sx={{ fontSize: "12px" }} >SL Price</Typography>}
                   onChange={(e) => { { stopLoss(e) } }}
-                  value={Math.abs(modifyData?.stopLossPrice)===0 ? "" : Math.abs(modifyData?.stopLossPrice)}
+                  value={Math.abs(modifyData?.stopLossPrice) === 0 ? "" : Math.abs(modifyData?.stopLossPrice)}
                   disabled={!Math.abs(lots - slPendingQuantity)}
                   sx={{
                     marginTop: 1,
@@ -359,7 +352,7 @@ function ModifyPopUp({ data, id, handleCloseMenu, setMsg, from }) {
                   id="outlined-basic" label={<Typography sx={{ fontSize: "12px" }} >SP Price</Typography>}
                   variant="outlined" onChange={(e) => { { stopProfit(e) } }}
                   disabled={!Math.abs(lots - spPendingQuantity)}
-                  value={Math.abs(modifyData?.stopProfitPrice)===0 ? "" : Math.abs(modifyData?.stopProfitPrice)}
+                  value={Math.abs(modifyData?.stopProfitPrice) === 0 ? "" : Math.abs(modifyData?.stopProfitPrice)}
                   sx={{
                     marginTop: 1,
                     //  padding: 1, 
@@ -379,18 +372,18 @@ function ModifyPopUp({ data, id, handleCloseMenu, setMsg, from }) {
                 <Typography sx={{ fontSize: "11px", display: "flex" }} >SL/SP-M</Typography>
               </Box>
 
-{Math.abs(lots - slPendingQuantity)===0 && 
-  <Typography fontSize={12} mt={1} color={"red"}>
- You can not modify stop loss order as you have already pending stop loss order.
-</Typography>
-}
+              {Math.abs(lots - slPendingQuantity) === 0 &&
+                <Typography fontSize={12} mt={1} color={"red"}>
+                  You can not modify stop loss order as you have already pending stop loss order.
+                </Typography>
+              }
 
-{Math.abs(lots - spPendingQuantity)===0 && 
-  <Typography fontSize={12} mt={1} color={"red"}>
- You can not modify stop profit order as you have already pending stop profit order.
-</Typography>
-}
-            
+              {Math.abs(lots - spPendingQuantity) === 0 &&
+                <Typography fontSize={12} mt={1} color={"red"}>
+                  You can not modify stop profit order as you have already pending stop profit order.
+                </Typography>
+              }
+
 
             </DialogContentText>
           </DialogContent>

@@ -22,7 +22,7 @@ const BattleRules = ({battle}) => {
     const { columns, rows } = battleRuleData();
     const [id,setId] = useState();
 
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
     useEffect(()=>{
   

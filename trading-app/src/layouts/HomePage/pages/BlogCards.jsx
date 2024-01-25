@@ -32,6 +32,8 @@ export default function BlogCard() {
 
   useEffect(() => {
     ReactGA.pageview(window.location.pathname)
+    window.webengage.track('blog_clicked', {
+    })
   }, []);
 
   async function fetchData() {

@@ -13,9 +13,10 @@ exports.dailyContestTrade = async (req, res, otherData) => {
     const io = getIOValue();
     let {exchange, symbol, buyOrSell, Quantity, Product, order_type, exchangeInstrumentToken, fromAdmin,
         validity, variety, algoBoxId, order_id, instrumentToken, contestId, stopProfitPrice, stopLossPrice, price,
-        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, deviceDetails, margin } = req.body 
+        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, deviceDetails, margin ,
+        originalLastPriceUser, originalLastPriceCompany, trade_time} = req.body 
 
-        let {secondsRemaining, isRedisConnected, brokerageCompany, brokerageUser, originalLastPriceUser, originalLastPriceCompany, trade_time} = otherData;
+        let {secondsRemaining, isRedisConnected, brokerageCompany, brokerageUser} = otherData;
 
     const session = await mongoose.startSession();
     try{

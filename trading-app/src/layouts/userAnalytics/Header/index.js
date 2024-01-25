@@ -51,7 +51,7 @@ export default function LabTabs() {
   const [dateWiseData, setDateWiseData] = useState([]);
   const[expected, setExpected] = useState([]);
   // const[tradeType, setTradeType] = useState('virtual');
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
   const checkRoute = pathname.includes(getDetails?.userDetails?.collegeDetails?.college?.route)
   useEffect(() => {
@@ -85,9 +85,14 @@ export default function LabTabs() {
   }
 
   const handleChangeView = (event, newAlignment) => {
-    // console.log("New Alignment",newAlignment)
+
     setTextColor("info");
     setAlignment(newAlignment);
+    const selectedAlignment = newAlignment.toLowerCase().replace(" ", "_");
+    // console.log("New Alignment",selectedAlignment)
+    window.webengage.track(`marketguru_${selectedAlignment}_clicked`, {
+      user: getDetails?.userDetails?._id,
+    });
   };
   const getMonthWiseStats = async() => {
     const res = await axios.get(`${apiUrl}analytics/${endpoint}/mymonthlypnl`,{withCredentials:true});
@@ -126,6 +131,12 @@ export default function LabTabs() {
   const handleShowDetails = async() => {
     const from = startDate.format('YYYY-MM-DD');
     const to = endDate.format('YYYY-MM-DD');
+    window.webengage.track(`marketguru_alldetails_clicked`, {
+      user: getDetails?.userDetails?._id,
+      start_date: from,
+      end_date: to,
+      api_endpoint: endpoint
+    });
     const res = await axios.get(`${apiUrl}analytics/${endpoint}/mystats?from=${from}&to=${to}`, {withCredentials: true});
     console.log(res.data.data);
     setDateWiseData(prev=>res.data.data);

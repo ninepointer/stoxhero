@@ -11,6 +11,8 @@ import MDBox from '../../../components/MDBox';
 const TermsAndConditions = () => {
     useEffect(() => {
         ReactGA.pageview(window.location.pathname);
+        window.webengage.track('t&c_clicked', {
+        })
     }, []);
 
     return (

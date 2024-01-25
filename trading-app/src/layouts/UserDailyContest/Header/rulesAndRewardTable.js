@@ -11,10 +11,11 @@ import { Typography } from '@mui/material';
 import { settingContext } from '../../../settingContext';
 import moment from "moment"
 import DialogTitle from '@mui/material/DialogTitle';
+import { userContext } from '../../../AuthContext';
 
 
 export default function RewardTable({ data, paid }) {
-
+    const getDetails = React.useContext(userContext)
     const setting = React.useContext(settingContext)
     let columns = [
         { Header: "# Rank", accessor: "rank", align: "center" },
@@ -22,9 +23,12 @@ export default function RewardTable({ data, paid }) {
     ]
 
     let rows = []
-
     const [open, setOpen] = React.useState(false);
     const handleClickOpen = () => {
+        window.webengage.track('testzone_reward_clicked', {
+            user: getDetails?.userDetails?._id,
+            contestId: data?._id
+        })
         setOpen(true);
     };
 

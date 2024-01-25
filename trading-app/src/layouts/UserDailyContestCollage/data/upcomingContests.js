@@ -11,10 +11,11 @@ import axios from "axios";
 import WinnerImage from '../../../assets/images/cup-image.png'
 import { io } from 'socket.io-client';
 import { socketContext } from '../../../socketContext';
+import { userContext } from '../../../AuthContext';
 
 export default function LabTabs({setClicked}) {
     // const [clicked, setClicked] = useState('live')
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     // let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
     const [isLoading, setIsLoading] = useState(false);
     let [showPay, setShowPay] = useState(true);
@@ -22,9 +23,13 @@ export default function LabTabs({setClicked}) {
     const [contest, setContest] = useState([]);
     let [toggleContest, setToggleContest] = useState(false)
     const socket = useContext(socketContext);
-  
+    const getDetails = useContext(userContext);
+
     useEffect(() => {
-      ReactGA.pageview(window.location.pathname)
+        window.webengage.track('college_upcoming_testzone_clicked', {
+            user: getDetails?.userDetails?._id,
+        })
+        ReactGA.pageview(window.location.pathname)
     }, []);
 
     useEffect(() => {

@@ -9,7 +9,7 @@ const authentication = require("../authentication/authentication")
 const Setting = require("../models/settings/setting");
 const {liveTrade} = require("../services/xts/xtsHelper/xtsLiveOrderPlace");
 const { xtsAccountType, zerodhaAccountType } = require("../constant");
-const{isAppLive, isInfinityLive} = require('./tradeMiddlewares');
+const{isAppLive, isInfinityLive, tradeChecks} = require('./tradeMiddlewares');
 const {infinityTradeLive, infinityTradeLiveSingle} = require("../services/xts/xtsHelper/switchAllUser");
 const {contestTradeLive} = require("../services/xts/xtsHelper/switchAllDailyContestLive");
 const {contestChecks, marginxChecks, battleChecks} = require("../PlaceOrder/dailyContestChecks")
@@ -32,7 +32,7 @@ router.post("/placingOrder", authentication, isInfinityLive, ApplyAlgo, authoize
     
 })
 
-router.post("/placingOrderDailyContest", isAppLive, authentication, contestChecks, DailyContestApplyAlgo, authoizeTrade.fundCheckDailyContest,  async (req, res)=>{
+router.post("/placingOrderDailyContest", isAppLive, tradeChecks, authentication, contestChecks, DailyContestApplyAlgo, authoizeTrade.fundCheckDailyContest,  async (req, res)=>{
     req.dailyContest = true;
     const setting = await Setting.find();
 
@@ -52,7 +52,7 @@ router.post("/placingOrderDailyContest", isAppLive, authentication, contestCheck
     
 })
 
-router.post("/placingOrderMarginx", isAppLive, authentication, marginxChecks, MarginXApplyAlgo, authoizeTrade.fundCheckMarginX, async (req, res)=>{
+router.post("/placingOrderMarginx", isAppLive, tradeChecks, authentication, marginxChecks, MarginXApplyAlgo, authoizeTrade.fundCheckMarginX, async (req, res)=>{
     // console.log("caseStudy 4: placing", req.body)
     req.marginx = true;
     const setting = await Setting.find();
@@ -72,29 +72,36 @@ router.post("/placingOrderMarginx", isAppLive, authentication, marginxChecks, Ma
     
 })
 
-router.post("/paperTrade", isAppLive, authentication, authoizeTrade.fundCheckPaperTrade,  async (req, res)=>{
+router.post("/paperTrade", isAppLive, tradeChecks, authentication, authoizeTrade.fundCheckPaperTrade,  async (req, res)=>{
 
     MockTradeFunc.mockTrade(req, res)
     
 })
 
-router.post("/battleTrade", isAppLive, authentication, battleChecks, authoizeTrade.fundCheckBattle,  async (req, res)=>{
+router.post("/battleTrade", isAppLive, tradeChecks, authentication, battleChecks, authoizeTrade.fundCheckBattle,  async (req, res)=>{
     req.body.battle = true;
     MockTradeFunc.mockTrade(req, res)
 })
 //authoizeTrade.fundCheckPaperTrade
-router.post("/tenxPlacingOrder", isAppLive, authentication, authoizeTrade.fundCheckTenxTrader,  async (req, res)=>{
+router.post("/tenxPlacingOrder", isAppLive, tradeChecks, authentication, authoizeTrade.fundCheckTenxTrader,  async (req, res)=>{
     MockTradeFunc.mockTrade(req, res)
 })
 
-router.post("/internPlacingOrder", isAppLive, authentication, authoizeTrade.fundCheckInternship,  async (req, res)=>{
+router.post("/internPlacingOrder", isAppLive, tradeChecks, authentication, authoizeTrade.fundCheckInternship,  async (req, res)=>{
     MockTradeFunc.mockTrade(req, res)
+})
+
+router.post("/stockorderplace", isAppLive, authentication, authoizeTrade.fundCheckStock,  async (req, res)=>{
+    req.body.stockTrade = true;
+    console.log("me vijay hu")
+    MockTradeFunc.mockTrade(req, res);
 })
 
 router.get("/switchRealToMock", authentication,  async (req, res)=>{
 
     await infinityTradeLive(res)
 })
+
 router.get("/switchRealToMockContest/:id", authentication,  async (req, res)=>{
 
     await contestTradeLive(req,res)
@@ -106,3 +113,4 @@ router.get("/switchRealToMockSingleUser/:userId", authentication,  async (req, r
 })
 
 module.exports = router;
+

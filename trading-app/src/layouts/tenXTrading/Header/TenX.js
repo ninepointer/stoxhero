@@ -2,21 +2,22 @@ import React, { useState, useEffect, useContext } from 'react';
 import ReactGA from "react-ga"
 import { CircularProgress, Divider, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
-import MDTypography from '../../../components/MDTypography';
+// import MDTypography from '../../../components/MDTypography';
 import MDButton from '../../../components/MDButton';
-import axios from "axios";
+// import axios from "axios";
 import SportsScoreIcon from '@mui/icons-material/SportsScore';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import { io } from 'socket.io-client';
-import { socketContext } from '../../../socketContext';
+// import { io } from 'socket.io-client';
+// import { socketContext } from '../../../socketContext';
 import AvailableTenXPlans from './availableTenXPlans';
 import SubscribedTenXPlans from './subscribedTenXPlans';
 import ExpiredTenXPlans from './expiredTenXPlans';
 import TenXLeaderboard from './TenXLeaderboard'
+import { userContext } from '../../../AuthContext';
 
 export default function LabTabs() {
     const [clicked, setClicked] = useState('live')
-  
+    const getDetails = useContext(userContext);
     useEffect(() => {
       ReactGA.pageview(window.location.pathname)
     }, []);
@@ -24,6 +25,9 @@ export default function LabTabs() {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleClick = (e) => {
+        window.webengage.track(`tenx_${e}_clicked`, {
+            user: getDetails?.userDetails?._id,
+        });
         setClicked(e)
       };
 
@@ -50,8 +54,8 @@ export default function LabTabs() {
                             </MDButton>
                         </Grid>
                         <Grid item xs={12} md={4} lg={3} display='flex' justifyContent='center'>
-                            <MDButton bgColor='dark' color={clicked == "upcoming" ? "warning" : "secondary"} size='small' style={{minWidth:'100%'}}
-                                onClick={()=>{handleClick("upcoming")}}
+                            <MDButton bgColor='dark' color={clicked == "subscribed" ? "warning" : "secondary"} size='small' style={{minWidth:'100%'}}
+                                onClick={()=>{handleClick("subscribed")}}
                             >
                                 <MDBox display='flex' justifyContent='center' alignItems='center'>
                                     <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
@@ -64,8 +68,8 @@ export default function LabTabs() {
                             </MDButton>
                         </Grid>
                         <Grid item xs={12} md={4} lg={3} display='flex' justifyContent='center'>
-                            <MDButton bgColor='dark' color={clicked == "completed" ? "warning" : "secondary"} size='small' style={{minWidth:'100%'}}
-                                onClick={()=>{handleClick("completed")}}
+                            <MDButton bgColor='dark' color={clicked == "expired" ? "warning" : "secondary"} size='small' style={{minWidth:'100%'}}
+                                onClick={()=>{handleClick("expired")}}
                             >
                                 <MDBox display='flex' justifyContent='center' alignItems='center'>
                                     <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
@@ -108,12 +112,12 @@ export default function LabTabs() {
                                 <AvailableTenXPlans setClicked={setClicked}/>
                             </>
                             :
-                            clicked === "upcoming" ?
+                            clicked === "subscribed" ?
                             <>
                                 <SubscribedTenXPlans setClicked={setClicked}/>
                             </>
                             :
-                            clicked === "completed" ?
+                            clicked === "expired" ?
                             <>
                                 <ExpiredTenXPlans setClicked={setClicked}/>
                             </>

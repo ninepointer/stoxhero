@@ -9,8 +9,8 @@ import axios from "axios";
 
 
 export default function SubscriptionPurchaseIntent({tenXSubscription, purchaseIntentCount, setPurchaseIntentCount}) {
-    console.log("Subscription", tenXSubscription)
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    // console.log("Subscription", tenXSubscription)
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [tenXSubsPurchaseIntent,setTenXSubsPurchaseIntent] = React.useState([]);
     async function getSubscriptionPurchaseIntent(){
         let call1 = axios.get(`${baseUrl}api/v1/tenx/subscriptionpurchaseintent/${tenXSubscription}`,{
@@ -47,6 +47,12 @@ export default function SubscriptionPurchaseIntent({tenXSubscription, purchaseIn
       ]
 
     let rows = []
+
+    tenXSubsPurchaseIntent?.sort((a, b)=>{
+      if(new Date(b.clicked_On) < new Date(a.clicked_On)) return -1;
+      else if(new Date(b.clicked_On) > new Date(a.clicked_On)) return 1;
+      else return 0;
+    })
 
   tenXSubsPurchaseIntent?.map((elem, index)=>{
   let featureObj = {}

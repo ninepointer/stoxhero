@@ -9,7 +9,7 @@ import { renderContext } from '../../../renderContext';
 
 const InternShipMargin = ({contestId, setyesterdayData}) => {
   const { netPnl, totalRunningLots, pnlData } = useContext(NetPnlContext);
-  const baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  const baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [fundDetail, setFundDetail] = useState({});
   const {render} = useContext(renderContext);
   const todayMargin = pnlData.reduce((total, acc) => {

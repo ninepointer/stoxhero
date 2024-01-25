@@ -23,7 +23,7 @@ import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 function ReferralHomePage() {
     const [referralProgram,setReferralProgram] = useState();
     const [totalUsers, setTotalUsers] = useState();
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     
     useEffect(()=>{
     
@@ -60,7 +60,7 @@ return (
     <MDBox>
         
         <MDBox>
-            <MDBox mb={1} display="flex" justifyContent="right">
+            <MDBox mb={1} mt={1} display="flex" justifyContent="right" gap={1}>
                 <MDButton 
                     variant="contained" 
                     color="success" 
@@ -69,6 +69,19 @@ return (
                     to='/referralprogramdetails'
                 >
                     Create Referral Program
+                </MDButton>
+
+                <MDButton 
+                    variant="contained" 
+                    color="warning" 
+                    size="small"
+                    component={Link}
+                    to={{
+                        pathname: `/referralprogramdetails`,
+                      }}
+                    state={{data: referralProgram}}
+                >
+                    Edit Referral Program
                 </MDButton>
             </MDBox>
         <Grid container spacing={1}>
@@ -133,13 +146,15 @@ return (
                 <MDBox>
                     <MDBox display="flex" justifyContent="center" flexDirection="column">
                         <MDTypography p={1} m={2} color="dark" borderRadius={1} fontSize={20} display="flex" backgroundColor="white!important" justifyContent="center">Active Referral Program</MDTypography>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={2}
+                     
+                        >
                             
                             <Grid item xs={12} md={6} lg={6}>
                                 <MDTypography p={1} ml={2} mr={2} color="light" fontSize={13} display="flex" justifyContent="center">Referral Program Name</MDTypography>
                             </Grid>
                             <Grid item xs={12} md={6} lg={6}>
-                                <MDTypography p={1} ml={2} mr={2} color="light" fontSize={13} style={{fontWeight:600}} display="flex" backgroundColor="grey!important" borderRadius={1} justifyContent="center">{referralProgram?.referrralProgramName}</MDTypography>
+                                <MDTypography p={1} ml={2} mr={2} color="light" fontSize={13} style={{fontWeight:600}} display="flex" backgroundColor="grey!important" borderRadius={1} justifyContent="center">{referralProgram?.referralProgramName}</MDTypography>
                             </Grid>
 
                             <Grid item xs={12} md={6} lg={6}>
@@ -177,19 +192,19 @@ return (
                                 <MDTypography p={1} ml={2} mr={2} color="light" fontSize={13} style={{fontWeight:600}} display="flex" backgroundColor="grey!important" borderRadius={1} justifyContent="center">{referralProgram?.status}</MDTypography>
                             </Grid>
 
-                            <Grid item xs={12} md={6} lg={6}>
+                            <Grid item xs={12} md={6} lg={6} mb={2}>
                                 <MDTypography p={1} ml={2} mr={2} color="light" fontSize={13} display="flex" justifyContent="center">Description</MDTypography>
                             </Grid>
                             <Grid item xs={12} md={6} lg={6}>
                                 <MDTypography p={1} ml={2} mr={2} color="light" fontSize={13} style={{fontWeight:600}} display="flex" backgroundColor="grey!important" borderRadius={1} minHeight={35} justifyContent="center">{referralProgram?.description}</MDTypography>
                             </Grid>
 
-                            <Grid item xs={12} md={6} lg={6} mb={2}>
+                            {/* <Grid item xs={12} md={6} lg={6} mb={2}>
                                 <MDTypography p={1} ml={2} mr={2} color="light" fontSize={13} display="flex" justifyContent="center">Terms & Conditions</MDTypography>
                             </Grid>
                             <Grid item xs={12} md={6} lg={6}>
                                 <MDTypography p={1} ml={2} mr={2} color="light" fontSize={13} style={{fontWeight:600}} display="flex" backgroundColor="grey!important" borderRadius={1} minHeight={35} justifyContent="center">{referralProgram?.termsAndContions}</MDTypography>
-                            </Grid>
+                            </Grid> */}
 
                         </Grid>
                     </MDBox>

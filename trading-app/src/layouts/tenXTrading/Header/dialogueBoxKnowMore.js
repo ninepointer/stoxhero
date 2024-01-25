@@ -10,14 +10,19 @@ import DialogTitle from '@mui/material/DialogTitle';
 import MDBox from '../../../components/MDBox';
 import { Grid } from '@mui/material'
 import MDTypography from '../../../components/MDTypography';
+import { userContext } from '../../../AuthContext';
 
 export default function MaxWidthDialog(subscription) {
   const [open, setOpen] = React.useState(false);
   const [fullWidth, setFullWidth] = React.useState(true);
   const [maxWidth, setMaxWidth] = React.useState('sm');
-  console.log("Subscription inside Dialognbox:",subscription?.subscription)
+  const getDetails = React.useContext(userContext);
+  // console.log("Subscription inside Dialognbox:",subscription?.subscription)
 
   const handleClickOpen = () => {
+    window.webengage.track('tenx_know_more_clicked', {
+      user: getDetails?.userDetails?._id,
+    });
     setOpen(true);
   };
 

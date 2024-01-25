@@ -78,7 +78,7 @@ const CareerForm = () => {
   })
 
   const [file, setFile] = useState(null);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const getContestDetails = async (name, date) => {
     try {
@@ -103,7 +103,9 @@ const CareerForm = () => {
       setColleges(res?.data?.data);
     }).catch((err)=>{
         return new Error(err)
-    }) 
+    })
+    window.webengage.track('testzone_registration_clicked', {
+    })
   },[])
 
   const [buttonClicked, setButtonClicked] = useState(false);
@@ -128,6 +130,14 @@ const CareerForm = () => {
       campaignCode,
       mobile_otp,
     } = detail;
+
+    window.webengage.track('dailycontest_confirmation_clicked', {
+      campaignCode: campaignCode,
+      referrerCode: referrerCode,
+      contest: contest,
+      mobile: mobile,
+      email: email
+    })
     if(!mobile_otp || !mobile){
       return openSuccessSB("Form Incomplete", "Please fill all the required fields", "Error");
     }

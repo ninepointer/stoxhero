@@ -12,7 +12,7 @@ import axios from "axios";
 export default function TenXSubscribers({tenXSubscription, subscriptionCount, setSubscriptionCount}) {
     
     setSubscriptionCount(tenXSubscription?.users?.length)
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [tenXSubsPurchaseIntent,setTenXSubsPurchaseIntent] = React.useState([]);
 
     function TruncatedName(name) {
@@ -41,7 +41,12 @@ export default function TenXSubscribers({tenXSubscription, subscriptionCount, se
       ]
 
     let rows = []
-
+    tenXSubscription?.users?.sort((a, b)=>{
+      if(new Date(b.subscribedOn) < new Date(a.subscribedOn)) return -1;
+      else if(new Date(b.subscribedOn) > new Date(a.subscribedOn)) return 1;
+      else return 0;
+    })
+  
     tenXSubscription?.users?.map((elem, index)=>{
   let featureObj = {}
   featureObj.index = (

@@ -9,15 +9,17 @@ import MDSnackbar from "../../../../components/MDSnackbar";
 import WinnerImage from '../../../../assets/images/cup-image.png'
 import { Link, useNavigate } from "react-router-dom";
 import RewardTable from "../rulesAndRewardTable";
+import { userContext } from "../../../../AuthContext";
 
 
 
 function Header({ contest }) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [serverTime, setServerTime] = useState();
     const [loading, setIsLoading] = useState(true);
     let [pnlData, setPnlData] = useState([]);
     const navigate = useNavigate();
+    const getDetails = useContext(userContext);
 
     useEffect(() => {
         if (serverTime) {
@@ -83,7 +85,10 @@ function Header({ contest }) {
     }
 
     async function handleNavigate(id, name) {
-
+        window.webengage.track('testzone_order_in_completed_clicked', {
+            user: getDetails?.userDetails?._id,
+            contestId: id
+        })
         axios.get(`${baseUrl}api/v1/dailycontest/trade/${id}/my/todayorders`, {
             withCredentials: true,
             headers: {
@@ -106,7 +111,10 @@ function Header({ contest }) {
     }
 
     async function handleLeaderboardNavigate(id, name) {
-
+        window.webengage.track('testzone_leaderboard_in_completed_clicked', {
+            user: getDetails?.userDetails?._id,
+            contestId: id
+        })
         axios.get(`${baseUrl}api/v1/dailycontest/contestleaderboard/${id}`, {
             withCredentials: true,
             headers: {

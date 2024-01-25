@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import MDBox from '../../../components/MDBox';
 import { ThemeProvider } from 'styled-components';
 import Navbar from '../components/Navbars/Navbar';
@@ -9,6 +9,10 @@ import ComingSoon from "../../../assets/images/ComingSoon.png"
 
 export default function Calculator() {
 
+  useEffect(()=>{
+    window.webengage.track('calculator_clicked', {
+    })
+  },[])
 
   return (
     <>

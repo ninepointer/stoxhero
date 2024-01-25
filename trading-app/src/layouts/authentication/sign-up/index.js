@@ -101,6 +101,7 @@ function Cover(props) {
   };
   const handleSIClick = () => {
     // Set the state to true when the link is clicked
+    window.webengage.track('signup_clicked', {});
     setSignup(true);
   };
 
@@ -112,7 +113,7 @@ function Cover(props) {
     referrerCode:"",
     mobile_otp:"",
   });
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   
   useEffect(()=>{
     setformstate(prevState => ({...prevState, referrerCode: referrerCodeString}));
@@ -226,6 +227,7 @@ function Cover(props) {
 const [buttonClicked, setButtonClicked] = useState(false);
   async function otpConfirmation() {
     // console.log(formstate.email_otp)
+    window.webengage.track('signup_confirmation_clicked', {});
     setButtonClicked(true);
     const res = await fetch(`${baseUrl}api/v1/verifyotp`, {
 
@@ -250,6 +252,19 @@ const [buttonClicked, setButtonClicked] = useState(false);
       setDetails.setUserDetail(data.data);
       setShowConfirmation(false);
       const userData = await userDetail();
+      window.webengage.user.login(userData?._id?.toString());
+      window.webengage.user.setAttribute('user_email', userData?.email);
+      window.webengage.user.setAttribute('user_mobile', `+91${userData?.mobile.slice(-10)}`);
+      window.webengage.user.setAttribute('user_first_name', userData?.first_name);
+      window.webengage.user.setAttribute('user_last_name', userData?.last_name);
+      window.webengage.user.setAttribute('user_dob', userData?.dob);
+      window.webengage.user.setAttribute('user_gender', userData?.gender);
+      window.webengage.user.setAttribute('user_city', userData?.city);
+      window.webengage.user.setAttribute('user_state', userData?.state);
+      window.webengage.user.setAttribute('user_joining_date', userData?.joining_date);
+      window.webengage.user.setAttribute('user_kyc_status', userData?.KYCStatus);
+      window.webengage.user.setAttribute('user_role', userData?.role?.roleName);
+
       if(userData?.role?.roleName === adminRole){
         const from = location.state?.from || "/tenxdashboard";
         navigate(from);
@@ -277,10 +292,10 @@ const [buttonClicked, setButtonClicked] = useState(false);
   }
 
   const resendOTP = async (type) => {
-    
+    setButtonClicked(false);
       setTimerActive(true);
       setResendTimer(30);
-    
+      window.webengage.track('resend_otp_signup', {});
     const res = await fetch(`${baseUrl}api/v1/resendotp`, {
       
       method: "PATCH",
@@ -377,6 +392,19 @@ const [buttonClicked, setButtonClicked] = useState(false);
               setInvalidDetail(data.message);
           }else{
             let userData = await userDetail();
+            window.webengage.user.login(userData?._id?.toString());
+            window.webengage.user.setAttribute('user_email', userData?.email);
+            window.webengage.user.setAttribute('user_mobile', `+91${userData?.mobile.slice(-10)}`);
+            window.webengage.user.setAttribute('user_first_name', userData?.first_name);
+            window.webengage.user.setAttribute('user_last_name', userData?.last_name);
+            window.webengage.user.setAttribute('user_dob', userData?.dob);
+            window.webengage.user.setAttribute('user_gender', userData?.gender);
+            window.webengage.user.setAttribute('user_city', userData?.city);
+            window.webengage.user.setAttribute('user_state', userData?.state);
+            window.webengage.user.setAttribute('user_joining_date', userData?.joining_date);
+            window.webengage.user.setAttribute('user_kyc_status', userData?.KYCStatus);
+            window.webengage.user.setAttribute('user_role', userData?.role?.roleName);
+      
             if(userData?.role?.roleName === adminRole){
               const from = location.state?.from || "/tenxdashboard";
               navigate(from);
@@ -400,6 +428,7 @@ const [buttonClicked, setButtonClicked] = useState(false);
     setTimerActiveSi(true);
     // console.log("Active timer set to true")
     setResendTimerSi(30);
+    window.webengage.track('resend_otp_login', {});
     try{
         const res = await fetch(`${baseUrl}api/v1/resendmobileotp`, {
           

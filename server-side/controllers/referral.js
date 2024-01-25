@@ -3,6 +3,8 @@ const User = require('../models/User/userDetailSchema');
 const {client, getValue} = require('../marketData/redisClient');
 const {ObjectId} = require('mongodb');
 const AffiliateTransaction = require('../models/affiliateProgram/affiliateTransactions');
+const mongoose = require('mongoose');
+
 
 const filterObj = (obj, ...allowedFields) => {
     const newObj = {};
@@ -18,7 +20,7 @@ exports.createReferral = async(req, res, next)=>{
     // console.log(req.body);
     const{referralSignupBonus, referralProgramName, referralProgramStartDate, 
         referralProgramEndDate, rewardPerReferral, currency,
-        description, status
+        description, status, affiliateDetails
     } = req.body;
 
     if(await Referral.findOne({referralProgramName:referralProgramName})) return res.status(400).json({message:'This referral already exists.'});
@@ -27,7 +29,7 @@ exports.createReferral = async(req, res, next)=>{
       return res.status(400).json({status: 'error',message:'There is a referral program that is active in the same time.'});
     }
     const referral = await Referral.create({referralProgramName: referralProgramName.trim(), referralProgramStartDate, 
-        referralProgramEndDate, rewardPerReferral, currency, 
+        referralProgramEndDate, rewardPerReferral, currency, affiliateDetails,
         description, lastModifiedOn: new Date(), referralSignupBonus,
         status, createdBy: req.user._id, lastModifiedBy: req.user._id});
     
@@ -75,42 +77,72 @@ exports.getReferralName = async(req, res, next)=>{
 };
 
 exports.editReferral = async(req, res, next) => {
-    try{ 
-        // const {referrralProgramName} = req.params
-        const {status, referralProgramEndDate, referrralProgramName} = req.body
-        // console.log(req.body);
-        // const {isAddedWatchlist} = req.body;
-        // const {_id} = req.user;
-        // console.log("in removing", instrumentToken, _id);
-        // const user = await User.findOne({_id: _id});
-        // const editReferral = await Referral.findOne({referrralProgramName : referrralProgramName})
-        // let index = user.watchlistInstruments.indexOf(removeFromWatchlist._id); // find the index of 3 in the array
-        // console.log("index", index)
-        // if (index !== -1) {
-        //     user.watchlistInstruments.splice(index, 1); // remove the element at the index
-        //     try{
-        //      const redisClient = await client.LREM((_id).toString(), 1, (instrumentToken).toString());
+    // try{ 
+    //     // const {referrralProgramName} = req.params
+    //     const {status, referralProgramEndDate, referrralProgramName} = req.body
+    //     // console.log(req.body);
+    //     // const {isAddedWatchlist} = req.body;
+    //     // const {_id} = req.user;
+    //     // console.log("in removing", instrumentToken, _id);
+    //     // const user = await User.findOne({_id: _id});
+    //     // const editReferral = await Referral.findOne({referrralProgramName : referrralProgramName})
+    //     // let index = user.watchlistInstruments.indexOf(removeFromWatchlist._id); // find the index of 3 in the array
+    //     // console.log("index", index)
+    //     // if (index !== -1) {
+    //     //     user.watchlistInstruments.splice(index, 1); // remove the element at the index
+    //     //     try{
+    //     //      const redisClient = await client.LREM((_id).toString(), 1, (instrumentToken).toString());
 
-        //     } catch(err){
-        //         console.log(err)
-        //     }
-        //     // client.LREM(_id, 1, instrumentToken);
-        // }
+    //     //     } catch(err){
+    //     //         console.log(err)
+    //     //     }
+    //     //     // client.LREM(_id, 1, instrumentToken);
+    //     // }
 
-        const editReferral = await Referral.findOneAndUpdate({referrralProgramName : referrralProgramName}, {
-            $set:{ 
-                status: status,
-                referralProgramEndDate: referralProgramEndDate
-            }
+    //     const editReferral = await Referral.findOneAndUpdate({referrralProgramName : referrralProgramName}, {
+    //         $set:{ 
+    //             status: status,
+    //             referralProgramEndDate: referralProgramEndDate
+    //         }
             
-        })
-        // console.log("removing", editReferral);
-        // res.send(inactiveInstrument)
-        res.status(201).json({message : "programme edited succesfully"});
-    } catch (e){
-        console.log(e)
-        res.status(500).json({error:"Failed to edit data"});
-    }
+    //     })
+    //     // console.log("removing", editReferral);
+    //     // res.send(inactiveInstrument)
+    //     res.status(201).json({message : "programme edited succesfully"});
+    // } catch (e){
+    //     console.log(e)
+    //     res.status(500).json({error:"Failed to edit data"});
+    // }
+
+
+    try {
+      const { id } = req.params; // ID of the contest to edit
+      const updates = req.body;
+
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+          return res.status(400).json({ status: "error", message: "Invalid ID" });
+      }
+      updates.lastModifiedBy = req.user._id;
+      updates.lastModifiedOn = new Date();
+      const result = await Referral.findByIdAndUpdate(id, updates, { new: true });
+
+      if (!result) {
+          return res.status(404).json({ status: "error", message: "Referral not found" });
+      }
+
+      res.status(200).json({
+          status: 'success',
+          message: "Referral updated successfully",
+      });
+  } catch (error) {
+    console.log(error)
+      res.status(500).json({
+          status: 'error',
+          message: "Error in updating TestZone",
+          error: error.message
+      });
+  }
 }
 
 exports.editReferralWithId = async(req, res, next) => {
@@ -270,6 +302,7 @@ exports.getReferredProduct = async (req, res) => {
                   affiliate: new ObjectId(
                     userId
                   ),
+                  product: {$ne: new ObjectId("6586e95dcbc91543c3b6c181")}
                 },
               },
               {
@@ -323,6 +356,7 @@ exports.getReferredProduct = async (req, res) => {
                   affiliate: new ObjectId(
                     userId
                   ),
+                  product: {$ne: new ObjectId("6586e95dcbc91543c3b6c181")}
                 },
               },
               {

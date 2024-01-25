@@ -90,6 +90,7 @@ const App = (props) => {
     college: "",
     collegeName: "",
     course: "",
+    newCourse: "",
     passingoutyear: "",
     linkedInProfileLink: "",
     priorTradingExperience: "",
@@ -123,8 +124,12 @@ const App = (props) => {
       career,
       campaignCode,
       mobile_otp,
+      newCourse
     } = detail;
     
+    window.webengage.track('career_confirmation_clicked', {
+      career_id: career 
+    })
     const res = await fetch(`${apiUrl}career/confirmotp`, {
       method: "POST",
       // credentials:"include",
@@ -139,7 +144,7 @@ const App = (props) => {
         mobile:mobile, 
         collegeName: collegeName,
         college: college,
-        course: course,
+        course: course !== "Others" ? course : newCourse,
         passingoutyear: passingoutyear,
         linkedInProfileLink: linkedInProfileLink,
         source:source,
@@ -184,6 +189,7 @@ const App = (props) => {
       source,
       career,
       campaignCode,
+      newCourse
     } = detail;
     console.log("Form:",detail)
       if(!firstName || !lastName || !email || !mobile || !dob || !gender || !college || !collegeName || !course || !passingoutyear || !linkedInProfileLink || !priorTradingExperience || !source){
@@ -217,7 +223,7 @@ const App = (props) => {
         mobile:mobile, 
         college: college,
         collegeName: collegeName,
-        course: course,
+        course: course !== "Others" ? course : newCourse,
         passingoutyear: passingoutyear,
         linkedInProfileLink: linkedInProfileLink,
         source:source,
@@ -470,6 +476,19 @@ const App = (props) => {
                           </FormControl>
                         </Grid>
 
+                        {detail?.course === "Others" &&
+                        <Grid item xs={12} md={6} xl={6} p={1}>
+                          <TextField
+                              // required
+                              disabled={otpGenerated}
+                              id="outlined-required"
+                              label="Enter your course"
+                              type="text"
+                              fullWidth
+                              onChange={(e)=>{setDetails(prevState => ({...prevState, newCourse: e.target.value}))}}
+                            />
+                        </Grid>}
+
                         <Grid item xs={12} md={6} xl={6} p={1}>
                           <TextField
                               // required
@@ -483,7 +502,7 @@ const App = (props) => {
                         </Grid>
 
                         <Grid item xs={12} md={12} xl={6} p={1}>
-                        <Autocomplete
+                          <Autocomplete
                             id="asynchronous-demo"
                             sx={{ width: '100%', height: '100%' }}
                             open={open}
@@ -503,7 +522,7 @@ const App = (props) => {
                                 label="College Name *"
                                 InputProps={{
                                   ...params.InputProps,
-                                  style: { height: '43px', alignItems:'center', alignContent:'center' }, // Adjust the height as needed
+                                  style: { height: '43px', alignItems: 'center', alignContent: 'center' }, // Adjust the height as needed
                                   endAdornment: (
                                     <React.Fragment>
                                       {loading ? <CircularProgress color="inherit" size={15} /> : null}
@@ -614,9 +633,9 @@ const App = (props) => {
                           <MDButton 
                             onClick={()=>{confirmOTP()}} 
                             variant="gradient" 
-                            color="warning"
+                            // color="warning"
                             disabled={creating || buttonClicked} 
-                            style={{width:'90%'}}
+                            style={{backgroundColor:'#65BA0D', color:'white',width:'90%'}}
                           >
                           {creating ? 
                             <CircularProgress size={20} color="inherit" /> : "Register & Apply"

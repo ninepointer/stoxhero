@@ -1,5 +1,6 @@
 const User = require('../models/User/userDetailSchema');
 const sendMail = require('../utils/emailService');
+const {generateAadhaarOtp, verifyAadhaarOtp, verifyPan, verifyBankAccount} = require('../utils/kycService');
 const {sendMultiNotifications} = require('../utils/fcmService');
 const Settings = require('../models/settings/setting');
 
@@ -87,17 +88,20 @@ exports.uploadToS3 = async(req, res, next) => {
 
 
 exports.getAllPendingApprovalKYC = async (req, res, next) => {
-    const pendingKYCUsers = await User.find({KYCStatus:'Pending Approval'});
+    const pendingKYCUsers = await User.find({KYCStatus:'Pending Approval'})
+    .sort({KYCActionDate: -1})
     res.status(200).json({status:'success', data: pendingKYCUsers, results: pendingKYCUsers.length})
 }
 
 exports.getApporvedKYC = async (req,res,next) => {
     const approvedKYCs = await User.find({KYCStatus:'Approved'})
+    .sort({KYCActionDate: -1})
     res.status(200).json({status:'success', data: approvedKYCs, results: approvedKYCs.length})
 }
 
 exports.getRejectedKYCS = async (req,res,next) => {
     const rejectedKYCS = await User.find({KYCStatus:'Rejected'})
+    .sort({KYCActionDate: -1})
     res.status(200).json({status:'success', data: rejectedKYCS, results: rejectedKYCS.length})
 }
 
@@ -339,4 +343,56 @@ exports.rejectKYC = async(req,res,next) => {
 
     res.status(200).json({status:'success', message:'KYC Rejected'});
 
+}
+
+exports.generateOtp = async(req,res) => {
+  const {aadhaarNumber} = req.body;
+  console.log('aadhaar otp req');
+  try{
+    const client_id = await generateAadhaarOtp(aadhaarNumber);
+    res.status(200).json({status:'success', data:client_id});  
+  }catch(e){
+    console.log(e);
+    const statusCode = e?.statusCode || 500;
+    // res.status(500).json({status:'error', message:'Something went wrong', error:e.message});
+    res.status(statusCode).json({ status: 'error', message: e?.message });
+  }
+}
+
+exports.verifyOtp = async(req,res) =>{
+  const{client_id, otp, panNumber, bankAccountNumber, ifsc} = req.body;
+  console.log(req.body);
+  try{
+    const aadhaarData =  await verifyAadhaarOtp(client_id, otp);
+    console.log('aadhaar data', aadhaarData);
+    const panData = await verifyPan(panNumber);
+    console.log('pan data', panData);
+    const bankAccountData = await verifyBankAccount(bankAccountNumber, ifsc);
+    console.log('bank account data', bankAccountData);
+    const user = await User.findById(req?.user?._id);
+    if (
+      aadhaarData?.full_name?.trim()?.toLowerCase() === panData?.full_name?.trim()?.toLowerCase() &&
+      panData?.full_name?.trim()?.toLowerCase() === bankAccountData?.full_name?.trim()?.toLowerCase()
+    ){
+      user.KYCStatus = 'Approved';
+      user.KYCActionDate = new Date();
+      user.full_name = aadhaarData?.full_name;
+      user.aadhaarNumber = aadhaarData?.aadhaar_number;
+      user.panNumber = panData?.pan_number;
+      user.accountNumber =bankAccountNumber;
+      user.ifscCode = ifsc;
+      await user.save({validateBeforeSave:false});
+      res.status(200).json({status:'success', message:'KYC Approved'});
+    }else{
+      user.KYCStatus = 'Rejected';
+      user.KYCRejectionReason = 'Aadhaar PAN and Bank Account Names don\'t match'
+      await user.save({validateBeforeSave:false});
+      res.status(400).json({status:'error', message:'KYC Rejected as Aadhaar PAN and Bank Account Names don\'t match'});
+    }
+  }catch(e){
+    console.log(e);
+    const statusCode = e?.statusCode || 500;
+    // res.status(500).json({status:'error', message:'Something went wrong', error:e.message});
+    res.status(statusCode).json({ status: 'error', message: e?.message });
+  }
 }

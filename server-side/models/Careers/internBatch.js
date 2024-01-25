@@ -62,7 +62,9 @@ const batchSchema = new mongoose.Schema({
         npnl: Number,
         noOfTrade: Number,
         tdsAmount: Number,
-        herocashPayout: Number
+        herocashPayout: Number,
+        consolationBonus: Number,
+        consolationCurrency: String
     }],
     batchStatus:{
         type:String,
@@ -81,7 +83,8 @@ const batchSchema = new mongoose.Schema({
     },
     consolationReward: {
         currency: String,
-        amount: Number
+        amount: Number,
+        minAttendance: Number
     },
     batchID:{
         type:String,

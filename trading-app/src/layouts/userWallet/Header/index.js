@@ -26,8 +26,8 @@ import { apiUrl } from '../../../constants/constants';
 import AddMoney from './addMoneyPopup';
 
 export default function Wallet() {
-  let name = 'Prateek Pawan'
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
+  let name = 'Image'
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const [photo, setPhoto] = useState(DefaultProfilePic)
   const [myWallet, setMyWallet] = useState([]);
   const [mywithdrawals, setMyWithdrawals] = useState([]);
@@ -291,7 +291,11 @@ export default function Wallet() {
                     <MDTypography ml={1} color="light" fontSize={12} fontWeight="bold">Wallet Balance</MDTypography>
                   </Grid>
                   <Grid item xs={3} md={6} lg={4} display="flex" justifyContent="center" alignItems="center"><MDTypography color="light" fontSize={12} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(totalCashAmount ? totalCashAmount : 0)}</MDTypography></Grid>
-                  <Grid item xs={3} md={6} lg={4} display="flex" justifyContent="center" alignItems="center"><MDButton size="small" style={{ width: '95%' }} onClick={() => { handleOpen() }}>Withdraw</MDButton></Grid>
+                  <Grid item xs={3} md={6} lg={4} display="flex" justifyContent="center" alignItems="center"><MDButton size="small" style={{ width: '95%' }} onClick={() => { 
+                     window.webengage.track('wallet_withdraw_clicked', {
+                      user: getDetails?.userDetails?._id,
+                    });
+                    handleOpen() }}>Withdraw</MDButton></Grid>
                 </Grid>
 
                 <Grid item xs={12} md={6} lg={12} mr={1} style={{ maxWidth: '100vw' }}>
@@ -304,7 +308,11 @@ export default function Wallet() {
                     <MDTypography ml={1} color="light" fontSize={12} fontWeight="bold">HeroCash</MDTypography>
                   </Grid>
                   <Grid item xs={3} md={6} lg={4} display="flex" justifyContent="center" alignItems="center"><MDTypography color="light" fontSize={12} fontWeight="bold">🌟{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(totalBonusAmount ? totalBonusAmount : 0)}</MDTypography></Grid>
-                  <Grid item xs={3} md={6} lg={4} display="flex" justifyContent="center" alignItems="center"><MDButton size="small" style={{ width: '95%' }}>Redeem</MDButton></Grid>
+                  <Grid item xs={3} md={6} lg={4} display="flex" justifyContent="center" alignItems="center"><MDButton size="small" style={{ width: '95%' }} onClick={()=>{
+                        window.webengage.track('wallet_redeem_herocash_clicked', {
+                          user: getDetails?.userDetails?._id,
+                        });
+                  }}>Redeem</MDButton></Grid>
                 </Grid>
 
                 <Grid item xs={12} md={6} lg={12} mr={1} style={{ maxWidth: '100vw' }}>

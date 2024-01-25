@@ -39,8 +39,8 @@ function Header({ children }) {
   const [userDetail,setuserDetail] = useState([]);
   const [profilePhoto,setProfilePhoto] = useState(DefaultProfilePic);
   const getDetails = useContext(userContext);
-  console.log("getDetails", getDetails)
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  // console.log("getDetails", getDetails)
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
  useEffect(()=>{
        axios.get(`${baseUrl}api/v1/readparticularuserdetails/${getDetails.userDetails.email}`, {withCredentials:true})
@@ -148,30 +148,28 @@ function Header({ children }) {
                     </Icon>
                   }
                 />
-                <Tab
+                {/* <Tab
                   label="Message"
                   icon={
                     <Icon fontSize="small" sx={{ mt: -0.25 }}>
                       email
                     </Icon>
                   }
-                />
-                <Tab
+                /> */}
+                {/* <Tab
                   label="Settings"
                   icon={
                     <Icon fontSize="small" sx={{ mt: -0.25 }}>
                       settings
                     </Icon>
                   }
-                />
+                /> */}
               </Tabs>
             </AppBar>
 
             <TabPanel value={tabValue} index={0}><MyProfile profilePhoto={profilePhoto} setProfilePhoto={setProfilePhoto}/> </TabPanel>
-            <TabPanel value={tabValue} index={1}><Messages /> </TabPanel>
-            <TabPanel value={tabValue} index={2}><Settings /> </TabPanel>
-            {/* <TabPanel value={tabValue} index={3}><TraderMatrix /> </TabPanel> */}
-            {/* <TabPanel value={tabValue} index={4}><BatchWiseTradersHeatMap /> </TabPanel> */}
+            {/* <TabPanel value={tabValue} index={1}><Messages /> </TabPanel>
+            <TabPanel value={tabValue} index={2}><Settings /> </TabPanel> */}
 
           </Grid>
         </Grid>

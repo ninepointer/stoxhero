@@ -30,7 +30,7 @@ import RewardTable from "../../UserDailyContest/Header/rulesAndRewardTable";
 // import axios from "axios";
 
 function Header({toggleContest, setToggleContest, contest, socket, setIsInterested, showPay, setShowPay }) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     // const [contest, setContest] = useState([]);
     // const [isInterested, setIsInterested] = useState(false);
     const [timeDifference, setTimeDifference] = useState([]);
@@ -68,6 +68,10 @@ function Header({toggleContest, setToggleContest, contest, socket, setIsInterest
     const [isInterestedState, setIsInterestedState] = useState(initialInterestedCounts);
 
     const handleCopy = async (id) => {
+        window.webengage.track('college_testzone_share_clicked_in_free', {
+            user: getDetails?.userDetails?._id,
+            contestId: id
+        })
         let text = 'https://stoxhero.com/testzone'
         const textarea = document.createElement('textarea');
         textarea.value = text;

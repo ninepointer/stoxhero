@@ -44,7 +44,7 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
   const [exitState, setExitState] = useState(false);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [tradeData, setTradeData] = useState([]);
   const countPosition = {
     openPosition: 0,
@@ -270,6 +270,9 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
   })
 
   const handleBuyClick = (index) => {
+    window.webengage.track('buy_clicked_from_position', {
+      user: getDetails?.userDetails?._id
+    })
     setBuyState(true)
     const newRows = [...rows];
     newRows[index].sellState = true;
@@ -277,6 +280,9 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
   };
 
   const handleExitClick = (index) => {
+    window.webengage.track('exit_clicked_from_position', {
+      user: getDetails?.userDetails?._id
+    })
     setExitState(true)
     const newRows = [...rows];
     newRows[index].sellState = true;
@@ -284,6 +290,9 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
   };
 
   const handleSellClick = (index) => {
+    window.webengage.track('sell_clicked_from_position', {
+      user: getDetails?.userDetails?._id
+    })
     setSellState(true)
     const newRows = [...rows];
     newRows[index].sellState = true;

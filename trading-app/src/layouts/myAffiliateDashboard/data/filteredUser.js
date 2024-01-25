@@ -47,7 +47,7 @@ export default function FilteredUsers({ setFilteredUsers }) {
   //   mobile:''
   // });
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const CustomTextField = withStyles({
     root: {
@@ -110,7 +110,7 @@ export default function FilteredUsers({ setFilteredUsers }) {
   const handleAffiliateChange = (e) => {
     const affiliateId = e.target.value;
     const selectedAffiliate = affiliate.filter(elem => elem?._id == affiliateId);
-    console.log('selected', selectedAffiliate[0], affiliateId);
+    // console.log('selected', selectedAffiliate[0], affiliateId);
     setSelectedTab((prev) => {
       return {
         ...prev,
@@ -120,7 +120,7 @@ export default function FilteredUsers({ setFilteredUsers }) {
         },
       }
     });
-    console.log('selected tab', selectedTab);
+    // console.log('selected tab', selectedTab);
 
   }
 
@@ -131,7 +131,7 @@ export default function FilteredUsers({ setFilteredUsers }) {
     // } else{
     //   value = true;
     // }
-    console.log("value", value)
+    // console.log("value", value)
     setSelectedTab(prevState => ({
       ...prevState,
       isLifetime: value

@@ -54,7 +54,7 @@ const referralProgramSchema = new mongoose.Schema({
     status:{
         type:String,
         required: true,
-        enum: ['Active','Paused','Completed']
+        enum: ['Active','Inactive']
     },
     createdOn:{
         type: Date,

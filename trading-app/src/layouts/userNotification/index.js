@@ -5,11 +5,15 @@ import ReactGA from "react-ga"
 import React, { useEffect, useContext, useState} from "react";
 
 import Header from "./Header";
+import { userContext } from "../../AuthContext";
 
 function Tables() {
-  
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
+  const getDetails = useContext(userContext);
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   useEffect(() => {
+    window.webengage.track('notification_clicked', {
+      user: getDetails?.userDetails?._id,
+    });
     ReactGA.pageview(window.location.pathname)
     capturePageView()
   }, []);

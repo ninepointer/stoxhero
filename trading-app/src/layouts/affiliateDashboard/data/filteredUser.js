@@ -3,7 +3,7 @@ import axios from "axios";
 import { Checkbox, CircularProgress, FormControlLabel, FormGroup, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 // import MDTypography from '../../../components/MDTypography';
-// import MDAvatar from '../../../components/MDAvatar';
+import MDSnackbar from '../../../components/MDSnackbar';
 // import todaysignup from '../../../assets/images/todaysignup.png'
 // import netpnlicon from '../../../assets/images/netpnlicon.png'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -38,9 +38,54 @@ export default function FilteredUsers({ setFilteredUsers }) {
   const [startDate, setStartDate] = React.useState(dayjs(lastMonth));
 
   const [endDate, setEndDate] = React.useState(dayjs(date));
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+
+  const [successSB, setSuccessSB] = useState(false);
+  const openSuccessSB = (title, content) => {
+    setTitle(title)
+    setContent(content)
+    setSuccessSB(true);
+  }
+  const closeSuccessSB = () => setSuccessSB(false);
 
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  const renderSuccessSB = (
+    <MDSnackbar
+      color="success"
+      icon="check"
+      title={title}
+      content={content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite="info"
+    />
+  );
+
+  const [errorSB, setErrorSB] = useState(false);
+  const openErrorSB = (title, content) => {
+    setTitle(title)
+    setContent(content)
+    setErrorSB(true);
+  }
+  const closeErrorSB = () => setErrorSB(false);
+
+  const renderErrorSB = (
+    <MDSnackbar
+      color="error"
+      icon="warning"
+      title={title}
+      content={content}
+      open={errorSB}
+      onClose={closeErrorSB}
+      close={closeErrorSB}
+      bgWhite
+    />
+  );
+
+
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const CustomTextField = withStyles({
     root: {
@@ -84,9 +129,11 @@ export default function FilteredUsers({ setFilteredUsers }) {
 
 
   async function handleShowDetails(startDate, endDate, programe, lifetime) {
+    if(new Date(startDate) > new Date(endDate)){
+      return openErrorSB('Invalid date range', 'Start date is greater than end date');
+    }
     setFilteredUsers([]);
     try {
-
       const res = await axios.get(`${apiUrl}affiliate/leaderboard?programme=${programe}&startDate=${startDate}&endDate=${endDate}&lifetime=${lifetime} `, { withCredentials: true });
       if (res.status == 200) {
         setFilteredUsers(res.data.data);
@@ -189,10 +236,10 @@ export default function FilteredUsers({ setFilteredUsers }) {
               <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                 <CustomTextField
                   select
-                  label="Affiliate Type"
+                  label="Affiliate Programe"
                   value={selectedTab?.affiliate?.id}
                   minHeight="6em"
-                  placeholder="Affiliate Type"
+                  placeholder="Affiliate Programe"
                   variant="outlined"
                   sx={{ width: "250px" }}
                   onChange={(e) => { handleAffiliateChange(e) }}
@@ -209,7 +256,7 @@ export default function FilteredUsers({ setFilteredUsers }) {
                 >
                   {affiliate?.map((option) => (
                     <MenuItem key={option?._id} value={option?._id} minHeight="4em" width='300px'>
-                      {option?.affiliateType}
+                      {option?.affiliateProgramName}
                     </MenuItem>
                   ))}
                   <MenuItem value={"Cummulative"} minHeight="4em" width='300px'>
@@ -227,6 +274,8 @@ export default function FilteredUsers({ setFilteredUsers }) {
 
           </Grid>
         </MDBox>
+        {renderSuccessSB}
+      {renderErrorSB}
       </Grid>
     </>
   );

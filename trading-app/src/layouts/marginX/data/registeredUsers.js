@@ -22,6 +22,11 @@ export default function RegisteredUsers({ marginx }) {
 
   let rows = []
 
+  marginx?.participants?.sort((a, b)=>{
+    if(new Date(b.boughtAt) < new Date(a.boughtAt)) return -1;
+    else if(new Date(b.boughtAt) > new Date(a.boughtAt)) return 1;
+    else return 0;
+  })
 
   marginx?.participants?.map((elem, index) => {
 

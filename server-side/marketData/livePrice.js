@@ -119,6 +119,7 @@ router.get("/getIndexliveprice", async (req, res)=>{
             obj.instrument_token = response.data.data[instrument].instrument_token;
             obj.average_price = response.data.data[instrument].last_price;
             obj.timestamp = new Date();
+            obj.ohlc = response.data.data[instrument].ohlc;
             obj.change = (response.data.data[instrument].last_price - response.data.data[instrument].ohlc.close)*100/response.data.data[instrument].ohlc.close;
             arr.push(obj);
         }

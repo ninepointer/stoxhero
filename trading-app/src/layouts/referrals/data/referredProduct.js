@@ -49,7 +49,7 @@ function ReferralProduct({ setAffiliateSummery }) {
     const [data, setData] = useState([]);
     const [transaction, setTransaction] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const perPage = 4;
+    const perPage = 5;
 
     useEffect(() => {
 

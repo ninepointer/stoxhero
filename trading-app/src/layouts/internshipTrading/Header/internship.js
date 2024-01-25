@@ -64,7 +64,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
   const [activeTenXSubs,setActiveTenXSubs] = useState([]);
   const [holiday, setHoliday] = useState();
   // const getDetails = React.useContext(userContext);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   function calculateWorkingDays(startDate, endDate) {
     const start = moment(startDate);
@@ -95,6 +95,9 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
     return workingDays;
   }
   const handleDownload = async (id) => {
+    window.webengage.track('internship_certificate_download_clicked', {
+      user: getDetails?.userDetails?._id,
+    });
     try {
       const response = await axios.get(`${baseUrl}api/v1/internbatch/download/${id}`, {
         responseType: 'blob',
@@ -474,6 +477,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
         </MDTypography>
         <MDTypography fontSize = {12}>1. As part of the internship program, you will receive a stipend calculated at {currentBatch ? currentBatch?.payoutPercentage + '%' : 'certain %'} of the net profit and loss (P&L) for the duration of your internship.</MDTypography>
         <MDTypography fontSize = {12}>2. Upon completion of your internship, you will be awarded an internship certificate from StoxHero.</MDTypography>
+        {/* <MDTypography fontSize = {12}>3. Upon successful completion of the internship with at least {currentBatch ? currentBatch?.consolationReward?.minAttendance : 80}% attendance, you will receive a participation bonus of {currentBatch?.consolationReward?.currency==="Cash" ? "₹"+ (currentBatch ? currentBatch?.consolationReward?.amount : 0) : (currentBatch ? currentBatch?.consolationReward?.amount : 0)+" HeroCash"}.</MDTypography> */}
         <MDTypography></MDTypography>
         <MDTypography fontSize={15} fontWeight='bold' color="dark">
           Internship Completion Rules and Issuance of Internship Certificate
@@ -539,7 +543,11 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
                         variant="contained" 
                         color="info" 
                         sx={{width: "60%", height: "20px", fontSize: "500x" , margin: '0 20%'}} 
-                        onClick={()=>{navigate(`/orders`)}} size='small'
+                        onClick={()=>{
+                          window.webengage.track('internship_order_clicked', {
+                            user: getDetails?.userDetails?._id,
+                          });
+                          navigate(`/orders`)}} size='small'
                       >
                         View Orders
                       </MDButton>
@@ -549,7 +557,11 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
                       variant="contained" 
                       color="info" 
                       sx={{width: "60%", height: "20px", fontSize: "500x" , margin: '0 20%'}} 
-                      onClick={()=>{navigate(`/internship/trade`, { state: { batchId: batchId } })}} size='small'
+                      onClick={()=>{
+                        window.webengage.track('internship_start_trading_clicked', {
+                          user: getDetails?.userDetails?._id,
+                        });
+                        navigate(`/internship/trade`, { state: { batchId: batchId } })}} size='small'
                       disabled={serverTime>=batchEndDate}
                     >
                       Start Trading
@@ -560,7 +572,11 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
                       variant="contained" 
                       color="info" 
                       sx={{width: "60%", height: "20px", fontSize: "500x" , margin: '0 20%'}} 
-                      onClick={()=>{navigate(`/internship/analytics`)}} size='small'
+                      onClick={()=>{
+                        window.webengage.track('internship_analytics_clicked', {
+                          user: getDetails?.userDetails?._id,
+                        });
+                        navigate(`/internship/analytics`)}} size='small'
                     >
                       View Analytics
                     </MDButton>

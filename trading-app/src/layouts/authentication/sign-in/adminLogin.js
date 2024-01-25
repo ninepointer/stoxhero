@@ -69,7 +69,7 @@ function AdminLogin() {
     ReactGA.pageview(window.location.pathname)
   },[])
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -159,9 +159,21 @@ function AdminLogin() {
             // this function is extracting data of user who is logged in
             let userData = await userDetail();
 
+            // console.log(userData?._id?.toString(), userData?.email, `+91${userData?.mobile.slice(-10)}`);
+            window.webengage.user.login(userData?._id?.toString());
+            window.webengage.user.setAttribute('user_first_name', userData?.first_name);
+            window.webengage.user.setAttribute('user_last_name', userData?.last_name);
+            window.webengage.user.setAttribute('user_dob', userData?.dob);
+            window.webengage.user.setAttribute('user_gender', userData?.gender);
+            window.webengage.user.setAttribute('user_city', userData?.city);
+            window.webengage.user.setAttribute('user_state', userData?.state);
+            window.webengage.user.setAttribute('user_joining_date', userData?.joining_date);
+            window.webengage.user.setAttribute('user_kyc_status', userData?.KYCStatus);
+            window.webengage.user.setAttribute('user_role', userData?.role?.roleName);
+      
             if(userData.role?.roleName === adminRole){
               const from = location.state?.from || "/tenxdashboard";
-              navigate(from);
+              navigate(from);      
             }
             else if(userData.role?.roleName === "data"){
               const from = location.state?.from || "/analytics";
@@ -170,6 +182,7 @@ function AdminLogin() {
             else if(userData.role?.roleName === userRole){
               const from = location.state?.from || "/stoxherodashboard";
               navigate(from,{ state: { showPopup: true } });
+      
             }
             else if(userData.role?.roleName === Affiliate){
               const from = location.state?.from || "/stoxherodashboard";
@@ -260,13 +273,27 @@ function AdminLogin() {
         }else{
           let userData = await userDetail();
           // console.log(userData)
+          window.webengage.user.login(userData?._id?.toString());
+          window.webengage.user.setAttribute('user_email', userData?.email);
+          window.webengage.user.setAttribute('user_mobile', `+91${userData?.mobile.slice(-10)}`);
+    
+          window.webengage.user.setAttribute('user_first_name', userData?.first_name);
+          window.webengage.user.setAttribute('user_last_name', userData?.last_name);
+          window.webengage.user.setAttribute('user_dob', userData?.dob);
+          window.webengage.user.setAttribute('user_gender', userData?.gender);
+          window.webengage.user.setAttribute('user_city', userData?.city);
+          window.webengage.user.setAttribute('user_state', userData?.state);
+          window.webengage.user.setAttribute('user_joining_date', userData?.joining_date);
+          window.webengage.user.setAttribute('user_kyc_status', userData?.KYCStatus);
+          window.webengage.user.setAttribute('user_role', userData?.role?.roleName);
+
           if(userData?.role?.roleName === adminRole){
             const from = location.state?.from || "/tenxdashboard";
-            navigate(from);
+            navigate(from);    
           }
           else if(userData?.role?.roleName === userRole){
             const from = location.state?.from || "/stoxherodashboard";
-              navigate(from);
+              navigate(from);      
           }
         }
 

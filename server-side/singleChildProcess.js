@@ -10,6 +10,9 @@ const { sendMyRankDataBattle, sendLeaderboardDataBattle } = require("./controlle
 
 const { saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, saveXtsMargin } = require("./controllers/marginRequired")
 const { autoCutMainManually, autoCutMainManuallyMock} = require("./controllers/AutoTradeCut/mainManually");
+const { removeInstrumentFromWatchlist} = require("./controllers/instrument");
+const {tradableInstrument} = require("./controllers/TradableInstrument/tradableInstrument")
+
 const { createNewTicker, disconnectTicker, getDummyTicks,
     subscribeTokens, subscribeWatchListInstrument, tempGetTicks,
 } = require('./marketData/kiteTicker');
@@ -247,14 +250,18 @@ async function singleProcess() {
                 subscribeTokens();
             });
         }
+
         const autoExpire = nodeCron.schedule(`0 30 10 * * *`, autoExpireTenXSubscription);
         const internshipPayout = nodeCron.schedule(`0 30 17 * * *`, updateUserWallet);
         const reportMail = nodeCron.schedule(`0 0 18 * * *`, mail);
         const dailyContest = nodeCron.schedule(`1 30 6 * * *`, dailyContestTradeCut);
         const dailyContest2oclock = nodeCron.schedule(`1 30 8 * * *`, dailyContestTradeCut);
         const dailyContesttimeStore = nodeCron.schedule(`49 3 * * *`, dailyContestTimeStore);
-
+        const tradableInstrumentPopulate = nodeCron.schedule(`0 30 16 * * *`, tradableInstrument);
+        const removeInstrumentFromWatch = nodeCron.schedule(`0 46 2 * * *`, removeInstrumentFromWatchlist);
+    
     }
+
 
     // const dailyContesttimeStore = nodeCron.schedule(`*/5 * * * * *`, dailyContestTradeCut);
     // const dailyContest = nodeCron.schedule(`*/59 * * * * *`, dailyContestTimeStore);
@@ -352,6 +359,7 @@ async function singleProcess() {
     app.use('/api/v1/userwallet', require("./routes/userWallet/userWalletRoutes"));
     app.use('/api/v1/carousels', require("./routes/carousel/carouselRoutes"));
     app.use('/api/v1/paperTrade', require("./routes/mockTrade/paperTrade"));
+    app.use('/api/v1/stock', require("./routes/mockTrade/stockTrade"));
     app.use('/api/v1/infinityTrade', require("./routes/mockTrade/infinityTrade"));
     app.use('/api/v1/infinityRedis', require("./routes/mockTrade/infinityTradeRedis"));
     app.use('/api/v1/career', require("./routes/career/careerRoute"));

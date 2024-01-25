@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import MDBox from '../../../components/MDBox'
 import MDButton from '../../../components/MDButton';
 import ReactGA from "react-ga"
@@ -21,18 +21,19 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { userContext } from '../../../AuthContext';
 
 
 const CareerForm = () => {
 
   const [submitted,setSubmitted] = useState(false)
-  const [saving,setSaving] = useState(false)
+  // const [saving,setSaving] = useState(false)
   const [creating,setCreating] = useState(false)
   const [otpGenerated,setOTPGenerated] = useState(false);
   const location = useLocation();
   const career = location?.state?.data;
   const campaignCode = location?.state?.campaignCode;
-
+  const getDetails = useContext(userContext);
   const [detail, setDetails] = useState({
     firstName: "",
     lastName: "",
@@ -51,13 +52,12 @@ const CareerForm = () => {
 
   const [file, setFile] = useState(null);
   // const [uploadedData, setUploadedData] = useState([]);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
     ReactGA.pageview(window.location.pathname)
   },[])
   
-
   const [buttonClicked, setButtonClicked] = useState(false);
 
   async function confirmOTP(){
@@ -80,6 +80,11 @@ const CareerForm = () => {
       campaignCode,
       mobile_otp,
     } = detail;
+
+    window.webengage.track('career_confirmation_clicked', {
+      career_id: career,
+      user: getDetails?.userDetails?._id
+    })
     
     const res = await fetch(`${baseUrl}api/v1/career/confirmotp`, {
       method: "POST",
@@ -199,8 +204,6 @@ const CareerForm = () => {
 
   }
 
-  
-
   const [successSB, setSuccessSB] = useState(false);
   const [msgDetail, setMsgDetail] = useState({
     title: "",
@@ -227,7 +230,6 @@ const CareerForm = () => {
   const closeSuccessSB = () =>{
     setSuccessSB(false);
   }
-
 
   const renderSuccessSB = (
   <MDSnackbar

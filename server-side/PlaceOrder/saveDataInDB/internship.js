@@ -8,9 +8,10 @@ const mongoose = require('mongoose')
 exports.internTrade = async (req, res, otherData) => {
   let {exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId, 
       exchangeInstrumentToken, validity, variety, order_id, instrumentToken, 
-      portfolioId, trader, deviceDetails, margin, price, stopProfitPrice, stopLossPrice} = req.body 
+      portfolioId, trader, deviceDetails, margin, price, stopProfitPrice, stopLossPrice,
+      originalLastPriceUser, originalLastPriceCompany, trade_time} = req.body 
 
-  let {isRedisConnected, brokerageUser, originalLastPriceUser, secondsRemaining, trade_time} = otherData;
+  let {isRedisConnected, brokerageUser, secondsRemaining} = otherData;
   const session = await mongoose.startSession();
 
   try{

@@ -16,7 +16,7 @@ import { Box, TextField } from "@mui/material";
 
 const PopupTrading = ({elem, timeDifference}) => {
 
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -37,6 +37,10 @@ const PopupTrading = ({elem, timeDifference}) => {
     };
 
     async function openPopupAndCheckParticipant(elem){
+        window.webengage.track('college_testzone_start_trading_clicked', {
+            user: getDetails?.userDetails?._id,
+            contestId: elem?._id
+        })
         let isParticipated = elem?.participants.some(elem => {
             return elem?.userId?._id?.toString() === getDetails?.userDetails?._id?.toString()
         })

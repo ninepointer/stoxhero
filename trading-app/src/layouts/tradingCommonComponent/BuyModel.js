@@ -40,7 +40,7 @@ const BuyModel = ({fromTradable, chartInstrument, isOption, setOpenOptionChain, 
   }, 0);
 
   // console.log(runningLotsSymbol, "runningLotsSymbol")
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const { render, setRender } = useContext(renderContext);
   const getDetails = React.useContext(userContext);
   const tradeSound = getDetails.tradeSound;
@@ -91,6 +91,7 @@ const BuyModel = ({fromTradable, chartInstrument, isOption, setOpenOptionChain, 
   useEffect(() => {
     socket?.on(`sendResponse${trader.toString()}`, (data) => {
       // render ? setRender(false) : setRender(true);
+      console.log("response", data.status, data.message)
       openSuccessSB(data.status, data.message)
     })
   }, [])
@@ -109,9 +110,15 @@ const BuyModel = ({fromTradable, chartInstrument, isOption, setOpenOptionChain, 
   buyFormDetails.order_type = ordertype;
   const marketHandleChange = (value) => {
     if (value === "SL/SP-M") {
+      window.webengage.track('buy_stoploss_clicked', {
+        user: getDetails?.userDetails?._id
+      })
       setBuyFormDetails({ ...buyFormDetails, price: "" });
     }
     if (value === "LIMIT") {
+      window.webengage.track('buy_limit_clicked', {
+        user: getDetails?.userDetails?._id
+      })
       setBuyFormDetails({ ...buyFormDetails, stopLossPrice: "", stopProfitPrice: "" });
     }
     if(value === "MARKET"){
@@ -147,6 +154,10 @@ const BuyModel = ({fromTradable, chartInstrument, isOption, setOpenOptionChain, 
       await checkMargin();
     }
 
+    window.webengage.track('buy_clicked', {
+      user: getDetails?.userDetails?._id,
+      instrument_token: instrumentToken,
+    })
     setOrdertype("MARKET")
     setButtonClicked(false);
     setOpen(true);
@@ -244,6 +255,7 @@ const BuyModel = ({fromTradable, chartInstrument, isOption, setOpenOptionChain, 
       // setButtonClicked(false);
       return;
     }
+
     setButtonClicked(true);
     e.preventDefault()
     setOpen(false);
@@ -273,6 +285,15 @@ const BuyModel = ({fromTradable, chartInstrument, isOption, setOpenOptionChain, 
   async function placeOrder() {
     // console.log("exchangeInstrumentToken", exchangeInstrumentToken)
     const { exchange, symbol, buyOrSell, Quantity, Product, order_type, TriggerPrice, stopProfitPrice, stopLoss, stopLossPrice, validity, variety, price } = buyFormDetails;
+    window.webengage.track('buy_process_order_clicked', {
+      user: getDetails?.userDetails?._id,
+      instrument_token: instrumentToken,
+      quantity: Quantity,
+      exchange: exchange,
+      stopProfitPrice: stopProfitPrice,
+      price: price,
+      stopLossPrice: stopLossPrice
+    })
     let endPoint
     let paperTrade = false;
     let tenxTraderPath;
@@ -494,8 +515,10 @@ const BuyModel = ({fromTradable, chartInstrument, isOption, setOpenOptionChain, 
   }
 
   const checkMargin = async () => {
+    window.webengage.track('buy_margin_clicked', {
+      user: getDetails?.userDetails?._id
+    })
     const { Quantity, Product, order_type, validity, variety, price } = buyFormDetails;
-
     const response = await fetch(`${baseUrl}api/v1/marginrequired`, {
       method: "PATCH",
       credentials: "include",
@@ -547,7 +570,10 @@ const BuyModel = ({fromTradable, chartInstrument, isOption, setOpenOptionChain, 
     setErrorMessageQuantity("")
   }
 
-  function notAvailable(){
+  function notAvailable(value){
+    window.webengage.track(`buy_${value}_clicked`, {
+      user: getDetails?.userDetails?._id,
+    });
     openSuccessSB('notAvailable', "This feature is not available on stoxhero currently.");
   }
 
@@ -587,7 +613,7 @@ const BuyModel = ({fromTradable, chartInstrument, isOption, setOpenOptionChain, 
                 <MDBox sx={{ backgroundColor: "#1A73E8", color: "#ffffff", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}>
                   Intraday (Same day)
                 </MDBox>
-                <MDBox onClick={notAvailable} sx={{ color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
+                <MDBox onClick={()=>{notAvailable("Delivery")}} sx={{ color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
                   Delivery (Longterm)
                 </MDBox>
               </MDBox>
@@ -655,11 +681,11 @@ const BuyModel = ({fromTradable, chartInstrument, isOption, setOpenOptionChain, 
                   Day
                 </MDBox>
 
-                <MDBox onClick={notAvailable} sx={{ color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
+                <MDBox onClick={()=>{notAvailable("Immediate")}} sx={{ color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
                   Immediate
                 </MDBox>
 
-                <MDBox onClick={notAvailable} sx={{ color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
+                <MDBox onClick={()=>{notAvailable("Minute")}} sx={{ color: "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ".5px solid #8D91A8" }}>
                   Minute
                 </MDBox>
               </MDBox>

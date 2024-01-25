@@ -777,6 +777,8 @@ router.get("/newusertoday", Authenticate, restrictTo('Admin', 'SuperAdmin'), (re
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
   const newuser = UserDetail.find({joining_date:{$gte: today}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  .select('joining_date referredBy campaign first_name last_name email mobile creationProcess myReferralCode')
+  .sort({joining_date: -1})
   .then((data)=>{
       return res.status(200).json({data : data, count: data.length});
   })

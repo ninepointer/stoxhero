@@ -34,7 +34,7 @@ import MenuItem from '@mui/material/MenuItem';
 
 
 function TradersReport() {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [traders, setTraders] = useState([]);
   let valueInTraderName = '639877c0223c3fc0746818c2'
   let [traderName, setTraderName] = useState(valueInTraderName);

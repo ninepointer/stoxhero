@@ -16,8 +16,10 @@ const { client, getValue } = require('../marketData/redisClient');
 const MarginXMockUser = require("../models/marginX/marginXUserMock");
 const MarginXMockCompany = require("../models/marginX/marginXCompanyMock");
 const BattleMockUser = require("../models/battle/battleTrade");
-const {virtual, internship, dailyContest, marginx, tenx, battle} = require("../constant")
-
+const {virtual, internship, dailyContest, marginx, tenx, battle, stock} = require("../constant")
+const StockTrade = require("../models/mock-trade/stockSchema");
+const {marginDetailDataBase, pnlPositionDatabase, pnlHoldingDatabase} = require("../controllers/stockTradeController");
+const singleLivePrice = require('../marketData/sigleLivePrice');
 
 exports.fundCheck = async (req, res, next) => {
     let isRedisConnected = getValue();
@@ -125,7 +127,6 @@ exports.fundCheck = async (req, res, next) => {
         }
 
         if (((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) {
-            //console.log("checking runninglot- reverse trade");
             return next();
         }
         let marginData;
@@ -135,7 +136,6 @@ exports.fundCheck = async (req, res, next) => {
             marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers })
             zerodhaMargin = marginData.data.data.orders[0].total;
         } catch (e) {
-            // console.log("error fetching zerodha margin", e);
         }
 
         req.body.marginData = {
@@ -169,7 +169,6 @@ exports.fundCheck = async (req, res, next) => {
         }
 
         let userNetPnl = pnlDetails[0]?.npnl;
-        // console.log(userFunds, userNetPnl, totalAmount, todayPnlData)
 
         console.log(userFunds, userNetPnl, zerodhaMargin)
         console.log((userFunds + userNetPnl - zerodhaMargin))
@@ -535,15 +534,18 @@ const getLastTradeMarginAndCaseNumber = async (req, pnlData, from) => {
                     from===internship ? InternshipTrade : 
                     from===dailyContest ? DailyContestMockUser : 
                     from===marginx ? MarginXMockUser :
+                    from===stock ? StockTrade :
                     from===tenx && TenXTrader;
 
     
-    if(pnlData?.length > 0){
+    if(mySymbol?.length > 0){
         margin = mySymbol[0]?.margin;
     } else{
-        const lastTradeData = await DataBase.findOne({symbol: symbol, trader: new ObjectId(req.user._id), trade_time: {$gte: new Date()}})
+        // const lastTradeData = await DataBase.findOne({symbol: symbol, trader: new ObjectId(req.user._id), trade_time: {$gte: new Date()}})
+        const lastTradeData = await DataBase.findOne({symbol: symbol, trader: new ObjectId(req.user._id)})
         .sort({ _id: -1 })
         .limit(1)
+
         margin = lastTradeData && lastTradeData.margin;
     }
 
@@ -567,8 +569,7 @@ const getLastTradeMarginAndCaseNumber = async (req, pnlData, from) => {
 }
 
 const marginZeroCase = async (req, res, next, availableMargin, from, data) => {
-    const requiredMargin = await calculateRequiredMargin(req, req.body.Quantity, data);
-    // console.log("0th case", availableMargin, requiredMargin);
+    const requiredMargin = await calculateRequiredMargin(req, req.body.Quantity, data, (from===stock && true));
 
     if((availableMargin-requiredMargin) > 0){
         req.body.margin = requiredMargin;
@@ -579,8 +580,7 @@ const marginZeroCase = async (req, res, next, availableMargin, from, data) => {
 }
 
 const marginFirstCase = async (req, res, next, availableMargin, prevMargin, from, data) => {
-    const requiredMargin = await calculateRequiredMargin(req, req.body.Quantity, data);
-    // console.log("1st case", availableMargin, prevMargin, requiredMargin);
+    const requiredMargin = await calculateRequiredMargin(req, req.body.Quantity, data, (from===stock && true));
 
     if((availableMargin-requiredMargin) > 0){
         req.body.margin = requiredMargin+prevMargin;
@@ -608,7 +608,7 @@ const marginThirdCase = async (req, res, next, netPnl) => {
 
 const marginFourthCase = async (req, res, next, availableMargin, prevQuantity, from, data) => {
     const quantityForTrade = Math.abs(Math.abs(req.body.Quantity) - Math.abs(prevQuantity));
-    const requiredMargin = await calculateRequiredMargin(req, quantityForTrade, data);
+    const requiredMargin = await calculateRequiredMargin(req, quantityForTrade, data, (from===stock && true));
 
     if((availableMargin-requiredMargin) > 0){
         req.body.margin = requiredMargin;
@@ -618,8 +618,8 @@ const marginFourthCase = async (req, res, next, availableMargin, prevQuantity, f
     }
 }
 
-const calculateRequiredMargin = async (req, Quantity, data) => {
-    const { exchange, symbol, buyOrSell, variety, Product, order_type, last_price, price} = req.body;
+const calculateRequiredMargin = async (req, Quantity, data, isStock) => {
+    const { exchange, symbol, buyOrSell, variety, Product, order_type, last_price, price, instrumentToken} = req.body;
     let auth = 'token ' + data.getApiKey + ':' + data.getAccessToken;
     let headers = {
         'X-Kite-Version': '3',
@@ -638,7 +638,44 @@ const calculateRequiredMargin = async (req, Quantity, data) => {
         "trigger_price": 0
     }]
 
+    let originalLastPriceUser;
+    let originalLastPriceCompany;
+    let newTimeStamp = "";
+    let trade_time = "";
+    try {
+        let liveData;
+        // if (setting.ltp == xtsAccountType || setting.complete == xtsAccountType) {
+        //     liveData = await singleXTSLivePrice(2, instrumentToken);
+        // } else {
+            liveData = await singleLivePrice(exchange, symbol)
+        // }
+
+        newTimeStamp = liveData?.timestamp;
+        originalLastPriceUser = liveData?.last_price ;
+        originalLastPriceCompany = liveData?.last_price ;
+
+        // if(!liveData?.last_price){
+        //     return res.status(400).json({status: "error", message: "Market orders are blocked for in the money options due to illiquidity. Try again later."})
+        // }
+
+        trade_time = new Date(newTimeStamp);
+        if(trade_time < new Date()){
+            const subtractedTime = 5 * 60 * 60 * 1000 + 30 * 60 * 1000;
+            trade_time = trade_time.getTime() + subtractedTime;
+        }
+    } catch (err) {
+        console.log(err)
+        return new Error(err);
+    }
+
     try{
+        req.body.originalLastPriceUser = originalLastPriceUser;
+        req.body.originalLastPriceCompany = originalLastPriceCompany;
+        req.body.trade_time = trade_time;
+
+        if(isStock){
+            return (originalLastPriceUser * Math.abs(Quantity)); 
+        }
         if(buyOrSell === "SELL"){
             const marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers })
             const zerodhaMargin = marginData.data.data.orders[0].total;
@@ -648,7 +685,7 @@ const calculateRequiredMargin = async (req, Quantity, data) => {
             if(order_type === "LIMIT"){
                 return (price * Math.abs(Quantity));
             } else{
-                return (last_price * Math.abs(Quantity));
+                return (originalLastPriceUser * Math.abs(Quantity));
             }
             
         }
@@ -689,7 +726,6 @@ const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
         if (runningLots === 0) {
             return openingBalance - totalMargin + npnl;
         } else {
-            console.log("margin", openingBalance  - (Math.abs(amount-subtractAmount)+margin))
             return openingBalance  - (Math.abs(amount-subtractAmount)+margin);
         }
     else{
@@ -719,6 +755,27 @@ const takeRejectedTrade = async(req, res, from)=>{
             });
             console.log("margincall saving")
             await paperTrade.save();
+        } catch (e) {
+            console.log("error saving margin call", e);
+        }
+        return res.status(401).json({ status: 'Failed', message: 'You do not have sufficient funds to take this trade. Please try with smaller lot size.' });
+    }
+
+    if(from === stock) {
+        let { exchange, symbol, buyOrSell, Quantity, Product, order_type, validity, variety, createdBy,
+            instrumentToken, trader, exchangeInstrumentToken, portfolioId } = req.body;
+
+        try {
+
+            const stock = new StockTrade({
+                status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
+                variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero", exchangeInstrumentToken,
+                order_id: order_id, instrumentToken, brokerage: 0, createdBy: req.user._id,
+                trader: req?.user?._id, amount: 0, trade_time: myDate, portfolioId: portfolioId, margin: 0
+
+            });
+            console.log("margincall saving")
+            await stock.save();
         } catch (e) {
             console.log("error saving margin call", e);
         }
@@ -863,6 +920,10 @@ exports.fundCheckPaperTrade = async (req, res, next) => {
             todayPnlData = JSON.parse(todayPnlData);
         }
 
+        if(!todayPnlData){
+            return;
+        }
+
         if (isRedisConnected && await client.exists(`${req.user._id.toString()} openingBalanceAndMarginPaper`)) {
             fundDetail = await client.get(`${req.user._id.toString()} openingBalanceAndMarginPaper`)
             fundDetail = JSON.parse(fundDetail);
@@ -911,6 +972,10 @@ exports.fundCheckTenxTrader = async (req, res, next) => {
             todayPnlData = JSON.parse(todayPnlData);
         }
 
+        if(!todayPnlData){
+            return;
+        }
+
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.subscriptionId.toString()} openingBalanceAndMarginTenx`)) {
             fundDetail = await client.get(`${req.user._id.toString()}${req.body.subscriptionId.toString()} openingBalanceAndMarginTenx`)
             fundDetail = JSON.parse(fundDetail);
@@ -928,7 +993,6 @@ exports.fundCheckTenxTrader = async (req, res, next) => {
     const margin = (await marginAndCase).margin;
     const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
 
-    console.log(netPnl, availableMargin, caseNumber, margin, runningLotForSymbol )
 
     switch (caseNumber) {
         case 0:
@@ -957,6 +1021,10 @@ exports.fundCheckInternship = async (req, res, next) => {
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.subscriptionId.toString()}: overallpnlIntern`)) {
             todayPnlData = await client.get(`${req.user._id.toString()}${req.body.subscriptionId.toString()}: overallpnlIntern`)
             todayPnlData = JSON.parse(todayPnlData);
+        }
+
+        if(!todayPnlData){
+            return;
         }
 
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.subscriptionId.toString()} openingBalanceAndMarginInternship`)) {
@@ -999,11 +1067,14 @@ exports.fundCheckMarginX = async (req, res, next) => {
     const isRedisConnected = getValue();
     let todayPnlData;
     let fundDetail;
-    console.log(`${req.user._id.toString()}${req.body.marginxId.toString()} overallpnlMarginX`)
     try {
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.marginxId.toString()} overallpnlMarginX`)) {
             todayPnlData = await client.get(`${req.user._id.toString()}${req.body.marginxId.toString()} overallpnlMarginX`)
             todayPnlData = JSON.parse(todayPnlData);
+        }
+
+        if(!todayPnlData){
+            return;
         }
 
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.marginxId.toString()} openingBalanceAndMarginMarginx`)) {
@@ -1051,6 +1122,10 @@ exports.fundCheckDailyContest = async (req, res, next) => {
             todayPnlData = JSON.parse(todayPnlData);
         }
 
+        if(!todayPnlData){
+            return;
+        }
+
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.contestId.toString()} openingBalanceAndMarginDailyContest`)) {
             fundDetail = await client.get(`${req.user._id.toString()}${req.body.contestId.toString()} openingBalanceAndMarginDailyContest`)
             fundDetail = JSON.parse(fundDetail);
@@ -1067,7 +1142,6 @@ exports.fundCheckDailyContest = async (req, res, next) => {
     const margin = (await marginAndCase).margin;
     const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
 
-    console.log(netPnl, availableMargin, caseNumber, margin, runningLotForSymbol )
     switch (caseNumber) {
         case 0:
             await marginZeroCase(req, res, next, availableMargin, dailyContest, data)
@@ -1095,6 +1169,10 @@ exports.fundCheckBattle = async (req, res, next) => {
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.battleId.toString()} overallpnlBattle`)) {
             todayPnlData = await client.get(`${req.user._id.toString()}${req.body.battleId.toString()} overallpnlBattle`)
             todayPnlData = JSON.parse(todayPnlData);
+        }
+
+        if(!todayPnlData){
+            return;
         }
 
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.battleId.toString()} openingBalanceAndMarginBattle`)) {
@@ -1130,5 +1208,92 @@ exports.fundCheckBattle = async (req, res, next) => {
             await marginFourthCase(req, res, next, availableMargin, runningLotForSymbol, battle, data)
             break;
     }
+}
+
+exports.fundCheckStock = async (req, res, next) => {
+    const {Product, instrumentToken, exchangeInstrumentToken, Quantity, buyOrSell} = req.body;
+    req.body.portfolioId = "658fa372557e6ee9182e91aa";
+    const isRedisConnected = getValue();
+    let todayPnlData;
+    let fundDetail;
+
+    console.log(req.body)
+
+    try {
+        if(Product === "MIS"){
+            if(isRedisConnected && (await client.exists(`${req.user._id.toString()}: overallpnlIntraday`))){
+                todayPnlData = await client.get(`${req.user._id.toString()}: overallpnlIntraday`);
+                todayPnlData = JSON.parse(todayPnlData);
+            } else{
+                todayPnlData = await pnlPositionDatabase(req?.user?._id)
+            }
+        }
+
+        if(Product === "CNC"){
+            if(isRedisConnected && (await client.exists(`${req.user._id.toString()}: overallpnlDelivery`))){
+                todayPnlData = await client.get(`${req.user._id.toString()}: overallpnlDelivery`);
+                todayPnlData = JSON.parse(todayPnlData);
+            } else{
+                todayPnlData = await pnlHoldingDatabase(req?.user?._id)
+            }
+        }
+
+        if(Product === "CNC"){
+            let checkInstrument = todayPnlData.filter((elem)=>{
+                return ((elem?._id?.exchangeInstrumentToken === exchangeInstrumentToken)
+                 || (elem?._id?.instrumentToken === instrumentToken))
+            })
+
+            if(!checkInstrument?.[0]?.lots && buyOrSell==="SELL" && !checkInstrument?.[0]?._id?.isLimit){
+                return res.status(400).json({status: "error", message: ` Insufficient holdings, or you are placing a short sell order using CNC. Try placing MIS.`});
+            }
+
+            if(checkInstrument?.length>0 && buyOrSell==="SELL" && !checkInstrument?.[0]?._id?.isLimit){
+                if(Number(checkInstrument[0]?.lots) < Number(Quantity)){
+                    return res.status(400).json({status: "error", message: `You can sell upto ${checkInstrument[0]?.lots} quantity on this stock.`});
+                }
+            }
+        }
+
+        if (isRedisConnected && await client.exists(`${req.user._id.toString()} openingBalanceAndMarginStock`)) {
+            fundDetail = await client.get(`${req.user._id.toString()} openingBalanceAndMarginStock`)
+            fundDetail = JSON.parse(fundDetail);
+            req.body.portfolioId = fundDetail?.portfolioId;
+        } else {
+            fundDetail = await marginDetailDataBase(req?.user?._id);
+            req.body.portfolioId = fundDetail?.portfolioId;
+        }
+    } catch (e) {
+        console.log("errro fetching pnl 2", e);
+    }
+
+    const data = await getKiteCred.getAccess();
+    const netPnl = await calculateNetPnl(req, todayPnlData, data );
+    const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
+    const marginAndCase = getLastTradeMarginAndCaseNumber(req, todayPnlData, stock);
+    const caseNumber = (await marginAndCase).caseNumber;
+    const margin = (await marginAndCase).margin; 
+    const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
+
+
+
+    switch (caseNumber) {
+        case 0:
+            await marginZeroCase(req, res, next, availableMargin, stock, data)
+            break;
+        case 1:
+            await marginFirstCase(req, res, next, availableMargin, margin, stock, data)
+            break;
+        case 2:
+            await marginSecondCase(req, res, next, margin, runningLotForSymbol)
+            break;
+        case 3:
+            await marginThirdCase(req, res, next, netPnl)
+            break;
+        case 4:
+            await marginFourthCase(req, res, next, availableMargin, runningLotForSymbol, stock, data)
+            break;
+    }
+
 }
 

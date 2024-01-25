@@ -10,7 +10,7 @@ const UserTradeData = require("../models/TradeDetails/liveTradeUserSchema")
 router.post("/switchToRealTrade", (async (req, res)=>{
     let responseMsg;
     let responseErr;
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
     let { apiKey, accessToken, userId, tradeBy, exchange, symbol, buyOrSell, realBuyOrSell, Quantity, realQuantity, Product, order_type, 
         validity, variety, createdBy, createdOn, uId, instrumentToken, algoBox, checkingMultipleAlgoFlag} = req.body
@@ -20,8 +20,8 @@ router.post("/switchToRealTrade", (async (req, res)=>{
     const {algoName, transactionChange, instrumentChange
        , exchangeChange, lotMultipler, productChange, tradingAccount, _id, marginDeduction, isDefault } = algoBox
 
-       const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY"});
-       const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL"});
+       const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", type: "Option"});
+       const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", type: "Option"});
 
     const api_key = apiKey;
     const access_token = accessToken;
@@ -452,7 +452,7 @@ router.post("/switchToRealTrade", (async (req, res)=>{
             Quantity = -Quantity;
         }
 
-        let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+        let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
         let originalLastPriceUser;
 

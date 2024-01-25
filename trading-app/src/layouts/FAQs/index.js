@@ -5,11 +5,15 @@ import Footer from "../../examples/Footer";
 import FAQs from "./faqs";
 import React, { useEffect, useContext, useState} from "react";
 import ReactGA from "react-ga"
+import { userContext } from "../../AuthContext";
 
 function Tables() {
-
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
+  const getDetails = useContext(userContext);
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   useEffect(() => {
+    window.webengage.track('faqs_tab_clicked', {
+      user: getDetails?.userDetails?._id,
+    });
     ReactGA.pageview(window.location.pathname)
     capturePageView()
   }, []);

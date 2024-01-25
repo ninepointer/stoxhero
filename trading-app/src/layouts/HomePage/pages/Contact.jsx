@@ -1,7 +1,7 @@
 import { Box, Button, Card, CardContent, Grid, Stack, TextField,Typography } from '@mui/material'
 import theme from '../utils/theme/index'
 import Navbar from '../components/Navbars/Navbar'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Footer from '../components/Footers/Footer'
 import { ThemeProvider } from 'styled-components';
 import MDBox from '../../../components/MDBox';
@@ -19,6 +19,11 @@ const Contact = () => {
         phone: "",
         message:""
     })
+
+    useEffect(()=>{
+        window.webengage.track('contact_us_clicked', {
+        })
+    }, [])
 
     let [newData, setNewData] = useState([])
 

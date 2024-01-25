@@ -29,7 +29,7 @@ import Payment from "../data/payment"
 import RewardTable from "./rulesAndRewardTable";
 
 function Header({toggleContest, setToggleContest, contest, socket, setIsInterested, showPay, setShowPay }) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
     const initialInterestedCounts = contest.reduce((acc, elem) => {
@@ -42,6 +42,10 @@ function Header({toggleContest, setToggleContest, contest, socket, setIsInterest
     const [isInterestedState, setIsInterestedState] = useState(initialInterestedCounts);
 
     const handleCopy = async (id) => {
+        window.webengage.track('testzone_share_clicked_in_free', {
+            user: getDetails?.userDetails?._id,
+            contestId: id
+        })
         let text = 'https://stoxhero.com/testzone'
         const textarea = document.createElement('textarea');
         textarea.value = text;

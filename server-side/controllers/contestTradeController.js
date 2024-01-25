@@ -37,8 +37,8 @@ exports.newTrade = async (req, res, next) => {
           // employeeid = req.user.employeeid;
         console.log("req.body", req.body)
 
-    const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY"});
-    const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL"});
+    const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", type: "Option"});
+    const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", type: "Option"});
 
 
   if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety){
@@ -255,8 +255,8 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
         }
         //console.log("req.body", tradeDetails)
 
-    const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY"});
-    const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL"});
+    const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", type: "Option"});
+    const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", type: "Option"});
 
 
   if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety){
@@ -787,7 +787,7 @@ exports.autoTradeContest = async(req, res, next) => {
       //   );
       // })
 
-      let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+      let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
       const api1Response = await axios.get(`${baseUrl}api/v1/contest/${contest._id}/trades/${"leaderboard"}`)
       const rankData = api1Response.data.data;
 

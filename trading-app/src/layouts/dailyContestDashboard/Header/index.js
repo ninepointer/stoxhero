@@ -20,7 +20,7 @@ export default function LabTabs({socket}) {
   const [isLoading,setIsLoading] = useState(false);
   const [dailyAllContestUsers, setDailyAllContestUsers] = useState();
   const [completedContest,setCompletedContest] = useState();
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 
   useEffect(()=>{

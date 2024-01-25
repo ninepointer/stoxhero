@@ -4,9 +4,10 @@ import MDButton from '../../../components/MDButton'
 import MDTypography from '../../../components/MDTypography';
 import axios from 'axios';
 import { apiUrl } from '../../../constants/constants';
-import ApproveModal from './approveModal';
+// import ApproveModal from './approveModal';
 import RejectModal from './rejectModal';
 import MDSnackbar from '../../../components/MDSnackbar';
+import moment from 'moment';
 
 const KYCCard = ({user, action, setAction}) => {
   // const requestTime = new Date(KYCActionDate);
@@ -15,7 +16,7 @@ const KYCCard = ({user, action, setAction}) => {
   const[openReject,setOpenReject] = useState(false);
   const [title,setTitle] = useState('')
     const [content,setContent] = useState('')
-    const [rejectionReason,setRejectionReason] = useState('');
+    // const [rejectionReason,setRejectionReason] = useState('');
   
     const [successSB, setSuccessSB] = useState(false);
     const openSuccessSB = (title,content) => {
@@ -110,7 +111,11 @@ const KYCCard = ({user, action, setAction}) => {
   return (
     <MDBox style={{display:'flex', justifyContent:'space-between', marginBottom:'12px', padding:'12px', borderRadius:'16px', boxShadow:"0px 4px 6px -2px rgba(0, 0, 0, 0.5)"}}>
         <MDBox>
-            <MDTypography style={{fontSize:'14px', marginBottom:'12px'}} >Name:{`${user?.first_name} ${user?.last_name}`}</MDTypography>
+            <MDTypography style={{fontSize:'14px', marginBottom:'12px'}} >Name: {`${user?.first_name} ${user?.last_name}`}</MDTypography>
+            <MDTypography style={{fontSize:'14px', marginBottom:'12px'}} >DOB: {user?.dob ? moment.utc(user?.dob).utcOffset('+05:30').format('DD-MMM-YYYY') : "N/A"}</MDTypography>
+
+            <MDTypography style={{fontSize:'14px', marginBottom:'12px'}} >State: {`${user?.state || "N/A"}`}</MDTypography>
+
             <MDTypography style={{fontSize:'14px', marginBottom:'12px'}} >Phone: {user?.mobile}</MDTypography>
             <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Aadhaar:{user?.aadhaarNumber}</MDTypography>
             <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>PAN:{user?.panNumber}</MDTypography>
@@ -128,7 +133,7 @@ const KYCCard = ({user, action, setAction}) => {
             </MDBox>
             <MDBox sx={{display:'flex', justifyContent:'space-between'}}>
                 <MDTypography style={{fontSize:'14px', marginBottom:'8px', marginRight:'16px'}}>Bank Name:{user?.bankName}</MDTypography>
-                <MDTypography style={{fontSize:'14px', marginBottom:'8px',marginRight:'16px'}}>Account Name:{user?.nameAsPerBankAccount}</MDTypography>
+                <MDTypography style={{fontSize:'14px', marginBottom:'8px',marginRight:'16px'}}>Account Holder Name:{user?.nameAsPerBankAccount}</MDTypography>
                 <MDTypography style={{fontSize:'14px', marginBottom:'8px',marginRight:'16px'}}>Ifsc:{user?.ifscCode}</MDTypography>
                 <MDTypography style={{fontSize:'14px', marginBottom:'8px',marginRight:'16px'}}>Account No.:{user?.accountNumber}</MDTypography>
             </MDBox>       
