@@ -172,21 +172,25 @@ exports.getTradingHolidayBetweenDates = async(req, res, next) => {
 exports.nextTradingDay = async (req, res, next) => {
 
     try {
-        for (let i = 1; i < 30; i++) {
+        for (let i = 0; i < 30; i++) {
             let date = new Date();
             date.setDate(date.getDate() + i);
             const endOfTomorrow = new Date(date);
             endOfTomorrow.setHours(23, 59, 59, 999);
 
+            console.log(endOfTomorrow, date)
             const holiday = await TradingHoliday.find({
                 holidayDate: {
                     $gte: new Date(date.toISOString().split("T")[0]),
                     $lte: new Date(`${endOfTomorrow.toISOString().split("T")[0]}T23:59:00.000Z`)
                 }
             });
+            console.log("holiday", holiday)
             if (isTradingDay(date, holiday)) {
                 // Set the remaining time state here
-                res.status(200).send({ status: "success", data: date })
+                res.status(200).send({ status: "success", data: 
+                date
+             })
                 break;
             } else {
                 console.log("Not a trading day. Remaining time state not set.");
@@ -200,8 +204,8 @@ exports.nextTradingDay = async (req, res, next) => {
 
 function isTradingDay(date, holidays) {
     // Check if the date is a weekend (Saturday or Sunday)
-    // todo-vijay change to 6
-    if (date.getDay() === 0 || date.getDay() === 7) {
+    
+    if (date.getDay() === 0 || date.getDay() === 6) {
         return false;
     }
 
@@ -209,5 +213,6 @@ function isTradingDay(date, holidays) {
     if (holidays.length) {
         return false;
     }
+    console.log("date", date)
     return true;
 }

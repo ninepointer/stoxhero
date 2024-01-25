@@ -393,10 +393,10 @@ exports.editPrice = async (req, res, next) => {
 
 exports.modifyOrder = async (req, res, next) => {
   try{
-    const {stopLossQuantity, stopProfitPrice, symbol, from} = req.body;
+    const {stopLossQuantity, stopProfitQuantity, symbol, from} = req.body;
     
     const maxLot = symbol.includes("BANK") ? maxLot_BankNifty : symbol.includes("FIN") ? maxLot_FinNifty : maxLot_Nifty;
-    if((stopLossQuantity > maxLot) || (stopProfitPrice > maxLot)){
+    if((stopLossQuantity > maxLot) || (stopProfitQuantity > maxLot)){
         return res.status(406).send({ message: `You can place maximum ${maxLot} quantity in this trade.` });
     }
 

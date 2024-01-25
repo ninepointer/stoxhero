@@ -203,8 +203,7 @@ async function singleProcess() {
         if (process.env.PROD === "true") {
             let date = new Date();
             let weekDay = date.getDay();
-            // todo-vijay change to 6
-            if (weekDay > 0 && weekDay < 7) {
+            if (weekDay > 0 && weekDay < 6) {
 
                 const onlineApp = nodeCron.schedule(`${appStartMinute} ${appStartHour} * * ${weekDay}`, () => {
                     appLive();
@@ -224,8 +223,7 @@ async function singleProcess() {
     if (process.env.PROD === "true") {
         let date = new Date();
         let weekDay = date.getDay();
-        // todo-vijay change to 6
-        if (weekDay > 0 && weekDay < 7) {
+        if (weekDay > 0 && weekDay < 6) {
             const job = nodeCron.schedule(`0 30 10 * * ${weekDay}`, cronJobForHistoryData);
 
             const autotrade = nodeCron.schedule(`50 9 * * *`, async () => {

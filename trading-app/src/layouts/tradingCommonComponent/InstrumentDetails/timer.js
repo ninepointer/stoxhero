@@ -44,8 +44,7 @@ const Timer = ({socket}) => {
     let date = new Date();
     let weekDay = date.getDay();
     
-    // todo-vijay change to 6
-    if (weekDay > 0 && weekDay < 7 && holiday === 0) {
+    if (weekDay > 0 && weekDay < 6 && holiday === 0) {
 
       const appStartTime = new Date(setting[0]?.time?.appStartTime);
       const startTimer = new Date(setting[0]?.time?.timerStartTimeInStart);
