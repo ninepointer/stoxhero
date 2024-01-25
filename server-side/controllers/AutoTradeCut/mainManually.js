@@ -1,4 +1,4 @@
-const { tenx, paperTrade, infinityTrade, internship, infinityTradeLive, contestTradeLive,
+const { tenx, paperTrade, stockTradeMod, internship, infinityTradeLive, contestTradeLive,
     dailyContestMock, internshipTradeMod, dailyContestMockMod, marginXMockMod, battleTradeMod } = require("./collectingTradeManually");
 const { creditAmountToWallet } = require("../../controllers/dailyContestController");
 const marginxController = require("../../controllers/marginX/marginxController");
@@ -96,6 +96,7 @@ const autoCutMainManuallyMock = async () => {
         await internshipTradeMod();
         await dailyContestMockMod();
         await marginXMockMod();
+        await stockTradeMod();
         await changeStatus();
         await changeMarginXStatus();
         return;
