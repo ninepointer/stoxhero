@@ -2862,10 +2862,10 @@ exports.getRevenueBetweenDate = async (req, res, next) => {
                   ], // Assuming "TestZone Fee" is not repeated intentionally
                 },
                 "transactions.transactionDate": {
-                  $gt: new Date("2023-12-01"),
+                  $gt: new Date(startDate),
                 },
                 "transactions.transactionDate": {
-                  $lt: new Date("2024-01-24"),
+                  $lt: new Date(endDate),
                 },
               },
             },
@@ -2887,8 +2887,8 @@ exports.getRevenueBetweenDate = async (req, res, next) => {
             {
               $match: {
                 joining_date: {
-                  $gt: new Date("2023-12-01"),
-                  $lt: new Date("2024-01-24"),
+                  $gt: new Date(startDate),
+                  $lt: new Date(endDate),
                 },
               },
             },
@@ -2956,10 +2956,10 @@ exports.getRevenueBetweenDate = async (req, res, next) => {
                   ], // Assuming "TestZone Fee" is not repeated intentionally
                 },
                 "transactions.transactionDate": {
-                  $gt: new Date("2023-12-01"),
+                  $gt: new Date(startDate),
                 },
                 "transactions.transactionDate": {
-                  $lt: new Date("2024-01-24"),
+                  $lt: new Date(enddate),
                 },
               },
             },
@@ -2981,7 +2981,7 @@ exports.getRevenueBetweenDate = async (req, res, next) => {
             {
               $match: {
                 joining_date: {
-                  $lt: new Date("2024-01-24"),
+                  $lt: new Date(startDate),
                 },
               },
             },
@@ -3049,10 +3049,10 @@ exports.getRevenueBetweenDate = async (req, res, next) => {
                   ], // Assuming "TestZone Fee" is not repeated intentionally
                 },
                 "transactions.transactionDate": {
-                  $gt: new Date("2023-12-01"),
+                  $gt: new Date(startDate),
                 },
                 "transactions.transactionDate": {
-                  $lt: new Date("2024-01-24"),
+                  $lt: new Date(endDate),
                 },
               },
             },
@@ -3108,7 +3108,6 @@ exports.getRevenueBetweenDate = async (req, res, next) => {
       }
     ])
 
-    console.log(data)
 
     const total = {
       new: {
