@@ -17,6 +17,7 @@ import MDBox from "../../../components/MDBox";
 import { CircularProgress } from '@mui/material';
 import MDTypography from "../../../components/MDTypography";
 import CareerJD from './careerJD';
+import { Helmet } from 'react-helmet';
 
 const App = (props) => {
   const [campaignCode,setCampaignCode] = useState();
@@ -38,8 +39,18 @@ const App = (props) => {
     window.webengage.track('workshop_clicked', {
     })
   },[]);
+
+  let text = 'Join StoxHero\'s workshops to elevate your financial expertise. Learn from industry leaders in investing and trading. Sign up now for our next session!'
   return (
     <>
+    <Helmet>
+
+ 
+      <title>StoxHero Workshops: Master Investing & Trading Skills</title>
+      <meta name='description' content={text} />
+      <meta name='keywords' content='trading workshops, investing and trading workshop, stock market workshops' />
+
+    </Helmet>
     <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{backgroundColor:'white', minHeight:'100vH', height: 'auto', width: 'auto', minWidth:'100vW'}}>
       <ThemeProvider theme={theme}>
         <Navbar/>
@@ -52,7 +63,7 @@ const App = (props) => {
                 <Grid container xs={12} md={12} lg={12} style={{width:'100%'}}>
                   <Grid item xs={12} md={12} lg={12} style={{width:'100%'}}>
                     <MDBox  display='flex' justifyContent='flex-start' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                      <MDTypography fontSize={18} fontWeight="bold">Workshops</MDTypography>
+                      <MDTypography variant='h1' fontSize={18} fontWeight="bold">Workshops</MDTypography>
                     </MDBox>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} style={{width:'100%'}}>

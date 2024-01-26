@@ -15,6 +15,7 @@ import analytics from '../../../assets/images/analytics.png'
 import internship from '../../../assets/images/internship.png'
 import certification from '../../../assets/images/certification.png'
 import MDAvatar from "../../../components/MDAvatar";
+import { Helmet } from 'react-helmet';
 // react-router-dom components
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -567,6 +568,14 @@ const [buttonClicked, setButtonClicked] = useState(false);
 
   return (
     <>
+      <Helmet>
+
+ 
+        <title>StoxHero - The best platform for learning stock market trading</title>
+        <meta name='description' content='Experience live stock trading on real time platform using virtual money. Test strategies on F&O and enhance your trading skills without the fear of losing money. Join us' />
+        <meta name='keywords' content='Best virtual trading platform,best app for paper trading,best low cost stock trading platform,trading simulation,stock market trading strategies,virtual trading platform india,best platform for trading options' />
+
+      </Helmet>
       <MDBox mt={-1} display='flex' justifyContent='center' flexDirection='column' alignContent='center' alignItems='flex-start' style={{backgroundColor:'white', minHeight:'auto', height: 'relative', width: 'auto', minWidth:'100vW'}}>
       <ThemeProvider theme={theme}>
       <Navbar/>
