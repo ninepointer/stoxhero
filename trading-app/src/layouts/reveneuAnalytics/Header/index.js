@@ -170,7 +170,7 @@ export default function Dashboard() {
                     
                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
                       
-                        <AffiliateData overallRevenue={overallRevenue} period={period}/>
+                        <AffiliateData period={period}/>
                         
                     </Grid>
 

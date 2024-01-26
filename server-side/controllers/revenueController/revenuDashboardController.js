@@ -13,6 +13,8 @@ const InternshipTrading = require("../../models/mock-trade/internshipTrade")
 const BattleTrading = require("../../models/battle/battleTrade")
 const moment = require('moment');
 const Wallet = require("../../models/UserWallet/userWalletSchema");
+const Affiliate = require("../../models/affiliateProgram/affiliateProgram");
+
 
 exports.getTestZoneRevenue = async (req, res) => {
   try {
@@ -3265,10 +3267,45 @@ exports.getUsersBetweenDate = async (req, res, next) => {
     const { period } = req.query;
     const { startDate, endDate } = getDates(period);
 
-    const users = await User.aggregate([
+    const users = await Wallet.aggregate([
       {
         $facet: {
           newUser: [
+            {
+              $unwind: {
+                path: "$transactions",
+              },
+            },
+            {
+              $match: {
+                "transactions.title": {
+                  $in: [
+                    "Bought TenX Trading Subscription",
+                    "TestZone Fee",
+                    "MarginX Fee",
+                  ], // Assuming "TestZone Fee" is not repeated intentionally
+                },
+                "transactions.transactionDate": {
+                  $gt: new Date(startDate),
+                  $lt: new Date(endDate),
+                },
+              },
+            },
+            {
+              $lookup: {
+                from: "user-personal-details",
+                localField: "userId",
+                foreignField: "_id",
+                as: "user",
+              },
+            },
+            {
+              $addFields: {
+                joining_date: {
+                  $arrayElemAt: ["$user.joining_date", 0],
+                },
+              },
+            },
             {
               $match: {
                 joining_date: {
@@ -3278,10 +3315,51 @@ exports.getUsersBetweenDate = async (req, res, next) => {
               },
             },
             {
-              $count: "users",
+              $group: {
+                _id: "$userId", // Assuming transactions is an array of objects
+              },
+            },
+            {
+              $count:
+                "users",
             },
           ],
           oldUser: [
+            {
+              $unwind: {
+                path: "$transactions",
+              },
+            },
+            {
+              $match: {
+                "transactions.title": {
+                  $in: [
+                    "Bought TenX Trading Subscription",
+                    "TestZone Fee",
+                    "MarginX Fee",
+                  ], // Assuming "TestZone Fee" is not repeated intentionally
+                },
+                "transactions.transactionDate": {
+                  $gt: new Date(startDate),
+                  $lt: new Date(endDate),
+                },
+              },
+            },
+            {
+              $lookup: {
+                from: "user-personal-details",
+                localField: "userId",
+                foreignField: "_id",
+                as: "user",
+              },
+            },
+            {
+              $addFields: {
+                joining_date: {
+                  $arrayElemAt: ["$user.joining_date", 0],
+                },
+              },
+            },
             {
               $match: {
                 joining_date: {
@@ -3290,15 +3368,254 @@ exports.getUsersBetweenDate = async (req, res, next) => {
               },
             },
             {
-              $count: "users",
+              $group: {
+                _id: "$userId", // Assuming transactions is an array of objects
+              },
             },
-          ]
-        }
-      }
+            {
+              $count:
+                "users",
+            },
+          ],
+        },
+      },
     ])
 
     const response = {
       data: users,
+      status: "success",
+      message: "User Data fetched successfully",
+    }
+    res.status(200).json(response);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+exports.getAffiliateRevenueData = async (req, res, next) => {
+  try {
+    const { period } = req.query;
+    const { startDate, endDate } = getDates(period);
+
+    const affiliate = await Affiliate.find().select('affiliates');
+
+    const extractAllAffiliate = affiliate.map((elem) => {
+      return elem.affiliates.map((subelem) => {
+        return subelem?.userId;
+      });
+    });
+    
+    const affiliateIds = [].concat(...extractAllAffiliate);
+    
+    const users = await User.find({
+      joining_date: { $gt: new Date(startDate), $lt: new Date(endDate) },
+      referredBy: { $in: affiliateIds }
+    })
+    .select('_id');
+
+    
+    const userIds = users.map((elem) => elem?._id);
+    
+    const wallet = await Wallet.aggregate([
+      {
+        $unwind: {
+          path: "$transactions",
+        },
+      },
+      {
+        $match: {
+          userId: {
+            $in: userIds,
+          },
+          $or: [
+            {
+              "transactions.title": "TestZone Fee",
+            },
+            {
+              "transactions.title": "Battle Fee",
+            },
+            {
+              "transactions.title": "MarginX Fee",
+            },
+            {
+              "transactions.title":
+                "Bought TenX Trading Subscription",
+            },
+            {
+              "transactions.title": "Sign up Bonus",
+            },
+          ],
+          "transactions.transactionDate": {
+            $gt: new Date(startDate),
+            $lt: new Date(endDate),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            user: "$userId",
+          },
+          amount: {
+            $sum: {
+              $cond: {
+                if: {
+                  $ne: [
+                    "$transactions.title",
+                    "Sign up Bonus",
+                  ],
+                },
+                then: {
+                  $multiply: [
+                    "$transactions.amount",
+                    -1,
+                  ],
+                },
+                else: 0,
+              },
+            },
+          },
+          bonusAmount: {
+            $sum: {
+              $cond: {
+                if: {
+                  $eq: [
+                    "$transactions.title",
+                    "Sign up Bonus",
+                  ],
+                },
+                then: {
+                  $multiply: [
+                    "$transactions.amount",
+                    1,
+                  ],
+                },
+                else: 0,
+              },
+            },
+          },
+        },
+      },
+      {
+        $sort: {
+          amount: -1,
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "_id.user",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+        },
+      },
+      {
+        $project: {
+          joining_date: "$user.joining_date",
+          email: "$user.email",
+          mobile: "$user.mobile",
+          referredBy: "$user.referredBy",
+          activationDetails:
+            "$user.activationDetails",
+          paidDetails: "$user.paidDetails",
+          amount: 1,
+          bonusAmount: 1,
+          _id: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "referredBy",
+          foreignField: "_id",
+          as: "referredBy",
+        },
+      },
+      {
+        $project: {
+          amount: 1,
+          bonusAmount: 1,
+          joining_date: 1,
+          activationDetails: 1,
+          paidDetails: 1,
+          referredBy: {
+            $arrayElemAt: ["$referredBy._id", 0],
+          },
+          first_name: {
+            $arrayElemAt: ["$referredBy.first_name", 0],
+          },
+          last_name: {
+            $arrayElemAt: ["$referredBy.last_name", 0],
+          },
+          code: {
+            $arrayElemAt: [
+              "$referredBy.myReferralCode",
+              0,
+            ],
+          },
+        },
+      },
+    ])
+
+
+    const groupedData = wallet.reduce((result, item) => {
+      const affiliate = item?.referredBy;
+    
+      if (!result[affiliate]) {
+        result[affiliate] = {
+          total: 0,
+          active: 0,
+          paid: 0,
+          name: "",
+          code: "",
+          revenue: 0,
+          bonus: 0,
+          actualRevenue: 0
+        };
+      }
+    
+      result[affiliate].total += 1;
+      result[affiliate].revenue += item.amount;
+      result[affiliate].bonus += item.bonusAmount;
+      result[affiliate].actualRevenue += (item.amount - item.bonusAmount);
+      result[affiliate].name = item?.first_name + " " + item?.last_name;
+      result[affiliate].code = item?.code;
+      if(item?.activationDetails?.activationStatus === "Active"){
+        result[affiliate].active += 1;
+      }
+
+      if(item?.paidDetails){
+        result[affiliate].paid += 1;
+      }
+
+      return result;
+    }, {});
+    
+    const groupedArray = Object.entries(groupedData).map(([affiliate, { total, paid, active, name, code, revenue, bonus, actualRevenue }]) => ({
+      affiliate,
+      total,
+      name, active, actualRevenue,
+      code, paid, revenue, bonus
+    }));
+
+
+    groupedArray.sort((a, b)=>{
+      if(a.actualRevenue > b.actualRevenue){
+        return -1;
+      } else if(a.actualRevenue < b.actualRevenue){
+        return 1;
+      } else{
+        1
+      }
+    })
+
+    const response = {
+      data: groupedArray,
       status: "success",
       message: "User Data fetched successfully",
     }
