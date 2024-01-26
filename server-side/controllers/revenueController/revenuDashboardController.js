@@ -2862,10 +2862,8 @@ exports.getRevenueBetweenDate = async (req, res, next) => {
                   ], // Assuming "TestZone Fee" is not repeated intentionally
                 },
                 "transactions.transactionDate": {
-                  $gt: new Date(startDate),
-                },
-                "transactions.transactionDate": {
-                  $lt: new Date(endDate),
+                    $gt: new Date(startDate),
+                    $lt: new Date(endDate),
                 },
               },
             },
@@ -2895,7 +2893,7 @@ exports.getRevenueBetweenDate = async (req, res, next) => {
             {
               $group: {
                 _id: "$transactions.title", // Assuming transactions is an array of objects
-
+  
                 totalUnits: {
                   $sum: 1,
                 },
@@ -2957,8 +2955,6 @@ exports.getRevenueBetweenDate = async (req, res, next) => {
                 },
                 "transactions.transactionDate": {
                   $gt: new Date(startDate),
-                },
-                "transactions.transactionDate": {
                   $lt: new Date(endDate),
                 },
               },
@@ -2988,7 +2984,7 @@ exports.getRevenueBetweenDate = async (req, res, next) => {
             {
               $group: {
                 _id: "$transactions.title", // Assuming transactions is an array of objects
-
+  
                 totalUnits: {
                   $sum: 1,
                 },
@@ -3050,8 +3046,6 @@ exports.getRevenueBetweenDate = async (req, res, next) => {
                 },
                 "transactions.transactionDate": {
                   $gt: new Date(startDate),
-                },
-                "transactions.transactionDate": {
                   $lt: new Date(endDate),
                 },
               },
@@ -3059,7 +3053,7 @@ exports.getRevenueBetweenDate = async (req, res, next) => {
             {
               $group: {
                 _id: "$transactions.title", // Assuming transactions is an array of objects
-
+  
                 totalUnits: {
                   $sum: 1,
                 },
@@ -3267,40 +3261,88 @@ exports.getSignupChannelBetweenDate = async (req, res, next) => {
   }
 }
 
+exports.getUsersBetweenDate = async (req, res, next) => {
+  try {
+    const { period } = req.query;
+    const { startDate, endDate } = getDates(period);
+
+    const users = await User.aggregate([
+      {
+        $facet: {
+          newUser: [
+            {
+              $match: {
+                joining_date: {
+                  $gt: new Date(startDate),
+                  $lt: new Date(endDate),
+                },
+              },
+            },
+            {
+              $count: "users",
+            },
+          ],
+          oldUser: [
+            {
+              $match: {
+                joining_date: {
+                  $lt: new Date(startDate),
+                },
+              },
+            },
+            {
+              $count: "users",
+            },
+          ]
+        }
+      }
+    ])
+
+    const response = {
+      data: users,
+      status: "success",
+      message: "User Data fetched successfully",
+    }
+    res.status(200).json(response);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 function getDates(period) {
   const today = moment();
   let startDate, endDate;
 
   switch (period) {
     case 'Today':
-      startDate = today.startOf('day');
-      endDate = today;
+      startDate = today.clone().startOf('day');
+      endDate = today.endOf('day');
       break;
     case 'Yesterday':
       const yesterday = today.clone().subtract(1, 'day');
-      startDate = yesterday.startOf('day');
-      endDate = yesterday;
+      startDate = today.clone().subtract(1, 'day').startOf('day');
+      endDate = today.clone().subtract(1, 'day').endOf('day');
       break;
     case 'This Month':
       const firstDayOfMonth = today.clone().startOf('month');
       startDate = firstDayOfMonth;
-      endDate = today;
+      endDate = today.endOf('day');
       break;
     case 'Last 30 Days':
-      startDate = today.clone().subtract(29, 'days');
-      endDate = today;
+      startDate = today.clone().subtract(30, 'days');
+      endDate = today.endOf('day');
       break;
     case 'Last 60 Days':
-      startDate = today.clone().subtract(59, 'days');
-      endDate = today;
+      startDate = today.clone().subtract(60, 'days');
+      endDate = today.endOf('day');
       break;
     case 'Last 90 Days':
-      startDate = today.clone().subtract(89, 'days');
-      endDate = today;
+      startDate = today.clone().subtract(90, 'days');
+      endDate = today.endOf('day');
       break;
     case 'Last 180 Days':
-      startDate = today.clone().subtract(179, 'days');
-      endDate = today;
+      startDate = today.clone().subtract(180, 'days');
+      endDate = today.endOf('day');
       break;
 
     default:

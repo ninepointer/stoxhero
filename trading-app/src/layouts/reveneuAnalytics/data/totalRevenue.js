@@ -1,21 +1,34 @@
-
 import React, {useState, useEffect} from 'react'
 import axios from "axios";
-import {apiUrl} from "../../../constants/constants.js"
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
 import { CardActionArea, Divider, Grid } from '@mui/material';
-// Material Dashboard 2 React components
-import MDBox from "../../../components/MDBox/index.js";
 import MDTypography from "../../../components/MDTypography/index.js";
-import { Link} from "react-router-dom";
-import moment from 'moment'
+import { apiUrl } from '../../../constants/constants.js';
 
 
-const PublishedBlogs = ({overallRevenue,period}) => {
+const TotalRevenue = ({betweenDateTotalRevenue,period, betweenDateRevenue}) => {
 
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    const [users, setUsers] = useState([]);
+
+    useEffect(() => {
+        let call1 = axios.get((`${apiUrl}revenue/usersbetweendate?period=${period}`), {
+            withCredentials: true,
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Credentials": true
+            },
+        })
+        Promise.all([call1])
+            .then(([api1Response]) => {
+                setUsers(api1Response.data.data)
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+
+    }, [period])
 
     return (
     <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{minWidth: '100%',height: 'auto'}}>
@@ -33,7 +46,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                                 <Divider style={{width:'100%'}}/>
                             <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                                 <MDTypography variant='h6'>
-                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue?.totalGMV)}
+                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(betweenDateTotalRevenue?.total?.revenue) || 0)}
                                 </MDTypography>
                             </Grid>
                         </CardContent>
@@ -55,7 +68,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                                 <Divider style={{width:'100%'}}/>
                             <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                                 <MDTypography variant='h6'>
-                                    {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue?.totalGMV)}
+                                    {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(betweenDateTotalRevenue?.total?.unit || 0)}
                                 </MDTypography>
                             </Grid>
                         </CardContent>
@@ -77,7 +90,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                                 <Divider style={{width:'100%'}}/>
                             <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                                 <MDTypography variant='h6'>
-                                    {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue?.totalGMV)}
+                                    {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(users?.[0]?.newUser?.[0]?.users || 0)}
                                 </MDTypography>
                             </Grid>
                         </CardContent>
@@ -99,7 +112,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                                 <Divider style={{width:'100%'}}/>
                             <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                                 <MDTypography variant='h6'>
-                                    {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue?.totalGMV)}
+                                    {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(users?.[0]?.oldUser?.[0]?.users || 0)}
                                 </MDTypography>
                             </Grid>
                         </CardContent>
@@ -119,30 +132,29 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                                 </MDTypography>
                             </Grid>
                                 <Divider style={{width:'100%'}}/>
-                            <Grid xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
-                                <MDTypography variant='h7'>
-                                   TestZone:
-                                </MDTypography>
-                                <MDTypography variant='h7'>
-                                ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue?.totalRevenue)}
-                                </MDTypography>
-                            </Grid>
-                            <Grid xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
-                                <MDTypography variant='h7'>
-                                   TenX:
-                                </MDTypography>
-                                <MDTypography variant='h7'>
-                                ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue?.totalRevenue)}
-                                </MDTypography>
-                            </Grid>
-                            <Grid xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
-                                <MDTypography variant='h7'>
-                                   MarginX: 
-                                </MDTypography>
-                                <MDTypography variant='h7'>
-                                ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue?.totalRevenue)}
-                                </MDTypography>
-                            </Grid>
+
+                                {
+                                    betweenDateRevenue?.[0]?.total?.length ?
+                                    betweenDateRevenue?.[0]?.total.map((elem)=>{
+                                        return(
+                                            <Grid xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                                            <MDTypography variant='h7'>
+                                               {elem?.product}:
+                                            </MDTypography>
+                                            <MDTypography variant='h7'>
+                                            ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(elem?.totalRevenue) || 0)}
+                                            </MDTypography>
+                                        </Grid>
+                                        )
+                                    })
+                                    :
+                                    <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                                    <MDTypography variant='h6'>
+                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format( 0)}
+                                    </MDTypography>
+                                </Grid>
+                                }
+
                         </CardContent>
                     </Grid>
                 </CardActionArea>
@@ -160,30 +172,27 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                                 </MDTypography>
                             </Grid>
                                 <Divider style={{width:'100%'}}/>
-                            <Grid xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
-                                <MDTypography variant='h7'>
-                                   TestZone:
-                                </MDTypography>
-                                <MDTypography variant='h7'>
-                                   {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue?.totalRevenue)}
-                                </MDTypography>
-                            </Grid>
-                            <Grid xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
-                                <MDTypography variant='h7'>
-                                   TenX:
-                                </MDTypography>
-                                <MDTypography variant='h7'>
-                                   {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue?.totalRevenue)}
-                                </MDTypography>
-                            </Grid>
-                            <Grid xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
-                                <MDTypography variant='h7'>
-                                   MarginX: 
-                                </MDTypography>
-                                <MDTypography variant='h7'>
-                                   {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue?.totalRevenue)}
-                                </MDTypography>
-                            </Grid>
+                                { betweenDateRevenue?.[0]?.total?.length ?
+                                    betweenDateRevenue?.[0]?.total.map((elem)=>{
+                                        return(
+                                            <Grid xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                                            <MDTypography variant='h7'>
+                                               {elem?.product}:
+                                            </MDTypography>
+                                            <MDTypography variant='h7'>
+                                            {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(elem?.totalUnits) || 0)}
+                                            </MDTypography>
+                                        </Grid>
+                                        )
+                                    })
+                                    :
+                                    
+                                    <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                                    <MDTypography variant='h6'>
+                                        {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format( 0)}
+                                    </MDTypography>
+                                </Grid>
+                                }
                         </CardContent>
                     </Grid>
                 </CardActionArea>
@@ -203,7 +212,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                                 <Divider style={{width:'100%'}}/>
                             <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                                 <MDTypography variant='h6'>
-                                ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue?.totalGMV)}
+                                ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(betweenDateTotalRevenue?.new?.revenue) || 0)}
                                 </MDTypography>
                             </Grid>
                         </CardContent>
@@ -225,7 +234,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                                 <Divider style={{width:'100%'}}/>
                             <Grid mb={-1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
                                 <MDTypography variant='h6'>
-                                ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue?.totalGMV)}
+                                ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(betweenDateTotalRevenue?.old?.revenue) || 0)}
                                 </MDTypography>
                             </Grid>
                         </CardContent>
@@ -241,4 +250,4 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
 
 
 
-export default PublishedBlogs;
+export default TotalRevenue;

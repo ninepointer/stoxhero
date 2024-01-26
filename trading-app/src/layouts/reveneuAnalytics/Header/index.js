@@ -32,65 +32,38 @@ import CareerData from '../data/careerDetails'
 import CampaignData from '../data/campaignDetails'
 import ReferralData from '../data/referralDetails'
 import AutosignupData from '../data/autosignupDetails'
+import { apiUrl } from '../../../constants/constants';
 
 export default function Dashboard() {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let [isLoading,setIsLoading] = useState([])
-  const [testZoneMonthlyRevenue,setTestZoneMonthlyRevenue] = useState([])
-  const [totalTestZoneRevenue,setTotalTestZoneRevenue] = useState([])
-  const [tenXMonthlyRevenue,setTenXMonthlyRevenue] = useState([])
-  const [totalTenXRevenue,setTotalTenXRevenue] = useState([])
-  const [marginXMonthlyRevenue,setMarginXMonthlyRevenue] = useState([])
-  const [totalMarginXRevenue,setTotalMarginXRevenue] = useState([])
-  const [battleMonthlyRevenue,setBattleMonthlyRevenue] = useState([])
-  const [totalBattleRevenue,setTotalBattleRevenue] = useState([])
+  const [betweenDateRevenue,setBetweenDateRevenue] = useState([])
+  const [betweenDateTotalRevenue,setBetweenDateTotalRevenue] = useState([])
   const [overallRevenue,setOverallRevenue] = useState([])
-  const [overallMonthlyRevenue,setOverallMonthlyRevenue] = useState([])
-  const [downloadingTestZoneData,setDownloadingTestZoneRevenueData] = useState(false)
-  const [downloadingMarginXData,setDownloadingMarginXRevenueData] = useState(false)
   const [creationProcess, setCreationProcess] = useState([]);
   const [period,setPeriod] = useState("Today")
   
   
-  useEffect(()=>{
+  useEffect(() => {
     setIsLoading(true)
-    let call1 = axios.get((`${baseUrl}api/v1/revenue/gettestzonerevenue`),{
-                withCredentials: true,
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Credentials": true
-                  },
-                })
-    let call2 = axios.get((`${baseUrl}api/v1/revenue/overallrevenue`),{
-                withCredentials: true,
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Credentials": true
-                  },
-                })
-    Promise.all([call1, call2])
-    .then(([api1Response, api2Response]) => {
-        setTestZoneMonthlyRevenue(api1Response.data.testZoneData)
-        setTotalTestZoneRevenue(api1Response.data.totalTestZoneRevenue)
-        setTenXMonthlyRevenue(api1Response.data.tenXData)
-        setTotalTenXRevenue(api1Response.data.totalTenXRevenue)
-        setMarginXMonthlyRevenue(api1Response.data.marginXData)
-        setTotalMarginXRevenue(api1Response.data.totalMarginXRevenue)
-        setBattleMonthlyRevenue(api1Response.data.battleData)
-        setTotalBattleRevenue(api1Response.data.totalBattleRevenue);
-        setOverallRevenue(api2Response?.data?.totalRevenueData);
-        setOverallMonthlyRevenue(api2Response?.data?.totalMonthWiseData);
-        setCreationProcess(api2Response?.data?.userByCreationProcess);
-        setIsLoading(false)
+    let call1 = axios.get((`${apiUrl}revenue/betweendates?period=${period}`), {
+      withCredentials: true,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Credentials": true
+      },
     })
-    .catch((error) => {
-    //   Handle errors here
-      console.error(error);
-    });
-    
-  },[])
+    Promise.all([call1])
+      .then(([api1Response]) => {
+        setBetweenDateRevenue(api1Response.data.data)
+        setBetweenDateTotalRevenue(api1Response.data.total)
+        setIsLoading(false)
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+  }, [period])
 
   function TruncatedName(name) {
     const originalName = name;
@@ -104,128 +77,6 @@ export default function Dashboard() {
     const truncatedName = convertedName.length > 30 ? convertedName.substring(0, 30) + '...' : convertedName;
   
     return truncatedName;
-  }
-
-  const downloadTestZoneRevenueData = () => {
-    setDownloadingTestZoneRevenueData(true)
-    return new Promise((resolve, reject) => {
-        axios
-        .get(`${baseUrl}api/v1/revenue/downloadtestzonerevenuedata`, {
-            withCredentials: true,
-            headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Credentials': true,
-            },
-        })
-        .then((res) => {
-            resolve(res.data.data); // Resolve the promise with the data
-            setDownloadingTestZoneRevenueData(false)
-        })
-        .catch((err) => {
-            console.log(err)
-            reject(err); // Reject the promise with the error'
-            setDownloadingTestZoneRevenueData(false)
-        });
-    });
-  };
-
-  const downloadMarginXRevenueData = () => {
-    setDownloadingMarginXRevenueData(true)
-    return new Promise((resolve, reject) => {
-        axios
-        .get(`${baseUrl}api/v1/revenue/downloadmarginxrevenuedata`, {
-            withCredentials: true,
-            headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Credentials': true,
-            },
-        })
-        .then((res) => {
-            resolve(res.data.data); // Resolve the promise with the data
-            setDownloadingMarginXRevenueData(false)
-        })
-        .catch((err) => {
-            console.log(err)
-            reject(err); // Reject the promise with the error'
-            setDownloadingMarginXRevenueData(false)
-        });
-    });
-  };
-
-  const handleDownload = async (nameVariable) => {
-    console.log("Name:",nameVariable)
-    try {
-      // Wait for downloadContestData() to complete and return data
-      let data = [];
-      let csvData = [];
-      if(nameVariable === 'TestZone Revenue Data'){
-        data = await downloadTestZoneRevenueData();
-        csvData = downloadHelper(data)
-      }
-      if(nameVariable === 'MarginX Revenue Data'){
-        data = await downloadMarginXRevenueData();
-        csvData = downloadHelper(data)
-      }
-      // Create the CSV content
-      const csvContent = csvData?.map((row) => {
-        return row?.map((row1) => row1.join(',')).join('\n');
-      });
-  
-      // Create a Blob object with the CSV content
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
-  
-      // Save the file using FileSaver.js
-      saveAs(blob, `${nameVariable}.csv`);
-    } catch (error) {
-      console.error('Error downloading revenue data:', error);
-    }
-  }
-
-  function downloadHelper(data) {
-    let csvDataFile = [[]]
-    let csvDataDailyPnl = [["#","First Name", "Last Name", "Email", "Mobile", "Signup Method", "Joining Date", 
-                            "Campaign Code", "Referrer Code", "Referral Code", "TestZone", 
-                            "TestZone Date", "TestZone Portfolio", "Purchase Date", 
-                            "TestZone Status", "Actual Price", "Buying Price", "Bonus Used", 
-                            "Rank", "Payout", "TDS Amount", "Net P&L", "Gross P&L", "# of Trades"]]
-    if (data) {
-      // dates = Object.keys(data)
-      let csvpnlData = Object.values(data)
-      csvDataFile = csvpnlData?.map((elem, index) => {
-
-        return [
-          index+1,
-          TruncatedName(elem?.first_name),
-          TruncatedName(elem?.last_name),
-          elem?.email,
-          elem?.mobile,
-          elem?.creationProcess,
-          moment.utc(elem?.joiningDate).format('DD-MMM-YY'),
-          elem?.campaignCode,
-          elem?.referrerCode,
-          elem?.myReferralCode,
-          elem?.testzone,
-          moment.utc(elem?.testzoneDate).format('DD-MMM-YY'),
-          elem?.testzonePortfolio,
-          moment.utc(elem?.purchaseDate).format('DD-MMM-YY HH:mm'),
-          elem?.contestStatus,
-          elem?.actualPrice?.toFixed(2),
-          elem?.buyingPrice?.toFixed(2),
-          elem?.bonusRedemption?.toFixed(2),
-          elem?.rank,
-          elem?.payout?.toFixed(0),
-          elem?.tdsAmount?.toFixed(0),
-          elem?.npnl?.toFixed(0),
-          elem?.gpnl?.toFixed(0),
-          elem?.trades,
-
-        ]
-      })
-    }
-
-    return [[...csvDataDailyPnl, ...csvDataFile]]
   }
 
   const handlePeriodChange = (event) => {
@@ -264,7 +115,7 @@ export default function Dashboard() {
                               >
                                 <MenuItem value={"Today"}>Today</MenuItem>
                                 <MenuItem value={"Yesterday"}>Yesterday</MenuItem>
-                                <MenuItem value={"Yesterday"}>This Month</MenuItem>
+                                <MenuItem value={"This Month"}>This Month</MenuItem>
                                 <MenuItem value={"Last 30 Days"}>Last 30 Days</MenuItem>
                                 <MenuItem value={"Last 60 Days"}>Last 60 Days</MenuItem>
                                 <MenuItem value={"Last 90 Days"}>Last 90 Days</MenuItem>
@@ -285,7 +136,7 @@ export default function Dashboard() {
               
                 <Grid container spacing={0} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                            {overallRevenue && <TotalRevenue overallRevenue={overallRevenue} period={period}/>}
+                            {betweenDateTotalRevenue && <TotalRevenue betweenDateRevenue={betweenDateRevenue} betweenDateTotalRevenue={betweenDateTotalRevenue} period={period}/>}
                     </Grid>
     
                 </Grid>
@@ -298,13 +149,13 @@ export default function Dashboard() {
                     
                     <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
                       
-                        <CreationProcessChart creationProcess={creationProcess}/>
+                        <CreationProcessChart period={period}/>
                         
                     </Grid>
 
                     <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
                       
-                        <RevenueChannelSplit creationProcess={creationProcess}/>
+                        <RevenueChannelSplit period={period}/>
                         
                     </Grid>
                     
