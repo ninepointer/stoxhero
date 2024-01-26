@@ -3180,12 +3180,11 @@ exports.getSignupChannelBetweenDate = async (req, res, next) => {
             ], // Assuming "TestZone Fee" is not repeated intentionally
           },
     
-          "transactions.transactionDate": {
-            $gt: new Date(startDate),
-          },
-          "transactions.transactionDate": {
-            $lt: new Date(endDate),
-          },
+          
+                "transactions.transactionDate": {
+                    $gt: new Date(startDate),
+                    $lt: new Date(endDate),
+                },
         },
       },
       {
