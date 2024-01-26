@@ -10,7 +10,7 @@ const PaperTrader = require("../../models/mock-trade/paperTrade");
 const User = require("../../models/User/userDetailSchema");
 const {autoPlaceOrder} = require("../../services/xts/xtsInteractive")
 const { takeAutoTenxTrade, takeAutoPaperTrade, takeAutoInfinityTrade, takeAutoInternshipTrade, takeAutoDailyContestMockTrade, 
-  takeInternshipTrades, takeDailyContestMockTrades, takeMarginXMockTrades, takeBattleTrades } = require("./autoTradeManually");
+  takeInternshipTrades, takeDailyContestMockTrades, takeMarginXMockTrades, takeBattleTrades, takeStockTrades } = require("./autoTradeManually");
 const DailyContestMock = require("../../models/DailyContest/dailyContestMockCompany");
 const MarginXMock = require("../../models/marginX/marginXCompanyMock");
 const singleLivePrice = require('../../marketData/sigleLivePrice');
@@ -441,147 +441,6 @@ const paperTrade = async () => {
 
   if(data.length > 0){
     await paperTrade();
-  }
-
-  return ;
-}
-
-const stockTrade = async () => {
-  let date = new Date();
-  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-  todayDate = todayDate + "T00:00:00.000Z";
-  const today = new Date(todayDate);
-
-  // let tradeArr = [];
-  const data = await StockTrader.aggregate(
-    [
-      {
-        $match:
-        {
-          trade_time: {
-            $gte: today
-          },
-          status: "COMPLETE",
-          Product: "MIS"
-        },
-      },
-      {
-        $group:
-        {
-          _id: {
-            userId: "$trader",
-            portfolioId: "$portfolioId",
-            exchange: "$exchange",
-            symbol: "$symbol",
-            instrumentToken: "$instrumentToken",
-            exchangeInstrumentToken: "$exchangeInstrumentToken",
-            // variety: "$variety",
-            // validity: "$validity",
-            // order_type: "$order_type",
-            // Product: "$Product",
-          },
-          runningLots: {
-            $sum: "$Quantity",
-          },
-          takeTradeQuantity: {
-            $sum: {
-              $multiply: ["$Quantity", -1],
-            },
-          },
-        },
-      },
-      {
-        $project:
-        {
-          _id: 0,
-          userId: "$_id.userId",
-          portfolioId: "$_id.portfolioId",
-          exchange: "$_id.exchange",
-          symbol: "$_id.symbol",
-          instrumentToken: "$_id.instrumentToken",
-          exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
-          // variety: "$_id.variety",
-          // validity: "$_id.validity",
-          // order_type: "$_id.order_type",
-          // Product: "$_id.Product",
-          runningLots: "$runningLots",
-          takeTradeQuantity: "$takeTradeQuantity",
-        },
-      },
-      {
-        $match: {
-          runningLots: {
-            $ne: 0
-          },
-        }
-      }
-
-    ]
-  );
-
-  if(data.length == 0){
-    return;
-  }
-
-  for (let i = 0; i < data.length; i++) {
-    let date = new Date();
-    let transaction_type = data[i].runningLots > 0 ? "BUY" : "SELL";
-    let quantity = Math.abs(data[i].runningLots);
-
-    let buyOrSell
-    if (transaction_type === "BUY") {
-      buyOrSell = "SELL";
-    } else {
-      buyOrSell = "BUY";
-    }
-
-    // let system = await User.findOne({ email: "system@ninepointer.in" })
-    let createdBy = "63ecbc570302e7cf0153370c"
-
-    let Obj = {};
-    Obj.symbol = data[i].symbol;
-    Obj.Product = data[i].Product;
-    Obj.instrumentToken = data[i].instrumentToken;
-    Obj.exchangeInstrumentToken = data[i].exchangeInstrumentToken;
-    Obj.real_instrument_token = data[i].instrumentToken;
-    Obj.exchange = data[i].exchange;
-    Obj.validity = data[i].validity;
-    Obj.order_type = data[i].order_type;
-    Obj.variety = data[i].variety;
-    Obj.buyOrSell = buyOrSell;
-    Obj.trader = data[i].userId;
-    Obj.portfolioId = data[i].portfolioId;
-    Obj.autoTrade = true;
-    Obj.dontSendResp = (i !== (data.length - 1));
-    Obj.createdBy = createdBy
-
-    await recursiveFunction(quantity)
-
-    async function recursiveFunction(quantity) {
-      if (quantity == 0) {
-        return;
-      }
-      else if (quantity <= (data[i].symbol.includes("BANK") ? 900 : 1800)) {
-        Obj.Quantity = quantity;
-        Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
-        await takeAutoStockTrade(Obj);
-        if(data.length > 0 && i == data.length-1){
-          await stockTrade();
-        }
-        return;
-      } else {
-        let tempQuantity = data[i].symbol.includes("BANK") ? 900 : 1800;
-
-        Obj.Quantity = tempQuantity;
-        Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
-        await takeAutoStockTrade(Obj);
-        return recursiveFunction(quantity - tempQuantity);
-      }
-    }
-  }
-
-  if(data.length > 0){
-    await stockTrade();
   }
 
   return ;
@@ -1165,6 +1024,110 @@ const internshipTradeMod = async () => {
   // console.log('tradeObjects', tradeObjects);
   
   await takeInternshipTrades(tradeObjects);
+
+}
+
+const stockTradeMod = async () => {
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+
+  const data = await StockTrader.aggregate(
+    [
+      {
+        $match:
+        {
+          trade_time: {
+            $gte: today
+          },
+          status: "COMPLETE",
+          Product: "MIS"
+        },
+      },
+      {
+        $group:
+        {
+          _id: {
+            userId: "$trader",
+            portfolioId: "$portfolioId",
+            exchange: "$exchange",
+            symbol: "$symbol",
+            instrumentToken: "$instrumentToken",
+            exchangeInstrumentToken: "$exchangeInstrumentToken",
+            // variety: "$variety",
+            // validity: "$validity",
+            // order_type: "$order_type",
+            // Product: "$Product",
+          },
+          runningLots: {
+            $sum: "$Quantity",
+          },
+          takeTradeQuantity: {
+            $sum: {
+              $multiply: ["$Quantity", -1],
+            },
+          },
+        },
+      },
+      {
+        $project:
+        {
+          _id: 0,
+          userId: "$_id.userId",
+          portfolioId: "$_id.portfolioId",
+          exchange: "$_id.exchange",
+          symbol: "$_id.symbol",
+          instrumentToken: "$_id.instrumentToken",
+          exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
+          // variety: "$_id.variety",
+          // validity: "$_id.validity",
+          // order_type: "$_id.order_type",
+          // Product: "$_id.Product",
+          runningLots: "$runningLots",
+          takeTradeQuantity: "$takeTradeQuantity",
+        },
+      },
+      {
+        $match: {
+          runningLots: {
+            $ne: 0
+          },
+        }
+      }
+
+    ]
+  );
+
+
+  if(data.length == 0) return;
+  const system = await User.findOne({email:'system@ninepointer.in'}).select('_id');  
+  //const uniqueInstrumentTokens = [...new Set(data.map(item => item.instrumentToken))];
+  const uniqueTokensMap = {};
+  const uniqueInstrumentObjects = data.filter(item => {
+      if (!uniqueTokensMap[item.instrumentToken]) {
+          uniqueTokensMap[item.instrumentToken] = true;
+          return true; // Keep this item
+      }
+      return false; // Discard this item
+  }).map(item => ({
+      instrumentToken: item.instrumentToken,
+      exchange: item.exchange,
+      symbol: item.symbol
+  }));
+  console.log('getting stock', data?.length);
+  const pricesByTokens = await fetchPricesForTokensArr(uniqueInstrumentObjects);
+  const tradeObjects = data.map((item)=>{
+    return {
+      status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity:-(item?.runningLots), Product:"MIS", 
+      buyOrSell:item?.runningLots>0?'SELL':'BUY',variety:"regular", validity: "DAY", exchange:item?.exchange, order_type:"MARKET", 
+      symbol: item?.symbol, placed_by: "stoxhero",order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`, 
+      instrumentToken: item?.instrumentToken, portfolioId: item?.portfolioId, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?.userId, amount: (Number(-item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5*60 + 30) * 60 * 1000),
+    }
+  });
+  // console.log('tradeObjects', tradeObjects);
+  
+  await takeStockTrades(tradeObjects);
 
 }
 
@@ -1865,5 +1828,5 @@ const battleTradeMod = async () => {
 
 
 
-module.exports = { stockTrade, dailyContestSingleMockMod, dailyContestMock, tenx, paperTrade, infinityTrade, internship, infinityTradeLive, contestTradeLive, internshipTradeMod, dailyContestMockMod, marginXMockMod, battleTradeMod };
+module.exports = { stockTradeMod, dailyContestSingleMockMod, dailyContestMock, tenx, paperTrade, infinityTrade, internship, infinityTradeLive, contestTradeLive, internshipTradeMod, dailyContestMockMod, marginXMockMod, battleTradeMod };
 
