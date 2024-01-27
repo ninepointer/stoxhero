@@ -49,7 +49,7 @@ function ReferralRevenue({ period }) {
                                 id="panel1a-header"
                             >
                                 <Typography fontSize={14} fontWeight={700} >
-                                    AutoSignup Revenue
+                                    Referral Revenue
                                 </Typography>
                             </AccordionSummary>
                             <AccordionDetails>

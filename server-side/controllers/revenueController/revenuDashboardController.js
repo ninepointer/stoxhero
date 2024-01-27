@@ -3408,284 +3408,541 @@ exports.getAffiliateRevenueData = async (req, res, next) => {
     
     const affiliateIds = [].concat(...extractAllAffiliate);
     
-    // console.log(affiliateIds)
-    // const userData = await User.aggregate([
-    //   {
-    //     $match: {
-    //       referredBy: {
-    //         $in: affiliateIds,
-    //       },
-    //       joining_date: {
-    //         $gt: new Date(startDate),
-    //         $lt: new Date(endDate),
-    //       },
-    //     },
-    //   },
-    //   {
-    //     $group: {
-    //       _id: {
-    //         referredBy: "$referredBy",
-    //       },
-    //       total: {
-    //         $count: {},
-    //       },
-    //       active: {
-    //         $sum: {
-    //           $cond: {
-    //             if: {
-    //               $eq: [
-    //                 "$activationDetails.activationStatus",
-    //                 "Active",
-    //               ],
-    //             },
-    //             then: 1,
-    //             else: 0,
-    //           },
-    //         },
-    //       },
-    //       paid: {
-    //         $sum: {
-    //           $cond: {
-    //             if: {
-    //               $gt: [
-    //                 {
-    //                   $ifNull: ["$paidDetails", null],
-    //                 },
-    //                 null,
-    //               ],
-    //             },
-    //             then: 1,
-    //             else: 0,
-    //           },
-    //         },
-    //       },
-    //     },
-    //   },
-    //   {
-    //     $project: {
-    //       paid: "$paid",
-    //       affiliate: "$_id.referredBy",
-    //       active: 1,
-    //       total: 1,
-    //     },
-    //   },
-    // ])
     const users = await User.find({
-      joining_date: { $gt: new Date(startDate), $lt: new Date(endDate) },
+      // joining_date: { $gt: new Date(startDate), $lt: new Date(endDate) },
       referredBy: { $in: affiliateIds }
     })
     .select('_id');
 
     
     const userIds = users.map((elem) => elem?._id);
-
-    console.log("userIds", userIds)
     
-    const wallet = await Wallet.aggregate([
-      {
-        $unwind: {
-          path: "$transactions",
-        },
-      },
-      {
-        $match: {
-          userId: {
-            $in: userIds,
+    const wallet = await Wallet.aggregate([{
+      $facet: {
+        'total': [
+          {
+            $unwind: {
+              path: "$transactions",
+            },
           },
-          $or: [
-            {
-              "transactions.title": "TestZone Fee",
-            },
-            {
-              "transactions.title": "Battle Fee",
-            },
-            {
-              "transactions.title": "MarginX Fee",
-            },
-            {
-              "transactions.title":
-                "Bought TenX Trading Subscription",
-            },
-            {
-              "transactions.title": "Sign up Bonus",
-            },
-            {
-              "transactions.title": "TenX Joining Bonus",
-            },
-          ],
-          "transactions.transactionDate": {
-            $gt: new Date(startDate),
-            $lt: new Date(endDate),
-          },
-        },
-      },
-      {
-        $group: {
-          _id: {
-            user: "$userId",
-          },
-          amount: {
-            $sum: {
-              $cond: {
-                if: {
-                  $ne: [
-                    "$transactions.title",
-                    "Sign up Bonus",
-                  ],
+
+          {
+            $match: {
+              userId: {
+                $in: userIds,
+              },
+              $or: [
+                {
+                  "transactions.title": "TestZone Fee",
                 },
-                then: {
-                  $multiply: [
-                    "$transactions.amount",
-                    -1,
-                  ],
+                {
+                  "transactions.title": "Battle Fee",
                 },
-                else: 0,
+                {
+                  "transactions.title": "MarginX Fee",
+                },
+                {
+                  "transactions.title":
+                    "Bought TenX Trading Subscription",
+                },
+                {
+                  "transactions.title": "Sign up Bonus",
+                },
+                {
+                  "transactions.title":
+                    "TenX Joining Bonus",
+                },
+              ],
+              "transactions.transactionDate": {
+                $gt: new Date(startDate),
+                $lt: new Date(endDate),
               },
             },
           },
-          bonusAmount: {
-            $sum: {
-              $cond: {
-                if: {
-                  $eq: [
-                    "$transactions.title",
-                    "Sign up Bonus",
-                  ],
+          {
+            $group: {
+              _id: {
+                user: "$userId",
+              },
+              amount: {
+                $sum: {
+                  $cond: {
+                    if: {
+                      $not: {
+                        $or: [
+                          {
+                            $eq: [
+                              "$transactions.title",
+                              "Sign up Bonus",
+                            ],
+                          },
+                          {
+                            $eq: [
+                              "$transactions.title",
+                              "Tenx Joining Bonus",
+                            ],
+                          },
+                        ],
+                      },
+                    },
+                    then: {
+                      $multiply: [
+                        "$transactions.amount",
+                        -1,
+                      ],
+                    },
+                    else: 0,
+                  },
                 },
-                then: {
-                  $multiply: [
-                    "$transactions.amount",
-                    1,
-                  ],
+              },
+              bonusAmount: {
+                $sum: {
+                  $cond: {
+                    if: {
+                      $or: [
+                        {
+                          $eq: [
+                            "$transactions.title",
+                            "Sign up Bonus",
+                          ],
+                        },
+                        {
+                          $eq: [
+                            "$transactions.title",
+                            "Tenx Joining Bonus",
+                          ],
+                        },
+                      ],
+                    },
+                    then: "$transactions.amount",
+                    else: 0,
+                  },
                 },
-                else: 0,
               },
             },
           },
-        },
-      },
-      {
-        $sort: {
-          amount: -1,
-        },
-      },
-      {
-        $lookup: {
-          from: "user-personal-details",
-          localField: "_id.user",
-          foreignField: "_id",
-          as: "user",
-        },
-      },
-      {
-        $unwind: {
-          path: "$user",
-        },
-      },
-      {
-        $project: {
-          joining_date: "$user.joining_date",
-          email: "$user.email",
-          mobile: "$user.mobile",
-          referredBy: "$user.referredBy",
-          activationDetails:
-            "$user.activationDetails",
-          paidDetails: "$user.paidDetails",
-          amount: 1,
-          bonusAmount: 1,
-          _id: 0,
-        },
-      },
-      {
-        $lookup: {
-          from: "user-personal-details",
-          localField: "referredBy",
-          foreignField: "_id",
-          as: "referredBy",
-        },
-      },
-      {
-        $project: {
-          amount: 1,
-          bonusAmount: 1,
-          joining_date: 1,
-          activationDetails: 1,
-          paidDetails: 1,
-          referredBy: {
-            $arrayElemAt: ["$referredBy._id", 0],
+          {
+            $lookup: {
+              from: "user-personal-details",
+              localField: "_id.user",
+              foreignField: "_id",
+              as: "user",
+            },
           },
-          first_name: {
-            $arrayElemAt: ["$referredBy.first_name", 0],
+          {
+            $unwind: {
+              path: "$user",
+            },
           },
-          last_name: {
-            $arrayElemAt: ["$referredBy.last_name", 0],
+          {
+            $project: {
+              joining_date: "$user.joining_date",
+              email: "$user.email",
+              mobile: "$user.mobile",
+              referredBy: "$user.referredBy",
+              activationDetails:
+                "$user.activationDetails",
+              paidDetails: "$user.paidDetails",
+              amount: 1,
+              bonusAmount: 1,
+              _id: 0,
+            },
           },
-          code: {
-            $arrayElemAt: [
-              "$referredBy.myReferralCode",
-              0,
-            ],
+          {
+            $lookup: {
+              from: "user-personal-details",
+              localField: "referredBy",
+              foreignField: "_id",
+              as: "referredBy",
+            },
           },
-        },
-      },
-    ])
+          {
+            $project: {
+              amount: 1,
+              bonusAmount: 1,
+              joining_date: 1,
+              activationDetails: 1,
+              paidDetails: 1,
+              referredBy: {
+                $arrayElemAt: ["$referredBy._id", 0],
+              },
+              first_name: {
+                $arrayElemAt: [
+                  "$referredBy.first_name",
+                  0,
+                ],
+              },
+              last_name: {
+                $arrayElemAt: [
+                  "$referredBy.last_name",
+                  0,
+                ],
+              },
+              code: {
+                $arrayElemAt: [
+                  "$referredBy.myReferralCode",
+                  0,
+                ],
+              },
+              bonusUsed: {
+                $cond: {
+                  if: {
+                    $gt: [
+                      {
+                        $subtract: [
+                          "$bonusAmount",
+                          "$amount",
+                        ],
+                      },
+                      0,
+                    ],
+                  },
+                  then: "$amount",
+                  else: "$bonusAmount",
+                },
+              },
+            },
+          },
+          {
+            $group: {
+              _id: {
+                affiliate: "$referredBy",
+                code: "$code",
+                first_name: "$first_name",
+                last_name: "$last_name",
+              },
+              totalAmount: {
+                $sum: "$amount",
+              },
+              totalBonusAmount: {
+                $sum: "$bonusAmount",
+              },
+              totalBonusUsed: {
+                $sum: "$bonusUsed",
+              },
+            },
+          },
+          {
+            $project: {
+              affiliate: "$_id.affiliate",
+              code: "$_id.code",
+              name: {
+                $concat: [
+                  "$_id.first_name",
+                  " ",
+                  "$_id.last_name",
+                ],
+              },
+              _id: 0,
+              totalAmount: 1,
+              totalBonusUsed: 1,
+              totalBonusAmount: 1,
+            },
+          },
+        ],
+        'new': [
+          {
+            $unwind: {
+              path: "$transactions",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-personal-details",
+              localField: "userId",
+              foreignField: "_id",
+              as: "user",
+            },
+          },
+          {
+            $unwind: {
+              path: "$user",
+            },
+          },
+          {
+            $match: {
+              userId: {
+                $in: userIds,
+              },
+              "user.joining_date": {
+                $gt: new Date(startDate),
+                $lt: new Date(endDate),
+              },
+              $or: [
+                {
+                  "transactions.title": "TestZone Fee",
+                },
+                {
+                  "transactions.title": "Battle Fee",
+                },
+                {
+                  "transactions.title": "MarginX Fee",
+                },
+                {
+                  "transactions.title":
+                    "Bought TenX Trading Subscription",
+                },
+                {
+                  "transactions.title": "Sign up Bonus",
+                },
+                {
+                  "transactions.title":
+                    "TenX Joining Bonus",
+                },
+              ],
+              "transactions.transactionDate": {
+                $gt: new Date(startDate),
+                $lt: new Date(endDate),
+              },
+            },
+          },
+          {
+            $group: {
+              _id: {
+                userId: "$userId",
+                user: "$user",
+              },
+              amount: {
+                $sum: {
+                  $cond: {
+                    if: {
+                      $not: {
+                        $or: [
+                          {
+                            $eq: [
+                              "$transactions.title",
+                              "Sign up Bonus",
+                            ],
+                          },
+                          {
+                            $eq: [
+                              "$transactions.title",
+                              "Tenx Joining Bonus",
+                            ],
+                          },
+                        ],
+                      },
+                    },
+                    then: {
+                      $multiply: [
+                        "$transactions.amount",
+                        -1,
+                      ],
+                    },
+                    else: 0,
+                  },
+                },
+              },
+              bonusAmount: {
+                $sum: {
+                  $cond: {
+                    if: {
+                      $or: [
+                        {
+                          $eq: [
+                            "$transactions.title",
+                            "Sign up Bonus",
+                          ],
+                        },
+                        {
+                          $eq: [
+                            "$transactions.title",
+                            "Tenx Joining Bonus",
+                          ],
+                        },
+                      ],
+                    },
+                    then: "$transactions.amount",
+                    else: 0,
+                  },
+                },
+              },
+            },
+          },
+          {
+            $project: {
+              joining_date: "$_id.user.joining_date",
+              email: "$_id.user.email",
+              mobile: "$_id.user.mobile",
+              referredBy: "$_id.user.referredBy",
+              activationDetails:
+                "$_id.user.activationDetails",
+              paidDetails: "$_id.user.paidDetails",
+              amount: 1,
+              bonusAmount: 1,
+              _id: 0,
+            },
+          },
+          {
+            $lookup: {
+              from: "user-personal-details",
+              localField: "referredBy",
+              foreignField: "_id",
+              as: "referredBy",
+            },
+          },
+          {
+            $project: {
+              amount: 1,
+              bonusAmount: 1,
+              joining_date: 1,
+              activationDetails: 1,
+              paidDetails: 1,
+              referredBy: {
+                $arrayElemAt: ["$referredBy._id", 0],
+              },
+              first_name: {
+                $arrayElemAt: [
+                  "$referredBy.first_name",
+                  0,
+                ],
+              },
+              last_name: {
+                $arrayElemAt: [
+                  "$referredBy.last_name",
+                  0,
+                ],
+              },
+              code: {
+                $arrayElemAt: [
+                  "$referredBy.myReferralCode",
+                  0,
+                ],
+              },
+            },
+          },
+          {
+            $group:
+              {
+                _id: {
+                  affiliate: "$referredBy",
+                  code: "$code",
+                  first_name: "$first_name",
+                  last_name: "$last_name",
+                },
+                total: {
+                  $sum: 1,
+                },
+                // Total documents
+                active: {
+                  $sum: {
+                    $cond: [
+                      {
+                        $eq: [
+                          "$activationDetails.activationStatus",
+                          "Active",
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                },
+                paid: {
+                  $sum: {
+                    $cond: [
+                      {
+                        $gt: ["$amount", 0]
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                },
+                amount: {
+                  $sum: "$amount",
+                },
+              },
+          },
+          {
+            $project: {
+              affiliate: "$_id.affiliate",
+              code: "$_id.code",
+              name: {
+                $concat: [
+                  "$_id.first_name",
+                  " ",
+                  "$_id.last_name",
+                ],
+              },
+              _id: 0,
+              total: 1,
+              active: 1,
+              paid: 1,
+              amount: 1,
+            },
+          },
+          
+        ],
+      }
+    }])
 
+    const totalUsersRevenue = wallet?.[0]?.total;
+    const newUsersRevenue = wallet?.[0]?.new;
 
-    const groupedData = wallet.reduce((result, item) => {
-      const affiliate = item?.referredBy;
+    const groupedData = totalUsersRevenue.reduce((result, item) => {
+      const affiliate = item?.affiliate?.toString();
     
       if (!result[affiliate]) {
-        // const match = userData.filter(elem=>elem.affiliate.toString() === affiliate?.toString())
-        console.log(match)
-        result[affiliate] = {
-          total: 0,
-          active: 0,
-          paid: 0,
-          name: "",
-          code: "",
-          revenue: 0,
-          bonus: 0,
-          actualRevenue: 0
-        };
-      }
-    
-      result[affiliate].total += 1;
-      result[affiliate].revenue += item.amount;
-      result[affiliate].bonus += item.bonusAmount;
-      result[affiliate].actualRevenue += (item.amount - item.bonusAmount);
-      result[affiliate].name = item?.first_name + " " + item?.last_name;
-      result[affiliate].code = item?.code;
-      if(item?.activationDetails?.activationStatus === "Active"){
-        result[affiliate].active += 1;
-      }
+        const match = newUsersRevenue.filter(elem=>elem.affiliate.toString() === affiliate?.toString())?.[0];
 
-      if(item?.paidDetails){
-        result[affiliate].paid += 1;
+        result[affiliate] = {
+          total: match?.total || 0,
+          active: match?.active || 0,
+          paid: match?.paid || 0,
+          name: match?.name || item?.name,
+          code: match?.code || item?.code,
+          revenue: item?.totalAmount || 0,
+          oldRevenue: (item?.totalAmount || 0) - (match?.amount || 0),
+          newRevenue: match?.amount || 0,
+          bonusUsed: item?.totalBonusUsed || 0,
+          bonus: item?.totalBonusAmount || 0,
+          actualRevenue: (item?.totalAmount || 0) - (item?.totalBonusUsed || 0)
+        };
       }
 
       return result;
     }, {});
     
-    const groupedArray = Object.entries(groupedData).map(([affiliate, { total, paid, active, name, code, revenue, bonus, actualRevenue }]) => ({
-      affiliate,
+    const groupedArray = Object.entries(groupedData).map(([affiliate, { 
       total,
-      name, active, actualRevenue,
-      code, paid, revenue, bonus
+      active,
+      paid,
+      name,
+      code,
+      revenue,
+      oldRevenue,
+      newRevenue,
+      bonusUsed,
+      bonus,
+      actualRevenue,
+     }]) => ({
+      total,
+      active,
+      paid,
+      name,
+      code,
+      revenue,
+      oldRevenue,
+      newRevenue,
+      bonusUsed,
+      bonus,
+      actualRevenue,
     }));
 
-
     groupedArray.sort((a, b)=>{
-      if(a.actualRevenue > b.actualRevenue){
+      if(a.revenue > b.revenue){
         return -1;
-      } else if(a.actualRevenue < b.actualRevenue){
+      } else if(a.revenue < b.revenue){
         return 1;
       } else{
-        1
+        return 1
       }
     })
 
     const response = {
       data: groupedArray,
+      // groupedArray,
       status: "success",
       message: "User Data fetched successfully",
     }
@@ -4378,7 +4635,6 @@ exports.getCareerRevenueData = async (req, res, next) => {
     const { startDate, endDate } = getDates(period);
     console.log(new Date(startDate), new Date(endDate))
     const allusers = await User.find({
-      joining_date: { $gt: new Date(startDate), $lt: new Date(endDate) },
       creationProcess: "Career SignUp"
     })
     .select('_id mobile');
@@ -4391,10 +4647,10 @@ exports.getCareerRevenueData = async (req, res, next) => {
             $in: userMobiles,
           },
           status: "OTP Verified",
-          appliedOn: {
-            $gt: new Date("2023-01-01"),
-            $lt: new Date(endDate),
-          },
+          // appliedOn: {
+          //   $gt: new Date("2023-01-01"),
+          //   $lt: new Date(endDate),
+          // },
         },
       },
       {
@@ -4429,261 +4685,29 @@ exports.getCareerRevenueData = async (req, res, next) => {
       },
     ])
     
-    const mobileJob = application.map((elem)=>{
-      return elem.listingType==='Job' && elem.mobile
+// Extract mobile numbers for Job listings
+    const mobileJob = application
+    .map((elem) => {
+      if (elem.listingType === 'Job') {
+        return elem.mobile;
+      }
     })
+    .filter((mobile) => mobile !== undefined);
 
-    const mobileWorkShop = application.map((elem)=>{
-      return elem.listingType==='Workshop' && elem.mobile
+    // Extract mobile numbers for Workshop listings
+    const mobileWorkShop = application
+    .map((elem) => {
+      if (elem.listingType === 'Workshop') {
+        return elem.mobile;
+      }
     })
+    .filter((mobile) => mobile !== undefined);
 
-    // const users = await User.aggregate([
-    //   {
-    //     $facet: {
-    //       'job': [
-    //         {
-    //           $match: {
-    //             creationProcess: "Career SignUp",
-    //             joining_date: {
-    //               $gt: new Date(startDate),
-    //               $lt: new Date(endDate),
-    //             },
-    //             mobile: {
-    //               $in: mobileJob,
-    //             },
-    //           },
-    //         },
-    //         {
-    //           $group: {
-    //             _id: {},
-    //             total: {
-    //               $count: {},
-    //             },
-    //             active: {
-    //               $sum: {
-    //                 $cond: {
-    //                   if: {
-    //                     $eq: [
-    //                       "$activationDetails.activationStatus",
-    //                       "Active",
-    //                     ],
-    //                   },
-    //                   then: 1,
-    //                   else: 0,
-    //                 },
-    //               },
-    //             },
-    //             paid: {
-    //               $sum: {
-    //                 $cond: {
-    //                   if: {
-    //                     $gt: [
-    //                       {
-    //                         $ifNull: ["$paidDetails", null],
-    //                       },
-    //                       null,
-    //                     ],
-    //                   },
-    //                   then: 1,
-    //                   else: 0,
-    //                 },
-    //               },
-    //             },
-    //           },
-    //         },
-    //         {
-    //           $project: {
-    //             paid: "$paid",
-    //             _id: 0,
-    //             active: 1,
-    //             total: 1,
-    //           },
-    //         },
-    //       ],
-    //       'workshop': [
-    //         {
-    //           $match: {
-    //             creationProcess: "Career SignUp",
-    //             joining_date: {
-    //               $gt: new Date(startDate),
-    //               $lt: new Date(endDate),
-    //             },
-    //             mobile: {
-    //               $in: mobileWorkShop,
-    //             },
-    //           },
-    //         },
-    //         {
-    //           $group: {
-    //             _id: {},
-    //             total: {
-    //               $count: {},
-    //             },
-    //             active: {
-    //               $sum: {
-    //                 $cond: {
-    //                   if: {
-    //                     $eq: [
-    //                       "$activationDetails.activationStatus",
-    //                       "Active",
-    //                     ],
-    //                   },
-    //                   then: 1,
-    //                   else: 0,
-    //                 },
-    //               },
-    //             },
-    //             paid: {
-    //               $sum: {
-    //                 $cond: {
-    //                   if: {
-    //                     $gt: [
-    //                       {
-    //                         $ifNull: ["$paidDetails", null],
-    //                       },
-    //                       null,
-    //                     ],
-    //                   },
-    //                   then: 1,
-    //                   else: 0,
-    //                 },
-    //               },
-    //             },
-    //           },
-    //         },
-    //         {
-    //           $project: {
-    //             paid: "$paid",
-    //             _id: 0,
-    //             active: 1,
-    //             total: 1,
-    //           },
-    //         },
-    //       ]
-    //     }
-    //   }
-    // ])
-    
-    const wallet = await Wallet.aggregate([
+
+    const workshop = await Wallet.aggregate([
       {
         $facet: {
-          'job': [
-            {
-              $unwind: {
-                path: "$transactions",
-              },
-            },
-            {
-              $lookup: {
-                from: "user-personal-details",
-                localField: "userId",
-                foreignField: "_id",
-                as: "user",
-              },
-            },
-            {
-              $unwind: {
-                path: "$user",
-              },
-            },
-            {
-              $match: {
-                "user.mobile": {
-                  $in: mobileJob,
-                },
-                $or: [
-                  {
-                    "transactions.title": "TestZone Fee",
-                  },
-                  {
-                    "transactions.title": "Battle Fee",
-                  },
-                  {
-                    "transactions.title": "MarginX Fee",
-                  },
-                  {
-                    "transactions.title":
-                      "Bought TenX Trading Subscription",
-                  },
-                  {
-                    "transactions.title": "Sign up Bonus",
-                  },
-                ],
-                "transactions.transactionDate": {
-                  $gt: new Date(startDate),
-                  $lt: new Date(endDate),
-                },
-              },
-            },
-            {
-              $group: {
-                _id: {
-                  userId: "$userId",
-                  user: "$user"
-                },
-                amount: {
-                  $sum: {
-                    $cond: {
-                      if: {
-                        $ne: [
-                          "$transactions.title",
-                          "Sign up Bonus",
-                        ],
-                      },
-                      then: {
-                        $multiply: [
-                          "$transactions.amount",
-                          -1,
-                        ],
-                      },
-                      else: 0,
-                    },
-                  },
-                },
-                bonusAmount: {
-                  $sum: {
-                    $cond: {
-                      if: {
-                        $eq: [
-                          "$transactions.title",
-                          "Sign up Bonus",
-                        ],
-                      },
-                      then: {
-                        $multiply: [
-                          "$transactions.amount",
-                          1,
-                        ],
-                      },
-                      else: 0,
-                    },
-                  },
-                },
-                
-              },
-            },
-            {
-              $sort: {
-                amount: -1,
-              },
-            },
-            {
-              $project: {
-                type: "Job",
-                joining_date: "$_id.user.joining_date",
-                email: "$_id.user.email",
-                mobile: "$_id.user.mobile",
-                referredBy: "$_id.user.referredBy",
-                activationDetails:
-                  "$_id.user.activationDetails",
-                paidDetails: "$_id.user.paidDetails",
-                amount: 1,
-                bonusAmount: 1,
-                _id: 0,
-              },
-            },
-          ],
-          'workshop': [
+          'total': [
             {
               $unwind: {
                 path: "$transactions",
@@ -4724,6 +4748,10 @@ exports.getCareerRevenueData = async (req, res, next) => {
                   {
                     "transactions.title": "Sign up Bonus",
                   },
+                  {
+                    "transactions.title":
+                      "TenX Joining Bonus",
+                  },
                 ],
                 "transactions.transactionDate": {
                   $gt: new Date(startDate),
@@ -4735,16 +4763,28 @@ exports.getCareerRevenueData = async (req, res, next) => {
               $group: {
                 _id: {
                   userId: "$userId",
-                  user: "$user"
+                  user: "$user",
                 },
                 amount: {
                   $sum: {
                     $cond: {
                       if: {
-                        $ne: [
-                          "$transactions.title",
-                          "Sign up Bonus",
-                        ],
+                        $not: {
+                          $or: [
+                            {
+                              $eq: [
+                                "$transactions.title",
+                                "Sign up Bonus",
+                              ],
+                            },
+                            {
+                              $eq: [
+                                "$transactions.title",
+                                "Tenx Joining Bonus",
+                              ],
+                            },
+                          ],
+                        },
                       },
                       then: {
                         $multiply: [
@@ -4760,32 +4800,30 @@ exports.getCareerRevenueData = async (req, res, next) => {
                   $sum: {
                     $cond: {
                       if: {
-                        $eq: [
-                          "$transactions.title",
-                          "Sign up Bonus",
+                        $or: [
+                          {
+                            $eq: [
+                              "$transactions.title",
+                              "Sign up Bonus",
+                            ],
+                          },
+                          {
+                            $eq: [
+                              "$transactions.title",
+                              "Tenx Joining Bonus",
+                            ],
+                          },
                         ],
                       },
-                      then: {
-                        $multiply: [
-                          "$transactions.amount",
-                          1,
-                        ],
-                      },
+                      then: "$transactions.amount",
                       else: 0,
                     },
                   },
                 },
-                
-              },
-            },
-            {
-              $sort: {
-                amount: -1,
               },
             },
             {
               $project: {
-                type: "Workshop",
                 joining_date: "$_id.user.joining_date",
                 email: "$_id.user.email",
                 mobile: "$_id.user.mobile",
@@ -4798,17 +4836,630 @@ exports.getCareerRevenueData = async (req, res, next) => {
                 _id: 0,
               },
             },
+            {
+              $project: {
+                amount: 1,
+                bonusAmount: 1,
+                joining_date: 1,
+                activationDetails: 1,
+                paidDetails: 1,
+                bonusUsed: {
+                  $cond: {
+                    if: {
+                      $gt: [
+                        {
+                          $subtract: [
+                            "$bonusAmount",
+                            "$amount",
+                          ],
+                        },
+                        0,
+                      ],
+                    },
+                    then: "$amount",
+                    else: "$bonusAmount",
+                  },
+                },
+              },
+            },
+            {
+              $group: {
+                _id: {},
+                totalAmount: {
+                  $sum: "$amount",
+                },
+                totalBonusAmount: {
+                  $sum: "$bonusAmount",
+                },
+                totalBonusUsed: {
+                  $sum: "$bonusUsed",
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                totalAmount: 1,
+                totalBonusUsed: 1,
+                totalBonusAmount: 1,
+              },
+            },
+          ],
+          'new': [
+            {
+              $unwind: {
+                path: "$transactions",
+              },
+            },
+            {
+              $lookup: {
+                from: "user-personal-details",
+                localField: "userId",
+                foreignField: "_id",
+                as: "user",
+              },
+            },
+            {
+              $unwind: {
+                path: "$user",
+              },
+            },
+            {
+              $match: {
+                "user.mobile": {
+                  $in: mobileWorkShop,
+                },
+                "user.joining_date": {
+                  $gt: new Date(startDate),
+                  $lt: new Date(endDate),
+                },
+                $or: [
+                  {
+                    "transactions.title": "TestZone Fee",
+                  },
+                  {
+                    "transactions.title": "Battle Fee",
+                  },
+                  {
+                    "transactions.title": "MarginX Fee",
+                  },
+                  {
+                    "transactions.title":
+                      "Bought TenX Trading Subscription",
+                  },
+                  {
+                    "transactions.title": "Sign up Bonus",
+                  },
+                  {
+                    "transactions.title":
+                      "TenX Joining Bonus",
+                  },
+                ],
+                "transactions.transactionDate": {
+                  $gt: new Date(startDate),
+                  $lt: new Date(endDate),
+                },
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  userId: "$userId",
+                  user: "$user",
+                },
+                amount: {
+                  $sum: {
+                    $cond: {
+                      if: {
+                        $not: {
+                          $or: [
+                            {
+                              $eq: [
+                                "$transactions.title",
+                                "Sign up Bonus",
+                              ],
+                            },
+                            {
+                              $eq: [
+                                "$transactions.title",
+                                "Tenx Joining Bonus",
+                              ],
+                            },
+                          ],
+                        },
+                      },
+                      then: {
+                        $multiply: [
+                          "$transactions.amount",
+                          -1,
+                        ],
+                      },
+                      else: 0,
+                    },
+                  },
+                },
+                bonusAmount: {
+                  $sum: {
+                    $cond: {
+                      if: {
+                        $or: [
+                          {
+                            $eq: [
+                              "$transactions.title",
+                              "Sign up Bonus",
+                            ],
+                          },
+                          {
+                            $eq: [
+                              "$transactions.title",
+                              "Tenx Joining Bonus",
+                            ],
+                          },
+                        ],
+                      },
+                      then: "$transactions.amount",
+                      else: 0,
+                    },
+                  },
+                },
+              },
+            },
+            {
+              $project: {
+                joining_date: "$_id.user.joining_date",
+                email: "$_id.user.email",
+                mobile: "$_id.user.mobile",
+                referredBy: "$_id.user.referredBy",
+                activationDetails:
+                  "$_id.user.activationDetails",
+                paidDetails: "$_id.user.paidDetails",
+                amount: 1,
+                bonusAmount: 1,
+                _id: 0,
+              },
+            },
+            {
+              $project: {
+                amount: 1,
+                bonusAmount: 1,
+                joining_date: 1,
+                activationDetails: 1,
+                paidDetails: 1,
+              },
+            },
+            {
+              $group:
+              {
+                _id: {
+                },
+                total: {
+                  $sum: 1,
+                },
+                // Total documents
+                active: {
+                  $sum: {
+                    $cond: [
+                      {
+                        $eq: [
+                          "$activationDetails.activationStatus",
+                          "Active",
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                },
+                paid: {
+                  $sum: {
+                    $cond: [
+                      {
+                        $gt: ["$amount", 0]
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                },
+                amount: {
+                  $sum: "$amount",
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                total: 1,
+                active: 1,
+                paid: 1,
+                amount: 1,
+              },
+            },
           ]
         }
       }
     ])
 
-    const jobData = formatData(wallet[0]?.job);
-    const workshopData = formatData(wallet[0]?.workshop);
+    const job = await Wallet.aggregate([
+      {
+        $facet: {
+          'total': [
+            {
+              $unwind: {
+                path: "$transactions",
+              },
+            },
+            {
+              $lookup: {
+                from: "user-personal-details",
+                localField: "userId",
+                foreignField: "_id",
+                as: "user",
+              },
+            },
+            {
+              $unwind: {
+                path: "$user",
+              },
+            },
+            {
+              $match: {
+                "user.mobile": {
+                  $in: mobileJob,
+                },
+                $or: [
+                  {
+                    "transactions.title": "TestZone Fee",
+                  },
+                  {
+                    "transactions.title": "Battle Fee",
+                  },
+                  {
+                    "transactions.title": "MarginX Fee",
+                  },
+                  {
+                    "transactions.title":
+                      "Bought TenX Trading Subscription",
+                  },
+                  {
+                    "transactions.title": "Sign up Bonus",
+                  },
+                  {
+                    "transactions.title":
+                      "TenX Joining Bonus",
+                  },
+                ],
+                "transactions.transactionDate": {
+                  $gt: new Date(startDate),
+                  $lt: new Date(endDate),
+                },
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  userId: "$userId",
+                  user: "$user",
+                },
+                amount: {
+                  $sum: {
+                    $cond: {
+                      if: {
+                        $not: {
+                          $or: [
+                            {
+                              $eq: [
+                                "$transactions.title",
+                                "Sign up Bonus",
+                              ],
+                            },
+                            {
+                              $eq: [
+                                "$transactions.title",
+                                "Tenx Joining Bonus",
+                              ],
+                            },
+                          ],
+                        },
+                      },
+                      then: {
+                        $multiply: [
+                          "$transactions.amount",
+                          -1,
+                        ],
+                      },
+                      else: 0,
+                    },
+                  },
+                },
+                bonusAmount: {
+                  $sum: {
+                    $cond: {
+                      if: {
+                        $or: [
+                          {
+                            $eq: [
+                              "$transactions.title",
+                              "Sign up Bonus",
+                            ],
+                          },
+                          {
+                            $eq: [
+                              "$transactions.title",
+                              "Tenx Joining Bonus",
+                            ],
+                          },
+                        ],
+                      },
+                      then: "$transactions.amount",
+                      else: 0,
+                    },
+                  },
+                },
+              },
+            },
+            {
+              $project: {
+                joining_date: "$_id.user.joining_date",
+                email: "$_id.user.email",
+                mobile: "$_id.user.mobile",
+                referredBy: "$_id.user.referredBy",
+                activationDetails:
+                  "$_id.user.activationDetails",
+                paidDetails: "$_id.user.paidDetails",
+                amount: 1,
+                bonusAmount: 1,
+                _id: 0,
+              },
+            },
+            {
+              $project: {
+                amount: 1,
+                bonusAmount: 1,
+                joining_date: 1,
+                activationDetails: 1,
+                paidDetails: 1,
+                bonusUsed: {
+                  $cond: {
+                    if: {
+                      $gt: [
+                        {
+                          $subtract: [
+                            "$bonusAmount",
+                            "$amount",
+                          ],
+                        },
+                        0,
+                      ],
+                    },
+                    then: "$amount",
+                    else: "$bonusAmount",
+                  },
+                },
+              },
+            },
+            {
+              $group: {
+                _id: {},
+                totalAmount: {
+                  $sum: "$amount",
+                },
+                totalBonusAmount: {
+                  $sum: "$bonusAmount",
+                },
+                totalBonusUsed: {
+                  $sum: "$bonusUsed",
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                totalAmount: 1,
+                totalBonusUsed: 1,
+                totalBonusAmount: 1,
+              },
+            },
+          ],
+          'new': [
+            {
+              $unwind: {
+                path: "$transactions",
+              },
+            },
+            {
+              $lookup: {
+                from: "user-personal-details",
+                localField: "userId",
+                foreignField: "_id",
+                as: "user",
+              },
+            },
+            {
+              $unwind: {
+                path: "$user",
+              },
+            },
+            {
+              $match: {
+                "user.mobile": {
+                  $in: mobileJob,
+                },
+                "user.joining_date": {
+                  $gt: new Date(startDate),
+                  $lt: new Date(endDate),
+                },
+                $or: [
+                  {
+                    "transactions.title": "TestZone Fee",
+                  },
+                  {
+                    "transactions.title": "Battle Fee",
+                  },
+                  {
+                    "transactions.title": "MarginX Fee",
+                  },
+                  {
+                    "transactions.title":
+                      "Bought TenX Trading Subscription",
+                  },
+                  {
+                    "transactions.title": "Sign up Bonus",
+                  },
+                  {
+                    "transactions.title":
+                      "TenX Joining Bonus",
+                  },
+                ],
+                "transactions.transactionDate": {
+                  $gt: new Date(startDate),
+                  $lt: new Date(endDate),
+                },
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  userId: "$userId",
+                  user: "$user",
+                },
+                amount: {
+                  $sum: {
+                    $cond: {
+                      if: {
+                        $not: {
+                          $or: [
+                            {
+                              $eq: [
+                                "$transactions.title",
+                                "Sign up Bonus",
+                              ],
+                            },
+                            {
+                              $eq: [
+                                "$transactions.title",
+                                "Tenx Joining Bonus",
+                              ],
+                            },
+                          ],
+                        },
+                      },
+                      then: {
+                        $multiply: [
+                          "$transactions.amount",
+                          -1,
+                        ],
+                      },
+                      else: 0,
+                    },
+                  },
+                },
+                bonusAmount: {
+                  $sum: {
+                    $cond: {
+                      if: {
+                        $or: [
+                          {
+                            $eq: [
+                              "$transactions.title",
+                              "Sign up Bonus",
+                            ],
+                          },
+                          {
+                            $eq: [
+                              "$transactions.title",
+                              "Tenx Joining Bonus",
+                            ],
+                          },
+                        ],
+                      },
+                      then: "$transactions.amount",
+                      else: 0,
+                    },
+                  },
+                },
+              },
+            },
+            {
+              $project: {
+                joining_date: "$_id.user.joining_date",
+                email: "$_id.user.email",
+                mobile: "$_id.user.mobile",
+                referredBy: "$_id.user.referredBy",
+                activationDetails:
+                  "$_id.user.activationDetails",
+                paidDetails: "$_id.user.paidDetails",
+                amount: 1,
+                bonusAmount: 1,
+                _id: 0,
+              },
+            },
+            {
+              $project: {
+                amount: 1,
+                bonusAmount: 1,
+                joining_date: 1,
+                activationDetails: 1,
+                paidDetails: 1,
+              },
+            },
+            {
+              $group:
+              {
+                _id: {
+                },
+                total: {
+                  $sum: 1,
+                },
+                // Total documents
+                active: {
+                  $sum: {
+                    $cond: [
+                      {
+                        $eq: [
+                          "$activationDetails.activationStatus",
+                          "Active",
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                },
+                paid: {
+                  $sum: {
+                    $cond: [
+                      {
+                        $gt: ["$amount", 0]
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                },
+                amount: {
+                  $sum: "$amount",
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                total: 1,
+                active: 1,
+                paid: 1,
+                amount: 1,
+              },
+            },
+          ]
+        }
+      }
+    ])
 
+    const data = formatData(job[0], workshop[0])
+    
     const response = {
-      jobData: jobData,
-      workshopData: workshopData,
+      data: data,
       status: "success",
       message: "User Data fetched successfully",
     }
@@ -4818,44 +5469,35 @@ exports.getCareerRevenueData = async (req, res, next) => {
   }
 }
 
-function formatData(data){
-  const groupedData = data.reduce((result, item) => {
-    const type = item?.type;
-  
-    if (!result[type]) {
-      result[type] = {
-        total: 0,
-        active: 0,
-        paid: 0,
-        revenue: 0,
-        bonus: 0,
-        actualRevenue: 0
-      };
-    }
-  
-    result[type].total += 1;
-    result[type].revenue += item.amount;
-    result[type].bonus += item.bonusAmount;
-    result[type].actualRevenue += (item.amount - item.bonusAmount);
-    if(item?.activationDetails?.activationStatus === "Active"){
-      result[type].active += 1;
-    }
+function formatData(job, workshop){
 
-    if(item?.paidDetails){
-      result[type].paid += 1;
-    }
+  const obj1 = {
+    type: 'Job',
+    total: job?.new?.[0]?.total || 0,
+    active: job?.new?.[0]?.active || 0,
+    paid: job?.new?.[0]?.paid || 0,
+    revenue: job?.total?.[0]?.totalAmount || 0,
+    oldRevenue: (job?.total?.[0]?.totalAmount || 0) - (job?.new?.[0]?.amount || 0),
+    newRevenue: job?.new?.[0]?.amount || 0,
+    bonusUsed: job?.total?.[0]?.totalBonusUsed || 0,
+    bonus: job?.total?.[0]?.totalBonusAmount || 0,
+    actualRevenue: (job?.total?.[0]?.totalAmount || 0) - (job?.total?.[0]?.totalBonusUsed || 0)
+  }
 
-    return result;
-  }, {});
-  
-  const groupedArray = Object.entries(groupedData).map(([type, { total, paid, active, revenue, bonus, actualRevenue }]) => ({
-    type,
-    total,
-    active, actualRevenue,
-    paid, revenue, bonus
-  }));
+  const obj2 = {
+    type: 'Workshop',
+    total: workshop?.new?.[0]?.total || 0,
+    active: workshop?.new?.[0]?.active || 0,
+    paid: workshop?.new?.[0]?.paid || 0,
+    revenue: workshop?.total?.[0]?.totalAmount || 0,
+    oldRevenue: (workshop?.total?.[0]?.totalAmount || 0) - (workshop?.new?.[0]?.amount || 0),
+    newRevenue: workshop?.new?.[0]?.amount || 0,
+    bonusUsed: workshop?.total?.[0]?.totalBonusUsed || 0,
+    bonus: workshop?.total?.[0]?.totalBonusAmount || 0,
+    actualRevenue: (workshop?.total?.[0]?.totalAmount || 0) - (workshop?.total?.[0]?.totalBonusUsed || 0)
+  }
 
-  return groupedArray;
+  return [obj1, obj2];
 }
 
 function getDates(period) {
@@ -4876,6 +5518,12 @@ function getDates(period) {
       const firstDayOfMonth = today.clone().startOf('month');
       startDate = firstDayOfMonth;
       endDate = today.endOf('day');
+      break;
+    case 'Last Month':
+      const firstDayOfLastMonth = today.clone().subtract(1, 'month').startOf('month');
+      const lastDayOfLastMonth = today.clone().subtract(1, 'month').endOf('month');
+      startDate = firstDayOfLastMonth;
+      endDate = lastDayOfLastMonth.endOf('day');
       break;
     case 'Last 30 Days':
       startDate = today.clone().subtract(30, 'days');
