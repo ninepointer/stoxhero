@@ -6,7 +6,7 @@ const Instrument = require("../models/Instruments/instrumentSchema");
 const InfinityInstrument = require("../models/Instruments/infinityInstrument");
 const StockIndex = require("../models/StockIndex/stockIndexSchema");
 const getKiteCred = require('./getKiteCred'); 
-const StockInstrument = require("../models/Instruments/equityStockWatchlist");
+const StockInstrument = require("../models/Instruments/equityStocks");
 
 
 
@@ -81,9 +81,9 @@ router.get("/getstockliveprice", async (req, res)=>{
     let addUrl;
     ans.forEach((elem, index) => {
       if (index === 0) {
-        addUrl = ('i=' + elem.exchange + ':' + elem.symbol);
+        addUrl = ('i=' + elem.exchange + ':' + elem.tradingsymbol);
       } else {
-        addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
+        addUrl += ('&i=' + elem.exchange + ':' + elem.tradingsymbol);
       }
     });
 
