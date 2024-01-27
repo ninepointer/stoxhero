@@ -16,6 +16,7 @@ import { Card } from '@mui/material';
 function AffiliateRevenue({ period }) {
 
     const [affiliate, setAffiliate] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         axios.get(`${apiUrl}revenue/affiliaterevenue?period=${period}`, {
@@ -28,12 +29,19 @@ function AffiliateRevenue({ period }) {
         }
         ).then((res) => {
             setAffiliate(res.data.data);
+            setLoading(false);
         })
     }, []);
 
     return (
         <>
-            {affiliate.length > 0 ?
+            {
+            loading ?
+            <Grid p={1} container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{borderRadius: 5, width: '100%', height: 'auto' }}>
+                <CircularProgress color='dark' />
+            </Grid>
+            :
+            affiliate.length > 0 ?
             <Accordion>
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
@@ -124,9 +132,16 @@ function AffiliateRevenue({ period }) {
                 </AccordionDetails>
             </Accordion>
             :
-            <Grid p={1} container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{borderRadius: 5, width: '100%', height: 'auto' }}>
-                <CircularProgress color='dark' />
-            </Grid>}
+            <Grid p={1} container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ backgroundColor: 'white', borderRadius: 5, width: '100%', height: 'auto' }}>
+            <Divider style={{ width: '100%' }} />
+            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                <MDTypography variant='caption' fontWeight='bold'>Affiliate Revenue Data</MDTypography>
+            </Grid>
+            <Divider style={{ width: '100%' }} />
+
+            <MDTypography variant='caption'>No Data</MDTypography>
+        </Grid>
+            }
         </>
     );
 }

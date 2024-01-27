@@ -14,7 +14,8 @@ const BattleTrading = require("../../models/battle/battleTrade")
 const moment = require('moment');
 const Wallet = require("../../models/UserWallet/userWalletSchema");
 const Affiliate = require("../../models/affiliateProgram/affiliateProgram");
-
+const Career = require("../../models/Careers/careerSchema");
+const CareerApplication = require("../../models/Careers/careerApplicationSchema")
 
 exports.getTestZoneRevenue = async (req, res) => {
   try {
@@ -3407,6 +3408,68 @@ exports.getAffiliateRevenueData = async (req, res, next) => {
     
     const affiliateIds = [].concat(...extractAllAffiliate);
     
+    // console.log(affiliateIds)
+    // const userData = await User.aggregate([
+    //   {
+    //     $match: {
+    //       referredBy: {
+    //         $in: affiliateIds,
+    //       },
+    //       joining_date: {
+    //         $gt: new Date(startDate),
+    //         $lt: new Date(endDate),
+    //       },
+    //     },
+    //   },
+    //   {
+    //     $group: {
+    //       _id: {
+    //         referredBy: "$referredBy",
+    //       },
+    //       total: {
+    //         $count: {},
+    //       },
+    //       active: {
+    //         $sum: {
+    //           $cond: {
+    //             if: {
+    //               $eq: [
+    //                 "$activationDetails.activationStatus",
+    //                 "Active",
+    //               ],
+    //             },
+    //             then: 1,
+    //             else: 0,
+    //           },
+    //         },
+    //       },
+    //       paid: {
+    //         $sum: {
+    //           $cond: {
+    //             if: {
+    //               $gt: [
+    //                 {
+    //                   $ifNull: ["$paidDetails", null],
+    //                 },
+    //                 null,
+    //               ],
+    //             },
+    //             then: 1,
+    //             else: 0,
+    //           },
+    //         },
+    //       },
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       paid: "$paid",
+    //       affiliate: "$_id.referredBy",
+    //       active: 1,
+    //       total: 1,
+    //     },
+    //   },
+    // ])
     const users = await User.find({
       joining_date: { $gt: new Date(startDate), $lt: new Date(endDate) },
       referredBy: { $in: affiliateIds }
@@ -3415,6 +3478,8 @@ exports.getAffiliateRevenueData = async (req, res, next) => {
 
     
     const userIds = users.map((elem) => elem?._id);
+
+    console.log("userIds", userIds)
     
     const wallet = await Wallet.aggregate([
       {
@@ -3443,6 +3508,9 @@ exports.getAffiliateRevenueData = async (req, res, next) => {
             },
             {
               "transactions.title": "Sign up Bonus",
+            },
+            {
+              "transactions.title": "TenX Joining Bonus",
             },
           ],
           "transactions.transactionDate": {
@@ -3567,6 +3635,8 @@ exports.getAffiliateRevenueData = async (req, res, next) => {
       const affiliate = item?.referredBy;
     
       if (!result[affiliate]) {
+        // const match = userData.filter(elem=>elem.affiliate.toString() === affiliate?.toString())
+        console.log(match)
         result[affiliate] = {
           total: 0,
           active: 0,
@@ -3625,6 +3695,1169 @@ exports.getAffiliateRevenueData = async (req, res, next) => {
   }
 }
 
+exports.getCampaignRevenueData = async (req, res, next) => {
+  try {
+    const { period } = req.query;
+    const { startDate, endDate } = getDates(period);
+
+      const result = await Wallet.aggregate([
+        {
+          $facet:
+            {
+              revenue: [
+                {
+                  $unwind:
+                    {
+                      path: "$transactions",
+                    },
+                },
+                {
+                  $match:
+                    {
+                      "transactions.title": {
+                        $in: [
+                          "Bought TenX Trading Subscription",
+                          "TestZone Fee",
+                          "MarginX Fee",
+                        ], // Assuming "TestZone Fee" is not repeated intentionally
+                      },
+      
+                      "transactions.transactionDate": {
+                        $gt: new Date(startDate),
+                        $lt: new Date(endDate),
+                      },
+                    },
+                },
+                {
+                  $lookup:
+                    {
+                      from: "user-personal-details",
+                      localField: "userId",
+                      foreignField: "_id",
+                      as: "userData",
+                    },
+                },
+                {
+                  $unwind:
+                    {
+                      path: "$userData",
+                    },
+                },
+                {
+                  $lookup:
+                    {
+                      from: "campaigns",
+                      localField:
+                        "userData.campaignCode",
+                      foreignField: "campaignCode",
+                      as: "campaignData",
+                    },
+                },
+                {
+                  $unwind:
+                    {
+                      path: "$campaignData",
+                    },
+                },
+                {
+                  $group:
+                    {
+                      _id: "$userData.campaignCode",
+                      totalRevenue: {
+                        $sum: "$transactions.amount",
+                      },
+                      campaignName: {
+                        $first:
+                          "$campaignData.campaignName",
+                      },
+                      uniqueUsers: {
+                        $addToSet: "$userId",
+                      },
+                      totalUsers: {
+                        $first: {
+                          $size: "$campaignData.users",
+                        },
+                      },
+                    },
+                },
+                {
+                  $project:
+                    {
+                      _id: 0,
+                      campaignName: 1,
+                      campaignCode: "$_id",
+                      totalUsers: 1,
+                      paidUsers: {
+                        $size: "$uniqueUsers",
+                      },
+                      totalRevenue:1
+                    },
+                },
+              ],
+              signUpBonus: [
+                {
+                  $lookup:
+                    {
+                      from: "user-personal-details",
+                      localField: "userId",
+                      foreignField: "_id",
+                      as: "userData",
+                    },
+                },
+                {
+                  $unwind:
+                    {
+                      path: "$userData",
+                    },
+                },
+                {
+                  $unwind:
+                    {
+                      path: "$transactions",
+                      preserveNullAndEmptyArrays: true,
+                    },
+                },
+                {
+                  $match:
+                    {
+                      "transactions.transactionDate": {
+                        $gt: new Date(startDate),
+                        $lt: new Date(endDate),
+                      },
+                    },
+                },
+                {
+                  $group:
+                    {
+                      _id: "$userData.campaignCode",
+                      signUpBonus: {
+                        $sum: {
+                          $cond: [
+                            {
+                              $in: [
+                                "$transactions.title",
+                                [
+                                  "Sign up Bonus",
+                                  "TenX Joining Bonus",
+                                ],
+                              ],
+                            },
+                            "$transactions.amount",
+                            0,
+                          ],
+                        },
+                      },
+                      totalUsers: {
+                        $addToSet: "$userId",
+                      },
+                      activeUsers: {
+                        $addToSet: {
+                          $cond: [
+                            {
+                              $eq: [
+                                "$userData.activationDetails.activationStatus",
+                                "Active",
+                              ],
+                            },
+                            "$userId",
+                            "$$REMOVE", // This will not add the element if the condition is not met
+                          ],
+                        },
+                      },
+                    },
+                },
+                {
+                  $project:
+                    {
+                      _id: 0,
+                      campaignCode: "$_id",
+                      signUpBonus: 1,
+                      totalUsers: {
+                        $size: "$totalUsers",
+                      },
+                      activeUsers: {
+                        $size: "$activeUsers",
+                      },
+                    },
+                },
+              ],
+            },
+        },
+      ]);
+      
+      let signUpBonusDict = {};
+    for (let sub of result[0].signUpBonus) {
+        signUpBonusDict[sub.campaignCode] = sub;
+    }
+    
+    let campaignArr = [];
+    for (let rev of result[0].revenue) {
+        let sub = signUpBonusDict[rev.campaignCode];
+        if (sub) {
+            campaignArr.push({
+                campaignCode: rev.campaignCode,
+                campaignName: rev.campaignName,
+                totalRevenue: -rev.totalRevenue,
+                signUpBonus: sub.signUpBonus,
+                totalUsers: sub.totalUsers,
+                activeUsers: sub.activeUsers,
+                paidUsers: rev.paidUsers 
+            });
+        }
+    }
+    
+      console.log(campaignArr);
+   
+
+    const response = {
+      data: campaignArr,
+      status: "success",
+      message: "User Data fetched successfully",
+    }
+    res.status(200).json(response);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+exports.getReferralRevenueData = async (req, res, next) => {
+  try {
+    const { period } = req.query;
+    const { startDate, endDate } = getDates(period);
+
+    const result = await Wallet.aggregate([
+      {
+        $facet:
+        {
+          revenue: [
+            {
+              $unwind:
+              {
+                path: "$transactions",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+            {
+              $match:
+              {
+                "transactions.title": {
+                  $in: [
+                    "Bought TenX Trading Subscription",
+                    "TestZone Fee",
+                    "MarginX Fee",
+                  ], // Assuming "TestZone Fee" is not repeated intentionally
+                },
+
+                "transactions.transactionDate": {
+                  $gt: new Date(startDate),
+                  $lt: new Date(endDate),
+                },
+              },
+            },
+            {
+              $lookup:
+              {
+                from: "user-personal-details",
+                localField: "userId",
+                foreignField: "_id",
+                as: "userData",
+              },
+            },
+            {
+              $unwind:
+              {
+                path: "$userData",
+              },
+            },
+            {
+              $match:
+              {
+                "userData.creationProcess":
+                  "Referral SignUp",
+              },
+            },
+            {
+              $lookup:
+              {
+                from: "user-personal-details",
+                localField: "userData.referredBy",
+                foreignField: "_id",
+                as: "referrer",
+              },
+            },
+            {
+              $unwind:
+              {
+                path: "$referrer",
+              },
+            },
+            {
+              $group:
+              {
+                _id: "$referrer",
+                totalRevenue: {
+                  $sum: "$transactions.amount",
+                },
+                paidUsers: {
+                  $addToSet: "$userId",
+                },
+              },
+            },
+            {
+              $project:
+              {
+                _id: 0,
+                paidUsers: {
+                  $size: "$paidUsers",
+                },
+                totalRevenue: 1,
+                referrerFirstName: "$_id.first_name",
+                referrerLastName: "$_id.last_name",
+                referrerCode: "$_id.myReferralCode",
+              },
+            },
+            {
+              $sort:
+              {
+                totalRevenue: 1,
+              },
+            },
+            {
+              $limit:
+                20,
+            },
+          ],
+          signUpBonus: [
+            {
+              $unwind:
+              {
+                path: "$transactions",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+            {
+              $lookup:
+              {
+                from: "user-personal-details",
+                localField: "userId",
+                foreignField: "_id",
+                as: "userData",
+              },
+            },
+            {
+              $unwind:
+              {
+                path: "$userData",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+            {
+              $match:
+              {
+                "userData.creationProcess":
+                  "Referral SignUp",
+                "transactions.transactionDate": {
+                  $gt: new Date("2023-01-01"),
+                  $lt: new Date(),
+                },
+              },
+            },
+            {
+              $lookup:
+              {
+                from: "user-personal-details",
+                localField: "userData.referredBy",
+                foreignField: "_id",
+                as: "referrer",
+              },
+            },
+            {
+              $unwind:
+              {
+                path: "$referrer",
+              },
+            },
+            {
+              $group:
+              {
+                _id: "$referrer",
+                signUpBonus: {
+                  $sum: {
+                    $cond: [
+                      {
+                        $in: [
+                          "$transactions.title",
+                          [
+                            "Sign up Bonus",
+                            "TenX Joining Bonus",
+                          ],
+                        ],
+                      },
+                      "$transactions.amount",
+                      0,
+                    ],
+                  },
+                },
+                totalUsers: {
+                  $addToSet: "$userId",
+                },
+                activeUsers: {
+                  $addToSet: {
+                    $cond: [
+                      {
+                        $eq: [
+                          "$userData.activationDetails.activationStatus",
+                          "Active",
+                        ],
+                      },
+                      "$userId",
+                      "$$REMOVE", // This will not add the element if the condition is not met
+                    ],
+                  },
+                },
+              },
+            },
+            {
+              $project:
+              {
+                _id: 0,
+                referrerCode: "$_id.myReferralCode",
+                totalUsers: {
+                  $size: "$totalUsers",
+                },
+                activeUsers: {
+                  $size: "$activeUsers",
+                },
+                signUpBonus: 1,
+              },
+            },
+          ],
+        }
+      }
+    ]);
+    let signUpBonusDict = {};
+    for (let sub of result[0].signUpBonus) {
+      signUpBonusDict[sub.referrerCode] = sub;
+    }
+
+    let referralsArr = [];
+    for (let rev of result[0].revenue) {
+      let sub = signUpBonusDict[rev.referrerCode];
+      if (sub) {
+        referralsArr.push({
+          referrerCode: rev.referrerCode,
+          referrerFirstName: rev.referrerFirstName,
+          referrerLastName: rev.referrerLastName,
+          totalRevenue: -rev.totalRevenue,
+          signUpBonus: sub.signUpBonus,
+          totalUsers: sub.totalUsers,
+          activeUsers: sub.activeUsers,
+          paidUsers: rev.paidUsers
+        });
+      }
+    }
+
+
+    const response = {
+      data: referralsArr,
+      status: "success",
+      message: "User Data fetched successfully",
+    }
+    res.status(200).json(response);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+exports.getAutoSignUpRevenueData = async (req, res, next) => {
+  try {
+    const { period } = req.query;
+    const { startDate, endDate } = getDates(period);
+
+    const result = await Wallet.aggregate([
+      {
+        $facet:
+          {
+            revenue: [
+              {
+                $unwind:
+                  {
+                    path: "$transactions",
+                  },
+              },
+              {
+                $match:
+                  {
+                    "transactions.title": {
+                      $in: [
+                        "Bought TenX Trading Subscription",
+                        "TestZone Fee",
+                        "MarginX Fee",
+                      ], // Assuming "TestZone Fee" is not repeated intentionally
+                    },
+            
+                    "transactions.transactionDate": {
+                      $gt: new Date(startDate),
+                      $lt: new Date(endDate),
+                    },
+                  },
+              },
+              {
+                $lookup:
+                  {
+                    from: "user-personal-details",
+                    localField: "userId",
+                    foreignField: "_id",
+                    as: "userData",
+                  },
+              },
+              {
+                $unwind:
+                  {
+                    path: "$userData",
+                  },
+              },
+              {
+                $match:
+                  {
+                    "userData.creationProcess": "Auto SignUp",
+                  },
+              },
+              {
+                $group:
+                  {
+                    _id: "$userData.campaignCode",
+                    totalRevenue: {
+                      $sum: "$transactions.amount",
+                    },
+                    paidUsers: {
+                      $addToSet: "$userId",
+                    },
+                  },
+              },
+              {
+                $project:
+                  {
+                    _id: 0,
+                    campaign: "$_id",
+                    paidUsers: {
+                      $size: "$paidUsers",
+                    },
+                    totalRevenue: 1,
+                  },
+              },
+            ],
+            signUpBonus:[
+              {
+                $unwind:
+                  {
+                    path: "$transactions",
+                    preserveNullAndEmptyArrays: true,
+                  },
+              },
+              {
+                $lookup:
+                  {
+                    from: "user-personal-details",
+                    localField: "userId",
+                    foreignField: "_id",
+                    as: "userData",
+                  },
+              },
+              {
+                $unwind:
+                  {
+                    path: "$userData",
+                    preserveNullAndEmptyArrays: true,
+                  },
+              },
+              {
+                $match:
+                  {
+                    "userData.creationProcess": "Auto SignUp",
+                    "transactions.transactionDate": {
+                      $gt: new Date(startDate),
+                      $lt: new Date(endDate),
+                    },
+                  },
+              },
+              {
+                $group:
+                  {
+                    _id: "$userData.campaignCode",
+                    signUpBonus: {
+                      $sum: {
+                        $cond: [
+                          {
+                            $in: [
+                              "$transactions.title",
+                              [
+                                "Sign up Bonus",
+                                "TenX Joining Bonus",
+                              ],
+                            ],
+                          },
+                          "$transactions.amount",
+                          0,
+                        ],
+                      },
+                    },
+                    totalUsers: {
+                      $addToSet: "$userId",
+                    },
+                    activeUsers: {
+                      $addToSet: {
+                        $cond: [
+                          {
+                            $eq: [
+                              "$userData.activationDetails.activationStatus",
+                              "Active",
+                            ],
+                          },
+                          "$userId",
+                          "$$REMOVE", // This will not add the element if the condition is not met
+                        ],
+                      },
+                    },
+                  },
+              },
+              {
+                $project:
+                  {
+                    _id: 0,
+                    campaign: "$_id",
+                    totalUsers: {
+                      $size: "$totalUsers",
+                    },
+                    activeUsers: {
+                      $size: "$activeUsers",
+                    },
+                    signUpBonus: 1,
+                  },
+              },
+            ],
+          }
+        }
+    ]);
+    let signUpBonusDict = {};
+  for (let sub of result[0].signUpBonus) {
+      signUpBonusDict[sub.campaign] = sub;
+  }
+  
+  let autoSignUpArr = [];
+  for (let rev of result[0].revenue) {
+      let sub = signUpBonusDict[rev.campaign];
+      if (sub) {
+          autoSignUpArr.push({
+              campaignCode: rev.campaign,
+              totalRevenue: -rev.totalRevenue,
+              signUpBonus: sub.signUpBonus,
+              totalUsers: sub.totalUsers,
+              activeUsers: sub.activeUsers,
+              paidUsers: rev.paidUsers 
+          });
+      }
+  }
+  
+    console.log(autoSignUpArr);
+
+    const response = {
+      data: autoSignUpArr,
+      status: "success",
+      message: "User Data fetched successfully",
+    }
+    res.status(200).json(response);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+exports.getCareerRevenueData = async (req, res, next) => {
+  try {
+    const { period } = req.query;
+    const { startDate, endDate } = getDates(period);
+    console.log(new Date(startDate), new Date(endDate))
+    const allusers = await User.find({
+      joining_date: { $gt: new Date(startDate), $lt: new Date(endDate) },
+      creationProcess: "Career SignUp"
+    })
+    .select('_id mobile');
+
+    const userMobiles = allusers.map((elem) => elem?.mobile);
+    const application = await CareerApplication.aggregate([
+      {
+        $match: {
+          mobileNo: {
+            $in: userMobiles,
+          },
+          status: "OTP Verified",
+          appliedOn: {
+            $gt: new Date("2023-01-01"),
+            $lt: new Date(endDate),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$mobileNo",
+          firstDocument: {
+            $first: "$$ROOT",
+          },
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: "$firstDocument",
+        },
+      },
+      {
+        $lookup: {
+          from: "careers",
+          localField: "career",
+          foreignField: "_id",
+          as: "career",
+        },
+      },
+      {
+        $project: {
+          mobile: "$mobileNo",
+          _id: 0,
+          listingType: {
+            $arrayElemAt: ["$career.listingType", 0],
+          },
+        },
+      },
+    ])
+    
+    const mobileJob = application.map((elem)=>{
+      return elem.listingType==='Job' && elem.mobile
+    })
+
+    const mobileWorkShop = application.map((elem)=>{
+      return elem.listingType==='Workshop' && elem.mobile
+    })
+
+    // const users = await User.aggregate([
+    //   {
+    //     $facet: {
+    //       'job': [
+    //         {
+    //           $match: {
+    //             creationProcess: "Career SignUp",
+    //             joining_date: {
+    //               $gt: new Date(startDate),
+    //               $lt: new Date(endDate),
+    //             },
+    //             mobile: {
+    //               $in: mobileJob,
+    //             },
+    //           },
+    //         },
+    //         {
+    //           $group: {
+    //             _id: {},
+    //             total: {
+    //               $count: {},
+    //             },
+    //             active: {
+    //               $sum: {
+    //                 $cond: {
+    //                   if: {
+    //                     $eq: [
+    //                       "$activationDetails.activationStatus",
+    //                       "Active",
+    //                     ],
+    //                   },
+    //                   then: 1,
+    //                   else: 0,
+    //                 },
+    //               },
+    //             },
+    //             paid: {
+    //               $sum: {
+    //                 $cond: {
+    //                   if: {
+    //                     $gt: [
+    //                       {
+    //                         $ifNull: ["$paidDetails", null],
+    //                       },
+    //                       null,
+    //                     ],
+    //                   },
+    //                   then: 1,
+    //                   else: 0,
+    //                 },
+    //               },
+    //             },
+    //           },
+    //         },
+    //         {
+    //           $project: {
+    //             paid: "$paid",
+    //             _id: 0,
+    //             active: 1,
+    //             total: 1,
+    //           },
+    //         },
+    //       ],
+    //       'workshop': [
+    //         {
+    //           $match: {
+    //             creationProcess: "Career SignUp",
+    //             joining_date: {
+    //               $gt: new Date(startDate),
+    //               $lt: new Date(endDate),
+    //             },
+    //             mobile: {
+    //               $in: mobileWorkShop,
+    //             },
+    //           },
+    //         },
+    //         {
+    //           $group: {
+    //             _id: {},
+    //             total: {
+    //               $count: {},
+    //             },
+    //             active: {
+    //               $sum: {
+    //                 $cond: {
+    //                   if: {
+    //                     $eq: [
+    //                       "$activationDetails.activationStatus",
+    //                       "Active",
+    //                     ],
+    //                   },
+    //                   then: 1,
+    //                   else: 0,
+    //                 },
+    //               },
+    //             },
+    //             paid: {
+    //               $sum: {
+    //                 $cond: {
+    //                   if: {
+    //                     $gt: [
+    //                       {
+    //                         $ifNull: ["$paidDetails", null],
+    //                       },
+    //                       null,
+    //                     ],
+    //                   },
+    //                   then: 1,
+    //                   else: 0,
+    //                 },
+    //               },
+    //             },
+    //           },
+    //         },
+    //         {
+    //           $project: {
+    //             paid: "$paid",
+    //             _id: 0,
+    //             active: 1,
+    //             total: 1,
+    //           },
+    //         },
+    //       ]
+    //     }
+    //   }
+    // ])
+    
+    const wallet = await Wallet.aggregate([
+      {
+        $facet: {
+          'job': [
+            {
+              $unwind: {
+                path: "$transactions",
+              },
+            },
+            {
+              $lookup: {
+                from: "user-personal-details",
+                localField: "userId",
+                foreignField: "_id",
+                as: "user",
+              },
+            },
+            {
+              $unwind: {
+                path: "$user",
+              },
+            },
+            {
+              $match: {
+                "user.mobile": {
+                  $in: mobileJob,
+                },
+                $or: [
+                  {
+                    "transactions.title": "TestZone Fee",
+                  },
+                  {
+                    "transactions.title": "Battle Fee",
+                  },
+                  {
+                    "transactions.title": "MarginX Fee",
+                  },
+                  {
+                    "transactions.title":
+                      "Bought TenX Trading Subscription",
+                  },
+                  {
+                    "transactions.title": "Sign up Bonus",
+                  },
+                ],
+                "transactions.transactionDate": {
+                  $gt: new Date(startDate),
+                  $lt: new Date(endDate),
+                },
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  userId: "$userId",
+                  user: "$user"
+                },
+                amount: {
+                  $sum: {
+                    $cond: {
+                      if: {
+                        $ne: [
+                          "$transactions.title",
+                          "Sign up Bonus",
+                        ],
+                      },
+                      then: {
+                        $multiply: [
+                          "$transactions.amount",
+                          -1,
+                        ],
+                      },
+                      else: 0,
+                    },
+                  },
+                },
+                bonusAmount: {
+                  $sum: {
+                    $cond: {
+                      if: {
+                        $eq: [
+                          "$transactions.title",
+                          "Sign up Bonus",
+                        ],
+                      },
+                      then: {
+                        $multiply: [
+                          "$transactions.amount",
+                          1,
+                        ],
+                      },
+                      else: 0,
+                    },
+                  },
+                },
+                
+              },
+            },
+            {
+              $sort: {
+                amount: -1,
+              },
+            },
+            {
+              $project: {
+                type: "Job",
+                joining_date: "$_id.user.joining_date",
+                email: "$_id.user.email",
+                mobile: "$_id.user.mobile",
+                referredBy: "$_id.user.referredBy",
+                activationDetails:
+                  "$_id.user.activationDetails",
+                paidDetails: "$_id.user.paidDetails",
+                amount: 1,
+                bonusAmount: 1,
+                _id: 0,
+              },
+            },
+          ],
+          'workshop': [
+            {
+              $unwind: {
+                path: "$transactions",
+              },
+            },
+            {
+              $lookup: {
+                from: "user-personal-details",
+                localField: "userId",
+                foreignField: "_id",
+                as: "user",
+              },
+            },
+            {
+              $unwind: {
+                path: "$user",
+              },
+            },
+            {
+              $match: {
+                "user.mobile": {
+                  $in: mobileWorkShop,
+                },
+                $or: [
+                  {
+                    "transactions.title": "TestZone Fee",
+                  },
+                  {
+                    "transactions.title": "Battle Fee",
+                  },
+                  {
+                    "transactions.title": "MarginX Fee",
+                  },
+                  {
+                    "transactions.title":
+                      "Bought TenX Trading Subscription",
+                  },
+                  {
+                    "transactions.title": "Sign up Bonus",
+                  },
+                ],
+                "transactions.transactionDate": {
+                  $gt: new Date(startDate),
+                  $lt: new Date(endDate),
+                },
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  userId: "$userId",
+                  user: "$user"
+                },
+                amount: {
+                  $sum: {
+                    $cond: {
+                      if: {
+                        $ne: [
+                          "$transactions.title",
+                          "Sign up Bonus",
+                        ],
+                      },
+                      then: {
+                        $multiply: [
+                          "$transactions.amount",
+                          -1,
+                        ],
+                      },
+                      else: 0,
+                    },
+                  },
+                },
+                bonusAmount: {
+                  $sum: {
+                    $cond: {
+                      if: {
+                        $eq: [
+                          "$transactions.title",
+                          "Sign up Bonus",
+                        ],
+                      },
+                      then: {
+                        $multiply: [
+                          "$transactions.amount",
+                          1,
+                        ],
+                      },
+                      else: 0,
+                    },
+                  },
+                },
+                
+              },
+            },
+            {
+              $sort: {
+                amount: -1,
+              },
+            },
+            {
+              $project: {
+                type: "Workshop",
+                joining_date: "$_id.user.joining_date",
+                email: "$_id.user.email",
+                mobile: "$_id.user.mobile",
+                referredBy: "$_id.user.referredBy",
+                activationDetails:
+                  "$_id.user.activationDetails",
+                paidDetails: "$_id.user.paidDetails",
+                amount: 1,
+                bonusAmount: 1,
+                _id: 0,
+              },
+            },
+          ]
+        }
+      }
+    ])
+
+    const jobData = formatData(wallet[0]?.job);
+    const workshopData = formatData(wallet[0]?.workshop);
+
+    const response = {
+      jobData: jobData,
+      workshopData: workshopData,
+      status: "success",
+      message: "User Data fetched successfully",
+    }
+    res.status(200).json(response);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+function formatData(data){
+  const groupedData = data.reduce((result, item) => {
+    const type = item?.type;
+  
+    if (!result[type]) {
+      result[type] = {
+        total: 0,
+        active: 0,
+        paid: 0,
+        revenue: 0,
+        bonus: 0,
+        actualRevenue: 0
+      };
+    }
+  
+    result[type].total += 1;
+    result[type].revenue += item.amount;
+    result[type].bonus += item.bonusAmount;
+    result[type].actualRevenue += (item.amount - item.bonusAmount);
+    if(item?.activationDetails?.activationStatus === "Active"){
+      result[type].active += 1;
+    }
+
+    if(item?.paidDetails){
+      result[type].paid += 1;
+    }
+
+    return result;
+  }, {});
+  
+  const groupedArray = Object.entries(groupedData).map(([type, { total, paid, active, revenue, bonus, actualRevenue }]) => ({
+    type,
+    total,
+    active, actualRevenue,
+    paid, revenue, bonus
+  }));
+
+  return groupedArray;
+}
+
 function getDates(period) {
   const today = moment();
   let startDate, endDate;
@@ -3667,21 +4900,3 @@ function getDates(period) {
 
   return { startDate, endDate };
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  
-  
-

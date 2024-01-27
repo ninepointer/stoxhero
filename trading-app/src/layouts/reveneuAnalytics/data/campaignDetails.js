@@ -1,116 +1,117 @@
-
-import React, {useState, useEffect} from 'react'
-import axios from "axios";
-import {apiUrl} from "../../../constants/constants.js"
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import { CardActionArea, Divider, Grid } from '@mui/material';
-// Material Dashboard 2 React components
-import MDBox from "../../../components/MDBox/index.js";
+import { Divider, Grid, CircularProgress } from '@mui/material';
 import MDTypography from "../../../components/MDTypography/index.js";
-import { Link} from "react-router-dom";
-import moment from 'moment'
+import React from 'react';
+import { useState, useEffect, memo, useContext } from "react"
+import axios from "axios";
+import { apiUrl } from '../../../constants/constants';
 
+function CampaignRevenue({ period }) {
 
-const PublishedBlogs = ({overallRevenue,period}) => {
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    useEffect(() => {
+        axios.get(`${apiUrl}revenue/campaignrevenue?period=${period}`, {
+            withCredentials: true,
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Credentials": true
+            }
+        }
+        ).then((res) => {
+            setData(res.data.data);
+            setLoading(false);
+        })
+    }, []);
 
     return (
-    <Grid p={1} container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{backgroundColor:'white', borderRadius:5 ,minWidth: '100%',height: 'auto'}}>
-        
-        <Divider style={{width:'100%'}}/>
-        <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption' fontWeight='bold'>Campaign Revenue Data</MDTypography>
-        </Grid>
-        <Divider style={{width:'100%'}}/>
+        <>
+            {
+                loading ?
+                    <Grid p={1} container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ borderRadius: 5, width: '100%', height: 'auto' }}>
+                        <CircularProgress color='dark' />
+                    </Grid>
+                    :
+                    data.length > 0 ?
+                        <Grid p={1} container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ backgroundColor: 'white', borderRadius: 5, minWidth: '100%', height: 'auto' }}>
 
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>Campaign Name</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>Code</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>Users Acquired</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>Active Users</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>Paid Users</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>Total Revenue</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>Actual Revenue</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>Signup Bonus</MDTypography>
-        </Grid>
+                            <Divider style={{ width: '100%' }} />
+                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                <MDTypography variant='caption' fontWeight='bold'>Campaign Revenue Data</MDTypography>
+                            </Grid>
+                            <Divider style={{ width: '100%' }} />
 
-        <Divider style={{width:'100%'}}/>
-
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>Prateek Pawan</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>STOXHEROPP</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>100</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>20</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>2</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>₹10,000</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>₹8,000</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>₹2,000</MDTypography>
-        </Grid>
-
-        <Divider style={{width:'100%'}}/>
-
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>Prateek Pawan</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>STOXHEROPP</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>100</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>20</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>2</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>₹10,000</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>₹8,000</MDTypography>
-        </Grid>
-        <Grid item xs={12} md={12} lg={1.5} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <MDTypography variant='caption'>₹2,000</MDTypography>
-        </Grid>
-
-        <Divider style={{width:'100%'}}/>
-        
-    </Grid>
-
-)}
+                            <Grid item xs={12} md={12} lg={1.71} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                <MDTypography variant='caption'>Code</MDTypography>
+                            </Grid>
+                            <Grid item xs={12} md={12} lg={1.71} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                <MDTypography variant='caption'>Users Acquired</MDTypography>
+                            </Grid>
+                            <Grid item xs={12} md={12} lg={1.71} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                <MDTypography variant='caption'>Active Users</MDTypography>
+                            </Grid>
+                            <Grid item xs={12} md={12} lg={1.71} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                <MDTypography variant='caption'>Paid Users</MDTypography>
+                            </Grid>
+                            <Grid item xs={12} md={12} lg={1.71} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                <MDTypography variant='caption'>Total Revenue</MDTypography>
+                            </Grid>
+                            <Grid item xs={12} md={12} lg={1.71} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                <MDTypography variant='caption'>Actual Revenue</MDTypography>
+                            </Grid>
+                            <Grid item xs={12} md={12} lg={1.71} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                <MDTypography variant='caption'>Signup Bonus</MDTypography>
+                            </Grid>
 
 
+                            <Divider style={{ width: '100%' }} />
+                            {
+                                data.map((elem) => {
+                                    return (
+                                        <>
+                                            <Grid item xs={12} md={12} lg={1.71} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                                <MDTypography variant='caption'>{elem?.campaignCode || "-"}</MDTypography>
+                                            </Grid>
+                                            <Grid item xs={12} md={12} lg={1.71} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                                <MDTypography variant='caption'>{elem?.totalUsers || 0}</MDTypography>
+                                            </Grid>
+                                            <Grid item xs={12} md={12} lg={1.71} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                                <MDTypography variant='caption'>{elem?.activeUsers || 0}</MDTypography>
+                                            </Grid>
+                                            <Grid item xs={12} md={12} lg={1.71} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                                <MDTypography variant='caption'>{elem?.paidUsers || 0}</MDTypography>
+                                            </Grid>
+                                            <Grid item xs={12} md={12} lg={1.71} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                                <MDTypography variant='caption'>{"₹" + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(elem?.totalRevenue) || 0)}</MDTypography>
+                                            </Grid>
+                                            <Grid item xs={12} md={12} lg={1.71} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                                <MDTypography variant='caption'>{"₹" + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(elem?.signUpBonus - elem?.totalRevenue) || 0)}</MDTypography>
+                                            </Grid>
+                                            <Grid item xs={12} md={12} lg={1.71} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                                <MDTypography variant='caption'>{"₹" + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(elem?.signUpBonus) || 0)}</MDTypography>
+                                            </Grid>
 
-export default PublishedBlogs;
+                                            <Divider style={{ width: '100%' }} />
+                                        </>
+                                    )
+                                })
+                            }
+
+                        </Grid>
+                        :
+                        <Grid p={1} container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ backgroundColor: 'white', borderRadius: 5, width: '100%', height: 'auto' }}>
+                            <Divider style={{ width: '100%' }} />
+                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                <MDTypography variant='caption' fontWeight='bold'>AutoSignup Revenue Data</MDTypography>
+                            </Grid>
+                            <Divider style={{ width: '100%' }} />
+
+                            <MDTypography variant='caption'>No Data</MDTypography>
+                        </Grid>
+            }
+        </>
+    );
+}
+
+export default memo(CampaignRevenue);
