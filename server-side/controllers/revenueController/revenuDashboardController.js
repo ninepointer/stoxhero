@@ -2837,20 +2837,5 @@ exports.getPaidRetentionPercentageForMonth = async(req,res,next) => {
     console.log(e);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  
   
 
