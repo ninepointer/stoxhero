@@ -349,6 +349,10 @@ exports.generateOtp = async(req,res) => {
   const {aadhaarNumber} = req.body;
   console.log('aadhaar otp req');
   try{
+    const aadhaarNumberDoc = await User.findOne({aadhaar_number:aadhaarNumber, KYCStatus:"Approved"}).select('_id');
+    if(aadhaarNumberDoc._id.toString() != req?.user?._id.toString()){
+      res.status(400).json({ status: 'error', message: 'Aadhaar Number already approved with another account'});
+    }
     const client_id = await generateAadhaarOtp(aadhaarNumber);
     res.status(200).json({status:'success', data:client_id});  
   }catch(e){
