@@ -2,25 +2,12 @@ import {useState, useEffect, useContext} from 'react';
 import axios from "axios";
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton'
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import { CardActionArea, Divider, Grid } from '@mui/material';
-import { userContext } from '../../../AuthContext';
+import {Card, Grid} from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
 import { CircularProgress, LinearProgress, Paper } from '@mui/material';
-import TestZoneRevenueChart from '../data/testZoneRevenueChart'
-import TenXRevenueChart from '../data/tenXRevenueChart'
-import MarginXRevenueChart from '../data/marginXRevenueChart'
-import BattleRevenueChart from '../data/battleRevenueChart'
-import TotalTestZoneRevenue from '../data/totalTestZoneRevenue'
-import MarginXRevenue from '../data/totalMarginXRevenue'
-import BattleRevenue from '../data/totalBattleRevenue'
-import TenXRevenue from '../data/totalTenXRevenue'
 import TotalRevenue from '../data/totalRevenue'
-import OverallARPUAOVChart from '../data/overallARPUAOVChart'
-import CreationProcessChart from '../data/creationProcessDonutChart'
-import RevenueChannelSplit from '../data/revenueSplitDonutChart'
+import CreationProcessChart from '../data/charts/creationProcessDonutChart'
+import RevenueChannelSplit from '../data/charts/revenueSplitDonutChart'
 import { saveAs } from 'file-saver';
 import moment from 'moment'
 import InputLabel from '@mui/material/InputLabel';

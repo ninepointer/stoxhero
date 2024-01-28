@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as echarts from 'echarts';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import { apiUrl } from '../../../constants/constants';
+import { apiUrl } from '../../../../constants/constants';
 import axios from 'axios';
 
 const PieChart = ({period}) => {

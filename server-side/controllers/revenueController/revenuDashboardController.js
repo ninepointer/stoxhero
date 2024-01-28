@@ -3953,228 +3953,631 @@ exports.getAffiliateRevenueData = async (req, res, next) => {
 }
 
 exports.getCampaignRevenueData = async (req, res, next) => {
-  try {
-    const { period } = req.query;
-    const { startDate, endDate } = getDates(period);
-
-      const result = await Wallet.aggregate([
-        {
-          $facet:
-            {
-              revenue: [
-                {
-                  $unwind:
-                    {
-                      path: "$transactions",
-                    },
-                },
-                {
-                  $match:
-                    {
-                      "transactions.title": {
-                        $in: [
-                          "Bought TenX Trading Subscription",
-                          "TestZone Fee",
-                          "MarginX Fee",
-                        ], // Assuming "TestZone Fee" is not repeated intentionally
-                      },
+    try {
+      const { period } = req.query;
+      const { startDate, endDate } = getDates(period);
       
-                      "transactions.transactionDate": {
-                        $gt: new Date(startDate),
-                        $lt: new Date(endDate),
-                      },
-                    },
-                },
+      const wallet = await userWallet.aggregate([{
+        $facet: {
+          'total': [
+            {
+              $unwind:
+
                 {
-                  $lookup:
-                    {
-                      from: "user-personal-details",
-                      localField: "userId",
-                      foreignField: "_id",
-                      as: "userData",
-                    },
+                  path: "$transactions",
+                  preserveNullAndEmptyArrays: true,
                 },
+            },
+            {
+              $lookup:
+                /**
+                 * from: The target collection.
+                 * localField: The local join field.
+                 * foreignField: The target join field.
+                 * as: The name for the results.
+                 * pipeline: Optional pipeline to run on the foreign collection.
+                 * let: Optional variables to use in the pipeline field stages.
+                 */
                 {
-                  $unwind:
-                    {
-                      path: "$userData",
-                    },
+                  from: "user-personal-details",
+                  localField: "userId",
+                  foreignField: "_id",
+                  as: "user",
                 },
+            },
+            {
+              $unwind:
+                /**
+                 * path: Path to the array field.
+                 * includeArrayIndex: Optional name for index.
+                 * preserveNullAndEmptyArrays: Optional
+                 *   toggle to unwind null and empty values.
+                 */
                 {
-                  $lookup:
-                    {
-                      from: "campaigns",
-                      localField:
-                        "userData.campaignCode",
-                      foreignField: "campaignCode",
-                      as: "campaignData",
-                    },
+                  path: "$user",
                 },
+            },
+            {
+              $match:
+                /**
+                 * query: The query in MQL.
+                 */
                 {
-                  $unwind:
+                  "user.creationProcess": {$in:["Campaign SignUp", "Auto SignUp"]},
+                  "user.campaignCode":{$ne:null},
+                  $or: [
                     {
-                      path: "$campaignData",
+                      "transactions.title": "TestZone Fee",
                     },
-                },
-                {
-                  $group:
                     {
-                      _id: "$userData.campaignCode",
-                      totalRevenue: {
-                        $sum: "$transactions.amount",
-                      },
-                      campaignName: {
-                        $first:
-                          "$campaignData.campaignName",
-                      },
-                      uniqueUsers: {
-                        $addToSet: "$userId",
-                      },
-                      totalUsers: {
-                        $first: {
-                          $size: "$campaignData.users",
-                        },
-                      },
+                      "transactions.title": "Battle Fee",
                     },
-                },
-                {
-                  $project:
                     {
-                      _id: 0,
-                      campaignName: 1,
-                      campaignCode: "$_id",
-                      totalUsers: 1,
-                      paidUsers: {
-                        $size: "$uniqueUsers",
-                      },
-                      totalRevenue:1
+                      "transactions.title": "MarginX Fee",
                     },
-                },
-              ],
-              signUpBonus: [
-                {
-                  $lookup:
                     {
-                      from: "user-personal-details",
-                      localField: "userId",
-                      foreignField: "_id",
-                      as: "userData",
+                      "transactions.title":
+                        "Bought TenX Trading Subscription",
                     },
-                },
-                {
-                  $unwind:
                     {
-                      path: "$userData",
+                      "transactions.title": "Sign up Bonus",
                     },
-                },
-                {
-                  $unwind:
                     {
-                      path: "$transactions",
-                      preserveNullAndEmptyArrays: true,
+                      "transactions.title":
+                        "TenX Joining Bonus",
                     },
+                  ],
+                  "transactions.transactionDate": {
+                    $gt: new Date(startDate),
+                    $lt: new Date(endDate),
+                  },
                 },
+            },
+            {
+              $group:
+                /**
+                 * _id: The id of the group.
+                 * fieldN: The first field name.
+                 */
                 {
-                  $match:
-                    {
-                      "transactions.transactionDate": {
-                        $gt: new Date(startDate),
-                        $lt: new Date(endDate),
-                      },
-                    },
-                },
-                {
-                  $group:
-                    {
-                      _id: "$userData.campaignCode",
-                      signUpBonus: {
-                        $sum: {
-                          $cond: [
-                            {
-                              $in: [
-                                "$transactions.title",
-                                [
+                  _id: {
+                    user: "$user",
+                  },
+                  amount: {
+                    $sum: {
+                      $cond: {
+                        if: {
+                          $not: {
+                            $or: [
+                              {
+                                $eq: [
+                                  "$transactions.title",
                                   "Sign up Bonus",
-                                  "TenX Joining Bonus",
                                 ],
-                              ],
-                            },
+                              },
+                              {
+                                $eq: [
+                                  "$transactions.title",
+                                  "Tenx Joining Bonus",
+                                ],
+                              },
+                            ],
+                          },
+                        },
+                        then: {
+                          $multiply: [
                             "$transactions.amount",
-                            0,
+                            -1,
                           ],
                         },
+                        else: 0,
                       },
-                      totalUsers: {
-                        $addToSet: "$userId",
-                      },
-                      activeUsers: {
-                        $addToSet: {
-                          $cond: [
+                    },
+                  },
+                  bonusAmount: {
+                    $sum: {
+                      $cond: {
+                        if: {
+                          $or: [
                             {
                               $eq: [
-                                "$userData.activationDetails.activationStatus",
-                                "Active",
+                                "$transactions.title",
+                                "Sign up Bonus",
                               ],
                             },
-                            "$userId",
-                            "$$REMOVE", // This will not add the element if the condition is not met
+                            {
+                              $eq: [
+                                "$transactions.title",
+                                "Tenx Joining Bonus",
+                              ],
+                            },
                           ],
                         },
+                        then: "$transactions.amount",
+                        else: 0,
                       },
                     },
+                  },
                 },
-                {
-                  $project:
-                    {
-                      _id: 0,
-                      campaignCode: "$_id",
-                      signUpBonus: 1,
-                      totalUsers: {
-                        $size: "$totalUsers",
-                      },
-                      activeUsers: {
-                        $size: "$activeUsers",
-                      },
-                    },
-                },
-              ],
             },
-        },
-      ]);
-      
-      let signUpBonusDict = {};
-    for (let sub of result[0].signUpBonus) {
-        signUpBonusDict[sub.campaignCode] = sub;
-    }
-    
-    let campaignArr = [];
-    for (let rev of result[0].revenue) {
-        let sub = signUpBonusDict[rev.campaignCode];
-        if (sub) {
-            campaignArr.push({
-                campaignCode: rev.campaignCode,
-                campaignName: rev.campaignName,
-                totalRevenue: -rev.totalRevenue,
-                signUpBonus: sub.signUpBonus,
-                totalUsers: sub.totalUsers,
-                activeUsers: sub.activeUsers,
-                paidUsers: rev.paidUsers 
-            });
+            {
+              $project:
+                /**
+                 * specifications: The fields to
+                 *   include or exclude.
+                 */
+                {
+                  joining_date: "$_id.user.joining_date",
+                  email: "$_id.user.email",
+                  mobile: "$_id.user.mobile",
+                  campaignCode: "$_id.user.campaignCode",
+                  activationDetails:
+                    "$_id.user.activationDetails",
+                  paidDetails: "$_id.user.paidDetails",
+                  amount: 1,
+                  bonusAmount: 1,
+                  _id: 0,
+                },
+            },
+            {
+              $lookup:
+                /**
+                 * from: The target collection.
+                 * localField: The local join field.
+                 * foreignField: The target join field.
+                 * as: The name for the results.
+                 * pipeline: Optional pipeline to run on the foreign collection.
+                 * let: Optional variables to use in the pipeline field stages.
+                 */
+                {
+                  from: "campaigns",
+                  localField: "campaignCode",
+                  foreignField: "campaignCode",
+                  as: "campaign",
+                },
+            },
+            {
+              $unwind:
+                /**
+                 * path: Path to the array field.
+                 * includeArrayIndex: Optional name for index.
+                 * preserveNullAndEmptyArrays: Optional
+                 *   toggle to unwind null and empty values.
+                 */
+                {
+                  path: "$campaign",
+                  preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+              $project:
+                /**
+                 * specifications: The fields to
+                 *   include or exclude.
+                 */
+                {
+                  amount: 1,
+                  bonusAmount: 1,
+                  joining_date: 1,
+                  activationDetails: 1,
+                  paidDetails: 1,
+                  campaignId: "$campaign._id",
+                  campaignCode: "$campaign.campaignCode",
+                  campaignName: "$campaign.campaignName",
+                  bonusUsed: {
+                    $cond: {
+                      if: {
+                        $gt: [
+                          {
+                            $subtract: [
+                              "$bonusAmount",
+                              "$amount",
+                            ],
+                          },
+                          0,
+                        ],
+                      },
+                      then: "$amount",
+                      else: "$bonusAmount",
+                    },
+                  },
+                },
+            },
+            {
+              $group:
+                /**
+                 * _id: The id of the group.
+                 * fieldN: The first field name.
+                 */
+                {
+                  _id: {
+                    campaignId: "$campaignId",
+                    campaignCode: "$campaignCode",
+                    campaignName: "$campaignName",
+                  },
+                  totalAmount: {
+                    $sum: "$amount",
+                  },
+                  totalBonusAmount: {
+                    $sum: "$bonusAmount",
+                  },
+                  totalBonusUsed: {
+                    $sum: "$bonusUsed",
+                  },
+                },
+            },
+            {
+              $project:
+                /**
+                 * specifications: The fields to
+                 *   include or exclude.
+                 */
+                {
+                  campaignName: "$_id.campaignName",
+                  campaignCode: "$_id.campaignCode",
+                  _id: 0,
+                  totalAmount: 1,
+                  totalBonusUsed: 1,
+                  totalBonusAmount: 1,
+                },
+            },
+          ],
+          'new': [
+            {
+              $unwind:
+                /**
+                 * path: Path to the array field.
+                 * includeArrayIndex: Optional name for index.
+                 * preserveNullAndEmptyArrays: Optional
+                 *   toggle to unwind null and empty values.
+                 */
+                {
+                  path: "$transactions",
+                  preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+              $lookup:
+                /**
+                 * from: The target collection.
+                 * localField: The local join field.
+                 * foreignField: The target join field.
+                 * as: The name for the results.
+                 * pipeline: Optional pipeline to run on the foreign collection.
+                 * let: Optional variables to use in the pipeline field stages.
+                 */
+                {
+                  from: "user-personal-details",
+                  localField: "userId",
+                  foreignField: "_id",
+                  as: "user",
+                },
+            },
+            {
+              $unwind:
+                /**
+                 * path: Path to the array field.
+                 * includeArrayIndex: Optional name for index.
+                 * preserveNullAndEmptyArrays: Optional
+                 *   toggle to unwind null and empty values.
+                 */
+                {
+                  path: "$user",
+                },
+            },
+            {
+              $match:
+                /**
+                 * query: The query in MQL.
+                 */
+                {
+                  "user.creationProcess": {$in:["Campaign SignUp", "Auto SignUp"]},
+                  "user.campaignCode":{$ne:null},
+                  "user.joining_date": {
+                    $gt: new Date(startDate),
+                    $lt: new Date(endDate),
+                  },
+                  $or: [
+                    {
+                      "transactions.title": "TestZone Fee",
+                    },
+                    {
+                      "transactions.title": "Battle Fee",
+                    },
+                    {
+                      "transactions.title": "MarginX Fee",
+                    },
+                    {
+                      "transactions.title":
+                        "Bought TenX Trading Subscription",
+                    },
+                    {
+                      "transactions.title": "Sign up Bonus",
+                    },
+                    {
+                      "transactions.title":
+                        "TenX Joining Bonus",
+                    },
+                  ],
+                  "transactions.transactionDate": {
+                    $gt: new Date(startDate),
+                    $lt: new Date(endDate),
+                  },
+                },
+            },
+            {
+              $group:
+                /**
+                 * _id: The id of the group.
+                 * fieldN: The first field name.
+                 */
+                {
+                  _id: {
+                    userId: "$userId",
+                    user: "$user",
+                  },
+                  amount: {
+                    $sum: {
+                      $cond: {
+                        if: {
+                          $not: {
+                            $or: [
+                              {
+                                $eq: [
+                                  "$transactions.title",
+                                  "Sign up Bonus",
+                                ],
+                              },
+                              {
+                                $eq: [
+                                  "$transactions.title",
+                                  "Tenx Joining Bonus",
+                                ],
+                              },
+                            ],
+                          },
+                        },
+                        then: {
+                          $multiply: [
+                            "$transactions.amount",
+                            -1,
+                          ],
+                        },
+                        else: 0,
+                      },
+                    },
+                  },
+                  bonusAmount: {
+                    $sum: {
+                      $cond: {
+                        if: {
+                          $or: [
+                            {
+                              $eq: [
+                                "$transactions.title",
+                                "Sign up Bonus",
+                              ],
+                            },
+                            {
+                              $eq: [
+                                "$transactions.title",
+                                "Tenx Joining Bonus",
+                              ],
+                            },
+                          ],
+                        },
+                        then: "$transactions.amount",
+                        else: 0,
+                      },
+                    },
+                  },
+                },
+            },
+            {
+              $project:
+                /**
+                 * specifications: The fields to
+                 *   include or exclude.
+                 */
+                {
+                  joining_date: "$_id.user.joining_date",
+                  email: "$_id.user.email",
+                  mobile: "$_id.user.mobile",
+                  campaignCode: "$_id.user.campaignCode",
+                  activationDetails:
+                    "$_id.user.activationDetails",
+                  paidDetails: "$_id.user.paidDetails",
+                  amount: 1,
+                  bonusAmount: 1,
+                  _id: 0,
+                },
+            },
+            {
+              $lookup:
+                /**
+                 * from: The target collection.
+                 * localField: The local join field.
+                 * foreignField: The target join field.
+                 * as: The name for the results.
+                 * pipeline: Optional pipeline to run on the foreign collection.
+                 * let: Optional variables to use in the pipeline field stages.
+                 */
+                {
+                  from: "campaigns",
+                  localField: "campaignCode",
+                  foreignField: "campaignCode",
+                  as: "campaign",
+                },
+            },
+            {
+              $unwind:
+                /**
+                 * path: Path to the array field.
+                 * includeArrayIndex: Optional name for index.
+                 * preserveNullAndEmptyArrays: Optional
+                 *   toggle to unwind null and empty values.
+                 */
+                {
+                  path: "$campaign",
+                },
+            },
+            {
+              $project:
+                /**
+                 * specifications: The fields to
+                 *   include or exclude.
+                 */
+                {
+                  amount: 1,
+                  bonusAmount: 1,
+                  joining_date: 1,
+                  activationDetails: 1,
+                  paidDetails: 1,
+                  campaignId: "$campaign._id",
+                  campaignCode: "$campaign.campaignCode",
+                  campaignName: "$campaign.campaignName",
+                },
+            },
+            {
+              $group:
+                /**
+                 * _id: The id of the group.
+                 * fieldN: The first field name.
+                 */
+                {
+                  _id: {
+                    campaignId: "$campaignId",
+                    campaignCode: "$campaignCode",
+                    campaignName: "$campaignName",
+                  },
+                  total: {
+                    $sum: 1,
+                  },
+                  // Total documents
+                  active: {
+                    $sum: {
+                      $cond: [
+                        {
+                          $eq: [
+                            "$activationDetails.activationStatus",
+                            "Active",
+                          ],
+                        },
+                        1,
+                        0,
+                      ],
+                    },
+                  },
+                  paid: {
+                    $sum: {
+                      $cond: [
+                        {
+                          $gt: ["$amount", 0],
+                        },
+                        1,
+                        0,
+                      ],
+                    },
+                  },
+                  amount: {
+                    $sum: "$amount",
+                  },
+                },
+            },
+            {
+              $project:
+                /**
+                 * specifications: The fields to
+                 *   include or exclude.
+                 */
+                {
+                  campaignName: "$_id.campaignName",
+                  campaignCode: "$_id.campaignCode",
+                  _id: 0,
+                  total: 1,
+                  active: 1,
+                  paid: 1,
+                  amount: 1,
+                },
+            },
+          ]
         }
+      }])
+  
+      const totalUsersRevenue = wallet?.[0]?.total;
+      const newUsersRevenue = wallet?.[0]?.new;
+  
+      const groupedData = totalUsersRevenue.reduce((result, item) => {
+        const campaignCode = item?.campaignCode?.toString();
+      
+        if (!result[campaignCode]) {
+          const match = newUsersRevenue.filter(elem=>elem.campaignCode.toString() === campaignCode?.toString())?.[0];
+  
+          result[campaignCode] = {
+            total: match?.total || 0,
+            active: match?.active || 0,
+            paid: match?.paid || 0,
+            campaignName: match?.campaignName || item?.campaignName,
+            campaignCode: match?.campaignCode || item?.campaignCode,
+            revenue: item?.totalAmount || 0,
+            oldRevenue: (item?.totalAmount || 0) - (match?.amount || 0),
+            newRevenue: match?.amount || 0,
+            bonusUsed: item?.totalBonusUsed || 0,
+            bonus: item?.totalBonusAmount || 0,
+            actualRevenue: (item?.totalAmount || 0) - (item?.totalBonusUsed || 0)
+          };
+        }
+  
+        return result;
+      }, {});
+      
+      const groupedArray = Object.entries(groupedData).map(([affiliate, { 
+        total,
+        active,
+        paid,
+        campaignName,
+        campaignCode,
+        revenue,
+        oldRevenue,
+        newRevenue,
+        bonusUsed,
+        bonus,
+        actualRevenue,
+       }]) => ({
+        total,
+        active,
+        paid,
+        campaignName,
+        campaignCode,
+        revenue,
+        oldRevenue,
+        newRevenue,
+        bonusUsed,
+        bonus,
+        actualRevenue,
+      }));
+  
+      groupedArray.sort((a, b)=>{
+        if(a.revenue > b.revenue){
+          return -1;
+        } else if(a.revenue < b.revenue){
+          return 1;
+        } else{
+          return 1
+        }
+      })
+  
+      const response = {
+        data: groupedArray,
+        // groupedArray,
+        status: "success",
+        message: "User Data fetched successfully",
+      }
+      res.status(200).json(response);
+    } catch (e) {
+      console.log(e);
     }
-    
-      console.log(campaignArr);
-   
-
-    const response = {
-      data: campaignArr,
-      status: "success",
-      message: "User Data fetched successfully",
-    }
-    res.status(200).json(response);
-  } catch (e) {
-    console.log(e);
-  }
+ 
 }
 
 exports.getReferralRevenueData = async (req, res, next) => {
