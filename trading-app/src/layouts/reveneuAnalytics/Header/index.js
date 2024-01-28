@@ -103,6 +103,7 @@ export default function Dashboard() {
                                 <MenuItem value={"Today"}>Today</MenuItem>
                                 <MenuItem value={"Yesterday"}>Yesterday</MenuItem>
                                 <MenuItem value={"This Month"}>This Month</MenuItem>
+                                <MenuItem value={"Last Month"}>Last Month</MenuItem>
                                 <MenuItem value={"Last 30 Days"}>Last 30 Days</MenuItem>
                                 <MenuItem value={"Last 60 Days"}>Last 60 Days</MenuItem>
                                 <MenuItem value={"Last 90 Days"}>Last 90 Days</MenuItem>
