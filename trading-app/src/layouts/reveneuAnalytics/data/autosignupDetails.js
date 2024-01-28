@@ -117,7 +117,7 @@ function AutoSignUp({ period }) {
                                                 <MDTypography variant='caption' fontSize={11}>{elem?.paid || 0}</MDTypography>
                                             </Grid>
                                             <Grid item xs={12} md={12} lg={1.33} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                                                <MDTypography variant='caption' fontSize={11}>{"₹" + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.revenue || 0)}</MDTypography>
+                                                <MDTypography variant='caption' fontSize={11}>{"₹" + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.totalAmount || 0)}</MDTypography>
                                             </Grid>
                                             <Grid item xs={12} md={12} lg={1.33} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                                                 <MDTypography variant='caption' fontSize={10}>{"₹" + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.newRevenue || 0)}</MDTypography>
