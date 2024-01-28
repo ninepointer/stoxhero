@@ -806,6 +806,11 @@ function Index() {
                       >
                         HeroCash
                       </MenuItem>
+                      <MenuItem
+                        value='Goodies'
+                      >
+                        Goodies
+                      </MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
