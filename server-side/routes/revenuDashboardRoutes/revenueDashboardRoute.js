@@ -23,6 +23,7 @@ router.route('/affiliaterevenue').get(Authenticate, restrictTo('Admin', 'SuperAd
 router.route('/careerrevenue').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getCareerRevenueData);
 router.route('/campaignrevenue').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getCampaignRevenueData);
 router.route('/referralrevenue').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getReferralRevenueData);
+router.route('/autosignuprevenue').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getAutoSignUpRevenueData);
 
 
 module.exports = router;
