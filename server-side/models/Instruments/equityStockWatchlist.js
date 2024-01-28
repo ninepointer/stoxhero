@@ -68,5 +68,5 @@ const equityInstrumentSchema = new mongoose.Schema({
     ]
 })
 
-const instrumentDetail = mongoose.model("equity-instrument-detail", equityInstrumentSchema);
+const instrumentDetail = mongoose.model("stock-instrument-detail", equityInstrumentSchema);
 module.exports = instrumentDetail;

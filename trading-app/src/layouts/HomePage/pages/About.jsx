@@ -8,18 +8,13 @@ import ServiceCard from '../components/Cards/ServiceCard'
 import Navbar from '../components/Navbars/Navbar'
 import theme from '../utils/theme/index'
 import Footer from '../../../layouts/authentication/components/Footer'
-
+import { Helmet } from 'react-helmet';
 
 // IMages for about 
 import aboutuspage from '../../../assets/images/aboutuspage.png'
 import cofounder_prateek from '../../../assets/images/cofounder_prateek.png'
 import cofounder_kush from '../../../assets/images/cofounder_kush.png'
 import cofounder_manish from '../../../assets/images/cofounder_manish.png'
-import about1 from '../assets/images/About/about1.png'
-import about2 from '../assets/images/About/about2.png'
-import about3 from '../assets/images/About/about3.webp'
-import about4 from '../assets/images/About/about4.png'
-import about5 from '../assets/images/About/about5.webp'
 import MDAvatar from '../../../components/MDAvatar';
 import MDTypography from '../../../components/MDTypography';
 import MDBox from '../../../components/MDBox';
@@ -48,9 +43,19 @@ const About = () => {
         })
     })
 
+    let text = 'Learn about StoxHero\'s journey to revolutionize trading education with our expert team from top institutions. Join our community of skilled traders.'
+
     return (
         <ThemeProvider theme={theme}>
             <Navbar />
+            <Helmet>
+
+ 
+                <title>StoxHero - Empowering Traders with Expert Education</title>
+                <meta name='description' content={text} />
+                <meta name='keywords' content='learn stock market, learn stock market trading, stock market learning course, learn how to invest in stock market, how to learn stock market trading in india, best way to learn stock market, trading, stock market learning app, best app for virtual trading, trading chart patterns, social trading,stock price today, online trading, trading competition, share trading competition, trading competition in india' />
+
+            </Helmet>
             <MDBox bgcolor="white" mt={7} mb={5}>
                 {/* <Container> */}
                     <Grid container xs={12} md={12} lg={12} style={{ minWidth:'auto'}} display='flex' flexWrap="wrap-reverse" justifyContent="center" alignItems="flex-start">

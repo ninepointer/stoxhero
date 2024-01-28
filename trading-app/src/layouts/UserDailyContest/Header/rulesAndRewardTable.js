@@ -46,7 +46,7 @@ export default function RewardTable({ data, paid }) {
         );
         featureObj.reward = (
             <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-                ₹{elem?.prize}
+                {data?.rewardType === "Goodies" ? elem?.prize : `₹${elem?.prize}`}
             </MDTypography>
         );
 
@@ -71,7 +71,10 @@ export default function RewardTable({ data, paid }) {
                 paid ?
                  `${data.payoutPercentage}% of the net P&L${data?.payoutCapPercentage?`(upto ₹${cap})`:''}. Click to know more!` : 
                  `${data.payoutPercentage}% of the net P&L${data?.payoutCapPercentage?`(upto ₹${cap})`:''}. Click to know more!` : 
-                 `Reward worth upto ₹${pricePool}. Click to know more!`}
+                 data?.rewardType !== "Goodies" ?
+                 `Reward worth upto ₹${pricePool}. Click to know more!` :
+                 `Click to know exciting rewards and goodies!`
+                 }
             </MDBox>
 
             <Dialog

@@ -72,7 +72,7 @@ const contestSchema = new Schema({
     rewardType:{
         type:String,
         required: true,
-        enum: ['Cash','HeroCash']
+        enum: ['Cash','HeroCash', 'Goodies']
     },
     tdsRelief:{
         type:Boolean,

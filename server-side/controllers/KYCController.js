@@ -370,10 +370,18 @@ exports.verifyOtp = async(req,res) =>{
     const bankAccountData = await verifyBankAccount(bankAccountNumber, ifsc);
     console.log('bank account data', bankAccountData);
     const user = await User.findById(req?.user?._id);
-    if (
-      aadhaarData?.full_name?.trim()?.toLowerCase() === panData?.full_name?.trim()?.toLowerCase() &&
-      panData?.full_name?.trim()?.toLowerCase() === bankAccountData?.full_name?.trim()?.toLowerCase()
-    ){
+    const titleRegex = /\b(Mr\.|Dr\.|Dr|Mr|Ms\.|Ms|Mrs\.|Shri|Smt|Sri)\s+/gi;
+
+    // Function to clean name by removing titles
+    const cleanName = (name) => name?.replace(titleRegex, '').replace(/\s/g, '').toLowerCase();
+
+    // Cleaned full names for comparison
+    const aadhaarName = cleanName(aadhaarData?.full_name);
+    const panName = cleanName(panData?.full_name);
+    const bankAccountName = cleanName(bankAccountData?.full_name);
+    console.log(aadhaarName, panName, bankAccountName);
+
+    if(aadhaarName === panName && panName === bankAccountName){
       user.KYCStatus = 'Approved';
       user.KYCActionDate = new Date();
       user.full_name = aadhaarData?.full_name;

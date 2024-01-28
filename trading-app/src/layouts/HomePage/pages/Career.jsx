@@ -17,6 +17,7 @@ import MDBox from "../../../components/MDBox";
 // import { CircularProgress } from '@mui/material';
 import MDTypography from "../../../components/MDTypography";
 import { userContext } from "../../../AuthContext";
+import { Helmet } from 'react-helmet';
 // import CareerJD from './careerJD';
 
 const App = (props) => {
@@ -42,6 +43,15 @@ const App = (props) => {
   },[]);
   return (
     <>
+        <Helmet>
+
+ 
+              <title>Join Our Team: Exciting Careers at StoxHero</title>
+              <meta name='description' content='Discover your next career move with StoxHero. Explore a range of opportunities in a dynamic, growth-oriented environment. Join us and shape your future!' />
+              <meta name='keywords' content='learn stock market, learn stock market trading, stock market learning course, learn how to invest in stock market, how to learn stock market trading in india, best way to learn stock market, trading, stock market learning app, best app for virtual trading, trading chart patterns, social trading,stock price today, online trading, trading competition, share trading competition, trading competition in india' />
+
+        </Helmet>
+
     <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='stretch' style={{backgroundColor:'white', minHeight:'100vH', height: 'auto', width: 'auto', minWidth:'100vW'}}>
       <ThemeProvider theme={theme}>
         <Navbar/>
@@ -54,7 +64,7 @@ const App = (props) => {
                 <Grid container xs={12} md={12} lg={12} style={{width:'100%'}}>
                   <Grid item xs={12} md={12} lg={12} style={{width:'100%'}}>
                     <MDBox  display='flex' justifyContent='flex-start' alignContent='center' alignItems='center' style={{width:'100%'}}>
-                      <MDTypography fontSize={18} fontWeight="bold">Jobs & Internships</MDTypography>
+                      <MDTypography variant='h1' fontSize={18} fontWeight="bold">Explore Career Opportunities at StoxHero - Jobs & Internships</MDTypography>
                     </MDBox>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} style={{width:'100%'}}>

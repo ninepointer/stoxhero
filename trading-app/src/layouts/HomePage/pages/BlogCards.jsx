@@ -17,6 +17,7 @@ import Stack from '@mui/material/Stack';
 import { CircularProgress } from '@mui/material';
 import NoData from "../../../assets/images/noBlogFound.png"
 import ReactGA from "react-ga"
+import { Helmet } from 'react-helmet';
 
 
 export default function BlogCard() {
@@ -68,6 +69,14 @@ export default function BlogCard() {
 
   return (
     <>
+        <Helmet>
+
+    
+        <title>StoxHero Blog - Trading Strategies, Tips & Market Analysis</title>
+        <meta name='description' content='Dive into the StoxHero blog for professional trading strategies, market analysis, and tips to enhance your stock market knowledge and skills.' />
+        {/* <meta name='keywords' content={blogData?.keywords} /> */}
+
+        </Helmet>
       <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ backgroundColor: 'white', minHeight: '100%', height: 'auto', width: 'auto', maxWidth: '100%', minHeight: "80vh" }}>
         <ThemeProvider theme={theme}>
           <Navbar />
