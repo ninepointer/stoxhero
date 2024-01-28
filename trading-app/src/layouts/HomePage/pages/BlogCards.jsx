@@ -17,6 +17,7 @@ import Stack from '@mui/material/Stack';
 import { CircularProgress } from '@mui/material';
 import NoData from "../../../assets/images/noBlogFound.png"
 import ReactGA from "react-ga"
+import { Helmet } from 'react-helmet';
 
 
 export default function BlogCard() {
@@ -68,6 +69,14 @@ export default function BlogCard() {
 
   return (
     <>
+        <Helmet>
+
+    
+        <title>StoxHero Blog - Trading Strategies, Tips & Market Analysis</title>
+        <meta name='description' content='Dive into the StoxHero blog for professional trading strategies, market analysis, and tips to enhance your stock market knowledge and skills.' />
+        {/* <meta name='keywords' content={blogData?.keywords} /> */}
+
+        </Helmet>
       <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ backgroundColor: 'white', minHeight: '100%', height: 'auto', width: 'auto', maxWidth: '100%', minHeight: "80vh" }}>
         <ThemeProvider theme={theme}>
           <Navbar />
@@ -100,20 +109,20 @@ export default function BlogCard() {
                                           <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                                             <img src={elem?.thumbnailImage?.url} style={{ maxWidth: '100%', height: 'auto', borderTopLeftRadius: 10, borderTopRightRadius: 10 }} />
                                             <Typography variant="h6" fontSize={10} fontFamily='Segoe UI' fontWeight={400} style={{ position: 'absolute', top: 0, right: 0, margin: '8px', textAlign: 'center', color: 'black', backgroundColor: "white", borderRadius: "15px", padding: "2px 10px 2px 10px", marginTop: "10px" }}>
-                                              {elem?.category?.toUpperCase() || "F&O"}
+                                              {/* {elem?.category?.toUpperCase() || "F&O"} */}
                                             </Typography>
                                           </Grid>
                                           <Grid item xs={12} md={4} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                                             <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                                               <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', minHeight: 60 }}>
                                                 <Typography variant="h5" fontFamily='Segoe UI' fontWeight={400} style={{ textAlign: 'center' }}>
-                                                  {elem?.blogTitle}
+                                                  {elem?.name}
                                                 </Typography>
                                               </MDBox>
                                               <Divider style={{ width: '100%' }} />
                                               <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                                                 <Typography variant='caption'>
-                                                  {`${moment.utc(elem?.publishedOn).utcOffset('+05:30').format('DD MMM YYYY')} • ${elem?.readingTime || 1} min read • ${elem?.viewCount} views`}
+                                                  {/* {`${moment.utc(elem?.publishedOn).utcOffset('+05:30').format('DD MMM YYYY')} • ${elem?.readingTime || 1} min read • ${elem?.viewCount} views`} */}
                                                 </Typography>
                                               </MDBox>
                                             </CardContent>

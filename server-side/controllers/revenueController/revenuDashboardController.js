@@ -11,7 +11,8 @@ const TestZoneTrading = require("../../models/DailyContest/dailyContestMockUser"
 const MarginXTrading = require("../../models/marginX/marginXUserMock")
 const InternshipTrading = require("../../models/mock-trade/internshipTrade")
 const BattleTrading = require("../../models/battle/battleTrade")
-
+const moment = require('moment');
+const Wallet = require("../../models/UserWallet/userWalletSchema");
 
 exports.getTestZoneRevenue = async (req, res) => {
   try {
@@ -2837,5 +2838,533 @@ exports.getPaidRetentionPercentageForMonth = async(req,res,next) => {
     console.log(e);
   }
 }
+
+exports.getRevenueBetweenDate = async (req, res, next) => {
+  try {
+    const { period } = req.query;
+    const { startDate, endDate } = getDates(period);
+    const data = await Wallet.aggregate([
+      {
+        $facet: {
+          "newUser": [
+            {
+              $unwind: {
+                path: "$transactions",
+              },
+            },
+            {
+              $match: {
+                "transactions.title": {
+                  $in: [
+                    "Bought TenX Trading Subscription",
+                    "TestZone Fee",
+                    "MarginX Fee",
+                  ], // Assuming "TestZone Fee" is not repeated intentionally
+                },
+                "transactions.transactionDate": {
+                    $gt: new Date(startDate),
+                    $lt: new Date(endDate),
+                },
+              },
+            },
+            {
+              $lookup: {
+                from: "user-personal-details",
+                localField: "userId",
+                foreignField: "_id",
+                as: "user",
+              },
+            },
+            {
+              $addFields: {
+                joining_date: {
+                  $arrayElemAt: ["$user.joining_date", 0],
+                },
+              },
+            },
+            {
+              $match: {
+                joining_date: {
+                  $gt: new Date(startDate),
+                  $lt: new Date(endDate),
+                },
+              },
+            },
+            {
+              $group: {
+                _id: "$transactions.title", // Assuming transactions is an array of objects
+  
+                totalUnits: {
+                  $sum: 1,
+                },
+                totalRevenue: {
+                  $sum: "$transactions.amount", // Assuming transactions is an array of objects
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                product: {
+                  $switch: {
+                    branches: [
+                      {
+                        case: {
+                          $eq: ["$_id", "TestZone Fee"],
+                        },
+                        then: "TestZone",
+                      },
+                      {
+                        case: {
+                          $eq: ["$_id", "MarginX Fee"],
+                        },
+                        then: "MarginX",
+                      },
+                      {
+                        case: {
+                          $eq: [
+                            "$_id",
+                            "Bought TenX Trading Subscription",
+                          ],
+                        },
+                        then: "TenX",
+                      },
+                    ],
+                    default: "Other",
+                  },
+                },
+                totalRevenue: 1,
+                totalUnits: 1,
+              },
+            },
+          ],
+          "oldUser": [
+            {
+              $unwind: {
+                path: "$transactions",
+              },
+            },
+            {
+              $match: {
+                "transactions.title": {
+                  $in: [
+                    "Bought TenX Trading Subscription",
+                    "TestZone Fee",
+                    "MarginX Fee",
+                  ], // Assuming "TestZone Fee" is not repeated intentionally
+                },
+                "transactions.transactionDate": {
+                  $gt: new Date(startDate),
+                  $lt: new Date(endDate),
+                },
+              },
+            },
+            {
+              $lookup: {
+                from: "user-personal-details",
+                localField: "userId",
+                foreignField: "_id",
+                as: "user",
+              },
+            },
+            {
+              $addFields: {
+                joining_date: {
+                  $arrayElemAt: ["$user.joining_date", 0],
+                },
+              },
+            },
+            {
+              $match: {
+                joining_date: {
+                  $lt: new Date(startDate),
+                },
+              },
+            },
+            {
+              $group: {
+                _id: "$transactions.title", // Assuming transactions is an array of objects
+  
+                totalUnits: {
+                  $sum: 1,
+                },
+                totalRevenue: {
+                  $sum: "$transactions.amount", // Assuming transactions is an array of objects
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                product: {
+                  $switch: {
+                    branches: [
+                      {
+                        case: {
+                          $eq: ["$_id", "TestZone Fee"],
+                        },
+                        then: "TestZone",
+                      },
+                      {
+                        case: {
+                          $eq: ["$_id", "MarginX Fee"],
+                        },
+                        then: "MarginX",
+                      },
+                      {
+                        case: {
+                          $eq: [
+                            "$_id",
+                            "Bought TenX Trading Subscription",
+                          ],
+                        },
+                        then: "TenX",
+                      },
+                    ],
+                    default: "Other",
+                  },
+                },
+                totalRevenue: 1,
+                totalUnits: 1,
+              },
+            },
+          ],
+          "total": [
+            {
+              $unwind: {
+                path: "$transactions",
+              },
+            },
+            {
+              $match: {
+                "transactions.title": {
+                  $in: [
+                    "Bought TenX Trading Subscription",
+                    "TestZone Fee",
+                    "MarginX Fee",
+                  ], // Assuming "TestZone Fee" is not repeated intentionally
+                },
+                "transactions.transactionDate": {
+                  $gt: new Date(startDate),
+                  $lt: new Date(endDate),
+                },
+              },
+            },
+            {
+              $group: {
+                _id: "$transactions.title", // Assuming transactions is an array of objects
+  
+                totalUnits: {
+                  $sum: 1,
+                },
+                totalRevenue: {
+                  $sum: "$transactions.amount", // Assuming transactions is an array of objects
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                product: {
+                  $switch: {
+                    branches: [
+                      {
+                        case: {
+                          $eq: ["$_id", "TestZone Fee"],
+                        },
+                        then: "TestZone",
+                      },
+                      {
+                        case: {
+                          $eq: ["$_id", "MarginX Fee"],
+                        },
+                        then: "MarginX",
+                      },
+                      {
+                        case: {
+                          $eq: [
+                            "$_id",
+                            "Bought TenX Trading Subscription",
+                          ],
+                        },
+                        then: "TenX",
+                      },
+                    ],
+                    default: "Other",
+                  },
+                },
+                totalRevenue: 1,
+                totalUnits: 1,
+              },
+            },
+          ]
+        }
+      }
+    ])
+
+
+    const total = {
+      new: {
+        unit: 0,
+        revenue: 0
+      },
+      old: {
+        unit: 0,
+        revenue: 0
+      },
+      total: {
+        unit: 0,
+        revenue: 0
+      }
+    };
+    data.map((elem)=>{
+      
+      elem.newUser.map((subelem)=>{
+        total.new.unit += subelem.totalUnits;
+        total.new.revenue += subelem.totalRevenue;
+      })
+      elem.oldUser.map((subelem)=>{
+        total.old.unit += subelem.totalUnits;
+        total.old.revenue += subelem.totalRevenue;
+      })
+      elem.total.map((subelem)=>{
+        total.total.unit += subelem.totalUnits;
+        total.total.revenue += subelem.totalRevenue;
+      })
+    })
+
+    const response = {
+      data: data,
+      total: total,
+      status: "success",
+      message: "Revenue Data fetched successfully",
+    }
+    res.status(200).json(response);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+exports.getSignupChannelBetweenDate = async (req, res, next) => {
+  try {
+    const { period } = req.query;
+    const { startDate, endDate } = getDates(period);
+
+    const data = await Wallet.aggregate([
+      {
+        $unwind: {
+          path: "$transactions",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "userId",
+          foreignField: "_id",
+          as: "userData",
+        },
+      },
+      {
+        $unwind: {
+          path: "$userData",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $match: {
+          "transactions.title": {
+            $in: [
+              "Bought TenX Trading Subscription",
+              "TestZone Fee",
+              "MarginX Fee",
+            ], // Assuming "TestZone Fee" is not repeated intentionally
+          },
+    
+          
+                "transactions.transactionDate": {
+                    $gt: new Date(startDate),
+                    $lt: new Date(endDate),
+                },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            title: "$transactions.title",
+            creationProcess:
+              "$userData.creationProcess",
+          },
+          totalUnits: {
+            $sum: 1,
+          },
+          totalRevenue: {
+            $sum: {
+              $multiply: ["$transactions.amount", -1],
+            },
+          },
+        },
+      },
+      {
+        $project:
+          {
+            _id: 0,
+            channel:"$_id.creationProcess",
+            product: {
+              $switch: {
+                branches: [
+                  {
+                    case: {
+                      $eq: [
+                        "$_id.title",
+                        "TestZone Fee",
+                      ],
+                    },
+                    then: "TestZone",
+                  },
+                  {
+                    case: {
+                      $eq: [
+                        "$_id.title",
+                        "MarginX Fee",
+                      ],
+                    },
+                    then: "MarginX",
+                  },
+                  {
+                    case: {
+                      $eq: [
+                        "$_id.title",
+                        "Bought TenX Trading Subscription",
+                      ],
+                    },
+                    then: "TenX",
+                  },
+                ],
+                default: "Other",
+              },
+            },
+            totalRevenue: 1,
+            totalUnits: 1,
+          },
+      },
+    ])
+
+    const response = {
+      data: data,
+      status: "success",
+      message: "Revenue Data fetched successfully",
+    }
+    res.status(200).json(response);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+exports.getUsersBetweenDate = async (req, res, next) => {
+  try {
+    const { period } = req.query;
+    const { startDate, endDate } = getDates(period);
+
+    const users = await User.aggregate([
+      {
+        $facet: {
+          newUser: [
+            {
+              $match: {
+                joining_date: {
+                  $gt: new Date(startDate),
+                  $lt: new Date(endDate),
+                },
+              },
+            },
+            {
+              $count: "users",
+            },
+          ],
+          oldUser: [
+            {
+              $match: {
+                joining_date: {
+                  $lt: new Date(startDate),
+                },
+              },
+            },
+            {
+              $count: "users",
+            },
+          ]
+        }
+      }
+    ])
+
+    const response = {
+      data: users,
+      status: "success",
+      message: "User Data fetched successfully",
+    }
+    res.status(200).json(response);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+function getDates(period) {
+  const today = moment();
+  let startDate, endDate;
+
+  switch (period) {
+    case 'Today':
+      startDate = today.clone().startOf('day');
+      endDate = today.endOf('day');
+      break;
+    case 'Yesterday':
+      const yesterday = today.clone().subtract(1, 'day');
+      startDate = today.clone().subtract(1, 'day').startOf('day');
+      endDate = today.clone().subtract(1, 'day').endOf('day');
+      break;
+    case 'This Month':
+      const firstDayOfMonth = today.clone().startOf('month');
+      startDate = firstDayOfMonth;
+      endDate = today.endOf('day');
+      break;
+    case 'Last 30 Days':
+      startDate = today.clone().subtract(30, 'days');
+      endDate = today.endOf('day');
+      break;
+    case 'Last 60 Days':
+      startDate = today.clone().subtract(60, 'days');
+      endDate = today.endOf('day');
+      break;
+    case 'Last 90 Days':
+      startDate = today.clone().subtract(90, 'days');
+      endDate = today.endOf('day');
+      break;
+    case 'Last 180 Days':
+      startDate = today.clone().subtract(180, 'days');
+      endDate = today.endOf('day');
+      break;
+
+    default:
+      break;
+  }
+
+  return { startDate, endDate };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
   
 

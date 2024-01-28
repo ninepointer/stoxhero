@@ -77,6 +77,7 @@ import BackReportXTS from "./layouts/backReportXTS";
 import OverallPnlTrader from "./layouts/overallPnlTrader";
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import RevenueDashboard from './layouts/revenueDashboard'
+import RevenueAnalytics from './layouts/reveneuAnalytics'
 import AdminDashboard from './layouts/AdminDashboard'
 import AffiliateDashboard from './layouts/affiliateDashboard'
 import ChallengeDashboard from './layouts/challengeDashboard'
@@ -210,6 +211,14 @@ const routes = [
     icon: <FaRupeeSign/>,
     route: "/revenuedashboard",
     component: <RevenueDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Revenue Analytics",
+    key: "revenueanalytics",
+    icon: <FaRupeeSign/>,
+    route: "/revenueanalytics",
+    component: <RevenueAnalytics />,
   },
   {
     type: "collapse",
