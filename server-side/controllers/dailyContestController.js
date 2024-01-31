@@ -715,6 +715,8 @@ exports.getUserFeaturedContests = async (req, res) => {
     const upcomingFeatured = contests.filter((elem) => {
       return elem.contestStartTime > new Date();
     })
+    console.log('contests', contests[0].rewards);
+    console.log('live', liveFeatured);
 
     res.status(200).json({
       status: "success",
@@ -3596,7 +3598,7 @@ exports.findFeaturedContestByName = async(req,res,next)=>{
         console.log(new Date(dateString))
         const result = await Contest.findOne({slug: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'StoxHero'}).
         populate('portfolio', 'portfolioValue portfolioName').
-            select('_id contestName contestStartTime contestEndTime entryFee rewards description payoutType payoutCapPercentage payoutPercentage');
+            select('_id contestName contestStartTime contestEndTime entryFee rewards description payoutType payoutCapPercentage payoutPercentage rewardType');
         // console.log(result)
             if(!result){
             return res.status(404).json({
