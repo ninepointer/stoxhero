@@ -91,14 +91,14 @@ const autoCutMainManuallyMock = async () => {
     console.log(data)
 
     if (data.length === 0) {
-        await tenx();
-        await paperTrade();
-        await internshipTradeMod();
-        await dailyContestMockMod();
-        await marginXMockMod();
-        await changeStatus();
-        await changeMarginXStatus();
-        // await stockTradeMod();
+        // await tenx();
+        // await paperTrade();
+        // await internshipTradeMod();
+        // await dailyContestMockMod();
+        // await marginXMockMod();
+        // await changeStatus();
+        // await changeMarginXStatus();
+        await stockTradeMod();
         return;
     }
 

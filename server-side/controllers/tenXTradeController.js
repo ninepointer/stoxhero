@@ -340,6 +340,7 @@ exports.liveSubscriptionAnalyticsWeb = async (req, res, next) => {
           npnl: {
             $subtract: ["$amount", "$brokerage"],
           },
+          amount: 1,
           trades: 1,
           brokerage: 1
         },
@@ -358,15 +359,16 @@ exports.liveSubscriptionAnalyticsWeb = async (req, res, next) => {
       minimumLoss: 0,
       avgLoss: 0,
       totalNpnl: 0,
+      totalGpnl: 0,
       totalTrades: 0,
       totalBrokerage: 0
     };
-    obj.tradingDay = pnlDetails.length;
+    obj.tradingDays = pnlDetails.length;
 
     let profit = pnlDetails.map((elem) => {
       if (elem.npnl >= 0) {
         obj.profitDays += 1;
-        obj.totalProfit += elem.npnl;
+        obj.totalProfit += (elem.npnl || 0);
         return elem;
       }
       return null;
@@ -376,7 +378,7 @@ exports.liveSubscriptionAnalyticsWeb = async (req, res, next) => {
     let loss = pnlDetails.filter((elem)=>{
       if(elem.npnl < 0){
         obj.lossDays += 1;
-        obj.totalLoss += elem.npnl;
+        obj.totalLoss += (elem.npnl || 0);
         return elem;
       }
       return null;
@@ -403,20 +405,20 @@ exports.liveSubscriptionAnalyticsWeb = async (req, res, next) => {
       return acc;
     }, {});
 
-    obj.maximumProfit = profit_result.maxNpnl;
-    obj.minimumProfit = profit_result.minNpnl;
-    obj.avgProfit = obj.totalProfit/obj.profitDays;
+    obj.maximumProfit = profit_result.maxNpnl || 0;
+    obj.minimumProfit = profit_result.minNpnl || 0;
+    obj.avgProfit = (obj.totalProfit/obj.profitDays) || 0;
 
-    obj.maximumLoss = loss_result.maxNpnl;
-    obj.minimumLoss = loss_result.minNpnl;
-    obj.avgLoss = obj.totalLoss/obj.lossDays;
+    obj.maximumLoss = loss_result.maxNpnl || 0;
+    obj.minimumLoss = loss_result.minNpnl || 0;
+    obj.avgLoss = (obj.totalLoss/obj.lossDays) || 0;
 
     for(let elem of pnlDetails){
-      obj.totalNpnl += elem.npnl;
-      obj.totalTrades += elem.trades;
-      obj.totalBrokerage += elem.brokerage;
+      obj.totalNpnl += (elem.npnl || 0);
+      obj.totalTrades += (elem.trades || 0);
+      obj.totalBrokerage += (elem.brokerage || 0);
+      obj.totalGpnl += (elem.amount || 0);
     }
-    console.log( obj);
 
     res.status(201).json({ message: "pnl received", data: obj });
   } catch (e) {

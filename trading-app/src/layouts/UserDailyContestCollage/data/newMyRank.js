@@ -60,7 +60,8 @@ function MyRank({ socket, id, data, setRank}) {
         }
     }
 
-    console.log("myReward", myReward, myRank)
+    const goodies = data?.allData?.rewardType === "Goodies";
+
     return (
         <>
 
@@ -88,9 +89,7 @@ function MyRank({ socket, id, data, setRank}) {
                                                             <MDTypography fontSize={25} color='black' fontWeight='bold'>#{myRank}</MDTypography>
                                                         </Grid>
                                                     </Grid>
-                                                    {/* <Divider style={{ backgroundColor: 'white' }} /> */}
                                                 </Grid>
-
                                             </Grid>
 
                                             <Grid item xs={12} lg={4}>
@@ -119,7 +118,7 @@ function MyRank({ socket, id, data, setRank}) {
                                                 </Grid>
                                                 {/* <Divider style={{ backgroundColor: 'white' }} /> */}
                                             </Grid>
-
+                                            {!goodies &&
                                             <Grid item xs={12} lg={4}  display='flex' justifyContent='center' alignItems='center'>
 
                                                 <Grid item xs={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
@@ -128,10 +127,9 @@ function MyRank({ socket, id, data, setRank}) {
                                                             <MDTypography fontSize={25} color='black' fontWeight='bold'>Reward: {(myReward) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(myReward)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-myReward))}</MDTypography>
                                                         </Grid>
                                                     </Grid>
-                                                    {/* <Divider style={{backgroundColor:'white'}}/> */}
                                                 </Grid>
 
-                                            </Grid>
+                                            </Grid>}
                                         </Grid>
                                     </>
                                     :

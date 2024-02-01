@@ -18,6 +18,8 @@ const {getIOValue} = require('../../marketData/socketio');
 const { xtsAccountType, zerodhaAccountType } = require("../../constant");
 const {marginCalculationTrader, marginCalculationCompany} = require("../../marketData/marginData");
 const {equityBrokerage} = require("../../PlaceOrder/equity/brokerageEquity")
+const { promisify } = require('util');
+
 
 const takeAutoTenxTrade = async (tradeDetails) => {
   return new Promise(async (resolve, reject) => {
@@ -908,6 +910,16 @@ const takeInternshipTrades = async(tradeObjs)=>{
   });
 }
 
+async function processTrades(tradeObjs) {
+  await Promise.all(tradeObjs.map(async (trade, index) => {
+      let brokerageUser = await equityBrokerage(Math.abs(Number(trade?.amount)), "MIS", trade?.buyOrSell);
+      console.log("brokerageUser", brokerageUser);
+      tradeObjs[index] = { ...trade, brokerage: brokerageUser };
+  }));
+
+  // console.log("tradeObjs", tradeObjs);
+}
+
 const takeStockTrades = async (tradeObjs) => {
   return new Promise(async (resolve, reject) => {
     const io = getIOValue();
@@ -918,10 +930,7 @@ const takeStockTrades = async (tradeObjs) => {
     const today = new Date(todayDate);
     const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
-    tradeObjs.forEach(async (trade, index) => {
-      let brokerageUser = await equityBrokerage(Math.abs(Number(trade?.amount)), "MIS", trade?.buyOrSell)
-      tradeObjs[index] = { ...trade, brokerage: brokerageUser };
-    });
+    await processTrades(tradeObjs)
 
     try {
       await StockTrade.insertMany(tradeObjs);
@@ -970,67 +979,6 @@ const takeStockTrades = async (tradeObjs) => {
     } catch (err) {
       console.error('Error inserting documents:', err);
     }
-
-    //   .then((dataExist) => {
-    //     if (dataExist) {
-    //       console.log("data already exist in internship autotrade")
-    //       return;
-    //     }
-
-    //     const internship = new InternshipTrade({
-    //       status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
-    //       variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
-    //       order_id, instrumentToken, brokerage: brokerageUser, portfolioId, batch: batch, exchangeInstrumentToken,
-    //       createdBy, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
-    //     });
-
-    //     internship.save().then(async () => {
-
-    //       if (isRedisConnected && await client.exists(`${trader.toString()}${batch.toString()}: overallpnlIntern`)) {
-    //         let pnl = await client.get(`${trader.toString()}${batch.toString()}: overallpnlIntern`)
-    //         pnl = JSON.parse(pnl);
-    //         const matchingElement = pnl.find((element) => (element._id.instrumentToken === internship.instrumentToken && element._id.product === internship.Product));
-
-    //         // if instrument is same then just updating value
-    //         if (matchingElement) {
-    //           // Update the values of the matching element with the values of the first document
-    //           matchingElement.amount += (internship.amount * -1);
-    //           matchingElement.brokerage += Number(internship.brokerage);
-    //           matchingElement.lastaverageprice = internship.average_price;
-    //           matchingElement.lots += Number(internship.Quantity);
-
-    //         } else {
-    //           // Create a new element if instrument is not matching
-    //           pnl.push({
-    //             _id: {
-    //               symbol: internship.symbol,
-    //               product: internship.Product,
-    //               instrumentToken: internship.instrumentToken,
-    //               exchange: internship.exchange,
-    //             },
-    //             amount: (internship.amount * -1),
-    //             brokerage: Number(internship.brokerage),
-    //             lots: Number(internship.Quantity),
-    //             lastaverageprice: internship.average_price,
-    //           });
-    //         }
-
-    //         await client.set(`${trader.toString()}${batch.toString()}: overallpnlIntern`, JSON.stringify(pnl))
-
-    //       }
-
-    //       if (isRedisConnected) {
-    //         await client.expire(`${trader.toString()}${batch.toString()}: overallpnlIntern`, secondsRemaining);
-    //       }
-
-    //       io?.emit(`${trader.toString()}autoCut`, internship);
-    //       resolve();
-    //     }).catch((err) => {
-    //       console.log("in err autotrade", err)
-    //       reject(err);
-    //     });
-
-    //   }).catch(err => { console.log("fail", err); reject(err); });
   });
 }
 

@@ -585,28 +585,15 @@ exports.mail = async () => {
 
 }
 
+exports.getRevenue = async()=>{
+    const data = await getOverallRevenue();
+    res.send(data)
+}
 const getOverallRevenue = async () => {
     try {
-        // Get start of today, yesterday, this week, last week, this month, last month, this year, last year
-        const now = new Date();
-        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        startOfToday.setUTCHours(-5, -29, -59, -999);
-        const startOfYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-        startOfYesterday.setUTCHours(-5, -29, -59, -999);
-        const startOfThisWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
-        startOfThisWeek.setUTCHours(-5, -29, -59, -999);
-        const startOfLastWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() - 7);
-        startOfLastWeek.setUTCHours(-5, -29, -59, -999);
-        const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        startOfThisMonth.setUTCHours(-5, -29, -59, -999);
-        const startOfLastMonth = now.getMonth() === 0 ? new Date(now.getFullYear() - 1, 11, 1) : new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        startOfLastMonth.setUTCHours(-5, -29, -59, -999);
-        const startOfThisYear = new Date(now.getFullYear(), 0, 1);
-        startOfThisYear.setUTCHours(-5, -29, -59, -999);
-        const startOfLastYear = new Date(now.getFullYear() - 1, 0, 1);
-        startOfLastYear.setUTCHours(-5, -29, -59, -999);
 
-
+        const {today, todayStartDate, todayEndDate, yesterdayStartDate, yesterdayEndDate,
+            thisMonthStartDate, thisMonthEndDate, lastMonthStartDate, lastMonthEndDate} = getDates();
         const pipeline = [
             {
                 $unwind: "$transactions",
@@ -621,6 +608,9 @@ const getOverallRevenue = async () => {
                             "transactions.title": "MarginX Fee",
                         },
                         {
+                            "transactions.title": "Battle Fee",
+                        },
+                        {
                             "transactions.title":
                                 "Bought TenX Trading Subscription",
                         },
@@ -633,14 +623,11 @@ const getOverallRevenue = async () => {
                     totalRevenue: {
                         $sum: "$transactions.amount",
                     },
-                    revenueToday: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", startOfToday] }, "$transactions.amount", 0] } },
-                    revenueYesterday: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", startOfYesterday] }, { $lt: ["$transactions.transactionDate", startOfToday] }] }, "$transactions.amount", 0] } },
-                    revenueThisWeek: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", startOfThisWeek] }, "$transactions.amount", 0] } },
-                    revenueLastWeek: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", startOfLastWeek] }, { $lt: ["$transactions.transactionDate", startOfThisWeek] }] }, "$transactions.amount", 0] } },
-                    revenueThisMonth: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", startOfThisMonth] }, "$transactions.amount", 0] } },
-                    revenueLastMonth: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", startOfLastMonth] }, { $lt: ["$transactions.transactionDate", startOfThisMonth] }] }, "$transactions.amount", 0] } },
-                    revenueThisYear: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", startOfThisYear] }, "$transactions.amount", 0] } },
-                    revenueLastYear: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", startOfLastYear] }, { $lt: ["$transactions.transactionDate", startOfThisYear] }] }, "$transactions.amount", 0] } }
+                    revenueToday: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", todayStartDate] }, "$transactions.amount", 0] } },
+                    revenueYesterday: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", yesterdayStartDate] }, { $lt: ["$transactions.transactionDate", yesterdayEndDate] }] }, "$transactions.amount", 0] } },
+                    revenueThisMonth: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", thisMonthStartDate] }, "$transactions.amount", 0] } },
+                    revenueLastMonth: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", lastMonthStartDate] }, { $lt: ["$transactions.transactionDate", lastMonthEndDate] }] }, "$transactions.amount", 0] } },
+                    revenueTillDate: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", new Date("2000-01-01")] }, "$transactions.amount", 0] } },
                 },
             },
             {
@@ -650,12 +637,9 @@ const getOverallRevenue = async () => {
                     totalRevenue: 1,
                     revenueToday: 1,
                     revenueYesterday: 1,
-                    revenueThisWeek: 1,
-                    revenueLastWeek: 1,
                     revenueThisMonth: 1,
                     revenueLastMonth: 1,
-                    revenueThisYear: 1,
-                    revenueLastYear: 1
+                    revenueTillDate: 1
                 },
             },
         ];
@@ -667,8 +651,6 @@ const getOverallRevenue = async () => {
             const { title, ...revenue } = item;
             data[title] = (revenue);
         });
-
-
 
         return data;
     } catch (error) {
@@ -978,34 +960,26 @@ const createMarginxFile = async (data) => {
     return attachment;
 }
 
+function getDates() {
+    const today = moment();
 
+    let todayStartDate = today.clone().startOf('day');
+    let todayEndDate = today.endOf('day');
 
+    let yesterdayStartDate = today.clone().subtract(1, 'day').startOf('day');
+    let yesterdayEndDate = today.clone().subtract(1, 'day').endOf('day');
 
+    const firstDayOfMonth = today.clone().startOf('month');
+    let thisMonthStartDate = firstDayOfMonth;
+    let thisMonthEndDate = today.endOf('day');
 
-/*
-500 of 19500 and margin: 1 lakh
+    const firstDayOfLastMonth = today.clone().subtract(1, 'month').startOf('month');
+    const lastDayOfLastMonth = today.clone().subtract(1, 'month').endOf('month');
+    let lastMonthStartDate = firstDayOfLastMonth;
+    let lastMonthEndDate = lastDayOfLastMonth.endOf('day');
 
-1. adding more like +300
-2. release some margin like -300
-3. square off all like -500
-4. squareoff and add more like -700
-
-
-trade db me save kr diya margin: 100000
-
-1st find out case, case konsa h ? by running lots and new quantity
-
-case 1. next trade me wo add krne aaya to i findout last trade on that symbol and got margin, margin is 100000
-and new magin for 300 lot is 50,000 then i add and total margin is 1,50,000 and saved it
-
-case 2. similar i findout last symbol or margin that is 100000 and not i calculated quantity percentage if squaring off
-like 300 * 100/500 = 60% quantity i am squaring off so that release 60% margin
-100000*60/100 = 60,000 margin released, remaininig margin is 100000-60000 = 40,000
-save new margin of 40,000
-
-case 3. if square off all quantity then release all 100% margin should release
-and margin is 0 now
-
-case 4. in this square off 500 quantity and add 200 quantity more also calculate margin accroding 
-new quantity
-*/
+    return {
+        today, todayStartDate, todayEndDate, yesterdayStartDate, yesterdayEndDate,
+        thisMonthStartDate, thisMonthEndDate, lastMonthStartDate, lastMonthEndDate
+    };
+}

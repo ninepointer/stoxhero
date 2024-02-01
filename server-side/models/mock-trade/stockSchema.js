@@ -56,7 +56,7 @@ const stockTrade = new mongoose.Schema({
     },
     brokerage:{
         type: Number,  
-        // required: true      
+        required: true
     },
     instrumentToken:{
         type: Number, 
