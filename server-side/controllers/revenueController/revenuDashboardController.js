@@ -3952,6 +3952,137 @@ exports.getAffiliateRevenueData = async (req, res, next) => {
   }
 }
 
+exports.getBonusRevenueSplit = async (req, res, next) => {
+  try {
+    const { period } = req.query;
+    const { startDate, endDate } = getDates(period);
+
+    const wallet = await Wallet.aggregate([
+      {
+        $unwind: {
+          path: "$transactions",
+        },
+      },
+      {
+        $match: {
+          $or: [
+            {
+              "transactions.title": "TestZone Fee",
+            },
+            {
+              "transactions.title": "Battle Fee",
+            },
+            {
+              "transactions.title": "MarginX Fee",
+            },
+            {
+              "transactions.title":
+                "Bought TenX Trading Subscription",
+            },
+            {
+              "transactions.title": "Sign up Bonus",
+            },
+            {
+              "transactions.title":
+                "TenX Joining Bonus",
+            },
+          ],
+          "transactions.transactionDate": {
+            $gt: new Date(startDate),
+            $lt: new Date(endDate),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {},
+          amount: {
+            $sum: {
+              $cond: {
+                if: {
+                  $not: {
+                    $or: [
+                      {
+                        $eq: [
+                          "$transactions.title",
+                          "Sign up Bonus",
+                        ],
+                      },
+                      {
+                        $eq: [
+                          "$transactions.title",
+                          "Tenx Joining Bonus",
+                        ],
+                      },
+                    ],
+                  },
+                },
+                then: {
+                  $multiply: [
+                    "$transactions.amount",
+                    -1,
+                  ],
+                },
+                else: 0,
+              },
+            },
+          },
+          bonusAmount: {
+            $sum: {
+              $cond: {
+                if: {
+                  $or: [
+                    {
+                      $eq: [
+                        "$transactions.title",
+                        "Sign up Bonus",
+                      ],
+                    },
+                    {
+                      $eq: [
+                        "$transactions.title",
+                        "Tenx Joining Bonus",
+                      ],
+                    },
+                  ],
+                },
+                then: "$transactions.amount",
+                else: 0,
+              },
+            },
+          },
+        },
+      },
+      {
+        $sort: {
+          amount: -1,
+        },
+      },
+      {
+        $project: {
+          amount: 1,
+          bonusAmount: 1,
+          actualRevenue: {
+            $subtract: ["$amount", "$bonusAmount"],
+          },
+          _id: 0,
+        },
+      },
+    ])
+
+    wallet[0].actualRevenue = wallet[0]?.actualRevenue > 0 ? wallet[0]?.actualRevenue : 0;
+
+    const response = {
+      data: wallet[0],
+      status: "success",
+      message: "Data fetched successfully",
+    }
+    res.status(200).json(response);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 exports.getCampaignRevenueData = async (req, res, next) => {
     try {
       const { period } = req.query;

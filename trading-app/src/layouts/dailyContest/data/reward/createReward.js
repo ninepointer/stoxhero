@@ -22,17 +22,8 @@ export default function CreateRewards({ createRewardForm, setCreateRewardForm, c
         prize: "" || reward?.prize,
         prizeValue: "" || reward?.prizeValue
     });
-    // const [id, setId] = useState();
-    // const [isObjectNew, setIsObjectNew] = useState(id ? true : false)
+
     const [isLoading, setIsLoading] = useState(false)
-    // const [editing, setEditing] = useState(false)
-    // const [saving, setSaving] = useState(false)
-    // const [creating, setCreating] = useState(false)
-    // const [newObjectId, setNewObjectId] = useState()
-    // const [addRewardObject, setAddRewardObject] = useState(false);
-
-
-
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
     async function onNext(e, formState) {
@@ -40,11 +31,9 @@ export default function CreateRewards({ createRewardForm, setCreateRewardForm, c
         // setCreating(true)
         console.log("Reward Form State: ", formState)
 
-        if (!formState?.rankStart || !formState?.rankEnd || !formState?.prize) {
-
+        if (!formState?.rankStart || !formState?.rankEnd || !formState?.prize || !formState?.prizeValue) {
             setTimeout(() => {  setIsSubmitted(false) }, 500)
             return openErrorSB("Missing Field", "Please fill all the mandatory fields")
-
         }
 
         const { rankStart, rankEnd, prize, prizeValue } = formState;
@@ -223,11 +212,12 @@ export default function CreateRewards({ createRewardForm, setCreateRewardForm, c
                                     }}
                                 />
                             </Grid>
-                            {/* <Grid item xs={12} md={5} xl={6}>
+                            <Grid item xs={12} md={5} xl={6}>
                                 <TextField
                                     disabled={((isSubmitted))}
                                     id="outlined-required"
                                     label='Prize Value*'
+                                    type='number'
                                     fullWidth
                                     value={formState?.prizeValue}
                                     onChange={(e) => {
@@ -237,7 +227,7 @@ export default function CreateRewards({ createRewardForm, setCreateRewardForm, c
                                         }))
                                     }}
                                 />
-                            </Grid> */}
+                            </Grid>
 
 
 

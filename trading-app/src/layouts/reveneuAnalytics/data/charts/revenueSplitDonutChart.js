@@ -1,14 +1,42 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactECharts from 'echarts-for-react';
 import * as echarts from 'echarts';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import { apiUrl } from '../../../../constants/constants';
+import axios from 'axios';
 
 
-const PieChart = ({creationProcess}) => {
+const PieChart = ({period}) => {
   const chartRef = useRef(null);
 
-  const data = [{name:'Signup Bonus',value: 100},{name:'Actual Revenue',value: 500}]
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    let call1 = axios.get((`${apiUrl}revenue/bonusrevenuesplit?period=${period}`), {
+      withCredentials: true,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Credentials": true
+      },
+    })
+    Promise.all([call1])
+      .then(([api1Response]) => {
+        setData(
+          {name:'Signup Bonus',value: api1Response?.data?.bonusAmount},
+          {name:'Actual Revenue',value: api1Response?.data?.actualRevenue}
+          )
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+  }, [period])
+
+
+
+  // const data = [{name:'Signup Bonus',value: 100},{name:'Actual Revenue',value: 500}]
 
   useEffect(() => {
     const chartDom = chartRef.current;

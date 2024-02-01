@@ -587,10 +587,8 @@ exports.creditAmountToWallet = async () => {
             let entryFee = marginxs[j]?.marginXTemplate?.entryFee;
             for (let i = 0; i < marginxs[j]?.participants?.length; i++) {
                 let userId = marginxs[j]?.participants[i]?.userId;
-                const arr = ["64f4d1c90692182de0c3ceb9", "6583fd6a2071fe4c365621d7"]
-                const match = arr.some(elem => elem===userId?.toString());
 
-                if(!match){
+               
                     let fee = marginxs[j]?.participants[i]?.fee;
                     let id = marginxs[j]._id;
                     let pnlDetails = await MarginXMockUser.aggregate([
@@ -825,7 +823,7 @@ exports.creditAmountToWallet = async () => {
                     marginxs[j].participants[i].tradingDays = pnlDetails[0]?.tradingDays ? pnlDetails[0]?.tradingDays : 0;
                     marginxs[j].participants[i].trades = pnlDetails[0]?.trades ? pnlDetails[0]?.trades : 0;
     
-                }
+                
             }
             marginxs[j].payoutStatus = 'Completed'
             marginxs[j].status = "Completed";

@@ -15,7 +15,7 @@ const fs = require('fs');
 const util = require('util');
 const writeFile = util.promisify(fs.writeFile);
 const whatsAppService = require("../utils/whatsAppService")
-
+const moment = require('moment')
 
 exports.mail = async () => {
     try{
@@ -585,15 +585,138 @@ exports.mail = async () => {
 
 }
 
-exports.getRevenue = async()=>{
-    const data = await getOverallRevenue();
-    res.send(data)
+exports.reportMail = async (req, res) => {
+    try{
+        let date = new Date();
+
+        let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`    
+    
+        const payout = await getOverallPayout(); 
+        const revenue = await getOverallRevenue(); 
+        const user = await newUserData(); 
+
+        await emailService('team@stoxhero.com', `Report(${todayDate}) - StoxHero`, `
+        <!DOCTYPE html>
+        <html>
+        
+        <head>
+        <meta charset="UTF-8">
+        <title>Report (${todayDate})</title>
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        p {
+            margin: 0 0 20px;
+        }
+        
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        td,
+        th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        
+        th {
+            font-size: small;
+        }
+        
+        .module {
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+        </style>
+        </head>
+        
+        <body>
+        <div class="container">
+        <h1>Daily Report (${todayDate})</h1>
+                
+        <table>
+            
+            <tr>
+                <th></th>
+                <th>Revenue</th>
+                <th>Payout</th>
+                <th>Users</th>
+            </tr>
+            <tr>
+                <td>Today</td>
+                <td>₹${Math.abs(revenue?.revenueToday?.toFixed(2)) || 0}</td>
+                <td>₹${Math.abs(payout?.payoutToday?.toFixed(2)) || 0}</td>
+                <td>${Math.abs(user?.userToday.toFixed(2)) || 0}</td>
+            </tr>
+            <tr>
+                <td>Yesterday</td>
+                <td>₹${Math.abs(revenue?.revenueYesterday?.toFixed(2)) || 0}</td>
+                <td>₹${Math.abs(payout?.payoutYesterday?.toFixed(2)) || 0}</td>
+                <td>${Math.abs(user?.userYesterday.toFixed(2)) || 0}</td>
+            </tr>
+            <tr>
+                <td>This Month</td>
+                <td>₹${Math.abs(revenue?.revenueThisMonth?.toFixed(2)) || 0}</td>
+                <td>₹${Math.abs(payout?.payoutThisMonth?.toFixed(2)) || 0}</td>
+                <td>${Math.abs(user?.userThisMonth.toFixed(2)) || 0}</td>
+            </tr>
+            <tr>
+                <td>Last Month</td>
+                <td>₹${Math.abs(revenue?.revenueLastMonth?.toFixed(2)) || 0}</td>
+                <td>₹${Math.abs(payout?.payoutLastMonth?.toFixed(2)) || 0}</td>
+                <td>${Math.abs(user?.userLastMonth.toFixed(2)) || 0}</td>
+            </tr>
+            <tr>
+                <td>Till Date</td>
+                <td>₹${Math.abs(revenue?.totalRevenue?.toFixed(2)) || 0}</td>
+                <td>₹${Math.abs(payout?.totalPayout?.toFixed(2)) || 0}</td>
+                <td>${Math.abs(user?.totalUser.toFixed(2)) || 0}</td>
+            </tr>
+        </table>
+        
+        
+        </div>
+        </body>
+        
+        </html>        
+        `);
+
+        res.send("ok")
+    } catch(err){
+        console.log(err)
+    }
+
 }
+
 const getOverallRevenue = async () => {
     try {
 
-        const {today, todayStartDate, todayEndDate, yesterdayStartDate, yesterdayEndDate,
-            thisMonthStartDate, thisMonthEndDate, lastMonthStartDate, lastMonthEndDate} = getDates();
+        const { todayStartDate, yesterdayStartDate, yesterdayEndDate,
+            thisMonthStartDate, lastMonthStartDate, lastMonthEndDate} = getDates();
+
         const pipeline = [
             {
                 $unwind: "$transactions",
@@ -623,11 +746,11 @@ const getOverallRevenue = async () => {
                     totalRevenue: {
                         $sum: "$transactions.amount",
                     },
-                    revenueToday: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", todayStartDate] }, "$transactions.amount", 0] } },
-                    revenueYesterday: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", yesterdayStartDate] }, { $lt: ["$transactions.transactionDate", yesterdayEndDate] }] }, "$transactions.amount", 0] } },
-                    revenueThisMonth: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", thisMonthStartDate] }, "$transactions.amount", 0] } },
-                    revenueLastMonth: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", lastMonthStartDate] }, { $lt: ["$transactions.transactionDate", lastMonthEndDate] }] }, "$transactions.amount", 0] } },
-                    revenueTillDate: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", new Date("2000-01-01")] }, "$transactions.amount", 0] } },
+                    revenueToday: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", new Date(todayStartDate)] }, "$transactions.amount", 0] } },
+                    revenueYesterday: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", new Date(yesterdayStartDate)] }, { $lt: ["$transactions.transactionDate", new Date(yesterdayEndDate)] }] }, "$transactions.amount", 0] } },
+                    revenueThisMonth: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", new Date(thisMonthStartDate)] }, "$transactions.amount", 0] } },
+                    revenueLastMonth: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", new Date(lastMonthStartDate)] }, { $lt: ["$transactions.transactionDate", new Date(lastMonthEndDate)] }] }, "$transactions.amount", 0] } },
+                    // revenueTillDate: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", new Date("2000-01-01")] }, "$transactions.amount", 0] } },
                 },
             },
             {
@@ -646,10 +769,102 @@ const getOverallRevenue = async () => {
 
         const revenueDetails = await Wallet.aggregate(pipeline);
 
-        const data = {};
+        const data = {
+            totalRevenue: 0,
+            revenueToday: 0,
+            revenueYesterday: 0,
+            revenueThisMonth: 0,
+            revenueLastMonth: 0,
+        };
         revenueDetails.forEach((item) => {
-            const { title, ...revenue } = item;
-            data[title] = (revenue);
+            data.totalRevenue += item.totalRevenue,
+            data.revenueToday += item.revenueToday,
+            data.revenueYesterday += item.revenueYesterday,
+            data.revenueThisMonth += item.revenueThisMonth,
+            data.revenueLastMonth += item.revenueLastMonth
+        });
+
+        return data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+const getOverallPayout = async () => {
+    try {
+
+        const { todayStartDate, yesterdayStartDate, yesterdayEndDate,
+            thisMonthStartDate, lastMonthStartDate, lastMonthEndDate} = getDates();
+
+        const pipeline = [
+            {
+                $unwind: "$transactions",
+            },
+            {
+                $match: {
+                    $or: [
+                        {
+                            "transactions.title": "TestZone Credit",
+                        },
+                        {
+                            "transactions.title": "Marginx Credit",
+                        },
+                        {
+                            "transactions.title": "TenX Trading Payout",
+                        },
+                        {
+                            "transactions.title":
+                                "Battle Credit",
+                        },
+                        {
+                            "transactions.title":
+                                "Internship Payout Credited",
+                        },
+                    ],
+                },
+            },
+            {
+                $group: {
+                    _id: "$transactions.title",
+                    totalPayout: {
+                        $sum: "$transactions.amount",
+                    },
+                    payoutToday: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", new Date(todayStartDate)] }, "$transactions.amount", 0] } },
+                    payoutYesterday: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", new Date(yesterdayStartDate)] }, { $lt: ["$transactions.transactionDate", new Date(yesterdayEndDate)] }] }, "$transactions.amount", 0] } },
+                    payoutThisMonth: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", new Date(thisMonthStartDate)] }, "$transactions.amount", 0] } },
+                    payoutLastMonth: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", new Date(lastMonthStartDate)] }, { $lt: ["$transactions.transactionDate", new Date(lastMonthEndDate)] }] }, "$transactions.amount", 0] } },
+                    // payoutTillDate: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", new Date("2000-01-01")] }, "$transactions.amount", 0] } },
+                },
+            },
+            {
+                $project: {
+                    _id: 0,
+                    title: "$_id",
+                    totalPayout: 1,
+                    payoutToday: 1,
+                    payoutYesterday: 1,
+                    payoutThisMonth: 1,
+                    payoutLastMonth: 1,
+                    payoutTillDate: 1
+                },
+            },
+        ];
+
+        const payoutDetails = await Wallet.aggregate(pipeline);
+
+        const data = {
+            totalPayout: 0,
+            payoutToday: 0,
+            payoutYesterday: 0,
+            payoutThisMonth: 0,
+            payoutLastMonth: 0,
+        };
+        payoutDetails.forEach((item) => {
+            data.totalPayout += item.totalPayout,
+            data.payoutToday += item.payoutToday,
+            data.payoutYesterday += item.payoutYesterday,
+            data.payoutThisMonth += item.payoutThisMonth,
+            data.payoutLastMonth += item.payoutLastMonth
         });
 
         return data;
@@ -882,6 +1097,41 @@ const signupusersdata = async () => {
 
     const signupusers = await UserDetail.aggregate(pipeline)
     return signupusers[0]?.count;
+}
+
+const newUserData = async () => {
+    const { todayStartDate, yesterdayStartDate, yesterdayEndDate,
+        thisMonthStartDate, lastMonthStartDate, lastMonthEndDate} = getDates();
+
+
+    const pipeline = [
+        {
+            $group: {
+                _id: null,
+                totalUser: {
+                    $sum: 1,
+                },
+                userToday: { $sum: { $cond: [{ $gte: ["$joining_date", new Date(todayStartDate)] }, 1, 0] } },
+                userYesterday: { $sum: { $cond: [{ $and: [{ $gte: ["$joining_date", new Date(yesterdayStartDate)] }, { $lt: ["$joining_date", new Date(yesterdayEndDate)] }] }, 1, 0] } },
+                userThisMonth: { $sum: { $cond: [{ $gte: ["$joining_date", new Date(thisMonthStartDate)] }, 1, 0] } },
+                userLastMonth: { $sum: { $cond: [{ $and: [{ $gte: ["$joining_date", new Date(lastMonthStartDate)] }, { $lt: ["$joining_date", new Date(lastMonthEndDate)] }] }, 1, 0] } },
+                // revenueTillDate: { $sum: { $cond: [{ $gte: ["$joining_date", new Date("2000-01-01")] }, 1, 0] } },
+            },
+        },
+        {
+            $project: {
+                _id: 0,
+                totalUser: 1,
+                userToday: 1,
+                userYesterday: 1,
+                userThisMonth: 1,
+                userLastMonth: 1
+            }
+        },
+    ]
+
+    const signupusers = await UserDetail.aggregate(pipeline);
+    return signupusers?.[0];
 }
 
 const createTenxFile = async (data) => {
