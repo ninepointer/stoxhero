@@ -23,10 +23,10 @@ const PieChart = ({period}) => {
     })
     Promise.all([call1])
       .then(([api1Response]) => {
-        setData(
-          {name:'Signup Bonus',value: api1Response?.data?.bonusAmount},
-          {name:'Actual Revenue',value: api1Response?.data?.actualRevenue}
-          )
+        setData([
+          {name:'Signup Bonus',value: api1Response?.data?.data?.bonusAmount?.toFixed(2)},
+          {name:'Actual Revenue',value: api1Response?.data?.data?.actualRevenue?.toFixed(2)}
+        ])
       })
       .catch((error) => {
         console.error(error);
@@ -35,7 +35,7 @@ const PieChart = ({period}) => {
   }, [period])
 
 
-
+console.log("data", data)
   // const data = [{name:'Signup Bonus',value: 100},{name:'Actual Revenue',value: 500}]
 
   useEffect(() => {
@@ -86,7 +86,7 @@ const PieChart = ({period}) => {
     return () => {
       myChart.dispose();
     };
-  }, []); // Empty dependency array ensures useEffect runs once after the initial render
+  }, [data]); // Empty dependency array ensures useEffect runs once after the initial render
 
 //   return <div ref={chartRef} style={{ minWidth: '100%', height: '380px' }} />;
 
