@@ -15,7 +15,7 @@ import moment from 'moment'
 
 const PublishedBlogs = ({overallRevenue,period}) => {
 
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
     return (
     <Grid p={1} container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{backgroundColor:'white',borderRadius:5 ,minWidth: '100%',height: 'auto'}}>

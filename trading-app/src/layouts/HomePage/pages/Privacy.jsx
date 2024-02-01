@@ -4,21 +4,12 @@ import Title from '../components/Title/index'
 import React, {useEffect} from 'react'
 import ReactGA from "react-ga"
 import ServiceCard from '../components/Cards/ServiceCard'
-
 import useMeasure from 'react-use-measure'
-
 import Footer from '../components/Footers/Footer'
-
 import Navbar from '../components/Navbars/Navbar'
 import theme from '../utils/theme/index'
-
+import { Helmet } from 'react-helmet';
 // IMages for about 
-
-import about1 from '../assets/images/About/about1.png'
-import about2 from '../assets/images/About/about2.png'
-import about3 from '../assets/images/About/about3.webp'
-import about4 from '../assets/images/About/about4.png'
-import about5 from '../assets/images/About/about5.webp'
 import { fontWeight } from '@mui/system';
 
 
@@ -33,7 +24,11 @@ const About = () => {
    
       return (
         <ThemeProvider theme={theme}>
-
+        <Helmet>
+            <title>StoxHero Privacy Policy - Protecting Your Investment Information</title>
+            <meta name='description' content='Discover how StoxHero safeguards your personal and financial information. Read our comprehensive privacy policy to learn about our commitment to security.' />
+            <meta name='keywords' content='learn stock market, learn stock market trading, stock market learning course, learn how to invest in stock market, how to learn stock market trading in india, best way to learn stock market, trading, stock market learning app, best app for virtual trading, trading chart patterns, social trading,stock price today, online trading, trading competition, share trading competition, trading competition in india' />
+        </Helmet>
             <Navbar />
             <Box bgcolor="#06070A" sx={{mt:{xs:-10,lg:-15}}} >
                 
@@ -41,7 +36,7 @@ const About = () => {
                     <Grid container spacing={10} flexWrap="wrap-reverse" justifyContent="start" alignItems="center" sx={{ mt: { xs: 10, md: 15, } }}>
                         <Grid item xs={12} md={6} sx={{mt:10}}  >
                             <Stack spacing={2} sx={{ maxWidth: 1280 }}>
-                                <Title variant={{ xs: 'h3', sm: 'h2', md: 'h1' }} sx={{ letterSpacing: "0.02em", mb: 1, p:0}} style={{ color: "white" }} >StoxHero Privacy Policy</Title>
+                                <Title variant={{ xs: 'h3', sm: 'h2', md: 'h1' }} sx={{ letterSpacing: "0.02em", mb: 1, p:0}} style={{ color: "white" }} >Privacy Policy - Secure Your Financial Data with StoxHero</Title>
                                 <Title variant={{ xs: 'body2', sm: 'body2', md: "body2" }} sx={{ fontWeight: 500, letterSpacing: "0.05em", mb: 6, color: "rgba(255, 255, 255, 0.6)" }} >Updated on 31 May, 2023</Title>
                                 <Title variant={{ xs: 'body1', sm: 'body1', md: "body1" }} sx={{ fontWeight: 500, letterSpacing: "0.05em", mb: 6, color: "#ffffff", fontWeight:"bold" }} >Your privacy is critically important to us.</Title>
                             </Stack>

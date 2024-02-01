@@ -153,7 +153,7 @@ exports.getCarousels = async (req, res, next)=>{
 
 exports.getDraftCarousels = async(req, res, next)=>{
   const skip = parseInt(req.query.skip) || 0;
-  const limit = parseInt(req.query.limit) || 8
+  const limit = parseInt(req.query.limit) || 12
   const count = await Carousel.countDocuments(
                       {
                         status: 'Draft'

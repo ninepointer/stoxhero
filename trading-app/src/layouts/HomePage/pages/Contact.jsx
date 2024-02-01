@@ -2,13 +2,14 @@ import { Box, Button, Card, CardContent, Grid, Stack, TextField,Typography } fro
 import theme from '../utils/theme/index'
 import Navbar from '../components/Navbars/Navbar'
 import React, { useState, useEffect } from 'react'
-import Footer from '../components/Footers/Footer'
+import Footer from '../../authentication/components/Footer'
 import { ThemeProvider } from 'styled-components';
 import MDBox from '../../../components/MDBox';
 import { apiUrl } from '../../../constants/constants'
 import axios from 'axios';
 import MDTypography from '../../../components/MDTypography'
 import MDSnackbar from '../../../components/MDSnackbar'
+import { Helmet } from 'react-helmet';
 
 const Contact = () => {
 
@@ -155,7 +156,12 @@ const Contact = () => {
 
         <div>
             <ThemeProvider theme={theme}>
-        <Box style={{  width: "100%", display: "flex", flexDirection: "column", justifyContent: "center", textAlign: "center", background: "black" }}>
+            <Helmet>
+                <title>Contact StoxHero - Reach Out for Support, Queries & Feedback</title>
+                <meta name='description' content='Connect with StoxHero for any inquiries or support needs. Our team is ready to assist you with your questions and provide timely help.' />
+                <meta name='keywords' content='learn stock market, learn stock market trading, stock market learning course, learn how to invest in stock market, how to learn stock market trading in india, best way to learn stock market, trading, stock market learning app, best app for virtual trading, trading chart patterns, social trading,stock price today, online trading, trading competition, share trading competition, trading competition in india' />
+            </Helmet>
+            <Box style={{  width: "100%", display: "flex", flexDirection: "column", justifyContent: "center", textAlign: "center", background: "grey" }}>
             <Navbar/>
 
 
@@ -163,38 +169,39 @@ const Contact = () => {
             <Card style={{ maxWidth: 470,margin: "80px auto", padding: "15px 5px", textAlign: "left" }} sx={{ xs: "20px" }} >
                 <CardContent>
 
-                    <Typography gutterBottom variant='h5'>Contact US</Typography>
-                    <Typography gutterBottom variant='body2' component="p" color="gray">Fill up the form and our team will get back to you within 24 hours.</Typography>
+                    <Typography gutterBottom variant='h5' style={{textAlign:'center'}}>Get in Touch with StoxHero - Contact Us Today</Typography>
+                    <Typography gutterBottom variant='body2' style={{textAlign:'center'}} component="p" color="gray">Fill up the form and our team will get back to you within 24 hours.</Typography>
 
                     <form onSubmit={HandleSubmit} >
 
 
-                        <Grid container spacing={5}>
+                        <Grid container spacing={2}>
 
-                            <Grid item xs={12} sm={12} >
+                            <Grid item xs={12} sm={12} lg={12}>
 
                                 <TextField value={data.first_name} name='first_name' label="First Name" placeholder='Enter first name' variant='outlined' fullWidth required onChange={HandleChange} />
 
                             </Grid>
 
-                            <Grid item xs={12} sm={12} >
+                            <Grid item xs={12} sm={12} lg={12}>
 
                                 <TextField value={data.last_name} name='last_name' label="Last Name" placeholder='Enter last name' variant='outlined' fullWidth required onChange={HandleChange} />
 
                             </Grid>
 
-                            <Grid item xs={12}  >
+                            <Grid item xs={12} sm={12}  lg={12}>
 
                                 <TextField value={data.email} name='email' type='email' label="Email" placeholder='Enter email' variant='outlined' fullWidth required onChange={HandleChange} />
 
                             </Grid>
 
-                            <Grid item xs={12}  >
+                            <Grid item xs={12} sm={12}  lg={12}  >
 
                                 <TextField value={data.phone} name='phone' type='number' label="Phone" placeholder='Enter 10 digit phone number' variant='outlined' fullWidth required onChange={HandleChange} />
 
                             </Grid>
-                             <Grid item xs={12}  >
+
+                             <Grid item xs={12} sm={12}  lg={12}  >
                              <TextField
                                 id="outlined-multiline-static"
                                 value={data.message}
@@ -205,26 +212,15 @@ const Contact = () => {
                                 rows={4}
                                 placeholder='Enter message'
                                 onChange={HandleChange}
-                                />
-                                
-                            </Grid>
-                            <Grid item xs={12}  >
-
-                                <Button type='submit' variant='contained' sx={{color:"#fff"}} fullWidth onClick={onSubmit}>Submit</Button>
-
+                                />     
                             </Grid>
 
-                            {/* <Grid item ml={8} xs={4}>
-                                <img style={{height:"130px",width:"300px"}} src="https://c0.wallpaperflare.com/preview/409/599/766/digitization-handshake-shaking-hands-industry.jpg" alt="" />
-                            </Grid> */}
+                            <Grid item xs={12} sm={12}  lg={12}  >
 
+                                <Button type='submit' variant='contained' style={{backgroundColor:'#65BA0D', color:'white'}} fullWidth onClick={onSubmit}>Submit</Button>
 
-                            
-
+                            </Grid>
                         </Grid>
-                            {/* {
-                                sucess && (<Grid sx={{background:"green",color:"#fff",textAlign:"center", borderRadius:"20px",mt:"10px",pl:"-5px"}} item xs={10}>Submitted Sucessfully!</Grid>)
-                            } */}
 
                     </form>
                 </CardContent>
@@ -236,11 +232,10 @@ const Contact = () => {
             
         </Box>
         {renderSuccessSB}
-        <MDBox bgColor="black" sx={{marginTop:-2}}>
-
-        <Footer/>
-        </MDBox>
         </ThemeProvider>
+        <MDBox>
+            <Footer/>
+        </MDBox>
         </div>
     )
 }

@@ -32,7 +32,8 @@ function Index() {
     metaDescription: "" || prevData?.metaDescription,
     category: prevData?.category || "",
     metaKeywords: prevData?.metaKeywords || "",
-    status: prevData?.status || ""
+    status: prevData?.status || "",
+    slug: prevData?.slug || ""
   })
   const [isfileSizeExceed, setIsFileExceed] = useState(false);
   const editor = useRef(null);
@@ -348,7 +349,7 @@ function Index() {
               />
             </Grid>
 
-            <Grid item xs={12} md={8} xl={8}>
+            <Grid item xs={12} md={12} xl={12}>
             <TextField
                 disabled={((imageData || prevData) && (!editing))}
                 id="outlined-required"
@@ -364,7 +365,23 @@ function Index() {
               />
             </Grid>
 
-            <Grid item xs={12} md={4} xl={4}>
+            <Grid item xs={12} md={6} xl={6}>
+            <TextField
+                disabled={((imageData || prevData) && (!editing))}
+                id="outlined-required"
+                label='Slug/Route *'
+                fullWidth
+                value={formstate?.slug}
+                onChange={(e) => {
+                  setFormState(prevState => ({
+                    ...prevState,
+                    slug: e.target.value
+                  }))
+                }}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6} xl={6}>
                   <FormControl sx={{ width: "100%" }}>
                     <InputLabel id="demo-simple-select-autowidth-label">Category *</InputLabel>
                     <Select

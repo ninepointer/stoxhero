@@ -20,8 +20,8 @@ const s3 = new AWS.S3({
 exports.createBlog = (async (req, res, next) => {
     
     try {
-        const { title, metaTitle, category, metaDescription, metaKeywords, status  } = req.body;
-        const slug = title.replace(/ /g, "-").toLowerCase();
+        const { title, metaTitle, category, metaDescription, metaKeywords, status, slug  } = req.body;
+        // const slug = title.replace(/ /g, "-").toLowerCase();
         const uploadedFiles = req.files;
         const otherImages = uploadedFiles.files && await Promise.all(await processUpload(uploadedFiles.files, s3, title));
         const titleImage = uploadedFiles.titleFiles && await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, title, true));
@@ -94,9 +94,9 @@ exports.editBlog = (async (req, res, next) => {
             titleImage = await Promise.all(await processUpload(uploadedFiles.titleFiles, s3, update.blogTitle, true));
             update.thumbnailImage = titleImage[0];
         }
-        if(update.blogTitle){
-            update.slug = update.blogTitle.replace(/ /g, "-").toLowerCase();
-        }
+        // if(update.blogTitle){
+        //     update.slug = update.blogTitle.replace(/ /g, "-").toLowerCase();
+        // }
 
         update.lastModifiedBy = req?.user?._id;
         update.lastModifiedOn = new Date();

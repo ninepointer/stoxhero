@@ -53,7 +53,7 @@ function Footer({ light }) {
 
           <Grid item xs={12} md={12} lg={4} mt={1} display='flex' justifyContent='center' alignItems='center'>
             <MDBox lineHeight={1}>
-              <Link href="https://www.youtube.com/@stoxhero_official" target="_blank">
+              <Link href="https://www.youtube.com/@stoxheroapp" target="_blank">
                 <YoutubeIcon color='white'/>
               </Link>
             </MDBox>

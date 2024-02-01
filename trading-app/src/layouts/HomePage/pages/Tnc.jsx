@@ -7,6 +7,7 @@ import Navbar from '../components/Navbars/Navbar';
 import Footer from '../components/Footers/Footer';
 import theme from '../utils/theme/index';
 import MDBox from '../../../components/MDBox';
+import { Helmet } from 'react-helmet';
 
 const TermsAndConditions = () => {
     useEffect(() => {
@@ -18,6 +19,11 @@ const TermsAndConditions = () => {
     return (
         <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{backgroundColor:'white', minHeight:'100vH', height: 'auto', width: 'auto', minWidth:'100vW'}}>
         <ThemeProvider theme={theme}>
+        <Helmet>
+            <title>StoxHero Terms of Service - Read Our Terms & Conditions</title>
+            <meta name='description' content='Explore the terms and conditions of StoxHero. Understand your rights, responsibilities, and usage terms for our stock market services.' />
+            <meta name='keywords' content='learn stock market, learn stock market trading, stock market learning course, learn how to invest in stock market, how to learn stock market trading in india, best way to learn stock market, trading, stock market learning app, best app for virtual trading, trading chart patterns, social trading,stock price today, online trading, trading competition, share trading competition, trading competition in india' />
+        </Helmet>
         <Navbar/>
         <Grid display='flex' justifyContent='center' alignContent='center' alignItems='center' container xs={12} md={12} lg={12}>
         <Container>
@@ -25,7 +31,7 @@ const TermsAndConditions = () => {
                         <Grid item xs={12} md={12} lg={12}>
                             <Stack spacing={1} sx={{ maxWidth: 1280 }}>
                                 <Title variant={{ xs: 'h5', sm: 'h3', md: 'h2' }} sx={{ letterSpacing: "0.02em", mb: 1, p: 0 }} style={{ color: "#315c45" }}>
-                                    TERMS AND CONDITIONS
+                                    StoxHero Terms and Conditions
                                 </Title>
                                 <Title variant={{ xs: 'h6', sm: 'h4', md: 'h3' }} sx={{ letterSpacing: "0.02em", mb: 1, p: 0 }} style={{ color: "#315c45" }}>
                                     Welcome to StoxHero!
