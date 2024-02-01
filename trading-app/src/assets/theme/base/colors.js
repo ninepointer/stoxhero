@@ -43,6 +43,11 @@ const colors = {
     focus: "#67bb6a",
   },
 
+  student: {
+    main: "#D5F47E",
+    focus: "#67bb6a",
+  },
+
   warning: {
     main: "#fb8c00",
     focus: "#fc9d26",
