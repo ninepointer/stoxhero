@@ -96,9 +96,9 @@ const autoCutMainManuallyMock = async () => {
         await internshipTradeMod();
         await dailyContestMockMod();
         await marginXMockMod();
-        await stockTradeMod();
         await changeStatus();
         await changeMarginXStatus();
+        // await stockTradeMod();
         return;
     }
 
@@ -298,8 +298,8 @@ const creditAmount = async () => {
         return;
 
     }
-
-    await creditAmount();
+    console.log('running');
+    // await creditAmount();
 }
 // end of contest
 
@@ -452,7 +452,7 @@ const changeMarginXStatus = async () => {
     );
 
     if (data.length === 0 && dataUser.length === 0) {
-        console.log("in if change status..")
+        console.log("in if change status marginx..")
         await changeMarginXDocStatus();
         await creditAmountMarginX();
         return;
@@ -472,6 +472,7 @@ const creditAmountMarginX = async () => {
 
 
     const data = await MarginX.find({ payoutStatus: null, status: "Completed", endTime: { $gte: today } });
+    console.log('data', data);
     // const contest = await Contest.find({ contestEndTime: {$gte: today, $lte: todayEnd} });
 
     // console.log("contest", contest.length, data.length);

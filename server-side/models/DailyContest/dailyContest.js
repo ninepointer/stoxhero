@@ -87,7 +87,7 @@ const contestSchema = new Schema({
     rewards:[{
         rankStart:{type:Number},
         rankEnd:Number,
-        prize:{type:Number},
+        prize:{type:Schema.Types.Mixed},
         // prizeValue:Number
     }],
     portfolio:{

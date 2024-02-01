@@ -5242,7 +5242,7 @@ exports.getReferralRevenueData = async (req, res, next) => {
   
 }
 
-exports.getAutoSignUpRevenueData = async (req, res, next) => {
+exports.getAutoSignUpRevenueDataa = async (req, res, next) => {
   try {
     const { period } = req.query;
     const { startDate, endDate } = getDates(period);
@@ -6283,6 +6283,521 @@ exports.getCareerRevenueData = async (req, res, next) => {
   } catch (e) {
     console.log(e);
   }
+}
+
+exports.getAutoSignUpRevenueData = async(req,res, next) => {
+    console.log('affiliate');
+    try {
+      const { period } = req.query;
+      const { startDate, endDate } = getDates(period);
+      
+      const wallet = await Wallet.aggregate([{
+        $facet: {
+          'total': [
+            {
+              $unwind:
+                /**
+                 * path: Path to the array field.
+                 * includeArrayIndex: Optional name for index.
+                 * preserveNullAndEmptyArrays: Optional
+                 *   toggle to unwind null and empty values.
+                 */
+                {
+                  path: "$transactions",
+                  preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+              $lookup:
+                /**
+                 * from: The target collection.
+                 * localField: The local join field.
+                 * foreignField: The target join field.
+                 * as: The name for the results.
+                 * pipeline: Optional pipeline to run on the foreign collection.
+                 * let: Optional variables to use in the pipeline field stages.
+                 */
+                {
+                  from: "user-personal-details",
+                  localField: "userId",
+                  foreignField: "_id",
+                  as: "user",
+                },
+            },
+            {
+              $unwind:
+                /**
+                 * path: Path to the array field.
+                 * includeArrayIndex: Optional name for index.
+                 * preserveNullAndEmptyArrays: Optional
+                 *   toggle to unwind null and empty values.
+                 */
+                {
+                  path: "$user",
+                },
+            },
+            {
+              $match:
+                /**
+                 * query: The query in MQL.
+                 */
+                {
+                  "user.creationProcess": "Auto SignUp",
+                  "user.campaignCode": {$eq:null},
+                  $or: [
+                    {
+                      "transactions.title": "TestZone Fee",
+                    },
+                    {
+                      "transactions.title": "Battle Fee",
+                    },
+                    {
+                      "transactions.title": "MarginX Fee",
+                    },
+                    {
+                      "transactions.title":
+                        "Bought TenX Trading Subscription",
+                    },
+                    {
+                      "transactions.title": "Sign up Bonus",
+                    },
+                    {
+                      "transactions.title":
+                        "TenX Joining Bonus",
+                    },
+                  ],
+                  "transactions.transactionDate": {
+                    $gt: new Date(startDate),
+                    $lt: new Date(endDate),
+                  },
+                },
+            },
+            {
+              $group:
+                /**
+                 * _id: The id of the group.
+                 * fieldN: The first field name.
+                 */
+                {
+                  _id: {
+                    user: "$user",
+                  },
+                  amount: {
+                    $sum: {
+                      $cond: {
+                        if: {
+                          $not: {
+                            $or: [
+                              {
+                                $eq: [
+                                  "$transactions.title",
+                                  "Sign up Bonus",
+                                ],
+                              },
+                              {
+                                $eq: [
+                                  "$transactions.title",
+                                  "Tenx Joining Bonus",
+                                ],
+                              },
+                            ],
+                          },
+                        },
+                        then: {
+                          $multiply: [
+                            "$transactions.amount",
+                            -1,
+                          ],
+                        },
+                        else: 0,
+                      },
+                    },
+                  },
+                  bonusAmount: {
+                    $sum: {
+                      $cond: {
+                        if: {
+                          $or: [
+                            {
+                              $eq: [
+                                "$transactions.title",
+                                "Sign up Bonus",
+                              ],
+                            },
+                            {
+                              $eq: [
+                                "$transactions.title",
+                                "Tenx Joining Bonus",
+                              ],
+                            },
+                          ],
+                        },
+                        then: "$transactions.amount",
+                        else: 0,
+                      },
+                    },
+                  },
+                },
+            },
+            {
+              $project: {
+                joining_date: "$_id.user.joining_date",
+                creationProcess: "$_id.user.creationProcess",
+                email: "$_id.user.email",
+                mobile: "$_id.user.mobile",
+                referredBy: "$_id.user.referredBy",
+                activationDetails:
+                  "$_id.user.activationDetails",
+                paidDetails: "$_id.user.paidDetails",
+                amount: 1,
+                bonusAmount: 1,
+                _id: 0,
+              },
+            },
+            {
+              $project:
+                /**
+                 * specifications: The fields to
+                 *   include or exclude.
+                 */
+                {
+                  amount: 1,
+                  bonusAmount: 1,
+                  joining_date: 1,
+                  creationProcess:1,
+                  activationDetails: 1,
+                  paidDetails: 1,
+                  bonusUsed: {
+                    $cond: {
+                      if: {
+                        $gt: [
+                          {
+                            $subtract: [
+                              "$bonusAmount",
+                              "$amount",
+                            ],
+                          },
+                          0,
+                        ],
+                      },
+                      then: "$amount",
+                      else: "$bonusAmount",
+                    },
+                  },
+                },
+            },
+            {
+              $group:
+                /**
+                 * _id: The id of the group.
+                 * fieldN: The first field name.
+                 */
+                {
+                  _id: "$creationProcess",
+                  totalAmount: {
+                    $sum: "$amount",
+                  },
+                  totalBonusAmount: {
+                    $sum: "$bonusAmount",
+                  },
+                  totalBonusUsed: {
+                    $sum: "$bonusUsed",
+                  },
+                },
+            },
+            {
+              $project:
+                /**
+                 * specifications: The fields to
+                 *   include or exclude.
+                 */
+                {
+                  _id: 0,
+                  totalAmount: 1,
+                  totalBonusUsed: 1,
+                  totalBonusAmount: 1,
+                },
+            },
+            {
+              $sort:
+                /**
+                 * Provide any number of field/order pairs.
+                 */
+                {
+                  totalAmount: -1,
+                },
+            },
+            {
+              $limit:
+                /**
+                 * Provide the number of documents to limit.
+                 */
+                20,
+            },
+          ],
+          'new': [
+            {
+              $unwind:
+                /**
+                 * path: Path to the array field.
+                 * includeArrayIndex: Optional name for index.
+                 * preserveNullAndEmptyArrays: Optional
+                 *   toggle to unwind null and empty values.
+                 */
+                {
+                  path: "$transactions",
+                  preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+              $lookup:
+                /**
+                 * from: The target collection.
+                 * localField: The local join field.
+                 * foreignField: The target join field.
+                 * as: The name for the results.
+                 * pipeline: Optional pipeline to run on the foreign collection.
+                 * let: Optional variables to use in the pipeline field stages.
+                 */
+                {
+                  from: "user-personal-details",
+                  localField: "userId",
+                  foreignField: "_id",
+                  as: "user",
+                },
+            },
+            {
+              $unwind:
+                /**
+                 * path: Path to the array field.
+                 * includeArrayIndex: Optional name for index.
+                 * preserveNullAndEmptyArrays: Optional
+                 *   toggle to unwind null and empty values.
+                 */
+                {
+                  path: "$user",
+                  preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+              $match:
+                /**
+                 * query: The query in MQL.
+                 */
+                {
+                  "user.creationProcess": "Auto SignUp",
+                  "user.campaignCode": {$eq:null},
+                  "user.joining_date": {
+                    $gt: new Date(startDate),
+                    $lt: new Date(endDate),
+                  },
+                  $or: [
+                    {
+                      "transactions.title": "TestZone Fee",
+                    },
+                    {
+                      "transactions.title": "Battle Fee",
+                    },
+                    {
+                      "transactions.title": "MarginX Fee",
+                    },
+                    {
+                      "transactions.title":
+                        "Bought TenX Trading Subscription",
+                    },
+                    {
+                      "transactions.title": "Sign up Bonus",
+                    },
+                    {
+                      "transactions.title":
+                        "TenX Joining Bonus",
+                    },
+                  ],
+                  "transactions.transactionDate": {
+                    $gt: new Date(startDate),
+                    $lt: new Date(endDate),
+                  },
+                },
+            },
+            {
+              $group:
+                /**
+                 * _id: The id of the group.
+                 * fieldN: The first field name.
+                 */
+                {
+                  _id: {
+                    userId: "$userId",
+                    user: "$user",
+                  },
+                  amount: {
+                    $sum: {
+                      $cond: {
+                        if: {
+                          $not: {
+                            $or: [
+                              {
+                                $eq: [
+                                  "$transactions.title",
+                                  "Sign up Bonus",
+                                ],
+                              },
+                              {
+                                $eq: [
+                                  "$transactions.title",
+                                  "Tenx Joining Bonus",
+                                ],
+                              },
+                            ],
+                          },
+                        },
+                        then: {
+                          $multiply: [
+                            "$transactions.amount",
+                            -1,
+                          ],
+                        },
+                        else: 0,
+                      },
+                    },
+                  },
+                  bonusAmount: {
+                    $sum: {
+                      $cond: {
+                        if: {
+                          $or: [
+                            {
+                              $eq: [
+                                "$transactions.title",
+                                "Sign up Bonus",
+                              ],
+                            },
+                            {
+                              $eq: [
+                                "$transactions.title",
+                                "Tenx Joining Bonus",
+                              ],
+                            },
+                          ],
+                        },
+                        then: "$transactions.amount",
+                        else: 0,
+                      },
+                    },
+                  },
+                },
+            },
+            {
+              $project:
+                /**
+                 * specifications: The fields to
+                 *   include or exclude.
+                 */
+                {
+                  joining_date: "$_id.user.joining_date",
+                  email: "$_id.user.email",
+                  mobile: "$_id.user.mobile",
+                  creationProcess: "$_id.user.creationProcess",
+                  referredBy: "$_id.user.referredBy",
+                  activationDetails:
+                    "$_id.user.activationDetails",
+                  paidDetails: "$_id.user.paidDetails",
+                  amount: 1,
+                  bonusAmount: 1,
+                  _id: 0,
+                },
+            },
+            {
+              $project:
+                /**
+                 * specifications: The fields to
+                 *   include or exclude.
+                 */
+                {
+                  amount: 1,
+                  bonusAmount: 1,
+                  joining_date: 1,
+                  activationDetails: 1,
+                  paidDetails: 1,
+                  creationProcess:1
+                },
+            },
+            {
+              $group:
+                /**
+                 * _id: The id of the group.
+                 * fieldN: The first field name.
+                 */
+                {
+                  _id: "$creationProcess",
+                  total: {
+                    $sum: 1,
+                  },
+                  // Total documents
+                  active: {
+                    $sum: {
+                      $cond: [
+                        {
+                          $eq: [
+                            "$activationDetails.activationStatus",
+                            "Active",
+                          ],
+                        },
+                        1,
+                        0,
+                      ],
+                    },
+                  },
+                  paid: {
+                    $sum: {
+                      $cond: [
+                        {
+                          $gt: ["$amount", 0],
+                        },
+                        1,
+                        0,
+                      ],
+                    },
+                  },
+                  amount: {
+                    $sum: "$amount",
+                  },
+                },
+            },
+            {
+              $project:
+                /**
+                 * specifications: The fields to
+                 *   include or exclude.
+                 */
+                {
+                  _id: 0,
+                  total: 1,
+                  active: 1,
+                  paid: 1,
+                  amount: 1,
+                },
+            },
+          ],
+        }
+      }])
+  
+      const totalUsersRevenue = wallet?.[0]?.total[0];
+      const newUsersRevenue = wallet?.[0]?.new[0];
+      console.log(totalUsersRevenue, newUsersRevenue);
+      let merged = {...totalUsersRevenue, ...newUsersRevenue, oldRevenue:((totalUsersRevenue?.totalAmount ?? 0) - (newUsersRevenue?.amount ?? 0)), newRevenue:newUsersRevenue?.amount||0, actualRevenue:totalUsersRevenue?.totalAmount || 0 - Math.abs(totalUsersRevenue?.totalBonusUsed)}
+      
+  
+      const response = {
+        data: [merged],
+        // groupedArray,
+        status: "success",
+        message: "User Data fetched successfully",
+      }
+      res.status(200).json(response);
+    } catch (e) {
+      console.log(e);
+    }
 }
 
 function formatData(job, workshop){

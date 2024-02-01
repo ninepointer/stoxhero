@@ -16,13 +16,13 @@ import data from "./data";
 import { TextField } from "@mui/material";
 
 function TraderwiseTraderPNL({ socket }) {
-  const { columns, rows } = data();
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [allTrade, setAllTrade] = useState([]);
   const [marketData, setMarketData] = useState([]);
   const [subscriptions, setSubscription] = useState([]);
   const [selectedContest, setselectedContest] = useState();
   const [trackEvent, setTrackEvent] = useState({});
+  let { columns, rows } = data({ selectedContest });
 
   useEffect(() => {
     axios.get(`${baseUrl}api/v1/dailycontest/contests/today`, { withCredentials: true })
@@ -164,7 +164,22 @@ function TraderwiseTraderPNL({ socket }) {
       totalPayout += tempPayout > 0 ? tempPayout : 0
       payout = ((subelem.totalPnl) - (subelem.brokerage)) >= 0 ? (tempPayout) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(tempPayout)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-tempPayout)) : "+₹0.00";
       // console.log("payout tempPayout", payout, tempPayout)
-    } else{
+    }else if(selectedContest?.rewardType == 'Goodies'){
+      if(index+1){
+        const rewards = selectedContest?.rewards;
+        for(let elem of rewards){
+            if(Number(index+1) >= Number(elem.rankStart) && Number(index+1) <= Number(elem.rankEnd)){
+              payout = elem.prize;
+              break;
+            } else{
+              payout = "-";
+            }
+        }
+      } else{
+        payout = "-";
+      }
+    } 
+    else{
       if(index+1){
         const rewards = selectedContest?.rewards;
         for(let elem of rewards){

@@ -32,7 +32,7 @@ const MenuProps = {
 };
 
 const names = [
-  'Janurary',
+  'January',
   'February',
   'March',
   'April',

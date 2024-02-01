@@ -1150,7 +1150,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
       
 
       <Divider orientation="horizontal" sx={{ ml: 1, mr: 1, color:'rgba(0, 0, 0, 0.87)' }} />
-      <MDBox px={2}>
+      {formStateKYC?.KYCStatus!='Approved' && <MDBox px={2}>
       <MDTypography style={{fontSize:18}}>Select your method of KYC Verification</MDTypography>  
       <FormControl component="fieldset">
         <RadioGroup row aria-label="mdbox" name="mdbox" value={selectedOption} onChange={handleRadioChange}>
@@ -1158,7 +1158,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
           <FormControlLabel value="manual" control={<Radio color='blue'/>} label="Admin approved KYC" />
         </RadioGroup>
       </FormControl>
-      </MDBox>
+      </MDBox>}
       {selectedOption =='automatic' && (<MDBox pl={2} pr={2}>
 
       <MDBox display="flex" justifyContent="space-between" alignItems="center">

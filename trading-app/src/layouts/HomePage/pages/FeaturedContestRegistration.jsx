@@ -86,6 +86,7 @@ let rows = []
         console.log(e);
     }
 };
+console.log('contest details', contestDetails?.rewardType);
 
 useEffect(()=>{
     if(!contest){
@@ -280,7 +281,7 @@ const [buttonClicked, setButtonClicked] = useState(false);
     );
     featureObj.reward = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        ₹{elem?.prize}
+        {contestDetails?.rewardType != "Goodies" ? `₹${elem?.prize}` :`${elem?.prize}`}
       </MDTypography>
     );
 
