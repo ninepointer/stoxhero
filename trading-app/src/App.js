@@ -76,6 +76,7 @@ import {Howl} from "howler";
 import sound from "./assets/sound/tradeSound.mp3"
 import MessagePopUp from "./MessagePopup";
 import AdminLogin from "./layouts/authentication/sign-in/adminLogin";
+import Finowledge from "./layouts/authentication/sign-up/finowledge";
 import BlogCard from "./layouts/HomePage/pages/BlogCards";
 import BlogData from "./layouts/HomePage/pages/BlogData";
 import Calculator from "./layouts/HomePage/pages/Calculator";
@@ -124,7 +125,7 @@ export default function App() {
   const setDetails = useContext(userContext);
   const getDetails = useContext(userContext);
   const navigate = useNavigate();
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/loginDetail`, {
@@ -370,6 +371,7 @@ export default function App() {
             to={getDetails?.userDetails?.role ? getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/home':'/'} 
             />}/>
           <Route path='/adminlogin' element={<AdminLogin />}/>
+          <Route path='/finowledge' element={<Finowledge />}/>
           <Route path='/about' element={<About/>}/>
           
           <Route path='/contact' element={<Contact/>}/>

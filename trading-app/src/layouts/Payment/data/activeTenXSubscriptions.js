@@ -10,7 +10,7 @@ import tradesicon from '../../../assets/images/tradesicon.png'
 
 export default function PaymentHistory() {
     const [payment,setPayment] = useState([])
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
     async function getPayment (){
         const res = await fetch(`${baseUrl}api/v1/payment`, {

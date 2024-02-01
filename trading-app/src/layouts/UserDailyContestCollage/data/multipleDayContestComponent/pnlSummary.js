@@ -165,11 +165,6 @@ function PnlSummary({contestId, setyesterdayPnl}) {
           {rows.length > 0 ?
           <Card>
             <MDBox display="flex" justifyContent="space-between" alignItems="left">
-              {/* <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{ backgroundColor: "lightgrey", borderRadius: "2px" }}>
-                <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center">
-                  Day Wise Profit & Loss Table
-                </MDTypography>
-              </MDBox> */}
             </MDBox>
             <MDBox mt={1}>
               <DataTable

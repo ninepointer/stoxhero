@@ -44,7 +44,7 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
   const [exitState, setExitState] = useState(false);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [tradeData, setTradeData] = useState([]);
   const countPosition = {
     openPosition: 0,
@@ -479,19 +479,19 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
               </tbody>
             </table>
             <Grid container display='flex' mt={1} p={1} style={{ border: '1px solid white', borderRadius: 4 }}>
-              <Grid item xs={6} md={3} lg={from === marginX ? 1.42 : from===dailyContest ? 1.71 : 3} display="flex" justifyContent="center">
+              <Grid item xs={6} md={3} lg={from === marginX ? 1.42 : (from === dailyContest && moduleData?.allData?.rewardType !== "Goodies") ? 1.71 : 3} display="flex" justifyContent="center">
                 <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color="#003366" style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Running Lots: {totalRunningLots}</MDTypography>
               </Grid>
 
-              <Grid item xs={6} md={3} lg={from === marginX ? 1.71 : from===dailyContest ? 1.71 : 3} display="flex" justifyContent="center">
+              <Grid item xs={6} md={3} lg={from === marginX ? 1.71 : (from === dailyContest && moduleData?.allData?.rewardType !== "Goodies") ? 1.71 : 3} display="flex" justifyContent="center">
                 <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color="#003366" style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Brokerage: {"₹" + (totalTransactionCost).toFixed(2)}</MDTypography>
               </Grid>
 
-              <Grid item xs={6} md={3} lg={from === marginX ? 1.71 : from===dailyContest ? 1.71 : 3} display="flex" justifyContent="center">
+              <Grid item xs={6} md={3} lg={from === marginX ? 1.71 : (from === dailyContest && moduleData?.allData?.rewardType !== "Goodies") ? 1.71 : 3} display="flex" justifyContent="center">
                 <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color={`${totalGrossPnl > 0 ? 'success' : 'error'}`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Gross P&L: { (totalGrossPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalGrossPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-totalGrossPnl))}</MDTypography>
               </Grid>
 
-              <Grid item xs={6} md={3} lg={from === marginX ? 1.71 : from===dailyContest ? 1.71 : 3} display="flex" justifyContent="center">
+              <Grid item xs={6} md={3} lg={from === marginX ? 1.71 : (from === dailyContest && moduleData?.allData?.rewardType !== "Goodies") ? 1.71 : 3} display="flex" justifyContent="center">
                 <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color={`${(totalGrossPnl - totalTransactionCost) > 0 ? 'success' : 'error'}`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Net P&L: { ((totalGrossPnl - totalTransactionCost)) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((totalGrossPnl - totalTransactionCost))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-(totalGrossPnl - totalTransactionCost)))} </MDTypography>
               </Grid>
 
@@ -511,7 +511,7 @@ function OverallGrid({ myRank, socket, setIsGetStartedClicked, from, subscriptio
                 </>
               }
 
-              {from === dailyContest &&
+              {(from === dailyContest && moduleData?.allData?.rewardType !== "Goodies") &&
                 <>
                   <Grid item xs={6} md={3} lg={1.71} display="flex" justifyContent="center">
                     <MDTypography fontSize={".70rem"} backgroundColor="#CCCCCC" color={`info`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Reward: {myReward} </MDTypography>

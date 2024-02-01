@@ -32,7 +32,7 @@ const MenuProps = {
 };
 
 const names = [
-  'Janurary',
+  'January',
   'February',
   'March',
   'April',
@@ -63,7 +63,7 @@ function getStyles(name, monthName, theme) {
 }
 
 export default function Dashboard() {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let [marketingFunnel,setMarketingFunnel] = useState([])
   let [marketingFunnelLifetime,setMarketingFunnelLifetime] = useState([])
   const [isLoading, setIsLoading] = useState(false)
