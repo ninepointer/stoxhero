@@ -24,7 +24,7 @@ const LinkButton = ({ children, ...props }) => (
       // color:'transparent',
       // color: "white",
       // "&:hover": { color: '#fff'},
-      "&:hover": { color: '#65BA0D'},
+      "&:hover": { color: '#D5F47E'},
     }}
     {...props}
   >
@@ -63,7 +63,7 @@ const Navbar = () => {
         <Stack direction='row' justifyContent='space-between' alignItems="center" flexWrap="wrap"  alignContent='center' >
           {/* Logo */}
 
-          <a href="/"><img src={logo} style={{ objectFit: "contain", height: "30px", marginTop: "8px" }} /></a>
+          <a href="/finowledge"><img src={logo} style={{ objectFit: "contain", height: "30px", marginTop: "8px" }} /></a>
 
 
           {!isMobile && (<Stack
@@ -75,27 +75,27 @@ const Navbar = () => {
             flexWrap="wrap"
             color="white"
           >
-            <a href="/about">
+            <a href="/finowledge">
             <LinkButton spacing={0.5}>
-              <Typography variant="body2">HOME</Typography>
+              <Typography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}}>HOME</Typography>
+            </LinkButton>
+            </a>
+
+            <a href="/finowledge">
+            <LinkButton spacing={0.5}>
+              <Typography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}}>OLYMPIADS</Typography>
             </LinkButton>
             </a>
 
             <a href="/about">
             <LinkButton spacing={0.5}>
-              <Typography variant="body2">OLYMPIADS</Typography>
+              <Typography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}}>ABOUT US</Typography>
             </LinkButton>
             </a>
 
-            <a href="/about">
+            <a href="/finowledge">
             <LinkButton spacing={0.5}>
-              <Typography variant="body2">ABOUT US</Typography>
-            </LinkButton>
-            </a>
-
-            <a href="/about">
-            <LinkButton spacing={0.5}>
-              <Typography variant="body2">CONTACT US</Typography>
+              <Typography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}}>CONTACT US</Typography>
             </LinkButton>
             </a>
           </Stack>)}
@@ -117,27 +117,27 @@ const Navbar = () => {
           >
             < img src ="https://icon-library.com/images/x-button-icon/x-button-icon-3.jpg" style={{height:"40px",position:"absolute",top:"8px",color:"#fff", right:"14px", zIndex:999}} sx={{fontSize:"100px"}} onClick={()=>setOpen(false)}/>
 
-            <a href="/about">
+            <a href="/finowledge">
             <LinkButton spacing={0.5}>
-              <MDTypography variant="body2" sx={{color:'#65BA0D'}}>HOME</MDTypography>
+              <MDTypography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}} sx={{color:'#65BA0D'}}>HOME</MDTypography>
+            </LinkButton>
+            </a>
+
+            <a href="/finowledge">
+            <LinkButton spacing={0.5}>
+              <MDTypography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}} sx={{color:'#65BA0D'}}>OLYMPIADS</MDTypography>
             </LinkButton>
             </a>
 
             <a href="/about">
             <LinkButton spacing={0.5}>
-              <MDTypography variant="body2" sx={{color:'#65BA0D'}}>OLYMPIADS</MDTypography>
+              <MDTypography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}} sx={{color:'#65BA0D'}}>ABOUT US</MDTypography>
             </LinkButton>
             </a>
 
-            <a href="/about">
+            <a href="/finowledge">
             <LinkButton spacing={0.5}>
-              <MDTypography variant="body2" sx={{color:'#65BA0D'}}>ABOUT US</MDTypography>
-            </LinkButton>
-            </a>
-
-            <a href="/about">
-            <LinkButton spacing={0.5}>
-              <MDTypography variant="body2" sx={{color:'#65BA0D'}}>CONTACT US</MDTypography>
+              <MDTypography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}} sx={{color:'#65BA0D'}}>CONTACT US</MDTypography>
             </LinkButton>
             </a>
             </Stack>

@@ -95,10 +95,10 @@ function Cover() {
         <Grid container xs={9} md={4} lg={4} display='flex' justifyContent='center' alignItems='center' style={{backgroundColor:'transparent', borderRadius:10, position: 'relative', textAlign: 'center', width: '100%', height: '100vh', overflow: 'visible' }}>
           <Grid mt={3} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
             <MDBox display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
-                <MDTypography variant={isMobile ? 'h5' : 'h3'} style={{fontFamily: 'Nunito', color:'#D5F47E'}}>Welcome to StoxHero!</MDTypography>
+                <MDTypography variant={isMobile ? 'h5' : 'h3'} style={{fontFamily: 'Work Sans , sans-serif', color:'#D5F47E'}}>Welcome to StoxHero!</MDTypography>
             </MDBox>
             <MDBox display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
-              <MDTypography variant='body2' style={{fontFamily: 'Nunito', color:'#fff'}}>Fill in these details to get you started!</MDTypography>
+              <MDTypography variant='body2' style={{fontFamily: 'Work Sans , sans-serif', color:'#fff'}}>Fill in these details to get you started!</MDTypography>
             </MDBox>
           </Grid>
           <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'white', borderRadius:5}}>    
@@ -106,7 +106,8 @@ function Cover() {
                 required
                 // disabled={showEmailOTP}
                 id="outlined-required"
-                label="Full Name"
+                // label="Full Name"
+                placeholder="Full Name"
                 fullWidth
                 type='text'
                 // onChange={handleMobileChange}
@@ -117,7 +118,8 @@ function Cover() {
                 required
                 // disabled={showEmailOTP}
                 id="outlined-required"
-                label="Parent's Name"
+                // label="Parent's Name"
+                placeholder="Parent's Name"
                 fullWidth
                 type='text'
                 // onChange={handleMobileChange}
@@ -128,7 +130,8 @@ function Cover() {
                 required
                 // disabled={showEmailOTP}
                 id="outlined-required"
-                label="Class/Grade"
+                // label="Class/Grade"
+                placeholder="Class/Grade"
                 fullWidth
                 type='text'
                 // onChange={handleMobileChange}
@@ -139,7 +142,8 @@ function Cover() {
                 required
                 // disabled={showEmailOTP}
                 id="outlined-required"
-                label="School"
+                // label="School"
+                placeholder="School"
                 fullWidth
                 type='text'
                 // onChange={handleMobileChange}
@@ -150,7 +154,8 @@ function Cover() {
                 required
                 // disabled={showEmailOTP}
                 id="outlined-required"
-                label="City"
+                // label="City"
+                placeholder="City"
                 fullWidth
                 type='text'
                 // onChange={handleMobileChange}
@@ -158,22 +163,11 @@ function Cover() {
           </Grid>
           <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
             <MDBox mb={5} display='flex' justifyContent='center'>
-              <MDButton fullWidth variant='contained' size='small' color='student' style={{marginTop:15,color:'#000'}} onClick={() => { navigate('/lobby') }}>Proceed</MDButton>
+              <MDButton fullWidth variant='contained' size='small' color='student' style={{marginTop:15,color:'#000',fontFamily: 'Work Sans , sans-serif'}} onClick={() => { navigate('/lobby') }}>Proceed</MDButton>
             </MDBox>
           </Grid>
-          {/* <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
-            <MDBox mb={2} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
-              <img src={logo} width={700} alt="Logo" />
-            </MDBox>
-          </Grid> */}
         </Grid>
       </Grid>
-
-      {/* <Grid container mt={2} mb={2} display='flex' justifyContent='center' alignContent='center' alignItems='center' xs={12} md={12} lg={12} style={{ minWidth: '100%', height: 'auto', flexGrow: 1, overflowY: 'auto', zIndex:3, overflow: 'visible' }}>
-        <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '95%', height: 'auto' }}>
-          <Footer/>
-        </Grid>
-      </Grid> */}
       </ThemeProvider>
       </MDBox>
     </>

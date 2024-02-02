@@ -97,7 +97,7 @@ function Cover() {
         >
         </Grid>
 
-       {/* <Grid mt={10} spacing={1} item display='flex' justifyContent='center' alignItems='center' style={{zIndex:10, overflow:'visible'}}> */}
+       
         <Grid mt={10} container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignItems='center' style={{zIndex:10, overflow: 'visible' }}>
           <Grid mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'white', borderRadius:10}}>
             <MDBox mt={2} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
@@ -120,9 +120,7 @@ function Cover() {
 
         <Grid container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{zIndex:10, overflow: 'visible' }}>
         <Grid p={.5} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'#D5F47E', borderRadius:10}}>
-          {/* <MDBox p={0.5} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}> */}
-            <MDTypography variant='body2' style={{fontFamily: 'Nunito'}}>My Olympiad</MDTypography>
-          {/* </MDBox> */}
+            <MDTypography variant='body2' style={{fontFamily: 'Work Sans , sans-serif'}}>My Olympiad</MDTypography>
         </Grid>
         </Grid>
 
@@ -141,13 +139,13 @@ function Cover() {
                         <img src={strategy} style={{ maxWidth: '100%', height: 'auto', borderTopLeftRadius: 10, borderTopRightRadius: 10 }} />
                       </Grid>
                       <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', minHeight: 60 }}>
-                        <MDTypography variant="h5" fontFamily='Segoe UI' fontWeight={400} style={{ textAlign: 'center' }}>
+                        <MDTypography variant="h5" fontFamily='Work Sans , sans-serif' fontWeight={400} style={{ textAlign: 'center' }}>
                           {"Big Bulls of North India"}
                         </MDTypography>
                       </MDBox>
                       {/* <Divider style={{ width: '100%' }} /> */}
                       <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                        <MDTypography variant='caption'>
+                        <MDTypography variant='caption' style={{fontFamily: 'Work Sans , sans-serif'}}>
                           Starts: {`${moment.utc("2024-02-11T03:50:00").utcOffset('+05:30').format('DD MMM YYYY HH:mm a')} • ${2 || 1} seats left`}
                         </MDTypography>
                       </MDBox>
@@ -155,8 +153,8 @@ function Cover() {
                     <CardContent>
                       <Grid mb={-2} container display='flex' justifyContent='space-between' xs={12} md={12} lg={12}>
                         <Grid item display='flex' justifyContent='space-between' xs={12} md={12} lg={12}>
-                          <MDButton size="small">Invite Friends</MDButton>
-                          <MDButton size="small">Register</MDButton>
+                          <MDButton size="small" style={{fontFamily: 'Work Sans , sans-serif'}}>Invite Friends</MDButton>
+                          <MDButton size="small" style={{fontFamily: 'Work Sans , sans-serif'}}>Register</MDButton>
                         </Grid>
                       </Grid>
                     </CardContent>
@@ -166,7 +164,7 @@ function Cover() {
               :
               <Grid item xs={12} md={12} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                 <MDBox p={0.5} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{minWidth:'100%', borderRadius:10,border:'1px #D5F47E solid'}}>
-                  <MDTypography variant='caption' color='student' style={{textAlign:'center'}}>You have not registered in any finance olympiad yet!</MDTypography>
+                  <MDTypography variant='caption' color='student' style={{textAlign:'center',fontFamily: 'Work Sans , sans-serif'}}>You have not registered in any finance olympiad yet!</MDTypography>
                 </MDBox>
               </Grid>}
             {/* ) */}
@@ -176,7 +174,7 @@ function Cover() {
         <Grid mt={2} container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{zIndex:10, overflow: 'visible' }}>
         <Grid p={.5} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'#D5F47E', borderRadius:10}}>
           {/* <MDBox p={0.5} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}> */}
-            <MDTypography variant='body2' style={{fontFamily: 'Nunito'}}>Upcoming Olympiad</MDTypography>
+            <MDTypography variant='body2' style={{fontFamily: 'Work Sans , sans-serif'}}>Upcoming Olympiad</MDTypography>
           {/* </MDBox> */}
         </Grid>
         </Grid>
@@ -196,13 +194,13 @@ function Cover() {
                         <img src={strategy} style={{ maxWidth: '100%', height: 'auto', borderTopLeftRadius: 10, borderTopRightRadius: 10 }} />
                       </Grid>
                       <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', minHeight: 60 }}>
-                        <MDTypography variant="h5" fontFamily='Segoe UI' fontWeight={400} style={{ textAlign: 'center' }}>
+                        <MDTypography variant="h5" fontFamily='Work Sans , sans-serif' fontWeight={400} style={{ textAlign: 'center' }}>
                           {"Big Bulls of North India"}
                         </MDTypography>
                       </MDBox>
                       {/* <Divider style={{ width: '100%' }} /> */}
                       <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                        <MDTypography variant='caption'>
+                        <MDTypography variant='caption' style={{fontFamily: 'Work Sans , sans-serif'}}>
                           Starts: {`${moment.utc("2024-02-11T03:50:00").utcOffset('+05:30').format('DD MMM YYYY HH:mm a')} • ${2 || 1} seats left`}
                         </MDTypography>
                       </MDBox>
@@ -210,8 +208,8 @@ function Cover() {
                     <CardContent>
                       <Grid mb={-2} container display='flex' justifyContent='space-between' xs={12} md={12} lg={12}>
                         <Grid item display='flex' justifyContent='space-between' xs={12} md={12} lg={12}>
-                          <MDButton size="small">Invite Friends</MDButton>
-                          <MDButton size="small">Register</MDButton>
+                          <MDButton size="small" style={{fontFamily: 'Work Sans , sans-serif'}}>Invite Friends</MDButton>
+                          <MDButton size="small" style={{fontFamily: 'Work Sans , sans-serif'}}>Register</MDButton>
                         </Grid>
                       </Grid>
                     </CardContent>
@@ -221,7 +219,7 @@ function Cover() {
               :
               <Grid item xs={12} md={12} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                 <MDBox p={0.5} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{minWidth:'100%', borderRadius:10,border:'1px #D5F47E solid'}}>
-                  <MDTypography variant='caption' color='student' style={{textAlign:'center'}}>No upcoming finance olympiad, keep checking this space!</MDTypography>
+                  <MDTypography variant='caption' color='student' style={{textAlign:'center',fontFamily: 'Work Sans , sans-serif'}}>No upcoming finance olympiad, keep checking this space!</MDTypography>
                 </MDBox>
               </Grid>}
             {/* ) */}

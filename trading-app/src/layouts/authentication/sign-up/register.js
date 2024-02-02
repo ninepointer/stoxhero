@@ -13,6 +13,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
+import { makeStyles } from '@mui/material/styles';
+import styled from 'styled-components';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
@@ -23,11 +25,16 @@ import MDTypography from "../../../components/MDTypography";
 import Footer from "../components/Footer";
 import MDButton from "../../../components/MDButton";
 
+
 function Cover() {
   const [isLoading,setIsLoading] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
   const navigate = useNavigate();
-
+  const [isFocused, setIsFocused] = useState(false);
+  
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
   useEffect(()=>{
     ReactGA.pageview(window.location.pathname)
   })
@@ -91,29 +98,29 @@ function Cover() {
           }}
         >
 
-        <Grid container xs={9} md={4} lg={4} display='flex' justifyContent='center' alignItems='center' style={{backgroundColor:'transparent', borderRadius:10, position: 'relative', textAlign: 'center', width: '100%', height: '100vh', overflow: 'visible' }}>
-          <Grid mt={3} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
-            <MDBox mt={3} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
+        <Grid container xs={9} md={4} lg={4} display='flex' justifyContent='center' alignItems='center' style={{backgroundColor:'transparent', borderRadius:10, textAlign: 'center', width: '100%', height: 'auto', overflow: 'visible' }}>
+          <Grid item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
+              <img src={register} width={250} alt="Logo" />
+          </Grid>
+          <Grid item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
               <img src={logo} width={250} alt="Logo" />
-            </MDBox>
-            <MDBox mt={1} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
-              <MDTypography variant='body1' style={{fontFamily: 'Nunito', color:'white'}}>Online Finance Olympiad</MDTypography>
-            </MDBox>
+              <MDTypography variant='body1' style={{fontFamily: 'Work Sans , sans-serif', color:'white'}}>Online Finance Olympiad</MDTypography>
           </Grid>
           {true ?
-          <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'white', borderRadius:5}}>    
+          <Grid item xs={12} md={12} lg={8} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{backgroundColor:'white', borderRadius:5}}>    
             <TextField
                 required
                 // disabled={showEmailOTP}
                 id="outlined-required"
-                label="Enter Mobile No."
+                placeholder="Enter Mobile No. *"
                 fullWidth
                 type='number'
+                onFocus={handleFocus}
                 // onChange={handleMobileChange}
             />
           </Grid>
           :
-          <Grid mb={1} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'white', borderRadius:5}}>    
+          <Grid item xs={12} md={12} lg={8} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{backgroundColor:'white', borderRadius:5}}>    
             <TextField
                 required
                 // disabled={showEmailOTP}
@@ -124,9 +131,9 @@ function Cover() {
                 // onChange={handleMobileChange}
             />
           </Grid>}
-          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
-            <MDBox mb={5} display='flex' justifyContent='center'>
-              <MDButton fullWidth variant='contained' size='small' color='student' style={{marginTop:15,color:'#000'}} onClick={() => { navigate('/registrationinfo') }}>Proceed</MDButton>
+          <Grid item xs={12} md={12} lg={8} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
+            <MDBox display='flex' justifyContent='center'>
+              <MDButton fullWidth variant='contained' size='small' color='student' style={{marginTop:15,color:'#000',fontFamily: 'Work Sans , sans-serif'}} onClick={() => { navigate('/registrationinfo') }}>Proceed</MDButton>
             </MDBox>
           </Grid>
         </Grid>
