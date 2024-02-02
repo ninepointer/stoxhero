@@ -2,15 +2,14 @@ import React, {useState, useContext, useEffect} from "react"
 import { useMediaQuery } from '@mui/material'
 import theme from '../../HomePage/utils/theme/index'; 
 import { ThemeProvider } from 'styled-components';
-import { useNavigate, useLocation } from "react-router-dom";
 // import ReactGA from "react-ga"
-import axios from "axios";
-import playstore from '../../../assets/images/playstore.png'
-import Navbar from '../../HomePage/components/Navbars/Navbar';
 import FinNavbar from '../../HomePage/components/Navbars/FinNavBar';
 import background from '../../../assets/images/finowledge.png'
-import logo from '../../../assets/images/home_fin_kid.png'
+import logo from '../../../assets/images/fulllogo.png'
+import register from '../../../assets/images/home_fin_kid.png'
 import ReactGA from "react-ga";
+import TextField from '@mui/material/TextField';
+import { useNavigate, useLocation } from "react-router-dom";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -92,23 +91,42 @@ function Cover() {
           }}
         >
 
-       
-        <Grid container mt={15} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ position: 'relative', textAlign: 'center', width: '100%', height: '100vh', overflow: 'visible' }}>
-          <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center' alignItems='flex-start' alignContent='flex-start'>
-            <MDBox mt={5} mb={isMobile ? 5 : 15} display='flex' justifyContent='center' flexDirection='column' alignItems='flex-start' alignContent='center'>
-              <MDTypography variant={isMobile ? "h2" : "h1"} sx={{ color: '#fff' }} style={{fontFamily: 'Nunito'}}>On a mission to train</MDTypography>
-              <MDTypography variant={isMobile ? "h2" : "h1"} sx={{ color: '#D5F47E' }} style={{fontFamily: 'Nunito'}}>India's next Big Bulls</MDTypography>
-              <MDTypography variant="body3" sx={{ color: '#fff' }} style={{fontFamily: 'Nunito'}}>Battle & Compete with Students across</MDTypography>
-              <MDTypography variant="body3" sx={{ color: '#D5F47E' }} style={{fontFamily: 'Nunito'}}>North India in Finance Olympiad</MDTypography>
-              <MDBox display='flex' justifyContent='space-between'>
-                <MDButton variant='contained' size='small' color='student' style={{marginTop:15,color:'#000'}} onClick={() => { navigate('/enter-mobile') }}>Register</MDButton>
-                <MDButton variant='outlined' style={{marginTop:15, marginLeft:10}}>Try Now</MDButton>
-              </MDBox>
+        <Grid container xs={9} md={4} lg={4} display='flex' justifyContent='center' alignItems='center' style={{backgroundColor:'transparent', borderRadius:10, position: 'relative', textAlign: 'center', width: '100%', height: '100vh', overflow: 'visible' }}>
+          <Grid mt={3} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
+            <MDBox mt={3} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
+              <img src={logo} width={250} alt="Logo" />
+            </MDBox>
+            <MDBox mt={1} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
+              <MDTypography variant='body1' style={{fontFamily: 'Nunito', color:'white'}}>Online Finance Olympiad</MDTypography>
             </MDBox>
           </Grid>
-          <Grid item xs={12} md={6} lg={6} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
-            <MDBox mb={2} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
-              <img src={logo} width={isMobile ? 300 : 700} alt="Logo" />
+          {true ?
+          <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'white', borderRadius:5}}>    
+            <TextField
+                required
+                // disabled={showEmailOTP}
+                id="outlined-required"
+                label="Enter Mobile No."
+                fullWidth
+                type='number'
+                // onChange={handleMobileChange}
+            />
+          </Grid>
+          :
+          <Grid mb={1} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'white', borderRadius:5}}>    
+            <TextField
+                required
+                // disabled={showEmailOTP}
+                id="outlined-required"
+                label="Enter OTP"
+                fullWidth
+                type='text'
+                // onChange={handleMobileChange}
+            />
+          </Grid>}
+          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
+            <MDBox mb={5} display='flex' justifyContent='center'>
+              <MDButton fullWidth variant='contained' size='small' color='student' style={{marginTop:15,color:'#000'}} onClick={() => { navigate('/registrationinfo') }}>Proceed</MDButton>
             </MDBox>
           </Grid>
         </Grid>
