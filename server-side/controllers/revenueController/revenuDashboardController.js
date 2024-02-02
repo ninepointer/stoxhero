@@ -2865,7 +2865,7 @@ exports.getRevenueBetweenDate = async (req, res, next) => {
                   ], // Assuming "TestZone Fee" is not repeated intentionally
                 },
                 "transactions.transactionDate": {
-                    $gt: new Date(startDate),
+                    $gte: new Date(startDate),
                     $lt: new Date(endDate),
                 },
               },
@@ -2888,7 +2888,7 @@ exports.getRevenueBetweenDate = async (req, res, next) => {
             {
               $match: {
                 joining_date: {
-                  $gt: new Date(startDate),
+                  $gte: new Date(startDate),
                   $lt: new Date(endDate),
                 },
               },
@@ -2957,7 +2957,7 @@ exports.getRevenueBetweenDate = async (req, res, next) => {
                   ], // Assuming "TestZone Fee" is not repeated intentionally
                 },
                 "transactions.transactionDate": {
-                  $gt: new Date(startDate),
+                  $gte: new Date(startDate),
                   $lt: new Date(endDate),
                 },
               },
@@ -3048,7 +3048,7 @@ exports.getRevenueBetweenDate = async (req, res, next) => {
                   ], // Assuming "TestZone Fee" is not repeated intentionally
                 },
                 "transactions.transactionDate": {
-                  $gt: new Date(startDate),
+                  $gte: new Date(startDate),
                   $lt: new Date(endDate),
                 },
               },
@@ -3185,7 +3185,7 @@ exports.getSignupChannelBetweenDate = async (req, res, next) => {
     
           
                 "transactions.transactionDate": {
-                    $gt: new Date(startDate),
+                    $gte: new Date(startDate),
                     $lt: new Date(endDate),
                 },
         },
@@ -3287,7 +3287,7 @@ exports.getUsersBetweenDate = async (req, res, next) => {
                   ], // Assuming "TestZone Fee" is not repeated intentionally
                 },
                 "transactions.transactionDate": {
-                  $gt: new Date(startDate),
+                  $gte: new Date(startDate),
                   $lt: new Date(endDate),
                 },
               },
@@ -3310,7 +3310,7 @@ exports.getUsersBetweenDate = async (req, res, next) => {
             {
               $match: {
                 joining_date: {
-                  $gt: new Date(startDate),
+                  $gte: new Date(startDate),
                   $lt: new Date(endDate),
                 },
               },
@@ -3341,7 +3341,7 @@ exports.getUsersBetweenDate = async (req, res, next) => {
                   ], // Assuming "TestZone Fee" is not repeated intentionally
                 },
                 "transactions.transactionDate": {
-                  $gt: new Date(startDate),
+                  $gte: new Date(startDate),
                   $lt: new Date(endDate),
                 },
               },
