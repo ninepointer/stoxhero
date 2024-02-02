@@ -26,7 +26,7 @@ const quizSchema = new mongoose.Schema({
         prize:{type:Schema.Types.Mixed},
     }],
     questions:[{
-        questionId:{type:Object},
+        questionId:{type:Schema.Types.ObjectId},
         title:{type:String},
         type:{type:String, enum:['Single Correct','Multiple Correct']},
         questionImage:{type:String},
@@ -37,6 +37,10 @@ const quizSchema = new mongoose.Schema({
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         registeredOn:{type:Date}
     }],
+    status:{
+        type:String,
+        enum:['Active', 'Inactive', 'Draft']
+    },
     createdOn:{
         type: Date,
         default: ()=> new Date()
