@@ -21,9 +21,10 @@ const quizSchema = new mongoose.Schema({
         enum: ['Cash','Certificate','Goodies']
     },
     rewards:[{
-        rankStart:{type:Number},
+        rankStart: {type: Number},
         rankEnd:{type:Number},
         prize:{type:Schema.Types.Mixed},
+        prizeValue: {type: Number}
     }],
     questions:[{
         questionId:{type:Schema.Types.ObjectId},

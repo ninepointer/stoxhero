@@ -1,6 +1,4 @@
-
 const Quiz = require('../../models/School/Quiz'); // Adjust the path as per your project structure
-
 const AWS = require('aws-sdk');
 
 // Configure AWS
@@ -30,12 +28,10 @@ const getAwsS3Url = async (file) => {
     }
 };
 
-
-
 exports.createQuiz = async (req, res) => {
     try {
-        const { title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, rewards } = req.body;
-        const newQuiz = new Quiz({ title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, rewards });
+        const { title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status } = req.body;
+        const newQuiz = new Quiz({ title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status });
         await newQuiz.save();
         res.status(201).json(newQuiz);
     } catch (error) {
@@ -57,9 +53,7 @@ exports.editQuiz = async (req, res) => {
     }
 };
 
-
 // Assuming this is your controller function
-
 exports.addQuestionToQuiz = async (req, res) => {
     try {
         const quizId = req.params.quizId;
@@ -111,7 +105,6 @@ exports.addQuestionToQuiz = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
-
 
 exports.editQuestionInQuiz = async (req, res) => {
     try {
@@ -185,6 +178,7 @@ exports.getQuizForAdmin = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 exports.getQuizForUser = async (req, res) => {
     try {
         const quizId = req.params.id;
@@ -207,6 +201,7 @@ exports.getQuizForUser = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 exports.getAllQuizzesForUser = async (req, res) => {
     try {
         const now = new Date();
@@ -217,4 +212,3 @@ exports.getAllQuizzesForUser = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-

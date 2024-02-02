@@ -860,6 +860,20 @@ export default function LabTabs({socket}) {
                                 Coupons
                             </MDButton>
                         </Grid>
+
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"warning"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/quiz`,
+                                  }}
+                            >
+                                Quiz
+                            </MDButton>
+                        </Grid>
                     </Grid>
                 </MDBox>
                 

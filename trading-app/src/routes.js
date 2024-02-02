@@ -185,9 +185,21 @@ import TenXSubscribers from "./layouts/tenXSubscribers"
 import MarketingFunnel from "./layouts/marketingDashboard"
 import { FaRupeeSign } from "react-icons/fa";
 import { FaAffiliatetheme } from "react-icons/fa";
+import Quiz from './layouts/quiz'
+import QuizDetails from './layouts/quiz/quizDetails'
 
 const routes = [
 
+  {
+    key: "quiz",
+    route: "/quiz",
+    component: <Quiz />,
+  },
+  {
+    key: "quizdetails",
+    route: "/quizdetails",
+    component: <QuizDetails />,
+  },
   {
     type: "collapse",
     name: "StoxHero Dashboard",
