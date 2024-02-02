@@ -156,8 +156,68 @@ router.get("/send", async (req, res) => {
 
 })
 
+router.post("/schoolsignup", async (req, res) => {
+    const { mobile, full_name, city, parents_name, grade, school } = req.body;
+
+    const schoolDetails = {
+        parents_name, grade, school
+    }
+
+    if (!mobile || !full_name || !city || !parents_name || !grade || !school) {
+        return res.status(400).json({ status: 'error', message: "Please fill all fields to proceed." })
+    }
+    const isExistingUser = await User.findOne({ mobile: mobile })
+
+    if (isExistingUser) {
+        return res.status(400).json({
+            message: "Your account already exists. Please login with mobile",
+            status: 'error'
+        });
+    }
+    const signedupuser = await SignedUpUser.findOne({mobile: mobile});
+    if (signedupuser?.lastOtpTime && moment().subtract(29, 'seconds').isBefore(signedupuser?.lastOtpTime)) {
+        return res.status(429).json({ message: 'Please wait a moment before requesting a new OTP' });
+      }
+    let mobile_otp = otpGenerator.generate(6, { digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
+
+    // User sign up detail saving
+    try {
+        if (signedupuser) {
+            signedupuser.first_name = full_name.split(" ")[0] || "N/A", 
+            signedupuser.last_name = full_name.split(" ")[1] || "N/A"
+            signedupuser.full_name = full_name.trim();
+            signedupuser.mobile = mobile.trim();
+            signedupuser.mobile_otp = mobile_otp.trim();
+            signedupuser.schoolDetails = schoolDetails,
+            signedupuser.city = city,
+            await signedupuser.save({ validateBeforeSave: false })
+        } else {
+            await SignedUpUser.create({
+                full_name: full_name.trim(), city,
+                first_name: full_name.split(" ")[0] || "N/A",
+                last_name: full_name.split(" ")[1] || "N/A",
+                mobile: mobile.trim(), mobile_otp: mobile_otp, schoolDetails
+            });
+        }
+
+        res.status(201).json({
+            message: "OTP has been sent. Check your messages. OTP expires in 30 minutes.",
+            status: 'success'
+        });
+
+        if(process.env.PROD == 'true'){
+            sendOTP(mobile.toString(), mobile_otp);
+        } else{
+            sendOTP("9319671094", mobile_otp);
+        }
+        
+    } catch (err) { console.log(err); res.status(500).json({ message: 'Something went wrong', status: "error" }) }
+})
+
 router.post("/signup", async (req, res) => {
-    const { first_name, last_name, email, mobile, collegeDetails } = req.body;
+    const { first_name, last_name, email, mobile, collegeDetails, full_name, city, parents_name, grade, school } = req.body;
+
+
     // console.log(req.body)
     if (!first_name || !last_name || !email || !mobile) {
         return res.status(400).json({ status: 'error', message: "Please fill all fields to proceed." })
@@ -248,15 +308,21 @@ async function generateUniqueReferralCode() {
 router.patch("/verifyotp", async (req, res) => {
     let {
         first_name,
+        full_name,
+        city,
         last_name,
         email,
         mobile,
         mobile_otp,
         referrerCode,
         fcmTokenData,
-        collegeDetails
+        collegeDetails,
+        parents_name, school, grade
     } = req.body
 
+    const schoolDetails = {
+        parents_name, school, grade
+    }
 
     const user = await SignedUpUser.findOne({ mobile: mobile })
     if (!user) {
@@ -309,11 +375,11 @@ router.patch("/verifyotp", async (req, res) => {
 
     const myReferralCode = await generateUniqueReferralCode();
     // const count = await User.countDocuments();
-    let userId = email.split('@')[0]
+    let userId = email?.split('@')[0]
     let userIds = await User.find({ employeeid: userId })
    
-    if (userIds.length > 0) {
-        userId = userId.toString() + (userIds.length + 1).toString()
+    if (userIds?.length > 0) {
+        userId = userId?.toString() + (userIds?.length + 1).toString()
     }
 
     let match = false;
@@ -356,9 +422,12 @@ router.patch("/verifyotp", async (req, res) => {
             creation = "Auto SignUp";
         }
         let obj = {
-            first_name: first_name.trim(), last_name: last_name.trim(), designation: 'Trader', email: email.trim(),
+            first_name: first_name?.trim() || full_name?.split(" ")[0] || "N/A", last_name: last_name?.trim() || full_name?.split(" ")[1] || "N/A", designation: 'Trader', email: email?.trim(),
+            full_name: full_name?.trim(),
+            city: city,
+            schoolDetails,
             mobile: mobile.trim(),
-            name: first_name.trim() + ' ' + last_name.trim().substring(0, 1),
+            name: first_name?.trim() + ' ' + last_name?.trim().substring(0, 1),
             status: 'Active',
             employeeid: userId,
             joining_date: user.last_modifiedOn,

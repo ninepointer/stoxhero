@@ -30,8 +30,8 @@ const getAwsS3Url = async (file) => {
 
 exports.createQuiz = async (req, res) => {
     try {
-        const { title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status } = req.body;
-        const newQuiz = new Quiz({ title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status });
+        const {grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status } = req.body;
+        const newQuiz = new Quiz({ grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status });
         await newQuiz.save();
         res.status(201).json(newQuiz);
     } catch (error) {

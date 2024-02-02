@@ -54,13 +54,13 @@ function Index() {
   async function onSubmit(e, formState) {
     e.preventDefault()
 
-    if (!formState.title || !formState.startDateTime || !formState.registrationOpenDateTime || !formState.durationInSeconds || !formState.rewardType || !formState.status) {
+    if (!formState.grade || !formState.title || !formState.startDateTime || !formState.registrationOpenDateTime || !formState.durationInSeconds || !formState.rewardType || !formState.status) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const { title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status } = formState;
+    const {grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status } = formState;
     const res = await fetch(`${apiUrl}quiz`, {
       method: "POST",
       credentials: "include",
@@ -69,7 +69,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status
+        grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status
       })
     });
 
@@ -92,11 +92,11 @@ function Index() {
     // console.log("Edited FormState: ", new Date(formState.contestStartTime).toISOString(), new Date(formState.contestEndTime).toISOString())
     setSaving(true)
     
-    if (!formState.title || !formState.startDateTime || !formState.registrationOpenDateTime || !formState.durationInSeconds || !formState.rewardType || !formState.status) {
+    if (!formState.grade || !formState.title || !formState.startDateTime || !formState.registrationOpenDateTime || !formState.durationInSeconds || !formState.rewardType || !formState.status) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const { title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status } = formState;
+    const {grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status } = formState;
 
     const res = await fetch(`${apiUrl}quiz/${quiz?._id}`, {
       method: "PATCH",
@@ -106,7 +106,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status
+        grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status
       })
     });
 
@@ -264,6 +264,18 @@ function Index() {
                     name='durationInSeconds'
                     fullWidth
                     defaultValue={editing ? formState?.durationInSeconds : quiz?.durationInSeconds}
+                    onChange={handleChange}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <TextField
+                    disabled={((isSubmitted || quiz) && (!editing || saving))}
+                    id="outlined-required"
+                    label='Grade *'
+                    name='grade'
+                    fullWidth
+                    defaultValue={editing ? formState?.grade : quiz?.grade}
                     onChange={handleChange}
                   />
                 </Grid>
