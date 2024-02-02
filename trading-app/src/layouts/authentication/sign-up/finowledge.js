@@ -96,13 +96,13 @@ function Cover() {
         <Grid container mt={15} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ position: 'relative', textAlign: 'center', width: '100%', height: '100vh', overflow: 'visible' }}>
           <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center' alignItems='flex-start' alignContent='flex-start'>
             <MDBox mt={5} mb={isMobile ? 5 : 15} display='flex' justifyContent='center' flexDirection='column' alignItems='flex-start' alignContent='center'>
-              <MDTypography variant={isMobile ? "h2" : "h1"} sx={{ color: '#fff' }} style={{fontFamily: 'Nunito'}}>On a mission to train</MDTypography>
-              <MDTypography variant={isMobile ? "h2" : "h1"} sx={{ color: '#D5F47E' }} style={{fontFamily: 'Nunito'}}>India's next Big Bulls</MDTypography>
-              <MDTypography variant="body3" sx={{ color: '#fff' }} style={{fontFamily: 'Nunito'}}>Battle & Compete with Students across</MDTypography>
-              <MDTypography variant="body3" sx={{ color: '#D5F47E' }} style={{fontFamily: 'Nunito'}}>North India in Finance Olympiad</MDTypography>
+              <MDTypography variant={isMobile ? "h3" : "h1"} sx={{ color: '#fff' }} style={{fontFamily: 'Work Sans , sans-serif'}}>On a mission to train</MDTypography>
+              <MDTypography variant={isMobile ? "h3" : "h1"} sx={{ color: '#D5F47E' }} style={{fontFamily: 'Work Sans , sans-serif'}}>India's next Big Bulls</MDTypography>
+              <MDTypography variant={isMobile ? "body2" : "body1"} sx={{ color: '#fff' }} style={{fontFamily: 'Work Sans , sans-serif'}}>Battle & Compete with Students across</MDTypography>
+              <MDTypography variant={isMobile ? "body2" : "body1"} sx={{ color: '#D5F47E' }} style={{fontFamily: 'Work Sans , sans-serif'}}>North India in Finance Olympiad</MDTypography>
               <MDBox display='flex' justifyContent='space-between'>
-                <MDButton variant='contained' size='small' color='student' style={{marginTop:15,color:'#000'}} onClick={() => { navigate('/enter-mobile') }}>Register</MDButton>
-                <MDButton variant='outlined' style={{marginTop:15, marginLeft:10}}>Try Now</MDButton>
+                <MDButton variant='contained' size='small' color='student' style={{marginTop:15,color:'#000', fontFamily: 'Work Sans , sans-serif'}} onClick={() => { navigate('/enter-mobile') }}>Register</MDButton>
+                <MDButton variant='outlined' style={{marginTop:15, marginLeft:10, fontFamily: 'Work Sans , sans-serif'}}>Try Now</MDButton>
               </MDBox>
             </MDBox>
           </Grid>

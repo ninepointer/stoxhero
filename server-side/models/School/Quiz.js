@@ -38,6 +38,8 @@ const quizSchema = new mongoose.Schema({
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         registeredOn:{type:Date}
     }],
+    image: String,
+    maxParticipant: Number,
     status:{
         type:String,
         enum:['Active', 'Inactive', 'Draft']

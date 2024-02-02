@@ -1,5 +1,6 @@
 const Quiz = require('../../models/School/Quiz'); // Adjust the path as per your project structure
 const AWS = require('aws-sdk');
+const {ObjectId} = require('mongodb');
 
 // Configure AWS
 const s3 = new AWS.S3({
@@ -30,8 +31,13 @@ const getAwsS3Url = async (file) => {
 
 exports.createQuiz = async (req, res) => {
     try {
-        const {grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status } = req.body;
-        const newQuiz = new Quiz({ grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status });
+        const {grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status, maxParticipant } = req.body;
+
+        let image;
+        if (req.files['quizImage']) {
+            image = await getAwsS3Url(req.files['quizImage'][0]);
+        }
+        const newQuiz = new Quiz({image, maxParticipant, grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status });
         await newQuiz.save();
         res.status(201).json(newQuiz);
     } catch (error) {
@@ -205,10 +211,117 @@ exports.getQuizForUser = async (req, res) => {
 exports.getAllQuizzesForUser = async (req, res) => {
     try {
         const now = new Date();
-        const quizzes = await Quiz.find({}, 'title startDateTime registrationOpenDateTime durationInSeconds rewardType status')
-            .lean()
-        res.json(quizzes);
+        const userId = req.user._id;
+        // const quizzes = await Quiz.find({"registrations.userId": {$ne: new ObjectId(userId)}}, 'image maxParticipant title startDateTime registrationOpenDateTime durationInSeconds rewardType status')
+        //     .lean()
+
+            const quizzes = await Quiz.aggregate([
+                {
+                    $match: {
+                        "registrations.userId": {$ne: new ObjectId(userId)}
+                    }
+                },
+                {
+                    $project: {
+                        image: 1,
+                        maxParticipant: 1,
+                        title: 1,
+                        startDateTime: 1,
+                        registrationOpenDateTime: 1,
+                        durationInSeconds: 1,
+                        rewardType: 1,
+                        status: 1,
+                        registrationsCount: {
+                            $size: "$registrations" // Include the length of the registrations array
+                        }
+                    }
+                }
+            ]).exec();
+        res.status(201).json({status: "success", data: quizzes });
+
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.getMyQuizzesForUser = async (req, res) => {
+    try {
+        const now = new Date();
+        const userId = req.user._id;
+        const quizzes = await Quiz.aggregate([
+            {
+                $match: {
+                    "registrations.userId": userId
+                }
+            },
+            {
+                $project: {
+                    image: 1,
+                    maxParticipant: 1,
+                    title: 1,
+                    startDateTime: 1,
+                    registrationOpenDateTime: 1,
+                    durationInSeconds: 1,
+                    rewardType: 1,
+                    status: 1,
+                    registrationsCount: {
+                        $size: "$registrations" // Include the length of the registrations array
+                    }
+                }
+            }
+        ]).exec();
+        
+        res.status(201).json({status: "success", data: quizzes });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.registration = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const userId = req.user._id;
+        const quiz = await Quiz.findOneAndUpdate({_id: new ObjectId(id)}, {
+            $push: {
+                registrations: {
+                    userId: userId,
+                    registeredOn: new Date()
+                }
+            }
+        }, {new: true});
+
+        // const quizzes = await Quiz.find({"registrations.userId": {$ne: new ObjectId(userId)}}, 'image maxParticipant title startDateTime registrationOpenDateTime durationInSeconds rewardType status')
+        // .lean()
+
+        const quizzes = await Quiz.aggregate([
+            {
+                $match: {
+                    "registrations.userId": {$ne: new ObjectId(userId)}
+                }
+            },
+            {
+                $project: {
+                    image: 1,
+                    maxParticipant: 1,
+                    title: 1,
+                    startDateTime: 1,
+                    registrationOpenDateTime: 1,
+                    durationInSeconds: 1,
+                    rewardType: 1,
+                    status: 1,
+                    registrationsCount: {
+                        $size: "$registrations" // Include the length of the registrations array
+                    }
+                }
+            }
+        ]).exec();
+
+
+        res.status(201).json({status: "success", data: quizzes, message: "Registration Successfull" });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+

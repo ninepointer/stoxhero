@@ -2,11 +2,11 @@
 import * as React from 'react';
 import { useEffect, useState } from "react";
 import TextField from '@mui/material/TextField';
-import Grid from "@mui/material/Grid";
+import {Grid, Card, CardContent, CardActionArea} from "@mui/material";
 import MDTypography from "../../components/MDTypography";
 import MDBox from "../../components/MDBox";
 import MDButton from "../../components/MDButton"
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Typography } from "@mui/material";
 import MDSnackbar from "../../components/MDSnackbar";
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
@@ -25,7 +25,6 @@ function Index() {
   const location = useLocation();
   const quiz = location?.state?.data;
   const [isSubmitted, setIsSubmitted] = useState(false);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [isLoading, setIsLoading] = useState(quiz ? true : false)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -34,6 +33,8 @@ function Index() {
   const [newObjectId, setNewObjectId] = useState("");
   const [updatedDocument, setUpdatedDocument] = useState([]);
   const [quizData, setQuizData] = useState([]);
+  const [quizImage, setQuizImage] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState('');
 
   const [formState, setFormState] = useState({
     title: '' || quiz?.title,
@@ -42,6 +43,7 @@ function Index() {
     durationInSeconds: '' || quiz?.durationInSeconds,
     rewardType: '' || quiz?.rewardType,
     status: '' || quiz?.status,
+    maxParticipant: "" || quiz?.maxParticipant
   });
 
   useEffect(() => {
@@ -51,8 +53,24 @@ function Index() {
     }, 500)
   }, [])
 
+  const handleImage = (event) => {
+    const file = event.target.files[0];
+    setQuizImage(event.target.files);
+    // Create a FileReader instance
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPreviewUrl(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   async function onSubmit(e, formState) {
     e.preventDefault()
+
+    if (!quizImage) {
+      openErrorSB('error', 'Please select a file to upload');
+      return;
+    }
 
     if (!formState.grade || !formState.title || !formState.startDateTime || !formState.registrationOpenDateTime || !formState.durationInSeconds || !formState.rewardType || !formState.status) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
@@ -60,17 +78,24 @@ function Index() {
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const {grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status } = formState;
+
+    const formData = new FormData();
+    if (quizImage) {
+      formData.append("quizImage", quizImage[0]);
+    }
+
+    for(let elem in formState){
+      formData.append(`${elem}`, formState[elem]);
+    }
+    // const {grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status } = formState;
     const res = await fetch(`${apiUrl}quiz`, {
       method: "POST",
       credentials: "include",
-      headers: {
-        "content-type": "application/json",
-        "Access-Control-Allow-Credentials": true
-      },
-      body: JSON.stringify({
-        grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status
-      })
+      // headers: {
+      //   "content-type": "application/json",
+      //   "Access-Control-Allow-Credentials": true
+      // },
+      body: formData
     });
 
 
@@ -281,6 +306,18 @@ function Index() {
                 </Grid>
 
                 <Grid item xs={12} md={6} xl={3}>
+                  <TextField
+                    disabled={((isSubmitted || quiz) && (!editing || saving))}
+                    id="outlined-required"
+                    label='Min Participants *'
+                    name='maxParticipant'
+                    fullWidth
+                    defaultValue={editing ? formState?.maxParticipant : quiz?.maxParticipant}
+                    onChange={handleChange}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
                     <InputLabel id="demo-simple-select-autowidth-label">Reward Type *</InputLabel>
                     <Select
@@ -330,10 +367,81 @@ function Index() {
                   </FormControl>
                 </Grid>
                
+                <Grid item xs={12} md={6} xl={!quiz ? 6 : 4}>
+                  <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(quizData?.image?.url && !quizImage) ? "warning" : ((quizData?.image?.url && quizImage) || quizImage) ? "error" : "success"} component="label">
+                    Upload Image(1080X720)
+                    <input
+                      hidden
+                      disabled={((quizData || quiz) && (!editing))}
+                      accept="image/*"
+                      type="file"
+                      // onChange={(e)=>{setTitleImage(e.target.files)}}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          quizImage: e.target.files
+                        }));
+                        // setTitleImage(e.target.files);
+                        handleImage(e);
+                      }}
+                    />
+                  </MDButton>
+                </Grid>
 
               </Grid>
 
             </Grid>
+
+            <Grid container mb={2} spacing={2} xs={12} md={12} xl={12} mt={1} display="flex" justifyContent='flex-start' alignItems='center' style={{maxWidth:'100%', height:'auto'}}>
+          {previewUrl ?
+             
+             <Grid item xs={12} md={12} xl={3} style={{maxWidth:'100%', height:'auto'}}>
+              <Grid container xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
+                <Grid item xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
+                  <Card sx={{ minWidth: '100%', cursor:'pointer' }}>       
+                    <CardActionArea>
+                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                      <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                        <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
+                        <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{textAlign:'center'}}>
+                            Quiz Image
+                        </Typography>
+                        </MDBox>
+                      </CardContent>
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                      <img src={previewUrl} style={{maxWidth: '100%',height: 'auto', borderBottomLeftRadius:10, borderBottomRightRadius:10}}/>
+                    </Grid>
+                    </CardActionArea>
+                  </Card>
+                </Grid>
+              </Grid>
+            </Grid>
+              :
+              <Grid item xs={12} md={12} xl={3} style={{maxWidth:'100%', height:'auto'}}>
+                <Grid container xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
+                  <Grid item xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
+                    <Card sx={{ minWidth: '100%', cursor:'pointer' }}>       
+                      <CardActionArea>
+                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                        <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                          <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
+                          <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{textAlign:'center'}}>
+                            Quiz Image
+                          </Typography>
+                          </MDBox>
+                        </CardContent>
+                      </Grid>
+                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                        <img src={quizData?.image} style={{maxWidth: '100%',height: 'auto', borderBottomLeftRadius:10, borderBottomRightRadius:10}}/>
+                      </Grid>
+                      </CardActionArea>
+                    </Card>
+                  </Grid>
+                </Grid>
+              </Grid>
+          }
+          </Grid>
 
             <Grid container mt={2} xs={12} md={12} xl={12} >
               <Grid item display="flex" justifyContent="flex-end" xs={12} md={6} xl={12}>

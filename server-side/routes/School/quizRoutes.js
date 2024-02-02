@@ -20,11 +20,25 @@ const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 router.post(
     '/', Authenticate, restrictTo('Admin', 'SuperAdmin'),
+    upload.fields([{ name: 'quizImage', maxCount: 1 }]),
     quizController.createQuiz
 );
 
+router.get(
+    '/user', Authenticate,
+    quizController.getAllQuizzesForUser
+);
+
+router.get(
+    '/user/my', Authenticate,
+    quizController.getMyQuizzesForUser
+);
+
+
+
 router.patch(
     '/:id', Authenticate, restrictTo('Admin', 'SuperAdmin'),
+    upload.fields([{ name: 'quizImage', maxCount: 1 }]),
     quizController.editQuiz
 );
 
@@ -37,6 +51,11 @@ router.patch(
     '/:quizId/question/:questionId',Authenticate, restrictTo('Admin', 'SuperAdmin'),
     upload.fields([{ name: 'questionImage', maxCount: 1 }, { name: 'optionImages', maxCount: 10 }]),
     quizController.editQuestionInQuiz
+);
+
+router.patch(
+    '/user/registration/:id', Authenticate,
+    quizController.registration
 );
 
 

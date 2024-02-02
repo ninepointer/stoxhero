@@ -311,10 +311,10 @@ function Cover() {
             <Grid container xs={9} md={4} lg={4} display='flex' justifyContent='center' alignItems='center' style={{ backgroundColor: 'transparent', borderRadius: 10, position: 'relative', textAlign: 'center', width: '100%', height: '100vh', overflow: 'visible' }}>
               <Grid mt={3} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
                 <MDBox display='flex' justifyContent='center' alignItems='center' style={{ overflow: 'visible' }}>
-                  <MDTypography variant={isMobile ? 'h5' : 'h3'} style={{ fontFamily: 'Nunito', color: '#D5F47E' }}>Welcome to StoxHero!</MDTypography>
+                  <MDTypography variant={isMobile ? 'h5' : 'h3'} style={{fontFamily: 'Work Sans , sans-serif', color:'#D5F47E'}}>Welcome to StoxHero!</MDTypography>
                 </MDBox>
                 <MDBox display='flex' justifyContent='center' alignItems='center' style={{ overflow: 'visible' }}>
-                  <MDTypography variant='body2' style={{ fontFamily: 'Nunito', color: '#fff' }}>Fill in these details to get you started!</MDTypography>
+                  <MDTypography variant='body2' style={{fontFamily: 'Work Sans , sans-serif', color:'#D5F47E'}}>Fill in these details to get you started!</MDTypography>
                 </MDBox>
               </Grid>
               <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
@@ -322,8 +322,9 @@ function Cover() {
                   required
                   // disabled={showEmailOTP}
                   id="outlined-required"
-                  label="Full Name"
+                  
                   fullWidth
+                  placeholder="Full Name"
                   type='text'
                   name='full_name'
                 onChange={handleChange}
@@ -334,7 +335,7 @@ function Cover() {
                   required
                   // disabled={showEmailOTP}
                   id="outlined-required"
-                  label="Parent's Name"
+                  placeholder="Parent's Name"
                   fullWidth
                   type='text'
                   name='parents_name'
@@ -346,7 +347,7 @@ function Cover() {
                   required
                   // disabled={showEmailOTP}
                   id="outlined-required"
-                  label="Class/Grade"
+                  placeholder="Class/Grade"
                   fullWidth
                   type='text'
                   name='grade'
@@ -358,7 +359,7 @@ function Cover() {
                   required
                   // disabled={showEmailOTP}
                   id="outlined-required"
-                  label="School"
+                  placeholder="School"
                   fullWidth
                   type='text'
                   name='school'
@@ -370,7 +371,7 @@ function Cover() {
                   required
                   // disabled={showEmailOTP}
                   id="outlined-required"
-                  label="City"
+                  placeholder="City"
                   fullWidth
                   type='text'
                   name="city"
@@ -390,7 +391,7 @@ function Cover() {
                     required
                     // disabled={showEmailOTP}
                     id="outlined-required"
-                    label="Enter OTP"
+                    placeholder="Enter OTP"
                     fullWidth
                     type='text'
                     onChange={handleOTPChange}

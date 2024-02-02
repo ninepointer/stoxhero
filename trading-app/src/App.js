@@ -79,7 +79,7 @@ import AdminLogin from "./layouts/authentication/sign-in/adminLogin";
 import Finowledge from "./layouts/authentication/sign-up/finowledge";
 import Register from "./layouts/authentication/sign-up/register";
 import RegisterInfo from "./layouts/authentication/sign-up/registerationinfo";
-import Lobby from "./layouts/authentication/sign-up/lobby";
+import Lobby from "./layouts/schoolLobby/lobby";
 import BlogCard from "./layouts/HomePage/pages/BlogCards";
 import BlogData from "./layouts/HomePage/pages/BlogData";
 import Calculator from "./layouts/HomePage/pages/Calculator";

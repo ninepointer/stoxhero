@@ -189,7 +189,7 @@ import Quiz from './layouts/quiz'
 import QuizDetails from './layouts/quiz/quizDetails'
 import Register from "./layouts/authentication/sign-up/register"
 import RegisterInfo from "./layouts/authentication/sign-up/registerationinfo"
-import Lobby from "./layouts/authentication/sign-up/lobby"
+import Lobby from "./layouts/schoolLobby/lobby"
 
 const routes = [
 

@@ -14,17 +14,21 @@ import MDSnackbar from "../../../components/MDSnackbar";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
+import { makeStyles } from '@mui/material/styles';
+import styled from 'styled-components';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
 import MDTypography from "../../../components/MDTypography";
 import MDButton from "../../../components/MDButton";
 import { apiUrl } from "../../../constants/constants";
+import axios from 'axios';
+import { userContext } from "../../../AuthContext";
 
 function Cover() {
   const [scrollPosition, setScrollPosition] = useState(0);
   const navigate = useNavigate();
-  const [showConfirmation, setShowConfirmation] = useState(true);
+  // const [showConfirmation, setShowConfirmation] = useState(true);
   const [resendTimer, setResendTimer] = useState(30); // Resend timer in seconds
   const [timerActive, setTimerActive] = useState(false); // Flag to check if timer is active
   const [mobile, setMobile] = useState('');
@@ -33,6 +37,7 @@ function Cover() {
   const [timerActiveSi, setTimerActiveSi] = useState(false);
   const [mobileOtp, setMobileOtp] = useState('');
   const [invalidDetail, setInvalidDetail] = useState();
+  const setDetails = useContext(userContext);
 
   useEffect(() => {
     ReactGA.pageview(window.location.pathname)
@@ -151,6 +156,8 @@ function Cover() {
         openSuccessSBSI("error", data.message);
 
       } else {
+        const userData = await axios.get(`${apiUrl}loginDetail`, {withCredentials: true});
+        setDetails.setUserDetail(userData.data);
         navigate("/lobby");
       }
     } catch (e) {
@@ -279,7 +286,7 @@ function Cover() {
                   <img src={logo} width={250} alt="Logo" />
                 </MDBox>
                 <MDBox mt={1} display='flex' justifyContent='center' alignItems='center' style={{ overflow: 'visible' }}>
-                  <MDTypography variant='body1' style={{ fontFamily: 'Nunito', color: 'white' }}>Online Finance Olympiad</MDTypography>
+                  <MDTypography variant='body1' style={{fontFamily: 'Work Sans , sans-serif', color:'#D5F47E'}}>Online Finance Olympiad</MDTypography>
                 </MDBox>
               </Grid>
 
@@ -288,7 +295,7 @@ function Cover() {
                   required
                   disabled={otpGen}
                   id="outlined-required"
-                  label="Enter Mobile No."
+                  placeholder="Enter Mobile No."
                   fullWidth
                   type='number'
                   onChange={handleMobileChange}
@@ -300,7 +307,7 @@ function Cover() {
                     required
                     // disabled={showEmailOTP}
                     id="outlined-required"
-                    label="Enter OTP"
+                    placeholder="Enter OTP"
                     fullWidth
                     type='text'
                     onChange={handleOTPChange}
@@ -309,7 +316,7 @@ function Cover() {
 
               {invalidDetail &&
                 <Grid item xs={12} md={12} lg={12} mb={.25} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                  <MDTypography fontSize={12} variant="button" color={invalidDetail && "error"}>
+                  <MDTypography fontSize={12} variant="button" color={invalidDetail && "error"} style={{fontFamily: 'Work Sans , sans-serif'}}>
                     {invalidDetail && invalidDetail}
                   </MDTypography>
                 </Grid>
@@ -328,7 +335,7 @@ function Cover() {
               {otpGen &&
                 <>
                   <Grid item xs={12} md={6} lg={6} display="flex" justifyContent="center">
-                    <MDButton style={{ padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }} disabled={timerActiveSi} variant="text" color="#000" fullWidth onClick={() => { resendOTP('mobile') }}>
+                    <MDButton style={{fontFamily: 'Work Sans , sans-serif', padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }} disabled={timerActiveSi} variant="text" color="#000" fullWidth onClick={() => { resendOTP('mobile') }}>
                       {timerActiveSi ? `Resend Mobile OTP in ${resendTimerSi} seconds` : 'Resend Mobile OTP'}
                     </MDButton>
                   </Grid>
