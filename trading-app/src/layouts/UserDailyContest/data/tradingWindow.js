@@ -26,6 +26,7 @@ import TradingHeader from '../Header/TradingHeader';
 import Order from '../../tradingCommonComponent/Order/Order';
 import PendingOrder from '../../tradingCommonComponent/Order/PendingOrder';
 import ExecutedOrders from '../../tradingCommonComponent/Order/ExecutedOrders';
+import PnlSummary from "./multipleDayContestComponent/pnlSummary";
 
 
 
@@ -34,6 +35,8 @@ function Header({ socket, data }) {
     const [watchList, setWatchList] = useState([]);
     const [updatePendingOrder, setUpdatePendingOrder] = useState();
     const [rank, setRank] = useState();
+    const [yesterdayPnl, setyesterdayPnl] = useState(0);
+
     const navigate = useNavigate();
     let contestId = data?.data;
     let endTime = data?.endTime;
@@ -96,13 +99,20 @@ function Header({ socket, data }) {
         />;
       }, [setWatchList, data, contestId, socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
     
+      const startDate = new Date(data?.allData?.contestStartTime);
+      const endDate = new Date(data?.allData?.contestEndTime);
+      // Calculate the difference in milliseconds
+      const timeDifference = endDate.getTime() - startDate.getTime();
+      // Convert milliseconds to days
+      const daysDifference = timeDifference / (1000 * 3600 * 24);
+
 
     return (
         <>
             <MDBox color="dark" mt={2} mb={1} borderRadius={10} minHeight='80vH'>
                 <MDBox bgColor="lightgrey" display='flex' p={1} borderRadius={10}>
                     <MDBox width='100%' minHeight='auto' display='flex' justifyContent='center'>
-                        <PnlAndMarginData contestId={contestId} />
+                        <PnlAndMarginData contestId={contestId} yesterdayPnl={yesterdayPnl} />
                     </MDBox>
                 </MDBox>
 
@@ -122,6 +132,13 @@ function Header({ socket, data }) {
                         {memoizedTradableInstrument}
                     </Grid>
                 </Grid>
+
+                {daysDifference > 1 &&
+                <Grid container  p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
+                    <Grid item xs={12} md={6} lg={12} >
+                        <PnlSummary contestId={contestId} setyesterdayPnl={setyesterdayPnl}/>
+                    </Grid>
+                </Grid>}
 
                 <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
                     <Grid item xs={12} md={6} lg={12} >

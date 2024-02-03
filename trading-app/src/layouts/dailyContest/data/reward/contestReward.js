@@ -24,7 +24,7 @@ const ContestRewards = ({ contest }) => {
         { Header: "Rank Start", accessor: "rankStart", align: "center" },
         { Header: "Rank End", accessor: "rankEnd", align: "center" },
         { Header: "Prize", accessor: "prize", align: "center" },
-        // { Header: "Prize Value", accessor: "prizeValue", align: "center" },
+        { Header: "Prize Value", accessor: "prizeValue", align: "center" },
     ];
 
     let rows = [];

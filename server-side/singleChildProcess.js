@@ -175,10 +175,11 @@ async function singleProcess() {
     });
 
     //emitting leaderboard for contest.
-    if (process.env.PROD === "true") {
+    //todo-vijay
+   if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });
-    }
+   }
 
     emitServerTime().then(() => { });
 
