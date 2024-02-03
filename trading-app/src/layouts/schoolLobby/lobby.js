@@ -64,8 +64,8 @@ function Cover() {
             position: 'fixed',
             top: 0,
             left: 0,
-            filter: backdropFilter,
-            backgroundColor: backgroundColor,
+            // filter: backdropFilter,
+            // backgroundColor: backgroundColor,
             overflow: 'visible'
           }}
         >

@@ -251,7 +251,7 @@ exports.getMyQuizzesForUser = async (req, res) => {
         const quizzes = await Quiz.aggregate([
             {
                 $match: {
-                    "registrations.userId": userId
+                    "registrations.userId": new ObjectId(userId)
                 }
             },
             {
