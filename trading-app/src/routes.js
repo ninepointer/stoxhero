@@ -185,9 +185,24 @@ import TenXSubscribers from "./layouts/tenXSubscribers"
 import MarketingFunnel from "./layouts/marketingDashboard"
 import { FaRupeeSign } from "react-icons/fa";
 import { FaAffiliatetheme } from "react-icons/fa";
+import Quiz from './layouts/quiz'
+import QuizDetails from './layouts/quiz/quizDetails'
+import Register from "./layouts/authentication/sign-up/register"
+import RegisterInfo from "./layouts/authentication/sign-up/registerationinfo"
+import Lobby from "./layouts/schoolLobby/lobby"
 
 const routes = [
 
+  {
+    key: "quiz",
+    route: "/quiz",
+    component: <Quiz />,
+  },
+  {
+    key: "quizdetails",
+    route: "/quizdetails",
+    component: <QuizDetails />,
+  },
   {
     type: "collapse",
     name: "StoxHero Dashboard",
@@ -236,14 +251,6 @@ const routes = [
     route: "/marketingdashboard",
     component: <MarketingFunnel />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Contests",
-  //   key: "contests",
-  //   icon: <WalletIcon/>,
-  //   route: "/contests",
-  //   component: <Contests />,
-  // },
   {
     type: "collapse",
     name: "TenX Dashboard",
@@ -452,6 +459,18 @@ const routes = [
   {
     route: "/about",
     component: <About />,
+  },
+  {
+    route: "/enter-mobile",
+    component: <Register />,
+  },
+  {
+    route: "/registrationinfo",
+    component: <RegisterInfo />,
+  },
+  {
+    route: "/lobby",
+    component: <Lobby />,
   },
   {
     route: "/careerdetails",

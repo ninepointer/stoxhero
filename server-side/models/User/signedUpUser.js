@@ -25,6 +25,14 @@ const signedUpUserSchema = new mongoose.Schema({
         type: String,
         // required : true
     },
+    full_name:{
+        type: String,
+        // required : true
+    },
+    city:{
+        type: String,
+        // required : true
+    },
     email:{
         type: String,
         // required: true
@@ -49,6 +57,11 @@ const signedUpUserSchema = new mongoose.Schema({
             ref: 'college-detail'    
         }
         // required: true
+    },
+    schoolDetails:{
+        parents_name: String,
+        grade: String,
+        school: String,
     },
     status:{
         type: String,

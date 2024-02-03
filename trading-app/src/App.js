@@ -77,6 +77,9 @@ import sound from "./assets/sound/tradeSound.mp3"
 import MessagePopUp from "./MessagePopup";
 import AdminLogin from "./layouts/authentication/sign-in/adminLogin";
 import Finowledge from "./layouts/authentication/sign-up/finowledge";
+import Register from "./layouts/authentication/sign-up/register";
+import RegisterInfo from "./layouts/authentication/sign-up/registerationinfo";
+import Lobby from "./layouts/schoolLobby/lobby";
 import BlogCard from "./layouts/HomePage/pages/BlogCards";
 import BlogData from "./layouts/HomePage/pages/BlogData";
 import Calculator from "./layouts/HomePage/pages/Calculator";
@@ -373,6 +376,9 @@ export default function App() {
           <Route path='/adminlogin' element={<AdminLogin />}/>
           <Route path='/finowledge' element={<Finowledge />}/>
           <Route path='/about' element={<About/>}/>
+          <Route path='/enter-mobile' element={<Register/>}/>
+          <Route path='/registrationinfo' element={<RegisterInfo/>}/>
+          <Route path='/lobby' element={<Lobby/>}/>
           
           <Route path='/contact' element={<Contact/>}/>
           <Route path='/workshops' element={<Workshops location={myLocation.current}/>}/>

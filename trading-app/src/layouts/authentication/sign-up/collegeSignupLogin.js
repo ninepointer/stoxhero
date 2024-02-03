@@ -5,16 +5,7 @@ import { ThemeProvider } from 'styled-components';
 import ReactGA from "react-ga"
 import playstore from '../../../assets/images/playstore.png'
 import Navbar from '../../HomePage/components/Navbars/Navbar';
-// import register from '../../../assets/images/register.png'
-// import virtualcurrency from '../../../assets/images/virtualcurrency.png'
-// import protrader from '../../../assets/images/protrader.png'
-// import zerorisk from '../../../assets/images/zerorisk.png'
-// import earningsimage from '../../../assets/images/earnings.png'
-// import lives from '../../../assets/images/lives.png'
-// import analytics from '../../../assets/images/analytics.png'
-// import internship from '../../../assets/images/internship.png'
 import collegeStudent from '../../../assets/images/collegeStudent.png'
-// import MDAvatar from "../../../components/MDAvatar";
 // react-router-dom components
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -30,18 +21,6 @@ import TextField from '@mui/material/TextField';
 
 // Authentication layout components
 import Carousel from './carousel'
-// import Earnings from './earnings'
-// import SignUps from './signupCounter'
-// import Trades from './tradesCounter'
-// import TradeVolume from './tradeVolumeCounter'
-// import Withdrawals from './withdrawalsCounter'
-// import FNOTurnover from './optionTurnoverCounter'
-// import CollegeContest from './collegeContestCounter'
-// import TotalContest from './totalContestCounter'
-// import Rewards from './rewardsCounter'
-// import Subscription from './subscriptionsBought'
-// import Interns from './internCounter'
-// Images
 import axios from 'axios';
 import { adminRole, userRole, Affiliate } from '../../../variables';
 import { userContext } from '../../../AuthContext';
@@ -67,9 +46,6 @@ function Cover(props) {
   const [timerActiveSi, setTimerActiveSi] = useState(false);
   const [mobileOtp, setMobileOtp] = useState('');
   let [invalidDetail, setInvalidDetail] = useState();
-  const [data, setData] = useState();
-  const [earnings, setEarnings] = useState([]);
-  const [defaultInvite, setDefaultInvite] = useState('');
   let referrerCodeString = location.search?.split('=')[1] ?? props.location?.search?.split('=')[1] ?? ''
   const [messageObj, setMessageObj] = useState({
     color: '',
@@ -108,23 +84,6 @@ function Cover(props) {
     }
   }
   
-
-  // const getMetrics = async () => {
-  //   const res = await axios.get(`${apiUrl}newappmetrics`);
-  //   // console.log("New App Metrics:",res.data.data)
-  //   setData(res.data.data);
-  // }
-  // const getEarnings = async () => {
-  //   const res = await axios.get(`${apiUrl}contestscoreboard/earnings`);
-  //   console.log('Earnings Leaderboard', res?.data?.data);
-  //   setEarnings(res?.data?.data);
-  // }
-
-  // const getDefaultInvite = async () => {
-  //   const res = await axios.get(`${apiUrl}campaign/defaultinvite`);
-  //   console.log('defaultInvite', res.data?.data);
-  //   setDefaultInvite(res.data.data);
-  // }
 
   const handleSUClick = () => {
     // Set the state to true when the link is clicked
