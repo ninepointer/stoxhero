@@ -8,14 +8,7 @@ import { CircularProgress } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
-import UpcomingContest from '../data/activeDailyContests';
-import CompletedContest from '../data/completedDailyContests';
-import DraftContest from '../data/draftDailyContests'
-import OngoingDailyContest from '../data/ongoingDailyContest';
-import FeaturedUpcomingContests from '../data/featuredActiveDailyContests'
-import FeaturedOngoingContests from '../data/featuredOngoingDailyContests'
-import CollegeOngoingContests from '../data/collegeOngoingDailyContests'
-import CollegeUpcomingContests from '../data/collegeUpcomingDailyContests'
+import Active from '../data/active';
 
 
 export default function LabTabs() {
@@ -69,7 +62,7 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-          <FeaturedOngoingContests/>
+          <Active/>
           </MDBox>
           }
           </TabPanel>
@@ -81,7 +74,7 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-          <FeaturedUpcomingContests/>
+          <Active/>
           </MDBox>
           }
           </TabPanel>
@@ -93,7 +86,7 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-          <OngoingDailyContest/>
+          <Active/>
           </MDBox>
    
           }
@@ -106,51 +99,11 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-          <CollegeOngoingContests/>
+          <Active/>
           </MDBox>
    
           }
           </TabPanel>
-          <TabPanel value="5">
-          {isLoading ? 
-          
-          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-            <CircularProgress color="info" />
-          </MDBox>
-          : 
-          <MDBox style={{minWidth:'100%'}}>
-          <CollegeUpcomingContests/>
-          </MDBox>
-   
-          }
-          </TabPanel>
-          <TabPanel value="6">
-          {isLoading ? 
-          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-            <CircularProgress color="info" />
-          </MDBox>
-          : 
-          <UpcomingContest/>
-          }
-        </TabPanel>
-        <TabPanel value="7">
-          {isLoading ? 
-          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-            <CircularProgress color="info" />
-          </MDBox>
-          : 
-          <CompletedContest/>
-          }
-        </TabPanel>
-        <TabPanel value="8">
-          {isLoading ? 
-          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-            <CircularProgress color="info" />
-          </MDBox>
-          : 
-          <DraftContest/>
-          }
-        </TabPanel>
       </TabContext>
     </MDBox>
   );

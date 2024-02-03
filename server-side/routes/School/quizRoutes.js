@@ -25,6 +25,11 @@ router.post(
 );
 
 router.get(
+    '/active', Authenticate, restrictTo('Admin', 'SuperAdmin'),
+    quizController.getActiveQuizForAdmin
+);
+
+router.get(
     '/user', Authenticate,
     quizController.getAllQuizzesForUser
 );

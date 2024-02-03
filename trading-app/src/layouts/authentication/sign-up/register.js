@@ -86,7 +86,7 @@ function Cover() {
       if (mobile.length < 10) {
         return setInvalidDetail(`Please enter a valid mobile number`);
       }
-      const res = await fetch(`${apiUrl}phonelogin`, {
+      const res = await fetch(`${apiUrl}schoollogin`, {
         method: "POST",
         credentials: "include",
         headers: {

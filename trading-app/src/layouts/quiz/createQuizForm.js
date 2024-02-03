@@ -433,7 +433,7 @@ function Index() {
                         </CardContent>
                       </Grid>
                       <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
-                        <img src={quizData?.image} style={{maxWidth: '100%',height: 'auto', borderBottomLeftRadius:10, borderBottomRightRadius:10}}/>
+                        <img src={quiz?.image} style={{maxWidth: '100%',height: 'auto', borderBottomLeftRadius:10, borderBottomRightRadius:10}}/>
                       </Grid>
                       </CardActionArea>
                     </Card>

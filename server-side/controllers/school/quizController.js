@@ -185,6 +185,17 @@ exports.getQuizForAdmin = async (req, res) => {
     }
 };
 
+exports.getActiveQuizForAdmin = async (req, res) => {
+    try {
+        const quizzes = await Quiz.find({status: "Active"});
+        res.status(201).json({ status: 'success', data: quizzes });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+//------------user------------------
+
 exports.getQuizForUser = async (req, res) => {
     try {
         const quizId = req.params.id;
