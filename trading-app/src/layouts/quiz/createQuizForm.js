@@ -21,6 +21,17 @@ import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import {apiUrl} from  '../../constants/constants';
 import Rewards from "./data/reward/contestReward";
 import Question from "./data/questions/questions";
+import { Autocomplete, Box } from "@mui/material";
+import { styled } from '@mui/material';
+
+
+
+const CustomAutocomplete = styled(Autocomplete)`
+  .MuiAutocomplete-clearIndicator {
+    color: white;
+  }
+`;
+
 
 function Index() {
   const location = useLocation();
@@ -44,7 +55,8 @@ function Index() {
     durationInSeconds: '' || quiz?.durationInSeconds,
     rewardType: '' || quiz?.rewardType,
     status: '' || quiz?.status,
-    maxParticipant: "" || quiz?.maxParticipant
+    maxParticipant: "" || quiz?.maxParticipant,
+    openForAll: "" || quiz?.openForAll
   });
 
   useEffect(() => {
@@ -52,6 +64,20 @@ function Index() {
       quiz && setUpdatedDocument(quiz)
       setIsLoading(false);
     }, 500)
+  }, [])
+
+  const [cityData, setCityData] = useState([]);
+  const [gradeValue, setGradeValue] = useState('6th');
+  const [value, setValue] = useState({
+    _id: '123456789',
+    cityName: "Ajmer"
+  })
+
+  useEffect(() => {
+    setCityData([{
+      _id: '123456789',
+      cityName: "Ajmer"
+    }])
   }, [])
 
   const handleImage = (event) => {
@@ -88,6 +114,15 @@ function Index() {
     for(let elem in formState){
       formData.append(`${elem}`, formState[elem]);
     }
+
+    if(gradeValue){
+      formData.append(`grade`, gradeValue);
+    }
+
+    if(value?._id){
+      formData.append(`city`, value?._id);
+    }
+
     // const {grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status } = formState;
     const res = await fetch(`${apiUrl}quiz`, {
       method: "POST",
@@ -130,6 +165,14 @@ function Index() {
 
     for(let elem in formState){
       formData.append(`${elem}`, formState[elem]);
+    }
+
+    if(gradeValue){
+      formData.append(`grade`, gradeValue);
+    }
+
+    if(value?._id){
+      formData.append(`city`, value?._id);
     }
 
     const res = await fetch(`${apiUrl}quiz/${quiz?._id}`, {
@@ -205,6 +248,14 @@ function Index() {
         [name]: value,
       }));
     }
+  };
+
+  const handleCityChange = (event, newValue) => {
+    setValue(newValue);
+  };
+
+  const handleGradeChange = (event, newValue) => {
+    setGradeValue(newValue);
   };
 
   return (
@@ -297,14 +348,38 @@ function Index() {
                 </Grid>
 
                 <Grid item xs={12} md={6} xl={3}>
-                  <TextField
-                    disabled={((isSubmitted || quiz) && (!editing || saving))}
-                    id="outlined-required"
-                    label='Grade *'
-                    name='grade'
-                    fullWidth
-                    defaultValue={editing ? formState?.grade : quiz?.grade}
-                    onChange={handleChange}
+                  <CustomAutocomplete
+                    id="country-select-demo"
+                    sx={{
+                      width: "100%",
+                      '& .MuiAutocomplete-clearIndicator': {
+                        color: 'dark',
+                      },
+                    }}
+                    options={["6th", '7th', '8th', '9th', '10th', '11th', "12th"]}
+                    value={gradeValue}
+                    onChange={handleGradeChange}
+                    autoHighlight
+                    getOptionLabel={(option) => option ? option : 'Grade'}
+                    renderOption={(props, option) => (
+                      <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                        {option}
+                      </Box>
+                    )}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        placeholder="Grade/Class"
+                        inputProps={{
+                          ...params.inputProps,
+                          autoComplete: 'new-password', // disable autocomplete and autofill
+                          style: { color: 'dark', height: "10px" }, // set text color to dark
+                        }}
+                        InputLabelProps={{
+                          style: { color: 'dark' },
+                        }}
+                      />
+                    )}
                   />
                 </Grid>
 
@@ -319,6 +394,42 @@ function Index() {
                     onChange={handleChange}
                   />
                 </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                <CustomAutocomplete
+                  id="country-select-demo"
+                  sx={{
+                    width: "100%",
+                    '& .MuiAutocomplete-clearIndicator': {
+                      color: 'dark',
+                    },
+                  }}
+                  options={cityData}
+                  value={value}
+                  onChange={handleCityChange}
+                  autoHighlight
+                  getOptionLabel={(option) => option ? option.cityName : 'City'}
+                  renderOption={(props, option) => (
+                    <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                      {option.cityName}
+                    </Box>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="Choose a City"
+                      inputProps={{
+                        ...params.inputProps,
+                        autoComplete: 'new-password', // disable autocomplete and autofill
+                        style: { color: 'dark', height: "10px" }, // set text color to dark
+                      }}
+                      InputLabelProps={{
+                        style: { color: 'dark' },
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
 
                 <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
@@ -369,7 +480,23 @@ function Index() {
                     </Select>
                   </FormControl>
                 </Grid>
-               
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormGroup>
+                    <FormControlLabel
+                      checked={formState?.openForAll}
+                      disabled={isSubmitted}
+                      control={<Checkbox />}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          openForAll: e.target.checked
+                        }))
+                      }}
+                      label="Open For All" />
+                  </FormGroup>
+                </Grid>
+
                 <Grid item xs={12} md={6} xl={!quiz ? 6 : 4}>
                   <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(quizData?.image?.url && !quizImage) ? "warning" : ((quizData?.image?.url && quizImage) || quizImage) ? "error" : "success"} component="label">
                     Upload Image(1080X720)

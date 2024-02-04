@@ -41,6 +41,7 @@ const quizSchema = new mongoose.Schema({
     image: String,
     maxParticipant: Number,
     grade: String,
+    openForAll: Boolean,
     status:{
         type:String,
         enum:['Active', 'Inactive', 'Draft']

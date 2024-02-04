@@ -139,7 +139,7 @@ function Cover() {
         mobile: mobile,
         parents_name: parents_name.trim(),
         grade: gradeValue, school,
-        city: value?.cityName,
+        city: value?._id,
         dob: dob
       })
     });
@@ -293,7 +293,6 @@ function Cover() {
   }
 
   const handleCityChange = (event, newValue) => {
-    console.log("Trader Selection:",newValue)
     setValue(newValue);
   };
 
