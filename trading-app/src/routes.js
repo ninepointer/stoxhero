@@ -191,6 +191,7 @@ import Register from "./layouts/authentication/sign-up/register"
 import RegisterInfo from "./layouts/authentication/sign-up/registerationinfo"
 import Lobby from "./layouts/schoolLobby/lobby"
 
+
 const routes = [
 
   {
@@ -198,6 +199,7 @@ const routes = [
     route: "/quiz",
     component: <Quiz />,
   },
+
   {
     key: "quizdetails",
     route: "/quizdetails",

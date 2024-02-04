@@ -14,10 +14,12 @@ import MDTypography from "../../components/MDTypography";
 import MDButton from "../../components/MDButton";
 import axios from 'axios';
 import { apiUrl } from "../../constants/constants";
+import { useNavigate } from "react-router-dom";
 
 function Cover({update}) {
 
     const [data, setData] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(()=>{
         fetchData();
@@ -115,7 +117,9 @@ function Cover({update}) {
                                         <Grid mb={-2} container display='flex' justifyContent='space-between' xs={12} md={12} lg={12}>
                                             <Grid item display='flex' justifyContent='space-between' xs={12} md={12} lg={12}>
                                                 <MDButton size="small" style={{ fontFamily: 'Work Sans , sans-serif' }} onClick={handleCopyClick} >Invite Friends</MDButton>
-                                                <MDButton size="small" style={{ fontFamily: 'Work Sans , sans-serif' }} >Start</MDButton>
+                                                <MDButton size="small" style={{ fontFamily: 'Work Sans , sans-serif' }} 
+                                                // onClick={()=>{navigate('/myquiz')}}
+                                                 >Start</MDButton>
                                             </Grid>
                                         </Grid>
                                     </CardContent>

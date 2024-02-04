@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react"
-import { useMediaQuery } from '@mui/material'
+import { FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography, useMediaQuery } from '@mui/material'
 import theme from '../../HomePage/utils/theme/index';
 import { ThemeProvider } from 'styled-components';
 // import ReactGA from "react-ga"
@@ -21,25 +21,34 @@ import { userContext } from '../../../AuthContext';
 
 // Images
 import MDButton from "../../../components/MDButton";
+import { Autocomplete, Box } from "@mui/material";
+import { styled } from '@mui/material';
 
+
+
+const CustomAutocomplete = styled(Autocomplete)`
+  .MuiAutocomplete-clearIndicator {
+    color: white;
+  }
+`;
 function Cover() {
   const [scrollPosition, setScrollPosition] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
-  const [showEmailOTP, setShowEmailOTP] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(true);
   const [resendTimer, setResendTimer] = useState(30); // Resend timer in seconds
   const [timerActive, setTimerActive] = useState(false); // Flag to check if timer is active
   const [submitClicked, setSubmitClicked] = useState(false);
   const setDetails = useContext(userContext);
+  const [cityData, setCityData] = useState([]);
+  const [gradeValue, setGradeValue] = useState('6th');
+  const [value, setValue] = useState({
+    _id: '123456789',
+    cityName: "Ajmer"
+  })
 
 
-  // const [resendTimer, setResendTimer] = useState(30); // Resend timer in seconds
-  // const [timerActive, setTimerActive] = useState(false); // Flag to check if timer is active
-  // const [mobile, setMobile] = useState('');
   const [otpGen, setOtpGen] = useState(false);
-  const [resendTimerSi, setResendTimerSi] = useState(30); // Resend timer in seconds
-  const [timerActiveSi, setTimerActiveSi] = useState(false);
   const [mobileOtp, setMobileOtp] = useState('');
   const [invalidDetail, setInvalidDetail] = useState();
 
@@ -56,13 +65,24 @@ function Cover() {
     parents_name: "",
     grade: "",
     school: "",
-    city: ""
+    city: {
+      id: "",
+      city: ""
+    },
   });
 
 
   useEffect(() => {
     ReactGA.pageview(window.location.pathname)
-  })
+  },[])
+
+  useEffect(() => {
+    setCityData([{
+      _id: '123456789',
+      cityName: "Ajmer"
+    }])
+  }, [])
+
 
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"))
 
@@ -91,7 +111,7 @@ function Cover() {
       mobile,
       parents_name,
       grade, school,
-      city
+      city, dob
     } = formstate;
     console.log(formstate)
     if (mobile.length !== 10) {
@@ -118,8 +138,9 @@ function Cover() {
         full_name: full_name.trim(),
         mobile: mobile,
         parents_name: parents_name.trim(),
-        grade, school,
-        city
+        grade: gradeValue, school,
+        city: value?.cityName,
+        dob: dob
       })
     });
 
@@ -127,27 +148,25 @@ function Cover() {
     const data = await res.json();
     // console.log(data, res.status);
     if (res.status === 201 || res.status === 200) {
-      setTimerActive(true);
+      // setTimerActive(true);
       setResendTimer(30);
       setOtpGen(true)
       return openSuccessSB("OTP Sent", data.message);
     } else {
       // console.log("openInfoBS Called")
-      return openSuccessSB(data.message, "You have already signed Up")
+      return openSuccessSB('Error', data.message)
     }
   }
 
   const [buttonClicked, setButtonClicked] = useState(false);
   async function otpConfirmation() {
-    // console.log(formstate.email_otp)
     setButtonClicked(true);
-    // console.log(formstate.email_otp)
     const {
       full_name,
       mobile,
       parents_name,
       grade, school,
-      city
+      city, dob
     } = formstate;
 
     const res = await fetch(`${apiUrl}verifyotp`, {
@@ -163,8 +182,9 @@ function Cover() {
         full_name,
         mobile,
         parents_name,
-        grade, school,
-        city
+        grade: gradeValue, school,
+        city: value?.cityName,
+        dob: dob
       })
     });
     const data = await res.json();
@@ -272,6 +292,15 @@ function Cover() {
     setMobileOtp(e.target.value);
   }
 
+  const handleCityChange = (event, newValue) => {
+    console.log("Trader Selection:",newValue)
+    setValue(newValue);
+  };
+
+  const handleGradeChange = (event, newValue) => {
+    setGradeValue(newValue);
+  };
+
   return (
     <>
       <MDBox mt={-1} display='flex' justifyContent='center' flexDirection='column' alignContent='center' alignItems='center' style={{ minHeight: 'auto', width: 'auto', minWidth: '100vW', overflow: 'visible' }}>
@@ -306,8 +335,6 @@ function Cover() {
               overflow: 'visible'
             }}
           >
-
-
             <Grid container xs={9} md={4} lg={4} display='flex' justifyContent='center' alignItems='center' style={{ backgroundColor: 'transparent', borderRadius: 10, position: 'relative', textAlign: 'center', width: '100%', height: '100vh', overflow: 'visible' }}>
               <Grid mt={3} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
                 <MDBox display='flex' justifyContent='center' alignItems='center' style={{ overflow: 'visible' }}>
@@ -342,18 +369,56 @@ function Cover() {
                 onChange={handleChange}
                 />
               </Grid>
+
               <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
                 <TextField
                   required
                   // disabled={showEmailOTP}
                   id="outlined-required"
-                  placeholder="Class/Grade"
+                  placeholder="Date of Birth"
                   fullWidth
-                  type='text'
-                  name='grade'
-                onChange={handleChange}
+                  type='date'
+                  name='dob'
+                  onChange={handleChange}
                 />
               </Grid>
+
+              <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
+                <CustomAutocomplete
+                  id="country-select-demo"
+                  sx={{
+                    width: "100%",
+                    '& .MuiAutocomplete-clearIndicator': {
+                      color: 'dark',
+                    },
+                  }}
+                  options={["6th", '7th', '8th', '9th', '10th', '11th', "12th"]}
+                  value={gradeValue}
+                  onChange={handleGradeChange}
+                  autoHighlight
+                  getOptionLabel={(option) => option ? option : 'Grade'}
+                  renderOption={(props, option) => (
+                    <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                      {option}
+                    </Box>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="Grade/Class"
+                      inputProps={{
+                        ...params.inputProps,
+                        autoComplete: 'new-password', // disable autocomplete and autofill
+                        style: { color: 'dark', height: "10px" }, // set text color to dark
+                      }}
+                      InputLabelProps={{
+                        style: { color: 'dark' },
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
+
               <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
                 <TextField
                   required
@@ -366,23 +431,43 @@ function Cover() {
                 onChange={handleChange}
                 />
               </Grid>
+
+
               <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
-                <TextField
-                  required
-                  // disabled={showEmailOTP}
-                  id="outlined-required"
-                  placeholder="City"
-                  fullWidth
-                  type='text'
-                  name="city"
-                onChange={handleChange}
+                <CustomAutocomplete
+                  id="country-select-demo"
+                  sx={{
+                    width: "100%",
+                    '& .MuiAutocomplete-clearIndicator': {
+                      color: 'dark',
+                    },
+                  }}
+                  options={cityData}
+                  value={value}
+                  onChange={handleCityChange}
+                  autoHighlight
+                  getOptionLabel={(option) => option ? option.cityName : 'City'}
+                  renderOption={(props, option) => (
+                    <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                      {option.cityName}
+                    </Box>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="Choose a City"
+                      inputProps={{
+                        ...params.inputProps,
+                        autoComplete: 'new-password', // disable autocomplete and autofill
+                        style: { color: 'dark', height: "10px" }, // set text color to dark
+                      }}
+                      InputLabelProps={{
+                        style: { color: 'dark' },
+                      }}
+                    />
+                  )}
                 />
               </Grid>
-              {/* <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
-                <MDBox mb={5} display='flex' justifyContent='center'>
-                  <MDButton fullWidth variant='contained' size='small' color='student' style={{ marginTop: 15, color: '#000' }} onClick={() => { navigate('/lobby') }}>Proceed</MDButton>
-                </MDBox>
-              </Grid> */}
 
 
               {otpGen &&
@@ -419,15 +504,15 @@ function Cover() {
               {otpGen &&
                 <>
                   <Grid item xs={12} md={6} lg={6} display="flex" justifyContent="center">
-                    <MDButton style={{ padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }} disabled={timerActiveSi} variant="text" color="#000" fullWidth onClick={() => { resendOTP('mobile') }}>
-                      {timerActiveSi ? `Resend Mobile OTP in ${resendTimerSi} seconds` : 'Resend Mobile OTP'}
+                    <MDButton style={{ padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }} disabled={timerActive} variant="text" color="#ffffff" fullWidth onClick={() => { resendOTP('mobile') }}>
+                      {timerActive ? `Resend Mobile OTP in ${resendTimer} seconds` : 'Resend Mobile OTP'}
                     </MDButton>
                   </Grid>
 
                   <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
                     <MDBox mb={5} display='flex' justifyContent='center'>
                       <MDButton fullWidth variant='contained' size='small' color='student' style={{ marginTop: 15, color: '#000' }}
-                        onClick={otpConfirmation}>Confirm OTP</MDButton>
+                        onClick={otpConfirmation} disabled={buttonClicked}>Confirm OTP</MDButton>
                     </MDBox>
                   </Grid>
                 </>}

@@ -63,22 +63,14 @@ exports.editQuiz = async (req, res) => {
 exports.addQuestionToQuiz = async (req, res) => {
     try {
         const quizId = req.params.quizId;
-        const { title, type, score, options } = req.body;
+        const { title, type, score } = req.body;
 
         let questionImageUrl = null;
-        const optionImages = [];
+        // const optionImages = [];
 
         // Handle question image upload
         if (req.files['questionImage']) {
             questionImageUrl = await getAwsS3Url(req.files['questionImage'][0]);
-        }
-
-        // Handle option images upload
-        if (req.files['optionImages']) {
-            for (let file of req.files['optionImages']) {
-                const url = await getAwsS3Url(file);
-                optionImages.push(url);
-            }
         }
 
         const newQuestion = {
@@ -86,18 +78,18 @@ exports.addQuestionToQuiz = async (req, res) => {
             type,
             questionImage: questionImageUrl,
             score,
-            options: await Promise.all(options.map(async opt => {
-                let optionImageUrl = null;
-                if (opt.image) {
-                    optionImageUrl = await getAwsS3Url(opt.image); // Assuming opt.image is the file object
-                }
-                return {
-                    optionKey: opt.key, 
-                    optionText: opt.text, 
-                    optionImage: optionImageUrl, 
-                    isCorrect: opt.isCorrect
-                };
-            }))
+            // options: await Promise.all(options.map(async opt => {
+            //     let optionImageUrl = null;
+            //     if (opt.image) {
+            //         optionImageUrl = await getAwsS3Url(opt.image); // Assuming opt.image is the file object
+            //     }
+            //     return {
+            //         optionKey: opt.key, 
+            //         optionText: opt.text, 
+            //         optionImage: optionImageUrl, 
+            //         isCorrect: opt.isCorrect
+            //     };
+            // }))
         };
 
         const quiz = await Quiz.findById(quizId);
@@ -111,6 +103,20 @@ exports.addQuestionToQuiz = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
+
+exports.getQuizQuestion = async (req, res)=>{
+    try {
+        const quizId = req.params.quizId;
+        const quiz = await Quiz.findById(new ObjectId(quizId)).select('questions _id');
+        if (!quiz) {
+            return res.status(404).json({ message: 'Quiz not found' });
+        }
+
+        res.status(201).json({status: "success", data: quiz });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
 
 exports.editQuestionInQuiz = async (req, res) => {
     try {
@@ -139,25 +145,89 @@ exports.editQuestionInQuiz = async (req, res) => {
             question.questionImage = await getAwsS3Url(req.files['questionImage'][0]);
         }
 
-        // Handle options, if provided
-        if (updates.options) {
-            updates.options.forEach(async (updatedOption, index) => {
-                let option = question.options[index];
-
-                // Update text fields of the option
-                if (updatedOption.key) option.optionKey = updatedOption.key;
-                if (updatedOption.text) option.optionText = updatedOption.text;
-                if (typeof updatedOption.isCorrect === 'boolean') option.isCorrect = updatedOption.isCorrect;
-
-                // Handle option image upload if a new file is provided
-                if (req.files['optionImages'] && req.files['optionImages'][index]) {
-                    option.optionImage = await getAwsS3Url(req.files['optionImages'][index]);
-                }
-            });
-        }
-
         await quiz.save();
         res.json(quiz);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
+exports.editOptionInQuiz = async (req, res) => {
+    try {
+        const { quizId, questionId, optionId } = req.params;
+        const {optionKey, optionText, isCorrect} = req.body; // This will contain only the fields to be updated
+
+        const quiz = await Quiz.findById(quizId);
+        if (!quiz) {
+            return res.status(404).json({ message: 'Quiz not found' });
+        }
+
+        let filterQue = quiz.questions.filter((elem)=>{
+            return elem?._id?.toString() === questionId?.toString();
+        })
+
+        let filterOpt = filterQue[0]?.options?.filter((elem)=>{
+            return elem?._id?.toString() === optionId?.toString();
+        })
+
+        filterOpt[0].optionKey = optionKey;
+        filterOpt[0].optionText = optionText;
+        filterOpt[0].isCorrect = isCorrect;
+
+        if (req.files['optionImage']) {
+            filterOpt[0].optionImage = await getAwsS3Url(req.files['optionImage'][0]);
+        }
+
+        const newData = await quiz.save({new: true});
+
+        let newfilterQue = newData.questions.filter((elem)=>{
+            return elem?._id?.toString() === questionId?.toString();
+        })
+
+
+        let newfilterOpt = newfilterQue[0]?.options?.filter((elem)=>{
+            return elem?._id?.toString() === optionId?.toString();
+        })
+        
+        res.status(201).json({status: "success", data: newfilterQue[0]?.options });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
+exports.addOptionToQuiz = async (req, res) => {
+    try {
+        const {quizId, questionId} = req.params;
+        const { optionKey, optionText, isCorrect } = req.body;
+
+        let imageUrl = null;
+        // const optionImages = [];
+
+        // Handle question image upload
+        if (req.files['optionImage']) {
+            imageUrl = await getAwsS3Url(req.files['optionImage'][0]);
+        }
+
+        const newOption = {
+            optionKey,
+            optionText, isCorrect,
+            optionImage: imageUrl,
+        };
+
+        const quiz = await Quiz.findById(quizId);
+        let filter = quiz.questions.filter((elem)=>{
+            return elem?._id?.toString() === questionId?.toString();
+        })
+        if (!quiz) {
+            return res.status(404).json({ message: 'Quiz not found' });
+        }
+        filter[0].options.push(newOption); 
+        const newData = await quiz.save({new: true});
+
+        const optionData = newData?.questions?.filter((elem)=>{
+            return elem?._id?.toString() === questionId?.toString();
+        })
+        res.status(201).json({status: "success", data: optionData[0] });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }

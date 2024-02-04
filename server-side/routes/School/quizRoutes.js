@@ -39,7 +39,10 @@ router.get(
     quizController.getMyQuizzesForUser
 );
 
-
+router.get(
+    '/:id', 
+    quizController.getQuizForUser
+);
 
 router.patch(
     '/:id', Authenticate, restrictTo('Admin', 'SuperAdmin'),
@@ -47,11 +50,18 @@ router.patch(
     quizController.editQuiz
 );
 
-router.post(
+router.get(
     '/:quizId/question', Authenticate, restrictTo('Admin', 'SuperAdmin'),
-    upload.fields([{ name: 'questionImage', maxCount: 1 }, { name: 'optionImages', maxCount: 10 }]), // Adjust maxCount as needed
+    upload.fields([{ name: 'questionImage', maxCount: 1 }]), // Adjust maxCount as needed
+    quizController.getQuizQuestion
+);
+
+router.patch(
+    '/:quizId/question', Authenticate, restrictTo('Admin', 'SuperAdmin'),
+    upload.fields([{ name: 'questionImage', maxCount: 1 }]), // Adjust maxCount as needed
     quizController.addQuestionToQuiz
 );
+
 router.patch(
     '/:quizId/question/:questionId',Authenticate, restrictTo('Admin', 'SuperAdmin'),
     upload.fields([{ name: 'questionImage', maxCount: 1 }, { name: 'optionImages', maxCount: 10 }]),
@@ -59,8 +69,20 @@ router.patch(
 );
 
 router.patch(
+    '/:quizId/option/:questionId',Authenticate, restrictTo('Admin', 'SuperAdmin'),
+    upload.fields([ { name: 'optionImage', maxCount: 10 }]),
+    quizController.addOptionToQuiz
+);
+
+router.patch(
     '/user/registration/:id', Authenticate,
     quizController.registration
+);
+
+router.patch(
+    '/:quizId/option/:questionId/:optionId',Authenticate, restrictTo('Admin', 'SuperAdmin'),
+    upload.fields([ { name: 'optionImage', maxCount: 10 }]),
+    quizController.editOptionInQuiz
 );
 
 

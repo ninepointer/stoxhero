@@ -100,13 +100,7 @@ function Cover() {
 
         <MyOlympiad update={update} />
 
-        <Grid mt={2} container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{zIndex:10, overflow: 'visible' }}>
-        <Grid p={.5} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'#D5F47E', borderRadius:10}}>
-          {/* <MDBox p={0.5} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}> */}
-            <MDTypography variant='body2' style={{fontFamily: 'Work Sans , sans-serif'}}>Upcoming Olympiad</MDTypography>
-          {/* </MDBox> */}
-        </Grid>
-        </Grid>
+
 
         <UpComing setUpdate={setUpdate} update={update}/>
       </MDBox>

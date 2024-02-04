@@ -157,7 +157,7 @@ router.get("/send", async (req, res) => {
 })
 
 router.post("/schoolsignup", async (req, res) => {
-    const { mobile, full_name, city, parents_name, grade, school } = req.body;
+    const { mobile, full_name, city, parents_name, grade, school,dob } = req.body;
 
     const schoolDetails = {
         parents_name, grade, school
@@ -190,10 +190,11 @@ router.post("/schoolsignup", async (req, res) => {
             signedupuser.mobile_otp = mobile_otp.trim();
             signedupuser.schoolDetails = schoolDetails,
             signedupuser.city = city,
+            signedupuser.dob = dob,
             await signedupuser.save({ validateBeforeSave: false })
         } else {
             await SignedUpUser.create({
-                full_name: full_name.trim(), city,
+                full_name: full_name.trim(), city, dob,
                 first_name: full_name.split(" ")[0] || "N/A",
                 last_name: full_name.split(" ")[1] || "N/A",
                 mobile: mobile.trim(), mobile_otp: mobile_otp, schoolDetails
@@ -317,7 +318,8 @@ router.patch("/verifyotp", async (req, res) => {
         referrerCode,
         fcmTokenData,
         collegeDetails,
-        parents_name, school, grade
+        parents_name, school, grade,
+        dob
     } = req.body
 
     const schoolDetails = {
@@ -443,6 +445,10 @@ router.patch("/verifyotp", async (req, res) => {
             affiliateProgramme: match ? affiliateObj?._id : null
         }
 
+        if(dob){
+            obj.dob = dob;
+        }
+
         if(fcmTokenData){
             fcmTokenData.lastUsedAt = new Date();
             obj.fcmTokens = [fcmTokenData];
@@ -490,7 +496,7 @@ router.patch("/verifyotp", async (req, res) => {
             }
         ],
           })
-        .select('pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
+        .select('schoolDetails full_name city dob pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
         const token = await newuser.generateAuthToken();
 
         // console.log("Token:",token)

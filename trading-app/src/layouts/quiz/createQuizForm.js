@@ -19,7 +19,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import {apiUrl} from  '../../constants/constants';
-
+import Rewards from "./data/reward/contestReward";
+import Question from "./data/questions/questions";
 
 function Index() {
   const location = useLocation();
@@ -91,10 +92,6 @@ function Index() {
     const res = await fetch(`${apiUrl}quiz`, {
       method: "POST",
       credentials: "include",
-      // headers: {
-      //   "content-type": "application/json",
-      //   "Access-Control-Allow-Credentials": true
-      // },
       body: formData
     });
 
@@ -114,25 +111,31 @@ function Index() {
 
   async function onEdit(e, formState) {
     e.preventDefault()
-    // console.log("Edited FormState: ", new Date(formState.contestStartTime).toISOString(), new Date(formState.contestEndTime).toISOString())
     setSaving(true)
     
+    if (!quizImage) {
+      openErrorSB('error', 'Please select a file to upload');
+      return;
+    }
+
     if (!formState.grade || !formState.title || !formState.startDateTime || !formState.registrationOpenDateTime || !formState.durationInSeconds || !formState.rewardType || !formState.status) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const {grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status } = formState;
+
+    const formData = new FormData();
+    if (quizImage) {
+      formData.append("quizImage", quizImage[0]);
+    }
+
+    for(let elem in formState){
+      formData.append(`${elem}`, formState[elem]);
+    }
 
     const res = await fetch(`${apiUrl}quiz/${quiz?._id}`, {
       method: "PATCH",
       credentials: "include",
-      headers: {
-        "content-type": "application/json",
-        "Access-Control-Allow-Credentials": true
-      },
-      body: JSON.stringify({
-        grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status
-      })
+      body: formData
     });
 
     const data = await res.json();
@@ -497,51 +500,22 @@ function Index() {
                   </>
                 )}
               </Grid>
-
-              {/* {(quiz?.payoutType === "Reward" || (isSubmitted && formState?.payoutType === "Reward")) && <Grid item xs={12} md={12} xl={12} mt={2}>
+              
+              {(quiz || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
                 <MDBox>
-                <ContestRewards quiz={quiz!=undefined ? quiz?._id : quizData?._id}/>
+                <Rewards quiz={quiz!=undefined ? quiz?._id : quizData?._id}/>
+                </MDBox>
+              </Grid>}
+
+              {(quiz || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
+                <MDBox>
+                <Question quiz={quiz!=undefined ? quiz?._id : quizData?._id}/>
                 </MDBox>
               </Grid>}
               
-
-              {(isSubmitted || quiz) && <Grid item xs={12} md={12} xl={12} mt={2}>
-                <MDBox>
-                  <AllowedUsers saving={saving} quizData={quiz?._id ? quiz : quizData} updatedDocument={updatedDocument} setUpdatedDocument={setUpdatedDocument} action={action} setAction={setAction} />
-                </MDBox>
-              </Grid>}
-
-              {(quiz || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+              {/* {(quiz || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                 <MDBox>
                   <RegisteredUsers quizData={quiz?._id ? quiz : quizData} action={action} setAction={setAction} />
-                </MDBox>
-              </Grid>}
-
-              {(quiz || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
-                <MDBox>
-                  <PotentialUser quizData={quiz?._id ? quiz : quizData} action={action} setAction={setAction} />
-                </MDBox>
-              </Grid>}
-
-              {(quiz || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
-                <MDBox>
-                  <Shared quizData={quiz?._id ? quiz : quizData} action={action} setAction={setAction} />
-                </MDBox>
-              </Grid>}
-              {(quiz || newObjectId) && quiz?.contestFor == 'College' && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
-                <MDBox>
-                  <CollegeRegistrations registrations={contestRegistrations} action={action} setAction={setAction} />
-                </MDBox>
-              </Grid>}
-              {(quiz || newObjectId) && quiz?.contestFor == 'StoxHero' && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
-                <MDBox>
-                  <FeaturedRegistrations registrations={featuredRegistrations} action={action} setAction={setAction} />
-                </MDBox>
-              </Grid>}
-
-              {((quiz || newObjectId) && (quiz?.contestStatus === 'Completed')) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
-                <MDBox>
-                  <Leaderboard quizData={quiz?._id ? quiz : quizData} action={action} setAction={setAction} />
                 </MDBox>
               </Grid>} */}
 
