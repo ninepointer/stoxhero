@@ -15,7 +15,7 @@ import moment from 'moment';
 const ActiveCoupon = ({type}) => {
 // const [registeredUserCount, setRegisteredUserCount] = useState(0);
 const [activeCoupon,setActiveCoupon] = useState([]);
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
     let call1 = axios.get(`${baseUrl}api/v1/coupons/active`,{

@@ -51,7 +51,7 @@ function Pnl() {
 
   const getDetails = useContext(userContext);
   let url = getDetails.userDetails.isAlgoTrader ? "getoverallpnlmocktradeparticularusertoday" : "getoverallpnlmocktradeparticulartradertoday"
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const { updateNetPnl } = useContext(NetPnlContext);
   const marketDetails = useContext(marketDataContext)
   const [tradeData, setTradeData] = useState([]);

@@ -29,7 +29,7 @@ export default function App() {
 }
 
 const Container = () => {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [contest, setContest] = useState([]);
     const [upcoming, setUpcoming] = useState([]);
     const [loading, setIsLoading] = useState(true);
