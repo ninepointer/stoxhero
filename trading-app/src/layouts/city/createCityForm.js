@@ -314,6 +314,7 @@ function Index() {
                       },
                     }}
                     options={[1,2,3]}
+                    label='Tier'
                     value={tierValue}
                     onChange={handleGradeChange}
                     autoHighlight
