@@ -1,4 +1,5 @@
 import React, {useState, useContext, useEffect} from "react"
+import {useNavigate} from 'react-router-dom';
 import background from '../../assets/images/finowledge.png'
 import logo from '../../assets/images/logo1.jpeg'
 import ReactGA from "react-ga";
@@ -17,7 +18,14 @@ function Cover() {
   const [scrollPosition, setScrollPosition] = useState(0);
   const getDetails = useContext(userContext)
   const user = getDetails.userDetails;
+  const navigate = useNavigate();
   const [update, setUpdate] = useState(false);
+
+  useEffect(()=>{
+    if(user?.schoolDetails?.grade == null){
+      navigate('/finowledge')
+    }
+  },[])
 
   useEffect(()=>{
     ReactGA.pageview(window.location.pathname)
@@ -34,6 +42,7 @@ function Cover() {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+
 
   const backgroundColor = scrollPosition > 10 ? 'rgba(0, 0, 0, 0.8)' : 'transparent'
   const backdropFilter = scrollPosition > 10 ? 'blur(5px)' : 'none'

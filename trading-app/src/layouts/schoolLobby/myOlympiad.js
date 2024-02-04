@@ -87,7 +87,7 @@ function Cover({update}) {
 
     return (
         <Grid mb={2} container xs={10} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ zIndex: 10, overflow: 'visible' }}>
-            {data ?
+            {data.length >0 ?
 
                 data.map((elem) => {
                     console.log("check data", elem.maxParticipant , elem?.registrations?.length)

@@ -378,6 +378,7 @@ exports.registration = async (req, res) => {
     try {
         const id = req.params.id;
         const userId = req.user._id;
+        const user = await User.findById(userId).select('schoolDetails');
         const quiz = await Quiz.findOneAndUpdate({_id: new ObjectId(id)}, {
             $push: {
                 registrations: {
@@ -393,7 +394,19 @@ exports.registration = async (req, res) => {
         const quizzes = await Quiz.aggregate([
             {
                 $match: {
-                    "registrations.userId": {$ne: new ObjectId(userId)}
+                    $and: [
+                        {"registrations.userId": {$ne: new ObjectId(userId)}},
+                         // Existing condition that must always be true
+                        { // At least one of these conditions must be satisfied
+                            $or: [
+                                {"city": user?.schoolDetails?.city}, // Assuming city is already an ObjectId or the correct type
+                                {"openForAll": true}
+                            ]
+                        },
+                        { // At least one of these conditions must be satisfied
+                           "grade": user?.schoolDetails?.grade, // Assuming city is already an ObjectId or the correct type
+                        }
+                    ]
                 }
             },
             {
@@ -405,6 +418,7 @@ exports.registration = async (req, res) => {
                     registrationOpenDateTime: 1,
                     durationInSeconds: 1,
                     rewardType: 1,
+                    grade:1,
                     status: 1,
                     registrationsCount: {
                         $size: "$registrations" // Include the length of the registrations array
