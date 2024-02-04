@@ -323,7 +323,7 @@ router.patch("/verifyotp", async (req, res) => {
     } = req.body
 
     const schoolDetails = {
-        parents_name, school, grade
+        parents_name, school, grade, city
     }
 
     const user = await SignedUpUser.findOne({ mobile: mobile })

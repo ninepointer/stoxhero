@@ -178,6 +178,7 @@ async function commonProcess() {
     app.use('/api/v1/alltradeview', require("./routes/viewRoutes/allTradesViewRoute"));
     app.use('/api/v1/push', require("./routes/pushNotifications/pushNotificationRoutes"));
     app.use('/api/v1/notificationgroup', require("./routes/notificationGroup/notificationGroupRoutes"));
+    app.use('/api/v1/cities', require("./routes/city/cityRoutes"));
     const PORT = process.env.PORT || 5002;
     const server = app.listen(PORT);
     

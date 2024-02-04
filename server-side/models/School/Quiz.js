@@ -38,6 +38,10 @@ const quizSchema = new mongoose.Schema({
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         registeredOn:{type:Date}
     }],
+    city:{
+        type:Schema.Types.ObjectId,
+        ref:'city'
+    },
     image: String,
     maxParticipant: Number,
     grade: String,

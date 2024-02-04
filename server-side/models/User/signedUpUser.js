@@ -30,7 +30,8 @@ const signedUpUserSchema = new mongoose.Schema({
         // required : true
     },
     city:{
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref:'city'
         // required : true
     },
     email:{

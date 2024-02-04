@@ -49,6 +49,10 @@ const userDetailSchema = new mongoose.Schema({
         parents_name: String,
         grade: String,
         school: String,
+        city:{
+            type:Schema.Types.ObjectId,
+            ref:'city'
+        },
     },
     cohort:{
         type: String,

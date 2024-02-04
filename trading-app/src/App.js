@@ -84,6 +84,7 @@ import BlogCard from "./layouts/HomePage/pages/BlogCards";
 import BlogData from "./layouts/HomePage/pages/BlogData";
 import Calculator from "./layouts/HomePage/pages/Calculator";
 import CollegeSignUp from './layouts/authentication/sign-up/collegeSignupLogin'
+import SchoolDetailsProtectedRoute from "./schoolProtected";
 
 const TRACKING_ID = "UA-264098426-2"
 ReactGA.initialize(TRACKING_ID);
@@ -218,9 +219,11 @@ export default function App() {
         if(route.route !== '/'){
           return <Route exact path={route.route} 
           element={
+            <SchoolDetailsProtectedRoute>
             <ProtectedRoute>
              {route.component}
             </ProtectedRoute>
+            </SchoolDetailsProtectedRoute>
           } 
           key={route.key} />;
         }else{

@@ -1,6 +1,7 @@
 const Quiz = require('../../models/School/Quiz'); // Adjust the path as per your project structure
 const AWS = require('aws-sdk');
 const {ObjectId} = require('mongodb');
+const User = require('../../models/User/userDetailSchema');
 
 // Configure AWS
 const s3 = new AWS.S3({
@@ -31,13 +32,13 @@ const getAwsS3Url = async (file) => {
 
 exports.createQuiz = async (req, res) => {
     try {
-        const {grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status, maxParticipant } = req.body;
+        const {grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status, maxParticipant, city } = req.body;
 
         let image;
         if (req.files['quizImage']) {
             image = await getAwsS3Url(req.files['quizImage'][0]);
         }
-        const newQuiz = new Quiz({image, maxParticipant, grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status });
+        const newQuiz = new Quiz({image, maxParticipant, grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status, city });
         await newQuiz.save();
         res.status(201).json(newQuiz);
     } catch (error) {
@@ -235,7 +236,7 @@ exports.addOptionToQuiz = async (req, res) => {
 
 exports.getAllQuizzes = async (req, res) => {
     try {
-        const quizzes = await Quiz.find({});
+        const quizzes = await Quiz.find({}).populate('city', 'name');
         res.json(quizzes);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -257,7 +258,7 @@ exports.getQuizForAdmin = async (req, res) => {
 
 exports.getActiveQuizForAdmin = async (req, res) => {
     try {
-        const quizzes = await Quiz.find({status: "Active"});
+        const quizzes = await Quiz.find({status: "Active"}).populate('city', 'name');
         res.status(201).json({ status: 'success', data: quizzes });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -295,11 +296,23 @@ exports.getAllQuizzesForUser = async (req, res) => {
         const userId = req.user._id;
         // const quizzes = await Quiz.find({"registrations.userId": {$ne: new ObjectId(userId)}}, 'image maxParticipant title startDateTime registrationOpenDateTime durationInSeconds rewardType status')
         //     .lean()
-
+        const user = await User.findById(userId).select('schoolDetails');
             const quizzes = await Quiz.aggregate([
                 {
                     $match: {
-                        "registrations.userId": {$ne: new ObjectId(userId)}
+                        $and: [
+                            {"registrations.userId": {$ne: new ObjectId(userId)}},
+                             // Existing condition that must always be true
+                            { // At least one of these conditions must be satisfied
+                                $or: [
+                                    {"city": user?.schoolDetails?.city}, // Assuming city is already an ObjectId or the correct type
+                                    {"openForAll": true}
+                                ]
+                            },
+                            { // At least one of these conditions must be satisfied
+                               "grade": user?.schoolDetails?.grade, // Assuming city is already an ObjectId or the correct type
+                            }
+                        ]
                     }
                 },
                 {
@@ -312,6 +325,7 @@ exports.getAllQuizzesForUser = async (req, res) => {
                         durationInSeconds: 1,
                         rewardType: 1,
                         status: 1,
+                        grade:1,
                         registrationsCount: {
                             $size: "$registrations" // Include the length of the registrations array
                         }
@@ -345,6 +359,7 @@ exports.getMyQuizzesForUser = async (req, res) => {
                     durationInSeconds: 1,
                     rewardType: 1,
                     status: 1,
+                    grade: 1,
                     registrationsCount: {
                         $size: "$registrations" // Include the length of the registrations array
                     }

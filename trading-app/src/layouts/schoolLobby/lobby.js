@@ -87,14 +87,14 @@ function Cover() {
               <MDTypography variant='caption' style={{fontFamily: 'Nunito'}}>Class: {user?.schoolDetails?.grade || "Your Grade"}</MDTypography>
             </MDBox>
             <MDBox mb={2} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
-              <MDTypography variant='caption' style={{fontFamily: 'Nunito'}}>{`${user?.schoolDetails?.school || "School"}, ${user?.city || "City"}`}</MDTypography>
+              <MDTypography variant='caption' style={{fontFamily: 'Nunito'}}>{`${user?.schoolDetails?.school || "School"}, ${user?.schoolDetails?.city?.name || "City"}`}</MDTypography>
             </MDBox>
           </Grid>
         </Grid>
 
         <Grid container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{zIndex:10, overflow: 'visible' }}>
         <Grid p={.5} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'#D5F47E', borderRadius:10}}>
-            <MDTypography variant='body2' style={{fontFamily: 'Work Sans , sans-serif'}}>My Olympiad</MDTypography>
+            <MDTypography variant='body2' style={{fontFamily: 'Work Sans , sans-serif'}}>My Olympiad(s)</MDTypography>
         </Grid>
         </Grid>
 
