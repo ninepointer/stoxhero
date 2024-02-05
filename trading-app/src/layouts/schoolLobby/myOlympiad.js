@@ -27,6 +27,7 @@ function Cover({update}) {
 
     async function fetchData(){
         const data = await axios.get(`${apiUrl}quiz/user/my`, {withCredentials: true});
+        console.log('data',data?.data?.data);
         setData(data?.data?.data);
     }
 
@@ -86,7 +87,7 @@ function Cover({update}) {
 
     return (
         <Grid mb={2} container xs={10} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ zIndex: 10, overflow: 'visible' }}>
-            {data ?
+            {data.length >0 ?
 
                 data.map((elem) => {
                     console.log("check data", elem.maxParticipant , elem?.registrations?.length)
@@ -107,9 +108,14 @@ function Cover({update}) {
                                             </MDTypography>
                                         </MDBox>
                                         {/* <Divider style={{ width: '100%' }} /> */}
+                                        <MDBox mt={-1} mb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                            <MDTypography variant='caption' style={{ fontFamily: 'Work Sans , sans-serif' }}>
+                                                {elem?.grade} Grade
+                                            </MDTypography>
+                                        </MDBox>
                                         <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                                             <MDTypography variant='caption' style={{ fontFamily: 'Work Sans , sans-serif' }}>
-                                                Starts: {`${moment.utc(elem?.startDateTime).utcOffset('+05:30').format('DD MMM YYYY HH:mm a')} • ${elem.maxParticipant - elem?.registrationsCount} seats left`}
+                                                Starts: {`${moment.utc(elem?.startDateTime).utcOffset('+05:30').format('DD MMM YY HH:mm a')} • ${elem.maxParticipant - elem?.registrationsCount} seats left`}
                                             </MDTypography>
                                         </MDBox>
                                     </CardContent>

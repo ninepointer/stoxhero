@@ -186,7 +186,9 @@ import MarketingFunnel from "./layouts/marketingDashboard"
 import { FaRupeeSign } from "react-icons/fa";
 import { FaAffiliatetheme } from "react-icons/fa";
 import Quiz from './layouts/quiz'
+import City from './layouts/city'
 import QuizDetails from './layouts/quiz/quizDetails'
+import CityDetails from './layouts/city/cityDetails'
 import Register from "./layouts/authentication/sign-up/register"
 import RegisterInfo from "./layouts/authentication/sign-up/registerationinfo"
 import Lobby from "./layouts/schoolLobby/lobby"
@@ -197,9 +199,19 @@ const routes = [
   {
     key: "quiz",
     route: "/quiz",
-    component: <Quiz />,
+    component: <Quiz/>,
+  },
+  {
+    key: "city",
+    route: "/city",
+    component: <City />,
   },
 
+  {
+    key: "citydetails",
+    route: "/citydetails",
+    component: <CityDetails />,
+  },
   {
     key: "quizdetails",
     route: "/quizdetails",

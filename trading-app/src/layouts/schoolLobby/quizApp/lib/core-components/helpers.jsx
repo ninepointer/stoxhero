@@ -1,12 +1,14 @@
 import snarkdown from 'snarkdown';
 import dompurify from 'dompurify';
+import axios from 'axios';
+import { apiUrl } from '../../../../../constants/constants';
 
 export const rawMarkup = (data) => {
   const sanitizer = dompurify.sanitize;
   return { __html: snarkdown(sanitizer(data)) };
 };
 
-export const checkAnswer = (index, correctAnswer, answerSelectionType, answers, {
+export const checkAnswer = async (index, quizId, questionId, selectedOption, correctAnswer, answerSelectionType, answers, {
   userInput,
   userAttempt,
   currentQuestionIndex,
@@ -23,139 +25,146 @@ export const checkAnswer = (index, correctAnswer, answerSelectionType, answers, 
   setUserInput,
   setUserAttempt,
 }) => {
-  const indexStr = `${index}`;
+  // const indexStr = `${selectedOption}`;
   const disabledAll = {
     0: { disabled: true },
     1: { disabled: true },
     2: { disabled: true },
     3: { disabled: true },
   };
-  const userInputCopy = [...userInput];
-  if (answerSelectionType === 'single') {
-    if (userInputCopy[currentQuestionIndex] === undefined) {
-      userInputCopy[currentQuestionIndex] = index;
-    }
 
-    if (indexStr === correctAnswer) {
-      if (incorrect.indexOf(currentQuestionIndex) < 0 && correct.indexOf(currentQuestionIndex) < 0) {
-        correct.push(currentQuestionIndex);
-      }
+  console.log("in check answer",quizId, questionId, selectedOption, correctAnswer, answerSelectionType, answers, {
+    userInput,
+    userAttempt,
+    currentQuestionIndex,
+    continueTillCorrect,
+    showNextQuestionButton,
+    incorrect,
+    correct,
+  })
+  // const userInputCopy = [...userInput];
+
+  // console.log("userInputCopy", userInputCopy)
+  
+  if (answerSelectionType === 'single') {
+    // if (userInputCopy[currentQuestionIndex] === undefined) {
+    //   userInputCopy[currentQuestionIndex] = index;
+    // }
+
+    const getAnswer = await axios.get(`${apiUrl}quiz/response/correctanswer/${quizId}/${questionId}/${selectedOption?._id}`, {withCredentials: true});
+
+    if (getAnswer?.data?.data) {
+      // if (incorrect.indexOf(currentQuestionIndex) < 0 && correct.indexOf(currentQuestionIndex) < 0) {
+      //   correct.push(currentQuestionIndex);
+      // }
+
+
+      // console.log("correct", correct)
 
       setButtons((prevState) => ({
         ...prevState,
         ...disabledAll,
         [index - 1]: {
-          className: (indexStr === correctAnswer) ? 'correct' : 'incorrect',
+          className: (getAnswer?.data?.data) ? 'correct' : 'incorrect',
         },
       }));
 
       setIsCorrect(true);
       setIncorrectAnswer(false);
-      setCorrect(correct);
+      // setCorrect(correct);
       setShowNextQuestionButton(true);
     } else {
-      if (correct.indexOf(currentQuestionIndex) < 0 && incorrect.indexOf(currentQuestionIndex) < 0) {
-        incorrect.push(currentQuestionIndex);
-      }
+      // if (correct.indexOf(currentQuestionIndex) < 0 && incorrect.indexOf(currentQuestionIndex) < 0) {
+      //   incorrect.push(currentQuestionIndex);
+      // }
 
-      if (continueTillCorrect) {
-        setButtons((prevState) => (
-          {
+      // console.log("incorrect", incorrect)
+      setButtons((prevState) => (
+        {
 
-            ...prevState,
-            [index - 1]: {
-              disabled: !prevState[index - 1],
-            },
-          }
-        ));
-      } else {
-        setButtons((prevState) => (
-          {
+          ...prevState,
+          ...disabledAll,
+          [index - 1]: {
+            className: (getAnswer?.data?.data) ? 'correct' : 'incorrect',
+          },
+        }
+      ));
 
-            ...prevState,
-            ...disabledAll,
-            [index - 1]: {
-              className: (indexStr === correctAnswer) ? 'correct' : 'incorrect',
-            },
-          }
-        ));
-
-        setShowNextQuestionButton(true);
-      }
+      setShowNextQuestionButton(true);
 
       setIncorrectAnswer(true);
       setIsCorrect(false);
-      setIncorrect(incorrect);
+      // setIncorrect(incorrect);
     }
   } else {
     const maxNumberOfMultipleSelection = correctAnswer.length;
 
-    if (userInputCopy[currentQuestionIndex] === undefined) {
-      userInputCopy[currentQuestionIndex] = [];
-    }
+    // if (userInputCopy[currentQuestionIndex] === undefined) {
+    //   userInputCopy[currentQuestionIndex] = [];
+    // }
 
-    if (userInputCopy[currentQuestionIndex].length < maxNumberOfMultipleSelection) {
-      userInputCopy[currentQuestionIndex].push(index);
+    // if (userInputCopy[currentQuestionIndex].length < maxNumberOfMultipleSelection) {
+    //   userInputCopy[currentQuestionIndex].push(index);
 
-      if (correctAnswer.includes(index)) {
-        if (userInputCopy[currentQuestionIndex].length <= maxNumberOfMultipleSelection) {
-          setButtons((prevState) => ({
-            ...prevState,
-            [index - 1]: {
-              disabled: !prevState[index - 1],
-              className: (correctAnswer.includes(index)) ? 'correct' : 'incorrect',
-            },
-          }));
-        }
-      } else if (userInputCopy[currentQuestionIndex].length <= maxNumberOfMultipleSelection) {
-        setButtons((prevState) => ({
-          ...prevState,
-          [index - 1]: {
-            className: (correctAnswer.includes(index)) ? 'correct' : 'incorrect',
-          },
-        }));
-      }
-    }
+    //   if (correctAnswer.includes(index)) {
+    //     if (userInputCopy[currentQuestionIndex].length <= maxNumberOfMultipleSelection) {
+    //       setButtons((prevState) => ({
+    //         ...prevState,
+    //         [index - 1]: {
+    //           disabled: !prevState[index - 1],
+    //           className: (correctAnswer.includes(index)) ? 'correct' : 'incorrect',
+    //         },
+    //       }));
+    //     }
+    //   } else if (userInputCopy[currentQuestionIndex].length <= maxNumberOfMultipleSelection) {
+    //     setButtons((prevState) => ({
+    //       ...prevState,
+    //       [index - 1]: {
+    //         className: (correctAnswer.includes(index)) ? 'correct' : 'incorrect',
+    //       },
+    //     }));
+    //   }
+    // }
 
-    if (maxNumberOfMultipleSelection === userAttempt) {
-      let cnt = 0;
-      for (let i = 0; i < correctAnswer.length; i += 1) {
-        if (userInputCopy[currentQuestionIndex].includes(correctAnswer[i])) {
-          cnt += 1;
-        }
-      }
+    // if (maxNumberOfMultipleSelection === userAttempt) {
+    //   let cnt = 0;
+    //   for (let i = 0; i < correctAnswer.length; i += 1) {
+    //     if (userInputCopy[currentQuestionIndex].includes(correctAnswer[i])) {
+    //       cnt += 1;
+    //     }
+    //   }
 
-      for (let i = 0; i < answers.length; i += 1) {
-        if (correctAnswer.includes(i + 1)) {
-          setButtons((prevState) => ({
-            ...prevState,
-            [i]: {},
-          }));
-        }
-      }
+    //   for (let i = 0; i < answers.length; i += 1) {
+    //     if (correctAnswer.includes(i + 1)) {
+    //       setButtons((prevState) => ({
+    //         ...prevState,
+    //         [i]: {},
+    //       }));
+    //     }
+    //   }
 
-      if (cnt === maxNumberOfMultipleSelection) {
-        correct.push(currentQuestionIndex);
+    //   if (cnt === maxNumberOfMultipleSelection) {
+    //     correct.push(currentQuestionIndex);
 
-        setIsCorrect(true);
-        setIncorrectAnswer(false);
-        setCorrect(correct);
-        setShowNextQuestionButton(true);
-        setUserAttempt(1);
-      } else {
-        incorrect.push(currentQuestionIndex);
+    //     setIsCorrect(true);
+    //     setIncorrectAnswer(false);
+    //     setCorrect(correct);
+    //     setShowNextQuestionButton(true);
+    //     setUserAttempt(1);
+    //   } else {
+    //     incorrect.push(currentQuestionIndex);
 
-        setIncorrectAnswer(true);
-        setIsCorrect(false);
-        setIncorrect(incorrect);
-        setShowNextQuestionButton(true);
-        setUserAttempt(1);
-      }
-    } else if (!showNextQuestionButton) {
-      setUserAttempt(userAttempt + 1);
-    }
+    //     setIncorrectAnswer(true);
+    //     setIsCorrect(false);
+    //     setIncorrect(incorrect);
+    //     setShowNextQuestionButton(true);
+    //     setUserAttempt(1);
+    //   }
+    // } else if (!showNextQuestionButton) {
+    //   setUserAttempt(userAttempt + 1);
+    // }
   }
-  setUserInput(userInputCopy);
+  // setUserInput(userInputCopy);
 };
 
 export const selectAnswer = (index, correctAnswer, answerSelectionType, {
@@ -175,6 +184,11 @@ export const selectAnswer = (index, correctAnswer, answerSelectionType, {
     2: { selected: false },
     3: { selected: false },
   };
+
+  console.log("in select answer",   userInput,
+  currentQuestionIndex,
+  incorrect,
+  correct)
   const userInputCopy = [...userInput];
   if (answerSelectionType === 'single') {
     correctAnswer = Number(correctAnswer);

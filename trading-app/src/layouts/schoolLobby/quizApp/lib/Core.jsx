@@ -8,7 +8,7 @@ import InstantFeedback from './core-components/InstantFeedback';
 import Explanation from './core-components/Explanation';
 
 function Core({
-  questions, appLocale, showDefaultResult, onComplete, customResultPage,
+  quizId, questions, appLocale, showDefaultResult, onComplete, customResultPage,
   showInstantFeedback, continueTillCorrect, revealAnswerOnSubmit, allowNavigation,
   onQuestionSubmit, timer, allowPauseTimer,
 }) {
@@ -153,8 +153,8 @@ function Core({
             disabled
             className={`answerBtn btn ${answerBtnCorrectClassName}${answerBtnIncorrectClassName}`}
           >
-            {questionType === 'text' && <span>{answer}</span>}
-            {questionType === 'photo' && <img src={answer} alt="answer" />}
+            {questionType === 'text' && <span>{answer.option}</span>}
+            {questionType === 'photo' && <img src={answer.option} alt="answer" />}
           </button>
         </div>
       );
@@ -249,10 +249,10 @@ function Core({
 
   const renderAnswers = (question, answerButtons) => {
     const {
-      answers, correctAnswer, questionType, questionIndex,
+      answers, correctAnswer, questionType, questionIndex, questionId
     } = question;
     let { answerSelectionType } = question;
-    const onClickAnswer = (index) => checkAnswer(index + 1, correctAnswer, answerSelectionType, answers, {
+    const onClickAnswer = (selectedOption, index) => checkAnswer(index, quizId, questionId, selectedOption, correctAnswer, answerSelectionType, answers, {
       userInput,
       userAttempt,
       currentQuestionIndex,
@@ -307,20 +307,24 @@ function Core({
                   ? 'correct'
                   : ''
               }`}
-              onClick={() => (revealAnswerOnSubmit ? onSelectAnswer(index) : onClickAnswer(index))}
+              onClick={() => (revealAnswerOnSubmit ? onSelectAnswer(index) : onClickAnswer(
+                answer, index
+                ))}
             >
-              {questionType === 'text' && <span>{answer}</span>}
-              {questionType === 'photo' && <img src={answer} alt="answer" />}
+              {questionType === 'text' && <span>{answer.option}</span>}
+              {questionType === 'photo' && <img src={answer.option} alt="answer" />}
             </button>
           )
           : (
             <button
               type="button"
-              onClick={() => (revealAnswerOnSubmit ? onSelectAnswer(index) : onClickAnswer(index))}
+              onClick={() => (revealAnswerOnSubmit ? onSelectAnswer(index) : onClickAnswer(
+                answer, index
+                ))}
               className={`answerBtn btn ${(allowNavigation && checkSelectedAnswer(index + 1)) ? 'selected' : null}`}
             >
-              {questionType === 'text' && answer}
-              {questionType === 'photo' && <img src={answer} alt="answer" />}
+              {questionType === 'text' && answer.option}
+              {questionType === 'photo' && <img src={answer.option} alt="answer" />}
             </button>
           )}
       </Fragment>

@@ -23,7 +23,7 @@ import Rewards from "./data/reward/contestReward";
 import Question from "./data/questions/questions";
 import { Autocomplete, Box } from "@mui/material";
 import { styled } from '@mui/material';
-
+import axios from 'axios';
 
 
 const CustomAutocomplete = styled(Autocomplete)`
@@ -67,17 +67,25 @@ function Index() {
   }, [])
 
   const [cityData, setCityData] = useState([]);
-  const [gradeValue, setGradeValue] = useState('6th');
+  const [gradeValue, setGradeValue] = useState(quiz?.grade || '6th');
   const [value, setValue] = useState({
-    _id: '123456789',
-    cityName: "Ajmer"
+    _id: quiz?.city?._id || '',
+    name: quiz?.city?.name || ""
   })
 
+  const getCities = async () => {
+    try{
+      const res = await axios.get(`${apiUrl}cities/active`);
+      if(res.data.status == 'success'){
+        setCityData(res.data.data);
+      }
+    }catch(e){
+      console.log(e);
+    }
+
+  }
   useEffect(() => {
-    setCityData([{
-      _id: '123456789',
-      cityName: "Ajmer"
-    }])
+    getCities();
   }, [])
 
   const handleImage = (event) => {
@@ -99,7 +107,8 @@ function Index() {
       return;
     }
 
-    if (!formState.grade || !formState.title || !formState.startDateTime || !formState.registrationOpenDateTime || !formState.durationInSeconds || !formState.rewardType || !formState.status) {
+    if (!gradeValue || !formState.title || !formState.startDateTime || !formState.registrationOpenDateTime || !formState.durationInSeconds || !formState.rewardType || !formState.status) {
+      console.log(gradeValue, formState.title, formState.startDateTime, formState.registrationOpenDateTime, formState.durationInSeconds, formState.rewardType, formState.status)
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
@@ -148,12 +157,12 @@ function Index() {
     e.preventDefault()
     setSaving(true)
     
-    if (!quizImage) {
-      openErrorSB('error', 'Please select a file to upload');
-      return;
-    }
+    // if (!quizImage) {
+    //   openErrorSB('error', 'Please select a file to upload');
+    //   return;
+    // }
 
-    if (!formState.grade || !formState.title || !formState.startDateTime || !formState.registrationOpenDateTime || !formState.durationInSeconds || !formState.rewardType || !formState.status) {
+    if (!gradeValue || !formState.title || !formState.startDateTime || !formState.registrationOpenDateTime || !formState.durationInSeconds || !formState.rewardType || !formState.status) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
@@ -255,6 +264,7 @@ function Index() {
   };
 
   const handleGradeChange = (event, newValue) => {
+    console.log('event', event, newValue)
     setGradeValue(newValue);
   };
 
@@ -408,10 +418,10 @@ function Index() {
                   value={value}
                   onChange={handleCityChange}
                   autoHighlight
-                  getOptionLabel={(option) => option ? option.cityName : 'City'}
+                  getOptionLabel={(option) => option ? option.name : 'City'}
                   renderOption={(props, option) => (
                     <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                      {option.cityName}
+                      {option.name}
                     </Box>
                   )}
                   renderInput={(params) => (
@@ -502,7 +512,7 @@ function Index() {
                     Upload Image(1080X720)
                     <input
                       hidden
-                      disabled={((quizData || quiz) && (!editing))}
+                      // disabled={((quizData || quiz) && (!editing))}
                       accept="image/*"
                       type="file"
                       // onChange={(e)=>{setTitleImage(e.target.files)}}

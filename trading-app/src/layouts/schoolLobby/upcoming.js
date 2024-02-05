@@ -123,12 +123,12 @@ function Cover({setUpdate, update}) {
             <Grid mt={2} container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ zIndex: 1, overflow: 'visible' }}>
                 <Grid p={.5} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: '#D5F47E', borderRadius: 10 }}>
                     {/* <MDBox p={0.5} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}> */}
-                    <MDTypography variant='body2' style={{ fontFamily: 'Work Sans , sans-serif' }}>Upcoming Olympiad</MDTypography>
+                    <MDTypography variant='body2' style={{ fontFamily: 'Work Sans , sans-serif' }}>Upcoming Olympiad(s)</MDTypography>
                     {/* </MDBox> */}
                 </Grid>
             </Grid>
             <Grid mb={2} container xs={10} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ zIndex: 10, overflow: 'visible' }}>
-                {data ?
+                {data.length > 0 ?
 
                     data.map((elem) => {
                         return (
@@ -148,6 +148,11 @@ function Cover({setUpdate, update}) {
                                                 </MDTypography>
                                             </MDBox>
                                             {/* <Divider style={{ width: '100%' }} /> */}
+                                            <MDBox mb={1} mt={-1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                                <MDTypography variant='caption' style={{ fontFamily: 'Work Sans , sans-serif' }}>
+                                                    {elem?.grade} Grade
+                                                </MDTypography>
+                                            </MDBox>
                                             <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                                                 <MDTypography variant='caption' style={{ fontFamily: 'Work Sans , sans-serif' }}>
                                                     Starts: {`${moment.utc(elem?.startDateTime).utcOffset('+05:30').format('DD MMM YYYY HH:mm a')} • ${(elem.maxParticipant || 0) - (elem?.registrations?.length || 0)} seats left`}

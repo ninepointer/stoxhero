@@ -5,18 +5,21 @@ const segment = {
 };
 
 const quiz = {
+  timer: 600000,
+  quizId: '797667',
   quizTitle: 'StoxHero',
   quizSynopsis: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim',
   nrOfQuestions: '4',
   questions: [
     {
+      questionId: "5555",
       question: 'What is Stoxhero ?',
       // questionPic: 'https://dummyimage.com/600x400/000/fff&text=X',
       questionType: 'text',
       answerSelectionType: 'single',
       answers: [
-        'Game',
-        'Company',
+        {option: 'Game', _id: 'asdf'},
+        {option: 'Company', _id: 'asdf1'},
       ],
       correctAnswer: '2',
       messageForCorrectAnswer: 'Correct answer. Good job.',
@@ -26,12 +29,14 @@ const quiz = {
       segment: segment.advanced,
     },
     {
+      questionId: "55553",
       question: 'Can you learn trading from stoxhero ?',
       questionType: 'text',
       answerSelectionType: 'single',
       answers: [
-        'Yes',
-        'No',
+        {option: 'Yes', _id: 'asdf'},
+        {option: 'No', _id: 'asdf1'},
+
       ],
       correctAnswer: '1',
       messageForCorrectAnswer: 'Correct answer. Good job.',
@@ -41,6 +46,7 @@ const quiz = {
       segment: segment.basic,
     },
     {
+      questionId: "55553",
       question: 'Can you earn money from stoxhero?',
       questionType: 'text',
       answerSelectionType: 'single',
@@ -55,15 +61,16 @@ const quiz = {
       point: '10',
     },
     {
+      questionId: "55557",
       question: 'Which is not belong to stoxhero ?',
       questionType: 'text',
-      answerSelectionType: 'single',
+      answerSelectionType: 'multiple',
       answers: [
-        'Tenx',
-        'TestZone',
-        'PrepZone',
+        {option: 'Tenx', _id: '123456'},
+        {option: 'TestZone', _id: '123456'},
+        {option: 'PrepZone', _id: '123456'}
       ],
-      correctAnswer: '3',
+      correctAnswer: [1,2],
       messageForCorrectAnswer: 'Correct answer. Good job.',
       messageForIncorrectAnswer: 'Incorrect answer. Please try again.',
       explanation: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',

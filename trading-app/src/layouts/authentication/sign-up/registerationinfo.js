@@ -8,7 +8,7 @@ import background from '../../../assets/images/finowledge.png'
 import ReactGA from "react-ga";
 import TextField from '@mui/material/TextField';
 import { useNavigate, useLocation } from "react-router-dom";
-
+import axios from 'axios';
 // @mui material components
 import Grid from "@mui/material/Grid";
 
@@ -23,7 +23,6 @@ import { userContext } from '../../../AuthContext';
 import MDButton from "../../../components/MDButton";
 import { Autocomplete, Box } from "@mui/material";
 import { styled } from '@mui/material';
-import axios from 'axios';
 
 
 const CustomAutocomplete = styled(Autocomplete)`
@@ -43,8 +42,8 @@ function Cover() {
   const [cityData, setCityData] = useState([]);
   const [gradeValue, setGradeValue] = useState('6th');
   const [value, setValue] = useState({
-    _id: '123456789',
-    cityName: "Ajmer"
+    _id: '',
+    name: ""
   })
 
 
@@ -75,12 +74,19 @@ function Cover() {
   useEffect(() => {
     ReactGA.pageview(window.location.pathname)
   },[])
+  const getCities = async () => {
+    try{
+      const res = await axios.get(`${apiUrl}cities/active`);
+      if(res.data.status == 'success'){
+        setCityData(res.data.data);
+      }
+    }catch(e){
+      console.log(e);
+    }
 
+  }
   useEffect(() => {
-    setCityData([{
-      _id: '123456789',
-      cityName: "Ajmer"
-    }])
+    getCities();
   }, [])
 
 
@@ -183,7 +189,7 @@ function Cover() {
         mobile,
         parents_name,
         grade: gradeValue, school,
-        city: value?.cityName,
+        city: value?._id,
         dob: dob
       })
     });
@@ -236,7 +242,18 @@ function Cover() {
   const [content, setContent] = useState('')
   const [color, setColor] = useState('')
   const [icon, setIcon] = useState('')
+  const [isFocused, setIsFocused] = useState(false);
+  const [dateValue, setDateValue] = useState('');
 
+  const handleFocus = () => setIsFocused(true);
+  const handleBlur = () => {
+    if (!dateValue) {
+      setIsFocused(false);
+    }
+  };
+  const handleTypeChange = (event) => {
+    setDateValue(event.target.value);
+  };
 
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = (value, content) => {
@@ -370,14 +387,17 @@ function Cover() {
 
               <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
                 <TextField
-                  required
-                  // disabled={showEmailOTP}
-                  id="outlined-required"
-                  placeholder="Date of Birth"
-                  fullWidth
-                  type='date'
-                  name='dob'
-                  onChange={handleChange}
+                   required
+                   id="outlined-required"
+                   fullWidth
+                   type={isFocused || dateValue ? 'date' : 'text'}
+                   name="dob"
+                   placeholder={!isFocused && !dateValue ? "Date of Birth" : ""}
+                   value={dateValue}
+                   onChange={handleTypeChange}
+                   onFocus={handleFocus}
+                   onBlur={handleBlur}
+                   InputLabelProps={isFocused || dateValue ? { shrink: true } : {}}
                 />
               </Grid>
 
@@ -444,10 +464,10 @@ function Cover() {
                   value={value}
                   onChange={handleCityChange}
                   autoHighlight
-                  getOptionLabel={(option) => option ? option.cityName : 'City'}
+                  getOptionLabel={(option) => option ? option.name : 'City'}
                   renderOption={(props, option) => (
                     <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                      {option.cityName}
+                      {option.name}
                     </Box>
                   )}
                   renderInput={(params) => (

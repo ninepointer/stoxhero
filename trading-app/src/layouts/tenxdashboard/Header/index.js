@@ -888,6 +888,19 @@ export default function LabTabs({socket}) {
                                 Quiz
                             </MDButton>
                         </Grid>
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"info"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/city`,
+                                  }}
+                            >
+                                City
+                            </MDButton>
+                        </Grid>
                     </Grid>
                 </MDBox>
                 
