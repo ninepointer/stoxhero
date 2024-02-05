@@ -23,7 +23,7 @@ import { userContext } from '../../../AuthContext';
 import MDButton from "../../../components/MDButton";
 import { Autocomplete, Box } from "@mui/material";
 import { styled } from '@mui/material';
-
+import axios from 'axios';
 
 
 const CustomAutocomplete = styled(Autocomplete)`
@@ -192,7 +192,6 @@ function Cover() {
     if (data.status === "Success") {
       setDetails.setUserDetail(data.data);
       setShowConfirmation(false);
-
       setButtonClicked(false);
       navigate('/lobby')
       return openSuccessSB("Account Created", data.message);
