@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import TextField from '@mui/material/TextField';
 import {Grid, Card, CardContent, CardActionArea, FormControlLabel, FormGroup, Checkbox} from "@mui/material";
 import MDTypography from "../../components/MDTypography";
@@ -24,6 +24,7 @@ import Question from "./data/questions/questions";
 import { Autocomplete, Box } from "@mui/material";
 import { styled } from '@mui/material';
 import axios from 'axios';
+import JoditEditor from 'jodit-react';
 
 
 const CustomAutocomplete = styled(Autocomplete)`
@@ -47,6 +48,9 @@ function Index() {
   const [quizData, setQuizData] = useState([]);
   const [quizImage, setQuizImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
+  const editor = useRef(null);
+  // const [descData, setDescData] = useState(quiz?.description || '');
+
 
   const [formState, setFormState] = useState({
     title: '' || quiz?.title,
@@ -56,7 +60,9 @@ function Index() {
     rewardType: '' || quiz?.rewardType,
     status: '' || quiz?.status,
     maxParticipant: "" || quiz?.maxParticipant,
-    openForAll: "" || quiz?.openForAll
+    openForAll: false || quiz?.openForAll,
+    description: "" || quiz?.description,
+    image: "" || quiz?.image
   });
 
   useEffect(() => {
@@ -264,9 +270,22 @@ function Index() {
   };
 
   const handleGradeChange = (event, newValue) => {
-    console.log('event', event, newValue)
     setGradeValue(newValue);
   };
+
+  const config = React.useMemo(
+    () => ({
+      disabled: ((isSubmitted || quiz) && (!editing || saving)),
+      readonly: false,
+      enableDragAndDropFileToEditor: false,
+      toolbarAdaptive: false,
+      toolbarSticky: true,
+      addNewLine: false,
+      useSearch: false,
+      hidePoweredByJodit: true,
+    }),
+    [isSubmitted, quiz, editing, saving],
+  )
 
   return (
     <>
@@ -285,303 +304,331 @@ function Index() {
             </MDBox>
 
             <Grid container display="flex" flexDirection="row" justifyContent="space-between">
-              <Grid container spacing={2} mt={0.5} mb={0} xs={12} md={12} xl={12}>
-                <Grid item xs={12} md={6} xl={3}>
-                  <TextField
-                    disabled={((isSubmitted || quiz) && (!editing || saving))}
-                    id="outlined-required"
-                    label='Title *'
-                    name='title'
-                    fullWidth
-                    defaultValue={editing ? formState?.title : quiz?.title}
+              <Grid container spacing={2} mt={0.5} mb={0} xs={12} md={12} xl={12} display="flex" flexDirection="row" justifyContent="space-between">
+                <Grid mt={0.5} xs={12} md={12} xl={9}>
+                  <Grid mt={1} xs={12} md={12} xl={12} display="flex" gap={1}>
+                    <Grid item xs={12} md={6} xl={4}>
+                      <TextField
+                        disabled={((isSubmitted || quiz) && (!editing || saving))}
+                        id="outlined-required"
+                        label='Title *'
+                        name='title'
+                        fullWidth
+                        defaultValue={editing ? formState?.title : quiz?.title}
+                        onChange={(e) => {
+                          setFormState(prevState => ({
+                            ...prevState,
+                            title: e.target.value
+                          }))
+                        }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} md={6} xl={4} mt={-1} mb={1}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DemoContainer components={['MobileDateTimePicker']}>
+                          <DemoItem>
+                            <MobileDateTimePicker
+                              label="Start Date Time"
+                              disabled={((isSubmitted || quiz) && (!editing || saving))}
+                              value={formState?.startDateTime || dayjs(quizData?.startDateTime)}
+                              onChange={(newValue) => {
+                                if (newValue && newValue.isValid()) {
+                                  setFormState(prevState => ({ ...prevState, startDateTime: newValue }))
+                                }
+                              }}
+                              minDateTime={null}
+                              sx={{ width: '100%' }}
+                            />
+                          </DemoItem>
+                        </DemoContainer>
+                      </LocalizationProvider>
+                    </Grid>
+
+                    <Grid item xs={12} md={6} xl={4} mt={-1} mb={1}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DemoContainer components={['MobileDateTimePicker']}>
+                          <DemoItem>
+                            <MobileDateTimePicker
+                              label="Registration Open Date"
+                              disabled={((isSubmitted || quiz) && (!editing || saving))}
+                              value={formState?.registrationOpenDateTime || dayjs(quizData?.registrationOpenDateTime)}
+                              onChange={(newValue) => {
+                                if (newValue && newValue.isValid()) {
+                                  setFormState(prevState => ({ ...prevState, registrationOpenDateTime: newValue }))
+                                }
+                              }}
+                              minDateTime={null}
+                              sx={{ width: '100%' }}
+                            />
+                          </DemoItem>
+                        </DemoContainer>
+                      </LocalizationProvider>
+                    </Grid>
+                  </Grid>
+
+                  <Grid mt={1} xs={12} md={12} xl={12} display="flex" gap={1}>
+                    <Grid item xs={12} md={6} xl={4}>
+                      <TextField
+                        disabled={((isSubmitted || quiz) && (!editing || saving))}
+                        id="outlined-required"
+                        label='Duration (seconds) *'
+                        name='durationInSeconds'
+                        fullWidth
+                        defaultValue={editing ? formState?.durationInSeconds : quiz?.durationInSeconds}
+                        onChange={handleChange}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} md={6} xl={4}>
+                      <CustomAutocomplete
+                        id="country-select-demo"
+                        sx={{
+                          width: "100%",
+                          '& .MuiAutocomplete-clearIndicator': {
+                            color: 'dark',
+                          },
+                        }}
+                        options={["6th", '7th', '8th', '9th', '10th', '11th', "12th"]}
+                        value={gradeValue}
+                        onChange={handleGradeChange}
+                        autoHighlight
+                        getOptionLabel={(option) => option ? option : 'Grade'}
+                        renderOption={(props, option) => (
+                          <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                            {option}
+                          </Box>
+                        )}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            placeholder="Grade/Class"
+                            inputProps={{
+                              ...params.inputProps,
+                              autoComplete: 'new-password', // disable autocomplete and autofill
+                              style: { color: 'dark', height: "10px" }, // set text color to dark
+                            }}
+                            InputLabelProps={{
+                              style: { color: 'dark' },
+                            }}
+                          />
+                        )}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} md={6} xl={4}>
+                      <TextField
+                        disabled={((isSubmitted || quiz) && (!editing || saving))}
+                        id="outlined-required"
+                        label='Min Participants *'
+                        name='maxParticipant'
+                        fullWidth
+                        defaultValue={editing ? formState?.maxParticipant : quiz?.maxParticipant}
+                        onChange={handleChange}
+                      />
+                    </Grid>
+                  </Grid>
+
+                  <Grid mt={1.5} xs={12} md={12} xl={12} display="flex" gap={1}>
+                    <Grid item xs={12} md={6} xl={4}>
+                      <CustomAutocomplete
+                        id="country-select-demo"
+                        sx={{
+                          width: "100%",
+                          '& .MuiAutocomplete-clearIndicator': {
+                            color: 'dark',
+                          },
+                        }}
+                        options={cityData}
+                        value={value}
+                        onChange={handleCityChange}
+                        autoHighlight
+                        getOptionLabel={(option) => option ? option.name : 'City'}
+                        renderOption={(props, option) => (
+                          <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                            {option.name}
+                          </Box>
+                        )}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            placeholder="Choose a City"
+                            inputProps={{
+                              ...params.inputProps,
+                              autoComplete: 'new-password', // disable autocomplete and autofill
+                              style: { color: 'dark', height: "10px" }, // set text color to dark
+                            }}
+                            InputLabelProps={{
+                              style: { color: 'dark' },
+                            }}
+                          />
+                        )}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} md={6} xl={4}>
+                      <FormControl sx={{ width: "100%" }}>
+                        <InputLabel id="demo-simple-select-autowidth-label">Reward Type *</InputLabel>
+                        <Select
+                          labelId="demo-simple-select-autowidth-label"
+                          id="demo-simple-select-autowidth"
+                          name='rewardType'
+                          value={formState?.rewardType || quiz?.rewardType}
+                          disabled={((isSubmitted || quiz) && (!editing || saving))}
+                          onChange={(e) => {
+                            setFormState(prevState => ({
+                              ...prevState,
+                              rewardType: e.target.value
+                            }))
+                          }}
+                          label="Reward Type"
+                          sx={{ minHeight: 43 }}
+                        >
+                          <MenuItem value="Cash">Cash</MenuItem>
+                          <MenuItem value="Certificate">Certificate</MenuItem>
+                          <MenuItem value="Goodies">Goodies</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+
+                    <Grid item xs={12} md={6} xl={4}>
+                      <FormControl sx={{ width: "100%" }}>
+                        <InputLabel id="demo-simple-select-autowidth-label">Status *</InputLabel>
+                        <Select
+                          labelId="demo-simple-select-autowidth-label"
+                          id="demo-simple-select-autowidth"
+                          name='status'
+                          value={formState?.status || quiz?.status}
+                          disabled={((isSubmitted || quiz) && (!editing || saving))}
+                          onChange={(e) => {
+                            setFormState(prevState => ({
+                              ...prevState,
+                              status: e.target.value
+                            }))
+                          }}
+                          label="Status"
+                          sx={{ minHeight: 43 }}
+                        >
+                          <MenuItem value="Active">Active</MenuItem>
+                          <MenuItem value="Inactive">Inactive</MenuItem>
+                          <MenuItem value="Draft">Draft</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                  </Grid>
+
+                  <Grid mt={1.5} xs={12} md={12} xl={12} display="flex" gap={1}>
+                    <Grid item xs={12} md={6} xl={4}>
+                      <FormGroup>
+                        <FormControlLabel
+                          checked={formState?.openForAll}
+                          disabled={isSubmitted}
+                          control={<Checkbox />}
+                          onChange={(e) => {
+                            setFormState(prevState => ({
+                              ...prevState,
+                              openForAll: e.target.checked
+                            }))
+                          }}
+                          label="Open For All" />
+                      </FormGroup>
+                    </Grid>
+
+                    <Grid item xs={12} md={6} xl={4}>
+                      <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(quizData?.image?.url && !quizImage) ? "warning" : ((quizData?.image?.url && quizImage) || quizImage) ? "error" : "success"} component="label">
+                        Upload Image(1080X720)
+                        <input
+                          hidden
+                          // disabled={((quizData || quiz) && (!editing))}
+                          accept="image/*"
+                          type="file"
+                          // onChange={(e)=>{setTitleImage(e.target.files)}}
+                          onChange={(e) => {
+                            setFormState(prevState => ({
+                              ...prevState,
+                              quizImage: e.target.files
+                            }));
+                            // setTitleImage(e.target.files);
+                            handleImage(e);
+                          }}
+                        />
+                      </MDButton>
+                    </Grid>
+                  </Grid>
+
+                </Grid>
+
+                <Grid  xs={12} md={12} xl={3} display="flex" justifyContent="flex-end">
+                  <Grid container mb={2} spacing={2} xs={12} md={12} xl={12} display="flex" justifyContent='flex-start' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                    {previewUrl ?
+
+                      <Grid item xs={12} md={12} xl={3} style={{ maxWidth: '100%', height: 'auto' }}>
+                        <Grid container xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
+                          <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
+                            <Card sx={{ minWidth: '100%', cursor: 'pointer' }}>
+                              <CardActionArea>
+                                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                  <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                    <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', height: 'auto' }}>
+                                      <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{ textAlign: 'center' }}>
+                                        Quiz Image
+                                      </Typography>
+                                    </MDBox>
+                                  </CardContent>
+                                </Grid>
+                                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                  <img src={previewUrl} style={{ maxWidth: '100%', height: 'auto', borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
+                                </Grid>
+                              </CardActionArea>
+                            </Card>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                      :
+                      <Grid item xs={12} md={12} xl={3} style={{ maxWidth: '100%', height: 'auto' }}>
+                        <Grid container xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
+                          <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
+                            <Card sx={{ minWidth: '100%', cursor: 'pointer' }}>
+                              <CardActionArea>
+                                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                  <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                    <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', height: 'auto' }}>
+                                      <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{ textAlign: 'center' }}>
+                                        Quiz Image
+                                      </Typography>
+                                    </MDBox>
+                                  </CardContent>
+                                </Grid>
+                                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                  <img src={quiz?.image} style={{width: "200px", height: "200px",  borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
+                                </Grid>
+                              </CardActionArea>
+                            </Card>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    }
+                  </Grid>
+                </Grid>
+
+                <Grid xs={12} md={12} xl={12}>
+                  <JoditEditor
+                    ref={editor}
+                    config={config}
+                    value={formState.description}
                     onChange={(e) => {
                       setFormState(prevState => ({
                         ...prevState,
-                        title: e.target.value
+                        description: e
                       }))
                     }}
+                    disabled={true}
+                    style={{ height: "100%" }}
                   />
-                </Grid>
-
-                <Grid item xs={12} md={6} xl={3} mt={-1} mb={1}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DemoContainer components={['MobileDateTimePicker']}>
-                      <DemoItem>
-                        <MobileDateTimePicker
-                          label="Start Date Time"
-                          disabled={((isSubmitted || quiz) && (!editing || saving))}
-                          value={formState?.startDateTime || dayjs(quizData?.startDateTime)}
-                          onChange={(newValue) => {
-                            if (newValue && newValue.isValid()) {
-                              setFormState(prevState => ({ ...prevState, startDateTime: newValue }))
-                            }
-                          }}
-                          minDateTime={null}
-                          sx={{ width: '100%' }}
-                        />
-                      </DemoItem>
-                    </DemoContainer>
-                  </LocalizationProvider>
-                </Grid>
-
-                <Grid item xs={12} md={6} xl={3} mt={-1} mb={1}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DemoContainer components={['MobileDateTimePicker']}>
-                      <DemoItem>
-                        <MobileDateTimePicker
-                          label="Registration Open Date"
-                          disabled={((isSubmitted || quiz) && (!editing || saving))}
-                          value={formState?.registrationOpenDateTime || dayjs(quizData?.registrationOpenDateTime)}
-                          onChange={(newValue) => {
-                            if (newValue && newValue.isValid()) {
-                              setFormState(prevState => ({ ...prevState, registrationOpenDateTime: newValue }))
-                            }
-                          }}
-                          minDateTime={null}
-                          sx={{ width: '100%' }}
-                        />
-                      </DemoItem>
-                    </DemoContainer>
-                  </LocalizationProvider>
-                </Grid>
-
-                <Grid item xs={12} md={6} xl={3}>
-                  <TextField
-                    disabled={((isSubmitted || quiz) && (!editing || saving))}
-                    id="outlined-required"
-                    label='Duration (seconds) *'
-                    name='durationInSeconds'
-                    fullWidth
-                    defaultValue={editing ? formState?.durationInSeconds : quiz?.durationInSeconds}
-                    onChange={handleChange}
-                  />
-                </Grid>
-
-                <Grid item xs={12} md={6} xl={3}>
-                  <CustomAutocomplete
-                    id="country-select-demo"
-                    sx={{
-                      width: "100%",
-                      '& .MuiAutocomplete-clearIndicator': {
-                        color: 'dark',
-                      },
-                    }}
-                    options={["6th", '7th', '8th', '9th', '10th', '11th', "12th"]}
-                    value={gradeValue}
-                    onChange={handleGradeChange}
-                    autoHighlight
-                    getOptionLabel={(option) => option ? option : 'Grade'}
-                    renderOption={(props, option) => (
-                      <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                        {option}
-                      </Box>
-                    )}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        placeholder="Grade/Class"
-                        inputProps={{
-                          ...params.inputProps,
-                          autoComplete: 'new-password', // disable autocomplete and autofill
-                          style: { color: 'dark', height: "10px" }, // set text color to dark
-                        }}
-                        InputLabelProps={{
-                          style: { color: 'dark' },
-                        }}
-                      />
-                    )}
-                  />
-                </Grid>
-
-                <Grid item xs={12} md={6} xl={3}>
-                  <TextField
-                    disabled={((isSubmitted || quiz) && (!editing || saving))}
-                    id="outlined-required"
-                    label='Min Participants *'
-                    name='maxParticipant'
-                    fullWidth
-                    defaultValue={editing ? formState?.maxParticipant : quiz?.maxParticipant}
-                    onChange={handleChange}
-                  />
-                </Grid>
-
-                <Grid item xs={12} md={6} xl={3}>
-                <CustomAutocomplete
-                  id="country-select-demo"
-                  sx={{
-                    width: "100%",
-                    '& .MuiAutocomplete-clearIndicator': {
-                      color: 'dark',
-                    },
-                  }}
-                  options={cityData}
-                  value={value}
-                  onChange={handleCityChange}
-                  autoHighlight
-                  getOptionLabel={(option) => option ? option.name : 'City'}
-                  renderOption={(props, option) => (
-                    <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                      {option.name}
-                    </Box>
-                  )}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      placeholder="Choose a City"
-                      inputProps={{
-                        ...params.inputProps,
-                        autoComplete: 'new-password', // disable autocomplete and autofill
-                        style: { color: 'dark', height: "10px" }, // set text color to dark
-                      }}
-                      InputLabelProps={{
-                        style: { color: 'dark' },
-                      }}
-                    />
-                  )}
-                />
-              </Grid>
-
-                <Grid item xs={12} md={6} xl={3}>
-                  <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Reward Type *</InputLabel>
-                    <Select
-                      labelId="demo-simple-select-autowidth-label"
-                      id="demo-simple-select-autowidth"
-                      name='rewardType'
-                      value={formState?.rewardType || quiz?.rewardType}
-                      disabled={((isSubmitted || quiz) && (!editing || saving))}
-                      onChange={(e) => {
-                        setFormState(prevState => ({
-                          ...prevState,
-                          rewardType: e.target.value
-                        }))
-                      }}
-                      label="Reward Type"
-                      sx={{ minHeight: 43 }}
-                    >
-                      <MenuItem value="Cash">Cash</MenuItem>
-                      <MenuItem value="Certificate">Certificate</MenuItem>
-                      <MenuItem value="Goodies">Goodies</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid item xs={12} md={6} xl={3}>
-                  <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Status *</InputLabel>
-                    <Select
-                      labelId="demo-simple-select-autowidth-label"
-                      id="demo-simple-select-autowidth"
-                      name='status'
-                      value={formState?.status || quiz?.status}
-                      disabled={((isSubmitted || quiz) && (!editing || saving))}
-                      onChange={(e) => {
-                        setFormState(prevState => ({
-                          ...prevState,
-                          status: e.target.value
-                        }))
-                      }}
-                      label="Status"
-                      sx={{ minHeight: 43 }}
-                    >
-                      <MenuItem value="Active">Active</MenuItem>
-                      <MenuItem value="Inactive">Inactive</MenuItem>
-                      <MenuItem value="Draft">Draft</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid item xs={12} md={6} xl={3}>
-                  <FormGroup>
-                    <FormControlLabel
-                      checked={formState?.openForAll}
-                      disabled={isSubmitted}
-                      control={<Checkbox />}
-                      onChange={(e) => {
-                        setFormState(prevState => ({
-                          ...prevState,
-                          openForAll: e.target.checked
-                        }))
-                      }}
-                      label="Open For All" />
-                  </FormGroup>
-                </Grid>
-
-                <Grid item xs={12} md={6} xl={!quiz ? 6 : 4}>
-                  <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(quizData?.image?.url && !quizImage) ? "warning" : ((quizData?.image?.url && quizImage) || quizImage) ? "error" : "success"} component="label">
-                    Upload Image(1080X720)
-                    <input
-                      hidden
-                      // disabled={((quizData || quiz) && (!editing))}
-                      accept="image/*"
-                      type="file"
-                      // onChange={(e)=>{setTitleImage(e.target.files)}}
-                      onChange={(e) => {
-                        setFormState(prevState => ({
-                          ...prevState,
-                          quizImage: e.target.files
-                        }));
-                        // setTitleImage(e.target.files);
-                        handleImage(e);
-                      }}
-                    />
-                  </MDButton>
-                </Grid>
-
-              </Grid>
-
-            </Grid>
-
-            <Grid container mb={2} spacing={2} xs={12} md={12} xl={12} mt={1} display="flex" justifyContent='flex-start' alignItems='center' style={{maxWidth:'100%', height:'auto'}}>
-          {previewUrl ?
-             
-             <Grid item xs={12} md={12} xl={3} style={{maxWidth:'100%', height:'auto'}}>
-              <Grid container xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
-                <Grid item xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
-                  <Card sx={{ minWidth: '100%', cursor:'pointer' }}>       
-                    <CardActionArea>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
-                      <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
-                        <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
-                        <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{textAlign:'center'}}>
-                            Quiz Image
-                        </Typography>
-                        </MDBox>
-                      </CardContent>
-                    </Grid>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
-                      <img src={previewUrl} style={{maxWidth: '100%',height: 'auto', borderBottomLeftRadius:10, borderBottomRightRadius:10}}/>
-                    </Grid>
-                    </CardActionArea>
-                  </Card>
                 </Grid>
               </Grid>
             </Grid>
-              :
-              <Grid item xs={12} md={12} xl={3} style={{maxWidth:'100%', height:'auto'}}>
-                <Grid container xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
-                  <Grid item xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
-                    <Card sx={{ minWidth: '100%', cursor:'pointer' }}>       
-                      <CardActionArea>
-                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
-                        <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
-                          <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
-                          <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{textAlign:'center'}}>
-                            Quiz Image
-                          </Typography>
-                          </MDBox>
-                        </CardContent>
-                      </Grid>
-                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
-                        <img src={quiz?.image} style={{maxWidth: '100%',height: 'auto', borderBottomLeftRadius:10, borderBottomRightRadius:10}}/>
-                      </Grid>
-                      </CardActionArea>
-                    </Card>
-                  </Grid>
-                </Grid>
-              </Grid>
-          }
-          </Grid>
+          
 
             <Grid container mt={2} xs={12} md={12} xl={12} >
               <Grid item display="flex" justifyContent="flex-end" xs={12} md={6} xl={12}>

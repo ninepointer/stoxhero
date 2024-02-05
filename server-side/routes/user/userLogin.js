@@ -114,7 +114,7 @@ router.post('/phonelogin', async (req,res, next)=>{
     
         const user = await UserDetail.findOne({mobile});
     
-        if(user.schoolDetails){
+        if(user?.schoolDetails?.grade){
             //todo-vijay replc messge
             return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'})
         }

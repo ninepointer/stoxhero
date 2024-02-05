@@ -32,13 +32,14 @@ const getAwsS3Url = async (file) => {
 
 exports.createQuiz = async (req, res) => {
     try {
-        const {grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status, maxParticipant, city } = req.body;
+        const {grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status, maxParticipant, city, openForAll } = req.body;
 
+        const openAll = (openForAll === 'false' || openForAll === 'undefined' || openForAll === false) ? false : true;
         let image;
         if (req.files['quizImage']) {
             image = await getAwsS3Url(req.files['quizImage'][0]);
         }
-        const newQuiz = new Quiz({image, maxParticipant, grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status, city });
+        const newQuiz = new Quiz({image, maxParticipant, grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status, city, openForAll: openAll });
         await newQuiz.save();
         res.status(201).json(newQuiz);
     } catch (error) {
@@ -50,11 +51,17 @@ exports.editQuiz = async (req, res) => {
     try {
         const quizId = req.params.id;
         const updates = req.body;
+        updates.openForAll = (updates?.openForAll === 'false' || updates?.openForAll === 'undefined' || updates?.openForAll === false) ? false : true;
+        
+        if (req.files['quizImage']) {
+            updates.image = await getAwsS3Url(req.files['quizImage'][0]);
+        }
         const updatedQuiz = await Quiz.findByIdAndUpdate(quizId, updates, { new: true });
         if (!updatedQuiz) {
             return res.status(404).json({ message: 'Quiz not found' });
         }
-        res.json(updatedQuiz);
+
+        res.status(201).json({status: "success", data: updatedQuiz });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -156,7 +163,8 @@ exports.editQuestionInQuiz = async (req, res) => {
 exports.editOptionInQuiz = async (req, res) => {
     try {
         const { quizId, questionId, optionId } = req.params;
-        const {optionKey, optionText, isCorrect} = req.body; // This will contain only the fields to be updated
+        let { optionKey, optionText, isCorrect } = req.body;
+        isCorrect = (isCorrect === 'false' || isCorrect === 'undefined' || isCorrect === false) ? false : true;
 
         const quiz = await Quiz.findById(quizId);
         if (!quiz) {
@@ -199,8 +207,8 @@ exports.editOptionInQuiz = async (req, res) => {
 exports.addOptionToQuiz = async (req, res) => {
     try {
         const {quizId, questionId} = req.params;
-        const { optionKey, optionText, isCorrect } = req.body;
-
+        let { optionKey, optionText, isCorrect } = req.body;
+        isCorrect = (isCorrect === 'false' || isCorrect === 'undefined' || isCorrect === false) ? false : true;
         let imageUrl = null;
         // const optionImages = [];
 

@@ -19,7 +19,7 @@ export default function CreateQuestions({ createQuestionForm, setCreateQuestionF
     const [formState, setFormState] = useState({
         optionKey: "" || option?.optionKey,
         optionText: "" || option?.optionText,
-        isCorrect: "" || option?.isCorrect,
+        isCorrect: false || option?.isCorrect,
     });
     const [quizImage, setQuizImage] = useState(null);
     const [isLoading, setIsLoading] = useState(false)
@@ -65,7 +65,7 @@ export default function CreateQuestions({ createQuestionForm, setCreateQuestionF
                 setTimeout(() => { setIsSubmitted(true) }, 500)
                 openSuccessSB(data.message, `Contest Reward Created with prize: ${data.data?.prize}`)
                 setCreateQuestionForm(!createQuestionForm);
-                setData(data?.data)
+                setData(data?.data?.options)
             } else {
                 setTimeout(() => { setIsSubmitted(false) }, 500)
                 console.log("Invalid Entry");
@@ -83,7 +83,7 @@ export default function CreateQuestions({ createQuestionForm, setCreateQuestionF
                 setTimeout(() => { setIsSubmitted(true) }, 500)
                 openSuccessSB(data.message, `Contest Reward Created with prize: ${data.data?.prize}`)
                 setCreateQuestionForm(!createQuestionForm);
-                setData(data?.data)
+                setData(data?.data?.options)
             } else {
                 setTimeout(() => { setIsSubmitted(false) }, 500)
                 console.log("Invalid Entry");
@@ -293,7 +293,7 @@ export default function CreateQuestions({ createQuestionForm, setCreateQuestionF
                             </Grid>
                         </Grid>
 
-                        <Grid item xs={12} md={6} xl={4} display='flex' gap={10}
+                        <Grid item xs={12} md={6} xl={4} mt={1} display='flex' gap={10}
                         // justifyContent={'space-around'} 
                         >
                             {!isSubmitted && (
