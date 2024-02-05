@@ -80,40 +80,45 @@ const quiz = {
   ],
 };
 
-export default quiz;
+// export default quiz;
 
-// function formatData(data){
-//   let que = [];
-//   data.questions.map((elem)=>{
-//     let checkTextOrPhoto = true;
-//     const option = [];
-//     const answer = [];
-//     elem.options.map((subelem, index)=>{
-//       subelem.optionText && option.push(subelem.optionText);
-//       subelem.optionImage && option.push(subelem.optionImage);
-
-//       if(subelem.isCorrect){
-//         answer.push(index+1)
-//       }
+function formatData(data){
+  const quiz = {
+    timer: data?.durationInSeconds,
+    quizId: data?._id,
+    quizTitle: data?.title,
+    nrOfQuestions: data?.questions?.length,
+  }
+  let que = [];
+  data.questions.map((elem)=>{
+    let checkTextOrPhoto = true;
+    const option = [];
+    const answer = [];
+    elem.options.map((subelem, index)=>{
+      subelem.optionText && option.push({option: subelem.optionText, _id: subelem?._id});
+      subelem.optionImage && option.push({option: subelem.optionImage, _id: subelem?._id});
       
-//       if(subelem.optionImage){
-//         checkTextOrPhoto = false;
-//       }
-//     })
-//     let obj = {
-//       question: elem.title,
-//       questionType: checkTextOrPhoto ? 'text' : 'photo',
-//       answerSelectionType: elem.type==='Single Correct' ? 'single' : 'multiple',
-//       answers: option,
-//       correctAnswer: answer.length === 1 ? `${answer[0]}` : answer,
-//       point: elem.score
-//     };
+      if(subelem.optionImage){
+        checkTextOrPhoto = false;
+      }
+    })
+    let obj = {
+      questionId: elem?._id,
+      question: elem?.title,
+      questionType: checkTextOrPhoto ? 'text' : 'photo',
+      answerSelectionType: elem?.type==='Single Correct' ? 'single' : 'multiple',
+      answers: option,
+      correctAnswer: answer?.length === 1 ? `${answer[0]}` : answer,
+      point: elem?.score
+    };
 
-//     if(elem.questionImage) obj.questionPic = elem.questionImage;
-//     que.push(obj)
-//   })
+    if(elem?.questionImage) obj.questionPic = elem?.questionImage;
+    que.push(obj)
+  })
 
-//   return que;
-// }
+  quiz.questions = que;
 
-// export default formatData;
+  return quiz;
+}
+
+export default formatData;

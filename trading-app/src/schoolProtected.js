@@ -7,8 +7,7 @@ const SchoolDetailsProtectedRoute = ({ children }) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        //todo-vijay
-        if (getDetails?.userDetails?.schoolDetails?.grade === null) {
+        if (getDetails?.userDetails?.schoolDetails?.grade != null) {
             setTimeout(()=>{
                 navigate('/finowledge');
             },400)

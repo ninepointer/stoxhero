@@ -85,6 +85,7 @@ import BlogData from "./layouts/HomePage/pages/BlogData";
 import Calculator from "./layouts/HomePage/pages/Calculator";
 import CollegeSignUp from './layouts/authentication/sign-up/collegeSignupLogin'
 import SchoolDetailsProtectedRoute from "./schoolProtected";
+import MyQuiz from "./layouts/schoolLobby/quizApp/docs/index"
 
 const TRACKING_ID = "UA-264098426-2"
 ReactGA.initialize(TRACKING_ID);
@@ -382,7 +383,8 @@ export default function App() {
           <Route path='/enter-mobile' element={<Register/>}/>
           <Route path='/registrationinfo' element={<RegisterInfo/>}/>
           <Route path='/lobby' element={<Lobby/>}/>
-          
+          <Route path='/myquiz' element={<MyQuiz/>}/>
+
           <Route path='/contact' element={<Contact/>}/>
           <Route path='/workshops' element={<Workshops location={myLocation.current}/>}/>
           <Route path='/blogs/:id' element={<BlogData/>}/>

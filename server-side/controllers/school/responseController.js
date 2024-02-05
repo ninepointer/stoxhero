@@ -9,6 +9,11 @@ exports.initiatQuiz = async (req, res) => {
         const userId = req.user._id;
         const quizId = req.params.id;
 
+        const findResponse = await Response.findOne({student: new ObjectId(userId), quiz: new ObjectId(quizId)});
+
+        if(findResponse){
+            return res.status(400).json({ message: "user response exist!" });
+        }
         const createResponse = await Response.create({
             student: userId, initiatedOn: new Date(), quiz: quizId,
             createdBy: userId, lastmodifiedBy: userId
@@ -24,7 +29,11 @@ exports.insertResponse = async (req, res) => {
     try {
         const userId = req.user._id;
         const quizId = req.params.id;
-        const {questionId, optionId, score}  = req.body;
+        const {questionId, optionId}  = req.body;
+
+        const getScore = await getCorrectAnswer(quizId, questionId, optionId);
+
+        const score = await getCorrectAnswer(quizId, questionId, optionId) ? getScore : 0;
 
         const userQuiz = await Response.findOne({student: new ObjectId(userId), quiz: new ObjectId(quizId)});
         const findQue = userQuiz?.responses?.some((elem)=>elem.questionId?.toString() === questionId?.toString())
@@ -91,5 +100,58 @@ exports.getCorrectAnswer = async (req, res) => {
         
     } catch (error) {
         res.status(400).json({ message: error.message });
+    }
+};
+
+exports.submitQuiz = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const quizId = req.params.id;
+        const {submittedBy} = req.body;
+
+        const response = await Response.findOne({student: new ObjectId(userId), quiz: new ObjectId(quizId)});
+
+        if(!response){
+            return res.status(400).json({ message: "user response not exist!" });
+        }
+
+        const totalScore = response.responses.reduce((total, elem)=>{
+            return total + elem.responseScore;
+        }, 0);
+
+        response.studentScore = totalScore;
+        response.submittedOn = new Date();
+        response.submittedBy = submittedBy;
+
+        const newResponse = await response.save({new: true})
+
+        res.status(201).json({status: 'success', data: newResponse});
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
+const getCorrectAnswer = async (quizId, questionId, optionId) => {
+    try {
+
+        const quiz = await Quiz.findById(new ObjectId(quizId));
+        if (!quiz) {
+            return false;
+        }
+
+        const question = quiz.questions.find(elem => elem?._id?.toString() === questionId?.toString());
+        if (!question) {
+            return false;
+        }
+
+        const option = question.options.find(subelem => subelem?._id?.toString() === optionId?.toString());
+        if (option && option.isCorrect) {
+            return question?.score
+        }
+
+        return false;
+        
+    } catch (error) {
+        console.log(error);
     }
 };

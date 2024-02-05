@@ -292,7 +292,7 @@ exports.getQuizForUser = async (req, res) => {
             }
         });
 
-        res.json(quiz);
+        res.status(201).json({status: 'success', data: quiz });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

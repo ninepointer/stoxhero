@@ -42,8 +42,9 @@ router.get(
     quizController.getMyQuizzesForUser
 );
 
+//todo-vijay add authentication
 router.get(
-    '/:id', 
+    '/:id', Authenticate,
     quizController.getQuizForUser
 );
 

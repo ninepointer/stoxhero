@@ -1,25 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import Quiz from '../lib/Quiz';
-// import formatData from './quiz';
+import formatData from './quiz';
 import axios from 'axios';
 import { apiUrl } from '../../../../constants/constants';
-import quiz from './quiz';
+// import quiz from './quiz';
 
 function Cover() {
-  const [data, setData] = useState();
-  const [quizResult, setQuizResult] = useState();
-  const id = "65bfae6a122814ae85ac1920";
-  // useEffect(()=>{
+  const [quizResult, setQuizResult] = useState({});
+  const id = "65bd1597d0283f5f82e70cd9";
+  useEffect(()=>{
+    fetchData();
+    initiateQuiz();
+  }, [])
 
-  // }, [])
+  async function fetchData(){
+    const data = await axios.get(`${apiUrl}quiz/${id}`, {withCredentials: true});
+    const quizData = formatData(data?.data?.data)
+    setQuizResult(quizData);
+  }
 
-  // async function fetchData(){
-  //   const data = await axios.get(`${apiUrl}quiz/`)
-  // }
+  async function initiateQuiz(){
+    const data = await axios.post(`${apiUrl}quiz/response/${id}`,null, {withCredentials: true});
+  }
+
   return (
     <div style={{ margin: 'auto', width: '500px' }}>
+      {quizResult.timer &&
       <Quiz
-        quiz={quiz}
+        quiz={quizResult}
         shuffle
         shuffleAnswer
         // showInstantFeedback
@@ -27,9 +35,9 @@ function Cover() {
         onComplete={setQuizResult}
         onQuestionSubmit={(obj) => console.log('user question results:', obj)}
         disableSynopsis
-        timer={quiz.timer}
+        timer={quizResult?.timer}
         // allowPauseTimer
-      />
+      />}
     </div>
   );
 }

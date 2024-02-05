@@ -8,7 +8,7 @@ export const rawMarkup = (data) => {
   return { __html: snarkdown(sanitizer(data)) };
 };
 
-export const checkAnswer = async (index, quizId, questionId, selectedOption, correctAnswer, answerSelectionType, answers, {
+export const checkAnswer = async (index, quizId, questionId, point, selectedOption, correctAnswer, answerSelectionType, answers, {
   userInput,
   userAttempt,
   currentQuestionIndex,
@@ -33,33 +33,12 @@ export const checkAnswer = async (index, quizId, questionId, selectedOption, cor
     3: { disabled: true },
   };
 
-  console.log("in check answer",quizId, questionId, selectedOption, correctAnswer, answerSelectionType, answers, {
-    userInput,
-    userAttempt,
-    currentQuestionIndex,
-    continueTillCorrect,
-    showNextQuestionButton,
-    incorrect,
-    correct,
-  })
-  // const userInputCopy = [...userInput];
+  const getAnswer = await axios.get(`${apiUrl}quiz/response/correctanswer/${quizId}/${questionId}/${selectedOption?._id}`, {withCredentials: true});
+  await axios.patch(`${apiUrl}quiz/response/insertresponse/${quizId}`,{questionId, optionId: selectedOption?._id, score: point}, {withCredentials: true});
 
-  // console.log("userInputCopy", userInputCopy)
-  
   if (answerSelectionType === 'single') {
-    // if (userInputCopy[currentQuestionIndex] === undefined) {
-    //   userInputCopy[currentQuestionIndex] = index;
-    // }
-
-    const getAnswer = await axios.get(`${apiUrl}quiz/response/correctanswer/${quizId}/${questionId}/${selectedOption?._id}`, {withCredentials: true});
 
     if (getAnswer?.data?.data) {
-      // if (incorrect.indexOf(currentQuestionIndex) < 0 && correct.indexOf(currentQuestionIndex) < 0) {
-      //   correct.push(currentQuestionIndex);
-      // }
-
-
-      // console.log("correct", correct)
 
       setButtons((prevState) => ({
         ...prevState,
@@ -74,11 +53,6 @@ export const checkAnswer = async (index, quizId, questionId, selectedOption, cor
       // setCorrect(correct);
       setShowNextQuestionButton(true);
     } else {
-      // if (correct.indexOf(currentQuestionIndex) < 0 && incorrect.indexOf(currentQuestionIndex) < 0) {
-      //   incorrect.push(currentQuestionIndex);
-      // }
-
-      // console.log("incorrect", incorrect)
       setButtons((prevState) => (
         {
 
