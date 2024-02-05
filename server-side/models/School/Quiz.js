@@ -42,6 +42,7 @@ const quizSchema = new mongoose.Schema({
         type:Schema.Types.ObjectId,
         ref:'city'
     },
+    description: String,
     image: String,
     maxParticipant: Number,
     grade: String,

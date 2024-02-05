@@ -181,7 +181,6 @@ function Index() {
     }
   };
 
-  console.log("bool", imageData)
   const removeImage = async (id, docId) => {
     try {
       const res = await fetch(`${apiUrl}blogs/removeImage/${id}/${docId}`, {
