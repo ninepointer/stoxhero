@@ -74,7 +74,7 @@ router.post('/schoollogin', async (req,res, next)=>{
     
         const user = await UserDetail.findOne({mobile});
     
-        if(!user){
+        if(!user?.schoolDetails?.grade){
             return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'})
         }
         if (user?.lastOtpTime && moment().subtract(29, 'seconds').isBefore(user?.lastOtpTime)) {
@@ -114,7 +114,7 @@ router.post('/phonelogin', async (req,res, next)=>{
     
         const user = await UserDetail.findOne({mobile});
     
-        if(user?.schoolDetails?.grade){
+        if(user?.creationProcess === 'School SignUp'){
             //todo-vijay replc messge
             return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'})
         }

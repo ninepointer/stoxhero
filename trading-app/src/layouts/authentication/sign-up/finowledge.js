@@ -21,7 +21,6 @@ import MDTypography from "../../../components/MDTypography";
 
 
 // Images
-import Footer from "../components/Footer";
 import MDButton from "../../../components/MDButton";
 
 function Cover() {
@@ -34,11 +33,6 @@ function Cover() {
   })
 
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"))
-
-  const handlePlaystoreNavigate = () => {
-    // Open google.com in a new tab
-    // window.open(`${setting?.playstore_link}`, '_blank');
-  };
   
   useEffect(() => {
     const handleScroll = () => {
@@ -102,7 +96,7 @@ function Cover() {
               <MDTypography variant={isMobile ? "body2" : "body1"} sx={{ color: '#D5F47E' }} style={{fontFamily: 'Work Sans , sans-serif'}}>North India in Finance Olympiad</MDTypography>
               <MDBox display='flex' justifyContent='space-between'>
                 <MDButton variant='contained' size='small' color='student' style={{marginTop:15,color:'#000', fontFamily: 'Work Sans , sans-serif'}} onClick={() => { navigate('/enter-mobile') }}>Register/Login</MDButton>
-                <MDButton variant='outlined' style={{marginTop:15, marginLeft:10, fontFamily: 'Work Sans , sans-serif'}}>Try Now</MDButton>
+                <MDButton variant='outlined' style={{marginTop:15, marginLeft:10, fontFamily: 'Work Sans , sans-serif'}} onClick={()=>{navigate('/tryquiz')}}>Try Now</MDButton>
               </MDBox>
             </MDBox>
           </Grid>

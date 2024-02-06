@@ -81,7 +81,7 @@ const Navbar = () => {
             </LinkButton>
             </a>
 
-            <a href="/finowledge">
+            <a href="/olympiad">
             <LinkButton spacing={0.5}>
               <Typography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}}>OLYMPIADS</Typography>
             </LinkButton>
@@ -93,7 +93,7 @@ const Navbar = () => {
             </LinkButton>
             </a>
 
-            <a href="/finowledge">
+            <a href="/contactus">
             <LinkButton spacing={0.5}>
               <Typography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}}>CONTACT US</Typography>
             </LinkButton>
@@ -123,19 +123,19 @@ const Navbar = () => {
             </LinkButton>
             </a>
 
-            <a href="/finowledge">
+            <a href="/olympiad">
             <LinkButton spacing={0.5}>
               <MDTypography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}} sx={{color:'#FFFFFF'}}>OLYMPIADS</MDTypography>
             </LinkButton>
             </a>
 
-            <a href="/about">
+            <a href="/aboutus">
             <LinkButton spacing={0.5}>
               <MDTypography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}} sx={{color:'#FFFFFF'}}>ABOUT US</MDTypography>
             </LinkButton>
             </a>
 
-            <a href="/finowledge">
+            <a href="/contactus">
             <LinkButton spacing={0.5}>
               <MDTypography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}} sx={{color:'#FFFFFF'}}>CONTACT US</MDTypography>
             </LinkButton>

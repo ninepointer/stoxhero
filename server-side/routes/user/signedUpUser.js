@@ -168,7 +168,7 @@ router.post("/schoolsignup", async (req, res) => {
     }
     const isExistingUser = await User.findOne({ mobile: mobile })
 
-    if (isExistingUser) {
+    if (isExistingUser?.schoolDetails?.grade) {
         return res.status(400).json({
             message: "Your account already exists. Please login with mobile",
             status: 'error'
@@ -342,6 +342,15 @@ router.patch("/verifyotp", async (req, res) => {
     }
 
     const checkUser = await User.findOne({mobile:user?.mobile});
+
+    if(checkUser && parents_name && school && grade){
+        checkUser.schoolDetails = schoolDetails;
+        checkUser.full_name = checkUser.first_name + " " + checkUser.last_name;
+        await checkUser.save({validateBeforeSave: false, new: true});
+
+        const newuser = await User.findOne({_id: new ObjectId(checkUser?._id)}).populate('schoolDetails.city', 'name')
+        return res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials."});
+    }
     if(checkUser && !checkUser?.collegeDetails?.college && collegeDetails){
         checkUser.collegeDetails = collegeDetails;
         const newuser = await checkUser.save({validateBeforeSave: false, new: true});
@@ -420,16 +429,18 @@ router.patch("/verifyotp", async (req, res) => {
             creation = 'Referral SignUp';
         } else if(match){
             creation = "Affiliate SignUp";
+        } else if(grade && school){
+            creation = "School SignUp";
         } else{
             creation = "Auto SignUp";
         }
         let obj = {
-            first_name: first_name?.trim() || full_name?.split(" ")[0] || "N/A", last_name: last_name?.trim() || full_name?.split(" ")[1] || "N/A", designation: 'Trader', email: email?.trim(),
+            first_name: first_name?.trim() || full_name?.split(" ")?.[0] || "N/A", last_name: last_name?.trim() || full_name?.split(" ")[1] || "N/A", designation: 'Trader', email: email?.trim(),
             full_name: full_name?.trim(),
             city: city,
             schoolDetails,
             mobile: mobile.trim(),
-            name: first_name?.trim() + ' ' + last_name?.trim().substring(0, 1),
+            name: (first_name?.trim() || full_name?.split(" ")?.[0]) + ' ' + (last_name?.trim()?.substring(0, 1) || full_name?.split(" ")?.[1]?.trim()?.substring(0, 1)),
             status: 'Active',
             employeeid: userId,
             joining_date: user.last_modifiedOn,
@@ -496,6 +507,7 @@ router.patch("/verifyotp", async (req, res) => {
             }
         ],
           })
+          .populate('schoolDetails.city', 'name')
         .select('schoolDetails full_name city dob pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
         const token = await newuser.generateAuthToken();
 
@@ -510,14 +522,14 @@ router.patch("/verifyotp", async (req, res) => {
         
         // now inserting userId in free portfolio's
         const idOfUser = newuser._id;
-        for (const portfolio of activeFreePortfolios) {
-            const portfolioValue = portfolio.portfolioValue;
+        // for (const portfolio of activeFreePortfolios) {
+        //     const portfolioValue = portfolio.portfolioValue;
 
-            await PortFolio.findByIdAndUpdate(
-                portfolio._id,
-                { $push: { users: { userId: idOfUser, portfolioValue: portfolioValue } } }
-            );
-        }
+        //     await PortFolio.findByIdAndUpdate(
+        //         portfolio._id,
+        //         { $push: { users: { userId: idOfUser, portfolioValue: portfolioValue } } }
+        //     );
+        // }
 
         //inserting user details to referredBy user and updating wallet balance
         if (referredBy) {

@@ -364,7 +364,7 @@ function Cover() {
               <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
                 <TextField
                   required
-                  // disabled={showEmailOTP}
+                  disabled={otpGen}
                   id="outlined-required"
                   
                   fullWidth
@@ -377,7 +377,7 @@ function Cover() {
               <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
                 <TextField
                   required
-                  // disabled={showEmailOTP}
+                  disabled={otpGen}
                   id="outlined-required"
                   placeholder="Parent's Name"
                   fullWidth
@@ -391,6 +391,7 @@ function Cover() {
                 <TextField
                    required
                    id="outlined-required"
+                   disabled={otpGen}
                    fullWidth
                    type={isFocused || dateValue ? 'date' : 'text'}
                    name="dob"
@@ -414,6 +415,7 @@ function Cover() {
                   }}
                   options={["6th", '7th', '8th', '9th', '10th', '11th', "12th"]}
                   value={gradeValue}
+                  disabled={otpGen}
                   onChange={handleGradeChange}
                   autoHighlight
                   getOptionLabel={(option) => option ? option : 'Grade'}
@@ -442,7 +444,7 @@ function Cover() {
               <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
                 <TextField
                   required
-                  // disabled={showEmailOTP}
+                  disabled={otpGen}
                   id="outlined-required"
                   placeholder="School"
                   fullWidth
@@ -464,6 +466,7 @@ function Cover() {
                   }}
                   options={cityData}
                   value={value}
+                  disabled={otpGen}
                   onChange={handleCityChange}
                   autoHighlight
                   getOptionLabel={(option) => option ? option.name : 'City'}
