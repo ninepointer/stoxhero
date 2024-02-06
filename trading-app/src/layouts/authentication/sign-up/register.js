@@ -247,7 +247,11 @@ function Cover() {
 
   return (
     <>
-      <MDBox mt={-1} display='flex' justifyContent='center' flexDirection='column' alignContent='center' alignItems='center' style={{ minHeight: 'auto', width: 'auto', minWidth: '100vW', overflow: 'visible' }}>
+      <MDBox mt={-1} display='flex' 
+      // justifyContent='center'
+       flexDirection='column'
+        alignContent='center' alignItems='center'
+         style={{ minHeight: 'auto', width: 'auto', minWidth: '100vW', overflow: 'visible' }}>
         <ThemeProvider theme={theme}>
           <FinNavbar />
 
@@ -257,12 +261,12 @@ function Cover() {
             xs={12}
             md={12}
             lg={12}
-            display='flex'
-            justifyContent='center'
-            alignItems='center'
+            // display='flex'
+            // justifyContent='center'
+            // alignItems='center'
             style={{
               display: 'flex',
-              justifyContent: 'center',
+              // justifyContent: 'center',
               alignContent: 'center',
               backgroundImage: `url(${background})`,
               backgroundSize: 'cover', // Make the background image responsive
@@ -270,7 +274,7 @@ function Cover() {
               height: '100vh',
               flexDirection: 'column',
               textAlign: 'center',
-              padding: '10px',
+              // padding: '10px',
               position: 'fixed',
               top: 0,
               left: 0,
@@ -281,16 +285,16 @@ function Cover() {
           >
 
             <Grid container xs={9} md={4} lg={4} display='flex' justifyContent='center' alignItems='center' style={{ backgroundColor: 'transparent', borderRadius: 10, position: 'relative', textAlign: 'center', width: '100%', height: '100vh', overflow: 'visible' }}>
-              <Grid mt={3} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
+              <Grid mt={3} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
                 <MDBox mt={3} display='flex' justifyContent='center' alignItems='center' style={{ overflow: 'visible' }}>
                   <img src={logo} width={250} alt="Logo" />
                 </MDBox>
                 <MDBox mt={1} display='flex' justifyContent='center' alignItems='center' style={{ overflow: 'visible' }}>
-                  <MDTypography variant='body1' style={{fontFamily: 'Work Sans , sans-serif', color:'#D5F47E'}}>Online Finance Olympiad</MDTypography>
+                  <MDTypography variant='body1' style={{ fontFamily: 'Work Sans , sans-serif', color: '#D5F47E' }}>Online Finance Olympiad</MDTypography>
                 </MDBox>
               </Grid>
 
-              <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
+              <Grid item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
                 <TextField
                   required
                   disabled={otpGen}
@@ -316,7 +320,7 @@ function Cover() {
 
               {invalidDetail &&
                 <Grid item xs={12} md={12} lg={12} mb={.25} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                  <MDTypography fontSize={12} variant="button" color={invalidDetail && "error"} style={{fontFamily: 'Work Sans , sans-serif'}}>
+                  <MDTypography fontSize={12} variant="button" color={invalidDetail && "error"} style={{ fontFamily: 'Work Sans , sans-serif' }}>
                     {invalidDetail && invalidDetail}
                   </MDTypography>
                 </Grid>
@@ -324,8 +328,8 @@ function Cover() {
 
               {!otpGen &&
                 <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
-                  <MDBox mb={5} display='flex' justifyContent='center'>
-                    <MDButton fullWidth variant='contained' size='small' color='student' style={{ marginTop: 15, color: '#000' }} onClick={
+                  <MDBox display='flex' justifyContent='center'>
+                    <MDButton fullWidth variant='contained' size='small' color='student' style={{ color: '#000' }} onClick={
                       (e) => {
                         getOtpForLogin(e)
                       }
@@ -335,7 +339,7 @@ function Cover() {
               {otpGen &&
                 <>
                   <Grid item xs={12} md={6} lg={6} display="flex" justifyContent="center">
-                    <MDButton style={{fontFamily: 'Work Sans , sans-serif', padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }} disabled={timerActiveSi} variant="text" color="#000" fullWidth onClick={() => { resendOTP('mobile') }}>
+                    <MDButton style={{ fontFamily: 'Work Sans , sans-serif', padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }} disabled={timerActiveSi} variant="text" color="#000" fullWidth onClick={() => { resendOTP('mobile') }}>
                       {timerActiveSi ? `Resend Mobile OTP in ${resendTimerSi} seconds` : 'Resend Mobile OTP'}
                     </MDButton>
                   </Grid>
