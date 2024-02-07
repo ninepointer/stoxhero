@@ -43,7 +43,12 @@ function Cover({update}) {
 
         // Remove the temporary textarea
         document.body.removeChild(textarea);
-        openSuccessSB("Success", "Share this link to your friends.")
+        openSuccessSB("Success", "Share this link with your friends.")
+    };
+    function handleStartClick(startDateTime) {
+        if(new Date(startDateTime) < new Date()){
+            openSuccessSB("Success", `The Olympiad will start on ${moment.utc(startDateTime).utcOffset('+05:30').format('DD MMM YY HH:mm a')} `)
+        }
     };
 
 
@@ -128,7 +133,7 @@ function Cover({update}) {
                                         <Grid mb={-2} container display='flex' justifyContent='space-between' xs={12} md={12} lg={12}>
                                             <Grid item display='flex' justifyContent='space-between' alignContent={'center'} alignItems={'center'} xs={12} md={12} lg={12}>
                                                 <MDButton size="small" style={{ fontFamily: 'Work Sans , sans-serif' }} onClick={handleCopyClick} >Invite Friends</MDButton>
-                                                <MDButton size="small" style={{ fontFamily: 'Work Sans , sans-serif' }} 
+                                                <MDButton size="small" style={{ fontFamily: 'Work Sans , sans-serif' }} onClick={()=>{handleStartClick(elem?.startDateTime)}} 
                                                  >Start</MDButton>
                                                 <MDButton style={{color: 'green', backgroundColor: '#ffffff', fontFamily: 'Work Sans , sans-serif'}} onClick={joinGroup} ><WhatsAppIcon/> </MDButton>
                                             </Grid>
