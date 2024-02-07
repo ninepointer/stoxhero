@@ -9,6 +9,9 @@ import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
 import Active from '../data/active';
+import Inactive from '../data/inactive';
+import Draft from '../data/draft';
+import Complete from '../data/complete';
 
 
 export default function LabTabs() {
@@ -51,7 +54,7 @@ export default function LabTabs() {
             <Tab label="Active" value="1" />
             <Tab label="Inactive" value="2" />
             <Tab label="Draft" value="3" />
-            <Tab label="Completed" value="7" />
+            <Tab label="Completed" value="4" />
           </TabList>
         </MDBox>
           <TabPanel value="1">
@@ -74,7 +77,7 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-          <Active/>
+          <Inactive/>
           </MDBox>
           }
           </TabPanel>
@@ -86,7 +89,7 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-          <Active/>
+          <Draft/>
           </MDBox>
    
           }
@@ -99,7 +102,7 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-          <Active/>
+          <Complete/>
           </MDBox>
    
           }

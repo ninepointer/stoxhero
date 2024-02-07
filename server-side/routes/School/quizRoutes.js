@@ -30,6 +30,21 @@ router.get(
 );
 
 router.get(
+    '/inactive', Authenticate, restrictTo('Admin', 'SuperAdmin'),
+    quizController.getInActiveQuizForAdmin
+);
+
+router.get(
+    '/draft', Authenticate, restrictTo('Admin', 'SuperAdmin'),
+    quizController.getDraftQuizForAdmin
+);
+
+router.get(
+    '/completed', Authenticate, restrictTo('Admin', 'SuperAdmin'),
+    quizController.getCompletedQuizForAdmin
+);
+
+router.get(
     '/user', Authenticate,
     quizController.getAllQuizzesForUser
 );

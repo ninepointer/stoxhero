@@ -25,7 +25,7 @@ import { Autocomplete, Box } from "@mui/material";
 import { styled } from '@mui/material';
 import axios from 'axios';
 import JoditEditor from 'jodit-react';
-
+import RegisteredUser from "./data/registeredUsers";
 
 const CustomAutocomplete = styled(Autocomplete)`
   .MuiAutocomplete-clearIndicator {
@@ -697,11 +697,11 @@ function Index() {
                 </MDBox>
               </Grid>}
               
-              {/* {(quiz || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+              {(quiz || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                 <MDBox>
-                  <RegisteredUsers quizData={quiz?._id ? quiz : quizData} action={action} setAction={setAction} />
+                  <RegisteredUser data={quiz?._id ? quiz?.registrations : quizData?.registrations} />
                 </MDBox>
-              </Grid>} */}
+              </Grid>}
 
             </Grid>
 

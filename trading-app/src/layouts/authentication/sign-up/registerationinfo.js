@@ -23,6 +23,7 @@ import { userContext } from '../../../AuthContext';
 import MDButton from "../../../components/MDButton";
 import { Autocomplete, Box } from "@mui/material";
 import { styled } from '@mui/material';
+import { Helmet } from "react-helmet";
 
 
 
@@ -142,7 +143,7 @@ function Cover() {
         "Access-Control-Allow-Credentials": false
       },
       body: JSON.stringify({
-        full_name: full_name.trim(),
+        student_name: full_name.trim(),
         mobile: mobile,
         parents_name: parents_name.trim(),
         grade: gradeValue, school,
@@ -186,7 +187,7 @@ function Cover() {
       },
       body: JSON.stringify({
         mobile_otp: mobileOtp,
-        full_name,
+        student_name: full_name,
         mobile,
         parents_name,
         grade: gradeValue, school,
@@ -323,7 +324,11 @@ function Cover() {
       <MDBox mt={-1} display='flex' justifyContent='center' flexDirection='column' alignContent='center' alignItems='center' style={{ minHeight: 'auto', width: 'auto', minWidth: '100vW', overflow: 'visible' }}>
         <ThemeProvider theme={theme}>
           <FinNavbar />
-
+          <Helmet>
+            <title>{"StoxHero Finance Olympiad"}</title>
+            <meta name='description' content="NFO gives schools access to a comprehensive financial syllabus, and India's pioneering Finance Examination, both meticulously crafted to cater to school children."/>
+            {/* <meta name='keywords' content={blogData?.keywords} /> */}
+          </Helmet>
           <Grid
             container
             mt={0}

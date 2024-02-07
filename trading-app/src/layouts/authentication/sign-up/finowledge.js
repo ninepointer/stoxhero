@@ -22,6 +22,8 @@ import MDTypography from "../../../components/MDTypography";
 
 // Images
 import MDButton from "../../../components/MDButton";
+import { Helmet } from "react-helmet";
+
 
 function Cover() {
   const [isLoading,setIsLoading] = useState(false);
@@ -49,13 +51,23 @@ function Cover() {
   const backgroundColor = scrollPosition > 10 ? 'rgba(0, 0, 0, 0.8)' : 'transparent'
   const backdropFilter = scrollPosition > 10 ? 'blur(5px)' : 'none'
 
-  
+  function joinGroup(){
+    window.open('https://chat.whatsapp.com/Bcjt7NbDTyz1odeF8RDtih', '_blank');
+
+  }
 
   return (
     <>
       <MDBox mt={-1} display='flex' justifyContent='center' flexDirection='column' alignContent='center' alignItems='center' style={{ minHeight:'auto', width: 'auto', minWidth:'100vW', overflow: 'visible'}}>
       <ThemeProvider theme={theme}>
       <FinNavbar/>
+
+          <Helmet>
+            <title>{"StoxHero Finance Olympiad"}</title>
+            <meta name='description' content="NFO gives schools access to a comprehensive financial syllabus, and India's pioneering Finance Examination, both meticulously crafted to cater to school children."/>
+            {/* <meta name='keywords' content={blogData?.keywords} /> */}
+          </Helmet>
+
       
       <Grid
           container
@@ -97,6 +109,7 @@ function Cover() {
               <MDBox display='flex' justifyContent='space-between'>
                 <MDButton variant='contained' size='small' color='student' style={{marginTop:15,color:'#000', fontFamily: 'Work Sans , sans-serif'}} onClick={() => { navigate('/enter-mobile') }}>Register/Login</MDButton>
                 <MDButton variant='outlined' style={{marginTop:15, marginLeft:10, fontFamily: 'Work Sans , sans-serif'}} onClick={()=>{navigate('/tryquiz')}}>Try Now</MDButton>
+                {/* <MDButton variant='outlined' style={{color: 'green', backgroundColor: '#ffffff', marginTop:15, marginLeft:10, fontFamily: 'Work Sans , sans-serif'}} onClick={joinGroup} ><WhatsAppIcon/> </MDButton> */}
               </MDBox>
             </MDBox>
           </Grid>

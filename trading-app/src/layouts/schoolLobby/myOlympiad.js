@@ -15,6 +15,7 @@ import MDButton from "../../components/MDButton";
 import axios from 'axios';
 import { apiUrl } from "../../constants/constants";
 import { useNavigate } from "react-router-dom";
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 function Cover({update}) {
 
@@ -85,6 +86,10 @@ function Cover({update}) {
       />
     );
 
+    function joinGroup(){
+        window.open('https://chat.whatsapp.com/Bcjt7NbDTyz1odeF8RDtih', '_blank');
+      }
+
     return (
         <Grid mb={2} container xs={10} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ zIndex: 10, overflow: 'visible' }}>
             {data.length >0 ?
@@ -121,11 +126,11 @@ function Cover({update}) {
                                     </CardContent>
                                     <CardContent>
                                         <Grid mb={-2} container display='flex' justifyContent='space-between' xs={12} md={12} lg={12}>
-                                            <Grid item display='flex' justifyContent='space-between' xs={12} md={12} lg={12}>
+                                            <Grid item display='flex' justifyContent='space-between' alignContent={'center'} alignItems={'center'} xs={12} md={12} lg={12}>
                                                 <MDButton size="small" style={{ fontFamily: 'Work Sans , sans-serif' }} onClick={handleCopyClick} >Invite Friends</MDButton>
                                                 <MDButton size="small" style={{ fontFamily: 'Work Sans , sans-serif' }} 
-                                                // onClick={()=>{navigate('/myquiz')}}
                                                  >Start</MDButton>
+                                                <MDButton style={{color: 'green', backgroundColor: '#ffffff', fontFamily: 'Work Sans , sans-serif'}} onClick={joinGroup} ><WhatsAppIcon/> </MDButton>
                                             </Grid>
                                         </Grid>
                                     </CardContent>

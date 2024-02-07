@@ -47,6 +47,9 @@ function Cover() {
   const backgroundColor = scrollPosition > 10 ? 'rgba(0, 0, 0, 0.8)' : 'transparent'
   const backdropFilter = scrollPosition > 10 ? 'blur(5px)' : 'none'
 
+  function joinGroup(){
+    window.open('https://chat.whatsapp.com/Bcjt7NbDTyz1odeF8RDtih', '_blank');
+  }
   return (
     <>
       <MDBox mt={-1} display='flex' justifyContent='center' flexDirection='column' alignContent='center' alignItems='center' style={{ minHeight:'auto', width: 'auto', minWidth:'100vW', overflow: 'visible'}}>      
@@ -90,7 +93,7 @@ function Cover() {
                 <MDAvatar src={logo} size='md' alt="something here" />
             </MDBox>
             <MDBox display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
-              <MDTypography variant='body2' style={{fontFamily: 'Nunito'}}>{user?.full_name || "Your Name"}</MDTypography>
+              <MDTypography variant='body2' style={{fontFamily: 'Nunito'}}>{user?.student_name || "Your Name"}</MDTypography>
             </MDBox>
             <MDBox display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
               <MDTypography variant='caption' style={{fontFamily: 'Nunito'}}>Class: {user?.schoolDetails?.grade || "Your Grade"}</MDTypography>
@@ -100,6 +103,12 @@ function Cover() {
             </MDBox>
           </Grid>
         </Grid>
+
+        {/* <Grid container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{zIndex:10, overflow: 'visible' }}>
+        <Grid p={.5} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'#25d366', borderRadius:10, cursor: 'pointer'}}>
+            <MDTypography variant='body2' style={{fontFamily: 'Work Sans , sans-serif', color: 'white'}} onClick={joinGroup}>JOIN WHATSAPP GROUP</MDTypography>
+        </Grid>
+        </Grid> */}
 
         <Grid container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{zIndex:10, overflow: 'visible' }}>
         <Grid p={.5} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'#D5F47E', borderRadius:10}}>

@@ -176,8 +176,8 @@ const Contact = () => {
             <Card style={{ maxWidth: 470,margin: "80px auto 0px auto", padding: "15px 5px", textAlign: "left" }} sx={{ xs: "20px" }} >
                 <CardContent>
 
-                    <Typography gutterBottom variant='h5' style={{textAlign:'center'}} color='#353535'>Get in Touch with StoxHero - Contact Us Today</Typography>
-                    <Typography gutterBottom variant='body2' style={{textAlign:'center'}} component="p" color="#353535">Fill up the form and our team will get back to you within 24 hours.</Typography>
+                    <Typography gutterBottom variant='h5' style={{textAlign:'center', fontFamily: 'Work Sans , sans-serif'}} color='#353535'>Get in Touch with StoxHero - Contact Us Today</Typography>
+                    <Typography gutterBottom variant='body2' style={{textAlign:'center', fontFamily: 'Work Sans , sans-serif'}} component="p" color="#353535">Fill up the form and our team will get back to you within 24 hours.</Typography>
 
                     <form onSubmit={HandleSubmit} >
 

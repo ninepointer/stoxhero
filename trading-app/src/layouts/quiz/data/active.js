@@ -82,6 +82,10 @@ const Active = () => {
                           <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>Name: {e?.title}</MDTypography>
                         </Grid>
 
+                        <Grid item xs={12} md={6} lg={12} mt={1} mb={1} display="flex" justifyContent="left" >
+                          <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>Grade: {e?.grade}</MDTypography>
+                        </Grid>
+
                         {/* <Grid item xs={12} md={6} lg={12} display={"flex"} justifyContent={"center"} alignItems={"center"}>
                                 <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
                                   <MDTypography fontSize={9} style={{ color: "black" }}>Registrations: <span style={{ fontSize: 9, fontWeight: 700 }}>{e?.participants?.length}</span></MDTypography>

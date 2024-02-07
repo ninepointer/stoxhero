@@ -43,7 +43,7 @@ const userDetailSchema = new mongoose.Schema({
         type: String,
         required : true
     },
-    full_name:String,
+    student_name:String,
     city:String,
     schoolDetails:{
         parents_name: String,
