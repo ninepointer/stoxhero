@@ -584,7 +584,7 @@ router.post('/createusermobile', async(req,res, next)=>
             });    
            
             console.log("sending response");
-            res.status(201).json({ status: "Success", data: populatedUser, message: "Account created successfully.", token: token });
+            
             
             // now inserting userId in free portfolio's
             const idOfUser = newuser._id;
@@ -918,6 +918,8 @@ router.post('/createusermobile', async(req,res, next)=>
                 </html>
     
             `
+            
+            res.status(201).json({ status: "Success", data: populatedUser, message: "Account created successfully.", token: token });
             if(process.env.PROD == 'true'){
                 await emailService(newuser.email, subject, message);
             }

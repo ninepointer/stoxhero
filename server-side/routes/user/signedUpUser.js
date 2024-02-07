@@ -348,7 +348,12 @@ router.patch("/verifyotp", async (req, res) => {
         checkUser.full_name = checkUser.first_name + " " + checkUser.last_name;
         await checkUser.save({validateBeforeSave: false, new: true});
 
-        const newuser = await User.findOne({_id: new ObjectId(checkUser?._id)}).populate('schoolDetails.city', 'name')
+        const newuser = await User.findOne({_id: new ObjectId(checkUser?._id)}).populate('schoolDetails.city', 'name');
+        const token = await newuser.generateAuthToken();
+
+        res.cookie("jwtoken", token, {
+            expires: new Date(Date.now() + 25892000000),
+        }); 
         return res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials."});
     }
     if(checkUser && !checkUser?.collegeDetails?.college && collegeDetails){
