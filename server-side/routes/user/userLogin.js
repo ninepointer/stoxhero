@@ -114,7 +114,7 @@ router.post('/phonelogin', async (req,res, next)=>{
     
         const user = await UserDetail.findOne({mobile});
     
-        if(user.schoolDetails){
+        if(user?.schoolDetails?.grade){
             //todo-vijay replc messge
             return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'})
         }
@@ -575,16 +575,16 @@ router.post('/createusermobile', async(req,res, next)=>
             ],
               })
             .select('pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
-            const token = await newuser.generateAuthToken();
+            // const token = await newuser.generateAuthToken();
     
-            // console.log("Token:",token)
+            // // console.log("Token:",token)
     
-            res.cookie("jwtoken", token, {
-                expires: new Date(Date.now() + 25892000000),
-            });    
+            // res.cookie("jwtoken", token, {
+            //     expires: new Date(Date.now() + 25892000000),
+            // });    
            
-            console.log("sending response");
-            res.status(201).json({ status: "Success", data: populatedUser, message: "Account created successfully.", token: token });
+            // console.log("sending response");
+            // res.status(201).json({ status: "Success", data: populatedUser, message: "Account created successfully.", token: token });
             
             // now inserting userId in free portfolio's
             const idOfUser = newuser._id;
@@ -752,6 +752,7 @@ router.post('/createusermobile', async(req,res, next)=>
                             },
                             { new: true, validateBeforeSave: false }
                         );
+                        
     
                         // const wallet = await UserWallet.findOne({ userId: saveReferrals._id });
                         // wallet.transactions = [...wallet.transactions, {
@@ -795,6 +796,16 @@ router.post('/createusermobile', async(req,res, next)=>
             }
     
             if (!newuser) return res.status(400).json({ status: 'error', message: 'Something went wrong' });
+            const token = await newuser.generateAuthToken();
+    
+            // console.log("Token:",token)
+    
+            res.cookie("jwtoken", token, {
+                expires: new Date(Date.now() + 25892000000),
+            });    
+           
+            console.log("sending response");
+            res.status(201).json({ status: "Success", data: populatedUser, message: "Account created successfully.", token: token });
     
             // res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
             // let email = newuser.email;
