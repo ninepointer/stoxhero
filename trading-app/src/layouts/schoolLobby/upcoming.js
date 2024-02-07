@@ -48,7 +48,7 @@ function Cover({setUpdate, update}) {
 
         // Remove the temporary textarea
         document.body.removeChild(textarea);
-        openSuccessSB("Success", "Share this link to your friends.")
+        openSuccessSB("Success", "Share this link with your friends.")
     };
 
     async function registration(id) {

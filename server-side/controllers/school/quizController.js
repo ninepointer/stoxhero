@@ -525,7 +525,7 @@ exports.registration = async (req, res) => {
 
         const quizDate = convertTime(getquiz?.startDateTime)
 
-        res.status(201).json({status: "success", data: quizzes, message: `Thank you for registering. The quiz will starts on ${quizDate}. Please participate in the quiz.` });
+        res.status(201).json({status: "success", data: quizzes, message: `Thank you for registering. The quiz will start on ${quizDate}.` });
 
     } catch (error) {
         res.status(500).json({ message: error.message });
