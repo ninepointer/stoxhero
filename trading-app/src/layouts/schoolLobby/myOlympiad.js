@@ -46,8 +46,8 @@ function Cover({update}) {
         openSuccessSB("Success", "Share this link with your friends.")
     };
     function handleStartClick(startDateTime) {
-        if(new Date(startDateTime) < new Date()){
-            openSuccessSB("Success", `The Olympiad will start on ${moment.utc(startDateTime).utcOffset('+05:30').format('DD MMM YY HH:mm a')} `)
+        if(new Date(startDateTime) > new Date()){
+            openSuccessSB("Not started Yet", `The Olympiad will start on ${moment.utc(startDateTime).utcOffset('+05:30').format('DD MMM YY HH:mm a')} `)
         }
     };
 
@@ -62,7 +62,7 @@ function Cover({update}) {
     const openSuccessSB = (value, content) => {
       // console.log("Value: ",value)
       if (value === "Success") {
-        setTitle("Successfull");
+        setTitle('Successful');
         setContent(content);
         setColor("success");
         setIcon("check")
@@ -72,6 +72,11 @@ function Cover({update}) {
         setTitle("Error");
         setContent(content);
         setColor("error");
+        setIcon("warning")
+      }else{
+        setTitle(value);
+        setContent(content);
+        setColor("warning");
         setIcon("warning")
       };
       setSuccessSB(true);
