@@ -87,7 +87,7 @@ const Navbar = () => {
             </LinkButton>
             </a>
 
-            <a href="/about">
+            <a href="/aboutus">
             <LinkButton spacing={0.5}>
               <Typography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}}>ABOUT US</Typography>
             </LinkButton>
