@@ -23,6 +23,7 @@ import { userContext } from '../../../AuthContext';
 import MDButton from "../../../components/MDButton";
 import { Autocomplete, Box } from "@mui/material";
 import { styled } from '@mui/material';
+import { Helmet } from "react-helmet";
 
 
 
@@ -142,7 +143,7 @@ function Cover() {
         "Access-Control-Allow-Credentials": false
       },
       body: JSON.stringify({
-        full_name: full_name.trim(),
+        student_name: full_name.trim(),
         mobile: mobile,
         parents_name: parents_name.trim(),
         grade: gradeValue, school,
@@ -186,7 +187,7 @@ function Cover() {
       },
       body: JSON.stringify({
         mobile_otp: mobileOtp,
-        full_name,
+        student_name: full_name,
         mobile,
         parents_name,
         grade: gradeValue, school,
@@ -323,7 +324,11 @@ function Cover() {
       <MDBox mt={-1} display='flex' justifyContent='center' flexDirection='column' alignContent='center' alignItems='center' style={{ minHeight: 'auto', width: 'auto', minWidth: '100vW', overflow: 'visible' }}>
         <ThemeProvider theme={theme}>
           <FinNavbar />
-
+          <Helmet>
+            <title>{"StoxHero Finance Olympiad"}</title>
+            <meta name='description' content="NFO gives schools access to a comprehensive financial syllabus, and India's pioneering Finance Examination, both meticulously crafted to cater to school children."/>
+            {/* <meta name='keywords' content={blogData?.keywords} /> */}
+          </Helmet>
           <Grid
             container
             mt={0}
@@ -364,7 +369,7 @@ function Cover() {
               <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
                 <TextField
                   required
-                  // disabled={showEmailOTP}
+                  disabled={otpGen}
                   id="outlined-required"
                   
                   fullWidth
@@ -377,7 +382,7 @@ function Cover() {
               <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
                 <TextField
                   required
-                  // disabled={showEmailOTP}
+                  disabled={otpGen}
                   id="outlined-required"
                   placeholder="Parent's Name"
                   fullWidth
@@ -391,6 +396,7 @@ function Cover() {
                 <TextField
                    required
                    id="outlined-required"
+                   disabled={otpGen}
                    fullWidth
                    type={isFocused || dateValue ? 'date' : 'text'}
                    name="dob"
@@ -414,6 +420,7 @@ function Cover() {
                   }}
                   options={["6th", '7th', '8th', '9th', '10th', '11th', "12th"]}
                   value={gradeValue}
+                  disabled={otpGen}
                   onChange={handleGradeChange}
                   autoHighlight
                   getOptionLabel={(option) => option ? option : 'Grade'}
@@ -442,7 +449,7 @@ function Cover() {
               <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
                 <TextField
                   required
-                  // disabled={showEmailOTP}
+                  disabled={otpGen}
                   id="outlined-required"
                   placeholder="School"
                   fullWidth
@@ -464,6 +471,7 @@ function Cover() {
                   }}
                   options={cityData}
                   value={value}
+                  disabled={otpGen}
                   onChange={handleCityChange}
                   autoHighlight
                   getOptionLabel={(option) => option ? option.name : 'City'}

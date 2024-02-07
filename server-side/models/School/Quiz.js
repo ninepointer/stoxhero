@@ -36,19 +36,21 @@ const quizSchema = new mongoose.Schema({
     }],
     registrations:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
-        registeredOn:{type:Date}
+        registeredOn:{type:Date},
+        registrationId: {type:String}
     }],
     city:{
         type:Schema.Types.ObjectId,
         ref:'city'
     },
+    description: String,
     image: String,
     maxParticipant: Number,
     grade: String,
     openForAll: Boolean,
     status:{
         type:String,
-        enum:['Active', 'Inactive', 'Draft']
+        enum:['Active', 'Inactive', 'Draft', 'Completed']
     },
     createdOn:{
         type: Date,

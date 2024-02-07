@@ -20,10 +20,13 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+
 
 function Cover({setUpdate, update}) {
 
     const [data, setData] = useState([]);
+    const [registrationMessage, setRegistrationMessage] = useState("");
 
     useEffect(()=>{
         fetchData();
@@ -64,10 +67,14 @@ function Cover({setUpdate, update}) {
         if (res.status === 200 || res.status === 201) {
             setData(data?.data)
             setUpdate(!update)
+            setRegistrationMessage(data?.message)
             setOpen(true)
+            
             // openSuccessSB("Success", data.message);
         } else {
-            openSuccessSB("Something went wrong", data.mesaage);
+            setRegistrationMessage(data?.message)
+            setOpen(true)
+            // openSuccessSB("Something went wrong", data.mesaage);
         }
     }
 
@@ -118,6 +125,10 @@ function Cover({setUpdate, update}) {
         setOpen(false);
     };
 
+    function joinGroup() {
+        window.open('https://chat.whatsapp.com/Bcjt7NbDTyz1odeF8RDtih', '_blank');
+    }
+
     return (
         <>
             <Grid mt={2} container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ zIndex: 1, overflow: 'visible' }}>
@@ -164,6 +175,7 @@ function Cover({setUpdate, update}) {
                                                 <Grid item display='flex' justifyContent='space-between' xs={12} md={12} lg={12}>
                                                     <MDButton size="small" style={{ fontFamily: 'Work Sans , sans-serif' }} onClick={handleCopyClick} >Invite Friends</MDButton>
                                                     <MDButton size="small" style={{ fontFamily: 'Work Sans , sans-serif' }} onClick={() => { registration(elem?._id) }}>Register</MDButton>
+                                                    <MDButton style={{color: 'green', backgroundColor: '#ffffff', fontFamily: 'Work Sans , sans-serif'}} onClick={joinGroup} ><WhatsAppIcon/> </MDButton>
                                                 </Grid>
                                             </Grid>
                                         </CardContent>
@@ -194,7 +206,7 @@ function Cover({setUpdate, update}) {
                 <DialogContent>
                     <DialogContentText sx={{ display: "flex", flexDirection: "column", marginLeft: 2 }}>
                         <MDBox sx={{ display: 'flex', alignItems: 'center', marginBottom: "10px" }}>
-                            <MDTypography color="dark" fontSize={15}>{"Thank you for registration!"}</MDTypography>
+                            <MDTypography color="dark" fontSize={15}>{registrationMessage}</MDTypography>
                         </MDBox>
                     </DialogContentText>
                 </DialogContent>

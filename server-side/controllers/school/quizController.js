@@ -32,13 +32,14 @@ const getAwsS3Url = async (file) => {
 
 exports.createQuiz = async (req, res) => {
     try {
-        const {grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status, maxParticipant, city } = req.body;
+        const {grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status, maxParticipant, city, openForAll, description } = req.body;
 
+        const openAll = (openForAll === 'false' || openForAll === 'undefined' || openForAll === false) ? false : true;
         let image;
         if (req.files['quizImage']) {
             image = await getAwsS3Url(req.files['quizImage'][0]);
         }
-        const newQuiz = new Quiz({image, maxParticipant, grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status, city });
+        const newQuiz = new Quiz({image, maxParticipant, grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status, city, openForAll: openAll, description });
         await newQuiz.save();
         res.status(201).json(newQuiz);
     } catch (error) {
@@ -50,11 +51,17 @@ exports.editQuiz = async (req, res) => {
     try {
         const quizId = req.params.id;
         const updates = req.body;
+        updates.openForAll = (updates?.openForAll === 'false' || updates?.openForAll === 'undefined' || updates?.openForAll === false) ? false : true;
+        
+        if (req.files['quizImage']) {
+            updates.image = await getAwsS3Url(req.files['quizImage'][0]);
+        }
         const updatedQuiz = await Quiz.findByIdAndUpdate(quizId, updates, { new: true });
         if (!updatedQuiz) {
             return res.status(404).json({ message: 'Quiz not found' });
         }
-        res.json(updatedQuiz);
+
+        res.status(201).json({status: "success", data: updatedQuiz });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -156,7 +163,8 @@ exports.editQuestionInQuiz = async (req, res) => {
 exports.editOptionInQuiz = async (req, res) => {
     try {
         const { quizId, questionId, optionId } = req.params;
-        const {optionKey, optionText, isCorrect} = req.body; // This will contain only the fields to be updated
+        let { optionKey, optionText, isCorrect } = req.body;
+        isCorrect = (isCorrect === 'false' || isCorrect === 'undefined' || isCorrect === false) ? false : true;
 
         const quiz = await Quiz.findById(quizId);
         if (!quiz) {
@@ -199,8 +207,8 @@ exports.editOptionInQuiz = async (req, res) => {
 exports.addOptionToQuiz = async (req, res) => {
     try {
         const {quizId, questionId} = req.params;
-        const { optionKey, optionText, isCorrect } = req.body;
-
+        let { optionKey, optionText, isCorrect } = req.body;
+        isCorrect = (isCorrect === 'false' || isCorrect === 'undefined' || isCorrect === false) ? false : true;
         let imageUrl = null;
         // const optionImages = [];
 
@@ -258,7 +266,86 @@ exports.getQuizForAdmin = async (req, res) => {
 
 exports.getActiveQuizForAdmin = async (req, res) => {
     try {
-        const quizzes = await Quiz.find({status: "Active"}).populate('city', 'name');
+        const quizzes = await Quiz.find({ status: "Active" })
+        .populate('city', 'name')
+        .populate({
+            path: 'registrations.userId',
+            select: 'full_name mobile schoolDetails',
+            populate: {
+                path: 'schoolDetails',
+                populate: {
+                    path: 'city',
+                    select: 'name code'
+                }
+            }
+        });
+    
+        res.status(201).json({ status: 'success', data: quizzes });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.getDraftQuizForAdmin = async (req, res) => {
+    try {
+        const quizzes = await Quiz.find({ status: "Draft" })
+        .populate('city', 'name')
+        .populate({
+            path: 'registrations.userId',
+            select: 'full_name mobile schoolDetails',
+            populate: {
+                path: 'schoolDetails',
+                populate: {
+                    path: 'city',
+                    select: 'name code'
+                }
+            }
+        });
+    
+        res.status(201).json({ status: 'success', data: quizzes });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.getInActiveQuizForAdmin = async (req, res) => {
+    try {
+        const quizzes = await Quiz.find({ status: "Inactive" })
+        .populate('city', 'name')
+        .populate({
+            path: 'registrations.userId',
+            select: 'full_name mobile schoolDetails',
+            populate: {
+                path: 'schoolDetails',
+                populate: {
+                    path: 'city',
+                    select: 'name code'
+                }
+            }
+        });
+    
+        res.status(201).json({ status: 'success', data: quizzes });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.getCompletedQuizForAdmin = async (req, res) => {
+    try {
+        const quizzes = await Quiz.find({ status: "Completed" })
+        .populate('city', 'name')
+        .populate({
+            path: 'registrations.userId',
+            select: 'full_name mobile schoolDetails',
+            populate: {
+                path: 'schoolDetails',
+                populate: {
+                    path: 'city',
+                    select: 'name code'
+                }
+            }
+        });
+    
         res.status(201).json({ status: 'success', data: quizzes });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -378,12 +465,21 @@ exports.registration = async (req, res) => {
     try {
         const id = req.params.id;
         const userId = req.user._id;
-        const user = await User.findById(userId).select('schoolDetails');
+        const user = await User.findById(userId).select('schoolDetails dob mobile').populate('schoolDetails.city', 'name code');
+
+        const getquiz = await Quiz.findById(new ObjectId(id));
+        const registrationId = getRegistrationId(user?.schoolDetails?.city?.code, user?.mobile, getquiz?.startDateTime, user?.schoolDetails?.grade)
+        console.log("registrationId", registrationId)
+        if(getquiz?.registrationOpenDateTime > new Date()){
+            return res.status(500).json({status: 'error', message: "Registration for this quiz has not started yet. Please wait until registration opens."  });
+        }
+
         const quiz = await Quiz.findOneAndUpdate({_id: new ObjectId(id)}, {
             $push: {
                 registrations: {
                     userId: userId,
-                    registeredOn: new Date()
+                    registeredOn: new Date(),
+                    registrationId
                 }
             }
         }, {new: true});
@@ -427,11 +523,42 @@ exports.registration = async (req, res) => {
             }
         ]).exec();
 
+        const quizDate = convertTime(getquiz?.startDateTime)
 
-        res.status(201).json({status: "success", data: quizzes, message: "Registration Successfull" });
+        res.status(201).json({status: "success", data: quizzes, message: `Thank you for registering. The quiz will starts on ${quizDate}. Please participate in the quiz.` });
 
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
+function getRegistrationId( cityCode, mobile, quizStartDate, grade) {
+    const quizDate = new Date(quizStartDate);
+
+    const quizDay = quizDate?.getDate()?.toString()?.padStart(2, '0');
+    const quizMonth = (quizDate.getMonth() + 1)?.toString()?.padStart(2, '0');
+    const quizYear = quizDate?.getFullYear()?.toString()?.slice(-2); // Extract last two digits of the year
+
+    const mobileLast2Digit = mobile?.slice(-4);
+    const newCityCode = cityCode?.toString()?.padStart(2, '0'); // Ensure city code is two digits
+    const gradeChars = grade?.toString()?.slice(0, -2)?.padStart(2, '0');
+    return (`SHF${gradeChars}${quizDay}${quizMonth}${quizYear}${newCityCode}${mobileLast2Digit}`);
+}
+
+function convertTime(date) {
+    const inputDateString = date;
+    const inputDate = new Date(inputDateString);
+
+    // Format date
+    const day = inputDate.getDate();
+    const month = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(inputDate);
+    const hours = inputDate.getHours() % 12 || 12; // Convert to 12-hour format
+    const minutes = inputDate.getMinutes();
+    const ampm = inputDate.getHours() >= 12 ? 'PM' : 'AM';
+
+    const formattedDate = `${day} ${month} ${hours}:${minutes < 10 ? '0' : ''}${minutes} ${ampm}`;
+
+    return (formattedDate);
+}
+
 

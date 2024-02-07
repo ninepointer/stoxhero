@@ -12,13 +12,15 @@ exports.createCity = async (req, res) => {
 
     try {
         // Create a new city document with destructured variables
+        const countCity = await City.countDocuments()
         const city = new City({
             name,
             tier,
             state,
             status,
             createdBy:req.user._id,
-            lastModifiedBy:req.user._id
+            lastModifiedBy:req.user._id,
+            code: countCity+1
         });
 
         await city.save();

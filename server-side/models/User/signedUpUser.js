@@ -25,7 +25,7 @@ const signedUpUserSchema = new mongoose.Schema({
         type: String,
         // required : true
     },
-    full_name:{
+    student_name:{
         type: String,
         // required : true
     },

@@ -66,7 +66,12 @@ const Options = ({ questionId, quizId, optionData }) => {
             </MDTypography>
         );
         optObj.optionImage = (
-            <img src={elem?.optionImage} style={{ width: "100px", height: "100px" }} />
+            elem?.optionImage ?
+                <img src={elem?.optionImage} style={{ width: "100px", height: "100px" }} />
+                :
+                <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+                    {'No Image'}
+                </MDTypography>
         );
 
         rows.push(optObj)

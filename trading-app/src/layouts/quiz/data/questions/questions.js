@@ -69,7 +69,12 @@ const Question = ({ quiz }) => {
             </MDTypography>
         );
         queObj.questionImage = (
+            elem?.questionImage ?
             <img src={elem?.questionImage} style={{width: "100px", height: "100px"}} />
+            :
+            <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+                {'No Image'}
+            </MDTypography>
         );
 
         rows.push(queObj)

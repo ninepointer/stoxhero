@@ -60,6 +60,8 @@ import ContestRegistration from './layouts/HomePage/pages/ContestRegistration'
 import FeaturedContestRegistration from './layouts/HomePage/pages/FeaturedContestRegistration'
 import Home from "../src/layouts/HomePage/pages/Home";
 import About from "../src/layouts/HomePage/pages/About";
+import AboutFinowledge from "../src/layouts/HomePage/pages/AboutFinowledge";
+
 // import ResetPassword from './layouts/authentication/reset-password'
 import ResetPassword from './layouts/authentication/reset-password/cover';
 import CampaignDetails from './layouts/campaign/campaignDetails'
@@ -84,7 +86,9 @@ import BlogCard from "./layouts/HomePage/pages/BlogCards";
 import BlogData from "./layouts/HomePage/pages/BlogData";
 import Calculator from "./layouts/HomePage/pages/Calculator";
 import CollegeSignUp from './layouts/authentication/sign-up/collegeSignupLogin'
-import SchoolDetailsProtectedRoute from "./schoolProtected";
+// import SchoolDetailsProtectedRoute from "./schoolProtected";
+import ContactFinowledge from './layouts/HomePage/pages/ContactFinowledge'
+import FinowledgeComingSoon from './layouts/HomePage/pages/finowledgeComingSoon'
 
 const TRACKING_ID = "UA-264098426-2"
 ReactGA.initialize(TRACKING_ID);
@@ -219,11 +223,11 @@ export default function App() {
         if(route.route !== '/'){
           return <Route exact path={route.route} 
           element={
-            <SchoolDetailsProtectedRoute>
+            // <SchoolDetailsProtectedRoute>
             <ProtectedRoute>
              {route.component}
             </ProtectedRoute>
-            </SchoolDetailsProtectedRoute>
+            // </SchoolDetailsProtectedRoute>
           } 
           key={route.key} />;
         }else{
@@ -379,11 +383,17 @@ export default function App() {
           <Route path='/adminlogin' element={<AdminLogin />}/>
           <Route path='/finowledge' element={<Finowledge />}/>
           <Route path='/about' element={<About/>}/>
+          <Route path='/aboutus' element={<AboutFinowledge/>}/>
+          <Route path='/olympiad' element={<FinowledgeComingSoon/>}/>
+          <Route path='/tryquiz' element={<FinowledgeComingSoon/>}/>
+
           <Route path='/enter-mobile' element={<Register/>}/>
           <Route path='/registrationinfo' element={<RegisterInfo/>}/>
           <Route path='/lobby' element={<Lobby/>}/>
           
           <Route path='/contact' element={<Contact/>}/>
+          <Route path='/contactus' element={<ContactFinowledge/>}/>
+
           <Route path='/workshops' element={<Workshops location={myLocation.current}/>}/>
           <Route path='/blogs/:id' element={<BlogData/>}/>
           <Route path='/collegetestzone/:id/:date' element={<ContestRegistration/>}/>

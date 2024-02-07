@@ -1,13 +1,14 @@
 {
   "files": {
     "main.css": "/static/css/main.a544a328.css",
-    "main.js": "/static/js/main.8cfe4fd1.js",
+    "main.js": "/static/js/main.12954965.js",
     "static/js/513.75e0454c.chunk.js": "/static/js/513.75e0454c.chunk.js",
     "static/media/bgBanner1.jpg": "/static/media/bgBanner1.c9ad6246a3bebeb04615.jpg",
     "static/media/main-bg-3.png": "/static/media/main-bg-3.c46dd2d7751431a8e006.png",
     "static/media/bgBanner2.jpg": "/static/media/bgBanner2.282ab170a2e58ea962dc.jpg",
     "static/media/equityImage.jpg": "/static/media/equityImage.be6abacc88d512b4705a.jpg",
     "static/media/pattern-tree.svg": "/static/media/pattern-tree.fff93259d1412cbbee5cd3a3cebbc080.svg",
+    "static/media/finowledge_coming_soon.png": "/static/media/finowledge_coming_soon.6d437ee94fe2c34eb8ce.png",
     "static/media/trading.jpg": "/static/media/trading.37a53048ea613a761226.jpg",
     "static/media/contest.gif": "/static/media/contest.84314953ca66e6b72292.gif",
     "static/media/careerpage.png": "/static/media/careerpage.e92432d71de74dd1c509.png",
@@ -19,6 +20,7 @@
     "static/media/main-bg-0_1.webp": "/static/media/main-bg-0_1.c78c2f66219663c585fe.webp",
     "static/media/token.webp": "/static/media/token.e20cc6ef8583942ac1f9.webp",
     "static/media/collegeStudent.png": "/static/media/collegeStudent.7f9b409b24caa8a79002.png",
+    "static/media/aboutus.jpg": "/static/media/aboutus.43db55f843fb5c0a682e.jpg",
     "static/media/careerlisting.png": "/static/media/careerlisting.6d81fa8acd440aad19d3.png",
     "static/media/workshoplisting.png": "/static/media/workshoplisting.b628b150eeffb29b3fb8.png",
     "static/media/news-block-background.webp": "/static/media/news-block-background.9ac4f6fd11741b350c0e.webp",
@@ -196,11 +198,11 @@
     "static/media/mew.svg": "/static/media/mew.b0269a00f9248097aadb55069a898680.svg",
     "static/media/slick.woff": "/static/media/slick.295183786cd8a1389865.woff",
     "main.a544a328.css.map": "/static/css/main.a544a328.css.map",
-    "main.8cfe4fd1.js.map": "/static/js/main.8cfe4fd1.js.map",
+    "main.12954965.js.map": "/static/js/main.12954965.js.map",
     "513.75e0454c.chunk.js.map": "/static/js/513.75e0454c.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.a544a328.css",
-    "static/js/main.8cfe4fd1.js"
+    "static/js/main.12954965.js"
   ]
 }
