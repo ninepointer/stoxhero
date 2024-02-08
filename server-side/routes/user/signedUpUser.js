@@ -470,7 +470,7 @@ router.patch("/verifyotp", async (req, res) => {
         let obj = {
             first_name: first_name?.trim() || parents_name?.split(" ")?.[0] || "N/A", last_name: last_name?.trim() || parents_name?.split(" ")[1] || "N/A", designation: 'Trader', email: email?.trim(),
             student_name: student_name?.trim(),
-            city: city,
+            // city: city,
             schoolDetails,
             mobile: mobile.trim(),
             name: (first_name?.trim() || parents_name?.split(" ")?.[0]) + ' ' + (last_name?.trim()?.substring(0, 1) || parents_name?.split(" ")?.[1]?.trim()?.substring(0, 1)),
