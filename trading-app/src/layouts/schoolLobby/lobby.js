@@ -109,8 +109,6 @@ function Cover() {
 
         <MyOlympiad update={update} />
 
-
-
         <UpComing setUpdate={setUpdate} update={update}/>
       </MDBox>
     </>

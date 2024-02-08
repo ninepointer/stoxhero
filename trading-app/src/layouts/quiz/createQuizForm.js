@@ -420,7 +420,7 @@ function Index() {
                       <TextField
                         disabled={((isSubmitted || quiz) && (!editing || saving))}
                         id="outlined-required"
-                        label='Min Participants *'
+                        label='Max Participants *'
                         name='maxParticipant'
                         fullWidth
                         defaultValue={editing ? formState?.maxParticipant : quiz?.maxParticipant}
