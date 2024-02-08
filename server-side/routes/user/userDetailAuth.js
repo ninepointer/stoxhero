@@ -741,30 +741,31 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
 router.patch('/student/me', authController.protect, currentUser, uploadMultiple, checkFileError, resizePhoto, uploadToS3, async(req,res,next)=>{
 
   try{
+    const {student_name, grade, city, school, dob} = req.body;
+
+    console.log(req.body)
+
       const user = await UserDetail.findById(req.user._id);
   
       if(!user) return res.status(404).json({message: 'No such user found.'});
-  
-      const filteredBody = filterObj(req.body, 'student_name', 'schoolDetails');
-
-      filteredBody.lastModified = new Date();
+      const schoolDetails = {
+        grade, city, school, dob, parents_name: user?.schoolDetails?.parents_name
+      }
+      // const filteredBody = filterObj(req.body, 'student_name', 'schoolDetails');
+      user.schoolDetails = schoolDetails;
+      user.student_name = student_name;
+      user.lastModified = new Date();
       
       if (req.profilePhotoUrl) {
-        if (!filteredBody.profilePhoto) {
-          filteredBody.profilePhoto = {};
-        }
-        filteredBody.profilePhoto.url = req.profilePhotoUrl;
-        filteredBody.profilePhoto.name = (req.files).profilePhoto[0].originalname;
-      }
-
-      for(key of Object.keys(filteredBody)){
-        if(filteredBody[key]=='undefined' || filteredBody[key] == 'null'){
-          filteredBody[key]=""
-        }
+        user.schoolDetails.profilePhoto = req.profilePhotoUrl;
       }
       
-      const userData = await UserDetail.findByIdAndUpdate(user._id, filteredBody, {new: true});
+      const userData = await UserDetail.findByIdAndUpdate(user._id, user, {new: true})
+      .populate('role', 'roleName')
+      .populate('schoolDetails.city', 'name')
+      .select('student_name full_name schoolDetails city isAffiliate collegeDetails pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch bankState')
   
+
       res.status(200).json({message:'Edit successful',status:'success',data: userData});
 
   }catch(e){

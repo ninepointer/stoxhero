@@ -26,7 +26,7 @@ import { Helmet } from "react-helmet";
 
 
 function Cover() {
-  const [isLoading,setIsLoading] = useState(false);
+  // const [isLoading,setIsLoading] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
   const navigate = useNavigate();
 
@@ -51,10 +51,11 @@ function Cover() {
   const backgroundColor = scrollPosition > 10 ? 'rgba(0, 0, 0, 0.8)' : 'transparent'
   const backdropFilter = scrollPosition > 10 ? 'blur(5px)' : 'none'
 
-  function joinGroup(){
-    window.open('https://chat.whatsapp.com/Bcjt7NbDTyz1odeF8RDtih', '_blank');
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  // Get the value of the "mobile" parameter
+  const campaignCode = urlParams.get('campaignCode');
 
-  }
 
   return (
     <>
@@ -107,7 +108,7 @@ function Cover() {
               <MDTypography variant={isMobile ? "body2" : "body1"} sx={{ color: '#fff' }} style={{fontFamily: 'Work Sans , sans-serif'}}>Battle & Compete with Students across</MDTypography>
               <MDTypography variant={isMobile ? "body2" : "body1"} sx={{ color: '#D5F47E' }} style={{fontFamily: 'Work Sans , sans-serif'}}>North India in Finance Olympiad</MDTypography>
               <MDBox display='flex' justifyContent='space-between'>
-                <MDButton variant='contained' size='small' color='student' style={{marginTop:15,color:'#000', fontFamily: 'Work Sans , sans-serif'}} onClick={() => { navigate('/enter-mobile') }}>Register/Login</MDButton>
+                <MDButton variant='contained' size='small' color='student' style={{marginTop:15,color:'#000', fontFamily: 'Work Sans , sans-serif'}} onClick={() => { navigate(`/enter-mobile${campaignCode ? `?campaignCode=${campaignCode}` : ""}`) }}>Register/Login</MDButton>
                 <MDButton variant='outlined' style={{marginTop:15, marginLeft:10, fontFamily: 'Work Sans , sans-serif'}} onClick={()=>{navigate('/tryquiz')}}>Try Now</MDButton>
                 {/* <MDButton variant='outlined' style={{color: 'green', backgroundColor: '#ffffff', marginTop:15, marginLeft:10, fontFamily: 'Work Sans , sans-serif'}} onClick={joinGroup} ><WhatsAppIcon/> </MDButton> */}
               </MDBox>

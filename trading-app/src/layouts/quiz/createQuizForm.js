@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useEffect, useState, useRef } from "react";
 import TextField from '@mui/material/TextField';
-import {Grid, Card, CardContent, CardActionArea, FormGroup, FormControlLabel, Checkbox } from "@mui/material";
+import { Grid, Card, CardContent, CardActionArea, FormGroup, FormControlLabel, Checkbox } from "@mui/material";
 import MDTypography from "../../components/MDTypography";
 import MDBox from "../../components/MDBox";
 import MDButton from "../../components/MDButton"
@@ -18,7 +18,7 @@ import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
-import {apiUrl} from  '../../constants/constants';
+import { apiUrl } from '../../constants/constants';
 import Rewards from "./data/reward/contestReward";
 import Question from "./data/questions/questions";
 import { Autocomplete, Box } from "@mui/material";
@@ -62,6 +62,8 @@ function Index() {
     maxParticipant: "" || quiz?.maxParticipant,
     openForAll: false || quiz?.openForAll,
     description: "" || quiz?.description,
+    noOfSlots: "" || quiz?.noOfSlots,
+    slotBufferTime: "" || quiz?.slotBufferTime,
     image: "" || quiz?.image
   });
 
@@ -80,12 +82,12 @@ function Index() {
   })
 
   const getCities = async () => {
-    try{
+    try {
       const res = await axios.get(`${apiUrl}cities/active`);
-      if(res.data.status == 'success'){
+      if (res.data.status == 'success') {
         setCityData(res.data.data);
       }
-    }catch(e){
+    } catch (e) {
       console.log(e);
     }
 
@@ -126,15 +128,15 @@ function Index() {
       formData.append("quizImage", quizImage[0]);
     }
 
-    for(let elem in formState){
+    for (let elem in formState) {
       formData.append(`${elem}`, formState[elem]);
     }
 
-    if(gradeValue){
+    if (gradeValue) {
       formData.append(`grade`, gradeValue);
     }
 
-    if(value?._id){
+    if (value?._id) {
       formData.append(`city`, value?._id);
     }
 
@@ -162,7 +164,7 @@ function Index() {
   async function onEdit(e, formState) {
     e.preventDefault()
     setSaving(true)
-    
+
     // if (!quizImage) {
     //   openErrorSB('error', 'Please select a file to upload');
     //   return;
@@ -178,15 +180,15 @@ function Index() {
       formData.append("quizImage", quizImage[0]);
     }
 
-    for(let elem in formState){
+    for (let elem in formState) {
       formData.append(`${elem}`, formState[elem]);
     }
 
-    if(gradeValue){
+    if (gradeValue) {
       formData.append(`grade`, gradeValue);
     }
 
-    if(value?._id){
+    if (value?._id) {
       formData.append(`city`, value?._id);
     }
 
@@ -198,14 +200,14 @@ function Index() {
 
     const data = await res.json();
 
-    if (data.status === 500 || data.status == 400 || data.status==401 || data.status == 'error' || data.error || !data) {
+    if (data.status === 500 || data.status == 400 || data.status == 401 || data.status == 'error' || data.error || !data) {
       openErrorSB("Error", data.error)
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
-    } else if(data.status == 'success') {
+    } else if (data.status == 'success') {
       openSuccessSB("Quiz Edited", "Edited Successfully")
       setTimeout(() => { setSaving(false); setEditing(false) }, 500)
       console.log("entry succesfull");
-    }else{
+    } else {
       openErrorSB("Error", data.message);
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
     }
@@ -257,12 +259,13 @@ function Index() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (!formState[name]?.includes(e.target.value)) {
+    // console.log(formState[name], e.target.value, formState[name]?.includes(e.target.value))
+    // if (!formState[name]?.includes(e.target.value)) {
       setFormState(prevState => ({
         ...prevState,
         [name]: value,
       }));
-    }
+    // }
   };
 
   const handleCityChange = (event, newValue) => {
@@ -375,6 +378,7 @@ function Index() {
                         label='Duration (seconds) *'
                         name='durationInSeconds'
                         fullWidth
+                        type='number'
                         defaultValue={editing ? formState?.durationInSeconds : quiz?.durationInSeconds}
                         onChange={handleChange}
                       />
@@ -391,6 +395,7 @@ function Index() {
                         }}
                         options={["6th", '7th', '8th', '9th', '10th', '11th', "12th"]}
                         value={gradeValue}
+                        disabled={((isSubmitted || quiz) && (!editing || saving))}
                         onChange={handleGradeChange}
                         autoHighlight
                         getOptionLabel={(option) => option ? option : 'Grade'}
@@ -420,8 +425,9 @@ function Index() {
                       <TextField
                         disabled={((isSubmitted || quiz) && (!editing || saving))}
                         id="outlined-required"
-                        label='Min Participants *'
+                        label='Max Participants *'
                         name='maxParticipant'
+                        type='number'
                         fullWidth
                         defaultValue={editing ? formState?.maxParticipant : quiz?.maxParticipant}
                         onChange={handleChange}
@@ -431,39 +437,19 @@ function Index() {
 
                   <Grid mt={1.5} xs={12} md={12} xl={12} display="flex" gap={1}>
                     <Grid item xs={12} md={6} xl={4}>
-                      <CustomAutocomplete
-                        id="country-select-demo"
-                        sx={{
-                          width: "100%",
-                          '& .MuiAutocomplete-clearIndicator': {
-                            color: 'dark',
-                          },
-                        }}
-                        options={cityData}
-                        value={value}
-                        onChange={handleCityChange}
-                        autoHighlight
-                        getOptionLabel={(option) => option ? option.name : 'City'}
-                        renderOption={(props, option) => (
-                          <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                            {option.name}
-                          </Box>
-                        )}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            placeholder="Choose a City"
-                            inputProps={{
-                              ...params.inputProps,
-                              autoComplete: 'new-password', // disable autocomplete and autofill
-                              style: { color: 'dark', height: "10px" }, // set text color to dark
-                            }}
-                            InputLabelProps={{
-                              style: { color: 'dark' },
-                            }}
-                          />
-                        )}
-                      />
+                      <FormGroup>
+                        <FormControlLabel
+                          checked={formState?.openForAll}
+                          disabled={isSubmitted}
+                          control={<Checkbox />}
+                          onChange={(e) => {
+                            setFormState(prevState => ({
+                              ...prevState,
+                              openForAll: e.target.checked
+                            }))
+                          }}
+                          label="Open For All" />
+                      </FormGroup>
                     </Grid>
 
                     <Grid item xs={12} md={6} xl={4}>
@@ -517,21 +503,44 @@ function Index() {
                     </Grid>
                   </Grid>
 
+
+
                   <Grid mt={1.5} xs={12} md={12} xl={12} display="flex" gap={1}>
                     <Grid item xs={12} md={6} xl={4}>
-                      <FormGroup>
-                        <FormControlLabel
-                          checked={formState?.openForAll}
-                          disabled={isSubmitted}
-                          control={<Checkbox />}
-                          onChange={(e) => {
-                            setFormState(prevState => ({
-                              ...prevState,
-                              openForAll: e.target.checked
-                            }))
-                          }}
-                          label="Open For All" />
-                      </FormGroup>
+                      <CustomAutocomplete
+                        id="country-select-demo"
+                        sx={{
+                          width: "100%",
+                          '& .MuiAutocomplete-clearIndicator': {
+                            color: 'dark',
+                          },
+                        }}
+                        options={cityData}
+                        disabled={((isSubmitted || quiz) && (!editing || saving)) || formState.openForAll}
+                        value={value}
+                        onChange={handleCityChange}
+                        autoHighlight
+                        getOptionLabel={(option) => option ? option.name : 'City'}
+                        renderOption={(props, option) => (
+                          <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                            {option.name}
+                          </Box>
+                        )}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            placeholder="Choose a City"
+                            inputProps={{
+                              ...params.inputProps,
+                              autoComplete: 'new-password', // disable autocomplete and autofill
+                              style: { color: 'dark', height: "10px" }, // set text color to dark
+                            }}
+                            InputLabelProps={{
+                              style: { color: 'dark' },
+                            }}
+                          />
+                        )}
+                      />
                     </Grid>
 
                     <Grid item xs={12} md={6} xl={4}>
@@ -554,11 +563,39 @@ function Index() {
                         />
                       </MDButton>
                     </Grid>
+
+                    <Grid item xs={12} md={6} xl={4}>
+                      <TextField
+                        disabled={((isSubmitted || quiz) && (!editing || saving))}
+                        id="outlined-required"
+                        label='# of Slots *'
+                        name='noOfSlots'
+                        type='number'
+                        fullWidth
+                        defaultValue={editing ? formState?.noOfSlots : quiz?.noOfSlots}
+                        onChange={handleChange}
+                      />
+                    </Grid>
+                  </Grid>
+
+                  <Grid mt={1.5} xs={12} md={12} xl={12} display="flex" gap={1}>
+                  <Grid item xs={12} md={6} xl={4}>
+                      <TextField
+                        disabled={((isSubmitted || quiz) && (!editing || saving))}
+                        id="outlined-required"
+                        label='Slot Buffer Time(in seconds) *'
+                        name='slotBufferTime'
+                        type='number'
+                        fullWidth
+                        defaultValue={editing ? formState?.slotBufferTime : quiz?.slotBufferTime}
+                        onChange={handleChange}
+                      />
+                    </Grid>
                   </Grid>
 
                 </Grid>
 
-                <Grid  xs={12} md={12} xl={3} display="flex" justifyContent="flex-end">
+                <Grid xs={12} md={12} xl={3} display="flex" justifyContent="flex-end">
                   <Grid container mb={2} spacing={2} xs={12} md={12} xl={12} display="flex" justifyContent='flex-start' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                     {previewUrl ?
 
@@ -577,7 +614,7 @@ function Index() {
                                   </CardContent>
                                 </Grid>
                                 <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                  <img src={previewUrl} style={{ maxWidth: '100%', height: 'auto', borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
+                                  <img src={previewUrl} style={{ width: "200px", height: "200px", borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
                                 </Grid>
                               </CardActionArea>
                             </Card>
@@ -600,7 +637,7 @@ function Index() {
                                   </CardContent>
                                 </Grid>
                                 <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                  <img src={quiz?.image} style={{width: "200px", height: "200px",  borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
+                                  <img src={quiz?.image} style={{ width: "200px", height: "200px", borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
                                 </Grid>
                               </CardActionArea>
                             </Card>
@@ -611,7 +648,7 @@ function Index() {
                   </Grid>
                 </Grid>
 
-                <Grid xs={12} md={12} xl={12}>
+                <Grid xs={12} md={12} xl={12} mt={1}>
                   <JoditEditor
                     ref={editor}
                     config={config}
@@ -628,7 +665,7 @@ function Index() {
                 </Grid>
               </Grid>
             </Grid>
-          
+
 
             <Grid container mt={2} xs={12} md={12} xl={12} >
               <Grid item display="flex" justifyContent="flex-end" xs={12} md={6} xl={12}>
@@ -651,10 +688,10 @@ function Index() {
                 )}
                 {(isSubmitted || quiz) && !editing && (
                   <>
-                  {quiz?.contestStatus !== "Completed" &&
-                    <MDButton variant="contained" color="warning" size="small" sx={{ mr: 1, ml: 2 }} onClick={() => { setEditing(true) }}>
-                      Edit
-                    </MDButton>}
+                    {quiz?.contestStatus !== "Completed" &&
+                      <MDButton variant="contained" color="warning" size="small" sx={{ mr: 1, ml: 2 }} onClick={() => { setEditing(true) }}>
+                        Edit
+                      </MDButton>}
                     <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/quiz') }}>
                       Back
                     </MDButton>
@@ -684,19 +721,19 @@ function Index() {
                   </>
                 )}
               </Grid>
-              
+
               {(quiz || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
                 <MDBox>
-                <Rewards quiz={quiz!=undefined ? quiz?._id : quizData?._id}/>
+                  <Rewards quiz={quiz != undefined ? quiz?._id : quizData?._id} />
                 </MDBox>
               </Grid>}
 
               {(quiz || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
                 <MDBox>
-                <Question quiz={quiz!=undefined ? quiz?._id : quizData?._id}/>
+                  <Question quiz={quiz != undefined ? quiz?._id : quizData?._id} />
                 </MDBox>
               </Grid>}
-              
+
               {(quiz || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                 <MDBox>
                   <RegisteredUser data={quiz?._id ? quiz?.registrations : quizData?.registrations} />

@@ -160,7 +160,7 @@ router.post("/schoolsignup", async (req, res) => {
     const { mobile, student_name, city, parents_name, grade, school,dob } = req.body;
 
     const schoolDetails = {
-        parents_name, grade, school
+        parents_name, grade, school, dob, city
     }
 
     if (!mobile || !student_name || !city || !parents_name || !grade || !school) {
@@ -189,12 +189,12 @@ router.post("/schoolsignup", async (req, res) => {
             signedupuser.mobile = mobile.trim();
             signedupuser.mobile_otp = mobile_otp.trim();
             signedupuser.schoolDetails = schoolDetails,
-            signedupuser.city = city,
-            signedupuser.dob = dob,
+            // signedupuser.city = city,
+            // signedupuser.dob = dob,
             await signedupuser.save({ validateBeforeSave: false })
         } else {
             await SignedUpUser.create({
-                student_name: student_name.trim(), city, dob,
+                student_name: student_name.trim(),
                 first_name: parents_name.split(" ")[0] || "N/A",
                 last_name: parents_name.split(" ")[1] || "N/A",
                 mobile: mobile.trim(), mobile_otp: mobile_otp, schoolDetails
@@ -212,6 +212,33 @@ router.post("/schoolsignup", async (req, res) => {
             sendOTP("9319671094", mobile_otp);
         }
         
+    } catch (err) { console.log(err); res.status(500).json({ message: 'Something went wrong', status: "error" }) }
+})
+
+router.post("/signupintent", async (req, res) => {
+    const { mobile } = req.body;
+
+    if (!mobile) {
+        return res.status(400).json({ status: 'error', message: "Please fill all fields to proceed." })
+    }
+    const signedupuser = await SignedUpUser.findOne({mobile: mobile});
+    try {
+
+        if(signedupuser){
+            res.status(201).json({
+                message: "Data already saved",
+                status: 'success'
+            });
+        } else {
+            await SignedUpUser.create({
+                mobile
+            });
+
+            res.status(201).json({
+                message: "Data saved",
+                status: 'success'
+            });
+        }
     } catch (err) { console.log(err); res.status(500).json({ message: 'Something went wrong', status: "error" }) }
 })
 
@@ -323,7 +350,7 @@ router.patch("/verifyotp", async (req, res) => {
     } = req.body
 
     const schoolDetails = {
-        parents_name, school, grade, city
+        parents_name, school, grade, city, dob
     }
 
     const user = await SignedUpUser.findOne({ mobile: mobile })
@@ -428,14 +455,15 @@ router.patch("/verifyotp", async (req, res) => {
 
     try {
         let creation;
-        if(campaign){
+
+        if(grade && school){
+            creation = "School SignUp";
+        }else if(campaign){
             creation = "Campaign SignUp";
         } else if(referredBy && !match){
             creation = 'Referral SignUp';
         } else if(match){
             creation = "Affiliate SignUp";
-        } else if(grade && school){
-            creation = "School SignUp";
         } else{
             creation = "Auto SignUp";
         }

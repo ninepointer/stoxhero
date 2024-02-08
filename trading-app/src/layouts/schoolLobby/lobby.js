@@ -14,8 +14,10 @@ import { userContext } from "../../AuthContext";
 import UpComing from "./upcoming";
 import MyOlympiad from './myOlympiad'
 import { Button, Tooltip } from "@mui/material";
-import EditIcon from '@mui/icons-material/Edit';
 import LogoutIcon from '@mui/icons-material/Logout';
+import EditProfile from './editProfile';
+import axios from 'axios';
+import { apiUrl } from "../../constants/constants";
 
 function Cover() {
   // const [scrollPosition, setScrollPosition] = useState(0);
@@ -34,12 +36,13 @@ function Cover() {
     ReactGA.pageview(window.location.pathname)
   })
 
-  async function editProfile(){
-
-  }
-
   async function logout(){
-    
+    await axios.get(`${apiUrl}logout`, {
+      withCredentials: true,
+    });
+    navigate("/finowledge");
+    getDetails.setUserDetail('');
+    window.webengage.user.logout();
   }
   
   return (
@@ -114,7 +117,7 @@ function Cover() {
               alignItems='center'
               style={{ overflow: 'visible' }}
             >
-              <MDAvatar src={logo} size='md' alt='something here' />
+              <MDAvatar src={getDetails?.userDetails?.schoolDetails?.profilePhoto || logo} size='md' alt='something here' />
             </Grid>
             <Grid
               display='flex'
@@ -153,10 +156,8 @@ function Cover() {
               direction='row'
               justifyContent='flex-end'
               alignItems='center'
-              style={{ position: 'absolute', top: 10, right: 10 }}        >
-              <Tooltip title='Edit Profile' >
-                <EditIcon style={{marginRight: "15px", cursor: "pointer", color: 'grey'}} onClick={editProfile} />
-              </Tooltip>
+              style={{ position: 'absolute', top: 10, right: 10 }}>
+                <EditProfile user={getDetails?.userDetails} />
               <Tooltip title='Sign Out'>
                 <LogoutIcon style={{marginRight: "5px", cursor: "pointer", color: 'grey'}} onClick={logout} />
               </Tooltip>

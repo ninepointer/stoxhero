@@ -119,7 +119,7 @@ function Cover({update}) {
                                             </MDTypography>
                                         </MDBox>
                                         {/* <Divider style={{ width: '100%' }} /> */}
-                                        <MDBox mt={-1} mb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                        <MDBox mb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                                             <MDTypography variant='caption' style={{ fontFamily: 'Work Sans , sans-serif' }}>
                                                 {elem?.grade} Grade
                                             </MDTypography>
