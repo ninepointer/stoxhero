@@ -91,21 +91,27 @@ function Cover({update}) {
       }
 
     return (
-        <Grid mb={2} container xs={10} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ zIndex: 10, overflow: 'visible' }}>
+        <Grid mb={2} container xs={10} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ zIndex: 10, overflow: 'visible' }} gap={2}>
             {data.length >0 ?
 
                 data.map((elem) => {
-                    console.log("check data", elem.maxParticipant , elem?.registrations?.length)
+
                     return (
-                        <Grid key={elem?._id} item xs={12} md={12} lg={3} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                            <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                        <Grid key={elem?._id} item xs={12} md={12} lg={3} display='flex' justifyContent='center' alignContent='center' alignItems='center' >
+                            {/* <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'> */}
                                 <Card
                                     sx={{ cursor: 'pointer' }}
                                 // onClick={() => { handleOpenNewTab(elem) }}
                                 >
-                                    <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                        <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                            <img src={elem?.image} style={{ maxWidth: '100%', height: 'auto', borderTopLeftRadius: 10, borderTopRightRadius: 10 }} />
+                                    <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' 
+                                    // style={{ maxWidth: '100%', height: 'auto' }}
+                                    >
+                                        <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' 
+                                        // style={{ maxWidth: '100%', height: 'auto' }}
+                                        >
+                                            <img src={elem?.image} style={{ 
+                                                width: '110%', height: 'auto', 
+                                                borderTopLeftRadius: 10, borderTopRightRadius: 10 }} />
                                         </Grid>
                                         <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', minHeight: 60 }}>
                                             <MDTypography variant="h5" fontFamily='Work Sans , sans-serif' fontWeight={400} style={{ textAlign: 'center' }}>
@@ -135,7 +141,7 @@ function Cover({update}) {
                                         </Grid>
                                     </CardContent>
                                 </Card>
-                            </Grid>
+                            {/* </Grid> */}
                         </Grid>
                     )
                 })

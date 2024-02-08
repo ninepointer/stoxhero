@@ -13,9 +13,12 @@ import MDAvatar from "../../components/MDAvatar";
 import { userContext } from "../../AuthContext";
 import UpComing from "./upcoming";
 import MyOlympiad from './myOlympiad'
+import { Button, Tooltip } from "@mui/material";
+import EditIcon from '@mui/icons-material/Edit';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 function Cover() {
-  const [scrollPosition, setScrollPosition] = useState(0);
+  // const [scrollPosition, setScrollPosition] = useState(0);
   const getDetails = useContext(userContext)
   const user = getDetails.userDetails;
   const navigate = useNavigate();
@@ -30,30 +33,19 @@ function Cover() {
   useEffect(()=>{
     ReactGA.pageview(window.location.pathname)
   })
-  
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollPosition(window.scrollY);
-    };
 
-    window.addEventListener('scroll', handleScroll);
+  async function editProfile(){
 
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
-
-  const backgroundColor = scrollPosition > 10 ? 'rgba(0, 0, 0, 0.8)' : 'transparent'
-  const backdropFilter = scrollPosition > 10 ? 'blur(5px)' : 'none'
-
-  function joinGroup(){
-    window.open('https://chat.whatsapp.com/Bcjt7NbDTyz1odeF8RDtih', '_blank');
   }
+
+  async function logout(){
+    
+  }
+  
   return (
     <>
       <MDBox mt={-1} display='flex' justifyContent='center' flexDirection='column' alignContent='center' alignItems='center' style={{ minHeight:'auto', width: 'auto', minWidth:'100vW', overflow: 'visible'}}>      
-      <Grid
+        <Grid
           container
           mt={0}
           xs={12}
@@ -83,32 +75,96 @@ function Cover() {
         >
         </Grid>
 
-       
-        <Grid mt={10} container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignItems='center' style={{zIndex:10, overflow: 'visible' }}>
-          <Grid mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'white', borderRadius:10}}>
-            <MDBox mt={2} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
+        <Grid
+          mt={10}
+          container
+          xs={10}
+          md={9}
+          lg={9}
+          display='flex'
+          justifyContent='center'
+          alignItems='center'
+          style={{ zIndex: 10, overflow: 'visible' }}
+        >
+          <Grid
+            mb={2}
+            item
+            xs={12}
+            md={12}
+            lg={12}
+            display='flex'
+            justifyContent='center'
+            flexDirection='column'
+            alignItems='center'
+            alignContent='center'
+            style={{ backgroundColor: 'white', borderRadius: 10, position: 'relative' }}
+          >
+            <Grid
+              mt={2}
+              display='flex'
+              justifyContent='center'
+              alignItems='center'
+              style={{ overflow: 'visible' }}
+            >
               <MDTypography>My Profile</MDTypography>
-            </MDBox>
-            <MDBox display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
-                <MDAvatar src={logo} size='md' alt="something here" />
-            </MDBox>
-            <MDBox display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
-              <MDTypography variant='body2' style={{fontFamily: 'Nunito'}}>{user?.student_name || "Your Name"}</MDTypography>
-            </MDBox>
-            <MDBox display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
-              <MDTypography variant='caption' style={{fontFamily: 'Nunito'}}>Class: {user?.schoolDetails?.grade || "Your Grade"}</MDTypography>
-            </MDBox>
-            <MDBox mb={2} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
-              <MDTypography variant='caption' style={{fontFamily: 'Nunito'}}>{`${user?.schoolDetails?.school || "School"}, ${user?.schoolDetails?.city?.name || "City"}`}</MDTypography>
-            </MDBox>
+            </Grid>
+            <Grid
+              display='flex'
+              justifyContent='center'
+              alignItems='center'
+              style={{ overflow: 'visible' }}
+            >
+              <MDAvatar src={logo} size='md' alt='something here' />
+            </Grid>
+            <Grid
+              display='flex'
+              justifyContent='center'
+              alignItems='center'
+              style={{ overflow: 'visible' }}
+            >
+              <MDTypography variant='body2' style={{ fontFamily: 'Nunito' }}>
+                {user?.student_name || 'Your Name'}
+              </MDTypography>
+            </Grid>
+            <Grid
+              display='flex'
+              justifyContent='center'
+              alignItems='center'
+              style={{ overflow: 'visible' }}
+            >
+              <MDTypography variant='caption' style={{ fontFamily: 'Nunito' }}>
+                Class: {user?.schoolDetails?.grade || 'Your Grade'}
+              </MDTypography>
+            </Grid>
+            <Grid
+              mb={2}
+              display='flex'
+              justifyContent='center'
+              alignItems='center'
+              style={{ overflow: 'visible' }}
+            >
+              <MDTypography variant='caption' style={{ fontFamily: 'Nunito' }}>
+                {`${user?.schoolDetails?.school || 'School'}, ${user?.schoolDetails?.city?.name || 'City'}`}
+              </MDTypography>
+            </Grid>
+            {/* New Grid for buttons */}
+            <Grid
+              container
+              direction='row'
+              justifyContent='flex-end'
+              alignItems='center'
+              style={{ position: 'absolute', top: 10, right: 10 }}        >
+              <Tooltip title='Edit Profile' >
+                <EditIcon style={{marginRight: "15px", cursor: "pointer", color: 'grey'}} onClick={editProfile} />
+              </Tooltip>
+              <Tooltip title='Sign Out'>
+                <LogoutIcon style={{marginRight: "5px", cursor: "pointer", color: 'grey'}} onClick={logout} />
+              </Tooltip>
+            </Grid>
           </Grid>
         </Grid>
 
-        {/* <Grid container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{zIndex:10, overflow: 'visible' }}>
-        <Grid p={.5} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'#25d366', borderRadius:10, cursor: 'pointer'}}>
-            <MDTypography variant='body2' style={{fontFamily: 'Work Sans , sans-serif', color: 'white'}} onClick={joinGroup}>JOIN WHATSAPP GROUP</MDTypography>
-        </Grid>
-        </Grid> */}
+
 
         <Grid container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{zIndex:10, overflow: 'visible' }}>
         <Grid p={.5} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'#D5F47E', borderRadius:10}}>
@@ -128,3 +184,8 @@ function Cover() {
 }
 
 export default Cover;
+        {/* <Grid container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{zIndex:10, overflow: 'visible' }}>
+        <Grid p={.5} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'#25d366', borderRadius:10, cursor: 'pointer'}}>
+            <MDTypography variant='body2' style={{fontFamily: 'Work Sans , sans-serif', color: 'white'}} onClick={joinGroup}>JOIN WHATSAPP GROUP</MDTypography>
+        </Grid>
+        </Grid> */}

@@ -534,7 +534,7 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
     
         if(!user) return res.status(404).json({message: 'No such user found.'});
     
-        const filteredBody = filterObj(req.body, 'name', 'first_name', 'last_name', 'email', 'mobile','gender', 
+        const filteredBody = filterObj(req.body, 'name', 'first_name', 'last_name', 'email', 'mobile','gender', 'schoolDetails',
         'whatsApp_number', 'dob', 'address', 'city', 'state', 'country', 'last_occupation', 'family_yearly_income',
         'employeed', 'upiId','googlePay_number','payTM_number','phonePe_number','bankName','nameAsPerBankAccount','accountNumber',
         'ifscCode', 'bankState','aadhaarNumber','degree','panNumber','passportNumber','drivingLicenseNumber','pincode', 'KYCStatus'
@@ -733,6 +733,46 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
             message: 'Something went wrong. Try again.'
         })
     }
+
+
+
+});
+
+router.patch('/student/me', authController.protect, currentUser, uploadMultiple, checkFileError, resizePhoto, uploadToS3, async(req,res,next)=>{
+
+  try{
+      const user = await UserDetail.findById(req.user._id);
+  
+      if(!user) return res.status(404).json({message: 'No such user found.'});
+  
+      const filteredBody = filterObj(req.body, 'student_name', 'schoolDetails');
+
+      filteredBody.lastModified = new Date();
+      
+      if (req.profilePhotoUrl) {
+        if (!filteredBody.profilePhoto) {
+          filteredBody.profilePhoto = {};
+        }
+        filteredBody.profilePhoto.url = req.profilePhotoUrl;
+        filteredBody.profilePhoto.name = (req.files).profilePhoto[0].originalname;
+      }
+
+      for(key of Object.keys(filteredBody)){
+        if(filteredBody[key]=='undefined' || filteredBody[key] == 'null'){
+          filteredBody[key]=""
+        }
+      }
+      
+      const userData = await UserDetail.findByIdAndUpdate(user._id, filteredBody, {new: true});
+  
+      res.status(200).json({message:'Edit successful',status:'success',data: userData});
+
+  }catch(e){
+      console.log(e)
+      res.status(500).json({
+          message: 'Something went wrong. Try again.'
+      })
+  }
 
 
 
