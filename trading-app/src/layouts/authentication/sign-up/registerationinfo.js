@@ -536,7 +536,7 @@ function Cover() {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      placeholder="Choose your state"
+                      placeholder="Choose your school"
                       inputProps={{
                         ...params.inputProps,
                         autoComplete: 'new-password', // disable autocomplete and autofill
