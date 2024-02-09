@@ -15,7 +15,7 @@ import UpComing from "./upcoming";
 import MyOlympiad from './myOlympiad'
 import { Button, Tooltip } from "@mui/material";
 import LogoutIcon from '@mui/icons-material/Logout';
-import EditProfile from './editProfile';
+import EditProfile from './component/editProfile';
 import axios from 'axios';
 import { apiUrl } from "../../constants/constants";
 
@@ -125,7 +125,7 @@ function Cover() {
               alignItems='center'
               style={{ overflow: 'visible' }}
             >
-              <MDTypography variant='body2' style={{ fontFamily: 'Nunito' }}>
+              <MDTypography variant='body2' style={{ fontFamily: 'Work Sans , sans-serif' }}>
                 {user?.student_name || 'Your Name'}
               </MDTypography>
             </Grid>
@@ -135,7 +135,7 @@ function Cover() {
               alignItems='center'
               style={{ overflow: 'visible' }}
             >
-              <MDTypography variant='caption' style={{ fontFamily: 'Nunito' }}>
+              <MDTypography variant='caption' style={{ fontFamily: 'Work Sans , sans-serif' }}>
                 Class: {user?.schoolDetails?.grade || 'Your Grade'}
               </MDTypography>
             </Grid>
@@ -146,7 +146,7 @@ function Cover() {
               alignItems='center'
               style={{ overflow: 'visible' }}
             >
-              <MDTypography variant='caption' style={{ fontFamily: 'Nunito' }}>
+              <MDTypography variant='caption' style={{ fontFamily: 'Work Sans , sans-serif' }}>
                 {`${user?.schoolDetails?.school || 'School'}, ${user?.schoolDetails?.city?.name || 'City'}`}
               </MDTypography>
             </Grid>

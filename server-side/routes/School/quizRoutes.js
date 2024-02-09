@@ -55,20 +55,25 @@ router.get(
 );
 
 router.get(
-    '/:id', 
+    '/:id', Authenticate,
     quizController.getQuizForUser
 );
 
-router.patch(
-    '/:id', Authenticate, restrictTo('Admin', 'SuperAdmin'),
-    upload.fields([{ name: 'quizImage', maxCount: 1 }]),
-    quizController.editQuiz
+router.get(
+    '/user/slots/:id', Authenticate,
+    quizController.getSlot
 );
 
 router.get(
     '/:quizId/question', Authenticate, restrictTo('Admin', 'SuperAdmin'),
     upload.fields([{ name: 'questionImage', maxCount: 1 }]), // Adjust maxCount as needed
     quizController.getQuizQuestion
+);
+
+router.patch(
+    '/:id', Authenticate, restrictTo('Admin', 'SuperAdmin'),
+    upload.fields([{ name: 'quizImage', maxCount: 1 }]),
+    quizController.editQuiz
 );
 
 router.patch(

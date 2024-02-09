@@ -738,6 +738,35 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
 
 });
 
+router.patch('/student/image', authController.protect, currentUser, uploadMultiple, checkFileError, resizePhoto, uploadToS3, async(req,res,next)=>{
+
+  try{
+
+      const user = await UserDetail.findById(req.user._id);
+  
+      if(!user) return res.status(404).json({message: 'No such user found.'});
+      user.lastModified = new Date();
+      
+      if (req.profilePhotoUrl) {
+        user.schoolDetails.profilePhoto = req.profilePhotoUrl;
+      }
+      
+      const userData = await UserDetail.findByIdAndUpdate(user._id, user, {new: true})
+      .populate('role', 'roleName')
+      .populate('schoolDetails.city', 'name')
+      .select('student_name full_name schoolDetails city isAffiliate collegeDetails pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch bankState')
+  
+
+      res.status(200).json({message:'Edit successful',status:'success',data: userData});
+
+  }catch(e){
+      console.log(e)
+      res.status(500).json({
+          message: 'Something went wrong. Try again.'
+      })
+  }
+});
+
 router.patch('/student/me', authController.protect, currentUser, uploadMultiple, checkFileError, resizePhoto, uploadToS3, async(req,res,next)=>{
 
   try{

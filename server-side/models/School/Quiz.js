@@ -37,7 +37,8 @@ const quizSchema = new mongoose.Schema({
     registrations:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         registeredOn:{type:Date},
-        registrationId: {type:String}
+        registrationId: {type:String},
+        slotId: {type:Schema.Types.ObjectId}
     }],
     city:{
         type:Schema.Types.ObjectId,
@@ -65,6 +66,7 @@ const quizSchema = new mongoose.Schema({
     },
     slots: [{
        time: { type: Date},
+       user: {type: Number, default: 0},
     }],
     grade: {
         type: String,
