@@ -770,7 +770,7 @@ router.patch('/student/image', authController.protect, currentUser, uploadMultip
 router.patch('/student/me', authController.protect, currentUser, uploadMultiple, checkFileError, resizePhoto, uploadToS3, async(req,res,next)=>{
 
   try{
-    const {student_name, grade, city, school, dob} = req.body;
+    const {student_name, grade, city, school, dob, state} = req.body;
 
     console.log(req.body)
 
@@ -778,7 +778,7 @@ router.patch('/student/me', authController.protect, currentUser, uploadMultiple,
   
       if(!user) return res.status(404).json({message: 'No such user found.'});
       const schoolDetails = {
-        grade, city, school, dob, parents_name: user?.schoolDetails?.parents_name
+        grade, city, school, dob, parents_name: user?.schoolDetails?.parents_name, state
       }
       // const filteredBody = filterObj(req.body, 'student_name', 'schoolDetails');
       user.schoolDetails = schoolDetails;
@@ -792,6 +792,7 @@ router.patch('/student/me', authController.protect, currentUser, uploadMultiple,
       const userData = await UserDetail.findByIdAndUpdate(user._id, user, {new: true})
       .populate('role', 'roleName')
       .populate('schoolDetails.city', 'name')
+      .populate('schoolDetails.school', 'school_name')
       .select('student_name full_name schoolDetails city isAffiliate collegeDetails pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch bankState')
   
 

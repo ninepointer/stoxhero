@@ -62,7 +62,11 @@ const signedUpUserSchema = new mongoose.Schema({
     schoolDetails:{
         parents_name: String,
         grade: String,
-        school: String,
+        school: {
+            type: Schema.Types.ObjectId,
+            ref: 'school'    
+        },
+        state: String,
         dob: Date,
         profilePhoto: String,
         city:{

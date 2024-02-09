@@ -168,9 +168,10 @@ function Cover() {
         student_name: full_name.trim(),
         mobile: mobile,
         parents_name: parents_name.trim(),
-        grade: gradeValue, school,
+        grade: gradeValue, school: userSchool?._id,
         city: value?._id,
-        dob: dateValue
+        dob: dateValue,
+        state: userState
       })
     });
 
@@ -212,9 +213,9 @@ function Cover() {
         student_name: full_name,
         mobile,
         parents_name,
-        grade: gradeValue, school,
+        grade: gradeValue, school: userSchool?._id,
         city: value?._id,
-        dob: dateValue,
+        dob: dateValue, state: userState,
         referrerCode: campaignCode
       })
     });

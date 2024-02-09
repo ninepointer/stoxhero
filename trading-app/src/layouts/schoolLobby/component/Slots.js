@@ -7,7 +7,7 @@ import { apiUrl } from '../../../constants/constants';
 import moment from 'moment';
 
 
-const Slots = ({quizData, id, selected, setSelected, setError }) => {
+const Slots = ({quizData, id, selected, setSelected, setError, setRegistrationMessage, getDetails }) => {
 
     const [slots, setSlots] = useState([]);
 
@@ -20,6 +20,8 @@ const Slots = ({quizData, id, selected, setSelected, setError }) => {
         setSlots(data?.data?.data);
     }
 
+    
+
     return (
         <>
             <MDBox>
@@ -27,7 +29,7 @@ const Slots = ({quizData, id, selected, setSelected, setError }) => {
                 <MDBox style={{ color: '#353535', fontSize: '15px', fontFamily: 'Work Sans , sans-serif', textAlign: 'center', marginBottom: "10px" }}>
                     Test Date: {moment(quizData?.startDateTime).format('DD-MM-YYYY') }
                 </MDBox>
-                <Grid container item md={12} lg={12} xs={12}
+                <Grid container spacing={1} item md={12} lg={12} xs={12}
                 >
                     {slots.map(elem => (
                         <Grid item md={12} lg={6} xs={12} mt={1}

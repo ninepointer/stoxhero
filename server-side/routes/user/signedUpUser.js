@@ -160,10 +160,10 @@ router.get("/send", async (req, res) => {
 })
 
 router.post("/schoolsignup", async (req, res) => {
-    const { mobile, student_name, city, parents_name, grade, school,dob } = req.body;
+    const { mobile, student_name, city, parents_name, grade, school,dob ,state} = req.body;
 
     const schoolDetails = {
-        parents_name, grade, school, dob, city
+        parents_name, grade, school, dob, city, state
     }
 
     if (!mobile || !student_name || !city || !parents_name || !grade || !school) {
@@ -388,11 +388,11 @@ router.patch("/verifyotp", async (req, res) => {
         fcmTokenData,
         collegeDetails,
         parents_name, school, grade,
-        dob
+        dob, state
     } = req.body
 
     const schoolDetails = {
-        parents_name, school, grade, city, dob
+        parents_name, school, grade, city, dob, state
     }
 
     const user = await SignedUpUser.findOne({ mobile: mobile })
@@ -417,7 +417,7 @@ router.patch("/verifyotp", async (req, res) => {
         checkUser.student_name = student_name;
         await checkUser.save({validateBeforeSave: false, new: true});
 
-        const newuser = await User.findOne({_id: new ObjectId(checkUser?._id)}).populate('schoolDetails.city', 'name');
+        const newuser = await User.findOne({_id: new ObjectId(checkUser?._id)}).populate('schoolDetails.city', 'name').populate('schoolDetails.school', 'school_name');
         const token = await newuser.generateAuthToken();
 
         res.cookie("jwtoken", token, {
@@ -583,6 +583,7 @@ router.patch("/verifyotp", async (req, res) => {
         ],
           })
           .populate('schoolDetails.city', 'name')
+          .populate('schoolDetails.school', 'school_name')
         .select('student_name schoolDetails full_name city dob pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
         const token = await newuser.generateAuthToken();
 

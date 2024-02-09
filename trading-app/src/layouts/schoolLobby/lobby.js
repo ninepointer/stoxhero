@@ -147,7 +147,7 @@ function Cover() {
               style={{ overflow: 'visible' }}
             >
               <MDTypography variant='caption' style={{ fontFamily: 'Work Sans , sans-serif' }}>
-                {`${user?.schoolDetails?.school || 'School'}, ${user?.schoolDetails?.city?.name || 'City'}`}
+                {`${user?.schoolDetails?.school?.school_name || 'School'}, ${user?.schoolDetails?.city?.name || 'City'}`}
               </MDTypography>
             </Grid>
             {/* New Grid for buttons */}
@@ -167,7 +167,7 @@ function Cover() {
 
 
 
-        <Grid container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{zIndex:10, overflow: 'visible' }}>
+        <Grid container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{zIndex:1, overflow: 'visible' }}>
         <Grid p={.5} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'#D5F47E', borderRadius:10}}>
             <MDTypography variant='body2' style={{fontFamily: 'Work Sans , sans-serif'}}>My Olympiad(s)</MDTypography>
         </Grid>

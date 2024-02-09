@@ -1,21 +1,10 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { memo, useState } from 'react';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import MDAvatar from '../../../components/MDAvatar';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import { DialogTitle, DialogContentText, Button } from '@mui/material';
-import axios from "axios";
-import { Grid, TextField, Tooltip, Box, useMediaQuery } from '@mui/material';
+import { Grid } from '@mui/material';
 import { apiUrl } from '../../../constants/constants';
-// import MDSnackbar from '../../../components/MDSnackbar';
-import { userContext } from '../../../AuthContext';
-// import { Autocomplete } from "@mui/material";
-// import { styled } from '@mui/material';
 import MDTypography from "../../../components/MDTypography";
-import { useTheme } from '@mui/material/styles';
-import moment from 'moment';
 import logo from '../../../assets/images/logo1.jpeg'
 
 
@@ -80,17 +69,9 @@ const UploadImage = ({ selected, getDetails, id, setRegistrationMessage }) => {
 
         const data = await res.json();
         if (res.status === 200 || res.status === 201) {
-
-            // setData(data?.data)
-            // setUpdate(!update)
             setRegistrationMessage(data?.message)
-            // setOpen(true)
-
-            // openSuccessSB("Success", data.message);
         } else {
             setRegistrationMessage(data?.message)
-            // setOpen(true)
-            // openSuccessSB("Something went wrong", data.mesaage);
         }
     }
 

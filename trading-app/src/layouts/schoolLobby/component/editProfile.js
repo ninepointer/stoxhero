@@ -15,6 +15,7 @@ import { styled } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import MDAvatar from "../../../components/MDAvatar";
 import logo from '../../../assets/images/logo1.jpeg'
+import debounce from 'debounce';
 
 
 const CustomAutocomplete = styled(Autocomplete)`
@@ -30,6 +31,13 @@ const EditProfile = ({ user, update, setUpdate }) => {
     const [previewUrl, setPreviewUrl] = useState('');
     const [gradeValue, setGradeValue] = useState(user?.schoolDetails?.grade);
     const setDetails = useContext(userContext);
+    const [userState, setUserState] = useState(user?.schoolDetails?.state);
+    const [schoolsList, setSchoolsList] = useState([]);
+    const [userSchool, setUserSchool] = useState({
+        _id: user?.schoolDetails?.school?._id || '',
+        schoolString: user?.schoolDetails?.school?.school_name || ""
+    });
+    const [inputValue, setInputValue] = useState('');
 
     const [content, setContent] = useState('')
     const [successSB, setSuccessSB] = useState(false);
@@ -41,20 +49,42 @@ const EditProfile = ({ user, update, setUpdate }) => {
 
     const [formState, setFormState] = useState({
         student_name: "" || user?.student_name,
-        school: "" || user?.schoolDetails?.school
+        profilePhoto: "" || user?.schoolDetails?.profilePhoto
+        // school: "" || user?.schoolDetails?.school
     });
 
     const [isFocused, setIsFocused] = useState(false);
     const [dateValue, setDateValue] = useState(user?.schoolDetails?.dob?.toString()?.split("T")?.[0]);
-  
+
     const handleFocus = () => setIsFocused(true);
     const handleBlur = () => {
-      if (!dateValue) {
-        setIsFocused(false);
-      }
+        if (!dateValue) {
+            setIsFocused(false);
+        }
     };
+
+    const handleStateChange = (event, newValue) => {
+        console.log('event', event.target, newValue);
+        setUserState(newValue);
+        setSchoolsList([]);
+        setUserSchool('');
+    }
+
+    const searchSchools = async () => {
+        const res = await axios.post(`${apiUrl}fetchschools`, { stateName: userState, inputString: inputValue });
+        console.log('setting school list', schoolsList.length);
+        setSchoolsList(res.data);
+    }
+
+    const debounceGetSchools = debounce(searchSchools, 1500);
+
+    const handleSchoolChange = (event, newValue) => {
+        setUserSchool(newValue);
+        console.log('setting list for user', newValue);
+    }
+
     const handleTypeChange = (event) => {
-      setDateValue(event.target.value);
+        setDateValue(event.target.value);
     };
 
     const handleClose = () => {
@@ -104,6 +134,8 @@ const EditProfile = ({ user, update, setUpdate }) => {
             onClose={closeSuccessSB}
             close={closeSuccessSB}
             bgWhite="info"
+            style={{zIndex: 20}}
+            
         />
     );
 
@@ -162,8 +194,16 @@ const EditProfile = ({ user, update, setUpdate }) => {
             formData.append(`grade`, gradeValue);
         }
 
-        if(dateValue){
+        if (dateValue) {
             formData.append(`dob`, dateValue);
+        }
+
+        if (userSchool?._id) {
+            formData.append(`school`, userSchool?._id);
+        }
+
+        if (userState) {
+            formData.append(`state`, userState);
         }
 
         const res = await fetch(`${apiUrl}student/me`, {
@@ -177,10 +217,10 @@ const EditProfile = ({ user, update, setUpdate }) => {
         if (data.status === 500 || data.status == 400 || data.status == 401 || data.status == 'error' || data.error || !data) {
             openErrorSB("Error", data.error)
         } else if (data.status == 'success') {
-            setDetails.setUserDetail(data?.data);
             openSuccessSB("Profile Edited", "Edited Successfully");
-            setUpdate(!update);
             setOpen(false);
+            setDetails.setUserDetail(data?.data);
+            setUpdate(!update);
         } else {
             openErrorSB("Error", data.message);
         }
@@ -214,7 +254,7 @@ const EditProfile = ({ user, update, setUpdate }) => {
                         alignItems='center'
                         style={{ overflow: 'visible' }}
                     >
-                        <MDAvatar src={previewUrl || user?.profilePhoto?.url || logo} size='md' alt='your image' style={{border: '1px solid grey' }} />
+                        <MDAvatar src={previewUrl || user?.schoolDetails?.profilePhoto || logo} size='md' alt='your image' style={{ border: '1px solid grey' }} />
                     </Grid>
 
                     <Grid item xs={12} md={12} xl={12} mt={1}>
@@ -280,15 +320,81 @@ const EditProfile = ({ user, update, setUpdate }) => {
                         />
                     </Grid>
 
-                    <Grid item mt={1} xs={12} md={12} xl={12}>
-                        <TextField
-                            // disabled={((isSubmitted || quiz) && (!editing || saving))}
-                            id="outlined-required"
-                            placeholder='School *'
-                            name='school'
-                            fullWidth
-                            defaultValue={formState?.school}
-                            onChange={handleChange}
+                    <Grid mt={1} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
+                        <CustomAutocomplete
+                            id="country-select-demo"
+                            sx={{
+                                width: "100%",
+                                '& .MuiAutocomplete-clearIndicator': {
+                                    color: 'dark',
+                                },
+                            }}
+                            options={['Andaman & Nicobar', 'Andhra Pradesh', 'Arunachal Pradesh', "Assam", "Bihar", "Chandigarh", "Chhattisgarh", "Delhi",
+                                "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu & Kashmir", "Jharkhand", "Karnataka", "Kerala", "Ladakh",
+                                "Lakshadeep", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Pondicherry",
+                                "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"]}
+                            value={userState}
+
+                            onChange={handleStateChange}
+                            autoHighlight
+                            getOptionLabel={(option) => option ? option : 'State'}
+                            renderOption={(props, option) => (
+                                <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                                    {option}
+                                </Box>
+                            )}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    placeholder="Choose your state"
+                                    inputProps={{
+                                        ...params.inputProps,
+                                        autoComplete: 'new-password', // disable autocomplete and autofill
+                                        style: { color: 'dark', height: "10px" }, // set text color to dark
+                                    }}
+                                    InputLabelProps={{
+                                        style: { color: 'dark' },
+                                    }}
+                                />
+                            )}
+                        />
+                    </Grid>
+
+                    <Grid mt={1} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
+                        <CustomAutocomplete
+                            id="country-select-demo"
+                            sx={{
+                                width: "100%",
+                                '& .MuiAutocomplete-clearIndicator': {
+                                    color: 'dark',
+                                },
+                            }}
+                            options={schoolsList}
+                            value={userSchool}
+
+                            onChange={handleSchoolChange}
+                            onInputChange={debounceGetSchools}
+                            autoHighlight
+                            getOptionLabel={(option) => option ? option.schoolString : 'School'}
+                            renderOption={(props, option) => (
+                                <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                                    {option.schoolString}
+                                </Box>
+                            )}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    placeholder="Choose your school"
+                                    inputProps={{
+                                        ...params.inputProps,
+                                        autoComplete: 'new-password', // disable autocomplete and autofill
+                                        style: { color: 'dark', height: "10px" }, // set text color to dark
+                                    }}
+                                    InputLabelProps={{
+                                        style: { color: 'dark' },
+                                    }}
+                                />
+                            )}
                         />
                     </Grid>
 
@@ -354,9 +460,10 @@ const EditProfile = ({ user, update, setUpdate }) => {
                         Edit
                     </MDButton>
                 </DialogActions>
-                {renderSuccessSB}
-                {renderErrorSB}
+               
             </Dialog >
+            {renderSuccessSB}
+                {renderErrorSB}
         </>
     );
 
