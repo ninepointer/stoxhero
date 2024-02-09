@@ -42,12 +42,14 @@ function Cover() {
   const [submitClicked, setSubmitClicked] = useState(false);
   const setDetails = useContext(userContext);
   const [cityData, setCityData] = useState([]);
-  const [gradeValue, setGradeValue] = useState('6th');
+  const [gradeValue, setGradeValue] = useState();
   const [value, setValue] = useState({
     _id: '',
     name: ""
   })
 
+  const [isFocused, setIsFocused] = useState(false);
+  const [dateValue, setDateValue] = useState('');
 
   const [otpGen, setOtpGen] = useState(false);
   const [mobileOtp, setMobileOtp] = useState('');
@@ -58,6 +60,7 @@ function Cover() {
 
   // Get the value of the "mobile" parameter
   const mobile = urlParams.get('mobile');
+  const campaignCode = urlParams.get('campaignCode')
 
   const [formstate, setformstate] = useState({
     full_name: "",
@@ -66,6 +69,7 @@ function Cover() {
     parents_name: "",
     grade: "",
     school: "",
+    dob: "",
     city: {
       id: "",
       city: ""
@@ -148,7 +152,7 @@ function Cover() {
         parents_name: parents_name.trim(),
         grade: gradeValue, school,
         city: value?._id,
-        dob: dob
+        dob: dateValue
       })
     });
 
@@ -192,7 +196,8 @@ function Cover() {
         parents_name,
         grade: gradeValue, school,
         city: value?._id,
-        dob: dob
+        dob: dateValue,
+        referrerCode: campaignCode
       })
     });
     const data = await res.json();
@@ -245,8 +250,6 @@ function Cover() {
   const [content, setContent] = useState('')
   const [color, setColor] = useState('')
   const [icon, setIcon] = useState('')
-  const [isFocused, setIsFocused] = useState(false);
-  const [dateValue, setDateValue] = useState('');
 
   const handleFocus = () => setIsFocused(true);
   const handleBlur = () => {

@@ -39,6 +39,12 @@ function Cover() {
   const [invalidDetail, setInvalidDetail] = useState();
   const setDetails = useContext(userContext);
 
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  // Get the value of the "mobile" parameter
+  const campaignCode = urlParams.get('campaignCode');
+
+
   useEffect(() => {
     ReactGA.pageview(window.location.pathname)
   })
@@ -113,9 +119,15 @@ function Cover() {
           setOtpGen(true);
         }
         else {
+          if(data.message.includes('not registered')){
+            await axios.post(`${apiUrl}signupintent`, {mobile});
+            console.log('campaign code', campaignCode,
+            `registrationinfo?mobile=${mobile}${campaignCode ? `&campaignCode=${campaignCode}` : ""}`
+            )
+            navigate(`/registrationinfo?mobile=${mobile}${campaignCode ? `&campaignCode=${campaignCode}` : ""}`)  
+          }
           setInvalidDetail(data.message)
-          openSuccessSBSI("error", data.message);
-          navigate(`/registrationinfo?mobile=${mobile}`)
+          // openSuccessSBSI("error", data.message);
         }
       }
     } catch (e) {

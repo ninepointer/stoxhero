@@ -43,11 +43,38 @@ const quizSchema = new mongoose.Schema({
         type:Schema.Types.ObjectId,
         ref:'city'
     },
-    description: String,
-    image: String,
-    maxParticipant: Number,
-    grade: String,
-    openForAll: Boolean,
+    description: {
+        type: String,
+        required: true
+    },
+    image: {
+        type: String,
+        required: true
+    },
+    maxParticipant: {
+        type: Number,
+        required: true
+    },
+    noOfSlots: {
+        type: Number,
+        required: true
+    },
+    slotBufferTime: {
+        type: Number,
+        required: true
+    },
+    slots: [{
+       time: { type: Date},
+    }],
+    grade: {
+        type: String,
+        required: true
+    },
+    openForAll: {
+        type: Boolean,
+        default: false,
+        required: true
+    },
     status:{
         type:String,
         enum:['Active', 'Inactive', 'Draft', 'Completed']

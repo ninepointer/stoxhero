@@ -534,7 +534,7 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
     
         if(!user) return res.status(404).json({message: 'No such user found.'});
     
-        const filteredBody = filterObj(req.body, 'name', 'first_name', 'last_name', 'email', 'mobile','gender', 
+        const filteredBody = filterObj(req.body, 'name', 'first_name', 'last_name', 'email', 'mobile','gender', 'schoolDetails',
         'whatsApp_number', 'dob', 'address', 'city', 'state', 'country', 'last_occupation', 'family_yearly_income',
         'employeed', 'upiId','googlePay_number','payTM_number','phonePe_number','bankName','nameAsPerBankAccount','accountNumber',
         'ifscCode', 'bankState','aadhaarNumber','degree','panNumber','passportNumber','drivingLicenseNumber','pincode', 'KYCStatus'
@@ -733,6 +733,47 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
             message: 'Something went wrong. Try again.'
         })
     }
+
+
+
+});
+
+router.patch('/student/me', authController.protect, currentUser, uploadMultiple, checkFileError, resizePhoto, uploadToS3, async(req,res,next)=>{
+
+  try{
+    const {student_name, grade, city, school, dob} = req.body;
+
+    console.log(req.body)
+
+      const user = await UserDetail.findById(req.user._id);
+  
+      if(!user) return res.status(404).json({message: 'No such user found.'});
+      const schoolDetails = {
+        grade, city, school, dob, parents_name: user?.schoolDetails?.parents_name
+      }
+      // const filteredBody = filterObj(req.body, 'student_name', 'schoolDetails');
+      user.schoolDetails = schoolDetails;
+      user.student_name = student_name;
+      user.lastModified = new Date();
+      
+      if (req.profilePhotoUrl) {
+        user.schoolDetails.profilePhoto = req.profilePhotoUrl;
+      }
+      
+      const userData = await UserDetail.findByIdAndUpdate(user._id, user, {new: true})
+      .populate('role', 'roleName')
+      .populate('schoolDetails.city', 'name')
+      .select('student_name full_name schoolDetails city isAffiliate collegeDetails pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch bankState')
+  
+
+      res.status(200).json({message:'Edit successful',status:'success',data: userData});
+
+  }catch(e){
+      console.log(e)
+      res.status(500).json({
+          message: 'Something went wrong. Try again.'
+      })
+  }
 
 
 

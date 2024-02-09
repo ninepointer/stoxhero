@@ -32,14 +32,29 @@ const getAwsS3Url = async (file) => {
 
 exports.createQuiz = async (req, res) => {
     try {
-        const {grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status, maxParticipant, city, openForAll, description } = req.body;
+        const {grade, title, startDateTime, registrationOpenDateTime, 
+            durationInSeconds, rewardType, status, maxParticipant, city, 
+            openForAll, description, noOfSlots, slotBufferTime } = req.body;
 
         const openAll = (openForAll === 'false' || openForAll === 'undefined' || openForAll === false) ? false : true;
         let image;
         if (req.files['quizImage']) {
             image = await getAwsS3Url(req.files['quizImage'][0]);
         }
-        const newQuiz = new Quiz({image, maxParticipant, grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status, city, openForAll: openAll, description });
+
+        const slots = [];
+        slots.push({ time: new Date(startDateTime) });
+        for (let i = 1; i < noOfSlots; i++) {
+            const previousSlotTime = new Date(slots[i - 1].time);
+            const nextSlotTime = new Date(previousSlotTime.getTime() + (Number(durationInSeconds) + Number(slotBufferTime)) * 1000);
+            slots.push({ time: nextSlotTime });
+        }
+
+        const newQuiz = new Quiz({image, maxParticipant, grade, title, 
+            startDateTime, registrationOpenDateTime, durationInSeconds, 
+            rewardType, status, city, openForAll: openAll, description,
+            noOfSlots, slotBufferTime, slots
+         });
         await newQuiz.save();
         res.status(201).json(newQuiz);
     } catch (error) {
@@ -51,6 +66,16 @@ exports.editQuiz = async (req, res) => {
     try {
         const quizId = req.params.id;
         const updates = req.body;
+
+        const slots = [];
+        slots.push({ time: new Date(updates.startDateTime) });
+        for (let i = 1; i < updates.noOfSlots; i++) {
+            const previousSlotTime = new Date(slots[i - 1].time);
+            const nextSlotTime = new Date(previousSlotTime.getTime() + (Number(updates.durationInSeconds) + Number(updates.slotBufferTime)) * 1000);
+            slots.push({ time: nextSlotTime });
+        }
+
+        updates.slots = slots;
         updates.openForAll = (updates?.openForAll === 'false' || updates?.openForAll === 'undefined' || updates?.openForAll === false) ? false : true;
         
         if (req.files['quizImage']) {

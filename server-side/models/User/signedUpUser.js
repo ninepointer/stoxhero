@@ -63,6 +63,12 @@ const signedUpUserSchema = new mongoose.Schema({
         parents_name: String,
         grade: String,
         school: String,
+        dob: Date,
+        profilePhoto: String,
+        city:{
+            type:Schema.Types.ObjectId,
+            ref:'city'
+        },
     },
     status:{
         type: String,
