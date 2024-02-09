@@ -567,7 +567,7 @@ exports.registration = async (req, res) => {
         let quizDate;
         for(let elem of getquiz.slots){
             if((elem?._id?.toString() === slotId?.toString())){
-                quizDate = moment(elem?.time).format('DD-MM-YYYY hh:mm A');
+                quizDate = moment(elem?.time).add(5, 'hours').add(30, 'minutes').format('DD-MM-YYYY hh:mm A');
             }
         }
 

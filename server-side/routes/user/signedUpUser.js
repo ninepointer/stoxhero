@@ -423,7 +423,7 @@ router.patch("/verifyotp", async (req, res) => {
         res.cookie("jwtoken", token, {
             expires: new Date(Date.now() + 25892000000),
         }); 
-        return res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials."});
+        return res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials.", token: token});
     }
     if(checkUser && !checkUser?.collegeDetails?.college && collegeDetails){
         checkUser.collegeDetails = collegeDetails;

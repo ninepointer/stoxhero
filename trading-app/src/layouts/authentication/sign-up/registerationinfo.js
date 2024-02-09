@@ -81,7 +81,7 @@ function Cover() {
   });
   const [inputValue, setInputValue] = useState('');
   const searchSchools = async ()=>{
-    const res = await axios.post('http://localhost:5000/api/v1/fetchschools', {stateName:userState, inputString: inputValue});
+    const res = await axios.post(`${apiUrl}fetchschools`, {stateName:userState, inputString: inputValue});
     console.log('setting school list', schoolsList.length);
     setSchoolsList(res.data);
   }
@@ -250,7 +250,7 @@ function Cover() {
       if (remainingTime === 0) {
         // Stop the timer
         clearInterval(timer);
-        setResendTimer(false);
+        setTimerActive(false);
         console.log("Timer has ended!");
       }
     }, 1000); // Update every second (1000 milliseconds)
