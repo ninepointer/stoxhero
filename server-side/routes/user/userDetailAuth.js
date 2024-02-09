@@ -770,7 +770,7 @@ router.patch('/student/image', authController.protect, currentUser, uploadMultip
 router.patch('/student/me', authController.protect, currentUser, uploadMultiple, checkFileError, resizePhoto, uploadToS3, async(req,res,next)=>{
 
   try{
-    const {student_name, grade, city, school, dob, state} = req.body;
+    const {student_name, grade, city, school, dob, state, profilePhoto} = req.body;
 
     console.log(req.body)
 
@@ -778,7 +778,7 @@ router.patch('/student/me', authController.protect, currentUser, uploadMultiple,
   
       if(!user) return res.status(404).json({message: 'No such user found.'});
       const schoolDetails = {
-        grade, city, school, dob, parents_name: user?.schoolDetails?.parents_name, state
+        grade, city, school, dob, parents_name: user?.schoolDetails?.parents_name, state, profilePhoto
       }
       // const filteredBody = filterObj(req.body, 'student_name', 'schoolDetails');
       user.schoolDetails = schoolDetails;
