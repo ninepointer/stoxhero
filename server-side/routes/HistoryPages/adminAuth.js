@@ -374,6 +374,70 @@ router.get('/lostusers', async(req,res)=>{
   })
 })
 
+const getActiveUsersInRange = async (startDate, endDate) => {
+  const formattedStartDate = moment(startDate).format('YYYY-MM-DD');
+  const formattedEndDate = moment(endDate).format('YYYY-MM-DD');
+  
+  const pipeline = [
+    { $match: { trade_time: { $gte: new Date(formattedStartDate), $lte: new Date(formattedEndDate) } } },
+    { $group: { _id: '$trader' } },
+    { $project: { _id: 0, trader: '$_id' } }
+  ];
+
+  const contestPipeline = [
+    { $match: { trade_time: { $gte: new Date(formattedStartDate), $lte: new Date(formattedEndDate) }, entryFee: {$: 0} } },
+    { $group: { _id: '$trader' } },
+    { $project: { _id: 0, trader: '$_id' } }
+  ];
+
+  const collections = [TenXTrade, DailyContestMockUser, MarginXUser, BattleMock, PaperTrade];
+  const uniqueUsersSet = new Set();
+
+  for (const collection of collections) {
+    const traders = await collection.aggregate(pipeline);
+    traders.forEach(trader => uniqueUsersSet.add(trader.trader.toString()));
+  }
+
+  return Array.from(uniqueUsersSet);
+};
+
+const calculateRetentionRates = async () => {
+  // Define your date ranges based on current date
+  const today = moment();
+  const periods = [30, 60, 90, 180]; // Define periods to compare
+
+  let results = [];
+
+  for (const period of periods) {
+    const startPeriod = today.clone().subtract(period+30, 'days');
+    const endPeriod = today.clone().subtract(30, 'days');
+
+    const activeUsersCurrentPeriod = await getActiveUsersInRange(today.clone().subtract(30, 'days'), today.clone());
+    const activeUsersPreviousPeriod = await getActiveUsersInRange(startPeriod.clone(), endPeriod);
+
+    const lostUsers = activeUsersPreviousPeriod.filter(user => !activeUsersCurrentPeriod.includes(user));
+    const retentionRate = (activeUsersPreviousPeriod.length - lostUsers.length) / activeUsersPreviousPeriod.length;
+
+    results.push({
+      period: `${period} days`,
+      lostUsers: lostUsers.length,
+      base: activeUsersPreviousPeriod.length,
+      retentionRate: retentionRate
+    });
+  }
+
+  return results;
+};
+
+router.get('/retention-rates', async (req, res) => {
+  try {
+    const retentionRates = await calculateRetentionRates();
+    res.json(retentionRates);
+  } catch (error) {
+    res.status(500).send(error.toString());
+  }
+});
+
 
 router.get('/backfillherody3', async(req,res) =>{
   const arr1 = [
