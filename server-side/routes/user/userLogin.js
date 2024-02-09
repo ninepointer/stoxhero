@@ -74,6 +74,7 @@ router.post('/schoollogin', async (req,res, next)=>{
     
         const user = await UserDetail.findOne({mobile});
     
+        // console.log(user?.schoolDetails?.grade, !user?.schoolDetails?.grade)
         if(!user?.schoolDetails?.grade){
             return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'})
         }

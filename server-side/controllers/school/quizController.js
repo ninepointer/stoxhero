@@ -2,6 +2,7 @@ const Quiz = require('../../models/School/Quiz'); // Adjust the path as per your
 const AWS = require('aws-sdk');
 const {ObjectId} = require('mongodb');
 const User = require('../../models/User/userDetailSchema');
+const moment = require('moment');
 
 // Configure AWS
 const s3 = new AWS.S3({
@@ -490,28 +491,43 @@ exports.registration = async (req, res) => {
     try {
         const id = req.params.id;
         const userId = req.user._id;
+        const {slotId} = req.body;
         const user = await User.findById(userId).select('schoolDetails dob mobile').populate('schoolDetails.city', 'name code');
 
         const getquiz = await Quiz.findById(new ObjectId(id));
+        if(!getquiz) return res.status(500).json({status: 'error', message: "Quiz not found."  });
+
+        for(let elem of getquiz.slots){
+            if((elem?._id?.toString() === slotId?.toString()) && (elem?.user >= getquiz?.maxParticipant)){
+                return res.status(500).json({status: 'error', message: "This slot is full please try in another slot."  });
+            }
+        }
+
         const registrationId = getRegistrationId(user?.schoolDetails?.city?.code, user?.mobile, getquiz?.startDateTime, user?.schoolDetails?.grade)
-        console.log("registrationId", registrationId)
+        
         if(getquiz?.registrationOpenDateTime > new Date()){
             return res.status(500).json({status: 'error', message: "Registration for this quiz has not started yet. Please wait until registration opens."  });
         }
 
-        const quiz = await Quiz.findOneAndUpdate({_id: new ObjectId(id)}, {
-            $push: {
-                registrations: {
-                    userId: userId,
-                    registeredOn: new Date(),
-                    registrationId
-                }
-            }
-        }, {new: true});
-
-        // const quizzes = await Quiz.find({"registrations.userId": {$ne: new ObjectId(userId)}}, 'image maxParticipant title startDateTime registrationOpenDateTime durationInSeconds rewardType status')
-        // .lean()
-
+        const quiz = await Quiz.findOneAndUpdate(
+            {
+                _id: new ObjectId(id),
+                'slots._id': new ObjectId(slotId), // Match the specific slotId
+            },
+            {
+                $push: {
+                    registrations: {
+                        userId: userId,
+                        registeredOn: new Date(),
+                        registrationId,
+                        slotId,
+                    },
+                },
+                $inc: { 'slots.$.user': 1 }, // Increment the user count by 1 for the matched slotId
+            },
+            { new: true }
+        );
+          
         const quizzes = await Quiz.aggregate([
             {
                 $match: {
@@ -548,7 +564,14 @@ exports.registration = async (req, res) => {
             }
         ]).exec();
 
-        const quizDate = convertTime(getquiz?.startDateTime)
+        let quizDate;
+        for(let elem of getquiz.slots){
+            if((elem?._id?.toString() === slotId?.toString())){
+                quizDate = moment(elem?.time).format('DD-MM-YYYY hh:mm A');
+            }
+        }
+
+        
 
         res.status(201).json({status: "success", data: quizzes, message: `Thank you for registering. The olympiad will start on ${quizDate}.` });
 
@@ -556,6 +579,30 @@ exports.registration = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+
+exports.getSlot = async (req, res) => {
+    try {
+        // 65bd1597d0283f5f82e70cd9
+        const { id } = req.params;
+        const quizData = await Quiz.findOne({_id: new ObjectId(id)})?.select('maxParticipant slots')
+        const slots = quizData?.slots;
+        const maxParticipant = quizData?.maxParticipant;
+
+        const data = [];
+        for(let elem of slots){
+            data.push({
+                slotTime: elem?.time,
+                slotId: elem?._id,
+                spotLeft: maxParticipant - (elem?.user || 0)
+            })
+        }
+
+        res.status(201).json({status: "success", data: data });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
 
 function getRegistrationId( cityCode, mobile, quizStartDate, grade) {
     const quizDate = new Date(quizStartDate);

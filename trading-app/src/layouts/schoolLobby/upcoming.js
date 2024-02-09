@@ -3,7 +3,6 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import moment from 'moment'
 import MDSnackbar from "../../components/MDSnackbar";
-import { useTheme } from '@mui/material/styles';
 
 // @mui material components
 import { Grid, Button } from "@mui/material";
@@ -14,23 +13,16 @@ import MDTypography from "../../components/MDTypography";
 import MDButton from "../../components/MDButton";
 import axios from 'axios';
 import { apiUrl } from "../../constants/constants";
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import useMediaQuery from '@mui/material/useMediaQuery';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-
+import Registration from './component/register'
 
 function Cover({ setUpdate, update }) {
 
     const [data, setData] = useState([]);
-    const [registrationMessage, setRegistrationMessage] = useState("");
 
     useEffect(() => {
         fetchData();
-    }, [])
+    }, [update])
 
     async function fetchData() {
         const data = await axios.get(`${apiUrl}quiz/user`, { withCredentials: true });
@@ -50,33 +42,6 @@ function Cover({ setUpdate, update }) {
         document.body.removeChild(textarea);
         openSuccessSB("Success", "Share this link with your friends.")
     };
-
-    async function registration(id) {
-        const res = await fetch(`${apiUrl}quiz/user/registration/${id}`, {
-            method: "PATCH",
-            credentials: "include",
-            headers: {
-                "content-type": "application/json",
-                "Access-Control-Allow-Credentials": false
-            },
-            body: JSON.stringify({
-            })
-        });
-
-        const data = await res.json();
-        if (res.status === 200 || res.status === 201) {
-            setData(data?.data)
-            setUpdate(!update)
-            setRegistrationMessage(data?.message)
-            setOpen(true)
-
-            // openSuccessSB("Success", data.message);
-        } else {
-            setRegistrationMessage(data?.message)
-            setOpen(true)
-            // openSuccessSB("Something went wrong", data.mesaage);
-        }
-    }
 
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
@@ -116,14 +81,6 @@ function Cover({ setUpdate, update }) {
             bgWhite="info"
         />
     );
-
-    const [open, setOpen] = React.useState(false);
-    const theme = useTheme();
-    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-
-    const handleClose = async (e) => {
-        setOpen(false);
-    };
 
     function joinGroup() {
         window.open('https://chat.whatsapp.com/Bcjt7NbDTyz1odeF8RDtih', '_blank');
@@ -167,7 +124,7 @@ function Cover({ setUpdate, update }) {
                                             </MDTypography>
                                         </MDBox>
                                         {/* <Divider style={{ width: '100%' }} /> */}
-                                        <MDBox mt={-1} mb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                        <MDBox mb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                                             <MDTypography variant='caption' style={{ fontFamily: 'Work Sans , sans-serif' }}>
                                                 {elem?.grade} Grade
                                             </MDTypography>
@@ -182,8 +139,7 @@ function Cover({ setUpdate, update }) {
                                         <Grid mb={-2} container display='flex' justifyContent='space-between' xs={12} md={12} lg={12}>
                                             <Grid item display='flex' justifyContent='space-between' alignContent={'center'} alignItems={'center'} xs={12} md={12} lg={12}>
                                                 <MDButton size="small" style={{ fontFamily: 'Work Sans , sans-serif' }} onClick={handleCopyClick} >Invite Friends</MDButton>
-                                                <MDButton size="small" style={{ fontFamily: 'Work Sans , sans-serif' }}
-                                                >Start</MDButton>
+                                                <Registration id={elem?._id} quizData={elem} setData={setData} setUpdate={setUpdate} update={update}/>
                                                 <MDButton style={{ color: 'green', backgroundColor: '#ffffff', fontFamily: 'Work Sans , sans-serif' }} onClick={joinGroup} ><WhatsAppIcon /> </MDButton>
                                             </Grid>
                                         </Grid>
@@ -204,27 +160,7 @@ function Cover({ setUpdate, update }) {
                 {renderSuccessSB}
             </Grid>
 
-            <Dialog
-                fullScreen={fullScreen}
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="responsive-dialog-title">
-                <DialogTitle id="responsive-dialog-title" sx={{ textAlign: 'center' }}>
-                    {/* {"Option Chain"} */}
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText sx={{ display: "flex", flexDirection: "column", marginLeft: 2 }}>
-                        <MDBox sx={{ display: 'flex', alignItems: 'center', marginBottom: "10px" }}>
-                            <MDTypography color="dark" fontSize={15}>{registrationMessage}</MDTypography>
-                        </MDBox>
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose} autoFocus>
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
+         
             {renderSuccessSB}
         </>
     );
