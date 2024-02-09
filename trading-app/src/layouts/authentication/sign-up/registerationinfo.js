@@ -24,6 +24,7 @@ import MDButton from "../../../components/MDButton";
 import { Autocomplete, Box } from "@mui/material";
 import { styled } from '@mui/material';
 import { Helmet } from "react-helmet";
+import debounce from 'debounce'; 
 
 
 
@@ -50,6 +51,9 @@ function Cover() {
 
   const [isFocused, setIsFocused] = useState(false);
   const [dateValue, setDateValue] = useState('');
+  const [userState, setUserState] = useState('');
+  const [schoolsList, setSchoolsList] = useState([]);
+  const [userSchool, setUserSchool] = useState('');
 
   const [otpGen, setOtpGen] = useState(false);
   const [mobileOtp, setMobileOtp] = useState('');
@@ -75,7 +79,21 @@ function Cover() {
       city: ""
     },
   });
+  const [inputValue, setInputValue] = useState('');
+  const searchSchools = async ()=>{
+    const res = await axios.post('http://localhost:5000/api/v1/fetchschools', {stateName:userState, inputString: inputValue});
+    console.log('setting school list', schoolsList.length);
+    setSchoolsList(res.data);
+  }
 
+  const debounceGetSchools = debounce(searchSchools, 1500);
+  
+  const handleSchoolChange = (event, newValue) => {
+    setUserSchool(newValue);
+    console.log('setting list for user', newValue);
+  }
+  
+  
 
   useEffect(() => {
     ReactGA.pageview(window.location.pathname)
@@ -260,6 +278,13 @@ function Cover() {
   const handleTypeChange = (event) => {
     setDateValue(event.target.value);
   };
+
+  const handleStateChange = (event, newValue) => {
+    console.log('event', event.target, newValue);
+    setUserState(newValue);
+    setSchoolsList([]);
+    setUserSchool('');
+  }
 
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = (value, content) => {
@@ -448,8 +473,84 @@ function Cover() {
                   )}
                 />
               </Grid>
-
               <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
+                <CustomAutocomplete
+                  id="country-select-demo"
+                  sx={{
+                    width: "100%",
+                    '& .MuiAutocomplete-clearIndicator': {
+                      color: 'dark',
+                    },
+                  }}
+                  options={['Andaman & Nicobar', 'Andhra Pradesh', 'Arunachal Pradesh', "Assam", "Bihar", "Chandigarh", "Chhattisgarh", "Delhi",
+                            "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu & Kashmir","Jharkhand", "Karnataka", "Kerala", "Ladakh", 
+                            "Lakshadeep", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Pondicherry",
+                            "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"]}
+                  value={userState}
+                  disabled={otpGen}
+                  onChange={handleStateChange}
+                  autoHighlight
+                  getOptionLabel={(option) => option ? option : 'State'}
+                  renderOption={(props, option) => (
+                    <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                      {option}
+                    </Box>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="Choose your state"
+                      inputProps={{
+                        ...params.inputProps,
+                        autoComplete: 'new-password', // disable autocomplete and autofill
+                        style: { color: 'dark', height: "10px" }, // set text color to dark
+                      }}
+                      InputLabelProps={{
+                        style: { color: 'dark' },
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
+                <CustomAutocomplete
+                  id="country-select-demo"
+                  sx={{
+                    width: "100%",
+                    '& .MuiAutocomplete-clearIndicator': {
+                      color: 'dark',
+                    },
+                  }}
+                  options={schoolsList}
+                  value={userSchool}
+                  disabled={otpGen}
+                  onChange={handleSchoolChange}
+                  onInputChange={debounceGetSchools}
+                  autoHighlight
+                  getOptionLabel={(option) => option ? option.schoolString : 'School'}
+                  renderOption={(props, option) => (
+                    <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                      {option.schoolString}
+                    </Box>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="Choose your state"
+                      inputProps={{
+                        ...params.inputProps,
+                        autoComplete: 'new-password', // disable autocomplete and autofill
+                        style: { color: 'dark', height: "10px" }, // set text color to dark
+                      }}
+                      InputLabelProps={{
+                        style: { color: 'dark' },
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
+
+              {/* <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
                 <TextField
                   required
                   disabled={otpGen}
@@ -460,7 +561,7 @@ function Cover() {
                   name='school'
                 onChange={handleChange}
                 />
-              </Grid>
+              </Grid> */}
 
 
               <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>

@@ -27,6 +27,9 @@ const {createUserNotification} = require('../../controllers/notification/notific
 const {sendMultiNotifications} = require("../../utils/fcmService");
 const AffiliateTransaction = require("../../models/affiliateProgram/affiliateTransactions");
 const {ObjectId} = require('mongodb')
+const { promisify } = require('util');
+const {client} = require("../../marketData/redisClient");
+const School = require('../../models/School/School');
 
 router.get("/send", async (req, res) => {
     // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'direct_signup_campaign_new', userName : "vijay", source : "vijay", media : {url : mediaURL, filename : mediaFileName}, templateParams : ["newuser.first_name"], tags : '', attributes : ''});
@@ -214,6 +217,45 @@ router.post("/schoolsignup", async (req, res) => {
         
     } catch (err) { console.log(err); res.status(500).json({ message: 'Something went wrong', status: "error" }) }
 })
+const getAsync = promisify(client.get).bind(client);
+const setAsync = promisify(client.set).bind(client);
+
+router.post('/fetchschools', async (req, res) => {
+    const { inputString, stateName } = req.body;
+
+    try {
+        // Check if data for the state is already cached
+        let stateData = await client.get(`stateSchools-${stateName}`);
+
+        if (!stateData) {
+            // Data not in cache, fetch from database and cache it
+            const dataFromDB = await School.find({state: stateName}).select('_id school_name city');
+            await client.set(`stateSchools-${stateName}`, JSON.stringify(dataFromDB));
+            stateData = JSON.stringify(dataFromDB);
+            console.log('new state data', stateData);
+        }
+
+        // Parse the data to filter based on the input string
+        // const filteredData = JSON.parse(stateData).filter(school => 
+        //     school.school_name.toLowerCase().includes(inputString.toLowerCase()));
+        const filteredData = JSON.parse(stateData).filter(school =>
+            school.school_name.toLowerCase().includes(inputString.toLowerCase())
+        ).map(school => {
+            // Determine the city or use stateName if city is not available
+            const cityOrState = school.city ? school.city.split(',')[0] : stateName;
+            
+            return {
+                ...school, // Spread the rest of the school object
+                schoolString: `${school.school_name}, ${cityOrState}` // Construct the schoolString with city or stateName
+            };
+        });        
+        res.json(filteredData);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 
 router.post("/signupintent", async (req, res) => {
     const { mobile } = req.body;
