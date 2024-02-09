@@ -89,9 +89,14 @@ function Cover() {
   async function getOtpForLogin(e) {
     e.preventDefault();
     try {
-      if (mobile.length < 10) {
+
+      if (mobile.length < 10 || (mobile.includes('+91') && mobile.length !== 13) || (mobile.startsWith('0') && mobile.length !== 11) || (!mobile.startsWith('0') && !mobile.includes('+91') && mobile.length !== 10)) {
         return setInvalidDetail(`Please enter a valid mobile number`);
-      }
+    }
+    
+      // if (mobile.length < 10) {
+      //   return setInvalidDetail(`Please enter a valid mobile number`);
+      // }
       const res = await fetch(`${apiUrl}schoollogin`, {
         method: "POST",
         credentials: "include",
@@ -100,7 +105,7 @@ function Cover() {
           "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-          mobile
+          mobile: mobile.slice(-10)
         })
       });
       const data = await res.json();
@@ -158,11 +163,11 @@ function Cover() {
           "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-          mobile, mobile_otp: mobileOtp
+          mobile: mobile.slice(-10), mobile_otp: mobileOtp
         })
       });
       const data = await res.json();
-      console.log(data)
+      // console.log(data)
       if (data.status === 'error' || data.error || !data) {
         setInvalidDetail(data.message);
         openSuccessSBSI("error", data.message);
@@ -178,10 +183,32 @@ function Cover() {
 
   }
 
+  const ResendTimerSi = (seconds) => {
+    let remainingTime = seconds;
+
+    const timer = setInterval(() => {
+      // Display the remaining time
+      console.log(`Remaining time: ${remainingTime} seconds`);
+
+      // Decrease the remaining time by 1 second
+      setResendTimerSi(remainingTime--);
+      
+
+      // Check if the timer has reached 0
+      if (remainingTime === 0) {
+        // Stop the timer
+        clearInterval(timer);
+        setTimerActiveSi(false);
+        console.log("Timer has ended!");
+      }
+    }, 1000); // Update every second (1000 milliseconds)
+  };
+
   async function resendOTP(type) {
     setTimerActiveSi(true);
     // console.log("Active timer set to true")
-    setResendTimerSi(30);
+    
+    ResendTimerSi(30)
     try {
       const res = await fetch(`${apiUrl}resendmobileotp`, {
 
@@ -311,7 +338,7 @@ function Cover() {
                       id="outlined-required"
                       placeholder="Enter Mobile No."
                       fullWidth
-                      type='number'
+                      type='text'
                       onChange={handleMobileChange}
                       style={{width: '300px', backgroundColor: 'white', borderRadius: 5}}
                     />
@@ -351,14 +378,17 @@ function Cover() {
                   {otpGen &&
                     <>
                       <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center">
-                        <MDButton style={{ fontFamily: 'Work Sans , sans-serif', padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }} disabled={timerActiveSi} variant="text" color="#000" fullWidth onClick={() => { resendOTP('mobile') }}>
+                        <MDButton style={{ fontFamily: 'Work Sans , sans-serif', padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }} 
+                        // disabled={timerActiveSi} 
+                        variant="text" color="#fff" fullWidth onClick={timerActiveSi ? ()=>{} : () => { resendOTP('mobile') }}>
                           {timerActiveSi ? `Resend Mobile OTP in ${resendTimerSi} seconds` : 'Resend Mobile OTP'}
                         </MDButton>
                       </Grid>
 
                       <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center">
                         <MDButton style={{ fontFamily: 'Work Sans , sans-serif', padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }}
-                          disabled={timerActiveSi} variant="text" color="#000" fullWidth
+                          // disabled={timerActiveSi}
+                           variant="text" color="#000" fullWidth
                           onClick={() => { setTimerActive(false); setMobile(""); setOtpGen(false); setTimerActiveSi(false) }}>
                           change mobile number ?
                         </MDButton>

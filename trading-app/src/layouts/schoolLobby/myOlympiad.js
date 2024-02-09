@@ -34,7 +34,7 @@ function Cover({update}) {
 
     function handleCopyClick() {
         const textarea = document.createElement('textarea');
-        textarea.value = "https://stoxhero.com/finowledge";
+        textarea.value = "https://www.stoxhero.com/finowledge";
         document.body.appendChild(textarea);
 
         // Select the text in the textarea
@@ -43,7 +43,7 @@ function Cover({update}) {
 
         // Remove the temporary textarea
         document.body.removeChild(textarea);
-        openSuccessSB("Success", "Share this link with your friends.")
+        openSuccessSB("Success", "Share this link with your friends.", "Link Copied")
     };
     function handleStartClick(startDateTime) {
         if(new Date(startDateTime) > new Date()){
@@ -59,17 +59,15 @@ function Cover({update}) {
   
   
     const [successSB, setSuccessSB] = useState(false);
-    const openSuccessSB = (value, content) => {
+    const openSuccessSB = (value, content, title) => {
       // console.log("Value: ",value)
       if (value === "Success") {
-        setTitle('Successful');
+        setTitle(title || 'Successful');
         setContent(content);
         setColor("success");
         setIcon("check")
-      };
-  
-      if (value === "Error") {
-        setTitle("Error");
+      }else if (value === "Error") {
+        setTitle(title || "Error");
         setContent(content);
         setColor("error");
         setIcon("warning")
@@ -159,7 +157,7 @@ function Cover({update}) {
             :
             <Grid item xs={12} md={12} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                 <MDBox p={0.5} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ minWidth: '100%', borderRadius: 10, border: '1px #D5F47E solid' }}>
-                    <MDTypography variant='caption' color='student' style={{ textAlign: 'center', fontFamily: 'Work Sans , sans-serif' }}>No upcoming finance olympiad, keep checking this space!</MDTypography>
+                    <MDTypography variant='caption' color='student' style={{ textAlign: 'center', fontFamily: 'Work Sans , sans-serif' }}>You have not participated in any finance olympiads yet.</MDTypography>
                 </MDBox>
             </Grid>}
 

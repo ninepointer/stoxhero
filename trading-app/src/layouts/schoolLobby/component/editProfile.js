@@ -23,9 +23,7 @@ const CustomAutocomplete = styled(Autocomplete)`
   }
 `;
 
-// const ariaLabel = { 'aria-label': 'description' };
-
-const EditProfile = ({ user }) => {
+const EditProfile = ({ user, update, setUpdate }) => {
     const [open, setOpen] = React.useState(false);
     const [title, setTitle] = useState('');
     const [image, setImage] = useState(null);
@@ -74,6 +72,7 @@ const EditProfile = ({ user }) => {
         }
 
     }
+
     useEffect(() => {
         getCities();
     }, [])
@@ -180,6 +179,7 @@ const EditProfile = ({ user }) => {
         } else if (data.status == 'success') {
             setDetails.setUserDetail(data?.data);
             openSuccessSB("Profile Edited", "Edited Successfully");
+            setUpdate(!update);
             setOpen(false);
         } else {
             openErrorSB("Error", data.message);

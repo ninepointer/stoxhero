@@ -157,7 +157,7 @@ function Cover() {
               justifyContent='flex-end'
               alignItems='center'
               style={{ position: 'absolute', top: 10, right: 10 }}>
-                <EditProfile user={getDetails?.userDetails} />
+                <EditProfile user={getDetails?.userDetails} update={update} setUpdate={setUpdate}/>
               <Tooltip title='Sign Out'>
                 <LogoutIcon style={{marginRight: "5px", cursor: "pointer", color: 'grey'}} onClick={logout} />
               </Tooltip>

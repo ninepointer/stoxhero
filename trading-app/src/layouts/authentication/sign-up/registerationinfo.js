@@ -216,10 +216,31 @@ function Cover() {
 
   }
 
+  const ResendTimerSi = (seconds) => {
+    let remainingTime = seconds;
+
+    const timer = setInterval(() => {
+      // Display the remaining time
+      console.log(`Remaining time: ${remainingTime} seconds`);
+
+      // Decrease the remaining time by 1 second
+      setResendTimer(remainingTime--);
+      
+
+      // Check if the timer has reached 0
+      if (remainingTime === 0) {
+        // Stop the timer
+        clearInterval(timer);
+        setResendTimer(false);
+        console.log("Timer has ended!");
+      }
+    }, 1000); // Update every second (1000 milliseconds)
+  };
+
   const resendOTP = async (type) => {
 
     setTimerActive(true);
-    setResendTimer(30);
+    ResendTimerSi(30)
 
     const res = await fetch(`${apiUrl}resendotp`, {
 
@@ -535,7 +556,7 @@ function Cover() {
               {otpGen &&
                 <>
                   <Grid item xs={12} md={6} lg={6} display="flex" justifyContent="center">
-                    <MDButton style={{ padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }} disabled={timerActive} variant="text" color="#ffffff" fullWidth onClick={() => { resendOTP('mobile') }}>
+                    <MDButton style={{ padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }} variant="text" color="#ffffff" fullWidth onClick={timerActive ? ()=>{} : () => { resendOTP('mobile') }}>
                       {timerActive ? `Resend Mobile OTP in ${resendTimer} seconds` : 'Resend Mobile OTP'}
                     </MDButton>
                   </Grid>

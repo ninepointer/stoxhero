@@ -31,7 +31,7 @@ function Cover({ setUpdate, update }) {
 
     function handleCopyClick() {
         const textarea = document.createElement('textarea');
-        textarea.value = "https://stoxhero.com/finowledge";
+        textarea.value = "https://www.stoxhero.com/finowledge";
         document.body.appendChild(textarea);
 
         // Select the text in the textarea
@@ -40,7 +40,7 @@ function Cover({ setUpdate, update }) {
 
         // Remove the temporary textarea
         document.body.removeChild(textarea);
-        openSuccessSB("Success", "Share this link with your friends.")
+        openSuccessSB("Success", "Share this link with your friends.", "Link Copied")
     };
 
     const [title, setTitle] = useState('')
@@ -50,10 +50,10 @@ function Cover({ setUpdate, update }) {
 
 
     const [successSB, setSuccessSB] = useState(false);
-    const openSuccessSB = (value, content) => {
+    const openSuccessSB = (value, content, title) => {
         // console.log("Value: ",value)
         if (value === "Success") {
-            setTitle("Successfull");
+            setTitle(title || "Successfull");
             setContent(content);
             setColor("success");
             setIcon("check")
