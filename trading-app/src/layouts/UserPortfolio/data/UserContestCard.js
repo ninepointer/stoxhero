@@ -18,7 +18,7 @@ import ProgressBar from '../data/ProgressBar'
 const ContestCard = () => {
 
   const [contestData,setContestData] = useState([]);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
   let timerStyle = {
     textAlign: "center", 

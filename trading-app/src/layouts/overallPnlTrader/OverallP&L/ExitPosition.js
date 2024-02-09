@@ -40,7 +40,7 @@ function ExitPosition({subscriptionId, from, isFromHistory, product, symbol, qua
   } else if (quantity < 0) {
     checkBuyOrSell = "SELL"
   }
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
   const getDetails = React.useContext(userContext);
   // let uId = uniqid();

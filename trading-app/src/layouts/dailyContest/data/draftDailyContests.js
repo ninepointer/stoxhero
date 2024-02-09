@@ -15,7 +15,7 @@ import moment from 'moment';
 const CompletedContest = ({ type }) => {
   const [registeredUsersCount, setRegisteredUsersCount] = useState(0);
   const [completedContests, setCompletedContests] = useState([]);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
   useEffect(() => {
     let call1 = axios.get(`${baseUrl}api/v1/dailycontest/draft`, {

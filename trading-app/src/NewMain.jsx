@@ -4,7 +4,7 @@ import { useContext } from 'react';
 import { useState } from 'react';
 
 export default function NewMain({setter}) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const setDetails = useContext(userContext);
     const [info, setInfo] = useState({});
     let data;

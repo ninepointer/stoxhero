@@ -12,7 +12,7 @@ import MismatchDetails from '../infinityContestComponent/mismatchReport';
 
 
 export default function LabTabs({socket}) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const [isLoading, setIsLoading] = useState(false)
     const [liveContest, setLiveContest] = useState([]);
     const [marginData, setMarginData] = useState();

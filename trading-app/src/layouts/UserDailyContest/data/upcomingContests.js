@@ -15,7 +15,7 @@ import { userContext } from '../../../AuthContext';
 
 export default function LabTabs({setClicked}) {
     // const [clicked, setClicked] = useState('live')
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     // let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
     const [isLoading, setIsLoading] = useState(false);
     let [showPay, setShowPay] = useState(true);

@@ -43,7 +43,7 @@ function PaperComponent(props) {
 }
 
 function Header({ toggleContest, setToggleContest, marginX, showPay, setShowPay, socket }) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
     const navigate = useNavigate();
