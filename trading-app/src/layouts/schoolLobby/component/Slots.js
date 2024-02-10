@@ -5,6 +5,7 @@ import axios from "axios";
 import { Grid } from '@mui/material';
 import { apiUrl } from '../../../constants/constants';
 import moment from 'moment';
+import MDTypography from '../../../components/MDTypography';
 
 
 const Slots = ({quizData, id, selected, setSelected, setError, setRegistrationMessage, getDetails }) => {
@@ -25,9 +26,11 @@ const Slots = ({quizData, id, selected, setSelected, setError, setRegistrationMe
     return (
         <>
             <MDBox>
-                <MDBox style={{ color: '#353535', fontSize: '20px', fontFamily: 'Work Sans , sans-serif', textAlign: 'center', marginBottom: "30px" }}>Please select your test slot</MDBox>
-                <MDBox style={{ color: '#353535', fontSize: '15px', fontFamily: 'Work Sans , sans-serif', textAlign: 'center', marginBottom: "10px" }}>
-                    Test Date: {moment(quizData?.startDateTime).format('DD-MM-YYYY') }
+                <MDBox style={{ textAlign: 'center'}}>
+                    <MDTypography variant="h6" fontFamily='Work Sans , sans-serif'>Olympiad Date: {moment(quizData?.startDateTime).format('DD-MMM-YYYY') }</MDTypography>
+                </MDBox>
+                <MDBox style={{textAlign:'center'}}>
+                    <MDTypography variant="h6" fontFamily='Work Sans , sans-serif'>Please select your Olympiad slot</MDTypography>
                 </MDBox>
                 <Grid container spacing={1} item md={12} lg={12} xs={12}
                 >
@@ -39,10 +42,6 @@ const Slots = ({quizData, id, selected, setSelected, setError, setRegistrationMe
                                 key={elem}
                                 onClick={
                                     () => {
-                                        // window.webengage.track('tenx_validity_filter_clicked', {
-                                        //     user: getDetails?.userDetails?._id,
-                                        //     elem: elem
-                                        // });
                                         setSelected(elem);
                                         setError('')
                                     }
@@ -52,13 +51,13 @@ const Slots = ({quizData, id, selected, setSelected, setError, setRegistrationMe
                                     borderRadius: '12px',
                                     border: "0.5px solid grey",
                                     cursor: 'pointer',
-                                    backgroundColor: selected == elem ? '#353535' : 'white',
+                                    backgroundColor: selected == elem ? '#532b9e' : 'white',
                                     color: selected == elem ? 'white' : 'black',
                                     width: '250px',
                                     height: '50px'
                                 }}
                             >
-                                <span style={{ fontFamily: 'Work Sans , sans-serif', padding: '25px' }}>
+                                <span style={{ fontFamily: 'Work Sans , sans-serif', padding: '20px' }}>
                                     {`${moment(elem?.slotTime).format('hh:mm A')} - ${elem?.spotLeft} Spots Left`}
                                 </span>
                             </button>

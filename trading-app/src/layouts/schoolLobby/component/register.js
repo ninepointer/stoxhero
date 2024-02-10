@@ -69,7 +69,7 @@ const Registration = ({ id, setUpdate, setData, update, quizData }) => {
 
     return (
         <>
-            <MDButton size="small" style={{ fontFamily: 'Work Sans , sans-serif' }}
+            <MDButton variant='outlined' color='dark' size="small" style={{fontSize:10, fontFamily: 'Work Sans , sans-serif', minWidth:'100%' }}
                 onClick={() => { setOpen(true) }}
             >Register</MDButton>
 

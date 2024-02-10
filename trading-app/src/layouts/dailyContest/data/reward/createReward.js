@@ -10,7 +10,7 @@ import MDButton from "../../../../components/MDButton"
 import { CircularProgress, Typography } from "@mui/material";
 import MDSnackbar from "../../../../components/MDSnackbar";
 
-
+ 
 export default function CreateRewards({ createRewardForm, setCreateRewardForm, contest, reward }) {
 
     const [isSubmitted, setIsSubmitted] = useState(false);

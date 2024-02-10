@@ -15,6 +15,7 @@ import UpComing from "./upcoming";
 import MyOlympiad from './myOlympiad'
 import { Button, Tooltip } from "@mui/material";
 import LogoutIcon from '@mui/icons-material/Logout';
+import Coins from '../../assets/images/coin.png'
 import EditProfile from './component/editProfile';
 import axios from 'axios';
 import { apiUrl } from "../../constants/constants";
@@ -87,7 +88,7 @@ function Cover() {
           display='flex'
           justifyContent='center'
           alignItems='center'
-          style={{ zIndex: 10, overflow: 'visible' }}
+          style={{ zIndex: 0, overflow: 'visible' }}
         >
           <Grid
             mb={2}
@@ -102,16 +103,17 @@ function Cover() {
             alignContent='center'
             style={{ backgroundColor: 'white', borderRadius: 10, position: 'relative' }}
           >
-            <Grid
+            {/* <Grid
               mt={2}
               display='flex'
               justifyContent='center'
               alignItems='center'
               style={{ overflow: 'visible' }}
             >
-              <MDTypography>My Profile</MDTypography>
-            </Grid>
+              <MDTypography fontFamily='Work Sans , sans-serif'>My Profile</MDTypography>
+            </Grid> */}
             <Grid
+            mt={2}
               display='flex'
               justifyContent='center'
               alignItems='center'
@@ -126,7 +128,7 @@ function Cover() {
               style={{ overflow: 'visible' }}
             >
               <MDTypography variant='body2' style={{ fontFamily: 'Work Sans , sans-serif' }}>
-                {user?.student_name || 'Your Name'}
+                Hello, {user?.student_name || 'Your Name'}
               </MDTypography>
             </Grid>
             <Grid
@@ -162,14 +164,32 @@ function Cover() {
                 <LogoutIcon style={{marginRight: "5px", cursor: "pointer", color: 'grey'}} onClick={logout} />
               </Tooltip>
             </Grid>
+            <Grid
+              container
+              direction='row'
+              justifyContent='flex-start'
+              alignItems='center'
+              alignContent='center'
+              style={{ position: 'absolute', top: 10, left: 10 }}>
+              <Tooltip title='Coins Earned'>
+                <Grid container display='flex' justifyContent='flex-start' alignItems='center'>
+                  <Grid item display='flex' justifyContent='center' alignItems='center'>
+                    <img src={Coins} width='20px' style={{marginRight: "5px", cursor: "pointer", color: 'grey'}}/>
+                  </Grid>
+                  <Grid item display='flex' justifyContent='center' alignItems='center'>
+                    <MDTypography fontFamily='Work Sans , sans-serif' variant='h6' fontWeight={400}>0</MDTypography>
+                  </Grid>
+                </Grid>
+              </Tooltip>
+            </Grid>
           </Grid>
         </Grid>
 
 
 
-        <Grid container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{zIndex:1, overflow: 'visible' }}>
+        <Grid container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{zIndex:0, overflow: 'visible' }}>
         <Grid p={.5} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'#D5F47E', borderRadius:10}}>
-            <MDTypography variant='body2' style={{fontFamily: 'Work Sans , sans-serif'}}>My Olympiad(s)</MDTypography>
+            <MDTypography variant='h6' style={{fontFamily: 'Work Sans , sans-serif'}}>My Olympiad(s)</MDTypography>
         </Grid>
         </Grid>
 
@@ -185,8 +205,3 @@ function Cover() {
 }
 
 export default Cover;
-        {/* <Grid container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{zIndex:10, overflow: 'visible' }}>
-        <Grid p={.5} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'#25d366', borderRadius:10, cursor: 'pointer'}}>
-            <MDTypography variant='body2' style={{fontFamily: 'Work Sans , sans-serif', color: 'white'}} onClick={joinGroup}>JOIN WHATSAPP GROUP</MDTypography>
-        </Grid>
-        </Grid> */}

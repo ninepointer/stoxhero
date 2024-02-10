@@ -25,7 +25,7 @@ function OverallTraderPNL({socket, batches, setBatches, selectedBatch, setSelect
   const openMenu = ({ currentTarget }) => setMenu(currentTarget);
   const closeMenu = () => setMenu(null);
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   // const [overallPnlArr, setOverallPnlArr] = useState([]);
   const [liveDetail, setLiveDetail] = useState([]);
   // const [avgPrice, setAvgPrice] = useState([]);
