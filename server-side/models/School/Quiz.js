@@ -12,6 +12,9 @@ const quizSchema = new mongoose.Schema({
     registrationOpenDateTime:{
         type: Date,
     },
+    registrationCloseDateTime:{
+        type: Date,
+    },
     durationInSeconds:{
         type: Number
     },

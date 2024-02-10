@@ -3,6 +3,7 @@ const AWS = require('aws-sdk');
 const {ObjectId} = require('mongodb');
 const User = require('../../models/User/userDetailSchema');
 const moment = require('moment');
+const sharp = require('sharp');
 
 // Configure AWS
 const s3 = new AWS.S3({
@@ -13,6 +14,11 @@ const s3 = new AWS.S3({
 
 // Function to upload a file to S3
 const getAwsS3Url = async (file) => {
+    if(file){
+        file.buffer = await sharp(file.buffer)
+        .resize({ width: 512, height: 256 })
+        .toBuffer();
+    }
     const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: `quiz/${Date.now()}-${file.originalname}`,
@@ -33,7 +39,7 @@ const getAwsS3Url = async (file) => {
 
 exports.createQuiz = async (req, res) => {
     try {
-        const {grade, title, startDateTime, registrationOpenDateTime, 
+        const {grade, title, startDateTime, registrationOpenDateTime, registrationCloseDateTime,
             durationInSeconds, rewardType, status, maxParticipant, city, 
             openForAll, description, noOfSlots, slotBufferTime } = req.body;
 
@@ -52,7 +58,7 @@ exports.createQuiz = async (req, res) => {
         }
 
         const newQuiz = new Quiz({image, maxParticipant, grade, title, 
-            startDateTime, registrationOpenDateTime, durationInSeconds, 
+            startDateTime, registrationOpenDateTime, registrationCloseDateTime, durationInSeconds, 
             rewardType, status, city, openForAll: openAll, description,
             noOfSlots, slotBufferTime, slots, total
          });
@@ -302,6 +308,10 @@ exports.getActiveQuizForAdmin = async (req, res) => {
                 populate: {
                     path: 'city',
                     select: 'name code'
+                },
+                populate: {
+                    path: 'school',
+                    select: 'school_name'
                 }
             }
         });
@@ -324,6 +334,10 @@ exports.getDraftQuizForAdmin = async (req, res) => {
                 populate: {
                     path: 'city',
                     select: 'name code'
+                },
+                populate: {
+                    path: 'school',
+                    select: 'school_name'
                 }
             }
         });
@@ -346,6 +360,10 @@ exports.getInActiveQuizForAdmin = async (req, res) => {
                 populate: {
                     path: 'city',
                     select: 'name code'
+                },
+                populate: {
+                    path: 'school',
+                    select: 'school_name'
                 }
             }
         });
@@ -437,6 +455,7 @@ exports.getAllQuizzesForUser = async (req, res) => {
                         title: 1,
                         startDateTime: 1,
                         registrationOpenDateTime: 1,
+                        registrationCloseDateTime: 1,
                         durationInSeconds: 1,
                         rewardType: 1,
                         status: 1,
@@ -472,6 +491,7 @@ exports.getMyQuizzesForUser = async (req, res) => {
                     title: 1,
                     startDateTime: 1,
                     registrationOpenDateTime: 1,
+                    registrationCloseDateTime: 1,
                     durationInSeconds: 1,
                     rewardType: 1,
                     status: 1,
@@ -556,6 +576,7 @@ exports.registration = async (req, res) => {
                     title: 1,
                     startDateTime: 1,
                     registrationOpenDateTime: 1,
+                    registrationCloseDateTime: 1,
                     durationInSeconds: 1,
                     rewardType: 1,
                     grade:1,
