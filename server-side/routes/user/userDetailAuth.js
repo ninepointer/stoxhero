@@ -770,8 +770,9 @@ router.patch('/student/image', authController.protect, currentUser, uploadMultip
 router.patch('/student/me', authController.protect, currentUser, uploadMultiple, checkFileError, resizePhoto, uploadToS3, async(req,res,next)=>{
 
   try{
-    const {student_name, grade, city, school, dob, state, profilePhoto} = req.body;
+    let {student_name, grade, city, school, dob, state, profilePhoto} = req.body;
 
+    profilePhoto = profilePhoto==='undefined' ? null : profilePhoto;
     console.log(req.body)
 
       const user = await UserDetail.findById(req.user._id);
@@ -783,6 +784,7 @@ router.patch('/student/me', authController.protect, currentUser, uploadMultiple,
       // const filteredBody = filterObj(req.body, 'student_name', 'schoolDetails');
       user.schoolDetails = schoolDetails;
       user.student_name = student_name;
+      // user.schoolDetails.profilePhoto = user.schoolDetails.profilePhoto || false;
       user.lastModified = new Date();
       
       if (req.profilePhotoUrl) {
