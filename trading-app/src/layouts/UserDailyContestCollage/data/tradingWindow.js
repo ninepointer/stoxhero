@@ -38,7 +38,6 @@ function Header({ socket, data }) {
     const [rank, setRank] = useState();
     let contestId = data?.data;
     let endTime = data?.endTime;
-    // console.log("yesterdayPnl", yesterdayPnl)
     useEffect(() => {
         const newendTime = new Date(endTime); // Replace this with your actual newendTime value
         newendTime.setSeconds(newendTime.getSeconds() + 10);
@@ -99,8 +98,6 @@ function Header({ socket, data }) {
       const timeDifference = endDate.getTime() - startDate.getTime();
       // Convert milliseconds to days
       const daysDifference = timeDifference / (1000 * 3600 * 24);
-
-      console.log("daysDifference", daysDifference)
 
     return (
         <>

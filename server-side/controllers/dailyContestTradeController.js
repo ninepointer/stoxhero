@@ -1867,10 +1867,7 @@ exports.getRedisLeaderBoard = async (req, res, next) => {
 
             const result = await aggregateRanks(ranks);
 
-            // console.log("rsult", result)
             for (rank of result) {
-                // console.log(rank);
-                // console.log(`leaderboard${id}`);
                 await client.set(`${rank.name} investedAmount`, JSON.stringify(rank));
                 await client.ZADD(`leaderboard:${id}`, {
                     score: rank.npnl,
@@ -1878,23 +1875,12 @@ exports.getRedisLeaderBoard = async (req, res, next) => {
                 });
             }
 
-            // await pipeline.exec();
-            // console.log("app setting", appSetting[0].leaderBoardTimming)
             await client.expire(`leaderboard:${id}`, 10);
 
             const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "5", 'WITHSCORES'])
             const formattedLeaderboard = await formatData(leaderBoard)
 
-            // console.log("formattedLeaderboard", leaderBoard, formattedLeaderboard)
-            // return res.status(200).json({
-            //     status: 'success',
-            //     results: formattedLeaderboard.length,
-            //     data: formattedLeaderboard
-            // });
-
             return formattedLeaderboard;
-
-
         }
     } catch (e) {
         console.log("redis error", e);
@@ -1984,7 +1970,8 @@ const fetchPnlData = async (userId, id) => {
                 ),
                 type: "Limit",
                 status: "Pending",
-                product_type: new ObjectId("6517d48d3aeb2bb27d650de5")
+                product_type: new ObjectId("6517d48d3aeb2bb27d650de5"),
+                sub_product_id: new ObjectId(id)
             },
         },
         {
@@ -2050,6 +2037,7 @@ const fetchPnlData = async (userId, id) => {
 }
 
 const dailyContestLeaderBoard = async (contestData) => {
+    console.log("contestData", contestData);
     const id = contestData._id?.toString();
     //finding data for new participates
     const contest = await DailyContest.findOne({ _id: new ObjectId(id) })
@@ -2307,7 +2295,9 @@ async function processContestQueue() {
 
     const endTime = new Date(currentTime);
     endTime.setHours(9, 48, 0, 0);
-    if (currentTime >= startTime && currentTime <= endTime) {
+
+    //todo-vijay
+  //  if (currentTime >= startTime && currentTime <= endTime) {
 
         // If the queue is empty, reset the processing flag and return
         if (contestQueue.length === 0) {
@@ -2326,7 +2316,7 @@ async function processContestQueue() {
             }
         }
 
-    }
+  //  }
 }
 
 exports.sendMyRankData = async () => {
@@ -2344,7 +2334,8 @@ exports.sendMyRankData = async () => {
                 const endTime = new Date(currentTime);
                 endTime.setHours(9, 48, 0, 0);
 
-                if (currentTime >= startTime && currentTime <= endTime) {
+                //todo-vijay
+               // if (currentTime >= startTime && currentTime <= endTime) {
                     const contest = await DailyContest.find({ contestStatus: "Active", contestStartTime: { $lte: new Date() } });
 
                     for (let i = 0; i < contest?.length; i++) {
@@ -2365,7 +2356,7 @@ exports.sendMyRankData = async () => {
                             }
                         }
                     }
-                }
+                //}
             };
             emitLeaderboardData();
             interval = setInterval(emitLeaderboardData, 5000);

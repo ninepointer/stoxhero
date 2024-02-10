@@ -1038,9 +1038,9 @@ const stockTradeMod = async () => {
       {
         $match:
         {
-          trade_time: {
-            $gte: today
-          },
+          // trade_time: {
+          //   $gte: today
+          // },
           status: "COMPLETE",
           Product: "MIS"
         },

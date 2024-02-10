@@ -21,11 +21,12 @@ import MDTypography from "../../../components/MDTypography";
 
 
 // Images
-import Footer from "../components/Footer";
 import MDButton from "../../../components/MDButton";
+import { Helmet } from "react-helmet";
+
 
 function Cover() {
-  const [isLoading,setIsLoading] = useState(false);
+  // const [isLoading,setIsLoading] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
   const navigate = useNavigate();
 
@@ -34,11 +35,6 @@ function Cover() {
   })
 
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"))
-
-  const handlePlaystoreNavigate = () => {
-    // Open google.com in a new tab
-    // window.open(`${setting?.playstore_link}`, '_blank');
-  };
   
   useEffect(() => {
     const handleScroll = () => {
@@ -55,13 +51,24 @@ function Cover() {
   const backgroundColor = scrollPosition > 10 ? 'rgba(0, 0, 0, 0.8)' : 'transparent'
   const backdropFilter = scrollPosition > 10 ? 'blur(5px)' : 'none'
 
-  
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  // Get the value of the "mobile" parameter
+  const campaignCode = urlParams.get('campaignCode');
+
 
   return (
     <>
       <MDBox mt={-1} display='flex' justifyContent='center' flexDirection='column' alignContent='center' alignItems='center' style={{ minHeight:'auto', width: 'auto', minWidth:'100vW', overflow: 'visible'}}>
       <ThemeProvider theme={theme}>
       <FinNavbar/>
+
+          <Helmet>
+            <title>{"StoxHero Finance Olympiad"}</title>
+            <meta name='description' content="NFO gives schools access to a comprehensive financial syllabus, and India's pioneering Finance Examination, both meticulously crafted to cater to school children."/>
+            {/* <meta name='keywords' content={blogData?.keywords} /> */}
+          </Helmet>
+
       
       <Grid
           container
@@ -101,8 +108,9 @@ function Cover() {
               <MDTypography variant={isMobile ? "body2" : "body1"} sx={{ color: '#fff' }} style={{fontFamily: 'Work Sans , sans-serif'}}>Battle & Compete with Students across</MDTypography>
               <MDTypography variant={isMobile ? "body2" : "body1"} sx={{ color: '#D5F47E' }} style={{fontFamily: 'Work Sans , sans-serif'}}>North India in Finance Olympiad</MDTypography>
               <MDBox display='flex' justifyContent='space-between'>
-                <MDButton variant='contained' size='small' color='student' style={{marginTop:15,color:'#000', fontFamily: 'Work Sans , sans-serif'}} onClick={() => { navigate('/enter-mobile') }}>Register</MDButton>
-                <MDButton variant='outlined' style={{marginTop:15, marginLeft:10, fontFamily: 'Work Sans , sans-serif'}}>Try Now</MDButton>
+                <MDButton variant='contained' size='small' color='student' style={{marginTop:15,color:'#000', fontFamily: 'Work Sans , sans-serif'}} onClick={() => { navigate(`/enter-mobile${campaignCode ? `?campaignCode=${campaignCode}` : ""}`) }}>Register/Login</MDButton>
+                <MDButton variant='outlined' style={{marginTop:15, marginLeft:10, fontFamily: 'Work Sans , sans-serif'}} onClick={()=>{navigate('/tryquiz')}}>Try Now</MDButton>
+                {/* <MDButton variant='outlined' style={{color: 'green', backgroundColor: '#ffffff', marginTop:15, marginLeft:10, fontFamily: 'Work Sans , sans-serif'}} onClick={joinGroup} ><WhatsAppIcon/> </MDButton> */}
               </MDBox>
             </MDBox>
           </Grid>

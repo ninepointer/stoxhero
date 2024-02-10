@@ -21,12 +21,13 @@ const quizSchema = new mongoose.Schema({
         enum: ['Cash','Certificate','Goodies']
     },
     rewards:[{
-        rankStart:{type:Number},
+        rankStart: {type: Number},
         rankEnd:{type:Number},
         prize:{type:Schema.Types.Mixed},
+        prizeValue: {type: Number}
     }],
     questions:[{
-        questionId:{type:Object},
+        questionId:{type:Schema.Types.ObjectId},
         title:{type:String},
         type:{type:String, enum:['Single Correct','Multiple Correct']},
         questionImage:{type:String},
@@ -35,8 +36,51 @@ const quizSchema = new mongoose.Schema({
     }],
     registrations:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
-        registeredOn:{type:Date}
+        registeredOn:{type:Date},
+        registrationId: {type:String},
+        slotId: {type:Schema.Types.ObjectId}
     }],
+    city:{
+        type:Schema.Types.ObjectId,
+        ref:'city'
+    },
+    description: {
+        type: String,
+        required: true
+    },
+    image: {
+        type: String,
+        required: true
+    },
+    maxParticipant: {
+        type: Number,
+        required: true
+    },
+    noOfSlots: {
+        type: Number,
+        required: true
+    },
+    slotBufferTime: {
+        type: Number,
+        required: true
+    },
+    slots: [{
+       time: { type: Date},
+       user: {type: Number, default: 0},
+    }],
+    grade: {
+        type: String,
+        required: true
+    },
+    openForAll: {
+        type: Boolean,
+        default: false,
+        required: true
+    },
+    status:{
+        type:String,
+        enum:['Active', 'Inactive', 'Draft', 'Completed']
+    },
     createdOn:{
         type: Date,
         default: ()=> new Date()

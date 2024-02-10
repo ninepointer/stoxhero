@@ -109,12 +109,12 @@ exports.getActiveTenXSubs = async(req, res, next)=>{
     }catch(e){
         console.log(e);
         res.status(500).json({status: 'error', message: 'Something went wrong'});
-    }     
+    }
 };
 
 exports.getLiveUserTenxSubs = async(req, res, next)=>{
   try{
-      const tenXSubs = await TenXSubscription.find().select('users actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features allowPurchase allowRenewal expiryDays payoutPercentage')
+      const tenXSubs = await TenXSubscription.find().select('_id users actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features allowPurchase allowRenewal expiryDays payoutPercentage')
       .populate('portfolio', 'portfolioName portfolioValue')
       .sort({ validity:1, discounted_price: 1})
       
@@ -140,6 +140,7 @@ exports.getLiveUserTenxSubs = async(req, res, next)=>{
             allowRenewal: elem?.allowRenewal,
             expiryDays: elem?.expiryDays,
             payoutPercentage: elem?.payoutPercentage,
+            _id: elem?._id
           })
         }
       }

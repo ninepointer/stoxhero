@@ -175,10 +175,11 @@ async function singleProcess() {
     });
 
     //emitting leaderboard for contest.
-    if (process.env.PROD === "true") {
+    //todo-vijay
+   if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });
-    }
+   }
 
     emitServerTime().then(() => { });
 
@@ -384,6 +385,7 @@ async function singleProcess() {
     app.use('/api/v1/user', require("./routes/user/userRoutes"));
     app.use('/api/v1/withdrawals', require("./routes/withdrawal/withdrawalRoutes"));
     app.use('/api/v1/KYC', require("./routes/KYCApproval/KYCRoutes"));
+    app.use('/api/v1/quiz', require("./routes/School/quizRoutes"));
     app.use('/api/v1/paymenttest', require("./routes/paymentTest/paymentTestRoutes"));
     app.use('/api/v1/stoxherouserdashboard', require("./routes/StoxHeroDashboard/userAnalytics"));
     app.use('/api/v1/revenue', require("./routes/revenuDashboardRoutes/revenueDashboardRoute"));
@@ -402,6 +404,7 @@ async function singleProcess() {
     app.use('/api/v1/alltradeview', require("./routes/viewRoutes/allTradesViewRoute"));
     app.use('/api/v1/push', require("./routes/pushNotifications/pushNotificationRoutes"));
     app.use('/api/v1/notificationgroup', require("./routes/notificationGroup/notificationGroupRoutes"));
+    app.use('/api/v1/cities', require("./routes/city/cityRoutes"));
 
 
     const PORT = process.env.PORT || 5002;

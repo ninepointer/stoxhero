@@ -110,6 +110,335 @@ router.get('/removeuserid', async(req,res) =>{
   res.send("ok")
 })
 
+let getActiveUsersBeforeTheMonths = async(month) => {
+  let date;
+  if (isNaN(month)) { 
+      // For month name or "YYYY-MM" format
+      date = moment(month, ['MMMM', 'YYYY-MM']).startOf('month');
+  } else {
+      // For month numeral
+      date = moment().month(month - 1).startOf('month');
+  }
+  const lastDayOfPreviousMonth = date.subtract(1, 'day').format('YYYY-MM-DD');
+
+  // Calculate the date 180 days before the last day of the previous month
+  const date180DaysBefore = date.subtract(180, 'days').format('YYYY-MM-DD');
+  
+  const pipeline = [
+      {
+          $match: {
+              trade_time: {
+                  $gte: new Date(date180DaysBefore),
+                  $lte: new Date(lastDayOfPreviousMonth)
+              }
+          }
+      },
+      {
+          $group: {
+              _id: '$trader',
+          }
+      },
+      {
+          $project: {
+              _id: 0, 
+              trader: '$_id'
+          }
+      }
+  ];
+
+  const collections = [PaperTrading, TenXTrading, ContestTrading, InternshipTrading, MarginXTrading, BattleTrading];
+  const uniqueUsersSet = new Set();
+
+  for (const collection of collections) {
+      const traders = await collection.aggregate(pipeline);
+      traders.forEach(trader => uniqueUsersSet.add(trader.trader.toString()));
+  }
+
+  return Array.from(uniqueUsersSet);
+}
+
+let getActiveUsersDuringTheMonth = async(month) => {
+  let startDate, endDate;
+
+  // Determine the start and end dates of the month
+  if (isNaN(month)) { 
+      // For month name or "YYYY-MM" format
+      startDate = moment(month, ['MMMM', 'YYYY-MM']).startOf('month');
+      endDate = moment(month, ['MMMM', 'YYYY-MM']).endOf('month');
+  } else {
+      // For month numeral
+      startDate = moment().month(month - 1).startOf('month');
+      endDate = moment().month(month - 1).endOf('month');
+  }
+
+  const formattedStartDate = startDate.format('YYYY-MM-DD');
+  const formattedEndDate = endDate.format('YYYY-MM-DD');
+  
+  const pipeline = [
+      {
+          $match: {
+              trade_time: {
+                  $gte: new Date(formattedStartDate),
+                  $lte: new Date(formattedEndDate)
+              }
+          }
+      },
+      {
+          $group: {
+              _id: '$trader',
+          }
+      },
+      {
+          $project: {
+              _id: 0, 
+              trader: '$_id'
+          }
+      }
+  ];
+
+  const collections = [PaperTrading, TenXTrading, ContestTrading, InternshipTrading, MarginXTrading, BattleTrading];
+  const uniqueUsersSet = new Set();
+
+  // Iterate over each collection and add unique traders to the set
+  for (const collection of collections) {
+      const traders = await collection.aggregate(pipeline);
+      traders.forEach(trader => uniqueUsersSet.add(trader.trader.toString()));
+  }
+
+  return Array.from(uniqueUsersSet);
+}
+
+const getRetentionPercentageForMonth = async (month) => {
+  // Get traders from the last 180 days before the month
+  const tradersLast180Days = await getActiveUsersBeforeTheMonth(month);
+
+  // Get traders during the month
+  const tradersDuringMonth = await getActiveUsersDuringTheMonth(month);
+
+  // Find the overlap between the two lists
+  const overlap = tradersDuringMonth.filter(trader => tradersLast180Days.includes(trader));
+
+  // Calculate the retention percentage
+  const retentionPercentage = overlap.length / tradersLast180Days.length * 100;
+
+  return retentionPercentage;
+};
+
+router.get('/monthwiseretention', async(req,res)=>{
+  ['May', 'June', 'July', 'August', 'September', 'October'].forEach(month => {
+    getRetentionPercentageForMonth(month)
+        .then(retentionPercentage =>{ 
+          console.log(`Retention Percentage for ${month}: ${retentionPercentage.toFixed(2)}%`);
+        })
+        .catch(error => console.error(`Error calculating retention for ${month}:`, error));
+});
+});
+
+// Reusable function to get active users for any month
+const getActiveUsersDuringMonth = async (month) => {
+  let startDate, endDate;
+  if (month.match(/^\d{4}-\d{2}$/)) { // Matches "YYYY-MM" format
+    startDate = moment(month, 'YYYY-MM').startOf('month');
+    endDate = moment(month, 'YYYY-MM').endOf('month');
+  } else if (month.match(/^[A-Za-z]+ \d{4}$/)) { // Matches "MMMM YYYY" format
+    startDate = moment(month, 'MMMM YYYY').startOf('month');
+    endDate = moment(month, 'MMMM YYYY').endOf('month');
+  } else { // Fallback for just month numeral, though your use case might not need this
+    let monthNum = parseInt(month, 10) - 1; // Convert to 0-indexed month number
+    startDate = moment().month(monthNum).startOf('month');
+    endDate = moment().month(monthNum).endOf('month');
+  }
+  const formattedStartDate = startDate.format('YYYY-MM-DD');
+  const formattedEndDate = endDate.format('YYYY-MM-DD');
+  console.log('during month start end', formattedStartDate, formattedEndDate);
+  const pipeline = [
+    { $match: { trade_time: { $gte: new Date(formattedStartDate), $lte: new Date(formattedEndDate) } } },
+    { $group: { _id: '$trader' } },
+    { $project: { _id: 0, trader: '$_id' } }
+  ];
+  const contestPipeline = [
+    { $match: { trade_time: { $gte: new Date(formattedStartDate), $lte: new Date(formattedEndDate) }, entryFee:{$gt:0} } },
+    { $group: { _id: '$trader' } },
+    { $project: { _id: 0, trader: '$_id' } }
+  ];
+
+  const collections = [TenXTrade, DailyContestMockUser, MarginXUser, BattleMock];
+  const uniqueUsersSet = new Set();
+  for (const collection of collections) {
+    const traders = collection == DailyContestMockUser ? await collection.aggregate(contestPipeline): await collection.aggregate(pipeline);
+    traders.forEach(trader => uniqueUsersSet.add(trader.trader.toString()));
+  }
+
+  return Array.from(uniqueUsersSet);
+};
+
+const getActiveUsersBeforeTheMonth = async (month) => {
+  let date;
+  if (isNaN(month)) { // For month name or "YYYY-MM" format
+    date = moment(month, ['MMMM', 'YYYY-MM']).startOf('month');
+  } else { // For month numeral
+    date = moment().month(month - 1).startOf('month');
+  }
+  const firstDayOfSpecifiedMonth = date.format('YYYY-MM-DD');
+  console.log(firstDayOfSpecifiedMonth);
+
+  const pipeline = [
+    {
+      $match: {
+        trade_time: {
+          $lt: new Date(firstDayOfSpecifiedMonth) // Finds trades before the specified month
+        }
+      }
+    },
+    {
+      $group: {
+        _id: '$trader', // Group by trader ID to get unique traders
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        trader: '$_id' // Exclude the _id field and include trader ID as 'trader'
+      }
+    }
+  ];
+  const contestPipeline = [
+    {
+      $match: {
+        trade_time: {
+          $lt: new Date(firstDayOfSpecifiedMonth) // Finds trades before the specified month
+        },
+        entryFee:{$gt:0}
+      }
+    },
+    {
+      $group: {
+        _id: '$trader', // Group by trader ID to get unique traders
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        trader: '$_id' // Exclude the _id field and include trader ID as 'trader'
+      }
+    }
+  ];
+  
+
+  const collections = [TenXTrade, DailyContestMockUser, MarginXUser, BattleMock];
+  const uniqueUsersSet = new Set();
+
+  // Iterate over each collection and aggregate unique traders
+  for (const collection of collections) {
+    const traders = collection == DailyContestMockUser ? await collection.aggregate(contestPipeline): await collection.aggregate(pipeline);
+    console.log(traders.length);
+    traders.forEach(trader => uniqueUsersSet.add(trader.trader.toString())); // Convert to string if necessary, depending on your ID format
+  }
+
+  return Array.from(uniqueUsersSet); // Convert the set of unique traders to an array
+};
+
+
+// Function to get lost paid users in January 2024
+const getLostPaidUsersInJanuary2024 = async () => {
+  const activeUsersInDecember2023 = await getActiveUsersDuringMonth('December 2023');
+  const activeUsersInJanuary2024 = await getActiveUsersDuringMonth('January 2024');
+
+  console.log('active dec jan', activeUsersInDecember2023.length, activeUsersInJanuary2024.length);
+
+  const lostUsers = activeUsersInDecember2023.filter(user => !activeUsersInJanuary2024.includes(user));
+  console.log('lost jan', lostUsers.length);
+
+  return {lostUsers:lostUsers.length, base:activeUsersInDecember2023.length}; // Returns the count of lost paid users
+};
+
+// Function to get lost users overall before January 2024
+const getLostUsersOverallBeforeJanuary2024 = async () => {
+  const allActiveUsersBeforeJanuary2024 = await getActiveUsersBeforeTheMonth('January 2024'); // Assumes this function is adapted to fetch users before a given month
+  const activeUsersInJanuary2024 = await getActiveUsersDuringMonth('January 2024');
+
+  const lostUsers = allActiveUsersBeforeJanuary2024.filter(user => !activeUsersInJanuary2024.includes(user));
+  console.log('lost overall', lostUsers.length);
+
+  return {lostUsers:lostUsers.length, base:allActiveUsersBeforeJanuary2024.length}; // Returns the count of lost users overall
+};
+
+router.get('/lostusers', async(req,res)=>{
+  const lostUsersJan = await getLostPaidUsersInJanuary2024();
+  const lostUsersOverall = await getLostUsersOverallBeforeJanuary2024();
+  res.json({
+    lostUsersMonth:lostUsersJan?.lostUsers,
+    retentionMonth: (lostUsersJan?.base - lostUsersJan?.lostUsers)/lostUsersJan?.base,
+    retentionOverall: (lostUsersOverall?.base - lostUsersOverall?.lostUsers)/lostUsersOverall?.base,
+    lostUsersOverall: lostUsersOverall?.lostUsers
+  })
+})
+
+const getActiveUsersInRange = async (startDate, endDate) => {
+  const formattedStartDate = moment(startDate).format('YYYY-MM-DD');
+  const formattedEndDate = moment(endDate).format('YYYY-MM-DD');
+  
+  const pipeline = [
+    { $match: { trade_time: { $gte: new Date(formattedStartDate), $lte: new Date(formattedEndDate) } } },
+    { $group: { _id: '$trader' } },
+    { $project: { _id: 0, trader: '$_id' } }
+  ];
+
+  const contestPipeline = [
+    { $match: { trade_time: { $gte: new Date(formattedStartDate), $lte: new Date(formattedEndDate) }, entryFee: {$: 0} } },
+    { $group: { _id: '$trader' } },
+    { $project: { _id: 0, trader: '$_id' } }
+  ];
+
+  const collections = [TenXTrade, DailyContestMockUser, MarginXUser, BattleMock, PaperTrade];
+  const uniqueUsersSet = new Set();
+
+  for (const collection of collections) {
+    const traders = await collection.aggregate(pipeline);
+    traders.forEach(trader => uniqueUsersSet.add(trader.trader.toString()));
+  }
+
+  return Array.from(uniqueUsersSet);
+};
+
+const calculateRetentionRates = async () => {
+  // Define your date ranges based on current date
+  const today = moment();
+  const periods = [30, 60, 90, 180]; // Define periods to compare
+
+  let results = [];
+
+  for (const period of periods) {
+    const startPeriod = today.clone().subtract(period+30, 'days');
+    const endPeriod = today.clone().subtract(30, 'days');
+
+    const activeUsersCurrentPeriod = await getActiveUsersInRange(today.clone().subtract(30, 'days'), today.clone());
+    const activeUsersPreviousPeriod = await getActiveUsersInRange(startPeriod.clone(), endPeriod);
+
+    const lostUsers = activeUsersPreviousPeriod.filter(user => !activeUsersCurrentPeriod.includes(user));
+    const retentionRate = (activeUsersPreviousPeriod.length - lostUsers.length) / activeUsersPreviousPeriod.length;
+
+    results.push({
+      period: `${period} days`,
+      lostUsers: lostUsers.length,
+      base: activeUsersPreviousPeriod.length,
+      retentionRate: retentionRate
+    });
+  }
+
+  return results;
+};
+
+router.get('/retention-rates', async (req, res) => {
+  try {
+    const retentionRates = await calculateRetentionRates();
+    res.json(retentionRates);
+  } catch (error) {
+    res.status(500).send(error.toString());
+  }
+});
+
+
 router.get('/backfillherody3', async(req,res) =>{
   const arr1 = [
     '655db3caf26d07670a772889'
@@ -3550,7 +3879,7 @@ router.get("/updateInstrumentStatusRebuild", async (req, res)=>{
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2024-01-24T20:00:00.000+00:00"
+  let expiryDate = "2024-02-08T20:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(

@@ -91,9 +91,15 @@ import PaymentStatus from "./layouts/paymentTest/paymentStatus";
 // import Challenge from './layouts/UserDailyChallenge'
 import { FaAffiliatetheme } from "react-icons/fa";
 import AffiliateDashboard from "./layouts/myAffiliateDashboard"
+import MyQuiz from "./layouts/schoolLobby/quizApp/docs/index"
 
 
 const routes = [
+  {
+    key: "myquiz",
+    route: "/myquiz",
+    component: <MyQuiz />,
+  },
   {
     type: "collapse",
     name: "Affiliate Dashboard",

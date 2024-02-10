@@ -1421,47 +1421,55 @@ exports.getRewards = async (req, res) => {
 }
 
 exports.addReward = async (req, res, next) => {
-    const { id } = req.params;
-    const { rankStart, rankEnd, prize } = req.body;
-    if (rankStart > rankEnd) {
-        return res.status(400).json({ status: 'error', message: 'Start Rank should be less than equal to end Rank' });
+  const { id } = req.params;
+  const { rankStart, rankEnd, prize, prizeValue } = req.body;
+  if (rankStart > rankEnd) {
+    return res.status(400).json({ status: 'error', message: 'Start Rank should be less than equal to end Rank' });
+  }
+  try {
+    let maxPayout = 0;
+    const contest = await Contest.findById(id);
+    if (!contest) {
+      return res.status(404).json({ status: 'error', message: 'TestZone not found' });
     }
-    try {
-        const contest = await Contest.findById(id);
-        if (!contest) {
-            return res.status(404).json({ status: 'error', message: 'TestZone not found' });
+    for (let reward of contest.rewards) {
+      if (contest.rewards.length > 0) {
+        if ((rankStart >= reward.rankStart && rankStart <= reward.rankEnd) ||
+          (rankEnd >= reward.rankStart && rankEnd <= reward.rankEnd)) {
+          return res.status(400).json({ status: 'error', message: 'Ranks overlap with existing rewards' });
         }
-        for (let reward of contest.rewards) {
-            if (contest.rewards.length > 0) {
-                if ((rankStart >= reward.rankStart && rankStart <= reward.rankEnd) ||
-                    (rankEnd >= reward.rankStart && rankEnd <= reward.rankEnd)) {
-                    return res.status(400).json({ status: 'error', message: 'Ranks overlap with existing rewards' });
-                }
-            }
-        }
-        contest.rewards.push({ rankStart, rankEnd, prize });
-        await contest.save({ validateBeforeSave: false });
-        res.status(201).json({ status: 'success', message: 'Reward added' });
-    } catch (e) {
-        console.log(e);
-        res.status(500).json({
-            status: "error",
-            message: "Something went wrong",
-            error: e.message
-        });
+      }
     }
+    contest.rewards.push({ rankStart, rankEnd, prize, prizeValue });
+    for (let reward of contest.rewards) {
+      const multiplier = (Number(reward.rankEnd) - Number(reward.rankStart) + 1);
+      maxPayout += (reward.prizeValue) * multiplier;
+    }
+
+    contest.maxPayout = maxPayout;
+    const data = await contest.save({ validateBeforeSave: false, new: true });
+    res.status(201).json({ status: 'success', message: 'Reward added' });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: e.message
+    });
+  }
 
 }
 
 exports.editReward = async (req, res) => {
     const { rewardId, id } = req.params;
-    const { rankStart, rankEnd, prize } = req.body;
+    const { rankStart, rankEnd, prize, prizeValue } = req.body;
 
     if (rankStart > rankEnd) {
         return res.status(400).json({ status: 'error', message: 'rankStart must be less than rankEnd' });
     }
 
     try {
+      let maxPayout = 0;
         const contest = await Contest.findById(id);
 
         if (!contest) {
@@ -1483,7 +1491,15 @@ exports.editReward = async (req, res) => {
             }
         }
 
-        contest.rewards[rewardIndex] = { rankStart, rankEnd, prize };
+        contest.rewards[rewardIndex] = { rankStart, rankEnd, prize, prizeValue };
+        for (let reward of contest.rewards) {
+          const multiplier = (Number(reward.rankEnd) - Number(reward.rankStart) + 1);
+          maxPayout += (reward.prizeValue)*multiplier;
+        }
+  
+        console.log(maxPayout);
+        contest.maxPayout = maxPayout;
+  
         await contest.save();
 
         res.status(200).json({ status: 'success', message: 'Reward updated successfully' });
@@ -2107,7 +2123,7 @@ exports.creditAmountToWallet = async () => {
 
                     console.log(contest[j].participants[i])
 
-                    if (process.env.PROD == 'true') {
+                    // if (process.env.PROD == 'true') {
                       try{
                         if(!existingTransaction){
                           console.log(user?.email, 'sent')
@@ -2199,7 +2215,7 @@ exports.creditAmountToWallet = async () => {
                       }catch(e){
                         console.log('error sending mail')
                       }
-                    }
+                    // }
                     if(!existingTransaction){
                       await createUserNotification({
                           title:'TestZone Reward Credited',

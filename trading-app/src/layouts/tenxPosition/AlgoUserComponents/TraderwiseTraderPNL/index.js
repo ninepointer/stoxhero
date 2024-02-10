@@ -51,6 +51,8 @@ function TraderwiseTraderPNL({socket }) {
     })
   }, [])
 
+  console.log("selectedSubscription", selectedSubscription, subscriptions.length)
+
   useEffect(()=>{
     if(!selectedSubscription){
       return;

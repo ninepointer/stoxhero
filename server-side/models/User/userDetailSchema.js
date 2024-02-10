@@ -33,7 +33,7 @@ const userDetailSchema = new mongoose.Schema({
     },
     name:{
         type: String,
-        required : true
+        // required : true
     },
     first_name:{
         type: String,
@@ -43,7 +43,23 @@ const userDetailSchema = new mongoose.Schema({
         type: String,
         required : true
     },
-    full_name:String,
+    student_name:String,
+    city:String,
+    schoolDetails:{
+        parents_name: String,
+        grade: String,
+        school:{
+            type: Schema.Types.ObjectId,
+            ref: 'school'    
+        },
+        state: String,
+        dob: Date,
+        profilePhoto: String,
+        city:{
+            type:Schema.Types.ObjectId,
+            ref:'city'
+        },
+    },
     cohort:{
         type: String,
         // required : true
@@ -54,7 +70,7 @@ const userDetailSchema = new mongoose.Schema({
     },
     email:{
         type: String,
-        required: true
+        // required: true
     },
     maritalStatus:{
         type: String,
@@ -169,7 +185,7 @@ const userDetailSchema = new mongoose.Schema({
     creationProcess:{
         type: String,
         // required: true,
-        enum: ['Affiliate SignUp', 'Auto SignUp','By Admin','Career SignUp', 'College Contest SignUp', 'Referral SignUp', 'Contest SignUp', 'Campaign SignUp']
+        enum: ['School SignUp', 'Affiliate SignUp', 'Auto SignUp','By Admin','Career SignUp', 'College Contest SignUp', 'Referral SignUp', 'Contest SignUp', 'Campaign SignUp']
     },
     employeeid:{
         type: String,
@@ -438,7 +454,7 @@ userDetailSchema.pre('save', async function(next){
         let userIds = await userPersonalDetail.find({employeeid:userId})
         if(userIds.length > 0)
         {
-             userId = userId.toString()+(userIds.length+1).toString()
+             userId = userId?.toString()+(userIds?.length+1).toString()
         }
         this.employeeid = userId;
         next();

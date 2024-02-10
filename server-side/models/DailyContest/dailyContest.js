@@ -52,6 +52,10 @@ const contestSchema = new Schema({
         type:Number,
         default: 0
     },
+    maxPayout:{
+        type:Number,
+        default: 0
+    },
     liveThreshold:{
         type:Number,
         // default: 0
@@ -88,7 +92,7 @@ const contestSchema = new Schema({
         rankStart:{type:Number},
         rankEnd:Number,
         prize:{type:Schema.Types.Mixed},
-        // prizeValue:Number
+        prizeValue:Number
     }],
     portfolio:{
         type: Schema.Types.ObjectId,

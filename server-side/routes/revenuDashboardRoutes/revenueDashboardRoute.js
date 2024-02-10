@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
-const {getReferralRevenueData, getAutoSignUpRevenueData, getCareerRevenueData, 
+const {getBonusRevenueSplit, getReferralRevenueData, getAutoSignUpRevenueData, getCareerRevenueData, 
     getAffiliateRevenueData, getUsersBetweenDate, 
     getSignupChannelBetweenDate, getRevenueBetweenDate, getTestZoneRevenue, 
     getOverallRevenue, downloadTestZoneRevenueData, downloadMarginXRevenueData, 
     getRetentionPercentageForMonth, getPaidRetentionPercentageForMonth, getCampaignRevenueData} = require('../../controllers/revenueController/revenuDashboardController');
-
+const {reportMail} = require("../../controllers/dailyReportMail")
 const Authenticate = require('../../authentication/authentication');
 const restrictTo = require('../../authentication/authorization');
 
@@ -23,7 +23,8 @@ router.route('/affiliaterevenue').get(Authenticate, restrictTo('Admin', 'SuperAd
 router.route('/careerrevenue').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getCareerRevenueData);
 router.route('/campaignrevenue').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getCampaignRevenueData);
 router.route('/referralrevenue').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getReferralRevenueData);
-router.route('/autosignuprevenue').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getAutoSignUpRevenueData);
+router.route('/autosignuprevenue').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getAutoSignUpRevenueData);router.route('/revenuemail').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), reportMail);
+router.route('/bonusrevenuesplit').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getBonusRevenueSplit);
 
 
 module.exports = router;

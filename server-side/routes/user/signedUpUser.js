@@ -27,6 +27,9 @@ const {createUserNotification} = require('../../controllers/notification/notific
 const {sendMultiNotifications} = require("../../utils/fcmService");
 const AffiliateTransaction = require("../../models/affiliateProgram/affiliateTransactions");
 const {ObjectId} = require('mongodb')
+const { promisify } = require('util');
+const {client} = require("../../marketData/redisClient");
+const School = require('../../models/School/School');
 
 router.get("/send", async (req, res) => {
     // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'direct_signup_campaign_new', userName : "vijay", source : "vijay", media : {url : mediaURL, filename : mediaFileName}, templateParams : ["newuser.first_name"], tags : '', attributes : ''});
@@ -156,8 +159,135 @@ router.get("/send", async (req, res) => {
 
 })
 
+router.post("/schoolsignup", async (req, res) => {
+    const { mobile, student_name, city, parents_name, grade, school,dob ,state} = req.body;
+
+    const schoolDetails = {
+        parents_name, grade, school, dob, city, state
+    }
+
+    if (!mobile || !student_name || !city || !parents_name || !grade || !school) {
+        return res.status(400).json({ status: 'error', message: "Please fill all fields to proceed." })
+    }
+    const isExistingUser = await User.findOne({ mobile: mobile })
+
+    if (isExistingUser?.schoolDetails?.grade) {
+        return res.status(400).json({
+            message: "Your account already exists. Please login with mobile",
+            status: 'error'
+        });
+    }
+    const signedupuser = await SignedUpUser.findOne({mobile: mobile});
+    if (signedupuser?.lastOtpTime && moment().subtract(29, 'seconds').isBefore(signedupuser?.lastOtpTime)) {
+        return res.status(429).json({ message: 'Please wait a moment before requesting a new OTP' });
+      }
+    let mobile_otp = otpGenerator.generate(6, { digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
+
+    // User sign up detail saving
+    try {
+        if (signedupuser) {
+            signedupuser.first_name = parents_name.split(" ")[0] || "N/A", 
+            signedupuser.last_name = parents_name.split(" ")[1] || "N/A"
+            signedupuser.student_name = student_name.trim();
+            signedupuser.mobile = mobile.trim();
+            signedupuser.mobile_otp = mobile_otp.trim();
+            signedupuser.schoolDetails = schoolDetails,
+            // signedupuser.city = city,
+            // signedupuser.dob = dob,
+            await signedupuser.save({ validateBeforeSave: false })
+        } else {
+            await SignedUpUser.create({
+                student_name: student_name.trim(),
+                first_name: parents_name.split(" ")[0] || "N/A",
+                last_name: parents_name.split(" ")[1] || "N/A",
+                mobile: mobile.trim(), mobile_otp: mobile_otp, schoolDetails
+            });
+        }
+
+        res.status(201).json({
+            message: "OTP has been sent. Check your messages. OTP expires in 30 minutes.",
+            status: 'success'
+        });
+
+        if(process.env.PROD == 'true'){
+            sendOTP(mobile.toString(), mobile_otp);
+        } else{
+            sendOTP("9319671094", mobile_otp);
+        }
+        
+    } catch (err) { console.log(err); res.status(500).json({ message: 'Something went wrong', status: "error" }) }
+})
+const getAsync = promisify(client.get).bind(client);
+const setAsync = promisify(client.set).bind(client);
+
+router.post('/fetchschools', async (req, res) => {
+    const { inputString, stateName } = req.body;
+
+    try {
+        // Check if data for the state is already cached
+        let stateData = await client.get(`stateSchools-${stateName}`);
+
+        if (!stateData) {
+            // Data not in cache, fetch from database and cache it
+            const dataFromDB = await School.find({state: stateName}).select('_id school_name city');
+            await client.set(`stateSchools-${stateName}`, JSON.stringify(dataFromDB));
+            stateData = JSON.stringify(dataFromDB);
+            console.log('new state data', stateData);
+        }
+
+        // Parse the data to filter based on the input string
+        // const filteredData = JSON.parse(stateData).filter(school => 
+        //     school.school_name.toLowerCase().includes(inputString.toLowerCase()));
+        const filteredData = JSON.parse(stateData).filter(school =>
+            school.school_name.toLowerCase().includes(inputString.toLowerCase())
+        ).map(school => {
+            // Determine the city or use stateName if city is not available
+            const cityOrState = school.city ? school.city.split(',')[0] : stateName;
+            
+            return {
+                ...school, // Spread the rest of the school object
+                schoolString: `${school.school_name}, ${cityOrState}` // Construct the schoolString with city or stateName
+            };
+        });        
+        res.json(filteredData);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
+router.post("/signupintent", async (req, res) => {
+    const { mobile } = req.body;
+
+    if (!mobile) {
+        return res.status(400).json({ status: 'error', message: "Please fill all fields to proceed." })
+    }
+    const signedupuser = await SignedUpUser.findOne({mobile: mobile});
+    try {
+
+        if(signedupuser){
+            res.status(201).json({
+                message: "Data already saved",
+                status: 'success'
+            });
+        } else {
+            await SignedUpUser.create({
+                mobile
+            });
+
+            res.status(201).json({
+                message: "Data saved",
+                status: 'success'
+            });
+        }
+    } catch (err) { console.log(err); res.status(500).json({ message: 'Something went wrong', status: "error" }) }
+})
+
 router.post("/signup", async (req, res) => {
-    const { first_name, last_name, email, mobile, collegeDetails } = req.body;
+    const { first_name, last_name, email, mobile, collegeDetails, full_name, city, parents_name, grade, school } = req.body;
+
+
     // console.log(req.body)
     if (!first_name || !last_name || !email || !mobile) {
         return res.status(400).json({ status: 'error', message: "Please fill all fields to proceed." })
@@ -248,15 +378,22 @@ async function generateUniqueReferralCode() {
 router.patch("/verifyotp", async (req, res) => {
     let {
         first_name,
+        student_name,
+        city,
         last_name,
         email,
         mobile,
         mobile_otp,
         referrerCode,
         fcmTokenData,
-        collegeDetails
+        collegeDetails,
+        parents_name, school, grade,
+        dob, state
     } = req.body
 
+    const schoolDetails = {
+        parents_name, school, grade, city, dob, state
+    }
 
     const user = await SignedUpUser.findOne({ mobile: mobile })
     if (!user) {
@@ -274,6 +411,20 @@ router.patch("/verifyotp", async (req, res) => {
     }
 
     const checkUser = await User.findOne({mobile:user?.mobile});
+
+    if(checkUser && parents_name && school && grade){
+        checkUser.schoolDetails = schoolDetails;
+        checkUser.student_name = student_name;
+        await checkUser.save({validateBeforeSave: false, new: true});
+
+        const newuser = await User.findOne({_id: new ObjectId(checkUser?._id)}).populate('schoolDetails.city', 'name').populate('schoolDetails.school', 'school_name');
+        const token = await newuser.generateAuthToken();
+
+        res.cookie("jwtoken", token, {
+            expires: new Date(Date.now() + 25892000000),
+        }); 
+        return res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials.", token: token});
+    }
     if(checkUser && !checkUser?.collegeDetails?.college && collegeDetails){
         checkUser.collegeDetails = collegeDetails;
         const newuser = await checkUser.save({validateBeforeSave: false, new: true});
@@ -309,11 +460,11 @@ router.patch("/verifyotp", async (req, res) => {
 
     const myReferralCode = await generateUniqueReferralCode();
     // const count = await User.countDocuments();
-    let userId = email.split('@')[0]
+    let userId = email?.split('@')[0]
     let userIds = await User.find({ employeeid: userId })
    
-    if (userIds.length > 0) {
-        userId = userId.toString() + (userIds.length + 1).toString()
+    if (userIds?.length > 0) {
+        userId = userId?.toString() + (userIds?.length + 1).toString()
     }
 
     let match = false;
@@ -346,7 +497,10 @@ router.patch("/verifyotp", async (req, res) => {
 
     try {
         let creation;
-        if(campaign){
+
+        if(grade && school){
+            creation = "School SignUp";
+        }else if(campaign){
             creation = "Campaign SignUp";
         } else if(referredBy && !match){
             creation = 'Referral SignUp';
@@ -356,9 +510,12 @@ router.patch("/verifyotp", async (req, res) => {
             creation = "Auto SignUp";
         }
         let obj = {
-            first_name: first_name.trim(), last_name: last_name.trim(), designation: 'Trader', email: email.trim(),
+            first_name: first_name?.trim() || parents_name?.split(" ")?.[0] || "N/A", last_name: last_name?.trim() || parents_name?.split(" ")[1] || "N/A", designation: 'Trader', email: email?.trim(),
+            student_name: student_name?.trim(),
+            // city: city,
+            schoolDetails,
             mobile: mobile.trim(),
-            name: first_name.trim() + ' ' + last_name.trim().substring(0, 1),
+            name: (first_name?.trim() || parents_name?.split(" ")?.[0]) + ' ' + (last_name?.trim()?.substring(0, 1) || parents_name?.split(" ")?.[1]?.trim()?.substring(0, 1)),
             status: 'Active',
             employeeid: userId,
             joining_date: user.last_modifiedOn,
@@ -372,6 +529,10 @@ router.patch("/verifyotp", async (req, res) => {
             creationProcess: creation,
             collegeDetails: collegeDetails || "",
             affiliateProgramme: match ? affiliateObj?._id : null
+        }
+
+        if(dob){
+            obj.dob = dob;
         }
 
         if(fcmTokenData){
@@ -421,7 +582,9 @@ router.patch("/verifyotp", async (req, res) => {
             }
         ],
           })
-        .select('pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
+          .populate('schoolDetails.city', 'name')
+          .populate('schoolDetails.school', 'school_name')
+        .select('student_name schoolDetails full_name city dob pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
         const token = await newuser.generateAuthToken();
 
         // console.log("Token:",token)
@@ -435,14 +598,14 @@ router.patch("/verifyotp", async (req, res) => {
         
         // now inserting userId in free portfolio's
         const idOfUser = newuser._id;
-        for (const portfolio of activeFreePortfolios) {
-            const portfolioValue = portfolio.portfolioValue;
+        // for (const portfolio of activeFreePortfolios) {
+        //     const portfolioValue = portfolio.portfolioValue;
 
-            await PortFolio.findByIdAndUpdate(
-                portfolio._id,
-                { $push: { users: { userId: idOfUser, portfolioValue: portfolioValue } } }
-            );
-        }
+        //     await PortFolio.findByIdAndUpdate(
+        //         portfolio._id,
+        //         { $push: { users: { userId: idOfUser, portfolioValue: portfolioValue } } }
+        //     );
+        // }
 
         //inserting user details to referredBy user and updating wallet balance
         if (referredBy) {

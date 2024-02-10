@@ -7,7 +7,7 @@ import {Grid, CircularProgress, Divider} from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
 import { Link, useLocation } from "react-router-dom";
 import { suppressDeprecationWarnings } from 'moment';
-
+import {apiUrl} from '../../../constants/constants.js'
 //data
 import DailyTenXUsers from '../data/dailyTenXUsers'
 
@@ -131,6 +131,9 @@ export default function LabTabs({socket}) {
   const totalnetPnlcolor = (totalGrossPnl-totalTransactionCost) >= 0 ? "success" : "error"
   const totalquantitycolor = totalRunningLots >= 0 ? "success" : "error"
 
+  async function revenueMail(){
+    const data = await axios.get(`${apiUrl}revenue/revenuemail`);
+  }
   return (
     <MDBox bgColor="dark" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto' maxWidth='100%'>
         <MDBox>
@@ -821,6 +824,17 @@ export default function LabTabs({socket}) {
                                 Trading Account
                             </MDButton>
                         </Grid>
+
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"primary"} 
+                                size="small" 
+                                onClick={revenueMail}
+                            >
+                                Revenue Mail
+                            </MDButton>
+                        </Grid>
                         <Grid item fullWidth>
                             <MDButton 
                                 variant="contained" 
@@ -858,6 +872,33 @@ export default function LabTabs({socket}) {
                                   }}
                             >
                                 Coupons
+                            </MDButton>
+                        </Grid>
+
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"warning"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/quiz`,
+                                  }}
+                            >
+                                Quiz
+                            </MDButton>
+                        </Grid>
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"info"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/city`,
+                                  }}
+                            >
+                                City
                             </MDButton>
                         </Grid>
                     </Grid>
