@@ -77,6 +77,19 @@ const quizSchema = new mongoose.Schema({
         default: false,
         required: true
     },
+    quizQuestionnaire: {
+        type: Number,
+        required: true
+    },
+    userQuestionnaire: {
+        type: Number,
+        required: true
+    },
+    permissibleSet: {
+        easy: Number,
+        medium: Number,
+        difficult: Number
+    },
     status:{
         type:String,
         enum:['Active', 'Inactive', 'Draft', 'Completed']

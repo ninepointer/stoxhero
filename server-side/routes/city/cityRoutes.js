@@ -9,5 +9,6 @@ router.get('/', cityController.getAllCities);
 router.patch('/:id', Authenticate, restrictTo('Admin', 'Super Admin'), cityController.editCity);
 router.get('/active', cityController.getActiveCities);
 router.get('/:id', Authenticate, restrictTo('Admin', 'Super Admin'), cityController.getCityById);
+router.get('/bystate/:state', cityController.getCityByState);
 
 module.exports = router;

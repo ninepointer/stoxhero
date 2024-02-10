@@ -192,10 +192,22 @@ import CityDetails from './layouts/city/cityDetails'
 import Register from "./layouts/authentication/sign-up/register"
 import RegisterInfo from "./layouts/authentication/sign-up/registerationinfo"
 import Lobby from "./layouts/schoolLobby/lobby"
+import QuestionBankDetails from './layouts/questionBank/questionBankDetails';
+import QuestionBank from './layouts/questionBank';
 
 
 const routes = [
+  {
+    key: "questionbank",
+    route: "/questionbank",
+    component: <QuestionBank />,
+  },
 
+  {
+    key: "questionbankdetails",
+    route: "/questionbankdetails",
+    component: <QuestionBankDetails />,
+  },
   {
     key: "quiz",
     route: "/quiz",
