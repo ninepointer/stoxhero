@@ -30,20 +30,6 @@ function Cover({ setUpdate, update }) {
         setData(data?.data?.data);
     }
 
-    function handleCopyClick() {
-        const textarea = document.createElement('textarea');
-        textarea.value = "https://www.stoxhero.com/finowledge";
-        document.body.appendChild(textarea);
-
-        // Select the text in the textarea
-        textarea.select();
-        document.execCommand('copy');
-
-        // Remove the temporary textarea
-        document.body.removeChild(textarea);
-        openSuccessSB("Success", "Share this link with your friends.", "Link Copied")
-    };
-
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
     const [color, setColor] = useState('')
@@ -80,27 +66,24 @@ function Cover({ setUpdate, update }) {
             onClose={closeSuccessSB}
             close={closeSuccessSB}
             bgWhite="info"
+            sx={{zIndex: 10}}
         />
     );
 
     const getDaysBetweenDates = (startDate, endDate) => {
         // Copy the dates to remove the time part
-        
+
         const start = new Date(startDate);
         const end = new Date(endDate);
-      
+
         // Calculate the time difference in milliseconds
         const timeDifference = end.getDate() - start.getDate();
-      
+
         // Convert the time difference to days
         const daysDifference = Math.ceil(timeDifference);
-      
-        return daysDifference;
-      };
 
-    function joinGroup() {
-        window.open('https://chat.whatsapp.com/Bcjt7NbDTyz1odeF8RDtih', '_blank');
-    }
+        return daysDifference;
+    };
 
     return (
         <>
@@ -115,46 +98,46 @@ function Cover({ setUpdate, update }) {
                 {data.length > 0 ?
 
                     data.map((elem) => {
-                        let dayLeft = getDaysBetweenDates(new Date(),elem?.registrationCloseDateTime)
+                        let dayLeft = getDaysBetweenDates(new Date(), elem?.registrationCloseDateTime)
                         return (
                             <Grid item xs={12} md={4} lg={3} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                            <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                <Card sx={{ minWidth: '100%'}}>
-                                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                    <img src={elem?.image} style={{ maxWidth: '100%', height: 'auto', borderTopLeftRadius: 10, borderTopRightRadius: 10 }} />
-                                    <MDTypography variant="h6" fontSize={10} fontFamily='Work Sans , sans-serif' fontWeight={400} style={{ position: 'absolute', top: 0, right: 0, margin: '8px', textAlign: 'center', color: 'black', backgroundColor: "transparent", borderRadius: "15px", border:'1px solid lightgrey', padding: "2px 10px 2px 10px", marginTop: "10px" }}>
-                                        {elem?.grade} grade
-                                    </MDTypography>
-                                    <MDTypography variant="h6" fontSize={10} fontFamily='Work Sans , sans-serif' fontWeight={400} style={{ position: 'absolute', top: 0, left: 0, margin: '8px', textAlign: 'center', color: 'black', backgroundColor: "transparent", borderRadius: "15px", border:'1px solid lightgrey', padding: "2px 10px 2px 10px", marginTop: "10px" }}>
-                                        {dayLeft > 0 ? `${dayLeft} days left for registration!` : 'Registration closed!'}
-                                    </MDTypography>
-                                    </Grid>
-                                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                    <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%' }}>
-                                        <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', minHeight:60 }}>
-                                        <MDTypography variant="h6" fontFamily='Work Sans , sans-serif' style={{ textAlign: 'center' }}>
-                                            {elem?.title}
-                                        </MDTypography>
-                                        </MDBox>
-                                        <Divider style={{ width: '100%' }} />
-                                        <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                        <MDTypography variant='caption' fontFamily='Work Sans , sans-serif' style={{ textAlign: 'center', color:'#532b9e' }}>
-                                            Olympiad Date: {`${moment.utc(elem?.startDateTime).utcOffset('+05:30').format('DD-MMM-YYYY')} • ${elem.maxParticipant - elem?.registrationsCount} seats left`}
-                                        </MDTypography>
-                                        </MDBox>
-                                    </CardContent>
-                                    </Grid>
-                                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                    <CardContent>
-                                        <Grid mb={-1} container spacing={1} display='flex' justifyContent='center' xs={12} md={12} lg={12}>
-                                            <Grid item display='flex' justifyContent='center' alignContent={'center'} alignItems={'center'} xs={12} md={12} lg={12}>
-                                                <Registration id={elem?._id} quizData={elem} setData={setData} setUpdate={setUpdate} update={update}/>
-                                            </Grid>
-                                            </Grid>
-                                    </CardContent>
-                                    </Grid>
-                                </Card>
-                            </Grid>
+                                <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                    <Card sx={{ minWidth: '100%' }}>
+                                        <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                            <img src={elem?.image} style={{ maxWidth: '100%', height: 'auto', borderTopLeftRadius: 10, borderTopRightRadius: 10 }} />
+                                            <MDTypography variant="h6" fontSize={10} fontFamily='Work Sans , sans-serif' fontWeight={400} style={{ position: 'absolute', top: 0, right: 0, margin: '8px', textAlign: 'center', color: 'black', backgroundColor: "transparent", borderRadius: "15px", border: '1px solid lightgrey', padding: "2px 10px 2px 10px", marginTop: "10px" }}>
+                                                {elem?.grade} grade
+                                            </MDTypography>
+                                            <MDTypography variant="h6" fontSize={10} fontFamily='Work Sans , sans-serif' fontWeight={400} style={{ position: 'absolute', top: 0, left: 0, margin: '8px', textAlign: 'center', color: 'black', backgroundColor: "transparent", borderRadius: "15px", border: '1px solid lightgrey', padding: "2px 10px 2px 10px", marginTop: "10px" }}>
+                                                {dayLeft > 0 ? `${dayLeft} days left for registration!` : 'Registration closed!'}
+                                            </MDTypography>
+                                        </Grid>
+                                        <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                            <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%' }}>
+                                                <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', minHeight: 60 }}>
+                                                    <MDTypography variant="h6" fontFamily='Work Sans , sans-serif' style={{ textAlign: 'center' }}>
+                                                        {elem?.title}
+                                                    </MDTypography>
+                                                </MDBox>
+                                                <Divider style={{ width: '100%' }} />
+                                                <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                                    <MDTypography variant='caption' fontFamily='Work Sans , sans-serif' style={{ textAlign: 'center', color: '#532b9e' }}>
+                                                        Olympiad Date: {`${moment.utc(elem?.startDateTime).utcOffset('+05:30').format('DD-MMM-YYYY')} • ${elem.maxParticipant * elem?.noOfSlots - elem?.registrationsCount} seats left`}
+                                                    </MDTypography>
+                                                </MDBox>
+                                            </CardContent>
+                                        </Grid>
+                                        <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                            <CardContent>
+                                                <Grid mb={-1} container spacing={1} display='flex' justifyContent='center' xs={12} md={12} lg={12}>
+                                                    <Grid item display='flex' justifyContent='center' alignContent={'center'} alignItems={'center'} xs={12} md={12} lg={12}>
+                                                        <Registration id={elem?._id} quizData={elem} setData={setData} setUpdate={setUpdate} update={update} />
+                                                    </Grid>
+                                                </Grid>
+                                            </CardContent>
+                                        </Grid>
+                                    </Card>
+                                </Grid>
                             </Grid>
                         )
                     })
@@ -169,7 +152,7 @@ function Cover({ setUpdate, update }) {
                 {renderSuccessSB}
             </Grid>
 
-         
+
             {renderSuccessSB}
         </>
     );

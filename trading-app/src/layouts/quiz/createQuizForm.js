@@ -111,6 +111,14 @@ function Index() {
   async function onSubmit(e, formState) {
     e.preventDefault()
 
+    if(formState.startDateTime < formState.registrationOpenDateTime){
+      return openErrorSB("Error", "Registration open time should be less then start time.")
+    }
+
+    if(formState.registrationCloseDateTime < formState.registrationOpenDateTime){
+      return openErrorSB("Error", "Registration open time should be less then registration close time.")
+    }
+    
     if (!quizImage) {
       openErrorSB('error', 'Please select a file to upload');
       return;
@@ -164,6 +172,14 @@ function Index() {
   async function onEdit(e, formState) {
     e.preventDefault()
     setSaving(true)
+
+    if(formState.startDateTime < formState.registrationOpenDateTime){
+      return openErrorSB("Error", "Registration open time should be less then start time.")
+    }
+
+    if(formState.registrationCloseDateTime < formState.registrationOpenDateTime){
+      return openErrorSB("Error", "Registration open time should be less then registration close time.")
+    }
 
     if (!gradeValue || !formState.title || !formState.startDateTime || !formState.registrationOpenDateTime || !formState.registrationCloseDateTime || !formState.durationInSeconds || !formState.rewardType || !formState.status) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)

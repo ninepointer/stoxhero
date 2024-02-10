@@ -30,30 +30,14 @@ router.get(
 );
 
 router.get(
+    '/inactive', Authenticate, restrictTo('Admin', 'SuperAdmin'),
+    queController.getAllInactiveQuestions
+);
+
+router.get(
     '/:id/option', Authenticate, restrictTo('Admin', 'SuperAdmin'),
     queController.getOptionOfQuestionBank
 );
-
-// router.get(
-//     '/user/my', Authenticate,
-//     queController.getMyQuizzesForUser
-// );
-
-// router.get(
-//     '/:id', Authenticate,
-//     queController.getQuizForUser
-// );
-
-// router.get(
-//     '/user/slots/:id', Authenticate,
-//     queController.getSlot
-// );
-
-// router.get(
-//     '/:quizId/question', Authenticate, restrictTo('Admin', 'SuperAdmin'),
-//     upload.fields([{ name: 'questionImage', maxCount: 1 }]), // Adjust maxCount as needed
-//     queController.getQuizQuestion
-// );
 
 router.patch(
     '/:id', Authenticate, restrictTo('Admin', 'SuperAdmin'),

@@ -1,7 +1,6 @@
 import React, { useState, useContext, useEffect } from "react"
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import strategy from '../../assets/images/strategy.png'
 import moment from 'moment'
 import MDSnackbar from "../../components/MDSnackbar";
 
@@ -15,12 +14,10 @@ import MDButton from "../../components/MDButton";
 import axios from 'axios';
 import { apiUrl } from "../../constants/constants";
 import { useNavigate } from "react-router-dom";
-import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 function Cover({update}) {
 
     const [data, setData] = useState([]);
-    const navigate = useNavigate();
 
     useEffect(()=>{
         fetchData();
@@ -95,25 +92,30 @@ function Cover({update}) {
 
     const getDaysBetweenDates = (startDate, endDate) => {
         // Copy the dates to remove the time part
-        
+
         const start = new Date(startDate);
         const end = new Date(endDate);
-      
+
         // Calculate the time difference in milliseconds
         const timeDifference = end.getDate() - start.getDate();
-      
+
         // Convert the time difference to days
         const daysDifference = Math.ceil(timeDifference);
-      
-        return daysDifference;
-      };
 
-    function joinGroup(){
+        return daysDifference;
+    };
+
+    function joinGroup() {
         window.open('https://chat.whatsapp.com/J08D2Bx5m814S07wPzjVeD', '_blank');
-      }
+    }
+
+    function practice(){
+        openSuccessSB("Comming Soon", `Practice will be here soon.`)
+    }
 
     return (
-        <Grid mb={2} container xs={10} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ zIndex: 0, overflow: 'visible' }} gap={2}>
+        <>
+                <Grid mb={2} container xs={10} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ zIndex: 0, overflow: 'visible' }} gap={2}>
             {data.length >0 ?
 
                 data.map((elem) => {
@@ -150,8 +152,7 @@ function Cover({update}) {
                                     <CardContent>
                                         <Grid mb={-1} container spacing={1} display='flex' justifyContent='center' xs={12} md={12} lg={12}>
                                             <Grid item display='flex' justifyContent='center' alignContent={'center'} alignItems={'center'} xs={12} md={12} lg={6}>
-                                                <MDButton variant='outlined' color='dark' size="small" style={{fontSize:10, backgroundColor: '#ffffff', fontFamily: 'Work Sans , sans-serif', minWidth:'100%'}} >
-                                                    {/* <WhatsAppIcon/>  */}
+                                                <MDButton variant='outlined' color='dark' size="small" style={{fontSize:10, backgroundColor: '#ffffff', fontFamily: 'Work Sans , sans-serif', minWidth:'100%'}} onClick={()=>{practice()}}>
                                                     Practice
                                                 </MDButton>
                                             </Grid>
@@ -186,9 +187,9 @@ function Cover({update}) {
                     <MDTypography variant='caption' color='student' style={{ textAlign: 'center', fontFamily: 'Work Sans , sans-serif' }}>You have not registered for any finance olympiads yet.</MDTypography>
                 </MDBox>
             </Grid>}
-
-            {renderSuccessSB}
         </Grid>
+        {renderSuccessSB}
+        </>
     );
 }
 

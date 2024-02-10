@@ -7,9 +7,7 @@ import MDBox from "../../../components/MDBox";
 import MDAvatar from "../../../components/MDAvatar";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-import money from "../../../assets/images/money.png"
 import { Link, useLocation } from "react-router-dom";
-import moment from 'moment';
 import { apiUrl } from '../../../constants/constants';
 
 
@@ -21,7 +19,7 @@ const Inactive = () => {
   const [data, setData] = useState([]);
 
   async function fetchData() {
-    const getData = await axios.get(`${apiUrl}quiz/inactive`, { withCredentials: true });
+    const getData = await axios.get(`${apiUrl}questionbank/inactive`, { withCredentials: true });
     setData(getData.data.data)
     setCount(getData.data.count)
     setTimeout(() => {
@@ -72,74 +70,29 @@ const Inactive = () => {
                       component={Link}
                       style={{ minWidth: '100%' }}
                       to={{
-                        pathname: `/quizdetails`,
+                        pathname: `/questionbankdetails`,
                       }}
                       state={{ data: e }}
                     >
                       <Grid container>
 
                         <Grid item xs={12} md={6} lg={12} mt={1} mb={1} display="flex" justifyContent="left" >
-                          <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>Name: {e?.title}</MDTypography>
+                          <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>Que: {e?.title}</MDTypography>
                         </Grid>
 
-                        <Grid item xs={12} md={6} lg={12} mt={1} mb={1} display="flex" justifyContent="left" >
-                          <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>Grade: {e?.grade}</MDTypography>
+                        <Grid item xs={12} md={6} lg={12} display={"flex"} justifyContent={"center"} alignItems={"center"}>
+                          <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
+                            <MDTypography fontSize={13} style={{ color: "black", paddingRight: 4, fontWeight: 700 }}>Grade: {e?.grade?.grade}</MDTypography>
+                          </Grid>
+
+                          <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
+                            <MDTypography fontSize={13} style={{ color: "black" }}>Type: <span style={{fontWeight: 700 }}>{e?.type}</span></MDTypography>
+                          </Grid>
+
+                          <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
+                            <MDTypography fontSize={13} style={{ color: "black" }}>Difficulty Level: <span style={{fontWeight: 700 }}>{e?.difficultyLevel}</span></MDTypography>
+                          </Grid>
                         </Grid>
-
-                        {/* <Grid item xs={12} md={6} lg={12} display={"flex"} justifyContent={"center"} alignItems={"center"}>
-                                <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>Registrations: <span style={{ fontSize: 9, fontWeight: 700 }}>{e?.participants?.length}</span></MDTypography>
-                                </Grid>
-
-                                <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>Interests: <span style={{ fontSize: 9, fontWeight: 700 }}>{e?.interestedUsers?.length}</span></MDTypography>
-                                </Grid>
-
-                                <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>Start Date: <span style={{ fontSize: 9, fontWeight: 700 }}>{moment.utc(e?.contestStartTime).utcOffset('+05:30').format('DD-MMM hh:mm a')}</span></MDTypography>
-                                </Grid>
-
-                                <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>End Date: <span style={{ fontSize: 9, fontWeight: 700 }}>{moment.utc(e?.contestEndTime).utcOffset('+05:30').format('DD-MMM hh:mm a')}</span></MDTypography>
-                                </Grid>
-
-                                <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>Featured: <span style={{ fontSize: 9, fontWeight: 700 }}>{e?.featured === true ? 'TRUE' : 'FALSE'}</span></MDTypography>
-                                </Grid>
-
-                                <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>Portfolio: <span style={{ fontSize: 9, fontWeight: 700 }}>₹{Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(e?.portfolio?.portfolioValue)}</span></MDTypography>
-                                </Grid>
-
-                                </Grid>
-
-                                <Grid item xs={12} md={6} lg={12} display={"flex"} justifyContent={"center"} alignItems={"center"} textAlign={"center"}>
-
-                                <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>Entry Fee: <span style={{ fontSize: 9, fontWeight: 700 }}>₹{Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(e?.entryFee)}</span></MDTypography>
-                                </Grid>
-
-                                <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>Payout %: <span style={{ fontSize: 9, fontWeight: 700 }}>{e?.payoutPercentage}%</span></MDTypography>
-                                </Grid>
-
-                                <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>Total Spots: <span style={{ fontSize: 9, fontWeight: 700 }}>{e?.maxParticipants}</span></MDTypography>
-                                </Grid>
-
-                                <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>Spot Left: <span style={{ fontSize: 9, fontWeight: 700 }}>{e?.maxParticipants - e?.participants?.length}</span></MDTypography>
-                                </Grid>
-
-                                <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>TestZone Type: <span style={{ fontSize: 9, fontWeight: 700 }}>{e?.entryFee === 0 ? "Free" : 'Paid'}</span></MDTypography>
-                                </Grid>
-
-                                <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={9} style={{ color: "black" }}>TestZone For: <span style={{ fontSize: 9, fontWeight: 700 }}>{e?.contestFor}</span></MDTypography>
-                                </Grid>
-
-                              </Grid> */}
 
                       </Grid>
                     </MDButton>
@@ -160,7 +113,7 @@ const Inactive = () => {
         :
         <Grid container spacing={1} xs={12} md={6} lg={12}>
           <Grid item mt={2} xs={6} md={3} lg={12} display="flex" justifyContent="center">
-            <MDTypography color="light">No Inactive Quiz(s)</MDTypography>
+            <MDTypography color="light">No Active Question(s)</MDTypography>
           </Grid>
         </Grid>
       }

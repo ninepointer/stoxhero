@@ -148,7 +148,6 @@ function Index() {
     e.preventDefault()
     setSaving(true)
 
-    console.log(formState)
     if (!formState.title || !formState.type || !formState.score || !formState.topic || !formState.difficultyLevel || !formState.status) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
@@ -169,7 +168,7 @@ function Index() {
       formData.append(`grade`, gradeValue?._id);
     }
 
-    const res = await fetch(`${apiUrl}queBank/${queBank?._id}`, {
+    const res = await fetch(`${apiUrl}questionbank/${queBank?._id}`, {
       method: "PATCH",
       credentials: "include",
       body: formData
@@ -181,7 +180,7 @@ function Index() {
       openErrorSB("Error", data.error)
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
     } else if (data.status == 'success') {
-      openSuccessSB("Quiz Edited", "Edited Successfully")
+      openSuccessSB("Bank Edited", "Edited Successfully")
       setTimeout(() => { setSaving(false); setEditing(false) }, 500)
       console.log("entry succesfull");
     } else {

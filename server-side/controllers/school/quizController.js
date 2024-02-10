@@ -458,6 +458,7 @@ exports.getAllQuizzesForUser = async (req, res) => {
                         registrationCloseDateTime: 1,
                         durationInSeconds: 1,
                         rewardType: 1,
+                        noOfSlots: 1,
                         status: 1,
                         grade:1,
                         registrationsCount: {

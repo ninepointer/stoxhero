@@ -98,21 +98,22 @@ function Cover() {
   useEffect(() => {
     ReactGA.pageview(window.location.pathname)
   },[])
+
   const getCities = async () => {
-    try{
-      const res = await axios.get(`${apiUrl}cities/active`);
-      if(res.data.status == 'success'){
+    try {
+      const res = await axios.get(`${apiUrl}cities/bystate/${userState}`);
+      if (res.data.status == 'success') {
         setCityData(res.data.data);
       }
-    }catch(e){
+    } catch (e) {
       console.log(e);
     }
 
   }
+
   useEffect(() => {
     getCities();
-  }, [])
-
+  }, [userState])
 
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"))
 

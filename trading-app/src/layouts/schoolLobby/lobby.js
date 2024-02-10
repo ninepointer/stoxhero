@@ -153,18 +153,7 @@ function Cover() {
               </MDTypography>
             </Grid>
             {/* New Grid for buttons */}
-            <Grid
-              container
-              direction='row'
-              justifyContent='flex-end'
-              alignItems='center'
-              style={{ position: 'absolute', top: 10, right: 10 }}>
-                <EditProfile user={getDetails?.userDetails} update={update} setUpdate={setUpdate}/>
-              <Tooltip title='Sign Out'>
-                <LogoutIcon style={{marginRight: "5px", cursor: "pointer", color: 'grey'}} onClick={logout} />
-              </Tooltip>
-            </Grid>
-            <Grid
+              <Grid
               container
               direction='row'
               justifyContent='flex-start'
@@ -182,6 +171,21 @@ function Cover() {
                 </Grid>
               </Tooltip>
             </Grid>
+            <Grid
+              container
+              direction='row'
+              justifyContent='flex-end'
+              alignItems='center'
+              style={{ position: 'absolute', top: 10, right: 10 }}>
+
+              <Tooltip title='Edit Profile'>
+                <EditProfile user={getDetails?.userDetails} update={update} setUpdate={setUpdate} />
+              </Tooltip>
+              <Tooltip title='Sign Out'>
+                <LogoutIcon style={{ marginRight: "5px", cursor: "pointer", color: 'grey' }} onClick={logout} />
+              </Tooltip>
+            </Grid>
+          
           </Grid>
         </Grid>
 

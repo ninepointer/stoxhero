@@ -182,8 +182,19 @@ exports.getOptionOfQuestionBank = async (req, res) => {
 
 exports.getAllActiveQuestions = async (req, res) => {
     try {
+        const count = await QuestionBank.countDocuments({status: "Inactive"});
         const quizzes = await QuestionBank.find({status: "Active"}).populate('grade', 'grade');
-        res.status(200).json({status:'success', data: quizzes });
+        res.status(200).json({status:'success', data: quizzes, count });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.getAllInactiveQuestions = async (req, res) => {
+    try {
+        const count = await QuestionBank.countDocuments({status: "Inactive"});
+        const quizzes = await QuestionBank.find({status: "Inactive"}).populate('grade', 'grade');
+        res.status(200).json({status:'success', data: quizzes, count: count});
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

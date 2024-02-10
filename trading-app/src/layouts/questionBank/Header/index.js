@@ -10,8 +10,6 @@ import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
 import Active from '../data/active';
 import Inactive from '../data/inactive';
-import Draft from '../data/draft';
-import Complete from '../data/complete';
 
 
 export default function LabTabs() {
@@ -53,8 +51,6 @@ export default function LabTabs() {
           <TabList onChange={handleChange} aria-label="lab API tabs example">
             <Tab label="Active" value="1" />
             <Tab label="Inactive" value="2" />
-            <Tab label="Draft" value="3" />
-            <Tab label="Completed" value="4" />
           </TabList>
         </MDBox>
           <TabPanel value="1">
@@ -79,32 +75,6 @@ export default function LabTabs() {
           <MDBox style={{minWidth:'100%'}}>
           <Inactive/>
           </MDBox>
-          }
-          </TabPanel>
-          <TabPanel value="3">
-          {isLoading ? 
-          
-          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-            <CircularProgress color="info" />
-          </MDBox>
-          : 
-          <MDBox style={{minWidth:'100%'}}>
-          <Draft/>
-          </MDBox>
-   
-          }
-          </TabPanel>
-          <TabPanel value="4">
-          {isLoading ? 
-          
-          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-            <CircularProgress color="info" />
-          </MDBox>
-          : 
-          <MDBox style={{minWidth:'100%'}}>
-          <Complete/>
-          </MDBox>
-   
           }
           </TabPanel>
       </TabContext>

@@ -2,7 +2,6 @@ const City = require("../models/City/city");
 
 exports.createCity = async (req, res) => {
     // Destructure variables from req.body
-    console.log(req.body);
     const {
         name,
         tier,
@@ -81,7 +80,7 @@ exports.getCityByState = async (req, res) => {
     const { state } = req.params;
     console.log(state);
     try {
-        const city = await City.find({ state: { $regex: new RegExp(state, 'i') } });
+        const city = await City.find({ state: { $regex: new RegExp(state, 'i') } }).sort({ name: 1 });
 
         if (!city) {
             return res.status(404).json({ message: 'City not found', status: 'error' });
