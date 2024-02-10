@@ -162,12 +162,12 @@ const EditProfile = ({ user, update, setUpdate }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        if (!formState[name]?.includes(e.target.value)) {
+        // if (!formState[name]?.includes(e.target.value)) {
             setFormState(prevState => ({
                 ...prevState,
                 [name]: value,
             }));
-        }
+        // }
     };
 
     const handleCityChange = (event, newValue) => {
@@ -262,6 +262,7 @@ const EditProfile = ({ user, update, setUpdate }) => {
                             id="outlined-required"
                             placeholder='Full Name *'
                             name='student_name'
+                            type='text'
                             fullWidth
                             defaultValue={formState?.student_name}
                             onChange={handleChange}
