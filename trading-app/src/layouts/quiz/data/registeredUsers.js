@@ -26,7 +26,7 @@ export default function RegisteredUsers({ data }) {
   // Generate rows inside the useEffect hook after sortedData is updated
   const rows = sortedData.map((elem, index) => ({
     index: <MDTypography key={`index-${index}`} component="a" variant="caption" color="text" fontWeight="medium">{index + 1}</MDTypography>,
-    fullname: <MDTypography key={`fullname-${index}`} component="a" variant="caption" color="text" fontWeight="medium">{elem?.userId?.full_name}</MDTypography>,
+    fullname: <MDTypography key={`fullname-${index}`} component="a" variant="caption" color="text" fontWeight="medium">{elem?.userId?.student_name}</MDTypography>,
     mobile: <MDTypography key={`mobile-${index}`} component="a" variant="caption" color="text" fontWeight="medium">{elem?.userId?.mobile}</MDTypography>,
     school: <MDTypography key={`school-${index}`} component="a" variant="caption" fontWeight="medium">{elem?.userId?.schoolDetails?.school?.school_name}</MDTypography>,
     city: <MDTypography key={`city-${index}`} component="a" variant="caption" fontWeight="medium">{elem?.userId?.schoolDetails?.city?.name}</MDTypography>,

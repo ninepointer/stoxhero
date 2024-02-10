@@ -160,16 +160,18 @@ function Cover() {
               alignItems='center'
               alignContent='center'
               style={{ position: 'absolute', top: 10, left: 10 }}>
-              <Tooltip title='Coins Earned'>
+              
                 <Grid container display='flex' justifyContent='flex-start' alignItems='center'>
                   <Grid item display='flex' justifyContent='center' alignItems='center'>
                     <img src={Coins} width='20px' style={{marginRight: "5px", cursor: "pointer", color: 'grey'}}/>
                   </Grid>
+                  <Tooltip title='Coins Earned'>
                   <Grid item display='flex' justifyContent='center' alignItems='center'>
-                    <MDTypography fontFamily='Work Sans , sans-serif' variant='h6' fontWeight={400}>0</MDTypography>
+                    <MDTypography fontFamily='Work Sans , sans-serif' variant='h6' fontWeight={400} style={{cursor:'pointer'}}>0</MDTypography>
                   </Grid>
+                  </Tooltip>
                 </Grid>
-              </Tooltip>
+             
             </Grid>
             <Grid
               container

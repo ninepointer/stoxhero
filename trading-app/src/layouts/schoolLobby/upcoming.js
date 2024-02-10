@@ -72,17 +72,23 @@ function Cover({ setUpdate, update }) {
 
     const getDaysBetweenDates = (startDate, endDate) => {
         // Copy the dates to remove the time part
-
         const start = new Date(startDate);
         const end = new Date(endDate);
 
         // Calculate the time difference in milliseconds
-        const timeDifference = end.getDate() - start.getDate();
+        const timeDifference = end.getTime() - start.getTime();
 
         // Convert the time difference to days
-        const daysDifference = Math.ceil(timeDifference);
-
-        return daysDifference;
+        const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+    
+    
+        // If days difference is 0, calculate hours difference
+        if (daysDifference === 0) {
+            const hoursDifference = Math.ceil(timeDifference / (1000 * 60 * 60));
+            return { daysDifference, hoursDifference };
+        }
+    
+        return {daysDifference};
     };
 
     return (
@@ -99,6 +105,7 @@ function Cover({ setUpdate, update }) {
 
                     data.map((elem) => {
                         let dayLeft = getDaysBetweenDates(new Date(), elem?.registrationCloseDateTime)
+                        // console.log("dayLeft", dayLeft)
                         return (
                             <Grid item xs={12} md={4} lg={3} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                                 <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
@@ -109,7 +116,7 @@ function Cover({ setUpdate, update }) {
                                                 {elem?.grade} grade
                                             </MDTypography>
                                             <MDTypography variant="h6" fontSize={10} fontFamily='Work Sans , sans-serif' fontWeight={400} style={{ position: 'absolute', top: 0, left: 0, margin: '8px', textAlign: 'center', color: 'black', backgroundColor: "transparent", borderRadius: "15px", border: '1px solid lightgrey', padding: "2px 10px 2px 10px", marginTop: "10px" }}>
-                                                {dayLeft > 0 ? `${dayLeft} days left for registration!` : 'Registration closed!'}
+                                                {dayLeft.daysDifference > 0 ? `${dayLeft.daysDifference} days left for registration!` : dayLeft.hoursDifference > 0 ? `${dayLeft.hoursDifference} hours left for registration!` :  'Registration closed!'}
                                             </MDTypography>
                                         </Grid>
                                         <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>

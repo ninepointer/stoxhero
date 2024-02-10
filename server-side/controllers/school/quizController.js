@@ -60,7 +60,7 @@ exports.createQuiz = async (req, res) => {
         const newQuiz = new Quiz({image, maxParticipant, grade, title, 
             startDateTime, registrationOpenDateTime, registrationCloseDateTime, durationInSeconds, 
             rewardType, status, city, openForAll: openAll, description,
-            noOfSlots, slotBufferTime, slots, total
+            noOfSlots, slotBufferTime, slots
          });
         await newQuiz.save();
         res.status(201).json(newQuiz);
@@ -299,22 +299,24 @@ exports.getQuizForAdmin = async (req, res) => {
 exports.getActiveQuizForAdmin = async (req, res) => {
     try {
         const quizzes = await Quiz.find({ status: "Active" })
-        .populate('city', 'name')
         .populate({
             path: 'registrations.userId',
-            select: 'full_name mobile schoolDetails',
+            select: 'student_name full_name mobile schoolDetails',
             populate: {
                 path: 'schoolDetails',
-                populate: {
-                    path: 'city',
-                    select: 'name code'
-                },
-                populate: {
-                    path: 'school',
-                    select: 'school_name'
-                }
+                populate: [
+                    {
+                        path: 'city',
+                        select: 'name code'
+                    },
+                    {
+                        path: 'school',
+                        select: 'school_name'
+                    }
+                ]
             }
         });
+    
     
         res.status(201).json({ status: 'success', data: quizzes });
     } catch (error) {
@@ -325,20 +327,21 @@ exports.getActiveQuizForAdmin = async (req, res) => {
 exports.getDraftQuizForAdmin = async (req, res) => {
     try {
         const quizzes = await Quiz.find({ status: "Draft" })
-        .populate('city', 'name')
-        .populate({
+                .populate({
             path: 'registrations.userId',
-            select: 'full_name mobile schoolDetails',
+            select: 'student_name full_name mobile schoolDetails',
             populate: {
                 path: 'schoolDetails',
-                populate: {
-                    path: 'city',
-                    select: 'name code'
-                },
-                populate: {
-                    path: 'school',
-                    select: 'school_name'
-                }
+                populate: [
+                    {
+                        path: 'city',
+                        select: 'name code'
+                    },
+                    {
+                        path: 'school',
+                        select: 'school_name'
+                    }
+                ]
             }
         });
     
@@ -351,20 +354,21 @@ exports.getDraftQuizForAdmin = async (req, res) => {
 exports.getInActiveQuizForAdmin = async (req, res) => {
     try {
         const quizzes = await Quiz.find({ status: "Inactive" })
-        .populate('city', 'name')
-        .populate({
+                .populate({
             path: 'registrations.userId',
-            select: 'full_name mobile schoolDetails',
+            select: 'student_name full_name mobile schoolDetails',
             populate: {
                 path: 'schoolDetails',
-                populate: {
-                    path: 'city',
-                    select: 'name code'
-                },
-                populate: {
-                    path: 'school',
-                    select: 'school_name'
-                }
+                populate: [
+                    {
+                        path: 'city',
+                        select: 'name code'
+                    },
+                    {
+                        path: 'school',
+                        select: 'school_name'
+                    }
+                ]
             }
         });
     
@@ -377,16 +381,21 @@ exports.getInActiveQuizForAdmin = async (req, res) => {
 exports.getCompletedQuizForAdmin = async (req, res) => {
     try {
         const quizzes = await Quiz.find({ status: "Completed" })
-        .populate('city', 'name')
         .populate({
             path: 'registrations.userId',
-            select: 'full_name mobile schoolDetails',
+            select: 'student_name full_name mobile schoolDetails',
             populate: {
                 path: 'schoolDetails',
-                populate: {
-                    path: 'city',
-                    select: 'name code'
-                }
+                populate: [
+                    {
+                        path: 'city',
+                        select: 'name code'
+                    },
+                    {
+                        path: 'school',
+                        select: 'school_name'
+                    }
+                ]
             }
         });
     

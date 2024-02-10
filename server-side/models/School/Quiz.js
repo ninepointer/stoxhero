@@ -82,11 +82,11 @@ const quizSchema = new mongoose.Schema({
     },
     quizQuestionnaire: {
         type: Number,
-        required: true
+        // required: true
     },
     userQuestionnaire: {
         type: Number,
-        required: true
+        // required: true
     },
     permissibleSet: {
         easy: Number,
