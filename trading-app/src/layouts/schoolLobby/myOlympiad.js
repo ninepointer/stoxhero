@@ -110,7 +110,7 @@ function Cover({update}) {
     }
 
     function practice(){
-        openSuccessSB("Comming Soon", `Practice will be here soon.`)
+        openSuccessSB("Coming Soon", `Practice will be here soon.`)
     }
 
     return (
