@@ -680,7 +680,7 @@ const participateUser = async (paymentFor, productId, paymentBy, amount, coupon,
             }
         case 'Olympiad':
             if(productId){
-                const quiz = await Quiz.findById(productId).select(_id);
+                const quiz = await Quiz.findById(productId).select('_id');
                 await handleOlympiadParticipation(paymentBy, quiz?._id, productDetails);
             }    
             break;
