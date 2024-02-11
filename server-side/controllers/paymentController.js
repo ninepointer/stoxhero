@@ -432,7 +432,7 @@ exports.handleCallback = async (req, res, next) => {
                 });
                 await addMoneyToWallet(payment.amount-payment?.gstAmount, payment?.paymentBy);
                 if(payment?.paymentFor && payment?.productId){
-                    await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy,payment?.amount, payment?.coupon, payment?.bonusRedemption. payment?.productDetails);
+                    await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy,payment?.amount, payment?.coupon, payment?.bonusRedemption, payment?.productDetails);
                 }    
                 console.log('Payment Successful');
                 await payment.save({validateBeforeSave: false});
