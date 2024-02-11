@@ -11,6 +11,7 @@ const hpp = require("hpp")
 const { zerodhaAccountType } = require("./constant")
 const Product = require('./models/Product/product');
 const { pendingOrderMain } = require("./PlaceStopLossOrder")
+const Grade = require('./models/grade/grade');
 
 async function commonProcess() {
     // await setIOValue();
@@ -61,6 +62,10 @@ async function commonProcess() {
     app.get('/api/v1/products', async (req, res, next) => {
         const products = await Product.find({});
         res.status(200).json({ status: 'success', data: products });
+    });
+    app.get('/api/v1/grades', async(req, res, next) => {
+        const grade = await Grade.find({}); 
+        res.json({ status: 'success', data: grade }); 
     })
     app.use('/api/v1', require("./routes/OpenPositions/openPositionsAuth"))
     app.use('/api/v1', require("./routes/StockIndex/addStockIndex"))
@@ -179,6 +184,8 @@ async function commonProcess() {
     app.use('/api/v1/push', require("./routes/pushNotifications/pushNotificationRoutes"));
     app.use('/api/v1/notificationgroup', require("./routes/notificationGroup/notificationGroupRoutes"));
     app.use('/api/v1/cities', require("./routes/city/cityRoutes"));
+    app.use('/api/v1/questionbank', require("./routes/QuestionBank/queBankRoutes"));
+
     const PORT = process.env.PORT || 5002;
     const server = app.listen(PORT);
     

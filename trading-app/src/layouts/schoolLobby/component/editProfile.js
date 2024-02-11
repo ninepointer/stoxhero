@@ -93,7 +93,7 @@ const EditProfile = ({ user, update, setUpdate }) => {
 
     const getCities = async () => {
         try {
-            const res = await axios.get(`${apiUrl}cities/active`);
+            const res = await axios.get(`${apiUrl}cities/bystate/${userState}`);
             if (res.data.status == 'success') {
                 setCityData(res.data.data);
             }
@@ -105,7 +105,7 @@ const EditProfile = ({ user, update, setUpdate }) => {
 
     useEffect(() => {
         getCities();
-    }, [])
+    }, [userState])
 
     const handleImage = (event) => {
         const file = event.target.files[0];

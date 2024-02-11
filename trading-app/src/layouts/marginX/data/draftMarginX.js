@@ -15,7 +15,7 @@ import { apiUrl } from '../../../constants/constants';
 const CompletedContest = ({ type }) => {
   // const [registeredUsersCount, setRegisteredUsersCount] = useState(0);
   const [draftMarginX, setDraftMarginX] = useState([]);
-  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(() => {
     let call1 = axios.get(`${apiUrl}marginx/draft`, {

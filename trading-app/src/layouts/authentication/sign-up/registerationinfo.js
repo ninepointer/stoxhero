@@ -9,6 +9,7 @@ import ReactGA from "react-ga";
 import TextField from '@mui/material/TextField';
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from 'axios';
+import logo from '../../../assets/images/school.png'
 // @mui material components
 import Grid from "@mui/material/Grid";
 
@@ -21,6 +22,7 @@ import { userContext } from '../../../AuthContext';
 
 // Images
 import MDButton from "../../../components/MDButton";
+import MDAvatar from "../../../components/MDAvatar";
 import { Autocomplete, Box } from "@mui/material";
 import { styled } from '@mui/material';
 import { Helmet } from "react-helmet";
@@ -52,6 +54,7 @@ function Cover() {
   const [isFocused, setIsFocused] = useState(false);
   const [dateValue, setDateValue] = useState('');
   const [userState, setUserState] = useState('');
+  const [userCity, setUserCity] = useState('');
   const [schoolsList, setSchoolsList] = useState([]);
   const [userSchool, setUserSchool] = useState('');
 
@@ -81,7 +84,7 @@ function Cover() {
   });
   const [inputValue, setInputValue] = useState('');
   const searchSchools = async ()=>{
-    const res = await axios.post(`${apiUrl}fetchschools`, {stateName:userState, inputString: inputValue});
+    const res = await axios.post(`${apiUrl}fetchschools`, {stateName:userState, cityName:userCity ,inputString: inputValue});
     console.log('setting school list', schoolsList.length);
     setSchoolsList(res.data);
   }
@@ -98,21 +101,22 @@ function Cover() {
   useEffect(() => {
     ReactGA.pageview(window.location.pathname)
   },[])
+
   const getCities = async () => {
-    try{
-      const res = await axios.get(`${apiUrl}cities/active`);
-      if(res.data.status == 'success'){
+    try {
+      const res = await axios.get(`${apiUrl}cities/bystate/${userState}`);
+      if (res.data.status == 'success') {
         setCityData(res.data.data);
       }
-    }catch(e){
+    } catch (e) {
       console.log(e);
     }
 
   }
+
   useEffect(() => {
     getCities();
-  }, [])
-
+  }, [userState])
 
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"))
 
@@ -306,6 +310,9 @@ function Cover() {
     setUserState(newValue);
     setSchoolsList([]);
     setUserSchool('');
+    setCityData([]);
+    setUserCity('');
+    setValue({id:'',name:''});
   }
 
   const [successSB, setSuccessSB] = useState(false);
@@ -362,7 +369,10 @@ function Cover() {
   }
 
   const handleCityChange = (event, newValue) => {
+    setUserCity(newValue?.name);
     setValue(newValue);
+    setSchoolsList([]);
+    setUserSchool('');
   };
 
   const handleGradeChange = (event, newValue) => {
@@ -512,7 +522,7 @@ function Cover() {
                   disabled={otpGen}
                   onChange={handleStateChange}
                   autoHighlight
-                  getOptionLabel={(option) => option ? option : 'State'}
+                  getOptionLabel={(option) => option ? option : ''}
                   renderOption={(props, option) => (
                     <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                       {option}
@@ -521,7 +531,7 @@ function Cover() {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      placeholder="Choose your state"
+                      placeholder="Search your state"
                       inputProps={{
                         ...params.inputProps,
                         autoComplete: 'new-password', // disable autocomplete and autofill
@@ -558,7 +568,7 @@ function Cover() {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      placeholder="Choose a City"
+                      placeholder="Search your city"
                       inputProps={{
                         ...params.inputProps,
                         autoComplete: 'new-password', // disable autocomplete and autofill
@@ -588,16 +598,49 @@ function Cover() {
                   // onInputChange={debounceGetSchools}
                   onInputChange={(e)=>{setInputValue(e?.target?.value);debounceGetSchools();}}
                   autoHighlight
-                  getOptionLabel={(option) => option ? option.schoolString : ''}
+                  getOptionLabel={(option) => option ? option.school_name : ''}
                   renderOption={(props, option) => (
-                    <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                      {option.schoolString}
-                    </Box>
+                    // <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                    //   {option.schoolString}
+                    // </Box>
+                      <li {...props}>
+                          <Grid container lg={12} xs={12} md={12} display='flex' flexDirection={'row'} justifyContent={'center'} alignContent={'center'} alignItems='center'>
+                              <Grid item lg={4} xs={4} md={4} sx={{ display: 'flex', width: "100%" }}>
+                                  <MDAvatar
+                                      src={logo}
+                                      alt={"School"}
+                                      size="lg"
+                                      sx={{
+                                          cursor: "pointer",
+                                          borderRadius: isMobile ? "5px" : "10px",
+                                          height: isMobile ? "25px" : "30px",
+                                          width: isMobile ? "35px" : "50px",
+                                          ml: 0,
+                                          border: "none"
+                                      }}
+                                  />
+                              </Grid>
+                              <Grid item lg={8} xs={8} md={8} sx={{ width: '100%', wordWrap: 'break-word' }}>
+                                  <MDBox
+                                      component="span"
+                                      sx={{ fontWeight: option.highlight ? 'bold' : 'regular' }}
+                                      style={{fontFamily: "Work Sans"}}
+                                  >
+                                  <Typography variant="body4" color="text.secondary" style={{fontFamily: "Work Sans"}}>
+                                      {option?.school_name}<br/>
+                                  </Typography>
+                                  </MDBox>
+                                  <Typography variant="caption" color="text.secondary" style={{fontFamily: "Work Sans"}}>
+                                      {`${option?.address}`}
+                                  </Typography>
+                              </Grid>
+                          </Grid>
+                      </li>
                   )}
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      placeholder="Choose your school"
+                      placeholder="Search your school"
                       inputProps={{
                         ...params.inputProps,
                         autoComplete: 'new-password', // disable autocomplete and autofill

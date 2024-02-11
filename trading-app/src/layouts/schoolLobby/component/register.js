@@ -37,6 +37,7 @@ const Registration = ({ id, setUpdate, setData, update, quizData }) => {
     };
 
     function handleNext() {
+        console.log("selected", selected)
         if (!selected) {
             setError('Please select a slot for particiating.');
             return;
@@ -45,6 +46,10 @@ const Registration = ({ id, setUpdate, setData, update, quizData }) => {
     }
 
     async function register() {
+        if (!selected) {
+            setError('Please select a slot for particiating.');
+            return;
+        }
         const res = await fetch(`${apiUrl}quiz/user/registration/${id}`, {
             method: "PATCH",
             credentials: "include",
@@ -106,7 +111,8 @@ const Registration = ({ id, setUpdate, setData, update, quizData }) => {
                 <DialogActions>
                     {slotAction &&
                         <MDButton variant='contained' size='small' color='success' style={{ color: '#fff', fontFamily: 'Work Sans , sans-serif' }}
-                            onClick={getDetails?.userDetails?.schoolDetails?.profilePhoto ? ()=>{register()} : () => { handleNext() }}>Next</MDButton>}
+                          disabled={!selected} 
+                           onClick={getDetails?.userDetails?.schoolDetails?.profilePhoto ? ()=>{register()} : () => { handleNext() }}>Next</MDButton>}
 
                     {registrationMessage &&
                         <MDButton variant='contained' size='small' color='info' style={{ color: '#fff', fontFamily: 'Work Sans , sans-serif' }}

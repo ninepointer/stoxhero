@@ -16,7 +16,7 @@ export default function Dashboard() {
   const location = useLocation();
   const userData = location?.state?.data;
   console.log("User Data:",userData)
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   let [contestProfile, setContestProfile] = useState([]);
   let [dataLength, setDataLength] = useState(0);
   const [isLoading, setIsLoading] = useState(false);

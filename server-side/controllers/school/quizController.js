@@ -299,22 +299,24 @@ exports.getQuizForAdmin = async (req, res) => {
 exports.getActiveQuizForAdmin = async (req, res) => {
     try {
         const quizzes = await Quiz.find({ status: "Active" })
-        .populate('city', 'name')
         .populate({
             path: 'registrations.userId',
-            select: 'full_name mobile schoolDetails',
+            select: 'student_name full_name mobile schoolDetails',
             populate: {
                 path: 'schoolDetails',
-                populate: {
-                    path: 'city',
-                    select: 'name code'
-                },
-                populate: {
-                    path: 'school',
-                    select: 'school_name'
-                }
+                populate: [
+                    {
+                        path: 'city',
+                        select: 'name code'
+                    },
+                    {
+                        path: 'school',
+                        select: 'school_name'
+                    }
+                ]
             }
         });
+    
     
         res.status(201).json({ status: 'success', data: quizzes });
     } catch (error) {
@@ -325,20 +327,21 @@ exports.getActiveQuizForAdmin = async (req, res) => {
 exports.getDraftQuizForAdmin = async (req, res) => {
     try {
         const quizzes = await Quiz.find({ status: "Draft" })
-        .populate('city', 'name')
-        .populate({
+                .populate({
             path: 'registrations.userId',
-            select: 'full_name mobile schoolDetails',
+            select: 'student_name full_name mobile schoolDetails',
             populate: {
                 path: 'schoolDetails',
-                populate: {
-                    path: 'city',
-                    select: 'name code'
-                },
-                populate: {
-                    path: 'school',
-                    select: 'school_name'
-                }
+                populate: [
+                    {
+                        path: 'city',
+                        select: 'name code'
+                    },
+                    {
+                        path: 'school',
+                        select: 'school_name'
+                    }
+                ]
             }
         });
     
@@ -351,20 +354,21 @@ exports.getDraftQuizForAdmin = async (req, res) => {
 exports.getInActiveQuizForAdmin = async (req, res) => {
     try {
         const quizzes = await Quiz.find({ status: "Inactive" })
-        .populate('city', 'name')
-        .populate({
+                .populate({
             path: 'registrations.userId',
-            select: 'full_name mobile schoolDetails',
+            select: 'student_name full_name mobile schoolDetails',
             populate: {
                 path: 'schoolDetails',
-                populate: {
-                    path: 'city',
-                    select: 'name code'
-                },
-                populate: {
-                    path: 'school',
-                    select: 'school_name'
-                }
+                populate: [
+                    {
+                        path: 'city',
+                        select: 'name code'
+                    },
+                    {
+                        path: 'school',
+                        select: 'school_name'
+                    }
+                ]
             }
         });
     
@@ -377,16 +381,21 @@ exports.getInActiveQuizForAdmin = async (req, res) => {
 exports.getCompletedQuizForAdmin = async (req, res) => {
     try {
         const quizzes = await Quiz.find({ status: "Completed" })
-        .populate('city', 'name')
         .populate({
             path: 'registrations.userId',
-            select: 'full_name mobile schoolDetails',
+            select: 'student_name full_name mobile schoolDetails',
             populate: {
                 path: 'schoolDetails',
-                populate: {
-                    path: 'city',
-                    select: 'name code'
-                }
+                populate: [
+                    {
+                        path: 'city',
+                        select: 'name code'
+                    },
+                    {
+                        path: 'school',
+                        select: 'school_name'
+                    }
+                ]
             }
         });
     
@@ -425,8 +434,7 @@ exports.getAllQuizzesForUser = async (req, res) => {
     try {
         const now = new Date();
         const userId = req.user._id;
-        // const quizzes = await Quiz.find({"registrations.userId": {$ne: new ObjectId(userId)}}, 'image maxParticipant title startDateTime registrationOpenDateTime durationInSeconds rewardType status')
-        //     .lean()
+
         const user = await User.findById(userId).select('schoolDetails');
             const quizzes = await Quiz.aggregate([
                 {
@@ -442,6 +450,9 @@ exports.getAllQuizzesForUser = async (req, res) => {
                             },
                             { // At least one of these conditions must be satisfied
                                "grade": user?.schoolDetails?.grade, // Assuming city is already an ObjectId or the correct type
+                            },
+                            {
+                                startDateTime: {$gt: new Date()}
                             }
                         ]
                     }
@@ -456,6 +467,7 @@ exports.getAllQuizzesForUser = async (req, res) => {
                         registrationCloseDateTime: 1,
                         durationInSeconds: 1,
                         rewardType: 1,
+                        noOfSlots: 1,
                         status: 1,
                         grade:1,
                         registrationsCount: {
@@ -478,7 +490,8 @@ exports.getMyQuizzesForUser = async (req, res) => {
         const quizzes = await Quiz.aggregate([
             {
                 $match: {
-                    "registrations.userId": new ObjectId(userId)
+                    "registrations.userId": new ObjectId(userId),
+                    startDateTime: {$gt: new Date()}
                 }
             },
             {
@@ -601,7 +614,6 @@ exports.registration = async (req, res) => {
     }
 };
 
-
 exports.getSlot = async (req, res) => {
     try {
         // 65bd1597d0283f5f82e70cd9
@@ -636,22 +648,6 @@ function getRegistrationId( cityCode, mobile, quizStartDate, grade) {
     const newCityCode = cityCode?.toString()?.padStart(2, '0'); // Ensure city code is two digits
     const gradeChars = grade?.toString()?.slice(0, -2)?.padStart(2, '0');
     return (`SHF${gradeChars}${quizDay}${quizMonth}${quizYear}${newCityCode}${mobileLast2Digit}`);
-}
-
-function convertTime(date) {
-    const inputDateString = date;
-    const inputDate = new Date(inputDateString);
-
-    // Format date
-    const day = inputDate.getDate();
-    const month = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(inputDate);
-    const hours = inputDate.getHours() % 12 || 12; // Convert to 12-hour format
-    const minutes = inputDate.getMinutes();
-    const ampm = inputDate.getHours() >= 12 ? 'PM' : 'AM';
-
-    const formattedDate = `${day} ${month} ${hours}:${minutes < 10 ? '0' : ''}${minutes} ${ampm}`;
-
-    return (formattedDate);
 }
 
 

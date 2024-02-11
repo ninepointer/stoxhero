@@ -772,7 +772,7 @@ router.patch('/student/me', authController.protect, currentUser, uploadMultiple,
   try{
     let {student_name, grade, city, school, dob, state, profilePhoto} = req.body;
 
-    profilePhoto = profilePhoto==='undefined' ? null : profilePhoto;
+    profilePhoto = (profilePhoto==='undefined' || profilePhoto==='null' || profilePhoto==='false' || profilePhoto==='') ? null : profilePhoto;
     console.log(req.body)
 
       const user = await UserDetail.findById(req.user._id);
