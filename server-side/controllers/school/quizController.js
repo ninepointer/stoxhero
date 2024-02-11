@@ -655,12 +655,12 @@ exports.handleOlympiadParticipation = async (paymentBy, quizId, productDetails) 
     try {
         const id = quizId;
         const userId = paymentBy;
-        console.log(productDetails);
+        console.log(id, userId, productDetails);
         const {slotId} = productDetails;
         const user = await User.findById(userId).select('schoolDetails dob mobile').populate('schoolDetails.city', 'name code');
 
         const getquiz = await Quiz.findById(new ObjectId(id));
-        if(!getquiz) return res.status(500).json({status: 'error', message: "Quiz not found."  });
+        if(!getquiz) console.log('no quiz found');
 
         for(let elem of getquiz.slots){
             if((elem?._id?.toString() === slotId?.toString()) && (elem?.user >= getquiz?.maxParticipant)){
