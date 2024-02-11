@@ -239,14 +239,14 @@ router.post('/fetchschools', async (req, res) => {
         // const filteredData = JSON.parse(stateData).filter(school => 
         //     school.school_name.toLowerCase().includes(inputString.toLowerCase()));
         const filteredData = JSON.parse(stateData).filter(school =>
-            school.school_name.toLowerCase().includes(inputString.toLowerCase())
+            school?.school_name?.toLowerCase().includes(inputString?.toLowerCase())
         ).map(school => {
             // Determine the city or use stateName if city is not available
-            const cityOrState = school.city ? school.city.split(',')[0] : stateName;
+            const cityOrState = school?.city ? school?.city?.split(',')[0] : stateName;
             
             return {
                 ...school, // Spread the rest of the school object
-                schoolString: `${school.school_name}, ${cityOrState}` // Construct the schoolString with city or stateName
+                schoolString: `${school?.school_name}, ${cityOrState}` // Construct the schoolString with city or stateName
             };
         });        
         res.json(filteredData);

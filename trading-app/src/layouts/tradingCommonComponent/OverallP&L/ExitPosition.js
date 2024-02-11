@@ -40,7 +40,7 @@ function ExitPosition({ltp, module, maxLot, lotSize, traderId, socket, subscript
   } else if (quantity < 0) {
     checkBuyOrSell = "SELL"
   }
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
   const getDetails = React.useContext(userContext);
   const tradeSound = getDetails.tradeSound;

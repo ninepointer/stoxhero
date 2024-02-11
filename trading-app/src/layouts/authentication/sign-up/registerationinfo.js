@@ -534,57 +534,6 @@ function Cover() {
                   )}
                 />
               </Grid>
-              <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
-                <CustomAutocomplete
-                  id="country-select-demo"
-                  sx={{
-                    width: "100%",
-                    '& .MuiAutocomplete-clearIndicator': {
-                      color: 'dark',
-                    },
-                  }}
-                  options={schoolsList}
-                  value={userSchool}
-                  disabled={otpGen}
-                  onChange={handleSchoolChange}
-                  onInputChange={debounceGetSchools}
-                  autoHighlight
-                  getOptionLabel={(option) => option ? option.schoolString : 'School'}
-                  renderOption={(props, option) => (
-                    <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                      {option.schoolString}
-                    </Box>
-                  )}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      placeholder="Choose your school"
-                      inputProps={{
-                        ...params.inputProps,
-                        autoComplete: 'new-password', // disable autocomplete and autofill
-                        style: { color: 'dark', height: "10px" }, // set text color to dark
-                      }}
-                      InputLabelProps={{
-                        style: { color: 'dark' },
-                      }}
-                    />
-                  )}
-                />
-              </Grid>
-
-              {/* <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
-                <TextField
-                  required
-                  disabled={otpGen}
-                  id="outlined-required"
-                  placeholder="School"
-                  fullWidth
-                  type='text'
-                  name='school'
-                onChange={handleChange}
-                />
-              </Grid> */}
-
 
               <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
                 <CustomAutocomplete
@@ -610,6 +559,45 @@ function Cover() {
                     <TextField
                       {...params}
                       placeholder="Choose a City"
+                      inputProps={{
+                        ...params.inputProps,
+                        autoComplete: 'new-password', // disable autocomplete and autofill
+                        style: { color: 'dark', height: "10px" }, // set text color to dark
+                      }}
+                      InputLabelProps={{
+                        style: { color: 'dark' },
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
+              
+              <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
+                <CustomAutocomplete
+                  id="country-select-demo"
+                  sx={{
+                    width: "100%",
+                    '& .MuiAutocomplete-clearIndicator': {
+                      color: 'dark',
+                    },
+                  }}
+                  options={schoolsList}
+                  value={userSchool}
+                  disabled={otpGen}
+                  onChange={handleSchoolChange}
+                  // onInputChange={debounceGetSchools}
+                  onInputChange={(e)=>{setInputValue(e?.target?.value);debounceGetSchools();}}
+                  autoHighlight
+                  getOptionLabel={(option) => option ? option.schoolString : ''}
+                  renderOption={(props, option) => (
+                    <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                      {option.schoolString}
+                    </Box>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="Choose your school"
                       inputProps={{
                         ...params.inputProps,
                         autoComplete: 'new-password', // disable autocomplete and autofill

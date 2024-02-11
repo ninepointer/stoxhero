@@ -59,7 +59,7 @@ function ContestResultPage () {
     }
 
     console.log("Location in tradePage: ",location)
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
     React.useEffect(()=>{
       

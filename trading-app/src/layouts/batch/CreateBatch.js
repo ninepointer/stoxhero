@@ -43,7 +43,7 @@ function CreateBatch({createContestForm, setCreateBatchForm, oldObjectId, setOld
   const [contestRules,setContestRules] = useState([])
   // const [addRewardObject,setAddRewardObject] = useState(false);
 
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 const navigate = useNavigate();
 
 React.useEffect(()=>{
