@@ -6,7 +6,7 @@ import MDTypography from "../../../components/MDTypography";
 
 
 function Header({ battle }) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const [participantCount, setParticipantCount] = useState(0);
 
     useEffect(() => {

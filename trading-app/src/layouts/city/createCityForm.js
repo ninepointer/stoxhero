@@ -19,8 +19,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import {apiUrl} from  '../../constants/constants';
-import Rewards from "./data/reward/contestReward";
-import Question from "./data/questions/questions";
 import { Autocomplete, Box } from "@mui/material";
 import { styled } from '@mui/material';
 import axios from 'axios';
@@ -45,12 +43,12 @@ function Index() {
   const [newObjectId, setNewObjectId] = useState("");
   const [updatedDocument, setUpdatedDocument] = useState([]);
   const [quizData, setQuizData] = useState([]);
-  const [quizImage, setQuizImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
 
   const [formState, setFormState] = useState({
     name: '' || quiz?.name,
     state: '' || quiz?.state,
+    tier: '' || quiz?.tier,
     status: '' || quiz?.status,
   });
 
@@ -62,43 +60,17 @@ function Index() {
   }, [])
 
   const [cityData, setCityData] = useState([]);
-  const [tierValue, setTierValue] = useState(quiz?.tier || 3);
+  // const [tierValue, setTierValue] = useState(quiz?.tier || 3);
   const [value, setValue] = useState({
     _id: quiz?.city?._id || '',
     name: quiz?.city?.name || ""
   })
 
-  const getCities = async () => {
-    try{
-      const res = await axios.get(`${apiUrl}cities/active`);
-      if(res.data.status == 'success'){
-        setCityData(res.data.data);
-      }
-    }catch(e){
-      console.log(e);
-    }
-
-  }
-  useEffect(() => {
-    getCities();
-  }, [])
-
-  const handleImage = (event) => {
-    const file = event.target.files[0];
-    setQuizImage(event.target.files);
-    // Create a FileReader instance
-    const reader = new FileReader();
-    reader.onload = () => {
-      setPreviewUrl(reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
 
   async function onSubmit(e, formState) {
     e.preventDefault()
 
-    if (!formState.name || !formState.state || !formState.status) {
-      console.log('values',tierValue, formState.name, formState.status, formState.state);
+    if (!formState.name || !formState.state || !formState.tier || !formState.status) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
@@ -106,23 +78,11 @@ function Index() {
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
 
     const formData = new FormData();
-    if (quizImage) {
-      formData.append("quizImage", quizImage[0]);
-    }
 
     for(let elem in formState){
       formData.append(`${elem}`, formState[elem]);
     }
 
-    if(tierValue){
-      formData.append(`grade`, tierValue);
-    }
-
-    if(value?._id){
-      formData.append(`city`, value?._id);
-    }
-
-    // const {grade, title, startDateTime, registrationOpenDateTime, durationInSeconds, rewardType, status } = formState;
     const res = await fetch(`${apiUrl}cities`, {
       method: "POST",
       headers: {
@@ -134,7 +94,7 @@ function Index() {
         name:formState.name,
         state:formState.state,
         status:formState.status,
-        tier:tierValue
+        tier:Number(formState.tier)
       })
     });
 
@@ -142,9 +102,9 @@ function Index() {
     const data = await res.json();
     if (res.status !== 201) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
-      openErrorSB("Quiz not created", data?.message)
+      openErrorSB("City not created", data?.message)
     } else {
-      openSuccessSB("Quiz Created", data?.message)
+      openSuccessSB("City Created", data?.message)
       setNewObjectId(data?.data?._id)
       setIsSubmitted(true)
       setQuizData(data?.data);
@@ -155,22 +115,40 @@ function Index() {
   async function onEdit(e, formState) {
     e.preventDefault()
     setSaving(true)
-    
+    console.log(formState)
 
-    if (!formState.name || !formState.state || !formState.status) {
-      setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
-      return openErrorSB("Missing Field", "Please fill all the mandatory fields")
+    // if (!formState.name || !formState.state || !formState.tier || !formState.status) {
+    //   setTimeout(() => { setCreating(false); setIsSubmitted(false); setSaving(false) }, 500)
+    //   return openErrorSB("Missing Field", "Please fill all the mandatory fields")
+    // }
+
+    if (!formState.name || !formState.name.trim()) {
+      setTimeout(() => { setCreating(false); setIsSubmitted(false); setSaving(false) }, 500);
+      return openErrorSB("Missing Field", "Name field is blank");
+    } else if (!formState.state || !formState.state.trim()) {
+        setTimeout(() => { setCreating(false); setIsSubmitted(false); setSaving(false) }, 500);
+        return openErrorSB("Missing Field", "State field is blank");
+    } else if (!formState.tier) {
+        setTimeout(() => { setCreating(false); setIsSubmitted(false); setSaving(false) }, 500);
+        return openErrorSB("Missing Field", "Tier field is blank");
+    } else if (!formState.status) {
+        setTimeout(() => { setCreating(false); setIsSubmitted(false); setSaving(false) }, 500);
+        return openErrorSB("Missing Field", "Status field is blank");
     }
-
-
+  
+    console.log("All fields are filled")
     const res = await fetch(`${apiUrl}cities/${quiz?._id}`, {
       method: "PATCH",
       credentials: "include",
+      headers: {
+        "content-type" : "application/json",
+        "Access-Control-Allow-Credentials": true
+      },
       body: JSON.stringify({
         name:formState.name,
         state:formState.state,
         status:formState.status,
-        tier:tierValue
+        tier:Number(formState.tier)
       }),
     });
 
@@ -180,9 +158,8 @@ function Index() {
       openErrorSB("Error", data.error)
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
     } else if(data.status == 'success') {
-      openSuccessSB("Quiz Edited", "Edited Successfully")
+      openSuccessSB("City Edited", "Edited Successfully")
       setTimeout(() => { setSaving(false); setEditing(false) }, 500)
-      console.log("entry succesfull");
     }else{
       openErrorSB("Error", data.message);
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
@@ -233,24 +210,10 @@ function Index() {
     />
   );
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (!formState[name]?.includes(e.target.value)) {
-      setFormState(prevState => ({
-        ...prevState,
-        [name]: value,
-      }));
-    }
-  };
-
-  const handleCityChange = (event, newValue) => {
-    setValue(newValue);
-  };
-
-  const handleGradeChange = (event, newValue) => {
-    console.log('event', event, newValue)
-    setTierValue(newValue);
-  };
+  // const handleGradeChange = (event, newValue) => {
+  //   console.log('event', event, newValue)
+  //   setTierValue(newValue);
+  // };
 
   return (
     <>
@@ -268,14 +231,15 @@ function Index() {
               </MDTypography>
             </MDBox>
 
-            <Grid container display="flex" flexDirection="row" justifyContent="space-between">
-              <Grid container spacing={2} mt={0.5} mb={0} xs={12} md={12} xl={12}>
+            <Grid container spacing={2} mt={0.5} mb={0} xs={12} md={12} xl={12} display="flex" flexDirection="row" justifyContent="space-between">
+    
                 <Grid item xs={12} md={6} xl={3}>
                   <TextField
                     disabled={((isSubmitted || quiz) && (!editing || saving))}
                     id="outlined-required"
                     label='City Name'
                     name='name'
+                    required
                     fullWidth
                     defaultValue={editing ? formState?.name : quiz?.name}
                     onChange={(e) => {
@@ -286,12 +250,14 @@ function Index() {
                     }}
                   />
                 </Grid>
+
                 <Grid item xs={12} md={6} xl={3}>
                   <TextField
                     disabled={((isSubmitted || quiz) && (!editing || saving))}
                     id="outlined-required"
                     label='State'
                     name='state'
+                    required
                     fullWidth
                     defaultValue={editing ? formState?.state : quiz?.state}
                     onChange={(e) => {
@@ -303,42 +269,30 @@ function Index() {
                   />
                 </Grid>
 
-
                 <Grid item xs={12} md={6} xl={3}>
-                  <CustomAutocomplete
-                    id="country-select-demo"
-                    sx={{
-                      width: "100%",
-                      '& .MuiAutocomplete-clearIndicator': {
-                        color: 'dark',
-                      },
-                    }}
-                    options={[1,2,3]}
-                    label='Tier'
-                    value={tierValue}
-                    onChange={handleGradeChange}
-                    autoHighlight
-                    getOptionLabel={(option) => option ? option : 'Grade'}
-                    renderOption={(props, option) => (
-                      <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                        {option}
-                      </Box>
-                    )}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        placeholder="Tier"
-                        inputProps={{
-                          ...params.inputProps,
-                          autoComplete: 'new-password', // disable autocomplete and autofill
-                          style: { color: 'dark', height: "10px" }, // set text color to dark
-                        }}
-                        InputLabelProps={{
-                          style: { color: 'dark' },
-                        }}
-                      />
-                    )}
-                  />
+                  <FormControl sx={{ width: "100%" }}>
+                    <InputLabel id="demo-simple-select-autowidth-label">Tier *</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-autowidth-label"
+                      id="demo-simple-select-autowidth"
+                      name='tier'
+                      required
+                      value={formState?.tier || quiz?.tier}
+                      disabled={((isSubmitted || quiz) && (!editing || saving))}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          tier: e.target.value
+                        }))
+                      }}
+                      label="Tier"
+                      sx={{ minHeight: 43 }}
+                    >
+                      <MenuItem value="1">1</MenuItem>
+                      <MenuItem value="2">2</MenuItem>
+                      <MenuItem value="3">3</MenuItem>
+                    </Select>
+                  </FormControl>
                 </Grid>
 
                 <Grid item xs={12} md={6} xl={3}>
@@ -348,6 +302,7 @@ function Index() {
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
                       name='status'
+                      required
                       value={formState?.status || quiz?.status}
                       disabled={((isSubmitted || quiz) && (!editing || saving))}
                       onChange={(e) => {
@@ -366,14 +321,15 @@ function Index() {
                   </FormControl>
                 </Grid>
 
-              </Grid>
-
             </Grid>
 
             
 
-            <Grid container mt={2} xs={12} md={12} xl={12} >
-              <Grid item display="flex" justifyContent="flex-end" xs={12} md={6} xl={12}>
+            <Grid container spacing={2} mt={2} mb={2} xs={12} md={12} xl={12} display="flex" justifyContent="center" alignItems='center'>
+              <Grid item display="flex" justifyContent="flex-start" xs={6} md={6} xl={6}>
+                {quiz && <MDTypography variant='caption'>City Code: {quiz.code}</MDTypography>}
+              </Grid>
+              <Grid item display="flex" justifyContent="flex-end" xs={6} md={6} xl={6}>
                 {!isSubmitted && !quiz && (
                   <>
                     <MDButton
@@ -425,15 +381,7 @@ function Index() {
                     </MDButton>
                   </>
                 )}
-              </Grid>
-            
-              
-              {/* {(quiz || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
-                <MDBox>
-                  <RegisteredUsers quizData={quiz?._id ? quiz : quizData} action={action} setAction={setAction} />
-                </MDBox>
-              </Grid>} */}
-
+              </Grid>   
             </Grid>
 
             {renderSuccessSB}

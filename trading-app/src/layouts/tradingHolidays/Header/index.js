@@ -22,7 +22,7 @@ export default function TradingHoliday() {
   const [todaysHolidays,setTodaysHolidays] = useState([]);
   const [pastHolidays,setPastHolidays] = useState([]);
   const [upcomingHolidays,setUpcomingHolidays] = useState([]);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
 
   useEffect(()=>{

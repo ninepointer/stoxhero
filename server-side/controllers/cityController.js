@@ -12,6 +12,10 @@ exports.createCity = async (req, res) => {
     try {
         // Create a new city document with destructured variables
         const countCity = await City.countDocuments()
+        const duplicateCity = await City.find({name:name,state:state})
+        if(duplicateCity.length > 0){
+            return res.status(400).json({ message: 'City already exists'});
+        }
         const city = new City({
             name,
             tier,
@@ -31,8 +35,10 @@ exports.createCity = async (req, res) => {
 exports.editCity = async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
+    console.log(req.body,req.params);
     try {
-        const city = await City.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
+        const city = await City.findByIdAndUpdate(id, updates, { new: true });
+        
         if (!city) {
             return res.status(404).json({ message: 'City not found', status: 'error' });
         }
@@ -55,8 +61,29 @@ exports.getAllCities = async (req, res) => {
 // Get active cities
 exports.getActiveCities = async (req, res) => {
     try {
-        const activeCities = await City.find({ status: 'Active' });
+        const activeCities = await City.find({ status: "Active"});
+
         res.status(200).json({ message: 'Active cities retrieved successfully', status: 'success', data: activeCities });
+    } catch (error) {
+        res.status(500).json({ message: error.message, status: 'error' });
+    }
+};
+
+exports.getCitiesBySearch = async (req, res) => {
+    try {
+        // const activeCities = await City.find({ });
+        const {search} = req.query;
+        const data = await City.find({
+            $and: [
+                {
+                    $or: [
+                        { name: { $regex: search, $options: 'i' } },
+                        { state: { $regex: search, $options: 'i' } },
+                    ]
+                }
+            ]
+        }).sort({name:1})
+        res.status(200).json({ message: 'Active cities retrieved successfully', status: 'success', data: data });
     } catch (error) {
         res.status(500).json({ message: error.message, status: 'error' });
     }

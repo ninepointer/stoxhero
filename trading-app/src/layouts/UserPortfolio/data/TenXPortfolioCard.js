@@ -10,7 +10,7 @@ import money from "../../../assets/images/money.png"
 // import link from "../../../assets/images/link.png"
 
 const MyPortfolioCard = ({subscriptionId}) => {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const [isLoading,setIsLoading] = useState(false)
     const [tenXMarginDetails, setTenXMarginDetail] = useState([]);
     useEffect(()=>{

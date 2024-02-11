@@ -20,7 +20,7 @@ function TradeViewTenX() {
   const location = useLocation();
   const subscriptionId = location?.state?.subscriptionId;
   console.log("subscriptionId", subscriptionId)
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
   const [tradingDayData, setTradingDayData] = useState([]);
   const socket = useContext(socketContext);
 
