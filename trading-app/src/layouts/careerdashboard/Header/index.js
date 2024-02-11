@@ -25,7 +25,7 @@ export default function LabTabs({socket}) {
   const [notliveTraderCount, setNotLiveTraderCount] = useState(0);
   const [notliveTraderCountYesterday, setNotLiveTraderCountYesterday] = useState(0);
   const [downloadReady, setDownloadReady] = useState(false);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
   let totalTransactionCost = 0;
   let totalGrossPnl = 0;
   let totalRunningLots = 0;

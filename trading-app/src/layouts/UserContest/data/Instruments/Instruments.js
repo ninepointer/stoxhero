@@ -22,7 +22,7 @@ function InstrumentsData({contestId, socket, portfolioId, Render, isFromHistory}
 
 // let Details = useContext(marketDetails.contestMarketDataContext);
     const {render, setRender} = useContext(renderContext);
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const [instrumentData, setInstrumentData] = useState([]);
     // const [marketDetails.contestMarketData, marketDetails.setContestMarketData] = useState([]);
     const [isLoading,setIsLoading] = useState(true)

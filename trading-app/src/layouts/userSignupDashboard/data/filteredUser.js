@@ -51,7 +51,7 @@ export default function LabTabs() {
   });
 
   const perPage = 10;
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
   const handleDownload = (csvData, nameVariable) => {
     // Create the CSV content

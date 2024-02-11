@@ -17,7 +17,7 @@ function TraderSettingView() {
 
   const [userData,setUserData] = useState([]);
   const [updatedData, setUpdatedData] = useState([]);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
  useEffect(()=>{
        axios.get(`${baseUrl}api/v1/getLiveUser`, {withCredentials: true})
