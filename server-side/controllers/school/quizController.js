@@ -655,6 +655,7 @@ exports.handleOlympiadParticipation = async (paymentBy, quizId, productDetails) 
     try {
         const id = quizId;
         const userId = paymentBy;
+        console.log(productDetails);
         const {slotId} = productDetails;
         const user = await User.findById(userId).select('schoolDetails dob mobile').populate('schoolDetails.city', 'name code');
 
