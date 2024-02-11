@@ -41,7 +41,7 @@ exports.createQuiz = async (req, res) => {
     try {
         const {grade, title, startDateTime, registrationOpenDateTime, registrationCloseDateTime,
             durationInSeconds, rewardType, status, maxParticipant, city, 
-            openForAll, description, noOfSlots, slotBufferTime } = req.body;
+            openForAll, description, noOfSlots, slotBufferTime, entryFee } = req.body;
 
         const openAll = (openForAll === 'false' || openForAll === 'undefined' || openForAll === false) ? false : true;
         let image;
@@ -57,7 +57,7 @@ exports.createQuiz = async (req, res) => {
             slots.push({ time: nextSlotTime });
         }
 
-        const newQuiz = new Quiz({image, maxParticipant, grade, title, 
+        const newQuiz = new Quiz({image, maxParticipant, grade, title, entryFee,
             startDateTime, registrationOpenDateTime, registrationCloseDateTime, durationInSeconds, 
             rewardType, status, city, openForAll: openAll, description,
             noOfSlots, slotBufferTime, slots
@@ -470,6 +470,7 @@ exports.getAllQuizzesForUser = async (req, res) => {
                         noOfSlots: 1,
                         status: 1,
                         grade:1,
+                        entryFee:1,
                         registrationsCount: {
                             $size: "$registrations" // Include the length of the registrations array
                         }
@@ -649,5 +650,128 @@ function getRegistrationId( cityCode, mobile, quizStartDate, grade) {
     const gradeChars = grade?.toString()?.slice(0, -2)?.padStart(2, '0');
     return (`SHF${gradeChars}${quizDay}${quizMonth}${quizYear}${newCityCode}${mobileLast2Digit}`);
 }
+
+exports.handleOlympiadParticipation = async (paymentBy, quizId, productDetails) => {
+    try {
+        const id = quizId;
+        const userId = paymentBy;
+        const {slotId} = productDetails;
+        const user = await User.findById(userId).select('schoolDetails dob mobile').populate('schoolDetails.city', 'name code');
+
+        const getquiz = await Quiz.findById(new ObjectId(id));
+        if(!getquiz) return res.status(500).json({status: 'error', message: "Quiz not found."  });
+
+        for(let elem of getquiz.slots){
+            if((elem?._id?.toString() === slotId?.toString()) && (elem?.user >= getquiz?.maxParticipant)){
+                return res.status(500).json({status: 'error', message: "This slot is full please try in another slot."  });
+            }
+        }
+
+        const registrationId = getRegistrationId(user?.schoolDetails?.city?.code, user?.mobile, getquiz?.startDateTime, user?.schoolDetails?.grade)
+        
+        if(getquiz?.registrationOpenDateTime > new Date()){
+            return res.status(500).json({status: 'error', message: "Registration for this quiz has not started yet. Please wait until registration opens."  });
+        }
+
+        const quiz = await Quiz.findOneAndUpdate(
+            {
+                _id: new ObjectId(id),
+                'slots._id': new ObjectId(slotId), // Match the specific slotId
+            },
+            {
+                $push: {
+                    registrations: {
+                        userId: userId,
+                        registeredOn: new Date(),
+                        registrationId,
+                        slotId,
+                    },
+                },
+                $inc: { 'slots.$.user': 1 }, // Increment the user count by 1 for the matched slotId
+            },
+            { new: true }
+        );
+          
+        const quizzes = await Quiz.aggregate([
+            {
+                $match: {
+                    $and: [
+                        {"registrations.userId": {$ne: new ObjectId(userId)}},
+                         // Existing condition that must always be true
+                        { // At least one of these conditions must be satisfied
+                            $or: [
+                                {"city": user?.schoolDetails?.city}, // Assuming city is already an ObjectId or the correct type
+                                {"openForAll": true}
+                            ]
+                        },
+                        { // At least one of these conditions must be satisfied
+                           "grade": user?.schoolDetails?.grade, // Assuming city is already an ObjectId or the correct type
+                        }
+                    ]
+                }
+            },
+            {
+                $project: {
+                    image: 1,
+                    maxParticipant: 1,
+                    title: 1,
+                    startDateTime: 1,
+                    registrationOpenDateTime: 1,
+                    registrationCloseDateTime: 1,
+                    durationInSeconds: 1,
+                    rewardType: 1,
+                    grade:1,
+                    status: 1,
+                    registrationsCount: {
+                        $size: "$registrations" // Include the length of the registrations array
+                    }
+                }
+            }
+        ]).exec();
+
+        let quizDate;
+        for(let elem of getquiz.slots){
+            if((elem?._id?.toString() === slotId?.toString())){
+                quizDate = moment(elem?.time).add(5, 'hours').add(30, 'minutes').format('DD-MM-YYYY hh:mm A');
+            }
+        }
+
+        
+
+        res.status(201).json({status: "success", data: quizzes, message: `Thank you for registering. The olympiad will start on ${quizDate}.` });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+exports.purchaseIntent = async (req, res) => {
+    try {
+        const { id } = req.params; // ID of the contest 
+        const userId = req.user._id;
+
+        const result = await Quiz.findByIdAndUpdate(
+            id,
+            { $push: { purchaseIntent: { userId: userId, date: new Date() } } },
+            { new: true }  // This option ensures the updated document is returned
+        );
+
+        if (!result) {
+            return res.status(404).json({ status: "error", message: "Something went wrong." });
+        }
+
+        res.status(200).json({
+            status: "success",
+            message: "Intent Saved successfully",
+            // data: result
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
 
 
