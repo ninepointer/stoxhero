@@ -31,8 +31,10 @@ exports.createCity = async (req, res) => {
 exports.editCity = async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
+    console.log(updates, req.body, req.params);
     try {
-        const city = await City.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
+        const city = await City.findByIdAndUpdate(id, updates, { new: true });
+        console.log(city);
         if (!city) {
             return res.status(404).json({ message: 'City not found', status: 'error' });
         }
@@ -55,8 +57,29 @@ exports.getAllCities = async (req, res) => {
 // Get active cities
 exports.getActiveCities = async (req, res) => {
     try {
-        const activeCities = await City.find({ status: 'Active' });
+        const activeCities = await City.find({ status: "Active"});
+
         res.status(200).json({ message: 'Active cities retrieved successfully', status: 'success', data: activeCities });
+    } catch (error) {
+        res.status(500).json({ message: error.message, status: 'error' });
+    }
+};
+
+exports.getCitiesBySearch = async (req, res) => {
+    try {
+        // const activeCities = await City.find({ });
+        const {search} = req.query;
+        const data = await City.find({
+            $and: [
+                {
+                    $or: [
+                        { name: { $regex: search, $options: 'i' } },
+                        { state: { $regex: search, $options: 'i' } },
+                    ]
+                }
+            ]
+        })
+        res.status(200).json({ message: 'Active cities retrieved successfully', status: 'success', data: data });
     } catch (error) {
         res.status(500).json({ message: error.message, status: 'error' });
     }

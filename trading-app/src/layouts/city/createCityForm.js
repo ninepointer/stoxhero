@@ -19,8 +19,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import {apiUrl} from  '../../constants/constants';
-import Rewards from "./data/reward/contestReward";
-import Question from "./data/questions/questions";
 import { Autocomplete, Box } from "@mui/material";
 import { styled } from '@mui/material';
 import axios from 'axios';
@@ -83,16 +81,6 @@ function Index() {
     getCities();
   }, [])
 
-  const handleImage = (event) => {
-    const file = event.target.files[0];
-    setQuizImage(event.target.files);
-    // Create a FileReader instance
-    const reader = new FileReader();
-    reader.onload = () => {
-      setPreviewUrl(reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
 
   async function onSubmit(e, formState) {
     e.preventDefault()
@@ -161,7 +149,6 @@ function Index() {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-
 
     const res = await fetch(`${apiUrl}cities/${quiz?._id}`, {
       method: "PATCH",
@@ -232,20 +219,6 @@ function Index() {
       bgWhite
     />
   );
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (!formState[name]?.includes(e.target.value)) {
-      setFormState(prevState => ({
-        ...prevState,
-        [name]: value,
-      }));
-    }
-  };
-
-  const handleCityChange = (event, newValue) => {
-    setValue(newValue);
-  };
 
   const handleGradeChange = (event, newValue) => {
     console.log('event', event, newValue)
@@ -427,12 +400,7 @@ function Index() {
                 )}
               </Grid>
             
-              
-              {/* {(quiz || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
-                <MDBox>
-                  <RegisteredUsers quizData={quiz?._id ? quiz : quizData} action={action} setAction={setAction} />
-                </MDBox>
-              </Grid>} */}
+            
 
             </Grid>
 

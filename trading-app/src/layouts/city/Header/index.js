@@ -9,6 +9,7 @@ import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
 import Active from '../data/active';
+import MDTypography from '../../../components/MDTypography';
 
 
 export default function LabTabs() {
@@ -45,7 +46,7 @@ export default function LabTabs() {
         Create City
     </MDButton>
     </MDBox>
-      <TabContext value={value}>
+      {/* <TabContext value={value}>
         <MDBox sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
             <Tab label="Active" value="1" />
@@ -104,7 +105,10 @@ export default function LabTabs() {
    
           }
           </TabPanel>
-      </TabContext>
+      </TabContext> */}
+      
+      <MDTypography color="light" fontSize={16} mb={1}>Search city or state :</MDTypography>
+      <Active/>
     </MDBox>
   );
 }

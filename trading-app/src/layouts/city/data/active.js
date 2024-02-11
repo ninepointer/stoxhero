@@ -11,6 +11,8 @@ import money from "../../../assets/images/money.png"
 import { Link, useLocation } from "react-router-dom";
 import moment from 'moment';
 import { apiUrl } from '../../../constants/constants';
+import SearchBox from './searchBox';
+
 
 
 const Active = () => {
@@ -20,42 +22,42 @@ const Active = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState([]);
 
-  async function fetchData() {
-    const getData = await axios.get(`${apiUrl}cities/active`, { withCredentials: true });
-    setData(getData.data.data)
-    setCount(getData.data.count)
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 100)
-  }
+  // async function fetchData() {
+  //   const getData = await axios.get(`${apiUrl}cities/active`, { withCredentials: true });
+  //   setData(getData.data.data)
+  //   setCount(getData.data.count)
+  //   setTimeout(() => {
+  //     setIsLoading(false)
+  //   }, 100)
+  // }
 
-  useEffect(() => {
-    fetchData();
-  }, [])
+  // useEffect(() => {
+  //   fetchData();
+  // }, [])
 
-  async function backHandler() {
-    if (skip <= 0) {
-      return;
-    }
-    setSkip(prev => prev - limitSetting);
-    setData([]);
-    setIsLoading(true)
-    await fetchData();
-  }
+  // async function backHandler() {
+  //   if (skip <= 0) {
+  //     return;
+  //   }
+  //   setSkip(prev => prev - limitSetting);
+  //   setData([]);
+  //   setIsLoading(true)
+  //   await fetchData();
+  // }
 
-  async function nextHandler() {
-    if (skip + limitSetting >= count) {
-      return;
-    }
-    setSkip(prev => prev + limitSetting);
-    setData([]);
-    setIsLoading(true)
-    await fetchData();
-  }
-
+  // async function nextHandler() {
+  //   if (skip + limitSetting >= count) {
+  //     return;
+  //   }
+  //   setSkip(prev => prev + limitSetting);
+  //   setData([]);
+  //   setIsLoading(true)
+  //   await fetchData();
+  // }
 
   return (
     <>
+    <SearchBox setData={setData} />
       {data.length > 0 ?
 
         <MDBox>
