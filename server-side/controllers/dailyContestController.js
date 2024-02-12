@@ -715,8 +715,8 @@ exports.getUserFeaturedContests = async (req, res) => {
     const upcomingFeatured = contests.filter((elem) => {
       return elem.contestStartTime > new Date();
     })
-    console.log('contests', contests[0].rewards);
-    console.log('live', liveFeatured);
+    // console.log('contests', contests[0].rewards);
+    // console.log('live', liveFeatured);
 
     res.status(200).json({
       status: "success",
