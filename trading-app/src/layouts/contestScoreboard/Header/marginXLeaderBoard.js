@@ -17,7 +17,7 @@ import logo from '../../../assets/images/logo1.jpeg'
 import { userContext } from '../../../AuthContext';
 
 const Scoreboard = () => {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   // const [sortedTraders, setSortedTraders] = useState([]);
   const [traders, setTraders] = useState([]);
   const [isLoading, setIsLoading] = useState(false);

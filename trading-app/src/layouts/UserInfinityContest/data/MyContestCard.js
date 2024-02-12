@@ -29,7 +29,7 @@ const ContestCard = () => {
   const [contestData,setContestData] = useState([]);
   const [isLoading,setIsLoading] = useState(false);
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const getDetails = useContext(userContext)
   let timerStyle = {
     textAlign: "center", 

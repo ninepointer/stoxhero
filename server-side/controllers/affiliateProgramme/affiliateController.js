@@ -345,7 +345,7 @@ exports.creditAffiliateAmount = async (affiliate, affiliateProgram, product, spe
 
   if(affiliateUser?.fcmTokens?.length>0){
       await sendMultiNotifications('StoxHero Affiliate Reward Credited',
-        `₹${affiliatePayout} credited for affiliate reward for ${user?.first_name} ${user?.last_name}'s product purchase`,
+        `₹${affiliatePayout?.toFixed(2)} credited for affiliate reward for ${user?.first_name} ${user?.last_name}'s product purchase`,
         affiliateUser?.fcmTokens?.map(item=>item.token), null, {route:'wallet'}
         )
     }
