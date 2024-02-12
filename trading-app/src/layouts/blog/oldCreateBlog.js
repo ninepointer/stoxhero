@@ -21,7 +21,7 @@ function Index() {
     const  id  = location?.state?.data;
     console.log("Blog:",id)
     const [isSubmitted,setIsSubmitted] = useState(false);
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [isLoading,setIsLoading] = useState(id ? true : false)
     const [imageFile, setImageFile] = useState(id ? id?.thumbnailImage : DefaultBlogImage);
     const [previewUrl, setPreviewUrl] = useState('');

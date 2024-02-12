@@ -33,7 +33,7 @@ function CompanyPosition() {
   let location = useLocation();
   console.log("location", location)
   let isXts = location?.state?.xts;
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
   const socket = useContext(socketContext);
 

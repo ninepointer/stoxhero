@@ -42,7 +42,7 @@ const SellModel = ({fromTradable, chartInstrument, isOption, setOpenOptionChain,
   }, 0);
 
   console.log(runningLotsSymbol)
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const { render, setRender } = useContext(renderContext);
   const getDetails = React.useContext(userContext);
   const tradeSound = getDetails.tradeSound;
