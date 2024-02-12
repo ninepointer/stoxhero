@@ -41,7 +41,7 @@ function Index() {
   const [previewImage, setPreviewImage] = useState('');
   const [logo, setLogo] = useState(null);
   const [previewLogo, setPreviewLogo] = useState('');
-  const [userState, setUserState] = useState('');
+  const [userState, setUserState] = useState(school?.state || "");
 
   const [cityData, setCityData] = useState([]);
   const [gradeData, setGradeData] = useState([]);
@@ -71,7 +71,7 @@ function Index() {
   
   const [gradeValue, setGradeValue] = useState({
     _id: "" || school?.highestGrade?._id,
-    grade: "" || school?.highestGrade?.grade
+    grade: "12th" || school?.highestGrade?.grade
   });
 
   const [value, setValue] = useState({
