@@ -144,7 +144,8 @@ async function singleProcess() {
             })
 
             socket.on('company-ticks', async (data) => {
-                socket.join("company-side")
+                socket.join("company-side");
+                socket.join("equity");
                 
             });
 

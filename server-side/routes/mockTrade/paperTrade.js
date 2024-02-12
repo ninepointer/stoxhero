@@ -3,6 +3,7 @@ const router = express.Router({mergeParams: true});
 const {overallPnl,myTodaysTrade,overallVirtualTraderPnl,liveTotalTradersCount,liveTotalTradersCountYesterday,
     overallVirtualPnlYesterday,myHistoryTrade, marginDetail, getDailyVirtualUsers, findOpenLots, treaderWiseMockTrader} = require('../../controllers/paperTradeController');
 const Authenticate = require('../../authentication/authentication');
+const restrictTo = require('../../authentication/authorization');
 
 
 router.route('/pnl').get(Authenticate, overallPnl)

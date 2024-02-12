@@ -109,11 +109,6 @@ export default function LabTabs({socket}) {
     }) 
   }, [trackEvent])
 
-//   useEffect(() => {
-//     return () => {
-//         socket.close();
-//     }
-//   }, [])
 
   tradeData.map((subelem, index)=>{
     let obj = {};
