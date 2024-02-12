@@ -915,6 +915,21 @@ export default function LabTabs({socket}) {
                                 Question Bank
                             </MDButton>
                         </Grid>
+
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"info"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/school`,
+                                  }}
+                            >
+                                School Onboarding
+                            </MDButton>
+                        </Grid>
+
                     </Grid>
                 </MDBox>
                 

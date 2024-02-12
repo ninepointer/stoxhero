@@ -197,9 +197,22 @@ import RegisterInfo from "./layouts/authentication/sign-up/registerationinfo"
 import Lobby from "./layouts/schoolLobby/lobby"
 import QuestionBankDetails from './layouts/questionBank/questionBankDetails';
 import QuestionBank from './layouts/questionBank';
+import SchoolDetails from './layouts/schoolOnboarding/schoolDetails';
+import School from './layouts/schoolOnboarding';
 
 
 const routes = [
+  {
+    key: "school",
+    route: "/school",
+    component: <School />,
+  },
+
+  {
+    key: "schooldetails",
+    route: "/schooldetails",
+    component: <SchoolDetails />,
+  },
   {
     key: "questionbank",
     route: "/questionbank",
