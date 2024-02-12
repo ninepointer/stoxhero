@@ -59,7 +59,6 @@ function Index() {
     mobile: "" || school?.mobile,
     image: "" || school?.image,
     logo: "" || school?.logo,
-    state:"" || school?.state,
   });
 
   useEffect(() => {
@@ -72,7 +71,7 @@ function Index() {
   
   const [gradeValue, setGradeValue] = useState({
     _id: "" || school?.highestGrade?._id,
-    name: "" || school?.highestGrade?.grade
+    grade: "" || school?.highestGrade?.grade
   });
 
   const [value, setValue] = useState({
