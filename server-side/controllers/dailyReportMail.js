@@ -1213,20 +1213,22 @@ const createMarginxFile = async (data) => {
 function getDates() {
     const today = moment();
 
-    let todayStartDate = today.clone().startOf('day');
-    let todayEndDate = today.endOf('day');
+    let todayStartDate = today.clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+    let todayEndDate = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
 
-    let yesterdayStartDate = today.clone().subtract(1, 'day').startOf('day');
-    let yesterdayEndDate = today.clone().subtract(1, 'day').endOf('day');
+    let yesterdayStartDate = today.clone().subtract(1, 'day').startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+    let yesterdayEndDate = today.clone().subtract(1, 'day').endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
 
     const firstDayOfMonth = today.clone().startOf('month');
-    let thisMonthStartDate = firstDayOfMonth;
-    let thisMonthEndDate = today.endOf('day');
+    let thisMonthStartDate = firstDayOfMonth.subtract(5, 'hours').subtract(30, 'minutes');
+    let thisMonthEndDate = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
 
     const firstDayOfLastMonth = today.clone().subtract(1, 'month').startOf('month');
     const lastDayOfLastMonth = today.clone().subtract(1, 'month').endOf('month');
-    let lastMonthStartDate = firstDayOfLastMonth;
-    let lastMonthEndDate = lastDayOfLastMonth.endOf('day');
+    let lastMonthStartDate = firstDayOfLastMonth.subtract(5, 'hours').subtract(30, 'minutes');
+    let lastMonthEndDate = lastDayOfLastMonth.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+
+    console.log(new Date(lastMonthStartDate), new Date(lastMonthEndDate));
 
     return {
         today, todayStartDate, todayEndDate, yesterdayStartDate, yesterdayEndDate,
