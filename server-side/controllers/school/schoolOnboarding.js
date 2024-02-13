@@ -11,10 +11,16 @@ const s3 = new AWS.S3({
 });
 
 // Function to upload a file to S3
-const getAwsS3Url = async (file) => {
-    if(file){
+const getAwsS3Url = async (file, type) => {
+    if(file && type==='Image'){
         file.buffer = await sharp(file.buffer)
         .resize({ width: 512, height: 256 })
+        .toBuffer();
+    }
+
+    if(file && type==='Logo'){
+        file.buffer = await sharp(file.buffer)
+        .resize({ width: 256, height: 256 })
         .toBuffer();
     }
     const params = {
@@ -43,11 +49,11 @@ exports.createSchool = async (req, res) => {
 
         let logo, image;
         if (req.files['logo']) {
-            logo = await getAwsS3Url(req.files['logo'][0]);
+            logo = await getAwsS3Url(req.files['logo'][0], 'Logo');
         }
 
         if (req.files['image']) {
-            image = await getAwsS3Url(req.files['image'][0]);
+            image = await getAwsS3Url(req.files['image'][0], 'Image');
         }
 
         const school = new School({
@@ -69,10 +75,10 @@ exports.editSchool = async (req, res) => {
         const updates = req.body;
         
         if (req.files['image']) {
-            updates.image = await getAwsS3Url(req.files['image'][0]);
+            updates.image = await getAwsS3Url(req.files['image'][0], 'Image');
         }
         if (req.files['logo']) {
-            updates.logo = await getAwsS3Url(req.files['logo'][0]);
+            updates.logo = await getAwsS3Url(req.files['logo'][0], 'Logo');
         }
         const updatedData = await School.findByIdAndUpdate(new ObjectId(schoolId), updates, { new: true });
         if (!updatedData) {

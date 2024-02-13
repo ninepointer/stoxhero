@@ -6968,40 +6968,40 @@ function getDates(period) {
 
   switch (period) {
     case 'Today':
-      startDate = today.clone().startOf('day');
-      endDate = today.endOf('day');
+      startDate = today.clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+      endDate = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
       break;
     case 'Yesterday':
       const yesterday = today.clone().subtract(1, 'day');
-      startDate = today.clone().subtract(1, 'day').startOf('day');
-      endDate = today.clone().subtract(1, 'day').endOf('day');
+      startDate = today.clone().subtract(1, 'day').startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+      endDate = today.clone().subtract(1, 'day').endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
       break;
     case 'This Month':
-      const firstDayOfMonth = today.clone().startOf('month');
+      const firstDayOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
       startDate = firstDayOfMonth;
-      endDate = today.endOf('day');
+      endDate = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
       break;
     case 'Last Month':
-      const firstDayOfLastMonth = today.clone().subtract(1, 'month').startOf('month');
-      const lastDayOfLastMonth = today.clone().subtract(1, 'month').endOf('month');
+      const firstDayOfLastMonth = today.clone().subtract(1, 'month').startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
+      const lastDayOfLastMonth = today.clone().subtract(1, 'month').endOf('month').subtract(5, 'hours').subtract(30, 'minutes');
       startDate = firstDayOfLastMonth;
       endDate = lastDayOfLastMonth.endOf('day');
       break;
     case 'Last 30 Days':
-      startDate = today.clone().subtract(30, 'days');
-      endDate = today.endOf('day');
+      startDate = today.clone().subtract(30, 'days').subtract(5, 'hours').subtract(30, 'minutes');
+      endDate = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
       break;
     case 'Last 60 Days':
-      startDate = today.clone().subtract(60, 'days');
-      endDate = today.endOf('day');
+      startDate = today.clone().subtract(60, 'days').subtract(5, 'hours').subtract(30, 'minutes');
+      endDate = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
       break;
     case 'Last 90 Days':
-      startDate = today.clone().subtract(90, 'days');
-      endDate = today.endOf('day');
+      startDate = today.clone().subtract(90, 'days').subtract(5, 'hours').subtract(30, 'minutes');
+      endDate = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
       break;
     case 'Last 180 Days':
-      startDate = today.clone().subtract(180, 'days');
-      endDate = today.endOf('day');
+      startDate = today.clone().subtract(180, 'days').subtract(5, 'hours').subtract(30, 'minutes');
+      endDate = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
       break;
 
     default:
@@ -7010,3 +7010,4 @@ function getDates(period) {
 
   return { startDate, endDate };
 }
+

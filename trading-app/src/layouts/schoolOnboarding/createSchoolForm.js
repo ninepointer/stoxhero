@@ -587,7 +587,7 @@ function Index() {
                       </Grid>
 
                       <Grid item xs={12} md={6} xl={4}>
-                      <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(schoolData?.image?.url && !image) ? "warning" : ((schoolData?.image?.url && image) || image) ? "error" : "success"} component="label">
+                      <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(schoolData?.image && !image) ? "warning" : ((schoolData?.image && image) || image) ? "error" : "success"} component="label">
                         Upload Image(512X256)
                         <input
                           hidden
@@ -609,7 +609,7 @@ function Index() {
 
                       <Grid item xs={12} md={6} xl={4}>
                       <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(schoolData?.logo && !logo) ? "warning" : ((schoolData?.logo && logo) || logo) ? "error" : "success"} component="label">
-                        Upload logo
+                        Upload logo(256X256)
                         <input
                           hidden
                           disabled={((schoolData || school) && (!editing))}
@@ -635,6 +635,29 @@ function Index() {
                   <Grid container spacing={1} xs={12} md={12} xl={12} display="flex" justifyContent="center">
                     {previewImage ?
                       <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
+                      <Grid container xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
+                        <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
+                          <Card sx={{ width: '70%', height: 'auto', cursor: 'pointer' }}>
+                            <CardActionArea>
+                              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                  <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', height: 'auto' }}>
+                                    <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{ textAlign: 'center' }}>
+                                      School Image!
+                                    </Typography>
+                                  </MDBox>
+                                </CardContent>
+                              </Grid>
+                              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                <img src={previewImage} style={{ width: "70%", height: "70%", borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
+                              </Grid>
+                            </CardActionArea>
+                          </Card>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                      :
+                      <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
                         <Grid container xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
                           <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
                             <Card sx={{ minWidth: '100%', cursor: 'pointer' }}>
@@ -649,30 +672,7 @@ function Index() {
                                   </CardContent>
                                 </Grid>
                                 <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                  <img src={previewImage} style={{ width: "100%", height: "auto", borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
-                                </Grid>
-                              </CardActionArea>
-                            </Card>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                      :
-                      <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
-                        <Grid container xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
-                          <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
-                            <Card sx={{ minWidth: '100%', cursor: 'pointer' }}>
-                              <CardActionArea>
-                                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                  <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                    <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', height: 'auto' }}>
-                                      <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{ textAlign: 'center' }}>
-                                        Banner Image!
-                                      </Typography>
-                                    </MDBox>
-                                  </CardContent>
-                                </Grid>
-                                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                  <img src={school?.image} style={{ width: "100%", height: "auto", borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
+                                  <img src={school?.image} style={{ width: "100%", height: "70%", borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
                                 </Grid>
                               </CardActionArea>
                             </Card>
@@ -683,12 +683,12 @@ function Index() {
                     
                   </Grid>
 
-                  <Grid container spacing={1} xs={12} md={12} xl={12} display="flex" justifyContent="center">
+                  <Grid container mt={1} spacing={1} xs={12} md={12} xl={12} display="flex" justifyContent="center">
                     {previewLogo ?
                       <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
                         <Grid container xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
                           <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
-                            <Card sx={{ minWidth: '100%', cursor: 'pointer' }}>
+                            <Card sx={{ width: '70%', height: 'auto', cursor: 'pointer' }}>
                               <CardActionArea>
                                 <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                                   <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
@@ -700,7 +700,7 @@ function Index() {
                                   </CardContent>
                                 </Grid>
                                 <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                  <img src={previewLogo} style={{ width: "100%", height: "auto", borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
+                                  <img src={previewLogo} style={{ width: "70%", height: "70%", borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
                                 </Grid>
                               </CardActionArea>
                             </Card>
@@ -709,33 +709,31 @@ function Index() {
                       </Grid>
                       :
                       <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
-                        <Grid container xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
-                          <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
-                            <Card sx={{ minWidth: '100%', cursor: 'pointer' }}>
-                              <CardActionArea>
-                                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                  <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                    <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', height: 'auto' }}>
-                                      <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{ textAlign: 'center' }}>
-                                        Logo
-                                      </Typography>
-                                    </MDBox>
-                                  </CardContent>
-                                </Grid>
-                                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                  <img src={school?.logo} style={{ width: "100%", height: "auto", borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
-                                </Grid>
-                              </CardActionArea>
-                            </Card>
-                          </Grid>
+                      <Grid container xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
+                        <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
+                          <Card sx={{ width: '70%', height: 'auto', cursor: 'pointer' }}>
+                            <CardActionArea>
+                              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                  <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', height: 'auto' }}>
+                                    <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{ textAlign: 'center' }}>
+                                      Logo
+                                    </Typography>
+                                  </MDBox>
+                                </CardContent>
+                              </Grid>
+                              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                <img src={school?.logo} style={{ width: "70%", height: "70%", borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
+                              </Grid>
+                            </CardActionArea>
+                          </Card>
                         </Grid>
                       </Grid>
+                    </Grid>
                     }
 
                   </Grid>
                 </Grid>
-
-               
 
                 <Grid mt={2} item xs={12} md={12} xl={12} display="flex" justifyContent="flex-end" style={{minWidth:'100%'}}>
                   {!isSubmitted && !school && (

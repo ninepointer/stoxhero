@@ -133,7 +133,7 @@ function AdminLogin() {
         e.preventDefault();
         //console.log(userId, pass);
         
-        const res = await fetch(`${baseUrl}api/v1/login`, {
+        const res = await fetch(`${baseUrl}api/v1/schoollogin`, {
             method: "POST",
             credentials:"include",
             headers: {

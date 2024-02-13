@@ -68,16 +68,24 @@ const schoolSchema = new mongoose.Schema({
         ref: 'city'
         // required: true
     },
+    passwordChangedAt:{
+        type: Date,
+        // required: true
+    },
     createdOn: {
         type: Date,
         default: () => new Date(),
     },
-    lastModified: {
+    lastModifiedOn: {
         type: Date,
         default: () => new Date(),
         required: true
     },
     createdBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'user-personal-detail',
+    },
+    lastModifiedBy: {
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
     }
@@ -101,6 +109,7 @@ schoolSchema.methods.correctPassword = async function (
 // generating jwt token
 schoolSchema.methods.generateAuthToken = async function () {
     try {
+        console.log(this._id)
         let token = jwt.sign({ _id: this._id }, process.env.SECRET_KEY);
         // this.tokens = this.tokens.concat({token: token});
         return token;
@@ -108,6 +117,19 @@ schoolSchema.methods.generateAuthToken = async function () {
         console.log(err, "err in schoolSchema");
     }
 }
+
+schoolSchema.methods.changedPasswordAfter = function(JWTiat) {
+    if (this.passwordChangedAt) {
+        const changedTimeStamp = parseInt(
+            this.passwordChangedAt.getTime() / 1000, // Convert to UNIX timestamp
+            10
+        );
+        // console.log('changed at', this.passwordChangedAt);
+        return JWTiat < changedTimeStamp; // True if the password was changed after token issuance
+    }
+    // False means not changed
+    return false;
+};
 
 const SchoolOnBoarding = mongoose.model("school-onboarding", schoolSchema);
 module.exports = SchoolOnBoarding;

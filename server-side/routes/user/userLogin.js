@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 require("../../db/conn");
 const UserDetail = require("../../models/User/userDetailSchema");
+const School = require("../../models/School/schoolOnboarding");
 const jwt = require("jsonwebtoken")
+const {SchoolAuthenticate} = require('../../authentication/schoolAuthentication');
 const authentication = require("../../authentication/authentication");
 const {sendSMS, sendOTP} = require('../../utils/smsService');
 const otpGenerator = require('otp-generator');
@@ -63,7 +65,39 @@ router.post("/login", async (req, res) => {
     }
 })
 
-router.post('/schoollogin', async (req,res, next)=>{
+router.post("/schoollogin", async (req, res) => {
+    const { userId, pass } = req.body;
+
+    if (!userId || !pass) {
+        return res.status(422).json({ status: 'error', message: "Please provide login credentials" });
+    }
+
+    const inactiveSchool = await School.findOne({ email: userId, status: "Inactive" })
+
+    if(inactiveSchool){
+        return res.status(422).json({ status: 'error', message: "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.", error: "deactivated" });
+    }
+
+    const schoolLogin = await School.findOne({ email: userId, status: "Active" }).select('_id password');
+
+    if (!schoolLogin || !(await schoolLogin.correctPassword(pass, schoolLogin.password))) {
+        return res.status(422).json({ error: "invalid details" })
+    } else {
+
+        if (!schoolLogin) {
+            return res.status(422).json({ status: 'error', message: "Invalid credentials" });
+        } else {
+            const token = await schoolLogin.generateAuthToken();
+
+            res.cookie("jwtoken", token, {
+                expires: new Date(Date.now() + 25892000000),
+            });
+            res.status(201).json({ status: 'success', message: "logged in succesfully", token: token });
+        }
+    }
+})
+
+router.post('/schooluserlogin', async (req,res, next)=>{
     const {mobile} = req.body;
     try{
         const deactivatedUser = await UserDetail.findOne({ mobile: mobile, status: "Inactive" })
@@ -1074,12 +1108,28 @@ router.get("/loginDetail", authentication, async (req, res)=>{
     res.json(user);
 })
 
+router.get("/schooldetails", SchoolAuthenticate, async (req, res) => {
+    try{
+        const id = req.school._id;
+
+        const user = await School.findOne({ _id: id, status: "Active" })
+            .populate('city', 'name')
+            .populate('highestGrade', 'grade')
+            .select('-createdOn -createdBy -lastModifiedBy -lastModifiedOn -password');
+    
+        res.status.json({status: 'success', data: user});
+    } catch(err){
+        console.log(err);
+    }
+})
+
 router.get("/logout", authentication, (req, res)=>{
     res.clearCookie("jwtoken", { path: "/" });
     res
     .status(200)
     .json({ success: true, message: "User logged out successfully" });
 })
+
 router.post("/addfcmtoken", authentication, async (req, res)=>{
     const {fcmTokenData} = req.body;
     console.log('fcm', fcmTokenData);
