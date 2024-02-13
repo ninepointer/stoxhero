@@ -875,7 +875,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
           { new: true }
        );
 
-       console.log("leaderBoardRank", leaderBoardRank+1, contest.rewards[contest.rewards.length -1].rankEnd)
+      //  console.log("leaderBoardRank", leaderBoardRank+1, contest.rewards[contest.rewards.length -1].rankEnd)
 
        if(leaderBoardRank+1 <= contest.rewards[contest.rewards.length -1].rankEnd){
         const wallet = await userWallet.findOne({userId: participant.userId});
