@@ -57,7 +57,7 @@ exports.createSchool = async (req, res) => {
         }
 
         const school = new School({
-            name, principalName, address, email, highestGrade,
+            name, principalName, address, email, highestGrade, role: "65cb483199608018ca427990",
             affiliation, affiliationNumber, status, website, city, 
             mobile, state, createdBy: req.user._id, logo, image, password: 'To Be Set'
          });

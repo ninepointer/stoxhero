@@ -1114,16 +1114,24 @@ router.get("/schooldetails", SchoolAuthenticate, async (req, res) => {
 
         const user = await School.findOne({ _id: id, status: "Active" })
             .populate('city', 'name')
+            .populate('role', 'roleName')
             .populate('highestGrade', 'grade')
             .select('-createdOn -createdBy -lastModifiedBy -lastModifiedOn -password');
     
-        res.status.json({status: 'success', data: user});
+        res.status(200).json({status: 'success', data: user});
     } catch(err){
         console.log(err);
     }
 })
 
 router.get("/logout", authentication, (req, res)=>{
+    res.clearCookie("jwtoken", { path: "/" });
+    res
+    .status(200)
+    .json({ success: true, message: "User logged out successfully" });
+})
+
+router.get("/schoollogout", SchoolAuthenticate, (req, res)=>{
     res.clearCookie("jwtoken", { path: "/" });
     res
     .status(200)

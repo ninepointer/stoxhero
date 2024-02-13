@@ -68,6 +68,10 @@ const schoolSchema = new mongoose.Schema({
         ref: 'city'
         // required: true
     },
+    role: {
+        type: Schema.Types.ObjectId,
+        ref: 'role-detail'
+    },
     passwordChangedAt:{
         type: Date,
         // required: true

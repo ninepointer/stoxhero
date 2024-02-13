@@ -34,11 +34,11 @@ import createCache from "@emotion/cache";
 import routes from "./routes";
 // import adminRoutes from "./routes";
 import userRoutes from "./routesUser";
+import routesSchool from './routesSchool'
 import analyticsRoutes from "./analyticsRoutes"
 // import routesAffiliate from "./routesAffiliate";
 import routesAffiliate from "./routesAffiliate";
 import routesCollegeFunc from "./routesCollege";
-
 // Material Dashboard 2 React contexts
 import { useMaterialUIController, setMiniSidenav, setOpenConfigurator, setLayout } from "./context";
 
@@ -67,7 +67,7 @@ import ResetPassword from './layouts/authentication/reset-password/cover';
 import CampaignDetails from './layouts/campaign/campaignDetails'
 import { adminRole } from "./variables";
 import { userRole } from "./variables";
-import { Affiliate } from "./variables";
+import { Affiliate, schoolRole } from "./variables";
 import Contact from "./layouts/HomePage/pages/Contact";
 import Privacy from "./layouts/HomePage/pages/Privacy";
 import Terms from "./layouts/HomePage/pages/Tnc";
@@ -78,6 +78,7 @@ import {Howl} from "howler";
 import sound from "./assets/sound/tradeSound.mp3"
 import MessagePopUp from "./MessagePopup";
 import AdminLogin from "./layouts/authentication/sign-in/adminLogin";
+import SchoolLogin from "./layouts/authentication/sign-in/schoolLogin";
 import Finowledge from "./layouts/authentication/sign-up/finowledge";
 import Register from "./layouts/authentication/sign-up/register";
 import RegisterInfo from "./layouts/authentication/sign-up/registerationinfo";
@@ -88,7 +89,10 @@ import Calculator from "./layouts/HomePage/pages/Calculator";
 import CollegeSignUp from './layouts/authentication/sign-up/collegeSignupLogin'
 // import SchoolDetailsProtectedRoute from "./schoolProtected";
 import ContactFinowledge from './layouts/HomePage/pages/ContactFinowledge'
-import FinowledgeComingSoon from './layouts/HomePage/pages/finowledgeComingSoon'
+import FinowledgeComingSoon from './layouts/HomePage/pages/finowledgeComingSoon';
+import { apiUrl } from "./constants/constants";
+
+
 
 const TRACKING_ID = "UA-264098426-2"
 ReactGA.initialize(TRACKING_ID);
@@ -125,7 +129,6 @@ export default function App() {
 
   const { pathname } = useLocation();
   const location = useLocation();
-  let noCookie = false;
   let myLocation = useRef(location);
   const socket = useContext(socketContext)
   
@@ -150,11 +153,7 @@ export default function App() {
       setIsLoading(false);
 
     }).catch((err)=>{
-      console.log("Fail to fetch data of user");
-      noCookie = true;
-      console.log(err);
-      // pathname === '/contest' ? navigate("/") : pathname === '/collegecontest' ? navigate("/") : navigate(pathname);
-      // navigate("/")
+      fetchSchoolInfo();
       setIsLoading(false);
     })
 
@@ -164,6 +163,12 @@ export default function App() {
     }));
 
   }, [])
+
+  async function fetchSchoolInfo(){
+    const data = await axios.get(`${apiUrl}schooldetails`, {withCredentials: true});
+    setDetails.setUserDetail(data?.data?.data);
+    setDetailUser((data?.data?.data));
+  }
 
   useEffect(() => {
     return () => {
@@ -268,7 +273,6 @@ export default function App() {
   }
 
   const isCollegeRoute = pathname.includes(getDetails?.userDetails?.collegeDetails?.college?.route)
-  // console.log("cookieValue",isCollegeRoute, pathname, !cookieValue)
 
   return direction === "rtl" ? (
     
@@ -287,7 +291,8 @@ export default function App() {
                 ? routes : (detailUser.role?.roleName === Affiliate || getDetails?.userDetails?.role?.roleName === Affiliate) 
                 ? routesAffiliate : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
                 ? ((isCollegeRoute) ? routesCollege : userRoutes) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
-                ? analyticsRoutes : homeRoutes
+                ? analyticsRoutes :  (detailUser.role?.roleName === schoolRole || getDetails?.userDetails?.role?.roleName === schoolRole) 
+                ? routesSchool : homeRoutes
                 }  
                   onMouseEnter={handleOnMouseEnter}
                   onMouseLeave={handleOnMouseLeave}
@@ -309,7 +314,7 @@ export default function App() {
         {layout === "dashboard" && (
           <>
           {
-            (getDetails?.userDetails?.role?.roleName === Affiliate || getDetails?.userDetails?.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === userRole|| getDetails?.userDetails?.role?.roleName === "data") &&
+            (getDetails?.userDetails?.role?.roleName === schoolRole || getDetails?.userDetails?.role?.roleName === Affiliate || getDetails?.userDetails?.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === userRole|| getDetails?.userDetails?.role?.roleName === "data") &&
             <Sidenav
               color={sidenavColor}
               brand={Logo}
@@ -319,7 +324,9 @@ export default function App() {
                 ? routes : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
                 ? ((isCollegeRoute) ? routesCollege : userRoutes) : (detailUser.role?.roleName === Affiliate || getDetails?.userDetails?.role?.roleName === Affiliate) 
                 ? routesAffiliate : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
-                ? analyticsRoutes : homeRoutes
+                ? analyticsRoutes :  (detailUser.role?.roleName === schoolRole || getDetails?.userDetails?.role?.roleName === schoolRole) 
+                ? routesSchool : homeRoutes
+
               }
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
@@ -338,7 +345,8 @@ export default function App() {
         ? getRoutes(routes) : (detailUser.role?.roleName === Affiliate || getDetails?.userDetails?.role?.roleName === Affiliate) 
         ? getRoutes(routesAffiliate) : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
         ? ((isCollegeRoute) ? getRoutes(routesCollege) : getRoutes(userRoutes)) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
-        ? getRoutes(analyticsRoutes) : getRoutes(homeRoutes)
+        ? getRoutes(analyticsRoutes) :  (detailUser.role?.roleName === schoolRole || getDetails?.userDetails?.role?.roleName === schoolRole) 
+        ? getRoutes(routesSchool) : getRoutes(homeRoutes)
         }
 {/* 65659e451aac3cb5490d2e526579442a7a6c4ec430d7b219 overallpnlDailyContest */}
           {!cookieValue  ?  
@@ -356,7 +364,8 @@ export default function App() {
           :
           pathname == "/" || !pathname ?
           <Route path="/" element={<Navigate 
-            to={getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/home'} 
+            to={getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading'
+            : getDetails?.userDetails.role?.roleName === schoolRole ? '/schooldashboard' : '/home'} 
             />} />
             :
             pathname == "/:collegename" ?
@@ -381,6 +390,7 @@ export default function App() {
             to={getDetails?.userDetails?.role ? getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/home':'/'} 
             />}/>
           <Route path='/adminlogin' element={<AdminLogin />}/>
+          <Route path='/school' element={<SchoolLogin />}/>
           <Route path='/finowledge' element={<Finowledge />}/>
           <Route path='/about' element={<About/>}/>
           <Route path='/aboutus' element={<AboutFinowledge/>}/>
