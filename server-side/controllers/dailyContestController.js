@@ -5427,6 +5427,7 @@ exports.getTopContestWeeklyPortfolio = async (req, res) => {
       }
 
       await client.set(`weeklytopperformer`, JSON.stringify(data));
+      await client.expire(`weeklytopperformer`, 600);
       const response = {
         status: "success",
         message: "TestZone Weekly Top Performer Data fetched successfully",
@@ -5589,7 +5590,7 @@ exports.getTopContestWeeklyPortfolioFullList = async (req, res) => {
         weeklyContestPerformers, startOfWeek, endOfWeek
       };
       await client.set(`weeklytopperformerfulllist`, JSON.stringify(data))
-
+      await client.expire(`weeklytopperformerfulllist`, 600);
       const response = {
           status: "success",
           message: "TestZone Weekly Top Performer Data fetched successfully",
@@ -5883,7 +5884,8 @@ exports.getLastPaidContestChampions = async (req, res) => {
       const data = {
         lastPaidContests, date
       }
-      await client.set(`lastpaidcontestchampions`, JSON.stringify(data))
+      await client.set(`lastpaidcontestchampions`, JSON.stringify(data));
+      await client.expire(`lastpaidcontestchampions`, 600);
       const response = {
           status: "success",
           message: "Last Paid TestZone Data fetched successfully",
