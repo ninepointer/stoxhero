@@ -139,12 +139,12 @@ export default function LabTabs({socket}) {
 
 
   })
-  const totalGrossPnlcolorCNC = totalGrossPnlMIS >= 0 ? "success" : "error"
-  const totalnetPnlcolorCNC = (totalGrossPnlCNC-totalTransactionCostCNC) >= 0 ? "success" : "error"
+  const totalGrossPnlcolorCNC = totalGrossPnlMIS >= 0 ? "#6FBF72" : "#F44335"
+  const totalnetPnlcolorCNC = (totalGrossPnlCNC-totalTransactionCostCNC) >= 0 ? "#6FBF72" : "#F44335"
 
   const totalGrossPnlcolorMIS = totalGrossPnlMIS >= 0 ? "success" : "error"
   const totalnetPnlcolorMIS = (totalGrossPnlMIS-totalTransactionCostMIS) >= 0 ? "success" : "error"
-  const totalquantitycolor = totalRunningLotsCNC >= 0 ? "success" : "error"
+  const totalquantitycolor = totalRunningLotsCNC >= 0 ? "#6FBF72" : "#F44335"
   const totalquantitycolorMIS = totalRunningLotsMIS >= 0 ? "success" : "error"
 
   return (
