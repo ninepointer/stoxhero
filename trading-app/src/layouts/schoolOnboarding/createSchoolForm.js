@@ -36,7 +36,7 @@ function Index() {
   const navigate = useNavigate();
   const [newObjectId, setNewObjectId] = useState("");
   const [updatedDocument, setUpdatedDocument] = useState([]);
-  const [schoolData, setSchoolData] = useState([]);
+  const [schoolData, setSchoolData] = useState(school);
   const [image, setImage] = useState(null);
   const [previewImage, setPreviewImage] = useState('');
   const [logo, setLogo] = useState(null);
@@ -327,7 +327,7 @@ function Index() {
 
             <Grid container spacing={1} mt={1} xs={12} md={12} xl={12} display="flex" flexDirection="row" justifyContent="center">
                 <Grid item xs={12} md={12} xl={9} display="flex">
-                  <Grid container spacing={2} xs={12} md={12} xl={12} display="flex" flexDirection="row" justifyContent="center">
+                  <Grid container spacing={2} xs={12} md={12} xl={12} display="flex" flexDirection="row" justifyContent="flex-start">
                       <Grid item xs={12} md={6} xl={12}>
                         <TextField
                           disabled={((isSubmitted || school) && (!editing || saving))}
@@ -591,7 +591,7 @@ function Index() {
                         Upload Image(512X256)
                         <input
                           hidden
-                          // disabled={((schoolData || school) && (!editing))}
+                          disabled={((schoolData || school) && (!editing))}
                           accept="image/*"
                           type="file"
                           // onChange={(e)=>{setTitleImage(e.target.files)}}
@@ -608,11 +608,11 @@ function Index() {
                       </Grid>
 
                       <Grid item xs={12} md={6} xl={4}>
-                      <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(schoolData?.image?.url && !image) ? "warning" : ((schoolData?.image?.url && image) || image) ? "error" : "success"} component="label">
+                      <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(schoolData?.logo && !logo) ? "warning" : ((schoolData?.logo && logo) || logo) ? "error" : "success"} component="label">
                         Upload logo
                         <input
                           hidden
-                          // disabled={((schoolData || school) && (!editing))}
+                          disabled={((schoolData || school) && (!editing))}
                           accept="image/*"
                           type="file"
                           // onChange={(e)=>{setTitleImage(e.target.files)}}

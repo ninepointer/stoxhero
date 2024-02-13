@@ -6,12 +6,22 @@ const { ObjectId } = require('mongodb');
 // const Contest = require('../models/DailyContest/dailyContest')
 const DailyContestMockUser = require("../models/DailyContest/dailyContestMockUser");
 const dailyContest = require('../models/DailyContest/dailyContestMockUser');
-
+const {client, getValue} = require('../marketData/redisClient');
 
 
 // Controller for getting all contests
 exports.getContestScoreboard = async (req, res) => {
     try {
+
+      let isRedisConnected = getValue();
+      if (isRedisConnected && await client.exists('contestscorboard')) {
+        const data = JSON.parse(await client.get('contestscorboard'));
+        res.status(200).json({
+          status: "success",
+          message: "Contest Earnings fetched successfully",
+          data: data
+        });
+      } else{
         const pipeline = [
           {
             $match: {
@@ -176,12 +186,16 @@ exports.getContestScoreboard = async (req, res) => {
         ]
 
         const contestScoreboard = await DailyContestMockUser.aggregate(pipeline)
-
+        await client.set(`contestscorboard`, JSON.stringify(contestEarnings));
+        await client.expire(`contestscorboard`, 600);
+  
         res.status(200).json({
             status:"success",
             message: "Contest Scoreboard fetched successfully",
             data: contestScoreboard
         });
+      }
+
     } catch (error) {
         res.status(500).json({
             status:"error",
@@ -374,6 +388,15 @@ exports.getCollegeContestScoreboard = async (req, res) => {
 
 exports.getHomePageContestEarnings = async (req, res) => {
   try {
+    let isRedisConnected = getValue();
+    if (isRedisConnected && await client.exists('homepagecontestearning')) {
+      const data = JSON.parse(await client.get('homepagecontestearning'));
+      res.status(200).json({
+        status: "success",
+        message: "Contest Earnings fetched successfully",
+        data: data
+      });
+    } else {
       const pipeline = [
         {
           $match: {
@@ -411,7 +434,7 @@ exports.getHomePageContestEarnings = async (req, res) => {
             },
           },
         },
-        { 
+        {
           $sort: {
             reward: -1,
           },
@@ -429,18 +452,23 @@ exports.getHomePageContestEarnings = async (req, res) => {
       ]
 
       const contestEarnings = await Contest.aggregate(pipeline)
-      console.log(contestEarnings)
+      console.log(contestEarnings);
+      await client.set(`homepagecontestearning`, JSON.stringify(contestEarnings));
+      await client.expire(`homepagecontestearning`, 600);
+
       res.status(200).json({
-          status:"success",
-          message: "Contest Earnings fetched successfully",
-          data: contestEarnings
+        status: "success",
+        message: "Contest Earnings fetched successfully",
+        data: contestEarnings
       });
+    }
+
   } catch (error) {
-      res.status(500).json({
-          status:"error",
-          message: "Something went wrong",
-          error: error.message
-      });
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message
+    });
   }
 };
 
