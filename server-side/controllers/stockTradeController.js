@@ -1259,8 +1259,8 @@ exports.overallPnlYesterday = async (req, res, next) => {
       {
         $match: {
           trade_time: {
-            $gte: new Date("2024-02-09"),
-            $lte: new Date("2024-02-10"),
+            $gte: new Date(startTime),
+            $lte: new Date(endTime),
           },
           status: "COMPLETE",
         },
