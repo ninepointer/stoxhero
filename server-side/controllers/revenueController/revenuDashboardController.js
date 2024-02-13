@@ -2179,12 +2179,6 @@ exports.getOverallRevenue = async(req,res,next) => {
   let overallAOV = totalRevenueSum/totalOrderSum;
   let overallArpu = totalRevenueSum/allUniqueUsersCount;
   let overallAOS =  totalOrderSum/allUniqueUsersCount;
-  // console.log("Total Revenue:", totalRevenueSum);
-  // console.log("Total GMV:", totalGMVSum);
-  // console.log("Total Orders:", totalOrderSum);
-  // console.log("Unique Users:", allUniqueUsersCount); 
-  // console.log("Total AOV:", overallAOV); 
-  // console.log("Total Arpu:", overallArpu);
   
   const response = {
     totalRevenueData:{
@@ -2563,17 +2557,11 @@ exports.getRetentionPercentageForMonth = async(req,res,next) => {
     const getRetentionPercentageForMonth = async () => {
       // Get traders from the last 180 days before the month
       const tradersLast180Days = await getActiveUsersBeforeTheMonth();
-      console.log("tradersLast180Days",tradersLast180Days?.length)
       // Get traders during the month
       const tradersDuringMonth = await getActiveUsersDuringTheMonth();
-      console.log("tradersDuringMonth",tradersDuringMonth?.length)
       // Find the overlap between the two lists
       const overlap = tradersDuringMonth.filter(trader => tradersLast180Days.includes(trader));
       const lostUsers = tradersLast180Days.filter(trader => !tradersDuringMonth.includes(trader))
-      console.log("Lost Users:",lostUsers?.length)
-      console.log("Retained Users:",overlap?.length)
-      console.log("Last Months Users:",tradersLast180Days?.length)
-      console.log("This Months Users:",tradersDuringMonth?.length)
       // Calculate the retention percentage
       const retentionPercentage = overlap.length / tradersLast180Days.length * 100;
     
@@ -2811,17 +2799,11 @@ exports.getPaidRetentionPercentageForMonth = async(req,res,next) => {
     const getRetentionPercentageForMonth = async () => {
       // Get traders from the last 180 days before the month
       const tradersLast180Days = await getActiveUsersBeforeTheMonth();
-      console.log("tradersLast180Days",tradersLast180Days?.length)
       // Get traders during the month
       const tradersDuringMonth = await getActiveUsersDuringTheMonth();
-      console.log("tradersDuringMonth",tradersDuringMonth?.length)
       // Find the overlap between the two lists
       const overlap = tradersDuringMonth.filter(trader => tradersLast180Days.includes(trader));
       const lostUsers = tradersLast180Days.filter(trader => !tradersDuringMonth.includes(trader))
-      console.log("Lost Users:",lostUsers?.length)
-      console.log("Retained Users:",overlap?.length)
-      console.log("Last Months Users:",tradersLast180Days?.length)
-      console.log("This Months Users:",tradersDuringMonth?.length)
     
       // Calculate the retention percentage
       const retentionPercentage = overlap.length / tradersLast180Days.length * 100;
@@ -5563,7 +5545,6 @@ exports.getAutoSignUpRevenueDataa = async (req, res, next) => {
       }
   }
   
-    console.log(autoSignUpArr);
 
     const response = {
       data: autoSignUpArr,
@@ -5580,7 +5561,6 @@ exports.getCareerRevenueData = async (req, res, next) => {
   try {
     const { period } = req.query;
     const { startDate, endDate } = getDates(period);
-    console.log(new Date(startDate), new Date(endDate))
     const allusers = await User.find({
       creationProcess: "Career SignUp"
     })
@@ -6417,7 +6397,6 @@ exports.getCareerRevenueData = async (req, res, next) => {
 }
 
 exports.getAutoSignUpRevenueData = async(req,res, next) => {
-    console.log('affiliate');
     try {
       const { period } = req.query;
       const { startDate, endDate } = getDates(period);
@@ -6915,7 +6894,6 @@ exports.getAutoSignUpRevenueData = async(req,res, next) => {
   
       const totalUsersRevenue = wallet?.[0]?.total[0];
       const newUsersRevenue = wallet?.[0]?.new[0];
-      console.log(totalUsersRevenue, newUsersRevenue);
       let merged = {...totalUsersRevenue, ...newUsersRevenue, oldRevenue:((totalUsersRevenue?.totalAmount ?? 0) - (newUsersRevenue?.amount ?? 0)), newRevenue:newUsersRevenue?.amount||0, actualRevenue:totalUsersRevenue?.totalAmount || 0 - Math.abs(totalUsersRevenue?.totalBonusUsed)}
       
   
@@ -6985,28 +6963,30 @@ function getDates(period) {
       const firstDayOfLastMonth = today.clone().subtract(1, 'month').startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
       const lastDayOfLastMonth = today.clone().subtract(1, 'month').endOf('month').subtract(5, 'hours').subtract(30, 'minutes');
       startDate = firstDayOfLastMonth;
-      endDate = lastDayOfLastMonth.endOf('day');
+      endDate = lastDayOfLastMonth.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
       break;
     case 'Last 30 Days':
-      startDate = today.clone().subtract(30, 'days').subtract(5, 'hours').subtract(30, 'minutes');
+      startDate = today.clone().startOf('day').subtract(30, 'days').subtract(5, 'hours').subtract(30, 'minutes');
       endDate = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
       break;
     case 'Last 60 Days':
-      startDate = today.clone().subtract(60, 'days').subtract(5, 'hours').subtract(30, 'minutes');
+      startDate = today.clone().startOf('day').subtract(60, 'days').subtract(5, 'hours').subtract(30, 'minutes');
       endDate = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
       break;
     case 'Last 90 Days':
-      startDate = today.clone().subtract(90, 'days').subtract(5, 'hours').subtract(30, 'minutes');
+      startDate = today.clone().startOf('day').subtract(90, 'days').subtract(5, 'hours').subtract(30, 'minutes');
       endDate = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
       break;
     case 'Last 180 Days':
-      startDate = today.clone().subtract(180, 'days').subtract(5, 'hours').subtract(30, 'minutes');
+      startDate = today.clone().startOf('day').subtract(180, 'days').subtract(5, 'hours').subtract(30, 'minutes');
       endDate = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
       break;
 
     default:
       break;
   }
+
+  console.log(new Date(startDate), new Date(endDate))
 
   return { startDate, endDate };
 }
