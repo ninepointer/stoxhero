@@ -1,4 +1,4 @@
-const School = require('../../models/School/schoolOnboarding'); // Adjust the path as per your project structure
+const School = require('../../models/School/School'); // Adjust the path as per your project structure
 const AWS = require('aws-sdk');
 const {ObjectId} = require('mongodb');
 const sharp = require('sharp');
@@ -57,9 +57,9 @@ exports.createSchool = async (req, res) => {
         }
 
         const school = new School({
-            name, principalName, address, email, highestGrade, role: "65cb483199608018ca427990",
+            school_name: name, head_name: principalName, address, email, highestGrade, role: "65cb483199608018ca427990",
             affiliation, affiliationNumber, status, website, city, 
-            mobile, state, createdBy: req.user._id, logo, image, password: 'To Be Set'
+            contact1: mobile, state, createdBy: req.user._id, logo, image, password: 'To Be Set'
          });
         await school.save({new : true});
         res.status(201).json({status: 'success', data: school});

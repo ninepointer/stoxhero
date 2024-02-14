@@ -1110,7 +1110,7 @@ router.get("/loginDetail", authentication, async (req, res)=>{
 
 router.get("/schooldetails", SchoolAuthenticate, async (req, res) => {
     try{
-        const id = req.school._id;
+        const id = req.user._id;
 
         const user = await School.findOne({ _id: id, status: "Active" })
             .populate('city', 'name')

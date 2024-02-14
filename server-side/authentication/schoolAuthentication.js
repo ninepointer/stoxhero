@@ -45,7 +45,7 @@ exports.SchoolAuthenticate = async (req, res, next) => {
             }
         }
 
-        req.school = school;
+        req.user = school;
     } catch (err) {
         console.log("err", err);
         return res.status(401).send({ status: "error", message: "Unauthenticated school" });

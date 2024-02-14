@@ -777,3 +777,15 @@ exports.purchaseIntent = async (req, res) => {
 };
 
 
+
+//--------school------------------
+
+exports.getAllQuizzesForSchool = async (req, res) => {
+    try {
+            const quizzes = await Quiz.find({}).select('title _id').sort({title: 1});
+        res.status(201).json({status: "success", data: quizzes });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

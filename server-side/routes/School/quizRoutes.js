@@ -1,5 +1,6 @@
 const express = require('express');
 const Authenticate = require('../../authentication/authentication');
+const {SchoolAuthenticate} = require('../../authentication/schoolAuthentication');
 const restrictTo = require('../../authentication/authorization');
 const quizController = require('../../controllers/school/quizController');
 const router = express.Router();
@@ -47,6 +48,11 @@ router.get(
 router.get(
     '/user', Authenticate,
     quizController.getAllQuizzesForUser
+);
+
+router.get(
+    '/school', SchoolAuthenticate,
+    quizController.getAllQuizzesForSchool
 );
 
 router.get(
