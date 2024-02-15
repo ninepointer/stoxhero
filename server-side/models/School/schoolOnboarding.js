@@ -84,6 +84,17 @@ const schoolSchema = new mongoose.Schema({
         type: Date,
         // required: true
     },
+    grades: [{
+        grade: {
+            type: Schema.Types.ObjectId,
+            ref: 'grade'
+        },
+        sections: [
+            {
+                type: String,
+            }
+        ]
+    }],
     createdOn: {
         type: Date,
         default: () => new Date(),

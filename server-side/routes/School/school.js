@@ -48,6 +48,11 @@ router.get(
     schoolController.getSchoolById
 );
 
+router.get(
+    '/:id/grades', Authenticate, restrictTo('Admin', 'SuperAdmin'),
+    schoolController.getSchoolGrades
+);
+
 router.patch(
     '/:id', Authenticate, restrictTo('Admin', 'SuperAdmin'),
     upload.fields([{ name: 'image', maxCount: 1 }, { name: 'logo', maxCount: 1 }]),

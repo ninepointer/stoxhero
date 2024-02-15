@@ -3,7 +3,8 @@ const AWS = require('aws-sdk');
 const {ObjectId} = require('mongodb');
 const User = require('../../models/User/userDetailSchema');
 const sharp = require('sharp');
-const Quiz = require('../../models/School/Quiz')
+const Quiz = require('../../models/School/Quiz');
+const Grade = require('../../models/grade/grade');
 
 // Configure AWS
 const s3 = new AWS.S3({
@@ -58,10 +59,29 @@ exports.createSchool = async (req, res) => {
             image = await getAwsS3Url(req.files['image'][0], 'Image');
         }
 
+        const gradeData = await Grade.find();
+        // const highest = gradeData.filter(elem => elem._id?.toString() === highestGrade?.toString());
+        // const grade = gradeData.map(elem => elem.grade);
+
+        gradeData.sort((a, b) => {
+            const gradeA = parseInt(a.grade);
+            const gradeB = parseInt(b.grade);
+            return gradeA - gradeB;
+        });
+
+        // const grade = gradeData.map(elem => {});
+        const grade = gradeData.map((elem)=>{
+            return {grade: elem?._id?.toString()}
+        })
+        console.log("grade", grade);
+        const index = grade.findIndex(item => item.grade === highestGrade?.toString());
+        const allGrades = grade.slice(0, index+1);
+        console.log(allGrades);
+
         const school = new School({
             school_name: name, head_name: principalName, address, email, highestGrade, role: "65cb483199608018ca427990",
-            affiliation, affiliationNumber, status, website, city, isOnboarding: true,
-            contact1: mobile, state, createdBy: req.user._id, logo, image, password: 'StoxHero'
+            affiliation, affiliationNumber, status, website, city, isOnboarding: true, grades: allGrades,
+            mobile, state, createdBy: req.user._id, logo, image, password: 'StoxHero'
          });
         await school.save({new : true});
         res.status(201).json({status: 'success', data: school});
@@ -131,6 +151,21 @@ exports.getSchoolById = async (req, res) => {
             return res.status(404).json({ message: 'School not found' });
         }
         res.status(201).json({status: 'success', data: school });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.getSchoolGrades = async (req, res) => {
+    try {
+        const schoolId = req.params.id;
+        const school = await School.findById(new ObjectId(schoolId))
+        .populate('grades.grade', 'grade')
+        .select('grades')
+        if (!school) {
+            return res.status(404).json({ message: 'School not found' });
+        }
+        res.status(201).json({status: 'success', data: school.grades });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

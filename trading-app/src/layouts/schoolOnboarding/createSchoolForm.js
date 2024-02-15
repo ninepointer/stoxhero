@@ -17,6 +17,7 @@ import { apiUrl } from '../../constants/constants';
 import { Autocomplete, Box } from "@mui/material";
 import { styled } from '@mui/material';
 import axios from 'axios';
+import Grades from './data/grades/grades';
 
 const CustomAutocomplete = styled(Autocomplete)`
   .MuiAutocomplete-clearIndicator {
@@ -69,10 +70,12 @@ function Index() {
   }, [])
 
   
-  const [gradeValue, setGradeValue] = useState({
-    _id: "" || school?.highestGrade?._id,
-    grade: "12th" || school?.highestGrade?.grade
-  });
+  const [gradeValue, setGradeValue] = useState(
+    // {
+    //   _id: "" || school?.highestGrade?._id,
+    //   grade: "12th" || school?.highestGrade?.grade
+    // }
+  );
 
   const [value, setValue] = useState({
     _id: school?.city?._id || '',
@@ -470,7 +473,7 @@ function Index() {
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              label="Grade/Class"
+                              placeholder="Grade/Class"
                               inputProps={{
                                 ...params.inputProps,
                                 autoComplete: 'new-password', // disable autocomplete and autofill
@@ -788,6 +791,14 @@ function Index() {
                     </>
                   )}
                 </Grid>
+
+                {(school || newObjectId) && 
+                <Grid mt={1} item xs={12} md={12} xl={12} display="flex" justifyContent="center" style={{minWidth:'100%'}}>
+                <MDBox style={{minWidth:'100%'}}>
+                  <Grades school={school?._id || newObjectId} />
+                </MDBox>
+                </Grid>
+                }
             </Grid>
 
             {renderSuccessSB}
