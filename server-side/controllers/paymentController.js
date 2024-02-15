@@ -13,6 +13,7 @@ const Setting = require('../models/settings/setting');
 const {handleSubscriptionDeduction} = require('./dailyContestController');
 const {handleDeductSubscriptionAmount} = require('./userWalletController');
 const {handleDeductMarginXAmount} = require('./marginX/marginxController');
+const {handleOlympiadParticipation} = require('./school/quizController');
 const {handleDeductBattleAmount} = require('./battles/battleController');
 const {handleSubscriptionRenewal} = require('./tenXSubscriptionController');
 const {saveSuccessfulCouponUse} = require('./coupon/couponController');
@@ -20,6 +21,7 @@ const Contest = require('../models/DailyContest/dailyContest');
 const TenX = require('../models/TenXSubscription/TenXSubscriptionSchema');
 const MarginX = require('../models/marginX/marginX');
 const Battle = require('../models/battle/battle');
+const Quiz = require('../models/School/School');
 const Coupon = require('../models/coupon/coupon');
 const whatsAppService = require("../utils/whatsAppService")
 
@@ -301,7 +303,8 @@ exports.initiatePayment = async (req, res) => {
         productId,
         paymentFor,
         coupon,
-        bonusRedemption
+        bonusRedemption,
+        productDetails
     } = req.body;
     console.log('all body params',amount,
         redirectTo,
@@ -334,7 +337,8 @@ exports.initiatePayment = async (req, res) => {
         createdBy: req.user._id,
         modifiedOn: new Date(),
         modifiedBy: req.user._id,
-        bonusRedemption: bonusRedemption
+        bonusRedemption: bonusRedemption,
+        productDetails
     });
 
     const paymentInstrument = {
@@ -428,7 +432,7 @@ exports.handleCallback = async (req, res, next) => {
                 });
                 await addMoneyToWallet(payment.amount-payment?.gstAmount, payment?.paymentBy);
                 if(payment?.paymentFor && payment?.productId){
-                    await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy,payment?.amount, payment?.coupon, payment?.bonusRedemption);
+                    await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy,payment?.amount, payment?.coupon, payment?.bonusRedemption, payment?.productDetails);
                 }    
                 console.log('Payment Successful');
                 await payment.save({validateBeforeSave: false});
@@ -527,7 +531,7 @@ exports.checkPaymentStatus = async(req,res, next) => {
                 if(payment.amount == resp.data.data.amount/100){
                     await addMoneyToWallet(payment.amount-payment?.gstAmount, payment?.paymentBy);
                     if(payment?.paymentFor && payment?.productId){
-                        await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy, payment?.amount, payment?.coupon);
+                        await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy, payment?.amount, payment?.coupon, payment?.productDetails);
                     }
                     //TODO:Remove this code
                     if(payment?.coupon){
@@ -643,7 +647,7 @@ const sendWhatsAppNotification = async(payment) => {
     }
 }
 
-const participateUser = async (paymentFor, productId, paymentBy, amount, coupon, bonusRedemption) => {
+const participateUser = async (paymentFor, productId, paymentBy, amount, coupon, bonusRedemption, productDetails) => {
     switch (paymentFor){
         case 'Contest':
             if(productId){
@@ -674,6 +678,12 @@ const participateUser = async (paymentFor, productId, paymentBy, amount, coupon,
                 const battle = await Battle.findById(productId).select('_id');
                 await handleDeductBattleAmount(paymentBy, battle?._id);
             }
+        case 'Olympiad':
+            if(productId){
+                const quiz = await Quiz.findById(productId).select('_id');
+                console.log('sending this', paymentBy, productId, productDetails);
+                await handleOlympiadParticipation(paymentBy, productId, productDetails);
+            }    
             break;
         default:
             break;

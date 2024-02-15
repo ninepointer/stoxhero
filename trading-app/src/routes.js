@@ -142,6 +142,7 @@ import CollegeEdit from './layouts/college/CollegeEdit'
 import TenXTrading from "./layouts/tenXTrading"
 import SchoolIcon from '@mui/icons-material/School';
 import VirtualPosition from "./layouts/virtualtradePosition";
+import StockPosition from "./layouts/stockTradePosition";
 import TenxPosition from "./layouts/tenxPosition";
 import DailyContestPosition from "./layouts/dailyContestPosition";
 import DailyContestPositionTrader from "./layouts/dailyContestPositionTrader";
@@ -151,8 +152,10 @@ import KYC from './layouts/KYC/index';
 import MarginDetails from './layouts/margindetails'
 import CareerDashboard from './layouts/careerdashboard'
 import VirtualDashboard from './layouts/virtualdashboard'
+import StockDashboard from './layouts/stockDashboard'
 import InternshipOrders from './layouts/internshipOrders'
-import ContactInfo from './layouts/ContactInfo'
+import StockOrders from './layouts/stockOrders';
+import ContactInfo from './layouts/ContactInfo';
 import TenxReport from "./layouts/tenXReport";
 import DailyContestReport from "./layouts/dailyContestReport";
 import InternReport from "./layouts/internReport";
@@ -303,6 +306,14 @@ const routes = [
   },
   {
     type: "collapse",
+    name: "Stock Dashboard",
+    key: "stockdashboard",
+    icon: <VpnLockIcon/>,
+    route: "/stockdashboard",
+    component: <StockDashboard />,
+  },
+  {
+    type: "collapse",
     name: "TestZone Dashboard",
     key: "contestdashboard",
     icon: <EmojiEventsIcon/>,
@@ -349,15 +360,11 @@ const routes = [
     route: "/contestscoreboard",
     component: <ContestScoreboard />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Dashboard",
-  //   key: "stoxherodashboard",
-  //   // icon: <Icon fontSize="small">person</Icon>,
-  //   icon: <BusinessIcon/>,
-  //   route: "/stoxherodashboard",
-  //   component: <StoxHeroDashboard />,
-  // },
+  {
+    key: "stockorders",
+    route: "/stockorders",
+    component: <StockOrders />,
+  },
   {
     // type: "collapse",
     // name: "Company Dashboard",
@@ -814,6 +821,11 @@ const routes = [
     key: "virtualposition",
     route: "/virtualposition",
     component: <VirtualPosition />,
+  },
+  {
+    key: "stockposition",
+    route: "/stockposition",
+    component: <StockPosition />,
   },
   {
     // type: "collapse",

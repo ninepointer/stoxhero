@@ -18,6 +18,9 @@ const quizSchema = new mongoose.Schema({
     durationInSeconds:{
         type: Number
     },
+    entryFee:{
+        type:Number
+    },
     rewardType:{
         type:String,
         required: true,
@@ -42,6 +45,10 @@ const quizSchema = new mongoose.Schema({
         registeredOn:{type:Date},
         registrationId: {type:String},
         slotId: {type:Schema.Types.ObjectId}
+    }],
+    purchaseIntent:[{
+        userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
+        date:{type:Date}
     }],
     city:{
         type:Schema.Types.ObjectId,

@@ -54,7 +54,7 @@ exports.takeAutoTrade = async (tradeDetails) => {
             liveData = await singleLivePrice(exchange, symbol)
         }
         // let  TODO toggle
-        console.log("live data", liveData)
+        // console.log("live data", liveData)
         for(let elem of liveData){
             if(elem.instrument_token == instrumentToken){
                 newTimeStamp = elem.timestamp;

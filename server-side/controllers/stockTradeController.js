@@ -1065,6 +1065,7 @@ exports.treaderWiseMockTrader = async (req, res, next) => {
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
+  const {product} = req.query;
 
   const pipeline = [
     {
@@ -1073,7 +1074,8 @@ exports.treaderWiseMockTrader = async (req, res, next) => {
         trade_time: {
           $gte: today
         },
-        status: "COMPLETE"
+        status: "COMPLETE",
+        Product: product
       }
     },
     {
@@ -1127,7 +1129,7 @@ exports.treaderWiseMockTrader = async (req, res, next) => {
   res.status(201).json({ message: "data received", data: x });
 }
 
-exports.overallVirtualTraderPnl = async (req, res, next) => {
+exports.overallTraderPnl = async (req, res, next) => {
   // console.log("Inside overall virtual pnl")
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -1240,7 +1242,7 @@ let date = new Date();
     res.status(201).json({ message: "pnl received", data: pnlDetails });
 }
 
-exports.overallVirtualPnlYesterday = async (req, res, next) => {
+exports.overallPnlYesterday = async (req, res, next) => {
   let date;
   let i = 1;
   let maxDaysBack = 30;  // define a maximum limit to avoid infinite loop
@@ -1257,36 +1259,96 @@ exports.overallVirtualPnlYesterday = async (req, res, next) => {
       {
         $match: {
           trade_time: {
-            $gte: startTime,
-            $lte: endTime
+            $gte: new Date(startTime),
+            $lte: new Date(endTime),
           },
           status: "COMPLETE",
         },
       },
       {
         $group: {
-          _id: null,
+          _id: {
+            product: "$Product",
+          },
           amount: {
-            $sum: { $multiply: ["$amount", -1] },
+            $sum: {
+              $multiply: ["$amount", -1],
+            },
           },
           turnover: {
-            $sum: { $toInt: { $abs: "$amount" } },
+            $sum: {
+              $toInt: {
+                $abs: "$amount",
+              },
+            },
           },
           brokerage: {
-            $sum: { $toDouble: "$brokerage" },
+            $sum: {
+              $toDouble: "$brokerage",
+            },
           },
           lots: {
-            $sum: { $toInt: "$Quantity" },
+            $sum: {
+              $toInt: "$Quantity",
+            },
           },
           totallots: {
-            $sum: { $toInt: { $abs: "$Quantity" } },
+            $sum: {
+              $toInt: {
+                $abs: "$Quantity",
+              },
+            },
           },
           trades: {
-            $count: {}
+            $count: {},
           },
         },
       },
       {
+        $group: {
+          _id: null,
+          "amountMIS": {
+            "$sum": {
+              "$cond": [{ "$eq": ["$_id.product", "MIS"] }, "$amount", 0]
+            }
+          },
+          "amountCNC": {
+            "$sum": {
+              "$cond": [{ "$eq": ["$_id.product", "CNC"] }, "$amount", 0]
+            }
+          },
+          turnover: {
+            $sum: "$turnover",
+          },
+                "brokerageMIS": {
+            "$sum": {
+              "$cond": [{ "$eq": ["$_id.product", "MIS"] }, "$brokerage", 0]
+            }
+          },
+          "brokerageCNC": {
+            "$sum": {
+              "$cond": [{ "$eq": ["$_id.product", "CNC"] }, "$brokerage", 0]
+            }
+          },
+          trades: {
+            $sum: "$trades",
+          },
+          totallots: {
+            $sum: "$totallots",
+          },
+           "lotsMIS": {
+            "$sum": {
+              "$cond": [{ "$eq": ["$_id.product", "MIS"] }, "$lots", 0]
+            }
+          },
+          "lotsCNC": {
+            "$sum": {
+              "$cond": [{ "$eq": ["$_id.product", "CNC"] }, "$lots", 0]
+            }
+          }
+        },
+      },
+    {
         $sort: {
           _id: -1,
         },
@@ -1364,7 +1426,7 @@ exports.liveTotalTradersCountYesterday = async (req, res, next) => {
     res.status(201).json({ message: "pnl received", data: pnlDetails });
 }
 
-exports.getDailyVirtualUsers = async (req, res) => {
+exports.getDailyUsers = async (req, res) => {
   try {
     const pipeline = [
       {
@@ -1391,31 +1453,31 @@ exports.getDailyVirtualUsers = async (req, res) => {
       },
     ];
 
-    const virtualTraders = await StockTrade.aggregate(pipeline);
+    const stockTraders = await StockTrade.aggregate(pipeline);
 
     // Create a date-wise mapping of DAUs for different products
     const dateWiseDAUs = {};
 
-    virtualTraders.forEach(entry => {
+    stockTraders.forEach(entry => {
       const { _id, traders, uniqueUsers } = entry;
       const date = _id.date;
       if (date !== "1970-01-01") {
         if (!dateWiseDAUs[date]) {
           dateWiseDAUs[date] = {
             date,
-            virtualTrading: 0,
+            stockTrading: 0,
             uniqueUsers: [],
           };
         }
-        dateWiseDAUs[date].virtualTrading = traders;
+        dateWiseDAUs[date].stockTrading = traders;
         dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
       }
     });
 
     // Calculate the date-wise total DAUs and unique users
     Object.keys(dateWiseDAUs).forEach(date => {
-      const { virtualTrading, uniqueUsers } = dateWiseDAUs[date];
-      dateWiseDAUs[date].total = virtualTrading
+      const { stockTrading, uniqueUsers } = dateWiseDAUs[date];
+      dateWiseDAUs[date].total = stockTrading
       dateWiseDAUs[date].uniqueUsers = [...new Set(uniqueUsers)];
     });
 
@@ -1434,3 +1496,48 @@ exports.getDailyVirtualUsers = async (req, res) => {
     });
   }
 };
+
+exports.getAllAdminOrders = async(req, res, next)=>{
+  // console.log("Inside Internship all orders API")
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10;
+  const {product} = req.query;
+  const count = await StockTrade.countDocuments({Product: product})
+  try{
+      const allinternshiporders = await StockTrade.find({Product: product})
+      .populate('trader','employeeid first_name last_name')
+      .sort({_id: -1})
+      .skip(skip)
+      .limit(limit);
+      // console.log("All Internship Orders",allinternshiporders)
+      res.status(201).json({status: 'success', data: allinternshiporders, count: count});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+};
+
+exports.getTodaysAdminOrders = async (req, res, next) => {
+
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const {product} = req.query;
+  const today = new Date(todayDate);
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await StockTrade.countDocuments({trade_time: {$gte:today}, Product: product})
+  // console.log("Under today orders", today)
+  try {
+    const todaysinternshiporders = await StockTrade.find({trade_time: {$gte:today}, Product: product}, {'trader':1,'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1})
+      .populate('trader','employeeid first_name last_name')
+      .sort({_id: -1})
+      .skip(skip)
+      .limit(limit);
+    // console.log(todaysinternshiporders)
+    res.status(200).json({status: 'success', data: todaysinternshiporders, count:count});
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({status:'error', message: 'Something went wrong'});
+  }
+}

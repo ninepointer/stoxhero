@@ -138,7 +138,7 @@ function Cover({ setUpdate, update }) {
                                             <CardContent>
                                                 <Grid mb={-1} container spacing={1} display='flex' justifyContent='center' xs={12} md={12} lg={12}>
                                                     <Grid item display='flex' justifyContent='center' alignContent={'center'} alignItems={'center'} xs={12} md={12} lg={12}>
-                                                        <Registration id={elem?._id} quizData={elem} setData={setData} setUpdate={setUpdate} update={update} />
+                                                        <Registration id={elem?._id} entryFee={elem?.entryFee} quizData={elem} setData={setData} setUpdate={setUpdate} update={update} />
                                                     </Grid>
                                                 </Grid>
                                             </CardContent>

@@ -6,9 +6,10 @@ import { Grid } from '@mui/material';
 import { apiUrl } from '../../../constants/constants';
 import MDTypography from "../../../components/MDTypography";
 import logo from '../../../assets/images/logo1.jpeg'
+import axios from 'axios';
 
 
-const UploadImage = ({ selected, getDetails, id, setRegistrationMessage }) => {
+const UploadImage = ({ selected, getDetails, id, setRegistrationMessage ,quizData, setConfirmRegistration }) => {
 
     const user = getDetails.userDetails;
     const [image, setImage] = useState(null);
@@ -55,6 +56,9 @@ const UploadImage = ({ selected, getDetails, id, setRegistrationMessage }) => {
     };
 
     async function register() {
+        setConfirmRegistration(true);
+    }
+    async function registration() {
         const res = await fetch(`${apiUrl}quiz/user/registration/${id}`, {
             method: "PATCH",
             credentials: "include",
@@ -74,6 +78,15 @@ const UploadImage = ({ selected, getDetails, id, setRegistrationMessage }) => {
             setRegistrationMessage(data?.message)
         }
     }
+    const initiatePayment = async() => {
+        try{
+          const res = await axios.post(`${apiUrl}payment/initiate`,{amount:Number(quizData?.entryFee*100), redirectTo:window.location.href, paymentFor:'Olympiad', productId:id},{withCredentials: true});
+          console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
+          window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
+      }catch(e){
+          console.log(e);
+      }
+      }
 
     return (
         <>

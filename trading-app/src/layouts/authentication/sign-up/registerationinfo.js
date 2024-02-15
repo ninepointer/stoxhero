@@ -85,7 +85,6 @@ function Cover() {
   const [inputValue, setInputValue] = useState('');
   const searchSchools = async ()=>{
     const res = await axios.post(`${apiUrl}fetchschools`, {stateName:userState, cityName:userCity ,inputString: inputValue});
-    console.log('setting school list', schoolsList.length);
     setSchoolsList(res.data);
   }
 
@@ -93,7 +92,6 @@ function Cover() {
   
   const handleSchoolChange = (event, newValue) => {
     setUserSchool(newValue);
-    console.log('setting list for user', newValue);
   }
   
   
@@ -147,7 +145,7 @@ function Cover() {
       grade, school,
       city, dob
     } = formstate;
-    console.log(formstate)
+
     if (mobile.length !== 10) {
 
       if (mobile.length === 12 && mobile.startsWith('91')) {

@@ -19,6 +19,7 @@ import moment from 'moment';
 import logo from '../../../assets/images/logo1.jpeg'
 import Slots from "./Slots";
 import UploadImage from "./uploadImage"
+import RegistrationDetail from "./registrationDetail"
 
 
 const Registration = ({ id, setUpdate, setData, update, quizData }) => {
@@ -26,6 +27,7 @@ const Registration = ({ id, setUpdate, setData, update, quizData }) => {
     const [slotAction, setSlotAction] = useState(true);
     const [error, setError] = useState("");
     const [registrationMessage, setRegistrationMessage] = useState("");
+    const [confirmRegistration, setConfirmRegistration] = useState("");
     const [selected, setSelected] = useState();
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -36,6 +38,12 @@ const Registration = ({ id, setUpdate, setData, update, quizData }) => {
         setUpdate(!update)
     };
 
+    function resetStates() {
+        setSelected();
+        setRegistrationMessage("");
+        setSlotAction(true);
+        setConfirmRegistration("");
+    }
     function handleNext() {
         console.log("selected", selected)
         if (!selected) {
@@ -92,8 +100,11 @@ const Registration = ({ id, setUpdate, setData, update, quizData }) => {
                             {slotAction &&
                                 <Slots id={id} quizData={quizData} selected={selected} setSelected={setSelected} setError={setError} setRegistrationMessage={setRegistrationMessage} getDetails={getDetails} />}
 
-                            {(!slotAction && !registrationMessage && !getDetails.userDetails?.schoolDetails?.profilePhoto) &&
-                                <UploadImage selected={selected} setData={setData} setRegistrationMessage={setRegistrationMessage} id={id} getDetails={getDetails} />}
+                            {(!slotAction && !registrationMessage && !getDetails.userDetails?.schoolDetails?.profilePhoto && !confirmRegistration) &&
+                                <UploadImage selected={selected} quizData = {quizData} setData={setData} setRegistrationMessage={setRegistrationMessage} id={id} getDetails={getDetails} setConfirmRegistration={setConfirmRegistration} />}
+                            
+                            {(!slotAction && !registrationMessage && confirmRegistration) &&
+                                < RegistrationDetail selected={selected} quizData = {quizData} setData={setData} setRegistrationMessage={setRegistrationMessage} id={id} getDetails={getDetails} setOpen={setOpen} resetStates={resetStates} />}
 
                             {registrationMessage &&
                                 <MDTypography fontSize={15} sx={{ color: '#353535' }} style={{ fontFamily: 'Work Sans , sans-serif', textAlign: 'center' }}>

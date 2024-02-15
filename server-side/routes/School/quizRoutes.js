@@ -70,6 +70,8 @@ router.get(
     quizController.getQuizQuestion
 );
 
+router.post('/purchaseintent', Authenticate, quizController.purchaseIntent);
+
 router.patch(
     '/:id', Authenticate, restrictTo('Admin', 'SuperAdmin'),
     upload.fields([{ name: 'quizImage', maxCount: 1 }]),

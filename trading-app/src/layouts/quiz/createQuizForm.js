@@ -65,7 +65,8 @@ function Index() {
     description: "" || quiz?.description,
     noOfSlots: "" || quiz?.noOfSlots,
     slotBufferTime: "" || quiz?.slotBufferTime,
-    image: "" || quiz?.image
+    image: "" || quiz?.image,
+    entryFee:"" || quiz?.entryFee
   });
 
   useEffect(() => {
@@ -124,7 +125,7 @@ function Index() {
       return;
     }
 
-    if (!gradeValue || !formState.title || !formState.startDateTime || !formState.registrationOpenDateTime || !formState.registrationCloseDateTime || !formState.durationInSeconds || !formState.rewardType || !formState.status) {
+    if (!gradeValue || !formState.title || !formState.startDateTime || !formState.registrationOpenDateTime || !formState.registrationCloseDateTime || !formState.durationInSeconds || !formState.rewardType || !formState.status || !formState?.entryFee.toString()) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
@@ -317,7 +318,7 @@ function Index() {
             </MDBox>
 
             <Grid container spacing={1} mt={1} xs={12} md={12} xl={12} display="flex" flexDirection="row" justifyContent="center">
-                <Grid item xs={12} md={12} xl={9} display="flex" justifyContent="center">
+                <Grid item xs={12} md={12} xl={9} display="flex">
                   <Grid container spacing={2} xs={12} md={12} xl={12} display="flex" flexDirection="row" justifyContent="center">
                       <Grid item xs={12} md={6} xl={12}>
                         <TextField
@@ -571,6 +572,18 @@ function Index() {
                             type='number'
                             fullWidth
                             defaultValue={editing ? formState?.slotBufferTime : quiz?.slotBufferTime}
+                            onChange={handleChange}
+                          />
+                      </Grid>
+                      <Grid item xs={12} md={6} xl={4}>
+                          <TextField
+                            disabled={((isSubmitted || quiz) && (!editing || saving))}
+                            id="outlined-required"
+                            label='Entry Fee *'
+                            name='entryFee'
+                            type='number'
+                            fullWidth
+                            defaultValue={editing ? formState?.entryFee : quiz?.entryFee}
                             onChange={handleChange}
                           />
                       </Grid>

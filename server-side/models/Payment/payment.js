@@ -69,6 +69,7 @@ const Payment = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail'
     },
+    productDetails:Object,
     gatewayResponse: {},
     productId: Schema.Types.ObjectId,
     bonusRedemption:Number,
