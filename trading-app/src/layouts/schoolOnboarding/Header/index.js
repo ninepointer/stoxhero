@@ -44,7 +44,7 @@ export default function LabTabs() {
     component={Link}
     to='/schooldetails'
     >
-        School Quiz
+        Create School
     </MDButton>
     </MDBox>
       <TabContext value={value}>
