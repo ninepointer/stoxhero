@@ -3,7 +3,19 @@ import React, { useEffect, useRef } from 'react';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 
-export default function Charts({ testZoneMonthlyRevenue }) {
+export default function Charts({ data }) {
+
+    data?.sort((a, b) => {
+        const gradeA = parseInt(a?.grade);
+        const gradeB = parseInt(b?.grade);
+        return gradeA - gradeB;
+    });
+
+    let totalUser = 0;
+    for(let elem of data){
+        totalUser += (elem?.users || 0);
+    }
+
   const chartRef = useRef(null);
 
   useEffect(() => {
@@ -11,7 +23,7 @@ export default function Charts({ testZoneMonthlyRevenue }) {
 
     const options = {
       title: {
-        text: `Total Students - ${1000}`,
+        text: `Total Students - ${totalUser}`,
         left: 'left',
         textStyle: {
           fontSize: 15, // Adjust the font size as needed
@@ -46,7 +58,7 @@ export default function Charts({ testZoneMonthlyRevenue }) {
       xAxis: [
         {
           type: 'category',
-          data: ['6th', '7th', '8th', '9th', '10th', '11th', '12th' ],
+          data: data?.map(elem => elem?.grade),
           axisPointer: {
             type: 'shadow',
           },
@@ -83,7 +95,7 @@ export default function Charts({ testZoneMonthlyRevenue }) {
           },
           areaStyle: {}, // Add areaStyle for area graph
           yAxisIndex: 0, // Associate with the first y-axis
-          data: [50, 60, 70, 80, 40, 30, 90],
+          data: data?.map(elem => elem?.users),
         },
       ],
     };
@@ -93,7 +105,7 @@ export default function Charts({ testZoneMonthlyRevenue }) {
     return () => {
       chart.dispose();
     };
-  }, [testZoneMonthlyRevenue]);
+  }, [data]);
 
   useEffect(() => {
     const handleResize = () => {

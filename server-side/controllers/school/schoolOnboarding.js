@@ -1,7 +1,9 @@
-const School = require('../../models/School/School'); // Adjust the path as per your project structure
+const School = require('../../models/School/schoolOnboarding'); // Adjust the path as per your project structure
 const AWS = require('aws-sdk');
 const {ObjectId} = require('mongodb');
+const User = require('../../models/User/userDetailSchema');
 const sharp = require('sharp');
+const Quiz = require('../../models/School/Quiz')
 
 // Configure AWS
 const s3 = new AWS.S3({
@@ -58,8 +60,8 @@ exports.createSchool = async (req, res) => {
 
         const school = new School({
             school_name: name, head_name: principalName, address, email, highestGrade, role: "65cb483199608018ca427990",
-            affiliation, affiliationNumber, status, website, city, 
-            contact1: mobile, state, createdBy: req.user._id, logo, image, password: 'To Be Set'
+            affiliation, affiliationNumber, status, website, city, isOnboarding: true,
+            contact1: mobile, state, createdBy: req.user._id, logo, image, password: 'StoxHero'
          });
         await school.save({new : true});
         res.status(201).json({status: 'success', data: school});
@@ -133,3 +135,281 @@ exports.getSchoolById = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+//--------------For schools--------------
+
+exports.getTotalStudents = async (req, res) => {
+    try {
+        const id = req.user._id;
+        const data = await User.aggregate([
+            {
+                $facet: {
+                    'gradeWiseTotalStudent': [
+                        {
+                            $match: {
+                                "schoolDetails.school": new ObjectId(
+                                    id
+                                ),
+                            },
+                        },
+                        {
+                            $group: {
+                                _id: {
+                                    grade: "$schoolDetails.grade",
+                                },
+                                users: {
+                                    $sum: 1,
+                                },
+                            },
+                        },
+                        {
+                            $project: {
+                                grade: "$_id.grade",
+                                _id: 0,
+                                users: 1,
+                            },
+                        },
+                    ],
+                    'recentJoinee': [
+                        {
+                            $match: {
+                                "schoolDetails.school": new ObjectId(
+                                    id
+                                ),
+                            },
+                        },
+                        {
+                            $project: {
+                                grade: "$schoolDetails.grade",
+                                joining_date: "$joining_date",
+                                dob: "$schoolDetails.dob",
+                                full_name: '$student_name',
+                                image: "$schoolDetails.profilePhoto"
+                            },
+                        },
+                        {
+                            $sort: {
+                                joining_date: -1
+                            }
+                        },
+                        {
+                            $limit: 20
+                        }
+                    ]
+                }
+            }
+        ])
+
+        res.status(201).json({ status: 'success', data: data });
+    } catch (error) {
+        res.status(500).json({ status: 'success', data: error });
+    }
+}
+
+exports.getStudentsQuizWise = async (req, res) => {
+    try {
+        const id = req.user._id;
+        const { quizId } = req.params;
+        const data = await Quiz.aggregate([
+            {
+                $match: {
+                    _id: new ObjectId(quizId),
+                },
+            },
+            {
+                $unwind: {
+                    path: "$registrations",
+                },
+            },
+            {
+                $lookup: {
+                    from: "user-personal-details",
+                    localField: "registrations.userId",
+                    foreignField: "_id",
+                    as: "user",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$user",
+                },
+            },
+            {
+                $match: {
+                    "user.schoolDetails.school": new ObjectId(
+                        id
+                    ),
+                },
+            },
+            {
+                $facet: {
+                    'gradeWise': [
+                        {
+                            $group: {
+                                _id: {
+                                    grade: "$user.schoolDetails.grade",
+                                },
+                                users: {
+                                    $sum: 1,
+                                },
+                            },
+                        },
+                        {
+                            $project: {
+                                grade: "$_id.grade",
+                                users: 1,
+                                _id: 0,
+                            },
+                        },
+                    ],
+                    'recentStudent': [
+                        {
+                            $project: {
+                                grade: "$user.schoolDetails.grade",
+                                registration_date: "$registrations.registeredOn",
+                                dob: "$user.schoolDetails.dob",
+                                full_name: "$user.student_name",
+                                image: "$user.schoolDetails.profilePhoto",
+                            },
+                        },
+                        {
+                            $sort: {
+                                joining_date: -1
+                            }
+                        },
+                        {
+                            $limit: 20
+                        }
+                    ],
+                    'datewiseStudent': [
+                        {
+                            $group: {
+                                _id: {
+                                    date: {
+                                        $dateToString: {
+                                            format: "%Y-%m-%d",
+                                            date: "$registrations.registeredOn",
+                                        },
+                                    },
+                                },
+                                users: {
+                                    $sum: 1,
+                                },
+                            },
+                        },
+                        {
+                            $project: {
+                                date: "$_id.date",
+                                users: 1,
+                                _id: 0,
+                            },
+                        },
+                    ],
+                    'totalCount': [
+                        {
+                            $group: {
+                                _id: {},
+                                totalRegistration: {
+                                    $sum: 1,
+                                },
+                                totalFee: {
+                                    $sum: "$registrations.fee",
+                                },
+                            },
+                        },
+                        {
+                            $project: {
+                                totalRegistration: 1,
+                                totalFee: 1,
+                                _id: 0,
+                            },
+                        },
+                    ],
+                },
+            },
+        ])
+
+        res.status(201).json({ status: 'success', data: data });
+    } catch (error) {
+        res.status(500).json({ status: 'success', data: error });
+    }
+}
+
+exports.getStudentsQuizWiseFullList = async (req, res) => {
+    try {
+        const id = req.user._id;
+        const { quizId } = req.params;
+        const data = await Quiz.aggregate([
+            {
+                $match: {
+                    _id: new ObjectId(quizId),
+                },
+            },
+            {
+                $unwind: {
+                    path: "$registrations",
+                },
+            },
+            {
+                $lookup: {
+                    from: "user-personal-details",
+                    localField: "registrations.userId",
+                    foreignField: "_id",
+                    as: "user",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$user",
+                },
+            },
+            {
+                $match: {
+                    "user.schoolDetails.school": new ObjectId(
+                        id
+                    ),
+                },
+            },
+            {
+                $project: {
+                    grade: "$user.schoolDetails.grade",
+                    registration_date: "$registrations.registeredOn",
+                    dob: "$user.schoolDetails.dob",
+                    full_name: "$user.student_name",
+                },
+            },
+        ])
+
+        res.status(201).json({ status: 'success', data: data });
+    } catch (error) {
+        res.status(500).json({ status: 'success', data: error });
+    }
+}
+
+exports.getTotalStudentsFullList = async (req, res) => {
+    try {
+        const id = req.user._id;
+        const data = await User.aggregate([
+            {
+                $match: {
+                    "schoolDetails.school": new ObjectId(
+                        id
+                    ),
+                },
+            },
+            {
+                $project: {
+                    grade: "$schoolDetails.grade",
+                    joining_date: "$joining_date",
+                    dob: "$schoolDetails.dob",
+                    full_name: '$student_name',
+                },
+            }
+        ])
+
+        res.status(201).json({ status: 'success', data: data });
+    } catch (error) {
+        res.status(500).json({ status: 'success', data: error });
+    }
+}
+

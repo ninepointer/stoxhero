@@ -1,10 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import axios from "axios";
 import MDBox from '../../../components/MDBox';
-import MDButton from '../../../components/MDButton'
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
 import { styled, Autocomplete, Grid, Box, TextField } from '@mui/material';
 import { userContext } from '../../../AuthContext';
 import MDTypography from '../../../components/MDTypography';
@@ -27,15 +23,35 @@ export default function Dashboard() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState();
-  const [quizValue, setQuizValue] = useState(data && data[0]);
+  const [quizValue, setQuizValue] = useState();
+  const [totalData, setTotalData] = useState({});
+  const [quizData, setQuizData] = useState({});
 
   useEffect(()=>{
-    fetchQuiz()
+    fetchQuiz();
+    fetchTotalData();
   }, [])
+
+  useEffect(()=>{
+    fetchData()
+  }, [quizValue])
 
   async function fetchQuiz(){
     const data = await axios.get(`${apiUrl}quiz/school`, {withCredentials: true});
     setData(data?.data?.data);
+    setQuizValue(data?.data?.data?.[0])
+  }
+
+  async function fetchTotalData(){
+    const total = await axios.get(`${apiUrl}school/dash/total`, {withCredentials: true}); 
+    setTotalData(total?.data?.data?.[0]);
+  }
+
+  async function fetchData(){
+    if(quizValue?._id){
+      const quizwise = await axios.get(`${apiUrl}school/dash/quiz/${quizValue?._id}`, {withCredentials: true}); 
+      setQuizData(quizwise?.data?.data?.[0]);  
+    }
   }
 
   const handleQuizChange = (event, newValue) => {
@@ -52,13 +68,13 @@ export default function Dashboard() {
           <Grid item xs={12} md={12} lg={8} display='flex' justifyContent='center' alignItems='center' style={{ width: '100%', minHeight: 'auto' }}>
             <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ minWidth: '100%', minHeight: 'auto' }}>
               <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                <TotalRegistrationChart />
+                <TotalRegistrationChart data={totalData?.gradeWiseTotalStudent || []} />
               </Grid>
             </Grid>
           </Grid>
 
           <Grid item xs={12} md={12} lg={4} mt={1} style={{ width: '100%', height: '400px' }}>
-              <RecentJoinee />
+              <RecentJoinee data={totalData?.recentJoinee || []} />
           </Grid>
 
           <Grid item xs={12} md={12} lg={12} display='flex' flexDirection='column' justifyContent='flex-start' alignItems='center' style={{ width: '100%', minHeight: 'auto' }}>
@@ -112,7 +128,7 @@ export default function Dashboard() {
           <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ width: '100%', minHeight: 'auto' }}>
             <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ minWidth: '100%', minHeight: 'auto' }}>
               <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                <TotalDataTiles />
+                <TotalDataTiles data={quizData?.totalCount?.[0] || {}} />
               </Grid>
             </Grid>
           </Grid>
@@ -120,19 +136,19 @@ export default function Dashboard() {
           <Grid item xs={12} md={12} lg={8} mt={1} display='flex' justifyContent='center' alignItems='center' style={{ width: '100%', minHeight: 'auto' }}>
             <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
               <Grid item spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ width: '100%', minHeight: 'auto' }}>
-                <QuizRegistrationChart />
+                <QuizRegistrationChart data={quizData?.gradeWise || []} />
               </Grid>
             </Grid>
           </Grid>
 
           <Grid item xs={12} md={12} lg={4} mt={2} style={{ width: '100%', height: '400px' }}>
-              <QuizJoined />
+              <QuizJoined data={quizData?.recentStudent || []}  quizId={quizValue?._id}/>
           </Grid>
 
           <Grid item xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='center' alignItems='center' style={{ width: '100%', minHeight: 'auto' }}>
             <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
               <Grid item spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ width: '100%', minHeight: 'auto' }}>
-                <QuizRegistrationChartDateWise />
+                <QuizRegistrationChartDateWise data={quizData?.datewiseStudent || []} />
               </Grid>
             </Grid>
           </Grid>

@@ -1,19 +1,18 @@
 import React from 'react'
 import { useState, useEffect, useContext } from "react"
 import moment from 'moment';
+import { saveAs } from 'file-saver';
 // import { userContext } from "../../../AuthContext";
 import MDBox from "../../../components/MDBox";
 import Grid from "@mui/material/Grid";
-import Card from "@mui/material/Card";
 import logo from "../../../assets/images/logo1.jpeg";
-
-import MDButton from '../../../components/MDButton';
+import axios from 'axios';
+import { apiUrl } from '../../../constants/constants';
 import MDTypography from "../../../components/MDTypography";
 import MDAvatar from '../../../components/MDAvatar';
 import {
     Tooltip,
-    Box,
-    List,
+    Box, List,
     ListItemAvatar,
     ListItemButton,
     ListItemText,
@@ -21,7 +20,7 @@ import {
 } from '@mui/material';
 
 import { CircularProgress } from "@mui/material";
-import { userContext } from '../../../AuthContext';
+import {downloadTotalList} from './download';
 import DownloadIcon from '@mui/icons-material/Download';
 // avatar style
 const avatarSX = {
@@ -40,63 +39,8 @@ const actionSX = {
     transform: 'none'
 };
 
-function ReferralProduct() {
-    // const [data, setData] = useState([]);
-    const [count, setCount] = useState(0);
+function RecentJoinee({data}) {
     const [isLoading, setIsLoading] = useState(false);
-
-    const data = [
-        {
-            grade: '6th',
-            joining_date: '2023-08-07T15:50:00.400Z',
-            full_name: 'Vijay Verma',
-            image: '',
-            dob: '1998-10-09'
-        },
-        {
-            grade: '6th',
-            joining_date: '2023-08-07T15:50:00.400Z',
-            full_name: 'Vijay Verma',
-            image: '',
-            dob: '1998-10-09'
-        },
-        {
-            grade: '6th',
-            joining_date: '2023-08-07T15:50:00.400Z',
-            full_name: 'Vijay Verma',
-            image: '',
-            dob: '1998-10-09'
-        },
-        {
-            grade: '6th',
-            joining_date: '2023-08-07T15:50:00.400Z',
-            full_name: 'Vijay Verma',
-            image: '',
-            dob: '1998-10-09'
-        },
-        {
-            grade: '6th',
-            joining_date: '2023-08-07T15:50:00.400Z',
-            full_name: 'Vijay Verma',
-            image: '',
-            dob: '1998-10-09'
-        },
-        {
-            grade: '6th',
-            joining_date: '2023-08-07T15:50:00.400Z',
-            full_name: 'Vijay Verma',
-            image: '',
-            dob: '1998-10-09'
-        },
-        {
-            grade: '6th',
-            joining_date: '2023-08-07T15:50:00.400Z',
-            full_name: 'Vijay Verma',
-            image: '',
-            dob: '1998-10-09'
-        }
-    ]
-
 
     function dateConvert(dateConvert) {
         const dateString = dateConvert;
@@ -134,6 +78,25 @@ function ReferralProduct() {
         return finalFormattedDate
     }
 
+    const handleDownload = async (nameVariable) => {
+        setIsLoading(true);
+        const data = await axios.get(`${apiUrl}school/dash/newjoineefulllist`, {withCredentials: true})
+        
+        const csvData = downloadTotalList(data?.data?.data);
+
+        // Create the CSV content
+        const csvContent = csvData?.map((row) => {
+            return row?.map((row1) => row1.join(',')).join('\n');
+        });
+
+        setIsLoading(false);
+        // Create a Blob object with the CSV content
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+
+        // Save the file using FileSaver.js
+        saveAs(blob, `${nameVariable}.csv`);
+    }
+
     return (
         <>
 
@@ -141,7 +104,8 @@ function ReferralProduct() {
                 <Box 
                     sx={{
                         overflowY: 'auto',
-                        maxHeight: 380, // Set maxHeight to your desired value
+                        backgroundColor: '#ffffff',
+                        height: 380, // Set maxHeight to your desired value
                         '&::-webkit-scrollbar': {
                             width: '6px', // Width of the scrollbar
                         },
@@ -153,18 +117,13 @@ function ReferralProduct() {
                             backgroundColor: 'rgba(127,127,127,0.4)', // Color of the scrollbar thumb on hover
                         },
                         borderRadius: 2,
-                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
                         // coloredShadow: "#FF8282"
                     }}
-                // sx={{ overflow: 'auto', maxHeight: 400 }}
                 >
                     <Grid container spacing={1}>
                         <Grid item xs={12} md={12} lg={12}>
-                            <Card>
                                 <MDBox
-                                    // mx={2}
-                                    // mt={-3}
-                                    // py={1}
                                     px={1}
                                     variant="gradient"
                                     bgColor="#60EFB1"
@@ -182,15 +141,15 @@ function ReferralProduct() {
                                         Recent Joinee
                                     </MDTypography>
                                     <Tooltip title="Download Full List">
-                                        {/* <MDButton variant='contained' backgroundColor='#FF8282' color='ffffff' size='small' onClick={() => {
-                                            // handleDownload(pnlData, "autosignup_revenue")
-                                        }}> */}
-                                            <DownloadIcon sx={{color: '#ffffff', cursor: 'pointer'}} />
-                                        {/* </MDButton> */}
+                                        {isLoading ?
+                                            <CircularProgress color="light" size={24} />
+                                            :
+                                            <DownloadIcon sx={{ color: '#ffffff', cursor: 'pointer' }} onClick={() => { handleDownload('newjoinee_full_list') }} />
+                                        }
                                     </Tooltip>
                                 </MDBox>
                                 <MDBox pt={2}>
-                                    {!isLoading ?
+                                    {
                                         data?.map((elem) => {
                                             return (
                                                 <>
@@ -209,7 +168,7 @@ function ReferralProduct() {
                                                         <ListItemButton divider>
                                                             <ListItemAvatar>
                                                                 <MDAvatar
-                                                                    src={logo}
+                                                                    src={elem?.image || logo}
                                                                     alt={"Mandir"}
                                                                     size="lg"
                                                                     sx={{
@@ -239,44 +198,19 @@ function ReferralProduct() {
                                                                 }
                                                             />
 
-                                                            {/* <ListItemSecondaryAction>
-                                                            <Stack alignItems="flex-end">
-                                                                <Typography fontSize={12} color="black" noWrap>
-                                                                    {dateConvert(elem?.joining_date)}
-                                                                </Typography>
-                                                            </Stack>
-                                                        </ListItemSecondaryAction> */}
+                                                           
                                                         </ListItemButton>
                                                     </List>
                                                 </>
                                             )
                                         })
-
-                                        :
-
-                                        <Grid container display="flex" justifyContent="center" alignContent='center' alignItems="center">
-                                            <Grid item display="flex" justifyContent="center" alignContent='center' alignItems="center" lg={12}>
-                                                <MDBox mt={5} mb={5}>
-                                                    <CircularProgress color="info" />
-                                                </MDBox>
-                                            </Grid>
-                                        </Grid>
                                     }
-
-                                    {/* {!isLoading && count !== 0 &&
-                                    <MDBox mt={1} p={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
-                                        <MDButton variant='outlined' color='secondary' disabled={(skip + limitSetting) / limitSetting === 1 ? true : false} size="small" onClick={backHandler}>Back</MDButton>
-                                        <MDTypography color="dark" fontSize={15} fontWeight='bold'>Total Transactions: {!count ? 0 : count} | Page {(skip + limitSetting) / limitSetting} of {!count ? 1 : Math.ceil(count / limitSetting)}</MDTypography>
-                                        <MDButton variant='outlined' color='secondary' disabled={Math.ceil(count / limitSetting) === (skip + limitSetting) / limitSetting ? true : !count ? true : false} size="small" onClick={nextHandler}>Next</MDButton>
-                                    </MDBox>
-                                } */}
 
                                     {
-                                        count == 0 &&
-                                        <MDTypography color="secondary" mt={2} mb={2} fontSize={15} fontWeight='bold' display='flex' alignItems='center' alignContent='center' justifyContent='center'>No Transactions Yet!</MDTypography>
+                                        data.length == 0 &&
+                                        <MDTypography color="secondary" mt={2} mb={2} fontSize={15} fontWeight='bold' display='flex' alignItems='center' alignContent='center' justifyContent='center'>No Students Yet!</MDTypography>
                                     }
                                 </MDBox>
-                            </Card>
                         </Grid>
                     </Grid>
                 </Box>
@@ -288,4 +222,4 @@ function ReferralProduct() {
     );
 }
 
-export default ReferralProduct;
+export default RecentJoinee;

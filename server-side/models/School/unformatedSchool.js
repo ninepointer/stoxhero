@@ -12,7 +12,8 @@ const schoolSchema = new mongoose.Schema({
     contact1:String,
     email:String,
     country:String,
+    website: String
 });
 
-const school = mongoose.model("school", schoolSchema);
+const school = mongoose.model("unformatted-school", schoolSchema);
 module.exports = school;

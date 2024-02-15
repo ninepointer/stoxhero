@@ -1,8 +1,10 @@
 const express = require('express');
 const Authenticate = require('../../authentication/authentication');
+const {SchoolAuthenticate} = require('../../authentication/schoolAuthentication');
 const restrictTo = require('../../authentication/authorization');
 const schoolController = require('../../controllers/school/schoolOnboarding');
 const router = express.Router();
+const schoolDash = require('./schoolDashRoute');
 
 const multer = require('multer');
 
@@ -17,6 +19,8 @@ const fileFilter = (req, file, cb) => {
 };
 
 const upload = multer({ storage: storage, fileFilter: fileFilter });
+
+router.use('/dash', schoolDash);
 
 router.post(
     '/', Authenticate, restrictTo('Admin', 'SuperAdmin'),

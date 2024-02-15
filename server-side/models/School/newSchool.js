@@ -6,27 +6,6 @@ require("../../db/conn");
 
 
 const schoolSchema = new mongoose.Schema({
-    school_name: {
-        type: String,
-        required: true
-    },
-    // principalName: {
-    //     type: String,
-    //     required: true
-    // },
-
-
-    mobile: {
-        type: String,
-        // required: true
-    },
-
-    // city: {
-    //     type: Schema.Types.ObjectId,
-    //     ref: 'city'
-    //     // required: true
-    // },
-
 
     school_name:String,
     address:String,
@@ -37,10 +16,11 @@ const schoolSchema = new mongoose.Schema({
     },
     state:String,
     head_name:String,
-    contact1:String,
+    mobile:String,
+    website: String,
     email: {
         type: String,
-        required: true
+        // required: true
     },
     highestGrade: {
         type: Schema.Types.ObjectId,
@@ -59,14 +39,10 @@ const schoolSchema = new mongoose.Schema({
         required: true,
         default: false
     },
-    affiliation: {
+    aff_no: {
         type: String,
         // required: true
     }, 
-    affiliationNumber: {
-        type: String,
-        // required: true
-    },
     password: {
         type: String,
         // required: true
@@ -120,7 +96,6 @@ schoolSchema.methods.correctPassword = async function (
 ) {
     return await bcrypt.compare(candidatePassword, userPassword);
 };
-
 // generating jwt token
 schoolSchema.methods.generateAuthToken = async function () {
     try {
@@ -148,5 +123,5 @@ schoolSchema.methods.changedPasswordAfter = function(JWTiat) {
 
 
 
-const SchoolOnBoarding = mongoose.model("school-onboarding", schoolSchema);
+const SchoolOnBoarding = mongoose.model("new-school", schoolSchema);
 module.exports = SchoolOnBoarding;

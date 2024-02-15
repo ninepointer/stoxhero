@@ -348,7 +348,7 @@ export default function App() {
         ? getRoutes(analyticsRoutes) :  (detailUser.role?.roleName === schoolRole || getDetails?.userDetails?.role?.roleName === schoolRole) 
         ? getRoutes(routesSchool) : getRoutes(homeRoutes)
         }
-{/* 65659e451aac3cb5490d2e526579442a7a6c4ec430d7b219 overallpnlDailyContest */}
+
           {!cookieValue  ?  
           
           // pathname == "/login" ?

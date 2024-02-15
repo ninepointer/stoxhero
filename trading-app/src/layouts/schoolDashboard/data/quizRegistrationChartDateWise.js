@@ -3,8 +3,18 @@ import React, { useEffect, useRef } from 'react';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 
-export default function Charts({ testZoneMonthlyRevenue }) {
+export default function Charts({ data }) {
   const chartRef = useRef(null);
+
+  data.sort((a, b) => {
+    if (a.date < b.date) {
+      return -1;
+    }
+    if (a.date > b.date) {
+      return 1;
+    }
+    return 0;
+  });
 
   useEffect(() => {
     const chart = echarts.init(chartRef.current);
@@ -46,7 +56,7 @@ export default function Charts({ testZoneMonthlyRevenue }) {
       xAxis: [
         {
           type: 'category',
-          data: ['12 Feb', '13 Feb', '14 Feb', '15 Feb'],
+          data: data?.map(elem => elem?.date),
           axisPointer: {
             type: 'shadow',
           },
@@ -76,14 +86,14 @@ export default function Charts({ testZoneMonthlyRevenue }) {
       series: [
         {
           name: 'Students',
-          type: 'line', // Change type to 'line' for area graph
+          type: 'bar', // Change type to 'line' for area graph
           stack: 'stack', // Set stack property to 'stack'
           itemStyle: {
             color: 'rgba(96, 239, 177, 0.7)', // Change color of the graph
           },
           areaStyle: {}, // Add areaStyle for area graph
           yAxisIndex: 0, // Associate with the first y-axis
-          data: [50, 60, 70, 80, 40, 30, 90],
+          data: data?.map(elem => elem?.users),
         },
       ],
     };
@@ -93,7 +103,7 @@ export default function Charts({ testZoneMonthlyRevenue }) {
     return () => {
       chart.dispose();
     };
-  }, [testZoneMonthlyRevenue]);
+  }, [data]);
 
   useEffect(() => {
     const handleResize = () => {
