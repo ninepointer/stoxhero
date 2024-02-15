@@ -80,7 +80,7 @@ async function getUsersFromCriteria(criteria){
         case 'Monthly Active Users':
             const currentDate = moment();
             const firstDayOfMonth = currentDate.clone().startOf('month').format('YYYY-MM-DD');
-            console.log(new Date(firstDayOfMonth), new Date());
+
             const lastDayOfMonth = currentDate.clone().endOf('month').format('YYYY-MM-DD');
             users = getActiveUsersSet(new Date(firstDayOfMonth), new Date(lastDayOfMonth));
             break;
@@ -175,10 +175,10 @@ async function getActiveUsersSet(startDate, endDate){
     
     for (const collection of collections) {
         const traders = await collection.aggregate(pipeline);
-        console.log('collection', collection, traders.length)
+
         traders.forEach(trader => uniqueUsersSet.add(trader.trader.toString()));
-        console.log('unique users set', uniqueUsersSet.size)
-    }
+
+      }
     
     return Array.from(uniqueUsersSet);
 }
@@ -188,7 +188,7 @@ async function getInactiveUsersSet(startDate, endDate){
     const activeUsers = await getActiveUsersSet(startDate, endDate);
     const allUserDocs = await User.find().select("_id");
     const allUsers = allUserDocs.map(item=>item._id.toString());
-    console.log('activeUsers',activeUsers)
+
     //find the difference between the arrays and store it in inactiveUsers
     let inactiveUsers = allUsers.filter(user => !activeUsers.includes(user));
     return inactiveUsers;
@@ -289,16 +289,16 @@ async function getPaidUsersSet(startDate, endDate){
     const uniqueUsersSet = new Set();
     const tenXPaidUsers = await TenX.aggregate(tenXPipeline);
     tenXPaidUsers.forEach(trader=> uniqueUsersSet.add(trader?._id?.toString()));
-    console.log('tenx paid', tenXPaidUsers.length, uniqueUsersSet.size);
+
     const marginXPaidUsers = await MarginX.aggregate(marginXPipeline);
     marginXPaidUsers.forEach(trader=> uniqueUsersSet.add(trader?._id?.toString()));
-    console.log('marginx paid', marginXPaidUsers.length, uniqueUsersSet.size);
+
     const contestPaidUsers = await Contest.aggregate(contestPipeline);
     contestPaidUsers.forEach(trader=> uniqueUsersSet.add(trader?._id?.toString()));
-    console.log('contest paid', contestPaidUsers.length, uniqueUsersSet.size);
+
     const battlePaidUsers = await Battle.aggregate(battlePipeline);
     battlePaidUsers.forEach(trader=> uniqueUsersSet.add(trader?._id.toString()));
-    console.log('tenx paid', battlePaidUsers.length, uniqueUsersSet.size);
+
     
     return Array.from(uniqueUsersSet);
 }

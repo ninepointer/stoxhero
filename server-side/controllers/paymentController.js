@@ -527,8 +527,8 @@ exports.checkPaymentStatus = async(req,res, next) => {
                         actionDate: new Date(),
                         actionBy: '63ecbc570302e7cf0153370c'
                     });
-                console.log('amount hai', payment?.amount);    
-                if(payment.amount == resp.data.data.amount/100){
+
+                    if(payment.amount == resp.data.data.amount/100){
                     await addMoneyToWallet(payment.amount-payment?.gstAmount, payment?.paymentBy);
                     if(payment?.paymentFor && payment?.productId){
                         await participateUser(payment?.paymentFor, payment?.productId, payment?.paymentBy, payment?.amount, payment?.coupon, payment?.productDetails);

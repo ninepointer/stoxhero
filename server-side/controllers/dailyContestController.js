@@ -304,7 +304,6 @@ exports.getAllLiveContests = async (req, res) => {
     const tomorrow = new Date(formattedNextDay);
 
 
-    console.log(today, tomorrow)
     try {
         const contests = await Contest.find({ contestType: "Live", contestEndTime: { $lt: tomorrow }, contestStartTime: { $gte: today } })
             .populate('portfolio', 'portfolioValue portfolioName')
@@ -1099,7 +1098,6 @@ exports.getCommpletedContestsAdmin = async (req, res) => {
     const skip = parseInt(req.query.skip) || 0;
     const limit = parseInt(req.query.limit) || 10
     const count = await Contest.countDocuments({contestStatus: 'Completed'})
-    console.log("Details:",skip,limit,count)
     try {
         const contests = await Contest.find({ contestStatus: 'Completed' })
             .populate('portfolio', 'portfolioName _id portfolioValue')
@@ -1497,7 +1495,6 @@ exports.editReward = async (req, res) => {
           maxPayout += (reward.prizeValue)*multiplier;
         }
   
-        console.log(maxPayout);
         contest.maxPayout = maxPayout;
   
         await contest.save();
@@ -1835,9 +1832,7 @@ exports.participateUsers = async (req, res) => {
         // Now update the isLive field based on the liveThreshold value
         if ((noOfContest[0]?.totalContestsCount < result?.liveThreshold) && result.currentLiveStatus === "Live") {
             obj.isLive = true;
-            console.log("in if")
         } else {
-            console.log("in else")
             obj.isLive = false;
         }
 
@@ -2120,8 +2115,6 @@ exports.creditAmountToWallet = async () => {
                     contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
                     contest[j].participants[i].tdsAmount = tdsAmount > 0 ? tdsAmount : 0;
                     contest[j].participants[i].herocashPayout = contest[j]?.tdsRelief ? (tdsAmount > 0 ? tdsAmount : 0) : 0;
-
-                    console.log(contest[j].participants[i])
 
                     // if (process.env.PROD == 'true') {
                       try{
@@ -3584,11 +3577,9 @@ exports.findContestByName = async(req,res,next)=>{
         const {name, date} = req.query;
         console.log("Body:",req.query)
         let dateString = date.includes('-') ? date.split('-').join('') : date.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
-        console.log(new Date(dateString))
         const result = await Contest.findOne({slug: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'College'}).
         populate('portfolio', 'portfolioValue portfolioName').
             select('_id contestName contestStartTime contestEndTime payoutPercentage entryFee description');
-        console.log(result)
             if(!result){
             return res.status(404).json({
                 status: "error",
@@ -3609,9 +3600,7 @@ exports.findContestByName = async(req,res,next)=>{
 exports.findFeaturedContestByName = async(req,res,next)=>{
     try{
         const {name, date} = req.query;
-        console.log("Body:",req.query)
         let dateString = date.includes('-') ? date.split('-').join('') : date.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
-        console.log(new Date(dateString))
         const result = await Contest.findOne({slug: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'StoxHero'}).
         populate('portfolio', 'portfolioValue portfolioName').
             select('_id contestName contestStartTime contestEndTime entryFee rewards description payoutType payoutCapPercentage payoutPercentage rewardType');
