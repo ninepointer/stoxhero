@@ -10,7 +10,7 @@ import {Card, Button} from "@mui/material";
 import { AiOutlineEdit } from 'react-icons/ai';
 import { apiUrl } from '../../../../constants/constants';
 import StyleIcon from '@mui/icons-material/Style';
-// import Options from '../options/options';
+import CreateSection from './createSection'
 
 const Grades = ({ school }) => {
 
@@ -75,6 +75,11 @@ const Grades = ({ school }) => {
                     </MDTypography>
                 </MDBox>
             </MDBox>
+
+            {createSections && <>
+                <CreateSection createSections={createSections} setCreateSections={setCreateSections} school={school} section={id} />
+            </>
+            }
 
             <MDBox mt={1}>
                 <DataTable
