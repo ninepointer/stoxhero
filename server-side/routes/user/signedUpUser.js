@@ -471,12 +471,12 @@ router.patch("/verifyotp", async (req, res) => {
     }
 
     const user = await SignedUpUser.findOne({ mobile: mobile })
-    // if (!user) {
-    //     return res.status(404).json({
-    //         status: 'error',
-    //         message: "User with this mobile number doesn't exist"
-    //     })
-    // }
+    if (!user) {
+        return res.status(404).json({
+            status: 'error',
+            message: "User with this mobile number doesn't exist"
+        })
+    }
 
   
     //removed email otp check
@@ -489,32 +489,31 @@ router.patch("/verifyotp", async (req, res) => {
 
     const checkUser = await User.findOne({mobile:user?.mobile});
 
-    // if(checkUser && parents_name && school && grade){
-    //     checkUser.schoolDetails = schoolDetails;
-    //     checkUser.student_name = student_name;
-    //     await checkUser.save({validateBeforeSave: false, new: true});
+    if(checkUser && parents_name && school && grade){
+        checkUser.schoolDetails = schoolDetails;
+        checkUser.student_name = student_name;
+        await checkUser.save({validateBeforeSave: false, new: true});
 
-    //     const newuser = await User.findOne({_id: new ObjectId(checkUser?._id)}).populate('schoolDetails.city', 'name').populate('schoolDetails.school', 'school_name');
-    //     const token = await newuser.generateAuthToken();
+        const newuser = await User.findOne({_id: new ObjectId(checkUser?._id)}).populate('schoolDetails.city', 'name').populate('schoolDetails.school', 'school_name');
+        const token = await newuser.generateAuthToken();
 
-    //     res.cookie("jwtoken", token, {
-    //         expires: new Date(Date.now() + 25892000000),
-    //     }); 
-    //     return res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials.", token: token});
-    // }
-    // if(checkUser && !checkUser?.collegeDetails?.college && collegeDetails){
-    //     checkUser.collegeDetails = collegeDetails;
-    //     const newuser = await checkUser.save({validateBeforeSave: false, new: true});
-    //     return res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials."});
-    // }
-    // if(checkUser){
-    //     return res.status(400).json({
-    //         status: 'error',
-    //         message: "Account already exists with this mobile number."
-    //     })
-    // }
+        res.cookie("jwtoken", token, {
+            expires: new Date(Date.now() + 25892000000),
+        }); 
+        return res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials.", token: token});
+    }
+    if(checkUser && !checkUser?.collegeDetails?.college && collegeDetails){
+        checkUser.collegeDetails = collegeDetails;
+        const newuser = await checkUser.save({validateBeforeSave: false, new: true});
+        return res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials."});
+    }
+    if(checkUser){
+        return res.status(400).json({
+            status: 'error',
+            message: "Account already exists with this mobile number."
+        })
+    }
 
-    //----------------
 
 
     let referredBy;
@@ -702,7 +701,7 @@ router.patch("/verifyotp", async (req, res) => {
                     },
 
                     { new: true, validateBeforeSave: false }
-                  );
+                );
                   
                 //   console.log("updateProgramme",updateProgramme)
                 // affiliateObj?.referrals?.push({ userId: newuser.upsertedId, joinedOn: new Date(), affiliateUserId: referrerCodeMatch?._id})
@@ -731,7 +730,7 @@ router.patch("/verifyotp", async (req, res) => {
                     await referrerCodeMatch.save({ validateBeforeSave: false });
 
                     const wallet = await UserWallet.findOneAndUpdate(
-                        { userId: referrerCodeMatch._id },
+                        { userId: new ObjectId(referrerCodeMatch._id) },
                         {
                           $push: {
                             transactions: {
@@ -795,15 +794,6 @@ router.patch("/verifyotp", async (req, res) => {
                 })
     
                 if (referrerCode) {
-                    // let referrerCodeMatch = await User.findOne({ myReferralCode: referrerCode });
-                    // referrerCodeMatch.referrals = [...referrerCodeMatch.referrals, {
-                    //     referredUserId: newuser.upsertedId,
-                    //     joining_date: newuser.createdOn,
-                    //     referralProgram: referralProgramme._id,
-                    //     referralEarning: referralProgramme.rewardPerReferral,
-                    //     referralCurrency: referralProgramme.currency,
-                    // }];
-
                     const saveReferrals = await User.findOneAndUpdate(
                         { myReferralCode: referrerCode },
                         {
@@ -824,7 +814,7 @@ router.patch("/verifyotp", async (req, res) => {
                     }
                     // await referrerCodeMatch.save({ validateBeforeSave: false });
                     const wallet = await UserWallet.findOneAndUpdate(
-                        { userId: saveReferrals._id },
+                        { userId: new ObjectId(saveReferrals._id) },
                         {
                             $push: {
                                 transactions: {
@@ -839,17 +829,6 @@ router.patch("/verifyotp", async (req, res) => {
                         },
                         { new: true, validateBeforeSave: false }
                     );
-
-                    // const wallet = await UserWallet.findOne({ userId: saveReferrals._id });
-                    // wallet.transactions = [...wallet.transactions, {
-                    //     title: 'Referral Credit',
-                    //     description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
-                    //     amount: referralProgramme.rewardPerReferral,
-                    //     transactionId: uuid.v4(),
-                    //     transactionDate: new Date(),
-                    //     transactionType: referralProgramme.currency == 'INR' ? 'Cash' : 'Bonus'
-                    // }];
-                    // await wallet.save({ validateBeforeSave: false });
 
                     await createUserNotification({
                         title: 'Referral Signup Credit',
@@ -1028,8 +1007,8 @@ router.patch("/verifyotp", async (req, res) => {
 })
 
 const addSignupBonus = async (userId, amount, currency) => {
-    const wallet = await UserWallet.findOne({userId:userId});
-    console.log("Wallet, Amount, Currency:",wallet, userId, amount, currency)
+    const wallet = await UserWallet.findOne({userId: new ObjectId(userId)});
+    // console.log("Wallet, Amount, Currency:",wallet, userId, amount, currency)
     try{
         wallet?.transactions?.push({
             title: 'Sign up Bonus',
@@ -1040,7 +1019,7 @@ const addSignupBonus = async (userId, amount, currency) => {
             transactionType: currency
         });
         await wallet?.save({validateBeforeSave:false});
-        console.log("Saved Wallet:",wallet)
+        // console.log("Saved Wallet:",wallet)
     }catch(e){
         console.log(e);
     }
