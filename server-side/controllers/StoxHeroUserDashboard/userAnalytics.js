@@ -5441,27 +5441,27 @@ exports.getMarketingFunnelDataLifetime = async (req, res) => {
 exports.getMarketingFunnelDataOptimised = async (req, res) => {
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  console.log("Month Start:",startOfMonth)
-  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-  console.log("Month End:",endOfMonth)
-  const thisMonth = today.getMonth() + 1
-  console.log("This Month:",thisMonth)
-  const lastMonth = today.getMonth() 
-  console.log("Last Month:",lastMonth)
-  const last2lastMonth = today.getMonth()-1
-  console.log("Last2Last Month:",last2lastMonth)
-  const startOfLastMonth = new Date(today.getFullYear(), today.getMonth()-1, 1);
-  console.log("Last Month Start:",startOfLastMonth)
-  const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  console.log("Last Month End:",endOfLastMonth)
-  const thisYear = today.getFullYear()
-  console.log("This Year:",thisYear)
-  const lastYear = thisMonth === 1 ? thisYear-1 : thisMonth === 2 ? thisYear -1 : thisYear
-  console.log("Last Year:",lastYear)
 
+  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+
+  const thisMonth = today.getMonth() + 1
+
+  const lastMonth = today.getMonth() 
+
+  const last2lastMonth = today.getMonth()-1
+
+  const startOfLastMonth = new Date(today.getFullYear(), today.getMonth()-1, 1);
+
+  const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  const thisYear = today.getFullYear()
+
+  const lastYear = thisMonth === 1 ? thisYear-1 : thisMonth === 2 ? thisYear -1 : thisYear
+
+  
   try {
     const totalSignups = await User.countDocuments();
-    console.log("Total Signups:",totalSignups)
+
     const thisMonthSignups = await User.aggregate(
       [
         {
@@ -5499,8 +5499,8 @@ exports.getMarketingFunnelDataOptimised = async (req, res) => {
         },
       ]
     );
-    console.log("This Month Signups:",thisMonthSignups.length)
 
+    
 
     const pipeline = [
       {
@@ -5630,8 +5630,8 @@ exports.getMarketingFunnelDataOptimised = async (req, res) => {
     
     let allTraders = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
     let MUallTraders = [...MWtenXTraders, ...MWvirtualTraders, ...MWcontestTraders, ...MWinternshipTraders, ...MWmarginXTraders, ...MWbattleTraders];
-    console.log("MU Traders:",MUallTraders)
 
+    
     let monthToTradersMap = new Map();
 
     MUallTraders.forEach(({ month, year, trader }) => {

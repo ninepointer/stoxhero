@@ -452,7 +452,7 @@ exports.getHomePageContestEarnings = async (req, res) => {
       ]
 
       const contestEarnings = await Contest.aggregate(pipeline)
-      console.log(contestEarnings);
+
       await client.set(`homepagecontestearning`, JSON.stringify(contestEarnings));
       await client.expire(`homepagecontestearning`, 600);
 

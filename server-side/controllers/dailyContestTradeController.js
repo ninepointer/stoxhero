@@ -2037,7 +2037,6 @@ const fetchPnlData = async (userId, id) => {
 }
 
 const dailyContestLeaderBoard = async (contestData) => {
-    console.log("contestData", contestData);
     const id = contestData._id?.toString();
     //finding data for new participates
     const contest = await DailyContest.findOne({ _id: new ObjectId(id) })

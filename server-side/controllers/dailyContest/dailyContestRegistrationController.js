@@ -23,8 +23,8 @@ const {ObjectId} = require('mongodb')
 
 
 exports.generateOTP = async (req, res, next) => {
-    console.log(req.body)
 
+    
     const { firstName, lastName, email, mobile, dob, gender, college, collegeName, course, passingoutyear, source, contest, campaignCode, referrerCode, linkedInProfileLink
     } = req.body
 
