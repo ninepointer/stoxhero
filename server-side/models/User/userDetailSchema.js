@@ -47,7 +47,11 @@ const userDetailSchema = new mongoose.Schema({
     city:String,
     schoolDetails:{
         parents_name: String,
-        grade: String,
+        section: String,
+        grade: {
+            type: Schema.Types.ObjectId,
+            ref: 'grade'    
+        },
         school:{
             type: Schema.Types.ObjectId,
             ref: 'school'    

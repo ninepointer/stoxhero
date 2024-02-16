@@ -160,13 +160,13 @@ router.get("/send", async (req, res) => {
 })
 
 router.post("/schoolsignup", async (req, res) => {
-    const { mobile, student_name, city, parents_name, grade, school,dob ,state} = req.body;
+    const { mobile, student_name, city, parents_name, grade, school,dob ,state, section} = req.body;
 
     const schoolDetails = {
-        parents_name, grade, school, dob, city, state
+        parents_name, grade, school, dob, city, state, section
     }
 
-    if (!mobile || !student_name || !city || !parents_name || !grade || !school) {
+    if (!mobile || !student_name || !city || !parents_name || !grade || !school || !section) {
         return res.status(400).json({ status: 'error', message: "Please fill all fields to proceed." })
     }
     const isExistingUser = await User.findOne({ mobile: mobile })
@@ -217,80 +217,6 @@ router.post("/schoolsignup", async (req, res) => {
         
     } catch (err) { console.log(err); res.status(500).json({ message: 'Something went wrong', status: "error" }) }
 })
-const getAsync = promisify(client.get).bind(client);
-const setAsync = promisify(client.set).bind(client);
-
-// router.post('/fetchschools', async (req, res) => {
-//     const { inputString, stateName, cityName } = req.body;
-
-//     try {
-//         // Check if data for the state is already cached
-//         let stateData = await client.get(`stateSchools-${stateName}`);
-
-//         if (!stateData) {
-//             // Data not in cache, fetch from database and cache it
-//             const dataFromDB = await School.find({state: stateName}).select('_id school_name city');
-//             await client.set(`stateSchools-${stateName}`, JSON.stringify(dataFromDB));
-//             stateData = JSON.stringify(dataFromDB);
-//             console.log('new state data', stateData);
-//         }
-
-//         // Parse the data to filter based on the input string
-//         // const filteredData = JSON.parse(stateData).filter(school => 
-//         //     school.school_name.toLowerCase().includes(inputString.toLowerCase()));
-//         const filteredData = JSON.parse(stateData).filter(school =>
-//             school?.school_name?.toLowerCase().includes(inputString?.toLowerCase())
-//         ).map(school => {
-//             // Determine the city or use stateName if city is not available
-//             const cityOrState = school?.city ? school?.city?.split(',')[0] : stateName;
-            
-//             return {
-//                 ...school, // Spread the rest of the school object
-//                 schoolString: `${school?.school_name}, ${cityOrState}` // Construct the schoolString with city or stateName
-//             };
-//         });        
-//         res.json(filteredData);
-//     } catch (error) {
-//         console.error('Error fetching data:', error);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-// router.post('/fetchschools', async (req, res) => {
-//     const { inputString, stateName, cityName } = req.body;
-
-//     try {
-//         // Check if data for the state is already cached
-//         let cityData = await client.get(`citySchools-${cityName}`);
-
-//         if (!cityData) {
-//             // Data not in cache, fetch from database and cache it
-//             const dataFromDB = await School.find({city: cityName}).select('_id school_name city state address');
-//             await client.set(`citySchools-${cityName}`, JSON.stringify(dataFromDB));
-//             cityData = JSON.stringify(dataFromDB);
-//             console.log('new city data', cityData);
-//         }
-
-//         // Parse the data to filter based on the input string
-//         // const filteredData = JSON.parse(stateData).filter(school => 
-//         //     school.school_name.toLowerCase().includes(inputString.toLowerCase()));
-//         const filteredData = JSON.parse(cityData).filter(school =>
-//             school?.school_name?.toLowerCase().includes(inputString?.toLowerCase())
-//         ).map(school => {
-//             // Determine the city or use stateName if city is not available
-//             const cityOrState = school?.city ? school?.city?.split(',')[0] : cityName;
-            
-//             return {
-//                 ...school, // Spread the rest of the school object
-//                 schoolString: `${school?.school_name}, ${cityOrState}` // Construct the schoolString with city or stateName
-//             };
-//         });        
-//         res.json(filteredData);
-//     } catch (error) {
-//         console.error('Error fetching data:', error);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
 
 router.post('/fetchschools', async (req, res) => {
     const { inputString, cityId } = req.body;
@@ -328,7 +254,6 @@ router.post('/fetchschools', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-
 
 router.post("/signupintent", async (req, res) => {
     const { mobile } = req.body;
@@ -448,8 +373,6 @@ async function generateUniqueReferralCode() {
     return myReferralCode;
 }
 
-
-
 router.patch("/verifyotp", async (req, res) => {
     let {
         first_name,
@@ -463,11 +386,11 @@ router.patch("/verifyotp", async (req, res) => {
         fcmTokenData,
         collegeDetails,
         parents_name, school, grade,
-        dob, state
+        dob, state, section
     } = req.body
 
     const schoolDetails = {
-        parents_name, school, grade, city, dob, state
+        parents_name, school, grade, city, dob, state, section
     }
 
     const user = await SignedUpUser.findOne({ mobile: mobile })
@@ -628,9 +551,6 @@ router.patch("/verifyotp", async (req, res) => {
             })
         }
         
-
-        console.log("new user", newuser)
-        // create(obj);
         await UserWallet.create(
             {
                 userId: newuser.upsertedId,
