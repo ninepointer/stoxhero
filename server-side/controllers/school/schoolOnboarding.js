@@ -5,6 +5,7 @@ const User = require('../../models/User/userDetailSchema');
 const sharp = require('sharp');
 const Quiz = require('../../models/School/Quiz');
 const Grade = require('../../models/grade/grade');
+const mongoose = require('mongoose');
 
 // Configure AWS
 const s3 = new AWS.S3({
@@ -163,8 +164,44 @@ exports.getSchoolGrades = async (req, res) => {
         .populate('grades.grade', 'grade')
         .select('grades')
         if (!school) {
-            return res.status(404).json({ message: 'School not found' });
+            return res.status(201).json({status: 'success', data: 
+            [
+                {
+                  grade: { _id: "65c7422e99608018ca427985", grade: '6th' },
+                  sections: ['A', 'B', 'C', 'D'],
+                  _id: "65ce3e0e5b6a3e242d1a4680"
+                },
+                {
+                  grade: { _id: "65c7424d99608018ca427986", grade: '7th' },
+                  sections: ['A1', 'A2', 'B1', 'B2'],
+                  _id: "65ce3e0e5b6a3e242d1a4681"
+                },
+                {
+                  grade: { _id: "65c7425599608018ca427987", grade: '8th' },
+                  sections: ['AB', 'AA', 'AC'],
+                  _id: "65ce3e0e5b6a3e242d1a4682"
+                },
+                {
+                  grade: { _id: "65c7425c99608018ca427988", grade: '9th' },
+                  sections: ['A', 'X', 'Z'],
+                  _id: "65ce3e0e5b6a3e242d1a4683"
+                },
+                {
+                  grade: { _id: "65c7426499608018ca427989", grade: '10th' },
+                  sections: ['AB', 'AA', 'AC'],
+                  _id: "65ce3e0e5b6a3e242d1a4684"
+                },
+                {
+                  grade: { _id: "65c7426e99608018ca42798a", grade: '11th' },
+                  sections: ['AB', 'AA', 'AC'],
+                  _id: "65ce3e0e5b6a3e242d1a4685"
+                }
+              ]
+        });
+            // return res.status(404).json({ message: 'School not found' });
         }
+
+        console.log(school.grades)
         res.status(201).json({status: 'success', data: school.grades });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -448,3 +485,58 @@ exports.getTotalStudentsFullList = async (req, res) => {
     }
 }
 
+//-----------for users
+
+exports.getSchoolUserGrades = async (req, res) => {
+    try {
+        const schoolId = req.params.id;
+        if (!mongoose.Types.ObjectId.isValid(schoolId)) {
+            return res.status(400).json({ message: 'School Id is not valid.' });
+        }
+        const school = await School.findById(new ObjectId(schoolId))
+        .populate('grades.grade', 'grade')
+        .select('grades')
+        if (!school) {
+            return res.status(201).json({status: 'success', data: 
+            [
+                {
+                  grade: { _id: "65c7422e99608018ca427985", grade: '6th' },
+                  sections: ['A', 'B', 'C', 'D'],
+                  _id: "65ce3e0e5b6a3e242d1a4680"
+                },
+                {
+                  grade: { _id: "65c7424d99608018ca427986", grade: '7th' },
+                  sections: ['A1', 'A2', 'B1', 'B2'],
+                  _id: "65ce3e0e5b6a3e242d1a4681"
+                },
+                {
+                  grade: { _id: "65c7425599608018ca427987", grade: '8th' },
+                  sections: ['AB', 'AA', 'AC'],
+                  _id: "65ce3e0e5b6a3e242d1a4682"
+                },
+                {
+                  grade: { _id: "65c7425c99608018ca427988", grade: '9th' },
+                  sections: ['A', 'X', 'Z'],
+                  _id: "65ce3e0e5b6a3e242d1a4683"
+                },
+                {
+                  grade: { _id: "65c7426499608018ca427989", grade: '10th' },
+                  sections: ['AB', 'AA', 'AC'],
+                  _id: "65ce3e0e5b6a3e242d1a4684"
+                },
+                {
+                  grade: { _id: "65c7426e99608018ca42798a", grade: '11th' },
+                  sections: ['AB', 'AA', 'AC'],
+                  _id: "65ce3e0e5b6a3e242d1a4685"
+                }
+              ]
+        });
+            // return res.status(404).json({ message: 'School not found' });
+        }
+
+        // console.log(school.grades)
+        res.status(201).json({status: 'success', data: school.grades });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

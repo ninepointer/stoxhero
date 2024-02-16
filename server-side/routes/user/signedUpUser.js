@@ -257,35 +257,36 @@ const setAsync = promisify(client.set).bind(client);
 // });
 
 router.post('/fetchschools', async (req, res) => {
-    const { inputString, stateName, cityName } = req.body;
+    const { inputString, cityId } = req.body;
 
     try {
         // Check if data for the state is already cached
-        let cityData = await client.get(`citySchools-${cityName}`);
+        let cityData = await client.get(`citySchools-${cityId}`);
 
         if (!cityData) {
             // Data not in cache, fetch from database and cache it
-            const dataFromDB = await School.find({city: cityName}).select('_id school_name city state address');
-            await client.set(`citySchools-${cityName}`, JSON.stringify(dataFromDB));
+            const dataFromDB = await School.find({isOnboarding: true, city: new ObjectId(cityId)})
+            .populate('city', 'name')
+            .select('_id school_name city state address');
+            await client.set(`citySchools-${cityId}`, JSON.stringify(dataFromDB));
+            await client.expire(`citySchools-${cityId}`, 600);
             cityData = JSON.stringify(dataFromDB);
-            console.log('new city data', cityData);
         }
 
         // Parse the data to filter based on the input string
-        // const filteredData = JSON.parse(stateData).filter(school => 
-        //     school.school_name.toLowerCase().includes(inputString.toLowerCase()));
         const filteredData = JSON.parse(cityData).filter(school =>
             school?.school_name?.toLowerCase().includes(inputString?.toLowerCase())
         ).map(school => {
             // Determine the city or use stateName if city is not available
-            const cityOrState = school?.city ? school?.city?.split(',')[0] : cityName;
+            const cityOrState = school?.city?.name
+            //  ? school?.city?.split(',')[0] : cityName;
             
             return {
                 ...school, // Spread the rest of the school object
                 schoolString: `${school?.school_name}, ${cityOrState}` // Construct the schoolString with city or stateName
             };
-        });        
-        res.json(filteredData);
+        });    
+        res.status(201).json({status: 'success', data: filteredData });
     } catch (error) {
         console.error('Error fetching data:', error);
         res.status(500).send('Internal Server Error');
