@@ -411,6 +411,8 @@ async function generateUniqueReferralCode() {
     return myReferralCode;
 }
 
+
+
 router.patch("/verifyotp", async (req, res) => {
     let {
         first_name,
@@ -432,12 +434,14 @@ router.patch("/verifyotp", async (req, res) => {
     }
 
     const user = await SignedUpUser.findOne({ mobile: mobile })
-    if (!user) {
-        return res.status(404).json({
-            status: 'error',
-            message: "User with this mobile number doesn't exist"
-        })
-    }
+    // if (!user) {
+    //     return res.status(404).json({
+    //         status: 'error',
+    //         message: "User with this mobile number doesn't exist"
+    //     })
+    // }
+
+  
     //removed email otp check
     if (user.mobile_otp != mobile_otp) {
         return res.status(400).json({
@@ -448,30 +452,32 @@ router.patch("/verifyotp", async (req, res) => {
 
     const checkUser = await User.findOne({mobile:user?.mobile});
 
-    if(checkUser && parents_name && school && grade){
-        checkUser.schoolDetails = schoolDetails;
-        checkUser.student_name = student_name;
-        await checkUser.save({validateBeforeSave: false, new: true});
+    // if(checkUser && parents_name && school && grade){
+    //     checkUser.schoolDetails = schoolDetails;
+    //     checkUser.student_name = student_name;
+    //     await checkUser.save({validateBeforeSave: false, new: true});
 
-        const newuser = await User.findOne({_id: new ObjectId(checkUser?._id)}).populate('schoolDetails.city', 'name').populate('schoolDetails.school', 'school_name');
-        const token = await newuser.generateAuthToken();
+    //     const newuser = await User.findOne({_id: new ObjectId(checkUser?._id)}).populate('schoolDetails.city', 'name').populate('schoolDetails.school', 'school_name');
+    //     const token = await newuser.generateAuthToken();
 
-        res.cookie("jwtoken", token, {
-            expires: new Date(Date.now() + 25892000000),
-        }); 
-        return res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials.", token: token});
-    }
-    if(checkUser && !checkUser?.collegeDetails?.college && collegeDetails){
-        checkUser.collegeDetails = collegeDetails;
-        const newuser = await checkUser.save({validateBeforeSave: false, new: true});
-        return res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials."});
-    }
-    if(checkUser){
-        return res.status(400).json({
-            status: 'error',
-            message: "Account already exists with this mobile number."
-        })
-    }
+    //     res.cookie("jwtoken", token, {
+    //         expires: new Date(Date.now() + 25892000000),
+    //     }); 
+    //     return res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials.", token: token});
+    // }
+    // if(checkUser && !checkUser?.collegeDetails?.college && collegeDetails){
+    //     checkUser.collegeDetails = collegeDetails;
+    //     const newuser = await checkUser.save({validateBeforeSave: false, new: true});
+    //     return res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials."});
+    // }
+    // if(checkUser){
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: "Account already exists with this mobile number."
+    //     })
+    // }
+
+    //----------------
 
 
     let referredBy;
@@ -563,7 +569,7 @@ router.patch("/verifyotp", async (req, res) => {
             campaignCode: campaign && referrerCode,
             referredBy: referredBy && referredBy,
             creationProcess: creation,
-            collegeDetails: collegeDetails || "",
+            collegeDetails: collegeDetails || null,
             affiliateProgramme: match ? affiliateObj?._id : null
         }
 
@@ -575,19 +581,27 @@ router.patch("/verifyotp", async (req, res) => {
             fcmTokenData.lastUsedAt = new Date();
             obj.fcmTokens = [fcmTokenData];
         }
-        // console.log('password', password);
-        // if(password){
-        //     obj.password = password;
-        // }
 
-        const newuser = await User.create(obj);
+    
+        const newuser = await User.updateOne({ mobile: mobile }, { $setOnInsert: obj }, { upsert: true });
+
+        if (newuser.matchedCount > 0) {
+            return res.status(400).json({
+                status: 'error',
+                message: "Account already exists with this mobile number."
+            })
+        }
+        
+
+        console.log("new user", newuser)
+        // create(obj);
         await UserWallet.create(
             {
-                userId: newuser._id,
+                userId: newuser.upsertedId,
                 createdOn: new Date(),
-                createdBy: newuser._id
+                createdBy: newuser.upsertedId
         })
-        const populatedUser = await User.findById(newuser._id).populate('role', 'roleName')
+        const populatedUser = await User.findById(newuser.upsertedId).populate('role', 'roleName')
         .populate('portfolio.portfolioId','portfolioName portfolioValue portfolioType portfolioAccount')
         .populate({
             path : 'subscription.subscriptionId',
@@ -621,9 +635,9 @@ router.patch("/verifyotp", async (req, res) => {
           .populate('schoolDetails.city', 'name')
           .populate('schoolDetails.school', 'school_name')
         .select('student_name schoolDetails full_name city dob pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
-        const token = await newuser.generateAuthToken();
+        const token = await populatedUser.generateAuthToken();
 
-        // console.log("Token:",token)
+        console.log("Token:",token)
 
         res.cookie("jwtoken", token, {
             expires: new Date(Date.now() + 25892000000),
@@ -633,15 +647,6 @@ router.patch("/verifyotp", async (req, res) => {
         res.status(201).json({ status: "Success", data: populatedUser, message: "Welcome! Your account is created, please login with your credentials.", token: token });
         
         // now inserting userId in free portfolio's
-        const idOfUser = newuser._id;
-        // for (const portfolio of activeFreePortfolios) {
-        //     const portfolioValue = portfolio.portfolioValue;
-
-        //     await PortFolio.findByIdAndUpdate(
-        //         portfolio._id,
-        //         { $push: { users: { userId: idOfUser, portfolioValue: portfolioValue } } }
-        //     );
-        // }
 
         //inserting user details to referredBy user and updating wallet balance
         if (referredBy) {
@@ -652,7 +657,7 @@ router.patch("/verifyotp", async (req, res) => {
                     {
                         $push: {
                             referrals: {
-                                userId: newuser._id,
+                                userId: newuser.upsertedId,
                                 joinedOn: new Date(),
                                 affiliateUserId: referrerCodeMatch?._id
                             }
@@ -663,7 +668,7 @@ router.patch("/verifyotp", async (req, res) => {
                   );
                   
                 //   console.log("updateProgramme",updateProgramme)
-                // affiliateObj?.referrals?.push({ userId: newuser._id, joinedOn: new Date(), affiliateUserId: referrerCodeMatch?._id})
+                // affiliateObj?.referrals?.push({ userId: newuser.upsertedId, joinedOn: new Date(), affiliateUserId: referrerCodeMatch?._id})
                 await affiliateObj.save();
     
                 if (referrerCode) {
@@ -673,8 +678,8 @@ router.patch("/verifyotp", async (req, res) => {
                         {
                             $push: {
                                 affiliateReferrals: {
-                                    referredUserId : newuser._id,
-                                    joiningDate : newuser.createdOn,
+                                    referredUserId : newuser.upsertedId,
+                                    joiningDate : populatedUser.createdOn,
                                     affiliateProgram : affiliateObj._id,
                                     affiliateEarning : affiliateObj.rewardPerSignup,
                                     affiliateCurrency : affiliateObj.currency
@@ -684,7 +689,7 @@ router.patch("/verifyotp", async (req, res) => {
                       );
 
                     if(affiliateObj?.referralSignupBonus?.amount){
-                        await addSignupBonus(newuser?._id, affiliateObj?.referralSignupBonus?.amount, affiliateObj?.referralSignupBonus?.currency);
+                        await addSignupBonus(newuser?.upsertedId, affiliateObj?.referralSignupBonus?.amount, affiliateObj?.referralSignupBonus?.currency);
                     }
                     await referrerCodeMatch.save({ validateBeforeSave: false });
 
@@ -694,7 +699,7 @@ router.patch("/verifyotp", async (req, res) => {
                           $push: {
                             transactions: {
                               title: 'Affiliate Signup Credit',
-                              description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                              description: `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
                               amount: affiliateObj.rewardPerSignup,
                               transactionId: uuid.v4(),
                               transactionDate: new Date(),
@@ -709,7 +714,7 @@ router.patch("/verifyotp", async (req, res) => {
 
                     await createUserNotification({
                         title: 'Affiliate Signup Credit',
-                        description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                        description: `Amount credited for referral of ${populatedUser.first_name} ${populatedUser.last_name}`,
                         notificationType: 'Individual',
                         notificationCategory: 'Informational',
                         productCategory: 'SignUp',
@@ -721,7 +726,7 @@ router.patch("/verifyotp", async (req, res) => {
                       });
                       if (user?.fcmTokens?.length > 0) {
                         await sendMultiNotifications('Affiliate Signup Credit',
-                          `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                          `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
                           referrerCodeMatch?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
                         )
                       }
@@ -733,20 +738,20 @@ router.patch("/verifyotp", async (req, res) => {
                         specificProduct: new ObjectId("6586e95dcbc91543c3b6c181"),
                         productActualPrice: 0,
                         productDiscountedPrice: 0,
-                        buyer: new ObjectId(newuser?._id),
+                        buyer: new ObjectId(newuser?.upsertedId),
                         affiliate: new ObjectId(referrerCodeMatch._id),
                         lastModifiedBy: new ObjectId(referrerCodeMatch._id),
                         affiliatePayout: affiliateObj.rewardPerSignup
                       })
                 }
             } else{
-                // referral?.users?.push({ userId: newuser._id, joinedOn: new Date() })
+                // referral?.users?.push({ userId: newuser.upsertedId, joinedOn: new Date() })
                 await referral.save();
                 
                 const referralProgramme = await Referral.findOneAndUpdate({ status: "Active" }, {
                     $push: {
                         users: {
-                            userId: newuser._id, 
+                            userId: newuser.upsertedId, 
                             joinedOn: new Date()
                         }
                     }
@@ -755,7 +760,7 @@ router.patch("/verifyotp", async (req, res) => {
                 if (referrerCode) {
                     // let referrerCodeMatch = await User.findOne({ myReferralCode: referrerCode });
                     // referrerCodeMatch.referrals = [...referrerCodeMatch.referrals, {
-                    //     referredUserId: newuser._id,
+                    //     referredUserId: newuser.upsertedId,
                     //     joining_date: newuser.createdOn,
                     //     referralProgram: referralProgramme._id,
                     //     referralEarning: referralProgramme.rewardPerReferral,
@@ -767,8 +772,8 @@ router.patch("/verifyotp", async (req, res) => {
                         {
                             $push: {
                                 referrals: {
-                                    referredUserId: newuser._id,
-                                    joiningDate: newuser.createdOn,
+                                    referredUserId: newuser.upsertedId,
+                                    joiningDate: populatedUser?.createdOn,
                                     referralProgram: referralProgramme._id,
                                     referralEarning: referralProgramme.rewardPerReferral,
                                     referralCurrency: referralProgramme.currency,
@@ -778,7 +783,7 @@ router.patch("/verifyotp", async (req, res) => {
                     );
 
                     if(referralProgramme?.referralSignupBonus?.amount){
-                        await addSignupBonus(newuser?._id, referralProgramme?.referralSignupBonus?.amount, referralProgramme?.referralSignupBonus?.currency);
+                        await addSignupBonus(newuser?.upsertedId, referralProgramme?.referralSignupBonus?.amount, referralProgramme?.referralSignupBonus?.currency);
                     }
                     // await referrerCodeMatch.save({ validateBeforeSave: false });
                     const wallet = await UserWallet.findOneAndUpdate(
@@ -787,7 +792,7 @@ router.patch("/verifyotp", async (req, res) => {
                             $push: {
                                 transactions: {
                                     title: 'Referral Credit',
-                                    description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                                    description: `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
                                     amount: referralProgramme.rewardPerReferral,
                                     transactionId: uuid.v4(),
                                     transactionDate: new Date(),
@@ -811,7 +816,7 @@ router.patch("/verifyotp", async (req, res) => {
 
                     await createUserNotification({
                         title: 'Referral Signup Credit',
-                        description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                        description: `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
                         notificationType: 'Individual',
                         notificationCategory: 'Informational',
                         productCategory: 'SignUp',
@@ -823,7 +828,7 @@ router.patch("/verifyotp", async (req, res) => {
                       });
                       if (user?.fcmTokens?.length > 0) {
                         await sendMultiNotifications('Referral Signup Credit',
-                          `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                          `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
                           saveReferrals?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
                         )
                       }
@@ -832,10 +837,10 @@ router.patch("/verifyotp", async (req, res) => {
         }
 
         if (campaign) {
-            campaign?.users?.push({ userId: newuser._id, joinedOn: new Date() })
+            campaign?.users?.push({ userId: newuser.upsertedId, joinedOn: new Date() })
             await campaign.save();
             // if(campaign?.campaignType == 'Invite'){
-                await addSignupBonus(newuser?._id, campaign?.campaignSignupBonus?.amount ?? 90, campaign?.campaignSignupBonus?.currency ?? 'INR');
+                await addSignupBonus(newuser?.upsertedId, campaign?.campaignSignupBonus?.amount ?? 90, campaign?.campaignSignupBonus?.currency ?? 'INR');
             // }
         }
 
@@ -915,7 +920,7 @@ router.patch("/verifyotp", async (req, res) => {
             <body>
                 <div class="container">
                 <h1>Account Created</h1>
-                <p>Dear ${newuser.first_name} ${newuser.last_name},</p>
+                <p>Dear ${populatedUser?.first_name} ${populatedUser?.last_name},</p>
                 <p>Welcome to the StoxHero family!</p>
                 
                 <p>Discover Stock Market success with our Paper Trading &amp; Learning App. Experience real market data, actionable insights, and a clutter-free interface on both our mobile app and web platform.</p>
@@ -964,16 +969,20 @@ router.patch("/verifyotp", async (req, res) => {
 
         `
         if(process.env.PROD == 'true'){
-            await emailService(newuser.email, subject, message);
+            try{
+                await emailService(populatedUser?.email, subject, message);
+            } catch(err){
+                console.log(err);
+            }
         }
 
-        if(process.env.PROD == 'true'){
-            await whatsAppService.sendWhatsApp({destination : newuser.mobile, campaignName : 'direct_signup_campaign_new', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
-        }
-        else {
-            whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'direct_signup_campaign_new', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
-            whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'direct_signup_campaign_new', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
-        }
+        // if(process.env.PROD == 'true'){
+        //     await whatsAppService.sendWhatsApp({destination : newuser.mobile, campaignName : 'direct_signup_campaign_new', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
+        // }
+        // else {
+        //     whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'direct_signup_campaign_new', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
+        //     whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'direct_signup_campaign_new', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
+        // }
     }
     catch (error) {
         console.log(error);
