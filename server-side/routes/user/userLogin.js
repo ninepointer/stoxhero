@@ -688,7 +688,7 @@ router.post('/createusermobile', async(req,res, next)=>
                         await referrerCodeMatch.save({ validateBeforeSave: false });
     
                         const wallet = await UserWallet.findOneAndUpdate(
-                            { userId: referrerCodeMatch._id },
+                            { userId: new ObjectId(referrerCodeMatch._id) },
                             {
                               $push: {
                                 transactions: {
@@ -781,7 +781,7 @@ router.post('/createusermobile', async(req,res, next)=>
                         }
                         // await referrerCodeMatch.save({ validateBeforeSave: false });
                         const wallet = await UserWallet.findOneAndUpdate(
-                            { userId: saveReferrals._id },
+                            { userId: new ObjectId(saveReferrals._id) },
                             {
                                 $push: {
                                     transactions: {
