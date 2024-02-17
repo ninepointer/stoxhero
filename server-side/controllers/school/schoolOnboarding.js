@@ -512,6 +512,7 @@ exports.getSchoolUserGrades = async (req, res) => {
         const school = await School.findById(new ObjectId(schoolId))
             .populate('grades.grade', 'grade')
             .select('grades')
+        console.log('school', school, school.grades);    
         if (!school) {
             return res.status(201).json({
                 status: 'success', data:
@@ -551,7 +552,7 @@ exports.getSchoolUserGrades = async (req, res) => {
             // return res.status(404).json({ message: 'School not found' });
         }
 
-        res.status(201).json({ status: 'success', data: school.grades });
+        res.status(200).json({ status: 'success', data: school.grades });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

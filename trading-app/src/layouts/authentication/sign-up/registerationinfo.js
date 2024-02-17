@@ -45,7 +45,8 @@ function Cover() {
   // const [submitClicked, setSubmitClicked] = useState(false);
   const setDetails = useContext(userContext);
   const [cityData, setCityData] = useState([]);
-  const [gradeValue, setGradeValue] = useState();
+  const [gradeValue, setGradeValue] = useState('');
+  const [sectionValue, setSectionValue] = useState();
   const [value, setValue] = useState({
     _id: '',
     name: ""
@@ -88,10 +89,10 @@ function Cover() {
 
   useEffect(()=>{
     getGrade();
-  }, [gradeData])
+  }, [userSchool])
 
   const searchSchools = async ()=>{
-    const res = await axios.post(`${apiUrl}fetchschools`, {cityId:userCity?._id ,inputString: inputValue});
+    const res = await axios.post(`${apiUrl}fetchschools`, {cityId:value?._id ,inputString: inputValue});
     setSchoolsList(res?.data?.data);
   }
 
@@ -103,9 +104,14 @@ function Cover() {
   const debounceGetSchools = debounce(searchSchools, 1500);
   
   const handleSchoolChange = (event, newValue) => {
+    console.log(newValue);
     setUserSchool(newValue);
+    setGradeValue();
+    setSectionValue();
+    // setGradeData([]);
+    // getGrade();
   }
-  
+  console.log('gradeValue', gradeValue);
   
 
   useEffect(() => {
@@ -181,8 +187,8 @@ function Cover() {
         student_name: full_name.trim(),
         mobile: mobile,
         parents_name: parents_name.trim(),
-        grade: gradeValue, school: userSchool?._id,
-        section,
+        grade: gradeValue?.grade?._id, school: userSchool?._id,
+        section:sectionValue,
         city: value?._id,
         dob: dateValue,
         state: userState
@@ -226,8 +232,8 @@ function Cover() {
         mobile_otp: mobileOtp,
         student_name: full_name,
         mobile,
-        parents_name, section,
-        grade: gradeValue, school: userSchool?._id,
+        parents_name, section:sectionValue,
+        grade: gradeValue?.grade?._id, school: userSchool?._id,
         city: value?._id,
         dob: dateValue, state: userState,
         referrerCode: campaignCode
@@ -322,6 +328,9 @@ function Cover() {
     setUserSchool('');
     setCityData([]);
     setUserCity('');
+    setGradeData([]);
+    setSectionValue();
+    setGradeValue();
     setValue({id:'',name:''});
   }
 
@@ -379,15 +388,24 @@ function Cover() {
   }
 
   const handleCityChange = (event, newValue) => {
+    console.log('new value', newValue, newValue.name);
     setUserCity(newValue?.name);
     setValue(newValue);
     setSchoolsList([]);
     setUserSchool('');
+    setGradeValue();
+    setSectionValue();
+    setGradeData([]);
   };
 
   const handleGradeChange = (event, newValue) => {
     setGradeValue(newValue);
+    setSectionValue();
   };
+  const handleSectionChange = (event, newValue) => {
+    setSectionValue(newValue);
+  };
+
 
   return (
     <>
@@ -636,15 +654,15 @@ function Cover() {
                       color: 'dark',
                     },
                   }}
-                  options={["6th", '7th', '8th', '9th', '10th', '11th', "12th"]}
+                  options={gradeData}
                   value={gradeValue}
                   disabled={otpGen}
                   onChange={handleGradeChange}
                   autoHighlight
-                  getOptionLabel={(option) => option ? option : 'Grade'}
+                  getOptionLabel={(option) => option ? option?.grade?.grade : 'Grade'}
                   renderOption={(props, option) => (
                     <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                      {option}
+                      {option?.grade?.grade}
                     </Box>
                   )}
                   renderInput={(params) => (
@@ -665,16 +683,41 @@ function Cover() {
               </Grid>
 
               <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
-                <TextField
-                   required
-                   id="outlined-required"
-                   disabled={otpGen}
-                   fullWidth
-                   type={'text'}
-                   name="section"
-                   placeholder={"Section"}
-                   value={formstate.section}
-                   onChange={handleChange}
+              <CustomAutocomplete
+                  id="country-select-demo"
+                  sx={{
+                    width: "100%",
+                    '& .MuiAutocomplete-clearIndicator': {
+                      color: 'dark',
+                    },
+                  }}
+                  options={gradeData.find((item)=>{
+                    return item?.grade?.grade == gradeValue?.grade?.grade;
+                  })?.sections ?? []}
+                  value={sectionValue}
+                  disabled={otpGen}
+                  onChange={handleSectionChange}
+                  autoHighlight
+                  getOptionLabel={(option) => option ? option : 'Section'}
+                  renderOption={(props, option) => (
+                    <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                      {option}
+                    </Box>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="Section"
+                      inputProps={{
+                        ...params.inputProps,
+                        autoComplete: 'new-password', // disable autocomplete and autofill
+                        style: { color: 'dark', height: "10px" }, // set text color to dark
+                      }}
+                      InputLabelProps={{
+                        style: { color: 'dark' },
+                      }}
+                    />
+                  )}
                 />
               </Grid>
 
