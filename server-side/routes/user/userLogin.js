@@ -556,7 +556,7 @@ router.post('/createusermobile', async(req,res, next)=>
                 campaignCode: campaign && referrerCode,
                 referredBy: referredBy && referredBy,
                 creationProcess: creation,
-                collegeDetails: collegeDetails || "",
+                collegeDetails: collegeDetails || null,
                 affiliateProgramme: match ? affiliateObj?._id : null
             }
     
@@ -568,17 +568,26 @@ router.post('/createusermobile', async(req,res, next)=>
             // if(password){
             //     obj.password = password;
             // }
+
+            const newuser = await UserDetail.updateOne({ mobile: mobile }, { $setOnInsert: obj }, { upsert: true });
+
+            if (newuser.matchedCount > 0) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: "Account already exists with this mobile number."
+                })
+            }
     
-            const newuser = await UserDetail.create(obj);
-            console.log('user created', newuser?._id);
+            // const newuser = await UserDetail.create(obj);
+            // console.log('user created', newuser?.upsertedId);
             await UserWallet.create(
                 {
-                    userId: newuser._id,
+                    userId: newuser.upsertedId,
                     createdOn: new Date(),
-                    createdBy: newuser._id
+                    createdBy: newuser.upsertedId
             })
             console.log('wallet created');
-            const populatedUser = await UserDetail.findById(newuser._id).populate('role', 'roleName')
+            const populatedUser = await UserDetail.findById(newuser.upsertedId).populate('role', 'roleName')
             .populate('portfolio.portfolioId','portfolioName portfolioValue portfolioType portfolioAccount')
             .populate({
                 path : 'subscription.subscriptionId',
@@ -622,7 +631,7 @@ router.post('/createusermobile', async(req,res, next)=>
             
             
             // now inserting userId in free portfolio's
-            const idOfUser = newuser._id;
+            const idOfUser = newuser.upsertedId;
             for (const portfolio of activeFreePortfolios) {
                 const portfolioValue = portfolio.portfolioValue;
     
@@ -642,7 +651,7 @@ router.post('/createusermobile', async(req,res, next)=>
                         {
                             $push: {
                                 referrals: {
-                                    userId: newuser._id,
+                                    userId: newuser.upsertedId,
                                     joinedOn: new Date(),
                                     affiliateUserId: referrerCodeMatch?._id
                                 }
@@ -653,7 +662,7 @@ router.post('/createusermobile', async(req,res, next)=>
                       );
                       
                     //   console.log("updateProgramme",updateProgramme)
-                    // affiliateObj?.referrals?.push({ userId: newuser._id, joinedOn: new Date(), affiliateUserId: referrerCodeMatch?._id})
+                    // affiliateObj?.referrals?.push({ userId: newuser.upsertedId, joinedOn: new Date(), affiliateUserId: referrerCodeMatch?._id})
                     await affiliateObj.save();
         
                     if (referrerCode) {
@@ -663,8 +672,8 @@ router.post('/createusermobile', async(req,res, next)=>
                             {
                                 $push: {
                                     affiliateReferrals: {
-                                        referredUserId : newuser._id,
-                                        joiningDate : newuser.createdOn,
+                                        referredUserId : newuser.upsertedId,
+                                        joiningDate : populatedUser.createdOn,
                                         affiliateProgram : affiliateObj._id,
                                         affiliateEarning : affiliateObj.rewardPerSignup,
                                         affiliateCurrency : affiliateObj.currency
@@ -674,7 +683,7 @@ router.post('/createusermobile', async(req,res, next)=>
                           );
     
                         if(affiliateObj?.referralSignupBonus?.amount){
-                            await addSignupBonus(newuser?._id, affiliateObj?.referralSignupBonus?.amount, affiliateObj?.referralSignupBonus?.currency);
+                            await addSignupBonus(newuser?.upsertedId, affiliateObj?.referralSignupBonus?.amount, affiliateObj?.referralSignupBonus?.currency);
                         }
                         await referrerCodeMatch.save({ validateBeforeSave: false });
     
@@ -684,7 +693,7 @@ router.post('/createusermobile', async(req,res, next)=>
                               $push: {
                                 transactions: {
                                   title: 'Affiliate Signup Credit',
-                                  description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                                  description: `Amount credited for referral of ${populatedUser.first_name} ${populatedUser.last_name}`,
                                   amount: affiliateObj.rewardPerSignup,
                                   transactionId: uuid.v4(),
                                   transactionDate: new Date(),
@@ -699,7 +708,7 @@ router.post('/createusermobile', async(req,res, next)=>
     
                         await createUserNotification({
                             title: 'Affiliate Signup Credit',
-                            description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                            description: `Amount credited for referral of ${populatedUser.first_name} ${populatedUser.last_name}`,
                             notificationType: 'Individual',
                             notificationCategory: 'Informational',
                             productCategory: 'SignUp',
@@ -711,7 +720,7 @@ router.post('/createusermobile', async(req,res, next)=>
                           });
                           if (user?.fcmTokens?.length > 0) {
                             await sendMultiNotifications('Affiliate Signup Credit',
-                              `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                              `Amount credited for referral of ${populatedUser.first_name} ${populatedUser.last_name}`,
                               referrerCodeMatch?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
                             )
                           }
@@ -723,20 +732,20 @@ router.post('/createusermobile', async(req,res, next)=>
                             specificProduct: new ObjectId("6586e95dcbc91543c3b6c181"),
                             productActualPrice: 0,
                             productDiscountedPrice: 0,
-                            buyer: new ObjectId(newuser?._id),
+                            buyer: new ObjectId(newuser?.upsertedId),
                             affiliate: new ObjectId(referrerCodeMatch._id),
                             lastModifiedBy: new ObjectId(referrerCodeMatch._id),
                             affiliatePayout: affiliateObj.rewardPerSignup
                           })
                     }
                 } else{
-                    // referral?.users?.push({ userId: newuser._id, joinedOn: new Date() })
+                    // referral?.users?.push({ userId: newuser.upsertedId, joinedOn: new Date() })
                     // await referral.save();
                     console.log('updating referral program');
                     const referralProgramme = await Referral.findOneAndUpdate({ status: "Active" }, {
                         $push: {
                             users: {
-                                userId: newuser._id, 
+                                userId: newuser.upsertedId, 
                                 joinedOn: new Date()
                             }
                         }
@@ -745,7 +754,7 @@ router.post('/createusermobile', async(req,res, next)=>
                     if (referrerCode) {
                         // let referrerCodeMatch = await User.findOne({ myReferralCode: referrerCode });
                         // referrerCodeMatch.referrals = [...referrerCodeMatch.referrals, {
-                        //     referredUserId: newuser._id,
+                        //     referredUserId: newuser.upsertedId,
                         //     joining_date: newuser.createdOn,
                         //     referralProgram: referralProgramme._id,
                         //     referralEarning: referralProgramme.rewardPerReferral,
@@ -757,8 +766,8 @@ router.post('/createusermobile', async(req,res, next)=>
                             {
                                 $push: {
                                     referrals: {
-                                        referredUserId: newuser._id,
-                                        joiningDate: newuser.createdOn,
+                                        referredUserId: newuser.upsertedId,
+                                        joiningDate: populatedUser.createdOn,
                                         referralProgram: referralProgramme._id,
                                         referralEarning: referralProgramme.rewardPerReferral,
                                         referralCurrency: referralProgramme.currency,
@@ -768,7 +777,7 @@ router.post('/createusermobile', async(req,res, next)=>
                         );
     
                         if(referralProgramme?.referralSignupBonus?.amount){
-                            await addSignupBonus(newuser?._id, referralProgramme?.referralSignupBonus?.amount, referralProgramme?.referralSignupBonus?.currency);
+                            await addSignupBonus(newuser?.upsertedId, referralProgramme?.referralSignupBonus?.amount, referralProgramme?.referralSignupBonus?.currency);
                         }
                         // await referrerCodeMatch.save({ validateBeforeSave: false });
                         const wallet = await UserWallet.findOneAndUpdate(
@@ -777,7 +786,7 @@ router.post('/createusermobile', async(req,res, next)=>
                                 $push: {
                                     transactions: {
                                         title: 'Referral Credit',
-                                        description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                                        description: `Amount credited for referral of ${populatedUser.first_name} ${populatedUser.last_name}`,
                                         amount: referralProgramme.rewardPerReferral,
                                         transactionId: uuid.v4(),
                                         transactionDate: new Date(),
@@ -802,7 +811,7 @@ router.post('/createusermobile', async(req,res, next)=>
     
                         await createUserNotification({
                             title: 'Referral Signup Credit',
-                            description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                            description: `Amount credited for referral of ${populatedUser.first_name} ${populatedUser.last_name}`,
                             notificationType: 'Individual',
                             notificationCategory: 'Informational',
                             productCategory: 'SignUp',
@@ -814,7 +823,7 @@ router.post('/createusermobile', async(req,res, next)=>
                           });
                           if (user?.fcmTokens?.length > 0) {
                             await sendMultiNotifications('Referral Signup Credit',
-                              `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                              `Amount credited for referral of ${populatedUser.first_name} ${populatedUser.last_name}`,
                               saveReferrals?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
                             )
                           }
@@ -823,15 +832,15 @@ router.post('/createusermobile', async(req,res, next)=>
             }
     
             if (campaign) {
-                campaign?.users?.push({ userId: newuser._id, joinedOn: new Date() })
+                campaign?.users?.push({ userId: newuser.upsertedId, joinedOn: new Date() })
                 await campaign.save();
                 // if(campaign?.campaignType == 'Invite'){
-                    await addSignupBonus(newuser?._id, campaign?.campaignSignupBonus?.amount ?? 90, campaign?.campaignSignupBonus?.currency ?? 'INR');
+                    await addSignupBonus(newuser?.upsertedId, campaign?.campaignSignupBonus?.amount ?? 90, campaign?.campaignSignupBonus?.currency ?? 'INR');
                 // }
             }
     
             if (!newuser) return res.status(400).json({ status: 'error', message: 'Something went wrong' });
-            const token = await newuser.generateAuthToken();
+            const token = await populatedUser.generateAuthToken();
     
             // console.log("Token:",token)
     
@@ -916,7 +925,7 @@ router.post('/createusermobile', async(req,res, next)=>
                 <body>
                     <div class="container">
                     <h1>Account Created</h1>
-                    <p>Dear ${newuser.first_name} ${newuser.last_name},</p>
+                    <p>Dear ${populatedUser.first_name} ${populatedUser.last_name},</p>
                     <p>Welcome to the StoxHero family!</p>
                     
                     <p>Discover Stock Market success with our Paper Trading &amp; Learning App. Experience real market data, actionable insights, and a clutter-free interface on both our mobile app and web platform.</p>
@@ -967,16 +976,21 @@ router.post('/createusermobile', async(req,res, next)=>
             
             res.status(201).json({ status: "Success", data: populatedUser, message: "Account created successfully.", token: token });
             if(process.env.PROD == 'true'){
-                await emailService(newuser.email, subject, message);
+                try{
+                    await emailService(populatedUser.email, subject, message);
+                } catch(err){
+                    console.log(err);
+                }
+                
             }
     
-            if(process.env.PROD == 'true'){
-                await whatsAppService.sendWhatsApp({destination : newuser.mobile, campaignName : 'direct_signup_campaign_new', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
-            }
-            else {
-                whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'direct_signup_campaign_new', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
-                whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'direct_signup_campaign_new', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
-            }
+            // if(process.env.PROD == 'true'){
+            //     await whatsAppService.sendWhatsApp({destination : newuser.mobile, campaignName : 'direct_signup_campaign_new', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
+            // }
+            // else {
+            //     whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'direct_signup_campaign_new', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
+            //     whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'direct_signup_campaign_new', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
+            // }
         }
         catch (error) {
             console.log(error);
@@ -986,8 +1000,8 @@ router.post('/createusermobile', async(req,res, next)=>
 );
 
 const addSignupBonus = async (userId, amount, currency) => {
-    const wallet = await UserWallet.findOne({userId:userId});
-    console.log("Wallet, Amount, Currency:",wallet, userId, amount, currency)
+    const wallet = await UserWallet.findOne({userId: new ObjectId(userId)});
+    // console.log("Wallet, Amount, Currency:",wallet, userId, amount, currency)
     try{
         wallet?.transactions?.push({
             title: 'Sign up Bonus',
@@ -998,11 +1012,12 @@ const addSignupBonus = async (userId, amount, currency) => {
             transactionType: currency
         });
         await wallet?.save({validateBeforeSave:false});
-        console.log("Saved Wallet:",wallet)
+        // console.log("Saved Wallet:",wallet)
     }catch(e){
         console.log(e);
     }
 }
+
 async function generateUniqueReferralCode() {
     const length = 8; // change this to modify the length of the referral code
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
