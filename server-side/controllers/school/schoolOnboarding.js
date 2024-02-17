@@ -65,8 +65,6 @@ exports.createSchool = async (req, res) => {
         }
 
         const gradeData = await Grade.find();
-        // const highest = gradeData.filter(elem => elem._id?.toString() === highestGrade?.toString());
-        // const grade = gradeData.map(elem => elem.grade);
 
         gradeData.sort((a, b) => {
             const gradeA = parseInt(a.grade);
@@ -105,6 +103,22 @@ exports.editSchool = async (req, res) => {
         if (req.files['logo']) {
             updates.logo = await getAwsS3Url(req.files['logo'][0], 'Logo');
         }
+
+        // const gradeData = await Grade.find();
+
+        // gradeData.sort((a, b) => {
+        //     const gradeA = parseInt(a.grade);
+        //     const gradeB = parseInt(b.grade);
+        //     return gradeA - gradeB;
+        // });
+
+        // // const grade = gradeData.map(elem => {});
+        // const grade = gradeData.map((elem) => {
+        //     return { grade: elem?._id?.toString() }
+        // })
+        // const index = grade.findIndex(item => item.grade === highestGrade?.toString());
+        // const allGrades = grade.slice(0, index + 1);
+
         const updatedData = await School.findByIdAndUpdate(new ObjectId(schoolId), updates, { new: true });
         if (!updatedData) {
             return res.status(404).json({ message: 'School not found' });
