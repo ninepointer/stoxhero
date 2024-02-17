@@ -16,7 +16,7 @@ const Grades = ({ school }) => {
 
     // const [reRender, setReRender] = useState(true);
     let columns = [
-        { Header: "Edit", accessor: "edit", align: "center" },
+        // { Header: "Edit", accessor: "edit", align: "center" },
         { Header: "Sections", accessor: "sections", align: "center" },
         { Header: "Grade", accessor: "grade", align: "center" },
         { Header: "Add Section", accessor: "add", align: "center" }
@@ -37,15 +37,17 @@ const Grades = ({ school }) => {
     }, [createSections])
 
     grade?.map((elem) => {
-        const obj = {}
-        // const sectionString
+        let section = '';
+        for(let subelem of elem.sections){
+            section += `${subelem} | `
+        }
 
-        // obj.edit = (
-        //     <AiOutlineEdit onClick={() => { setCreateSections(true); setId(elem) }} style={{cursor: "pointer"}} />
-        // );
+        const stringWithoutLastCharacter = section.slice(0, -2);
+        const obj = {}
+
         obj.sections = (
             <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-                {elem.title}
+                {stringWithoutLastCharacter}
             </MDTypography>
         );
         obj.grade = (
@@ -64,7 +66,6 @@ const Grades = ({ school }) => {
         rows.push(obj)
     })
 
-    // console.log("school data", grade);
     return (
 
         <Card>

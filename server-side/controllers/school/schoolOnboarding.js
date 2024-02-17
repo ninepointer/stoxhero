@@ -1,6 +1,6 @@
-const School = require('../../models/School/schoolOnboarding'); // Adjust the path as per your project structure
+const School = require('../../models/School/School'); // Adjust the path as per your project structure
 const AWS = require('aws-sdk');
-const {ObjectId} = require('mongodb');
+const { ObjectId } = require('mongodb');
 const User = require('../../models/User/userDetailSchema');
 const sharp = require('sharp');
 const Quiz = require('../../models/School/Quiz');
@@ -16,16 +16,16 @@ const s3 = new AWS.S3({
 
 // Function to upload a file to S3
 const getAwsS3Url = async (file, type) => {
-    if(file && type==='Image'){
+    if (file && type === 'Image') {
         file.buffer = await sharp(file.buffer)
-        .resize({ width: 512, height: 256 })
-        .toBuffer();
+            .resize({ width: 512, height: 256 })
+            .toBuffer();
     }
 
-    if(file && type==='Logo'){
+    if (file && type === 'Logo') {
         file.buffer = await sharp(file.buffer)
-        .resize({ width: 256, height: 256 })
-        .toBuffer();
+            .resize({ width: 256, height: 256 })
+            .toBuffer();
     }
     const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
@@ -33,7 +33,7 @@ const getAwsS3Url = async (file, type) => {
         Body: file.buffer,
         ContentType: file.mimetype,
         ACL: 'public-read',
-         // or another ACL according to your requirements
+        // or another ACL according to your requirements
     };
 
     try {
@@ -47,10 +47,14 @@ const getAwsS3Url = async (file, type) => {
 
 exports.createSchool = async (req, res) => {
     try {
-        const {name, principalName, address, email, highestGrade,
-            affiliation, affiliationNumber, status, website, city, 
-            mobile, state} = req.body;
+        const { name, principalName, address, email, highestGrade,
+            board, affiliationNumber, status, website, city,
+            mobile, state } = req.body;
 
+        const findSchool = await School.findOne({ aff_no: Number(affiliationNumber) });
+        if (findSchool) {
+            return res.status(400).json({ message: 'School already exist. Please update.' });
+        }
         let logo, image;
         if (req.files['logo']) {
             logo = await getAwsS3Url(req.files['logo'][0], 'Logo');
@@ -71,21 +75,19 @@ exports.createSchool = async (req, res) => {
         });
 
         // const grade = gradeData.map(elem => {});
-        const grade = gradeData.map((elem)=>{
-            return {grade: elem?._id?.toString()}
+        const grade = gradeData.map((elem) => {
+            return { grade: elem?._id?.toString() }
         })
-        console.log("grade", grade);
         const index = grade.findIndex(item => item.grade === highestGrade?.toString());
-        const allGrades = grade.slice(0, index+1);
-        console.log(allGrades);
+        const allGrades = grade.slice(0, index + 1);
 
         const school = new School({
             school_name: name, head_name: principalName, address, email, highestGrade, role: "65cb483199608018ca427990",
-            affiliation, affiliationNumber, status, website, city, isOnboarding: true, grades: allGrades,
+            board, aff_no: affiliationNumber, status, website, city, isOnboarding: true, grades: allGrades,
             mobile, state, createdBy: req.user._id, logo, image, password: 'StoxHero'
-         });
-        await school.save({new : true});
-        res.status(201).json({status: 'success', data: school});
+        });
+        await school.save({ new: true });
+        res.status(201).json({ status: 'success', data: school });
     } catch (error) {
         console.log(error)
         res.status(400).json({ message: error.message });
@@ -96,7 +98,7 @@ exports.editSchool = async (req, res) => {
     try {
         const schoolId = req.params.id;
         const updates = req.body;
-        
+
         if (req.files['image']) {
             updates.image = await getAwsS3Url(req.files['image'][0], 'Image');
         }
@@ -108,7 +110,7 @@ exports.editSchool = async (req, res) => {
             return res.status(404).json({ message: 'School not found' });
         }
 
-        res.status(201).json({status: "success", data: updatedData });
+        res.status(201).json({ status: "success", data: updatedData });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -116,9 +118,16 @@ exports.editSchool = async (req, res) => {
 
 exports.getAllActiveSchool = async (req, res) => {
     try {
-        const count = await School.countDocuments({status: "Active"})
-        const school = await School.find({status: "Active"}).populate('city', 'name').populate('highestGrade', 'grade');
-        res.status(201).json({status: 'success', data: school, count: count  });
+        const skip = Number(req.query.skip);
+        const limit = Number(req.query.limit);
+        const count = await School.countDocuments({ status: "Active", isOnboarding: true })
+        const school = await School.find({ status: "Active", isOnboarding: true })
+        .populate('city', 'name')
+        .populate('highestGrade', 'grade')
+        .skip(skip)
+        .limit(limit)
+        
+        res.status(201).json({ status: 'success', data: school, count: count });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -126,9 +135,9 @@ exports.getAllActiveSchool = async (req, res) => {
 
 exports.getAllInactiveSchool = async (req, res) => {
     try {
-        const count = await School.countDocuments({status: "Inactive"})
-        const school = await School.find({status: "Inactive"}).populate('city', 'name').populate('highestGrade', 'grade');
-        res.status(201).json({status: 'success', data: school, count: count });
+        const count = await School.countDocuments({ status: "Inactive" })
+        const school = await School.find({ status: "Inactive" }).populate('city', 'name').populate('highestGrade', 'grade');
+        res.status(201).json({ status: 'success', data: school, count: count });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -136,9 +145,9 @@ exports.getAllInactiveSchool = async (req, res) => {
 
 exports.getAllDraftSchool = async (req, res) => {
     try {
-        const count = await School.countDocuments({status: "Draft"})
-        const school = await School.find({status: "Draft"}).populate('city', 'name').populate('highestGrade', 'grade');
-        res.status(201).json({status: 'success', data: school, count: count });
+        const count = await School.countDocuments({ status: "Draft" })
+        const school = await School.find({ status: "Draft" }).populate('city', 'name').populate('highestGrade', 'grade');
+        res.status(201).json({ status: 'success', data: school, count: count });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -151,7 +160,7 @@ exports.getSchoolById = async (req, res) => {
         if (!school) {
             return res.status(404).json({ message: 'School not found' });
         }
-        res.status(201).json({status: 'success', data: school });
+        res.status(201).json({ status: 'success', data: school });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -161,15 +170,42 @@ exports.getSchoolGrades = async (req, res) => {
     try {
         const schoolId = req.params.id;
         const school = await School.findById(new ObjectId(schoolId))
-        .populate('grades.grade', 'grade')
-        .select('grades')
+            .populate('grades.grade', 'grade')
+            .select('grades')
         if (!school) {
             return res.status(404).json({ message: 'School not found' });
         }
 
-        console.log(school.grades)
-        res.status(201).json({status: 'success', data: school.grades });
+        res.status(201).json({ status: 'success', data: school.grades });
     } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.addSchoolSections = async (req, res) => {
+    try {
+        const schoolId = req.params.id;
+        const gradeId = req.params.gradeId;
+        const { sections } = req.body;
+
+        const school = await School.findById(new ObjectId(schoolId))
+            .populate('grades.grade', 'grade')
+            .select('grades')
+        if (!school) {
+            return res.status(404).json({ message: 'School not found' });
+        }
+
+        let updated;
+        for (let elem of school.grades) {
+            if (elem?._id?.toString() === gradeId?.toString()) {
+                elem.sections = sections;
+                updated = await school.save({ new: true })
+                break;
+            }
+        }
+        res.status(201).json({ status: 'success', data: updated });
+    } catch (error) {
+        console.log(error)
         res.status(500).json({ message: error.message });
     }
 };
@@ -460,48 +496,48 @@ exports.getSchoolUserGrades = async (req, res) => {
             return res.status(400).json({ message: 'School Id is not valid.' });
         }
         const school = await School.findById(new ObjectId(schoolId))
-        .populate('grades.grade', 'grade')
-        .select('grades')
+            .populate('grades.grade', 'grade')
+            .select('grades')
         if (!school) {
-            return res.status(201).json({status: 'success', data: 
-            [
-                {
-                  grade: { _id: "65c7422e99608018ca427985", grade: '6th' },
-                  sections: ['A', 'B', 'C', 'D'],
-                  _id: "65ce3e0e5b6a3e242d1a4680"
-                },
-                {
-                  grade: { _id: "65c7424d99608018ca427986", grade: '7th' },
-                  sections: ['A1', 'A2', 'B1', 'B2'],
-                  _id: "65ce3e0e5b6a3e242d1a4681"
-                },
-                {
-                  grade: { _id: "65c7425599608018ca427987", grade: '8th' },
-                  sections: ['AB', 'AA', 'AC'],
-                  _id: "65ce3e0e5b6a3e242d1a4682"
-                },
-                {
-                  grade: { _id: "65c7425c99608018ca427988", grade: '9th' },
-                  sections: ['A', 'X', 'Z'],
-                  _id: "65ce3e0e5b6a3e242d1a4683"
-                },
-                {
-                  grade: { _id: "65c7426499608018ca427989", grade: '10th' },
-                  sections: ['AB', 'AA', 'AC'],
-                  _id: "65ce3e0e5b6a3e242d1a4684"
-                },
-                {
-                  grade: { _id: "65c7426e99608018ca42798a", grade: '11th' },
-                  sections: ['AB', 'AA', 'AC'],
-                  _id: "65ce3e0e5b6a3e242d1a4685"
-                }
-              ]
-        });
+            return res.status(201).json({
+                status: 'success', data:
+                    [
+                        {
+                            grade: { _id: "65c7422e99608018ca427985", grade: '6th' },
+                            sections: ['A', 'B', 'C', 'D'],
+                            _id: "65ce3e0e5b6a3e242d1a4680"
+                        },
+                        {
+                            grade: { _id: "65c7424d99608018ca427986", grade: '7th' },
+                            sections: ['A1', 'A2', 'B1', 'B2'],
+                            _id: "65ce3e0e5b6a3e242d1a4681"
+                        },
+                        {
+                            grade: { _id: "65c7425599608018ca427987", grade: '8th' },
+                            sections: ['AB', 'AA', 'AC'],
+                            _id: "65ce3e0e5b6a3e242d1a4682"
+                        },
+                        {
+                            grade: { _id: "65c7425c99608018ca427988", grade: '9th' },
+                            sections: ['A', 'X', 'Z'],
+                            _id: "65ce3e0e5b6a3e242d1a4683"
+                        },
+                        {
+                            grade: { _id: "65c7426499608018ca427989", grade: '10th' },
+                            sections: ['AB', 'AA', 'AC'],
+                            _id: "65ce3e0e5b6a3e242d1a4684"
+                        },
+                        {
+                            grade: { _id: "65c7426e99608018ca42798a", grade: '11th' },
+                            sections: ['AB', 'AA', 'AC'],
+                            _id: "65ce3e0e5b6a3e242d1a4685"
+                        }
+                    ]
+            });
             // return res.status(404).json({ message: 'School not found' });
         }
 
-        // console.log(school.grades)
-        res.status(201).json({status: 'success', data: school.grades });
+        res.status(201).json({ status: 'success', data: school.grades });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

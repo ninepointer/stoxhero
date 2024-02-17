@@ -1,23 +1,3 @@
-// const mongoose = require("mongoose");
-// const { Schema } = mongoose;
-
-// const schoolSchema = new mongoose.Schema({
-//     aff_no: Number,
-//     logo:String,
-//     school_name:String,
-//     address:String,
-//     city:String,
-//     state:String,
-//     head_name:String,
-//     contact1:String,
-//     email:String,
-//     country:String,
-// });
-
-// const school = mongoose.model("school", schoolSchema);
-// module.exports = school;
-
-
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs")
@@ -26,7 +6,14 @@ require("../../db/conn");
 
 
 const schoolSchema = new mongoose.Schema({
-
+    school_name: {
+        type: String,
+        required: true
+    },
+    mobile: {
+        type: String,
+        // required: true
+    },
     school_name:String,
     address:String,
     city: {
@@ -36,11 +23,9 @@ const schoolSchema = new mongoose.Schema({
     },
     state:String,
     head_name:String,
-    mobile:String,
-    website: String,
     email: {
         type: String,
-        // required: true
+        required: true
     },
     highestGrade: {
         type: Schema.Types.ObjectId,
@@ -59,10 +44,18 @@ const schoolSchema = new mongoose.Schema({
         required: true,
         default: false
     },
-    aff_no: {
+    board: {
         type: String,
         // required: true
     }, 
+    aff_no: {
+        type: Number,
+        required: true
+    },
+    website: {
+        type: String,
+        required: true
+    },
     password: {
         type: String,
         // required: true
@@ -80,6 +73,17 @@ const schoolSchema = new mongoose.Schema({
         type: Date,
         // required: true
     },
+    grades: [{
+        grade: {
+            type: Schema.Types.ObjectId,
+            ref: 'grade'
+        },
+        sections: [
+            {
+                type: String,
+            }
+        ]
+    }],
     createdOn: {
         type: Date,
         default: () => new Date(),
@@ -116,6 +120,7 @@ schoolSchema.methods.correctPassword = async function (
 ) {
     return await bcrypt.compare(candidatePassword, userPassword);
 };
+
 // generating jwt token
 schoolSchema.methods.generateAuthToken = async function () {
     try {

@@ -14,14 +14,14 @@ import { apiUrl } from '../../../constants/constants';
 
 
 const Active = () => {
-  let [skip, setSkip] = useState(0);
+  const [skip, setSkip] = useState(0);
   const limitSetting = 10;
   const [count, setCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState([]);
 
   async function fetchData() {
-    const getData = await axios.get(`${apiUrl}school/active`, { withCredentials: true });
+    const getData = await axios.get(`${apiUrl}school/active?skip=${skip}&limit=${limitSetting}`, { withCredentials: true });
     setData(getData.data.data)
     setCount(getData.data.count)
     setTimeout(() => {
@@ -81,7 +81,7 @@ const Active = () => {
                       <Grid container>
 
                         <Grid item xs={12} md={6} lg={12} mt={1} mb={1} display="flex" justifyContent="left" >
-                          <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>Name: {e?.name}</MDTypography>
+                          <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>Name: {e?.school_name}</MDTypography>
                         </Grid>
 
                         {/* <Grid item xs={12} md={6} lg={12} mt={1} mb={1} display="flex" justifyContent="left" >

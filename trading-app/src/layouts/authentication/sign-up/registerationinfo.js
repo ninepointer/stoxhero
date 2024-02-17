@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react"
-import { FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography, useMediaQuery } from '@mui/material'
+import { Typography, useMediaQuery } from '@mui/material'
 import theme from '../../HomePage/utils/theme/index';
 import { ThemeProvider } from 'styled-components';
 // import ReactGA from "react-ga"
@@ -39,10 +39,10 @@ function Cover() {
   const [scrollPosition, setScrollPosition] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
-  const [showConfirmation, setShowConfirmation] = useState(true);
+  // const [showConfirmation, setShowConfirmation] = useState(true);
   const [resendTimer, setResendTimer] = useState(30); // Resend timer in seconds
   const [timerActive, setTimerActive] = useState(false); // Flag to check if timer is active
-  const [submitClicked, setSubmitClicked] = useState(false);
+  // const [submitClicked, setSubmitClicked] = useState(false);
   const setDetails = useContext(userContext);
   const [cityData, setCityData] = useState([]);
   const [gradeValue, setGradeValue] = useState();
@@ -57,6 +57,7 @@ function Cover() {
   const [userCity, setUserCity] = useState('');
   const [schoolsList, setSchoolsList] = useState([]);
   const [userSchool, setUserSchool] = useState('');
+  const [gradeData, setGradeData] = useState([]);
 
   const [otpGen, setOtpGen] = useState(false);
   const [mobileOtp, setMobileOtp] = useState('');
@@ -76,6 +77,7 @@ function Cover() {
     parents_name: "",
     grade: "",
     school: "",
+    section: '',
     dob: "",
     city: {
       id: "",
@@ -83,9 +85,19 @@ function Cover() {
     },
   });
   const [inputValue, setInputValue] = useState('');
+
+  useEffect(()=>{
+    getGrade();
+  }, [gradeData])
+
   const searchSchools = async ()=>{
-    const res = await axios.post(`${apiUrl}fetchschools`, {stateName:userState, cityName:userCity ,inputString: inputValue});
-    setSchoolsList(res.data);
+    const res = await axios.post(`${apiUrl}fetchschools`, {cityId:userCity?._id ,inputString: inputValue});
+    setSchoolsList(res?.data?.data);
+  }
+
+  const getGrade = async ()=>{
+    const res = await axios.get(`${apiUrl}school/${userSchool?._id}/usergrades`, {cityId:userCity?._id ,inputString: inputValue});
+    setGradeData(res?.data?.data);
   }
 
   const debounceGetSchools = debounce(searchSchools, 1500);
@@ -109,7 +121,6 @@ function Cover() {
     } catch (e) {
       console.log(e);
     }
-
   }
 
   useEffect(() => {
@@ -135,12 +146,12 @@ function Cover() {
   const backdropFilter = scrollPosition > 10 ? 'blur(5px)' : 'none'
 
   async function signup() {
-    setSubmitClicked(true)
+    // setSubmitClicked(true)
     setformstate(formstate);
 
     const {
       full_name,
-      mobile,
+      mobile, section,
       parents_name,
       grade, school,
       city, dob
@@ -171,6 +182,7 @@ function Cover() {
         mobile: mobile,
         parents_name: parents_name.trim(),
         grade: gradeValue, school: userSchool?._id,
+        section,
         city: value?._id,
         dob: dateValue,
         state: userState
@@ -199,7 +211,7 @@ function Cover() {
       mobile,
       parents_name,
       grade, school,
-      city, dob
+      city, dob, section
     } = formstate;
 
     const res = await fetch(`${apiUrl}verifyotp`, {
@@ -214,7 +226,7 @@ function Cover() {
         mobile_otp: mobileOtp,
         student_name: full_name,
         mobile,
-        parents_name,
+        parents_name, section,
         grade: gradeValue, school: userSchool?._id,
         city: value?._id,
         dob: dateValue, state: userState,
@@ -225,7 +237,7 @@ function Cover() {
     console.log("Data after account creation:", data)
     if (data.status === "Success") {
       setDetails.setUserDetail(data.data);
-      setShowConfirmation(false);
+      // setShowConfirmation(false);
 
       setButtonClicked(false);
       navigate('/lobby')
@@ -415,7 +427,7 @@ function Cover() {
               overflow: 'visible'
             }}
           >
-            <Grid container xs={9} md={4} lg={4} display='flex' justifyContent='center' alignItems='center' style={{ backgroundColor: 'transparent', borderRadius: 10, position: 'relative', textAlign: 'center', width: '100%', height: '100vh', overflow: 'visible' }}>
+            <Grid container xs={9} md={4} lg={4} display='flex' justifyContent='center' alignItems='center' style={{ backgroundColor: 'transparent', borderRadius: 10, position: 'relative', textAlign: 'center', width: '100%', height: '120vh', overflow: 'visible' }}>
               <Grid mt={3} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
                 <MDBox display='flex' justifyContent='center' alignItems='center' style={{ overflow: 'visible' }}>
                   <MDTypography variant={isMobile ? 'h5' : 'h3'} style={{fontFamily: 'Work Sans , sans-serif', color:'#D5F47E'}}>Welcome to StoxHero!</MDTypography>
@@ -429,12 +441,11 @@ function Cover() {
                   required
                   disabled={otpGen}
                   id="outlined-required"
-                  
                   fullWidth
                   placeholder="Full Name"
                   type='text'
                   name='full_name'
-                onChange={handleChange}
+                  onChange={handleChange}
                 />
               </Grid>
               <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
@@ -467,42 +478,6 @@ function Cover() {
                 />
               </Grid>
 
-              <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
-                <CustomAutocomplete
-                  id="country-select-demo"
-                  sx={{
-                    width: "100%",
-                    '& .MuiAutocomplete-clearIndicator': {
-                      color: 'dark',
-                    },
-                  }}
-                  options={["6th", '7th', '8th', '9th', '10th', '11th', "12th"]}
-                  value={gradeValue}
-                  disabled={otpGen}
-                  onChange={handleGradeChange}
-                  autoHighlight
-                  getOptionLabel={(option) => option ? option : 'Grade'}
-                  renderOption={(props, option) => (
-                    <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                      {option}
-                    </Box>
-                  )}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      placeholder="Grade/Class"
-                      inputProps={{
-                        ...params.inputProps,
-                        autoComplete: 'new-password', // disable autocomplete and autofill
-                        style: { color: 'dark', height: "10px" }, // set text color to dark
-                      }}
-                      InputLabelProps={{
-                        style: { color: 'dark' },
-                      }}
-                    />
-                  )}
-                />
-              </Grid>
               <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
                 <CustomAutocomplete
                   id="country-select-demo"
@@ -649,6 +624,57 @@ function Cover() {
                       }}
                     />
                   )}
+                />
+              </Grid>
+
+              <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
+                <CustomAutocomplete
+                  id="country-select-demo"
+                  sx={{
+                    width: "100%",
+                    '& .MuiAutocomplete-clearIndicator': {
+                      color: 'dark',
+                    },
+                  }}
+                  options={["6th", '7th', '8th', '9th', '10th', '11th', "12th"]}
+                  value={gradeValue}
+                  disabled={otpGen}
+                  onChange={handleGradeChange}
+                  autoHighlight
+                  getOptionLabel={(option) => option ? option : 'Grade'}
+                  renderOption={(props, option) => (
+                    <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                      {option}
+                    </Box>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="Grade/Class"
+                      inputProps={{
+                        ...params.inputProps,
+                        autoComplete: 'new-password', // disable autocomplete and autofill
+                        style: { color: 'dark', height: "10px" }, // set text color to dark
+                      }}
+                      InputLabelProps={{
+                        style: { color: 'dark' },
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
+
+              <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
+                <TextField
+                   required
+                   id="outlined-required"
+                   disabled={otpGen}
+                   fullWidth
+                   type={'text'}
+                   name="section"
+                   placeholder={"Section"}
+                   value={formstate.section}
+                   onChange={handleChange}
                 />
               </Grid>
 

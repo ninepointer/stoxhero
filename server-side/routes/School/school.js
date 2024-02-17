@@ -64,5 +64,10 @@ router.patch(
     schoolController.editSchool
 );
 
+router.patch(
+    '/:id/section/:gradeId', Authenticate, restrictTo('Admin', 'SuperAdmin'),
+    schoolController.addSchoolSections
+);
+
 
 module.exports = router;

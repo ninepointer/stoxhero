@@ -49,13 +49,13 @@ function Index() {
 
 
   const [formState, setFormState] = useState({
-    name: '' || school?.name,
-    principalName: '' || school?.principalName,
+    name: '' || school?.school_name,
+    principalName: '' || school?.head_name,
     address: '' || school?.address,
     status: '' || school?.status,
     email: "" || school?.email,
-    affiliation: false || school?.affiliation,
-    affiliationNumber: "" || school?.affiliationNumber,
+    board: false || school?.board,
+    affiliationNumber: "" || school?.aff_no,
     website: "" || school?.website,
     mobile: "" || school?.mobile,
     image: "" || school?.image,
@@ -71,10 +71,11 @@ function Index() {
 
   
   const [gradeValue, setGradeValue] = useState(
-    // {
-    //   _id: "" || school?.highestGrade?._id,
-    //   grade: "12th" || school?.highestGrade?.grade
-    // }
+    school &&
+    {
+      _id: school?.highestGrade?._id,
+      grade: school?.highestGrade?.grade
+    }
   );
 
   const [value, setValue] = useState({
@@ -338,7 +339,7 @@ function Index() {
                           label='School Name *'
                           name='name'
                           fullWidth
-                          defaultValue={editing ? formState?.name : school?.name}
+                          defaultValue={editing ? formState?.name : school?.school_name}
                           onChange={(e) => {
                             setFormState(prevState => ({
                               ...prevState,
@@ -369,7 +370,7 @@ function Index() {
                           name='principalName'
                           fullWidth
                           type='text'
-                          defaultValue={editing ? formState?.principalName : school?.principalName}
+                          defaultValue={editing ? formState?.principalName : school?.head_name}
                           onChange={handleChange}
                         />
                       </Grid>
@@ -402,24 +403,31 @@ function Index() {
 
                       <Grid item xs={12} md={6} xl={4}>
                         <FormControl sx={{ width: "100%" }}>
-                          <InputLabel id="demo-simple-select-autowidth-label">Affiliation *</InputLabel>
+                          <InputLabel id="demo-simple-select-autowidth-label">Board *</InputLabel>
                           <Select
                             labelId="demo-simple-select-autowidth-label"
                             id="demo-simple-select-autowidth"
-                            name='affiliation'
-                            value={formState?.affiliation || school?.affiliation}
+                            name='board'
+                            value={formState?.board || school?.board}
                             disabled={((isSubmitted || school) && (!editing || saving))}
                             onChange={(e) => {
                               setFormState(prevState => ({
                                 ...prevState,
-                                affiliation: e.target.value
+                                board: e.target.value
                               }))
                             }}
-                            label="Reward Type"
+                            label="Board"
                             sx={{ minHeight: 43 }}
                           >
-                            <MenuItem value="State Board">State Board</MenuItem>
+                            <MenuItem value="ICSE">ICSE</MenuItem>
                             <MenuItem value="CBSE">CBSE</MenuItem>
+                            <MenuItem value="NIOS">NIOS</MenuItem>
+                            <MenuItem value="CAIE">CAIE</MenuItem>
+                            <MenuItem value="IB">IB</MenuItem>
+                            <MenuItem value="RBSE">RBSE</MenuItem>
+                            <MenuItem value="BSEB">BSEB</MenuItem>
+                            <MenuItem value="UPMSP">UPMSP</MenuItem>
+                            <MenuItem value="DBSE">DBSE</MenuItem>
                           </Select>
                         </FormControl>
                       </Grid>
@@ -430,9 +438,9 @@ function Index() {
                           id="outlined-required"
                           label='Affiliation Number *'
                           name='affiliationNumber'
-                          type='text'
+                          type='number'
                           fullWidth
-                          defaultValue={editing ? formState?.affiliationNumber : school?.affiliationNumber}
+                          defaultValue={editing ? formState?.affiliationNumber : school?.aff_no}
                           onChange={handleChange}
                         />
                       </Grid>
@@ -473,7 +481,7 @@ function Index() {
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              placeholder="Grade/Class"
+                              placeholder="Highest Grade/Class"
                               inputProps={{
                                 ...params.inputProps,
                                 autoComplete: 'new-password', // disable autocomplete and autofill
@@ -513,7 +521,7 @@ function Index() {
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              placeholder="Search your state"
+                              placeholder="Search state"
                               inputProps={{
                                 ...params.inputProps,
                                 autoComplete: 'new-password', // disable autocomplete and autofill

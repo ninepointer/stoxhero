@@ -138,7 +138,7 @@ function Cover() {
               style={{ overflow: 'visible' }}
             >
               <MDTypography variant='caption' style={{ fontFamily: 'Work Sans , sans-serif' }}>
-                Class: {user?.schoolDetails?.grade || 'Your Grade'}
+                Class: {user?.schoolDetails?.grade?.grade || 'Your Grade'}
               </MDTypography>
             </Grid>
             <Grid

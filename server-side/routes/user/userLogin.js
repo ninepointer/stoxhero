@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 require("../../db/conn");
 const UserDetail = require("../../models/User/userDetailSchema");
-const School = require("../../models/School/schoolOnboarding");
+const School = require("../../models/School/School");
 const jwt = require("jsonwebtoken")
 const {SchoolAuthenticate} = require('../../authentication/schoolAuthentication');
 const authentication = require("../../authentication/authentication");

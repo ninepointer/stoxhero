@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const School = require("../models/School/schoolOnboarding");
+const School = require("../models/School/School");
 const {client, getValue} = require("../marketData/redisClient");
 const ObjectId = require('mongodb').ObjectId;
 

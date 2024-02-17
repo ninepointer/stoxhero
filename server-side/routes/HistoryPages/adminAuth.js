@@ -98,6 +98,20 @@ const UnformattedSchool = require("../../models/School/unformatedSchool");
 const NewSchool = require("../../models/School/newSchool");
 const City = require("../../models/City/city");
 
+router.get('/schoolaff', async(req, res)=>{
+  try {
+    const updateResult = await School.updateMany({}, [
+        {
+            $set: {
+                aff_no: { $toInt: "$aff_no" }
+            }
+        }
+    ]);
+    console.log(`${updateResult.nModified} documents updated`);
+} catch (error) {
+    console.error("Error updating documents:", error);
+}
+})
 
 router.get('/schoolformat', async(req, res)=>{
   const city = await City.find();
