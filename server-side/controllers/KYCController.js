@@ -392,6 +392,8 @@ exports.verifyOtp = async(req,res) =>{
       user.aadhaarNumber = aadhaarData?.aadhaar_number;
       user.panNumber = panData?.pan_number;
       user.accountNumber =bankAccountNumber;
+      user.bankName = cleanName(bankAccountData?.ifsc_details?.bank_name);
+      user.nameAsPerBankAccount = bankAccountName;
       user.ifscCode = ifsc;
       await user.save({validateBeforeSave:false});
       res.status(200).json({status:'success', message:'KYC Approved'});
