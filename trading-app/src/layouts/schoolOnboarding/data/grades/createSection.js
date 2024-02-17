@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useContext, useState } from "react";
 import TextField from '@mui/material/TextField';
-import { Grid, Card, CardContent, CardActionArea } from "@mui/material";
+import { Grid, Card, CardContent, CardActionArea, Box } from "@mui/material";
 import MDTypography from "../../../../components/MDTypography";
 import MDBox from "../../../../components/MDBox";
 import MDButton from "../../../../components/MDButton"
@@ -11,8 +11,14 @@ import InputLabel from '@mui/material/InputLabel';
 import { CircularProgress, Typography } from "@mui/material";
 import MDSnackbar from "../../../../components/MDSnackbar";
 import { apiUrl } from '../../../../constants/constants';
-import FormControl from '@mui/material/FormControl';
+import { styled } from '@mui/material';
 
+
+const CustomAutocomplete = styled(Autocomplete)`
+  .MuiAutocomplete-clearIndicator {
+    color: white;
+  }
+`;
 export default function CreateSection({ createSections, setCreateSections, school, grade, data }) {
 
     const newData = data.map((elem)=>{
@@ -22,6 +28,7 @@ export default function CreateSection({ createSections, setCreateSections, schoo
     const [isLoading, setIsLoading] = useState(false)
     const [noOfSection, setNoOfSection] = useState('');
     const [sectionValues, setSectionValues] = useState(Array.from({ length: noOfSection }, () => ''));
+    const [value, setValue] = useState({});
 
     const handleNoOfSectionChange = (e) => {
         const value = parseInt(e);
@@ -113,6 +120,13 @@ export default function CreateSection({ createSections, setCreateSections, schoo
         />
     );
 
+    const handleCityChange = (event, newValue) => {
+        setUserCity(newValue?.name);
+        setValue(newValue);
+        setSchoolsList([]);
+        setUserSchool('');
+      };
+
 
     return (
         <>
@@ -141,6 +155,43 @@ export default function CreateSection({ createSections, setCreateSections, schoo
                                             onChange={(e) => {
                                                 handleNoOfSectionChange(e.target.value)
                                             }}
+                                        />
+                                    </Grid>
+
+                                    <Grid item xs={12} md={6} lg={5} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
+                                        <CustomAutocomplete
+                                            id="country-select-demo"
+                                            sx={{
+                                                width: "100%",
+                                                '& .MuiAutocomplete-clearIndicator': {
+                                                    color: 'dark',
+                                                },
+                                            }}
+                                            options={newData}
+                                            value={value}
+                                            // disabled={otpGen}
+                                            onChange={handleCityChange}
+                                            autoHighlight
+                                            getOptionLabel={(option) => option ? option.grade?.grade : 'Section Similar To Grade'}
+                                            renderOption={(props, option) => (
+                                                <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                                                    {option?.grade?.grade}
+                                                </Box>
+                                            )}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    placeholder="Search your city"
+                                                    inputProps={{
+                                                        ...params.inputProps,
+                                                        autoComplete: 'new-password', // disable autocomplete and autofill
+                                                        style: { color: 'dark', height: "10px" }, // set text color to dark
+                                                    }}
+                                                    InputLabelProps={{
+                                                        style: { color: 'dark' },
+                                                    }}
+                                                />
+                                            )}
                                         />
                                     </Grid>
 
