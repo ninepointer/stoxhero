@@ -13,83 +13,56 @@ import MDSnackbar from "../../../../components/MDSnackbar";
 import { apiUrl } from '../../../../constants/constants';
 import FormControl from '@mui/material/FormControl';
 
-export default function CreateSection({ createSections, setCreateSections, school, section }) {
+export default function CreateSection({ createSections, setCreateSections, school, grade, data }) {
 
-    console.log("school", section)
+    const newData = data.map((elem)=>{
+        return elem.sections.length > 0;
+    })
     const [isSubmitted, setIsSubmitted] = useState(false);
-    const [formState, setFormState] = useState({
-        title: "" || section?.title,
-        type: "" || section?.type,
-        score: "" || section?.score,
-    });
-    const [quizImage, setQuizImage] = useState(null);
     const [isLoading, setIsLoading] = useState(false)
-    const [previewUrl, setPreviewUrl] = useState('');
+    const [noOfSection, setNoOfSection] = useState('');
+    const [sectionValues, setSectionValues] = useState(Array.from({ length: noOfSection }, () => ''));
 
-    const handleImage = (event) => {
-        const file = event.target.files[0];
-        setQuizImage(event.target.files);
-        // Create a FileReader instance
-        const reader = new FileReader();
-        reader.onload = () => {
-            setPreviewUrl(reader.result);
-        };
-        reader.readAsDataURL(file);
+    const handleNoOfSectionChange = (e) => {
+        const value = parseInt(e);
+        setNoOfSection(e);
+        setSectionValues(Array.from({ length: value }, () => ''));
     };
+
+    const handleSectionValueChange = (index) => (e) => {
+        const newSectionValues = [...sectionValues];
+        newSectionValues[index] = e.target.value;
+        setSectionValues(newSectionValues);
+    };
+
+    console.log('sectionValues', sectionValues)
 
     async function onNext(e) {
         e.preventDefault()
 
-        if (!formState?.title || !formState?.type || !formState?.score) {
-            setTimeout(() => { setIsSubmitted(false) }, 500)
-            return openErrorSB("Missing Field", "Please fill all the mandatory fields")
-        }
-
-        const formData = new FormData();
-        if (quizImage) {
-            formData.append("questionImage", quizImage[0]);
-        }
-
-        for (let elem in formState) {
-            formData.append(`${elem}`, formState[elem]);
-        }
-
-        if (section?.title) {
-            const res = await fetch(`${apiUrl}school/${school}/section/${section?._id}`, {
-                method: "PATCH",
-                credentials: "include",
-                body: formData
-            });
-
-            const data = await res.json();
-            if (!data.error) {
-                setTimeout(() => { setIsSubmitted(true) }, 500)
-                openSuccessSB(data.message, `Contest Reward Created with prize: ${data.data?.prize}`)
-                setCreateSections(!createSections);
-            } else {
-                setTimeout(() => { setIsSubmitted(false) }, 500)
-                console.log("Invalid Entry");
-                return openErrorSB("Couldn't Add Reward", data.error)
+        for (let elem of sectionValues) {
+            if (!elem) {
+                return openErrorSB("Missing Section", "Please fill all the sections")
             }
+        }
+
+        const res = await fetch(`${apiUrl}school/${school}/section/${grade?._id}`, {
+            method: "PATCH",
+            credentials: "include",
+            // body: formData
+        });
+
+        const data = await res.json();
+        if (!data.error) {
+            setTimeout(() => { setIsSubmitted(true) }, 500)
+            openSuccessSB(data.message, `Contest Reward Created with prize: ${data.data?.prize}`)
+            setCreateSections(!createSections);
         } else {
-            const res = await fetch(`${apiUrl}school/${school}/section`, {
-                method: "PATCH",
-                credentials: "include",
-                body: formData
-            });
-
-            const data = await res.json();
-            if (!data.error) {
-                setTimeout(() => { setIsSubmitted(true) }, 500)
-                openSuccessSB(data.message, `Contest Reward Created with prize: ${data.data?.prize}`)
-                setCreateSections(!createSections);
-
-            } else {
-                setTimeout(() => { setIsSubmitted(false) }, 500)
-                console.log("Invalid Entry");
-                return openErrorSB("Couldn't Add Reward", data.error)
-            }
+            setTimeout(() => { setIsSubmitted(false) }, 500)
+            console.log("Invalid Entry");
+            return openErrorSB("Couldn't Add Reward", data.error)
         }
+
     }
 
 
@@ -150,162 +123,54 @@ export default function CreateSection({ createSections, setCreateSections, schoo
             )
                 :
                 (
-                    <MDBox mt={4} p={3}>
-                        <MDBox display="flex" justifyContent="space-between" alignItems="center">
-                            <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
-                                Question Details
-                            </MDTypography>
-                        </MDBox>
+                    <MDBox m={1}>
 
+                        <Grid container alignItems="space-between">
 
+                            <Grid item xs={12} md={6} xl={12} >
 
-                        <Grid container mt={0.5} alignItems="space-between">
-
-                            <Grid item xs={12} md={6} xl={9} >
-                                <Grid item xs={12} md={6} xl={12}>
-                                    <TextField
-                                        disabled={isSubmitted}
-                                        id="outlined-required"
-                                        placeholder='Title*'
-                                        inputMode='numeric'
-                                        fullWidth
-                                        value={formState?.title}
-                                        onChange={(e) => {
-                                            setFormState(prevState => ({
-                                                ...prevState,
-                                                title: e.target.value
-                                            }))
-                                        }}
-                                    />
-                                </Grid>
-
-                                <Grid item xs={12} md={6} xl={12} display='flex' gap={1} mt={1}>
-                                    <Grid item xs={12} md={6} xl={6}>
-                                        <FormControl sx={{ width: "100%" }}>
-                                            <InputLabel id="demo-simple-select-autowidth-label">Type *</InputLabel>
-                                            <Select
-                                                labelId="demo-simple-select-autowidth-label"
-                                                id="demo-simple-select-autowidth"
-                                                name='type'
-                                                placeholder="Type"
-                                                value={formState?.type}
-                                                disabled={isSubmitted}
-                                                onChange={(e) => {
-                                                    setFormState(prevState => ({
-                                                        ...prevState,
-                                                        type: e.target.value
-                                                    }))
-                                                }}
-
-                                                sx={{ minHeight: 43 }}
-                                            >
-                                                <MenuItem value="Single Correct">Single Correct</MenuItem>
-                                                <MenuItem value="Multiple Correct">Multiple Correct</MenuItem>
-                                            </Select>
-                                        </FormControl>
-                                    </Grid>
-
-
-                                    <Grid item xs={12} md={6} xl={6}>
+                                <Grid item xs={12} md={6} xl={12} display='flex' justifyContent={'space-between'} alignContent={'center'} alignItems={'center'}>
+                                    <Grid item xs={12} md={6} xl={5} >
                                         <TextField
-                                            disabled={((isSubmitted))}
+                                            disabled={isSubmitted}
                                             id="outlined-required"
-                                            placeholder='Score*'
+                                            placeholder='No Of Section*'
+                                            type='number'
                                             fullWidth
-                                            value={formState?.score}
+                                            value={noOfSection}
                                             onChange={(e) => {
-                                                setFormState(prevState => ({
-                                                    ...prevState,
-                                                    score: e.target.value
-                                                }))
+                                                handleNoOfSectionChange(e.target.value)
                                             }}
                                         />
                                     </Grid>
-                                </Grid>
 
-                                <Grid item xs={12} md={6} xl={12} display='flex' gap={1} mt={1} justifyContent={'space-between'}>
-                                    <Grid item xs={12} md={6} xl={6}>
-                                        <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(section?.image && !quizImage) ? "warning" : ((section?.image && quizImage) || quizImage) ? "error" : "success"} component="label">
-                                            Upload Image(1080X720)
-                                            <input
-                                                hidden
-                                                disabled={isSubmitted}
-                                                accept="image/*"
-                                                type="file"
-                                                onChange={(e) => {
-                                                    handleImage(e);
-                                                }}
-                                            />
+                                    <Grid item xs={12} md={6} xl={2} gap={1} display='flex' justifyContent={'center'} alignContent={'center'} alignItems={'center'}>
+                                        <MDButton size="small" color="success" onClick={onNext} >
+                                            Save
+                                        </MDButton>
+                                        <MDButton size="small" color="warning" onClick={()=>{setCreateSections(false)}} >
+                                            Back
                                         </MDButton>
                                     </Grid>
-
-                                    <Grid item xs={12} md={6} xl={6} display='flex' gap={5} >
-                                        {!isSubmitted && (
-                                            <>
-                                                <Grid item xs={12} md={2} xl={1} width="100%">
-                                                    <MDButton variant="contained" size="small" color="success" onClick={(e) => { onNext(e, formState) }}>Next</MDButton>
-                                                </Grid>
-                                                <Grid item xs={12} md={2} xl={1} width="100%">
-                                                    <MDButton variant="contained" size="small" color="warning" onClick={(e) => { setCreateSections(!createSections) }}>Back</MDButton>
-                                                </Grid>
-                                            </>
-                                        )}
-                                    </Grid>
+                                </Grid>
+                               
+                                <Grid item xs={12} md={6} xl={12} mt={1} display='flex' gap={1} flexWrap={'wrap'} justifyContent={'flex-start'} alignContent={'center'} alignItems={'center'}>
+                                    {sectionValues.map((elem, index) => {
+                                        return (
+                                            <Grid item xs={12} md={3} xl={2} key={index}>
+                                                <TextField
+                                                    id={`outlined-required-${index}`}
+                                                    placeholder={`Section ${index + 1}`}
+                                                    fullWidth
+                                                    value={sectionValues[index]}
+                                                    onChange={handleSectionValueChange(index)}
+                                                />
+                                            </Grid>
+                                        )
+                                    })}
                                 </Grid>
                             </Grid>
 
-                            <Grid item xs={12} md={6} xl={3}>
-                                <Grid container xs={12} md={12} xl={12} display="flex" justifyContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                    {previewUrl ?
-
-                                        <Grid item xs={12} md={12} xl={3} style={{ maxWidth: '100%', height: 'auto' }}>
-                                            <Grid container xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
-                                                <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
-                                                    <Card sx={{ minWidth: '100%', cursor: 'pointer' }}>
-                                                        <CardActionArea>
-                                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                                                <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                                                    <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', height: 'auto' }}>
-                                                                        <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{ textAlign: 'center' }}>
-                                                                            Question Image
-                                                                        </Typography>
-                                                                    </MDBox>
-                                                                </CardContent>
-                                                            </Grid>
-                                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                                                <img src={previewUrl} style={{ maxWidth: '100%', height: 'auto', borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
-                                                            </Grid>
-                                                        </CardActionArea>
-                                                    </Card>
-                                                </Grid>
-                                            </Grid>
-                                        </Grid>
-                                        :
-                                        <Grid item xs={12} md={12} xl={3} style={{ maxWidth: '100%', height: 'auto' }}>
-                                            <Grid container xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
-                                                <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
-                                                    <Card sx={{ minWidth: '100%', cursor: 'pointer' }}>
-                                                        <CardActionArea>
-                                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                                                <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                                                    <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', height: 'auto' }}>
-                                                                        <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{ textAlign: 'center' }}>
-                                                                            Question Image
-                                                                        </Typography>
-                                                                    </MDBox>
-                                                                </CardContent>
-                                                            </Grid>
-                                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                                                <img src={section?.questionImage} style={{ maxWidth: '100%', height: 'auto', borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
-                                                            </Grid>
-                                                        </CardActionArea>
-                                                    </Card>
-                                                </Grid>
-                                            </Grid>
-                                        </Grid>
-                                    }
-                                </Grid>
-                            </Grid>
                         </Grid>
                         {renderSuccessSB}
                         {renderErrorSB}

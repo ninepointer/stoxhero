@@ -40,9 +40,9 @@ const Grades = ({ school }) => {
         const obj = {}
         // const sectionString
 
-        obj.edit = (
-            <AiOutlineEdit onClick={() => { setCreateSections(true); setId(elem) }} style={{cursor: "pointer"}} />
-        );
+        // obj.edit = (
+        //     <AiOutlineEdit onClick={() => { setCreateSections(true); setId(elem) }} style={{cursor: "pointer"}} />
+        // );
         obj.sections = (
             <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
                 {elem.title}
@@ -55,7 +55,7 @@ const Grades = ({ school }) => {
         );
         obj.add = (
             <MDButton hidden={true} variant="outlined" size="small" color="success" 
-            onClick={() => setCreateSections(true)}
+            onClick={() => {setCreateSections(true); setId(elem)}}
             >
                 Add
             </MDButton>
@@ -77,7 +77,7 @@ const Grades = ({ school }) => {
             </MDBox>
 
             {createSections && <>
-                <CreateSection createSections={createSections} setCreateSections={setCreateSections} school={school} section={id} />
+                <CreateSection createSections={createSections} setCreateSections={setCreateSections} school={school} grade={id} data={grade} />
             </>
             }
 

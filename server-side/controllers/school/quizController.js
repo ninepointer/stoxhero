@@ -435,7 +435,7 @@ exports.getAllQuizzesForUser = async (req, res) => {
         const now = new Date();
         const userId = req.user._id;
 
-        const user = await User.findById(userId).select('schoolDetails');
+        const user = await User.findById(new ObjectId(userId)).populate('schoolDetails.grade', 'grade').select('schoolDetails');
             const quizzes = await Quiz.aggregate([
                 {
                     $match: {
@@ -449,7 +449,7 @@ exports.getAllQuizzesForUser = async (req, res) => {
                                 ]
                             },
                             { // At least one of these conditions must be satisfied
-                               "grade": user?.schoolDetails?.grade, // Assuming city is already an ObjectId or the correct type
+                               "grade": user?.schoolDetails?.grade?.grade, // Assuming city is already an ObjectId or the correct type
                             },
                             {
                                 startDateTime: {$gt: new Date()}
