@@ -415,7 +415,7 @@ function Cover() {
               backgroundImage: `url(${background})`,
               backgroundSize: 'cover', // Make the background image responsive
               backgroundPosition: 'center center',
-              height: '100vh',
+              height: 'auto',
               flexDirection: 'column',
               textAlign: 'center',
               padding: '10px',
