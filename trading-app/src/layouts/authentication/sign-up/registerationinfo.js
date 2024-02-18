@@ -442,14 +442,14 @@ function Cover() {
               left: 0,
               filter: backdropFilter,
               backgroundColor: backgroundColor,
-              overflow: 'visible'
+              overflow: 'auto'
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', overflowY: 'auto', width: '100%' }}>
               <Grid container xs={9} md={4} lg={4}
-                display='flex' justifyContent='center' alignItems='center' style={{ backgroundColor: 'transparent', borderRadius: 10, position: 'relative', height: '80vh', textAlign: 'center', width: '100%', overflow: 'visible' }}
+                display='flex' justifyContent='center' alignItems='center' style={{ backgroundColor: 'transparent', borderRadius: 10, position: 'relative', height: '88vh', textAlign: 'center', width: '100%', overflow: 'visible' }}
               >
-                <Grid mt={3} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
+                <Grid mt={2} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
                   <MDBox display='flex' justifyContent='center' alignItems='center' style={{ overflow: 'visible' }}>
                     <MDTypography variant={isMobile ? 'h5' : 'h3'} style={{ fontFamily: 'Work Sans , sans-serif', color: '#D5F47E' }}>Welcome to StoxHero!</MDTypography>
                   </MDBox>
@@ -748,7 +748,7 @@ function Cover() {
 
                 {!otpGen &&
                   <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
-                    <MDBox mb={5} display='flex' justifyContent='center'>
+                    <MDBox mb={3} display='flex' justifyContent='center'>
                       <MDButton fullWidth variant='contained' size='small' color='student' style={{ marginTop: 15, color: '#000' }} onClick={
                         (e) => {
                           signup(e)
@@ -765,7 +765,7 @@ function Cover() {
                     </Grid>
 
                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
-                      <MDBox mb={5} display='flex' justifyContent='center'>
+                      <MDBox mb={3} display='flex' justifyContent='center'>
                         <MDButton fullWidth variant='contained' size='small' color='student' style={{ marginTop: 15, color: '#000' }}
                           onClick={otpConfirmation} disabled={buttonClicked}>Confirm OTP</MDButton>
                       </MDBox>
