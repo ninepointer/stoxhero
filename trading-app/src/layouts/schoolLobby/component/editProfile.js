@@ -29,7 +29,7 @@ const EditProfile = ({ user, update, setUpdate }) => {
     const [title, setTitle] = useState('');
     const [image, setImage] = useState(null);
     const [previewUrl, setPreviewUrl] = useState('');
-    const [gradeValue, setGradeValue] = useState(user?.schoolDetails?.grade);
+    const [gradeValue, setGradeValue] = useState(user?.schoolDetails?.grade?.grade);
     const setDetails = useContext(userContext);
     const [userState, setUserState] = useState(user?.schoolDetails?.state);
     const [schoolsList, setSchoolsList] = useState([]);
