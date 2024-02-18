@@ -91,7 +91,7 @@ function Cover() {
   }, [gradeData])
 
   console.log('userCity', userCity);
-  
+
   const searchSchools = async ()=>{
     const res = await axios.post(`${apiUrl}fetchschools`, {cityId:userCity?._id ,inputString: inputValue});
     setSchoolsList(res?.data?.data);
@@ -381,7 +381,7 @@ function Cover() {
   }
 
   const handleCityChange = (event, newValue) => {
-    setUserCity(newValue?.name);
+    setUserCity(newValue);
     setValue(newValue);
     setSchoolsList([]);
     setUserSchool('');
