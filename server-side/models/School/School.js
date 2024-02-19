@@ -49,7 +49,7 @@ const schoolSchema = new mongoose.Schema({
         // required: true
     }, 
     aff_no: {
-        type: Number,
+        type: String,
         required: true
     },
     website: {
@@ -84,6 +84,9 @@ const schoolSchema = new mongoose.Schema({
             }
         ]
     }],
+    resetPasswordOTP: {
+        type: String
+    },
     createdOn: {
         type: Date,
         default: () => new Date(),

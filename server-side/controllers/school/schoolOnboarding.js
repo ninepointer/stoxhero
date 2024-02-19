@@ -97,6 +97,20 @@ exports.editSchool = async (req, res) => {
         const schoolId = req.params.id;
         const updates = req.body;
 
+        for(let elem in updates){
+            if(updates[elem] === 'undefined' || updates[elem] === 'null'){
+                updates[elem] = null;
+            }
+
+            if(updates[elem] === 'false'){
+                updates[elem] = false;
+            }
+
+            if(updates[elem] === 'true'){
+                updates[elem] = true;
+            }
+        }
+
         if (req.files['image']) {
             updates.image = await getAwsS3Url(req.files['image'][0], 'Image');
         }
@@ -104,20 +118,28 @@ exports.editSchool = async (req, res) => {
             updates.logo = await getAwsS3Url(req.files['logo'][0], 'Logo');
         }
 
-        // const gradeData = await Grade.find();
+        const schoolData = await School.findById(new ObjectId(schoolId))
 
-        // gradeData.sort((a, b) => {
-        //     const gradeA = parseInt(a.grade);
-        //     const gradeB = parseInt(b.grade);
-        //     return gradeA - gradeB;
-        // });
+        if(schoolData?.highestGrade?.toString() !== updates?.highestGrade?.toString()){
+            const gradeData = await Grade.find();
 
-        // // const grade = gradeData.map(elem => {});
-        // const grade = gradeData.map((elem) => {
-        //     return { grade: elem?._id?.toString() }
-        // })
-        // const index = grade.findIndex(item => item.grade === highestGrade?.toString());
-        // const allGrades = grade.slice(0, index + 1);
+            gradeData.sort((a, b) => {
+                const gradeA = parseInt(a.grade);
+                const gradeB = parseInt(b.grade);
+                return gradeA - gradeB;
+            });
+    
+            // const grade = gradeData.map(elem => {});
+            const grade = gradeData.map((elem) => {
+                return { grade: elem?._id?.toString() }
+            })
+            const index = grade.findIndex(item => item.grade === updates?.highestGrade?.toString());
+            const allGrades = grade.slice(0, index + 1);
+            updates.grades = allGrades;
+    
+        }
+
+        // console.log('allGrades', allGrades)
 
         const updatedData = await School.findByIdAndUpdate(new ObjectId(schoolId), updates, { new: true });
         if (!updatedData) {
@@ -224,6 +246,31 @@ exports.addSchoolSections = async (req, res) => {
     }
 };
 
+exports.getSchoolBySearch = async (req, res) => {
+    try {
+        // const activeCities = await City.find({ });
+        const {search} = req.query;
+        const searchTermRegex = new RegExp(search, 'i');
+        const data = await School.find({
+            $and: [
+                {
+                    $or: [
+                        { school_name: { $regex: searchTermRegex } },
+                        { aff_no: { $regex: searchTermRegex } },
+                    ]
+                }
+            ]
+        })
+        .populate('highestGrade', 'grade')
+        .populate('city', 'name')
+        .sort({school_name:1});
+    
+        res.status(200).json({ message: 'Active cities retrieved successfully', status: 'success', data: data });
+    } catch (error) {
+        res.status(500).json({ message: error.message, status: 'error' });
+    }
+};
+
 //--------------For schools--------------
 
 exports.getTotalStudents = async (req, res) => {
@@ -241,9 +288,19 @@ exports.getTotalStudents = async (req, res) => {
                             },
                         },
                         {
+                            $lookup: {
+                                from: "grades",
+                                localField: "schoolDetails.grade",
+                                foreignField: "_id",
+                                as: "grade",
+                            },
+                        },
+                        {
                             $group: {
                                 _id: {
-                                    grade: "$schoolDetails.grade",
+                                    grade: {
+                                        $arrayElemAt: ["$grade.grade", 0],
+                                    },
                                 },
                                 users: {
                                     $sum: 1,
@@ -267,8 +324,18 @@ exports.getTotalStudents = async (req, res) => {
                             },
                         },
                         {
+                            $lookup: {
+                                from: "grades",
+                                localField: "schoolDetails.grade",
+                                foreignField: "_id",
+                                as: "grade",
+                            },
+                        },
+                        {
                             $project: {
-                                grade: "$schoolDetails.grade",
+                                grade: {
+                                    $arrayElemAt: ["$grade.grade", 0],
+                                },
                                 joining_date: "$joining_date",
                                 dob: "$schoolDetails.dob",
                                 full_name: '$student_name',
@@ -330,12 +397,22 @@ exports.getStudentsQuizWise = async (req, res) => {
                 },
             },
             {
+                $lookup: {
+                    from: "grades",
+                    localField: "user.schoolDetails.grade",
+                    foreignField: "_id",
+                    as: "grade",
+                },
+            },
+            {
                 $facet: {
                     'gradeWise': [
                         {
                             $group: {
                                 _id: {
-                                    grade: "$user.schoolDetails.grade",
+                                    grade: {
+                                        $arrayElemAt: ["$grade.grade", 0],
+                                    },
                                 },
                                 users: {
                                     $sum: 1,
@@ -353,7 +430,9 @@ exports.getStudentsQuizWise = async (req, res) => {
                     'recentStudent': [
                         {
                             $project: {
-                                grade: "$user.schoolDetails.grade",
+                                grade: {
+                                    $arrayElemAt: ["$grade.grade", 0],
+                                  },
                                 registration_date: "$registrations.registeredOn",
                                 dob: "$user.schoolDetails.dob",
                                 full_name: "$user.student_name",
@@ -459,8 +538,18 @@ exports.getStudentsQuizWiseFullList = async (req, res) => {
                 },
             },
             {
+                $lookup: {
+                  from: "grades",
+                  localField: "user.schoolDetails.grade",
+                  foreignField: "_id",
+                  as: "grade",
+                },
+              },
+            {
                 $project: {
-                    grade: "$user.schoolDetails.grade",
+                    grade: {
+                        $arrayElemAt: ["$grade.grade", 0],
+                      },
                     registration_date: "$registrations.registeredOn",
                     dob: "$user.schoolDetails.dob",
                     full_name: "$user.student_name",
@@ -486,8 +575,18 @@ exports.getTotalStudentsFullList = async (req, res) => {
                 },
             },
             {
+                $lookup: {
+                  from: "grades",
+                  localField: "schoolDetails.grade",
+                  foreignField: "_id",
+                  as: "grade",
+                },
+              },
+            {
                 $project: {
-                    grade: "$schoolDetails.grade",
+                    grade: {
+                        $arrayElemAt: ["$grade.grade", 0],
+                      },
                     joining_date: "$joining_date",
                     dob: "$schoolDetails.dob",
                     full_name: '$student_name',
@@ -512,44 +611,9 @@ exports.getSchoolUserGrades = async (req, res) => {
         const school = await School.findById(new ObjectId(schoolId))
             .populate('grades.grade', 'grade')
             .select('grades')
-        console.log('school', school, school.grades);    
+        // console.log('school', school, school.grades);    
         if (!school) {
-            return res.status(201).json({
-                status: 'success', data:
-                    [
-                        {
-                            grade: { _id: "65c7422e99608018ca427985", grade: '6th' },
-                            sections: ['A', 'B', 'C', 'D'],
-                            _id: "65ce3e0e5b6a3e242d1a4680"
-                        },
-                        {
-                            grade: { _id: "65c7424d99608018ca427986", grade: '7th' },
-                            sections: ['A1', 'A2', 'B1', 'B2'],
-                            _id: "65ce3e0e5b6a3e242d1a4681"
-                        },
-                        {
-                            grade: { _id: "65c7425599608018ca427987", grade: '8th' },
-                            sections: ['AB', 'AA', 'AC'],
-                            _id: "65ce3e0e5b6a3e242d1a4682"
-                        },
-                        {
-                            grade: { _id: "65c7425c99608018ca427988", grade: '9th' },
-                            sections: ['A', 'X', 'Z'],
-                            _id: "65ce3e0e5b6a3e242d1a4683"
-                        },
-                        {
-                            grade: { _id: "65c7426499608018ca427989", grade: '10th' },
-                            sections: ['AB', 'AA', 'AC'],
-                            _id: "65ce3e0e5b6a3e242d1a4684"
-                        },
-                        {
-                            grade: { _id: "65c7426e99608018ca42798a", grade: '11th' },
-                            sections: ['AB', 'AA', 'AC'],
-                            _id: "65ce3e0e5b6a3e242d1a4685"
-                        }
-                    ]
-            });
-            // return res.status(404).json({ message: 'School not found' });
+            return res.status(404).json({ message: 'School not found' });
         }
 
         res.status(200).json({ status: 'success', data: school.grades });

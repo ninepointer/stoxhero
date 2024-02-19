@@ -5,14 +5,11 @@ import DataTable from "../../../../examples/Tables/DataTable";
 import MDButton from "../../../../components/MDButton"
 import MDBox from "../../../../components/MDBox"
 import MDTypography from "../../../../components/MDTypography"
-import Grid from "@mui/material/Grid";
 import {Card, Button} from "@mui/material";
-import { AiOutlineEdit } from 'react-icons/ai';
 import { apiUrl } from '../../../../constants/constants';
-import StyleIcon from '@mui/icons-material/Style';
 import CreateSection from './createSection'
 
-const Grades = ({ school }) => {
+const Grades = ({ school, updatedDocument }) => {
 
     // const [reRender, setReRender] = useState(true);
     let columns = [
@@ -34,7 +31,7 @@ const Grades = ({ school }) => {
             }).catch((err) => {
                 return new Error(err);
             })
-    }, [createSections])
+    }, [createSections, updatedDocument])
 
     grade?.map((elem) => {
         let section = '';

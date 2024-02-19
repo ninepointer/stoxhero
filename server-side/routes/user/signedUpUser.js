@@ -224,20 +224,23 @@ router.post('/fetchschools', async (req, res) => {
     try {
         // Check if data for the state is already cached
         let cityData = await client.get(`citySchools-${cityId}`);
+        cityData = JSON.parse(cityData)
 
-        if (!cityData) {
+        if (!cityData?.length) {
             // Data not in cache, fetch from database and cache it
             const dataFromDB = await School.find({isOnboarding: true, city: new ObjectId(cityId)})
             .populate('city', 'name')
             .select('_id school_name city state address');
+
+            console.log("dataFromDB", dataFromDB)
             await client.set(`citySchools-${cityId}`, JSON.stringify(dataFromDB));
             await client.expire(`citySchools-${cityId}`, 600);
             cityData = JSON.stringify(dataFromDB);
         }
 
         // Parse the data to filter based on the input string
-        const filteredData = JSON.parse(cityData).filter(school =>
-            school?.school_name?.toLowerCase().includes(inputString?.toLowerCase())
+        const filteredData = (cityData)?.filter(school =>
+            school?.school_name?.toLowerCase()?.includes(inputString?.toLowerCase())
         ).map(school => {
             // Determine the city or use stateName if city is not available
             const cityOrState = school?.city?.name

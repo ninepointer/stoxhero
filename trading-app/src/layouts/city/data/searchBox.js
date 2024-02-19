@@ -51,17 +51,17 @@ function SearchBox({setData}) {
 
 
   function sendSearchReq(e) {
-    const value = e?.target?.value ? e.target.value : e;
+    const value = e.target.value;
     if (timeoutId) {
       clearTimeout(timeoutId);
     }
 
     setTimeoutId(
       setTimeout(() => {
-        window.webengage.track('search_instrument_clicked', {
-          user: getDetails?.userDetails?._id,
-          searchString: value
-        })
+        // window.webengage.track('search_instrument_clicked', {
+        //   user: getDetails?.userDetails?._id,
+        //   searchString: value
+        // })
         sendRequest(value);
       }, 400)
     );
@@ -75,21 +75,22 @@ function SearchBox({setData}) {
       return;
     }
 
-
-    axios.get(`${apiUrl}cities/bysearch?search=${data}`, {
-      withCredentials: true,
-      headers: {
+    if (data) {
+      axios.get(`${apiUrl}cities/bysearch?search=${data}`, {
+        withCredentials: true,
+        headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
           "Access-Control-Allow-Credentials": true
-      },
-    })
-    .then((res)=>{
-      dispatch({ type: 'setSearchData', payload: (res.data) });
-      setData(res.data?.data)
-    }).catch((err)=>{
-      //console.log(err);
-    })
+        },
+      })
+        .then((res) => {
+          dispatch({ type: 'setSearchData', payload: (res.data) });
+          setData(res.data?.data)
+        }).catch((err) => {
+          //console.log(err);
+        })
+    }
   }
 
 

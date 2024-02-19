@@ -322,7 +322,6 @@ function Cover() {
   };
 
   const handleStateChange = (event, newValue) => {
-    console.log('event', event.target, newValue);
     setUserState(newValue);
     setSchoolsList([]);
     setUserSchool('');
@@ -388,7 +387,6 @@ function Cover() {
   }
 
   const handleCityChange = (event, newValue) => {
-    console.log('new value', newValue, newValue.name);
     setUserCity(newValue?.name);
     setValue(newValue);
     setSchoolsList([]);

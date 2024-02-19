@@ -29,6 +29,11 @@ router.post(
 );
 
 router.get(
+    '/bysearch', Authenticate, restrictTo('Admin', 'SuperAdmin'),
+    schoolController.getSchoolBySearch
+);
+
+router.get(
     '/active', Authenticate, restrictTo('Admin', 'SuperAdmin'),
     schoolController.getAllActiveSchool
 );

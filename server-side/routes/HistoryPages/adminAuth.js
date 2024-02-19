@@ -103,7 +103,7 @@ router.get('/schoolaff', async(req, res)=>{
     const updateResult = await School.updateMany({}, [
         {
             $set: {
-                aff_no: { $toInt: "$aff_no" }
+                aff_no: { $toString: "$aff_no" }
             }
         }
     ]);

@@ -16,7 +16,7 @@ const sendMail = require('../../utils/emailService');
 const {sendMultiNotifications} = require('../../utils/fcmService');
 const restrictTo = require('../../authentication/authorization');
 const {createUserNotification} = require('../../controllers/notification/notificationController');
-
+const School = require('../../models/School/School')
 
 const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
@@ -349,6 +349,35 @@ router.patch("/resetpassword", async (req, res)=>{
         return res.status(200).json({message : "Password Reset Done"})
 })
 
+router.patch("/schoolresetpassword", async (req, res)=>{
+  const {email, resetPasswordOTP, confirm_password, password} = req.body;
+  
+  const deactivated = await School.findOne({ email: email, status: "Inactive" })
+
+  if(deactivated){
+      return res.status(422).json({ status: 'error', message: "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.", error: "deactivated" });
+  }
+  let reset = await School.findOne({email : email})
+  if(!reset)
+  {
+      return res.status(404).json({error : "School doesn't exist"})
+  }
+
+  if(resetPasswordOTP != reset.resetPasswordOTP)
+  {
+      return res.status(401).json({message : "OTP doesn't match, please try again!"})
+  }
+
+  if(password != confirm_password)
+  {
+      return res.status(401).json({message : "Password & Confirm Password didn't match."})
+  }
+      
+      reset.password = password
+      await reset.save({validateBeforeSave:false})
+      return res.status(200).json({message : "Password Reset Done"})
+})
+
 router.patch("/generateOTP", async (req, res)=>{
     const {email} = req.body
 
@@ -374,6 +403,37 @@ router.patch("/generateOTP", async (req, res)=>{
             message: "Password Reset OTP Resent"
         })
     emailService(email,subject,message);
+})
+
+router.patch("/schoolgenerateotp", async (req, res) => {
+  try {
+    const { email } = req.body
+
+    const deactivatedSchool = await School.findOne({ email: email, status: "Inactive" })
+
+    if (deactivatedSchool) {
+      return res.status(422).json({ status: 'error', message: "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.", error: "deactivated" });
+    }
+
+    const reset = await School.findOne({ email: email })
+    if (!reset) {
+      return res.status(404).json({
+        message: "User with this email doesn't exist"
+      })
+    }
+    let email_otp = otpGenerator.generate(6, { upperCaseAlphabets: true, lowerCaseAlphabets: false, specialChars: false });
+    let subject = "Password Reset StoxHero";
+    let message = `Your OTP for password reset is: ${email_otp}`
+    reset.resetPasswordOTP = email_otp
+    await reset.save({ validateBeforeSave: false });
+    res.status(200).json({
+      message: "Password Reset OTP Sent"
+    })
+    emailService(email, subject, message);
+  } catch (err) {
+    console.log(err);
+  }
+
 })
 
 router.get("/readuserdetails", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res) => {
@@ -775,7 +835,7 @@ router.patch('/student/image', authController.protect, currentUser, uploadMultip
 router.patch('/student/me', authController.protect, currentUser, uploadMultiple, checkFileError, resizePhoto, uploadToS3, async(req,res,next)=>{
 
   try{
-    let {student_name, grade, city, school, dob, state, profilePhoto} = req.body;
+    let {student_name, grade, city, school, dob, state, profilePhoto, section} = req.body;
 
     profilePhoto = (profilePhoto==='undefined' || profilePhoto==='null' || profilePhoto==='false' || profilePhoto==='') ? null : profilePhoto;
     console.log(req.body)
@@ -784,7 +844,7 @@ router.patch('/student/me', authController.protect, currentUser, uploadMultiple,
   
       if(!user) return res.status(404).json({message: 'No such user found.'});
       const schoolDetails = {
-        grade, city, school, dob, parents_name: user?.schoolDetails?.parents_name, state, profilePhoto
+        grade, city, school, dob, parents_name: user?.schoolDetails?.parents_name, state, profilePhoto, section
       }
       // const filteredBody = filterObj(req.body, 'student_name', 'schoolDetails');
       user.schoolDetails = schoolDetails;
@@ -799,6 +859,7 @@ router.patch('/student/me', authController.protect, currentUser, uploadMultiple,
       const userData = await UserDetail.findByIdAndUpdate(user._id, user, {new: true})
       .populate('role', 'roleName')
       .populate('schoolDetails.city', 'name')
+      .populate('schoolDetails.grade', 'grade')
       .populate('schoolDetails.school', 'school_name')
       .select('student_name full_name schoolDetails city isAffiliate collegeDetails pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch bankState')
   

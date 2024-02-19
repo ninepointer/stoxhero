@@ -47,28 +47,27 @@ function Index() {
   const [cityData, setCityData] = useState([]);
   const [gradeData, setGradeData] = useState([]);
 
+  useEffect(()=>{
+    setTimeout(()=>{
+      setIsLoading(false)
+    }, 1000)
+  }, [])
+
 
   const [formState, setFormState] = useState({
-    name: '' || school?.school_name,
-    principalName: '' || school?.head_name,
+    school_name: '' || school?.school_name,
+    head_name: '' || school?.head_name,
     address: '' || school?.address,
     status: '' || school?.status,
     email: "" || school?.email,
-    board: false || school?.board,
-    affiliationNumber: "" || school?.aff_no,
+    board: "" || school?.board,
+    aff_no: "" || school?.aff_no,
     website: "" || school?.website,
     mobile: "" || school?.mobile,
     image: "" || school?.image,
     logo: "" || school?.logo,
+    isOnboarding: "" || school?.isOnboarding,
   });
-
-  useEffect(() => {
-    setTimeout(() => {
-      school && setUpdatedDocument(school)
-      setIsLoading(false);
-    }, 500)
-  }, [])
-
   
   const [gradeValue, setGradeValue] = useState(
     school &&
@@ -140,7 +139,7 @@ function Index() {
     e.preventDefault()
   
 
-    if (!formState.name || !formState.email) {
+    if (!formState.school_name || !formState.email) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
@@ -196,8 +195,9 @@ function Index() {
   async function onEdit(e, formState) {
     e.preventDefault()
     setSaving(true)
+    setUpdatedDocument(false);
 
-    if (!formState.name || !formState.email) {
+    if (!formState.school_name || !formState.email) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
@@ -239,7 +239,10 @@ function Index() {
       openErrorSB("Error", data.error)
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
     } else if (data.status == 'success') {
-      openSuccessSB("School Edited", "Edited Successfully")
+      openSuccessSB("School Edited", "Edited Successfully");
+      setNewObjectId(data?.data?._id)
+      setUpdatedDocument(true)
+      setSchoolData(data?.data);
       setTimeout(() => { setSaving(false); setEditing(false) }, 500)
     } else {
       openErrorSB("Error", data.message);
@@ -337,13 +340,13 @@ function Index() {
                           disabled={((isSubmitted || school) && (!editing || saving))}
                           id="outlined-required"
                           label='School Name *'
-                          name='name'
+                          name='school_name'
                           fullWidth
-                          defaultValue={editing ? formState?.name : school?.school_name}
+                          defaultValue={editing ? formState.school_name : school?.school_name}
                           onChange={(e) => {
                             setFormState(prevState => ({
                               ...prevState,
-                              name: e.target.value
+                              school_name: e.target.value
                             }))
                           }}
                         />
@@ -367,10 +370,10 @@ function Index() {
                           disabled={((isSubmitted || school) && (!editing || saving))}
                           id="outlined-required"
                           label='Principal Name *'
-                          name='principalName'
+                          name='head_name'
                           fullWidth
                           type='text'
-                          defaultValue={editing ? formState?.principalName : school?.head_name}
+                          defaultValue={editing ? formState?.head_name : school?.head_name}
                           onChange={handleChange}
                         />
                       </Grid>
@@ -437,10 +440,10 @@ function Index() {
                           disabled={((isSubmitted || school) && (!editing || saving))}
                           id="outlined-required"
                           label='Affiliation Number *'
-                          name='affiliationNumber'
+                          name='aff_no'
                           type='number'
                           fullWidth
-                          defaultValue={editing ? formState?.affiliationNumber : school?.aff_no}
+                          defaultValue={editing ? formState?.aff_no : school?.aff_no}
                           onChange={handleChange}
                         />
                       </Grid>
@@ -639,6 +642,25 @@ function Index() {
                       </MDButton>
                       </Grid>
 
+                  {school &&
+                    <Grid item xs={12} md={6} xl={4}>
+                      <FormGroup>
+                        <FormControlLabel
+                          // value={formState?.status || school?.status}
+                          disabled={((isSubmitted || school) && (!editing || saving))}
+                          checked={formState?.isOnboarding}
+                          // disabled={isSubmitted}
+                          control={<Checkbox />}
+                          onChange={(e) => {
+                            setFormState(prevState => ({
+                              ...prevState,
+                              isOnboarding: e.target.checked
+                            }))
+                          }}
+                          label="Is Onboarding" />
+                      </FormGroup>
+                    </Grid>}
+
                   </Grid>
                 </Grid>
 
@@ -803,7 +825,7 @@ function Index() {
                 {(school || newObjectId) && 
                 <Grid mt={1} item xs={12} md={12} xl={12} display="flex" justifyContent="center" style={{minWidth:'100%'}}>
                 <MDBox style={{minWidth:'100%'}}>
-                  <Grades school={school?._id || newObjectId} />
+                  <Grades school={school?._id || newObjectId} updatedDocument={updatedDocument} />
                 </MDBox>
                 </Grid>
                 }
