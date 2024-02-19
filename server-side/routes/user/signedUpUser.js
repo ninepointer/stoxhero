@@ -232,10 +232,10 @@ router.post('/fetchschools', async (req, res) => {
             .populate('city', 'name')
             .select('_id school_name city state address');
 
-            console.log("dataFromDB", dataFromDB)
+            // console.log("dataFromDB", dataFromDB)
             await client.set(`citySchools-${cityId}`, JSON.stringify(dataFromDB));
             await client.expire(`citySchools-${cityId}`, 600);
-            cityData = JSON.stringify(dataFromDB);
+            // cityData = JSON.stringify(dataFromDB);
         }
 
         // Parse the data to filter based on the input string

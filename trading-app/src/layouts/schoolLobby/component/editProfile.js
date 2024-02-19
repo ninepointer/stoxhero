@@ -71,6 +71,10 @@ const EditProfile = ({ user, update, setUpdate }) => {
     };
 
     useEffect(() => {
+        searchSchools();
+    }, [value])
+
+    useEffect(() => {
         getGrade();
     }, [userSchool])
 
@@ -86,12 +90,12 @@ const EditProfile = ({ user, update, setUpdate }) => {
     }
 
     const searchSchools = async () => {
-        const res = await axios.post(`${apiUrl}fetchschools`, { cityId: value?._id, inputString: inputValue });
+        const res = await axios.post(`${apiUrl}fetchschools`, { cityId: user?.schoolDetails?.city?._id || value?._id, inputString: inputValue });
         setSchoolsList(res?.data?.data);
     }
 
     const getGrade = async () => {
-        const res = await axios.get(`${apiUrl}school/${userSchool?._id}/usergrades`);
+        const res = await axios.get(`${apiUrl}school/${user?.schoolDetails?.school?._id || userSchool?._id}/usergrades`);
         setGradeData(res?.data?.data);
     }
 
@@ -114,7 +118,7 @@ const EditProfile = ({ user, update, setUpdate }) => {
 
     const getCities = async () => {
         try {
-            const res = await axios.get(`${apiUrl}cities/bystate/${userState}`);
+            const res = await axios.get(`${apiUrl}cities/bystate/${user?.schoolDetails?.state || userState}`);
             if (res.data.status == 'success') {
                 setCityData(res.data.data);
             }
@@ -444,7 +448,7 @@ const EditProfile = ({ user, update, setUpdate }) => {
                                     color: 'dark',
                                 },
                             }}
-                            options={gradeData}
+                            options={gradeData || []}
                             value={gradeValue}
                             // disabled={otpGen}
                             onChange={handleGradeChange}
