@@ -90,12 +90,12 @@ const EditProfile = ({ user, update, setUpdate }) => {
     }
 
     const searchSchools = async () => {
-        const res = await axios.post(`${apiUrl}fetchschools`, { cityId: user?.schoolDetails?.city?._id || value?._id, inputString: inputValue });
+        const res = await axios.post(`${apiUrl}fetchschools`, { cityId: value?._id || user?.schoolDetails?.city?._id, inputString: inputValue });
         setSchoolsList(res?.data?.data);
     }
 
     const getGrade = async () => {
-        const res = await axios.get(`${apiUrl}school/${user?.schoolDetails?.school?._id || userSchool?._id}/usergrades`);
+        const res = await axios.get(`${apiUrl}school/${userSchool?._id || user?.schoolDetails?.school?._id}/usergrades`);
         setGradeData(res?.data?.data);
     }
 
@@ -118,7 +118,7 @@ const EditProfile = ({ user, update, setUpdate }) => {
 
     const getCities = async () => {
         try {
-            const res = await axios.get(`${apiUrl}cities/bystate/${user?.schoolDetails?.state || userState}`);
+            const res = await axios.get(`${apiUrl}cities/bystate/${userState || user?.schoolDetails?.state}`);
             if (res.data.status == 'success') {
                 setCityData(res.data.data);
             }
@@ -374,11 +374,11 @@ const EditProfile = ({ user, update, setUpdate }) => {
                                     color: 'dark',
                                 },
                             }}
-                            options={cityData}
+                            options={cityData || []}
                             value={value}
                             onChange={handleCityChange}
                             autoHighlight
-                            getOptionLabel={(option) => option ? option.name : 'City'}
+                            getOptionLabel={(option) => option ? option?.name : 'City'}
                             renderOption={(props, option) => (
                                 <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                                     {option.name}
@@ -410,13 +410,13 @@ const EditProfile = ({ user, update, setUpdate }) => {
                                     color: 'dark',
                                 },
                             }}
-                            options={schoolsList}
+                            options={schoolsList || []}
                             value={userSchool}
 
                             onChange={handleSchoolChange}
                             onInputChange={(e) => { setInputValue(e?.target?.value); debounceGetSchools(); }}
                             autoHighlight
-                            getOptionLabel={(option) => option ? option.schoolString : 'School'}
+                            getOptionLabel={(option) => option ? option?.schoolString : 'School'}
                             renderOption={(props, option) => (
                                 <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                                     {option.schoolString}

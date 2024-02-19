@@ -226,13 +226,15 @@ router.post('/fetchschools', async (req, res) => {
         let cityData = await client.get(`citySchools-${cityId}`);
         cityData = JSON.parse(cityData)
 
+        console.log('cityData', cityData, cityId)
+
         if (!cityData?.length) {
             // Data not in cache, fetch from database and cache it
             const dataFromDB = await School.find({isOnboarding: true, city: new ObjectId(cityId)})
             .populate('city', 'name')
             .select('_id school_name city state address');
 
-            // console.log("dataFromDB", dataFromDB)
+            console.log("dataFromDB", dataFromDB)
             await client.set(`citySchools-${cityId}`, JSON.stringify(dataFromDB));
             await client.expire(`citySchools-${cityId}`, 600);
             // cityData = JSON.stringify(dataFromDB);
