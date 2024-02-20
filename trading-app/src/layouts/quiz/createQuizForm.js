@@ -49,8 +49,7 @@ function Index() {
   const [quizImage, setQuizImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const editor = useRef(null);
-  // const [descData, setDescData] = useState(quiz?.description || '');
-
+  const [gradeData, setGradeData] = useState([]);
 
   const [formState, setFormState] = useState({
     title: '' || quiz?.title,
@@ -62,11 +61,21 @@ function Index() {
     status: '' || quiz?.status,
     maxParticipant: "" || quiz?.maxParticipant,
     openForAll: false || quiz?.openForAll,
+    isPractice: false || quiz?.isPractice,
     description: "" || quiz?.description,
     noOfSlots: "" || quiz?.noOfSlots,
     slotBufferTime: "" || quiz?.slotBufferTime,
     image: "" || quiz?.image,
-    entryFee:"" || quiz?.entryFee
+    entryFee:"" || quiz?.entryFee,
+    quizQuestionnaire:"" || quiz?.quizQuestionnaire,
+    userQuestionnaire:"" || quiz?.userQuestionnaire,
+    easy:"" || quiz?.permissibleSet?.easy,
+    medium:"" || quiz?.permissibleSet?.medium,
+    difficult:"" || quiz?.permissibleSet?.difficult,
+    singleCorrect:"" || quiz?.permissibleSet?.singleCorrect,
+    multiCorrect:"" || quiz?.permissibleSet?.multiCorrect,
+    imageSingleCorrect:"" || quiz?.permissibleSet?.imageSingleCorrect,
+    imageMultiCorrect:"" || quiz?.permissibleSet?.imageMultiCorrect,
   });
 
   useEffect(() => {
@@ -77,11 +86,27 @@ function Index() {
   }, [])
 
   const [cityData, setCityData] = useState([]);
-  const [gradeValue, setGradeValue] = useState(quiz?.grade || '6th');
+  const [gradeValue, setGradeValue] = useState({
+    _id: quiz?.grade?._id || '',
+    grade: quiz?.grade?.grade || ""
+  })
+
   const [value, setValue] = useState({
     _id: quiz?.city?._id || '',
     name: quiz?.city?.name || ""
   })
+
+  const getGrades = async () => {
+    try {
+      const res = await axios.get(`${apiUrl}grades`);
+      if (res.data.status == 'success') {
+        setGradeData(res.data.data);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+
+  }
 
   const getCities = async () => {
     try {
@@ -94,8 +119,10 @@ function Index() {
     }
 
   }
+
   useEffect(() => {
     getCities();
+    getGrades();
   }, [])
 
   const handleImage = (event) => {
@@ -141,8 +168,8 @@ function Index() {
       formData.append(`${elem}`, formState[elem]);
     }
 
-    if (gradeValue) {
-      formData.append(`grade`, gradeValue);
+    if (gradeValue?._id) {
+      formData.append(`grade`, gradeValue?._id);
     }
 
     if (value?._id) {
@@ -196,8 +223,8 @@ function Index() {
       formData.append(`${elem}`, formState[elem]);
     }
 
-    if (gradeValue) {
-      formData.append(`grade`, gradeValue);
+    if (gradeValue?._id) {
+      formData.append(`grade`, gradeValue?._id);
     }
 
     if (value?._id) {
@@ -422,31 +449,31 @@ function Index() {
                               color: 'dark',
                             },
                           }}
-                          options={["6th", '7th', '8th', '9th', '10th', '11th', "12th"]}
+                          options={gradeData}
                           value={gradeValue}
                           disabled={((isSubmitted || quiz) && (!editing || saving))}
                           onChange={handleGradeChange}
                           autoHighlight
-                          getOptionLabel={(option) => option ? option : 'Grade'}
-                          renderOption={(props, option) => (
-                            <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                              {option}
-                            </Box>
-                          )}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              label="Grade/Class"
-                              inputProps={{
-                                ...params.inputProps,
-                                autoComplete: 'new-password', // disable autocomplete and autofill
-                                style: { color: 'dark', height: "10px" }, // set text color to dark
-                              }}
-                              InputLabelProps={{
-                                style: { color: 'dark' },
-                              }}
-                            />
-                          )}
+                          getOptionLabel={(option) => option ? option.grade : 'Grade'}
+                        renderOption={(props, option) => (
+                          <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                            {option.grade}
+                          </Box>
+                        )}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            placeholder="Grade/Class"
+                            inputProps={{
+                              ...params.inputProps,
+                              autoComplete: 'new-password', // disable autocomplete and autofill
+                              style: { color: 'dark', height: "10px" }, // set text color to dark
+                            }}
+                            InputLabelProps={{
+                              style: { color: 'dark' },
+                            }}
+                          />
+                        )}
                         />
                       </Grid>
 
@@ -575,6 +602,7 @@ function Index() {
                             onChange={handleChange}
                           />
                       </Grid>
+
                       <Grid item xs={12} md={6} xl={4}>
                           <TextField
                             disabled={((isSubmitted || quiz) && (!editing || saving))}
@@ -604,6 +632,159 @@ function Index() {
                         </FormGroup>
                       </Grid>
 
+                      <Grid item xs={12} md={6} xl={4}>
+                          <TextField
+                            disabled={((isSubmitted || quiz) && (!editing || saving))}
+                            id="outlined-required"
+                            label='Quiz Questionnaire *'
+                            name='quizQuestionnaire'
+                            type='number'
+                            fullWidth
+                            defaultValue={editing ? formState?.quizQuestionnaire : quiz?.quizQuestionnaire}
+                            onChange={handleChange}
+                          />
+                      </Grid>
+
+                      <Grid item xs={12} md={6} xl={4}>
+                          <TextField
+                            disabled={((isSubmitted || quiz) && (!editing || saving))}
+                            id="outlined-required"
+                            label='User Questionnaire *'
+                            name='userQuestionnaire'
+                            type='number'
+                            fullWidth
+                            defaultValue={editing ? formState?.userQuestionnaire : quiz?.userQuestionnaire}
+                            onChange={handleChange}
+                          />
+                      </Grid>
+
+                      <Grid item xs={12} md={6} xl={4}>
+                          <TextField
+                            disabled={((isSubmitted || quiz) && (!editing || saving))}
+                            id="outlined-required"
+                            label='Easy % *'
+                            name='easy'
+                            type='number'
+                            fullWidth
+                            defaultValue={formState?.easy || quiz?.permissibleSet?.easy}
+                            onChange={handleChange}
+                          />
+                      </Grid>
+
+                      <Grid item xs={12} md={6} xl={4}>
+                          <TextField
+                            disabled={((isSubmitted || quiz) && (!editing || saving))}
+                            id="outlined-required"
+                            label='Medium % *'
+                            name='medium'
+                            type='number'
+                            fullWidth
+                            defaultValue={formState?.medium || quiz?.permissibleSet?.medium}
+                            onChange={handleChange}
+                          />
+                      </Grid>
+
+                      <Grid item xs={12} md={6} xl={4}>
+                          <TextField
+                            disabled={((isSubmitted || quiz) && (!editing || saving))}
+                            id="outlined-required"
+                            label='Difficult % *'
+                            name='difficult'
+                            type='number'
+                            fullWidth
+                            defaultValue={formState?.difficult || quiz?.permissibleSet?.difficult}
+                            onChange={handleChange}
+                          />
+                      </Grid>
+
+                      <Grid item xs={12} md={6} xl={4}>
+                          <TextField
+                            disabled={((isSubmitted || quiz) && (!editing || saving))}
+                            id="outlined-required"
+                            label='Single Correct % *'
+                            name='singleCorrect'
+                            type='number'
+                            fullWidth
+                            defaultValue={formState?.singleCorrect || quiz?.permissibleSet?.singleCorrect}
+                            onChange={handleChange}
+                          />
+                      </Grid>
+
+                      <Grid item xs={12} md={6} xl={4}>
+                          <TextField
+                            disabled={((isSubmitted || quiz) && (!editing || saving))}
+                            id="outlined-required"
+                            label='Multi Correct % *'
+                            name='multiCorrect'
+                            type='number'
+                            fullWidth
+                            defaultValue={formState?.multiCorrect || quiz?.permissibleSet?.multiCorrect}
+                            onChange={handleChange}
+                          />
+                      </Grid>
+
+                      <Grid item xs={12} md={6} xl={4}>
+                          <TextField
+                            disabled={((isSubmitted || quiz) && (!editing || saving))}
+                            id="outlined-required"
+                            label='Image Single Correct % *'
+                            name='imageSingleCorrect'
+                            type='number'
+                            fullWidth
+                            defaultValue={formState?.imageSingleCorrect || quiz?.permissibleSet?.imageSingleCorrect}
+                            onChange={handleChange}
+                          />
+                      </Grid>
+
+                      <Grid item xs={12} md={6} xl={4}>
+                          <TextField
+                            disabled={((isSubmitted || quiz) && (!editing || saving))}
+                            id="outlined-required"
+                            label='Image Multi Correct % *'
+                            name='imageMultiCorrect'
+                            type='number'
+                            fullWidth
+                            defaultValue={formState?.imageMultiCorrect || quiz?.permissibleSet?.imageMultiCorrect}
+                            onChange={handleChange}
+                          />
+                      </Grid>
+
+                      <Grid item xs={12} md={6} xl={4}>
+                        <FormGroup>
+                          <FormControlLabel
+                            checked={formState?.isPractice}
+                            disabled={isSubmitted}
+                            control={<Checkbox />}
+                            onChange={(e) => {
+                              setFormState(prevState => ({
+                                ...prevState,
+                                isPractice: e.target.checked
+                              }))
+                            }}
+                            label="Practice" />
+                        </FormGroup>
+                      </Grid>
+
+                      <Grid item xs={12} md={6} xl={4} style={{ maxWidth: '100%', height: 'auto' }}>
+                      <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(quizData?.image && !quizImage) ? "warning" : ((quizData?.image && quizImage) || quizImage) ? "error" : "success"} component="label">
+                        Upload Image(512X256)
+                        <input
+                          hidden
+                          // disabled={((quizData || quiz) && (!editing))}
+                          accept="image/*"
+                          type="file"
+                          // onChange={(e)=>{setTitleImage(e.target.files)}}
+                          onChange={(e) => {
+                            setFormState(prevState => ({
+                              ...prevState,
+                              quizImage: e.target.files
+                            }));
+                            // setTitleImage(e.target.files);
+                            handleImage(e);
+                          }}
+                        />
+                      </MDButton>
+                    </Grid>
                   </Grid>
                 </Grid>
 
@@ -656,26 +837,7 @@ function Index() {
                         </Grid>
                       </Grid>
                     }
-                    <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
-                      <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(quizData?.image?.url && !quizImage) ? "warning" : ((quizData?.image?.url && quizImage) || quizImage) ? "error" : "success"} component="label">
-                        Upload Image(512X256)
-                        <input
-                          hidden
-                          // disabled={((quizData || quiz) && (!editing))}
-                          accept="image/*"
-                          type="file"
-                          // onChange={(e)=>{setTitleImage(e.target.files)}}
-                          onChange={(e) => {
-                            setFormState(prevState => ({
-                              ...prevState,
-                              quizImage: e.target.files
-                            }));
-                            // setTitleImage(e.target.files);
-                            handleImage(e);
-                          }}
-                        />
-                      </MDButton>
-                    </Grid>
+                   
                   </Grid>
                 </Grid>
 

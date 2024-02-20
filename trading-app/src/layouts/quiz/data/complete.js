@@ -83,7 +83,7 @@ const Completed = () => {
                         </Grid>
 
                         <Grid item xs={12} md={6} lg={12} mt={1} mb={1} display="flex" justifyContent="left" >
-                          <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>Grade: {e?.grade}</MDTypography>
+                          <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>Grade: {e?.grade?.grade}</MDTypography>
                         </Grid>
 
                         {/* <Grid item xs={12} md={6} lg={12} display={"flex"} justifyContent={"center"} alignItems={"center"}>

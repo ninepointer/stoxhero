@@ -79,10 +79,15 @@ const quizSchema = new mongoose.Schema({
        user: {type: Number, default: 0},
     }],
     grade: {
-        type: String,
-        required: true
+        type:Schema.Types.ObjectId,
+        ref:'city'
     },
     openForAll: {
+        type: Boolean,
+        default: false,
+        required: true
+    },
+    isPractice: {
         type: Boolean,
         default: false,
         required: true
@@ -98,7 +103,11 @@ const quizSchema = new mongoose.Schema({
     permissibleSet: {
         easy: Number,
         medium: Number,
-        difficult: Number
+        difficult: Number,
+        singleCorrect: Number,
+        multiCorrect: Number,
+        imageSingleCorrect: Number,
+        imageMultiCorrect: Number,
     },
     status:{
         type:String,

@@ -4,6 +4,7 @@ const {ObjectId} = require('mongodb');
 const User = require('../../models/User/userDetailSchema');
 const moment = require('moment');
 const sharp = require('sharp');
+const QuestionBank = require('../../models/QuestionBank/queBankSchema')
 
 // Configure AWS
 const s3 = new AWS.S3({
@@ -40,8 +41,16 @@ const getAwsS3Url = async (file) => {
 exports.createQuiz = async (req, res) => {
     try {
         const {grade, title, startDateTime, registrationOpenDateTime, registrationCloseDateTime,
-            durationInSeconds, rewardType, status, maxParticipant, city, 
-            openForAll, description, noOfSlots, slotBufferTime, entryFee } = req.body;
+            durationInSeconds, rewardType, status, maxParticipant, city, singleCorrect,
+            openForAll, description, noOfSlots, slotBufferTime, entryFee, quizQuestionnaire,
+            userQuestionnaire, easy, medium, difficult, isPractice, multiCorrect, imageSingleCorrect,
+            imageMultiCorrect
+        } = req.body;
+
+        const permissibleSet = {
+            easy, medium, difficult, multiCorrect, imageSingleCorrect,
+            imageMultiCorrect, singleCorrect
+        }
 
         const openAll = (openForAll === 'false' || openForAll === 'undefined' || openForAll === false) ? false : true;
         let image;
@@ -59,8 +68,8 @@ exports.createQuiz = async (req, res) => {
 
         const newQuiz = new Quiz({image, maxParticipant, grade, title, entryFee,
             startDateTime, registrationOpenDateTime, registrationCloseDateTime, durationInSeconds, 
-            rewardType, status, city, openForAll: openAll, description,
-            noOfSlots, slotBufferTime, slots
+            rewardType, status, city, openForAll: openAll, description, quizQuestionnaire,
+            noOfSlots, slotBufferTime, slots, userQuestionnaire, permissibleSet, isPractice
          });
         await newQuiz.save();
         res.status(201).json(newQuiz);
@@ -74,17 +83,28 @@ exports.editQuiz = async (req, res) => {
         const quizId = req.params.id;
         const updates = req.body;
 
-        const slots = [];
-        slots.push({ time: new Date(updates.startDateTime) });
-        for (let i = 1; i < updates.noOfSlots; i++) {
-            const previousSlotTime = new Date(slots[i - 1].time);
-            const nextSlotTime = new Date(previousSlotTime.getTime() + (Number(updates.durationInSeconds) + Number(updates.slotBufferTime)) * 1000);
-            slots.push({ time: nextSlotTime });
+        updates.permissibleSet = {
+            easy: updates.easy, 
+            medium: updates.medium, 
+            difficult: updates.difficult,
+            singleCorrect: updates.singleCorrect,
+            multiCorrect: updates.multiCorrect,
+            imageSingleCorrect: updates.imageSingleCorrect,
+            imageMultiCorrect: updates.imageMultiCorrect,
         }
 
-        updates.slots = slots;
+        // const slots = [];
+        // slots.push({ time: new Date(updates.startDateTime) });
+        // for (let i = 1; i < updates.noOfSlots; i++) {
+        //     const previousSlotTime = new Date(slots[i - 1].time);
+        //     const nextSlotTime = new Date(previousSlotTime.getTime() + (Number(updates.durationInSeconds) + Number(updates.slotBufferTime)) * 1000);
+        //     slots.push({ time: nextSlotTime });
+        // }
+
+        // updates.slots = slots;
         updates.openForAll = (updates?.openForAll === 'false' || updates?.openForAll === 'undefined' || updates?.openForAll === false) ? false : true;
-        
+        updates.isPractice = (updates?.isPractice === 'false' || updates?.isPractice === 'undefined' || updates?.isPractice === false) ? false : true;
+
         if (req.files['quizImage']) {
             updates.image = await getAwsS3Url(req.files['quizImage'][0]);
         }
@@ -93,6 +113,9 @@ exports.editQuiz = async (req, res) => {
             return res.status(404).json({ message: 'Quiz not found' });
         }
 
+        // const data = await selectRandomQuestions(updates.quizQuestionnaire, updates.permissibleSet);
+
+        // console.log(data);
         res.status(201).json({status: "success", data: updatedQuiz });
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -300,87 +323,11 @@ exports.getActiveQuizForAdmin = async (req, res) => {
     try {
         const quizzes = await Quiz.find({ status: "Active" })
         .populate({
-            path: 'registrations.userId',
-            select: 'student_name full_name mobile schoolDetails',
-            populate: {
-                path: 'schoolDetails',
-                populate: [
-                    {
-                        path: 'city',
-                        select: 'name code'
-                    },
-                    {
-                        path: 'school',
-                        select: 'school_name'
-                    }
-                ]
-            }
-        });
-    
-    
-        res.status(201).json({ status: 'success', data: quizzes });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-exports.getDraftQuizForAdmin = async (req, res) => {
-    try {
-        const quizzes = await Quiz.find({ status: "Draft" })
-                .populate({
-            path: 'registrations.userId',
-            select: 'student_name full_name mobile schoolDetails',
-            populate: {
-                path: 'schoolDetails',
-                populate: [
-                    {
-                        path: 'city',
-                        select: 'name code'
-                    },
-                    {
-                        path: 'school',
-                        select: 'school_name'
-                    }
-                ]
-            }
-        });
-    
-        res.status(201).json({ status: 'success', data: quizzes });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-exports.getInActiveQuizForAdmin = async (req, res) => {
-    try {
-        const quizzes = await Quiz.find({ status: "Inactive" })
-                .populate({
-            path: 'registrations.userId',
-            select: 'student_name full_name mobile schoolDetails',
-            populate: {
-                path: 'schoolDetails',
-                populate: [
-                    {
-                        path: 'city',
-                        select: 'name code'
-                    },
-                    {
-                        path: 'school',
-                        select: 'school_name'
-                    }
-                ]
-            }
-        });
-    
-        res.status(201).json({ status: 'success', data: quizzes });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-exports.getCompletedQuizForAdmin = async (req, res) => {
-    try {
-        const quizzes = await Quiz.find({ status: "Completed" })
+            path: 'grade',
+            select: 'grade',
+            model: 'grade' // Specify the model name to populate from
+        })
+        .populate('city', 'name')
         .populate({
             path: 'registrations.userId',
             select: 'student_name full_name mobile schoolDetails',
@@ -394,6 +341,10 @@ exports.getCompletedQuizForAdmin = async (req, res) => {
                     {
                         path: 'school',
                         select: 'school_name'
+                    },
+                    {
+                        path: 'grade',
+                        select: 'grade'
                     }
                 ]
             }
@@ -405,6 +356,189 @@ exports.getCompletedQuizForAdmin = async (req, res) => {
     }
 };
 
+exports.getDraftQuizForAdmin = async (req, res) => {
+    try {
+        const quizzes = await Quiz.find({ status: "Draft" })
+        .populate('city', 'name')
+        .populate({
+            path: 'grade',
+            select: 'grade',
+            model: 'grade' // Specify the model name to populate from
+        })
+            .populate({
+                path: 'registrations.userId',
+                select: 'student_name full_name mobile schoolDetails',
+                populate: {
+                    path: 'schoolDetails',
+                    populate: [
+                        {
+                            path: 'city',
+                            select: 'name code'
+                        },
+                        {
+                            path: 'school',
+                            select: 'school_name'
+                        },
+                        {
+                            path: 'grade',
+                            select: 'grade'
+                        }
+                    ]
+                }
+            });
+    
+        res.status(201).json({ status: 'success', data: quizzes });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.getInActiveQuizForAdmin = async (req, res) => {
+    try {
+        const quizzes = await Quiz.find({ status: "Inactive" })
+        .populate('city', 'name')
+        .populate({
+            path: 'grade',
+            select: 'grade',
+            model: 'grade' // Specify the model name to populate from
+        })
+            .populate({
+                path: 'registrations.userId',
+                select: 'student_name full_name mobile schoolDetails',
+                populate: {
+                    path: 'schoolDetails',
+                    populate: [
+                        {
+                            path: 'city',
+                            select: 'name code'
+                        },
+                        {
+                            path: 'school',
+                            select: 'school_name'
+                        },
+                        {
+                            path: 'grade',
+                            select: 'grade'
+                        }
+                    ]
+                }
+            });
+
+        res.status(201).json({ status: 'success', data: quizzes });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.getCompletedQuizForAdmin = async (req, res) => {
+    try {
+        const quizzes = await Quiz.find({ status: "Completed" })
+        .populate('city', 'name')
+        .populate({
+            path: 'grade',
+            select: 'grade',
+            model: 'grade' // Specify the model name to populate from
+        })
+        .populate({
+            path: 'registrations.userId',
+            select: 'student_name full_name mobile schoolDetails',
+            populate: {
+                path: 'schoolDetails',
+                populate: [
+                    {
+                        path: 'city',
+                        select: 'name code'
+                    },
+                    {
+                        path: 'school',
+                        select: 'school_name'
+                    },
+                    {
+                        path: 'grade',
+                        select: 'grade'
+                    }
+                ]
+            }
+        });
+    
+        res.status(201).json({ status: 'success', data: quizzes });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const calculateDetailedCounts = (total, details) => {
+    console.log('total and details', total, details)
+    return {
+        singleCorrect: Math.floor(total * Number(details.singleCorrectPercentage) / 100),
+        multiCorrect: Math.floor(total * Number(details.multiCorrectPercentage) / 100),
+        imageSingleCorrect: Math.floor(total * Number(details.imageSingleCorrectPercentage) / 100),
+        imageMultiCorrect: Math.floor(total * Number(details.imageMultiCorrectPercentage) / 100),
+    };
+};
+
+// Main function to select random questions based on detailed criteria
+const selectRandomQuestions = async (questionnaire, permissibleSet) => {
+    const quizQuestionnaire = questionnaire || 10; // Default to 10 questions if not specified
+    const defaultCriteria = {
+        easy: { totalPercentage: permissibleSet?.easy, singleCorrectPercentage: permissibleSet?.singleCorrect, multiCorrectPercentage: permissibleSet?.multiCorrect, imageSingleCorrectPercentage: permissibleSet?.imageSingleCorrect, imageMultiCorrectPercentage: permissibleSet?.imageMultiCorrect },
+        medium: { totalPercentage: permissibleSet?.medium, singleCorrectPercentage: permissibleSet?.singleCorrect, multiCorrectPercentage: permissibleSet?.multiCorrect, imageSingleCorrectPercentage: permissibleSet?.imageSingleCorrect, imageMultiCorrectPercentage: permissibleSet?.imageMultiCorrect },
+        difficult: { totalPercentage: permissibleSet?.difficult, singleCorrectPercentage: permissibleSet?.singleCorrect, multiCorrectPercentage: permissibleSet?.multiCorrect, imageSingleCorrectPercentage: permissibleSet?.imageSingleCorrect, imageMultiCorrectPercentage: permissibleSet?.imageMultiCorrect },
+    };
+    const criteria = defaultCriteria;
+
+    // Calculating the total number of questions for each difficulty level based on the total percentage
+    const totalQuestionsByDifficulty = {
+        easy: Math.floor(quizQuestionnaire * criteria.easy.totalPercentage / 100),
+        medium: Math.floor(quizQuestionnaire * criteria.medium.totalPercentage / 100),
+        difficult: Math.floor(quizQuestionnaire * criteria.difficult.totalPercentage / 100),
+    };
+
+    console.log('totalQuestionsByDifficulty', totalQuestionsByDifficulty)
+
+    try {
+        let questions = [];
+        for (const [difficulty, details] of Object.entries(criteria)) {
+            const totalQuestionsForLevel = totalQuestionsByDifficulty[difficulty];
+            console.log('totalQuestionsForLevel', totalQuestionsForLevel)
+            if (totalQuestionsForLevel > 0) {
+                const counts = calculateDetailedCounts(totalQuestionsForLevel, details);
+                console.log('counts', counts)
+                const typesAndCounts = [
+                    { type: 'Single Correct', count: counts.singleCorrect },
+                    { type: 'Multiple Correct', count: counts.multiCorrect },
+                    { type: 'Image Single Correct', count: counts.imageSingleCorrect },
+                    { type: 'Image Multiple Correct', count: counts.imageMultiCorrect },
+                ];
+
+                console.log('typesAndCounts', typesAndCounts)
+
+                for (const { type, count } of typesAndCounts) {
+                    if (count > 0) {
+                        const query = [
+                            { $match: { difficultyLevel: difficulty, type: type, quiz: { $size: 0 } } },
+                            { $sample: { size: count } }
+                        ];
+
+                        console.log('query', query)
+
+                        const selectedQuestions = await QuestionBank.aggregate(query);
+                        questions = questions.concat(selectedQuestions);
+                    }
+                }
+            }
+        }
+
+        if (questions.length < quizQuestionnaire) {
+            return 'No Que'
+            // Handle scenario where not enough questions are found
+        }
+
+        return questions;
+    } catch (error) {
+        console.log(error);
+    }
+};
 //------------user------------------
 
 exports.getQuizForUser = async (req, res) => {
