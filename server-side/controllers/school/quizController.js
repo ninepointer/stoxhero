@@ -113,9 +113,9 @@ exports.editQuiz = async (req, res) => {
             return res.status(404).json({ message: 'Quiz not found' });
         }
 
-        // const data = await selectRandomQuestions(updates.quizQuestionnaire, updates.permissibleSet);
+        const data = await selectRandomQuestions(updates.quizQuestionnaire, updates.permissibleSet);
 
-        // console.log(data);
+        console.log(data);
         res.status(201).json({status: "success", data: updatedQuiz });
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -481,17 +481,17 @@ const calculateDetailedCounts = (total, details) => {
 const selectRandomQuestions = async (questionnaire, permissibleSet) => {
     const quizQuestionnaire = questionnaire || 10; // Default to 10 questions if not specified
     const defaultCriteria = {
-        easy: { totalPercentage: permissibleSet?.easy, singleCorrectPercentage: permissibleSet?.singleCorrect, multiCorrectPercentage: permissibleSet?.multiCorrect, imageSingleCorrectPercentage: permissibleSet?.imageSingleCorrect, imageMultiCorrectPercentage: permissibleSet?.imageMultiCorrect },
-        medium: { totalPercentage: permissibleSet?.medium, singleCorrectPercentage: permissibleSet?.singleCorrect, multiCorrectPercentage: permissibleSet?.multiCorrect, imageSingleCorrectPercentage: permissibleSet?.imageSingleCorrect, imageMultiCorrectPercentage: permissibleSet?.imageMultiCorrect },
-        difficult: { totalPercentage: permissibleSet?.difficult, singleCorrectPercentage: permissibleSet?.singleCorrect, multiCorrectPercentage: permissibleSet?.multiCorrect, imageSingleCorrectPercentage: permissibleSet?.imageSingleCorrect, imageMultiCorrectPercentage: permissibleSet?.imageMultiCorrect },
+        Easy: { totalPercentage: permissibleSet?.easy, singleCorrectPercentage: permissibleSet?.singleCorrect, multiCorrectPercentage: permissibleSet?.multiCorrect, imageSingleCorrectPercentage: permissibleSet?.imageSingleCorrect, imageMultiCorrectPercentage: permissibleSet?.imageMultiCorrect },
+        Medium: { totalPercentage: permissibleSet?.medium, singleCorrectPercentage: permissibleSet?.singleCorrect, multiCorrectPercentage: permissibleSet?.multiCorrect, imageSingleCorrectPercentage: permissibleSet?.imageSingleCorrect, imageMultiCorrectPercentage: permissibleSet?.imageMultiCorrect },
+        Difficult: { totalPercentage: permissibleSet?.difficult, singleCorrectPercentage: permissibleSet?.singleCorrect, multiCorrectPercentage: permissibleSet?.multiCorrect, imageSingleCorrectPercentage: permissibleSet?.imageSingleCorrect, imageMultiCorrectPercentage: permissibleSet?.imageMultiCorrect },
     };
     const criteria = defaultCriteria;
 
     // Calculating the total number of questions for each difficulty level based on the total percentage
     const totalQuestionsByDifficulty = {
-        easy: Math.floor(quizQuestionnaire * criteria.easy.totalPercentage / 100),
-        medium: Math.floor(quizQuestionnaire * criteria.medium.totalPercentage / 100),
-        difficult: Math.floor(quizQuestionnaire * criteria.difficult.totalPercentage / 100),
+        easy: Math.floor(quizQuestionnaire * criteria.Easy.totalPercentage / 100),
+        medium: Math.floor(quizQuestionnaire * criteria.Medium.totalPercentage / 100),
+        difficult: Math.floor(quizQuestionnaire * criteria.Difficult.totalPercentage / 100),
     };
 
     console.log('totalQuestionsByDifficulty', totalQuestionsByDifficulty)
