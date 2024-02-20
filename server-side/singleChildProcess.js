@@ -43,6 +43,7 @@ const { processBattles } = require("./controllers/battles/battleController")
 const Product = require('./models/Product/product');
 const {mail} = require("./controllers/dailyReportMail")
 const {dailyContestTradeCut, dailyContestTimeStore} = require("./dailyContestTradeCut")
+const Grade = require('./models/grade/grade');
 
 async function singleProcess() {
     await setIOValue()
@@ -143,7 +144,8 @@ async function singleProcess() {
             })
 
             socket.on('company-ticks', async (data) => {
-                socket.join("company-side")
+                socket.join("company-side");
+                socket.join("equity");
                 
             });
 
@@ -285,6 +287,10 @@ async function singleProcess() {
         const products = await Product.find({}); 
         res.json({ status: 'success', data: products }); 
     })
+    app.get('/api/v1/grades', async(req, res, next) => {
+        const grade = await Grade.find({}); 
+        res.json({ status: 'success', data: grade }); 
+    })
     app.use('/api/v1', require("./routes/OpenPositions/openPositionsAuth"))
     app.use('/api/v1', require("./routes/StockIndex/addStockIndex"))
     app.use('/api/v1', require("./routes/expense/expenseAuth"))
@@ -404,6 +410,8 @@ async function singleProcess() {
     app.use('/api/v1/push', require("./routes/pushNotifications/pushNotificationRoutes"));
     app.use('/api/v1/notificationgroup', require("./routes/notificationGroup/notificationGroupRoutes"));
     app.use('/api/v1/cities', require("./routes/city/cityRoutes"));
+    app.use('/api/v1/questionbank', require("./routes/QuestionBank/queBankRoutes"));
+    app.use('/api/v1/school', require("./routes/School/school"));
 
 
     const PORT = process.env.PORT || 5002;

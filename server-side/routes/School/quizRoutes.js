@@ -1,5 +1,6 @@
 const express = require('express');
 const Authenticate = require('../../authentication/authentication');
+const {SchoolAuthenticate} = require('../../authentication/schoolAuthentication');
 const restrictTo = require('../../authentication/authorization');
 const quizController = require('../../controllers/school/quizController');
 const response = require('./responseRoute')
@@ -33,8 +34,28 @@ router.get(
 );
 
 router.get(
+    '/inactive', Authenticate, restrictTo('Admin', 'SuperAdmin'),
+    quizController.getInActiveQuizForAdmin
+);
+
+router.get(
+    '/draft', Authenticate, restrictTo('Admin', 'SuperAdmin'),
+    quizController.getDraftQuizForAdmin
+);
+
+router.get(
+    '/completed', Authenticate, restrictTo('Admin', 'SuperAdmin'),
+    quizController.getCompletedQuizForAdmin
+);
+
+router.get(
     '/user', Authenticate,
     quizController.getAllQuizzesForUser
+);
+
+router.get(
+    '/school', SchoolAuthenticate,
+    quizController.getAllQuizzesForSchool
 );
 
 router.get(
@@ -48,16 +69,23 @@ router.get(
     quizController.getQuizForUser
 );
 
-router.patch(
-    '/:id', Authenticate, restrictTo('Admin', 'SuperAdmin'),
-    upload.fields([{ name: 'quizImage', maxCount: 1 }]),
-    quizController.editQuiz
+router.get(
+    '/user/slots/:id', Authenticate,
+    quizController.getSlot
 );
 
 router.get(
     '/:quizId/question', Authenticate, restrictTo('Admin', 'SuperAdmin'),
     upload.fields([{ name: 'questionImage', maxCount: 1 }]), // Adjust maxCount as needed
     quizController.getQuizQuestion
+);
+
+router.post('/purchaseintent', Authenticate, quizController.purchaseIntent);
+
+router.patch(
+    '/:id', Authenticate, restrictTo('Admin', 'SuperAdmin'),
+    upload.fields([{ name: 'quizImage', maxCount: 1 }]),
+    quizController.editQuiz
 );
 
 router.patch(

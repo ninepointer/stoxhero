@@ -243,7 +243,7 @@ exports.verifyCouponCode = async (req, res) => {
                         }
 
                         if(program?.minOrderValue && orderValue<program?.minOrderValue){
-                            console.log("Inside Min Order and order value check:",paymentMode,program?.rewardType )
+
                             return res.status(400).json({
                                 status: 'error',
                                 message: `Your order is not eligible for this coupon. The minimum order value for this coupon is ₹${program?.minOrderValue}`,
@@ -449,8 +449,8 @@ exports.saveSuccessfulCouponUse = async (userId, code, product, specificProduct)
         let productDoc;
         let productString = product;
         if (product === 'TenX Renewal') productString = 'TenX';
-        console.log(userId, code, product);
 
+        
         if(mongoose.Types.ObjectId.isValid(product)){
             productDoc = await Product.findOne({ _id: productString });
         }else{

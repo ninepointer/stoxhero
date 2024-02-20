@@ -85,9 +85,9 @@ const Navbar = () => {
             </LinkButton>
             </a>
 
-            <a href="/calculators">
+            <a href="/finowledge">
             <LinkButton>
-              <Typography fontWeight="bold" variant="body2">Calculators</Typography>
+              <Typography fontWeight="bold" variant="body2">Finowledge</Typography>
             </LinkButton>
             </a>
 
@@ -149,9 +149,9 @@ const Navbar = () => {
             </LinkButton>
             </a>
 
-            <a href="/calculators">
+            <a href="/finowledge">
             <LinkButton>
-              <Typography variant="body2">Calculators</Typography>
+              <Typography variant="body2">Finowledge</Typography>
               
             </LinkButton>
             </a>

@@ -12,8 +12,14 @@ const quizSchema = new mongoose.Schema({
     registrationOpenDateTime:{
         type: Date,
     },
+    registrationCloseDateTime:{
+        type: Date,
+    },
     durationInSeconds:{
         type: Number
+    },
+    entryFee:{
+        type:Number
     },
     rewardType:{
         type:String,
@@ -36,20 +42,67 @@ const quizSchema = new mongoose.Schema({
     }],
     registrations:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
-        registeredOn:{type:Date}
+        registeredOn:{type:Date},
+        registrationId: {type:String},
+        slotId: {type:Schema.Types.ObjectId}
+    }],
+    purchaseIntent:[{
+        userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
+        date:{type:Date}
     }],
     city:{
         type:Schema.Types.ObjectId,
         ref:'city'
     },
-    description: String,
-    image: String,
-    maxParticipant: Number,
-    grade: String,
-    openForAll: Boolean,
+    description: {
+        type: String,
+        required: true
+    },
+    image: {
+        type: String,
+        required: true
+    },
+    maxParticipant: {
+        type: Number,
+        required: true
+    },
+    noOfSlots: {
+        type: Number,
+        required: true
+    },
+    slotBufferTime: {
+        type: Number,
+        required: true
+    },
+    slots: [{
+       time: { type: Date},
+       user: {type: Number, default: 0},
+    }],
+    grade: {
+        type: String,
+        required: true
+    },
+    openForAll: {
+        type: Boolean,
+        default: false,
+        required: true
+    },
+    quizQuestionnaire: {
+        type: Number,
+        // required: true
+    },
+    userQuestionnaire: {
+        type: Number,
+        // required: true
+    },
+    permissibleSet: {
+        easy: Number,
+        medium: Number,
+        difficult: Number
+    },
     status:{
         type:String,
-        enum:['Active', 'Inactive', 'Draft']
+        enum:['Active', 'Inactive', 'Draft', 'Completed']
     },
     createdOn:{
         type: Date,

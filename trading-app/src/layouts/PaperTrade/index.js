@@ -69,7 +69,7 @@ function PreTrading() {
             </Typography> */}
           </CardContent>
           <CardActions>
-            <Button size="small">Comming Soon!</Button>
+            <Button size="small">Coming Soon!</Button>
           </CardActions>
         </Card>
 

@@ -13,9 +13,15 @@ import MDAvatar from "../../components/MDAvatar";
 import { userContext } from "../../AuthContext";
 import UpComing from "./upcoming";
 import MyOlympiad from './myOlympiad'
+import { Button, Tooltip } from "@mui/material";
+import LogoutIcon from '@mui/icons-material/Logout';
+import Coins from '../../assets/images/coin.png'
+import EditProfile from './component/editProfile';
+import axios from 'axios';
+import { apiUrl } from "../../constants/constants";
 
 function Cover() {
-  const [scrollPosition, setScrollPosition] = useState(0);
+  // const [scrollPosition, setScrollPosition] = useState(0);
   const getDetails = useContext(userContext)
   const user = getDetails.userDetails;
   const navigate = useNavigate();
@@ -30,27 +36,20 @@ function Cover() {
   useEffect(()=>{
     ReactGA.pageview(window.location.pathname)
   })
+
+  async function logout(){
+    await axios.get(`${apiUrl}logout`, {
+      withCredentials: true,
+    });
+    navigate("/finowledge");
+    getDetails.setUserDetail('');
+    window.webengage.user.logout();
+  }
   
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollPosition(window.scrollY);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
-
-  const backgroundColor = scrollPosition > 10 ? 'rgba(0, 0, 0, 0.8)' : 'transparent'
-  const backdropFilter = scrollPosition > 10 ? 'blur(5px)' : 'none'
-
   return (
     <>
       <MDBox mt={-1} display='flex' justifyContent='center' flexDirection='column' alignContent='center' alignItems='center' style={{ minHeight:'auto', width: 'auto', minWidth:'100vW', overflow: 'visible'}}>      
-      <Grid
+        <Grid
           container
           mt={0}
           xs={12}
@@ -80,30 +79,123 @@ function Cover() {
         >
         </Grid>
 
-       
-        <Grid mt={10} container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignItems='center' style={{zIndex:10, overflow: 'visible' }}>
-          <Grid mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'white', borderRadius:10}}>
-            <MDBox mt={2} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
-              <MDTypography>My Profile</MDTypography>
-            </MDBox>
-            <MDBox display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
-                <MDAvatar src={logo} size='md' alt="something here" />
-            </MDBox>
-            <MDBox display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
-              <MDTypography variant='body2' style={{fontFamily: 'Nunito'}}>{user?.full_name || "Your Name"}</MDTypography>
-            </MDBox>
-            <MDBox display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
-              <MDTypography variant='caption' style={{fontFamily: 'Nunito'}}>Class: {user?.schoolDetails?.grade || "Your Grade"}</MDTypography>
-            </MDBox>
-            <MDBox mb={2} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}>
-              <MDTypography variant='caption' style={{fontFamily: 'Nunito'}}>{`${user?.schoolDetails?.school || "School"}, ${user?.schoolDetails?.city?.name || "City"}`}</MDTypography>
-            </MDBox>
+        <Grid
+          mt={10}
+          container
+          xs={10}
+          md={9}
+          lg={9}
+          display='flex'
+          justifyContent='center'
+          alignItems='center'
+          style={{ zIndex: 0, overflow: 'visible' }}
+        >
+          <Grid
+            mb={2}
+            item
+            xs={12}
+            md={12}
+            lg={12}
+            display='flex'
+            justifyContent='center'
+            flexDirection='column'
+            alignItems='center'
+            alignContent='center'
+            style={{ backgroundColor: 'white', borderRadius: 10, position: 'relative' }}
+          >
+            {/* <Grid
+              mt={2}
+              display='flex'
+              justifyContent='center'
+              alignItems='center'
+              style={{ overflow: 'visible' }}
+            >
+              <MDTypography fontFamily='Work Sans , sans-serif'>My Profile</MDTypography>
+            </Grid> */}
+            <Grid
+            mt={2}
+              display='flex'
+              justifyContent='center'
+              alignItems='center'
+              style={{ overflow: 'visible' }}
+            >
+              <MDAvatar src={getDetails?.userDetails?.schoolDetails?.profilePhoto || logo} size='md' alt='something here' />
+            </Grid>
+            <Grid
+              display='flex'
+              justifyContent='center'
+              alignItems='center'
+              style={{ overflow: 'visible' }}
+            >
+              <MDTypography variant='body2' style={{ fontFamily: 'Work Sans , sans-serif' }}>
+                Hello, {user?.student_name || 'Your Name'}
+              </MDTypography>
+            </Grid>
+            <Grid
+              display='flex'
+              justifyContent='center'
+              alignItems='center'
+              style={{ overflow: 'visible' }}
+            >
+              <MDTypography variant='caption' style={{ fontFamily: 'Work Sans , sans-serif' }}>
+                Class: {user?.schoolDetails?.grade?.grade || 'Your Grade'}
+              </MDTypography>
+            </Grid>
+            <Grid
+              mb={2}
+              display='flex'
+              justifyContent='center'
+              alignItems='center'
+              style={{ overflow: 'visible' }}
+            >
+              <MDTypography variant='caption' style={{ fontFamily: 'Work Sans , sans-serif' }}>
+                {`${user?.schoolDetails?.school?.school_name || 'School'}, ${user?.schoolDetails?.city?.name || 'City'}`}
+              </MDTypography>
+            </Grid>
+            {/* New Grid for buttons */}
+              <Grid
+              container
+              direction='row'
+              justifyContent='flex-start'
+              alignItems='center'
+              alignContent='center'
+              style={{ position: 'absolute', top: 10, left: 10 }}>
+              
+                <Grid container display='flex' justifyContent='flex-start' alignItems='center'>
+                  <Grid item display='flex' justifyContent='center' alignItems='center'>
+                    <img src={Coins} width='20px' style={{marginRight: "5px", cursor: "pointer", color: 'grey'}}/>
+                  </Grid>
+                  <Tooltip title='Coins Earned'>
+                  <Grid item display='flex' justifyContent='center' alignItems='center'>
+                    <MDTypography fontFamily='Work Sans , sans-serif' variant='h6' fontWeight={400} style={{cursor:'pointer'}}>0</MDTypography>
+                  </Grid>
+                  </Tooltip>
+                </Grid>
+             
+            </Grid>
+            <Grid
+              container
+              direction='row'
+              justifyContent='flex-end'
+              alignItems='center'
+              style={{ position: 'absolute', top: 10, right: 10 }}>
+
+              <Tooltip title='Edit Profile'>
+                <EditProfile user={getDetails?.userDetails} update={update} setUpdate={setUpdate} />
+              </Tooltip>
+              <Tooltip title='Sign Out'>
+                <LogoutIcon style={{ marginRight: "5px", cursor: "pointer", color: 'grey' }} onClick={logout} />
+              </Tooltip>
+            </Grid>
+          
           </Grid>
         </Grid>
 
-        <Grid container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{zIndex:10, overflow: 'visible' }}>
+
+
+        <Grid container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{zIndex:0, overflow: 'visible' }}>
         <Grid p={.5} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'#D5F47E', borderRadius:10}}>
-            <MDTypography variant='body2' style={{fontFamily: 'Work Sans , sans-serif'}}>My Olympiad(s)</MDTypography>
+            <MDTypography variant='h6' style={{fontFamily: 'Work Sans , sans-serif'}}>My Olympiad(s)</MDTypography>
         </Grid>
         </Grid>
 

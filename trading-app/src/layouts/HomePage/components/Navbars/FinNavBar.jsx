@@ -24,7 +24,7 @@ const LinkButton = ({ children, ...props }) => (
       // color:'transparent',
       // color: "white",
       // "&:hover": { color: '#fff'},
-      "&:hover": { color: '#D5F47E'},
+      "&:hover": { color: '#D5F47E' },
     }}
     {...props}
   >
@@ -41,26 +41,27 @@ const Navbar = () => {
 
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"))
 
-  const[open,setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  const Handle = (e)=>{
-    if(isMobile){
+  const Handle = (e) => {
+    if (isMobile) {
       setOpen(true)
-    }  
+    }
   }
 
   return (
-    <AppBar 
-        elevation={0} 
-        sx={{ height: NAVBAR_HIEGHT, bgcolor: scrollPosition > 10 ? "#315c45" : "transparent", 
-        backdropFilter: scrollPosition > 10 && "blur(60px)", 
+    <AppBar
+      elevation={0}
+      sx={{
+        height: NAVBAR_HIEGHT, bgcolor: scrollPosition > 10 ? "#343434" : "transparent",
+        backdropFilter: scrollPosition > 10 && "blur(60px)",
         marginBottom: "60px",
         marginTop: "20px"
-        }}
+      }}
     >
 
-      <Container sx={{ [theme?.breakpoints?.down("lg")]: {maxWidth: "100%"}, marginBottom:1  }}>
-        <Stack direction='row' justifyContent='space-between' alignItems="center" flexWrap="wrap"  alignContent='center' >
+      <Container sx={{ [theme?.breakpoints?.down("lg")]: { maxWidth: "100%" }, marginBottom: 1 }}>
+        <Stack direction='row' justifyContent='space-between' alignItems="center" flexWrap="wrap" alignContent='center' >
           {/* Logo */}
 
           <a href="/finowledge"><img src={logo} style={{ objectFit: "contain", height: "30px", marginTop: "8px" }} /></a>
@@ -76,70 +77,82 @@ const Navbar = () => {
             color="white"
           >
             <a href="/finowledge">
-            <LinkButton spacing={0.5}>
-              <Typography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}}>HOME</Typography>
-            </LinkButton>
+              <LinkButton spacing={0.5}>
+                <Typography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }}>HOME</Typography>
+              </LinkButton>
             </a>
 
-            <a href="/finowledge">
-            <LinkButton spacing={0.5}>
-              <Typography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}}>OLYMPIADS</Typography>
-            </LinkButton>
+            <a href="/olympiad">
+              <LinkButton spacing={0.5}>
+                <Typography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }}>OLYMPIADS</Typography>
+              </LinkButton>
             </a>
 
-            <a href="/about">
-            <LinkButton spacing={0.5}>
-              <Typography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}}>ABOUT US</Typography>
-            </LinkButton>
+            <a href="/school">
+              <LinkButton spacing={0.5}>
+                <Typography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }}>SCHOOL</Typography>
+              </LinkButton>
             </a>
 
-            <a href="/finowledge">
-            <LinkButton spacing={0.5}>
-              <Typography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}}>CONTACT US</Typography>
-            </LinkButton>
+            <a href="/aboutus">
+              <LinkButton spacing={0.5}>
+                <Typography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }}>ABOUT US</Typography>
+              </LinkButton>
+            </a>
+
+            <a href="/contactus">
+              <LinkButton spacing={0.5}>
+                <Typography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }}>CONTACT US</Typography>
+              </LinkButton>
             </a>
           </Stack>)}
 
-          {open&& (
-            
+          {open && (
+
             <Stack
-            direction="column"
-            alignItems="center"
-            justifyContent="flex-start"
-            spacing={4}
-            sx={{ flex: 1, background:"#315c45",width:"100%",height:"100vh"}}
-            flexWrap="wrap"
-            position="absolute"
-            top="0"
-            right={0}
-          
-            
-          >
-            < img src ="https://icon-library.com/images/x-button-icon/x-button-icon-3.jpg" style={{height:"40px",position:"absolute",top:"8px",color:"#fff", right:"14px", zIndex:999}} sx={{fontSize:"100px"}} onClick={()=>setOpen(false)}/>
+              direction="column"
+              alignItems="center"
+              justifyContent="flex-start"
+              spacing={4}
+              sx={{ flex: 1, background: "#343434", width: "100%", height: "100vh" }}
+              flexWrap="wrap"
+              position="absolute"
+              top="0"
+              right={0}
 
-            <a href="/finowledge">
-            <LinkButton spacing={0.5}>
-              <MDTypography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}} sx={{color:'#65BA0D'}}>HOME</MDTypography>
-            </LinkButton>
-            </a>
 
-            <a href="/finowledge">
-            <LinkButton spacing={0.5}>
-              <MDTypography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}} sx={{color:'#65BA0D'}}>OLYMPIADS</MDTypography>
-            </LinkButton>
-            </a>
+            >
+              < img src="https://icon-library.com/images/x-button-icon/x-button-icon-3.jpg" style={{ height: "40px", position: "absolute", top: "8px", color: "#fff", right: "14px", zIndex: 999 }} sx={{ fontSize: "100px" }} onClick={() => setOpen(false)} />
 
-            <a href="/about">
-            <LinkButton spacing={0.5}>
-              <MDTypography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}} sx={{color:'#65BA0D'}}>ABOUT US</MDTypography>
-            </LinkButton>
-            </a>
+              <a href="/finowledge">
+                <LinkButton spacing={0.5}>
+                  <MDTypography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }} sx={{ color: '#FFFFFF' }}>HOME</MDTypography>
+                </LinkButton>
+              </a>
 
-            <a href="/finowledge">
-            <LinkButton spacing={0.5}>
-              <MDTypography variant="body2" style={{fontFamily: 'Work Sans , sans-serif'}} sx={{color:'#65BA0D'}}>CONTACT US</MDTypography>
-            </LinkButton>
-            </a>
+              <a href="/olympiad">
+                <LinkButton spacing={0.5}>
+                  <MDTypography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }} sx={{ color: '#FFFFFF' }}>OLYMPIADS</MDTypography>
+                </LinkButton>
+              </a>
+
+              <a href="/school">
+                <LinkButton spacing={0.5}>
+                  <Typography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }}>SCHOOL</Typography>
+                </LinkButton>
+              </a>
+
+              <a href="/aboutus">
+                <LinkButton spacing={0.5}>
+                  <MDTypography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }} sx={{ color: '#FFFFFF' }}>ABOUT US</MDTypography>
+                </LinkButton>
+              </a>
+
+              <a href="/contactus">
+                <LinkButton spacing={0.5}>
+                  <MDTypography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }} sx={{ color: '#FFFFFF' }}>CONTACT US</MDTypography>
+                </LinkButton>
+              </a>
             </Stack>
           )}
 

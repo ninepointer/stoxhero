@@ -3,170 +3,146 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import moment from 'moment'
 import MDSnackbar from "../../components/MDSnackbar";
-import { useTheme } from '@mui/material/styles';
 
 // @mui material components
-import {Grid, Button} from "@mui/material";
+import { Grid, Button } from "@mui/material";
 
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
 import MDTypography from "../../components/MDTypography";
 import MDButton from "../../components/MDButton";
+import { CardActionArea, Divider } from '@mui/material';
 import axios from 'axios';
 import { apiUrl } from "../../constants/constants";
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import Registration from './component/register'
 
-function Cover({setUpdate, update}) {
+function Cover({ setUpdate, update }) {
 
     const [data, setData] = useState([]);
 
-    useEffect(()=>{
+    useEffect(() => {
         fetchData();
-    }, [])
+    }, [update])
 
-    async function fetchData(){
-        const data = await axios.get(`${apiUrl}quiz/user`, {withCredentials: true});
+    async function fetchData() {
+        const data = await axios.get(`${apiUrl}quiz/user`, { withCredentials: true });
         setData(data?.data?.data);
-    }
-
-    function handleCopyClick() {
-        const textarea = document.createElement('textarea');
-        textarea.value = "https://stoxhero.com/finowledge";
-        document.body.appendChild(textarea);
-
-        // Select the text in the textarea
-        textarea.select();
-        document.execCommand('copy');
-
-        // Remove the temporary textarea
-        document.body.removeChild(textarea);
-        openSuccessSB("Success", "Share this link to your friends.")
-    };
-
-    async function registration(id) {
-        const res = await fetch(`${apiUrl}quiz/user/registration/${id}`, {
-            method: "PATCH",
-            credentials: "include",
-            headers: {
-                "content-type": "application/json",
-                "Access-Control-Allow-Credentials": false
-            },
-            body: JSON.stringify({
-            })
-        });
-
-        const data = await res.json();
-        if (res.status === 200 || res.status === 201) {
-            setData(data?.data)
-            setUpdate(!update)
-            setOpen(true)
-            // openSuccessSB("Success", data.message);
-        } else {
-            openSuccessSB("Something went wrong", data.mesaage);
-        }
     }
 
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
     const [color, setColor] = useState('')
     const [icon, setIcon] = useState('')
-  
-  
+
+
     const [successSB, setSuccessSB] = useState(false);
-    const openSuccessSB = (value, content) => {
-      // console.log("Value: ",value)
-      if (value === "Success") {
-        setTitle("Successfull");
-        setContent(content);
-        setColor("success");
-        setIcon("check")
-      };
-  
-      if (value === "Error") {
-        setTitle("Error");
-        setContent(content);
-        setColor("error");
-        setIcon("warning")
-      };
-      setSuccessSB(true);
+    const openSuccessSB = (value, content, title) => {
+        // console.log("Value: ",value)
+        if (value === "Success") {
+            setTitle(title || "Successfull");
+            setContent(content);
+            setColor("success");
+            setIcon("check")
+        };
+
+        if (value === "Error") {
+            setTitle("Error");
+            setContent(content);
+            setColor("error");
+            setIcon("warning")
+        };
+        setSuccessSB(true);
     }
     const closeSuccessSB = () => setSuccessSB(false);
-  
+
     const renderSuccessSB = (
-      <MDSnackbar
-        color={color}
-        icon={icon}
-        title={title}
-        content={content}
-        open={successSB}
-        onClose={closeSuccessSB}
-        close={closeSuccessSB}
-        bgWhite="info"
-      />
+        <MDSnackbar
+            color={color}
+            icon={icon}
+            title={title}
+            content={content}
+            open={successSB}
+            onClose={closeSuccessSB}
+            close={closeSuccessSB}
+            bgWhite="info"
+            sx={{zIndex: 10}}
+        />
     );
 
-    const [open, setOpen] = React.useState(false);
-    const theme = useTheme();
-    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const getDaysBetweenDates = (startDate, endDate) => {
+        // Copy the dates to remove the time part
+        const start = new Date(startDate);
+        const end = new Date(endDate);
 
-    const handleClose = async (e) => {
-        setOpen(false);
+        // Calculate the time difference in milliseconds
+        const timeDifference = end.getTime() - start.getTime();
+
+        // Convert the time difference to days
+        const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+    
+    
+        // If days difference is 0, calculate hours difference
+        if (daysDifference === 0) {
+            const hoursDifference = Math.ceil(timeDifference / (1000 * 60 * 60));
+            return { daysDifference, hoursDifference };
+        }
+    
+        return {daysDifference};
     };
 
     return (
         <>
-            <Grid mt={2} container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ zIndex: 1, overflow: 'visible' }}>
+            <Grid mt={2} container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ zIndex: 0, overflow: 'visible' }}>
                 <Grid p={.5} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: '#D5F47E', borderRadius: 10 }}>
                     {/* <MDBox p={0.5} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}> */}
-                    <MDTypography variant='body2' style={{ fontFamily: 'Work Sans , sans-serif' }}>Upcoming Olympiad(s)</MDTypography>
+                    <MDTypography variant='h6' style={{ fontFamily: 'Work Sans , sans-serif' }}>Upcoming Olympiad(s)</MDTypography>
                     {/* </MDBox> */}
                 </Grid>
             </Grid>
-            <Grid mb={2} container xs={10} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ zIndex: 10, overflow: 'visible' }}>
+            <Grid mb={2} container xs={10} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ zIndex: 0, overflow: 'visible' }} gap={2}>
                 {data.length > 0 ?
 
                     data.map((elem) => {
+                        let dayLeft = getDaysBetweenDates(new Date(), elem?.registrationCloseDateTime)
+                        // console.log("dayLeft", dayLeft)
                         return (
-                            <Grid key={elem?._id} item xs={12} md={12} lg={3} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                                <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                                    <Card
-                                        sx={{ cursor: 'pointer' }}
-                                    // onClick={() => { handleOpenNewTab(elem) }}
-                                    >
-                                        <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                                <img src={elem?.image} style={{ maxWidth: '100%', height: 'auto', borderTopLeftRadius: 10, borderTopRightRadius: 10 }} />
-                                            </Grid>
-                                            <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', minHeight: 60 }}>
-                                                <MDTypography variant="h5" fontFamily='Work Sans , sans-serif' fontWeight={400} style={{ textAlign: 'center' }}>
-                                                    {elem?.title}
-                                                </MDTypography>
-                                            </MDBox>
-                                            {/* <Divider style={{ width: '100%' }} /> */}
-                                            <MDBox mb={1} mt={-1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                                <MDTypography variant='caption' style={{ fontFamily: 'Work Sans , sans-serif' }}>
-                                                    {elem?.grade} Grade
-                                                </MDTypography>
-                                            </MDBox>
-                                            <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                                <MDTypography variant='caption' style={{ fontFamily: 'Work Sans , sans-serif' }}>
-                                                    Starts: {`${moment.utc(elem?.startDateTime).utcOffset('+05:30').format('DD MMM YYYY HH:mm a')} • ${(elem.maxParticipant || 0) - (elem?.registrations?.length || 0)} seats left`}
-                                                </MDTypography>
-                                            </MDBox>
-                                        </CardContent>
-                                        <CardContent>
-                                            <Grid mb={-2} container display='flex' justifyContent='space-between' xs={12} md={12} lg={12}>
-                                                <Grid item display='flex' justifyContent='space-between' xs={12} md={12} lg={12}>
-                                                    <MDButton size="small" style={{ fontFamily: 'Work Sans , sans-serif' }} onClick={handleCopyClick} >Invite Friends</MDButton>
-                                                    <MDButton size="small" style={{ fontFamily: 'Work Sans , sans-serif' }} onClick={() => { registration(elem?._id) }}>Register</MDButton>
+                            <Grid item xs={12} md={4} lg={3} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                    <Card sx={{ minWidth: '100%' }}>
+                                        <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                            <img src={elem?.image} style={{ maxWidth: '100%', height: 'auto', borderTopLeftRadius: 10, borderTopRightRadius: 10 }} />
+                                            <MDTypography variant="h6" fontSize={10} fontFamily='Work Sans , sans-serif' fontWeight={400} style={{ position: 'absolute', top: 0, right: 0, margin: '8px', textAlign: 'center', color: 'black', backgroundColor: "transparent", borderRadius: "15px", border: '1px solid lightgrey', padding: "2px 10px 2px 10px", marginTop: "10px" }}>
+                                                {elem?.grade} grade
+                                            </MDTypography>
+                                            <MDTypography variant="h6" fontSize={10} fontFamily='Work Sans , sans-serif' fontWeight={400} style={{ position: 'absolute', top: 0, left: 0, margin: '8px', textAlign: 'center', color: 'black', backgroundColor: "transparent", borderRadius: "15px", border: '1px solid lightgrey', padding: "2px 10px 2px 10px", marginTop: "10px" }}>
+                                                {dayLeft.daysDifference > 0 ? `${dayLeft.daysDifference} days left for registration!` : dayLeft.hoursDifference > 0 ? `${dayLeft.hoursDifference} hours left for registration!` :  'Registration closed!'}
+                                            </MDTypography>
+                                        </Grid>
+                                        <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                            <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%' }}>
+                                                <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', minHeight: 60 }}>
+                                                    <MDTypography variant="h6" fontFamily='Work Sans , sans-serif' style={{ textAlign: 'center' }}>
+                                                        {elem?.title}
+                                                    </MDTypography>
+                                                </MDBox>
+                                                <Divider style={{ width: '100%' }} />
+                                                <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                                    <MDTypography variant='caption' fontFamily='Work Sans , sans-serif' style={{ textAlign: 'center', color: '#532b9e' }}>
+                                                        Olympiad Date: {`${moment.utc(elem?.startDateTime).utcOffset('+05:30').format('DD-MMM-YYYY')} • ${elem.maxParticipant * elem?.noOfSlots - elem?.registrationsCount} seats left`}
+                                                    </MDTypography>
+                                                </MDBox>
+                                            </CardContent>
+                                        </Grid>
+                                        <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                            <CardContent>
+                                                <Grid mb={-1} container spacing={1} display='flex' justifyContent='center' xs={12} md={12} lg={12}>
+                                                    <Grid item display='flex' justifyContent='center' alignContent={'center'} alignItems={'center'} xs={12} md={12} lg={12}>
+                                                        <Registration id={elem?._id} entryFee={elem?.entryFee} quizData={elem} setData={setData} setUpdate={setUpdate} update={update} />
+                                                    </Grid>
                                                 </Grid>
-                                            </Grid>
-                                        </CardContent>
+                                            </CardContent>
+                                        </Grid>
                                     </Card>
                                 </Grid>
                             </Grid>
@@ -180,30 +156,10 @@ function Cover({setUpdate, update}) {
                         </MDBox>
                     </Grid>}
 
-
+                {renderSuccessSB}
             </Grid>
 
-            <Dialog
-                fullScreen={fullScreen}
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="responsive-dialog-title">
-                <DialogTitle id="responsive-dialog-title" sx={{ textAlign: 'center' }}>
-                    {/* {"Option Chain"} */}
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText sx={{ display: "flex", flexDirection: "column", marginLeft: 2 }}>
-                        <MDBox sx={{ display: 'flex', alignItems: 'center', marginBottom: "10px" }}>
-                            <MDTypography color="dark" fontSize={15}>{"Thank you for registration!"}</MDTypography>
-                        </MDBox>
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose} autoFocus>
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
+
             {renderSuccessSB}
         </>
     );

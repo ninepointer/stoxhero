@@ -117,23 +117,28 @@ export default function RewardTable({ data, paid }) {
 
                             :
                             <>
+
                                 <Typography textAlign="justify" fontSize={15} sx={{ width: "100%" }} color="#000" variant="body2">
                                     <b>Contest Details</b>: TestZone begins at {moment.utc(data?.contestStartTime).utcOffset('+05:30').format('DD-MMM HH:mm:ss')} and ends at {moment.utc(data?.contestEndTime).utcOffset('+05:30').format('DD-MMM HH:mm:ss')}. The entry fee is ₹{data?.entryFee}.
                                 </Typography>
 
-                                <Typography textAlign="justify" fontSize={15} sx={{ width: "100%" }} color="#000" variant="body2">
-                                    <b>Tax Deduction</b>:  A {setting[0]?.tdsPercentage}% TDS will be applied to your final winning amount.
-                                </Typography>
+                                {(data?.rewardType !== "Goodies") &&
+                                    <>
+                                        <Typography textAlign="justify" fontSize={15} sx={{ width: "100%" }} color="#000" variant="body2">
+                                            <b>Tax Deduction</b>:  A {setting[0]?.tdsPercentage}% TDS will be applied to your final winning amount.
+                                        </Typography>
 
-                                <Typography textAlign="justify" fontSize={15} sx={{ width: "100%" }} color="#000" variant="body2">
-                                    <b>Payout Processing</b>:  Payouts are processed after the contest ends on {moment.utc(data?.contestEndTime).utcOffset('+05:30').format('DD-MMM HH:mm:ss')}, based on reward table post {moment.utc(setting[0]?.time?.appEndTime).utcOffset('+05:30').format('HH:mm')}.
-                                </Typography>
-
+                                        <Typography textAlign="justify" fontSize={15} sx={{ width: "100%" }} color="#000" variant="body2">
+                                            <b>Payout Processing</b>:  Payouts are processed after the contest ends on {moment.utc(data?.contestEndTime).utcOffset('+05:30').format('DD-MMM HH:mm:ss')}, based on reward table post {moment.utc(setting[0]?.time?.appEndTime).utcOffset('+05:30').format('HH:mm')}.
+                                        </Typography>
+                                    </>
+                                }
                                 <Typography textAlign="justify" fontSize={15} sx={{ width: "100%" }} color="#000" variant="body2">
                                     <b>Daily Participation</b>:  For TestZones spanning multiple days, daily trading is required for payout eligibility.
                                 </Typography>
 
-                                <Card sx={{marginTop: "10px"}}>
+
+                                <Card sx={{ marginTop: "10px" }}>
                                     <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{ backgroundColor: "lightgrey", borderRadius: "2px" }} >
                                         <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
                                             Reward Table

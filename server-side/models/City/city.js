@@ -13,6 +13,9 @@ const citySchema = new Schema({
     state:{
         type:String,
     },
+    code: {
+        type: Number
+    },
     status:{
         type: String,
         enum: ['Active','Inactive','Draft'],

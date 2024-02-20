@@ -304,7 +304,6 @@ exports.getAllLiveContests = async (req, res) => {
     const tomorrow = new Date(formattedNextDay);
 
 
-    console.log(today, tomorrow)
     try {
         const contests = await Contest.find({ contestType: "Live", contestEndTime: { $lt: tomorrow }, contestStartTime: { $gte: today } })
             .populate('portfolio', 'portfolioValue portfolioName')
@@ -715,8 +714,8 @@ exports.getUserFeaturedContests = async (req, res) => {
     const upcomingFeatured = contests.filter((elem) => {
       return elem.contestStartTime > new Date();
     })
-    console.log('contests', contests[0].rewards);
-    console.log('live', liveFeatured);
+    // console.log('contests', contests[0].rewards);
+    // console.log('live', liveFeatured);
 
     res.status(200).json({
       status: "success",
@@ -1099,7 +1098,6 @@ exports.getCommpletedContestsAdmin = async (req, res) => {
     const skip = parseInt(req.query.skip) || 0;
     const limit = parseInt(req.query.limit) || 10
     const count = await Contest.countDocuments({contestStatus: 'Completed'})
-    console.log("Details:",skip,limit,count)
     try {
         const contests = await Contest.find({ contestStatus: 'Completed' })
             .populate('portfolio', 'portfolioName _id portfolioValue')
@@ -1497,7 +1495,6 @@ exports.editReward = async (req, res) => {
           maxPayout += (reward.prizeValue)*multiplier;
         }
   
-        console.log(maxPayout);
         contest.maxPayout = maxPayout;
   
         await contest.save();
@@ -1835,9 +1832,7 @@ exports.participateUsers = async (req, res) => {
         // Now update the isLive field based on the liveThreshold value
         if ((noOfContest[0]?.totalContestsCount < result?.liveThreshold) && result.currentLiveStatus === "Live") {
             obj.isLive = true;
-            console.log("in if")
         } else {
-            console.log("in else")
             obj.isLive = false;
         }
 
@@ -2120,8 +2115,6 @@ exports.creditAmountToWallet = async () => {
                     contest[j].participants[i].brokerage = pnlDetails[0]?.brokerage;
                     contest[j].participants[i].tdsAmount = tdsAmount > 0 ? tdsAmount : 0;
                     contest[j].participants[i].herocashPayout = contest[j]?.tdsRelief ? (tdsAmount > 0 ? tdsAmount : 0) : 0;
-
-                    console.log(contest[j].participants[i])
 
                     // if (process.env.PROD == 'true') {
                       try{
@@ -3584,11 +3577,9 @@ exports.findContestByName = async(req,res,next)=>{
         const {name, date} = req.query;
         console.log("Body:",req.query)
         let dateString = date.includes('-') ? date.split('-').join('') : date.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
-        console.log(new Date(dateString))
         const result = await Contest.findOne({slug: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'College'}).
         populate('portfolio', 'portfolioValue portfolioName').
             select('_id contestName contestStartTime contestEndTime payoutPercentage entryFee description');
-        console.log(result)
             if(!result){
             return res.status(404).json({
                 status: "error",
@@ -3609,9 +3600,7 @@ exports.findContestByName = async(req,res,next)=>{
 exports.findFeaturedContestByName = async(req,res,next)=>{
     try{
         const {name, date} = req.query;
-        console.log("Body:",req.query)
         let dateString = date.includes('-') ? date.split('-').join('') : date.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
-        console.log(new Date(dateString))
         const result = await Contest.findOne({slug: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'StoxHero'}).
         populate('portfolio', 'portfolioValue portfolioName').
             select('_id contestName contestStartTime contestEndTime entryFee rewards description payoutType payoutCapPercentage payoutPercentage rewardType');
@@ -5292,174 +5281,157 @@ exports.getTopContestWeeklyPortfolio = async (req, res) => {
   endOfWeek.setDate(startOfWeek.getUTCDate() + 6); // Add remaining days in the week
   let startDate = startOfWeek;
   let endDate = endOfWeek;
-  // console.log(startOfWeek,endOfWeek)
-
-  // const newDate = new Date();
-  // const dayStartDate = newDate.setHours(0,0,0,0);
-  // const dayEndDate = newDate.setHours(23,59,0,0);
-  // const checkPayout = await Contest.find({
-  //   payoutStatus: null,
-  //   contestStartTime: {
-  //     $gte: dayStartDate,
-  //     $lte: dayEndDate,
-  //   },
-  // })
-
-  // let matchStage;
-  // if(checkPayout.length > 0){
-  //   matchStage = {
-  //     contestStatus: "Completed",
-  //     payoutStatus: "Completed",
-  //     contestStartTime: {
-  //       $gte: startDate,
-  //       $lte: dayStartDate,
-  //     },
-  //     "participants.rank": { $ne: null },
-  //   }
-  // } else{
-  //   matchStage = {
-  //     contestStatus: "Completed",
-  //     payoutStatus: "Completed",
-  //     contestStartTime: {
-  //       $gte: startDate,
-  //       $lte: dayEndDate,
-  //     },
-  //     "participants.rank": { $ne: null },
-  //   }
-  // }
+  let isRedisConnected = getValue();
 
   try {
-
-    const pipeline =
-      [
-        {
-          $unwind: {
-            path: "$participants",
-          },
-        },
-        {
-          $match: {
-            contestStatus: "Completed",
-            payoutStatus: "Completed",
-            contestStartTime: {
-              $gte: startDate,
-              $lte: endDate,
+    if (isRedisConnected && await client.exists('weeklytopperformer')) {
+      const data = JSON.parse(await client.get('weeklytopperformer'));
+      const response = {
+        status: "success",
+        message: "TestZone Weekly Top Performer Data fetched successfully",
+        data: data?.weeklyContestPerformers,
+        startOfWeek: new Date(data?.startDate),
+        endOfWeek: new Date(data?.endDate),
+      };
+      res.status(200).json(response);
+    } else {
+      const pipeline =
+        [
+          {
+            $unwind: {
+              path: "$participants",
             },
-            "participants.rank": { $ne: null },
           },
-        },
-        {
-          $group: {
-            _id: {
-              participants: "$participants.userId",
+          {
+            $match: {
+              contestStatus: "Completed",
+              payoutStatus: "Completed",
+              contestStartTime: {
+                $gte: startDate,
+                $lte: endDate,
+              },
+              "participants.rank": { $ne: null },
             },
-            payout: {
-              $sum: {
-                $ifNull: ["$participants.payout", 0],
+          },
+          {
+            $group: {
+              _id: {
+                participants: "$participants.userId",
+              },
+              payout: {
+                $sum: {
+                  $ifNull: ["$participants.payout", 0],
+                },
+              },
+              tds: {
+                $sum: {
+                  $ifNull: ["$participants.tdsAmount", 0],
+                },
+              },
+              contests: {
+                $sum: 1,
+              },
+              contestsWon: {
+                $sum: {
+                  $cond: [
+                    {
+                      $gt: ["$participants.payout", 0],
+                    },
+                    1,
+                    0,
+                  ],
+                },
               },
             },
-            tds: {
-              $sum: {
-                $ifNull: ["$participants.tdsAmount", 0],
+          },
+          {
+            $lookup: {
+              from: "user-personal-details",
+              localField: "_id.participants",
+              foreignField: "_id",
+              as: "user",
+            },
+          },
+          {
+            $unwind: {
+              path: "$user",
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              trader: "$user._id",
+              contestFor: 1,
+              entryFee: 1,
+              first_name: "$user.first_name",
+              last_name: "$user.last_name",
+              userid: "$user.employeeid",
+              profile_picture: "$user.profilePhoto",
+              contests: 1,
+              payout: 1,
+              tds: 1,
+              contestsWon: 1,
+            },
+          },
+          {
+            $addFields: {
+              totalPayout: {
+                $add: ["$payout", "$tds"],
               },
-            },
-            contests: {
-              $sum: 1,
-            },
-            contestsWon: {
-              $sum: {
-                $cond: [
+              strikeRate: {
+                $multiply: [
                   {
-                    $gt: ["$participants.payout", 0],
+                    $divide: [
+                      "$contestsWon",
+                      "$contests",
+                    ],
                   },
-                  1,
-                  0,
+                  100,
                 ],
               },
             },
           },
-        },
-        {
-          $lookup: {
-            from: "user-personal-details",
-            localField: "_id.participants",
-            foreignField: "_id",
-            as: "user",
-          },
-        },
-        {
-          $unwind: {
-            path: "$user",
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            trader: "$user._id",
-            contestFor: 1,
-            entryFee: 1,
-            first_name: "$user.first_name",
-            last_name: "$user.last_name",
-            userid: "$user.employeeid",
-            profile_picture: "$user.profilePhoto",
-            contests: 1,
-            payout: 1,
-            tds: 1,
-            contestsWon: 1,
-          },
-        },
-        {
-          $addFields: {
-            totalPayout: {
-              $add: ["$payout", "$tds"],
-            },
-            strikeRate: {
-              $multiply: [
-                {
-                  $divide: [
-                    "$contestsWon",
-                    "$contests",
-                  ],
-                },
-                100,
-              ],
+          {
+            $sort: {
+              totalPayout: -1,
             },
           },
-        },
-        {
-          $sort: {
-            totalPayout: -1,
+          {
+            $limit: 6,
           },
-        },
-        {
-          $limit: 6,
-        },
-      ]
+        ]
 
-      
       let weeklyContestPerformers = await Contest.aggregate(pipeline);
       const weeklyleaderboardlength = weeklyContestPerformers.length
-      
-      if(weeklyleaderboardlength === 0){
+
+      if (weeklyleaderboardlength === 0) {
         startDate = startOfWeek.setDate(startOfWeek.getUTCDate() - 7);
         endDate = endOfWeek.setDate(endOfWeek.getUTCDate() - 7);
         weeklyContestPerformers = await Contest.aggregate(pipeline)
       }
-      // console.log(weeklyleaderboardlength,startDate,endDate)
+
+      const data = {
+        weeklyContestPerformers,
+        startDate, endDate
+      }
+
+      await client.set(`weeklytopperformer`, JSON.stringify(data));
+      await client.expire(`weeklytopperformer`, 600);
       const response = {
-          status: "success",
-          message: "TestZone Weekly Top Performer Data fetched successfully",
-          data: weeklyContestPerformers,
-          startOfWeek: new Date(startDate),
-          endOfWeek: new Date (endDate),
+        status: "success",
+        message: "TestZone Weekly Top Performer Data fetched successfully",
+        data: weeklyContestPerformers,
+        startOfWeek: new Date(startDate),
+        endOfWeek: new Date(endDate),
       };
       res.status(200).json(response);
+    }
   } catch (error) {
-      res.status(500).json({
-          status: "error",
-          message: "Something went wrong",
-          error: error.message,
-      });
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
   }
 };
 
@@ -5472,8 +5444,20 @@ exports.getTopContestWeeklyPortfolioFullList = async (req, res) => {
   endOfWeek.setDate(startOfWeek.getUTCDate() + 6); // Add remaining days in the week
   let startDate = startOfWeek;
   let endDate = endOfWeek;
-  console.log(startOfWeek,endOfWeek)
+  let isRedisConnected = getValue();
   try {
+
+    if (isRedisConnected && await client.exists('weeklytopperformerfulllist')) {
+      const data = JSON.parse(await client.get('weeklytopperformerfulllist'));
+      const response = {
+        status: "success",
+        message: "TestZone Weekly Top Performer Data fetched successfully",
+        data: data?.weeklyContestPerformers,
+        startOfWeek: startOfWeek,
+        endOfWeek: endOfWeek,
+      };
+      res.status(200).json(response);
+    } else{
       const pipeline = 
       [
         {
@@ -5591,6 +5575,11 @@ exports.getTopContestWeeklyPortfolioFullList = async (req, res) => {
         weeklyContestPerformers = await Contest.aggregate(pipeline)
       }
 
+      const data = {
+        weeklyContestPerformers, startOfWeek, endOfWeek
+      };
+      await client.set(`weeklytopperformerfulllist`, JSON.stringify(data))
+      await client.expire(`weeklytopperformerfulllist`, 600);
       const response = {
           status: "success",
           message: "TestZone Weekly Top Performer Data fetched successfully",
@@ -5600,6 +5589,8 @@ exports.getTopContestWeeklyPortfolioFullList = async (req, res) => {
       };
 
       res.status(200).json(response);
+    }
+
   } catch (error) {
       res.status(500).json({
           status: "error",
@@ -5718,7 +5709,18 @@ exports.getLastPaidContestChampions = async (req, res) => {
   let now = new Date();
   let date = new Date(now); 
   date.setUTCHours(0, 0, 0, 0);
+  let isRedisConnected = getValue();
   try {
+    if (isRedisConnected && await client.exists('lastpaidcontestchampions')) {
+      const data = JSON.parse(await client.get('lastpaidcontestchampions'));
+      const response = {
+        status: "success",
+        message: "Last Paid TestZone Data fetched successfully",
+        data: data?.lastPaidContests,
+        date: data?.date,
+    };
+      res.status(200).json(response);
+    } else{
       const pipeline = 
       [
         {
@@ -5868,7 +5870,11 @@ exports.getLastPaidContestChampions = async (req, res) => {
         lastPaidContests = await Contest.aggregate(pipeline);
       }
 
-      console.log("lastPaidContests", lastPaidContests)
+      const data = {
+        lastPaidContests, date
+      }
+      await client.set(`lastpaidcontestchampions`, JSON.stringify(data));
+      await client.expire(`lastpaidcontestchampions`, 600);
       const response = {
           status: "success",
           message: "Last Paid TestZone Data fetched successfully",
@@ -5877,6 +5883,7 @@ exports.getLastPaidContestChampions = async (req, res) => {
       };
 
       res.status(200).json(response);
+    }
   } catch (error) {
     console.log("erorr", error)
 

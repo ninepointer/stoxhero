@@ -16,7 +16,7 @@ const sendMail = require('../../utils/emailService');
 const {sendMultiNotifications} = require('../../utils/fcmService');
 const restrictTo = require('../../authentication/authorization');
 const {createUserNotification} = require('../../controllers/notification/notificationController');
-
+const School = require('../../models/School/School')
 
 const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
@@ -349,6 +349,35 @@ router.patch("/resetpassword", async (req, res)=>{
         return res.status(200).json({message : "Password Reset Done"})
 })
 
+router.patch("/schoolresetpassword", async (req, res)=>{
+  const {email, resetPasswordOTP, confirm_password, password} = req.body;
+  
+  const deactivated = await School.findOne({ email: email, status: "Inactive" })
+
+  if(deactivated){
+      return res.status(422).json({ status: 'error', message: "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.", error: "deactivated" });
+  }
+  let reset = await School.findOne({email : email})
+  if(!reset)
+  {
+      return res.status(404).json({error : "School doesn't exist"})
+  }
+
+  if(resetPasswordOTP != reset.resetPasswordOTP)
+  {
+      return res.status(401).json({message : "OTP doesn't match, please try again!"})
+  }
+
+  if(password != confirm_password)
+  {
+      return res.status(401).json({message : "Password & Confirm Password didn't match."})
+  }
+      
+      reset.password = password
+      await reset.save({validateBeforeSave:false})
+      return res.status(200).json({message : "Password Reset Done"})
+})
+
 router.patch("/generateOTP", async (req, res)=>{
     const {email} = req.body
 
@@ -374,6 +403,37 @@ router.patch("/generateOTP", async (req, res)=>{
             message: "Password Reset OTP Resent"
         })
     emailService(email,subject,message);
+})
+
+router.patch("/schoolgenerateotp", async (req, res) => {
+  try {
+    const { email } = req.body
+
+    const deactivatedSchool = await School.findOne({ email: email, status: "Inactive" })
+
+    if (deactivatedSchool) {
+      return res.status(422).json({ status: 'error', message: "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.", error: "deactivated" });
+    }
+
+    const reset = await School.findOne({ email: email })
+    if (!reset) {
+      return res.status(404).json({
+        message: "User with this email doesn't exist"
+      })
+    }
+    let email_otp = otpGenerator.generate(6, { upperCaseAlphabets: true, lowerCaseAlphabets: false, specialChars: false });
+    let subject = "Password Reset StoxHero";
+    let message = `Your OTP for password reset is: ${email_otp}`
+    reset.resetPasswordOTP = email_otp
+    await reset.save({ validateBeforeSave: false });
+    res.status(200).json({
+      message: "Password Reset OTP Sent"
+    })
+    emailService(email, subject, message);
+  } catch (err) {
+    console.log(err);
+  }
+
 })
 
 router.get("/readuserdetails", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res) => {
@@ -534,7 +594,7 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
     
         if(!user) return res.status(404).json({message: 'No such user found.'});
     
-        const filteredBody = filterObj(req.body, 'name', 'first_name', 'last_name', 'email', 'mobile','gender', 
+        const filteredBody = filterObj(req.body, 'name', 'first_name', 'last_name', 'email', 'mobile','gender', 'schoolDetails',
         'whatsApp_number', 'dob', 'address', 'city', 'state', 'country', 'last_occupation', 'family_yearly_income',
         'employeed', 'upiId','googlePay_number','payTM_number','phonePe_number','bankName','nameAsPerBankAccount','accountNumber',
         'ifscCode', 'bankState','aadhaarNumber','degree','panNumber','passportNumber','drivingLicenseNumber','pincode', 'KYCStatus'
@@ -738,6 +798,85 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
 
 });
 
+router.patch('/student/image', authController.protect, currentUser, uploadMultiple, checkFileError, resizePhoto, uploadToS3, async(req,res,next)=>{
+
+  try {
+    console.log(req.profilePhotoUrl)
+    if (!req.profilePhotoUrl) {
+      return res.status(404).json({ message: 'Please upload a file' });
+    }
+
+    const user = await UserDetail.findById(req.user._id);
+
+    if (!user) return res.status(404).json({ message: 'No such user found.' });
+    user.lastModified = new Date();
+
+    if (req.profilePhotoUrl) {
+      user.schoolDetails.profilePhoto = req.profilePhotoUrl;
+    }
+
+    const userData = await UserDetail.findByIdAndUpdate(user._id, user, { new: true })
+      .populate('role', 'roleName')
+      .populate('schoolDetails.city', 'name')
+      .populate('schoolDetails.grade', 'grade')
+      .select('student_name full_name schoolDetails city isAffiliate collegeDetails pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch bankState')
+
+
+    res.status(200).json({ message: 'Edit successful', status: 'success', data: userData });
+
+  } catch (e) {
+    console.log(e)
+    res.status(500).json({
+      message: 'Something went wrong. Try again.'
+    })
+  }
+});
+
+router.patch('/student/me', authController.protect, currentUser, uploadMultiple, checkFileError, resizePhoto, uploadToS3, async(req,res,next)=>{
+
+  try{
+    let {student_name, grade, city, school, dob, state, profilePhoto, section} = req.body;
+
+    profilePhoto = (profilePhoto==='undefined' || profilePhoto==='null' || profilePhoto==='false' || profilePhoto==='') ? null : profilePhoto;
+    console.log(req.body)
+
+      const user = await UserDetail.findById(req.user._id);
+  
+      if(!user) return res.status(404).json({message: 'No such user found.'});
+      const schoolDetails = {
+        grade, city, school, dob, parents_name: user?.schoolDetails?.parents_name, state, profilePhoto, section
+      }
+      // const filteredBody = filterObj(req.body, 'student_name', 'schoolDetails');
+      user.schoolDetails = schoolDetails;
+      user.student_name = student_name;
+      // user.schoolDetails.profilePhoto = user.schoolDetails.profilePhoto || false;
+      user.lastModified = new Date();
+      
+      if (req.profilePhotoUrl) {
+        user.schoolDetails.profilePhoto = req.profilePhotoUrl;
+      }
+      
+      const userData = await UserDetail.findByIdAndUpdate(user._id, user, {new: true})
+      .populate('role', 'roleName')
+      .populate('schoolDetails.city', 'name')
+      .populate('schoolDetails.grade', 'grade')
+      .populate('schoolDetails.school', 'school_name')
+      .select('student_name full_name schoolDetails city isAffiliate collegeDetails pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch bankState')
+  
+
+      res.status(200).json({message:'Edit successful',status:'success',data: userData});
+
+  }catch(e){
+      console.log(e)
+      res.status(500).json({
+          message: 'Something went wrong. Try again.'
+      })
+  }
+
+
+
+});
+
 router.get("/myreferrals/:id", Authenticate, (req, res)=>{
   const {id} = req.params
   const referrals = UserDetail.find({referredBy : id}).sort({joining_date:-1})
@@ -776,7 +915,7 @@ router.get("/newusertoday", Authenticate, restrictTo('Admin', 'SuperAdmin'), (re
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
-  const newuser = UserDetail.find({joining_date:{$gte: today}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  const newuser = UserDetail.find({joining_date:{$gte: today}, creationProcess: {$ne: 'School SignUp'}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
   .select('joining_date referredBy campaign first_name last_name email mobile creationProcess myReferralCode')
   .sort({joining_date: -1})
   .then((data)=>{

@@ -43,12 +43,22 @@ const userDetailSchema = new mongoose.Schema({
         type: String,
         required : true
     },
-    full_name:String,
+    student_name:String,
     city:String,
     schoolDetails:{
         parents_name: String,
-        grade: String,
-        school: String,
+        section: String,
+        grade: {
+            type: Schema.Types.ObjectId,
+            ref: 'grade'    
+        },
+        school:{
+            type: Schema.Types.ObjectId,
+            ref: 'school'    
+        },
+        state: String,
+        dob: Date,
+        profilePhoto: String,
         city:{
             type:Schema.Types.ObjectId,
             ref:'city'
@@ -179,7 +189,7 @@ const userDetailSchema = new mongoose.Schema({
     creationProcess:{
         type: String,
         // required: true,
-        enum: ['Affiliate SignUp', 'Auto SignUp','By Admin','Career SignUp', 'College Contest SignUp', 'Referral SignUp', 'Contest SignUp', 'Campaign SignUp']
+        enum: ['School SignUp', 'Affiliate SignUp', 'Auto SignUp','By Admin','Career SignUp', 'College Contest SignUp', 'Referral SignUp', 'Contest SignUp', 'Campaign SignUp']
     },
     employeeid:{
         type: String,

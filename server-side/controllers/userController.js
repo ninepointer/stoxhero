@@ -471,6 +471,32 @@ exports.deactivateUser = async (req, res) => {
   }
 };
 
+exports.getFinowledgeUser = async (req, res) => {
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+    try {
+    const count = await UserDetail.countDocuments({creationProcess: "School SignUp" })
+
+    const user = await UserDetail.find({creationProcess: "School SignUp" })
+    .populate('schoolDetails.city', 'name')
+    .sort({ contestStartTime: 1 }).skip(skip).limit(limit);
+
+    res.status(201).json({
+      status: 'success',
+      message: "user fetch successfully",
+      data: user,
+      count
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 'error',
+      message: "Something went wrong",
+      error: error.message
+    });
+  }
+};
+
 //get deactivated user
 exports.getdeactivateUser = async (req, res) => {
   try {

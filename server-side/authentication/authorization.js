@@ -10,7 +10,6 @@ const hasRole = (...requiredRoles) => {
             if (!role) {
                 return res.status(403).json({ status: 'error', message: 'Role does not exist' });
             }
-            
             if (!requiredRoles.includes(role.roleName)) {
                 return res.status(403).json({ status:'error',message: 'Access Denied: Insufficient Permissions' });
             }

@@ -9,6 +9,7 @@ import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
 import Active from '../data/active';
+import MDTypography from '../../../components/MDTypography';
 
 
 export default function LabTabs() {
@@ -45,66 +46,9 @@ export default function LabTabs() {
         Create City
     </MDButton>
     </MDBox>
-      <TabContext value={value}>
-        <MDBox sx={{ borderBottom: 1, borderColor: 'divider'}}>
-          <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Active" value="1" />
-            <Tab label="Inactive" value="2" />
-            <Tab label="Draft" value="3" />
-            <Tab label="Completed" value="7" />
-          </TabList>
-        </MDBox>
-          <TabPanel value="1">
-          {isLoading ? 
-          
-          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-            <CircularProgress color="info" />
-          </MDBox>
-          : 
-          <MDBox style={{minWidth:'100%'}}>
-          <Active/>
-          </MDBox>
-          }
-          </TabPanel>
-          <TabPanel value="2">
-          {isLoading ? 
-          
-          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-            <CircularProgress color="info" />
-          </MDBox>
-          : 
-          <MDBox style={{minWidth:'100%'}}>
-          <Active/>
-          </MDBox>
-          }
-          </TabPanel>
-          <TabPanel value="3">
-          {isLoading ? 
-          
-          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-            <CircularProgress color="info" />
-          </MDBox>
-          : 
-          <MDBox style={{minWidth:'100%'}}>
-          <Active/>
-          </MDBox>
-   
-          }
-          </TabPanel>
-          <TabPanel value="4">
-          {isLoading ? 
-          
-          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-            <CircularProgress color="info" />
-          </MDBox>
-          : 
-          <MDBox style={{minWidth:'100%'}}>
-          <Active/>
-          </MDBox>
-   
-          }
-          </TabPanel>
-      </TabContext>
+      
+      {/* <MDTypography color="light" fontSize={16} mb={1}>Search city or state :</MDTypography> */}
+      <Active/>
     </MDBox>
   );
 }

@@ -25,7 +25,7 @@ const signedUpUserSchema = new mongoose.Schema({
         type: String,
         // required : true
     },
-    full_name:{
+    student_name:{
         type: String,
         // required : true
     },
@@ -61,8 +61,22 @@ const signedUpUserSchema = new mongoose.Schema({
     },
     schoolDetails:{
         parents_name: String,
-        grade: String,
-        school: String,
+        section: String,
+        grade: {
+            type: Schema.Types.ObjectId,
+            ref: 'grade'    
+        },
+        school: {
+            type: Schema.Types.ObjectId,
+            ref: 'school'    
+        },
+        state: String,
+        dob: Date,
+        profilePhoto: String,
+        city:{
+            type:Schema.Types.ObjectId,
+            ref:'city'
+        },
     },
     status:{
         type: String,

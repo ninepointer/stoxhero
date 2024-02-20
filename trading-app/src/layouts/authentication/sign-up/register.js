@@ -39,6 +39,12 @@ function Cover() {
   const [invalidDetail, setInvalidDetail] = useState();
   const setDetails = useContext(userContext);
 
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  // Get the value of the "mobile" parameter
+  const campaignCode = urlParams.get('campaignCode');
+
+
   useEffect(() => {
     ReactGA.pageview(window.location.pathname)
   })
@@ -83,10 +89,15 @@ function Cover() {
   async function getOtpForLogin(e) {
     e.preventDefault();
     try {
-      if (mobile.length < 10) {
+
+      if (mobile.length < 10 || (mobile.includes('+91') && mobile.length !== 13) || (mobile.startsWith('0') && mobile.length !== 11) || (!mobile.startsWith('0') && !mobile.includes('+91') && mobile.length !== 10)) {
         return setInvalidDetail(`Please enter a valid mobile number`);
-      }
-      const res = await fetch(`${apiUrl}schoollogin`, {
+    }
+    
+      // if (mobile.length < 10) {
+      //   return setInvalidDetail(`Please enter a valid mobile number`);
+      // }
+      const res = await fetch(`${apiUrl}schooluserlogin`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -94,7 +105,7 @@ function Cover() {
           "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-          mobile
+          mobile: mobile.slice(-10)
         })
       });
       const data = await res.json();
@@ -113,9 +124,15 @@ function Cover() {
           setOtpGen(true);
         }
         else {
+          if(data.message.includes('not registered')){
+            await axios.post(`${apiUrl}signupintent`, {mobile});
+            console.log('campaign code', campaignCode,
+            `registrationinfo?mobile=${mobile}${campaignCode ? `&campaignCode=${campaignCode}` : ""}`
+            )
+            navigate(`/registrationinfo?mobile=${mobile}${campaignCode ? `&campaignCode=${campaignCode}` : ""}`)  
+          }
           setInvalidDetail(data.message)
-          openSuccessSBSI("error", data.message);
-          navigate(`/registrationinfo?mobile=${mobile}`)
+          // openSuccessSBSI("error", data.message);
         }
       }
     } catch (e) {
@@ -146,11 +163,11 @@ function Cover() {
           "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-          mobile, mobile_otp: mobileOtp
+          mobile: mobile.slice(-10), mobile_otp: mobileOtp
         })
       });
       const data = await res.json();
-      console.log(data)
+      // console.log(data)
       if (data.status === 'error' || data.error || !data) {
         setInvalidDetail(data.message);
         openSuccessSBSI("error", data.message);
@@ -166,10 +183,32 @@ function Cover() {
 
   }
 
+  const ResendTimerSi = (seconds) => {
+    let remainingTime = seconds;
+
+    const timer = setInterval(() => {
+      // Display the remaining time
+      console.log(`Remaining time: ${remainingTime} seconds`);
+
+      // Decrease the remaining time by 1 second
+      setResendTimerSi(remainingTime--);
+      
+
+      // Check if the timer has reached 0
+      if (remainingTime === 0) {
+        // Stop the timer
+        clearInterval(timer);
+        setTimerActiveSi(false);
+        console.log("Timer has ended!");
+      }
+    }, 1000); // Update every second (1000 milliseconds)
+  };
+
   async function resendOTP(type) {
     setTimerActiveSi(true);
     // console.log("Active timer set to true")
-    setResendTimerSi(30);
+    
+    ResendTimerSi(30)
     try {
       const res = await fetch(`${apiUrl}resendmobileotp`, {
 
@@ -281,72 +320,90 @@ function Cover() {
           >
 
             <Grid container xs={9} md={4} lg={4} display='flex' justifyContent='center' alignItems='center' style={{ backgroundColor: 'transparent', borderRadius: 10, position: 'relative', textAlign: 'center', width: '100%', height: '100vh', overflow: 'visible' }}>
-              <Grid mt={3} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
-                <MDBox mt={3} display='flex' justifyContent='center' alignItems='center' style={{ overflow: 'visible' }}>
-                  <img src={logo} width={250} alt="Logo" />
-                </MDBox>
-                <MDBox mt={1} display='flex' justifyContent='center' alignItems='center' style={{ overflow: 'visible' }}>
-                  <MDTypography variant='body1' style={{fontFamily: 'Work Sans , sans-serif', color:'#D5F47E'}}>Online Finance Olympiad</MDTypography>
-                </MDBox>
-              </Grid>
-
-              <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
-                <TextField
-                  required
-                  disabled={otpGen}
-                  id="outlined-required"
-                  placeholder="Enter Mobile No."
-                  fullWidth
-                  type='number'
-                  onChange={handleMobileChange}
-                />
-              </Grid>
-              {otpGen &&
-                <Grid mb={1} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
-                  <TextField
-                    required
-                    // disabled={showEmailOTP}
-                    id="outlined-required"
-                    placeholder="Enter OTP"
-                    fullWidth
-                    type='text'
-                    onChange={handleOTPChange}
-                  />
-                </Grid>}
-
-              {invalidDetail &&
-                <Grid item xs={12} md={12} lg={12} mb={.25} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                  <MDTypography fontSize={12} variant="button" color={invalidDetail && "error"} style={{fontFamily: 'Work Sans , sans-serif'}}>
-                    {invalidDetail && invalidDetail}
-                  </MDTypography>
-                </Grid>
-              }
-
-              {!otpGen &&
-                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
-                  <MDBox mb={5} display='flex' justifyContent='center'>
-                    <MDButton fullWidth variant='contained' size='small' color='student' style={{ marginTop: 15, color: '#000' }} onClick={
-                      (e) => {
-                        getOtpForLogin(e)
-                      }
-                    }>Proceed</MDButton>
+              <Grid item xs={12} md={12} lg={12}>
+                <Grid mt={3} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
+                  <MDBox mt={3} display='flex' justifyContent='center' alignItems='center' style={{ overflow: 'visible' }}>
+                    <img src={logo} width={250} alt="Logo" />
                   </MDBox>
-                </Grid>}
-              {otpGen &&
-                <>
-                  <Grid item xs={12} md={6} lg={6} display="flex" justifyContent="center">
-                    <MDButton style={{fontFamily: 'Work Sans , sans-serif', padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }} disabled={timerActiveSi} variant="text" color="#000" fullWidth onClick={() => { resendOTP('mobile') }}>
-                      {timerActiveSi ? `Resend Mobile OTP in ${resendTimerSi} seconds` : 'Resend Mobile OTP'}
-                    </MDButton>
-                  </Grid>
+                  <MDBox mt={1} display='flex' justifyContent='center' alignItems='center' style={{ overflow: 'visible' }}>
+                    <MDTypography variant='body1' style={{ fontFamily: 'Work Sans , sans-serif', color: '#D5F47E' }}>Online Finance Olympiad</MDTypography>
+                  </MDBox>
+                </Grid>
 
-                  <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
-                    <MDBox mb={5} display='flex' justifyContent='center'>
-                      <MDButton fullWidth variant='contained' size='small' color='student' style={{ marginTop: 15, color: '#000' }}
-                        onClick={otpConfirmation}>Confirm OTP</MDButton>
-                    </MDBox>
+                <Grid item xs={12} md={12} lg={12}>
+                  <Grid mb={2} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center' >
+                    <TextField
+                      required
+                      disabled={otpGen}
+                      id="outlined-required"
+                      placeholder="Enter Mobile No."
+                      fullWidth
+                      type='text'
+                      onChange={handleMobileChange}
+                      style={{width: '300px', backgroundColor: 'white', borderRadius: 5}}
+                    />
                   </Grid>
-                </>}
+                  {otpGen &&
+                    <Grid mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center' >
+                      <TextField
+                        required
+                        // disabled={showEmailOTP}
+                        id="outlined-required"
+                        placeholder="Enter OTP"
+                        fullWidth
+                        type='text'
+                        onChange={handleOTPChange}
+                        style={{width: '300px', backgroundColor: 'white', borderRadius: 5}}
+                      />
+                    </Grid>}
+
+                  {invalidDetail &&
+                    <Grid item xs={12} md={12} lg={12} mb={.25} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                      <MDTypography fontSize={12} variant="button" color={invalidDetail && "error"} style={{ fontFamily: 'Work Sans , sans-serif' }}>
+                        {invalidDetail && invalidDetail}
+                      </MDTypography>
+                    </Grid>
+                  }
+
+                  {!otpGen &&
+                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
+                      <MDBox mb={5} display='flex' justifyContent='center'>
+                        <MDButton fullWidth variant='contained' size='small' color='student' style={{ marginTop: 15, color: '#000' }} onClick={
+                          (e) => {
+                            getOtpForLogin(e)
+                          }
+                        }>Proceed</MDButton>
+                      </MDBox>
+                    </Grid>}
+                  {otpGen &&
+                    <>
+                      <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center">
+                        <MDButton style={{ fontFamily: 'Work Sans , sans-serif', padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }} 
+                        // disabled={timerActiveSi} 
+                        variant="text" color="#fff" fullWidth onClick={timerActiveSi ? ()=>{} : () => { resendOTP('mobile') }}>
+                          {timerActiveSi ? `Resend Mobile OTP in ${resendTimerSi} seconds` : 'Resend Mobile OTP'}
+                        </MDButton>
+                      </Grid>
+
+                      <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center">
+                        <MDButton style={{ fontFamily: 'Work Sans , sans-serif', padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }}
+                          // disabled={timerActiveSi}
+                           variant="text" color="#000" fullWidth
+                          onClick={() => { setTimerActive(false); setMobile(""); setOtpGen(false); setTimerActiveSi(false) }}>
+                          change mobile number ?
+                        </MDButton>
+                      </Grid>
+
+                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
+                        <MDBox mb={5} display='flex' justifyContent='center'>
+                          <MDButton fullWidth variant='contained' size='small' color='student' style={{ marginTop: 15, color: '#000' }}
+                            onClick={otpConfirmation}>Confirm OTP</MDButton>
+                        </MDBox>
+                      </Grid>
+                    </>}
+
+                </Grid>
+              </Grid>
             </Grid>
           </Grid>
           {renderSuccessSBSI}
