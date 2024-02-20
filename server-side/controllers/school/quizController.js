@@ -544,7 +544,26 @@ const selectRandomQuestions = async (questionnaire, permissibleSet) => {
 exports.getQuizForUser = async (req, res) => {
     try {
         const quizId = req.params.id;
-        const quiz = await Quiz.findById(quizId, '-registrations -createdOn -lastmodifiedOn -createdBy -lastmodifiedBy').lean(); // Exclude fields
+        const quiz = await Quiz.findById(quizId, '-registrations -createdOn -lastmodifiedOn -createdBy -lastmodifiedBy')
+    .populate({
+        path: 'grade',
+        select: 'grade',
+        model: 'Grade' // Specify the model name to populate from
+    })
+    .populate({
+        path: 'city',
+        select: 'name', // Specify the fields to select from the city document
+        model: 'City', // Specify the model name to populate from
+        options: { // Specify options to handle cases where city might not exist
+            lean: true // Convert populated city object to lean object
+        },
+        match: { // Specify condition to match for city population
+            $exists: true // Only populate city if it exists
+        }
+    })
+    .lean();
+
+
         if (!quiz) {
             return res.status(404).json({ message: 'Quiz not found' });
         }
@@ -569,7 +588,7 @@ exports.getAllQuizzesForUser = async (req, res) => {
         const now = new Date();
         const userId = req.user._id;
 
-        const user = await User.findById(new ObjectId(userId)).populate('schoolDetails.grade', 'grade').select('schoolDetails');
+        const user = await User.findById(new ObjectId(userId)).select('schoolDetails');
             const quizzes = await Quiz.aggregate([
                 {
                     $match: {
@@ -583,12 +602,20 @@ exports.getAllQuizzesForUser = async (req, res) => {
                                 ]
                             },
                             { // At least one of these conditions must be satisfied
-                               "grade": user?.schoolDetails?.grade?.grade, // Assuming city is already an ObjectId or the correct type
+                               "grade": new ObjectId(user?.schoolDetails?.grade), // Assuming city is already an ObjectId or the correct type
                             },
                             {
                                 startDateTime: {$gt: new Date()}
                             }
                         ]
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'grades',
+                        localField: 'grade',
+                        foreignField: '_id',
+                        as: 'gradeData'
                     }
                 },
                 {
@@ -603,7 +630,9 @@ exports.getAllQuizzesForUser = async (req, res) => {
                         rewardType: 1,
                         noOfSlots: 1,
                         status: 1,
-                        grade:1,
+                        grade: {
+                            $arrayElemAt: ['$gradeData.grade', 0]
+                        },
                         entryFee:1,
                         registrationsCount: {
                             $size: "$registrations" // Include the length of the registrations array
@@ -630,6 +659,14 @@ exports.getMyQuizzesForUser = async (req, res) => {
                 }
             },
             {
+                $lookup: {
+                    from: 'grades',
+                    localField: 'grade',
+                    foreignField: '_id',
+                    as: 'gradeData'
+                }
+            },
+            {
                 $project: {
                     image: 1,
                     maxParticipant: 1,
@@ -640,7 +677,9 @@ exports.getMyQuizzesForUser = async (req, res) => {
                     durationInSeconds: 1,
                     rewardType: 1,
                     status: 1,
-                    grade: 1,
+                    grade: {
+                        $arrayElemAt: ['$gradeData.grade', 0]
+                    },
                     registrationsCount: {
                         $size: "$registrations" // Include the length of the registrations array
                     }
@@ -709,9 +748,17 @@ exports.registration = async (req, res) => {
                             ]
                         },
                         { // At least one of these conditions must be satisfied
-                           "grade": user?.schoolDetails?.grade, // Assuming city is already an ObjectId or the correct type
+                           "grade": new ObjectId(user?.schoolDetails?.grade), // Assuming city is already an ObjectId or the correct type
                         }
                     ]
+                }
+            },
+            {
+                $lookup: {
+                    from: 'grades',
+                    localField: 'grade',
+                    foreignField: '_id',
+                    as: 'gradeData'
                 }
             },
             {
@@ -724,7 +771,9 @@ exports.registration = async (req, res) => {
                     registrationCloseDateTime: 1,
                     durationInSeconds: 1,
                     rewardType: 1,
-                    grade:1,
+                    grade: {
+                        $arrayElemAt: ['$gradeData.grade', 0]
+                    },
                     status: 1,
                     registrationsCount: {
                         $size: "$registrations" // Include the length of the registrations array
@@ -840,9 +889,17 @@ exports.handleOlympiadParticipation = async (paymentBy, quizId, productDetails) 
                             ]
                         },
                         { // At least one of these conditions must be satisfied
-                           "grade": user?.schoolDetails?.grade, // Assuming city is already an ObjectId or the correct type
+                           "grade": new ObjectId(user?.schoolDetails?.grade), // Assuming city is already an ObjectId or the correct type
                         }
                     ]
+                }
+            },
+            {
+                $lookup: {
+                    from: 'grades',
+                    localField: 'grade',
+                    foreignField: '_id',
+                    as: 'gradeData'
                 }
             },
             {
@@ -855,7 +912,9 @@ exports.handleOlympiadParticipation = async (paymentBy, quizId, productDetails) 
                     registrationCloseDateTime: 1,
                     durationInSeconds: 1,
                     rewardType: 1,
-                    grade:1,
+                    grade: {
+                        $arrayElemAt: ['$gradeData.grade', 0]
+                    },
                     status: 1,
                     registrationsCount: {
                         $size: "$registrations" // Include the length of the registrations array
@@ -864,7 +923,6 @@ exports.handleOlympiadParticipation = async (paymentBy, quizId, productDetails) 
             }
         ]).exec();
 
-        let quizDate;
         for(let elem of getquiz.slots){
             if((elem?._id?.toString() === slotId?.toString())){
                 quizDate = moment(elem?.time).add(5, 'hours').add(30, 'minutes').format('DD-MM-YYYY hh:mm A');
