@@ -9,7 +9,7 @@ import {zerodhaAccountType, xtsAccountType} from "../../../../variables"
 
 export default function Toggle({ userId, isRealTradeEnable }) {
 
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const [setting, setSetting] = useState([]);
     const [reRender, setReRender] = useState(true);
     useEffect(()=>{
