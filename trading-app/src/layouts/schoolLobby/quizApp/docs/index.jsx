@@ -7,37 +7,41 @@ import { apiUrl } from '../../../../constants/constants';
 
 function Cover() {
   const [quizResult, setQuizResult] = useState({});
-  const id = "65bd1597d0283f5f82e70cd9";
-  useEffect(()=>{
+  const id = "65d470cf0f3ddaecf5ffca39";
+  useEffect(() => {
+    // initiateQuiz();
     fetchData();
-    initiateQuiz();
   }, [])
 
-  async function fetchData(){
-    const data = await axios.get(`${apiUrl}quiz/${id}`, {withCredentials: true});
-    const quizData = formatData(data?.data?.data)
+  async function fetchData() {
+    try {
+      const initiate = await axios.post(`${apiUrl}quiz/response/${id}`, null, { withCredentials: true });
+    } catch (err) {
+
+    }
+
+    const data = await axios.get(`${apiUrl}quiz/${id}`, { withCredentials: true });
+    const question = await axios.get(`${apiUrl}quiz/response/${id}`, { withCredentials: true });
+    const quizData = formatData(data?.data?.data, question?.data?.data?.questions)
     setQuizResult(quizData);
   }
 
-  async function initiateQuiz(){
-    const data = await axios.post(`${apiUrl}quiz/response/${id}`,null, {withCredentials: true});
-  }
-
+  console.log('quizResult', quizResult)
   return (
     <div style={{ margin: 'auto', width: '500px' }}>
       {quizResult.timer &&
-      <Quiz
-        quiz={quizResult}
-        shuffle
-        shuffleAnswer
-        // showInstantFeedback
-      // continueTillCorrect
-        onComplete={setQuizResult}
-        onQuestionSubmit={(obj) => console.log('user question results:', obj)}
-        disableSynopsis
-        timer={quizResult?.timer}
+        <Quiz
+          quiz={quizResult}
+          shuffle
+          shuffleAnswer
+          // showInstantFeedback
+          // continueTillCorrect
+          onComplete={setQuizResult}
+          onQuestionSubmit={(obj) => console.log('user question results:', obj)}
+          disableSynopsis
+          timer={quizResult?.timer}
         // allowPauseTimer
-      />}
+        />}
     </div>
   );
 }

@@ -82,23 +82,23 @@ const quiz = {
 
 // export default quiz;
 
-function formatData(data){
+function formatData(data, question){
   const quiz = {
     timer: data?.durationInSeconds,
     quizId: data?._id,
     quizTitle: data?.title,
-    nrOfQuestions: data?.questions?.length,
+    nrOfQuestions: question?.length,
   }
   let que = [];
-  data.questions.map((elem)=>{
+  question.map((elem)=>{
     let checkTextOrPhoto = true;
     const option = [];
     const answer = [];
     elem.options.map((subelem, index)=>{
-      subelem.optionText && option.push({option: subelem.optionText, _id: subelem?._id});
-      subelem.optionImage && option.push({option: subelem.optionImage, _id: subelem?._id});
+      subelem.title && option.push({option: subelem.title, _id: subelem?._id});
+      subelem.image && option.push({option: subelem.image, _id: subelem?._id});
       
-      if(subelem.optionImage){
+      if(subelem.image){
         checkTextOrPhoto = false;
       }
     })
@@ -112,7 +112,7 @@ function formatData(data){
       point: elem?.score
     };
 
-    if(elem?.questionImage) obj.questionPic = elem?.questionImage;
+    if(elem?.image) obj.questionPic = elem?.image;
     que.push(obj)
   })
 

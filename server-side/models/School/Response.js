@@ -26,6 +26,10 @@ const responseSchema = new mongoose.Schema({
         responses:[{type:Schema.Types.ObjectId}],
         responseScore:{type:Number},
     }],
+    questions: [{
+        type:Schema.Types.ObjectId,
+        ref:'question-bank'
+     }],
     studentScore:{
         type:Number
     },
