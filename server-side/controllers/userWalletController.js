@@ -553,3 +553,133 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         return result;
     }
 }
+
+exports.getAllTransactions = async(req, res)=>{
+    try{
+        const skip = Number(req.query.skip) || 0;
+        const limit = Number(req.query.limit) || 10;
+
+        const count = await UserWallet.aggregate([
+            {
+                $unwind: "$transactions",
+            },
+            {
+                $count: "count",
+            },
+        ])
+
+        const data = await UserWallet.aggregate([
+            {
+                "$unwind": "$transactions"
+            },
+            {
+                "$sort": {
+                    "transactions.transactionDate": -1
+                }
+            },
+            {
+                "$lookup": {
+                    "from": "user-personal-details",
+                    "localField": "userId",
+                    "foreignField": "_id",
+                    "as": "user"
+                }
+            },
+            {
+                "$unwind": "$user"
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "title": "$transactions.title",
+                    "amount": {
+                        "$multiply": [
+                            "$transactions.amount",
+                            -1
+                        ]
+                    },
+                    "type": "$transactions.transactionType",
+                    "date": "$transactions.transactionDate",
+                    "first_name": "$user.first_name",
+                    "last_name": "$user.last_name",
+                    "mobile": "$user.mobile",
+                    "email": "$user.email",
+                    "description": "$transactions.description"
+                }
+            },
+            {
+                "$skip": skip  // Skip the first 10 documents
+            },
+            {
+                "$limit": limit // Limit to a maximum of 20 documents
+            }
+        ])
+
+        res.status(200).json({
+            status: 'success',
+            data: data,
+            count: count?.[0]?.count
+        });
+    } catch(err){
+        res.status(500).json({
+            status: 'error',
+            message: 'something went wrong.'
+        });
+    }
+}
+
+exports.getFullTransactions = async(req, res)=>{
+    try{
+
+        const data = await UserWallet.aggregate([
+            {
+                "$unwind": "$transactions"
+            },
+            {
+                "$sort": {
+                    "transactions.transactionDate": -1
+                }
+            },
+            {
+                "$lookup": {
+                    "from": "user-personal-details",
+                    "localField": "userId",
+                    "foreignField": "_id",
+                    "as": "user"
+                }
+            },
+            {
+                "$unwind": "$user"
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "title": "$transactions.title",
+                    "amount": {
+                        "$multiply": [
+                            "$transactions.amount",
+                            -1
+                        ]
+                    },
+                    "type": "$transactions.transactionType",
+                    "date": "$transactions.transactionDate",
+                    "first_name": "$user.first_name",
+                    "last_name": "$user.last_name",
+                    "mobile": "$user.mobile",
+                    "email": "$user.email",
+                    "description": "$transactions.description"
+                }
+            }
+        ])
+
+        res.status(200).json({
+            status: 'success',
+            data: data,
+        });
+    } catch(err){
+        res.status(500).json({
+            status: 'error',
+            message: 'something went wrong.'
+        });
+    }
+}

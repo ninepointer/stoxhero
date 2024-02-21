@@ -837,6 +837,14 @@ router.patch('/student/me', authController.protect, currentUser, uploadMultiple,
   try{
     let {student_name, grade, city, school, dob, state, profilePhoto, section} = req.body;
 
+    if(!student_name || !grade || !city || !school || !dob || !state || !profilePhoto || !section){
+      return res.status(404).json({message: 'Please fill all the feilds.'});
+    }
+
+    if(!mongoose.Types.ObjectId(grade) || !mongoose.Types.ObjectId(city) || !mongoose.Types.ObjectId(school)){
+      return res.status(404).json({message: 'Please fill valid objectId'});
+    }
+
     profilePhoto = (profilePhoto==='undefined' || profilePhoto==='null' || profilePhoto==='false' || profilePhoto==='') ? null : profilePhoto;
     console.log(req.body)
 
