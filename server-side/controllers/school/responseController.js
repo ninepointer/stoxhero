@@ -192,7 +192,11 @@ exports.submitQuiz = async (req, res) => {
     try {
         const userId = req.user._id;
         const quizId = req.params.id;
-        const {submittedBy} = req.body;
+        const {student} = req.body;
+
+        if (!mongoose.Types.ObjectId.isValid(quizId)) {
+            return res.status(400).json({ message: 'Quiz id is not valid!' });
+        }
 
         const response = await Response.findOne({student: new ObjectId(userId), quiz: new ObjectId(quizId)});
 
