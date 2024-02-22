@@ -62,7 +62,7 @@ import Home from "../src/layouts/HomePage/pages/Home";
 import About from "../src/layouts/HomePage/pages/About";
 import AboutFinowledge from "../src/layouts/HomePage/pages/AboutFinowledge";
 
-// import ResetPassword from './layouts/authentication/reset-password'
+import ResetPin from './layouts/authentication/reset-password/cover/resetPin'
 import ResetPassword from './layouts/authentication/reset-password/cover';
 import CampaignDetails from './layouts/campaign/campaignDetails'
 import { adminRole } from "./variables";
@@ -378,6 +378,7 @@ export default function App() {
           }
 
 
+          <Route path='/resetpin' element={<ResetPin/>}/>
           <Route path='/resetpassword' element={<ResetPassword/>}/>
           <Route path='/careers' element={<Careers location={myLocation.current}/>}/>
           <Route path='/privacy' element={<Privacy/>}/>

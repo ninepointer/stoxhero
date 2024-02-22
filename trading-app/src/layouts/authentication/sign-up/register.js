@@ -39,6 +39,7 @@ function Cover() {
   const [invalidDetail, setInvalidDetail] = useState();
   const setDetails = useContext(userContext);
   const [isPinLogin, setIsPinLogin] = useState(false);
+  const [pin, setPin] = useState('');
 
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
@@ -172,6 +173,39 @@ function Cover() {
       if (data.status === 'error' || data.error || !data) {
         setInvalidDetail(data.message);
         openSuccessSBSI("error", data.message);
+
+      } else {
+        const userData = await axios.get(`${apiUrl}loginDetail`, {withCredentials: true});
+        setDetails.setUserDetail(userData.data);
+        navigate("/lobby");
+      }
+    } catch (e) {
+      console.log(e)
+    }
+
+  }
+
+  async function pinLogin() {
+    try {
+      if (mobile.length < 10) {
+        return setInvalidDetail(`Mobile number incorrect`);
+      }
+      const res = await fetch(`${apiUrl}studentpinlogin`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "content-type": "application/json",
+          "Access-Control-Allow-Credentials": true
+        },
+        body: JSON.stringify({
+          mobile: mobile.slice(-10), pin: pin
+        })
+      });
+      const data = await res.json();
+      // console.log(data)
+      if (data.status === 'error' || data.error || !data) {
+        setInvalidDetail(data.message);
+        // openSuccessSBSI("error", data.message);
 
       } else {
         const userData = await axios.get(`${apiUrl}loginDetail`, {withCredentials: true});
@@ -327,14 +361,15 @@ function Cover() {
                     <img src={logo} width={250} alt="Logo" />
                   </MDBox>
                   <MDBox mt={1} display='flex' justifyContent='center' alignItems='center' style={{ overflow: 'visible' }}>
-                    <MDTypography fontSize={12} style={{ fontFamily: 'Work Sans , sans-serif', color: '#D5F47E' }}>Online Finance Challenge</MDTypography>
+                    <MDTypography varient='body3' style={{ fontFamily: 'Work Sans , sans-serif', color: '#D5F47E' }}>Online Finance Challenge</MDTypography>
                   </MDBox>
                 </Grid>
 
                 <Grid item xs={12} md={12} lg={12}>
-                <MDBox mt={1} display='flex' justifyContent='center' alignItems='center' style={{ overflow: 'visible' }}>
-                    <MDTypography variant='body1' style={{ fontFamily: 'Work Sans , sans-serif', color: '#ffffff' }}>Please enter mobile no. for login or signup</MDTypography>
+                  <MDBox mt={1} mb={.4} display='flex' justifyContent='center' alignItems='center' style={{ overflow: 'visible' }}>
+                    <MDTypography style={{ fontFamily: 'Work Sans, sans-serif', color: '#ffffff', fontSize: '.76rem' }}>Please enter mobile no. for login or signup</MDTypography>
                   </MDBox>
+
                   <Grid mb={2} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center' >
                     <TextField
                       required
@@ -344,10 +379,10 @@ function Cover() {
                       fullWidth
                       type='text'
                       onChange={handleMobileChange}
-                      style={{width: '300px', backgroundColor: 'white', borderRadius: 5}}
+                      style={{ width: '300px', backgroundColor: 'white', borderRadius: 5 }}
                     />
                   </Grid>
-                  
+
                   {isPinLogin &&
                     <Grid mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center' >
                       <TextField
@@ -356,9 +391,9 @@ function Cover() {
                         id="outlined-required"
                         placeholder="Enter PIN"
                         fullWidth
-                        type='text'
-                        onChange={handleOTPChange}
-                        style={{width: '300px', backgroundColor: 'white', borderRadius: 5}}
+                        type='number'
+                        onChange={(e)=>{setPin(e.target.value)}}
+                        style={{ width: '300px', backgroundColor: 'white', borderRadius: 5 }}
                       />
                     </Grid>}
 
@@ -372,7 +407,7 @@ function Cover() {
                         fullWidth
                         type='text'
                         onChange={handleOTPChange}
-                        style={{width: '300px', backgroundColor: 'white', borderRadius: 5}}
+                        style={{ width: '300px', backgroundColor: 'white', borderRadius: 5 }}
                       />
                     </Grid>}
 
@@ -390,51 +425,51 @@ function Cover() {
                         <MDBox mb={1} display='flex' justifyContent='center'>
                           <MDButton fullWidth variant='contained' size='small' color='student' style={{ marginTop: 15, color: '#000' }} onClick={
                             (e) => {
-                              getOtpForLogin(e)
+                              !isPinLogin ? getOtpForLogin(e) : pinLogin()
                             }
                           }>Proceed</MDButton>
                         </MDBox>
                       </Grid>
-                    {
-                      !isPinLogin ?
+                      {
+                        !isPinLogin ?
 
-                        <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center">
-                          <MDButton style={{ fontFamily: 'Work Sans , sans-serif', padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }}
-                            // disabled={timerActiveSi}
-                            variant="text" color="#000" fullWidth
-                            onClick={() => { setTimerActive(false); setIsPinLogin(true); setTimerActiveSi(false) }}>
-                            login with pin ?
-                          </MDButton>
-                        </Grid>
-                        :
-                        <>
                           <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center">
                             <MDButton style={{ fontFamily: 'Work Sans , sans-serif', padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }}
                               // disabled={timerActiveSi}
                               variant="text" color="#000" fullWidth
                               onClick={() => { setTimerActive(false); setIsPinLogin(true); setTimerActiveSi(false) }}>
-                              forgot pin ?
+                              login with pin ?
                             </MDButton>
                           </Grid>
+                          :
+                          <>
+                            <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center">
+                              <MDButton style={{ fontFamily: 'Work Sans , sans-serif', padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }}
+                                // disabled={timerActiveSi}
+                                variant="text" color="#000" fullWidth
+                                onClick={() => { navigate('/resetpin') }}>
+                                forgot pin ?
+                              </MDButton>
+                            </Grid>
 
-                          <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center">
-                            <MDButton style={{ fontFamily: 'Work Sans , sans-serif', padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }}
-                              // disabled={timerActiveSi}
-                              variant="text" color="#000" fullWidth
-                              onClick={() => { setTimerActive(false); setIsPinLogin(false); setTimerActiveSi(false) }}>
-                              didn't have account signup ?
-                            </MDButton>
-                          </Grid>
-                        </>
-                    }
-                      
+                            <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center">
+                              <MDButton style={{ fontFamily: 'Work Sans , sans-serif', padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }}
+                                // disabled={timerActiveSi}
+                                variant="text" color="#000" fullWidth
+                                onClick={() => { setTimerActive(false); setIsPinLogin(false); setTimerActiveSi(false) }}>
+                                didn't have an account ?
+                              </MDButton>
+                            </Grid>
+                          </>
+                      }
+
                     </>}
                   {otpGen &&
                     <>
                       <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center">
-                        <MDButton style={{ fontFamily: 'Work Sans , sans-serif', padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }} 
-                        // disabled={timerActiveSi} 
-                        variant="text" color="#fff" fullWidth onClick={timerActiveSi ? ()=>{} : () => { resendOTP('mobile') }}>
+                        <MDButton style={{ fontFamily: 'Work Sans , sans-serif', padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }}
+                          // disabled={timerActiveSi} 
+                          variant="text" color="#fff" fullWidth onClick={timerActiveSi ? () => { } : () => { resendOTP('mobile') }}>
                           {timerActiveSi ? `Resend Mobile OTP in ${resendTimerSi} seconds` : 'Resend Mobile OTP'}
                         </MDButton>
                       </Grid>
@@ -442,7 +477,7 @@ function Cover() {
                       <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center">
                         <MDButton style={{ fontFamily: 'Work Sans , sans-serif', padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }}
                           // disabled={timerActiveSi}
-                           variant="text" color="#000" fullWidth
+                          variant="text" color="#000" fullWidth
                           onClick={() => { setTimerActive(false); setMobile(""); setOtpGen(false); setTimerActiveSi(false) }}>
                           change mobile number ?
                         </MDButton>
