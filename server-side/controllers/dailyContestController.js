@@ -835,7 +835,7 @@ exports.getFeaturedUpcomingContests = async (req, res) => {
     featured:true,
     contestStartTime: { $gte: new Date() },
     contestStatus: "Active",
-    contestLiveTime: { $lte: new Date()},
+    // contestLiveTime: { $lte: new Date()},
     // $or: [
     //   { visibility: true },
     //   { visibility: false, potentialParticipants: { $elemMatch: { $eq: userId } } }
