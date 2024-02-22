@@ -851,7 +851,7 @@ export default function LabTabs({socket}) {
                         <Grid item fullWidth>
                             <MDButton 
                                 variant="contained" 
-                                color={"warning"} 
+                                color={"secondary"} 
                                 size="small" 
                                 component = {Link}
                                 to={{
@@ -864,7 +864,7 @@ export default function LabTabs({socket}) {
                         <Grid item fullWidth>
                             <MDButton 
                                 variant="contained" 
-                                color={"warning"} 
+                                color={"primary"} 
                                 size="small" 
                                 component = {Link}
                                 to={{
@@ -891,7 +891,7 @@ export default function LabTabs({socket}) {
                         <Grid item fullWidth>
                             <MDButton 
                                 variant="contained" 
-                                color={"info"} 
+                                color={"error"} 
                                 size="small" 
                                 component = {Link}
                                 to={{
@@ -919,7 +919,7 @@ export default function LabTabs({socket}) {
                         <Grid item fullWidth>
                             <MDButton 
                                 variant="contained" 
-                                color={"info"} 
+                                color={"warning"} 
                                 size="small" 
                                 component = {Link}
                                 to={{
@@ -927,6 +927,20 @@ export default function LabTabs({socket}) {
                                   }}
                             >
                                 School Onboarding
+                            </MDButton>
+                        </Grid>
+
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"success"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/alltransactions`,
+                                  }}
+                            >
+                                All Transactions
                             </MDButton>
                         </Grid>
 
