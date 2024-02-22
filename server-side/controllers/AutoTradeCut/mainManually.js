@@ -1,4 +1,4 @@
-const { tenx, paperTrade, stockTradeMod, internship, infinityTradeLive, contestTradeLive,
+const { tenx, paperTrade, stockTradeMod, paperTradeMod, infinityTradeLive, contestTradeLive,
     dailyContestMock, internshipTradeMod, dailyContestMockMod, marginXMockMod, battleTradeMod } = require("./collectingTradeManually");
 const { creditAmountToWallet } = require("../../controllers/dailyContestController");
 const marginxController = require("../../controllers/marginX/marginxController");
@@ -92,19 +92,14 @@ const autoCutMainManuallyMock = async () => {
 
     if (data.length === 0) {
         await tenx();
-        await paperTrade();
+        await paperTradeMod();
         await internshipTradeMod();
         await dailyContestMockMod();
         await marginXMockMod();
         await stockTradeMod();
         await changeStatus();
         await changeMarginXStatus();
-
-        await PendingOrder.updateMany({ status: 'Pending' }, {
-            $set: {
-                status: "Cancelled"
-            }
-        })
+        await PendingOrder.updateMany({ status:'Pending'},{ $set: {status: "Cancelled" }})
         
         return;
     }

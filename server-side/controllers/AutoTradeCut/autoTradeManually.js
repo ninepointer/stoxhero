@@ -910,6 +910,78 @@ const takeInternshipTrades = async(tradeObjs)=>{
   });
 }
 
+const takePaperTrades = async (tradeObjs) => {
+  return new Promise(async (resolve, reject) => {
+    const io = getIOValue();
+    let isRedisConnected = getValue();
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T23:59:59.999Z";
+    const today = new Date(todayDate);
+    const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
+    const { brokerageDetailBuyUser, brokerageDetailSellUser } = await brokerage();
+
+
+    tradeObjs.forEach((trade, index) => {
+      let brokerageUser;
+      if (trade?.buyOrSell === "BUY") {
+        brokerageUser = buyBrokerage(Math.abs(Number(trade?.amount)), brokerageDetailBuyUser[0]);
+      } else {
+        brokerageUser = sellBrokerage(Math.abs(Number(trade?.amount)), brokerageDetailSellUser[0]);
+      }
+      tradeObjs[index] = { ...trade, brokerage: brokerageUser };
+    });
+
+    try {
+      await PaperTrade.insertMany(tradeObjs);
+      console.log('Documents inserted');
+      for (trade of tradeObjs) {
+        if (isRedisConnected && await client.exists(`${trader.toString()}: overallpnlPaperTrade`)) {
+          let pnl = await client.get(`${trader.toString()}: overallpnlPaperTrade`)
+          pnl = JSON.parse(pnl);
+          const matchingElement = pnl.find((element) => (element._id.instrumentToken === trade?.instrumentToken && element._id.product === trade?.Product));
+
+          // if instrument is same then just updating value
+          if (matchingElement) {
+            // Update the values of the matching element with the values of the first document
+            matchingElement.amount += (trade?.amount * -1);
+            matchingElement.brokerage += Number(trade?.brokerage);
+            matchingElement.lastaverageprice = trade?.average_price;
+            matchingElement.lots += Number(trade?.Quantity);
+
+          } else {
+            // Create a new element if instrument is not matching
+            pnl.push({
+              _id: {
+                symbol: trade?.symbol,
+                product: trade?.Product,
+                instrumentToken: trade?.instrumentToken,
+                exchange: trade?.exchange,
+              },
+              amount: (trade?.amount * -1),
+              brokerage: Number(trade?.brokerage),
+              lots: Number(trade?.Quantity),
+              lastaverageprice: trade?.average_price,
+            });
+          }
+
+          await client.set(`${trader.toString()}: overallpnlPaperTrade`, JSON.stringify(pnl))
+
+        }
+
+        if (isRedisConnected) {
+          await client.expire(`${trader.toString()}: overallpnlPaperTrade`, secondsRemaining);
+        }
+
+        io?.emit(`${trade?.trader.toString()}autoCut`, trade);
+      }
+      resolve();
+    } catch (err) {
+      console.error('Error inserting documents:', err);
+    }
+  });
+}
+
 async function processTrades(tradeObjs) {
   await Promise.all(tradeObjs.map(async (trade, index) => {
       let brokerageUser = await equityBrokerage(Math.abs(Number(trade?.amount)), "MIS", trade?.buyOrSell);
@@ -1250,7 +1322,8 @@ const takeBattleTrades = async(tradeObjs)=>{
 
 
 
-module.exports = { takeStockTrades, takeAutoDailyContestMockTrade, takeAutoTenxTrade, takeAutoPaperTrade, 
+module.exports = { takePaperTrades, takeStockTrades, takeAutoDailyContestMockTrade, 
+  takeAutoTenxTrade, takeAutoPaperTrade, 
   takeAutoInfinityTrade, takeAutoInternshipTrade, takeInternshipTrades, 
   takeDailyContestMockTrades, takeMarginXMockTrades, takeBattleTrades };
 
