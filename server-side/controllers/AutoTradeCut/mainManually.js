@@ -99,6 +99,12 @@ const autoCutMainManuallyMock = async () => {
         await stockTradeMod();
         await changeStatus();
         await changeMarginXStatus();
+
+        await PendingOrder.updateMany({ status: 'Pending' }, {
+            $set: {
+                status: "Cancelled"
+            }
+        })
         
         return;
     }

@@ -9,6 +9,10 @@ exports.initiatQuiz = async (req, res) => {
         const userId = req.user._id;
         const quizId = req.params.id;
 
+        if (!mongoose.Types.ObjectId.isValid(quizId)) {
+            return res.status(400).json({ message: 'Quiz id is not valid!' });
+        }
+
         const findResponse = await Response.findOne({student: new ObjectId(userId), quiz: new ObjectId(quizId)});
 
         if(findResponse){
@@ -23,16 +27,10 @@ exports.initiatQuiz = async (req, res) => {
             return res.status(400).json({ message: "something went wrong" });
         }
 
-        // console.log('que', que)
         const createResponse = await Response.create({
             student: userId, initiatedOn: new Date(), quiz: quizId,
             createdBy: userId, lastmodifiedBy: userId, questions: que
         })
-
-        // const response = await Response.findOne({student: new ObjectId(userId), quiz: new ObjectId(quizId)})
-        // .populate('questions', 'title type image score difficultyLevel topic')
-        // .select('-initiatedOn -createdBy -lastmodifiedBy')
-
 
         res.status(201).json({status: 'success', data: createResponse});
     } catch (error) {
@@ -45,13 +43,13 @@ exports.getQuestions = async (req, res) => {
         const userId = req.user._id;
         const quizId = req.params.id;
 
-        if(!mongoose.Types.ObjectId(quizId)){
-            res.status(400).json({ message: 'Quiz is not valid!' });
+        if (!mongoose.Types.ObjectId.isValid(quizId)) {
+            return res.status(400).json({ message: 'Quiz id is not valid!' });
         }
 
         const response = await Response.findOne({student: new ObjectId(userId), quiz: new ObjectId(quizId)})
         .populate('questions', 'title type image score difficultyLevel topic options')
-        .select('-initiatedOn -createdBy -lastmodifiedBy -createdOn -lastmodifiedOn');
+        .select('quiz questions responses');
 
         const newData = JSON.parse(JSON.stringify(response));
         newData.questions.forEach(question => {
@@ -60,6 +58,10 @@ exports.getQuestions = async (req, res) => {
                     delete option.isCorrect;
                 });
             }
+        });
+
+        newData.responses.forEach(response => {
+            delete response.responseScore;
         });
 
         if(!response){
@@ -78,47 +80,83 @@ exports.insertResponse = async (req, res) => {
         const quizId = req.params.id;
         const {questionId, optionId}  = req.body;
 
-        const getScore = await getCorrectAnswer(quizId, questionId, optionId);
+        if(!quizId || !questionId || !optionId.length){
+            return res.status(400).json({ message: 'Request is not valid!' });
+        }
 
-        const score = await getCorrectAnswer(quizId, questionId, optionId) ? getScore : 0;
+        if (!mongoose.Types.ObjectId.isValid(quizId)) {
+            return res.status(400).json({ message: 'Quiz id is not valid!' });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(questionId)) {
+            return res.status(400).json({ message: 'Question id is not valid!' });
+        }
+
+        for(let elem of optionId){
+            if (!mongoose.Types.ObjectId.isValid(elem)) {
+                return res.status(400).json({ message: 'Option id is not valid!' });
+            }
+        }
+
+        const score = await getCorrectAnswer(quizId, questionId, optionId) || 0;
 
         const userQuiz = await Response.findOne({student: new ObjectId(userId), quiz: new ObjectId(quizId)});
-        const findQue = userQuiz?.responses?.some((elem)=>elem.questionId?.toString() === questionId?.toString())
-        if(!findQue){
-            const updateResponse = await Response.findByIdAndUpdate(userQuiz?._id, {
-                $push: {
-                    responses: {
-                        questionId,
-                        responses: [optionId],
-                        responseScore: score
-                    }
+
+        let updateResponse = await Response.findOneAndUpdate(
+            {
+                _id: userQuiz?._id,
+                'responses.questionId': questionId
+            },
+            {
+                $set: {
+                    'responses.$.responses': optionId,
+                    'responses.$.responseScore': score
                 }
-            })
-
-            res.status(201).json({status: 'success', data: updateResponse});
-        }
-
-        if (findQue) {
-            // If question already exists in responses, update the responses array
-            const updatedResponse = await Response.findOneAndUpdate(
-                {
-                    _id: userQuiz._id,
-                    'responses.questionId': new ObjectId(questionId)
-                },
+            },
+            {
+                new: true,
+                select: 'quiz questions responses'
+            }
+        );
+        
+        if (!updateResponse) {
+            // If questionId does not exist, push a new element
+            updateResponse = await Response.findByIdAndUpdate(
+                userQuiz?._id,
                 {
                     $push: {
-                        'responses.$.responses': new ObjectId(optionId),
+                        responses: {
+                            questionId,
+                            responses: optionId,
+                            responseScore: score
+                        }
                     }
                 },
-                { new: true }
-            );
-
-            res.status(200).json({ status: 'success', data: updatedResponse });
+                {
+                    new: true,
+                    select: 'quiz questions responses' // Specify the fields you want to include
+                }
+            );            
         }
 
+        const newData = JSON.parse(JSON.stringify(updateResponse));
+        newData.questions.forEach(question => {
+            if (question.options) {
+                question.options.forEach(option => {
+                    delete option.isCorrect;
+                });
+            }
+        });
 
+        newData.responses.forEach(response => {
+            delete response.responseScore;
+        });
         
+
+        res.status(201).json({status: 'success', data: newData});
+
     } catch (error) {
+        console.log(error)
         res.status(400).json({ message: error.message });
     }
 };
@@ -180,8 +218,7 @@ exports.submitQuiz = async (req, res) => {
 
 const getCorrectAnswer = async (quizId, questionId, optionId) => {
     try {
-
-        const quiz = await Quiz.findById(new ObjectId(quizId));
+        const quiz = await Quiz.findById(new ObjectId(quizId)).populate('questions', 'options score')
         if (!quiz) {
             return false;
         }
@@ -191,7 +228,7 @@ const getCorrectAnswer = async (quizId, questionId, optionId) => {
             return false;
         }
 
-        const option = question.options.find(subelem => subelem?._id?.toString() === optionId?.toString());
+        const option = question.options.find(subelem => optionId.includes(subelem?._id?.toString()));
         if (option && option.isCorrect) {
             return question?.score
         }
@@ -204,7 +241,6 @@ const getCorrectAnswer = async (quizId, questionId, optionId) => {
 };
 
 const calculateDetailedCounts = (total, details) => {
-    // console.log('total and details', total, details)
     return {
 
         multiCorrect: Math.round(total * Number(details.multiCorrectPercentage) / 100),
@@ -231,16 +267,12 @@ const selectRandomQuestions = async (questionnaire, permissibleSet, grade, quest
         Easy: quizQuestionnaire - Math.round(quizQuestionnaire * criteria.Difficult.totalPercentage / 100) - Math.round(quizQuestionnaire * criteria.Medium.totalPercentage / 100),
     };
 
-    // console.log('totalQuestionsByDifficulty', totalQuestionsByDifficulty)
-
     try {
         let questions = [];
         for (const [difficulty, details] of Object.entries(criteria)) {
             const totalQuestionsForLevel = totalQuestionsByDifficulty[difficulty];
-            // console.log('totalQuestionsForLevel', totalQuestionsForLevel)
             if (totalQuestionsForLevel > 0) {
                 const counts = calculateDetailedCounts(totalQuestionsForLevel, details);
-                // console.log('counts', counts)
                 const typesAndCounts = [
                     { type: 'Single Correct', count: counts.singleCorrect },
                     { type: 'Multiple Correct', count: counts.multiCorrect },
@@ -248,19 +280,12 @@ const selectRandomQuestions = async (questionnaire, permissibleSet, grade, quest
                     { type: 'Image Multiple Correct', count: counts.imageMultiCorrect },
                 ];
 
-                // console.log('typesAndCounts', typesAndCounts)
-
                 for (const { type, count } of typesAndCounts) {
                     if (count > 0) {
                     
-
-                        // console.log('type, count', type, count)
-
                         const filteredQue = questionsArr.filter((elem)=>{
                             return ((elem.difficultyLevel === difficulty) && (elem.type === type))
                         })
-
-                        // console.log('filteredQue', filteredQue.length, questionsArr.length)
 
                         const len = filteredQue.length;
                         const num = count;
@@ -274,10 +299,7 @@ const selectRandomQuestions = async (questionnaire, permissibleSet, grade, quest
                             }
                         }
 
-                        // console.log('randomIndices', randomIndices)
-
                         const slicedArray = randomIndices.map(index => filteredQue[index]);
-                        // console.log('slicedArray', slicedArray, randomIndices)
                         questions = questions.concat(slicedArray.map(elem=>elem._id));
                     }
                 }

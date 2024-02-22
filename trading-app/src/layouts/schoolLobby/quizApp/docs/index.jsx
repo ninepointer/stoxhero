@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import Quiz from '../lib/Quiz';
+// import Quiz from '../lib/Quiz';
+import Quiz from '../helper/Quiz';
 import formatData from './quiz';
 import axios from 'axios';
 import { apiUrl } from '../../../../constants/constants';
@@ -22,23 +23,23 @@ function Cover() {
 
     const data = await axios.get(`${apiUrl}quiz/${id}`, { withCredentials: true });
     const question = await axios.get(`${apiUrl}quiz/response/${id}`, { withCredentials: true });
-    const quizData = formatData(data?.data?.data, question?.data?.data?.questions)
+    const quizData = formatData(data?.data?.data, question?.data?.data?.questions, question?.data?.data?.responses)
     setQuizResult(quizData);
   }
 
   console.log('quizResult', quizResult)
   return (
-    <div style={{ margin: 'auto', width: '500px' }}>
+    <div >
       {quizResult.timer &&
         <Quiz
           quiz={quizResult}
-          shuffle
-          shuffleAnswer
+          // shuffle
+          // shuffleAnswer
           // showInstantFeedback
           // continueTillCorrect
-          onComplete={setQuizResult}
-          onQuestionSubmit={(obj) => console.log('user question results:', obj)}
-          disableSynopsis
+          // onComplete={setQuizResult}
+          // onQuestionSubmit={(obj) => console.log('user question results:', obj)}
+          // disableSynopsis
           timer={quizResult?.timer}
         // allowPauseTimer
         />}

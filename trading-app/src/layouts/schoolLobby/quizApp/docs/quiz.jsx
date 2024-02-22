@@ -82,7 +82,7 @@ const quiz = {
 
 // export default quiz;
 
-function formatData(data, question){
+function formatData(data, question, responses){
   const quiz = {
     timer: data?.durationInSeconds,
     quizId: data?._id,
@@ -91,6 +91,11 @@ function formatData(data, question){
   }
   let que = [];
   question.map((elem)=>{
+
+    const res = responses.filter((subelem)=>{
+      return subelem.questionId?.toString() === elem?._id?.toString()
+    });
+    
     let checkTextOrPhoto = true;
     const option = [];
     const answer = [];
@@ -106,8 +111,9 @@ function formatData(data, question){
       questionId: elem?._id,
       question: elem?.title,
       questionType: checkTextOrPhoto ? 'text' : 'photo',
-      answerSelectionType: elem?.type==='Single Correct' ? 'single' : 'multiple',
+      answerSelectionType: elem?.type.includes('Single') ? 'Single Correct (please select one option.)' : 'Multiple Correct (please select multiple option.)',
       answers: option,
+      responses: res[0]?.responses,
       correctAnswer: answer?.length === 1 ? `${answer[0]}` : answer,
       point: elem?.score
     };

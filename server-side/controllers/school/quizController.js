@@ -5,6 +5,8 @@ const User = require('../../models/User/userDetailSchema');
 const moment = require('moment');
 const sharp = require('sharp');
 const QuestionBank = require('../../models/QuestionBank/queBankSchema')
+const mongoose = require('mongoose')
+
 
 // Configure AWS
 const s3 = new AWS.S3({
@@ -565,7 +567,10 @@ const selectRandomQuestions = async (questionnaire, permissibleSet, grade) => {
 exports.getQuizForUser = async (req, res) => {
     try {
         const quizId = req.params.id;
-        const quiz = await Quiz.findById(quizId, '-registrations -createdOn -lastmodifiedOn -createdBy -lastmodifiedBy')
+        if(!mongoose.Types.ObjectId.isValid(quizId)){
+            return res.status(404).json({ message: 'Quiz id is not valid!' });
+        }
+        const quiz = await Quiz.findById(new ObjectId(quizId), 'title startDateTime registrationOpenDateTime registrationCloseDateTime durationInSeconds rewardType rewards city grade description image')
             .populate({
                 path: 'grade',
                 select: 'grade',
@@ -588,15 +593,6 @@ exports.getQuizForUser = async (req, res) => {
         if (!quiz) {
             return res.status(404).json({ message: 'Quiz not found' });
         }
-
-        // Remove the isCorrect field from options
-        quiz.questions.forEach(question => {
-            if (question.options) {
-                question.options.forEach(option => {
-                    delete option.isCorrect;
-                });
-            }
-        });
 
         res.status(201).json({ status: 'success', data: quiz });
     } catch (error) {
