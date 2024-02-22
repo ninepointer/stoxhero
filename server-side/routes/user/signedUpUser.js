@@ -394,11 +394,11 @@ router.patch("/verifyotp", async (req, res) => {
         fcmTokenData,
         collegeDetails,
         parents_name, school, grade,
-        dob, state, section
+        dob, state, section, pin
     } = req.body
 
     const schoolDetails = {
-        parents_name, school, grade, city, dob, state, section, pin: await bcrypt.hash(mobile.slice(-6), 10)
+        parents_name, school, grade, city, dob, state, section, pin: await bcrypt.hash(pin, 10)
     }
 
     const user = await SignedUpUser.findOne({ mobile: mobile })
@@ -542,6 +542,14 @@ router.patch("/verifyotp", async (req, res) => {
 
         if (dob) {
             obj.dob = dob;
+        }
+
+        if (grade) {
+            const firstName = student_name.split(' ')[0];
+            const day = new Date(dob).getDate().toString().padStart(2, '0');
+            const month = (new Date(dob).getMonth() + 1).toString().padStart(2, '0');
+            const year = new Date(dob).getFullYear();
+            obj.employeeid = firstName + day + month + year;
         }
 
         if (fcmTokenData) {
@@ -913,6 +921,7 @@ router.patch("/verifyotp", async (req, res) => {
             </html>
 
         `
+        
         if (process.env.PROD == 'true') {
             try {
                 await emailService(populatedUser?.email, subject, message);

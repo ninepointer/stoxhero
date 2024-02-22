@@ -734,6 +734,19 @@ function Cover() {
                   />
                 </Grid>
 
+                <Grid mb={2} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>
+                  <TextField
+                    required
+                    disabled={otpGen}
+                    id="outlined-required"
+                    placeholder="PIN"
+                    fullWidth
+                    type='number'
+                    name='pin'
+                    onChange={handleChange}
+                  />
+                </Grid>
+
 
                 {otpGen &&
                   <Grid mb={1} item xs={12} md={12} lg={8} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: 'white', borderRadius: 5 }}>

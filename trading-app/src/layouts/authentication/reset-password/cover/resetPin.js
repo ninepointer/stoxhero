@@ -221,13 +221,14 @@ function Cover() {
               <MDTypography variant="h3" fontWeight="medium" color="white" mt={1}>
                 Reset Pin
               </MDTypography>
+              {!passwordResetDone &&
               <MDTypography display="block" variant="button" color="white" my={1}>
                 You will receive an otp within 60 seconds
-              </MDTypography>
+              </MDTypography>}
             </MDBox>
             {passwordResetDone ?
               <MDBox display="flex" flexDirection="column" alignItems="center" justifyContent="center">
-                <Typography style={{ fontSize: 20, textAlign: "center" }} mt={4} mb={5}><img height="40" width="40" src={completeIcon} /><MDBox>Password Reset Process Completed.</MDBox></Typography>
+                <Typography style={{ fontSize: 20, textAlign: "center" }} mt={4} mb={5}><img height="40" width="40" src={completeIcon} /><MDBox>PIN Reset Process Completed.</MDBox></Typography>
                 <MDBox mb={4}>
                   <MDButton style={{ textAlign: "center", backgroundColor: "#353535", color: "#FFFFFF" }} variant="gradient" onClick={logInButton}>Login</MDButton>
                 </MDBox>
@@ -268,12 +269,12 @@ function Cover() {
 
 
                         < MDBox mb={4} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
-                          <MDInput type="text" label="New Password*" variant="standard" fullWidth onChange={(e) => { formstate.pin = e.target.value }} />
+                          <MDInput type="text" label="New PIN*" variant="standard" fullWidth onChange={(e) => { formstate.pin = e.target.value }} />
                           {(onReset && (formstate.confirm_pin) || (formstate.pin != formstate.confirm_pin)) && <Typography style={{ color: "red", fontSize: 15 }}>Password match failed</Typography>}
                         </MDBox>
 
                         < MDBox mb={4} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
-                          <MDInput type="text" label="Confirm Password*" variant="standard" fullWidth onChange={(e) => { formstate.confirm_pin = e.target.value }} />
+                          <MDInput type="text" label="Confirm PIN*" variant="standard" fullWidth onChange={(e) => { formstate.confirm_pin = e.target.value }} />
                           {(onReset && (formstate.pin) || (formstate.pin != formstate.confirm_pin)) && <Typography style={{ color: "red", fontSize: 15 }}>Password match failed</Typography>}
                         </MDBox>
 
