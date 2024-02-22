@@ -82,9 +82,9 @@ const Navbar = () => {
               </LinkButton>
             </a>
 
-            <a href="/olympiad">
+            <a href="/challenge">
               <LinkButton spacing={0.5}>
-                <Typography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }}>OLYMPIADS</Typography>
+                <Typography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }}>FINANCE CHALLENGES</Typography>
               </LinkButton>
             </a>
 
@@ -130,9 +130,9 @@ const Navbar = () => {
                 </LinkButton>
               </a>
 
-              <a href="/olympiad">
+              <a href="/challenge">
                 <LinkButton spacing={0.5}>
-                  <MDTypography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }} sx={{ color: '#FFFFFF' }}>OLYMPIADS</MDTypography>
+                  <MDTypography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }} sx={{ color: '#FFFFFF' }}>FINANCE CHALLENGES</MDTypography>
                 </LinkButton>
               </a>
 

@@ -38,6 +38,7 @@ function Cover() {
   const [mobileOtp, setMobileOtp] = useState('');
   const [invalidDetail, setInvalidDetail] = useState();
   const setDetails = useContext(userContext);
+  const [isPinLogin, setIsPinLogin] = useState(true);
 
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
@@ -326,7 +327,7 @@ function Cover() {
                     <img src={logo} width={250} alt="Logo" />
                   </MDBox>
                   <MDBox mt={1} display='flex' justifyContent='center' alignItems='center' style={{ overflow: 'visible' }}>
-                    <MDTypography variant='body1' style={{ fontFamily: 'Work Sans , sans-serif', color: '#D5F47E' }}>Online Finance Olympiad</MDTypography>
+                    <MDTypography variant='body1' style={{ fontFamily: 'Work Sans , sans-serif', color: '#D5F47E' }}>Online Finance Challenge</MDTypography>
                   </MDBox>
                 </Grid>
 
@@ -343,6 +344,21 @@ function Cover() {
                       style={{width: '300px', backgroundColor: 'white', borderRadius: 5}}
                     />
                   </Grid>
+                  
+                  {isPinLogin &&
+                    <Grid mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center' >
+                      <TextField
+                        required
+                        // disabled={showEmailOTP}
+                        id="outlined-required"
+                        placeholder="Enter PIN"
+                        fullWidth
+                        type='text'
+                        onChange={handleOTPChange}
+                        style={{width: '300px', backgroundColor: 'white', borderRadius: 5}}
+                      />
+                    </Grid>}
+
                   {otpGen &&
                     <Grid mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center' >
                       <TextField

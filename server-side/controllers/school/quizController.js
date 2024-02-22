@@ -791,7 +791,7 @@ exports.registration = async (req, res) => {
 
         
 
-        res.status(201).json({status: "success", data: quizzes, message: `Thank you for registering. The olympiad will start on ${quizDate}.` });
+        res.status(201).json({status: "success", data: quizzes, message: `Thank you for registering. The challenge will start on ${quizDate}.` });
 
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -928,10 +928,6 @@ exports.handleOlympiadParticipation = async (paymentBy, quizId, productDetails) 
                 quizDate = moment(elem?.time).add(5, 'hours').add(30, 'minutes').format('DD-MM-YYYY hh:mm A');
             }
         }
-
-        
-
-        // res.status(201).json({status: "success", data: quizzes, message: `Thank you for registering. The olympiad will start on ${quizDate}.` });
 
     } catch (error) {
         // res.status(500).json({ message: error.message });

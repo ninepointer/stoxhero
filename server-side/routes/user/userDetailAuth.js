@@ -17,6 +17,8 @@ const {sendMultiNotifications} = require('../../utils/fcmService');
 const restrictTo = require('../../authentication/authorization');
 const {createUserNotification} = require('../../controllers/notification/notificationController');
 const School = require('../../models/School/School')
+const bcrypt = require("bcryptjs")
+
 
 const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
@@ -376,6 +378,40 @@ router.patch("/schoolresetpassword", async (req, res)=>{
       reset.password = password
       await reset.save({validateBeforeSave:false})
       return res.status(200).json({message : "Password Reset Done"})
+})
+
+router.patch("/studentresetpin", async (req, res) => {
+  const { mobile, resetPinOtp, confirm_pin, pin } = req.body;
+
+  if(pin.length !== 6){
+    return res.status(422).json({ status: 'error', message: "Pin must be 6 digits long" });
+  }
+
+  if(!mobile || !resetPinOtp || !confirm_pin || !pin){
+    return res.status(422).json({ status: 'error', message: "Insufficient request data." });
+  }
+
+  const deactivated = await UserDetail.findOne({ mobile: mobile, status: "Inactive" })
+
+  if (deactivated) {
+    return res.status(422).json({ status: 'error', message: "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.", error: "deactivated" });
+  }
+  let reset = await UserDetail.findOne({ mobile: mobile })
+  if (!reset) {
+    return res.status(404).json({ error: "User doesn't exist" })
+  }
+
+  if (resetPinOtp != reset?.schoolDetails?.resetPinOtp) {
+    return res.status(401).json({ message: "OTP doesn't match, please try again!" })
+  }
+
+  if (pin != confirm_pin) {
+    return res.status(401).json({ message: "Pin & Confirm Pin didn't match." })
+  }
+
+  reset.schoolDetails.pin = await bcrypt.hash(pin, 10)
+  await reset.save({ validateBeforeSave: false })
+  return res.status(200).json({ message: "Pin Reset Done" })
 })
 
 router.patch("/generateOTP", async (req, res)=>{

@@ -30,6 +30,9 @@ const {ObjectId} = require('mongodb')
 const { promisify } = require('util');
 const {client} = require("../../marketData/redisClient");
 const School = require('../../models/School/School');
+const bcrypt = require("bcryptjs")
+
+
 
 router.get("/send", async (req, res) => {
     // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'direct_signup_campaign_new', userName : "vijay", source : "vijay", media : {url : mediaURL, filename : mediaFileName}, templateParams : ["newuser.first_name"], tags : '', attributes : ''});
@@ -395,7 +398,7 @@ router.patch("/verifyotp", async (req, res) => {
     } = req.body
 
     const schoolDetails = {
-        parents_name, school, grade, city, dob, state, section
+        parents_name, school, grade, city, dob, state, section, pin: await bcrypt.hash(mobile.slice(-6), 10)
     }
 
     const user = await SignedUpUser.findOne({ mobile: mobile })

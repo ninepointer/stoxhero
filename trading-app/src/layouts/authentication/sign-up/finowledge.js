@@ -64,7 +64,7 @@ function Cover() {
       <FinNavbar/>
 
           <Helmet>
-            <title>{"StoxHero Finance Olympiad"}</title>
+            <title>{"StoxHero Finance Challenge"}</title>
             <meta name='description' content="NFO gives schools access to a comprehensive financial syllabus, and India's pioneering Finance Examination, both meticulously crafted to cater to school children."/>
             {/* <meta name='keywords' content={blogData?.keywords} /> */}
           </Helmet>
@@ -106,7 +106,7 @@ function Cover() {
               <MDTypography variant={isMobile ? "h3" : "h1"} sx={{ color: '#fff' }} style={{fontFamily: 'Work Sans , sans-serif'}}>On a mission to train</MDTypography>
               <MDTypography variant={isMobile ? "h3" : "h1"} sx={{ color: '#D5F47E' }} style={{fontFamily: 'Work Sans , sans-serif'}}>India's next Big Bulls</MDTypography>
               <MDTypography variant={isMobile ? "body2" : "body1"} sx={{ color: '#fff' }} style={{fontFamily: 'Work Sans , sans-serif'}}>Battle & Compete with Students across</MDTypography>
-              <MDTypography variant={isMobile ? "body2" : "body1"} sx={{ color: '#D5F47E' }} style={{fontFamily: 'Work Sans , sans-serif'}}>North India in Finance Olympiad</MDTypography>
+              <MDTypography variant={isMobile ? "body2" : "body1"} sx={{ color: '#D5F47E' }} style={{fontFamily: 'Work Sans , sans-serif'}}>North India in Finance Challenge</MDTypography>
               <MDBox display='flex' justifyContent='space-between'>
                 <MDButton variant='contained' size='small' color='student' style={{marginTop:15,color:'#000', fontFamily: 'Work Sans , sans-serif'}} onClick={() => { navigate(`/enter-mobile${campaignCode ? `?campaignCode=${campaignCode}` : ""}`) }}>Register/Login</MDButton>
                 <MDButton variant='outlined' style={{marginTop:15, marginLeft:10, fontFamily: 'Work Sans , sans-serif'}} onClick={()=>{navigate('/tryquiz')}}>Try Now</MDButton>

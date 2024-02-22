@@ -58,7 +58,7 @@ function Cover() {
   const [schoolsList, setSchoolsList] = useState([]);
   const [userSchool, setUserSchool] = useState('');
   const [gradeData, setGradeData] = useState([]);
-
+  const [timeoutId, setTimeoutId] = useState(null);
   const [otpGen, setOtpGen] = useState(false);
   const [mobileOtp, setMobileOtp] = useState('');
   const [invalidDetail, setInvalidDetail] = useState();
@@ -84,23 +84,42 @@ function Cover() {
       city: ""
     },
   });
-  const [inputValue, setInputValue] = useState('');
 
   useEffect(()=>{
     getGrade();
   }, [userSchool])
 
-  const searchSchools = async ()=>{
-    const res = await axios.post(`${apiUrl}fetchschools`, {cityId:value?._id ,inputString: inputValue});
-    setSchoolsList(res?.data?.data);
+  useEffect(()=>{
+    searchSchools("");
+  }, [userCity])
+
+  console.log('schoolsList', schoolsList)
+  
+
+  const searchSchools = async (inputValue)=>{
+    if(value?._id){
+      const res = await axios.post(`${apiUrl}fetchschools`, {cityId:value?._id ,inputString: inputValue});
+      setSchoolsList(res?.data?.data);
+    }
   }
 
   const getGrade = async ()=>{
-    const res = await axios.get(`${apiUrl}school/${userSchool?._id}/usergrades`, {cityId:userCity?._id ,inputString: inputValue});
+    const res = await axios.get(`${apiUrl}school/${userSchool?._id}/usergrades`);
     setGradeData(res?.data?.data);
   }
 
-  const debounceGetSchools = debounce(searchSchools, 1500);
+  function sendSchoolReq(e) {
+    const value = e?.target?.value ? e.target.value : e;
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+
+    setTimeoutId(
+      setTimeout(() => {
+        searchSchools(value);
+      }, 500)
+    );
+  }
   
   const handleSchoolChange = (event, newValue) => {
     console.log(newValue);
@@ -109,9 +128,7 @@ function Cover() {
     setSectionValue();
     // setGradeData([]);
     // getGrade();
-  }
-  console.log('gradeValue', gradeValue);
-  
+  }  
 
   useEffect(() => {
     ReactGA.pageview(window.location.pathname)
@@ -410,7 +427,7 @@ function Cover() {
         <ThemeProvider theme={theme}>
           <FinNavbar />
           <Helmet>
-            <title>{"StoxHero Finance Olympiad"}</title>
+            <title>{"StoxHero Finance Challenge"}</title>
             <meta name='description' content="NFO gives schools access to a comprehensive financial syllabus, and India's pioneering Finance Examination, both meticulously crafted to cater to school children." />
             {/* <meta name='keywords' content={blogData?.keywords} /> */}
           </Helmet>
@@ -444,7 +461,7 @@ function Cover() {
           >
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', overflowY: 'auto', width: '100%' }}>
               <Grid container xs={9} md={4} lg={4}
-                display='flex' justifyContent='center' alignItems='center' style={{ backgroundColor: 'transparent', borderRadius: 10, position: 'relative', height: '88vh', textAlign: 'center', width: '100%', overflow: 'visible' }}
+                display='flex' justifyContent='center' alignItems='center' style={{ backgroundColor: 'transparent', borderRadius: 10, position: 'relative', height: '80vh', textAlign: 'center', width: '100%', overflow: 'visible' }}
               >
                 <Grid mt={2} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center'>
                   <MDBox display='flex' justifyContent='center' alignItems='center' style={{ overflow: 'visible' }}>
@@ -545,7 +562,7 @@ function Cover() {
                         color: 'dark',
                       },
                     }}
-                    options={cityData}
+                    options={cityData || []}
                     value={value}
                     disabled={otpGen}
                     onChange={handleCityChange}
@@ -582,18 +599,14 @@ function Cover() {
                         color: 'dark',
                       },
                     }}
-                    options={schoolsList}
+                    options={schoolsList || []}
                     value={userSchool}
                     disabled={otpGen}
                     onChange={handleSchoolChange}
-                    // onInputChange={debounceGetSchools}
-                    onInputChange={(e) => { setInputValue(e?.target?.value); debounceGetSchools(); }}
+                    onInputChange={(e) => { sendSchoolReq(e); }}
                     autoHighlight
-                    getOptionLabel={(option) => option ? option.school_name : ''}
+                    getOptionLabel={(option) => option ? option?.school_name : ''}
                     renderOption={(props, option) => (
-                      // <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                      //   {option.schoolString}
-                      // </Box>
                       <li {...props}>
                         <Grid container lg={12} xs={12} md={12} display='flex' flexDirection={'row'} justifyContent={'center'} alignContent={'center'} alignItems='center'>
                           <Grid item lg={4} xs={4} md={4} sx={{ display: 'flex', width: "100%" }}>
@@ -654,12 +667,12 @@ function Cover() {
                         color: 'dark',
                       },
                     }}
-                    options={gradeData}
+                    options={gradeData || []}
                     value={gradeValue}
                     disabled={otpGen}
                     onChange={handleGradeChange}
                     autoHighlight
-                    getOptionLabel={(option) => option ? option?.grade?.grade : 'Grade'}
+                    getOptionLabel={(option) => option ? option?.grade?.grade : ''}
                     renderOption={(props, option) => (
                       <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                         {option?.grade?.grade}
@@ -698,7 +711,7 @@ function Cover() {
                     disabled={otpGen}
                     onChange={handleSectionChange}
                     autoHighlight
-                    getOptionLabel={(option) => option ? option : 'Section'}
+                    getOptionLabel={(option) => option ? option : ''}
                     renderOption={(props, option) => (
                       <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                         {option}

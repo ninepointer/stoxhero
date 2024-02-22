@@ -72,7 +72,7 @@ const RegistrationDetail = ({ selected, getDetails, id, setRegistrationMessage ,
     }
     const initiatePayment = async() => {
         try{
-          const res = await axios.post(`${apiUrl}payment/initiate`,{amount:Number(quizData?.entryFee*100), redirectTo:window.location.href, paymentFor:'Olympiad', productId:id, coupon:'', bonusRedemption:0, productDetails:{slotId:selected?.slotId}},{withCredentials: true});
+          const res = await axios.post(`${apiUrl}payment/initiate`,{amount:Number(quizData?.entryFee*100), redirectTo:window.location.href, paymentFor:'Challenge', productId:id, coupon:'', bonusRedemption:0, productDetails:{slotId:selected?.slotId}},{withCredentials: true});
           console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
           window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
       }catch(e){
@@ -127,7 +127,7 @@ const RegistrationDetail = ({ selected, getDetails, id, setRegistrationMessage ,
                 </Grid>
                 <Grid item xs={12} md={12} xl={12} mt={1}>
                     <MDTypography fontSize={13} sx={{ color: '#353535' }} style={{ fontFamily: 'Work Sans , sans-serif', textAlign: 'justify' }}>
-                        {`Olympiad Date: ${moment(selected?.slotTime).format('DD-MM-YY')}`}
+                        {`Challenge Date: ${moment(selected?.slotTime).format('DD-MM-YY')}`}
                     </MDTypography>
                 </Grid>
                 <Grid item xs={12} md={12} xl={12} mt={1}>
@@ -142,7 +142,7 @@ const RegistrationDetail = ({ selected, getDetails, id, setRegistrationMessage ,
                 </Grid>
                 <Grid item xs={12} md={12} xl={12} mt={1}>
                     <MDTypography fontSize={13} sx={{ color: '#353535' }} style={{ fontFamily: 'Work Sans , sans-serif', textAlign: 'justify' }}>
-                        {`Olympiad Fee: ₹${quizData?.entryFee >0 ? quizData?.entryFee : 'Free'}`}
+                        {`Challenge Fee: ₹${quizData?.entryFee >0 ? quizData?.entryFee : 'Free'}`}
                     </MDTypography>
                 </Grid>
                 {quizData?.entryFee >0 && <Grid item xs={12} md={12} xl={12} mt={1}>

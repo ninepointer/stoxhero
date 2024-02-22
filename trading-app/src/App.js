@@ -394,7 +394,7 @@ export default function App() {
           <Route path='/finowledge' element={<Finowledge />}/>
           <Route path='/about' element={<About/>}/>
           <Route path='/aboutus' element={<AboutFinowledge/>}/>
-          <Route path='/olympiad' element={<FinowledgeComingSoon/>}/>
+          <Route path='/challenge' element={<FinowledgeComingSoon/>}/>
           <Route path='/tryquiz' element={<FinowledgeComingSoon/>}/>
 
           <Route path='/enter-mobile' element={<Register/>}/>
