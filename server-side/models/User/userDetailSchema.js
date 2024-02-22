@@ -48,6 +48,9 @@ const userDetailSchema = new mongoose.Schema({
     schoolDetails:{
         parents_name: String,
         section: String,
+        pin: String,
+        resetPinOtp: String,
+        lastOtpTime: Date,
         grade: {
             type: Schema.Types.ObjectId,
             ref: 'grade'    
@@ -473,7 +476,7 @@ userDetailSchema.pre("save", async function(next){
     } 
     this.password = await bcrypt.hash(this.password, 10)
     next();
-})
+});
 
 userDetailSchema.methods.correctPassword = async function (
     candidatePassword,

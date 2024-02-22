@@ -65,6 +65,41 @@ router.post("/login", async (req, res) => {
     }
 })
 
+router.post("/studentpinlogin", async (req, res) => {
+    const { mobile, pin } = req.body;
+
+    if (!mobile || !pin) {
+        return res.status(422).json({ status: 'error', message: "Please provide login credentials" });
+    }
+
+    const deactivatedUser = await UserDetail.findOne({ mobile: mobile, status: "Inactive" })
+
+    if(deactivatedUser){
+        return res.status(422).json({ status: 'error', message: "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.", error: "deactivated" });
+    }
+
+    const userLogin = await UserDetail.findOne({ mobile: mobile, status: "Active" }).select('_id role pin schoolDetails');
+
+    if (!userLogin || !(await userLogin.correctPassword(pin, userLogin.schoolDetails.pin))) {
+        return res.status(422).json({ error: "invalid details" })
+    } else {
+
+        if (!userLogin) {
+            return res.status(422).json({ status: 'error', message: "Invalid credentials" });
+        } else {
+            if(userLogin?.role?.toString()=='644903ac236de3fd7cfd755c'){
+                return res.status(400).json({status:'error', message:'Invalid request'});
+            }
+            const token = await userLogin.generateAuthToken();
+
+            res.cookie("jwtoken", token, {
+                expires: new Date(Date.now() + 25892000000),
+            });
+            res.status(201).json({ status: 'success', message: "user logged in succesfully", token: token });
+        }
+    }
+})
+
 router.post("/schoollogin", async (req, res) => {
     const { userId, pass } = req.body;
 
@@ -120,6 +155,50 @@ router.post('/schooluserlogin', async (req,res, next)=>{
     
         user.mobile_otp = mobile_otp;
         user.lastOtpTime = new Date();
+        await user.save({validateBeforeSave: false});
+    
+        // sendSMS([mobile.toString()], `Your otp to login to StoxHero is: ${mobile_otp}`);
+        if(process.env.PROD=='true') sendOTP(mobile.toString(), mobile_otp);
+        console.log(process.env.PROD, mobile_otp, 'sending');
+        if(process.env.PROD!=='true'){
+            sendOTP("8076284368", mobile_otp)
+            sendOTP("9319671094", mobile_otp)
+        }
+    
+        res.status(200).json({status: 'Success', message: `OTP sent to ${mobile}. OTP is valid for 30 minutes.`});
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: `Something went wrong. Please try again.`});
+    }
+
+});
+
+router.post('/resetpinotp', async (req,res, next)=>{
+    const {mobile} = req.body;
+    try{
+        if(!mobile){
+            return res.status(422).json({ status: 'error', message: "Invalid request" });
+        }
+        const deactivatedUser = await UserDetail.findOne({ mobile: mobile, status: "Inactive" })
+
+        if(deactivatedUser){
+            return res.status(422).json({ status: 'error', message: "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.", error: "deactivated" });
+        }
+    
+        const user = await UserDetail.findOne({mobile});
+    
+        // console.log(user?.schoolDetails?.grade, !user?.schoolDetails?.grade)
+        if(!user?.schoolDetails?.grade){
+            return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'})
+        }
+        if (user?.lastOtpTime && moment().subtract(29, 'seconds').isBefore(user?.lastOtpTime)) {
+            return res.status(429).json({ message: 'Please wait a moment before requesting a new OTP' });
+          }
+    
+        let mobile_otp = otpGenerator.generate(6, {digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false});
+    
+        user.schoolDetails.resetPinOtp = mobile_otp;
+        user.schoolDetails.lastOtpTime = new Date();
         await user.save({validateBeforeSave: false});
     
         // sendSMS([mobile.toString()], `Your otp to login to StoxHero is: ${mobile_otp}`);
