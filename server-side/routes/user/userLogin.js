@@ -81,7 +81,7 @@ router.post("/studentpinlogin", async (req, res) => {
     const userLogin = await UserDetail.findOne({ mobile: mobile, status: "Active" }).select('_id role pin schoolDetails');
 
     if (!userLogin || !(await userLogin.correctPassword(pin, userLogin.schoolDetails.pin))) {
-        return res.status(422).json({ error: "invalid details" })
+        return res.status(422).json({ error: "invalid details", message: 'Mobile or pin is not correct' })
     } else {
 
         if (!userLogin) {

@@ -142,7 +142,7 @@ const RegistrationDetail = ({ selected, getDetails, id, setRegistrationMessage ,
                 </Grid>
                 <Grid item xs={12} md={12} xl={12} mt={1}>
                     <MDTypography fontSize={13} sx={{ color: '#353535' }} style={{ fontFamily: 'Work Sans , sans-serif', textAlign: 'justify' }}>
-                        {`Challenge Fee: ₹${quizData?.entryFee >0 ? quizData?.entryFee : 'Free'}`}
+                        {`Challenge Fee: ${quizData?.entryFee >0 ? `₹${quizData?.entryFee}` : 'Free'}`}
                     </MDTypography>
                 </Grid>
                 {quizData?.entryFee >0 && <Grid item xs={12} md={12} xl={12} mt={1}>
@@ -157,7 +157,7 @@ const RegistrationDetail = ({ selected, getDetails, id, setRegistrationMessage ,
                 </Grid>}
 
                 <Grid item xs={12} md={12} xl={12} mt={2} display='flex' justifyContent={'flex-end'} alignContent={'center'} gap={1}>
-                    <MDButton size='small' variant='text' color={"error"} onClick={(e) => {resetStates();setOpen(false)}} autoFocus>
+                    <MDButton size='small' color={"error"} onClick={(e) => {resetStates();setOpen(false)}} autoFocus>
                         Cancel
                     </MDButton>
                     <MDButton size='small' color={"success"} onClick={(e) => registration()} autoFocus>
