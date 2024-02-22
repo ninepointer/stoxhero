@@ -936,8 +936,8 @@ const takePaperTrades = async (tradeObjs) => {
       await PaperTrade.insertMany(tradeObjs);
       console.log('Documents inserted');
       for (trade of tradeObjs) {
-        if (isRedisConnected && await client.exists(`${trader.toString()}: overallpnlPaperTrade`)) {
-          let pnl = await client.get(`${trader.toString()}: overallpnlPaperTrade`)
+        if (isRedisConnected && await client.exists(`${trade?.trader.toString()}: overallpnlPaperTrade`)) {
+          let pnl = await client.get(`${trade?.trader.toString()}: overallpnlPaperTrade`)
           pnl = JSON.parse(pnl);
           const matchingElement = pnl.find((element) => (element._id.instrumentToken === trade?.instrumentToken && element._id.product === trade?.Product));
 
@@ -965,12 +965,12 @@ const takePaperTrades = async (tradeObjs) => {
             });
           }
 
-          await client.set(`${trader.toString()}: overallpnlPaperTrade`, JSON.stringify(pnl))
+          await client.set(`${trade?.trader.toString()}: overallpnlPaperTrade`, JSON.stringify(pnl))
 
         }
 
         if (isRedisConnected) {
-          await client.expire(`${trader.toString()}: overallpnlPaperTrade`, secondsRemaining);
+          await client.expire(`${trade?.trader.toString()}: overallpnlPaperTrade`, secondsRemaining);
         }
 
         io?.emit(`${trade?.trader.toString()}autoCut`, trade);

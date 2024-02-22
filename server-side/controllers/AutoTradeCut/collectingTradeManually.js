@@ -328,7 +328,7 @@ const paperTradeMod = async () => {
         {
           _id: {
             userId: "$trader",
-            batch: "$batch",
+            portfolioId: "$portfolioId",
             exchange: "$exchange",
             symbol: "$symbol",
             instrumentToken: "$instrumentToken",
