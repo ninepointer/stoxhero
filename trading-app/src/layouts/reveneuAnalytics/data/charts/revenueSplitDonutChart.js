@@ -1,18 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, memo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import * as echarts from 'echarts';
-import Card from '@mui/material/Card';
+import { Card, CircularProgress, Grid } from '@mui/material';
 import CardContent from '@mui/material/CardContent';
 import { apiUrl } from '../../../../constants/constants';
 import axios from 'axios';
 
 
-const PieChart = ({period}) => {
+const PieChart = ({ period }) => {
   const chartRef = useRef(null);
-
+  const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
 
   useEffect(() => {
+    setLoading(true)
     let call1 = axios.get((`${apiUrl}revenue/bonusrevenuesplit?period=${period}`), {
       withCredentials: true,
       headers: {
@@ -24,19 +25,21 @@ const PieChart = ({period}) => {
     Promise.all([call1])
       .then(([api1Response]) => {
         setData([
-          {name:'Signup Bonus',value: api1Response?.data?.data?.bonusAmount?.toFixed(2)},
-          {name:'Actual Revenue',value: api1Response?.data?.data?.actualRevenue?.toFixed(2)}
+          {
+            name: 'Signup Bonus', value: api1Response?.data?.data?.bonusAmount?.toFixed(0)
+          },
+          {
+            name: 'Actual Revenue', value: api1Response?.data?.data?.actualRevenue?.toFixed(0)
+          }
         ])
+
+        setLoading(false);
       })
       .catch((error) => {
         console.error(error);
       });
 
   }, [period])
-
-
-console.log("data", data)
-  // const data = [{name:'Signup Bonus',value: 100},{name:'Actual Revenue',value: 500}]
 
   useEffect(() => {
     const chartDom = chartRef.current;
@@ -53,10 +56,10 @@ console.log("data", data)
       tooltip: {
         trigger: 'item',
       },
-    //   legend: {
-    //     orient: 'vertical',
-    //     left: 'left',
-    //   },
+      //   legend: {
+      //     orient: 'vertical',
+      //     left: 'left',
+      //   },
       series: [
         {
           name: 'Channel',
@@ -86,18 +89,24 @@ console.log("data", data)
     return () => {
       myChart.dispose();
     };
-  }, [data]); // Empty dependency array ensures useEffect runs once after the initial render
-
-//   return <div ref={chartRef} style={{ minWidth: '100%', height: '380px' }} />;
+  }, [data, loading]); // Empty dependency array ensures useEffect runs once after the initial render
 
   return (
-    <Card style={{ minWidth: '100%', height: '380px', borderRadius:1, alignContent:'center' }}>
-      <CardContent>
-        {/* <MDTypography variant="h6">Last 6 months TestZone Data</MDTypography> */}
-        <div ref={chartRef} style={{ minWidth: '100%', height: '380px' }} />
-      </CardContent>
-    </Card>
+    <>
+      {
+        loading ?
+          <Grid p={1} container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ borderRadius: 5, width: '100%', height: 'auto' }}>
+            <CircularProgress color='dark' />
+          </Grid>
+          :
+          <Card style={{ minWidth: '100%', height: '380px', borderRadius: 1, alignContent: 'center' }}>
+            <CardContent>
+              <div ref={chartRef} style={{ minWidth: '100%', height: '380px' }} />
+            </CardContent>
+          </Card>
+      }
+    </>
   );
 };
 
-export default PieChart;
+export default memo(PieChart);

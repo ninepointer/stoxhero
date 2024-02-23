@@ -22,49 +22,9 @@ import AutosignupData from '../data/autosignupDetails'
 import { apiUrl } from '../../../constants/constants';
 
 export default function Dashboard() {
-  let [isLoading,setIsLoading] = useState([])
-  const [betweenDateRevenue,setBetweenDateRevenue] = useState([])
-  const [betweenDateTotalRevenue,setBetweenDateTotalRevenue] = useState([])
-  const [overallRevenue,setOverallRevenue] = useState([])
-  const [creationProcess, setCreationProcess] = useState([]);
+  let [isLoading,setIsLoading] = useState(false)
   const [period,setPeriod] = useState("Today")
-  
-  
-  useEffect(() => {
-    setIsLoading(true)
-    let call1 = axios.get((`${apiUrl}revenue/betweendates?period=${period}`), {
-      withCredentials: true,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": true
-      },
-    })
-    Promise.all([call1])
-      .then(([api1Response]) => {
-        setBetweenDateRevenue(api1Response.data.data)
-        setBetweenDateTotalRevenue(api1Response.data.total)
-        setIsLoading(false)
-      })
-      .catch((error) => {
-        console.error(error);
-      });
 
-  }, [period])
-
-  function TruncatedName(name) {
-    const originalName = name;
-    const convertedName = originalName
-      .toLowerCase() // Convert the entire name to lowercase
-      .split(' ') // Split the name into words
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
-      .join(' '); // Join the words back together with a space
-  
-    // Trim the name to a maximum of 30 characters
-    const truncatedName = convertedName.length > 30 ? convertedName.substring(0, 30) + '...' : convertedName;
-  
-    return truncatedName;
-  }
 
   const handlePeriodChange = (event) => {
     setPeriod(event.target.value);
@@ -120,11 +80,16 @@ export default function Dashboard() {
     
               </Grid>
 
+
               <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
               
                 <Grid container spacing={0} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                            {betweenDateTotalRevenue && <TotalRevenue betweenDateRevenue={betweenDateRevenue} betweenDateTotalRevenue={betweenDateTotalRevenue} period={period}/>}
+                            {/* {betweenDateTotalRevenue &&  */}
+                            <TotalRevenue 
+                            // betweenDateRevenue={betweenDateRevenue} betweenDateTotalRevenue={betweenDateTotalRevenue} 
+                            period={period}/>
+                            {/* } */}
                     </Grid>
     
                 </Grid>
@@ -164,25 +129,25 @@ export default function Dashboard() {
 
                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
                       
-                        <CareerData overallRevenue={overallRevenue} period={period}/>
+                        <CareerData period={period}/>
                         
                     </Grid>
 
                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
                       
-                        <CampaignData overallRevenue={overallRevenue} period={period}/>
+                        <CampaignData period={period}/>
                         
                     </Grid>
 
                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
                       
-                        <ReferralData overallRevenue={overallRevenue} period={period}/>
+                        <ReferralData period={period}/>
                         
                     </Grid>
 
                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
                       
-                        <AutosignupData overallRevenue={overallRevenue} period={period}/>
+                        <AutosignupData period={period}/>
                         
                     </Grid>
                     
