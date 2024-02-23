@@ -3970,17 +3970,22 @@ exports.getBonusRevenueSplit = async (req, res, next) => {
             $sum: {
               $cond: {
                 if: {
-                  $eq: [
-                    "$transactions.title",
-                    "Sign up Bonus",
+                  $or: [
+                    {
+                      $eq: [
+                        "$transactions.title",
+                        "Sign up Bonus",
+                      ],
+                    },
+                    {
+                      $eq: [
+                        "$transactions.title",
+                        "Tenx Joining Bonus",
+                      ],
+                    },
                   ],
                 },
-                then: {
-                  $multiply: [
-                    "$transactions.amount",
-                    1,
-                  ],
-                },
+                then: "$transactions.amount",
                 else: 0,
               },
             },
