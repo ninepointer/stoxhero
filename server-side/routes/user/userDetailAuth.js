@@ -883,7 +883,6 @@ router.patch('/student/me', authController.protect, currentUser, uploadMultiple,
     }
 
     profilePhoto = (profilePhoto==='undefined' || profilePhoto==='null' || profilePhoto==='false' || profilePhoto==='') ? null : profilePhoto;
-    console.log(req.body)
 
       const user = await UserDetail.findById(req.user._id);
   
