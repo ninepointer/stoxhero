@@ -3939,28 +3939,18 @@ exports.getBonusRevenueSplit = async (req, res, next) => {
     const { period } = req.query;
     const { startDate, endDate } = getDates(period);
 
-    const wallet = await Wallet.aggregate([
+    const bonus = await Wallet.aggregate([
       {
         $unwind: {
           path: "$transactions",
         },
       },
+
       {
         $match: {
+
           $or: [
-            {
-              "transactions.title": "TestZone Fee",
-            },
-            {
-              "transactions.title": "Battle Fee",
-            },
-            {
-              "transactions.title": "MarginX Fee",
-            },
-            {
-              "transactions.title":
-                "Bought TenX Trading Subscription",
-            },
+
             {
               "transactions.title": "Sign up Bonus",
             },
@@ -3969,35 +3959,12 @@ exports.getBonusRevenueSplit = async (req, res, next) => {
                 "TenX Joining Bonus",
             },
           ],
-          "transactions.transactionDate": {
-            $gt: new Date(startDate),
-            $lt: new Date(endDate),
-          },
         },
       },
       {
         $group: {
           _id: {
             user: "$userId",
-          },
-          amount: {
-            $sum: {
-              $cond: {
-                if: {
-                  $ne: [
-                    "$transactions.title",
-                    "Sign up Bonus",
-                  ],
-                },
-                then: {
-                  $multiply: [
-                    "$transactions.amount",
-                    -1,
-                  ],
-                },
-                else: 0,
-              },
-            },
           },
           bonusAmount: {
             $sum: {
@@ -4021,35 +3988,161 @@ exports.getBonusRevenueSplit = async (req, res, next) => {
         },
       },
       {
-        "$group": {
-          "_id": {},
-          "bonus": { "$sum": "$bonusAmount" },
-          "amount": { "$sum": "$amount" },
-          "actualRevenue": {
-            "$sum": {
-              "$cond": {
-                "if": { "$gt": [{ "$subtract": ["$amount", "$bonusAmount"] }, 0] },
-                "then": { "$subtract": ["$amount", "$bonusAmount"] },
-                "else": 0
-              }
-            }
-          }
+        $project: {
+          user: "$_id.user",
+          bonus: "$bonusAmount",
+          _id: 0
         }
       },
       {
+        $match: {
+          bonus: { $gt: 0 }
+        }
+      }
+
+    ]);
+
+    const prevRevenue = await Wallet.aggregate([
+      {
+        $unwind: {
+          path: "$transactions",
+        },
+      },
+      {
+        $match: {
+          $or: [
+            {
+              "transactions.title": "TestZone Fee",
+            },
+            {
+              "transactions.title": "Battle Fee",
+            },
+            {
+              "transactions.title": "MarginX Fee",
+            },
+            {
+              "transactions.title":
+                "Bought TenX Trading Subscription",
+            }
+          ],
+          "transactions.transactionDate": {
+            $lt: new Date(startDate),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            user: "$userId",
+          },
+          amount: {
+            $sum: {
+              $multiply: [
+                "$transactions.amount",
+                -1,
+              ]
+
+            },
+          },
+
+        },
+      },
+
+      {
         $project: {
-          amount: 1,
-          bonusAmount: "$bonus",
-          actualRevenue: 1,
+          revenue: "$amount",
+          user: "$_id.user",
           _id: 0,
         },
       },
     ])
 
-    wallet[0].actualRevenue = wallet[0]?.actualRevenue > 0 ? wallet[0]?.actualRevenue : 0;
+    const currentRevenue = await Wallet.aggregate([
+      {
+        $unwind: {
+          path: "$transactions",
+        },
+      },
+      {
+        $match: {
+          $or: [
+            {
+              "transactions.title": "TestZone Fee",
+            },
+            {
+              "transactions.title": "Battle Fee",
+            },
+            {
+              "transactions.title": "MarginX Fee",
+            },
+            {
+              "transactions.title":
+                "Bought TenX Trading Subscription",
+            }
+          ],
+          "transactions.transactionDate": {
+            $gte: new Date(startDate),
+            $lt: new Date(endDate),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            user: "$userId",
+          },
+          amount: {
+            $sum: {
+              $multiply: [
+                "$transactions.amount",
+                -1,
+              ]
+
+            },
+          },
+
+        },
+      },
+
+      {
+        $project: {
+          revenue: "$amount",
+          user: "$_id.user",
+          _id: 0,
+        },
+      },
+    ])
+
+    console.log('lengths', bonus.length, prevRevenue.length, currentRevenue.length)
+
+    // const obj = {
+    //   revenue: 0,
+    //   bonus: 0
+    // }
+
+
+    // for(let elem of currentRevenue){
+    //   const bonusData = bonus.filter(subelem => subelem.user?.toString() === elem?.user?.toString());
+    //   const currRev = elem?.revenue;
+    //   const prev = prevRevenue.filter(subelem => subelem.user?.toString() === elem?.user?.toString());
+    //   const prevRev = prev?.[0]?.revenue || 0;
+    //   const mybonus = bonusData?.[0]?.bonus || 0;
+    //   const bonusUsed = prevRev > mybonus ? mybonus : prevRev;
+    //   const bonusRemains = mybonus - bonusUsed;
+
+    //   const actualRevenue = currRev > bonusRemains ? (currRev - bonusRemains) : 0;
+    //   const currentBonusUsed = currRev > bonusRemains ?  bonusRemains : currRev;
+    //   obj.revenue += actualRevenue;
+    //   obj.bonus += currentBonusUsed;
+    // }
+
+    const obj = calculateRevenueAndBonus(prevRevenue, currentRevenue, bonus);
+
+
+    console.log(obj);
 
     const response = {
-      data: wallet[0],
+      data: obj,
       status: "success",
       message: "Data fetched successfully",
     }
@@ -4057,6 +4150,32 @@ exports.getBonusRevenueSplit = async (req, res, next) => {
   } catch (e) {
     console.log(e);
   }
+}
+
+
+function calculateRevenueAndBonus(prevRevenue, currentRevenue, bonus) {
+  const obj = {
+    actualRevenue: 0,
+    bonusAmount: 0
+  };
+
+  const userBonusMap = new Map(bonus.map(entry => [entry.user.toString(), entry.bonus]));
+
+  for (const elem of currentRevenue) {
+    const currRev = elem.revenue;
+    const prev = prevRevenue.find(entry => entry.user.toString() === elem.user.toString());
+    const prevRev = prev ? prev.revenue : 0;
+    const mybonus = userBonusMap.get(elem.user.toString()) || 0;
+    const bonusUsed = Math.min(prevRev, mybonus);
+    const bonusRemains = mybonus - bonusUsed;
+
+    const actualRevenue = Math.max(currRev - bonusRemains, 0);
+    const currentBonusUsed = Math.min(currRev, bonusRemains);
+    obj.actualRevenue += actualRevenue;
+    obj.bonusAmount += currentBonusUsed;
+  }
+
+  return obj;
 }
 
 exports.getCampaignRevenueData = async (req, res, next) => {
@@ -5280,7 +5399,7 @@ exports.getReferralRevenueData = async (req, res, next) => {
         const affiliate = item?.affiliate?.toString();
       
         if (!result[affiliate]) {
-          const match = newUsersRevenue.filter(elem=>elem?.affiliate?.toString() === affiliate?.toString())?.[0];
+          const match = newUsersRevenue?.filter(elem=>elem?.affiliate?.toString() === affiliate?.toString())?.[0];
   
           result[affiliate] = {
             total: match?.total || 0,

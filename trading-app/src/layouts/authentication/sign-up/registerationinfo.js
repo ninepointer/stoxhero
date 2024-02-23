@@ -62,7 +62,7 @@ function Cover() {
   const [otpGen, setOtpGen] = useState(false);
   const [mobileOtp, setMobileOtp] = useState('');
   const [invalidDetail, setInvalidDetail] = useState();
-
+  const [sectionData, setSectionData] = useState([]);
   const queryString = location.search;
   const urlParams = new URLSearchParams(queryString);
 
@@ -84,6 +84,14 @@ function Cover() {
       city: ""
     },
   });
+
+  useEffect(()=>{
+    setSectionValue('')
+    console.log('setSectionValue', sectionValue)
+    setSectionData(gradeData.find((item) => {
+      return item?.grade?.grade == gradeValue?.grade?.grade;
+    })?.sections ?? [])
+  }, [gradeValue, gradeData])
 
   useEffect(()=>{
     getGrade();
@@ -125,7 +133,7 @@ function Cover() {
     console.log(newValue);
     setUserSchool(newValue);
     setGradeValue();
-    setSectionValue();
+    setSectionValue('');
     // setGradeData([]);
     // getGrade();
   }  
@@ -344,7 +352,7 @@ function Cover() {
     setCityData([]);
     setUserCity('');
     setGradeData([]);
-    setSectionValue();
+    setSectionValue('');
     setGradeValue();
     setValue({id:'',name:''});
   }
@@ -408,13 +416,13 @@ function Cover() {
     setSchoolsList([]);
     setUserSchool('');
     setGradeValue();
-    setSectionValue();
+    setSectionValue('');
     setGradeData([]);
   };
 
   const handleGradeChange = (event, newValue) => {
     setGradeValue(newValue);
-    setSectionValue();
+    setSectionValue('');
   };
   const handleSectionChange = (event, newValue) => {
     setSectionValue(newValue);
@@ -704,10 +712,8 @@ function Cover() {
                         color: 'dark',
                       },
                     }}
-                    options={gradeData.find((item) => {
-                      return item?.grade?.grade == gradeValue?.grade?.grade;
-                    })?.sections ?? []}
-                    value={sectionValue}
+                    options={sectionData || []}
+                    value={sectionValue || ''}
                     disabled={otpGen}
                     onChange={handleSectionChange}
                     autoHighlight

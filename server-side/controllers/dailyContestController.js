@@ -2116,7 +2116,7 @@ exports.creditAmountToWallet = async () => {
                     contest[j].participants[i].tdsAmount = tdsAmount > 0 ? tdsAmount : 0;
                     contest[j].participants[i].herocashPayout = contest[j]?.tdsRelief ? (tdsAmount > 0 ? tdsAmount : 0) : 0;
 
-                    // if (process.env.PROD == 'true') {
+                    if (process.env.PROD == 'true') {
                       try{
                         if(!existingTransaction){
                           console.log(user?.email, 'sent')
@@ -2208,7 +2208,7 @@ exports.creditAmountToWallet = async () => {
                       }catch(e){
                         console.log('error sending mail')
                       }
-                    // }
+                    }
                     if(!existingTransaction){
                       await createUserNotification({
                           title:'TestZone Reward Credited',

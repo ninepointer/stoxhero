@@ -51,8 +51,8 @@ function ReferralRevenue({ period }) {
     }
 
     const rename = (name)=>{
-        const newName = name.split(" ")[0]?.toLowerCase();
-        return newName.charAt(0).toUpperCase() + newName.slice(1);
+        const newName = name?.split(" ")?.[0]?.toLowerCase();
+        return newName?.charAt(0)?.toUpperCase() + newName?.slice(1);
     }
 
     return (

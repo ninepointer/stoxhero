@@ -403,16 +403,16 @@ router.patch("/studentresetpin", async (req, res) => {
   }
 
   if (resetPinOtp != reset?.schoolDetails?.resetPinOtp) {
-    return res.status(401).json({ message: "OTP doesn't match, please try again!" })
+    return res.status(401).json({status: 'error', message: "OTP doesn't match, please try again!" })
   }
 
   if (pin != confirm_pin) {
-    return res.status(401).json({ message: "Pin & Confirm Pin didn't match." })
+    return res.status(401).json({status: 'error', message: "Pin & Confirm Pin didn't match." })
   }
 
   reset.schoolDetails.pin = await bcrypt.hash(pin, 10)
   await reset.save({ validateBeforeSave: false })
-  return res.status(200).json({ message: "Pin Reset Done" })
+  return res.status(200).json({status: 'success', message: "Pin Reset Done" })
 })
 
 router.patch("/generateOTP", async (req, res)=>{
