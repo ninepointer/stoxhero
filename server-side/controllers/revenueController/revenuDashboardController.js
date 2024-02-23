@@ -3977,27 +3977,17 @@ exports.getBonusRevenueSplit = async (req, res, next) => {
       },
       {
         $group: {
-          _id: {},
+          _id: {
+            user: "$userId",
+          },
           amount: {
             $sum: {
               $cond: {
                 if: {
-                  $not: {
-                    $or: [
-                      {
-                        $eq: [
-                          "$transactions.title",
-                          "Sign up Bonus",
-                        ],
-                      },
-                      {
-                        $eq: [
-                          "$transactions.title",
-                          "Tenx Joining Bonus",
-                        ],
-                      },
-                    ],
-                  },
+                  $ne: [
+                    "$transactions.title",
+                    "Sign up Bonus",
+                  ],
                 },
                 then: {
                   $multiply: [
@@ -4013,22 +4003,17 @@ exports.getBonusRevenueSplit = async (req, res, next) => {
             $sum: {
               $cond: {
                 if: {
-                  $or: [
-                    {
-                      $eq: [
-                        "$transactions.title",
-                        "Sign up Bonus",
-                      ],
-                    },
-                    {
-                      $eq: [
-                        "$transactions.title",
-                        "Tenx Joining Bonus",
-                      ],
-                    },
+                  $eq: [
+                    "$transactions.title",
+                    "Sign up Bonus",
                   ],
                 },
-                then: "$transactions.amount",
+                then: {
+                  $multiply: [
+                    "$transactions.amount",
+                    1,
+                  ],
+                },
                 else: 0,
               },
             },
@@ -4036,17 +4021,26 @@ exports.getBonusRevenueSplit = async (req, res, next) => {
         },
       },
       {
-        $sort: {
-          amount: -1,
-        },
+        "$group": {
+          "_id": {},
+          "bonus": { "$sum": "$bonusAmount" },
+          "amount": { "$sum": "$amount" },
+          "actualRevenue": {
+            "$sum": {
+              "$cond": {
+                "if": { "$gt": [{ "$subtract": ["$amount", "$bonusAmount"] }, 0] },
+                "then": { "$subtract": ["$amount", "$bonusAmount"] },
+                "else": 0
+              }
+            }
+          }
+        }
       },
       {
         $project: {
           amount: 1,
-          bonusAmount: 1,
-          actualRevenue: {
-            $subtract: ["$amount", "$bonusAmount"],
-          },
+          bonusAmount: "$bonus",
+          actualRevenue: 1,
           _id: 0,
         },
       },
@@ -5286,7 +5280,7 @@ exports.getReferralRevenueData = async (req, res, next) => {
         const affiliate = item?.affiliate?.toString();
       
         if (!result[affiliate]) {
-          const match = newUsersRevenue.filter(elem=>elem.affiliate.toString() === affiliate?.toString())?.[0];
+          const match = newUsersRevenue.filter(elem=>elem?.affiliate?.toString() === affiliate?.toString())?.[0];
   
           result[affiliate] = {
             total: match?.total || 0,
