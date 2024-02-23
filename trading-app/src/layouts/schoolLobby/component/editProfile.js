@@ -28,6 +28,9 @@ const EditProfile = ({ user, update, setUpdate }) => {
     const [open, setOpen] = React.useState(false);
     const [title, setTitle] = useState('');
     const [image, setImage] = useState(null);
+    const [timeoutId, setTimeoutId] = useState(null);
+    const [sectionData, setSectionData] = useState([]);
+
     const [previewUrl, setPreviewUrl] = useState('');
     const [gradeValue, setGradeValue] = useState({
         grade: {
@@ -59,7 +62,6 @@ const EditProfile = ({ user, update, setUpdate }) => {
         student_name: "" || user?.student_name,
         profilePhoto: "" || user?.schoolDetails?.profilePhoto
     });
-
     const [isFocused, setIsFocused] = useState(false);
     const [dateValue, setDateValue] = useState(user?.schoolDetails?.dob?.toString()?.split("T")?.[0]);
 
@@ -69,6 +71,14 @@ const EditProfile = ({ user, update, setUpdate }) => {
             setIsFocused(false);
         }
     };
+
+    useEffect(() => {
+        setSectionValue('')
+        console.log('setSectionValue', sectionValue)
+        setSectionData(gradeData.find((item) => {
+            return item?.grade?.grade == gradeValue?.grade?.grade;
+        })?.sections ?? [])
+    }, [gradeValue, gradeData])
 
     useEffect(() => {
         searchSchools();
@@ -89,17 +99,17 @@ const EditProfile = ({ user, update, setUpdate }) => {
         setSectionValue();
     }
 
-    const searchSchools = async () => {
-        const res = await axios.post(`${apiUrl}fetchschools`, { cityId: value?._id || user?.schoolDetails?.city?._id, inputString: inputValue });
-        setSchoolsList(res?.data?.data);
+    const searchSchools = async (inputValue) => {
+        if (value?._id) {
+            const res = await axios.post(`${apiUrl}fetchschools`, { cityId: value?._id, inputString: inputValue });
+            setSchoolsList(res?.data?.data);
+        }
     }
 
     const getGrade = async () => {
         const res = await axios.get(`${apiUrl}school/${userSchool?._id || user?.schoolDetails?.school?._id}/usergrades`);
         setGradeData(res?.data?.data);
     }
-
-    const debounceGetSchools = debounce(searchSchools, 1500);
 
     const handleSchoolChange = (event, newValue) => {
         setUserSchool(newValue);
@@ -269,6 +279,19 @@ const EditProfile = ({ user, update, setUpdate }) => {
         setSectionValue(newValue);
     };
 
+    function sendSchoolReq(e) {
+        const value = e?.target?.value ? e.target.value : e;
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+    
+        setTimeoutId(
+          setTimeout(() => {
+            searchSchools(value);
+          }, 500)
+        );
+      }
+
     return (
         <>
             <Tooltip title='Edit Profile' >
@@ -412,9 +435,8 @@ const EditProfile = ({ user, update, setUpdate }) => {
                             }}
                             options={schoolsList || []}
                             value={userSchool}
-
                             onChange={handleSchoolChange}
-                            onInputChange={(e) => { setInputValue(e?.target?.value); debounceGetSchools(); }}
+                            onInputChange={(e) => { sendSchoolReq(e); }}
                             autoHighlight
                             getOptionLabel={(option) => option ? option?.schoolString : 'School'}
                             renderOption={(props, option) => (
@@ -485,14 +507,11 @@ const EditProfile = ({ user, update, setUpdate }) => {
                                     color: 'dark',
                                 },
                             }}
-                            options={gradeData.find((item) => {
-                                return item?.grade?.grade == gradeValue?.grade?.grade;
-                            })?.sections ?? []}
-                            value={sectionValue}
-                            // disabled={otpGen}
+                            options={sectionData || []}
+                            value={sectionValue || ''}
                             onChange={handleSectionChange}
                             autoHighlight
-                            getOptionLabel={(option) => option ? option : 'Section'}
+                            getOptionLabel={(option) => option ? option : ''}
                             renderOption={(props, option) => (
                                 <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                                     {option}

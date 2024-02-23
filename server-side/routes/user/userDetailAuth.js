@@ -17,7 +17,8 @@ const {sendMultiNotifications} = require('../../utils/fcmService');
 const restrictTo = require('../../authentication/authorization');
 const {createUserNotification} = require('../../controllers/notification/notificationController');
 const School = require('../../models/School/School')
-const bcrypt = require("bcryptjs")
+const bcrypt = require("bcryptjs");
+const mongoose = require('mongoose')
 
 
 const storage = multer.memoryStorage();
@@ -877,12 +878,11 @@ router.patch('/student/me', authController.protect, currentUser, uploadMultiple,
       return res.status(404).json({message: 'Please fill all the feilds.'});
     }
 
-    if(!mongoose.Types.ObjectId(grade) || !mongoose.Types.ObjectId(city) || !mongoose.Types.ObjectId(school)){
+    if(!mongoose.Types.ObjectId.isValid(grade) || !mongoose.Types.ObjectId.isValid(city) || !mongoose.Types.ObjectId.isValid(school)){
       return res.status(404).json({message: 'Please fill valid objectId'});
     }
 
     profilePhoto = (profilePhoto==='undefined' || profilePhoto==='null' || profilePhoto==='false' || profilePhoto==='') ? null : profilePhoto;
-    console.log(req.body)
 
       const user = await UserDetail.findById(req.user._id);
   
