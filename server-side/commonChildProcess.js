@@ -186,6 +186,7 @@ async function commonProcess() {
     app.use('/api/v1/cities', require("./routes/city/cityRoutes"));
     app.use('/api/v1/questionbank', require("./routes/QuestionBank/queBankRoutes"));
     app.use('/api/v1/school', require("./routes/School/school"));
+    app.use('/api/v1/courses', require("./routes/courses/courseRoutes"));
 
     const PORT = process.env.PORT || 5002;
     const server = app.listen(PORT);
