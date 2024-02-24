@@ -199,6 +199,8 @@ import QuestionBankDetails from './layouts/questionBank/questionBankDetails';
 import QuestionBank from './layouts/questionBank';
 import SchoolDetails from './layouts/schoolOnboarding/schoolDetails';
 import School from './layouts/schoolOnboarding';
+import CourseDetails from './layouts/courses/courseDetails';
+import Course from './layouts/courses';
 import AllTransaction from './layouts/allWalletTransaction';
 
 
@@ -345,6 +347,19 @@ const routes = [
     icon: <EmojiEventsIcon/>,
     route: "/marginxdashboard",
     component: <MarginXDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Courses",
+    key: "courses",
+    icon: <LocalLibraryIcon/>,
+    route: "/courses",
+    component: <Course />,
+  },
+  {
+    key: "coursedetails",
+    route: "/coursedetails",
+    component: <CourseDetails />,
   },
     {
     type: "collapse",

@@ -12,6 +12,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { FormControl, InputLabel, MenuItem, Select, Typography } from "@mui/material";
 import MDSnackbar from '../../components/MDSnackbar';
 import DeleteIcon from '@mui/icons-material/Delete';
+import UploadImage from '../../assets/images/uploadimage.png'
 
 function Index() {
   const location = useLocation();
