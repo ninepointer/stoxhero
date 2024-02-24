@@ -2037,7 +2037,6 @@ const fetchPnlData = async (userId, id) => {
 }
 
 const dailyContestLeaderBoard = async (contestData) => {
-    console.log("contestData", contestData);
     const id = contestData._id?.toString();
     //finding data for new participates
     const contest = await DailyContest.findOne({ _id: new ObjectId(id) })
@@ -2296,7 +2295,6 @@ async function processContestQueue() {
     const endTime = new Date(currentTime);
     endTime.setHours(9, 48, 0, 0);
 
-    //todo-vijay
    if (currentTime >= startTime && currentTime <= endTime) {
 
         // If the queue is empty, reset the processing flag and return
@@ -2334,7 +2332,6 @@ exports.sendMyRankData = async () => {
                 const endTime = new Date(currentTime);
                 endTime.setHours(9, 48, 0, 0);
 
-                //todo-vijay
                if (currentTime >= startTime && currentTime <= endTime) {
                     const contest = await DailyContest.find({ contestStatus: "Active", contestStartTime: { $lte: new Date() } });
 

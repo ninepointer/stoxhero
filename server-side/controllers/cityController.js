@@ -104,6 +104,7 @@ exports.getCityById = async (req, res) => {
 };
 
 exports.getCityByState = async (req, res) => {
+    
     const { state } = req.params;
     console.log(state);
     try {

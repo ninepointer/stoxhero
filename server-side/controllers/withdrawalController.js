@@ -100,7 +100,7 @@ exports.createWithdrawal = async(req,res,next) => {
     const currentDate = new Date();
     const currentDateTime = new Date(currentDate.setDate(currentDate.getDate() - 1));
     currentDateTime.setHours(18, 30, 00, 0);
-    console.log('dates', tomorrowDate, currentDate);
+
     const withdrawals = await Withdrawal.find({
     user: user?._id,
     $and: [
@@ -108,12 +108,12 @@ exports.createWithdrawal = async(req,res,next) => {
         { withdrawalRequestDate: { $gte: currentDate } }
     ]
     });
-    console.log('found', withdrawals);
+
     if (withdrawals.length > 0) {
         return res.status(400).json({status:'error', message:'Only one withdrawal can be made in a day. Try again tomorrow.'})
     }
     const appSettings = await Settings.findOne({});
-    console.log('app settings', appSettings, appSettings?.maxWithdrawal);
+
     const userWallet = await Wallet.findOne({userId});
     // const walletBalance = userWallet?.transactions.reduce((acc, obj) => (acc + obj.amount), 0);
     const walletBalance = userWallet?.transactions
@@ -129,7 +129,7 @@ exports.createWithdrawal = async(req,res,next) => {
     if(amount<appSettings.minWithdrawal){
         return res.status(400).json({status:'error', message:`The minimum amount that can be withdrawn is ₹${appSettings.minWithdrawal}`});
     }
-    console.log('checking', walletBalance, appSettings?.walletBalanceUpperLimit, appSettings?.maxWithdrawalHigh, appSettings.maxWithdrawal);
+
     if(walletBalance >= appSettings?.walletBalanceUpperLimit){
         if(amount>walletBalance - appSettings?.maxWithdrawalHigh && amount > appSettings?.maxWithdrawal){
             return res.status(400).json({status:'error', message:`The maximum amount that can be withdrawn is ₹${(Math.max(walletBalance-appSettings?.maxWithdrawalHigh, appSettings?.maxWithdrawal)).toFixed(2)}`});

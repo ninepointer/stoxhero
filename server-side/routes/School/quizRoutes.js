@@ -1,7 +1,9 @@
 const express = require('express');
 const Authenticate = require('../../authentication/authentication');
+const {SchoolAuthenticate} = require('../../authentication/schoolAuthentication');
 const restrictTo = require('../../authentication/authorization');
 const quizController = require('../../controllers/school/quizController');
+const response = require('./responseRoute')
 const router = express.Router();
 
 const multer = require('multer');
@@ -17,6 +19,8 @@ const fileFilter = (req, file, cb) => {
 };
 
 const upload = multer({ storage: storage, fileFilter: fileFilter });
+
+router.use('/response', response);
 
 router.post(
     '/', Authenticate, restrictTo('Admin', 'SuperAdmin'),
@@ -50,10 +54,16 @@ router.get(
 );
 
 router.get(
+    '/school', SchoolAuthenticate,
+    quizController.getAllQuizzesForSchool
+);
+
+router.get(
     '/user/my', Authenticate,
     quizController.getMyQuizzesForUser
 );
 
+//todo-vijay add authentication
 router.get(
     '/:id', Authenticate,
     quizController.getQuizForUser

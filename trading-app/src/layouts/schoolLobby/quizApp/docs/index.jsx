@@ -1,35 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import Quiz from '../lib/Quiz';
-// import formatData from './quiz';
+// import Quiz from '../lib/Quiz';
+import Quiz from '../helper/Quiz';
+import formatData from './quiz';
 import axios from 'axios';
 import { apiUrl } from '../../../../constants/constants';
-import quiz from './quiz';
+// import quiz from './quiz';
 
 function Cover() {
-  const [data, setData] = useState();
-  const [quizResult, setQuizResult] = useState();
+  const [quizResult, setQuizResult] = useState({});
+  const id = "65d470cf0f3ddaecf5ffca39";
+  useEffect(() => {
+    // initiateQuiz();
+    fetchData();
+  }, [])
 
-  // useEffect(()=>{
+  async function fetchData() {
+    try {
+      const initiate = await axios.post(`${apiUrl}quiz/response/${id}`, null, { withCredentials: true });
+    } catch (err) {
 
-  // }, [])
+    }
 
-  // async function fetchData(){
-  //   const data = await axios.get(`${apiUrl}quiz/`)
-  // }
+    const data = await axios.get(`${apiUrl}quiz/${id}`, { withCredentials: true });
+    const question = await axios.get(`${apiUrl}quiz/response/${id}`, { withCredentials: true });
+    const quizData = formatData(data?.data?.data, question?.data?.data?.questions, question?.data?.data?.responses)
+    setQuizResult(quizData);
+  }
+
+  console.log('quizResult', quizResult)
   return (
-    <div style={{ margin: 'auto', width: '500px' }}>
-      <Quiz
-        quiz={quiz}
-        shuffle
-        shuffleAnswer
-        showInstantFeedback
-      // continueTillCorrect
-        onComplete={setQuizResult}
-        onQuestionSubmit={(obj) => console.log('user question results:', obj)}
-        disableSynopsis
-        timer={60}
-        allowPauseTimer
-      />
+    <div >
+      {quizResult.timer &&
+        <Quiz
+          quiz={quizResult}
+          // shuffle
+          // shuffleAnswer
+          // showInstantFeedback
+          // continueTillCorrect
+          // onComplete={setQuizResult}
+          // onQuestionSubmit={(obj) => console.log('user question results:', obj)}
+          // disableSynopsis
+          timer={quizResult?.timer}
+        // allowPauseTimer
+        />}
     </div>
   );
 }

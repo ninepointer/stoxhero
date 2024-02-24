@@ -138,7 +138,7 @@ function Cover() {
               style={{ overflow: 'visible' }}
             >
               <MDTypography variant='caption' style={{ fontFamily: 'Work Sans , sans-serif' }}>
-                Class: {user?.schoolDetails?.grade || 'Your Grade'}
+                Class: {user?.schoolDetails?.grade?.grade || 'Your Grade'}
               </MDTypography>
             </Grid>
             <Grid
@@ -195,13 +195,11 @@ function Cover() {
 
         <Grid container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{zIndex:0, overflow: 'visible' }}>
         <Grid p={.5} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{backgroundColor:'#D5F47E', borderRadius:10}}>
-            <MDTypography variant='h6' style={{fontFamily: 'Work Sans , sans-serif'}}>My Olympiad(s)</MDTypography>
+            <MDTypography variant='h6' style={{fontFamily: 'Work Sans , sans-serif'}}>My Challenge(s)</MDTypography>
         </Grid>
         </Grid>
 
         <MyOlympiad update={update} />
-
-
 
         <UpComing setUpdate={setUpdate} update={update}/>
       </MDBox>

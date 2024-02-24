@@ -30,6 +30,9 @@ const {ObjectId} = require('mongodb')
 const { promisify } = require('util');
 const {client} = require("../../marketData/redisClient");
 const School = require('../../models/School/School');
+const bcrypt = require("bcryptjs")
+
+
 
 router.get("/send", async (req, res) => {
     // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'direct_signup_campaign_new', userName : "vijay", source : "vijay", media : {url : mediaURL, filename : mediaFileName}, templateParams : ["newuser.first_name"], tags : '', attributes : ''});
@@ -160,13 +163,13 @@ router.get("/send", async (req, res) => {
 })
 
 router.post("/schoolsignup", async (req, res) => {
-    const { mobile, student_name, city, parents_name, grade, school,dob ,state} = req.body;
+    const { mobile, student_name, city, parents_name, grade, school,dob ,state, section} = req.body;
 
     const schoolDetails = {
-        parents_name, grade, school, dob, city, state
+        parents_name, grade, school, dob, city, state, section
     }
 
-    if (!mobile || !student_name || !city || !parents_name || !grade || !school) {
+    if (!mobile || !student_name || !city || !parents_name || !grade || !school || !section) {
         return res.status(400).json({ status: 'error', message: "Please fill all fields to proceed." })
     }
     const isExistingUser = await User.findOne({ mobile: mobile })
@@ -217,81 +220,48 @@ router.post("/schoolsignup", async (req, res) => {
         
     } catch (err) { console.log(err); res.status(500).json({ message: 'Something went wrong', status: "error" }) }
 })
-const getAsync = promisify(client.get).bind(client);
-const setAsync = promisify(client.set).bind(client);
-
-// router.post('/fetchschools', async (req, res) => {
-//     const { inputString, stateName, cityName } = req.body;
-
-//     try {
-//         // Check if data for the state is already cached
-//         let stateData = await client.get(`stateSchools-${stateName}`);
-
-//         if (!stateData) {
-//             // Data not in cache, fetch from database and cache it
-//             const dataFromDB = await School.find({state: stateName}).select('_id school_name city');
-//             await client.set(`stateSchools-${stateName}`, JSON.stringify(dataFromDB));
-//             stateData = JSON.stringify(dataFromDB);
-//             console.log('new state data', stateData);
-//         }
-
-//         // Parse the data to filter based on the input string
-//         // const filteredData = JSON.parse(stateData).filter(school => 
-//         //     school.school_name.toLowerCase().includes(inputString.toLowerCase()));
-//         const filteredData = JSON.parse(stateData).filter(school =>
-//             school?.school_name?.toLowerCase().includes(inputString?.toLowerCase())
-//         ).map(school => {
-//             // Determine the city or use stateName if city is not available
-//             const cityOrState = school?.city ? school?.city?.split(',')[0] : stateName;
-            
-//             return {
-//                 ...school, // Spread the rest of the school object
-//                 schoolString: `${school?.school_name}, ${cityOrState}` // Construct the schoolString with city or stateName
-//             };
-//         });        
-//         res.json(filteredData);
-//     } catch (error) {
-//         console.error('Error fetching data:', error);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
 
 router.post('/fetchschools', async (req, res) => {
-    const { inputString, stateName, cityName } = req.body;
+    const { inputString, cityId } = req.body;
 
     try {
         // Check if data for the state is already cached
-        let cityData = await client.get(`citySchools-${cityName}`);
+        let cityData = await client.get(`citySchools-${cityId}`);
+        cityData = JSON.parse(cityData)
 
-        if (!cityData) {
+        console.log('cityData', cityData, cityId)
+
+        if (!cityData?.length) {
             // Data not in cache, fetch from database and cache it
-            const dataFromDB = await School.find({city: cityName}).select('_id school_name city state address');
-            await client.set(`citySchools-${cityName}`, JSON.stringify(dataFromDB));
-            cityData = JSON.stringify(dataFromDB);
-            console.log('new city data', cityData);
+            const dataFromDB = await School.find({isOnboarding: true, city: new ObjectId(cityId)})
+            .populate('city', 'name')
+            .select('_id school_name city state address');
+
+            console.log("dataFromDB", dataFromDB)
+            await client.set(`citySchools-${cityId}`, JSON.stringify(dataFromDB));
+            await client.expire(`citySchools-${cityId}`, 600);
+            // cityData = JSON.stringify(dataFromDB);
         }
 
         // Parse the data to filter based on the input string
-        // const filteredData = JSON.parse(stateData).filter(school => 
-        //     school.school_name.toLowerCase().includes(inputString.toLowerCase()));
-        const filteredData = JSON.parse(cityData).filter(school =>
-            school?.school_name?.toLowerCase().includes(inputString?.toLowerCase())
+        const filteredData = (cityData)?.filter(school =>
+            school?.school_name?.toLowerCase()?.includes(inputString?.toLowerCase())
         ).map(school => {
             // Determine the city or use stateName if city is not available
-            const cityOrState = school?.city ? school?.city?.split(',')[0] : cityName;
+            const cityOrState = school?.city?.name
+            //  ? school?.city?.split(',')[0] : cityName;
             
             return {
                 ...school, // Spread the rest of the school object
                 schoolString: `${school?.school_name}, ${cityOrState}` // Construct the schoolString with city or stateName
             };
-        });        
-        res.json(filteredData);
+        });    
+        res.status(201).json({status: 'success', data: filteredData });
     } catch (error) {
         console.error('Error fetching data:', error);
         res.status(500).send('Internal Server Error');
     }
 });
-
 
 router.post("/signupintent", async (req, res) => {
     const { mobile } = req.body;
@@ -424,11 +394,11 @@ router.patch("/verifyotp", async (req, res) => {
         fcmTokenData,
         collegeDetails,
         parents_name, school, grade,
-        dob, state
+        dob, state, section, pin
     } = req.body
 
     const schoolDetails = {
-        parents_name, school, grade, city, dob, state
+        parents_name, school, grade, city, dob, state, section, pin: await bcrypt.hash(pin, 10)
     }
 
     const user = await SignedUpUser.findOne({ mobile: mobile })
@@ -438,6 +408,8 @@ router.patch("/verifyotp", async (req, res) => {
             message: "User with this mobile number doesn't exist"
         })
     }
+
+
     //removed email otp check
     if (user.mobile_otp != mobile_otp) {
         return res.status(400).json({
@@ -446,27 +418,27 @@ router.patch("/verifyotp", async (req, res) => {
         })
     }
 
-    const checkUser = await User.findOne({mobile:user?.mobile});
+    const checkUser = await User.findOne({ mobile: user?.mobile });
 
-    if(checkUser && parents_name && school && grade){
+    if (checkUser && parents_name && school && grade) {
         checkUser.schoolDetails = schoolDetails;
         checkUser.student_name = student_name;
-        await checkUser.save({validateBeforeSave: false, new: true});
+        await checkUser.save({ validateBeforeSave: false, new: true });
 
-        const newuser = await User.findOne({_id: new ObjectId(checkUser?._id)}).populate('schoolDetails.city', 'name').populate('schoolDetails.school', 'school_name');
+        const newuser = await User.findOne({ _id: new ObjectId(checkUser?._id) }).populate('schoolDetails.city', 'name').populate('schoolDetails.school', 'school_name');
         const token = await newuser.generateAuthToken();
 
         res.cookie("jwtoken", token, {
             expires: new Date(Date.now() + 25892000000),
-        }); 
-        return res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials.", token: token});
+        });
+        return res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials.", token: token });
     }
-    if(checkUser && !checkUser?.collegeDetails?.college && collegeDetails){
+    if (checkUser && !checkUser?.collegeDetails?.college && collegeDetails) {
         checkUser.collegeDetails = collegeDetails;
-        const newuser = await checkUser.save({validateBeforeSave: false, new: true});
-        return res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials."});
+        const newuser = await checkUser.save({ validateBeforeSave: false, new: true });
+        return res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials." });
     }
-    if(checkUser){
+    if (checkUser) {
         return res.status(400).json({
             status: 'error',
             message: "Account already exists with this mobile number."
@@ -474,31 +446,32 @@ router.patch("/verifyotp", async (req, res) => {
     }
 
 
+
     let referredBy;
     let campaign;
     if (referrerCode) {
         const referrerCodeMatch = await User.findOne({ myReferralCode: referrerCode });
         const campaignCodeMatch = await Campaign.findOne({ campaignCode: referrerCode });
-        
+
         if (!referrerCodeMatch && !campaignCodeMatch) {
             return res.status(404).json({ status: 'error', message: "No such referrer code exists. Please enter a valid referrer code" });
         }
 
         user.status = 'OTP Verified'
         user.last_modifiedOn = new Date()
-        await user.save({validateBeforeSave: false});
+        await user.save({ validateBeforeSave: false });
         if (referrerCodeMatch) { referredBy = referrerCodeMatch?._id; }
-        if (campaignCodeMatch) { campaign = campaignCodeMatch; referrerCode=referrerCode}
+        if (campaignCodeMatch) { campaign = campaignCodeMatch; referrerCode = referrerCode }
     }
     user.status = 'OTP Verified';
     user.last_modifiedOn = new Date();
-    await user.save({validateBeforeSave: false});
+    await user.save({ validateBeforeSave: false });
 
     const myReferralCode = await generateUniqueReferralCode();
     // const count = await User.countDocuments();
     let userId = email?.split('@')[0]
     let userIds = await User.find({ employeeid: userId })
-   
+
     if (userIds?.length > 0) {
         userId = userId?.toString() + (userIds?.length + 1).toString()
     }
@@ -508,11 +481,11 @@ router.patch("/verifyotp", async (req, res) => {
     let referral;
     if (referredBy) {
         const checkAffiliate = await AffiliatePrograme.find().
-        populate('affiliates.userId', 'myReferralCode');
+            populate('affiliates.userId', 'myReferralCode');
 
-        for(let elem of checkAffiliate){
-            match = elem?.affiliates?.some((subelem)=> (subelem?.userId?.myReferralCode === referrerCode && subelem?.affiliateStatus === "Active"));
-            if(match){
+        for (let elem of checkAffiliate) {
+            match = elem?.affiliates?.some((subelem) => (subelem?.userId?.myReferralCode === referrerCode && subelem?.affiliateStatus === "Active"));
+            if (match) {
                 affiliateObj = elem;
                 break;
             }
@@ -534,15 +507,15 @@ router.patch("/verifyotp", async (req, res) => {
     try {
         let creation;
 
-        if(grade && school){
+        if (grade && school) {
             creation = "School SignUp";
-        }else if(campaign){
+        } else if (campaign) {
             creation = "Campaign SignUp";
-        } else if(referredBy && !match){
+        } else if (referredBy && !match) {
             creation = 'Referral SignUp';
-        } else if(match){
+        } else if (match) {
             creation = "Affiliate SignUp";
-        } else{
+        } else {
             creation = "Auto SignUp";
         }
         let obj = {
@@ -563,96 +536,101 @@ router.patch("/verifyotp", async (req, res) => {
             campaignCode: campaign && referrerCode,
             referredBy: referredBy && referredBy,
             creationProcess: creation,
-            collegeDetails: collegeDetails || "",
+            collegeDetails: collegeDetails || null,
             affiliateProgramme: match ? affiliateObj?._id : null
         }
 
-        if(dob){
+        if (dob) {
             obj.dob = dob;
         }
 
-        if(fcmTokenData){
+        if (grade) {
+            const firstName = student_name.split(' ')[0];
+            const day = new Date(dob).getDate().toString().padStart(2, '0');
+            const month = (new Date(dob).getMonth() + 1).toString().padStart(2, '0');
+            const year = new Date(dob).getFullYear();
+            obj.employeeid = firstName + day + month + year;
+        }
+
+        if (fcmTokenData) {
             fcmTokenData.lastUsedAt = new Date();
             obj.fcmTokens = [fcmTokenData];
         }
-        // console.log('password', password);
-        // if(password){
-        //     obj.password = password;
-        // }
 
-        const newuser = await User.create(obj);
+
+        const newuser = await User.updateOne({ mobile: mobile }, { $setOnInsert: obj }, { upsert: true });
+
+        if (newuser.matchedCount > 0) {
+            return res.status(400).json({
+                status: 'error',
+                message: "Account already exists with this mobile number."
+            })
+        }
+
         await UserWallet.create(
             {
-                userId: newuser._id,
+                userId: newuser.upsertedId,
                 createdOn: new Date(),
-                createdBy: newuser._id
-        })
-        const populatedUser = await User.findById(newuser._id).populate('role', 'roleName')
-        .populate('portfolio.portfolioId','portfolioName portfolioValue portfolioType portfolioAccount')
-        .populate({
-            path : 'subscription.subscriptionId',
-            select: 'portfolio',
-            populate: [{
-                path: 'portfolio',
-                select: 'portfolioName portfolioValue portfolioType portfolioAccount'
-            },
-            ]
-        })
-        .populate({
-            path: 'internshipBatch',
-            select: 'batchName batchStartDate batchEndDate career portfolio participants',
-            populate: [{
-                path: 'career',
-                select: 'jobTitle'
-            },
-            {
-                path: 'portfolio',
-                select: 'portfolioValue'
-            },
-            {
-                path: 'participants',
-                populate: {
-                    path: 'college',
-                    select: 'collegeName'
+                createdBy: newuser.upsertedId
+            })
+        const populatedUser = await User.findById(newuser.upsertedId).populate('role', 'roleName')
+            .populate('portfolio.portfolioId', 'portfolioName portfolioValue portfolioType portfolioAccount')
+            .populate({
+                path: 'subscription.subscriptionId',
+                select: 'portfolio',
+                populate: [{
+                    path: 'portfolio',
+                    select: 'portfolioName portfolioValue portfolioType portfolioAccount'
+                },
+                ]
+            })
+            .populate({
+                path: 'internshipBatch',
+                select: 'batchName batchStartDate batchEndDate career portfolio participants',
+                populate: [{
+                    path: 'career',
+                    select: 'jobTitle'
+                },
+                {
+                    path: 'portfolio',
+                    select: 'portfolioValue'
+                },
+                {
+                    path: 'participants',
+                    populate: {
+                        path: 'college',
+                        select: 'collegeName'
+                    }
                 }
-            }
-        ],
-          })
-          .populate('schoolDetails.city', 'name')
-          .populate('schoolDetails.school', 'school_name')
-        .select('student_name schoolDetails full_name city dob pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
-        const token = await newuser.generateAuthToken();
+                ],
+            })
+            .populate('schoolDetails.city', 'name')
+            .populate('schoolDetails.school', 'school_name')
+            .populate('schoolDetails.grade', 'grade')
+            .select('student_name schoolDetails full_name city dob pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
+        const token = await populatedUser.generateAuthToken();
 
-        // console.log("Token:",token)
+        console.log("Token:", token)
 
         res.cookie("jwtoken", token, {
             expires: new Date(Date.now() + 25892000000),
-        });    
-       
+        });
+
         // console.log("res:",res)
         res.status(201).json({ status: "Success", data: populatedUser, message: "Welcome! Your account is created, please login with your credentials.", token: token });
-        
-        // now inserting userId in free portfolio's
-        const idOfUser = newuser._id;
-        // for (const portfolio of activeFreePortfolios) {
-        //     const portfolioValue = portfolio.portfolioValue;
 
-        //     await PortFolio.findByIdAndUpdate(
-        //         portfolio._id,
-        //         { $push: { users: { userId: idOfUser, portfolioValue: portfolioValue } } }
-        //     );
-        // }
+        // now inserting userId in free portfolio's
 
         //inserting user details to referredBy user and updating wallet balance
         if (referredBy) {
-            if(match){
+            if (match) {
                 let referrerCodeMatch = await User.findOne({ myReferralCode: referrerCode });
                 const updateProgramme = await AffiliatePrograme.findOneAndUpdate(
                     { _id: new ObjectId(affiliateObj?._id) },
                     {
                         $push: {
                             referrals: {
-                                userId: newuser._id,
+                                userId: newuser.upsertedId,
                                 joinedOn: new Date(),
                                 affiliateUserId: referrerCodeMatch?._id
                             }
@@ -660,12 +638,12 @@ router.patch("/verifyotp", async (req, res) => {
                     },
 
                     { new: true, validateBeforeSave: false }
-                  );
-                  
+                );
+
                 //   console.log("updateProgramme",updateProgramme)
-                // affiliateObj?.referrals?.push({ userId: newuser._id, joinedOn: new Date(), affiliateUserId: referrerCodeMatch?._id})
+                // affiliateObj?.referrals?.push({ userId: newuser.upsertedId, joinedOn: new Date(), affiliateUserId: referrerCodeMatch?._id})
                 await affiliateObj.save();
-    
+
                 if (referrerCode) {
 
                     const saveAffiliate = await User.findOneAndUpdate(
@@ -673,43 +651,43 @@ router.patch("/verifyotp", async (req, res) => {
                         {
                             $push: {
                                 affiliateReferrals: {
-                                    referredUserId : newuser._id,
-                                    joiningDate : newuser.createdOn,
-                                    affiliateProgram : affiliateObj._id,
-                                    affiliateEarning : affiliateObj.rewardPerSignup,
-                                    affiliateCurrency : affiliateObj.currency
-                              }
+                                    referredUserId: newuser.upsertedId,
+                                    joiningDate: populatedUser.createdOn,
+                                    affiliateProgram: affiliateObj._id,
+                                    affiliateEarning: affiliateObj.rewardPerSignup,
+                                    affiliateCurrency: affiliateObj.currency
+                                }
                             }
-                          },
-                      );
+                        },
+                    );
 
-                    if(affiliateObj?.referralSignupBonus?.amount){
-                        await addSignupBonus(newuser?._id, affiliateObj?.referralSignupBonus?.amount, affiliateObj?.referralSignupBonus?.currency);
+                    if (affiliateObj?.referralSignupBonus?.amount) {
+                        await addSignupBonus(newuser?.upsertedId, affiliateObj?.referralSignupBonus?.amount, affiliateObj?.referralSignupBonus?.currency);
                     }
                     await referrerCodeMatch.save({ validateBeforeSave: false });
 
                     const wallet = await UserWallet.findOneAndUpdate(
-                        { userId: referrerCodeMatch._id },
+                        { userId: new ObjectId(referrerCodeMatch._id) },
                         {
-                          $push: {
-                            transactions: {
-                              title: 'Affiliate Signup Credit',
-                              description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
-                              amount: affiliateObj.rewardPerSignup,
-                              transactionId: uuid.v4(),
-                              transactionDate: new Date(),
-                              transactionType: affiliateObj.currency === 'INR' ? 'Cash' : 'Bonus'
+                            $push: {
+                                transactions: {
+                                    title: 'Affiliate Signup Credit',
+                                    description: `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
+                                    amount: affiliateObj.rewardPerSignup,
+                                    transactionId: uuid.v4(),
+                                    transactionDate: new Date(),
+                                    transactionType: affiliateObj.currency === 'INR' ? 'Cash' : 'Bonus'
+                                }
                             }
-                          }
                         },
                         { new: true, validateBeforeSave: false }
-                      );
-                      
-                      // Access the updated wallet document using the 'wallet' variable
+                    );
+
+                    // Access the updated wallet document using the 'wallet' variable
 
                     await createUserNotification({
                         title: 'Affiliate Signup Credit',
-                        description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                        description: `Amount credited for referral of ${populatedUser.first_name} ${populatedUser.last_name}`,
                         notificationType: 'Individual',
                         notificationCategory: 'Informational',
                         productCategory: 'SignUp',
@@ -718,57 +696,48 @@ router.patch("/verifyotp", async (req, res) => {
                         channels: ['App', 'Email'],
                         createdBy: '63ecbc570302e7cf0153370c',
                         lastModifiedBy: '63ecbc570302e7cf0153370c'
-                      });
-                      if (user?.fcmTokens?.length > 0) {
+                    });
+                    if (user?.fcmTokens?.length > 0) {
                         await sendMultiNotifications('Affiliate Signup Credit',
-                          `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
-                          referrerCodeMatch?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
+                            `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
+                            referrerCodeMatch?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
                         )
-                      }
-                     
-                      await AffiliateTransaction.create({
+                    }
+
+                    await AffiliateTransaction.create({
                         affiliateProgram: new ObjectId(affiliateObj?._id),
                         affiliateWalletTId: uuid.v4(),
                         product: new ObjectId("6586e95dcbc91543c3b6c181"),
                         specificProduct: new ObjectId("6586e95dcbc91543c3b6c181"),
                         productActualPrice: 0,
                         productDiscountedPrice: 0,
-                        buyer: new ObjectId(newuser?._id),
+                        buyer: new ObjectId(newuser?.upsertedId),
                         affiliate: new ObjectId(referrerCodeMatch._id),
                         lastModifiedBy: new ObjectId(referrerCodeMatch._id),
                         affiliatePayout: affiliateObj.rewardPerSignup
-                      })
+                    })
                 }
-            } else{
-                // referral?.users?.push({ userId: newuser._id, joinedOn: new Date() })
+            } else {
+                // referral?.users?.push({ userId: newuser.upsertedId, joinedOn: new Date() })
                 await referral.save();
-                
+
                 const referralProgramme = await Referral.findOneAndUpdate({ status: "Active" }, {
                     $push: {
                         users: {
-                            userId: newuser._id, 
+                            userId: newuser.upsertedId,
                             joinedOn: new Date()
                         }
                     }
                 })
-    
-                if (referrerCode) {
-                    // let referrerCodeMatch = await User.findOne({ myReferralCode: referrerCode });
-                    // referrerCodeMatch.referrals = [...referrerCodeMatch.referrals, {
-                    //     referredUserId: newuser._id,
-                    //     joining_date: newuser.createdOn,
-                    //     referralProgram: referralProgramme._id,
-                    //     referralEarning: referralProgramme.rewardPerReferral,
-                    //     referralCurrency: referralProgramme.currency,
-                    // }];
 
+                if (referrerCode) {
                     const saveReferrals = await User.findOneAndUpdate(
                         { myReferralCode: referrerCode },
                         {
                             $push: {
                                 referrals: {
-                                    referredUserId: newuser._id,
-                                    joiningDate: newuser.createdOn,
+                                    referredUserId: newuser.upsertedId,
+                                    joiningDate: populatedUser?.createdOn,
                                     referralProgram: referralProgramme._id,
                                     referralEarning: referralProgramme.rewardPerReferral,
                                     referralCurrency: referralProgramme.currency,
@@ -777,17 +746,17 @@ router.patch("/verifyotp", async (req, res) => {
                         },
                     );
 
-                    if(referralProgramme?.referralSignupBonus?.amount){
-                        await addSignupBonus(newuser?._id, referralProgramme?.referralSignupBonus?.amount, referralProgramme?.referralSignupBonus?.currency);
+                    if (referralProgramme?.referralSignupBonus?.amount) {
+                        await addSignupBonus(newuser?.upsertedId, referralProgramme?.referralSignupBonus?.amount, referralProgramme?.referralSignupBonus?.currency);
                     }
                     // await referrerCodeMatch.save({ validateBeforeSave: false });
                     const wallet = await UserWallet.findOneAndUpdate(
-                        { userId: saveReferrals._id },
+                        { userId: new ObjectId(saveReferrals._id) },
                         {
                             $push: {
                                 transactions: {
                                     title: 'Referral Credit',
-                                    description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                                    description: `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
                                     amount: referralProgramme.rewardPerReferral,
                                     transactionId: uuid.v4(),
                                     transactionDate: new Date(),
@@ -798,20 +767,9 @@ router.patch("/verifyotp", async (req, res) => {
                         { new: true, validateBeforeSave: false }
                     );
 
-                    // const wallet = await UserWallet.findOne({ userId: saveReferrals._id });
-                    // wallet.transactions = [...wallet.transactions, {
-                    //     title: 'Referral Credit',
-                    //     description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
-                    //     amount: referralProgramme.rewardPerReferral,
-                    //     transactionId: uuid.v4(),
-                    //     transactionDate: new Date(),
-                    //     transactionType: referralProgramme.currency == 'INR' ? 'Cash' : 'Bonus'
-                    // }];
-                    // await wallet.save({ validateBeforeSave: false });
-
                     await createUserNotification({
                         title: 'Referral Signup Credit',
-                        description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                        description: `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
                         notificationType: 'Individual',
                         notificationCategory: 'Informational',
                         productCategory: 'SignUp',
@@ -820,22 +778,22 @@ router.patch("/verifyotp", async (req, res) => {
                         channels: ['App', 'Email'],
                         createdBy: '63ecbc570302e7cf0153370c',
                         lastModifiedBy: '63ecbc570302e7cf0153370c'
-                      });
-                      if (user?.fcmTokens?.length > 0) {
+                    });
+                    if (user?.fcmTokens?.length > 0) {
                         await sendMultiNotifications('Referral Signup Credit',
-                          `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
-                          saveReferrals?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
+                            `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
+                            saveReferrals?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
                         )
-                      }
+                    }
                 }
             }
         }
 
         if (campaign) {
-            campaign?.users?.push({ userId: newuser._id, joinedOn: new Date() })
+            campaign?.users?.push({ userId: newuser.upsertedId, joinedOn: new Date() })
             await campaign.save();
             // if(campaign?.campaignType == 'Invite'){
-                await addSignupBonus(newuser?._id, campaign?.campaignSignupBonus?.amount ?? 90, campaign?.campaignSignupBonus?.currency ?? 'INR');
+            await addSignupBonus(newuser?.upsertedId, campaign?.campaignSignupBonus?.amount ?? 90, campaign?.campaignSignupBonus?.currency ?? 'INR');
             // }
         }
 
@@ -845,7 +803,7 @@ router.patch("/verifyotp", async (req, res) => {
         // let email = newuser.email;
         let subject = "Welcome to StoxHero - Learn, Trade, and Earn!";
         let message =
-        `
+            `
         <!DOCTYPE html>
             <html>
             <head>
@@ -915,7 +873,7 @@ router.patch("/verifyotp", async (req, res) => {
             <body>
                 <div class="container">
                 <h1>Account Created</h1>
-                <p>Dear ${newuser.first_name} ${newuser.last_name},</p>
+                <p>Dear ${populatedUser?.first_name} ${populatedUser?.last_name},</p>
                 <p>Welcome to the StoxHero family!</p>
                 
                 <p>Discover Stock Market success with our Paper Trading &amp; Learning App. Experience real market data, actionable insights, and a clutter-free interface on both our mobile app and web platform.</p>
@@ -963,27 +921,32 @@ router.patch("/verifyotp", async (req, res) => {
             </html>
 
         `
-        if(process.env.PROD == 'true'){
-            await emailService(newuser.email, subject, message);
+        
+        if (process.env.PROD == 'true') {
+            try {
+                await emailService(populatedUser?.email, subject, message);
+            } catch (err) {
+                console.log(err);
+            }
         }
 
-        if(process.env.PROD == 'true'){
-            await whatsAppService.sendWhatsApp({destination : newuser.mobile, campaignName : 'direct_signup_campaign_new', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
-        }
-        else {
-            whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'direct_signup_campaign_new', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
-            whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'direct_signup_campaign_new', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
-        }
+        // if(process.env.PROD == 'true'){
+        //     await whatsAppService.sendWhatsApp({destination : newuser.mobile, campaignName : 'direct_signup_campaign_new', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
+        // }
+        // else {
+        //     whatsAppService.sendWhatsApp({destination : '9319671094', campaignName : 'direct_signup_campaign_new', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
+        //     whatsAppService.sendWhatsApp({destination : '8076284368', campaignName : 'direct_signup_campaign_new', userName : newuser.first_name, source : newuser.creationProcess, media : {url : mediaURL, filename : mediaFileName}, templateParams : [newuser.first_name], tags : '', attributes : ''});
+        // }
     }
     catch (error) {
         console.log(error);
-        res.status(500).json({status:'error', message:'Something wenr wrong', error: error.message})
+        res.status(500).json({ status: 'error', message: 'Something wenr wrong', error: error.message })
     }
 })
 
 const addSignupBonus = async (userId, amount, currency) => {
-    const wallet = await UserWallet.findOne({userId:userId});
-    console.log("Wallet, Amount, Currency:",wallet, userId, amount, currency)
+    const wallet = await UserWallet.findOne({userId: new ObjectId(userId)});
+    // console.log("Wallet, Amount, Currency:",wallet, userId, amount, currency)
     try{
         wallet?.transactions?.push({
             title: 'Sign up Bonus',
@@ -994,7 +957,7 @@ const addSignupBonus = async (userId, amount, currency) => {
             transactionType: currency
         });
         await wallet?.save({validateBeforeSave:false});
-        console.log("Saved Wallet:",wallet)
+        // console.log("Saved Wallet:",wallet)
     }catch(e){
         console.log(e);
     }

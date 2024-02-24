@@ -210,6 +210,7 @@ function Quiz({
 
       {start && (
         <Core
+          quizId={quiz.quizId}
           questions={questions}
           showDefaultResult={showDefaultResult}
           onComplete={onComplete}

@@ -32,14 +32,14 @@ const quizSchema = new mongoose.Schema({
         prize:{type:Schema.Types.Mixed},
         prizeValue: {type: Number}
     }],
-    questions:[{
-        questionId:{type:Schema.Types.ObjectId},
-        title:{type:String},
-        type:{type:String, enum:['Single Correct','Multiple Correct']},
-        questionImage:{type:String},
-        score:{type:Number},
-        options:[{optionKey:String,optionText:String,optionImage:String,isCorrect:Boolean}],
-    }],
+    // questions:[{
+    //     questionId:{type:Schema.Types.ObjectId},
+    //     title:{type:String},
+    //     type:{type:String, enum:['Single Correct','Multiple Correct']},
+    //     questionImage:{type:String},
+    //     score:{type:Number},
+    //     options:[{optionKey:String,optionText:String,optionImage:String,isCorrect:Boolean}],
+    // }],
     registrations:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         registeredOn:{type:Date},
@@ -78,11 +78,20 @@ const quizSchema = new mongoose.Schema({
        time: { type: Date},
        user: {type: Number, default: 0},
     }],
+    questions: [{
+        type:Schema.Types.ObjectId,
+        ref:'question-bank'
+     }],
     grade: {
-        type: String,
-        required: true
+        type:Schema.Types.ObjectId,
+        ref:'city'
     },
     openForAll: {
+        type: Boolean,
+        default: false,
+        required: true
+    },
+    isPractice: {
         type: Boolean,
         default: false,
         required: true
@@ -98,7 +107,11 @@ const quizSchema = new mongoose.Schema({
     permissibleSet: {
         easy: Number,
         medium: Number,
-        difficult: Number
+        difficult: Number,
+        singleCorrect: Number,
+        multiCorrect: Number,
+        imageSingleCorrect: Number,
+        imageMultiCorrect: Number,
     },
     status:{
         type:String,

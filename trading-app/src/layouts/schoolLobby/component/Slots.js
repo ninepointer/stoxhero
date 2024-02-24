@@ -27,10 +27,10 @@ const Slots = ({quizData, id, selected, setSelected, setError, setRegistrationMe
         <>
             <MDBox>
                 <MDBox style={{ textAlign: 'center'}}>
-                    <MDTypography variant="h6" fontFamily='Work Sans , sans-serif'>Olympiad Date: {moment(quizData?.startDateTime).format('DD-MMM-YYYY') }</MDTypography>
+                    <MDTypography variant="h6" fontFamily='Work Sans , sans-serif'>Challenge Date: {moment(quizData?.startDateTime).format('DD-MMM-YYYY') }</MDTypography>
                 </MDBox>
                 <MDBox style={{textAlign:'center'}}>
-                    <MDTypography variant="h6" fontFamily='Work Sans , sans-serif'>Please select your Olympiad slot</MDTypography>
+                    <MDTypography variant="h6" fontFamily='Work Sans , sans-serif'>Please select your Challenge slot</MDTypography>
                 </MDBox>
                 <Grid container spacing={1} item md={12} lg={12} xs={12}
                 >

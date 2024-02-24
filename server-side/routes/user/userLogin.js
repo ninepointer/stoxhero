@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 require("../../db/conn");
 const UserDetail = require("../../models/User/userDetailSchema");
+const School = require("../../models/School/School");
 const jwt = require("jsonwebtoken")
+const {SchoolAuthenticate} = require('../../authentication/schoolAuthentication');
 const authentication = require("../../authentication/authentication");
 const {sendSMS, sendOTP} = require('../../utils/smsService');
 const otpGenerator = require('otp-generator');
@@ -63,7 +65,74 @@ router.post("/login", async (req, res) => {
     }
 })
 
-router.post('/schoollogin', async (req,res, next)=>{
+router.post("/studentpinlogin", async (req, res) => {
+    const { mobile, pin } = req.body;
+
+    if (!mobile || !pin) {
+        return res.status(422).json({ status: 'error', message: "Please provide login credentials" });
+    }
+
+    const deactivatedUser = await UserDetail.findOne({ mobile: mobile, status: "Inactive" })
+
+    if(deactivatedUser){
+        return res.status(422).json({ status: 'error', message: "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.", error: "deactivated" });
+    }
+
+    const userLogin = await UserDetail.findOne({ mobile: mobile, status: "Active" }).select('_id role pin schoolDetails');
+
+    if (!userLogin || !(await userLogin.correctPassword(pin, userLogin.schoolDetails.pin))) {
+        return res.status(422).json({ error: "invalid details", message: 'Mobile or pin is not correct' })
+    } else {
+
+        if (!userLogin) {
+            return res.status(422).json({ status: 'error', message: "Invalid credentials" });
+        } else {
+            if(userLogin?.role?.toString()=='644903ac236de3fd7cfd755c'){
+                return res.status(400).json({status:'error', message:'Invalid request'});
+            }
+            const token = await userLogin.generateAuthToken();
+
+            res.cookie("jwtoken", token, {
+                expires: new Date(Date.now() + 25892000000),
+            });
+            res.status(201).json({ status: 'success', message: "user logged in succesfully", token: token });
+        }
+    }
+})
+
+router.post("/schoollogin", async (req, res) => {
+    const { userId, pass } = req.body;
+
+    if (!userId || !pass) {
+        return res.status(422).json({ status: 'error', message: "Please provide login credentials" });
+    }
+
+    const inactiveSchool = await School.findOne({ email: userId, status: "Inactive" })
+
+    if(inactiveSchool){
+        return res.status(422).json({ status: 'error', message: "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.", error: "deactivated" });
+    }
+
+    const schoolLogin = await School.findOne({ email: userId, status: "Active" }).select('_id password');
+
+    if (!schoolLogin || !(await schoolLogin.correctPassword(pass, schoolLogin.password))) {
+        return res.status(422).json({ error: "invalid details" })
+    } else {
+
+        if (!schoolLogin) {
+            return res.status(422).json({ status: 'error', message: "Invalid credentials" });
+        } else {
+            const token = await schoolLogin.generateAuthToken();
+
+            res.cookie("jwtoken", token, {
+                expires: new Date(Date.now() + 25892000000),
+            });
+            res.status(201).json({ status: 'success', message: "logged in succesfully", token: token });
+        }
+    }
+})
+
+router.post('/schooluserlogin', async (req,res, next)=>{
     const {mobile} = req.body;
     try{
         const deactivatedUser = await UserDetail.findOne({ mobile: mobile, status: "Inactive" })
@@ -86,6 +155,50 @@ router.post('/schoollogin', async (req,res, next)=>{
     
         user.mobile_otp = mobile_otp;
         user.lastOtpTime = new Date();
+        await user.save({validateBeforeSave: false});
+    
+        // sendSMS([mobile.toString()], `Your otp to login to StoxHero is: ${mobile_otp}`);
+        if(process.env.PROD=='true') sendOTP(mobile.toString(), mobile_otp);
+        console.log(process.env.PROD, mobile_otp, 'sending');
+        if(process.env.PROD!=='true'){
+            sendOTP("8076284368", mobile_otp)
+            sendOTP("9319671094", mobile_otp)
+        }
+    
+        res.status(200).json({status: 'Success', message: `OTP sent to ${mobile}. OTP is valid for 30 minutes.`});
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: `Something went wrong. Please try again.`});
+    }
+
+});
+
+router.post('/resetpinotp', async (req,res, next)=>{
+    const {mobile} = req.body;
+    try{
+        if(!mobile){
+            return res.status(422).json({ status: 'error', message: "Invalid request" });
+        }
+        const deactivatedUser = await UserDetail.findOne({ mobile: mobile, status: "Inactive" })
+
+        if(deactivatedUser){
+            return res.status(422).json({ status: 'error', message: "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.", error: "deactivated" });
+        }
+    
+        const user = await UserDetail.findOne({mobile});
+    
+        // console.log(user?.schoolDetails?.grade, !user?.schoolDetails?.grade)
+        if(!user?.schoolDetails?.grade){
+            return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'})
+        }
+        if (user?.lastOtpTime && moment().subtract(29, 'seconds').isBefore(user?.lastOtpTime)) {
+            return res.status(429).json({ message: 'Please wait a moment before requesting a new OTP' });
+          }
+    
+        let mobile_otp = otpGenerator.generate(6, {digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false});
+    
+        user.schoolDetails.resetPinOtp = mobile_otp;
+        user.schoolDetails.lastOtpTime = new Date();
         await user.save({validateBeforeSave: false});
     
         // sendSMS([mobile.toString()], `Your otp to login to StoxHero is: ${mobile_otp}`);
@@ -1031,47 +1144,64 @@ router.post("/resendmobileotp", async(req, res)=>{
     }
 });
 
-router.get("/loginDetail", authentication, async (req, res)=>{
+router.get("/loginDetail", authentication, async (req, res) => {
     const id = req.user._id;
     // console.log("ID:",id)
-    
-    const user = await UserDetail.findOne({_id: id, status: "Active"})
-    .populate('role', 'roleName')
-    .populate('portfolio.portfolioId','portfolioName portfolioValue portfolioType portfolioAccount')
-    .populate('collegeDetails.college','name route')
-    .populate({
-        path : 'subscription.subscriptionId',
-        select: 'portfolio',
-        populate: [{
-            path: 'portfolio',
-            select: 'portfolioName portfolioValue portfolioType portfolioAccount'
-        },
-        ]
-    })
-    .populate({
-        path: 'internshipBatch',
-        select: 'batchName batchStartDate batchEndDate career portfolio participants',
-        populate: [{
-            path: 'career',
-            select: 'jobTitle'
-        },
-        {
-            path: 'portfolio',
-            select: 'portfolioValue'
-        },
-        {
-            path: 'participants',
-            populate: {
-                path: 'college',
-                select: 'collegeName'
+
+    const user = await UserDetail.findOne({ _id: id, status: "Active" })
+        .populate('role', 'roleName')
+        .populate('portfolio.portfolioId', 'portfolioName portfolioValue portfolioType portfolioAccount')
+        .populate('collegeDetails.college', 'name route')
+        .populate({
+            path: 'subscription.subscriptionId',
+            select: 'portfolio',
+            populate: [{
+                path: 'portfolio',
+                select: 'portfolioName portfolioValue portfolioType portfolioAccount'
+            },
+            ]
+        })
+        .populate({
+            path: 'internshipBatch',
+            select: 'batchName batchStartDate batchEndDate career portfolio participants',
+            populate: [{
+                path: 'career',
+                select: 'jobTitle'
+            },
+            {
+                path: 'portfolio',
+                select: 'portfolioValue'
+            },
+            {
+                path: 'participants',
+                populate: {
+                    path: 'college',
+                    select: 'collegeName'
+                }
             }
-        }
-    ],
-    }).populate('schoolDetails.city', 'name')
-    .populate('schoolDetails.school', 'school_name')
-    .select('student_name full_name schoolDetails city isAffiliate collegeDetails pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch bankState')
+            ],
+        }).populate('schoolDetails.city', 'name')
+        .populate('schoolDetails.grade', 'grade')
+        .populate('schoolDetails.school', 'school_name')
+        .select('student_name full_name schoolDetails city isAffiliate collegeDetails pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch bankState')
 
     res.json(user);
+})
+
+router.get("/schooldetails", SchoolAuthenticate, async (req, res) => {
+    try{
+        const id = req.user._id;
+
+        const user = await School.findOne({ _id: id, status: "Active" })
+            .populate('city', 'name')
+            .populate('role', 'roleName')
+            .populate('highestGrade', 'grade')
+            .select('-createdOn -createdBy -lastModifiedBy -lastModifiedOn -password');
+    
+        res.status(200).json({status: 'success', data: user});
+    } catch(err){
+        console.log(err);
+    }
 })
 
 router.get("/logout", authentication, (req, res)=>{
@@ -1080,6 +1210,14 @@ router.get("/logout", authentication, (req, res)=>{
     .status(200)
     .json({ success: true, message: "User logged out successfully" });
 })
+
+router.get("/schoollogout", SchoolAuthenticate, (req, res)=>{
+    res.clearCookie("jwtoken", { path: "/" });
+    res
+    .status(200)
+    .json({ success: true, message: "User logged out successfully" });
+})
+
 router.post("/addfcmtoken", authentication, async (req, res)=>{
     const {fcmTokenData} = req.body;
     console.log('fcm', fcmTokenData);

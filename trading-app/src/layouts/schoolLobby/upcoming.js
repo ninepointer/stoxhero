@@ -96,7 +96,7 @@ function Cover({ setUpdate, update }) {
             <Grid mt={2} container xs={10} md={9} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ zIndex: 0, overflow: 'visible' }}>
                 <Grid p={.5} mb={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{ backgroundColor: '#D5F47E', borderRadius: 10 }}>
                     {/* <MDBox p={0.5} display='flex' justifyContent='center' alignItems='center' style={{overflow: 'visible'}}> */}
-                    <MDTypography variant='h6' style={{ fontFamily: 'Work Sans , sans-serif' }}>Upcoming Olympiad(s)</MDTypography>
+                    <MDTypography variant='h6' style={{ fontFamily: 'Work Sans , sans-serif' }}>Upcoming Challenge(s)</MDTypography>
                     {/* </MDBox> */}
                 </Grid>
             </Grid>
@@ -129,7 +129,7 @@ function Cover({ setUpdate, update }) {
                                                 <Divider style={{ width: '100%' }} />
                                                 <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                                                     <MDTypography variant='caption' fontFamily='Work Sans , sans-serif' style={{ textAlign: 'center', color: '#532b9e' }}>
-                                                        Olympiad Date: {`${moment.utc(elem?.startDateTime).utcOffset('+05:30').format('DD-MMM-YYYY')} • ${elem.maxParticipant * elem?.noOfSlots - elem?.registrationsCount} seats left`}
+                                                        Challenge Date: {`${moment.utc(elem?.startDateTime).utcOffset('+05:30').format('DD-MMM-YYYY')} • ${elem.maxParticipant * elem?.noOfSlots - elem?.registrationsCount} seats left`}
                                                     </MDTypography>
                                                 </MDBox>
                                             </CardContent>
@@ -152,7 +152,7 @@ function Cover({ setUpdate, update }) {
                     :
                     <Grid item xs={12} md={12} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                         <MDBox p={0.5} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ minWidth: '100%', borderRadius: 10, border: '1px #D5F47E solid' }}>
-                            <MDTypography variant='caption' color='student' style={{ textAlign: 'center', fontFamily: 'Work Sans , sans-serif' }}>No upcoming finance olympiad, keep checking this space!</MDTypography>
+                            <MDTypography variant='caption' color='student' style={{ textAlign: 'center', fontFamily: 'Work Sans , sans-serif' }}>No upcoming finance challenge, keep checking this space!</MDTypography>
                         </MDBox>
                     </Grid>}
 

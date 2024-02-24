@@ -24,7 +24,7 @@ export default function LabTabs({socket}) {
   const [liveTraderCountYesterday, setLiveTraderCountYesterday] = useState(0);
   const [notliveTraderCount, setNotLiveTraderCount] = useState(0);
   const [notliveTraderCountYesterday, setNotLiveTraderCountYesterday] = useState(0);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let totalTransactionCost = 0;
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
@@ -851,7 +851,7 @@ export default function LabTabs({socket}) {
                         <Grid item fullWidth>
                             <MDButton 
                                 variant="contained" 
-                                color={"warning"} 
+                                color={"secondary"} 
                                 size="small" 
                                 component = {Link}
                                 to={{
@@ -864,7 +864,7 @@ export default function LabTabs({socket}) {
                         <Grid item fullWidth>
                             <MDButton 
                                 variant="contained" 
-                                color={"warning"} 
+                                color={"primary"} 
                                 size="small" 
                                 component = {Link}
                                 to={{
@@ -891,7 +891,7 @@ export default function LabTabs({socket}) {
                         <Grid item fullWidth>
                             <MDButton 
                                 variant="contained" 
-                                color={"info"} 
+                                color={"error"} 
                                 size="small" 
                                 component = {Link}
                                 to={{
@@ -915,6 +915,35 @@ export default function LabTabs({socket}) {
                                 Question Bank
                             </MDButton>
                         </Grid>
+
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"warning"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/school`,
+                                  }}
+                            >
+                                School Onboarding
+                            </MDButton>
+                        </Grid>
+
+                        {/* <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"success"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/alltransactions`,
+                                  }}
+                            >
+                                All Transactions
+                            </MDButton>
+                        </Grid> */}
+
                     </Grid>
                 </MDBox>
                 

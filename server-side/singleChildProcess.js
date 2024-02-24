@@ -177,7 +177,6 @@ async function singleProcess() {
     });
 
     //emitting leaderboard for contest.
-    //todo-vijay
    if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });
@@ -412,6 +411,7 @@ async function singleProcess() {
     app.use('/api/v1/notificationgroup', require("./routes/notificationGroup/notificationGroupRoutes"));
     app.use('/api/v1/cities', require("./routes/city/cityRoutes"));
     app.use('/api/v1/questionbank', require("./routes/QuestionBank/queBankRoutes"));
+    app.use('/api/v1/school', require("./routes/School/school"));
 
 
     const PORT = process.env.PORT || 5002;

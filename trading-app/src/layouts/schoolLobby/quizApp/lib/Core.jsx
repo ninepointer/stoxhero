@@ -6,9 +6,13 @@ import QuizResultFilter from './core-components/QuizResultFilter';
 import { checkAnswer, selectAnswer, rawMarkup } from './core-components/helpers';
 import InstantFeedback from './core-components/InstantFeedback';
 import Explanation from './core-components/Explanation';
+import { apiUrl } from '../../../../constants/constants';
+import axios from 'axios';
+import MDBox from '../../../../components/MDBox';
+import MDButton from '../../../../components/MDButton';
 
 function Core({
-  questions, appLocale, showDefaultResult, onComplete, customResultPage,
+  quizId, questions, appLocale, showDefaultResult, onComplete, customResultPage,
   showInstantFeedback, continueTillCorrect, revealAnswerOnSubmit, allowNavigation,
   onQuestionSubmit, timer, allowPauseTimer,
 }) {
@@ -88,23 +92,15 @@ function Core({
     }
   }, [questionSummary]);
 
-  const nextQuestion = (currentQuestionIdx) => {
+  const nextQuestion = async (currentQuestionIdx) => {
     setIncorrectAnswer(false);
     setIsCorrect(false);
     setShowNextQuestionButton(false);
     setButtons({});
 
     if (currentQuestionIdx + 1 === questions.length) {
-      if (userInput.length !== questions.length) {
-        alert('Quiz is incomplete');
-      } else if (allowNavigation) {
-        const submitQuiz = window.confirm('You have finished all the questions. Submit Quiz now?');
-        if (submitQuiz) {
-          setEndQuiz(true);
-        }
-      } else {
-        setEndQuiz(true);
-      }
+      await axios.patch(`${apiUrl}quiz/response/submit/${quizId}`,{submittedBy: "Student"}, {withCredentials: true});
+      setEndQuiz(true);
     } else {
       setCurrentQuestionIndex(currentQuestionIdx + 1);
     }
@@ -147,16 +143,16 @@ function Core({
       }
 
       return (
-        <div key={uuidv4()}>
+        <MDBox key={uuidv4()}>
           <button
             type="button"
             disabled
             className={`answerBtn btn ${answerBtnCorrectClassName}${answerBtnIncorrectClassName}`}
           >
-            {questionType === 'text' && <span>{answer}</span>}
-            {questionType === 'photo' && <img src={answer} alt="answer" />}
+            {questionType === 'text' && <span>{answer.option}</span>}
+            {questionType === 'photo' && <img src={answer.option} alt="answer" />}
           </button>
-        </div>
+        </MDBox>
       );
     });
   };
@@ -169,7 +165,7 @@ function Core({
     } = appLocale;
 
     return (
-      <div className="tag-container">
+      <MDBox className="tag-container">
         {answerSelectionType === 'single'
           && <span className="single selection-tag">{singleSelectionTagText}</span>}
         {answerSelectionType === 'multiple'
@@ -178,7 +174,7 @@ function Core({
           {pickNumberOfSelection.replace('<numberOfSelection>', numberOfSelection)}
         </span>
         {segment && <span className="selection-tag segment">{segment}</span>}
-      </div>
+      </MDBox>
     );
   };
 
@@ -222,7 +218,7 @@ function Core({
       const answerSelectionType = question.answerSelectionType || 'single';
 
       return (
-        <div className="result-answer-wrapper" key={uuidv4()}>
+        <MDBox className="result-answer-wrapper" key={uuidv4()}>
           <h3
             dangerouslySetInnerHTML={rawMarkup(
               `Q${question.questionIndex}: ${
@@ -238,21 +234,21 @@ function Core({
             question.correctAnswer.length,
             question.segment,
           )}
-          <div className="result-answer">
+          <MDBox className="result-answer">
             {renderAnswerInResult(question, userInputIndex)}
-          </div>
+          </MDBox>
           <Explanation question={question} isResultPage />
-        </div>
+        </MDBox>
       );
     });
   }, [endQuiz, filteredValue]);
 
   const renderAnswers = (question, answerButtons) => {
     const {
-      answers, correctAnswer, questionType, questionIndex,
+      answers, correctAnswer, questionType, questionIndex, questionId, point
     } = question;
     let { answerSelectionType } = question;
-    const onClickAnswer = (index) => checkAnswer(index + 1, correctAnswer, answerSelectionType, answers, {
+    const onClickAnswer = (selectedOption, index) => checkAnswer(index+1, quizId, questionId, point, selectedOption, correctAnswer, answerSelectionType, answers, {
       userInput,
       userAttempt,
       currentQuestionIndex,
@@ -302,25 +298,29 @@ function Core({
             <button
               type="button"
               disabled={answerButtons[index].disabled || false}
-              className={`${answerButtons[index].className} answerBtn btn ${
+              className={`${answerButtons[index]?.className} answerBtn btn ${
                 isCorrectCheck(index + 1, correctAnswer) && showInstantFeedback
                   ? 'correct'
                   : ''
               }`}
-              onClick={() => (revealAnswerOnSubmit ? onSelectAnswer(index) : onClickAnswer(index))}
+              onClick={() => (revealAnswerOnSubmit ? onSelectAnswer(index) : onClickAnswer(
+                answer, index
+                ))}
             >
-              {questionType === 'text' && <span>{answer}</span>}
-              {questionType === 'photo' && <img src={answer} alt="answer" />}
+              {questionType === 'text' && <span>{answer.option}</span>}
+              {questionType === 'photo' && <img src={answer.option} alt="answer" />}
             </button>
           )
           : (
             <button
               type="button"
-              onClick={() => (revealAnswerOnSubmit ? onSelectAnswer(index) : onClickAnswer(index))}
+              onClick={() => (revealAnswerOnSubmit ? onSelectAnswer(index) : onClickAnswer(
+                answer, index
+                ))}
               className={`answerBtn btn ${(allowNavigation && checkSelectedAnswer(index + 1)) ? 'selected' : null}`}
             >
-              {questionType === 'text' && answer}
-              {questionType === 'photo' && <img src={answer} alt="answer" />}
+              {questionType === 'text' && answer.option}
+              {questionType === 'photo' && <img src={answer.option} alt="answer" />}
             </button>
           )}
       </Fragment>
@@ -336,7 +336,7 @@ function Core({
   };
 
   const renderResult = () => (
-    <div className="card-body">
+    <MDBox className="card-body">
       <h2>
         {appLocale.resultPageHeaderText
           .replace('<correctIndexLength>', correct.length)
@@ -354,7 +354,7 @@ function Core({
         appLocale={appLocale}
       />
       {renderQuizResultQuestions()}
-    </div>
+    </MDBox>
   );
 
   useEffect(() => {
@@ -383,38 +383,50 @@ function Core({
     }${seconds}`;
   };
 
-  const handleTimeUp = () => {
+  const handleTimeUp = async () => {
+    await axios.patch(`${apiUrl}quiz/response/submit/${quizId}`,{submittedBy: "System"}, {withCredentials: true});
     setIsRunning(false);
     setEndQuiz(true);
     getUnansweredQuestions();
   };
 
+  async function submit(){
+    await axios.patch(`${apiUrl}quiz/response/submit/${quizId}`,{submittedBy: "Student"}, {withCredentials: true});
+    setEndQuiz(true);
+  }
+
   return (
-    <div className="questionWrapper">
-      {timer && !isRunning && (
-        <div>
-          {appLocale.timerTimeTaken}
-          :
-          {' '}
-          <b>{displayTime(timer - timeRemaining)}</b>
-        </div>
+    <MDBox className="questionWrapper">
+      {timer && isRunning && (
+        <MDBox display='flex' justifyContent='space-between' alignItems='center'>
+          <MDBox>
+            {appLocale.timerTimeTaken}
+            :
+            {' '}
+            <b>{displayTime(timeRemaining)}</b>
+          </MDBox>
+
+          <MDBox>
+            <MDButton variant='contained' size='small' color='info' style={{ color: '#fff' }} onClick={submit}>Submit</MDButton>
+          </MDBox>
+        </MDBox>
       )}
 
-      {timer && isRunning && (
-        <div>
+      {timer && !isRunning && (
+        <MDBox>
           {appLocale.timerTimeRemaining}
           :
           {' '}
           <b>
-            {displayTime(timeRemaining)}
+            {displayTime(timer - timeRemaining)}
           </b>
-        </div>
+        </MDBox>
       )}
       {timer && timeRemaining === 0 && isRunning && handleTimeUp()}
 
       {!endQuiz && (
-        <div className="questionWrapperBody">
-          <div>
+        <MDBox className="questionWrapperBody">
+          <MDBox>
             {`${appLocale.question} ${currentQuestionIndex + 1} / ${
               questions.length
             }:`}
@@ -424,7 +436,7 @@ function Core({
                 {isRunning ? appLocale.pauseScreenPause : appLocale.pauseScreenResume}
               </button>
             )}
-          </div>
+          </MDBox>
           {isRunning ? (
             <>
               <h3
@@ -446,7 +458,7 @@ function Core({
                   activeQuestion.correctAnswer.length,
                   activeQuestion.segment,
                 )}
-              {/* <div className="questionModal">
+              {/* <MDBox className="questionModal">
                 <InstantFeedback
                   question={activeQuestion}
                   showInstantFeedback={showInstantFeedback}
@@ -455,10 +467,10 @@ function Core({
                   onQuestionSubmit={onQuestionSubmit}
                   userAnswer={[...userInput].pop()}
                 />
-              </div> */}
+              </MDBox> */}
               {activeQuestion && renderAnswers(activeQuestion, buttons)}
               {(showNextQuestionButton || allowNavigation) && (
-                <div className="questionBtnContainer">
+                <MDBox className="questionBtnContainer">
                   {allowNavigation && currentQuestionIndex > 0 && (
                     <button
                       onClick={() => nextQuestion(currentQuestionIndex - 2)}
@@ -476,7 +488,7 @@ function Core({
                   >
                     {appLocale.nextQuestionBtn}
                   </button>
-                </div>
+                </MDBox>
               )}
             </>
           ) : (
@@ -486,13 +498,13 @@ function Core({
               {appLocale.pauseScreenDisplay}
             </span>
           )}
-        </div>
+        </MDBox>
       )}
       {endQuiz && showDefaultResultState && customResultPage === undefined
           && renderResult()}
       {endQuiz && !showDefaultResultState && customResultPage !== undefined
           && customResultPage(questionSummary)}
-    </div>
+    </MDBox>
   );
 }
 

@@ -43,7 +43,7 @@ function Cover({update}) {
     };
     function handleStartClick(startDateTime) {
         if(new Date(startDateTime) > new Date()){
-            openSuccessSB("Not started Yet", `The Olympiad will start on ${moment.utc(startDateTime).utcOffset('+05:30').format('DD MMM YY HH:mm a')} `)
+            openSuccessSB("Not started Yet", `The Challenge will start on ${moment.utc(startDateTime).utcOffset('+05:30').format('DD MMM YY HH:mm a')} `)
         }
     };
 
@@ -143,7 +143,7 @@ function Cover({update}) {
                                         <Divider style={{ width: '100%' }} />
                                         <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                                         <MDTypography variant='caption' fontFamily='Work Sans , sans-serif' style={{ textAlign: 'center', color:'#532b9e' }}>
-                                            Olympiad Date: {`${moment.utc(elem?.startDateTime).utcOffset('+05:30').format('DD-MMM-YYYY')}`}
+                                            Challenge Date: {`${moment.utc(elem?.startDateTime).utcOffset('+05:30').format('DD-MMM-YYYY')}`}
                                         </MDTypography>
                                         </MDBox>
                                     </CardContent>
@@ -184,7 +184,7 @@ function Cover({update}) {
             :
             <Grid item xs={12} md={12} lg={9} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                 <MDBox p={0.5} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ minWidth: '100%', borderRadius: 10, border: '1px #D5F47E solid' }}>
-                    <MDTypography variant='caption' color='student' style={{ textAlign: 'center', fontFamily: 'Work Sans , sans-serif' }}>You have not registered for any finance olympiads yet.</MDTypography>
+                    <MDTypography variant='caption' color='student' style={{ textAlign: 'center', fontFamily: 'Work Sans , sans-serif' }}>You have not registered for any finance challenges yet.</MDTypography>
                 </MDBox>
             </Grid>}
         </Grid>

@@ -30,7 +30,7 @@ export default function RegisteredUsers({ data }) {
     mobile: <MDTypography key={`mobile-${index}`} component="a" variant="caption" color="text" fontWeight="medium">{elem?.userId?.mobile}</MDTypography>,
     school: <MDTypography key={`school-${index}`} component="a" variant="caption" fontWeight="medium">{elem?.userId?.schoolDetails?.school?.school_name}</MDTypography>,
     city: <MDTypography key={`city-${index}`} component="a" variant="caption" fontWeight="medium">{elem?.userId?.schoolDetails?.city?.name}</MDTypography>,
-    grade: <MDTypography key={`grade-${index}`} component="a" variant="caption" fontWeight="medium">{elem?.userId?.schoolDetails?.grade}</MDTypography>,
+    grade: <MDTypography key={`grade-${index}`} component="a" variant="caption" fontWeight="medium">{elem?.userId?.schoolDetails?.grade?.grade}</MDTypography>,
     time: <MDTypography key={`time-${index}`} component="a" variant="caption" fontWeight="medium">{moment.utc(elem?.registeredOn).utcOffset('+05:30').format('DD-MMM-YY HH:mm a')}</MDTypography>
   }));
 

@@ -80,7 +80,7 @@ const UploadImage = ({ selected, getDetails, id, setRegistrationMessage ,quizDat
     }
     const initiatePayment = async() => {
         try{
-          const res = await axios.post(`${apiUrl}payment/initiate`,{amount:Number(quizData?.entryFee*100), redirectTo:window.location.href, paymentFor:'Olympiad', productId:id},{withCredentials: true});
+          const res = await axios.post(`${apiUrl}payment/initiate`,{amount:Number(quizData?.entryFee*100), redirectTo:window.location.href, paymentFor:'Challenge', productId:id},{withCredentials: true});
           console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
           window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
       }catch(e){

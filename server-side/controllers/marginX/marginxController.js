@@ -669,8 +669,8 @@ exports.creditAmountToWallet = async () => {
                         console.log("second if", userId, pnlDetails[0], payoutAmount);
                         const existingTransaction = wallet?.transactions?.some(transaction => (transaction?.description?.includes(marginxs[j].marginXName) && transaction?.description?.includes("credited") && transaction.transactionDate >= today))
     
-                        if(!existingTransaction){
-                            wallet.transactions = [...wallet.transactions, {
+                        if(!existingTransaction && wallet){
+                            wallet.transactions = [...wallet?.transactions, {
                                 title: 'Marginx Credit',
                                 description: `Payout credited for Marginx ${marginxs[j].marginXName}`,
                                 transactionDate: new Date(),
@@ -680,7 +680,7 @@ exports.creditAmountToWallet = async () => {
                             }];
                             
                             if (tdsAmount > 0 && marginxs[j]?.tdsRelief) {
-                                wallet.transactions = [...wallet.transactions, {
+                                wallet.transactions = [...wallet?.transactions, {
                                     title: 'StoxHero CashBack',
                                     description: `Cashback of ${tdsAmount?.toFixed(2)} HeroCash - MarginX ${marginxs[j].marginXName} TDS`,
                                     amount: (tdsAmount?.toFixed(2)),
@@ -703,8 +703,9 @@ exports.creditAmountToWallet = async () => {
                             }
     
                             await wallet.save();
-                          //  if (process.env.PROD == 'true') {
-                                emailService(user?.email, 'MarginX Payout Credited - StoxHero', `
+                            if (process.env.PROD == 'true') {
+                                try {
+                                    emailService(user?.email, 'MarginX Payout Credited - StoxHero', `
                                 <!DOCTYPE html>
                                 <html>
                                 <head>
@@ -775,7 +776,7 @@ exports.creditAmountToWallet = async () => {
                                     <div class="container">
                                     <h1>Amount Credited</h1>
                                     <p>Hello ${user.first_name},</p>
-                                    <p>${marginxs[j]?.rewardType === "Cash" ? "₹"+payoutAmountAdjusted?.toFixed(2) : "HeroCash "+payoutAmountAdjusted?.toFixed(2)} has been credited in your wallet for ${marginxs[j].marginXName}.</p>
+                                    <p>${marginxs[j]?.rewardType === "Cash" ? "₹" + payoutAmountAdjusted?.toFixed(2) : "HeroCash " + payoutAmountAdjusted?.toFixed(2)} has been credited in your wallet for ${marginxs[j].marginXName}.</p>
                                     <p>You can now purchase Tenx and participate in various activities on stoxhero.</p>
                                     
                                     <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
@@ -788,7 +789,11 @@ exports.creditAmountToWallet = async () => {
                                 </body>
                                 </html>
                                 `);
-                            //}
+                                } catch (err) {
+                                    console.log(err)
+                                }
+
+                            }
                             await createUserNotification({
                                 title:'MarginX Payout Credited',
                                 description:`${marginxs[j]?.rewardType === "Cash" ? "₹"+payoutAmountAdjusted?.toFixed(2) : "HeroCash "+payoutAmountAdjusted?.toFixed(2)} credited for your MarginX return`,

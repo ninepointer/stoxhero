@@ -23,9 +23,13 @@ const responseSchema = new mongoose.Schema({
     },
     responses:[{
         questionId:{type:Schema.Types.ObjectId},
-        responses:[{optionKey:String}],
+        responses:[{type:Schema.Types.ObjectId}],
         responseScore:{type:Number},
     }],
+    questions: [{
+        type:Schema.Types.ObjectId,
+        ref:'question-bank'
+     }],
     studentScore:{
         type:Number
     },

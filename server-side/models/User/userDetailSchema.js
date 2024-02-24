@@ -47,7 +47,14 @@ const userDetailSchema = new mongoose.Schema({
     city:String,
     schoolDetails:{
         parents_name: String,
-        grade: String,
+        section: String,
+        pin: String,
+        resetPinOtp: String,
+        lastOtpTime: Date,
+        grade: {
+            type: Schema.Types.ObjectId,
+            ref: 'grade'    
+        },
         school:{
             type: Schema.Types.ObjectId,
             ref: 'school'    
@@ -448,15 +455,31 @@ userDetailSchema.pre('save', async function(next){
     // console.log("inside employee id generator code")
     if(!this.employeeid || this.isNew){
         const count = await this.constructor.countDocuments();
-        
-        let userId = this?.email?.split('@')[0] || this?.email;
-        console.log("Count of Documents: ",userId, this?.email)
-        let userIds = await userPersonalDetail.find({employeeid:userId})
-        if(userIds.length > 0)
-        {
-             userId = userId?.toString()+(userIds?.length+1).toString()
+
+        console.log("this?.email", this?.email)
+        if(this?.email){
+            let userId = this?.email?.split('@')[0] || this?.email;
+            console.log("Count of Documents: ",userId, this?.email)
+            let userIds = await userPersonalDetail.find({employeeid:userId})
+            if(userIds.length > 0)
+            {
+                 userId = userId?.toString()+(userIds?.length+1).toString()
+            }
+            this.employeeid = userId;
+        } else{
+            let userId = this?.student_name?.split(' ')[0] + `${this.schoolDetails.dob.getDate()}${this.schoolDetails.dob.getMonth() + 1}${this.schoolDetails.dob.getFullYear()}`;
+
+            console.log('userId', userId)
+            let userIds = await userPersonalDetail.find({employeeid:userId})
+            if(userIds.length > 0)
+            {
+                 userId = userId?.toString()+(userIds?.length+1).toString()
+            }
+            this.employeeid = userId;
         }
-        this.employeeid = userId;
+
+        
+        
         next();
     } else {
         next();
@@ -469,7 +492,7 @@ userDetailSchema.pre("save", async function(next){
     } 
     this.password = await bcrypt.hash(this.password, 10)
     next();
-})
+});
 
 userDetailSchema.methods.correctPassword = async function (
     candidatePassword,

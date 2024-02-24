@@ -27,6 +27,7 @@ import SidenavCollapse from "./SidenavCollapse";
 import SidenavRoot from "./SidenavRoot";
 import sidenavLogoLabel from "./styles/sidenav";
 import { useNavigate } from "react-router-dom";
+import {schoolRole} from '../../variables'
 
 
 // Material Dashboard 2 React context
@@ -39,7 +40,7 @@ import {
 import { userContext } from "../../AuthContext";
 
 function Sidenav({ color, brand, brandName, routes, ...rest }) {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [controller, dispatch] = useMaterialUIController();
   const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
   const location = useLocation();
@@ -55,16 +56,28 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     textColor = "inherit";
   }
 
+  console.log("routes", routes)
+
   const closeSidenav = () => setMiniSidenav(dispatch, true);
 
   const navigate = useNavigate();
   async function goOut() {
-    await axios.get(`${baseUrl}api/v1/logout`, {
-      withCredentials: true,
-    });
-    isCollegeRoute ? navigate(`/${getDetails?.userDetails?.collegeDetails?.college?.route}`) : navigate("/");
-    getDetails.setUserDetail('');
-    window.webengage.user.logout();
+    if(getDetails?.userDetails?.role?.roleName === schoolRole){
+      await axios.get(`${baseUrl}api/v1/schoollogout`, {
+        withCredentials: true,
+      });
+      navigate("/school");
+      getDetails.setUserDetail('');
+      window.webengage.user.logout();
+    } else{
+      await axios.get(`${baseUrl}api/v1/logout`, {
+        withCredentials: true,
+      });
+      isCollegeRoute ? navigate(`/${getDetails?.userDetails?.collegeDetails?.college?.route}`) : navigate("/");
+      getDetails.setUserDetail('');
+      window.webengage.user.logout();
+    }
+
   }
 
   useEffect(() => {

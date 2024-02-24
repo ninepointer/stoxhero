@@ -93,8 +93,65 @@ const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema");
 const Affiliate = require("../../models/affiliateProgram/affiliateProgram")
 const AffiliateTransaction = require("../../models/affiliateProgram/affiliateTransactions");
 const totp = require("totp-generator");
+const School = require("../../models/School/School");
+const UnformattedSchool = require("../../models/School/unformatedSchool");
+const NewSchool = require("../../models/School/newSchool");
+const City = require("../../models/City/city");
 
+router.get('/schoolaff', async(req, res)=>{
+  try {
+    const updateResult = await School.updateMany({}, [
+        {
+            $set: {
+                aff_no: { $toString: "$aff_no" }
+            }
+        }
+    ]);
+    console.log(`${updateResult.nModified} documents updated`);
+} catch (error) {
+    console.error("Error updating documents:", error);
+}
+})
 
+router.get('/schoolformat', async(req, res)=>{
+  const city = await City.find();
+  const school = await School.find();
+  console.log(city.length, school.length);
+
+  const newSchoolArr = [];
+  const unformatedSchoolArr = [];
+  let count = 0
+  for(let elem of school){
+    console.log(count++)
+    const match = city.filter((subelem)=>subelem?.name?.toLowerCase() === elem.city?.toLowerCase());
+    const {school_name, aff_no, address, state, head_name, email, contact1, country, website} = elem;
+    if(match.length > 0){
+      // newSchoolArr.push({
+      //   website, status:"Active", role:'65cb483199608018ca427990', isOnboarding: false, school_name, aff_no, address, state, head_name, email, mobile: contact1, country, city: match[0]?._id
+      // })
+
+      const newSchool = await NewSchool.create({
+        website, status:"Active", role:'65cb483199608018ca427990', isOnboarding: false, school_name, aff_no, address, state, head_name, email, mobile: contact1, country, city: match[0]?._id
+      })
+      // console.log({
+      //   status:"Active", role:'65cb483199608018ca427990', isOnboarding: false, school_name, aff_no, address, state, head_name, email, mobile: contact1, country, city: match[0]?._id
+      // });
+    } else{
+      // unformatedSchoolArr.push(elem);
+      // console.log('elem', elem)
+      // const unformatedSchool = await UnformattedSchool.create({
+      //   school_name, aff_no, address, state, head_name, email, contact1, country, city, website
+      // });
+    }
+  }
+
+  // const newSchool = await NewSchool.create(newSchoolArr);
+// const unformatedSchool = await UnformattedSchool.create(unformatedSchoolArr);
+
+  
+  // console.log(newSchoolArr.length, unformatedSchoolArr.length)
+
+})
 
 router.get('/removeuserid', async(req,res) =>{
   const programeId = "654192220068c82a56e717c8";
@@ -3879,7 +3936,7 @@ router.get("/updateInstrumentStatusRebuild", async (req, res)=>{
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2024-02-08T20:00:00.000+00:00"
+  let expiryDate = "2024-02-22T20:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(

@@ -768,6 +768,7 @@ const getOverallRevenue = async () => {
         ];
 
         const revenueDetails = await Wallet.aggregate(pipeline);
+        console.log(revenueDetails)
 
         const data = {
             totalRevenue: 0,
@@ -783,6 +784,8 @@ const getOverallRevenue = async () => {
             data.revenueThisMonth += item.revenueThisMonth,
             data.revenueLastMonth += item.revenueLastMonth
         });
+
+        console.log('data', data);
 
         return data;
     } catch (error) {
