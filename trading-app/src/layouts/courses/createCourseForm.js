@@ -21,6 +21,8 @@ import Grades from './data/grades/grades';
 import dayjs from 'dayjs';
 import Stepper from 'react-stepper-horizontal';
 import CourseBasicDetails from './courseBasicDetails'
+import CourseMaterialInfo from './courseMaterials'
+import CoursePricing from './coursePricing'
 
 const CustomAutocomplete = styled(Autocomplete)`
   .MuiAutocomplete-clearIndicator {
@@ -33,15 +35,15 @@ function CourseDetails() {
 }
 
 function CourseMaterial() {
-  return <h2>Add Course Materials</h2>;
+  return <CourseMaterialInfo/>;
 }
 
 function Pricing() {
-  return <h2>Enter Pricing Details</h2>;
+  return <CoursePricing/>;
 }
 
 function Publish() {
-  return <h2>Course/Workshop Published</h2>;
+  return <h2>Preview</h2>;
 }
 
 
@@ -71,7 +73,7 @@ function Index() {
     { title: 'Course Info & FAQs' },
     { title: 'Upload Course Materials' },
     { title: 'Pricing' },
-    { title: 'Publish' },
+    { title: 'Preview & Publish' },
   ];
 
   function getSectionComponent() {
