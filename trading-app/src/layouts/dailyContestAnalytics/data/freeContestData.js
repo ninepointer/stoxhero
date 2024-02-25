@@ -14,7 +14,7 @@ import moment from 'moment';
 
 export default function FreeContestData() {
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
   let [skip, setSkip] = useState(0);
   let [userskip, setUserSkip] = useState(0);
   const limitSetting = 10;

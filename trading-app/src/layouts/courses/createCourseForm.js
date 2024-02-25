@@ -1,28 +1,35 @@
-
-import * as React from 'react';
+import * as React from "react";
 import { useEffect, useState, useRef } from "react";
-import TextField from '@mui/material/TextField';
-import { Grid, Card, CardContent, CardActionArea, FormGroup, FormControlLabel, Checkbox } from "@mui/material";
+import TextField from "@mui/material/TextField";
+import {
+  Grid,
+  Card,
+  CardContent,
+  CardActionArea,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
+} from "@mui/material";
 import MDTypography from "../../components/MDTypography";
 import MDBox from "../../components/MDBox";
-import MDButton from "../../components/MDButton"
+import MDButton from "../../components/MDButton";
 import { CircularProgress, Typography } from "@mui/material";
 import MDSnackbar from "../../components/MDSnackbar";
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
 import { useNavigate, useLocation } from "react-router-dom";
-import { apiUrl } from '../../constants/constants';
+import { apiUrl } from "../../constants/constants";
 import { Autocomplete, Box } from "@mui/material";
-import { styled } from '@mui/material';
-import axios from 'axios';
-import Grades from './data/grades/grades';
-import dayjs from 'dayjs';
-import Stepper from 'react-stepper-horizontal';
-import CourseBasicDetails from './courseBasicDetails'
-import CourseMaterialInfo from './courseMaterials'
-import CoursePricing from './coursePricing'
+import { styled } from "@mui/material";
+import axios from "axios";
+import Grades from "./data/grades/grades";
+import dayjs from "dayjs";
+import Stepper from "react-stepper-horizontal";
+import CourseBasicDetails from "./courseBasicDetails";
+import CourseMaterialInfo from "./courseMaterials";
+import CoursePricing from "./coursePricing";
 
 const CustomAutocomplete = styled(Autocomplete)`
   .MuiAutocomplete-clearIndicator {
@@ -31,87 +38,100 @@ const CustomAutocomplete = styled(Autocomplete)`
 `;
 
 function CourseDetails() {
-  return <CourseBasicDetails/>;
+  return <CourseBasicDetails />;
 }
 
 function CourseMaterial() {
-  return <CourseMaterialInfo/>;
+  return <CourseMaterialInfo />;
 }
 
 function Pricing() {
-  return <CoursePricing/>;
+  return <CoursePricing />;
 }
 
 function Publish() {
   return <h2>Preview</h2>;
 }
 
-
 function Index() {
+  const childRef = useRef();
+  const pricingRef = useRef();
   const location = useLocation();
   const course = location?.state?.data;
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(course ? true : false)
-  const [editing, setEditing] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [creating, setCreating] = useState(false)
+  const [isLoading, setIsLoading] = useState(course ? true : false);
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [creating, setCreating] = useState(false);
   const navigate = useNavigate();
   const [newObjectId, setNewObjectId] = useState("");
   const [updatedDocument, setUpdatedDocument] = useState([]);
   const [courseData, setCourseData] = useState(course);
   const [image, setImage] = useState(null);
-  const [previewImage, setPreviewImage] = useState('');
+  const [previewImage, setPreviewImage] = useState("");
   const [logo, setLogo] = useState(null);
-  const [previewLogo, setPreviewLogo] = useState('');
+  const [previewLogo, setPreviewLogo] = useState("");
   const [userState, setUserState] = useState(course?.state || "");
+  const [createdCourse, setCreatedCourse] = useState();
 
   const [cityData, setCityData] = useState([]);
   const [gradeData, setGradeData] = useState([]);
-  const [ activeStep, setActiveStep ] = useState(0);
+  const [activeStep, setActiveStep] = useState(0);
 
   const steps = [
-    { title: 'Course Info & FAQs' },
-    { title: 'Upload Course Materials' },
-    { title: 'Pricing' },
-    { title: 'Preview & Publish' },
+    { title: "Course Info & FAQs" },
+    { title: "Upload Course Materials" },
+    { title: "Pricing" },
+    { title: "Preview & Publish" },
   ];
 
   function getSectionComponent() {
-    switch(activeStep) {
-      case 0: return <CourseDetails/>;
-      case 1: return <CourseMaterial/>;
-      case 2: return <Pricing/>;
-      case 3: return <Publish/>;
-      default: return null;
+    switch (activeStep) {
+      case 0:
+        return (
+          <CourseBasicDetails
+            ref={childRef}
+            setCreatedCourse={setCreatedCourse}
+          />
+        );
+      case 1:
+        return <CourseMaterialInfo />;
+      case 2:
+        return <CoursePricing ref={pricingRef} createdCourse={createdCourse} />;
+      case 3:
+        return <Publish />;
+      default:
+        return null;
     }
   }
 
-  useEffect(()=>{
-    setTimeout(()=>{
-      setIsLoading(false)
-    }, 500)
-  }, [])
-
-
   const [formState, setFormState] = useState({
-    courseName: '' || course?.courseName,
-    courseSlug: '' || course?.courseSlug,
-    aboutInstructor: '' || course?.aboutInstructor,
-    courseDescription: '' || course?.courseDescription,
-    courseOverview: '' || course?.courseOverview,
-    courseStartTime: dayjs(course?.courseStartTime) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
-    courseEndTime: dayjs(course?.courseEndTime) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
-    registrationStartTime: dayjs(course?.registrationStartTime) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
-    registrationEndTime: dayjs(course?.registrationEndTime) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
-    status: '' || course?.status,
-    maxEnrolments: '' || course?.maxEnrolments,
-    coursePrice: '' || course?.coursePrice,
-    discountedPrice: '' || course?.discountedPrice,
+    courseName: "" || course?.courseName,
+    courseSlug: "" || course?.courseSlug,
+    aboutInstructor: "" || course?.aboutInstructor,
+    courseDescription: "" || course?.courseDescription,
+    courseOverview: "" || course?.courseOverview,
+    courseStartTime:
+      dayjs(course?.courseStartTime) ??
+      dayjs(new Date()).set("hour", 0).set("minute", 0).set("second", 0),
+    courseEndTime:
+      dayjs(course?.courseEndTime) ??
+      dayjs(new Date()).set("hour", 0).set("minute", 0).set("second", 0),
+    registrationStartTime:
+      dayjs(course?.registrationStartTime) ??
+      dayjs(new Date()).set("hour", 0).set("minute", 0).set("second", 0),
+    registrationEndTime:
+      dayjs(course?.registrationEndTime) ??
+      dayjs(new Date()).set("hour", 0).set("minute", 0).set("second", 0),
+    status: "" || course?.status,
+    maxEnrolments: "" || course?.maxEnrolments,
+    coursePrice: "" || course?.coursePrice,
+    discountedPrice: "" || course?.discountedPrice,
     courseBenefits: {
       orderNo: "",
-      benefits: ""
+      benefits: "",
     },
-    commissionPercentage: '' || course?.commissionPercentage,
+    commissionPercentage: "" || course?.commissionPercentage,
     tags: "" || course?.tags,
     level: "" || course?.level,
     courseLink: "" || course?.courseLink,
@@ -119,50 +139,18 @@ function Index() {
     courseLanguages: "" || course?.courseLanguages,
     isOnboarding: "" || course?.isOnboarding,
   });
-  
+
   const [gradeValue, setGradeValue] = useState(
-    course &&
-    {
+    course && {
       _id: course?.highestGrade?._id,
-      grade: course?.highestGrade?.grade
+      grade: course?.highestGrade?.grade,
     }
   );
 
   const [value, setValue] = useState({
-    _id: course?.city?._id || '',
-    name: course?.city?.name || ""
-  })
-
-  const getGrade = async () => {
-    try {
-      const res = await axios.get(`${apiUrl}grades`);
-      if (res.data.status == 'success') {
-        setGradeData(res.data.data);
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  useEffect(() => {
-    getGrade();
-  }, [])
-
-  const getCities = async () => {
-    try {
-      const res = await axios.get(`${apiUrl}cities/bystate/${userState}`);
-      if (res.data.status == 'success') {
-        setCityData(res.data.data);
-      }
-    } catch (e) {
-      console.log(e);
-    }
-
-  }
-
-  useEffect(() => {
-    getCities();
-  }, [userState])
+    _id: course?.city?._id || "",
+    name: course?.city?.name || "",
+  });
 
   const handleImage = (event) => {
     const file = event.target.files[0];
@@ -186,16 +174,50 @@ function Index() {
     reader.readAsDataURL(file);
   };
 
+  const handleButtonClick = async (action) => {
+    if (activeStep == 0) {
+      if (childRef.current && typeof childRef.current.onSubmit === "function") {
+        try {
+          const res = await childRef.current.onSubmit();
+          setActiveStep(activeStep + 1);
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    } else if (activeStep == 2) {
+      if (
+        pricingRef.current &&
+        typeof pricingRef.current.setPricing === "function"
+      ) {
+        try {
+          const res = await pricingRef.current.setPricing();
+          setActiveStep(activeStep + 1);
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    } else {
+      setActiveStep(activeStep + 1);
+    }
+  };
   async function onSubmit(e, formState) {
-    e.preventDefault()
-  
+    e.preventDefault();
 
     if (!formState.courseName || !formState.email) {
-      setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
-      return openErrorSB("Missing Field", "Please fill all the mandatory fields")
+      setTimeout(() => {
+        setCreating(false);
+        setIsSubmitted(false);
+      }, 500);
+      return openErrorSB(
+        "Missing Field",
+        "Please fill all the mandatory fields"
+      );
     }
 
-    setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
+    setTimeout(() => {
+      setCreating(false);
+      setIsSubmitted(true);
+    }, 500);
 
     const formData = new FormData();
     if (image) {
@@ -226,33 +248,43 @@ function Index() {
     const res = await fetch(`${apiUrl}course`, {
       method: "POST",
       credentials: "include",
-      body: formData
+      body: formData,
     });
-
 
     const data = await res.json();
     if (res.status !== 201) {
-      setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
-      openErrorSB("Course not created", data?.message)
+      setTimeout(() => {
+        setCreating(false);
+        setIsSubmitted(false);
+      }, 500);
+      openErrorSB("Course not created", data?.message);
     } else {
-      openSuccessSB("Course Created", data?.message)
-      setNewObjectId(data?.data?._id)
-      setIsSubmitted(true)
+      openSuccessSB("Course Created", data?.message);
+      setNewObjectId(data?.data?._id);
+      setIsSubmitted(true);
       setCourseData(data?.data);
-      setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
+      setTimeout(() => {
+        setCreating(false);
+        setIsSubmitted(true);
+      }, 500);
     }
   }
 
   async function onEdit(e, formState) {
-    e.preventDefault()
-    setSaving(true)
+    e.preventDefault();
+    setSaving(true);
     setUpdatedDocument(false);
 
     if (!formState.courseName || !formState.email) {
-      setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
-      return openErrorSB("Missing Field", "Please fill all the mandatory fields")
+      setTimeout(() => {
+        setCreating(false);
+        setIsSubmitted(false);
+      }, 500);
+      return openErrorSB(
+        "Missing Field",
+        "Please fill all the mandatory fields"
+      );
     }
-
 
     const formData = new FormData();
     if (image) {
@@ -281,34 +313,50 @@ function Index() {
     const res = await fetch(`${apiUrl}course/${course?._id}`, {
       method: "PATCH",
       credentials: "include",
-      body: formData
+      body: formData,
     });
 
     const data = await res.json();
 
-    if (data.status === 500 || data.status == 400 || data.status == 401 || data.status == 'error' || data.error || !data) {
-      openErrorSB("Error", data.error)
-      setTimeout(() => { setSaving(false); setEditing(true) }, 500)
-    } else if (data.status == 'success') {
+    if (
+      data.status === 500 ||
+      data.status == 400 ||
+      data.status == 401 ||
+      data.status == "error" ||
+      data.error ||
+      !data
+    ) {
+      openErrorSB("Error", data.error);
+      setTimeout(() => {
+        setSaving(false);
+        setEditing(true);
+      }, 500);
+    } else if (data.status == "success") {
       openSuccessSB("Course Edited", "Edited Successfully");
-      setNewObjectId(data?.data?._id)
-      setUpdatedDocument(true)
+      setNewObjectId(data?.data?._id);
+      setUpdatedDocument(true);
       setCourseData(data?.data);
-      setTimeout(() => { setSaving(false); setEditing(false) }, 500)
+      setTimeout(() => {
+        setSaving(false);
+        setEditing(false);
+      }, 500);
     } else {
       openErrorSB("Error", data.message);
-      setTimeout(() => { setSaving(false); setEditing(true) }, 500)
+      setTimeout(() => {
+        setSaving(false);
+        setEditing(true);
+      }, 500);
     }
   }
 
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = (title, content) => {
-    setTitle(title)
-    setContent(content)
+    setTitle(title);
+    setContent(content);
     setSuccessSB(true);
-  }
+  };
   const closeSuccessSB = () => setSuccessSB(false);
 
   const renderSuccessSB = (
@@ -326,10 +374,10 @@ function Index() {
 
   const [errorSB, setErrorSB] = useState(false);
   const openErrorSB = (title, content) => {
-    setTitle(title)
-    setContent(content)
+    setTitle(title);
+    setContent(content);
     setErrorSB(true);
-  }
+  };
   const closeErrorSB = () => setErrorSB(false);
 
   const renderErrorSB = (
@@ -347,10 +395,10 @@ function Index() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-      setFormState(prevState => ({
-        ...prevState,
-        [name]: value,
-      }));
+    setFormState((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
 
   const handleCityChange = (event, newValue) => {
@@ -364,46 +412,136 @@ function Index() {
   const handleStateChange = (event, newValue) => {
     setUserState(newValue);
     setCityData([]);
-    setValue({id:'',name:''});
-  }
+    setValue({ id: "", name: "" });
+  };
 
   return (
     <>
-    <MDBox>
-      <Stepper
-        steps={steps}
-        activeStep={activeStep}/>
-      <MDBox display='flex' justifyContent='center' alignItems='center' style={{padding: '20px'}}>
-        <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-        <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-        { getSectionComponent()  }
-        </Grid>
-        <Grid p={1} item xs={12} md={12} lg={8} display='flex' justifyContent='flex-end' alignItems='center'>
-        <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignItems='center'>
-        { (activeStep !== 0 && activeStep !== steps.length - 1)
-            && 
-            <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='flex-start' alignItems='center'>
-              <MDButton variant='contained' color='dark' size='small' onClick={ () => setActiveStep(activeStep - 1) }>Previous</MDButton>
+      <MDBox>
+        <Stepper steps={steps} activeStep={activeStep} />
+        <MDBox
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          style={{ padding: "20px" }}
+        >
+          <Grid
+            container
+            xs={12}
+            md={12}
+            lg={12}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Grid
+              item
+              xs={12}
+              md={12}
+              lg={12}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              {getSectionComponent()}
             </Grid>
-        }
-        { activeStep !== steps.length - 1
-          && 
-          <>
-            <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='flex-start' alignItems='center'>
-              <MDButton variant='contained' color='warning' size='small' onClick={ () => setActiveStep(activeStep + 1) }>Save as Draft</MDButton>
+            <Grid
+              p={1}
+              item
+              xs={12}
+              md={12}
+              lg={8}
+              display="flex"
+              justifyContent="flex-end"
+              alignItems="center"
+            >
+              <Grid
+                container
+                spacing={1}
+                xs={12}
+                md={12}
+                lg={12}
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+              >
+                {activeStep !== 0 && activeStep !== steps.length - 1 && (
+                  <Grid
+                    item
+                    xs={12}
+                    md={12}
+                    lg={4}
+                    display="flex"
+                    justifyContent="flex-start"
+                    alignItems="center"
+                  >
+                    <MDButton
+                      variant="contained"
+                      color="dark"
+                      size="small"
+                      onClick={() => setActiveStep(activeStep - 1)}
+                    >
+                      Previous
+                    </MDButton>
+                  </Grid>
+                )}
+                {activeStep !== steps.length - 1 && (
+                  <>
+                    <Grid
+                      item
+                      xs={12}
+                      md={12}
+                      lg={4}
+                      display="flex"
+                      justifyContent="flex-start"
+                      alignItems="center"
+                    >
+                      <MDButton
+                        variant="contained"
+                        color="warning"
+                        size="small"
+                        onClick={() => setActiveStep(activeStep + 1)}
+                      >
+                        Save as Draft
+                      </MDButton>
+                    </Grid>
+                    <Grid
+                      item
+                      xs={12}
+                      md={12}
+                      lg={4}
+                      display="flex"
+                      justifyContent="flex-end"
+                      alignItems="center"
+                    >
+                      <MDButton
+                        variant="contained"
+                        color="success"
+                        size="small"
+                        onClick={() => {
+                          handleButtonClick("create");
+                        }}
+                      >
+                        Save & Continue
+                      </MDButton>
+                    </Grid>
+                  </>
+                )}
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='flex-end' alignItems='center'>
-              <MDButton variant='contained' color='success' size='small' onClick={ () => setActiveStep(activeStep + 1) }>Save & Continue</MDButton>
-            </Grid>
-          </>
-        }
-        </Grid>
-        </Grid>
-        <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='flex-end' alignItems='center'></Grid>
-        </Grid>
+            <Grid
+              item
+              xs={12}
+              md={12}
+              lg={4}
+              display="flex"
+              justifyContent="flex-end"
+              alignItems="center"
+            ></Grid>
+          </Grid>
+        </MDBox>
       </MDBox>
-    </MDBox>
     </>
-  )
+  );
 }
 export default Index;

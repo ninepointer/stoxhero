@@ -1,12 +1,26 @@
-import { useState, useEffect, useMemo, useContext, useRef ,Fragment } from "react";
-import axios from "axios"
-import ReactGA from "react-ga"
-import { Routes, Route, Navigate, useLocation, useNavigate, Redirect } from "react-router-dom";
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useContext,
+  useRef,
+  Fragment,
+} from "react";
+import axios from "axios";
+import ReactGA from "react-ga";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useNavigate,
+  Redirect,
+} from "react-router-dom";
 
 // @mui material components
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import SettingsIcon from '@mui/icons-material/Settings';
+import SettingsIcon from "@mui/icons-material/Settings";
 
 // Material Dashboard 2 React components
 import MDBox from "./components/MDBox";
@@ -34,37 +48,42 @@ import createCache from "@emotion/cache";
 import routes from "./routes";
 // import adminRoutes from "./routes";
 import userRoutes from "./routesUser";
-import routesSchool from './routesSchool'
-import analyticsRoutes from "./analyticsRoutes"
+import routesSchool from "./routesSchool";
+import analyticsRoutes from "./analyticsRoutes";
 // import routesAffiliate from "./routesAffiliate";
 import routesAffiliate from "./routesAffiliate";
 import routesCollegeFunc from "./routesCollege";
 // Material Dashboard 2 React contexts
-import { useMaterialUIController, setMiniSidenav, setOpenConfigurator, setLayout } from "./context";
+import {
+  useMaterialUIController,
+  setMiniSidenav,
+  setOpenConfigurator,
+  setLayout,
+} from "./context";
 
 // Images
 import brandWhite from "./assets/images/logo-ct.png";
-import Logo from "./assets/images/logos/fullLogo.png"
+import Logo from "./assets/images/logos/fullLogo.png";
 import brandDark from "./assets/images/logo-ct-dark.png";
-import SignIn from "./layouts/authentication/sign-in"
-import NewMain from "./NewMain"
+import SignIn from "./layouts/authentication/sign-in";
+import NewMain from "./NewMain";
 import { userContext } from "./AuthContext";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 import homeRoutes from "./homeRoute";
-import SignUp from './layouts/authentication/sign-up'
-import Careers from './layouts/HomePage/pages/Career'
-import Workshops from './layouts/HomePage/pages/Workshop'
-import JobDescription from './layouts/HomePage/pages/JobDescription'
-import JobApply from './layouts/HomePage/pages/EICCareerForm'
-import ContestRegistration from './layouts/HomePage/pages/ContestRegistration'
-import FeaturedContestRegistration from './layouts/HomePage/pages/FeaturedContestRegistration'
+import SignUp from "./layouts/authentication/sign-up";
+import Careers from "./layouts/HomePage/pages/Career";
+import Workshops from "./layouts/HomePage/pages/Workshop";
+import JobDescription from "./layouts/HomePage/pages/JobDescription";
+import JobApply from "./layouts/HomePage/pages/EICCareerForm";
+import ContestRegistration from "./layouts/HomePage/pages/ContestRegistration";
+import FeaturedContestRegistration from "./layouts/HomePage/pages/FeaturedContestRegistration";
 import Home from "../src/layouts/HomePage/pages/Home";
 import About from "../src/layouts/HomePage/pages/About";
 import AboutFinowledge from "../src/layouts/HomePage/pages/AboutFinowledge";
 
-import ResetPin from './layouts/authentication/reset-password/cover/resetPin'
-import ResetPassword from './layouts/authentication/reset-password/cover';
-import CampaignDetails from './layouts/campaign/campaignDetails'
+import ResetPin from "./layouts/authentication/reset-password/cover/resetPin";
+import ResetPassword from "./layouts/authentication/reset-password/cover";
+import CampaignDetails from "./layouts/campaign/campaignDetails";
 import { adminRole } from "./variables";
 import { userRole } from "./variables";
 import { Affiliate, schoolRole } from "./variables";
@@ -74,8 +93,8 @@ import Terms from "./layouts/HomePage/pages/Tnc";
 import Contests from "../src/layouts/UserDailyContest/Header/contests";
 import ProtectedRoute from "./ProtectedRoute";
 import { socketContext } from "./socketContext";
-import {Howl} from "howler";
-import sound from "./assets/sound/tradeSound.mp3"
+import { Howl } from "howler";
+import sound from "./assets/sound/tradeSound.mp3";
 import MessagePopUp from "./MessagePopup";
 import AdminLogin from "./layouts/authentication/sign-in/adminLogin";
 import SchoolLogin from "./layouts/authentication/sign-in/schoolLogin";
@@ -86,15 +105,14 @@ import Lobby from "./layouts/schoolLobby/lobby";
 import BlogCard from "./layouts/HomePage/pages/BlogCards";
 import BlogData from "./layouts/HomePage/pages/BlogData";
 import Calculator from "./layouts/HomePage/pages/Calculator";
-import CollegeSignUp from './layouts/authentication/sign-up/collegeSignupLogin'
+import CollegeSignUp from "./layouts/authentication/sign-up/collegeSignupLogin";
 // import SchoolDetailsProtectedRoute from "./schoolProtected";
-import ContactFinowledge from './layouts/HomePage/pages/ContactFinowledge'
-import FinowledgeComingSoon from './layouts/HomePage/pages/finowledgeComingSoon';
+import ContactFinowledge from "./layouts/HomePage/pages/ContactFinowledge";
+import FinowledgeComingSoon from "./layouts/HomePage/pages/finowledgeComingSoon";
 import { apiUrl } from "./constants/constants";
-import MyQuiz from "./layouts/schoolLobby/quizApp/docs/index"
+import MyQuiz from "./layouts/schoolLobby/quizApp/docs/index";
 
-
-const TRACKING_ID = "UA-264098426-2"
+const TRACKING_ID = "UA-264098426-2";
 ReactGA.initialize(TRACKING_ID);
 
 function NotFound() {
@@ -104,7 +122,7 @@ function NotFound() {
     navigate("/");
   }, [navigate]);
 
-  return null;  // You can also return some "Not Found" text or component here if you prefer
+  return null; // You can also return some "Not Found" text or component here if you prefer
 }
 
 export default function App() {
@@ -130,52 +148,56 @@ export default function App() {
   const { pathname } = useLocation();
   const location = useLocation();
   let myLocation = useRef(location);
-  const socket = useContext(socketContext)
-  
+  const socket = useContext(socketContext);
+
   //get userdetail who is loggedin
   const setDetails = useContext(userContext);
   const getDetails = useContext(userContext);
   const navigate = useNavigate();
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  
-  useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/loginDetail`, {
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+
+  useEffect(() => {
+    axios
+      .get(`${baseUrl}api/v1/loginDetail`, {
         withCredentials: true,
         headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Credentials": true
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true,
         },
-    })
-    .then((res)=>{
-      setDetails.setUserDetail(res.data);
-      setDetailUser((res.data));
-      setIsLoading(false);
+      })
+      .then((res) => {
+        setDetails.setUserDetail(res.data);
+        setDetailUser(res.data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        fetchSchoolInfo();
+        setIsLoading(false);
+      });
 
-    }).catch((err)=>{
-      fetchSchoolInfo();
-      setIsLoading(false);
-    })
+    setDetails.setTradeSound(
+      new Howl({
+        src: [sound],
+        html5: true,
+      })
+    );
+  }, []);
 
-    setDetails.setTradeSound(new Howl({
-      src : [sound],
-      html5 : true
-    }));
-
-  }, [])
-
-  async function fetchSchoolInfo(){
-    const data = await axios.get(`${apiUrl}schooldetails`, {withCredentials: true});
+  async function fetchSchoolInfo() {
+    const data = await axios.get(`${apiUrl}schooldetails`, {
+      withCredentials: true,
+    });
     setDetails.setUserDetail(data?.data?.data);
-    setDetailUser((data?.data?.data));
+    setDetailUser(data?.data?.data);
   }
 
   useEffect(() => {
     return () => {
       socket.close();
-    }
-  }, [])
-
+    };
+  }, []);
 
   // Cache for the rtl
   useMemo(() => {
@@ -204,7 +226,8 @@ export default function App() {
   };
 
   // Change the openConfigurator state
-  const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
+  const handleConfiguratorOpen = () =>
+    setOpenConfigurator(dispatch, !openConfigurator);
 
   // Setting the dir attribute for the body element
   useEffect(() => {
@@ -217,7 +240,6 @@ export default function App() {
     document.scrollingElement.scrollTop = 0;
   }, [pathname, getDetails]);
 
-
   const getRoutes = (allRoutes) =>
     allRoutes.map((route) => {
       if (route.collapse) {
@@ -225,22 +247,28 @@ export default function App() {
       }
 
       if (route.route) {
-        if(route.route !== '/'){
-          return <Route exact path={route.route} 
-          element={
-            // <SchoolDetailsProtectedRoute>
-            <ProtectedRoute>
-             {route.component}
-            </ProtectedRoute>
-            // </SchoolDetailsProtectedRoute>
-          } 
-          key={route.key} />;
-        }else{
-          return <Route exact path={route.route} 
-          element={
-             route.component
-          } 
-          key={route.key} />;
+        if (route.route !== "/") {
+          return (
+            <Route
+              exact
+              path={route.route}
+              element={
+                // <SchoolDetailsProtectedRoute>
+                <ProtectedRoute>{route.component}</ProtectedRoute>
+                // </SchoolDetailsProtectedRoute>
+              }
+              key={route.key}
+            />
+          );
+        } else {
+          return (
+            <Route
+              exact
+              path={route.route}
+              element={route.component}
+              key={route.key}
+            />
+          );
         }
       }
       return null;
@@ -263,8 +291,8 @@ export default function App() {
       color="dark"
       sx={{ cursor: "pointer" }}
       onClick={handleConfiguratorOpen}
-      >
-      <SettingsIcon/>
+    >
+      <SettingsIcon />
     </MDBox>
   );
 
@@ -272,150 +300,243 @@ export default function App() {
     return <div></div>;
   }
 
-  const isCollegeRoute = pathname.includes(getDetails?.userDetails?.collegeDetails?.college?.route)
+  const isCollegeRoute = pathname.includes(
+    getDetails?.userDetails?.collegeDetails?.college?.route
+  );
 
   return direction === "rtl" ? (
-    
-      <CacheProvider value={rtlCache}>
-        <ThemeProvider theme={darkMode ? themeDarkRTL : themeRTL}>
-          <CssBaseline />
-          {layout === "stoxherouserdashboard" && (
-            <>
-              {
-                (getDetails?.userDetails?.role?.roleName == adminRole || getDetails?.userDetails?.role?.roleName == userRole|| getDetails?.userDetails?.role?.roleName == Affiliate || getDetails?.userDetails?.role?.roleName === "data") &&
+    <CacheProvider value={rtlCache}>
+      <ThemeProvider theme={darkMode ? themeDarkRTL : themeRTL}>
+        <CssBaseline />
+        {layout === "stoxherouserdashboard" && (
+          <>
+            {
+              (getDetails?.userDetails?.role?.roleName == adminRole ||
+                getDetails?.userDetails?.role?.roleName == userRole ||
+                getDetails?.userDetails?.role?.roleName == Affiliate ||
+                getDetails?.userDetails?.role?.roleName === "data") && (
                 <Sidenav
-                color={sidenavColor}
-                brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-                // brandName="StoxHero"
-                routes={(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole)
-                ? routes : (detailUser.role?.roleName === Affiliate || getDetails?.userDetails?.role?.roleName === Affiliate) 
-                ? routesAffiliate : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
-                ? ((isCollegeRoute) ? routesCollege : userRoutes) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
-                ? analyticsRoutes :  (detailUser.role?.roleName === schoolRole || getDetails?.userDetails?.role?.roleName === schoolRole) 
-                ? routesSchool : homeRoutes
-                }  
+                  color={sidenavColor}
+                  brand={
+                    (transparentSidenav && !darkMode) || whiteSidenav
+                      ? brandDark
+                      : brandWhite
+                  }
+                  // brandName="StoxHero"
+                  routes={
+                    detailUser.role?.roleName === adminRole ||
+                    getDetails?.userDetails?.role?.roleName === adminRole
+                      ? routes
+                      : detailUser.role?.roleName === Affiliate ||
+                        getDetails?.userDetails?.role?.roleName === Affiliate
+                      ? routesAffiliate
+                      : detailUser.role?.roleName === userRole ||
+                        getDetails?.userDetails?.role?.roleName === userRole
+                      ? isCollegeRoute
+                        ? routesCollege
+                        : userRoutes
+                      : detailUser.role?.roleName === "data" ||
+                        getDetails?.userDetails?.role?.roleName === "data"
+                      ? analyticsRoutes
+                      : detailUser.role?.roleName === schoolRole ||
+                        getDetails?.userDetails?.role?.roleName === schoolRole
+                      ? routesSchool
+                      : homeRoutes
+                  }
                   onMouseEnter={handleOnMouseEnter}
                   onMouseLeave={handleOnMouseLeave}
                 />
-                // <NewSidenav/>
-              }
-              
-              <Configurator />
-              {configsButton}
-            </>
-          )}
-        </ThemeProvider>
-        <MessagePopUp socket={socket} />
-      </CacheProvider>
-    
-  ) : (
-      <ThemeProvider theme={darkMode ? themeDark : theme}>
-        <CssBaseline />
-        {layout === "dashboard" && (
-          <>
-          {
-            (getDetails?.userDetails?.role?.roleName === schoolRole || getDetails?.userDetails?.role?.roleName === Affiliate || getDetails?.userDetails?.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === userRole|| getDetails?.userDetails?.role?.roleName === "data") &&
-            <Sidenav
-              color={sidenavColor}
-              brand={Logo}
-              // brandName="StoxHero"
-              routes={
-                (detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole)
-                ? routes : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
-                ? ((isCollegeRoute) ? routesCollege : userRoutes) : (detailUser.role?.roleName === Affiliate || getDetails?.userDetails?.role?.roleName === Affiliate) 
-                ? routesAffiliate : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
-                ? analyticsRoutes :  (detailUser.role?.roleName === schoolRole || getDetails?.userDetails?.role?.roleName === schoolRole) 
-                ? routesSchool : homeRoutes
+              )
+              // <NewSidenav/>
+            }
 
-              }
-              onMouseEnter={handleOnMouseEnter}
-              onMouseLeave={handleOnMouseLeave}
-            />
+            <Configurator />
+            {configsButton}
+          </>
+        )}
+      </ThemeProvider>
+      <MessagePopUp socket={socket} />
+    </CacheProvider>
+  ) : (
+    <ThemeProvider theme={darkMode ? themeDark : theme}>
+      <CssBaseline />
+      {layout === "dashboard" && (
+        <>
+          {
+            (getDetails?.userDetails?.role?.roleName === schoolRole ||
+              getDetails?.userDetails?.role?.roleName === Affiliate ||
+              getDetails?.userDetails?.role?.roleName === adminRole ||
+              getDetails?.userDetails?.role?.roleName === userRole ||
+              getDetails?.userDetails?.role?.roleName === "data") && (
+              <Sidenav
+                color={sidenavColor}
+                brand={Logo}
+                // brandName="StoxHero"
+                routes={
+                  detailUser.role?.roleName === adminRole ||
+                  getDetails?.userDetails?.role?.roleName === adminRole
+                    ? routes
+                    : detailUser.role?.roleName === userRole ||
+                      getDetails?.userDetails?.role?.roleName === userRole
+                    ? isCollegeRoute
+                      ? routesCollege
+                      : userRoutes
+                    : detailUser.role?.roleName === Affiliate ||
+                      getDetails?.userDetails?.role?.roleName === Affiliate
+                    ? routesAffiliate
+                    : detailUser.role?.roleName === "data" ||
+                      getDetails?.userDetails?.role?.roleName === "data"
+                    ? analyticsRoutes
+                    : detailUser.role?.roleName === schoolRole ||
+                      getDetails?.userDetails?.role?.roleName === schoolRole
+                    ? routesSchool
+                    : homeRoutes
+                }
+                onMouseEnter={handleOnMouseEnter}
+                onMouseLeave={handleOnMouseLeave}
+              />
+            )
             // <NewSidenav/>
           }
 
-            <Configurator />
-            {/* {configsButton} */}
-          </>
-        )}
-        {layout === "infinitydashboard" && <Configurator />}
-        {/* {layout === "analytics" && <Configurator />} */}
-        <Routes>
-        {(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole) 
-        ? getRoutes(routes) : (detailUser.role?.roleName === Affiliate || getDetails?.userDetails?.role?.roleName === Affiliate) 
-        ? getRoutes(routesAffiliate) : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
-        ? ((isCollegeRoute) ? getRoutes(routesCollege) : getRoutes(userRoutes)) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
-        ? getRoutes(analyticsRoutes) :  (detailUser.role?.roleName === schoolRole || getDetails?.userDetails?.role?.roleName === schoolRole) 
-        ? getRoutes(routesSchool) : getRoutes(homeRoutes)
-        }
+          <Configurator />
+          {/* {configsButton} */}
+        </>
+      )}
+      {layout === "infinitydashboard" && <Configurator />}
+      {/* {layout === "analytics" && <Configurator />} */}
+      <Routes>
+        {detailUser.role?.roleName === adminRole ||
+        getDetails?.userDetails?.role?.roleName === adminRole
+          ? getRoutes(routes)
+          : detailUser.role?.roleName === Affiliate ||
+            getDetails?.userDetails?.role?.roleName === Affiliate
+          ? getRoutes(routesAffiliate)
+          : detailUser.role?.roleName === userRole ||
+            getDetails?.userDetails?.role?.roleName === userRole
+          ? isCollegeRoute
+            ? getRoutes(routesCollege)
+            : getRoutes(userRoutes)
+          : detailUser.role?.roleName === "data" ||
+            getDetails?.userDetails?.role?.roleName === "data"
+          ? getRoutes(analyticsRoutes)
+          : detailUser.role?.roleName === schoolRole ||
+            getDetails?.userDetails?.role?.roleName === schoolRole
+          ? getRoutes(routesSchool)
+          : getRoutes(homeRoutes)}
 
-          {!cookieValue  ?  
-          
-          // pathname == "/login" ?
-          // <Route path="/login" element={<SignIn />} />
-          // :
-          pathname == "/" ?
-          <Route path="/" element={<SignUp location={myLocation.current} />} />
-          :
-          pathname == "/resetpassword" ?
-          <Route path="/resetpassword" element={<ResetPassword/>} />
-          :
-          <Route path="/" element={<SignUp />} />
-          :
-          pathname == "/" || !pathname ?
-          <Route path="/" element={<Navigate 
-            to={getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading'
-            : getDetails?.userDetails.role?.roleName === schoolRole ? '/schooldashboard' : '/home'} 
-            />} />
-            :
-            pathname == "/:collegename" ?
-            <Route path="/:collegename" element={<CollegeSignUp location={myLocation.current} />} />
-            :
+        {
+          !cookieValue ? (
+            // pathname == "/login" ?
+            // <Route path="/login" element={<SignIn />} />
+            // :
+            pathname == "/" ? (
+              <Route
+                path="/"
+                element={<SignUp location={myLocation.current} />}
+              />
+            ) : pathname == "/resetpassword" ? (
+              <Route path="/resetpassword" element={<ResetPassword />} />
+            ) : (
+              <Route path="/" element={<SignUp />} />
+            )
+          ) : pathname == "/" || !pathname ? (
+            <Route
+              path="/"
+              element={
+                <Navigate
+                  to={
+                    getDetails?.userDetails.role?.roleName === adminRole
+                      ? "/tenxdashboard"
+                      : getDetails.userDetails?.designation == "Equity Trader"
+                      ? "/infinitytrading"
+                      : getDetails?.userDetails.role?.roleName === schoolRole
+                      ? "/schooldashboard"
+                      : "/home"
+                  }
+                />
+              }
+            />
+          ) : pathname == "/:collegename" ? (
+            <Route
+              path="/:collegename"
+              element={<CollegeSignUp location={myLocation.current} />}
+            />
+          ) : (
             <Route path="*" element={<NotFound />} />
+          )
           // <Route path="/" element={<Navigate to={pathname} />} />
           // <Route path="/" element={<Navigate to="/virtualtrading" />} />
-          
+        }
+
+        <Route path="/resetpin" element={<ResetPin />} />
+        <Route path="/resetpassword" element={<ResetPassword />} />
+        <Route
+          path="/careers"
+          element={<Careers location={myLocation.current} />}
+        />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route
+          path="/careers/:name/jobdescription"
+          element={<JobDescription />}
+        />
+        <Route path="/careers/careerform/:name" element={<JobApply />} />
+        <Route path="/blogs" element={<BlogCard />} />
+        <Route path="/calculators" element={<Calculator />} />
+        <Route
+          path="/"
+          element={
+            <Navigate
+              to={
+                getDetails?.userDetails?.role
+                  ? getDetails?.userDetails.role?.roleName === adminRole
+                    ? "/tenxdashboard"
+                    : getDetails.userDetails?.designation == "Equity Trader"
+                    ? "/infinitytrading"
+                    : "/home"
+                  : "/"
+              }
+            />
           }
+        />
+        <Route path="/adminlogin" element={<AdminLogin />} />
+        <Route path="/school" element={<SchoolLogin />} />
+        <Route path="/finowledge" element={<Finowledge />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/aboutus" element={<AboutFinowledge />} />
+        <Route path="/challenge" element={<FinowledgeComingSoon />} />
+        <Route path="/tryquiz" element={<FinowledgeComingSoon />} />
 
+        <Route path="/enter-mobile" element={<Register />} />
+        <Route path="/registrationinfo" element={<RegisterInfo />} />
+        <Route path="/lobby" element={<Lobby />} />
+        <Route path="/myquiz" element={<MyQuiz />} />
 
-          <Route path='/resetpin' element={<ResetPin/>}/>
-          <Route path='/resetpassword' element={<ResetPassword/>}/>
-          <Route path='/careers' element={<Careers location={myLocation.current}/>}/>
-          <Route path='/privacy' element={<Privacy/>}/>
-          <Route path='/terms' element={<Terms/>}/>
-          <Route path='/careers/:name/jobdescription' element={<JobDescription/>}/>
-          <Route path='/careers/careerform/:name' element={<JobApply/>}/>
-          <Route path='/blogs' element={<BlogCard/>}/>
-          <Route path='/calculators' element={<Calculator/>}/>
-          <Route path='/' element={<Navigate 
-            to={getDetails?.userDetails?.role ? getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/home':'/'} 
-            />}/>
-          <Route path='/adminlogin' element={<AdminLogin />}/>
-          <Route path='/school' element={<SchoolLogin />}/>
-          <Route path='/finowledge' element={<Finowledge />}/>
-          <Route path='/about' element={<About/>}/>
-          <Route path='/aboutus' element={<AboutFinowledge/>}/>
-          <Route path='/challenge' element={<FinowledgeComingSoon/>}/>
-          <Route path='/tryquiz' element={<FinowledgeComingSoon/>}/>
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/contactus" element={<ContactFinowledge />} />
 
-          <Route path='/enter-mobile' element={<Register/>}/>
-          <Route path='/registrationinfo' element={<RegisterInfo/>}/>
-          <Route path='/lobby' element={<Lobby/>}/>
-          <Route path='/myquiz' element={<MyQuiz/>}/>
+        <Route
+          path="/workshops"
+          element={<Workshops location={myLocation.current} />}
+        />
+        <Route path="/blogs/:id" element={<BlogData />} />
+        <Route
+          path="/collegetestzone/:id/:date"
+          element={<ContestRegistration />}
+        />
+        <Route
+          path="/testzone/:id/:date"
+          element={<FeaturedContestRegistration />}
+        />
+        <Route
+          path="/:collegename"
+          element={<CollegeSignUp location={myLocation.current} />}
+        />
 
-          <Route path='/contact' element={<Contact/>}/>
-          <Route path='/contactus' element={<ContactFinowledge/>}/>
-
-          <Route path='/workshops' element={<Workshops location={myLocation.current}/>}/>
-          <Route path='/blogs/:id' element={<BlogData/>}/>
-          <Route path='/collegetestzone/:id/:date' element={<ContestRegistration/>}/>
-          <Route path='/testzone/:id/:date' element={<FeaturedContestRegistration/>}/>
-          <Route path="/:collegename" element={<CollegeSignUp location={myLocation.current} />} />
-
-          <Route path="*" element={<NotFound />} />
-
-        </Routes>
-        <MessagePopUp socket={socket} userId={detailUser?._id} />
-      </ThemeProvider>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <MessagePopUp socket={socket} userId={detailUser?._id} />
+    </ThemeProvider>
   );
-} 
+}

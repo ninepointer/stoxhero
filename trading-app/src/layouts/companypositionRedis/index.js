@@ -1,17 +1,14 @@
-
 import React from "react";
 import axios from "axios";
 import { useEffect, useState, useMemo, useCallback, useContext } from "react";
 import { io } from "socket.io-client";
 // @mui material components
-import { Chart } from 'chart.js/auto';
+import { Chart } from "chart.js/auto";
 // Chart.register(...registerables);
 import Grid from "@mui/material/Grid";
 
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
-
-
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
@@ -26,15 +23,17 @@ import MockOverallCompanyPNL from "./components/MockOverallCompanyPNL";
 import LiveOverallCompanyPNL from "./components/LiveOverallCompanyPNL";
 import MockTraderwiseCompanyPNL from "./components/MockTraderwiseCompanyPNL";
 import LiveTraderwiseCompanyPNL from "./components/LiveTraderwiseCompanyPNL";
-import { useLocation } from "react-router-dom"
+import { useLocation } from "react-router-dom";
 import { socketContext } from "../../socketContext";
 
 function CompanyPosition() {
   let location = useLocation();
-  console.log("location", location)
+  console.log("location", location);
   let isXts = location?.state?.xts;
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+  let baseUrl1 =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/";
   // let socket;
   // try {
   //   socket = io.connect(`${baseUrl1}`)
@@ -43,32 +42,30 @@ function CompanyPosition() {
   // }
   const socket = useContext(socketContext);
 
-
-
   const [userPermission, setUserPermission] = useState([]);
 
   useEffect(() => {
-    axios.get(`${baseUrl}api/v1/readpermission`, {withCredentials: true})
+    axios
+      .get(`${baseUrl}api/v1/readpermission`, { withCredentials: true })
       .then((res) => {
-        setUserPermission((res.data));
+        setUserPermission(res.data);
         //setOrderCountTodayCompany((res.data).length);
-      }).catch((err) => {
+      })
+      .catch((err) => {
         //window.alert("Server Down");
         return new Error(err);
-      })
-
+      });
   }, []);
 
   useEffect(() => {
     // socket.on("connect", () => {
-      socket.emit("company-ticks", true)
+    socket.emit("company-ticks", true);
     // })
-
   }, []);
 
-  const handleSwitchChange = id => {
-    setUserPermission(prevUsers =>
-      prevUsers.map(user => {
+  const handleSwitchChange = (id) => {
+    setUserPermission((prevUsers) =>
+      prevUsers.map((user) => {
         if (user.userId === id) {
           return { ...user, isRealTradeEnable: !user.isRealTradeEnable };
         }
@@ -82,32 +79,42 @@ function CompanyPosition() {
   }, []);
 
   const memoizedMismatch = useMemo(() => {
-    return <MismatchDetails socket={socket} />
+    return <MismatchDetails socket={socket} />;
   }, [socket]);
 
   const memoizedOverallPnl = useMemo(() => {
-    return <MockOverallCompanyPNL socket={socket} />
+    return <MockOverallCompanyPNL socket={socket} />;
   }, [socket]);
 
   const memoizedMockTraderwiseCompanyPNL = useMemo(() => {
-    return <MockTraderwiseCompanyPNL users={userPermission} handleSwitchChange={handlehandleSwitchChange} socket={socket} />
+    return (
+      <MockTraderwiseCompanyPNL
+        users={userPermission}
+        handleSwitchChange={handlehandleSwitchChange}
+        socket={socket}
+      />
+    );
   }, [socket, userPermission, handlehandleSwitchChange]);
 
   const memoizedLiveOverallCompanyPNL = useMemo(() => {
-    return <LiveOverallCompanyPNL socket={socket} />
+    return <LiveOverallCompanyPNL socket={socket} />;
   }, [socket]);
 
   const memoizedLiveTraderwiseCompanyPNL = useMemo(() => {
-    return <LiveTraderwiseCompanyPNL users={userPermission} handleSwitchChange={handlehandleSwitchChange} socket={socket} />
+    return (
+      <LiveTraderwiseCompanyPNL
+        users={userPermission}
+        handleSwitchChange={handlehandleSwitchChange}
+        socket={socket}
+      />
+    );
   }, [socket, userPermission, handlehandleSwitchChange]);
-
-
 
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox py={0}>
-        {isXts &&
+        {isXts && (
           <MDBox mt={1}>
             <Grid container spacing={3}>
               <Grid item xs={12} md={12} lg={12}>
@@ -115,9 +122,10 @@ function CompanyPosition() {
                 {memoizedMismatch}
               </Grid>
             </Grid>
-          </MDBox>}
+          </MDBox>
+        )}
 
-        {!isXts &&
+        {!isXts && (
           <>
             <MDBox mt={2}>
               <Grid container spacing={3}>
@@ -136,9 +144,10 @@ function CompanyPosition() {
                 </Grid>
               </Grid>
             </MDBox>
-          </>}
+          </>
+        )}
 
-        {isXts &&
+        {isXts && (
           <>
             <MDBox mt={2}>
               <Grid container spacing={3}>
@@ -158,7 +167,7 @@ function CompanyPosition() {
               </Grid>
             </MDBox>
           </>
-        }
+        )}
       </MDBox>
       <Footer />
     </DashboardLayout>
@@ -166,4 +175,3 @@ function CompanyPosition() {
 }
 
 export default CompanyPosition;
-

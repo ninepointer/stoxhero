@@ -13,7 +13,7 @@ import axios from "axios";
 import { userContext } from '../../../AuthContext';
 
 export default function LabTabs() {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const [isLoading, setIsLoading] = useState(false);
     const [contest, setContest] = useState([]);
     const getDetails = useContext(userContext);
