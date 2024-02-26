@@ -4,7 +4,7 @@ import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
-import { CircularProgress, Tooltip } from '@mui/material';
+import { CircularProgress, Tooltip, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
@@ -13,12 +13,29 @@ import DownloadIcon from '@mui/icons-material/Download';
 import axios from 'axios';
 import { apiUrl } from '../../../constants/constants';
 import { saveAs } from 'file-saver';
+import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+// import OutlinedInput from '@mui/material/OutlinedInput';
+import MenuItem from '@mui/material/MenuItem';
+import MDSnackbar from "../../../components/MDSnackbar";
 
 
 
 export default function LabTabs() {
   const [value, setValue] = React.useState('1');
   const [isLoading,setIsLoading] = useState(false);
+  const date = new Date();
+  // const lastMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  const [startDate, setStartDate] = React.useState(dayjs(date).startOf('day'));
+  const [endDate, setEndDate] = useState(dayjs(date).endOf('day'));
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+  const [successSB, setSuccessSB] = useState(false);
+  let [showData, setShowData] = useState(false);
+
 
   const handleChange = (event, newValue) => {
     setIsLoading(true)
@@ -71,6 +88,58 @@ export default function LabTabs() {
     saveAs(blob, `${nameVariable}.csv`);
 }
 
+async function handleShowDetails(){
+  // setShowDetailClicked(!showDetailClicked);
+  if(new Date(startDate)>new Date(endDate)){
+    return openErrorSB("Invalid Date Range", "Start Date is greater than End Date");
+  }
+
+  setShowData(!showData);
+}
+
+const openSuccessSB = (title, content) => {
+  setTitle(title)
+  setContent(content)
+  setSuccessSB(true);
+}
+const closeSuccessSB = () => setSuccessSB(false);
+
+
+const renderSuccessSB = (
+  <MDSnackbar
+    color="success"
+    icon="check"
+    title={title}
+    content={content}
+    open={successSB}
+    onClose={closeSuccessSB}
+    close={closeSuccessSB}
+    bgWhite="info"
+  />
+);
+
+const [errorSB, setErrorSB] = useState(false);
+const openErrorSB = (title, content) => {
+  setTitle(title)
+  setContent(content)
+  setErrorSB(true);
+}
+const closeErrorSB = () => setErrorSB(false);
+
+const renderErrorSB = (
+  <MDSnackbar
+    color="error"
+    icon="warning"
+    title={title}
+    content={content}
+    open={errorSB}
+    onClose={closeErrorSB}
+    close={closeErrorSB}
+    bgWhite
+  />
+);
+
+
   return (
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto'>
       <MDBox mb={2} display="flex" justifyContent="space-between">
@@ -83,6 +152,45 @@ export default function LabTabs() {
         >
           Back to Tenx Dashboard
         </MDButton>
+
+        <Grid item xs={12} md={6} lg={3} display='flex' justifyContent='center' alignItems='center'>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer components={['DatePicker']}>
+                      <DatePicker
+                        label="Start Date"
+                        value={startDate}
+                        onChange={async (e) => {
+                          setStartDate(prev => dayjs(e));
+                          // await handleShowDetails(dayjs(e), endDate);
+                        }}
+                        sx={{ width: '100%' }}
+                        // disabled={period !== "Custom"}
+                      />
+                    </DemoContainer>
+                  </LocalizationProvider>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={3} display='flex' justifyContent='center' alignItems='center'>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer components={['DatePicker']}>
+                      <DatePicker
+                        label="End Date"
+                        value={endDate}
+                        onChange={async (e) => {
+                          setEndDate(prev => dayjs(e));
+                          // await handleShowDetails(startDate, dayjs(e))
+                        }}
+                        // disabled={period !== "Custom"}
+                        sx={{ width: '100%' }}
+                      />
+                    </DemoContainer>
+                  </LocalizationProvider>
+                </Grid>
+
+                  <MDButton 
+                  color="light"
+                  size="small"
+                  onClick={handleShowDetails}>Show</MDButton>
 
         <MDButton
           // variant="outlined"
@@ -108,11 +216,12 @@ export default function LabTabs() {
         <TabPanel value="1">
         
             <MDBox style={{ minWidth: '100%' }}>
-              <Active />
+              <Active showData={showData} startDate={startDate} endDate={endDate} />
             </MDBox>
           
         </TabPanel>
       </TabContext>
+      {renderErrorSB}
     </MDBox>
   );
 }

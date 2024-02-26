@@ -26,8 +26,6 @@ const Active = () => {
     }, 100)
   }
 
-  // console.log(data)
-
   useEffect(() => {
     fetchData();
   }, [])
