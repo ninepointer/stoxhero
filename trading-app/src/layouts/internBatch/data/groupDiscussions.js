@@ -21,7 +21,7 @@ export default function GroupDiscussions({saving,batch, action, setAction}) {
       setSelectedGd(gd);
       setOpen(true);
     };
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [groupDiscussions,setGroupDiscussions] = React.useState([]);
     const [gdCount,setGDCount] = useState(0);
     async function getGroupDiscussions(){

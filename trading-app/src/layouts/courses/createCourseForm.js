@@ -24,34 +24,15 @@ import { apiUrl } from "../../constants/constants";
 import { Autocomplete, Box } from "@mui/material";
 import { styled } from "@mui/material";
 import axios from "axios";
-import Grades from "./data/grades/grades";
 import dayjs from "dayjs";
 import Stepper from "react-stepper-horizontal";
 import CourseBasicDetails from "./courseBasicDetails";
 import CourseMaterialInfo from "./courseMaterials";
 import CoursePricing from "./coursePricing";
+import Preview from "./Preview";
 
-const CustomAutocomplete = styled(Autocomplete)`
-  .MuiAutocomplete-clearIndicator {
-    color: white;
-  }
-`;
 
-function CourseDetails() {
-  return <CourseBasicDetails />;
-}
 
-function CourseMaterial() {
-  return <CourseMaterialInfo />;
-}
-
-function Pricing() {
-  return <CoursePricing />;
-}
-
-function Publish() {
-  return <h2>Preview</h2>;
-}
 
 function Index() {
   const childRef = useRef();
@@ -75,8 +56,14 @@ function Index() {
   const [createdCourse, setCreatedCourse] = useState();
 
   const [cityData, setCityData] = useState([]);
-  const [gradeData, setGradeData] = useState([]);
-  const [activeStep, setActiveStep] = useState(0);
+  const queryString = location.search;
+  const urlParams = new URLSearchParams(queryString);
+
+  // Get the value of the "mobile" parameter
+  // const courseId = urlParams.get('id');
+  const paramsActiveSteps = urlParams.get('activestep');
+
+  const [activeStep, setActiveStep] = useState(Number(urlParams.get('activestep')));
 
   const steps = [
     { title: "Course Info & FAQs" },
@@ -86,20 +73,36 @@ function Index() {
   ];
 
   function getSectionComponent() {
+    console.log('activestep', activeStep)
     switch (activeStep) {
       case 0:
         return (
           <CourseBasicDetails
-            ref={childRef}
+            // ref={childRef}
+            steps={steps}
+            activeStep={activeStep}
+            setActiveStep={setActiveStep}
             setCreatedCourse={setCreatedCourse}
           />
         );
       case 1:
-        return <CourseMaterialInfo />;
+        return <CourseMaterialInfo
+        steps={steps}
+        activeStep={activeStep}
+        setActiveStep={setActiveStep}
+        />;
       case 2:
-        return <CoursePricing ref={pricingRef} createdCourse={createdCourse} />;
+        return <CoursePricing 
+        steps={steps}
+        activeStep={activeStep}
+        setActiveStep={setActiveStep}
+        />;
       case 3:
-        return <Publish />;
+        return <Preview
+        steps={steps}
+        activeStep={activeStep}
+        setActiveStep={setActiveStep}
+        />;
       default:
         return null;
     }
@@ -417,15 +420,21 @@ function Index() {
 
   return (
     <>
-      <MDBox>
+      <MDBox
+      display="flex"
+      flexDirection='column'
+      justifyContent="center"
+      gap={2}
+      >
         <Stepper steps={steps} activeStep={activeStep} />
+        {getSectionComponent()}
         <MDBox
           display="flex"
           justifyContent="center"
           alignItems="center"
-          style={{ padding: "20px" }}
+          // style={{ padding: "20px" }}
         >
-          <Grid
+          {/* <Grid
             container
             xs={12}
             md={12}
@@ -433,8 +442,8 @@ function Index() {
             display="flex"
             justifyContent="center"
             alignItems="center"
-          >
-            <Grid
+          > */}
+            {/* <Grid
               item
               xs={12}
               md={12}
@@ -442,10 +451,10 @@ function Index() {
               display="flex"
               justifyContent="center"
               alignItems="center"
-            >
-              {getSectionComponent()}
-            </Grid>
-            <Grid
+            > */}
+              {/* {getSectionComponent()} */}
+            {/* </Grid> */}
+            {/* <Grid
               p={1}
               item
               xs={12}
@@ -528,8 +537,12 @@ function Index() {
                   </>
                 )}
               </Grid>
-            </Grid>
-            <Grid
+            </Grid> */}
+
+
+
+
+            {/* <Grid
               item
               xs={12}
               md={12}
@@ -537,8 +550,8 @@ function Index() {
               display="flex"
               justifyContent="flex-end"
               alignItems="center"
-            ></Grid>
-          </Grid>
+            ></Grid> */}
+          {/* </Grid> */}
         </MDBox>
       </MDBox>
     </>

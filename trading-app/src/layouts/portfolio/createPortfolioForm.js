@@ -25,7 +25,7 @@ function Index() {
     const location = useLocation();
     const  id  = location?.state?.data;
     const [isSubmitted,setIsSubmitted] = useState(false);
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     // const getDetails = useContext(userContext);
     // const [indexData,setIndexData] = useState([]);
     const [formState,setFormState] = useState();

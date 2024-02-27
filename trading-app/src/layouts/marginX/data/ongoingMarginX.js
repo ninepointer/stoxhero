@@ -12,7 +12,7 @@ import { apiUrl } from '../../../constants/constants';
 
 const OngoiningContest = () => {
   const [ongoingMarginX, setOngoiningMarginX] = useState([]);
-  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(() => {
     let call1 = axios.get(`${apiUrl}marginx/ongoing`, {

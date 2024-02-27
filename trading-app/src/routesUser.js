@@ -366,6 +366,14 @@ const routes = [
     component: <TutorialVideo />,
   },
   {
+    type: "collapse",
+    name: "Course",
+    key: "course",
+    icon: <VideoChatIcon/>,
+    route: "/course",
+    component: <TutorialVideo />,
+  },
+  {
     key: "profile",
     route: "/profile",
     component: <Profile />,

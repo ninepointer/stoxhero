@@ -12,7 +12,7 @@ import RewardTable from "../rulesAndRewardTable";
 
 
 function Header({ contest }) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [serverTime, setServerTime] = useState();
     const [loading, setIsLoading] = useState(true);
     let [pnlData, setPnlData] = useState([]);

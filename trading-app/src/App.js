@@ -52,6 +52,7 @@ import routesSchool from "./routesSchool";
 import analyticsRoutes from "./analyticsRoutes";
 // import routesAffiliate from "./routesAffiliate";
 import routesAffiliate from "./routesAffiliate";
+// import routesInfluencerFunc from "./routesInfluencer";
 import routesCollegeFunc from "./routesCollege";
 // Material Dashboard 2 React contexts
 import {
@@ -86,7 +87,7 @@ import ResetPassword from "./layouts/authentication/reset-password/cover";
 import CampaignDetails from "./layouts/campaign/campaignDetails";
 import { adminRole } from "./variables";
 import { userRole } from "./variables";
-import { Affiliate, schoolRole } from "./variables";
+import { Affiliate, schoolRole, Influencer } from "./variables";
 import Contact from "./layouts/HomePage/pages/Contact";
 import Privacy from "./layouts/HomePage/pages/Privacy";
 import Terms from "./layouts/HomePage/pages/Tnc";
@@ -127,6 +128,7 @@ function NotFound() {
 
 export default function App() {
   const routesCollege = routesCollegeFunc();
+  // const routesInfluencer = routesInfluencerFunc()
   const cookieValue = Cookies.get("jwtoken");
   const [controller, dispatch] = useMaterialUIController();
   const {
@@ -314,7 +316,7 @@ export default function App() {
               (getDetails?.userDetails?.role?.roleName == adminRole ||
                 getDetails?.userDetails?.role?.roleName == userRole ||
                 getDetails?.userDetails?.role?.roleName == Affiliate ||
-                getDetails?.userDetails?.role?.roleName === "data") && (
+                getDetails?.userDetails?.role?.roleName === Influencer) && (
                 <Sidenav
                   color={sidenavColor}
                   brand={
@@ -330,8 +332,8 @@ export default function App() {
                       : detailUser.role?.roleName === Affiliate ||
                         getDetails?.userDetails?.role?.roleName === Affiliate
                       ? routesAffiliate
-                      : detailUser.role?.roleName === userRole ||
-                        getDetails?.userDetails?.role?.roleName === userRole
+                      : (detailUser.role?.roleName === userRole || detailUser.role?.roleName === Influencer) ||
+                        (getDetails?.userDetails?.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === Influencer)
                       ? isCollegeRoute
                         ? routesCollege
                         : userRoutes
@@ -367,7 +369,7 @@ export default function App() {
               getDetails?.userDetails?.role?.roleName === Affiliate ||
               getDetails?.userDetails?.role?.roleName === adminRole ||
               getDetails?.userDetails?.role?.roleName === userRole ||
-              getDetails?.userDetails?.role?.roleName === "data") && (
+              getDetails?.userDetails?.role?.roleName === Influencer) && (
               <Sidenav
                 color={sidenavColor}
                 brand={Logo}
@@ -376,9 +378,9 @@ export default function App() {
                   detailUser.role?.roleName === adminRole ||
                   getDetails?.userDetails?.role?.roleName === adminRole
                     ? routes
-                    : detailUser.role?.roleName === userRole ||
-                      getDetails?.userDetails?.role?.roleName === userRole
-                    ? isCollegeRoute
+                    : (detailUser.role?.roleName === userRole || detailUser.role?.roleName === Influencer) ||
+                    (getDetails?.userDetails?.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === Influencer)
+                ? isCollegeRoute
                       ? routesCollege
                       : userRoutes
                     : detailUser.role?.roleName === Affiliate ||
@@ -412,9 +414,9 @@ export default function App() {
           : detailUser.role?.roleName === Affiliate ||
             getDetails?.userDetails?.role?.roleName === Affiliate
           ? getRoutes(routesAffiliate)
-          : detailUser.role?.roleName === userRole ||
-            getDetails?.userDetails?.role?.roleName === userRole
-          ? isCollegeRoute
+          : (detailUser.role?.roleName === userRole || detailUser.role?.roleName === Influencer) ||
+          (getDetails?.userDetails?.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === Influencer)
+            ? isCollegeRoute
             ? getRoutes(routesCollege)
             : getRoutes(userRoutes)
           : detailUser.role?.roleName === "data" ||

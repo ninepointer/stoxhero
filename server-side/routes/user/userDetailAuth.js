@@ -1173,6 +1173,40 @@ router.get("/normalusers", Authenticate, restrictTo('Admin', 'SuperAdmin'), asyn
 
 });
 
+router.get("/influencer", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
+
+  const searchString = req.query.search;
+  try {
+      const data = await UserDetail.find({
+          $and: [
+              {
+                  $or: [
+                      { email: { $regex: searchString, $options: 'i' } },
+                      { first_name: { $regex: searchString, $options: 'i' } },
+                      { last_name: { $regex: searchString, $options: 'i' } },
+                      { mobile: { $regex: searchString, $options: 'i' } },
+                  ]
+              },
+              {
+                  status: 'Active',
+              },
+              {role: new ObjectId('65dc6817586cba2182f05561')}
+          ]
+      }).select('first_name last_name email mobile _id myReferralCode')
+      res.status(200).json({
+          status: "success",
+          message: "Getting User successfully",
+          data: data
+      });
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Something went wrong",
+          error: error.message
+      });
+  }
+});
+
 router.get("/adminAndcr", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
   const newuser = await UserDetail.aggregate([
     {

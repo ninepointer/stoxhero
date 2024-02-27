@@ -44,6 +44,7 @@ router.route("/info").post(
   ]),
   courseController.createCourseInfo
 );
+
 router
   .route("/pricing/:id")
   .patch(
@@ -61,6 +62,190 @@ router.patch(
     { name: "salesVideo", maxCount: 1 },
   ]),
   courseController.editCourse
+);
+
+router.patch(
+  "/:id/instructor",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  upload.fields([
+    { name: "instructorImage", maxCount: 1 },
+  ]),
+  courseController.addInstructor
+);
+
+router.patch(
+  "/:id/faq",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.addFaq
+);
+
+router.patch(
+  "/:id/content",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.addContent
+);
+
+router.patch(
+  "/:id/benefit",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.addBenefits
+);
+
+router.patch(
+  "/:id/subtopic/:contentId",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.addSubTopic
+);
+
+router.patch(
+  "/:id/instructor/:instructorId",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  upload.fields([
+    { name: "instructorImage", maxCount: 1 },
+  ]),
+  courseController.editInstructor
+);
+
+router.patch(
+  "/:id/faq/:faqId",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.editFaq
+);
+
+router.patch(
+  "/:id/content/:contentId",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.editContent
+);
+
+router.patch(
+  "/:id/benefit/:benefitId",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.editBenefits
+);
+
+router.patch(
+  "/:id/subtopic/:contentId/:subtopicId",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.editSubTopic
+);
+
+router.get(
+  "/admincompleted",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.getAdminCompleted
+);
+
+router.get(
+  "/adminongoing",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.getAdminOngoing
+);
+
+router.get(
+  "/adminupcoming",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.getAdminUpcoming
+);
+
+router.get(
+  "/admindraft",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.getAdminDraft
+);
+
+
+
+router.get(
+  "/:id",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.getCourseById
+);
+
+router.get(
+  "/:id/publish",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.coursePublish
+);
+
+router.get(
+  "/:id/instructor",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.getCourseInstructor
+);
+
+router.get(
+  "/:id/faq",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.getCourseFAQ
+);
+
+router.get(
+  "/:id/content",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.getCourseContent
+);
+
+router.get(
+  "/:id/benefit",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.getCourseBenefit
+);
+
+
+router.delete(
+  "/:id/instructor/:instructorId",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.deleteInstructor
+);
+
+router.delete(
+  "/:id/faq/:faqId",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.deleteFAQ
+);
+
+router.delete(
+  "/:id/content/:contentId",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.deleteContent
+);
+
+router.delete(
+  "/:id/benefit/:benefitId",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.deleteBenefits
+);
+
+router.delete(
+  "/:id/subtopic/:contentId/:subtopicId",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.deleteSubtopic
 );
 
 module.exports = router;

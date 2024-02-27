@@ -97,7 +97,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
     setValue(event.target.value);
   };
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(() => {
     if (open) {

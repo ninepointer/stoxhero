@@ -2,36 +2,38 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const courseSchema = new Schema({
-  courseName: { type: String, required: true },
+  courseName: { type: String,  },
   courseSlug: { type: String },
-  courseInstructor: [
-    { type: Schema.Types.ObjectId, ref: "user-personal-detail" },
-  ],
-  instructorImages: [
-    {
-      instructor: { type: Schema.Types.ObjectId, ref: "user-personal-detail" },
-      image: String,
+  courseInstructors: [
+   {
+    id: { 
+      type: Schema.Types.ObjectId, 
+      ref: "user-personal-detail"
     },
+    image: String,
+    about: String
+   }
   ],
   aboutInstructor: String,
   courseImage: { type: String },
-  courseLanguages: { type: String, required: true },
+  courseLanguages: { type: String,  },
   courseDurationInMinutes: Number,
-  courseOverview: { type: String, required: true },
+  courseOverview: { type: String,  },
   courseDescription: { type: String },
   courseStartTime: { type: Date },
   courseEndTime: { type: Date },
   registrationStartTime: { type: Date },
   registrationEndTime: { type: Date },
-  maxEnrolments: { type: Number, required: true },
+  maxEnrolments: { type: Number,  },
   coursePrice: { type: Number },
   discountedPrice: { type: Number },
-  status: { type: String, enum: ["Draft", "Published"] },
-  type: { type: String, enum: ["Course", "Workshop"] },
-  courseType: { type: String, enum: ["Live", "Recorded"] },
+  status: { type: String, enum: ["Draft", "Published", ''], default: 'Draft' },
+  type: { type: String, enum: ["Course", "Workshop", ''], default: 'Course' },
+  courseType: { type: String, enum: ["Live", "Recorded", ''], default: 'Live' },
+  category: { type: String, enum: ["Trading", "Investing", 'Mutual Fund', ''], default: 'Trading' },
   courseBenefits: [
     {
-      orderNo: { type: Number },
+      order: { type: Number },
       benefits: { type: String },
     },
   ],
@@ -39,7 +41,10 @@ const courseSchema = new Schema({
     {
       order: Number,
       topic: String,
-      subtopics: [String],
+      subtopics: [{
+        order: Number,
+        topic: String,
+      }],
     },
   ],
   courseLink: String,
@@ -60,8 +65,8 @@ const courseSchema = new Schema({
       bonusRedemption: Number,
     },
   ],
-  level: { type: String, enum: ["Beginner", "Intermediate", "Advanced"] },
-  faqs: [{ question: String, answer: String }],
+  level: { type: String, enum: ["Beginner", "Intermediate", "Advanced", ''], default: 'Beginner' },
+  faqs: [{ order: Number, question: String, answer: String }],
   salesVideo: String,
 });
 

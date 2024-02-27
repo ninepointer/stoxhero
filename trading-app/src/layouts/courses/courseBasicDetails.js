@@ -30,65 +30,107 @@ import dayjs from "dayjs";
 import JoditEditor from "jodit-react";
 import UploadImage from "../../assets/images/uploadimage.png";
 import UploadVideo from "../../assets/images/uploadvideo.png";
+import { apiUrl } from "../../constants/constants";
 
-const CreateCourse = forwardRef((props, ref) => {
-  console.log("props", props);
+const CreateCourse = (
+  // ref, 
+  {setActiveStep, activeStep, steps, setCreatedCourse}) => {
+  // console.log("props", props);
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const navigate = useNavigate();
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const getDetails = useContext(userContext);
+  // const getDetails = useContext(userContext);
   const location = useLocation();
   const id = location?.state?.data;
   const [courseData, setCourseData] = useState(id ? id : "");
-  const [isObjectNew, setIsObjectNew] = useState(id ? true : false);
+  // const [isObjectNew, setIsObjectNew] = useState(id ? true : false);
   const [isLoading, setIsLoading] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
+  // const [saving, setSaving] = useState(false);
   const [creating, setCreating] = useState(false);
   const [titlePreviewUrl, setTitlePreviewUrl] = useState("");
   const [titleVideoPreviewUrl, setTitleVideoPreviewUrl] = useState("");
-  const [imagesPreviewUrl, setImagesPreviewUrl] = useState(null);
-  const [imageData, setImageData] = useState(courseData || null);
+  // const [imagesPreviewUrl, setImagesPreviewUrl] = useState(null);
+  // const [imageData, setImageData] = useState(courseData || null);
   const [title, setTitle] = useState(courseData?.courseName || "");
-  const [titleImage, setTitleImage] = useState(null);
-  const [titleVideo, setTitleVideo] = useState(null);
+  // const [titleImage, setTitleImage] = useState(null);
+  // const [titleVideo, setTitleVideo] = useState(null);
   const [formState, setFormState] = useState({
-    courseName: id?.courseName || "",
-    courseOverview: id?.courseOverview || "",
-    courseLanguages: id?.courseLanguages || "",
-    courseOverview: id?.courseOverview || "",
+    courseName: courseData?.courseName || "",
+    courseLanguages: courseData?.courseLanguages || "",
+    courseOverview: courseData?.courseOverview || "",
+    tags: courseData?.tags || "",
+    category: courseData?.category || "",
+    level: courseData?.level || "",
+    type: courseData?.type || "",
+    courseType: courseData?.courseType || "",
+    courseDurationInMinutes: courseData?.courseDurationInMinutes || "",
+    courseDescription: courseData?.courseDescription || ''
   });
   const editor = useRef(null);
   const [file, setFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
   const [value, setValue] = useState(courseData?.courseDescription || "");
   const [created, setCreated] = useState(false);
-  useImperativeHandle(ref, () => ({
-    onSubmit: async function onSubmit(e) {
-      //   if (created) return;
 
-      //   e.preventDefault();
+  const queryString = location.search;
+  const urlParams = new URLSearchParams(queryString);
+
+  // Get the value of the "mobile" parameter
+  const courseId = urlParams.get('id');
+  const paramsActiveSteps = urlParams.get('activestep');
+
+  useEffect(()=>{
+    if(courseId){
+      fetchCourseData();
+    }
+  }, [paramsActiveSteps, courseId])
+
+  async function fetchCourseData(){
+    try{
+      const data = await axios.get(`${apiUrl}courses/${courseId}`, {withCredentials: true});
+      setCourseData(data?.data?.data);
+
+      setValue(data?.data?.data?.courseDescription);
+      setFormState({
+        ...data?.data?.data,
+        courseEndTime: dayjs(data?.data?.data?.courseEndTime),
+        courseStartTime: dayjs(data?.data?.data?.courseStartTime),
+        registrationEndTime: dayjs(data?.data?.data?.registrationEndTime),
+        registrationStartTime: dayjs(data?.data?.data?.registrationStartTime)
+      });
+      setEditing(true);
+    } catch(err){
+
+    }
+  }
+
+  console.log('formState', formState, formState?.type)
+  
+  async function onSubmit(type) {
+    if(courseData){
+      setActiveStep(activeStep + 1)
+      return navigate(`/coursedetails?id=${courseData?._id}&activestep=${activeStep + 1}`)
+    }
       setTimeout(() => {
         setCreating(false);
         // setIsSubmitted(true);
       }, 500);
       const formData = new FormData();
       if (file) {
-        console.log("there is file", file);
         formData.append("courseImage", file);
       }
       if (videoFile) {
-        console.log("there is vid file", videoFile);
         formData.append("salesVideo", videoFile);
       }
 
       for (let elem in formState) {
         if (elem !== "courseImage") formData.append(`${elem}`, formState[elem]);
       }
-      if (value) {
-        formData.append("courseDescription", value);
-      }
+      // if (value) {
+      //   formData.append("courseDescription", value);
+      // }
 
       const res = await fetch(`${baseUrl}api/v1/courses/info`, {
         method: "POST",
@@ -102,58 +144,57 @@ const CreateCourse = forwardRef((props, ref) => {
       const data = await res.json();
 
       if (res.status === 200 || res.status == 201 || data) {
+        if(type === 'Draft'){
+          openSuccessSB("Course Created", data.message);
+          setEditing(true);
+          navigate(`/coursedetails?id=${data?.data?._id}&activestep=${activeStep}`)
+          return;
+        }
         openSuccessSB("Course Created", data.message);
         setCreated(true);
         console.log("response data", data);
-        props.setCreatedCourse(data.data);
+        setCreatedCourse(data.data);
         setCourseData(data.data);
         setIsSubmitted(true);
+        setActiveStep(activeStep + 1);
         setTimeout(() => {
           setCreating(false);
           setIsSubmitted(true);
         }, 500);
+        navigate(`/coursedetails?id=${data?.data?._id}&activestep=${activeStep + 1}`)
       } else {
         setTimeout(() => {
           setCreating(false);
           setIsSubmitted(false);
         }, 500);
       }
-    },
-  }));
 
-  async function onSubmit(e, formState) {
-    if (created) return;
+  }
 
-    e.preventDefault();
-
-    if (!formState?.collegeName || !formState?.zone) {
-      setCreating(true);
-      setTimeout(() => {
-        setCreating(false);
-        setIsSubmitted(false);
-      }, 500);
-      return openErrorSB(
-        "Missing Field",
-        "Please fill all the mandatory fields"
-      );
-    }
-
+  async function onEdit() {
     setTimeout(() => {
       setCreating(false);
-      setIsSubmitted(true);
+      // setIsSubmitted(true);
     }, 500);
     const formData = new FormData();
     if (file) {
-      formData.append("courseImage", file[0]);
+      formData.append("courseImage", file);
     }
+    if (videoFile) {
+      formData.append("salesVideo", videoFile);
+    }
+
     for (let elem in formState) {
-      if (elem !== "logo") formData.append(`${elem}`, formState[elem]);
+      if (elem !== "courseImage") formData.append(`${elem}`, formState[elem]);
     }
-    const res = await fetch(`${baseUrl}api/v1/courses/info`, {
-      method: "POST",
+    // if (value) {
+    //   formData.append("courseDescription", value);
+    // }
+
+    const res = await fetch(`${baseUrl}api/v1/courses/${courseId}`, {
+      method: "PATCH",
       credentials: "include",
       headers: {
-        "content-type": "application/json",
         "Access-Control-Allow-Credentials": true,
       },
       body: formData,
@@ -162,73 +203,31 @@ const CreateCourse = forwardRef((props, ref) => {
     const data = await res.json();
 
     if (res.status === 200 || res.status == 201 || data) {
-      openSuccessSB("Course Created", data.message);
-      setCreated(true);
-      props.setCreatedCourse(res.data);
-      setIsSubmitted(true);
-      setTimeout(() => {
-        setCreating(false);
-        setIsSubmitted(true);
-      }, 500);
+      openSuccessSB("Course Edited", data.message);
+      // setCreated(true);
+      // console.log("response data", data);
+      setEditing(true);
+      setCreatedCourse(data.data);
+      setCourseData(data.data);
+      // setIsSubmitted(true);
+      // setActiveStep(activeStep + 1);
+      // setTimeout(() => {
+      //   setCreating(false);
+      //   setIsSubmitted(true);
+      // }, 500);
+      // navigate(`/coursedetails?id=${data?.data?._id}&activestep=${activeStep + 1}`)
     } else {
       setTimeout(() => {
         setCreating(false);
         setIsSubmitted(false);
       }, 500);
-    }
-  }
-
-  async function onEdit(e, formState) {
-    e.preventDefault();
-    setSaving(true);
-    if (!formState?.collegeName || !formState?.zone) {
-      setTimeout(() => {
-        setCreating(false);
-        setIsSubmitted(false);
-      }, 500);
-      return openErrorSB(
-        "Missing Field",
-        "Please fill all the mandatory fields"
-      );
-    }
-    setTimeout(() => {
-      setCreating(false);
-      setIsSubmitted(true);
-    }, 500);
-    const { collegeName, zone } = formState;
-    const res = await fetch(`${baseUrl}api/v1/college/${id?._id}`, {
-      method: "PATCH",
-      credentials: "include",
-      headers: {
-        "content-type": "application/json",
-        "Access-Control-Allow-Credentials": true,
-      },
-      body: JSON.stringify({
-        collegeName,
-        zone,
-      }),
-    });
-
-    const data = await res.json();
-    const updatedData = data?.data;
-    if (updatedData || res.status === 200) {
-      openSuccessSB(
-        "College Edited",
-        updatedData.collegeName + " | " + updatedData.zone
-      );
-      setTimeout(() => {
-        setSaving(false);
-        setEditing(false);
-      }, 500);
-    } else {
-      openErrorSB("Error", "data.error");
     }
   }
 
   const handleCourseImage = (event) => {
     setFile(event.target.files[0]);
     const file = event.target.files[0];
-    setTitleImage(event.target.files);
+    // setTitleImage(event.target.files);
     // console.log("Title File:",file)
     // Create a FileReader instance
     const reader = new FileReader();
@@ -241,7 +240,7 @@ const CreateCourse = forwardRef((props, ref) => {
   const handleSalesVideo = (event) => {
     setVideoFile(event.target.files[0]);
     const file = event.target.files[0];
-    setTitleVideo(event.target.files);
+    // setTitleVideo(event.target.files);
     // console.log("Title File:",file)
     // Create a FileReader instance
     const reader = new FileReader();
@@ -254,7 +253,7 @@ const CreateCourse = forwardRef((props, ref) => {
 
   const config = React.useMemo(
     () => ({
-      disabled: (isSubmitted || id) && (!editing || saving),
+      disabled: editing,
       readonly: false,
       enableDragAndDropFileToEditor: false,
       toolbarAdaptive: false,
@@ -367,11 +366,11 @@ const CreateCourse = forwardRef((props, ref) => {
               >
                 <Grid item xs={12} md={6} lg={12}>
                   <TextField
-                    disabled={(isSubmitted || id) && (!editing || saving)}
+                    disabled={editing}
                     id="outlined-required"
                     // label='Course Name *'
                     placeholder="Course Name: e.g Introduction to Stock Market"
-                    value={formState?.courseName || courseData?.courseName}
+                    value={formState?.courseName}
                     fullWidth
                     onChange={(e) => {
                       setFormState((prevState) => ({
@@ -384,12 +383,12 @@ const CreateCourse = forwardRef((props, ref) => {
 
                 <Grid item xs={12} md={6} lg={12}>
                   <TextField
-                    disabled={(isSubmitted || id) && (!editing || saving)}
+                    disabled={editing}
                     id="outlined-required"
                     // label='Course Overview *'
                     placeholder="Course Overview: e.g This course will cover basic of stock market"
                     value={
-                      formState?.courseOverview || courseData?.courseOverview
+                      formState?.courseOverview
                     }
                     fullWidth
                     onChange={(e) => {
@@ -403,12 +402,12 @@ const CreateCourse = forwardRef((props, ref) => {
 
                 <Grid item xs={12} md={6} lg={6}>
                   <TextField
-                    disabled={(isSubmitted || id) && (!editing || saving)}
+                    disabled={editing}
                     id="outlined-required"
                     // label='Course Name *'
                     placeholder="Course Language: e.g Introduction to Stock Market"
                     value={
-                      formState?.courseLanguages || courseData?.courseLanguages
+                      formState?.courseLanguages
                     }
                     fullWidth
                     onChange={(e) => {
@@ -422,11 +421,11 @@ const CreateCourse = forwardRef((props, ref) => {
 
                 <Grid item xs={12} md={6} lg={6}>
                   <TextField
-                    disabled={(isSubmitted || id) && (!editing || saving)}
+                    disabled={editing}
                     id="outlined-required"
                     // label='Course Name *'
                     placeholder="Tags: e.g Live Simulation, Live Trading"
-                    value={formState?.tags || courseData?.tags}
+                    value={formState?.tags}
                     fullWidth
                     onChange={(e) => {
                       setFormState((prevState) => ({
@@ -445,8 +444,8 @@ const CreateCourse = forwardRef((props, ref) => {
                     <Select
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
-                      disabled={(isSubmitted || id) && (!editing || saving)}
-                      value={formState?.category || courseData?.category}
+                      disabled={editing}
+                      value={formState?.category }
                       placeholder="Course Name: e.g Introduction to Stock Market"
                       onChange={(e) => {
                         setFormState((prevState) => ({
@@ -474,8 +473,8 @@ const CreateCourse = forwardRef((props, ref) => {
                     <Select
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
-                      disabled={(isSubmitted || id) && (!editing || saving)}
-                      value={formState?.level || courseData?.level}
+                      disabled={editing}
+                      value={formState?.level}
                       onChange={(e) => {
                         setFormState((prevState) => ({
                           ...prevState,
@@ -497,20 +496,52 @@ const CreateCourse = forwardRef((props, ref) => {
                 <Grid item xs={12} md={6} lg={6}>
                   <FormControl sx={{ width: "100%" }}>
                     <InputLabel id="demo-simple-select-autowidth-label">
+                      Type *
+                    </InputLabel>
+                    <Select
+                      labelId="demo-simple-select-autowidth-label"
+                      id="demo-simple-select-autowidth"
+                      disabled={editing}
+                      value={formState?.type}
+                      onChange={(e) => {
+                        setFormState((prevState) => ({
+                          ...prevState,
+                          type: e.target.value,
+                        }));
+
+                        e.target.value==='Workshop' && setFormState((prevState) => ({
+                          ...prevState,
+                          courseType: 'Live',
+                        }));
+                      }}
+                      label="Type *"
+                      sx={{
+                        minHeight: 43,
+                      }}
+                    >
+                      <MenuItem value="Course">Course</MenuItem>
+                      <MenuItem value="Workshop">Workshop</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={6}>
+                  <FormControl sx={{ width: "100%" }}>
+                    <InputLabel id="demo-simple-select-autowidth-label">
                       Course Type *
                     </InputLabel>
                     <Select
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
-                      disabled={(isSubmitted || id) && (!editing || saving)}
-                      value={formState?.courseType || courseData?.courseType}
+                      disabled={editing || formState?.type==='Workshop'}
+                      value={formState?.type==='Workshop' ? 'Live' : formState?.courseType }
                       onChange={(e) => {
                         setFormState((prevState) => ({
                           ...prevState,
                           courseType: e.target.value,
                         }));
                       }}
-                      label="Level *"
+                      label="Course Type *"
                       sx={{
                         minHeight: 43,
                       }}
@@ -521,10 +552,27 @@ const CreateCourse = forwardRef((props, ref) => {
                   </FormControl>
                 </Grid>
 
+                <Grid item xs={12} md={6} lg={6}>
+                  <TextField
+                    disabled={editing}
+                    id="outlined-required"
+                    // label='Course Name *'
+                    placeholder="Duration in minutes"
+                    value={formState?.courseDurationInMinutes || courseData?.courseDurationInMinutes}
+                    fullWidth
+                    onChange={(e) => {
+                      setFormState((prevState) => ({
+                        ...prevState,
+                        courseDurationInMinutes: e.target.value,
+                      }));
+                    }}
+                  />
+                </Grid>
+
                 {formState?.courseType === "Live" && (
                   <Grid item xs={12} md={6} lg={6}>
                     <TextField
-                      disabled={(isSubmitted || id) && (!editing || saving)}
+                      disabled={editing}
                       id="outlined-required"
                       label="Max Enrolments *"
                       value={
@@ -549,8 +597,7 @@ const CreateCourse = forwardRef((props, ref) => {
                           <MobileDateTimePicker
                             label="Registration Start Time"
                             disabled={
-                              (isSubmitted || courseData) &&
-                              (!editing || saving)
+                              editing
                             }
                             value={
                               formState?.registrationStartTime ||
@@ -581,8 +628,7 @@ const CreateCourse = forwardRef((props, ref) => {
                           <MobileDateTimePicker
                             label="Registration End Time"
                             disabled={
-                              (isSubmitted || courseData) &&
-                              (!editing || saving)
+                              editing
                             }
                             value={
                               formState?.registrationEndTime ||
@@ -613,8 +659,7 @@ const CreateCourse = forwardRef((props, ref) => {
                           <MobileDateTimePicker
                             label="Course Start Time"
                             disabled={
-                              (isSubmitted || courseData) &&
-                              (!editing || saving)
+                              editing
                             }
                             value={
                               formState?.courseStartTime ||
@@ -645,8 +690,7 @@ const CreateCourse = forwardRef((props, ref) => {
                           <MobileDateTimePicker
                             label="Course End Time"
                             disabled={
-                              (isSubmitted || courseData) &&
-                              (!editing || saving)
+                              editing
                             }
                             value={
                               formState?.courseEndTime ||
@@ -673,12 +717,82 @@ const CreateCourse = forwardRef((props, ref) => {
                   <JoditEditor
                     ref={editor}
                     config={config}
-                    value={value}
-                    onChange={(newContent) => setValue(newContent)}
+                    value={formState?.courseDescription}
+                    onChange={
+                      (newContent) => setFormState((prevState) => ({
+                        ...prevState,
+                        courseDescription: newContent,
+                      }))}
                     disabled={true}
                     style={{ minWidth: "100%" }}
                   />
                 </Grid>
+
+                  <Grid
+                    container
+                    direction="row"
+                    justifyContent="flex-end"
+                    alignItems="center"
+                    spacing={2}
+                    mt={2}
+                  >
+
+
+                    {activeStep !== steps.length - 1 && (
+                      <>
+                        <Grid
+                          item
+                        >
+                          <MDButton
+                            variant="contained"
+                            color="warning"
+                            size="small"
+                            onClick={() => onSubmit('Draft')}
+                          >
+                            Save as Draft
+                          </MDButton>
+                        </Grid>
+
+                        <Grid
+                          item
+                        >
+                          <MDButton
+                            variant="contained"
+                            color="success"
+                            size="small"
+                            disabled={!courseData}
+                            onClick={() => {
+                              editing ?
+                                setEditing(false)
+                                :
+                                onEdit()
+                              // handleButtonClick("create");
+                            }}
+                          >
+                            {editing ? 'Edit' : 'Edit & Save'}
+                          </MDButton>
+                        </Grid>
+
+                        <Grid
+                          item
+
+                        >
+                          <MDButton
+                            variant="contained"
+                            color="success"
+                            size="small"
+                            onClick={() => {
+                              onSubmit('Submit')
+                              // handleButtonClick("create");
+                            }}
+                          >
+                            Save & Continue
+                          </MDButton>
+                        </Grid>
+                      </>
+                    )}
+
+                  </Grid>
               </Grid>
             </Grid>
 
@@ -692,7 +806,7 @@ const CreateCourse = forwardRef((props, ref) => {
               alignItems="center"
               flexDirection="column"
             >
-              {!courseData ? (
+              {!courseData?.courseImage ? (
                 <Grid
                   item
                   xs={12}
@@ -831,7 +945,7 @@ const CreateCourse = forwardRef((props, ref) => {
                     style={{ maxWidth: "100%", border: "1px dotted #ccc" }}
                   >
                     <img
-                      src={courseData?.courseImage?.url}
+                      src={courseData?.courseImage}
                       alt="Preview"
                       style={{ maxWidth: "100%" }}
                     />
@@ -839,7 +953,7 @@ const CreateCourse = forwardRef((props, ref) => {
                 </Grid>
               )}
 
-              {!courseData ? (
+              {!courseData?.salesVideo ? (
                 <Grid
                   item
                   mt={1}
@@ -978,11 +1092,12 @@ const CreateCourse = forwardRef((props, ref) => {
                     alignItems="center"
                     style={{ maxWidth: "100%", border: "1px dotted #ccc" }}
                   >
-                    <img
-                      src={courseData?.salesVideo}
-                      alt="Preview"
-                      style={{ maxWidth: "100%" }}
-                    />
+                        <video
+                          controls // This adds controls like play, pause, and volume.
+                          src={courseData?.salesVideo} // Set the video source dynamically.
+                          alt="Preview" // Provide alternative text for accessibility.
+                          style={{ maxWidth: "100%" }} // Ensure the video doesn't exceed container width.
+                        />
                   </Grid>
                 </Grid>
               )}
@@ -994,5 +1109,5 @@ const CreateCourse = forwardRef((props, ref) => {
       )}
     </>
   );
-});
+};
 export default CreateCourse;

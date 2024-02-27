@@ -9,7 +9,7 @@ import { userContext } from "../../AuthContext";
 
 function Tables() {
   const getDetails = useContext(userContext);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   useEffect(() => {
     window.webengage.track('faqs_tab_clicked', {
       user: getDetails?.userDetails?._id,

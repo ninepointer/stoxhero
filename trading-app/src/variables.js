@@ -2,6 +2,7 @@ export const adminRole = "Admin";
 export const userRole = "User";
 export const InfinityTraderRole = "Infinity Trader";
 export const Affiliate = "Affiliate";
+export const Influencer = "Influencer";
 export const schoolRole = "School";
 
 export const paperTrader = "paperTrade";

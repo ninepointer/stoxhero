@@ -40,7 +40,7 @@ import {
 import { userContext } from "../../AuthContext";
 
 function Sidenav({ color, brand, brandName, routes, ...rest }) {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [controller, dispatch] = useMaterialUIController();
   const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
   const location = useLocation();
@@ -105,7 +105,9 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     let returnValue;
 
     if (type === "collapse" ) {
-      if((key=="internship" && batchInfo.length == 0) || (key==="myaffiliatedashboard" && !getDetails?.userDetails?.isAffiliate)){
+      if((key=="internship" && batchInfo.length == 0) || (key==="myaffiliatedashboard" && !getDetails?.userDetails?.isAffiliate) 
+      || (key==="course" && getDetails?.userDetails?.role?.roleName !== "Influencer" )
+    ){
         // console.log("in route if", key)
       } else{
         // console.log("in route else", key, batchInfo.length)

@@ -2,6 +2,7 @@ import * as React from "react";
 import {
   useContext,
   useState,
+  useEffect,
   useRef,
   forwardRef,
   useImperativeHandle,
@@ -29,11 +30,9 @@ import dayjs from "dayjs";
 import JoditEditor from "jodit-react";
 import UploadImage from "../../assets/images/uploadimage.png";
 import UploadVideo from "../../assets/images/uploadvideo.png";
+import { apiUrl } from "../../constants/constants";
 
-const CoursePricing = forwardRef(({ createdCourse }, ref) => {
-  console.log("created course", createdCourse);
-  let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+const CoursePricing = ({setActiveStep, activeStep, steps}) => {
   const navigate = useNavigate();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const getDetails = useContext(userContext);
@@ -45,138 +44,56 @@ const CoursePricing = forwardRef(({ createdCourse }, ref) => {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [titlePreviewUrl, setTitlePreviewUrl] = useState("");
-  const [imagesPreviewUrl, setImagesPreviewUrl] = useState(null);
-  const [imageData, setImageData] = useState(courseData || null);
   const [title, setTitle] = useState(courseData?.courseName || "");
-  const [titleImage, setTitleImage] = useState(null);
-  const [formState, setFormState] = useState({
-    courseName: id?.courseName || "",
-    courseOverview: id?.courseOverview || "",
-    courseLanguages: id?.courseLanguages || "",
-    courseOverview: id?.courseOverview || "",
-    courseOverview: id?.courseOverview || "",
-  });
-  const editor = useRef(null);
-  const [file, setFile] = useState(null);
-  const [value, setValue] = useState(courseData?.courseDescription || "");
+  const [formState, setFormState] = useState({});
+  const [checkFilled, setCheckFilled] = useState(false);
+  const queryString = location.search;
+  const urlParams = new URLSearchParams(queryString);
 
-  useImperativeHandle(ref, () => ({
-    setPricing: async function setPricing() {
-      //   if (created) return;
+  // Get the value of the "mobile" parameter
+  const courseId = urlParams.get('id');
+  const paramsActiveSteps = urlParams.get('activestep');
 
-      //   e.preventDefault();
-      setTimeout(() => {
-        setCreating(false);
-        // setIsSubmitted(true);
-      }, 500);
-
-      const res = await fetch(
-        `${baseUrl}api/v1/courses/pricing/${createdCourse?._id}`,
-        {
-          method: "PATCH",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Credentials": true,
-          },
-          body: JSON.stringify({
-            coursePrice: formState.coursePrice,
-            discountedPrice: formState.discountedPrice,
-            commissionPercentage: formState.commissionPercentage,
-          }),
-        }
-      );
-
-      const data = await res.json();
-
-      if (res.status === 200 || res.status == 201 || data) {
-        openSuccessSB("Course Created", data.message);
-        setCourseData(res.data);
-        setIsSubmitted(true);
-        setTimeout(() => {
-          setCreating(false);
-          setIsSubmitted(true);
-        }, 500);
-      } else {
-        setTimeout(() => {
-          setCreating(false);
-          setIsSubmitted(false);
-        }, 500);
-      }
-    },
-  }));
-
-  async function onSubmit(e, formState) {
-    e.preventDefault();
-
-    setCreating(true);
-
-    if (!formState?.collegeName || !formState?.zone) {
-      setTimeout(() => {
-        setCreating(false);
-        setIsSubmitted(false);
-      }, 500);
-      return openErrorSB(
-        "Missing Field",
-        "Please fill all the mandatory fields"
-      );
+  useEffect(()=>{
+    if(courseId){
+      fetchCourseData();
     }
+  }, [paramsActiveSteps, courseId])
 
-    setTimeout(() => {
-      setCreating(false);
-      setIsSubmitted(true);
-    }, 500);
-    const { collegeName, zone } = formState;
-    const res = await fetch(`${baseUrl}api/v1/college`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "content-type": "application/json",
-        "Access-Control-Allow-Credentials": true,
-      },
-      body: JSON.stringify({
-        collegeName,
-        zone,
-      }),
-    });
+  async function fetchCourseData(){
+    try{
+      const data = await axios.get(`${apiUrl}courses/${courseId}`, {withCredentials: true});
 
-    const data = await res.json();
+      setFormState({
+        coursePrice: data?.data?.data?.coursePrice,
+        discountedPrice: data?.data?.data?.discountedPrice,
+        commissionPercentage: data?.data?.data?.commissionPercentage,
+      });
+      if(data?.data?.data?.coursePrice || data?.data?.data?.discountedPrice || data?.data?.data?.commissionPercentage){
+        setCheckFilled(true);
+        setEditing(true);
+      } 
+    } catch(err){
 
-    if (res.status === 200 || data) {
-      openSuccessSB("Course Created", data.message);
-      setIsSubmitted(true);
-      setTimeout(() => {
-        setCreating(false);
-        setIsSubmitted(true);
-      }, 500);
-    } else {
-      setTimeout(() => {
-        setCreating(false);
-        setIsSubmitted(false);
-      }, 500);
     }
   }
 
-  async function onEdit(e, formState) {
-    e.preventDefault();
-    setSaving(true);
-    if (!formState?.collegeName || !formState?.zone) {
-      setTimeout(() => {
-        setCreating(false);
-        setIsSubmitted(false);
-      }, 500);
-      return openErrorSB(
-        "Missing Field",
-        "Please fill all the mandatory fields"
-      );
+  async function onSubmit() {
+
+    if(checkFilled){
+      setActiveStep(activeStep + 1)
+      return navigate(`/coursedetails?id=${courseId}&activestep=${activeStep + 1}`)
     }
+
+    setCreating(true);
+
     setTimeout(() => {
       setCreating(false);
       setIsSubmitted(true);
     }, 500);
-    const { collegeName, zone } = formState;
-    const res = await fetch(`${baseUrl}api/v1/college/${id?._id}`, {
+
+    const { coursePrice, discountedPrice, commissionPercentage } = formState;
+    const res = await fetch(`${apiUrl}courses/${courseId}`, {
       method: "PATCH",
       credentials: "include",
       headers: {
@@ -184,8 +101,49 @@ const CoursePricing = forwardRef(({ createdCourse }, ref) => {
         "Access-Control-Allow-Credentials": true,
       },
       body: JSON.stringify({
-        collegeName,
-        zone,
+        coursePrice, discountedPrice, commissionPercentage
+      })
+    });
+
+    const data = await res.json();
+
+    if (res.status === 200 || data) {
+      openSuccessSB("Pricing Stored", data.message);
+      setIsSubmitted(true);
+      setTimeout(() => {
+        setCreating(false);
+        setIsSubmitted(true);
+      }, 500);
+      setActiveStep(activeStep + 1)
+      navigate(`/coursedetails?id=${courseId}&activestep=${activeStep + 1}`)
+
+    } else {
+      setTimeout(() => {
+        setCreating(false);
+        setIsSubmitted(false);
+      }, 500);
+    }
+  }
+
+  async function onEdit() {
+    setSaving(true);
+
+    setTimeout(() => {
+      setCreating(false);
+      setIsSubmitted(true);
+    }, 500);
+
+    const {commissionPercentage, discountedPrice, coursePrice} = formState;
+    
+    const res = await fetch(`${apiUrl}courses/${courseId}`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+        "Access-Control-Allow-Credentials": true,
+      },
+      body: JSON.stringify({
+        commissionPercentage, discountedPrice, coursePrice
       }),
     });
 
@@ -193,44 +151,17 @@ const CoursePricing = forwardRef(({ createdCourse }, ref) => {
     const updatedData = data?.data;
     if (updatedData || res.status === 200) {
       openSuccessSB(
-        "College Edited",
-        updatedData.collegeName + " | " + updatedData.zone
+        "Pricing Edited",
+        ""
       );
       setTimeout(() => {
         setSaving(false);
-        setEditing(false);
+        setEditing(true);
       }, 500);
     } else {
       openErrorSB("Error", "data.error");
     }
   }
-
-  const handleCourseImage = (event) => {
-    const file = event.target.files[0];
-    setTitleImage(event.target.files);
-    // console.log("Title File:",file)
-    // Create a FileReader instance
-    const reader = new FileReader();
-    reader.onload = () => {
-      setTitlePreviewUrl(reader.result);
-      // console.log("Title Preview Url:",reader.result)
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const config = React.useMemo(
-    () => ({
-      disabled: (isSubmitted || id) && (!editing || saving),
-      readonly: false,
-      enableDragAndDropFileToEditor: false,
-      toolbarAdaptive: false,
-      toolbarSticky: true,
-      addNewLine: false,
-      useSearch: false,
-      hidePoweredByJodit: true,
-    }),
-    [editing]
-  );
 
   const [ntitle, setNtitle] = useState("");
   const [content, setContent] = useState("");
@@ -322,11 +253,11 @@ const CoursePricing = forwardRef(({ createdCourse }, ref) => {
               alignItems="center"
             >
               <TextField
-                disabled={(isSubmitted || id) && (!editing || saving)}
+                disabled={editing}
                 id="outlined-required"
                 // label='Course Name *'
                 placeholder="Course Price"
-                value={formState?.coursePrice || courseData?.coursePrice}
+                value={formState?.coursePrice}
                 fullWidth
                 type="number"
                 onChange={(e) => {
@@ -348,12 +279,12 @@ const CoursePricing = forwardRef(({ createdCourse }, ref) => {
               alignItems="center"
             >
               <TextField
-                disabled={(isSubmitted || id) && (!editing || saving)}
+                disabled={editing}
                 id="outlined-required"
                 // label='Course Name *'
                 placeholder="Course Discounted Price"
                 value={
-                  formState?.discountedPrice || courseData?.discountedPrice
+                  formState?.discountedPrice
                 }
                 fullWidth
                 type="number"
@@ -376,13 +307,12 @@ const CoursePricing = forwardRef(({ createdCourse }, ref) => {
               alignItems="center"
             >
               <TextField
-                disabled={(isSubmitted || id) && (!editing || saving)}
+                disabled={editing}
                 id="outlined-required"
                 // label='Course Name *'
                 placeholder="Commission Percentage"
                 value={
-                  formState?.commissionPercentage ||
-                  courseData?.commissionPercentage
+                  formState?.commissionPercentage
                 }
                 fullWidth
                 type="number"
@@ -394,6 +324,73 @@ const CoursePricing = forwardRef(({ createdCourse }, ref) => {
                 }}
               />
             </Grid>
+
+
+
+              <Grid
+                container
+                direction="row"
+                justifyContent="flex-end"
+                alignItems="center"
+                spacing={2}
+                mt={2}
+              >
+                {activeStep !== 0 && activeStep !== steps.length - 1 && (
+                  <Grid item>
+                    <MDButton
+                      variant="contained"
+                      color="dark"
+                      size="small"
+                      onClick={() => { setActiveStep(activeStep - 1); navigate(`/coursedetails?id=${courseId}&activestep=${activeStep - 1}`) }}
+                    >
+                      Previous
+                    </MDButton>
+                  </Grid>
+                )}
+
+                {activeStep !== steps.length - 1 && (
+                  <>
+                    <Grid item>
+                      <MDButton
+                        variant="contained"
+                        color="warning"
+                        size="small"
+                        onClick={onEdit}
+                      >
+                        Save as Draft
+                      </MDButton>
+                    </Grid>
+
+                    <Grid item>
+                      <MDButton
+                        variant="contained"
+                        color="success"
+                        size="small"
+                        disabled={Object.keys(formState).length === 0}
+                        onClick={() => {
+                          editing ? setEditing(false) : onEdit();
+                        }}
+                      >
+                        {editing ? 'Edit' : 'Edit & Save'}
+                      </MDButton>
+                    </Grid>
+
+                    <Grid item>
+                      <MDButton
+                        variant="contained"
+                        color="success"
+                        size="small"
+                        onClick={() => {
+                          onSubmit();
+                        }}
+                      >
+                        Save & Continue
+                      </MDButton>
+                    </Grid>
+                  </>
+                )}
+              </Grid>
+
           </Grid>
           {renderSuccessSB}
           {renderErrorSB}
@@ -401,5 +398,5 @@ const CoursePricing = forwardRef(({ createdCourse }, ref) => {
       )}
     </>
   );
-});
+}
 export default CoursePricing;
