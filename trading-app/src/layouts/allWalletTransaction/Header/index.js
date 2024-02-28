@@ -210,13 +210,14 @@ export default function LabTabs() {
             // variant="outlined"
             color="light"
             size="small"
+            onClick={() => { handleDownload('transaction_full_list') }}
             sx={{height: '45px', width: '100px'}}
           >
            
               {isLoading ?
                 <CircularProgress color="dark" size={24} />
                 :
-                <DownloadIcon sx={{ color: 'dark', cursor: 'pointer' }} onClick={() => { handleDownload('transaction_full_list') }} />
+                <DownloadIcon sx={{ color: 'dark', cursor: 'pointer' }}  />
               }
             
           </MDButton>
