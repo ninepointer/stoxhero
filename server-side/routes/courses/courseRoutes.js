@@ -213,7 +213,7 @@ router.get(
 router.get(
   "/:id/adminapproval",
   Authenticate,
-  restrictTo("Admin", "SuperAdmin"),
+  // restrictTo("Admin", "SuperAdmin"),
   courseController.sendAdminApproval
 );
 

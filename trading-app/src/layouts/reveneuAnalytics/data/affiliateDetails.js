@@ -22,6 +22,7 @@ function AffiliateRevenue({ period }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        setLoading(true)
         axios.get(`${apiUrl}revenue/affiliaterevenue?period=${period}`, {
             withCredentials: true,
             headers: {
@@ -34,7 +35,7 @@ function AffiliateRevenue({ period }) {
             setAffiliate(res.data.data);
             setLoading(false);
         })
-    }, []);
+    }, [period]);
 
     const pnlData = downloadAffiliate(affiliate)
     const handleDownload = (csvData, nameVariable) => {

@@ -15,7 +15,7 @@ const Coupon = require('../models/coupon/coupon');
 const {creditAffiliateAmount}= require('./affiliateProgramme/affiliateController');
 const AffiliateProgram = require('../models/affiliateProgram/affiliateProgram');
 const ReferralProgram = require("../models/campaigns/referralProgram")
-
+const moment = require('moment')
 
 exports.createUserWallet = async(req, res, next)=>{
     // console.log(req.body)
@@ -558,10 +558,20 @@ exports.getAllTransactions = async(req, res)=>{
     try{
         const skip = Number(req.query.skip) || 0;
         const limit = Number(req.query.limit) || 10;
+        const startDate = moment(req.query?.startDate).subtract(5, 'hours').subtract(30, 'minutes');
+        const endDate = moment(req.query?.endDate).subtract(5, 'hours').subtract(30, 'minutes');
 
         const count = await UserWallet.aggregate([
             {
                 $unwind: "$transactions",
+            },
+            {
+                $match: {
+                    "transactions.transactionDate": {
+                        $gte: new Date(startDate),
+                        $lt: new Date(endDate)
+                    }
+                }
             },
             {
                 $count: "count",
@@ -571,6 +581,14 @@ exports.getAllTransactions = async(req, res)=>{
         const data = await UserWallet.aggregate([
             {
                 "$unwind": "$transactions"
+            },
+            {
+                "$match": {
+                    "transactions.transactionDate": {
+                        $gte: new Date(startDate),
+                        $lt: new Date(endDate)
+                    }
+                }
             },
             {
                 "$sort": {
@@ -621,6 +639,7 @@ exports.getAllTransactions = async(req, res)=>{
             count: count?.[0]?.count
         });
     } catch(err){
+        console.log(err)
         res.status(500).json({
             status: 'error',
             message: 'something went wrong.'
@@ -635,6 +654,7 @@ exports.getFullTransactions = async(req, res)=>{
             {
                 "$unwind": "$transactions"
             },
+
             {
                 "$sort": {
                     "transactions.transactionDate": -1

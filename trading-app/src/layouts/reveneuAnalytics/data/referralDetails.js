@@ -22,6 +22,7 @@ function ReferralRevenue({ period }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        setLoading(true)
         axios.get(`${apiUrl}revenue/referralrevenue?period=${period}`, {
             withCredentials: true,
             headers: {
@@ -34,7 +35,7 @@ function ReferralRevenue({ period }) {
             setData(res.data.data);
             setLoading(false);
         })
-    }, []);
+    }, [period]);
 
     const pnlData = downloadAffiliate(data)
     const handleDownload = (csvData, nameVariable) => {

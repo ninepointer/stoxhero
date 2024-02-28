@@ -10,7 +10,7 @@ import moment from 'moment';
 import { apiUrl } from '../../../constants/constants';
 
 
-const Active = () => {
+const Active = ({showData, startDate, endDate}) => {
   const [skip, setSkip] = useState(0);
   const limitSetting = 20;
   const [count, setCount] = useState(0);
@@ -18,7 +18,7 @@ const Active = () => {
   const [data, setData] = useState([]);
 
   async function fetchData() {
-    const getData = await axios.get(`${apiUrl}userwallet/alltransaction?skip=${skip}&limit=${limitSetting}`, { withCredentials: true });
+    const getData = await axios.get(`${apiUrl}userwallet/alltransaction?skip=${skip}&limit=${limitSetting}&startDate=${startDate}&endDate=${endDate}`, { withCredentials: true });
     setData(getData.data.data)
     setCount(getData.data.count)
     setTimeout(() => {
@@ -26,11 +26,9 @@ const Active = () => {
     }, 100)
   }
 
-  // console.log(data)
-
   useEffect(() => {
     fetchData();
-  }, [])
+  }, [showData])
 
   async function backHandler() {
     if (skip <= 0) {

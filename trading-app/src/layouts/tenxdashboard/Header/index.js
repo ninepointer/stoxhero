@@ -930,7 +930,7 @@ export default function LabTabs({socket}) {
                             </MDButton>
                         </Grid>
 
-                        {/* <Grid item fullWidth>
+                        <Grid item fullWidth>
                             <MDButton 
                                 variant="contained" 
                                 color={"success"} 
@@ -942,7 +942,7 @@ export default function LabTabs({socket}) {
                             >
                                 All Transactions
                             </MDButton>
-                        </Grid> */}
+                        </Grid>
 
                     </Grid>
                 </MDBox>

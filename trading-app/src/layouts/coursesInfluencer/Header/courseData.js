@@ -48,7 +48,7 @@ const Courses = () => {
 
     const sendAdminApproval = async () => {
         try{
-            const data = await axios.get(`${apiUrl}courses/${courseId}/adminapproval`);
+            const data = await axios.get(`${apiUrl}courses/${courseId}/adminapproval`, {withCredentials: true});
             openSuccessSB('Approval Request Sent', '')
         } catch(err){
             openErrorSB('Error', 'Something went wrong')

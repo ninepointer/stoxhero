@@ -298,7 +298,7 @@ exports.sendAdminApproval = async (req, res) => {
         status: 'Pending Admin Approval'
       }
     });
-    res.status(200).json({ status: "success", data: courses });
+    res.status(200).json({ status: "success", message: 'Your request has been sent for admin approval.' });
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -415,7 +415,7 @@ exports.suggestChanges = async (req, res) => {
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
-    res.status(200).json({ data: course, status: "success", message: 'Your changes have been successfully saved. Please check back later to see the updates.' });
+    res.status(200).json({ status: "success", message: 'Your changes have been successfully saved. Please check back later to see the updates.' });
   } catch (error) {
     res.status(500).json({
       status: "error",
