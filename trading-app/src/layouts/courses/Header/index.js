@@ -13,6 +13,10 @@ import Completed from '../data/completed';
 import Upcoming from '../data/upcoming';
 import Draft from '../data/draft';
 import SearchCourse from '../data/searchCourse';
+import AwaitingApproval from '../data/awaitingApproval';
+import PendingApproval from '../data/pendingApproval';
+import PublishedCourses from '../data/published';
+import Unpublished from '../data/unpublished';
 
 
 export default function LabTabs() {
@@ -28,7 +32,7 @@ export default function LabTabs() {
   };
 
   return (
-    <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto'>
+    <MDBox bgColor="light" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto'>
     <MDBox mb={2} display="flex" justifyContent="space-between">
     <MDButton 
     variant="outlined" 
@@ -43,14 +47,17 @@ export default function LabTabs() {
       <TabContext value={value}>
         <MDBox sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Ongoing" value="1" />
-            <Tab label="Upcoming" value="2" />
-            <Tab label="Completed" value="3" />
-            <Tab label="Draft" value="4" />
-            <Tab label="Search Courses" value="5" />
+            {/* <Tab label="Ongoing" value="1" />
+            <Tab label="Upcoming" value="2" /> */}
+            <Tab label="Published" value="1" />
+            <Tab label="Draft" value="2" />
+            <Tab label="Pending Approval" value="3" />
+            <Tab label="Awaiting Approval" value="4" />
+            <Tab label="Unpublished" value="5" />
+            <Tab label="Search Courses" value="6" />
           </TabList>
         </MDBox>
-          <TabPanel value="1">
+          {/* <TabPanel value="1">
           {isLoading ? 
           
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
@@ -73,8 +80,8 @@ export default function LabTabs() {
           <Upcoming/>
           </MDBox>
           }
-          </TabPanel>
-          <TabPanel value="3">
+          </TabPanel> */}
+          <TabPanel value="1">
           {isLoading ? 
           
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
@@ -82,11 +89,11 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-          <Completed/>
+          <PublishedCourses/>
           </MDBox>
           }
           </TabPanel>
-          <TabPanel value="4">
+          <TabPanel value="2">
           {isLoading ? 
           
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
@@ -98,7 +105,49 @@ export default function LabTabs() {
           </MDBox>
           }
           </TabPanel>
+          <TabPanel value="3">
+          {isLoading ? 
+          
+          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+            <CircularProgress color="info" />
+          </MDBox>
+          : 
+          <MDBox style={{minWidth:'100%'}}>
+          <PendingApproval/>
+          </MDBox>
+   
+          }
+          </TabPanel>
+
+          <TabPanel value="4">
+          {isLoading ? 
+          
+          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+            <CircularProgress color="info" />
+          </MDBox>
+          : 
+          <MDBox style={{minWidth:'100%'}}>
+          <AwaitingApproval/>
+          </MDBox>
+   
+          }
+          </TabPanel>
+
           <TabPanel value="5">
+          {isLoading ? 
+          
+          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+            <CircularProgress color="info" />
+          </MDBox>
+          : 
+          <MDBox style={{minWidth:'100%'}}>
+          <Unpublished/>
+          </MDBox>
+   
+          }
+          </TabPanel>
+
+          <TabPanel value="6">
           {isLoading ? 
           
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>

@@ -3,6 +3,8 @@ const Authenticate = require("../../authentication/authentication");
 const restrictTo = require("../../authentication/authorization");
 const courseController = require("../../controllers/courses/courseController");
 const router = express.Router();
+const user = require('./userCourseRoutes');
+const influencer = require('./influencerCourseRoutes');
 
 const multer = require("multer");
 
@@ -17,6 +19,9 @@ const fileFilter = (req, file, cb) => {
 };
 
 const upload = multer({ storage: storage, fileFilter: fileFilter });
+
+router.use('/influencer', influencer);
+// router.use('/user', user);
 
 router
   .route("/")
@@ -141,24 +146,10 @@ router.patch(
 );
 
 router.get(
-  "/admincompleted",
+  "/adminpublished",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  courseController.getAdminCompleted
-);
-
-router.get(
-  "/adminongoing",
-  Authenticate,
-  restrictTo("Admin", "SuperAdmin"),
-  courseController.getAdminOngoing
-);
-
-router.get(
-  "/adminupcoming",
-  Authenticate,
-  restrictTo("Admin", "SuperAdmin"),
-  courseController.getAdminUpcoming
+  courseController.getAdminPublished
 );
 
 router.get(
@@ -168,12 +159,33 @@ router.get(
   courseController.getAdminDraft
 );
 
+router.get(
+  "/adminpendingapproval",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.getAdminPendingApproval
+);
+
+router.get(
+  "/adminunpublished",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.getAdminUnpublished
+);
+
+router.get(
+  "/adminawaitingapproval",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.getAdminAwaitingApproval
+);
+
 
 
 router.get(
   "/:id",
   Authenticate,
-  restrictTo("Admin", "SuperAdmin"),
+  // restrictTo("Admin", "SuperAdmin"), todo-vijay
   courseController.getCourseById
 );
 
@@ -182,6 +194,27 @@ router.get(
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
   courseController.coursePublish
+);
+
+router.get(
+  "/:id/unpublish",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.courseUnpublish
+);
+
+router.get(
+  "/:id/creatorapproval",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.creatorApproval
+);
+
+router.get(
+  "/:id/adminapproval",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.sendAdminApproval
 );
 
 router.get(

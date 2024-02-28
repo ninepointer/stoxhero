@@ -44,7 +44,9 @@ import JD from './layouts/HomePage/pages/JobDescription'
 import CareerForm from './layouts/HomePage/pages/CareerForm'
 import Contact from "./layouts/HomePage/pages/Contact";
 import TradeViewTenX from "./layouts/tenXTrading/TradeView/main";
-import TutorialVideo from './layouts/tutorials'
+import TutorialVideo from './layouts/tutorials';
+import InfluencerCourse from './layouts/coursesInfluencer';
+import InfluencerCourseData from './layouts/coursesInfluencer/courseDataIndex';
 import CategoryVideos from './layouts/tutorials/Header/categoryVideos';
 import Internship from './layouts/internshipTrading';
 import InternshipTrade from './layouts/internshipTrading/TradeView/main'
@@ -371,7 +373,15 @@ const routes = [
     key: "course",
     icon: <VideoChatIcon/>,
     route: "/course",
-    component: <TutorialVideo />,
+    component: <InfluencerCourse />,
+  },
+  {
+    // type: "collapse",
+    // name: "Course",
+    key: "course",
+    // icon: <VideoChatIcon/>,
+    route: "/coursedata",
+    component: <InfluencerCourseData />,
   },
   {
     key: "profile",

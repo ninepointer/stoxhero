@@ -129,39 +129,69 @@ exports.createCourse = async (req, res) => {
   }
 };
 
-exports.getAdminOngoing = async (req, res) => {
+exports.getAdminPublished = async (req, res) => {
   try {
-    const courses = await Course.find({status: 'Published', courseStartTime: {$lt: new Date()}, courseEndTime: {$gt: new Date()}})
-    .sort({courseStartTime: 1})
-    res.status(200).json({ status: "success", data: courses });
-  } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: "Something went wrong",
-      error: error.message,
-    });
-  }
-};
-
-exports.getAdminUpcoming = async (req, res) => {
-  try {
-    const courses = await Course.find({status: 'Published', courseStartTime: {$gt: new Date()}})
-    .sort({courseStartTime: 1})
-    res.status(200).json({ status: "success", data: courses });
-  } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: "Something went wrong",
-      error: error.message,
-    });
-  }
-};
-
-exports.getAdminCompleted = async (req, res) => {
-  try {
-    const courses = await Course.find({status: 'Published', courseEndTime: {$lt: new Date()}})
+    const skip = Number(req.query.skip || 0);
+    const limit = Number(req.query.limit || 10);
+    const count = await Course.countDocuments({status: 'Published'})
+    const courses = await Course.find({status: 'Published'})
     .sort({courseStartTime: -1})
-    res.status(200).json({ status: "success", data: courses });
+    .skip(skip).limit(limit)
+    res.status(200).json({ status: "success", data: courses, count: count });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.getAdminAwaitingApproval = async (req, res) => {
+  try {
+    const skip = Number(req.query.skip || 0);
+    const limit = Number(req.query.limit || 10);
+    const count = await Course.countDocuments({status: 'Sent To Creator'})
+    const courses = await Course.find({status: 'Sent To Creator'})
+    .sort({courseStartTime: -1})
+    .skip(skip).limit(limit)
+    res.status(200).json({ status: "success", data: courses, count: count });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.getAdminUnpublished = async (req, res) => {
+  try {
+    const skip = Number(req.query.skip || 0);
+    const limit = Number(req.query.limit || 10);
+    const count = await Course.countDocuments({status: 'Unpublished'})
+    const courses = await Course.find({status: 'Unpublished'})
+    .sort({courseStartTime: -1})
+    .skip(skip).limit(limit)
+    res.status(200).json({ status: "success", data: courses, count: count });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.getAdminPendingApproval = async (req, res) => {
+  try {
+    const skip = Number(req.query.skip || 0);
+    const limit = Number(req.query.limit || 10);
+    const count = await Course.countDocuments({status: 'Pending Admin Approval'})
+    const courses = await Course.find({status: 'Pending Admin Approval'})
+    .sort({courseStartTime: -1})
+    .skip(skip).limit(limit)
+    res.status(200).json({ status: "success", data: courses, count: count });
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -173,9 +203,13 @@ exports.getAdminCompleted = async (req, res) => {
 
 exports.getAdminDraft = async (req, res) => {
   try {
+    const skip = Number(req.query.skip || 0);
+    const limit = Number(req.query.limit || 10);
+    const count = await Course.countDocuments({status: 'Draft'})
     const courses = await Course.find({status: 'Draft'})
     .sort({courseStartTime: -1})
-    res.status(200).json({ status: "success", data: courses });
+    .skip(skip).limit(limit)
+    res.status(200).json({ status: "success", data: courses, count: count });
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -188,7 +222,28 @@ exports.getAdminDraft = async (req, res) => {
 exports.getCourseById = async (req, res) => {
   try {
     const courseId = req.params.id;
-    const courses = await Course.findOne({_id: new ObjectId(courseId)});
+    const courses = await Course.findOne({_id: new ObjectId(courseId)})
+    .populate('courseInstructors.id', 'first_name last_name email')
+    .populate('enrollments.userId', 'first_name last_name creationProcess')
+    res.status(200).json({ status: "success", data: courses });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+
+exports.courseUnpublish = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const courses = await Course.findOneAndUpdate({_id: new ObjectId(courseId)}, {
+      $set: {
+        status: 'Unpublished'
+      }
+    });
     res.status(200).json({ status: "success", data: courses });
   } catch (error) {
     res.status(500).json({
@@ -205,6 +260,42 @@ exports.coursePublish = async (req, res) => {
     const courses = await Course.findOneAndUpdate({_id: new ObjectId(courseId)}, {
       $set: {
         status: 'Published'
+      }
+    });
+    res.status(200).json({ status: "success", data: courses });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.creatorApproval = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const courses = await Course.findOneAndUpdate({_id: new ObjectId(courseId)}, {
+      $set: {
+        status: 'Sent To Creator'
+      }
+    });
+    res.status(200).json({ status: "success", data: courses });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.sendAdminApproval = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const courses = await Course.findOneAndUpdate({_id: new ObjectId(courseId)}, {
+      $set: {
+        status: 'Pending Admin Approval'
       }
     });
     res.status(200).json({ status: "success", data: courses });
@@ -308,6 +399,32 @@ exports.getCourseById = async (req, res) => {
     });
   }
 };
+
+
+exports.suggestChanges = async (req, res) => {
+  try {
+    const {change} = req.body;
+    const course = await Course.findByIdAndUpdate(new ObjectId(req.params.id), {
+      $push: {
+        suggestChanges: change
+      },
+      $set: {
+        status: 'Draft'
+      }
+    }, {new: true});
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+    res.status(200).json({ data: course, status: "success", message: 'Your changes have been successfully saved. Please check back later to see the updates.' });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
 
 exports.addInstructor = async (req, res) => {
   try {
@@ -927,3 +1044,239 @@ exports.setPricing = async (req, res) => {
     });
   }
 };
+
+
+exports.getInfluencerAllCourse = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const skip = Number(req.query.skip || 0);
+    const limit = Number(req.query.limit || 10);
+    const count = await Course.countDocuments({
+      "courseInstructors.id": new ObjectId(userId)
+    })
+    const courses = await Course.find({
+      "courseInstructors.id": new ObjectId(userId)
+    }).populate('enrollments.userId', 'first_name last_name creationProcess')
+    .skip(skip).limit(limit)
+    res.status(200).json({ status: "success", data: courses, count: count });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.getAwaitingApprovals = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const skip = Number(req.query.skip || 0);
+    const limit = Number(req.query.limit || 10);
+    const count = await Course.countDocuments({
+      "courseInstructors.id": new ObjectId(userId),
+      status: 'Sent To Creator'
+    })
+    const courses = await Course.aggregate([
+      {
+        $match: {
+          status: "Sent To Creator",
+          "courseInstructors.id": new ObjectId(
+            userId
+          ),
+        },
+      },
+      {
+        $sort: {
+          courseStartTime: 1,
+          _id: -1,
+        },
+      },
+      {
+        $project: {
+          courseName: 1,
+          courseStartTime: 1,
+          courseImage: 1,
+          userEnrolled: {
+            $size: "$enrollments",
+          },
+          maxEnrolments: 1,
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+    ])
+   
+    res.status(200).json({ status: "success", data: courses, count: count });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.getPendingApproval = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const skip = Number(req.query.skip || 0);
+    const limit = Number(req.query.limit || 10);
+    const count = await Course.countDocuments({
+      "courseInstructors.id": new ObjectId(userId),
+      status: 'Pending Admin Approval'
+    })
+    const courses = await Course.aggregate([
+      {
+        $match: {
+          status: "Pending Admin Approval",
+          "courseInstructors.id": new ObjectId(
+            userId
+          ),
+        },
+      },
+      {
+        $sort: {
+          courseStartTime: 1,
+          _id: -1,
+        },
+      },
+      {
+        $project: {
+          courseName: 1,
+          courseStartTime: 1,
+          courseImage: 1,
+          userEnrolled: {
+            $size: "$enrollments",
+          },
+          maxEnrolments: 1,
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+    ])
+   
+    res.status(200).json({ status: "success", data: courses, count: count });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.getPublished = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const skip = Number(req.query.skip || 0);
+    const limit = Number(req.query.limit || 10);
+    const count = await Course.countDocuments({
+      "courseInstructors.id": new ObjectId(userId),
+      status: 'Published'
+    })
+    const courses = await Course.aggregate([
+      {
+        $match: {
+          status: "Published",
+          "courseInstructors.id": new ObjectId(
+            userId
+          ),
+        },
+      },
+      {
+        $sort: {
+          courseStartTime: 1,
+          _id: -1,
+        },
+      },
+      {
+        $project: {
+          courseName: 1,
+          courseStartTime: 1,
+          courseImage: 1,
+          userEnrolled: {
+            $size: "$enrollments",
+          },
+          maxEnrolments: 1,
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+    ])
+   
+    res.status(200).json({ status: "success", data: courses, count: count });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.getUnpublished = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const skip = Number(req.query.skip || 0);
+    const limit = Number(req.query.limit || 10);
+    const count = await Course.countDocuments({
+      "courseInstructors.id": new ObjectId(userId),
+      status: 'Unpublished'
+    })
+    const courses = await Course.aggregate([
+      {
+        $match: {
+          status: "Unpublished",
+          "courseInstructors.id": new ObjectId(
+            userId
+          ),
+        },
+      },
+      {
+        $sort: {
+          courseStartTime: 1,
+          _id: -1,
+        },
+      },
+      {
+        $project: {
+          courseName: 1,
+          courseStartTime: 1,
+          courseImage: 1,
+          userEnrolled: {
+            $size: "$enrollments",
+          },
+          maxEnrolments: 1,
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+    ])
+   
+    res.status(200).json({ status: "success", data: courses, count: count });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+

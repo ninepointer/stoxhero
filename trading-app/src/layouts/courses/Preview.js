@@ -32,19 +32,49 @@ import UploadImage from "../../assets/images/uploadimage.png";
 import UploadVideo from "../../assets/images/uploadvideo.png";
 import { apiUrl } from "../../constants/constants";
 
-const CoursePricing = ({setActiveStep, activeStep, steps}) => {
+const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
+  console.log('from', from)
   const navigate = useNavigate();
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
+  const [course, setCourse] = useState({});
 
   // Get the value of the "mobile" parameter
   const courseId = urlParams.get('id');
   const paramsActiveSteps = urlParams.get('activestep');
 
+  useEffect(()=>{
+    fetchData()
+  },[courseId])
+
+  const fetchData = async ()=>{
+    const getData = await axios.get(`${apiUrl}courses/${courseId}`, {withCredentials: true});
+    setCourse(getData?.data?.data);
+  }
+
+  
   async function publish(){
     try{
       const publish = await axios.get(`${apiUrl}courses/${courseId}/publish`, {withCredentials: true});
       openSuccessSB('Course Published', '')
+    } catch(err){
+      openErrorSB('Error', err.message)
+    }
+  }
+
+  async function unpublish(){
+    try{
+      const publish = await axios.get(`${apiUrl}courses/${courseId}/unpublish`, {withCredentials: true});
+      openSuccessSB('Course Published', '')
+    } catch(err){
+      openErrorSB('Error', err.message)
+    }
+  }
+
+  async function sendCreatorApproval(){
+    try{
+      const publish = await axios.get(`${apiUrl}courses/${courseId}/creatorapproval`, {withCredentials: true});
+      openSuccessSB('Course sent to approval', '')
     } catch(err){
       openErrorSB('Error', err.message)
     }
@@ -135,16 +165,17 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
                 </MDButton>
               </Grid>
 
-              <Grid item>
-                <MDButton
-                  variant="contained"
-                  color="warning"
-                  size="small"
-                  onClick={publish}
-                >
-                  Publish
-                </MDButton>
-              </Grid>
+          {((course?.status !== 'Sent To Creator') ) &&
+            <Grid item>
+              <MDButton
+                variant="contained"
+                color="warning"
+                size="small"
+                onClick={course?.status === 'Draft' ? sendCreatorApproval : (course?.status === 'Published') ? unpublish : publish}
+              >
+                {course?.status === 'Draft' ? 'Send To Creator' : (course?.status === 'Published') ? 'Unpublish' : 'Publish'}
+              </MDButton>
+            </Grid>}
 
 
             </Grid>

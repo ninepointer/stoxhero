@@ -267,6 +267,8 @@ function Cover(props) {
       else if (userData?.role?.roleName === Affiliate) {
         const from = location.state?.from || "/home";
         navigate(from);
+      } else{
+        navigate('/home');
       }
       setButtonClicked(false);
       return openSuccessSB("Account Created", data.message);
@@ -389,6 +391,8 @@ function Cover(props) {
         else if (userData?.role?.roleName === Affiliate) {
           const from = location.state?.from || "/home";
           navigate(from);
+        } else{
+          navigate('/home');
         }
       }
     } catch (e) {

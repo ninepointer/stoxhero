@@ -281,6 +281,8 @@ const [buttonClicked, setButtonClicked] = useState(false);
       else if(userData?.role?.roleName === Affiliate){
         const from = location.state?.from || "/home";
         navigate(from);
+      } else{
+        navigate('/home');
       }
 
       setButtonClicked(false);
@@ -417,6 +419,8 @@ const [buttonClicked, setButtonClicked] = useState(false);
             else if(userData?.role?.roleName === Affiliate){
               const from = location.state?.from || "/home";
                 navigate(from);
+            }else{
+              navigate('/home');
             }
           }
       }catch(e){

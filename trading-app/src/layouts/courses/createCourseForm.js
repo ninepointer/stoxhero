@@ -39,6 +39,9 @@ function Index() {
   const pricingRef = useRef();
   const location = useLocation();
   const course = location?.state?.data;
+  const from = location?.state?.from;
+
+  console.log('from data', from, location)
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(course ? true : false);
   const [editing, setEditing] = useState(false);
@@ -102,6 +105,7 @@ function Index() {
         steps={steps}
         activeStep={activeStep}
         setActiveStep={setActiveStep}
+        from={from}
         />;
       default:
         return null;

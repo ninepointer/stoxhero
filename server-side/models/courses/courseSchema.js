@@ -27,7 +27,7 @@ const courseSchema = new Schema({
   maxEnrolments: { type: Number,  },
   coursePrice: { type: Number },
   discountedPrice: { type: Number },
-  status: { type: String, enum: ["Draft", "Published", ''], default: 'Draft' },
+  status: { type: String, enum: ["Draft", "Published", 'Sent To Creator', 'Pending Admin Approval', 'Unpublished', ''], default: 'Draft' },
   type: { type: String, enum: ["Course", "Workshop", ''], default: 'Course' },
   courseType: { type: String, enum: ["Live", "Recorded", ''], default: 'Live' },
   category: { type: String, enum: ["Trading", "Investing", 'Mutual Fund', ''], default: 'Trading' },
@@ -64,6 +64,9 @@ const courseSchema = new Schema({
       enrolledOn: { type: Date },
       bonusRedemption: Number,
     },
+  ],
+  suggestChanges: [
+    String
   ],
   level: { type: String, enum: ["Beginner", "Intermediate", "Advanced", ''], default: 'Beginner' },
   faqs: [{ order: Number, question: String, answer: String }],
