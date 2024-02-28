@@ -17,6 +17,7 @@ function AutoSignUp({ period }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        setLoading(true)
         axios.get(`${apiUrl}revenue/autosignuprevenue?period=${period}`, {
             withCredentials: true,
             headers: {
@@ -29,7 +30,7 @@ function AutoSignUp({ period }) {
             setData(res.data.data);
             setLoading(false);
         })
-    }, []);
+    }, [period]);
 
     const pnlData = downloadAutosignup(data)
     const handleDownload = (csvData, nameVariable) => {

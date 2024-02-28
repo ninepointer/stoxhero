@@ -17,6 +17,7 @@ function CampaignRevenue({ period }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        setLoading(true)
         axios.get(`${apiUrl}revenue/campaignrevenue?period=${period}`, {
             withCredentials: true,
             headers: {
@@ -29,7 +30,7 @@ function CampaignRevenue({ period }) {
             setData(res.data.data);
             setLoading(false);
         })
-    }, []);
+    }, [period]);
 
     const pnlData = downloadCampaign(data)
     const handleDownload = (csvData, nameVariable) => {
