@@ -1362,3 +1362,96 @@ exports.getCourseByIdUser = async (req, res) => {
     });
   }
 };
+
+exports.getCoursesByUserSlug = async (req, res) => {
+  try{
+    const slug = req.query.slug;
+    const user = await User.findOne({slug: slug}).select('_id')
+    const skip = Number(req.query.skip || 0);
+    const limit = Number(req.query.limit || 10);
+
+    const pipeline = [
+      {
+        $match: {
+          status: "Published",
+          'courseInstructors.id': new ObjectId(user?._id)
+        }
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "courseInstructors.id",
+          foreignField: "_id",
+          as: "instructor"
+        }
+      },
+      {
+        $sort: {
+          courseStartTime: 1,
+          _id: -1
+        }
+      },
+      {
+        $project: {
+          courseName: 1,
+          courseStartTime: 1,
+          courseSlug: 1,
+          courseImage: 1,
+          coursePrice: 1,
+          discountedPrice: 1,
+          userEnrolled: {
+            $size: "$enrollments"
+          },
+          maxEnrolments: 1,
+          instructorName: {
+            $map: {
+              input: "$instructor",
+              as: "inst",
+              in: {
+                $concat: [
+                  "$$inst.first_name",
+                  " ",
+                  "$$inst.last_name"
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        $skip: skip
+      },
+      {
+        $limit: limit
+      }
+    ]
+    
+    const course = await Course.aggregate(pipeline)
+    .sort({courseStartTime: 1}).skip(skip).limit(limit);
+    
+    const count = await Course.countDocuments({status: 'Published', 'courseInstructors.id': new ObjectId(user?._id)});
+
+    res.status(200).json({ status: "success", data: course, count: count });
+
+  } catch(err){
+    console.log(err)
+    res.status(500).json({ status: "error", message: 'something went wrong' });
+  }
+}
+
+
+exports.getCourseBySlug = async (req, res) => {
+  try {
+    const slug = req.params.slug;
+    const courses = await Course.findOne({courseSlug: slug})
+    .populate('courseInstructors.id', 'first_name last_name email')
+    .select('-enrollments -createdOn -createdBy')
+    res.status(200).json({ status: "success", data: courses });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};

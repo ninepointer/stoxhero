@@ -45,6 +45,7 @@ const userDetailSchema = new mongoose.Schema({
     },
     student_name:String,
     city:String,
+    slug: String,
     schoolDetails:{
         parents_name: String,
         section: String,

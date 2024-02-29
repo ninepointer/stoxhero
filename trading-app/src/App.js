@@ -80,8 +80,10 @@ import ContestRegistration from "./layouts/HomePage/pages/ContestRegistration";
 import FeaturedContestRegistration from "./layouts/HomePage/pages/FeaturedContestRegistration";
 import Home from "../src/layouts/HomePage/pages/Home";
 import About from "../src/layouts/HomePage/pages/About";
+import Courses from "./layouts/HomePage/pages/courses/Courses";
+import CoursesDetail from "./layouts/HomePage/pages/courses/CoursesDetails";
 import AboutFinowledge from "../src/layouts/HomePage/pages/AboutFinowledge";
-
+import FillSignupDetail from "./layouts/HomePage/pages/courses/signupDetail";
 import ResetPin from "./layouts/authentication/reset-password/cover/resetPin";
 import ResetPassword from "./layouts/authentication/reset-password/cover";
 import CampaignDetails from "./layouts/campaign/campaignDetails";
@@ -531,10 +533,24 @@ export default function App() {
           path="/testzone/:id/:date"
           element={<FeaturedContestRegistration />}
         />
+
+          <Route
+            path="/courses/:slug"
+            element={<Courses  />}
+          />
+           <Route
+            path="/courses/:slug/details"
+            element={<CoursesDetail  />}
+          />
+           <Route
+            path="/courses/:slug/fill+details"
+            element={<FillSignupDetail  />}
+          />
         <Route
           path="/:collegename"
           element={<CollegeSignUp location={myLocation.current} />}
         />
+        
 
         <Route path="*" element={<NotFound />} />
       </Routes>

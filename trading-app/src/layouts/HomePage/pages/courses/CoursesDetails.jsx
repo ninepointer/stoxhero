@@ -1,123 +1,72 @@
-
-import React, { useState, useEffect } from 'react'
-import axios from "axios";
-import { apiUrl } from "../../../constants/constants.js"
+import React, {useEffect, useState, useContext} from 'react'
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import { CardActionArea, CircularProgress, Divider, Grid } from '@mui/material';
-// Material Dashboard 2 React components
-import MDBox from "../../../components/MDBox/index.js";
-import MDButton from "../../../components/MDButton/index.js";
-import MDTypography from "../../../components/MDTypography/index.js";
-import { Link } from "react-router-dom";
+import Typography from '@mui/material/Typography';
+import { CardActionArea, Divider, Grid } from '@mui/material';
+import axios from "axios";
+import {apiUrl} from "../../../../constants/constants.js"
+import MDBox from '../../../../components/MDBox/index.js'
+import MDButton from '../../../../components/MDButton/index.js';
+import { ThemeProvider } from 'styled-components';
+import Navbar from '../../components/Navbars/Navbar.jsx';
+import theme from '../../utils/theme/index';
+import MDTypography from '../../../../components/MDTypography/index.js';
+import Footer from '../../../authentication/components/Footer/index.js'
 import moment from 'moment'
-import SuggestModal from '../data/suggestModal.js';
-import MDSnackbar from "../../../components/MDSnackbar/index.js";
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
+import { CircularProgress } from '@mui/material';
+import NoData from "../../../../assets/images/noBlogFound.png"
+import PaymentIcon from '@mui/icons-material/Payment';
+import Groups2Icon from '@mui/icons-material/Groups2';
+import {Link, useNavigate} from 'react-router-dom'
+
+export default function Courses() {
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+
+  // Get the value of the "mobile" parameter
+  const courseId = urlParams.get('course');
+
+  const [courses, setCourses] = useState([]);
+  const navigate = useNavigate();
+  const slug = window.location.pathname.split('/')[2]
 
 
-const Courses = () => {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
+  useEffect(() => {
+      let call1 = axios.get(`${apiUrl}courses/user/${courseId}/slug`, {
+          withCredentials: true,
+          headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Credentials": true
+          },
+      })
+      Promise.all([call1])
+          .then(([api1Response]) => {
+              // Process the responses here
+              setCourses(api1Response.data.data)
 
-    // Get the value of the "mobile" parameter
-    const courseId = urlParams.get('id');
+          })
+          .catch((error) => {
+              // Handle errors here
+              console.error(error);
+          });
+  }, [])
 
-    const [courses, setCourses] = useState([]);
-
-    useEffect(() => {
-        let call1 = axios.get(`${apiUrl}courses/${courseId}`, {
-            withCredentials: true,
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Credentials": true
-            },
-        })
-        Promise.all([call1])
-            .then(([api1Response]) => {
-                // Process the responses here
-                setCourses(api1Response.data.data)
-
-            })
-            .catch((error) => {
-                // Handle errors here
-                console.error(error);
-            });
-    }, [])
-
-    const sendAdminApproval = async () => {
-        try{
-            const data = await axios.get(`${apiUrl}courses/${courseId}/adminapproval`, {withCredentials: true});
-            openSuccessSB('Approval Request Sent', '')
-        } catch(err){
-            openErrorSB('Error', 'Something went wrong')
-        }
-        
-    }
-
-    const [title, setTitle] = useState('')
-    const [content, setContent] = useState('')
-
-    const [successSB, setSuccessSB] = useState(false);
-    const openSuccessSB = (title, content) => {
-        setTitle(title)
-        setContent(content)
-        setSuccessSB(true);
-    }
-    const closeSuccessSB = () => setSuccessSB(false);
-
-
-    const renderSuccessSB = (
-        <MDSnackbar
-            color="success"
-            icon="check"
-            title={title}
-            content={content}
-            open={successSB}
-            onClose={closeSuccessSB}
-            close={closeSuccessSB}
-            bgWhite="info"
-        />
-    );
-
-    const [errorSB, setErrorSB] = useState(false);
-    const openErrorSB = (title, content) => {
-        setTitle(title)
-        setContent(content)
-        setErrorSB(true);
-    }
-    const closeErrorSB = () => setErrorSB(false);
-
-    const renderErrorSB = (
-        <MDSnackbar
-            color="error"
-            icon="warning"
-            title={title}
-            content={content}
-            open={errorSB}
-            onClose={closeErrorSB}
-            close={closeErrorSB}
-            bgWhite
-        />
-    );
-
-
-    return (
-        <>
-            {courses ?
+  return (
+    <>
+      <MDBox mt={5} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ backgroundColor: 'white', minHeight: '100%', height: 'auto', width: 'auto', maxWidth: '100%', minHeight: "80vh" }}>
+        <ThemeProvider theme={theme}>
+          <Navbar />
+          {courses ?
                 <MDBox mt={3}>
                     <Grid container spacing={4} style={{ backgroundColor: 'dark', display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
                         <Grid key={courses?._id} item xs={12} md={12} lg={12} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '100%', height: 'auto' }}>
                             <Grid container xs={12} md={12} lg={12} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '100%', height: 'auto' }}>
                                 <Card
                                     sx={{ minWidth: '100%', cursor: 'pointer' }}
-                                    component={Link}
-                                    to={{
-                                        pathname: `/coursedata`,
-                                        search: `?id=${courses?._id}`,
-                                        state: { data: courses }
-                                    }}
+                                
                                 >
                                     <CardActionArea>
                                         <Grid item xs={12} md={4} lg={12} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '100%', height: 'auto' }}>
@@ -160,19 +109,12 @@ const Courses = () => {
                                             </CardContent>
                                         </Grid>
 
-                                        {(courses?.status === 'Sent To Creator') &&
                                             <Grid item xs={12} md={4} lg={12} p={2} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', maxWidth: '100%', height: 'auto', gap: 5 }}>
-                                                <MDButton
-                                                    variant="contained"
-                                                    color="success"
-                                                    size="small"
-                                                    onClick={sendAdminApproval}
-                                                >
-                                                    Proceed
+                                                {/* <SuggestModal id={courseId} /> */}
+                                                <MDButton size='small' variant='gradiant' color='success' onClick={()=>{navigate(`/courses/${slug}/fill+details?course=${courseId}`)}}>
+                                                  Pay
                                                 </MDButton>
-
-                                                <SuggestModal id={courseId} />
-                                            </Grid>}
+                                            </Grid>
                                     </CardActionArea>
                                 </Card>
                             </Grid>
@@ -186,14 +128,12 @@ const Courses = () => {
                     </Grid>
                 </Grid>
             }
+        </ThemeProvider>
+      </MDBox>
 
-            {renderSuccessSB}
-            {renderErrorSB}
-        </>
-
-    )
+      <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='flex-end' >
+        <Footer />
+      </MDBox>
+    </>
+  );
 }
-
-
-
-export default Courses;
