@@ -21,7 +21,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 router.use('/influencer', influencer);
-// router.use('/user', user);
+router.use('/user', user);
 
 router
   .route("/")

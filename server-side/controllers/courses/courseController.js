@@ -3,6 +3,7 @@ const AWS = require("aws-sdk");
 const { ObjectId } = require("mongodb");
 const sharp = require("sharp");
 const mongoose = require("mongoose");
+const User = require('../../models/User/userDetailSchema');
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -382,24 +383,6 @@ exports.getAllCourses = async (req, res) => {
     });
   }
 };
-
-// Get a course by ID
-exports.getCourseById = async (req, res) => {
-  try {
-    const course = await Course.findById(req.params.id);
-    if (!course) {
-      return res.status(404).json({ message: "Course not found" });
-    }
-    res.status(200).json({ data: course, status: "success" });
-  } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: "Something went wrong",
-      error: error.message,
-    });
-  }
-};
-
 
 exports.suggestChanges = async (req, res) => {
   try {
@@ -1280,3 +1263,102 @@ exports.getUnpublished = async (req, res) => {
   }
 };
 
+exports.getMyCourses = async (req, res) => {
+  try{
+    const userId = req.user._id;
+    const user = await User.findById(new ObjectId(userId));
+    const skip = Number(req.query.skip || 0);
+    const limit = Number(req.query.limit || 10);
+
+    const pipeline = [
+      {
+        $match: {
+          status: "Published"
+        }
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "courseInstructors.id",
+          foreignField: "_id",
+          as: "instructor"
+        }
+      },
+      {
+        $sort: {
+          courseStartTime: 1,
+          _id: -1
+        }
+      },
+      {
+        $project: {
+          courseName: 1,
+          courseStartTime: 1,
+          courseImage: 1,
+          coursePrice: 1,
+          discountedPrice: 1,
+          userEnrolled: {
+            $size: "$enrollments"
+          },
+          maxEnrolments: 1,
+          instructorName: {
+            $map: {
+              input: "$instructor",
+              as: "inst",
+              in: {
+                $concat: [
+                  "$$inst.first_name",
+                  " ",
+                  "$$inst.last_name"
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        $skip: skip
+      },
+      {
+        $limit: limit
+      }
+    ]
+    
+    let course; let count;
+    if(user?.referredBy){
+
+      pipeline[0]["$match"]['courseInstructors.id'] = new ObjectId(user?.referredBy);
+      course = await Course.aggregate(pipeline)
+      .sort({courseStartTime: 1}).skip(skip).limit(limit);
+      
+      count = await Course.countDocuments({status: 'Published', 'courseInstructors.id': new ObjectId(user?.referredBy)});
+    } else{
+      count = await Course.countDocuments({status: 'Published'});
+
+      course = await Course.aggregate(pipeline)
+      .sort({courseStartTime: 1}).skip(skip).limit(limit);
+    }
+    
+    res.status(200).json({ status: "success", data: course, count: count });
+
+  } catch(err){
+    console.log(err)
+    res.status(500).json({ status: "error", message: 'something went wrong' });
+  }
+}
+
+exports.getCourseByIdUser = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const courses = await Course.findOne({_id: new ObjectId(courseId)})
+    .populate('courseInstructors.id', 'first_name last_name email')
+    .select('-enrollments -createdOn -createdBy')
+    res.status(200).json({ status: "success", data: courses });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};

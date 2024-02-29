@@ -46,7 +46,11 @@ import Contact from "./layouts/HomePage/pages/Contact";
 import TradeViewTenX from "./layouts/tenXTrading/TradeView/main";
 import TutorialVideo from './layouts/tutorials';
 import InfluencerCourse from './layouts/coursesInfluencer';
+import UserCourse from './layouts/coursesUser';
+import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import InfluencerCourseData from './layouts/coursesInfluencer/courseDataIndex';
+import UserCourseData from './layouts/coursesUser/courseDataIndex';
+
 import CategoryVideos from './layouts/tutorials/Header/categoryVideos';
 import Internship from './layouts/internshipTrading';
 import InternshipTrade from './layouts/internshipTrading/TradeView/main'
@@ -369,6 +373,14 @@ const routes = [
   },
   {
     type: "collapse",
+    name: "Courses",
+    key: "courses",
+    icon: <LocalLibraryIcon/>,
+    route: "/courses",
+    component: <UserCourse />,
+  },
+  {
+    type: "collapse",
     name: "Course",
     key: "course",
     icon: <VideoChatIcon/>,
@@ -382,6 +394,14 @@ const routes = [
     // icon: <VideoChatIcon/>,
     route: "/coursedata",
     component: <InfluencerCourseData />,
+  },
+  {
+    // type: "collapse",
+    // name: "Course",
+    key: "courses",
+    // icon: <VideoChatIcon/>,
+    route: "/coursefulldata",
+    component: <UserCourseData />,
   },
   {
     key: "profile",
