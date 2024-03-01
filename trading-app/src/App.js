@@ -100,6 +100,7 @@ import MessagePopUp from "./MessagePopup";
 import AdminLogin from "./layouts/authentication/sign-in/adminLogin";
 import SchoolLogin from "./layouts/authentication/sign-in/schoolLogin";
 import Finowledge from "./layouts/authentication/sign-up/finowledge";
+import TradingGuru from "./layouts/authentication/sign-up/tradingguru";
 import Register from "./layouts/authentication/sign-up/register";
 import RegisterInfo from "./layouts/authentication/sign-up/registerationinfo";
 import Lobby from "./layouts/schoolLobby/lobby";
@@ -157,7 +158,7 @@ export default function App() {
   const getDetails = useContext(userContext);
   const navigate = useNavigate();
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   useEffect(() => {
     axios
@@ -504,7 +505,7 @@ export default function App() {
         />
         <Route path="/adminlogin" element={<AdminLogin />} />
         <Route path="/school" element={<SchoolLogin />} />
-        <Route path="/finowledge" element={<Finowledge />} />
+        <Route path="/tradingguru" element={<TradingGuru />} />
         <Route path="/about" element={<About />} />
         <Route path="/aboutus" element={<AboutFinowledge />} />
         <Route path="/challenge" element={<FinowledgeComingSoon />} />

@@ -18,7 +18,7 @@ import html2canvas from 'html2canvas';
 
 export default function AllowedUsers({ dailyContest }) {
   const [leaderBoard, setLeaderBoard] = useState([]);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
   
   function TruncatedName(name) {
     const originalName = name;

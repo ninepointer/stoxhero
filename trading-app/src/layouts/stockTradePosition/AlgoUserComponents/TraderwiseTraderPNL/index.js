@@ -18,7 +18,7 @@ import data from "./data";
 function TraderwiseTraderPNL({socket }) {
   const { columns, rows } = data();
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     
   const [allTrade, setAllTrade] = useState([]);
   const [marketData, setMarketData] = useState([]);

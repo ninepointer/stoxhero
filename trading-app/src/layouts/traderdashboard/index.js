@@ -44,7 +44,7 @@ function AdminDashboard() {
   const { labels, datasets } = reportsBarChartData;
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   let baseUrl1 =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/";
 

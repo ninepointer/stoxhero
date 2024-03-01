@@ -2,8 +2,7 @@ import { AppBar, Box, Container, IconButton, List, ListItemButton, ListItemText,
 import React, { useState } from 'react'
 
 import useScrollPosition from '../../hooks/useScrollPosition'
-
-import logo from '../../../../assets/images/logos/fullLogo.png'
+import logo from '../../../../assets/images/logo_dark.png'
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { CallMade, Language, Menu } from '@mui/icons-material'
 import LaunchButton from '../Buttons/LaunchButton'
@@ -64,10 +63,10 @@ const Navbar = () => {
         <Stack direction='row' justifyContent='space-between' alignItems="center" flexWrap="wrap" alignContent='center' >
           {/* Logo */}
 
-          <a href="/finowledge"><img src={logo} style={{ objectFit: "contain", height: "30px", marginTop: "8px" }} /></a>
+          <a href="/"><img src={logo} style={{ objectFit: "contain", height: "30px", marginTop: "8px" }} /></a>
 
 
-          {!isMobile && (<Stack
+          {/* {!isMobile && (<Stack
             direction="row"
             alignItems="center"
             justifyContent="flex-end"
@@ -76,27 +75,27 @@ const Navbar = () => {
             flexWrap="wrap"
             color="white"
           >
-            <a href="/finowledge">
+            <a href="/">
               <LinkButton spacing={0.5}>
-                <Typography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }}>HOME</Typography>
+                <Typography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }} sx={{ color: '#000000' }}>HOME</Typography>
               </LinkButton>
             </a>
 
             <a href="/challenge">
               <LinkButton spacing={0.5}>
-                <Typography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }}>FINANCE CHALLENGES</Typography>
+                <Typography variant="body2" color='black' style={{ fontFamily: 'Work Sans , sans-serif' }} sx={{ color: '#000000' }}>FINANCE CHALLENGES</Typography>
               </LinkButton>
             </a>
 
             <a href="/school">
               <LinkButton spacing={0.5}>
-                <Typography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }}>SCHOOL</Typography>
+                <Typography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }} sx={{ color: '#000000' }}>SCHOOL</Typography>
               </LinkButton>
             </a>
 
             <a href="/aboutus">
               <LinkButton spacing={0.5}>
-                <Typography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }}>ABOUT US</Typography>
+                <Typography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }} sx={{ color: '#000000' }}>ABOUT US</Typography>
               </LinkButton>
             </a>
 
@@ -124,9 +123,9 @@ const Navbar = () => {
             >
               < img src="https://icon-library.com/images/x-button-icon/x-button-icon-3.jpg" style={{ height: "40px", position: "absolute", top: "8px", color: "#fff", right: "14px", zIndex: 999 }} sx={{ fontSize: "100px" }} onClick={() => setOpen(false)} />
 
-              <a href="/finowledge">
+              <a href="/">
                 <LinkButton spacing={0.5}>
-                  <MDTypography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }} sx={{ color: '#FFFFFF' }}>HOME</MDTypography>
+                  <MDTypography variant="body2" style={{ fontFamily: 'Work Sans , sans-serif' }} sx={{ color: '#000000' }}>HOME</MDTypography>
                 </LinkButton>
               </a>
 
@@ -154,7 +153,7 @@ const Navbar = () => {
                 </LinkButton>
               </a>
             </Stack>
-          )}
+          )} */}
 
           {/* Action buttons */}
 
