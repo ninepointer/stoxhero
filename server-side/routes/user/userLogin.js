@@ -416,7 +416,7 @@ router.post('/verifyphoneloginmobile', async(req,res,next)=>{
         if(!user){
             // return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'});
             //check signedup user exists
-            const signedUpUser = await SignedUpUser.findOne({mobile:mobile});
+            const signedUpUser = await SignedUpUser.findOne({mobile:mobile}).sort({_id: -1})
             //if not send error message
             if(!signedUpUser){
                 return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please try again.'});
