@@ -1117,5 +1117,12 @@ exports.getReferralsBetweenDates = async (req, res, next) => {
 exports.checkUserExist = async(req, res)=>{
   const {mobile} = req.params;
   const findUser = await UserDetail.findOne({mobile: mobile});
-  res.status(201).json({ status: "success", data: findUser ? true : false});
+
+  if(findUser){
+    const token = await findUser.generateAuthToken();
+    res.cookie("jwtoken", token, {
+        expires: new Date(Date.now() + 25892000000),
+    });
+  }
+  res.status(201).json({ status: "success", data: findUser ? true : false, id: findUser?._id});
 }

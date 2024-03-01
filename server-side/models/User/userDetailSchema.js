@@ -45,6 +45,7 @@ const userDetailSchema = new mongoose.Schema({
     },
     student_name:String,
     city:String,
+    slug: String,
     schoolDetails:{
         parents_name: String,
         section: String,
@@ -486,13 +487,13 @@ userDetailSchema.pre('save', async function(next){
     }
 });
 
-userDetailSchema.pre("save", async function(next){
-    if(!this.isModified('password')){
-        return next();
-    } 
-    this.password = await bcrypt.hash(this.password, 10)
-    next();
-});
+// userDetailSchema.pre("save", async function(next){
+//     if(!this.isModified('password')){
+//         return next();
+//     } 
+//     this.password = await bcrypt.hash(this.password, 10)
+//     next();
+// });
 
 userDetailSchema.methods.correctPassword = async function (
     candidatePassword,

@@ -11,9 +11,27 @@ router.get(
 );
 
 router.get(
+    "/byslug",
+    // Authenticate,
+    courseController.getCoursesByUserSlug
+);
+
+router.get(
+    "/deductcoursefee",
+    Authenticate,
+    courseController.deductCourseFee
+);
+
+router.get(
     "/:id",
     Authenticate,
     courseController.getCourseByIdUser
+);
+
+router.get(
+    "/:slug/slug",
+    // Authenticate,
+    courseController.getCourseBySlug
 );
 
 

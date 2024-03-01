@@ -11,6 +11,7 @@ const mongoose = require('mongoose');
 const { createUserNotification } = require('../controllers/notification/notificationController');
 const Setting = require('../models/settings/setting');
 const { handleSubscriptionDeduction } = require('./dailyContestController');
+const { handleDeductCourseFee } = require('./courses/courseController');
 const { handleDeductSubscriptionAmount } = require('./userWalletController');
 const { handleDeductMarginXAmount } = require('./marginX/marginxController');
 const { handleOlympiadParticipation } = require('./school/quizController');
@@ -22,6 +23,7 @@ const TenX = require('../models/TenXSubscription/TenXSubscriptionSchema');
 const MarginX = require('../models/marginX/marginX');
 const Battle = require('../models/battle/battle');
 const Quiz = require('../models/School/School');
+const Course = require('../models/courses/courseSchema');
 const Coupon = require('../models/coupon/coupon');
 const whatsAppService = require("../utils/whatsAppService")
 
@@ -685,6 +687,12 @@ const participateUser = async (paymentFor, productId, paymentBy, amount, coupon,
                 const quiz = await Quiz.findById(productId).select('_id');
                 console.log('sending this', paymentBy, productId, productDetails);
                 await handleOlympiadParticipation(paymentBy, productId, productDetails);
+            }
+            break;
+        case 'Course':
+            if (productId) {
+                const course = await Course.findById(productId).select('courseName _id');
+                await handleDeductCourseFee(paymentBy, amount, course?.courseName, course?._id, coupon, bonusRedemption);
             }
             break;
         default:
