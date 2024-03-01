@@ -98,13 +98,9 @@ const Payment = ({ elem, setShowPay, showPay }) => {
   };
 
 
-
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-
-
   useEffect(() => {
     if (open) {
-      axios.get(`${baseUrl}api/v1/userwallet/my`, {
+      axios.get(`${apiUrl}userwallet/my`, {
         withCredentials: true,
         headers: {
           Accept: "application/json",
@@ -112,33 +108,31 @@ const Payment = ({ elem, setShowPay, showPay }) => {
           "Access-Control-Allow-Credentials": true
         },
       })
-        .then((res) => {
+      .then((res) => {
+        const cashTransactions = (res.data.data)?.transactions?.filter((transaction) => {
+          return transaction.transactionType === "Cash";
+        });
+        const bonusTransactions = (res.data.data)?.transactions?.filter((transaction) => {
+          return transaction.transactionType === "Bonus";
+        });
+        // console.log((res.data.data)?.transactions);
 
-          const cashTransactions = (res.data.data)?.transactions?.filter((transaction) => {
-            return transaction.transactionType === "Cash";
-          });
-          const bonusTransactions = (res.data.data)?.transactions?.filter((transaction) => {
-            return transaction.transactionType === "Bonus";
-          });
-          // console.log((res.data.data)?.transactions);
+        const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
+          return total + transaction?.amount;
+        }, 0);
 
-          const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
-            return total + transaction?.amount;
-          }, 0);
+        const totalBonusAmount = bonusTransactions?.reduce((total, transaction) => {
+          return total + transaction?.amount;
+        }, 0);
 
-          const totalBonusAmount = bonusTransactions?.reduce((total, transaction) => {
-            return total + transaction?.amount;
-          }, 0);
+        setBonusBalance(totalBonusAmount.toFixed(2));
+        setUserWallet(totalCashAmount.toFixed(2));
 
-          setBonusBalance(totalBonusAmount.toFixed(2));
-          setUserWallet(totalCashAmount.toFixed(2));
-          // console.log("totalCashAmount", totalCashAmount)
+      }).catch((err) => {
+        console.log("Fail to fetch data of user", err);
+      })
 
-        }).catch((err) => {
-          console.log("Fail to fetch data of user", err);
-        })
-
-      axios.get(`${baseUrl}api/v1/readsetting`, {
+      axios.get(`${apiUrl}readsetting`, {
         withCredentials: true,
         headers: {
           Accept: "application/json",
@@ -146,18 +140,18 @@ const Payment = ({ elem, setShowPay, showPay }) => {
           "Access-Control-Allow-Credentials": true
         },
       })
-        .then((res) => {
-          setSetting(res?.data[0]);
+      .then((res) => {
+        setSetting(res?.data[0]);
 
-        }).catch((err) => {
-          console.log("Fail to fetch data of user", err);
-        })
+      }).catch((err) => {
+        console.log("Fail to fetch data of user", err);
+      })
     }
 
   }, [open])
 
   const handleClickOpen = () => {
-    window.webengage.track('testzone_payment_clicked', {
+    window.webengage.track('course_payment_clicked', {
       user: getDetails?.userDetails?._id,
       contestId: elem?._id,
       amount: amount
@@ -175,7 +169,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
 
   async function captureIntent() {
     handleClickOpen();
-    const res = await fetch(`${baseUrl}api/v1/dailycontest/purchaseintent/${elem._id}`, {
+    const res = await fetch(`${apiUrl}dailycontest/purchaseintent/${elem._id}`, {
       method: "PUT",
       credentials: "include",
       headers: {
@@ -189,7 +183,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
 
   const buySubscription = async () => {
     if (userWallet < Number(amount - discountAmount - bonusRedemption)) {
-      window.webengage.track('testzone_payment_low_balance', {
+      window.webengage.track('course_payment_low_balance', {
         user: getDetails?.userDetails?._id,
         contestId: elem?._id,
         walletBalance: userWallet,
@@ -197,12 +191,12 @@ const Payment = ({ elem, setShowPay, showPay }) => {
       })
       return openErrorSB('Low Balance', 'You don\'t have enough wallet balance for this purchase.');
     }
-    window.webengage.track('testzone_payment_process_clicked', {
+    window.webengage.track('course_payment_process_clicked', {
       user: getDetails?.userDetails?._id,
       contestId: elem?._id,
       amount: Number(amount - discountAmount - bonusRedemption)
     })
-    const res = await fetch(`${baseUrl}api/v1/dailycontest/feededuct`, {
+    const res = await fetch(`${apiUrl}dailycontest/feededuct`, {
       method: "PATCH",
       credentials: "include",
       headers: {
@@ -224,7 +218,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
     } else {
       setMessege({
         ...messege,
-        thanksMessege: `Thanks for the payment of ₹${(Number(amount - discountAmount - bonusRedemption) + actualAmount).toFixed(2)} , your seat is booked for the TestZone - ${elem.contestName}, please click on "Start Trading" once the TestZone starts.`
+        thanksMessege: dataResp.message
       })
     }
   }
@@ -236,7 +230,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
 
   const initiatePayment = async () => {
     try {
-      const res = await axios.post(`${apiUrl}payment/initiate`, { amount: Number((amount - discountAmount - bonusRedemption) * 100) + actualAmount * 100, redirectTo: window.location.href, paymentFor: 'Contest', productId: elem?._id, coupon: verifiedCode, bonusRedemption }, { withCredentials: true });
+      const res = await axios.post(`${apiUrl}payment/initiate`, { amount: Number((amount - discountAmount - bonusRedemption) * 100) + actualAmount * 100, redirectTo: window.location.href, paymentFor: 'Course', productId: elem?._id, coupon: verifiedCode, bonusRedemption }, { withCredentials: true });
       console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
       window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
     } catch (e) {
@@ -259,7 +253,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
     }
   }
   const applyPromoCode = async () => {
-    window.webengage.track('testzone_apply_couponcode_clicked', {
+    window.webengage.track('course_apply_couponcode_clicked', {
       user: getDetails?.userDetails?._id,
       contestId: elem?._id,
       amount: Number(amount - discountAmount - bonusRedemption)
@@ -343,7 +337,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                           <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="flex-start" mt={0} mb={2} style={{ minWidth: '40vw' }}  >
                             {!showPromoCode ? <MDBox display='flex' justifyContent='flex-start' width='100%' mt={1}
                               onClick={() => { 
-                                window.webengage.track('testzone_intent_to_apply_couponcode_clicked', {
+                                window.webengage.track('course_intent_to_apply_couponcode_clicked', {
                                   user: getDetails?.userDetails?._id,
                                   contestId: elem?._id,
                                   amount: Number(amount - discountAmount - bonusRedemption)
@@ -374,7 +368,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(amount - discountAmount - bonusRedemption).toFixed(2)}</Typography>
                             {bonusBalance > 0 && <MDBox display='flex' justifyContent='flex-start' alignItems='center' ml={-1}>
                               <Checkbox checked={checked} onChange={()=>{
-                                window.webengage.track('testzone_herocash_apply_clicked', {
+                                window.webengage.track('course_herocash_apply_clicked', {
                                   user: getDetails?.userDetails?._id,
                                   contestId: elem?._id,
                                 });
@@ -389,7 +383,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                             <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new government regulations. However you don't need to pay anything extra. StoxHero will be taking care of the GST on your behalf. To offset it, we've increased our pricing by a bit. </Typography>
                             {!showPromoCode ? <MDBox display='flex' justifyContent='flex-start' width='100%' mt={1}
                               onClick={() => { 
-                                window.webengage.track('testzone_intent_to_apply_couponcode_clicked', {
+                                window.webengage.track('course_intent_to_apply_couponcode_clicked', {
                                   user: getDetails?.userDetails?._id,
                                   contestId: elem?._id,
                                   amount: Number(amount - discountAmount - bonusRedemption)
@@ -420,7 +414,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                             <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{(Number(amount - discountAmount - bonusRedemption) + actualAmount).toFixed(2)}</Typography>
                             {bonusBalance > 0 && <MDBox display='flex' justifyContent='flex-start' alignItems='center' ml={-1}>
                               <Checkbox checked={checked} onChange={()=>{
-                                window.webengage.track('testzone_herocash_apply_clicked', {
+                                window.webengage.track('course_herocash_apply_clicked', {
                                   user: getDetails?.userDetails?._id,
                                   contestId: elem?._id,
                                 });
@@ -431,30 +425,6 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                           </MDBox>}
                       </RadioGroup>
                     </FormControl>
-
-                    {/* <Grid container display="flex" flexDirection="row" justifyContent="center" alignContent={"center"} gap={2} >
-                      <Grid container mt={2} xs={12} md={9} xl={12} lg={12}>
-                        <Grid item xs={12} md={6} xl={9} lg={9} >
-                          <TextField
-                            // disabled={((isSubmitted || battle) && (!editing || saving))}
-                            id="outlined-required"
-                            label='Coupen Code'
-                            name='coupenCode'
-                            fullWidth
-                            value={amount}
-                            onChange={(e) => { }}
-                          />
-                        </Grid>
-
-                        <Grid item xs={12} md={6} xl={3} lg={3} >
-                          <MDButton color={"success"} onClick={handleClose} autoFocus>
-                            Apply
-                          </MDButton>
-                        </Grid>
-                      </Grid>
-
-                    </Grid> */}
-
                   </MDBox>
                 </DialogContentText>
                 {value == 'wallet' &&

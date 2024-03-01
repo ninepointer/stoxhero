@@ -59,8 +59,11 @@ const courseSchema = new Schema({
   enrollments: [
     {
       userId: { type: Schema.Types.ObjectId, ref: "user-personal-detail" },
-      fee: Number,
-      actualPrice: Number,
+      actualFee: Number,
+      discountedFee: Number,
+      discountUsed: Number,
+      pricePaidByUser: Number,
+      gstAmount: Number,
       enrolledOn: { type: Date },
       bonusRedemption: Number,
     },

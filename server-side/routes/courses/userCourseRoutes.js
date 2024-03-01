@@ -17,6 +17,12 @@ router.get(
 );
 
 router.get(
+    "/deductcoursefee",
+    Authenticate,
+    courseController.deductCourseFee
+);
+
+router.get(
     "/:id",
     Authenticate,
     courseController.getCourseByIdUser

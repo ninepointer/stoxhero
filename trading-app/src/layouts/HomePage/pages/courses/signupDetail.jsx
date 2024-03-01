@@ -108,7 +108,7 @@ const App = (props) => {
             setSubmitted(true);
             setCreating(false);
             setButtonClicked(false);
-            navigate(`/courses/${slug}/details?course=${courseId}&id${data?.data?._id}`)
+            navigate(`/courses/${slug}/details?course=${courseId}&id=${data?.data?._id}`)
             return openSuccessSB("Application Submitted", data.info, "SUCCESS");
         } else {
             setButtonClicked(false);
@@ -120,7 +120,7 @@ const App = (props) => {
     async function generateOTP() {
 
         if(id){
-            navigate(`/courses/${slug}/details?course=${courseId}&id${id}`);
+            navigate(`/courses/${slug}/details?course=${courseId}&id=${id}`);
             return;
         }
 

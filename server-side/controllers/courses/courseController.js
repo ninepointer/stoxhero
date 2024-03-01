@@ -4,6 +4,12 @@ const { ObjectId } = require("mongodb");
 const sharp = require("sharp");
 const mongoose = require("mongoose");
 const User = require('../../models/User/userDetailSchema');
+const UserWallet = require('../../models/UserWallet/userWalletSchema');
+const Setting = require('../../models/settings/setting');
+const Coupon = require('../../models/coupon/coupon');
+const AffiliateProgram = require('../../models/affiliateProgram/affiliateProgram');
+const ReferralProgram = require('../../models/campaigns/referralProgram')
+
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -1455,3 +1461,418 @@ exports.getCourseBySlug = async (req, res) => {
     });
   }
 };
+
+exports.deductCourseFee = async (req, res, next) => {
+
+  try {
+    const { courseFee, courseName, courseId, coupon, bonusRedemption } = req.body
+    const userId = req.user._id;
+    const result = await exports.handleDeductCourseFee(userId, courseFee, courseName, courseId, coupon, bonusRedemption, req);
+
+    res.status(result.statusCode).json(result.data);
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong..."
+    });
+  }
+}
+
+exports.handleDeductCourseFee = async (userId, courseFee, courseName, courseId, coupon, bonusRedemption, req) => {
+  try {
+    let affiliate, affiliateProgram;
+    const course = await Course.findOne({ _id: new ObjectId(courseId) });
+    const wallet = await UserWallet.findOne({ userId: userId });
+    const user = await User.findOne({ _id: userId });
+    const setting = await Setting.find({});
+    let discountAmount = 0;
+    let cashbackAmount = 0;
+    const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
+      return transaction.transactionType === "Cash";
+    });
+    const bonusTransactions = (wallet)?.transactions?.filter((transaction) => {
+      return transaction.transactionType === "Bonus";
+    });
+
+
+    const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
+      return total + transaction?.amount;
+    }, 0);
+    const totalBonusAmount = bonusTransactions?.reduce((total, transaction) => {
+      return total + transaction?.amount;
+    }, 0);
+
+    //check course is lived
+
+    if(course?.status !== 'Published'){
+      return {
+        statusCode: 400,
+        data: {
+          status: "error",
+          message: "This course is not valid. Please join another one.",
+        }
+      };
+    }
+
+    if ((course?.courseStartTime && course?.courseEndTime) && (course?.courseEndTime <= new Date())) {
+      return {
+        statusCode: 400,
+        data: {
+          status: "error",
+          message: "This course has ended. Please join another one.",
+        }
+      };
+    }
+
+    //Check if Bonus Redemption is valid
+    if (bonusRedemption > totalBonusAmount || bonusRedemption > course?.discountedPrice * setting[0]?.maxBonusRedemptionPercentage) {
+      return {
+        statusCode: 400,
+        data: {
+          status: "error",
+          message: "Incorrect HeroCash Redemption",
+        }
+      };
+    }
+
+    if (Number(bonusRedemption)) {
+      wallet?.transactions?.push({
+        title: 'StoxHero HeroCash Redeemed',
+        description: `${bonusRedemption} HeroCash used.`,
+        transactionDate: new Date(),
+        amount: -(bonusRedemption?.toFixed(2)),
+        transactionId: uuid.v4(),
+        transactionType: 'Bonus'
+      });
+    }
+
+
+    if (coupon) {
+      let couponDoc = await Coupon.findOne({ code: coupon });
+      if (!couponDoc) {
+        let match = false;
+        const affiliatePrograms = await AffiliateProgram.find({ status: 'Active' });
+        if (affiliatePrograms.length != 0){
+          for (let program of affiliatePrograms) {
+            match = program?.affiliates?.find(item => (item?.affiliateCode?.toString() == coupon?.toString() && item?.affiliateStatus == "Active"));
+            if (match) {
+              affiliate = match;
+              affiliateProgram = program;
+              couponDoc = { rewardType: 'Discount', discountType: 'Percentage', discount: program?.discountPercentage, maxDiscount: program?.maxDiscount }
+              break;
+            }
+          }
+        }
+
+        if (!match) {
+          const userCoupon = await User.findOne({ myReferralCode: coupon?.toString() })
+          const referralProgram = await ReferralProgram.findOne({ status: "Active" });
+
+          // console.log("referralProgram", referralProgram, userCoupon)
+          if (userCoupon) {
+            affiliate = { userId: userCoupon?._id };
+            affiliateProgram = referralProgram?.affiliateDetails;
+            couponDoc = { rewardType: 'Discount', discountType: 'Percentage', discount: referralProgram?.affiliateDetails?.discountPercentage, maxDiscount: referralProgram?.affiliateDetails?.maxDiscount }
+
+          }
+        }
+      }
+      if (couponDoc?.rewardType == 'Discount') {
+        if (couponDoc?.discountType == 'Flat') {
+          //Calculate amount and match
+          discountAmount = couponDoc?.discount;
+        } else {
+          discountAmount = Math.min(couponDoc?.discount / 100 * course?.discountedPrice, couponDoc?.maxDiscount);
+
+        }
+      } else {
+        if (couponDoc?.discountType == 'Flat') {
+          //Calculate amount and match
+          cashbackAmount = couponDoc?.discount;
+        } else {
+          cashbackAmount = Math.min(couponDoc?.discount / 100 * (course?.discountedPrice - bonusRedemption), couponDoc?.maxDiscount);
+
+        }
+        wallet?.transactions?.push({
+          title: 'StoxHero CashBack',
+          description: `Cashback of ${cashbackAmount?.toFixed(2)} HeroCash - code ${coupon} used`,
+          transactionDate: new Date(),
+          amount: cashbackAmount?.toFixed(2),
+          transactionId: uuid.v4(),
+          transactionType: 'Bonus'
+        });
+      }
+    }
+    const totalAmount = (course?.discountedPrice - discountAmount - bonusRedemption) * (1 + setting[0]?.courseGstPercentage / 100) //todo-vijay
+    if (Number(totalAmount)?.toFixed(2) != Number(courseFee)?.toFixed(2)) {
+      return {
+        statusCode: 400,
+        data: {
+          status: "error",
+          message: "Incorrect Course fee amount",
+        }
+      };
+    }
+    if (totalCashAmount < (Number(courseFee))) {
+      return {
+        statusCode: 400,
+        data: {
+          status: "error",
+          message: "You do not have enough balance to enroll in this Course. Please add money to your StoxHero Wallet.",
+        }
+      };
+    }
+
+    for (let i = 0; i < course.enrollments?.length; i++) {
+      if (course.enrollments[i]?.userId?.toString() === userId?.toString()) {
+        return {
+          statusCode: 400,
+          data: {
+            status: "error",
+            message: "You have already enrolled in this Course.",
+          }
+        };
+      }
+    }
+
+    if (course?.maxEnrolments && course?.maxEnrolments <= course?.enrollments?.length) {
+      // if (!course.potentialParticipants.includes(userId)) {
+      //   const course = await Course.findOneAndUpdate({ _id: new ObjectId(courseId) }, {
+      //     $push: {
+      //       potentialParticipants: userId
+      //     }
+      //   });
+      // }
+      return {
+        statusCode: 400,
+        data: {
+          status: "error",
+          message: "The course is already full. We sincerely appreciate your enthusiasm to enrollment in our courses. Please enroll in other courses.",
+        }
+      };
+    }
+
+
+    let obj = {
+      actualFee: course?.coursePrice,
+      discountedFee: course?.discountedPrice,
+      discountUsed: discountAmount,
+      pricePaidByUser: courseFee,
+      gstAmount: courseFee * setting[0]?.courseGstPercentage/100,
+      enrolledOn: new Date(),      
+    }
+    if (Number(bonusRedemption)) {
+      obj.bonusRedemption = bonusRedemption;
+    }
+
+
+    const updateParticipants = await Course.findOneAndUpdate(
+      { _id: new ObjectId(courseId) },
+      {
+        $push: {
+          enrollments: obj
+        }
+      },
+      { new: true }
+    );
+    
+
+    // console.log(result)
+    // Save the updated document
+    // await result.save();
+
+
+    wallet.transactions = [...wallet.transactions, {
+      title: 'Course Fee',
+      description: `Amount deducted for the course fee of ${courseName}`,
+      transactionDate: new Date(),
+      amount: (-courseFee),
+      transactionId: uuid.v4(),
+      transactionType: 'Cash'
+    }];
+    await wallet.save();
+
+    if (!updateParticipants || !wallet) {
+      return {
+        statusCode: 404,
+        data: {
+          status: "error",
+          message: "Not found",
+        }
+      };
+    }
+
+    let recipients = [user.email, 'team@stoxhero.com'];
+    let recipientString = recipients.join(",");
+    let subject = "Course Fee - StoxHero";
+    let message =
+      `
+        <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Course Fee Deducted</title>
+                <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    font-size: 16px;
+                    line-height: 1.5;
+                    margin: 0;
+                    padding: 0;
+                }
+
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    border: 1px solid #ccc;
+                }
+
+                h1 {
+                    font-size: 24px;
+                    margin-bottom: 20px;
+                }
+
+                p {
+                    margin: 0 0 20px;
+                }
+
+                .userid {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
+
+                .password {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
+
+                .login-button {
+                    display: inline-block;
+                    background-color: #007bff;
+                    color: #fff;
+                    padding: 10px 20px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    text-decoration: none;
+                    border-radius: 5px;
+                }
+
+                .login-button:hover {
+                    background-color: #0069d9;
+                }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                <h1>Course Fee</h1>
+                <p>Hello ${user.first_name},</p>
+                <p>Congratulations on enrolling in the course! Here are your transaction details.</p>
+                <p>User ID: <span class="userid">${user.employeeid}</span></p>
+                <p>Full Name: <span class="password">${user.first_name} ${user.last_name}</span></p>
+                <p>Email: <span class="password">${user.email}</span></p>
+                <p>Mobile: <span class="password">${user.mobile}</span></p>
+                <p>Course Name: <span class="password">${course.courseName}</span></p>
+                <p>Course Fee: <span class="password">₹${courseFee}/-</span></p>
+                </div>
+            </body>
+            </html>
+
+        `
+    if (process.env.PROD === "true") {
+      emailService(recipientString, subject, message);
+      // console.log("Subscription Email Sent")
+    }
+    if (coupon && cashbackAmount > 0) {
+      await createUserNotification({
+        title: 'StoxHero Cashback',
+        description: `${cashbackAmount?.toFixed(2)} HeroCash added as bonus - ${coupon} code used.`,
+        notificationType: 'Individual',
+        notificationCategory: 'Informational',
+        productCategory: 'Course',
+        user: user?._id,
+        priority: 'Medium',
+        channels: ['App', 'Email'],
+        createdBy: '63ecbc570302e7cf0153370c',
+        lastModifiedBy: '63ecbc570302e7cf0153370c'
+      });
+      if (user?.fcmTokens?.length > 0) {
+        await sendMultiNotifications('StoxHero Cashback',
+          `${cashbackAmount?.toFixed(2)}HeroCash credited as bonus in your wallet.`,
+          user?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
+        )
+      }
+    }
+    await createUserNotification({
+      title: 'Course Fee Deducted',
+      description: `₹${courseFee} deducted as Course fee for ${course?.courseName}`,
+      notificationType: 'Individual',
+      notificationCategory: 'Informational',
+      productCategory: 'Course',
+      user: user?._id,
+      priority: 'Low',
+      channels: ['App', 'Email'],
+      createdBy: '63ecbc570302e7cf0153370c',
+      lastModifiedBy: '63ecbc570302e7cf0153370c'
+    });
+    if (user?.fcmTokens?.length > 0) {
+      await sendMultiNotifications('Course Fee Deducted',
+        `₹${courseFee} deducted as Course fee for ${course?.courseName}`,
+        user?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
+      )
+    }
+    if (coupon) {
+      const product = await Product.findOne({ productName: 'Course' }).select('_id');
+      if (affiliate) {
+        await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, course?._id, course?.discountedPrice, userId);
+      } else {
+        await saveSuccessfulCouponUse(userId, coupon, product?._id, course?._id);
+      }
+    }
+
+    // if (!req?.user?.paidDetails?.paidDate) {
+    //   const updatePaidDetails = await User.findOneAndUpdate(
+    //     { _id: new ObjectId(userId) },
+    //     {
+    //       $set: {
+    //         'paidDetails.paidDate': new Date(),
+    //         'paidDetails.paidStatus': 'Inactive',
+    //         'paidDetails.paidProduct': new ObjectId('6517d48d3aeb2bb27d650de5'),
+    //         'paidDetails.paidProductPrice': courseFee
+    //       }
+    //     },
+    //     { new: true }
+    //   );
+    //   await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+    // }
+    return {
+      statusCode: 200,
+      data: {
+        status: 'success',
+        message: "Paid successfully",
+        data: updateParticipants
+      }
+    };
+  } catch (e) {
+    console.log(e);
+    return {
+      statusCode: 500,
+      data: {
+        status: 'error',
+        message: "Something went wrong",
+        error: e.message
+      }
+    };
+  }
+}

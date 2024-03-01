@@ -20,6 +20,9 @@ import NoData from "../../../../assets/images/noBlogFound.png"
 import PaymentIcon from '@mui/icons-material/Payment';
 import Groups2Icon from '@mui/icons-material/Groups2';
 import {Link, useNavigate} from 'react-router-dom'
+import Payment from '../../../coursesUser/data/payment.js'
+
+
 
 export default function Courses() {
   const queryString = window.location.search;
@@ -27,6 +30,7 @@ export default function Courses() {
 
   // Get the value of the "mobile" parameter
   const courseId = urlParams.get('course');
+  const userId = urlParams.get('id');
 
   const [courses, setCourses] = useState([]);
   const navigate = useNavigate();
@@ -110,7 +114,7 @@ export default function Courses() {
                                         </Grid>
 
                                             <Grid item xs={12} md={4} lg={12} p={2} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', maxWidth: '100%', height: 'auto', gap: 5 }}>
-                                                {/* <SuggestModal id={courseId} /> */}
+                                                <Payment id={courseId} />
                                                 <MDButton size='small' variant='gradiant' color='success' onClick={()=>{navigate(`/courses/${slug}/fill+details?course=${courseId}`)}}>
                                                   Pay
                                                 </MDButton>
