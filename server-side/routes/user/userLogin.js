@@ -277,7 +277,14 @@ router.post('/phoneloginmobile', async (req,res, next)=>{
             //generate otp
             let mobile_otp = otpGenerator.generate(6, {digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false}); 
             //Create signedup user document
-            const signedUpUser = await SignedUpUser.create({mobile:mobile, mobile_otp:mobile_otp, status:'OTP Verification Pending', lastOtpTime: new Date()});
+            let signedUpUser = await SignedUpUser.findOne({mobile: mobile});
+            if(signedUpUser){
+                signedUpUser.mobile_otp = mobile_otp;
+                await signedUpUser.save({new: true});
+            } else {
+                signedUpUser = await SignedUpUser.create({mobile:mobile, mobile_otp:mobile_otp, status:'OTP Verification Pending', lastOtpTime: new Date()});
+            }
+            
             //send response
             if(process.env.PROD=='true') sendOTP(mobile.toString(), mobile_otp);
             console.log(process.env.PROD, mobile_otp, 'sending');
@@ -411,12 +418,12 @@ router.post('/verifyphoneloginmobile', async(req,res,next)=>{
     const {mobile, mobile_otp, fcmTokenData, college, rollno} = req.body;
 
     try {
-        console.log("fcm data", fcmTokenData);
+        // console.log("fcm data", fcmTokenData);
         const user = await UserDetail.findOne({mobile});
         if(!user){
             // return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'});
             //check signedup user exists
-            const signedUpUser = await SignedUpUser.findOne({mobile:mobile});
+            const signedUpUser = await SignedUpUser.findOne({mobile:mobile}).sort({_id: -1})
             //if not send error message
             if(!signedUpUser){
                 return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please try again.'});
@@ -426,7 +433,7 @@ router.post('/verifyphoneloginmobile', async(req,res,next)=>{
                 return res.status(400).json({status:'error', message:'Incorrect OTP entered. Please try again'});
             }
             //send response status:success, login:false
-            res.status(200).json({status: 'success', message : "OTP verification successful", login:false});
+            return res.status(200).json({status: 'success', message : "OTP verification successful", login:false});
         }
         if(!user?.collegeDetails?.college && college){
             return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'});

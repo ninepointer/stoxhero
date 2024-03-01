@@ -1,5 +1,5 @@
 import React, {useState, useContext, useEffect} from "react"
-import { useMediaQuery } from '@mui/material'
+import { useMediaQuery, CircularProgress } from '@mui/material'
 import theme from '../../HomePage/utils/theme/index'; 
 import { ThemeProvider } from 'styled-components';
 import ReactGA from "react-ga"
@@ -77,6 +77,12 @@ function Cover(props) {
     icon: '',
     title: '',
     content: ''
+  });
+  const [buttonLoading, setButtonLoading] = useState({
+    signupGetOtp: false,
+    signupConfirmOtp: false,
+    loginGetOtp: false,
+    loginConfirmOtp: false
   })
 
   const getMetrics = async()=>{
@@ -169,65 +175,70 @@ function Cover(props) {
   useEffect(()=>{
     getDefaultInvite();
   },[]);  
+
+
   async function formSubmit() {
     setSubmitClicked(true)
     setformstate(formstate);
+    setButtonLoading(prev => ({...prev, signupGetOtp: true}))
 
-    const { 
-      first_name, 
-      last_name, 
-      email, 
-      mobile,  
+    const {
+      first_name,
+      last_name,
+      email,
+      mobile,
       referrerCode,
     } = formstate;
     console.log(formstate)
-    if(mobile.length !== 10){
+    if (mobile.length !== 10) {
 
-      if(mobile.length === 12 && mobile.startsWith('91')){
-        
-      }else if(mobile.length === 11 && mobile.startsWith('0')){
+      if (mobile.length === 12 && mobile.startsWith('91')) {
 
-      } 
-      else{
-        return openInfoSB("Mobile number invalid","Please Check Your Number Again")
+      } else if (mobile.length === 11 && mobile.startsWith('0')) {
+
+      }
+      else {
+        return openInfoSB("Mobile number invalid", "Please Check Your Number Again")
       }
     }
 
     const res = await fetch(`${baseUrl}api/v1/signup`, {
-      
-        method: "POST",
-        // credentials:"include",
-        headers: {
-            "content-type" : "application/json",
-            "Access-Control-Allow-Credentials": false
-        },
-        body: JSON.stringify({
-          first_name:first_name.trim(), 
-          last_name:last_name.trim(),
-          email:email.trim(), 
-          mobile:mobile, 
-          referrerCode:referrerCode,
-        })
+
+      method: "POST",
+      // credentials:"include",
+      headers: {
+        "content-type": "application/json",
+        "Access-Control-Allow-Credentials": false
+      },
+      body: JSON.stringify({
+        first_name: first_name.trim(),
+        last_name: last_name.trim(),
+        email: email.trim(),
+        mobile: mobile,
+        referrerCode: referrerCode,
+      })
     });
- 
+
 
     const data = await res.json();
     // console.log(data, res.status);
-    if(res.status === 201 || res.status === 200){ 
-        // window.alert(data.message);
-        setShowEmailOTP(true);
-        setTimerActive(true);
-        setResendTimer(30); 
-        return openSuccessSB("OTP Sent",data.message);  
-    }else{
-        // console.log("openInfoBS Called")
-        return openInfoSB(data.message,"You have already signed Up")
+    if (res.status === 201 || res.status === 200) {
+      // window.alert(data.message);
+      setShowEmailOTP(true);
+      setTimerActive(true);
+      setResendTimer(30);
+      setButtonLoading(prev => ({...prev, signupGetOtp: false}))
+      return openSuccessSB("OTP Sent", data.message);
+    } else {
+      // console.log("openInfoBS Called")
+      return openInfoSB(data.message, "You have already signed Up")
     }
-}
+  }
 
-const [buttonClicked, setButtonClicked] = useState(false);
+  const [buttonClicked, setButtonClicked] = useState(false);
   async function otpConfirmation() {
     // console.log(formstate.email_otp)
+    setButtonLoading(prev => ({...prev, signupConfirmOtp: true}))
     window.webengage.track('signup_confirmation_clicked', {});
     setButtonClicked(true);
     const res = await fetch(`${baseUrl}api/v1/verifyotp`, {
@@ -248,7 +259,7 @@ const [buttonClicked, setButtonClicked] = useState(false);
       })
     });
     const data = await res.json();
-    console.log("Data after account creation:",data)
+    console.log("Data after account creation:", data)
     if (data.status === "Success") {
       setDetails.setUserDetail(data.data);
       setShowConfirmation(false);
@@ -266,22 +277,23 @@ const [buttonClicked, setButtonClicked] = useState(false);
       window.webengage.user.setAttribute('user_kyc_status', userData?.KYCStatus);
       window.webengage.user.setAttribute('user_role', userData?.role?.roleName);
 
-      if(userData?.role?.roleName === adminRole){
+      setButtonLoading(prev => ({...prev, signupConfirmOtp: false}))
+      if (userData?.role?.roleName === adminRole) {
         const from = location.state?.from || "/tenxdashboard";
         navigate(from);
       }
-      else if(userData?.role?.roleName === "data"){
+      else if (userData?.role?.roleName === "data") {
         const from = location.state?.from || "/analytics";
         navigate(from);
-      } 
-      else if(userData?.role?.roleName === userRole){
+      }
+      else if (userData?.role?.roleName === userRole) {
         const from = location.state?.from || "/home";
         navigate(from);
       }
-      else if(userData?.role?.roleName === Affiliate){
+      else if (userData?.role?.roleName === Affiliate) {
         const from = location.state?.from || "/home";
         navigate(from);
-      } else{
+      } else {
         navigate('/home');
       }
 
@@ -327,6 +339,7 @@ const [buttonClicked, setButtonClicked] = useState(false);
 
   async function phoneLogin(e){
     e.preventDefault();
+    setButtonLoading(prev => ({...prev, loginGetOtp: true}))
     try{
       if(mobile.length<10){
         return setInvalidDetail(`Please enter a valid mobile number`);
@@ -356,6 +369,7 @@ const [buttonClicked, setButtonClicked] = useState(false);
               openSuccessSBSI("otp sent", data.message);
               setInvalidDetail('')
               setOtpGen(true);
+              setButtonLoading(prev => ({...prev, loginGetOtp: false}))
             }
             else{
               setInvalidDetail(data.message)
@@ -374,6 +388,7 @@ const [buttonClicked, setButtonClicked] = useState(false);
 
   async function otpConfirmationSi(e){
     e.preventDefault();
+    setButtonLoading(prev => ({...prev, loginConfirmOtp: true}))
     try{
         if(mobile.length<10){
           return setInvalidDetail(`Mobile number incorrect`);
@@ -407,7 +422,7 @@ const [buttonClicked, setButtonClicked] = useState(false);
             window.webengage.user.setAttribute('user_joining_date', userData?.joining_date);
             window.webengage.user.setAttribute('user_kyc_status', userData?.KYCStatus);
             window.webengage.user.setAttribute('user_role', userData?.role?.roleName);
-      
+            setButtonLoading(prev => ({...prev, loginConfirmOtp: false}))
             if(userData?.role?.roleName === adminRole){
               const from = location.state?.from || "/tenxdashboard";
               navigate(from);
@@ -419,8 +434,8 @@ const [buttonClicked, setButtonClicked] = useState(false);
             else if(userData?.role?.roleName === Affiliate){
               const from = location.state?.from || "/home";
                 navigate(from);
-            }else{
-              navigate('/home');
+            } else{
+                navigate('/home');
             }
           }
       }catch(e){
@@ -860,11 +875,14 @@ const [buttonClicked, setButtonClicked] = useState(false);
                         </Grid>}
 
                         {!showEmailOTP && (
-                          <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                            <MDButton variant="gradient" style={{backgroundColor:'#65BA0D', color:'white'}} fullWidth onClick={formSubmit}>
-                              Get Mobile OTP
-                            </MDButton>
-                          </Grid>
+                              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                                <MDButton variant="gradient" style={{ backgroundColor: '#65BA0D', color: 'white' }} fullWidth onClick={formSubmit}>
+                                  {buttonLoading.signupGetOtp ?
+                                    <CircularProgress size={20} color="inherit" /> : "Get Mobile OTP"
+                                  }
+
+                                </MDButton>
+                              </Grid>
                         )}
 
                         {showEmailOTP && showConfirmation && (
@@ -904,7 +922,10 @@ const [buttonClicked, setButtonClicked] = useState(false);
                               
                               <Grid item xs={12} md={12} lg={12} mt={.25} display="flex" justifyContent="center">
                                 <MDButton variant="gradient" style={{backgroundColor:"#65BA0D", color:'white'}} fullWidth onClick={otpConfirmation} disabled={buttonClicked}>
-                                  Confirm
+                                {buttonLoading.signupConfirmOtp ?
+                                    <CircularProgress size={20} color="inherit" /> : "Confirm"
+                                  }
+                                  
                                 </MDButton>
                             </Grid>
                           
@@ -960,7 +981,10 @@ const [buttonClicked, setButtonClicked] = useState(false);
                         {!otpGen &&
                           <Grid item xs={12} md={12} lg={12}>
                           <MDButton variant="gradient" style={{backgroundColor:'#65BA0D', color:'white'}} onClick={phoneLogin} fullWidth>
-                            Get Mobile OTP
+                          
+                            {buttonLoading.loginGetOtp ?
+                                    <CircularProgress size={20} color="inherit" /> : " Get Mobile OTP"
+                                  }
                           </MDButton>
                           </Grid>
                         }
@@ -983,7 +1007,10 @@ const [buttonClicked, setButtonClicked] = useState(false);
 
                           <Grid item xs={12} md={6} xl={12} mt={1} display="flex" justifyContent="center">
                             <MDButton variant="gradient" style={{backgroundColor:'#65BA0D', color:'white'}} fullWidth onClick={otpConfirmationSi}>
-                              Confirm OTP
+                              
+                              {buttonLoading.loginConfirmOtp ?
+                                    <CircularProgress size={20} color="inherit" /> : "Confirm OTP"
+                                  }
                             </MDButton>
                           </Grid>
                           </>

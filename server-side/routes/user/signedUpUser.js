@@ -398,7 +398,7 @@ router.patch("/verifyotp", async (req, res) => {
     } = req.body
 
     const schoolDetails = {
-        parents_name, school, grade, city, dob, state, section, pin: await bcrypt.hash(pin, 10)
+        parents_name, school, grade, city, dob, state, section, pin: pin && await bcrypt.hash(pin, 10)
     }
 
     const user = await SignedUpUser.findOne({ mobile: mobile })
