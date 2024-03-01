@@ -23,7 +23,7 @@ export default function MessagePopUp({ socket, userId }) {
 
   // const [holiday, setHoliday] = useState([]);
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
   useEffect(() => {
     axios

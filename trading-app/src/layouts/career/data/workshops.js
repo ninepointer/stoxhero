@@ -14,7 +14,7 @@ import { Link, useLocation } from "react-router-dom";
 const ActiveCareers = ({type}) => {
 const [applicationCount, setApplicationCount] = useState(0);
 const [activeCareer,setActiveCareer] = useState([]);
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 // React.useEffect(()=>{
 //     // console.log("Inside Use Effect")

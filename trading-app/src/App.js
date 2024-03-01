@@ -158,7 +158,7 @@ export default function App() {
   const getDetails = useContext(userContext);
   const navigate = useNavigate();
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
   useEffect(() => {
     axios

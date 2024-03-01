@@ -37,7 +37,7 @@ const CreateCourse = (
   {setActiveStep, activeStep, steps, setCreatedCourse}) => {
   // console.log("props", props);
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const navigate = useNavigate();
   const [isSubmitted, setIsSubmitted] = useState(false);
   // const getDetails = useContext(userContext);

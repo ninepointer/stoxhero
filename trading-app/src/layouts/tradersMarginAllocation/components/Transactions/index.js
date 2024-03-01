@@ -17,7 +17,7 @@ import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import Transaction from "../Transaction";
 
 function Transactions({render}) {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [traderPNLDetails, settraderPNLDetails] = useState([]);
 
   console.log("marginDetails transaction")
