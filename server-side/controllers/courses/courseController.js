@@ -138,8 +138,8 @@ exports.createCourse = async (req, res) => {
 
 exports.getAdminPublished = async (req, res) => {
   try {
-    const skip = Number(req.query.skip || 0);
-    const limit = Number(req.query.limit || 10);
+    const skip = Number(Number(req.query.skip) || 0);
+    const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({status: 'Published'})
     const courses = await Course.find({status: 'Published'})
     .sort({courseStartTime: -1})
@@ -156,8 +156,8 @@ exports.getAdminPublished = async (req, res) => {
 
 exports.getAdminAwaitingApproval = async (req, res) => {
   try {
-    const skip = Number(req.query.skip || 0);
-    const limit = Number(req.query.limit || 10);
+    const skip = Number(Number(req.query.skip) || 0);
+    const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({status: 'Sent To Creator'})
     const courses = await Course.find({status: 'Sent To Creator'})
     .sort({courseStartTime: -1})
@@ -174,8 +174,8 @@ exports.getAdminAwaitingApproval = async (req, res) => {
 
 exports.getAdminUnpublished = async (req, res) => {
   try {
-    const skip = Number(req.query.skip || 0);
-    const limit = Number(req.query.limit || 10);
+    const skip = Number(Number(req.query.skip) || 0);
+    const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({status: 'Unpublished'})
     const courses = await Course.find({status: 'Unpublished'})
     .sort({courseStartTime: -1})
@@ -192,8 +192,8 @@ exports.getAdminUnpublished = async (req, res) => {
 
 exports.getAdminPendingApproval = async (req, res) => {
   try {
-    const skip = Number(req.query.skip || 0);
-    const limit = Number(req.query.limit || 10);
+    const skip = Number(Number(req.query.skip) || 0);
+    const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({status: 'Pending Admin Approval'})
     const courses = await Course.find({status: 'Pending Admin Approval'})
     .sort({courseStartTime: -1})
@@ -210,8 +210,8 @@ exports.getAdminPendingApproval = async (req, res) => {
 
 exports.getAdminDraft = async (req, res) => {
   try {
-    const skip = Number(req.query.skip || 0);
-    const limit = Number(req.query.limit || 10);
+    const skip = Number(Number(req.query.skip) || 0);
+    const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({status: 'Draft'})
     const courses = await Course.find({status: 'Draft'})
     .sort({courseStartTime: -1})
@@ -1038,8 +1038,8 @@ exports.setPricing = async (req, res) => {
 exports.getInfluencerAllCourse = async (req, res) => {
   try {
     const userId = req.user._id;
-    const skip = Number(req.query.skip || 0);
-    const limit = Number(req.query.limit || 10);
+    const skip = Number(Number(req.query.skip) || 0);
+    const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({
       "courseInstructors.id": new ObjectId(userId)
     })
@@ -1060,8 +1060,8 @@ exports.getInfluencerAllCourse = async (req, res) => {
 exports.getAwaitingApprovals = async (req, res) => {
   try {
     const userId = req.user._id;
-    const skip = Number(req.query.skip || 0);
-    const limit = Number(req.query.limit || 10);
+    const skip = Number(Number(req.query.skip) || 0);
+    const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({
       "courseInstructors.id": new ObjectId(userId),
       status: 'Sent To Creator'
@@ -1113,8 +1113,8 @@ exports.getAwaitingApprovals = async (req, res) => {
 exports.getPendingApproval = async (req, res) => {
   try {
     const userId = req.user._id;
-    const skip = Number(req.query.skip || 0);
-    const limit = Number(req.query.limit || 10);
+    const skip = Number(Number(req.query.skip) || 0);
+    const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({
       "courseInstructors.id": new ObjectId(userId),
       status: 'Pending Admin Approval'
@@ -1166,8 +1166,8 @@ exports.getPendingApproval = async (req, res) => {
 exports.getPublished = async (req, res) => {
   try {
     const userId = req.user._id;
-    const skip = Number(req.query.skip || 0);
-    const limit = Number(req.query.limit || 10);
+    const skip = Number(Number(req.query.skip) || 0);
+    const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({
       "courseInstructors.id": new ObjectId(userId),
       status: 'Published'
@@ -1219,8 +1219,8 @@ exports.getPublished = async (req, res) => {
 exports.getUnpublished = async (req, res) => {
   try {
     const userId = req.user._id;
-    const skip = Number(req.query.skip || 0);
-    const limit = Number(req.query.limit || 10);
+    const skip = Number(Number(req.query.skip) || 0);
+    const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({
       "courseInstructors.id": new ObjectId(userId),
       status: 'Unpublished'
@@ -1273,8 +1273,8 @@ exports.getMyCourses = async (req, res) => {
   try{
     const userId = req.user._id;
     const user = await User.findById(new ObjectId(userId));
-    const skip = Number(req.query.skip || 0);
-    const limit = Number(req.query.limit || 10);
+    const skip = Number(Number(req.query.skip) || 0);
+    const limit = Number(Number(req.query.limit) || 10);
 
     const pipeline = [
       {
@@ -1373,8 +1373,8 @@ exports.getCoursesByUserSlug = async (req, res) => {
   try{
     const slug = req.query.slug;
     const user = await User.findOne({slug: slug}).select('_id')
-    const skip = Number(req.query.skip || 0);
-    const limit = Number(req.query.limit || 10);
+    const skip = Number(Number(req.query.skip) || 0);
+    const limit = Number(Number(req.query.limit) || 10);
 
     const pipeline = [
       {
