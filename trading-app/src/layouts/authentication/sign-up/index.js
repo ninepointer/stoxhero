@@ -231,6 +231,7 @@ function Cover(props) {
       return openSuccessSB("OTP Sent", data.message);
     } else {
       // console.log("openInfoBS Called")
+      setButtonLoading(prev => ({...prev, signupGetOtp: false}))
       return openInfoSB(data.message, "You have already signed Up")
     }
   }
@@ -301,6 +302,7 @@ function Cover(props) {
       return openSuccessSB("Account Created", data.message);
     } else {
       setButtonClicked(false);
+      setButtonLoading(prev => ({...prev, signupConfirmOtp: false}))
       return openInfoSB("Error", data.message);
     }
 
@@ -373,6 +375,7 @@ function Cover(props) {
             }
             else{
               setInvalidDetail(data.message)
+              setButtonLoading(prev => ({...prev, loginGetOtp: false}))
               openSuccessSBSI("error", data.message);
             }
         }
@@ -408,6 +411,7 @@ function Cover(props) {
       console.log(data)
           if(data.status === 'error' || data.error || !data){
               setInvalidDetail(data.message);
+              setButtonLoading(prev => ({...prev, loginConfirmOtp: false}))
           }else{
             let userData = await userDetail();
             window.webengage.user.login(userData?._id?.toString());
