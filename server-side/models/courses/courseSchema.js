@@ -2,35 +2,58 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const courseSchema = new Schema({
-  courseName: { type: String,  },
+  courseName: { type: String },
   courseSlug: { type: String },
   courseInstructors: [
-   {
-    id: { 
-      type: Schema.Types.ObjectId, 
-      ref: "user-personal-detail"
+    {
+      id: {
+        type: Schema.Types.ObjectId,
+        ref: "user-personal-detail",
+      },
+      image: String,
+      about: String,
     },
-    image: String,
-    about: String
-   }
   ],
   aboutInstructor: String,
   courseImage: { type: String },
-  courseLanguages: { type: String,  },
+  courseLanguages: { type: String },
   courseDurationInMinutes: Number,
-  courseOverview: { type: String,  },
+  courseOverview: { type: String },
   courseDescription: { type: String },
   courseStartTime: { type: Date },
   courseEndTime: { type: Date },
   registrationStartTime: { type: Date },
   registrationEndTime: { type: Date },
-  maxEnrolments: { type: Number,  },
+  maxEnrolments: { type: Number },
   coursePrice: { type: Number },
   discountedPrice: { type: Number },
-  status: { type: String, enum: ["Draft", "Published", 'Sent To Creator', 'Pending Admin Approval', 'Unpublished', ''], default: 'Draft' },
-  type: { type: String, enum: ["Course", "Workshop", ''], default: 'Course' },
-  courseType: { type: String, enum: ["Live", "Recorded", ''], default: 'Live' },
-  category: { type: String, enum: ["Trading", "Investing", 'Mutual Fund', ''], default: 'Trading' },
+  ratings: [
+    {
+      userId: { type: Schema.Types.ObjectId, ref: "user-personal-detail" },
+      rating: { type: Number, enum: [1, 2, 3, 4, 5] },
+      review: String,
+      ratingDate: Date,
+    },
+  ],
+  status: {
+    type: String,
+    enum: [
+      "Draft",
+      "Published",
+      "Sent To Creator",
+      "Pending Admin Approval",
+      "Unpublished",
+      "",
+    ],
+    default: "Draft",
+  },
+  type: { type: String, enum: ["Course", "Workshop", ""], default: "Course" },
+  courseType: { type: String, enum: ["Live", "Recorded", ""], default: "Live" },
+  category: {
+    type: String,
+    enum: ["Trading", "Investing", "Mutual Fund", ""],
+    default: "Trading",
+  },
   courseBenefits: [
     {
       order: { type: Number },
@@ -41,10 +64,12 @@ const courseSchema = new Schema({
     {
       order: Number,
       topic: String,
-      subtopics: [{
-        order: Number,
-        topic: String,
-      }],
+      subtopics: [
+        {
+          order: Number,
+          topic: String,
+        },
+      ],
     },
   ],
   courseLink: String,
@@ -68,10 +93,12 @@ const courseSchema = new Schema({
       bonusRedemption: Number,
     },
   ],
-  suggestChanges: [
-    String
-  ],
-  level: { type: String, enum: ["Beginner", "Intermediate", "Advanced", ''], default: 'Beginner' },
+  suggestChanges: [String],
+  level: {
+    type: String,
+    enum: ["Beginner", "Intermediate", "Advanced", ""],
+    default: "Beginner",
+  },
   faqs: [{ order: Number, question: String, answer: String }],
   salesVideo: String,
 });

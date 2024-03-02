@@ -4,35 +4,30 @@ const Authenticate = require("../../authentication/authentication");
 const courseController = require("../../controllers/courses/courseController");
 const router = express.Router();
 
-router.get(
-    "/mycourses",
-    Authenticate,
-    courseController.getMyCourses
-);
+router.get("/mycourses", Authenticate, courseController.getMyCourses);
 
 router.get(
-    "/byslug",
-    // Authenticate,
-    courseController.getCoursesByUserSlug
+  "/byslug",
+  // Authenticate,
+  courseController.getCoursesByUserSlug
 );
 
 router.patch(
-    "/deductcoursefee",
-    Authenticate,
-    courseController.deductCourseFee
+  "/deductcoursefee",
+  Authenticate,
+  courseController.deductCourseFee
 );
+
+router.get("/:id", Authenticate, courseController.getCourseByIdUser);
 
 router.get(
-    "/:id",
-    Authenticate,
-    courseController.getCourseByIdUser
+  "/:slug/slug",
+  // Authenticate,
+  courseController.getCourseBySlug
 );
-
-router.get(
-    "/:slug/slug",
-    // Authenticate,
-    courseController.getCourseBySlug
-);
-
+router
+  .route("/rating/:id")
+  .get(courseController.getCourseRating)
+  .post(Authenticate, courseController.addUserRating);
 
 module.exports = router;

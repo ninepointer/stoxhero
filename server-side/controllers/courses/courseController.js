@@ -3,13 +3,12 @@ const AWS = require("aws-sdk");
 const { ObjectId } = require("mongodb");
 const sharp = require("sharp");
 const mongoose = require("mongoose");
-const User = require('../../models/User/userDetailSchema');
-const UserWallet = require('../../models/UserWallet/userWalletSchema');
-const Setting = require('../../models/settings/setting');
-const Coupon = require('../../models/coupon/coupon');
-const AffiliateProgram = require('../../models/affiliateProgram/affiliateProgram');
-const ReferralProgram = require('../../models/campaigns/referralProgram')
-
+const User = require("../../models/User/userDetailSchema");
+const UserWallet = require("../../models/UserWallet/userWalletSchema");
+const Setting = require("../../models/settings/setting");
+const Coupon = require("../../models/coupon/coupon");
+const AffiliateProgram = require("../../models/affiliateProgram/affiliateProgram");
+const ReferralProgram = require("../../models/campaigns/referralProgram");
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -140,10 +139,11 @@ exports.getAdminPublished = async (req, res) => {
   try {
     const skip = Number(Number(req.query.skip) || 0);
     const limit = Number(Number(req.query.limit) || 10);
-    const count = await Course.countDocuments({status: 'Published'})
-    const courses = await Course.find({status: 'Published'})
-    .sort({courseStartTime: -1})
-    .skip(skip).limit(limit)
+    const count = await Course.countDocuments({ status: "Published" });
+    const courses = await Course.find({ status: "Published" })
+      .sort({ courseStartTime: -1 })
+      .skip(skip)
+      .limit(limit);
     res.status(200).json({ status: "success", data: courses, count: count });
   } catch (error) {
     res.status(500).json({
@@ -158,10 +158,11 @@ exports.getAdminAwaitingApproval = async (req, res) => {
   try {
     const skip = Number(Number(req.query.skip) || 0);
     const limit = Number(Number(req.query.limit) || 10);
-    const count = await Course.countDocuments({status: 'Sent To Creator'})
-    const courses = await Course.find({status: 'Sent To Creator'})
-    .sort({courseStartTime: -1})
-    .skip(skip).limit(limit)
+    const count = await Course.countDocuments({ status: "Sent To Creator" });
+    const courses = await Course.find({ status: "Sent To Creator" })
+      .sort({ courseStartTime: -1 })
+      .skip(skip)
+      .limit(limit);
     res.status(200).json({ status: "success", data: courses, count: count });
   } catch (error) {
     res.status(500).json({
@@ -176,10 +177,11 @@ exports.getAdminUnpublished = async (req, res) => {
   try {
     const skip = Number(Number(req.query.skip) || 0);
     const limit = Number(Number(req.query.limit) || 10);
-    const count = await Course.countDocuments({status: 'Unpublished'})
-    const courses = await Course.find({status: 'Unpublished'})
-    .sort({courseStartTime: -1})
-    .skip(skip).limit(limit)
+    const count = await Course.countDocuments({ status: "Unpublished" });
+    const courses = await Course.find({ status: "Unpublished" })
+      .sort({ courseStartTime: -1 })
+      .skip(skip)
+      .limit(limit);
     res.status(200).json({ status: "success", data: courses, count: count });
   } catch (error) {
     res.status(500).json({
@@ -194,10 +196,13 @@ exports.getAdminPendingApproval = async (req, res) => {
   try {
     const skip = Number(Number(req.query.skip) || 0);
     const limit = Number(Number(req.query.limit) || 10);
-    const count = await Course.countDocuments({status: 'Pending Admin Approval'})
-    const courses = await Course.find({status: 'Pending Admin Approval'})
-    .sort({courseStartTime: -1})
-    .skip(skip).limit(limit)
+    const count = await Course.countDocuments({
+      status: "Pending Admin Approval",
+    });
+    const courses = await Course.find({ status: "Pending Admin Approval" })
+      .sort({ courseStartTime: -1 })
+      .skip(skip)
+      .limit(limit);
     res.status(200).json({ status: "success", data: courses, count: count });
   } catch (error) {
     res.status(500).json({
@@ -212,10 +217,11 @@ exports.getAdminDraft = async (req, res) => {
   try {
     const skip = Number(Number(req.query.skip) || 0);
     const limit = Number(Number(req.query.limit) || 10);
-    const count = await Course.countDocuments({status: 'Draft'})
-    const courses = await Course.find({status: 'Draft'})
-    .sort({courseStartTime: -1})
-    .skip(skip).limit(limit)
+    const count = await Course.countDocuments({ status: "Draft" });
+    const courses = await Course.find({ status: "Draft" })
+      .sort({ courseStartTime: -1 })
+      .skip(skip)
+      .limit(limit);
     res.status(200).json({ status: "success", data: courses, count: count });
   } catch (error) {
     res.status(500).json({
@@ -229,9 +235,9 @@ exports.getAdminDraft = async (req, res) => {
 exports.getCourseById = async (req, res) => {
   try {
     const courseId = req.params.id;
-    const courses = await Course.findOne({_id: new ObjectId(courseId)})
-    .populate('courseInstructors.id', 'first_name last_name email')
-    .populate('enrollments.userId', 'first_name last_name creationProcess')
+    const courses = await Course.findOne({ _id: new ObjectId(courseId) })
+      .populate("courseInstructors.id", "first_name last_name email")
+      .populate("enrollments.userId", "first_name last_name creationProcess");
     res.status(200).json({ status: "success", data: courses });
   } catch (error) {
     res.status(500).json({
@@ -242,15 +248,17 @@ exports.getCourseById = async (req, res) => {
   }
 };
 
-
 exports.courseUnpublish = async (req, res) => {
   try {
     const courseId = req.params.id;
-    const courses = await Course.findOneAndUpdate({_id: new ObjectId(courseId)}, {
-      $set: {
-        status: 'Unpublished'
+    const courses = await Course.findOneAndUpdate(
+      { _id: new ObjectId(courseId) },
+      {
+        $set: {
+          status: "Unpublished",
+        },
       }
-    });
+    );
     res.status(200).json({ status: "success", data: courses });
   } catch (error) {
     res.status(500).json({
@@ -264,11 +272,14 @@ exports.courseUnpublish = async (req, res) => {
 exports.coursePublish = async (req, res) => {
   try {
     const courseId = req.params.id;
-    const courses = await Course.findOneAndUpdate({_id: new ObjectId(courseId)}, {
-      $set: {
-        status: 'Published'
+    const courses = await Course.findOneAndUpdate(
+      { _id: new ObjectId(courseId) },
+      {
+        $set: {
+          status: "Published",
+        },
       }
-    });
+    );
     res.status(200).json({ status: "success", data: courses });
   } catch (error) {
     res.status(500).json({
@@ -282,11 +293,14 @@ exports.coursePublish = async (req, res) => {
 exports.creatorApproval = async (req, res) => {
   try {
     const courseId = req.params.id;
-    const courses = await Course.findOneAndUpdate({_id: new ObjectId(courseId)}, {
-      $set: {
-        status: 'Sent To Creator'
+    const courses = await Course.findOneAndUpdate(
+      { _id: new ObjectId(courseId) },
+      {
+        $set: {
+          status: "Sent To Creator",
+        },
       }
-    });
+    );
     res.status(200).json({ status: "success", data: courses });
   } catch (error) {
     res.status(500).json({
@@ -300,12 +314,18 @@ exports.creatorApproval = async (req, res) => {
 exports.sendAdminApproval = async (req, res) => {
   try {
     const courseId = req.params.id;
-    const courses = await Course.findOneAndUpdate({_id: new ObjectId(courseId)}, {
-      $set: {
-        status: 'Pending Admin Approval'
+    const courses = await Course.findOneAndUpdate(
+      { _id: new ObjectId(courseId) },
+      {
+        $set: {
+          status: "Pending Admin Approval",
+        },
       }
+    );
+    res.status(200).json({
+      status: "success",
+      message: "Your request has been sent for admin approval.",
     });
-    res.status(200).json({ status: "success", message: 'Your request has been sent for admin approval.' });
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -318,9 +338,9 @@ exports.sendAdminApproval = async (req, res) => {
 exports.getCourseInstructor = async (req, res) => {
   try {
     const courseId = req.params.id;
-    const courses = await Course.findOne({_id: new ObjectId(courseId)})
-    .populate('courseInstructors.id', 'first_name last_name mobile email')
-    .select('courseInstructors')
+    const courses = await Course.findOne({ _id: new ObjectId(courseId) })
+      .populate("courseInstructors.id", "first_name last_name mobile email")
+      .select("courseInstructors");
     res.status(200).json({ status: "success", data: courses });
   } catch (error) {
     res.status(500).json({
@@ -334,8 +354,9 @@ exports.getCourseInstructor = async (req, res) => {
 exports.getCourseFAQ = async (req, res) => {
   try {
     const courseId = req.params.id;
-    const courses = await Course.findOne({_id: new ObjectId(courseId)})
-    .select('faqs')
+    const courses = await Course.findOne({
+      _id: new ObjectId(courseId),
+    }).select("faqs");
     res.status(200).json({ status: "success", data: courses });
   } catch (error) {
     res.status(500).json({
@@ -349,8 +370,9 @@ exports.getCourseFAQ = async (req, res) => {
 exports.getCourseBenefit = async (req, res) => {
   try {
     const courseId = req.params.id;
-    const courses = await Course.findOne({_id: new ObjectId(courseId)})
-    .select('courseBenefits')
+    const courses = await Course.findOne({
+      _id: new ObjectId(courseId),
+    }).select("courseBenefits");
     res.status(200).json({ status: "success", data: courses });
   } catch (error) {
     res.status(500).json({
@@ -364,8 +386,9 @@ exports.getCourseBenefit = async (req, res) => {
 exports.getCourseContent = async (req, res) => {
   try {
     const courseId = req.params.id;
-    const courses = await Course.findOne({_id: new ObjectId(courseId)})
-    .select('courseContent')
+    const courses = await Course.findOne({
+      _id: new ObjectId(courseId),
+    }).select("courseContent");
     res.status(200).json({ status: "success", data: courses });
   } catch (error) {
     res.status(500).json({
@@ -375,7 +398,6 @@ exports.getCourseContent = async (req, res) => {
     });
   }
 };
-
 
 exports.getAllCourses = async (req, res) => {
   try {
@@ -392,19 +414,27 @@ exports.getAllCourses = async (req, res) => {
 
 exports.suggestChanges = async (req, res) => {
   try {
-    const {change} = req.body;
-    const course = await Course.findByIdAndUpdate(new ObjectId(req.params.id), {
-      $push: {
-        suggestChanges: change
+    const { change } = req.body;
+    const course = await Course.findByIdAndUpdate(
+      new ObjectId(req.params.id),
+      {
+        $push: {
+          suggestChanges: change,
+        },
+        $set: {
+          status: "Draft",
+        },
       },
-      $set: {
-        status: 'Draft'
-      }
-    }, {new: true});
+      { new: true }
+    );
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
-    res.status(200).json({ status: "success", message: 'Your changes have been successfully saved. Please check back later to see the updates.' });
+    res.status(200).json({
+      status: "success",
+      message:
+        "Your changes have been successfully saved. Please check back later to see the updates.",
+    });
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -414,24 +444,28 @@ exports.suggestChanges = async (req, res) => {
   }
 };
 
-
 exports.addInstructor = async (req, res) => {
   try {
-    const {about, instructor} = req.body;
+    const { about, instructor } = req.body;
     let image;
     if (req.files["instructorImage"]) {
       image = await getAwsS3Url(req.files["instructorImage"][0]);
     }
 
-    console.log('image', image)
-    const course = await Course.findByIdAndUpdate(new ObjectId(req.params.id), {
-      $push: {
-        courseInstructors: {
-          id: instructor,
-          image, about
-        }
-      }
-    }, {new: true, select: 'courseInstructors'});
+    console.log("image", image);
+    const course = await Course.findByIdAndUpdate(
+      new ObjectId(req.params.id),
+      {
+        $push: {
+          courseInstructors: {
+            id: instructor,
+            image,
+            about,
+          },
+        },
+      },
+      { new: true, select: "courseInstructors" }
+    );
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
@@ -447,16 +481,21 @@ exports.addInstructor = async (req, res) => {
 
 exports.addFaq = async (req, res) => {
   try {
-    const {order, question, answer} = req.body;
+    const { order, question, answer } = req.body;
 
-    const course = await Course.findByIdAndUpdate(new ObjectId(req.params.id), {
-      $push: {
-        faqs: {
-           question,
-           answer, order
-        }
-      }
-    }, {new: true, select: 'faqs'});
+    const course = await Course.findByIdAndUpdate(
+      new ObjectId(req.params.id),
+      {
+        $push: {
+          faqs: {
+            question,
+            answer,
+            order,
+          },
+        },
+      },
+      { new: true, select: "faqs" }
+    );
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
@@ -472,16 +511,20 @@ exports.addFaq = async (req, res) => {
 
 exports.addBenefits = async (req, res) => {
   try {
-    const {order, benefits} = req.body;
+    const { order, benefits } = req.body;
 
-    const course = await Course.findByIdAndUpdate(new ObjectId(req.params.id), {
-      $push: {
-        courseBenefits: {
-           benefits,
-            order
-        }
-      }
-    }, {new: true, select: 'courseBenefits'});
+    const course = await Course.findByIdAndUpdate(
+      new ObjectId(req.params.id),
+      {
+        $push: {
+          courseBenefits: {
+            benefits,
+            order,
+          },
+        },
+      },
+      { new: true, select: "courseBenefits" }
+    );
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
@@ -497,18 +540,22 @@ exports.addBenefits = async (req, res) => {
 
 exports.addContent = async (req, res) => {
   try {
-    const {order, topic} = req.body;
+    const { order, topic } = req.body;
 
-    console.log(req.body, order, topic)
+    console.log(req.body, order, topic);
 
-    const course = await Course.findByIdAndUpdate(new ObjectId(req.params.id), {
-      $push: {
-        courseContent: {
-           topic,
-           order
-        }
-      }
-    }, {new: true, select: 'courseContent'});
+    const course = await Course.findByIdAndUpdate(
+      new ObjectId(req.params.id),
+      {
+        $push: {
+          courseContent: {
+            topic,
+            order,
+          },
+        },
+      },
+      { new: true, select: "courseContent" }
+    );
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
@@ -524,49 +571,49 @@ exports.addContent = async (req, res) => {
 
 exports.addSubTopic = async (req, res) => {
   try {
-      const { id, contentId } = req.params;
-      let { order, topic } = req.body;
+    const { id, contentId } = req.params;
+    let { order, topic } = req.body;
 
-      const newOption = {
-          order,
-          topic
-      };
+    const newOption = {
+      order,
+      topic,
+    };
 
-      const course = await Course.findById(id);
-      let filter = course.courseContent.filter((elem) => {
-          return elem?._id?.toString() === contentId?.toString();
-      })
-      if (!course) {
-          return res.status(404).json({ message: 'Course not found' });
-      }
-      filter[0].subtopics.push(newOption);
-      const newData = await course.save({ new: true });
+    const course = await Course.findById(id);
+    let filter = course.courseContent.filter((elem) => {
+      return elem?._id?.toString() === contentId?.toString();
+    });
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+    filter[0].subtopics.push(newOption);
+    const newData = await course.save({ new: true });
 
-      const optionData = newData?.courseContent?.filter((elem) => {
-          return elem?._id?.toString() === contentId?.toString();
-      })
-      res.status(201).json({ status: "success", data: optionData[0] });
+    const optionData = newData?.courseContent?.filter((elem) => {
+      return elem?._id?.toString() === contentId?.toString();
+    });
+    res.status(201).json({ status: "success", data: optionData[0] });
   } catch (error) {
-      res.status(400).json({ message: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
 exports.editInstructor = async (req, res) => {
   try {
-    const {instructorId} = req.params;
-    const {about, image} = req.body;
+    const { instructorId } = req.params;
+    const { about, image } = req.body;
     const course = await Course.findOneAndUpdate(
       {
         _id: new ObjectId(req.params.id),
-        "courseInstructors.id": instructorId // Match instructorId in courseInstructors
+        "courseInstructors.id": instructorId, // Match instructorId in courseInstructors
       },
       {
         $set: {
           "courseInstructors.$.image": image,
           "courseInstructors.$.about": about,
-        }
+        },
       },
-      { new: true, select: 'courseInstructors' }
+      { new: true, select: "courseInstructors" }
     );
 
     if (!course) {
@@ -584,21 +631,21 @@ exports.editInstructor = async (req, res) => {
 
 exports.editFaq = async (req, res) => {
   try {
-    const {faqId} = req.params;
-    const {order, question, answer} = req.body;
+    const { faqId } = req.params;
+    const { order, question, answer } = req.body;
     const course = await Course.findOneAndUpdate(
       {
         _id: new ObjectId(req.params.id),
-        "faqs._id": faqId // Match instructorId in faqs
+        "faqs._id": faqId, // Match instructorId in faqs
       },
       {
         $set: {
           "faqs.$.order": order,
           "faqs.$.question": question,
           "faqs.$.answer": answer,
-        }
+        },
       },
-      { new: true, select: 'faqs' }
+      { new: true, select: "faqs" }
     );
 
     if (!course) {
@@ -616,20 +663,20 @@ exports.editFaq = async (req, res) => {
 
 exports.editBenefits = async (req, res) => {
   try {
-    const {benefitId} = req.params;
-    const {order, benefits} = req.body;
+    const { benefitId } = req.params;
+    const { order, benefits } = req.body;
     const course = await Course.findOneAndUpdate(
       {
         _id: new ObjectId(req.params.id),
-        "courseBenefits._id": benefitId // Match instructorId in courseBenefits
+        "courseBenefits._id": benefitId, // Match instructorId in courseBenefits
       },
       {
         $set: {
           "courseBenefits.$.order": order,
           "courseBenefits.$.benefits": benefits,
-        }
+        },
       },
-      { new: true, select: 'courseBenefits' }
+      { new: true, select: "courseBenefits" }
     );
 
     if (!course) {
@@ -647,21 +694,21 @@ exports.editBenefits = async (req, res) => {
 
 exports.editContent = async (req, res) => {
   try {
-    const {contentId} = req.params;
-    const {order, topic} = req.body;
-    console.log(req.body)
+    const { contentId } = req.params;
+    const { order, topic } = req.body;
+    console.log(req.body);
     const course = await Course.findOneAndUpdate(
       {
         _id: new ObjectId(req.params.id),
-        "courseContent._id": contentId // Match instructorId in courseContent
+        "courseContent._id": contentId, // Match instructorId in courseContent
       },
       {
         $set: {
           "courseContent.$.order": order,
           "courseContent.$.topic": topic,
-        }
+        },
       },
-      { new: true, select: 'courseContent' }
+      { new: true, select: "courseContent" }
     );
 
     if (!course) {
@@ -679,55 +726,56 @@ exports.editContent = async (req, res) => {
 
 exports.editSubTopic = async (req, res) => {
   try {
-      const { id, contentId, subtopicId } = req.params;
-      let { order, topic } = req.body;
+    const { id, contentId, subtopicId } = req.params;
+    let { order, topic } = req.body;
 
-      const course = await Course.findById(id);
-      if (!course) {
-          return res.status(404).json({ message: 'Course not found' });
-      }
+    const course = await Course.findById(id);
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
 
-      let filterContent = course.courseContent.filter((elem) => {
-          return elem?._id?.toString() === contentId?.toString();
-      })
+    let filterContent = course.courseContent.filter((elem) => {
+      return elem?._id?.toString() === contentId?.toString();
+    });
 
-      let filterSubtopic = filterContent[0]?.subtopics?.filter((elem) => {
-          return elem?._id?.toString() === subtopicId?.toString();
-      })
+    let filterSubtopic = filterContent[0]?.subtopics?.filter((elem) => {
+      return elem?._id?.toString() === subtopicId?.toString();
+    });
 
-      filterSubtopic[0].order = order;
-      filterSubtopic[0].topic = topic;
+    filterSubtopic[0].order = order;
+    filterSubtopic[0].topic = topic;
 
-      const newData = await course.save({ new: true });
+    const newData = await course.save({ new: true });
 
-      let newfilterQue = newData.courseContent.filter((elem) => {
-          return elem?._id?.toString() === contentId?.toString();
-      })
+    let newfilterQue = newData.courseContent.filter((elem) => {
+      return elem?._id?.toString() === contentId?.toString();
+    });
 
+    let newfilterOpt = newfilterQue[0]?.subtopics?.filter((elem) => {
+      return elem?._id?.toString() === subtopicId?.toString();
+    });
 
-      let newfilterOpt = newfilterQue[0]?.subtopics?.filter((elem) => {
-          return elem?._id?.toString() === subtopicId?.toString();
-      })
-
-      res.status(201).json({ status: "success", data: newfilterQue[0]?.subtopics });
+    res
+      .status(201)
+      .json({ status: "success", data: newfilterQue[0]?.subtopics });
   } catch (error) {
-      res.status(400).json({ message: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
 exports.deleteInstructor = async (req, res) => {
   try {
-    const {instructorId} = req.params;
+    const { instructorId } = req.params;
     const course = await Course.findOneAndUpdate(
       {
         _id: new ObjectId(req.params.id),
       },
       {
         $pull: {
-          courseInstructors: { _id: instructorId } // Remove instructor with matching id
-        }
+          courseInstructors: { _id: instructorId }, // Remove instructor with matching id
+        },
       },
-      { new: true, select: 'courseInstructors' }
+      { new: true, select: "courseInstructors" }
     );
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
@@ -744,17 +792,17 @@ exports.deleteInstructor = async (req, res) => {
 
 exports.deleteFAQ = async (req, res) => {
   try {
-    const {faqId} = req.params;
+    const { faqId } = req.params;
     const course = await Course.findOneAndUpdate(
       {
         _id: new ObjectId(req.params.id),
       },
       {
         $pull: {
-          faqs: { _id: faqId } // Remove instructor with matching id
-        }
+          faqs: { _id: faqId }, // Remove instructor with matching id
+        },
       },
-      { new: true, select: 'faqs' }
+      { new: true, select: "faqs" }
     );
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
@@ -771,17 +819,17 @@ exports.deleteFAQ = async (req, res) => {
 
 exports.deleteBenefits = async (req, res) => {
   try {
-    const {benefitId} = req.params;
+    const { benefitId } = req.params;
     const course = await Course.findOneAndUpdate(
       {
         _id: new ObjectId(req.params.id),
       },
       {
         $pull: {
-          courseBenefits: { _id: benefitId } // Remove instructor with matching id
-        }
+          courseBenefits: { _id: benefitId }, // Remove instructor with matching id
+        },
       },
-      { new: true, select: 'courseBenefits' }
+      { new: true, select: "courseBenefits" }
     );
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
@@ -798,17 +846,17 @@ exports.deleteBenefits = async (req, res) => {
 
 exports.deleteContent = async (req, res) => {
   try {
-    const {contentId} = req.params;
+    const { contentId } = req.params;
     const course = await Course.findOneAndUpdate(
       {
         _id: new ObjectId(req.params.id),
       },
       {
         $pull: {
-          courseContent: { _id: contentId } // Remove instructor with matching id
-        }
+          courseContent: { _id: contentId }, // Remove instructor with matching id
+        },
       },
-      { new: true, select: 'courseContent' }
+      { new: true, select: "courseContent" }
     );
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
@@ -836,7 +884,9 @@ exports.deleteSubtopic = async (req, res) => {
     }
 
     // Find the index of the matched courseContent element
-    const index = course.courseContent.findIndex(content => content._id.toString() === contentId);
+    const index = course.courseContent.findIndex(
+      (content) => content._id.toString() === contentId
+    );
 
     // Check if contentId exists
     if (index === -1) {
@@ -844,13 +894,17 @@ exports.deleteSubtopic = async (req, res) => {
     }
 
     // Remove the subtopic from the subtopics array
-    course.courseContent[index].subtopics = course.courseContent[index].subtopics.filter(subtopic => subtopic._id.toString() !== subtopicId);
+    course.courseContent[index].subtopics = course.courseContent[
+      index
+    ].subtopics.filter((subtopic) => subtopic._id.toString() !== subtopicId);
 
     // Save the updated course document
     course = await course.save();
 
     // Send response with the updated courseContent element
-    res.status(200).json({ data: course.courseContent[index], status: "success" });
+    res
+      .status(200)
+      .json({ data: course.courseContent[index], status: "success" });
   } catch (error) {
     // Handle errors
     res.status(500).json({
@@ -860,7 +914,6 @@ exports.deleteSubtopic = async (req, res) => {
     });
   }
 };
-
 
 // Update a course
 exports.editCourse = async (req, res) => {
@@ -880,7 +933,7 @@ exports.editCourse = async (req, res) => {
     }
   }
 
-  if(updates.tags) updates.tags = updates.tags.split(",");
+  if (updates.tags) updates.tags = updates.tags.split(",");
 
   if (req?.files?.["courseImage"]) {
     updates.courseImage = await getAwsS3Url(
@@ -936,13 +989,13 @@ exports.createCourseInfo = async (req, res) => {
     registrationEndTime,
     registrationStartTime,
     courseDurationInMinutes,
-    type
+    type,
   } = req.body;
 
   if (!courseName) {
     return res
       .status(400)
-      .json({ status: 'error', message: "Missing required fields" });
+      .json({ status: "error", message: "Missing required fields" });
   }
 
   if (new Date(courseStartTime) > new Date(courseEndTime)) {
@@ -984,7 +1037,7 @@ exports.createCourseInfo = async (req, res) => {
       level,
       salesVideo,
       courseDurationInMinutes,
-      type
+      type,
     });
 
     await course.save();
@@ -1034,19 +1087,20 @@ exports.setPricing = async (req, res) => {
   }
 };
 
-
 exports.getInfluencerAllCourse = async (req, res) => {
   try {
     const userId = req.user._id;
     const skip = Number(Number(req.query.skip) || 0);
     const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({
-      "courseInstructors.id": new ObjectId(userId)
-    })
+      "courseInstructors.id": new ObjectId(userId),
+    });
     const courses = await Course.find({
-      "courseInstructors.id": new ObjectId(userId)
-    }).populate('enrollments.userId', 'first_name last_name creationProcess')
-    .skip(skip).limit(limit)
+      "courseInstructors.id": new ObjectId(userId),
+    })
+      .populate("enrollments.userId", "first_name last_name creationProcess")
+      .skip(skip)
+      .limit(limit);
     res.status(200).json({ status: "success", data: courses, count: count });
   } catch (error) {
     res.status(500).json({
@@ -1064,15 +1118,13 @@ exports.getAwaitingApprovals = async (req, res) => {
     const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({
       "courseInstructors.id": new ObjectId(userId),
-      status: 'Sent To Creator'
-    })
+      status: "Sent To Creator",
+    });
     const courses = await Course.aggregate([
       {
         $match: {
           status: "Sent To Creator",
-          "courseInstructors.id": new ObjectId(
-            userId
-          ),
+          "courseInstructors.id": new ObjectId(userId),
         },
       },
       {
@@ -1098,8 +1150,8 @@ exports.getAwaitingApprovals = async (req, res) => {
       {
         $limit: limit,
       },
-    ])
-   
+    ]);
+
     res.status(200).json({ status: "success", data: courses, count: count });
   } catch (error) {
     res.status(500).json({
@@ -1117,15 +1169,13 @@ exports.getPendingApproval = async (req, res) => {
     const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({
       "courseInstructors.id": new ObjectId(userId),
-      status: 'Pending Admin Approval'
-    })
+      status: "Pending Admin Approval",
+    });
     const courses = await Course.aggregate([
       {
         $match: {
           status: "Pending Admin Approval",
-          "courseInstructors.id": new ObjectId(
-            userId
-          ),
+          "courseInstructors.id": new ObjectId(userId),
         },
       },
       {
@@ -1151,8 +1201,8 @@ exports.getPendingApproval = async (req, res) => {
       {
         $limit: limit,
       },
-    ])
-   
+    ]);
+
     res.status(200).json({ status: "success", data: courses, count: count });
   } catch (error) {
     res.status(500).json({
@@ -1170,15 +1220,13 @@ exports.getPublished = async (req, res) => {
     const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({
       "courseInstructors.id": new ObjectId(userId),
-      status: 'Published'
-    })
+      status: "Published",
+    });
     const courses = await Course.aggregate([
       {
         $match: {
           status: "Published",
-          "courseInstructors.id": new ObjectId(
-            userId
-          ),
+          "courseInstructors.id": new ObjectId(userId),
         },
       },
       {
@@ -1204,8 +1252,8 @@ exports.getPublished = async (req, res) => {
       {
         $limit: limit,
       },
-    ])
-   
+    ]);
+
     res.status(200).json({ status: "success", data: courses, count: count });
   } catch (error) {
     res.status(500).json({
@@ -1223,15 +1271,13 @@ exports.getUnpublished = async (req, res) => {
     const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({
       "courseInstructors.id": new ObjectId(userId),
-      status: 'Unpublished'
-    })
+      status: "Unpublished",
+    });
     const courses = await Course.aggregate([
       {
         $match: {
           status: "Unpublished",
-          "courseInstructors.id": new ObjectId(
-            userId
-          ),
+          "courseInstructors.id": new ObjectId(userId),
         },
       },
       {
@@ -1257,8 +1303,8 @@ exports.getUnpublished = async (req, res) => {
       {
         $limit: limit,
       },
-    ])
-   
+    ]);
+
     res.status(200).json({ status: "success", data: courses, count: count });
   } catch (error) {
     res.status(500).json({
@@ -1270,7 +1316,7 @@ exports.getUnpublished = async (req, res) => {
 };
 
 exports.getMyCourses = async (req, res) => {
-  try{
+  try {
     const userId = req.user._id;
     const user = await User.findById(new ObjectId(userId));
     const skip = Number(Number(req.query.skip) || 0);
@@ -1279,22 +1325,22 @@ exports.getMyCourses = async (req, res) => {
     const pipeline = [
       {
         $match: {
-          status: "Published"
-        }
+          status: "Published",
+        },
       },
       {
         $lookup: {
           from: "user-personal-details",
           localField: "courseInstructors.id",
           foreignField: "_id",
-          as: "instructor"
-        }
+          as: "instructor",
+        },
       },
       {
         $sort: {
           courseStartTime: 1,
-          _id: -1
-        }
+          _id: -1,
+        },
       },
       {
         $project: {
@@ -1304,7 +1350,7 @@ exports.getMyCourses = async (req, res) => {
           coursePrice: 1,
           discountedPrice: 1,
           userEnrolled: {
-            $size: "$enrollments"
+            $size: "$enrollments",
           },
           maxEnrolments: 1,
           instructorName: {
@@ -1312,53 +1358,57 @@ exports.getMyCourses = async (req, res) => {
               input: "$instructor",
               as: "inst",
               in: {
-                $concat: [
-                  "$$inst.first_name",
-                  " ",
-                  "$$inst.last_name"
-                ]
-              }
-            }
-          }
-        }
+                $concat: ["$$inst.first_name", " ", "$$inst.last_name"],
+              },
+            },
+          },
+        },
       },
       {
-        $skip: skip
+        $skip: skip,
       },
       {
-        $limit: limit
-      }
-    ]
-    
-    let course; let count;
-    if(user?.referredBy){
+        $limit: limit,
+      },
+    ];
 
-      pipeline[0]["$match"]['courseInstructors.id'] = new ObjectId(user?.referredBy);
+    let course;
+    let count;
+    if (user?.referredBy) {
+      pipeline[0]["$match"]["courseInstructors.id"] = new ObjectId(
+        user?.referredBy
+      );
       course = await Course.aggregate(pipeline)
-      .sort({courseStartTime: 1}).skip(skip).limit(limit);
-      
-      count = await Course.countDocuments({status: 'Published', 'courseInstructors.id': new ObjectId(user?.referredBy)});
-    } else{
-      count = await Course.countDocuments({status: 'Published'});
+        .sort({ courseStartTime: 1 })
+        .skip(skip)
+        .limit(limit);
+
+      count = await Course.countDocuments({
+        status: "Published",
+        "courseInstructors.id": new ObjectId(user?.referredBy),
+      });
+    } else {
+      count = await Course.countDocuments({ status: "Published" });
 
       course = await Course.aggregate(pipeline)
-      .sort({courseStartTime: 1}).skip(skip).limit(limit);
+        .sort({ courseStartTime: 1 })
+        .skip(skip)
+        .limit(limit);
     }
-    
-    res.status(200).json({ status: "success", data: course, count: count });
 
-  } catch(err){
-    console.log(err)
-    res.status(500).json({ status: "error", message: 'something went wrong' });
+    res.status(200).json({ status: "success", data: course, count: count });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ status: "error", message: "something went wrong" });
   }
-}
+};
 
 exports.getCourseByIdUser = async (req, res) => {
   try {
     const courseId = req.params.id;
-    const courses = await Course.findOne({_id: new ObjectId(courseId)})
-    .populate('courseInstructors.id', 'first_name last_name email')
-    .select('-enrollments -createdOn -createdBy')
+    const courses = await Course.findOne({ _id: new ObjectId(courseId) })
+      .populate("courseInstructors.id", "first_name last_name email")
+      .select("-enrollments -createdOn -createdBy");
     res.status(200).json({ status: "success", data: courses });
   } catch (error) {
     res.status(500).json({
@@ -1370,9 +1420,9 @@ exports.getCourseByIdUser = async (req, res) => {
 };
 
 exports.getCoursesByUserSlug = async (req, res) => {
-  try{
+  try {
     const slug = req.query.slug;
-    const user = await User.findOne({slug: slug}).select('_id')
+    const user = await User.findOne({ slug: slug }).select("_id");
     const skip = Number(Number(req.query.skip) || 0);
     const limit = Number(Number(req.query.limit) || 10);
 
@@ -1380,22 +1430,22 @@ exports.getCoursesByUserSlug = async (req, res) => {
       {
         $match: {
           status: "Published",
-          'courseInstructors.id': new ObjectId(user?._id)
-        }
+          "courseInstructors.id": new ObjectId(user?._id),
+        },
       },
       {
         $lookup: {
           from: "user-personal-details",
           localField: "courseInstructors.id",
           foreignField: "_id",
-          as: "instructor"
-        }
+          as: "instructor",
+        },
       },
       {
         $sort: {
           courseStartTime: 1,
-          _id: -1
-        }
+          _id: -1,
+        },
       },
       {
         $project: {
@@ -1406,7 +1456,7 @@ exports.getCoursesByUserSlug = async (req, res) => {
           coursePrice: 1,
           discountedPrice: 1,
           userEnrolled: {
-            $size: "$enrollments"
+            $size: "$enrollments",
           },
           maxEnrolments: 1,
           instructorName: {
@@ -1414,44 +1464,43 @@ exports.getCoursesByUserSlug = async (req, res) => {
               input: "$instructor",
               as: "inst",
               in: {
-                $concat: [
-                  "$$inst.first_name",
-                  " ",
-                  "$$inst.last_name"
-                ]
-              }
-            }
-          }
-        }
+                $concat: ["$$inst.first_name", " ", "$$inst.last_name"],
+              },
+            },
+          },
+        },
       },
       {
-        $skip: skip
+        $skip: skip,
       },
       {
-        $limit: limit
-      }
-    ]
-    
+        $limit: limit,
+      },
+    ];
+
     const course = await Course.aggregate(pipeline)
-    .sort({courseStartTime: 1}).skip(skip).limit(limit);
-    
-    const count = await Course.countDocuments({status: 'Published', 'courseInstructors.id': new ObjectId(user?._id)});
+      .sort({ courseStartTime: 1 })
+      .skip(skip)
+      .limit(limit);
+
+    const count = await Course.countDocuments({
+      status: "Published",
+      "courseInstructors.id": new ObjectId(user?._id),
+    });
 
     res.status(200).json({ status: "success", data: course, count: count });
-
-  } catch(err){
-    console.log(err)
-    res.status(500).json({ status: "error", message: 'something went wrong' });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ status: "error", message: "something went wrong" });
   }
-}
-
+};
 
 exports.getCourseBySlug = async (req, res) => {
   try {
     const slug = req.params.slug;
-    const courses = await Course.findOne({courseSlug: slug})
-    .populate('courseInstructors.id', 'first_name last_name email')
-    .select('-enrollments -createdOn -createdBy')
+    const courses = await Course.findOne({ courseSlug: slug })
+      .populate("courseInstructors.id", "first_name last_name email")
+      .select("-enrollments -createdOn -createdBy");
     res.status(200).json({ status: "success", data: courses });
   } catch (error) {
     res.status(500).json({
@@ -1463,23 +1512,39 @@ exports.getCourseBySlug = async (req, res) => {
 };
 
 exports.deductCourseFee = async (req, res, next) => {
-
   try {
-    const { courseFee, courseName, courseId, coupon, bonusRedemption } = req.body
+    const { courseFee, courseName, courseId, coupon, bonusRedemption } =
+      req.body;
     const userId = req.user._id;
-    const result = await exports.handleDeductCourseFee(userId, courseFee, courseName, courseId, coupon, bonusRedemption, req);
+    const result = await exports.handleDeductCourseFee(
+      userId,
+      courseFee,
+      courseName,
+      courseId,
+      coupon,
+      bonusRedemption,
+      req
+    );
 
     res.status(result.statusCode).json(result.data);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({
       status: "error",
-      message: "Something went wrong..."
+      message: "Something went wrong...",
     });
   }
-}
+};
 
-exports.handleDeductCourseFee = async (userId, courseFee, courseName, courseId, coupon, bonusRedemption, req) => {
+exports.handleDeductCourseFee = async (
+  userId,
+  courseFee,
+  courseName,
+  courseId,
+  coupon,
+  bonusRedemption,
+  req
+) => {
   try {
     let affiliate, affiliateProgram;
     const course = await Course.findOne({ _id: new ObjectId(courseId) });
@@ -1488,13 +1553,12 @@ exports.handleDeductCourseFee = async (userId, courseFee, courseName, courseId, 
     const setting = await Setting.find({});
     let discountAmount = 0;
     let cashbackAmount = 0;
-    const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
+    const cashTransactions = wallet?.transactions?.filter((transaction) => {
       return transaction.transactionType === "Cash";
     });
-    const bonusTransactions = (wallet)?.transactions?.filter((transaction) => {
+    const bonusTransactions = wallet?.transactions?.filter((transaction) => {
       return transaction.transactionType === "Bonus";
     });
-
 
     const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
       return total + transaction?.amount;
@@ -1505,126 +1569,170 @@ exports.handleDeductCourseFee = async (userId, courseFee, courseName, courseId, 
 
     //check course is lived
 
-    if(course?.status !== 'Published'){
+    if (course?.status !== "Published") {
       return {
         statusCode: 400,
         data: {
           status: "error",
           message: "This course is not valid. Please join another one.",
-        }
+        },
       };
     }
 
-    if ((course?.courseStartTime && course?.courseEndTime) && (course?.courseEndTime <= new Date())) {
+    if (
+      course?.courseStartTime &&
+      course?.courseEndTime &&
+      course?.courseEndTime <= new Date()
+    ) {
       return {
         statusCode: 400,
         data: {
           status: "error",
           message: "This course has ended. Please join another one.",
-        }
+        },
       };
     }
 
     //Check if Bonus Redemption is valid
     // console.log(bonusRedemption , totalBonusAmount , bonusRedemption , course?.discountedPrice , setting[0]?.maxBonusRedemptionPercentage, (bonusRedemption > totalBonusAmount) , (bonusRedemption > (course?.discountedPrice * setting[0]?.maxBonusRedemptionPercentage)))
-    if ((bonusRedemption > totalBonusAmount) || (bonusRedemption > (course?.discountedPrice * setting[0]?.maxBonusRedemptionPercentage))) {
+    if (
+      bonusRedemption > totalBonusAmount ||
+      bonusRedemption >
+        course?.discountedPrice * setting[0]?.maxBonusRedemptionPercentage
+    ) {
       return {
         statusCode: 400,
         data: {
           status: "error",
           message: "Incorrect HeroCash Redemption",
-        }
+        },
       };
     }
 
     if (Number(bonusRedemption)) {
       wallet?.transactions?.push({
-        title: 'StoxHero HeroCash Redeemed',
+        title: "StoxHero HeroCash Redeemed",
         description: `${bonusRedemption} HeroCash used.`,
         transactionDate: new Date(),
-        amount: -(bonusRedemption?.toFixed(2)),
+        amount: -bonusRedemption?.toFixed(2),
         transactionId: uuid.v4(),
-        transactionType: 'Bonus'
+        transactionType: "Bonus",
       });
     }
-
 
     if (coupon) {
       let couponDoc = await Coupon.findOne({ code: coupon });
       if (!couponDoc) {
         let match = false;
-        const affiliatePrograms = await AffiliateProgram.find({ status: 'Active' });
-        if (affiliatePrograms.length != 0){
+        const affiliatePrograms = await AffiliateProgram.find({
+          status: "Active",
+        });
+        if (affiliatePrograms.length != 0) {
           for (let program of affiliatePrograms) {
-            match = program?.affiliates?.find(item => (item?.affiliateCode?.toString() == coupon?.toString() && item?.affiliateStatus == "Active"));
+            match = program?.affiliates?.find(
+              (item) =>
+                item?.affiliateCode?.toString() == coupon?.toString() &&
+                item?.affiliateStatus == "Active"
+            );
             if (match) {
               affiliate = match;
               affiliateProgram = program;
-              couponDoc = { rewardType: 'Discount', discountType: 'Percentage', discount: program?.discountPercentage, maxDiscount: program?.maxDiscount }
+              couponDoc = {
+                rewardType: "Discount",
+                discountType: "Percentage",
+                discount: program?.discountPercentage,
+                maxDiscount: program?.maxDiscount,
+              };
               break;
             }
           }
         }
 
         if (!match) {
-          const userCoupon = await User.findOne({ myReferralCode: coupon?.toString() })
-          const referralProgram = await ReferralProgram.findOne({ status: "Active" });
+          const userCoupon = await User.findOne({
+            myReferralCode: coupon?.toString(),
+          });
+          const referralProgram = await ReferralProgram.findOne({
+            status: "Active",
+          });
 
           // console.log("referralProgram", referralProgram, userCoupon)
           if (userCoupon) {
             affiliate = { userId: userCoupon?._id };
             affiliateProgram = referralProgram?.affiliateDetails;
-            couponDoc = { rewardType: 'Discount', discountType: 'Percentage', discount: referralProgram?.affiliateDetails?.discountPercentage, maxDiscount: referralProgram?.affiliateDetails?.maxDiscount }
-
+            couponDoc = {
+              rewardType: "Discount",
+              discountType: "Percentage",
+              discount: referralProgram?.affiliateDetails?.discountPercentage,
+              maxDiscount: referralProgram?.affiliateDetails?.maxDiscount,
+            };
           }
         }
       }
-      if (couponDoc?.rewardType == 'Discount') {
-        if (couponDoc?.discountType == 'Flat') {
+      if (couponDoc?.rewardType == "Discount") {
+        if (couponDoc?.discountType == "Flat") {
           //Calculate amount and match
           discountAmount = couponDoc?.discount;
         } else {
-          discountAmount = Math.min(couponDoc?.discount / 100 * course?.discountedPrice, couponDoc?.maxDiscount);
-
+          discountAmount = Math.min(
+            (couponDoc?.discount / 100) * course?.discountedPrice,
+            couponDoc?.maxDiscount
+          );
         }
       } else {
-        if (couponDoc?.discountType == 'Flat') {
+        if (couponDoc?.discountType == "Flat") {
           //Calculate amount and match
           cashbackAmount = couponDoc?.discount;
         } else {
-          cashbackAmount = Math.min(couponDoc?.discount / 100 * (course?.discountedPrice - bonusRedemption), couponDoc?.maxDiscount);
-
+          cashbackAmount = Math.min(
+            (couponDoc?.discount / 100) *
+              (course?.discountedPrice - bonusRedemption),
+            couponDoc?.maxDiscount
+          );
         }
         wallet?.transactions?.push({
-          title: 'StoxHero CashBack',
-          description: `Cashback of ${cashbackAmount?.toFixed(2)} HeroCash - code ${coupon} used`,
+          title: "StoxHero CashBack",
+          description: `Cashback of ${cashbackAmount?.toFixed(
+            2
+          )} HeroCash - code ${coupon} used`,
           transactionDate: new Date(),
           amount: cashbackAmount?.toFixed(2),
           transactionId: uuid.v4(),
-          transactionType: 'Bonus'
+          transactionType: "Bonus",
         });
       }
     }
 
-    const totalAmount = (course?.discountedPrice - discountAmount - bonusRedemption) * (1 + setting[0]?.courseGstPercentage / 100) //todo-vijay
+    const totalAmount =
+      (course?.discountedPrice - discountAmount - bonusRedemption) *
+      (1 + setting[0]?.courseGstPercentage / 100); //todo-vijay
 
-    console.log(Number(totalAmount)?.toFixed(2) , Number(courseFee)?.toFixed(2), totalAmount, course?.discountedPrice , discountAmount , bonusRedemption , (1 + setting[0]?.courseGstPercentage / 100))
+    console.log(
+      Number(totalAmount)?.toFixed(2),
+      Number(courseFee)?.toFixed(2),
+      totalAmount,
+      course?.discountedPrice,
+      discountAmount,
+      bonusRedemption,
+      1 + setting[0]?.courseGstPercentage / 100
+    );
     if (Number(totalAmount)?.toFixed(2) != Number(courseFee)?.toFixed(2)) {
       return {
         statusCode: 400,
         data: {
           status: "error",
           message: "Incorrect Course fee amount",
-        }
+        },
       };
     }
-    if (totalCashAmount < (Number(courseFee))) {
+    if (totalCashAmount < Number(courseFee)) {
       return {
         statusCode: 400,
         data: {
           status: "error",
-          message: "You do not have enough balance to enroll in this Course. Please add money to your StoxHero Wallet.",
-        }
+          message:
+            "You do not have enough balance to enroll in this Course. Please add money to your StoxHero Wallet.",
+        },
       };
     }
 
@@ -1635,12 +1743,15 @@ exports.handleDeductCourseFee = async (userId, courseFee, courseName, courseId, 
           data: {
             status: "error",
             message: "You have already enrolled in this Course.",
-          }
+          },
         };
       }
     }
 
-    if (course?.maxEnrolments && course?.maxEnrolments <= course?.enrollments?.length) {
+    if (
+      course?.maxEnrolments &&
+      course?.maxEnrolments <= course?.enrollments?.length
+    ) {
       // if (!course.potentialParticipants.includes(userId)) {
       //   const course = await Course.findOneAndUpdate({ _id: new ObjectId(courseId) }, {
       //     $push: {
@@ -1652,49 +1763,49 @@ exports.handleDeductCourseFee = async (userId, courseFee, courseName, courseId, 
         statusCode: 400,
         data: {
           status: "error",
-          message: "The course is already full. We sincerely appreciate your enthusiasm to enrollment in our courses. Please enroll in other courses.",
-        }
+          message:
+            "The course is already full. We sincerely appreciate your enthusiasm to enrollment in our courses. Please enroll in other courses.",
+        },
       };
     }
-
 
     let obj = {
       actualFee: course?.coursePrice,
       discountedFee: course?.discountedPrice,
       discountUsed: discountAmount,
       pricePaidByUser: courseFee,
-      gstAmount: courseFee * setting[0]?.courseGstPercentage/100,
-      enrolledOn: new Date(),      
-    }
+      gstAmount: (courseFee * setting[0]?.courseGstPercentage) / 100,
+      enrolledOn: new Date(),
+    };
     if (Number(bonusRedemption)) {
       obj.bonusRedemption = bonusRedemption;
     }
-
 
     const updateParticipants = await Course.findOneAndUpdate(
       { _id: new ObjectId(courseId) },
       {
         $push: {
-          enrollments: obj
-        }
+          enrollments: obj,
+        },
       },
       { new: true }
     );
-    
 
     // console.log(result)
     // Save the updated document
     // await result.save();
 
-
-    wallet.transactions = [...wallet.transactions, {
-      title: 'Course Fee',
-      description: `Amount deducted for the course fee of ${courseName}`,
-      transactionDate: new Date(),
-      amount: (-courseFee),
-      transactionId: uuid.v4(),
-      transactionType: 'Cash'
-    }];
+    wallet.transactions = [
+      ...wallet.transactions,
+      {
+        title: "Course Fee",
+        description: `Amount deducted for the course fee of ${courseName}`,
+        transactionDate: new Date(),
+        amount: -courseFee,
+        transactionId: uuid.v4(),
+        transactionType: "Cash",
+      },
+    ];
     await wallet.save();
 
     if (!updateParticipants || !wallet) {
@@ -1703,15 +1814,14 @@ exports.handleDeductCourseFee = async (userId, courseFee, courseName, courseId, 
         data: {
           status: "error",
           message: "Not found",
-        }
+        },
       };
     }
 
-    let recipients = [user.email, 'team@stoxhero.com'];
+    let recipients = [user.email, "team@stoxhero.com"];
     let recipientString = recipients.join(",");
     let subject = "Course Fee - StoxHero";
-    let message =
-      `
+    let message = `
         <!DOCTYPE html>
             <html>
             <head>
@@ -1793,55 +1903,79 @@ exports.handleDeductCourseFee = async (userId, courseFee, courseName, courseId, 
             </body>
             </html>
 
-        `
+        `;
     if (process.env.PROD === "true") {
       emailService(recipientString, subject, message);
       // console.log("Subscription Email Sent")
     }
     if (coupon && cashbackAmount > 0) {
       await createUserNotification({
-        title: 'StoxHero Cashback',
-        description: `${cashbackAmount?.toFixed(2)} HeroCash added as bonus - ${coupon} code used.`,
-        notificationType: 'Individual',
-        notificationCategory: 'Informational',
-        productCategory: 'Course',
+        title: "StoxHero Cashback",
+        description: `${cashbackAmount?.toFixed(
+          2
+        )} HeroCash added as bonus - ${coupon} code used.`,
+        notificationType: "Individual",
+        notificationCategory: "Informational",
+        productCategory: "Course",
         user: user?._id,
-        priority: 'Medium',
-        channels: ['App', 'Email'],
-        createdBy: '63ecbc570302e7cf0153370c',
-        lastModifiedBy: '63ecbc570302e7cf0153370c'
+        priority: "Medium",
+        channels: ["App", "Email"],
+        createdBy: "63ecbc570302e7cf0153370c",
+        lastModifiedBy: "63ecbc570302e7cf0153370c",
       });
       if (user?.fcmTokens?.length > 0) {
-        await sendMultiNotifications('StoxHero Cashback',
-          `${cashbackAmount?.toFixed(2)}HeroCash credited as bonus in your wallet.`,
-          user?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
-        )
+        await sendMultiNotifications(
+          "StoxHero Cashback",
+          `${cashbackAmount?.toFixed(
+            2
+          )}HeroCash credited as bonus in your wallet.`,
+          user?.fcmTokens?.map((item) => item.token),
+          null,
+          { route: "wallet" }
+        );
       }
     }
     await createUserNotification({
-      title: 'Course Fee Deducted',
+      title: "Course Fee Deducted",
       description: `₹${courseFee} deducted as Course fee for ${course?.courseName}`,
-      notificationType: 'Individual',
-      notificationCategory: 'Informational',
-      productCategory: 'Course',
+      notificationType: "Individual",
+      notificationCategory: "Informational",
+      productCategory: "Course",
       user: user?._id,
-      priority: 'Low',
-      channels: ['App', 'Email'],
-      createdBy: '63ecbc570302e7cf0153370c',
-      lastModifiedBy: '63ecbc570302e7cf0153370c'
+      priority: "Low",
+      channels: ["App", "Email"],
+      createdBy: "63ecbc570302e7cf0153370c",
+      lastModifiedBy: "63ecbc570302e7cf0153370c",
     });
     if (user?.fcmTokens?.length > 0) {
-      await sendMultiNotifications('Course Fee Deducted',
+      await sendMultiNotifications(
+        "Course Fee Deducted",
         `₹${courseFee} deducted as Course fee for ${course?.courseName}`,
-        user?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
-      )
+        user?.fcmTokens?.map((item) => item.token),
+        null,
+        { route: "wallet" }
+      );
     }
     if (coupon) {
-      const product = await Product.findOne({ productName: 'Course' }).select('_id');
+      const product = await Product.findOne({ productName: "Course" }).select(
+        "_id"
+      );
       if (affiliate) {
-        await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, course?._id, course?.discountedPrice, userId);
+        await creditAffiliateAmount(
+          affiliate,
+          affiliateProgram,
+          product?._id,
+          course?._id,
+          course?.discountedPrice,
+          userId
+        );
       } else {
-        await saveSuccessfulCouponUse(userId, coupon, product?._id, course?._id);
+        await saveSuccessfulCouponUse(
+          userId,
+          coupon,
+          product?._id,
+          course?._id
+        );
       }
     }
 
@@ -1863,20 +1997,101 @@ exports.handleDeductCourseFee = async (userId, courseFee, courseName, courseId, 
     return {
       statusCode: 200,
       data: {
-        status: 'success',
+        status: "success",
         message: "Paid successfully",
-        data: updateParticipants
-      }
+        data: updateParticipants,
+      },
     };
   } catch (e) {
     console.log(e);
     return {
       statusCode: 500,
       data: {
-        status: 'error',
+        status: "error",
         message: "Something went wrong",
-        error: e.message
-      }
+        error: e.message,
+      },
     };
   }
-}
+};
+
+exports.getCourseRating = async (req, res) => {
+  const courseId = req.params.id;
+  let total = 0;
+  try {
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "Course not found" });
+    }
+    if (!course.ratings || course.ratings.length === 0) {
+      // Dummy data
+      const rating = 4;
+      return res.status(200).json({ status: "success", data: rating });
+    }
+    for (let ratingObj of course.ratings) {
+      total += ratingObj.rating;
+    }
+    const rating = total / course.ratings.length; // Fix typo here
+    res.status(200).json({ status: "success", data: rating });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: e.message,
+    });
+  }
+};
+
+exports.addUserRating = async (req, res, next) => {
+  const courseId = req.params.id;
+  const userId = req.user._id;
+  const { rating, review } = req.body;
+  try {
+    let course = await Course.findById(courseId).select("ratings");
+    if (!course) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "Course not found" });
+    }
+    const userPurchased = course.enrollments.findIndex(
+      (obj) => obj.userId.toString() == userId.toString()
+    );
+    if (userPurchased == -1) {
+      //user hasn't enrolled
+      res.status(400).json({
+        status: "error",
+        message: "You haven't enrolled for this course",
+      });
+    }
+    const index = course.ratings.findIndex(
+      (obj) => obj.userId.toString() === userId.toString()
+    );
+    if (index === -1) {
+      course.ratings.push({
+        rating: rating,
+        userId: userId,
+        review: review,
+        ratingDate: new Date(),
+      });
+    } else {
+      course.ratings.splice(index, 1, {
+        rating: rating,
+        userId: userId,
+        review: review,
+        ratingDate: new Date(),
+      });
+    }
+    await course.save();
+    res.status(200).json({ status: "success", message: "Rating Added" });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: e.message,
+    });
+  }
+};
