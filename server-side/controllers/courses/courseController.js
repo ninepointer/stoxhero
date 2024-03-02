@@ -2154,10 +2154,13 @@ exports.myCourses = async (req, res) => {
             }],
           'rating': [
             {
+              $unwind: "$ratings"
+            },
+            {
               $group: {
                 _id: "$_id",
                 rating: {
-                  $sum: "$enrollments.rating"
+                  $sum: "$ratings.rating"
                 }
               }
             },
@@ -2178,8 +2181,7 @@ exports.myCourses = async (req, res) => {
     const dataArr = [];
     for(let subelem of allData){
       const match = ratingData.filter((elem) => elem?._id?.toString() === subelem?._id?.toString());
-      subelem.rating = match?.[0]?.rating/subelem?.userEnrolled;
-      console.log(match, match?.[0]?.rating)
+      subelem.rating = (match?.[0]?.rating/subelem?.userEnrolled) || 0;
       dataArr.push(subelem);
     }
 
