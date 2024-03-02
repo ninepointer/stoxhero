@@ -4,7 +4,17 @@ const Authenticate = require("../../authentication/authentication");
 const courseController = require("../../controllers/courses/courseController");
 const router = express.Router();
 
-router.get("/mycourses", Authenticate, courseController.getMyCourses);
+router.get(
+    "/courses",
+    Authenticate,
+    courseController.getUserCourses
+);
+
+router.get(
+    "/mycourses",
+    Authenticate,
+    courseController.myCourses
+);
 
 router.get(
   "/byslug",
@@ -25,6 +35,25 @@ router.get(
   // Authenticate,
   courseController.getCourseBySlug
 );
+
+router.get(
+    "/:id/checkpaid",
+    Authenticate,
+    courseController.checkPaidCourses
+);
+
+router.get(
+    "/:slug/slug",
+    // Authenticate,
+    courseController.getCourseBySlug
+);
+
+router.put(
+    "/:id/purchaseintent",
+    // Authenticate,
+    courseController.purchaseIntent
+);
+
 router
   .route("/rating/:id")
   .get(courseController.getCourseRating)

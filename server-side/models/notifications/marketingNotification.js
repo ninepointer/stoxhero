@@ -43,7 +43,7 @@ const marketingNotificationSchema = new Schema({
     },
     productCategory:{
         type:'String',
-        enum:['TenX', 'Internship', 'Virtual', 'MarginX', 'Battle', 'TestZone', 'College TestZone', 'Challenge','General']
+        enum:['Course', 'TenX', 'Internship', 'Virtual', 'MarginX', 'Battle', 'TestZone', 'College TestZone', 'Challenge','General']
     },
     priority:{
         type:'String',
