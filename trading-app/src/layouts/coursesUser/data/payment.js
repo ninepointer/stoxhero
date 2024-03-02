@@ -28,7 +28,7 @@ import { userContext } from '../../../AuthContext';
 
 const ariaLabel = { 'aria-label': 'description' };
 
-const Payment = ({ data, setShowPay, showPay }) => {
+const Payment = ({ data, setShowPay, showPay, checkPaid }) => {
   const getDetails = useContext(userContext)
   const [open, setOpen] = React.useState(false);
   const [userWallet, setUserWallet] = useState(0);
@@ -169,7 +169,7 @@ const Payment = ({ data, setShowPay, showPay }) => {
 
   async function captureIntent() {
     handleClickOpen();
-    const res = await fetch(`${apiUrl}dailycontest/purchaseintent/${data._id}`, {
+    const res = await fetch(`${apiUrl}courses/user/${data._id}/purchaseintent`, {
       method: "PUT",
       credentials: "include",
       headers: {
@@ -288,9 +288,10 @@ const Payment = ({ data, setShowPay, showPay }) => {
     <>
       <MDBox>
         <MDButton
-          variant='outlined'
+          variant='gradient'
           color='error'
           size='small'
+          disabled={checkPaid}
           onClick={() => { captureIntent() }}
         >
           Pay Now
@@ -358,14 +359,14 @@ const Payment = ({ data, setShowPay, showPay }) => {
                             }
                             <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
                             <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{amount ? amount : 0}</Typography>
-                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.courseGstPercentage}%) on Fee: ₹{0}</Typography>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.courseGstPercentage}%) on Fee: ₹{actualAmount ? actualAmount : 0}</Typography>
                             {verifiedCode && discountData?.rewardType == 'Discount' && <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">{discountData?.discountType === 'Percentage' ?
                               `Discount (${discountData?.discount}%) on Fee: ₹${discountAmount}` :
                               `Discount (FLAT ₹ ${discountData?.discount} OFF) on Fee: ₹${discountAmount}`}</Typography>}
                             {verifiedCode && discountData?.rewardType == 'Cashback' && <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">{discountData?.discountType === 'Percentage' ?
                               `Cashback (${discountData?.discount}%) on Fee: ₹${cashbackAmount}` :
                               `Cashback (FLAT ₹ ${discountData?.discount} Cashback) as Wallet Bonus: ₹${cashbackAmount}`}</Typography>}
-                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(amount - discountAmount - bonusRedemption).toFixed(2)}</Typography>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{(Number(amount - discountAmount - bonusRedemption) + actualAmount).toFixed(2)}</Typography>
                             {bonusBalance > 0 && <MDBox display='flex' justifyContent='flex-start' alignItems='center' ml={-1}>
                               <Checkbox checked={checked} onChange={()=>{
                                 window.webengage.track('course_herocash_apply_clicked', {

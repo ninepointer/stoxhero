@@ -5,9 +5,15 @@ const courseController = require("../../controllers/courses/courseController");
 const router = express.Router();
 
 router.get(
+    "/courses",
+    Authenticate,
+    courseController.getUserCourses
+);
+
+router.get(
     "/mycourses",
     Authenticate,
-    courseController.getMyCourses
+    courseController.myCourses
 );
 
 router.get(
@@ -29,9 +35,21 @@ router.get(
 );
 
 router.get(
+    "/:id/checkpaid",
+    Authenticate,
+    courseController.checkPaidCourses
+);
+
+router.get(
     "/:slug/slug",
     // Authenticate,
     courseController.getCourseBySlug
+);
+
+router.put(
+    "/:id/purchaseintent",
+    // Authenticate,
+    courseController.purchaseIntent
 );
 
 

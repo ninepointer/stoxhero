@@ -9,6 +9,10 @@ const Setting = require('../../models/settings/setting');
 const Coupon = require('../../models/coupon/coupon');
 const AffiliateProgram = require('../../models/affiliateProgram/affiliateProgram');
 const ReferralProgram = require('../../models/campaigns/referralProgram')
+const uuid = require('uuid');
+const {createUserNotification} = require('../notification/notificationController');
+const {sendMultiNotifications} = require('../../utils/fcmService');
+const {saveSuccessfulCouponUse} = require('../coupon/couponController');
 
 
 const s3 = new AWS.S3({
@@ -1269,7 +1273,7 @@ exports.getUnpublished = async (req, res) => {
   }
 };
 
-exports.getMyCourses = async (req, res) => {
+exports.getUserCourses = async (req, res) => {
   try{
     const userId = req.user._id;
     const user = await User.findById(new ObjectId(userId));
@@ -1608,7 +1612,7 @@ exports.handleDeductCourseFee = async (userId, courseFee, courseName, courseId, 
 
     const totalAmount = (course?.discountedPrice - discountAmount - bonusRedemption) * (1 + setting[0]?.courseGstPercentage / 100) //todo-vijay
 
-    console.log(Number(totalAmount)?.toFixed(2) , Number(courseFee)?.toFixed(2), totalAmount, course?.discountedPrice , discountAmount , bonusRedemption , (1 + setting[0]?.courseGstPercentage / 100))
+    // console.log(Number(totalAmount)?.toFixed(2) , Number(courseFee)?.toFixed(2), totalAmount, course?.discountedPrice , discountAmount , bonusRedemption , (1 + setting[0]?.courseGstPercentage / 100))
     if (Number(totalAmount)?.toFixed(2) != Number(courseFee)?.toFixed(2)) {
       return {
         statusCode: 400,
@@ -1659,6 +1663,7 @@ exports.handleDeductCourseFee = async (userId, courseFee, courseName, courseId, 
 
 
     let obj = {
+      userId: userId,
       actualFee: course?.coursePrice,
       discountedFee: course?.discountedPrice,
       discountUsed: discountAmount,
@@ -1880,3 +1885,188 @@ exports.handleDeductCourseFee = async (userId, courseFee, courseName, courseId, 
     };
   }
 }
+
+exports.checkPaidCourses = async(req, res, next)=>{
+  try{
+    const courseId = req.params.id;
+    const userId = req.user._id;
+
+    const course = await Course.findOne({
+      _id: new ObjectId(courseId), 'enrollments.userId': new ObjectId(userId)
+    })
+
+    res.status(200).json({
+      status: "success",
+      data: course ? true : false
+    });
+  } catch(err){
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong..."
+    });
+  }
+}
+
+exports.purchaseIntent = async (req, res) => {
+  try {
+      const { id } = req.params; // ID of the contest 
+      const userId = req.user._id;
+
+      const result = await Course.findByIdAndUpdate(
+          id,
+          { $push: { purchaseIntent: { userId: userId, date: new Date() } } },
+          { new: true }  // This option ensures the updated document is returned
+      );
+
+      if (!result) {
+          return res.status(404).json({ status: "error", message: "Something went wrong." });
+      }
+
+      res.status(200).json({
+          status: "success",
+          message: "Intent Saved successfully",
+          data: result
+      });
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Something went wrong",
+          error: error.message
+      });
+  }
+};
+
+exports.myCourses = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const result = await Course.aggregate([
+      {
+        $match: {
+          "enrollments.userId": new ObjectId(
+            userId
+          ),
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "courseInstructors.id",
+          foreignField: "_id",
+          as: "instructor",
+        },
+      },
+      {
+        $sort: {
+          courseStartTime: 1,
+          _id: -1,
+        },
+      },
+      {
+        $addFields: {
+          userEnrolled: {
+            $size: "$enrollments",
+          },
+        },
+      },
+      {
+        $unwind: {
+          path: "$enrollments",
+        },
+      },
+      {
+        $facet: {
+          'alldata': [
+            {
+              $match: {
+                "enrollments.userId": new ObjectId(
+                  userId
+                ),
+              },
+            },
+            {
+              $project: {
+                courseName: 1,
+                courseStartTime: 1,
+                // courseSlug: 1,
+                courseImage: 1,
+                coursePrice: 1,
+                discountedPrice: 1,
+                userEnrolled: 1,
+                maxEnrolments: 1,
+                topics: "$courseContent",
+                coursePrgress: {
+                  $divide: [
+                    {
+                      $size: "$enrollments.watched",
+                    },
+                    {
+                      $size: "$courseContent",
+                    },
+                  ],
+                },
+                instructorName: {
+                  $map: {
+                    input: "$instructor",
+                    as: "inst",
+                    in: {
+                      $concat: [
+                        "$$inst.first_name",
+                        " ",
+                        "$$inst.last_name",
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+            {
+              $skip: 0,
+            },
+            {
+              $limit: 10,
+            }],
+          'rating': [
+            {
+              $group: {
+                _id: "$_id",
+                rating: {
+                  $sum: "$enrollments.rating"
+                }
+              }
+            },
+            {
+              $project: {
+                rating: "$rating",
+                _id: 1
+              }
+            }
+          ]
+        }
+      }
+    ])
+
+    const allData = result?.[0]?.alldata;
+    const ratingData = result?.[0]?.rating;
+
+    const dataArr = [];
+    for(let subelem of allData){
+      const match = ratingData.filter((elem) => elem?._id?.toString() === subelem?._id?.toString());
+      subelem.rating = match?.[0]?.rating/subelem?.userEnrolled;
+      console.log(match, match?.[0]?.rating)
+      dataArr.push(subelem);
+    }
+
+    res.status(200).json({
+      status: "success",
+      message: "Data Fetched successfully",
+      data: dataArr
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message
+    });
+  }
+};
