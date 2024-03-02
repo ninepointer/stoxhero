@@ -2027,7 +2027,7 @@ exports.getCourseRating = async (req, res) => {
     }
     if (!course.ratings || course.ratings.length === 0) {
       // Dummy data
-      const rating = 4;
+      const rating = 4.25;
       return res.status(200).json({ status: "success", data: rating });
     }
     for (let ratingObj of course.ratings) {
@@ -2050,13 +2050,13 @@ exports.addUserRating = async (req, res, next) => {
   const userId = req.user._id;
   const { rating, review } = req.body;
   try {
-    let course = await Course.findById(courseId).select("ratings");
+    let course = await Course.findById(courseId).select("ratings enrollments");
     if (!course) {
       return res
         .status(404)
         .json({ status: "error", message: "Course not found" });
     }
-    const userPurchased = course.enrollments.findIndex(
+    const userPurchased = course.enrollments?.findIndex(
       (obj) => obj.userId.toString() == userId.toString()
     );
     if (userPurchased == -1) {
