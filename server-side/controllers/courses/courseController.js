@@ -1526,7 +1526,8 @@ exports.handleDeductCourseFee = async (userId, courseFee, courseName, courseId, 
     }
 
     //Check if Bonus Redemption is valid
-    if (bonusRedemption > totalBonusAmount || bonusRedemption > course?.discountedPrice * setting[0]?.maxBonusRedemptionPercentage) {
+    // console.log(bonusRedemption , totalBonusAmount , bonusRedemption , course?.discountedPrice , setting[0]?.maxBonusRedemptionPercentage, (bonusRedemption > totalBonusAmount) , (bonusRedemption > (course?.discountedPrice * setting[0]?.maxBonusRedemptionPercentage)))
+    if ((bonusRedemption > totalBonusAmount) || (bonusRedemption > (course?.discountedPrice * setting[0]?.maxBonusRedemptionPercentage))) {
       return {
         statusCode: 400,
         data: {
@@ -1604,7 +1605,10 @@ exports.handleDeductCourseFee = async (userId, courseFee, courseName, courseId, 
         });
       }
     }
+
     const totalAmount = (course?.discountedPrice - discountAmount - bonusRedemption) * (1 + setting[0]?.courseGstPercentage / 100) //todo-vijay
+
+    console.log(Number(totalAmount)?.toFixed(2) , Number(courseFee)?.toFixed(2), totalAmount, course?.discountedPrice , discountAmount , bonusRedemption , (1 + setting[0]?.courseGstPercentage / 100))
     if (Number(totalAmount)?.toFixed(2) != Number(courseFee)?.toFixed(2)) {
       return {
         statusCode: 400,

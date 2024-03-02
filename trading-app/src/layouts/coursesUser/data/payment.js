@@ -204,7 +204,7 @@ const Payment = ({ data, setShowPay, showPay }) => {
         "content-type": "application/json"
       },
       body: JSON.stringify({
-        courseFee: Number(amount - discountAmount - bonusRedemption).toFixed(2), courseName: data?.courseName, courseId: data?._id, coupon: verifiedCode, bonusRedemption
+        courseFee: Number(amount - discountAmount - bonusRedemption)* (1 + setting?.courseGstPercentage / 100).toFixed(2), courseName: data?.courseName, courseId: data?._id, coupon: verifiedCode, bonusRedemption
       })
     });
     const dataResp = await res.json();
@@ -226,7 +226,7 @@ const Payment = ({ data, setShowPay, showPay }) => {
   const amount = data?.discountedPrice;
   const redeemableBonus = Math.min((amount - discountAmount) * setting?.maxBonusRedemptionPercentage / 100, bonusBalance / setting?.bonusToUnitCashRatio ?? 1) ?? 0;
   const bonusRedemption = checked ? Math.min((amount - discountAmount) * setting?.maxBonusRedemptionPercentage / 100, bonusBalance / setting?.bonusToUnitCashRatio ?? 1) : 0;
-  const actualAmount = (data?.discountedPrice - discountAmount - bonusRedemption) * setting.gstPercentage / 100;
+  const actualAmount = (data?.discountedPrice - discountAmount - bonusRedemption) * setting.courseGstPercentage / 100;
 
   const initiatePayment = async () => {
     try {
@@ -358,7 +358,7 @@ const Payment = ({ data, setShowPay, showPay }) => {
                             }
                             <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
                             <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{amount ? amount : 0}</Typography>
-                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{0}</Typography>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.courseGstPercentage}%) on Fee: ₹{0}</Typography>
                             {verifiedCode && discountData?.rewardType == 'Discount' && <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">{discountData?.discountType === 'Percentage' ?
                               `Discount (${discountData?.discount}%) on Fee: ₹${discountAmount}` :
                               `Discount (FLAT ₹ ${discountData?.discount} OFF) on Fee: ₹${discountAmount}`}</Typography>}
@@ -404,7 +404,7 @@ const Payment = ({ data, setShowPay, showPay }) => {
                             }
                             <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
                             <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{amount ? amount : 0}</Typography>
-                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{actualAmount ? actualAmount : 0}</Typography>
+                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.courseGstPercentage}%) on Fee: ₹{actualAmount ? actualAmount : 0}</Typography>
                             {verifiedCode && discountData?.rewardType == 'Discount' && <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">{discountData?.discountType === 'Percentage' ?
                               `Discount (${discountData?.discount}%) on Fee: ₹${discountAmount}` :
                               `Discount (FLAT ₹ ${discountData?.discount} OFF) on Fee: ₹${discountAmount}`}</Typography>}
