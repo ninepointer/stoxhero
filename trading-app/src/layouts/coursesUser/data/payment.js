@@ -28,7 +28,7 @@ import { userContext } from '../../../AuthContext';
 
 const ariaLabel = { 'aria-label': 'description' };
 
-const Payment = ({ elem, setShowPay, showPay }) => {
+const Payment = ({ data, setShowPay, showPay }) => {
   const getDetails = useContext(userContext)
   const [open, setOpen] = React.useState(false);
   const [userWallet, setUserWallet] = useState(0);
@@ -153,7 +153,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
   const handleClickOpen = () => {
     window.webengage.track('course_payment_clicked', {
       user: getDetails?.userDetails?._id,
-      contestId: elem?._id,
+      courseId: data?._id,
       amount: amount
     })
     setOpen(true);
@@ -169,7 +169,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
 
   async function captureIntent() {
     handleClickOpen();
-    const res = await fetch(`${apiUrl}dailycontest/purchaseintent/${elem._id}`, {
+    const res = await fetch(`${apiUrl}dailycontest/purchaseintent/${data._id}`, {
       method: "PUT",
       credentials: "include",
       headers: {
@@ -185,7 +185,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
     if (userWallet < Number(amount - discountAmount - bonusRedemption)) {
       window.webengage.track('course_payment_low_balance', {
         user: getDetails?.userDetails?._id,
-        contestId: elem?._id,
+        courseId: data?._id,
         walletBalance: userWallet,
         amount: Number(amount - discountAmount - bonusRedemption)
       })
@@ -193,10 +193,10 @@ const Payment = ({ elem, setShowPay, showPay }) => {
     }
     window.webengage.track('course_payment_process_clicked', {
       user: getDetails?.userDetails?._id,
-      contestId: elem?._id,
+      courseId: data?._id,
       amount: Number(amount - discountAmount - bonusRedemption)
     })
-    const res = await fetch(`${apiUrl}dailycontest/feededuct`, {
+    const res = await fetch(`${apiUrl}courses/user/deductcoursefee`, {
       method: "PATCH",
       credentials: "include",
       headers: {
@@ -204,7 +204,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         "content-type": "application/json"
       },
       body: JSON.stringify({
-        contestFee: Number(amount - discountAmount - bonusRedemption).toFixed(2), contestName: elem?.contestName, contestId: elem?._id, coupon: verifiedCode, bonusRedemption
+        courseFee: Number(amount - discountAmount - bonusRedemption).toFixed(2), courseName: data?.courseName, courseId: data?._id, coupon: verifiedCode, bonusRedemption
       })
     });
     const dataResp = await res.json();
@@ -223,14 +223,14 @@ const Payment = ({ elem, setShowPay, showPay }) => {
     }
   }
 
-  const amount = elem?.entryFee;
+  const amount = data?.discountedPrice;
   const redeemableBonus = Math.min((amount - discountAmount) * setting?.maxBonusRedemptionPercentage / 100, bonusBalance / setting?.bonusToUnitCashRatio ?? 1) ?? 0;
   const bonusRedemption = checked ? Math.min((amount - discountAmount) * setting?.maxBonusRedemptionPercentage / 100, bonusBalance / setting?.bonusToUnitCashRatio ?? 1) : 0;
-  const actualAmount = (elem?.entryFee - discountAmount - bonusRedemption) * setting.gstPercentage / 100;
+  const actualAmount = (data?.discountedPrice - discountAmount - bonusRedemption) * setting.gstPercentage / 100;
 
   const initiatePayment = async () => {
     try {
-      const res = await axios.post(`${apiUrl}payment/initiate`, { amount: Number((amount - discountAmount - bonusRedemption) * 100) + actualAmount * 100, redirectTo: window.location.href, paymentFor: 'Course', productId: elem?._id, coupon: verifiedCode, bonusRedemption }, { withCredentials: true });
+      const res = await axios.post(`${apiUrl}payment/initiate`, { amount: Number((amount - discountAmount - bonusRedemption) * 100) + actualAmount * 100, redirectTo: window.location.href, paymentFor: 'Course', productId: data?._id, coupon: verifiedCode, bonusRedemption }, { withCredentials: true });
       console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
       window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
     } catch (e) {
@@ -255,7 +255,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
   const applyPromoCode = async () => {
     window.webengage.track('course_apply_couponcode_clicked', {
       user: getDetails?.userDetails?._id,
-      contestId: elem?._id,
+      courseId: data?._id,
       amount: Number(amount - discountAmount - bonusRedemption)
     });
     try {
@@ -266,7 +266,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         setDiscountAmount(0);
         return;
       }
-      const res = await axios.post(`${apiUrl}coupons/verify`, { code, product: '6517d48d3aeb2bb27d650de5', orderValue: elem?.entryFee, platform: 'Web', paymentMode: value }, { withCredentials: true });
+      const res = await axios.post(`${apiUrl}coupons/verify`, { code, product: '6517d48d3aeb2bb27d650de5', orderValue: data?.discountedPrice, platform: 'Web', paymentMode: value }, { withCredentials: true });
       console.log('verified code', res?.data?.data);
       if (res.status == 200) {
         setVerifiedCode(code);
@@ -339,7 +339,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                               onClick={() => { 
                                 window.webengage.track('course_intent_to_apply_couponcode_clicked', {
                                   user: getDetails?.userDetails?._id,
-                                  contestId: elem?._id,
+                                  courseId: data?._id,
                                   amount: Number(amount - discountAmount - bonusRedemption)
                                 });
                                 setShowPromoCode(true) }} style={{ cursor: 'pointer' }}>
@@ -370,7 +370,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                               <Checkbox checked={checked} onChange={()=>{
                                 window.webengage.track('course_herocash_apply_clicked', {
                                   user: getDetails?.userDetails?._id,
-                                  contestId: elem?._id,
+                                  courseId: data?._id,
                                 });
                                 setChecked(!checked)
                               }} />
@@ -385,7 +385,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                               onClick={() => { 
                                 window.webengage.track('course_intent_to_apply_couponcode_clicked', {
                                   user: getDetails?.userDetails?._id,
-                                  contestId: elem?._id,
+                                  courseId: data?._id,
                                   amount: Number(amount - discountAmount - bonusRedemption)
                                 });
                                 setShowPromoCode(true) }} style={{ cursor: 'pointer' }}>
@@ -416,7 +416,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                               <Checkbox checked={checked} onChange={()=>{
                                 window.webengage.track('course_herocash_apply_clicked', {
                                   user: getDetails?.userDetails?._id,
-                                  contestId: elem?._id,
+                                  courseId: data?._id,
                                 });
                                 setChecked(!checked)
                               }} />

@@ -27,6 +27,7 @@ import Payment from '../../../coursesUser/data/payment.js'
 export default function Courses() {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
+  const [showPay, setShowPay] = useState()
 
   // Get the value of the "mobile" parameter
   const courseId = urlParams.get('course');
@@ -114,10 +115,12 @@ export default function Courses() {
                                         </Grid>
 
                                             <Grid item xs={12} md={4} lg={12} p={2} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', maxWidth: '100%', height: 'auto', gap: 5 }}>
-                                                <Payment id={courseId} />
+                                                {userId ?
+                                                <Payment data={courses} showPay={showPay} setShowPay={setShowPay} />
+                                                :
                                                 <MDButton size='small' variant='gradiant' color='success' onClick={()=>{navigate(`/courses/${slug}/fill+details?course=${courseId}`)}}>
                                                   Pay
-                                                </MDButton>
+                                                </MDButton>}
                                             </Grid>
                                     </CardActionArea>
                                 </Card>

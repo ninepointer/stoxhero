@@ -16,7 +16,7 @@ router.get(
     courseController.getCoursesByUserSlug
 );
 
-router.get(
+router.patch(
     "/deductcoursefee",
     Authenticate,
     courseController.deductCourseFee
