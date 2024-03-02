@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-
 // prop-types is a library for typechecking of props.
 import PropTypes from "prop-types";
 
@@ -12,7 +11,7 @@ import AppBar from "@mui/material/AppBar";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Icon from "@mui/material/Icon";
-import StoreIcon from '@mui/icons-material/Store';
+import StoreIcon from "@mui/icons-material/Store";
 // import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 
 // Material Dashboard 2 React components
@@ -29,23 +28,24 @@ import backgroundImage from "../../../assets/images/trading.jpg";
 // import TraderMatrix from "../TraderMatrix";
 import AlgoBoxMain from "../AlgoBoxMain";
 
-
-
 function AlgoPositionHeader({ children }) {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");
   const [tabValue, setTabValue] = useState(0);
   const [algoBox, setAlgoBox] = useState([]);
 
-  useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/readtradingAlgo`, {withCredentials: true})
-    .then((res)=>{
-        setAlgoBox(res.data)
+  useEffect(() => {
+    axios
+      .get(`${baseUrl}api/v1/readtradingAlgo`, { withCredentials: true })
+      .then((res) => {
+        setAlgoBox(res.data);
         // console.log(res.data);
-    }).catch((err)=>{
+      })
+      .catch((err) => {
         return new Error(err);
-    })
-  }, [])
+      });
+  }, []);
 
   useEffect(() => {
     // A function that sets the orientation state of the tabs.
@@ -67,14 +67,10 @@ function AlgoPositionHeader({ children }) {
     return () => window.removeEventListener("resize", handleTabsOrientation);
   }, [tabsOrientation]);
 
-
   const handleSetTabValue = (event, newValue) => setTabValue(newValue);
 
-
   return (
-
     <MDBox position="relative" mb={5}>
-
       <MDBox
         display="flex"
         alignItems="center"
@@ -82,7 +78,10 @@ function AlgoPositionHeader({ children }) {
         minHeight="10rem"
         borderRadius="x1"
         sx={{
-          backgroundImage: ({ functions: { rgba, linearGradient }, palette: { gradients } }) =>
+          backgroundImage: ({
+            functions: { rgba, linearGradient },
+            palette: { gradients },
+          }) =>
             `${linearGradient(
               rgba(gradients.info.main, 0.6),
               rgba(gradients.info.state, 0.6)
@@ -101,33 +100,36 @@ function AlgoPositionHeader({ children }) {
           px: 2,
         }}
       >
-
         <Grid container spacing={6} alignItems="center">
           <Grid item xs={12} md={12} lg={12} sx={{ ml: "auto" }}>
             <AppBar position="static">
-              <Tabs orientation={tabsOrientation} value={tabValue} onChange={handleSetTabValue}>
-                {algoBox.map((elem)=>{
+              <Tabs
+                orientation={tabsOrientation}
+                value={tabValue}
+                onChange={handleSetTabValue}
+              >
+                {algoBox.map((elem) => {
                   return (
                     <Tab
-                    label= {`Algo - ${elem.algoName}`}
-                    icon={
-                      <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                        <StoreIcon/>
-                      </Icon>
-                    }
-                  />
-                  )
+                      label={`Algo - ${elem.algoName}`}
+                      icon={
+                        <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                          <StoreIcon />
+                        </Icon>
+                      }
+                    />
+                  );
                 })}
-
-
               </Tabs>
             </AppBar>
-            {algoBox.map((elem, index)=>{
+            {algoBox.map((elem, index) => {
               return (
-                <TabPanel value={tabValue} index={index}><AlgoBoxMain id={elem._id} algoName={elem.algoName}/> </TabPanel>
-              )
+                <TabPanel value={tabValue} index={index}>
+                  <AlgoBoxMain id={elem._id} algoName={elem.algoName} />{" "}
+                </TabPanel>
+              );
             })}
-            
+
             {/* <TabPanel value={tabValue} index={1}><MockCompanyPNL /> </TabPanel>
             <TabPanel value={tabValue} index={2}><TraderPNL /> </TabPanel>
             <TabPanel value={tabValue} index={3}><TraderMatrix /> </TabPanel> */}
@@ -136,10 +138,7 @@ function AlgoPositionHeader({ children }) {
         </Grid>
       </Card>
       {/* {children} */}
-
     </MDBox>
-
-
   );
 }
 
@@ -157,14 +156,10 @@ function TabPanel(props) {
   const { children, value, index } = props;
   return (
     <>
-      {
-        value === index &&
-        <h1>{children}</h1>
-      }
+      {value === index && <h1>{children}</h1>}
       {/* <TableOne/> */}
     </>
-
-  )
+  );
 }
 
 export default AlgoPositionHeader;

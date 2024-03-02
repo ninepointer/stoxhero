@@ -1,9 +1,8 @@
-
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
-import ReactGA from "react-ga"
-import React, { useEffect, useContext, useState} from "react";
+import ReactGA from "react-ga";
+import React, { useEffect, useContext, useState } from "react";
 
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
@@ -20,36 +19,36 @@ import { userContext } from "../../AuthContext";
 // Data
 
 function UserOrders() {
-
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const getDetails = useContext(userContext);
   useEffect(() => {
-    window.webengage.track('order_tab_clicked', {
+    window.webengage.track("order_tab_clicked", {
       user: getDetails?.userDetails?._id,
     });
-    ReactGA.pageview(window.location.pathname)
-    capturePageView()
+    ReactGA.pageview(window.location.pathname);
+    capturePageView();
   }, []);
-  let page = 'Orders'
-  let pageLink = window.location.pathname
-  async function capturePageView(){
-        await fetch(`${baseUrl}api/v1/pageview/${page}${pageLink}`, {
-        method: "POST",
-        credentials:"include",
-        headers: {
-            "content-type" : "application/json",
-            "Access-Control-Allow-Credentials": true
-        },
+  let page = "Orders";
+  let pageLink = window.location.pathname;
+  async function capturePageView() {
+    await fetch(`${baseUrl}api/v1/pageview/${page}${pageLink}`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+        "Access-Control-Allow-Credentials": true,
+      },
     });
   }
 
   return (
     <>
-    <DashboardLayout>
-      <DashboardNavbar />
-      <Header/>
-      <Footer />
-    </DashboardLayout>
+      <DashboardLayout>
+        <DashboardNavbar />
+        <Header />
+        <Footer />
+      </DashboardLayout>
     </>
   );
 }

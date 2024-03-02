@@ -17,12 +17,11 @@
 //   const [traders, setTraders] = useState([]);
 //   const [udates, setUDates] = useState([]);
 //   let [overallPnl, setOverallPnl] = useState([]);
-  
-  
+
 //   useEffect(()=>{
 //       pnlCalculation(valueInDate1,valueInDate2)
 //         overallPnl = 0;
-  
+
 //         axios.get(`${baseUrl}api/v1/readuserdetails`)
 //           .then((res)=>{
 //             let data = res.data;
@@ -35,29 +34,26 @@
 //               return new Error(err);
 //           })
 //     },[])
-  
 
-  
 //     function pnlCalculation(firstDate, secondDate){
 //       console.log(firstDate,secondDate)
 //       axios.get(`${baseUrl}api/v1/getuserreportLive/${firstDate}/${secondDate}`)
 //       .then((res) => {
 //         setOverallPnl(res.data);
-  
+
 //       }).catch((err) => {
 //           return new Error(err);
 //       })
-  
+
 //       axios.get(`${baseUrl}api/v1/getuniquedatesLive/${firstDate}/${secondDate}`)
 //       .then((res) => {
 //         setUDates(res.data);
-  
+
 //       }).catch((err) => {
 //           return new Error(err);
 //       })
 //     }
-  
-  
+
 //     overallPnl.sort((a, b) => {
 //       if (a.date < b.date) {
 //         return -1;
@@ -67,21 +63,19 @@
 //       }
 //       return 0;
 //     });
-  
-  
-  
+
 //   let traderNameList = []
 //   traders.map((elem)=>{
 //       traderNameList.push(elem.name)
 //   })
-  
+
 //   let pnldates = []
 //   udates.map((elem)=>{
 //       const dateString = elem._id.date;
 //       const date = new Date(dateString);
 //       const options = { month: "short", day: "numeric" };
 //       const formattedDate = date.toLocaleDateString("en-US", options);
-//       console.log(formattedDate); 
+//       console.log(formattedDate);
 //       pnldates.push([elem._id.date,formattedDate])
 //   })
 //   console.log(pnldates);
@@ -89,7 +83,7 @@
 //   overallPnl.map((elem)=>{
 //       pnldata.push([elem._id.date,elem.amount])
 //   })
-  
+
 //   const xLabelsVisibility = pnldates;
 //   const yLabels = traderNameList
 //   const xLabels = [];
@@ -97,21 +91,21 @@
 //       console.log(pnldates[i][1]);
 //       xLabels.push(pnldates[i][1])
 //   }
-  
+
 //   const pnldates1 = [];
 //   for (let i = 0; i < pnldates.length; i++) {
 //       console.log(pnldates[i][0]);
 //       pnldates1.push(pnldates[i][0])
 //   }
-  
+
 //   let rows = traderNameList.length;
 //   let cols = xLabels.length;
 //   let data = new Array(rows);
-  
+
 //   for (let i = 0; i < rows; i++) {
 //     data[i] = new Array(cols);
 //   }
-  
+
 //   for (let i = 0; i < rows; i++) {
 //       for (let j = 0; j < cols; j++) {
 //         data[i][j] = overallPnl

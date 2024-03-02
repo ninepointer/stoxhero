@@ -1,15 +1,15 @@
-import React, {useState, useContext, useRef} from "react"
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
-import MDButton from '../../../components/MDButton';
-import { userContext } from '../../../AuthContext';
-import UserList from "./UserList"
+import React, { useState, useContext, useRef } from "react";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
+import MDButton from "../../../components/MDButton";
+import { userContext } from "../../../AuthContext";
+import UserList from "./UserList";
 import MDBox from "../../../components/MDBox";
 import MDTypography from "../../../components/MDTypography";
 import Grid from "@mui/material/Grid";
@@ -17,26 +17,24 @@ import Card from "@mui/material/Card";
 import Data from "./MapUserData";
 import DataTable from "../../../examples/Tables/DataTable";
 import Switch from "@mui/material/Switch";
-import MapUsersIcon from '@mui/icons-material/GroupAddSharp';
-
-
-
+import MapUsersIcon from "@mui/icons-material/GroupAddSharp";
 
 // import axios from "axios"
 
-
-const MapUser = ({algoId}) => {
-
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+const MapUser = ({ algoId }) => {
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [open, setOpen] = React.useState(false);
-  
+
   const { columns, rows } = Data();
 
   let date = new Date();
   const getDetails = useContext(userContext);
-  let modifiedOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
+  let modifiedOn = `${String(date.getDate()).padStart(2, "0")}-${String(
+    date.getMonth() + 1
+  ).padStart(2, "0")}-${date.getFullYear()}`;
   let modifiedBy = getDetails.userDetails.name;
   const [reRender, setReRender] = useState(true);
   const [permissionData, setPermissionData] = useState([]);
@@ -44,133 +42,142 @@ const MapUser = ({algoId}) => {
 
   // console.log("permissionData", permissionData)
 
-
-  async function realTradeChange(e, userId, realTrade, userName){
-
-    let perticularUserWithMappedAlgo = permissionData.filter((elem)=>{
-      return elem.algoId?._id === algoId && elem.userId?._id === userId
-    })
+  async function realTradeChange(e, userId, realTrade, userName) {
+    let perticularUserWithMappedAlgo = permissionData.filter((elem) => {
+      return elem.algoId?._id === algoId && elem.userId?._id === userId;
+    });
     // console.log(userId, realTrade)
-    if(realTrade !== undefined){
-      if(realTrade){
+    if (realTrade !== undefined) {
+      if (realTrade) {
         realTrade = false;
-      } else{
+      } else {
         realTrade = true;
       }
       algoData.realTrading = realTrade;
-    const response = await fetch(`${baseUrl}api/v1/updaterealtradeenable/${perticularUserWithMappedAlgo[0]._id}`, {
-      method: "PATCH",
-      credentials: "include",
-      headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true
-      },
-      body: JSON.stringify({
-          isRealTradeEnable: realTrade
-      })
-    });
-
-    const permissionData = await response.json();
-
-    if (permissionData.status === 422 || permissionData.error || !permissionData) {
-        window.alert(permissionData.error);
-        //console.log("Failed to Edit");
-    }else {
-      if(realTrade){
-        window.alert(`Real Trade is enabled for ${userName}`);
-      } else{
-        window.alert(`Real Trade is disabled for ${userName}`);
-      }
-    }
-
-    } else{
-      if(algoData.realTrading){
-        realTrade = false;
-      } else{
-        realTrade = true;
-      }
-      algoData.realTrading = realTrade
-      setAlgoData(algoData)
-    }
-    
-    reRender ? setReRender(false) : setReRender(true)
-
-  }
-
-  async function tradeEnableChange(e, userId, tradeEnable, userName){
-    // console.log("e, userId, tradeEnable, userName", e, userId, tradeEnable, userName)
-    if(tradeEnable !== undefined){
-      if(tradeEnable){
-        tradeEnable = false;
-      } else{
-        tradeEnable = true;
-      }
-      // console.log("permissionData", permissionData)
-      let perticularUserWithMappedAlgo = permissionData.filter((elem)=>{
-        return elem.algoId?._id === algoId && elem.userId?._id === userId
-      })
-      algoData.tradingEnable = tradeEnable
-      // console.log("in enable", valueForEnableTrade, tradeEnable, e, userId)
-      const response = await fetch(`${baseUrl}api/v1/updatetradeenable/${perticularUserWithMappedAlgo[0]._id}`, {
+      const response = await fetch(
+        `${baseUrl}api/v1/updaterealtradeenable/${perticularUserWithMappedAlgo[0]._id}`,
+        {
           method: "PATCH",
           credentials: "include",
           headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-              "Access-Control-Allow-Credentials": true
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true,
           },
           body: JSON.stringify({
-              modifiedOn, modifiedBy, isTradeEnable: tradeEnable
-          })
+            isRealTradeEnable: realTrade,
+          }),
+        }
+      );
+
+      const permissionData = await response.json();
+
+      if (
+        permissionData.status === 422 ||
+        permissionData.error ||
+        !permissionData
+      ) {
+        window.alert(permissionData.error);
+        //console.log("Failed to Edit");
+      } else {
+        if (realTrade) {
+          window.alert(`Real Trade is enabled for ${userName}`);
+        } else {
+          window.alert(`Real Trade is disabled for ${userName}`);
+        }
+      }
+    } else {
+      if (algoData.realTrading) {
+        realTrade = false;
+      } else {
+        realTrade = true;
+      }
+      algoData.realTrading = realTrade;
+      setAlgoData(algoData);
+    }
+
+    reRender ? setReRender(false) : setReRender(true);
+  }
+
+  async function tradeEnableChange(e, userId, tradeEnable, userName) {
+    // console.log("e, userId, tradeEnable, userName", e, userId, tradeEnable, userName)
+    if (tradeEnable !== undefined) {
+      if (tradeEnable) {
+        tradeEnable = false;
+      } else {
+        tradeEnable = true;
+      }
+      // console.log("permissionData", permissionData)
+      let perticularUserWithMappedAlgo = permissionData.filter((elem) => {
+        return elem.algoId?._id === algoId && elem.userId?._id === userId;
       });
+      algoData.tradingEnable = tradeEnable;
+      // console.log("in enable", valueForEnableTrade, tradeEnable, e, userId)
+      const response = await fetch(
+        `${baseUrl}api/v1/updatetradeenable/${perticularUserWithMappedAlgo[0]._id}`,
+        {
+          method: "PATCH",
+          credentials: "include",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true,
+          },
+          body: JSON.stringify({
+            modifiedOn,
+            modifiedBy,
+            isTradeEnable: tradeEnable,
+          }),
+        }
+      );
 
       const permissionDataResp = await response.json();
 
-      if (permissionDataResp.status === 422 || permissionDataResp.error || !permissionDataResp) {
-          window.alert(permissionDataResp.error);
-          //console.log("Failed to Edit");
-      }else {
-          if(tradeEnable){
-            window.alert(`Trade is enabled for ${userName}`);
-          } else{
-            window.alert(`Trade is disabled for ${userName}`);
-          }
-          
+      if (
+        permissionDataResp.status === 422 ||
+        permissionDataResp.error ||
+        !permissionDataResp
+      ) {
+        window.alert(permissionDataResp.error);
+        //console.log("Failed to Edit");
+      } else {
+        if (tradeEnable) {
+          window.alert(`Trade is enabled for ${userName}`);
+        } else {
+          window.alert(`Trade is disabled for ${userName}`);
+        }
       }
-    } else{
+    } else {
       // console.log("tradeEnable", tradeEnable,e)
-      if(algoData.tradingEnable){
+      if (algoData.tradingEnable) {
         tradeEnable = false;
-      } else{
+      } else {
         tradeEnable = true;
       }
-      algoData.tradingEnable = tradeEnable
-      setAlgoData(algoData)
+      algoData.tradingEnable = tradeEnable;
+      setAlgoData(algoData);
     }
-    reRender ? setReRender(false) : setReRender(true)
-
+    reRender ? setReRender(false) : setReRender(true);
   }
 
-  let permissionDataUpdated = permissionData.filter((elem)=>{
-      return elem.algoId?._id === algoId;
-  })
+  let permissionDataUpdated = permissionData.filter((elem) => {
+    return elem.algoId?._id === algoId;
+  });
 
   let newData = [];
   // console.log("addUser", addUser, "permissionDataUpdated", permissionDataUpdated);
-  if(addUser.length !== 0 && permissionDataUpdated.length !== 0){
-    for(let i = 0; i < addUser.length; i++){
-      for(let j = 0; j < permissionDataUpdated.length; j++){
-          if(addUser[i].userId === permissionDataUpdated[j].userId){
-              addUser.splice(i, 1);
-              j = -1;
-          }
+  if (addUser.length !== 0 && permissionDataUpdated.length !== 0) {
+    for (let i = 0; i < addUser.length; i++) {
+      for (let j = 0; j < permissionDataUpdated.length; j++) {
+        if (addUser[i].userId === permissionDataUpdated[j].userId) {
+          addUser.splice(i, 1);
+          j = -1;
+        }
       }
     }
 
     newData = addUser.concat(permissionDataUpdated);
-
-  } else{
+  } else {
     newData = addUser.concat(permissionDataUpdated);
   }
   //console.log("this is add usere", newData);
@@ -183,181 +190,247 @@ const MapUser = ({algoId}) => {
     setOpen(false);
   };
 
-  const[algoData, setAlgoData] = useState({
-      name:"",
-      tradingEnable: false,
-      realTrading: false,
+  const [algoData, setAlgoData] = useState({
+    name: "",
+    tradingEnable: false,
+    realTrading: false,
   });
 
   function formbtn(e, id) {
-      e.preventDefault();
-      let flag = true;
-      let newDataUpdated = newData.filter((elem)=>{
-          return elem._id === id
-      })
-      algoData.name=newDataUpdated[0].userName;
-      setAlgoData(algoData);
+    e.preventDefault();
+    let flag = true;
+    let newDataUpdated = newData.filter((elem) => {
+      return elem._id === id;
+    });
+    algoData.name = newDataUpdated[0].userName;
+    setAlgoData(algoData);
 
-      if(permissionDataUpdated.length){
-          for(let elem of permissionDataUpdated){
-              if(elem.userId === newDataUpdated[0].userId){
-                  //console.log("put request");
-                  patchReq(id);
-                  flag = false;
-              }
-          }
-          if(flag){
-              //console.log("post request");
-              postReq(newDataUpdated);
-          }
-      } else{
-          //console.log("post request");
-          postReq(newDataUpdated);
+    if (permissionDataUpdated.length) {
+      for (let elem of permissionDataUpdated) {
+        if (elem.userId === newDataUpdated[0].userId) {
+          //console.log("put request");
+          patchReq(id);
+          flag = false;
+        }
       }
+      if (flag) {
+        //console.log("post request");
+        postReq(newDataUpdated);
+      }
+    } else {
+      //console.log("post request");
+      postReq(newDataUpdated);
+    }
 
-      setAddUser([]);
-      reRender ? setReRender(false) : setReRender(true)
+    setAddUser([]);
+    reRender ? setReRender(false) : setReRender(true);
   }
 
-  async function deletehandler(id){
-      const response = await fetch(`${baseUrl}api/v1/readpermission/${id}`, {
-          method: "DELETE",
-          credentials: "include"
-      });
-      const permissionData = await response.json();
+  async function deletehandler(id) {
+    const response = await fetch(`${baseUrl}api/v1/readpermission/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    const permissionData = await response.json();
 
-      if(permissionData.status === 422 || permissionData.error || !permissionData){
-          window.alert(permissionData.error);
-          //console.log("Failed to Delete");
-      }else {
-          //console.log(permissionData);
-          window.alert("Delete succesfull");
-          //console.log("Delete succesfull");
-      }
+    if (
+      permissionData.status === 422 ||
+      permissionData.error ||
+      !permissionData
+    ) {
+      window.alert(permissionData.error);
+      //console.log("Failed to Delete");
+    } else {
+      //console.log(permissionData);
+      window.alert("Delete succesfull");
+      //console.log("Delete succesfull");
+    }
 
-      reRender ? setReRender(false) : setReRender(true)
+    reRender ? setReRender(false) : setReRender(true);
   }
 
-  async function postReq(newDataUpdated){
-      const {tradingEnable, realTrading} = algoData;
-      const {userId} = newDataUpdated[0];
-      const response = await fetch(`${baseUrl}api/v1/permission`, {
-          method: "POST",
-          credentials: "include",
-          headers: {
-              "content-type" : "application/json"
-          },
-          body: JSON.stringify({
-            userId, 
-            isTradeEnable:tradingEnable, isRealTradeEnable:realTrading, algoId
-          })
-      });
+  async function postReq(newDataUpdated) {
+    const { tradingEnable, realTrading } = algoData;
+    const { userId } = newDataUpdated[0];
+    const response = await fetch(`${baseUrl}api/v1/permission`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        userId,
+        isTradeEnable: tradingEnable,
+        isRealTradeEnable: realTrading,
+        algoId,
+      }),
+    });
 
-      const permissionData = await response.json();
+    const permissionData = await response.json();
 
-      if(permissionData.status === 422 || permissionData.error || !permissionData){ 
-          window.alert(permissionData.error);
-          //console.log("invalid entry");
-      }else{
-        reRender ? setReRender(false) : setReRender(true)
-          // window.alert("entry succesfull");
-          //console.log("entry succesfull");
-      }
+    if (
+      permissionData.status === 422 ||
+      permissionData.error ||
+      !permissionData
+    ) {
+      window.alert(permissionData.error);
+      //console.log("invalid entry");
+    } else {
+      reRender ? setReRender(false) : setReRender(true);
+      // window.alert("entry succesfull");
+      //console.log("entry succesfull");
+    }
   }
 
-  async function patchReq(id){
-      const {name, tradingEnable, realTrading} = algoData;
-      //console.log("algoData", algoData);
-      const response = await fetch(`${baseUrl}api/v1/readpermissionadduser/${id}`, {
-          method: "PATCH",
-          credentials: "include",
-          headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-              "Access-Control-Allow-Credentials": true
-          },
-          body: JSON.stringify({
-              modifiedOn, modifiedBy, isTradeEnable:tradingEnable, isRealTradeEnable:realTrading
-          })
-      });
-
-      const permissionData = await response.json();
-
-      if (permissionData.status === 422 || permissionData.error || !permissionData) {
-          window.alert(permissionData.error);
-          //console.log("Failed to Edit");
-      }else {
-          //console.log(permissionData);
-          reRender ? setReRender(false) : setReRender(true)
-          window.alert("Edit succesfull");
-          //console.log("Edit succesfull");
+  async function patchReq(id) {
+    const { name, tradingEnable, realTrading } = algoData;
+    //console.log("algoData", algoData);
+    const response = await fetch(
+      `${baseUrl}api/v1/readpermissionadduser/${id}`,
+      {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true,
+        },
+        body: JSON.stringify({
+          modifiedOn,
+          modifiedBy,
+          isTradeEnable: tradingEnable,
+          isRealTradeEnable: realTrading,
+        }),
       }
+    );
+
+    const permissionData = await response.json();
+
+    if (
+      permissionData.status === 422 ||
+      permissionData.error ||
+      !permissionData
+    ) {
+      window.alert(permissionData.error);
+      //console.log("Failed to Edit");
+    } else {
+      //console.log(permissionData);
+      reRender ? setReRender(false) : setReRender(true);
+      window.alert("Edit succesfull");
+      //console.log("Edit succesfull");
+    }
   }
 
   // console.log("this is name", newData)
 
-  newData.map((elem)=>{
-
+  newData.map((elem) => {
     let obj = {};
     obj.name = (
-        <MDTypography component="a" href="#" variant="caption" fontWeight="medium">
-          {elem.userId?.name}
-        </MDTypography>
+      <MDTypography
+        component="a"
+        href="#"
+        variant="caption"
+        fontWeight="medium"
+      >
+        {elem.userId?.name}
+      </MDTypography>
     );
 
-    if(elem.isTradeEnable !== undefined){
+    if (elem.isTradeEnable !== undefined) {
       obj.tradeEnable = (
-
         <MDBox mt={0.5}>
-          <Switch checked={elem.isTradeEnable} onChange={(e) => {tradeEnableChange(e, elem.userId?._id, elem.isTradeEnable, elem.userId?.name)}} />
+          <Switch
+            checked={elem.isTradeEnable}
+            onChange={(e) => {
+              tradeEnableChange(
+                e,
+                elem.userId?._id,
+                elem.isTradeEnable,
+                elem.userId?.name
+              );
+            }}
+          />
         </MDBox>
-      ); 
-
+      );
     } else {
       obj.tradeEnable = (
-
         <MDBox mt={0.5}>
-          <Switch checked={algoData.tradingEnable} onChange={(e) => {tradeEnableChange(e, elem.userId?._id, elem.isTradeEnable, elem.userId?.name)}} />
+          <Switch
+            checked={algoData.tradingEnable}
+            onChange={(e) => {
+              tradeEnableChange(
+                e,
+                elem.userId?._id,
+                elem.isTradeEnable,
+                elem.userId?.name
+              );
+            }}
+          />
         </MDBox>
-      ); 
-
+      );
     }
 
-    if(elem.isRealTradeEnable !== undefined){
-      obj.realTrade = (
-
-          <MDBox mt={0.5}>
-            <Switch checked={elem.isRealTradeEnable} onChange={(e) => {realTradeChange(e, elem.userId?._id, elem.isRealTradeEnable, elem.userId?.name)}} />
-          </MDBox>
-      );
-    } else{
+    if (elem.isRealTradeEnable !== undefined) {
       obj.realTrade = (
         <MDBox mt={0.5}>
-            <Switch checked={algoData.realTrading} onChange={(e)=>{realTradeChange(e, elem.userId?._id, elem.isRealTradeEnable, elem.userId?.name)}} />
+          <Switch
+            checked={elem.isRealTradeEnable}
+            onChange={(e) => {
+              realTradeChange(
+                e,
+                elem.userId?._id,
+                elem.isRealTradeEnable,
+                elem.userId?.name
+              );
+            }}
+          />
         </MDBox>
       );
-
+    } else {
+      obj.realTrade = (
+        <MDBox mt={0.5}>
+          <Switch
+            checked={algoData.realTrading}
+            onChange={(e) => {
+              realTradeChange(
+                e,
+                elem.userId?._id,
+                elem.isRealTradeEnable,
+                elem.userId?.name
+              );
+            }}
+          />
+        </MDBox>
+      );
     }
 
     obj.action = (
       <MDTypography component="a" variant="caption" fontWeight="medium">
-          <MDButton variant="outlined" color="info" onClick={(e)=>formbtn(e, elem._id)}>
-            OK
-          </MDButton>
-          <MDButton variant="outlined" color="info" sx={{ marginLeft: 1 }} onClick={(e)=>deletehandler((elem._id))}>🗑️
-          </MDButton>
+        <MDButton
+          variant="outlined"
+          color="info"
+          onClick={(e) => formbtn(e, elem._id)}
+        >
+          OK
+        </MDButton>
+        <MDButton
+          variant="outlined"
+          color="info"
+          sx={{ marginLeft: 1 }}
+          onClick={(e) => deletehandler(elem._id)}
+        >
+          🗑️
+        </MDButton>
       </MDTypography>
     );
 
-    rows.push(obj)
-  })
-
+    rows.push(obj);
+  });
 
   return (
     <div>
-
       <Button variant="" color="black" onClick={handleClickOpen}>
-        <MapUsersIcon/>
+        <MapUsersIcon />
       </Button>
 
       <Dialog
@@ -366,47 +439,48 @@ const MapUser = ({algoId}) => {
         onClose={handleClose}
         aria-labelledby="responsive-dialog-title"
       >
-        <DialogTitle id="responsive-dialog-title">
-          {""}
-        </DialogTitle>
+        <DialogTitle id="responsive-dialog-title">{""}</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ display: "flex", flexDirection: "column" }}>
+            <UserList
+              reRender={reRender}
+              algoId={algoId}
+              addUser={addUser}
+              setAddUser={setAddUser}
+              setPermissionData={setPermissionData}
+            />
 
-              <UserList reRender={reRender} algoId={algoId} addUser={addUser} setAddUser={setAddUser} setPermissionData={setPermissionData}/>
-
-                <MDBox pt={6} pb={3}>
-                    <Grid container spacing={6}>
-                        <Grid item xs={12} md={12} lg={12}>
-                            <Card>
-                                <MDBox
-                                    mx={2}
-                                    mt={-3}
-                                    py={1}
-                                    px={2}
-                                    variant="gradient"
-                                    bgColor="info"
-                                    borderRadius="lg"
-                                    coloredShadow="info"
-                                    sx={{
-                                        display: 'flex',
-                                        justifyContent: "space-between",
-                                      }}>
-
-                                </MDBox>
-                                <MDBox pt={3}>
-                                    <DataTable
-                                        table={{ columns, rows }}
-                                        isSorted={false}
-                                        entriesPerPage={false}
-                                        showTotalEntries={false}
-                                        noEndBorder
-                                    />
-                                </MDBox>
-                            </Card>
-                        </Grid>
-                    </Grid> 
-                </MDBox> 
-
+            <MDBox pt={6} pb={3}>
+              <Grid container spacing={6}>
+                <Grid item xs={12} md={12} lg={12}>
+                  <Card>
+                    <MDBox
+                      mx={2}
+                      mt={-3}
+                      py={1}
+                      px={2}
+                      variant="gradient"
+                      bgColor="info"
+                      borderRadius="lg"
+                      coloredShadow="info"
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    ></MDBox>
+                    <MDBox pt={3}>
+                      <DataTable
+                        table={{ columns, rows }}
+                        isSorted={false}
+                        entriesPerPage={false}
+                        showTotalEntries={false}
+                        noEndBorder
+                      />
+                    </MDBox>
+                  </Card>
+                </Grid>
+              </Grid>
+            </MDBox>
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -420,6 +494,6 @@ const MapUser = ({algoId}) => {
       </Dialog>
     </div>
   );
-}
+};
 
-export default MapUser
+export default MapUser;

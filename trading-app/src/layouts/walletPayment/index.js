@@ -1,4 +1,4 @@
-import {useState, useContext, useEffect} from "react"
+import { useState, useContext, useEffect } from "react";
 import axios from "axios";
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -22,9 +22,7 @@ import AddFunds from "./components/AddFunds";
 // import Invoices from "./components/Invoices";
 import BillingInformation from "./components/BillingInformation";
 
-
 function WalletPayment() {
-
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   // const [marginDetails, setMarginDetails] = useState([]);
   let [render, setRender] = useState(true);
@@ -39,7 +37,7 @@ function WalletPayment() {
   //     })
   //   },[render])
 
-    // console.log("marginDetails main", marginDetails)
+  // console.log("marginDetails main", marginDetails)
   return (
     <DashboardLayout>
       <DashboardNavbar absolute isMini />
@@ -49,7 +47,7 @@ function WalletPayment() {
             <Grid item xs={12} lg={12}>
               <Grid container spacing={3}>
                 <Grid item xs={12}>
-                  <AddFunds setRender={setRender} render={render}/>
+                  <AddFunds setRender={setRender} render={render} />
                 </Grid>
               </Grid>
             </Grid>
@@ -58,7 +56,7 @@ function WalletPayment() {
         <MDBox mb={3}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={7} lg={12}>
-              <BillingInformation render={render}/>
+              <BillingInformation render={render} />
             </Grid>
           </Grid>
         </MDBox>

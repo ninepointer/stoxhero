@@ -1,6 +1,6 @@
 //import React from 'react'
-import {useState, useContext, useEffect} from "react"
-import TextField from '@mui/material/TextField';
+import { useState, useContext, useEffect } from "react";
+import TextField from "@mui/material/TextField";
 import axios from "axios";
 
 // @mui material components
@@ -14,81 +14,121 @@ import MDButton from "../../components/MDButton";
 import MDTypography from "../../components/MDTypography";
 import { Typography } from "@mui/material";
 import { userContext } from "../../AuthContext";
-import uniqid from "uniqid"
-
+import uniqid from "uniqid";
 
 const DBEntry = () => {
-
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-    let date = new Date();
-    let valueInDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()-1).padStart(2, '0')}`
-    const [enterDate, setDate] = useState(valueInDate);
-    const [instrument, setInstrument] = useState();
-    const [algoData, setAlgoData] = useState([]);
-    const getDetails = useContext(userContext);
-    const userId = getDetails.userDetails.email;
-    const createdBy = getDetails.userDetails.name;
-    const uId = uniqid();
-    useEffect(()=>{
-
-      axios.get(`${baseUrl}api/v1/readTradingAlgo`, {withCredentials: true})
-      .then((res)=>{
-          let defaultAlgo = (res.data).filter((elem)=>{
-            return elem.isDefault;
-          })
-          setAlgoData(defaultAlgo);
-      }).catch((err)=>{
-          return new Error(err);
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+  let date = new Date();
+  let valueInDate = `${date.getFullYear()}-${String(
+    date.getMonth() + 1
+  ).padStart(2, "0")}-${String(date.getDate() - 1).padStart(2, "0")}`;
+  const [enterDate, setDate] = useState(valueInDate);
+  const [instrument, setInstrument] = useState();
+  const [algoData, setAlgoData] = useState([]);
+  const getDetails = useContext(userContext);
+  const userId = getDetails.userDetails.email;
+  const createdBy = getDetails.userDetails.name;
+  const uId = uniqid();
+  useEffect(() => {
+    axios
+      .get(`${baseUrl}api/v1/readTradingAlgo`, { withCredentials: true })
+      .then((res) => {
+        let defaultAlgo = res.data.filter((elem) => {
+          return elem.isDefault;
+        });
+        setAlgoData(defaultAlgo);
       })
-
-    },[])
-
-    async function saveData(){
-      const { algoName, transactionChange, instrumentChange, exchangeChange, lotMultipler, productChange, tradingAccount, _id, marginDeduction, isDefault } = algoData[0];
-      console.log(algoData, instrument, enterDate)
-      const res = await fetch(`${baseUrl}api/v1/enterDataInDB`, {
-          method: "POST",
-          headers: {
-              "content-type": "application/json"
-          },
-          body: JSON.stringify({
-              
-              algoName, transactionChange, instrumentChange, exchangeChange, lotMultipler, 
-              productChange, tradingAccount, _id, marginDeduction, isDefault, instrument, enterDate,
-              userId, createdBy, uId
-
-          })
+      .catch((err) => {
+        return new Error(err);
       });
-      const dataResp = await res.json();
-      //console.log("dataResp", dataResp)
-      if (dataResp.status === 422 || dataResp.error || !dataResp) {
-          //console.log(dataResp.error)
-          window.alert(dataResp.error);
-          ////console.log("Failed to Trade");
-      } else {
-          window.alert(dataResp.message); 
-      }
+  }, []);
 
+  async function saveData() {
+    const {
+      algoName,
+      transactionChange,
+      instrumentChange,
+      exchangeChange,
+      lotMultipler,
+      productChange,
+      tradingAccount,
+      _id,
+      marginDeduction,
+      isDefault,
+    } = algoData[0];
+    console.log(algoData, instrument, enterDate);
+    const res = await fetch(`${baseUrl}api/v1/enterDataInDB`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        algoName,
+        transactionChange,
+        instrumentChange,
+        exchangeChange,
+        lotMultipler,
+        productChange,
+        tradingAccount,
+        _id,
+        marginDeduction,
+        isDefault,
+        instrument,
+        enterDate,
+        userId,
+        createdBy,
+        uId,
+      }),
+    });
+    const dataResp = await res.json();
+    //console.log("dataResp", dataResp)
+    if (dataResp.status === 422 || dataResp.error || !dataResp) {
+      //console.log(dataResp.error)
+      window.alert(dataResp.error);
+      ////console.log("Failed to Trade");
+    } else {
+      window.alert(dataResp.message);
     }
-    
-    return (
-        <>
-        <MDBox mt={2} mb={6}>
+  }
+
+  return (
+    <>
+      <MDBox mt={2} mb={6}>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={12} lg={12} >
-            <Card sx={{display:"flex", flexDirection:"row", justifyContent:'center'}}>
-              <MDBox >
-                <Typography sx={{ margin: 1, padding: 1, fontSize: 19 }}>Select Trade Date</Typography>
-                </MDBox>
+          <Grid item xs={12} md={12} lg={12}>
+            <Card
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+              }}
+            >
+              <MDBox>
+                <Typography sx={{ margin: 1, padding: 1, fontSize: 19 }}>
+                  Select Trade Date
+                </Typography>
+              </MDBox>
               <TextField
-                id="outlined-basic" variant="standard" type="date"
-                sx={{ margin: 1, padding: 1 }} onChange={(e)=>{setDate(e.target.value)}} value={enterDate}/>
+                id="outlined-basic"
+                variant="standard"
+                type="date"
+                sx={{ margin: 1, padding: 1 }}
+                onChange={(e) => {
+                  setDate(e.target.value);
+                }}
+                value={enterDate}
+              />
               <TextField
-                id="outlined-basic" variant="standard"  placeholder="Instrument"
-                sx={{ margin: 1, padding: 1 }} onChange={(e)=>{setInstrument(e.target.value)}}/>
-              <MDButton onClick={saveData}>
-                OK
-              </MDButton>
+                id="outlined-basic"
+                variant="standard"
+                placeholder="Instrument"
+                sx={{ margin: 1, padding: 1 }}
+                onChange={(e) => {
+                  setInstrument(e.target.value);
+                }}
+              />
+              <MDButton onClick={saveData}>OK</MDButton>
             </Card>
           </Grid>
 
@@ -123,7 +163,7 @@ const DBEntry = () => {
         </Grid>
       </MDBox>
 
-            {/* <MDBox mb={1} pt={1}> 
+      {/* <MDBox mb={1} pt={1}> 
                 <ReportsLineChart
                   color="warning"
                   colorheight="25rem"
@@ -143,7 +183,7 @@ const DBEntry = () => {
                 />
               </MDBox> */}
 
-            {/* <MDBox pt={5} pb={3}>
+      {/* <MDBox pt={5} pb={3}>
                 <Grid container spacing={6}>
                     <Grid item xs={12} md={12} lg={12}>
                         <Card>
@@ -177,8 +217,8 @@ const DBEntry = () => {
                     </Grid>
                 </Grid>
             </MDBox> */}
-        </>
-    )
-}
+    </>
+  );
+};
 
-export default DBEntry
+export default DBEntry;

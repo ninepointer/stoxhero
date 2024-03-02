@@ -15,9 +15,9 @@ import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import Icon from "@mui/material/Icon";
 import IconEmail from "@mui/material/Icon";
-import purse from "../../../assets/images/purse.png"
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import accountIcon from '../../../assets/images/default-profile.png';
+import purse from "../../../assets/images/purse.png";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import accountIcon from "../../../assets/images/default-profile.png";
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
@@ -50,22 +50,28 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const getDetails = useContext(userContext);
   const [navbarType, setNavbarType] = useState();
   const [controller, dispatch] = useMaterialUIController();
-  const { miniSidenav, transparentNavbar, fixedNavbar, openConfigurator, darkMode } = controller;
+  const {
+    miniSidenav,
+    transparentNavbar,
+    fixedNavbar,
+    openConfigurator,
+    darkMode,
+  } = controller;
   const [openMenu, setOpenMenu] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
   const [myWallet, setMyWallet] = useState([]);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
   useEffect(() => {
-
     let call1 = axios.get(`${baseUrl}api/v1/userwallet/my`, {
       withCredentials: true,
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": true
+        "Access-Control-Allow-Credentials": true,
       },
-    })
+    });
 
     Promise.all([call1])
       .then(([api1Response]) => {
@@ -74,7 +80,6 @@ function DashboardNavbar({ absolute, light, isMini }) {
       .catch((error) => {
         console.error(error);
       });
-
   }, []);
 
   useEffect(() => {
@@ -87,8 +92,8 @@ function DashboardNavbar({ absolute, light, isMini }) {
 
     // A function that sets the transparent state of the navbar.
     // function handleTransparentNavbar() {
-      // setTransparentNavbar(dispatch, (fixedNavbar && window.scrollY === 0) || !fixedNavbar);
-            setTransparentNavbar(dispatch, false);
+    // setTransparentNavbar(dispatch, (fixedNavbar && window.scrollY === 0) || !fixedNavbar);
+    setTransparentNavbar(dispatch, false);
 
     // }
 
@@ -106,10 +111,10 @@ function DashboardNavbar({ absolute, light, isMini }) {
   }, [dispatch, fixedNavbar]);
 
   const handleMiniSidenav = () => setMiniSidenav(dispatch, !miniSidenav);
-  const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
+  const handleConfiguratorOpen = () =>
+    setOpenConfigurator(dispatch, !openConfigurator);
   const handleOpenMenu = (event) => setOpenMenu(event.currentTarget);
   const handleCloseMenu = () => setOpenMenu(false);
-
 
   // Render the notifications menu
   const renderMenu = () => (
@@ -130,9 +135,11 @@ function DashboardNavbar({ absolute, light, isMini }) {
     </Menu>
   );
 
-
   // Styles for the navbar icons
-  const iconsStyle = ({ palette: { dark, white, text }, functions: { rgba } }) => ({
+  const iconsStyle = ({
+    palette: { dark, white, text },
+    functions: { rgba },
+  }) => ({
     color: () => {
       let colorValue = light || darkMode ? white.main : dark.main;
 
@@ -157,24 +164,43 @@ function DashboardNavbar({ absolute, light, isMini }) {
     <AppBar
       position={absolute ? "absolute" : navbarType}
       color="inherit"
-      sx={(theme) => navbar(theme, { transparentNavbar, absolute, light, darkMode })}
+      sx={(theme) =>
+        navbar(theme, { transparentNavbar, absolute, light, darkMode })
+      }
     >
       <Toolbar sx={(theme) => navbarContainer(theme)}>
-        <MDBox color="inherit" mb={{ xs: 1, md: 0 }} sx={(theme) => navbarRow(theme, { isMini })}>
-          <Breadcrumbs icon="home" title={decodeURI(route[route.length - 1])} route={route} light={light} />
+        <MDBox
+          color="inherit"
+          mb={{ xs: 1, md: 0 }}
+          sx={(theme) => navbarRow(theme, { isMini })}
+        >
+          <Breadcrumbs
+            icon="home"
+            title={decodeURI(route[route.length - 1])}
+            route={route}
+            light={light}
+          />
         </MDBox>
         {isMini ? null : (
           <MDBox sx={(theme) => navbarRow(theme, { isMini })}>
             <MDBox pr={1}>
-              <MDTypography fontSize={15}>Hello {getDetails?.userDetails?.first_name}!</MDTypography>
+              <MDTypography fontSize={15}>
+                Hello {getDetails?.userDetails?.first_name}!
+              </MDTypography>
             </MDBox>
             <MDBox color={light ? "white" : "inherit"}>
-            
               <Link to="/wallet">
-                <Tooltip title='Wallet' placement='top'>
-                <IconButton sx={navbarIconButton} size="small" disableRipple>
-                  <AccountBalanceWalletIcon color="dark"/><MDTypography fontSize={15}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalCashAmount ? totalCashAmount : 0)}</MDTypography>
-                </IconButton>
+                <Tooltip title="Wallet" placement="top">
+                  <IconButton sx={navbarIconButton} size="small" disableRipple>
+                    <AccountBalanceWalletIcon color="dark" />
+                    <MDTypography fontSize={15}>
+                      ₹
+                      {new Intl.NumberFormat(undefined, {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      }).format(totalCashAmount ? totalCashAmount : 0)}
+                    </MDTypography>
+                  </IconButton>
                 </Tooltip>
               </Link>
               <IconButton
@@ -188,7 +214,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
                   {miniSidenav ? "menu_open" : "menu"}
                 </Icon>
               </IconButton>
-              
+
               <IconButton
                 size="small"
                 disableRipple
@@ -200,28 +226,36 @@ function DashboardNavbar({ absolute, light, isMini }) {
               </IconButton>
 
               <Link to="/notifications">
-              <Tooltip title='Notifications' placement="top">
-                <IconButton
-                  size="small"
-                  disableRipple
-                  color="inherit"
-                  sx={navbarIconButton}
-                  aria-controls="notification-menu"
-                  aria-haspopup="true"
-                  variant="contained"
-                  // onClick={handleOpenMenu}
-                >
-                  <Icon sx={iconsStyle}>notifications</Icon>
-                </IconButton>
-              </Tooltip>
+                <Tooltip title="Notifications" placement="top">
+                  <IconButton
+                    size="small"
+                    disableRipple
+                    color="inherit"
+                    sx={navbarIconButton}
+                    aria-controls="notification-menu"
+                    aria-haspopup="true"
+                    variant="contained"
+                    // onClick={handleOpenMenu}
+                  >
+                    <Icon sx={iconsStyle}>notifications</Icon>
+                  </IconButton>
+                </Tooltip>
               </Link>
               {renderMenu()}
               <Link to="/profile">
                 <IconButton sx={navbarIconButton} size="small" disableRipple>
-                  <img src={getDetails.userDetails?.profilePhoto?.url?getDetails.userDetails?.profilePhoto?.url:accountIcon} width={30} height={30} style={{borderRadius:'50%'}}/>
+                  <img
+                    src={
+                      getDetails.userDetails?.profilePhoto?.url
+                        ? getDetails.userDetails?.profilePhoto?.url
+                        : accountIcon
+                    }
+                    width={30}
+                    height={30}
+                    style={{ borderRadius: "50%" }}
+                  />
                 </IconButton>
               </Link>
-              
             </MDBox>
           </MDBox>
         )}

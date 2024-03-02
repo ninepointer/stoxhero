@@ -31,8 +31,7 @@
 //   const [leaderboard, setLeaderboard] = useState([]);
 //   const [downloadingTestZoneData,setDownloadingTestZoneRevenueData] = useState(false)
 //   const [downloadingMarginXData,setDownloadingMarginXRevenueData] = useState(false)
-  
-  
+
 //   useEffect(() => {
 //     setIsLoading(true)
 //     let call1 = axios.get((`${baseUrl}api/v1/affiliate/affiliateoverview`), {
@@ -102,10 +101,10 @@
 //       .split(' ') // Split the name into words
 //       .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
 //       .join(' '); // Join the words back together with a space
-  
+
 //     // Trim the name to a maximum of 30 characters
 //     const truncatedName = convertedName.length > 30 ? convertedName.substring(0, 30) + '...' : convertedName;
-  
+
 //     return truncatedName;
 //   }
 
@@ -175,10 +174,10 @@
 //       const csvContent = csvData?.map((row) => {
 //         return row?.map((row1) => row1.join(',')).join('\n');
 //       });
-  
+
 //       // Create a Blob object with the CSV content
 //       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
-  
+
 //       // Save the file using FileSaver.js
 //       saveAs(blob, `${nameVariable}.csv`);
 //     } catch (error) {
@@ -188,10 +187,10 @@
 
 //   function downloadHelper(data) {
 //     let csvDataFile = [[]]
-//     let csvDataDailyPnl = [["#","First Name", "Last Name", "Email", "Mobile", "Signup Method", "Joining Date", 
-//                             "Campaign Code", "Referrer Code", "Referral Code", "TestZone", 
-//                             "TestZone Date", "TestZone Portfolio", "Purchase Date", 
-//                             "TestZone Status", "Actual Price", "Buying Price", "Bonus Used", 
+//     let csvDataDailyPnl = [["#","First Name", "Last Name", "Email", "Mobile", "Signup Method", "Joining Date",
+//                             "Campaign Code", "Referrer Code", "Referral Code", "TestZone",
+//                             "TestZone Date", "TestZone Portfolio", "Purchase Date",
+//                             "TestZone Status", "Actual Price", "Buying Price", "Bonus Used",
 //                             "Rank", "Payout", "TDS Amount", "Net P&L", "Gross P&L", "# of Trades"]]
 //     if (data) {
 //       // dates = Object.keys(data)
@@ -231,20 +230,19 @@
 //     return [[...csvDataDailyPnl, ...csvDataFile]]
 //   }
 
-
 //   return (
-   
+
 //     <MDBox mt={2} mb={1} borderRadius={10} minHeight='auto' display='flex' justifyContent='center' alignItems='center' flexDirection='column'>
 
-//         {!isLoading ? 
+//         {!isLoading ?
 //           <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-              
+
 //               <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
+
 //                 <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
 //                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
 //                       <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1, backgroundColor:'lightgrey' }} >
-                      
+
 //                           <Grid container xs={12} md={12} lg={12}>
 //                             <Grid item p={1} xs={12} md={12} lg={8} display='flex' justifyContent='flex-start'>
 //                               <MDTypography variant="h6" style={{textAlign:'center'}}>Affiliate Program Overview</MDTypography>
@@ -255,24 +253,24 @@
 //                               </MDButton>
 //                             </Grid>
 //                           </Grid>
-                        
+
 //                       </Card>
 //                     </Grid>
 //                 </Grid>
-    
+
 //               </Grid>
 
 //               <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
+
 //                 <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
 //                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
 //                             {affiliateOverview && <LifetimeAffiliateData affiliateOverview={affiliateOverview} affiliateReferrals={affiliateReferrals}/>}
 //                     </Grid>
-    
+
 //                 </Grid>
-    
+
 //               </Grid>
-    
+
 //           </Grid>
 //           :
 //           <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'380px'}}>
@@ -280,15 +278,15 @@
 //           </Grid>
 //         }
 
-//         {!isLoading ? 
+//         {!isLoading ?
 //           <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-              
+
 //               <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
+
 //                 <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
 //                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
 //                       <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1, backgroundColor:'lightgrey' }} >
-                      
+
 //                           <Grid container xs={12} md={12} lg={12}>
 //                             <Grid item p={1} xs={12} md={12} lg={8} display='flex' justifyContent='flex-start'>
 //                               <MDTypography variant="h6" style={{textAlign:'center'}}>YouTube Affiliates Overview</MDTypography>
@@ -299,36 +297,36 @@
 //                               </MDButton>
 //                             </Grid>
 //                           </Grid>
-                        
+
 //                       </Card>
 //                     </Grid>
 //                 </Grid>
-    
+
 //               </Grid>
 
 //               <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
+
 //                 <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
 //                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-//                         {ytaffiliateOverview ? 
+//                         {ytaffiliateOverview ?
 //                                 <LifetimeYouTubeAffiliateData ytaffiliateOverview={ytaffiliateOverview} ytaffiliateReferrals={ytaffiliateReferrals}/>
 //                             :
-                                
+
 //                                 <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1 }} >
 //                                     <CardActionArea>
 //                                     <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{minHeight:'20vH', width:'100%'}}>
-//                                         <MDTypography>No Data</MDTypography> 
+//                                         <MDTypography>No Data</MDTypography>
 //                                     </MDBox>
-//                                     </CardActionArea> 
+//                                     </CardActionArea>
 //                                 </Card>
-                                
+
 //                             }
 //                     </Grid>
-    
+
 //                 </Grid>
-    
+
 //               </Grid>
-    
+
 //           </Grid>
 //           :
 //           <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'380px'}}>
@@ -336,15 +334,15 @@
 //           </Grid>
 //         }
 
-//         {!isLoading ? 
+//         {!isLoading ?
 //           <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-              
+
 //               <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
+
 //                 <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
 //                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
 //                       <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1, backgroundColor:'lightgrey' }} >
-                      
+
 //                           <Grid container xs={12} md={12} lg={12}>
 //                             <Grid item p={1} xs={12} md={12} lg={8} display='flex' justifyContent='flex-start'>
 //                               <MDTypography variant="h6" style={{textAlign:'center'}}>StoxHero Affiliates Overview</MDTypography>
@@ -355,36 +353,36 @@
 //                               </MDButton>
 //                             </Grid>
 //                           </Grid>
-                        
+
 //                       </Card>
 //                     </Grid>
 //                 </Grid>
-    
+
 //               </Grid>
 
 //               <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
+
 //                 <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
 //                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-//                         {shaffiliateOverview ? 
+//                         {shaffiliateOverview ?
 //                                 <LifetimeStoxHeroAffiliateData shaffiliateOverview={shaffiliateOverview} shaffiliateReferrals={shaffiliateReferrals}/>
 //                             :
-                                
+
 //                                 <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1 }} >
 //                                     <CardActionArea>
 //                                     <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{minHeight:'20vH', width:'100%'}}>
-//                                         <MDTypography>No Data</MDTypography> 
+//                                         <MDTypography>No Data</MDTypography>
 //                                     </MDBox>
-//                                     </CardActionArea> 
+//                                     </CardActionArea>
 //                                 </Card>
-                                
+
 //                         }
 //                     </Grid>
-    
+
 //                 </Grid>
-    
+
 //               </Grid>
-    
+
 //           </Grid>
 //           :
 //           <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'380px'}}>
@@ -392,15 +390,15 @@
 //           </Grid>
 //         }
 
-//         {!isLoading ? 
+//         {!isLoading ?
 //           <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
-              
+
 //               <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
+
 //                 <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
 //                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
 //                       <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1, backgroundColor:'lightgrey' }} >
-                      
+
 //                           <Grid container xs={12} md={12} lg={12}>
 //                             <Grid item p={1} xs={12} md={12} lg={8} display='flex' justifyContent='flex-start'>
 //                               <MDTypography variant="h6" style={{textAlign:'center'}}>Offline Institute Affiliates Overview</MDTypography>
@@ -411,36 +409,36 @@
 //                               </MDButton>
 //                             </Grid>
 //                           </Grid>
-                        
+
 //                       </Card>
 //                     </Grid>
 //                 </Grid>
-    
+
 //               </Grid>
 
 //               <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{width:'100%', minHeight:'auto'}}>
-              
+
 //                 <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'auto'}}>
 //                     <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-//                             {oiaffiliateOverview ? 
+//                             {oiaffiliateOverview ?
 //                                 <LifetimeOfflineAffiliateData oiaffiliateOverview={oiaffiliateOverview} oiaffiliateReferrals={oiaffiliateReferrals}/>
 //                             :
-                                
+
 //                                 <Card sx={{ minWidth: '100%', cursor:'pointer', borderRadius:1 }} >
 //                                     <CardActionArea>
 //                                     <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{minHeight:'20vH', width:'100%'}}>
-//                                         <MDTypography>No Data</MDTypography> 
+//                                         <MDTypography>No Data</MDTypography>
 //                                     </MDBox>
-//                                     </CardActionArea> 
+//                                     </CardActionArea>
 //                                 </Card>
-                                
+
 //                             }
 //                     </Grid>
-    
+
 //                 </Grid>
-    
+
 //               </Grid>
-    
+
 //           </Grid>
 //           :
 //           <Grid container mb={1} spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{minWidth:'100%', minHeight:'380px'}}>
@@ -468,69 +466,130 @@
 //   );
 // }
 
-import React, {useState} from 'react';
-import Box from '@mui/material/Box';
-import Tab from '@mui/material/Tab';
-import TabContext from '@mui/lab/TabContext';
-import TabList from '@mui/lab/TabList';
-import TabPanel from '@mui/lab/TabPanel';
-import { CircularProgress, Grid } from '@mui/material';
-import MDBox from '../../../components/MDBox';
-import MDButton from '../../../components/MDButton';
-import {Link} from 'react-router-dom'
-import AffiliateOverview from '../mainData';
-import IndividualAffiliate from '../../myAffiliateDashboard/Header';
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-
+import React, { useState } from "react";
+import Box from "@mui/material/Box";
+import Tab from "@mui/material/Tab";
+import TabContext from "@mui/lab/TabContext";
+import TabList from "@mui/lab/TabList";
+import TabPanel from "@mui/lab/TabPanel";
+import { CircularProgress, Grid } from "@mui/material";
+import MDBox from "../../../components/MDBox";
+import MDButton from "../../../components/MDButton";
+import { Link } from "react-router-dom";
+import AffiliateOverview from "../mainData";
+import IndividualAffiliate from "../../myAffiliateDashboard/Header";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 
 export default function LabTabs() {
-  const [value, setValue] = React.useState('1');
-  const [isLoading,setIsLoading] = useState(false);
-  const [clicked, setClicked] = useState('overview')
+  const [value, setValue] = React.useState("1");
+  const [isLoading, setIsLoading] = useState(false);
+  const [clicked, setClicked] = useState("overview");
 
   const handleChange = (event, newValue) => {
-    setIsLoading(true)
+    setIsLoading(true);
     setValue(newValue);
     setTimeout(() => {
-      setIsLoading(false)
+      setIsLoading(false);
     }, 500);
   };
 
   const handleClick = (e) => {
-    console.log(e)
-    setClicked(e)
+    console.log(e);
+    setClicked(e);
   };
 
   return (
-    <MDBox mt={1} display='flex' justifyContent='center' flexDirection='column' mb={1} borderRadius={10} minHeight='auto' width='100%'>
-
-
-      <MDBox mt={0} mb={1} p={0.5} minWidth='100%' bgColor='light' minHeight='auto' display='flex' justifyContent='center' borderRadius={7}>
-
-        <Grid container spacing={1} xs={12} md={12} lg={12} minWidth='100%'>
-          <Grid item xs={12} md={4} lg={6} display='flex' justifyContent='center'>
-            <MDButton bgColor='dark' color={clicked == "overview" ? "success" : "secondary"} size='small' style={{ minWidth: '100%' }}
-              onClick={() => { handleClick("overview") }}
+    <MDBox
+      mt={1}
+      display="flex"
+      justifyContent="center"
+      flexDirection="column"
+      mb={1}
+      borderRadius={10}
+      minHeight="auto"
+      width="100%"
+    >
+      <MDBox
+        mt={0}
+        mb={1}
+        p={0.5}
+        minWidth="100%"
+        bgColor="light"
+        minHeight="auto"
+        display="flex"
+        justifyContent="center"
+        borderRadius={7}
+      >
+        <Grid container spacing={1} xs={12} md={12} lg={12} minWidth="100%">
+          <Grid
+            item
+            xs={12}
+            md={4}
+            lg={6}
+            display="flex"
+            justifyContent="center"
+          >
+            <MDButton
+              bgColor="dark"
+              color={clicked == "overview" ? "success" : "secondary"}
+              size="small"
+              style={{ minWidth: "100%" }}
+              onClick={() => {
+                handleClick("overview");
+              }}
             >
-              <MDBox display='flex' justifyContent='center' alignItems='center'>
-                <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
+              <MDBox display="flex" justifyContent="center" alignItems="center">
+                <MDBox
+                  display="flex"
+                  color="light"
+                  justifyContent="center"
+                  alignItems="center"
+                >
                   {/* <RemoveRedEyeIcon /> */}
                 </MDBox>
-                <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
+                <MDBox
+                  display="flex"
+                  color="light"
+                  justifyContent="center"
+                  alignItems="center"
+                >
                   Affiliate Overview
                 </MDBox>
               </MDBox>
             </MDButton>
           </Grid>
-          <Grid item xs={12} md={4} lg={6} display='flex' justifyContent='center'>
-            <MDButton bgColor='dark' color={clicked == "individual" ? "success" : "secondary"} size='small' style={{ minWidth: '100%' }}
-              onClick={() => { handleClick("individual") }}
+          <Grid
+            item
+            xs={12}
+            md={4}
+            lg={6}
+            display="flex"
+            justifyContent="center"
+          >
+            <MDButton
+              bgColor="dark"
+              color={clicked == "individual" ? "success" : "secondary"}
+              size="small"
+              style={{ minWidth: "100%" }}
+              onClick={() => {
+                handleClick("individual");
+              }}
             >
-              <MDBox display='flex' justifyContent='center' alignItems='center'>
-                <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
+              <MDBox display="flex" justifyContent="center" alignItems="center">
+                <MDBox
+                  display="flex"
+                  color="light"
+                  justifyContent="center"
+                  alignItems="center"
+                >
                   {/* <RemoveRedEyeIcon /> */}
                 </MDBox>
-                <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
+                <MDBox
+                  display="flex"
+                  color="light"
+                  justifyContent="center"
+                  alignItems="center"
+                >
                   Individual Affiliate
                 </MDBox>
               </MDBox>
@@ -539,36 +598,51 @@ export default function LabTabs() {
         </Grid>
       </MDBox>
 
-      {isLoading ?
-        <MDBox mt={10} mb={10} display="flex" justifyContent="center" alignItems="center">
-          <CircularProgress color='light' />
+      {isLoading ? (
+        <MDBox
+          mt={10}
+          mb={10}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <CircularProgress color="light" />
         </MDBox>
-        :
+      ) : (
         <>
           <MDBox>
-            <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
-              <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center'>
-                {clicked === "overview" ?
+            <Grid
+              container
+              xs={12}
+              md={12}
+              lg={12}
+              display="flex"
+              justifyContent="center"
+            >
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                display="flex"
+                justifyContent="center"
+              >
+                {clicked === "overview" ? (
                   <>
                     <AffiliateOverview setClicked={setClicked} />
                   </>
-                  :
-                  clicked === "individual" ?
-                    <>
-                      <IndividualAffiliate setClicked={setClicked} />
-                    </>
-                    :
-                
-                        <>
-                          {/* <PastBattles/> */}
-                        </>
-                }
+                ) : clicked === "individual" ? (
+                  <>
+                    <IndividualAffiliate setClicked={setClicked} />
+                  </>
+                ) : (
+                  <>{/* <PastBattles/> */}</>
+                )}
               </Grid>
             </Grid>
           </MDBox>
         </>
-      }
-
+      )}
     </MDBox>
   );
 }

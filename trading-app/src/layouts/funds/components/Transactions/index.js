@@ -1,4 +1,4 @@
-import {useState, useContext, useEffect} from "react"
+import { useState, useContext, useEffect } from "react";
 import axios from "axios";
 import { userContext } from "../../../../AuthContext";
 
@@ -10,80 +10,96 @@ import Icon from "@mui/material/Icon";
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
 import MDTypography from "../../../../components/MDTypography";
-import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
+import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import DataTable from "../../../../examples/Tables/DataTable";
 // import MDButton from "components/MDButton";
 
 // Billing page components
 import Transaction from "../Transaction";
-import TransactionData from './data/transactionData';
+import TransactionData from "./data/transactionData";
 
 function Transactions() {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const [marginDetails, setMarginDetails] = useState([]);
   const { columns, rows } = TransactionData();
   const getDetails = useContext(userContext);
-  const id = getDetails?.userDetails?._id
+  const id = getDetails?.userDetails?._id;
 
+  useEffect(() => {
+    console.log(getDetails?.userDetails?._id);
+    axios
+      .get(`${baseUrl}api/v1/getUserMarginDetails/${id}`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        console.log(res.data);
+        setMarginDetails(res.data);
+      })
+      .catch((err) => {
+        // window.alert("Error Fetching Margin Details");
+        return new Error(err);
+      });
+  }, []);
 
-  useEffect(()=>{
-      console.log(getDetails?.userDetails?._id)
-      axios.get(`${baseUrl}api/v1/getUserMarginDetails/${id}`, {withCredentials: true})
-        .then((res)=>{
-                console.log(res.data);
-                setMarginDetails(res.data);
-        }).catch((err)=>{
-            // window.alert("Error Fetching Margin Details");
-            return new Error(err);
-        })
-  },[])
-
-  function dateConvert(dateToConvert){
-    if(dateToConvert){
-    const date = new Date(dateToConvert);
-    const formattedDate = date.toLocaleString('en-US', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true
-    });
-    return formattedDate;
-    }}
+  function dateConvert(dateToConvert) {
+    if (dateToConvert) {
+      const date = new Date(dateToConvert);
+      const formattedDate = date.toLocaleString("en-US", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+      });
+      return formattedDate;
+    }
+  }
 
   // console.log("Margin Details: ",marginDetails)
 
   let totalCredit = 0;
-  marginDetails?.map((elem)=>{
-    totalCredit =+ totalCredit + elem.amount
-  })
+  marginDetails?.map((elem) => {
+    totalCredit = +totalCredit + elem.amount;
+  });
 
-  marginDetails?.map((elem)=>{
+  marginDetails?.map((elem) => {
     let obj = {};
-    let amountstring = elem.amount > 0 ? "+₹" + (elem.amount).toLocaleString() : "-₹" + (-(elem.amount)).toLocaleString()
-    let color = elem.amount > 0 ? "success" : "error"
-    
-    
-      
+    let amountstring =
+      elem.amount > 0
+        ? "+₹" + elem.amount.toLocaleString()
+        : "-₹" + (-elem.amount).toLocaleString();
+    let color = elem.amount > 0 ? "success" : "error";
+
     obj = (
       <Transaction
         color={color}
-        icon={<CurrencyRupeeIcon/>}
+        icon={<CurrencyRupeeIcon />}
         name="StoxHero"
         description={dateConvert(elem.createdOn)}
         value={amountstring}
-        />
-  );
-  rows.push(obj);
-  })
+      />
+    );
+    rows.push(obj);
+  });
 
   // console.log(rows)
 
   return (
     <Card sx={{ height: "100%" }}>
-      <MDBox display="flex" justifyContent="space-between" alignItems="center" pt={3} px={2}>
-        <MDTypography variant="h6" fontWeight="medium" textTransform="capitalize">
+      <MDBox
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        pt={3}
+        px={2}
+      >
+        <MDTypography
+          variant="h6"
+          fontWeight="medium"
+          textTransform="capitalize"
+        >
           Credit&apos;s
         </MDTypography>
         <MDBox display="flex" alignItems="flex-start">

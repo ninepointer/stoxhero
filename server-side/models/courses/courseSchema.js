@@ -101,7 +101,37 @@ const courseSchema = new Schema({
   },
   faqs: [{ order: Number, question: String, answer: String }],
   salesVideo: String,
+  averageRating: { type: Number, default: 0 },
 });
+
+courseSchema.pre("save", function (next) {
+  console.log("pre save");
+  if (this.isModified("ratings")) {
+    this.calculateAverageRating();
+  }
+  next();
+});
+
+// Define pre-find middleware to compute the average rating before find operations
+courseSchema.pre(/^find/, function (next) {
+  console.log("pre find");
+  this.calculateAverageRating();
+  next();
+});
+
+// Method to calculate average rating
+courseSchema.methods.calculateAverageRating = function () {
+  console.log("average rating calc");
+  if (!this.ratings || this.ratings.length === 0) {
+    this.averageRating = 0;
+  } else {
+    const totalRating = this?.ratings?.reduce(
+      (acc, curr) => acc + curr?.rating,
+      0
+    );
+    this.averageRating = totalRating / this?.ratings?.length;
+  }
+};
 
 const Course = mongoose.model("course", courseSchema);
 

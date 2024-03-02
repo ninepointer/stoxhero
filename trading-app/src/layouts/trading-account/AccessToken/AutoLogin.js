@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react";
 // import Button from '@mui/material/Button';
 // import Dialog from '@mui/material/Dialog';
 // import DialogActions from '@mui/material/DialogActions';
@@ -7,19 +7,19 @@ import * as React from 'react';
 // import DialogTitle from '@mui/material/DialogTitle';
 // import useMediaQuery from '@mui/material/useMediaQuery';
 // import { useTheme } from '@mui/material/styles';
-import MDButton from '../../../components/MDButton';
+import MDButton from "../../../components/MDButton";
 // import TextField from '@mui/material/TextField';
 // import Select, { SelectChangeEvent } from '@mui/material/Select';
 // import MenuItem from '@mui/material/MenuItem';
 // import InputLabel from '@mui/material/InputLabel';
 // import FormControl from '@mui/material/FormControl';
-import {useState, useContext, useEffect} from "react";
-import { userContext } from '../../../AuthContext';
-import uniqid from "uniqid"
+import { useState, useContext, useEffect } from "react";
+import { userContext } from "../../../AuthContext";
+import uniqid from "uniqid";
 import axios from "axios";
-import LoginIcon from '@mui/icons-material/Login';
+import LoginIcon from "@mui/icons-material/Login";
 
-const AutoLogin = ({data}) => {
+const AutoLogin = ({ data }) => {
   // const {reRender, setReRender} = Render
   // const [open, setOpen] = React.useState(false);
   // const theme = useTheme();
@@ -33,92 +33,99 @@ const AutoLogin = ({data}) => {
   //   setOpen(false);
   // };
 
-
-
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const getDetails = useContext(userContext);
   let uId = uniqid();
   let date = new Date();
-  let generatedOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
+  let generatedOn = `${String(date.getDate()).padStart(2, "0")}-${String(
+    date.getMonth() + 1
+  ).padStart(2, "0")}-${date.getFullYear()}`;
   let lastModified = generatedOn;
-  let createdBy = getDetails.userDetails.name
-  const [accessAndRequest, setAccessAndRequest] = useState([])
+  let createdBy = getDetails.userDetails.name;
+  const [accessAndRequest, setAccessAndRequest] = useState([]);
 
-  useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/readRequestToken`, {withCredentials: true})
-    .then((res)=>{
-      let data = res.data;
-      let active = data.filter((elem) => {
+  useEffect(() => {
+    axios
+      .get(`${baseUrl}api/v1/readRequestToken`, { withCredentials: true })
+      .then((res) => {
+        let data = res.data;
+        let active = data.filter((elem) => {
           return elem.status === "Active" && elem.generatedOn !== generatedOn;
+        });
+        setAccessAndRequest(active);
       })
-      setAccessAndRequest(active);
-
-    }).catch((err)=>{
+      .catch((err) => {
         return new Error(err);
-    })
-  }, [])
+      });
+  }, []);
 
   // let optionData = [];
   // for(let i =0; i< activeApiKey.length; i++){
-  //     optionData.push( <MenuItem value={activeApiKey[i].accountId}>{activeApiKey[i].accountId}</MenuItem>)      
+  //     optionData.push( <MenuItem value={activeApiKey[i].accountId}>{activeApiKey[i].accountId}</MenuItem>)
   // }
 
   // console.log("option data", optionData, activeApiKey)
 
   async function formbtn() {
+    const res = await fetch(`${baseUrl}api/v1/autologin`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        accountId: data.accountId,
+        apiKey: data.apiKey,
+        apiSecret: data.apiSecret,
+        status: "Active",
+        uId,
+        createdBy,
+        generatedOn,
+        lastModified,
+      }),
+    });
 
-      const res = await fetch(`${baseUrl}api/v1/autologin`, {
-          method: "POST",
-          credentials: "include",
-          headers: {
-              "content-type": "application/json"
-          },
-          body: JSON.stringify({
-              accountId: data.accountId, apiKey: data.apiKey, apiSecret: data.apiSecret, status: "Active", uId, createdBy, generatedOn, lastModified
-          })
-      });
+    const resp = await res.json();
+    console.log(resp);
+    if (resp.status === 422 || resp.error || !resp) {
+      window.alert(resp.error);
+      console.log("invalid entry");
+    } else {
+      window.alert("entry succesfull");
+      console.log("entry succesfull");
+    }
 
-      const resp = await res.json();
-      console.log(resp);
-      if (resp.status === 422 || resp.error || !resp) {
-          window.alert(resp.error);
-          console.log("invalid entry");
-      } else {
-          window.alert("entry succesfull");
-          console.log("entry succesfull");
-      }
-
-
-      accessAndRequest.map(async (elem)=>{
-
-        const res2 = await fetch(`${baseUrl}api/v1/inactiveRequestToken/${elem._id}`, {
+    accessAndRequest.map(async (elem) => {
+      const res2 = await fetch(
+        `${baseUrl}api/v1/inactiveRequestToken/${elem._id}`,
+        {
           method: "PATCH",
           credentials: "include",
           headers: {
-              "content-type": "application/json"
+            "content-type": "application/json",
           },
-          body: JSON.stringify({
-          })
-        });
-  
-        const data2 = await res2.json();
-        console.log(data2);
-        if (data2.status === 422 || data2.error || !data2) {
-            window.alert("Error in inactivating access token");
-            console.log("invalid entry");
-        } else {
-            // window.alert("Inactive succesfull");
-            console.log("entry succesfull");
+          body: JSON.stringify({}),
         }
+      );
 
-      })
+      const data2 = await res2.json();
+      console.log(data2);
+      if (data2.status === 422 || data2.error || !data2) {
+        window.alert("Error in inactivating access token");
+        console.log("invalid entry");
+      } else {
+        // window.alert("Inactive succesfull");
+        console.log("entry succesfull");
+      }
+    });
 
-      // reRender ? setReRender(false) : setReRender(true)
+    // reRender ? setReRender(false) : setReRender(true)
   }
 
   return (
     <>
-      <MDButton variant="" color="black"  onClick={formbtn}>
+      <MDButton variant="" color="black" onClick={formbtn}>
         <LoginIcon />
       </MDButton>
       {/* <Dialog
@@ -146,7 +153,7 @@ const AutoLogin = ({data}) => {
               </Select>
             </FormControl> */}
 
-            {/* <FormControl variant="standard" sx={{ m: 1, minWidth: 120, }}>
+      {/* <FormControl variant="standard" sx={{ m: 1, minWidth: 120, }}>
                 <InputLabel id="demo-simple-select-standard-label">Select Account </InputLabel>
                 <Select
                 labelId="demo-simple-select-standard-label"
@@ -181,6 +188,6 @@ const AutoLogin = ({data}) => {
       </Dialog>  */}
     </>
   );
-}
+};
 
-export default AutoLogin
+export default AutoLogin;

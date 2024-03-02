@@ -28,35 +28,34 @@ import team4 from "../../../assets/images/team-4.jpg";
 import { useEffect, useState } from "react";
 
 export default function data() {
-//   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  //   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-//   const [activeData, setActiveData] = useState([]);
-//   const [inactiveData, setInActiveData] = useState([]);
-//   const [reRender, setReRender] = useState(true);
+  //   const [activeData, setActiveData] = useState([]);
+  //   const [inactiveData, setInActiveData] = useState([]);
+  //   const [reRender, setReRender] = useState(true);
 
+  //   useEffect(() => {
+  //     axios.get(`${baseUrl}api/v1/readInstrumentDetails`)
+  //         .then((res) => {
+  //             let data = res.data;
+  //             let active = data.filter((elem) => {
+  //                 console.log(elem.createdOn, createdOn);
+  //                 return elem.status === "Active"
+  //             })
+  //             setActiveData(active);
+  //             console.log(active);
 
-//   useEffect(() => {
-//     axios.get(`${baseUrl}api/v1/readInstrumentDetails`)
-//         .then((res) => {
-//             let data = res.data;
-//             let active = data.filter((elem) => {
-//                 console.log(elem.createdOn, createdOn);
-//                 return elem.status === "Active"
-//             })
-//             setActiveData(active);
-//             console.log(active);
+  //             let inActive = data.filter((elem) => {
+  //                 return elem.status === "Inactive"
+  //             })
+  //             setInActiveData(inActive);
+  //             console.log(inactiveData);
+  //         }).catch((err)=>{
+  //             //window.alert("Server Down");
+  //             return new Error(err);
+  //         })
+  // }, [reRender])
 
-//             let inActive = data.filter((elem) => {
-//                 return elem.status === "Inactive"
-//             })
-//             setInActiveData(inActive);
-//             console.log(inactiveData);
-//         }).catch((err)=>{
-//             //window.alert("Server Down");
-//             return new Error(err);
-//         })
-// }, [reRender])
-  
   const Author = ({ image, name, email }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
       <MDAvatar src={image} name={name} size="sm" />
@@ -71,7 +70,12 @@ export default function data() {
 
   const Job = ({ title, description }) => (
     <MDBox lineHeight={1} textAlign="left">
-      <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
+      <MDTypography
+        display="block"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
         {title}
       </MDTypography>
       <MDTypography variant="caption">{description}</MDTypography>
@@ -92,20 +96,43 @@ export default function data() {
 
     rows: [
       {
-        author: <Author image={team2} name="John Michael" email="john@creative-tim.com" />,
+        author: (
+          <Author
+            image={team2}
+            name="John Michael"
+            email="john@creative-tim.com"
+          />
+        ),
         function: <Job title="Manager" description="Organization" />,
         status: (
           <MDBox ml={-1}>
-            <MDBadge badgeContent="online" color="success" variant="gradient" size="sm" />
+            <MDBadge
+              badgeContent="online"
+              color="success"
+              variant="gradient"
+              size="sm"
+            />
           </MDBox>
         ),
         employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
+          <MDTypography
+            component="a"
+            href="#"
+            variant="caption"
+            color="text"
+            fontWeight="medium"
+          >
             23/04/18
           </MDTypography>
         ),
         action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
+          <MDTypography
+            component="a"
+            href="#"
+            variant="caption"
+            color="text"
+            fontWeight="medium"
+          >
             Edit
           </MDTypography>
         ),

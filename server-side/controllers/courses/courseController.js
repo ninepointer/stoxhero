@@ -3,10 +3,12 @@ const AWS = require("aws-sdk");
 const { ObjectId } = require("mongodb");
 const sharp = require("sharp");
 const mongoose = require("mongoose");
-const uuid = require('uuid');
-const {createUserNotification} = require('../notification/notificationController');
-const {sendMultiNotifications} = require('../../utils/fcmService');
-const {saveSuccessfulCouponUse} = require('../coupon/couponController');
+const uuid = require("uuid");
+const {
+  createUserNotification,
+} = require("../notification/notificationController");
+const { sendMultiNotifications } = require("../../utils/fcmService");
+const { saveSuccessfulCouponUse } = require("../coupon/couponController");
 const User = require("../../models/User/userDetailSchema");
 const UserWallet = require("../../models/UserWallet/userWalletSchema");
 const Setting = require("../../models/settings/setting");
@@ -1320,7 +1322,7 @@ exports.getUnpublished = async (req, res) => {
 };
 
 exports.getUserCourses = async (req, res) => {
-  try{
+  try {
     const userId = req.user._id;
     const user = await User.findById(new ObjectId(userId));
     const skip = Number(Number(req.query.skip) || 0);
@@ -1347,12 +1349,18 @@ exports.getUserCourses = async (req, res) => {
         },
       },
       {
+        $addFields: {
+          averageRating: { $ifNull: [{ $avg: "$ratings.rating" }, 0] }, // Calculate the average rating or set it to 0 if null
+        },
+      },
+      {
         $project: {
           courseName: 1,
           courseStartTime: 1,
           courseImage: 1,
           coursePrice: 1,
           discountedPrice: 1,
+          averageRating: 1,
           userEnrolled: {
             $size: "$enrollments",
           },
@@ -1452,12 +1460,18 @@ exports.getCoursesByUserSlug = async (req, res) => {
         },
       },
       {
+        $addFields: {
+          averageRating: { $ifNull: [{ $avg: "$ratings.rating" }, 0] }, // Calculate the average rating or set it to 0 if null
+        },
+      },
+      {
         $project: {
           courseName: 1,
           courseStartTime: 1,
           courseSlug: 1,
           courseImage: 1,
           coursePrice: 1,
+          averageRating: 1,
           discountedPrice: 1,
           userEnrolled: {
             $size: "$enrollments",
@@ -2010,55 +2024,58 @@ exports.handleDeductCourseFee = async (
       },
     };
   }
-}
+};
 
-exports.checkPaidCourses = async(req, res, next)=>{
-  try{
+exports.checkPaidCourses = async (req, res, next) => {
+  try {
     const courseId = req.params.id;
     const userId = req.user._id;
 
     const course = await Course.findOne({
-      _id: new ObjectId(courseId), 'enrollments.userId': new ObjectId(userId)
-    })
+      _id: new ObjectId(courseId),
+      "enrollments.userId": new ObjectId(userId),
+    });
 
     res.status(200).json({
       status: "success",
-      data: course ? true : false
+      data: course ? true : false,
     });
-  } catch(err){
+  } catch (err) {
     res.status(500).json({
       status: "error",
-      message: "Something went wrong..."
+      message: "Something went wrong...",
     });
   }
-}
+};
 
 exports.purchaseIntent = async (req, res) => {
   try {
-      const { id } = req.params; // ID of the contest 
-      const userId = req.user._id;
+    const { id } = req.params; // ID of the contest
+    const userId = req.user._id;
 
-      const result = await Course.findByIdAndUpdate(
-          id,
-          { $push: { purchaseIntent: { userId: userId, date: new Date() } } },
-          { new: true }  // This option ensures the updated document is returned
-      );
+    const result = await Course.findByIdAndUpdate(
+      id,
+      { $push: { purchaseIntent: { userId: userId, date: new Date() } } },
+      { new: true } // This option ensures the updated document is returned
+    );
 
-      if (!result) {
-          return res.status(404).json({ status: "error", message: "Something went wrong." });
-      }
+    if (!result) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "Something went wrong." });
+    }
 
-      res.status(200).json({
-          status: "success",
-          message: "Intent Saved successfully",
-          data: result
-      });
+    res.status(200).json({
+      status: "success",
+      message: "Intent Saved successfully",
+      data: result,
+    });
   } catch (error) {
-      res.status(500).json({
-          status: "error",
-          message: "Something went wrong",
-          error: error.message
-      });
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
   }
 };
 
@@ -2069,9 +2086,7 @@ exports.myCourses = async (req, res) => {
     const result = await Course.aggregate([
       {
         $match: {
-          "enrollments.userId": new ObjectId(
-            userId
-          ),
+          "enrollments.userId": new ObjectId(userId),
         },
       },
       {
@@ -2102,12 +2117,10 @@ exports.myCourses = async (req, res) => {
       },
       {
         $facet: {
-          'alldata': [
+          alldata: [
             {
               $match: {
-                "enrollments.userId": new ObjectId(
-                  userId
-                ),
+                "enrollments.userId": new ObjectId(userId),
               },
             },
             {
@@ -2136,11 +2149,7 @@ exports.myCourses = async (req, res) => {
                     input: "$instructor",
                     as: "inst",
                     in: {
-                      $concat: [
-                        "$$inst.first_name",
-                        " ",
-                        "$$inst.last_name",
-                      ],
+                      $concat: ["$$inst.first_name", " ", "$$inst.last_name"],
                     },
                   },
                 },
@@ -2151,50 +2160,53 @@ exports.myCourses = async (req, res) => {
             },
             {
               $limit: 10,
-            }],
-          'rating': [
+            },
+          ],
+          rating: [
             {
-              $unwind: "$ratings"
+              $unwind: "$ratings",
             },
             {
               $group: {
                 _id: "$_id",
                 rating: {
-                  $sum: "$ratings.rating"
-                }
-              }
+                  $sum: "$ratings.rating",
+                },
+              },
             },
             {
               $project: {
                 rating: "$rating",
-                _id: 1
-              }
-            }
-          ]
-        }
-      }
-    ])
+                _id: 1,
+              },
+            },
+          ],
+        },
+      },
+    ]);
 
     const allData = result?.[0]?.alldata;
     const ratingData = result?.[0]?.rating;
 
     const dataArr = [];
-    for(let subelem of allData){
-      const match = ratingData.filter((elem) => elem?._id?.toString() === subelem?._id?.toString());
-      subelem.rating = (match?.[0]?.rating/subelem?.userEnrolled) || 0;
+    for (let subelem of allData) {
+      const match = ratingData.filter(
+        (elem) => elem?._id?.toString() === subelem?._id?.toString()
+      );
+      subelem.rating = match?.[0]?.rating / subelem?.userEnrolled || 0;
       dataArr.push(subelem);
     }
 
     res.status(200).json({
       status: "success",
       message: "Data Fetched successfully",
-      data: dataArr
+      data: dataArr,
     });
   } catch (error) {
     res.status(500).json({
       status: "error",
       message: "Something went wrong",
-      error: error.message
+      error: error.message,
     });
   }
 };

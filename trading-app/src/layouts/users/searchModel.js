@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 // import { userContext } from '../../../AuthContext';
 // import MDBox from '../../../components/MDBox';
-import MDButton from '../../components/MDButton';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
+import MDButton from "../../components/MDButton";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
 // import DialogContentText from '@mui/material/DialogContentText';
 // import DialogTitle from '@mui/material/DialogTitle';
 import axios from "axios";
-import { Grid, TextField, Typography } from '@mui/material';
-import MDBox from '../../components/MDBox';
+import { Grid, TextField, Typography } from "@mui/material";
+import MDBox from "../../components/MDBox";
 // import paymentQr from '../../../assets/images/paymentQrc.jpg';
 
 // //icons
@@ -31,13 +31,9 @@ import MDBox from '../../components/MDBox';
 // import { Typography } from '@mui/material';
 // import Renew from './renew/renew';
 
-
-
-
-
 export default function SearchModel({ elem, setReRender, reRender }) {
-
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
   const [reason, setReason] = useState();
   const [error, setError] = useState();
@@ -56,9 +52,8 @@ export default function SearchModel({ elem, setReRender, reRender }) {
     // console.log("inside submit")
     e.preventDefault();
     try {
-
       if (!reason) {
-        return setError("Missing Field. Please fill all the mandatory fields")
+        return setError("Missing Field. Please fill all the mandatory fields");
       }
 
       const res = await fetch(`${baseUrl}api/v1/user/deactivate`, {
@@ -66,20 +61,23 @@ export default function SearchModel({ elem, setReRender, reRender }) {
         credentials: "include",
         headers: {
           "content-type": "application/json",
-          "Access-Control-Allow-Credentials": true
+          "Access-Control-Allow-Credentials": true,
         },
         body: JSON.stringify({
-          reason, isMail: check === "mail" ? true : false, mobile: elem?.mobile, email: elem?.email, deactivatedUser: elem?._id
-        })
+          reason,
+          isMail: check === "mail" ? true : false,
+          mobile: elem?.mobile,
+          email: elem?.email,
+          deactivatedUser: elem?._id,
+        }),
       });
-
 
       const data = await res.json();
 
       if (data.status == "error") {
-        setError(data.message)
+        setError(data.message);
       } else {
-        setSuccess(data.message)
+        setSuccess(data.message);
         reRender ? setReRender(false) : setReRender(true);
       }
     } catch (e) {
@@ -87,13 +85,23 @@ export default function SearchModel({ elem, setReRender, reRender }) {
     }
   }
 
-
-
   return (
-
     <>
-      <Grid lg={12} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-        <MDButton size="small" color="secondary" sx={{ minWidth: 2, minHeight: 3 }} onClick={handleClickOpen}>Deactivate</MDButton>
+      <Grid
+        lg={12}
+        display="flex"
+        justifyContent="center"
+        alignContent="center"
+        alignItems="center"
+      >
+        <MDButton
+          size="small"
+          color="secondary"
+          sx={{ minWidth: 2, minHeight: 3 }}
+          onClick={handleClickOpen}
+        >
+          Deactivate
+        </MDButton>
       </Grid>
 
       <Dialog
@@ -102,27 +110,32 @@ export default function SearchModel({ elem, setReRender, reRender }) {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-
-        {success ?
-          <DialogContent >
-
-            {success}
-          </DialogContent>
-
-          :
+        {success ? (
+          <DialogContent>{success}</DialogContent>
+        ) : (
           <>
             <DialogContent>
-
-
-              <Grid container display="flex" flexDirection="row" justifyContent="space-between">
-                <Grid container spacing={2} mt={0.5} mb={0} xs={12} md={9} xl={12}>
-
+              <Grid
+                container
+                display="flex"
+                flexDirection="row"
+                justifyContent="space-between"
+              >
+                <Grid
+                  container
+                  spacing={2}
+                  mt={0.5}
+                  mb={0}
+                  xs={12}
+                  md={9}
+                  xl={12}
+                >
                   <Grid item xs={12} md={6} xl={12} mt={1} ml={2}>
                     <TextField
                       disabled={true}
                       id="outlined-required"
-                      label='Name *'
-                      name='name'
+                      label="Name *"
+                      name="name"
                       fullWidth
                       defaultValue={elem?.first_name + " " + elem?.last_name}
                     />
@@ -132,8 +145,8 @@ export default function SearchModel({ elem, setReRender, reRender }) {
                     <TextField
                       disabled={true}
                       id="outlined-required"
-                      label='Mobile *'
-                      name='mobile'
+                      label="Mobile *"
+                      name="mobile"
                       fullWidth
                       defaultValue={elem?.mobile}
                     />
@@ -143,21 +156,31 @@ export default function SearchModel({ elem, setReRender, reRender }) {
                     <TextField
                       // disabled={((isSubmitted || battle) && (!editing || saving))}
                       id="outlined-required"
-                      label='Reason *'
-                      name='reason'
+                      label="Reason *"
+                      name="reason"
                       fullWidth
                       defaultValue={reason}
-                      onChange={(e) => { setReason(e.target.value) }}
+                      onChange={(e) => {
+                        setReason(e.target.value);
+                      }}
                     />
                   </Grid>
-
-
                 </Grid>
-
               </Grid>
             </DialogContent>
 
-            {error && <Typography display={"flex"} justifyContent={"center"} alignContent={"center"} fontSize={15} color={"red"} ml={1} >{error}</Typography>}
+            {error && (
+              <Typography
+                display={"flex"}
+                justifyContent={"center"}
+                alignContent={"center"}
+                fontSize={15}
+                color={"red"}
+                ml={1}
+              >
+                {error}
+              </Typography>
+            )}
             <DialogActions>
               <>
                 <MDButton
@@ -166,21 +189,26 @@ export default function SearchModel({ elem, setReRender, reRender }) {
                   size="small"
                   sx={{ mr: 1, ml: 2 }}
                   // disabled={creating}
-                  onClick={(e) => { onSubmit(e) }}
+                  onClick={(e) => {
+                    onSubmit(e);
+                  }}
                 >
                   {"Save"}
-
                 </MDButton>
-                <MDButton variant="contained" color="warning" size="small" onClick={(e) => { onSubmit(e, "mail") }}>
+                <MDButton
+                  variant="contained"
+                  color="warning"
+                  size="small"
+                  onClick={(e) => {
+                    onSubmit(e, "mail");
+                  }}
+                >
                   Save + Mail
                 </MDButton>
               </>
-
             </DialogActions>
-
-
           </>
-        }
+        )}
       </Dialog>
       {/* {renderSuccessSB} */}
     </>
