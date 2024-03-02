@@ -2253,7 +2253,7 @@ exports.addUserRating = async (req, res, next) => {
         .json({ status: "error", message: "Course not found" });
     }
     const userPurchased = course.enrollments?.findIndex(
-      (obj) => obj.userId.toString() == userId.toString()
+      (obj) => obj?.userId?.toString() == userId?.toString()
     );
     if (userPurchased == -1) {
       //user hasn't enrolled
@@ -2263,7 +2263,7 @@ exports.addUserRating = async (req, res, next) => {
       });
     }
     const index = course.ratings.findIndex(
-      (obj) => obj.userId.toString() === userId.toString()
+      (obj) => obj?.userId?.toString() === userId?.toString()
     );
     if (index === -1) {
       course.ratings.push({

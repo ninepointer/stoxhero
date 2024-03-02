@@ -104,10 +104,30 @@ const courseSchema = new Schema({
   averageRating: { type: Number, default: 0 },
 });
 
+courseSchema.methods.calculateAverageRating = function () {
+  console.log("average rating calc");
+  if (!this.ratings || this.ratings.length === 0) {
+    this.averageRating = 0;
+  } else {
+    const totalRating = this.ratings.reduce(
+      (acc, curr) => acc + curr.rating,
+      0
+    );
+    this.averageRating = totalRating / this.ratings.length;
+  }
+};
 courseSchema.pre("save", function (next) {
   console.log("pre save");
   if (this.isModified("ratings")) {
-    this.calculateAverageRating();
+    if (!this.ratings || this.ratings.length === 0) {
+      this.averageRating = 0;
+    } else {
+      const totalRating = this.ratings.reduce(
+        (acc, curr) => acc + curr.rating,
+        0
+      );
+      this.averageRating = totalRating / this.ratings.length;
+    }
   }
   next();
 });
@@ -115,23 +135,19 @@ courseSchema.pre("save", function (next) {
 // Define pre-find middleware to compute the average rating before find operations
 courseSchema.pre(/^find/, function (next) {
   console.log("pre find");
-  this.calculateAverageRating();
+  if (!this.ratings || this.ratings.length === 0) {
+    this.averageRating = 0;
+  } else {
+    const totalRating = this.ratings.reduce(
+      (acc, curr) => acc + curr.rating,
+      0
+    );
+    this.averageRating = totalRating / this.ratings.length;
+  }
   next();
 });
 
 // Method to calculate average rating
-courseSchema.methods.calculateAverageRating = function () {
-  console.log("average rating calc");
-  if (!this.ratings || this.ratings.length === 0) {
-    this.averageRating = 0;
-  } else {
-    const totalRating = this?.ratings?.reduce(
-      (acc, curr) => acc + curr?.rating,
-      0
-    );
-    this.averageRating = totalRating / this?.ratings?.length;
-  }
-};
 
 const Course = mongoose.model("course", courseSchema);
 
