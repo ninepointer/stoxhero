@@ -24,7 +24,7 @@ const courseSchema = new Schema({
   courseEndTime: { type: Date },
   registrationStartTime: { type: Date },
   registrationEndTime: { type: Date },
-  maxEnrollments: { type: Number },
+  maxEnrolments: { type: Number },
   coursePrice: { type: Number },
   discountedPrice: { type: Number },
   ratings: [
@@ -68,6 +68,8 @@ const courseSchema = new Schema({
         {
           order: Number,
           topic: String,
+          videoUrl: String,
+          videoKey: String,
         },
       ],
     },
@@ -102,6 +104,7 @@ const courseSchema = new Schema({
   faqs: [{ order: Number, question: String, answer: String }],
   salesVideo: String,
   averageRating: { type: Number, default: 0 },
+  hookVideo: String,
 });
 
 courseSchema.methods.calculateAverageRating = function () {
@@ -117,7 +120,6 @@ courseSchema.methods.calculateAverageRating = function () {
   }
 };
 courseSchema.pre("save", function (next) {
-  console.log("pre save");
   if (this.isModified("ratings")) {
     if (!this.ratings || this.ratings.length === 0) {
       this.averageRating = 0;
@@ -134,7 +136,6 @@ courseSchema.pre("save", function (next) {
 
 // Define pre-find middleware to compute the average rating before find operations
 courseSchema.pre(/^find/, function (next) {
-  console.log("pre find");
   if (!this.ratings || this.ratings.length === 0) {
     this.averageRating = 0;
   } else {
