@@ -1,0 +1,8 @@
+.star-rating {
+  display: inline-block;
+  font-size: 1.5rem; /* Adjust as needed */
+}
+
+.star-rating i {
+  margin-right: 0.1rem; /* Adjust spacing between stars */
+}

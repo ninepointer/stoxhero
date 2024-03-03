@@ -642,10 +642,7 @@ exports.editInstructor = async (req, res) => {
     const { about, image } = req.body;
     let imageUrl;
     if (req?.files?.["instructorImage"]) {
-      imageUrl = await getAwsS3Url(
-        req.files["instructorImage"][0],
-        "Image"
-      );
+      imageUrl = await getAwsS3Url(req.files["instructorImage"][0], "Image");
     }
     const course = await Course.findOneAndUpdate(
       {
@@ -1483,6 +1480,87 @@ exports.getCourseByIdUser = async (req, res) => {
   }
 };
 
+// exports.getCoursesByUserSlug = async (req, res) => {
+//   try {
+//     const slug = req.query.slug;
+//     const user = await User.findOne({ slug: slug }).select("_id");
+//     const skip = Number(Number(req.query.skip) || 0);
+//     const limit = Number(Number(req.query.limit) || 10);
+
+//     const pipeline = [
+//       {
+//         $match: {
+//           status: "Published",
+//           "courseInstructors.id": new ObjectId(user?._id),
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "user-personal-details",
+//           localField: "courseInstructors.id",
+//           foreignField: "_id",
+//           as: "instructor",
+//         },
+//       },
+//       {
+//         $sort: {
+//           courseStartTime: 1,
+//           _id: -1,
+//         },
+//       },
+//       {
+//         $addFields: {
+//           averageRating: { $ifNull: [{ $avg: "$ratings.rating" }, 0] }, // Calculate the average rating or set it to 0 if null
+//         },
+//       },
+//       {
+//         $project: {
+//           courseName: 1,
+//           courseStartTime: 1,
+//           courseSlug: 1,
+//           courseImage: 1,
+//           coursePrice: 1,
+//           averageRating: 1,
+//           discountedPrice: 1,
+//           userEnrolled: {
+//             $size: "$enrollments",
+//           },
+//           maxEnrollments: 1,
+//           instructorName: {
+//             $map: {
+//               input: "$instructor",
+//               as: "inst",
+//               in: {
+//                 $concat: ["$$inst.first_name", " ", "$$inst.last_name"],
+//               },
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $skip: skip,
+//       },
+//       {
+//         $limit: limit,
+//       },
+//     ];
+
+//     const course = await Course.aggregate(pipeline)
+//       .sort({ courseStartTime: 1 })
+//       .skip(skip)
+//       .limit(limit);
+
+//     const count = await Course.countDocuments({
+//       status: "Published",
+//       "courseInstructors.id": new ObjectId(user?._id),
+//     });
+
+//     res.status(200).json({ status: "success", data: course, count: count });
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).json({ status: "error", message: "something went wrong" });
+//   }
+// };
 exports.getCoursesByUserSlug = async (req, res) => {
   try {
     const slug = req.query.slug;
@@ -1520,11 +1598,15 @@ exports.getCoursesByUserSlug = async (req, res) => {
         $project: {
           courseName: 1,
           courseStartTime: 1,
+          courseOverview: 1,
           courseSlug: 1,
           courseImage: 1,
           coursePrice: 1,
           averageRating: 1,
           discountedPrice: 1,
+          courseDurationInMinutes: 1,
+          level: 1,
+          courseContent: 1,
           userEnrolled: {
             $size: "$enrollments",
           },
@@ -2061,7 +2143,8 @@ exports.handleDeductCourseFee = async (
       statusCode: 200,
       data: {
         status: "success",
-        message: "Congratulations on successfully enrolling in the course! It will be a valuable experience for you.",
+        message:
+          "Congratulations on successfully enrolling in the course! It will be a valuable experience for you.",
         data: updateParticipants,
       },
     };
@@ -2255,7 +2338,7 @@ exports.myCourses = async (req, res) => {
       data: dataArr,
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({
       status: "error",
       message: "Something went wrong",
