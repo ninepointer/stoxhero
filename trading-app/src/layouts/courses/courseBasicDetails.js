@@ -600,7 +600,7 @@ const CreateCourse = (
                   <TextField
                     disabled={editing}
                     id="outlined-required"
-                    type='number'
+                    type="number"
                     placeholder="Duration in minutes"
                     value={
                       formState?.courseDurationInMinutes ||
@@ -1130,18 +1130,6 @@ const CreateCourse = (
                   </Grid>
                 </Grid>
               )}
-              <input type="file" onChange={handleFileChange} />
-              {uploadProgress > 0 && uploadProgress < 100 && (
-                <span>Upload Progress: {uploadProgress}%</span>
-              )}
-              {uploadProgress == 100 && <span>Storing Data in S3...</span>}
-              {uploadProgress == 200 && (
-                <span>File uploaded successfully.</span>
-              )}
-              {uploadProgress == -1 && (
-                <span>Error in file upload. Try again.</span>
-              )}
-              <button onClick={handleUpload}>Upload</button>
             </Grid>
           </Grid>
           {renderSuccessSB}
