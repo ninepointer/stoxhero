@@ -623,13 +623,13 @@ const CreateCourse = (
                       id="outlined-required"
                       label="Max Enrollments *"
                       value={
-                        formState?.maxEnrollments || courseData?.maxEnrollments
+                        formState?.maxEnrolments || courseData?.maxEnrolments
                       }
                       fullWidth
                       onChange={(e) => {
                         setFormState((prevState) => ({
                           ...prevState,
-                          maxEnrollments: e.target.value,
+                          maxEnrolments: e.target.value,
                         }));
                       }}
                     />

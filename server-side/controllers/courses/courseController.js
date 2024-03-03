@@ -1036,7 +1036,7 @@ exports.createCourseInfo = async (req, res) => {
     tags,
     category,
     level,
-    maxEnrollments,
+    maxEnrolments,
     courseType,
     courseDescription,
     courseStartTime,
@@ -1085,7 +1085,7 @@ exports.createCourseInfo = async (req, res) => {
       courseEndTime,
       registrationStartTime,
       registrationEndTime,
-      maxEnrollments,
+      maxEnrolments,
       tags,
       category,
       courseType,
@@ -1196,7 +1196,7 @@ exports.getAwaitingApprovals = async (req, res) => {
           userEnrolled: {
             $size: "$enrollments",
           },
-          maxEnrollments: 1,
+          maxEnrolments: 1,
         },
       },
       {
@@ -1247,7 +1247,7 @@ exports.getPendingApproval = async (req, res) => {
           userEnrolled: {
             $size: "$enrollments",
           },
-          maxEnrollments: 1,
+          maxEnrolments: 1,
         },
       },
       {
@@ -1298,7 +1298,7 @@ exports.getPublished = async (req, res) => {
           userEnrolled: {
             $size: "$enrollments",
           },
-          maxEnrollments: 1,
+          maxEnrolments: 1,
         },
       },
       {
@@ -1349,7 +1349,7 @@ exports.getUnpublished = async (req, res) => {
           userEnrolled: {
             $size: "$enrollments",
           },
-          maxEnrollments: 1,
+          maxEnrolments: 1,
         },
       },
       {
@@ -1413,7 +1413,7 @@ exports.getUserCourses = async (req, res) => {
           userEnrolled: {
             $size: "$enrollments",
           },
-          maxEnrollments: 1,
+          maxEnrolments: 1,
           instructorName: {
             $map: {
               input: "$instructor",
@@ -1610,7 +1610,7 @@ exports.getCoursesByUserSlug = async (req, res) => {
           userEnrolled: {
             $size: "$enrollments",
           },
-          maxEnrollments: 1,
+          maxEnrolments: 1,
           instructorName: {
             $map: {
               input: "$instructor",
@@ -1893,8 +1893,8 @@ exports.handleDeductCourseFee = async (
     }
 
     if (
-      course?.maxEnrollments &&
-      course?.maxEnrollments <= course?.enrollments?.length
+      course?.maxEnrolments &&
+      course?.maxEnrolments <= course?.enrollments?.length
     ) {
       // if (!course.potentialParticipants.includes(userId)) {
       //   const course = await Course.findOneAndUpdate({ _id: new ObjectId(courseId) }, {
@@ -2267,7 +2267,7 @@ exports.myCourses = async (req, res) => {
                 coursePrice: 1,
                 discountedPrice: 1,
                 userEnrolled: 1,
-                maxEnrollments: 1,
+                maxEnrolments: 1,
                 topics: "$courseContent",
                 coursePrgress: {
                   $divide: [
