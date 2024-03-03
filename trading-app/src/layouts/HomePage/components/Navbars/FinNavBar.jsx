@@ -33,6 +33,7 @@ const LinkButton = ({ children, ...props }) => (
       color: theme.palette.text.primary,
       // color:'transparent',
       // color: "white",
+      //color:"white",
       // "&:hover": { color: '#fff'},
       "&:hover": { color: "#D5F47E" },
     }}
