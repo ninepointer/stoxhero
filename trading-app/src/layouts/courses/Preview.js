@@ -38,6 +38,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const [course, setCourse] = useState({});
+  const [buttonClicked, setButtonClicked] = useState(false);
 
   // Get the value of the "mobile" parameter
   const courseId = urlParams.get('id');
@@ -57,6 +58,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
     try{
       const publish = await axios.get(`${apiUrl}courses/${courseId}/publish`, {withCredentials: true});
       openSuccessSB('Course Published', '')
+      setButtonClicked(true);
     } catch(err){
       openErrorSB('Error', err.message)
     }
@@ -65,7 +67,8 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
   async function unpublish(){
     try{
       const publish = await axios.get(`${apiUrl}courses/${courseId}/unpublish`, {withCredentials: true});
-      openSuccessSB('Course Published', '')
+      openSuccessSB('Course Published', '');
+      setButtonClicked(true);
     } catch(err){
       openErrorSB('Error', err.message)
     }
@@ -74,7 +77,8 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
   async function sendCreatorApproval(){
     try{
       const publish = await axios.get(`${apiUrl}courses/${courseId}/creatorapproval`, {withCredentials: true});
-      openSuccessSB('Course sent to approval', '')
+      openSuccessSB('Course sent to approval', '');
+      setButtonClicked(true);
     } catch(err){
       openErrorSB('Error', err.message)
     }

@@ -93,6 +93,9 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
     }, 500);
 
     const { coursePrice, discountedPrice, commissionPercentage } = formState;
+    if(discountedPrice > coursePrice){
+      return openErrorSB("Error", 'Discounted price should not be greater then course price!');
+    }
     const res = await fetch(`${apiUrl}courses/${courseId}`, {
       method: "PATCH",
       credentials: "include",
@@ -134,6 +137,10 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
     }, 500);
 
     const {commissionPercentage, discountedPrice, coursePrice} = formState;
+
+    if(Number(discountedPrice) > Number(coursePrice)){
+      return openErrorSB("Error", 'Discounted price should not be greater then course price!');
+    }
     
     const res = await fetch(`${apiUrl}courses/${courseId}`, {
       method: "PATCH",
@@ -159,7 +166,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
         setEditing(true);
       }, 500);
     } else {
-      openErrorSB("Error", "data.error");
+      openErrorSB("Error", data.message);
     }
   }
 
