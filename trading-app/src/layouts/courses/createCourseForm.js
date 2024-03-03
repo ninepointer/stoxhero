@@ -131,7 +131,7 @@ function Index() {
       dayjs(course?.registrationEndTime) ??
       dayjs(new Date()).set("hour", 0).set("minute", 0).set("second", 0),
     status: "" || course?.status,
-    maxEnrolments: "" || course?.maxEnrolments,
+    maxEnrollments: "" || course?.maxEnrollments,
     coursePrice: "" || course?.coursePrice,
     discountedPrice: "" || course?.discountedPrice,
     courseBenefits: {

@@ -944,7 +944,7 @@ router.patch("/verifyotp", async (req, res) => {
     }
 })
 
-router.patch("/confirmcourseotp", async (req, res) => {
+router.patch("/createuserbycourse", async (req, res) => {
     let {
         first_name,
         last_name,

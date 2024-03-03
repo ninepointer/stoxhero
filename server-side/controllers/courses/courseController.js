@@ -130,7 +130,7 @@ exports.createCourse = async (req, res) => {
       aboutInstructor,
       courseImage,
       courseLanguages,
-      courseDurationInMinutes,
+      courseDurationInMinutes: Math.abs(Number(courseDurationInMinutes)),
       courseOverview,
       courseImage,
       courseDescription,
@@ -640,14 +640,21 @@ exports.editInstructor = async (req, res) => {
   try {
     const { instructorId } = req.params;
     const { about, image } = req.body;
+    let imageUrl;
+    if (req?.files?.["instructorImage"]) {
+      imageUrl = await getAwsS3Url(
+        req.files["instructorImage"][0],
+        "Image"
+      );
+    }
     const course = await Course.findOneAndUpdate(
       {
         _id: new ObjectId(req.params.id),
-        "courseInstructors.id": instructorId, // Match instructorId in courseInstructors
+        "courseInstructors._id": instructorId, // Match instructorId in courseInstructors
       },
       {
         $set: {
-          "courseInstructors.$.image": image,
+          "courseInstructors.$.image": imageUrl,
           "courseInstructors.$.about": about,
         },
       },
@@ -1032,7 +1039,7 @@ exports.createCourseInfo = async (req, res) => {
     tags,
     category,
     level,
-    maxEnrolments,
+    maxEnrollments,
     courseType,
     courseDescription,
     courseStartTime,
@@ -1081,7 +1088,7 @@ exports.createCourseInfo = async (req, res) => {
       courseEndTime,
       registrationStartTime,
       registrationEndTime,
-      maxEnrolments,
+      maxEnrollments,
       tags,
       category,
       courseType,
@@ -1192,7 +1199,7 @@ exports.getAwaitingApprovals = async (req, res) => {
           userEnrolled: {
             $size: "$enrollments",
           },
-          maxEnrolments: 1,
+          maxEnrollments: 1,
         },
       },
       {
@@ -1243,7 +1250,7 @@ exports.getPendingApproval = async (req, res) => {
           userEnrolled: {
             $size: "$enrollments",
           },
-          maxEnrolments: 1,
+          maxEnrollments: 1,
         },
       },
       {
@@ -1294,7 +1301,7 @@ exports.getPublished = async (req, res) => {
           userEnrolled: {
             $size: "$enrollments",
           },
-          maxEnrolments: 1,
+          maxEnrollments: 1,
         },
       },
       {
@@ -1345,7 +1352,7 @@ exports.getUnpublished = async (req, res) => {
           userEnrolled: {
             $size: "$enrollments",
           },
-          maxEnrolments: 1,
+          maxEnrollments: 1,
         },
       },
       {
@@ -1409,7 +1416,7 @@ exports.getUserCourses = async (req, res) => {
           userEnrolled: {
             $size: "$enrollments",
           },
-          maxEnrolments: 1,
+          maxEnrollments: 1,
           instructorName: {
             $map: {
               input: "$instructor",
@@ -1521,7 +1528,7 @@ exports.getCoursesByUserSlug = async (req, res) => {
           userEnrolled: {
             $size: "$enrollments",
           },
-          maxEnrolments: 1,
+          maxEnrollments: 1,
           instructorName: {
             $map: {
               input: "$instructor",
@@ -1804,8 +1811,8 @@ exports.handleDeductCourseFee = async (
     }
 
     if (
-      course?.maxEnrolments &&
-      course?.maxEnrolments <= course?.enrollments?.length
+      course?.maxEnrollments &&
+      course?.maxEnrollments <= course?.enrollments?.length
     ) {
       // if (!course.potentialParticipants.includes(userId)) {
       //   const course = await Course.findOneAndUpdate({ _id: new ObjectId(courseId) }, {
@@ -2054,7 +2061,7 @@ exports.handleDeductCourseFee = async (
       statusCode: 200,
       data: {
         status: "success",
-        message: "Paid successfully",
+        message: "Congratulations on successfully enrolling in the course! It will be a valuable experience for you.",
         data: updateParticipants,
       },
     };
@@ -2151,7 +2158,7 @@ exports.myCourses = async (req, res) => {
       {
         $addFields: {
           userEnrolled: {
-            $size: "$enrollments",
+            $size: { $ifNull: ["$enrollments", []] },
           },
         },
       },
@@ -2177,15 +2184,15 @@ exports.myCourses = async (req, res) => {
                 coursePrice: 1,
                 discountedPrice: 1,
                 userEnrolled: 1,
-                maxEnrolments: 1,
+                maxEnrollments: 1,
                 topics: "$courseContent",
                 coursePrgress: {
                   $divide: [
                     {
-                      $size: "$enrollments.watched",
+                      $size: { $ifNull: ["$enrollments.watched", []] },
                     },
                     {
-                      $size: "$courseContent",
+                      $size: { $ifNull: ["$courseContent", []] },
                     },
                   ],
                 },
@@ -2248,6 +2255,7 @@ exports.myCourses = async (req, res) => {
       data: dataArr,
     });
   } catch (error) {
+    console.log(error)
     res.status(500).json({
       status: "error",
       message: "Something went wrong",

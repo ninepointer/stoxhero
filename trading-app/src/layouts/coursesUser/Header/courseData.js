@@ -12,7 +12,7 @@ import MDButton from "../../../components/MDButton/index.js";
 import MDTypography from "../../../components/MDTypography/index.js";
 import { Link } from "react-router-dom";
 import moment from 'moment'
-import SuggestModal from '../data/payment.js';
+import Payment from '../data/payment.js';
 import MDSnackbar from "../../../components/MDSnackbar/index.js";
 
 
@@ -22,8 +22,9 @@ const Courses = () => {
 
     // Get the value of the "mobile" parameter
     const courseId = urlParams.get('id');
-
+    const [showPay, setShowPay] = useState();
     const [courses, setCourses] = useState([]);
+    const [checkPaid, setCheckPaid] = useState(false);
 
     useEffect(() => {
         let call1 = axios.get(`${apiUrl}courses/${courseId}`, {
@@ -46,15 +47,15 @@ const Courses = () => {
             });
     }, [])
 
-    const sendAdminApproval = async () => {
-        try{
-            const data = await axios.get(`${apiUrl}courses/${courseId}/adminapproval`, {withCredentials: true});
-            openSuccessSB('Approval Request Sent', '')
-        } catch(err){
-            openErrorSB('Error', 'Something went wrong')
-        }
-        
+    useEffect(() => {
+        checkPaidFunc();
+    }, [showPay, courses])
+
+    async function checkPaidFunc() {
+        const check = await axios.get(`${apiUrl}courses/user/${courses?._id}/checkpaid`, { withCredentials: true })
+        setCheckPaid(check.data.data);
     }
+
 
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
@@ -112,12 +113,7 @@ const Courses = () => {
                             <Grid container xs={12} md={12} lg={12} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '100%', height: 'auto' }}>
                                 <Card
                                     sx={{ minWidth: '100%', cursor: 'pointer' }}
-                                    component={Link}
-                                    to={{
-                                        pathname: `/coursedata`,
-                                        search: `?id=${courses?._id}`,
-                                        state: { data: courses }
-                                    }}
+                                
                                 >
                                     <CardActionArea>
                                         <Grid item xs={12} md={4} lg={12} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '100%', height: 'auto' }}>
@@ -130,6 +126,11 @@ const Courses = () => {
                                                 <Divider style={{ width: '100%' }} />
                                                 <MDBox style={{ maxWidth: '100%', height: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
                                                     <img src={courses?.courseImage} alt={courses?.courseName} style={{ maxWidth: '100%', height: 'auto', borderTopLeftRadius: 10, borderTopRightRadius: 10 }} />
+
+                                                    <MDTypography variant="body1" color='#000000' fontSize={16} fontWeight='bold' display= 'flex' justifyContent= 'flex-start'>
+                                                        Course Basic Info
+                                                    </MDTypography>
+
                                                     <MDBox style={{ padding: '10px', textAlign: 'center', marginTop: '10px' }}>
                                                         <MDTypography variant="body1" fontWeight={400}>
                                                             Overview: {courses?.courseOverview}
@@ -161,7 +162,7 @@ const Courses = () => {
                                         </Grid>
 
                                             <Grid item xs={12} md={4} lg={12} p={2} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', maxWidth: '100%', height: 'auto', gap: 5 }}>
-                                                <SuggestModal id={courseId} />
+                                                <Payment data={courses} setShowPay={setShowPay} showPay={showPay} checkPaid={checkPaid} />
                                             </Grid>
                                     </CardActionArea>
                                 </Card>

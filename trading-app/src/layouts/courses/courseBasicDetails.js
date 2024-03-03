@@ -600,7 +600,7 @@ const CreateCourse = (
                   <TextField
                     disabled={editing}
                     id="outlined-required"
-                    // label='Course Name *'
+                    type='number'
                     placeholder="Duration in minutes"
                     value={
                       formState?.courseDurationInMinutes ||
@@ -610,7 +610,7 @@ const CreateCourse = (
                     onChange={(e) => {
                       setFormState((prevState) => ({
                         ...prevState,
-                        courseDurationInMinutes: e.target.value,
+                        courseDurationInMinutes: Math.abs(e.target.value),
                       }));
                     }}
                   />
@@ -621,15 +621,15 @@ const CreateCourse = (
                     <TextField
                       disabled={editing}
                       id="outlined-required"
-                      label="Max Enrolments *"
+                      label="Max Enrollments *"
                       value={
-                        formState?.maxEnrolments || courseData?.maxEnrolments
+                        formState?.maxEnrollments || courseData?.maxEnrollments
                       }
                       fullWidth
                       onChange={(e) => {
                         setFormState((prevState) => ({
                           ...prevState,
-                          maxEnrolments: e.target.value,
+                          maxEnrollments: e.target.value,
                         }));
                       }}
                     />
@@ -901,6 +901,7 @@ const CreateCourse = (
                         <input
                           type="file"
                           onChange={handleCourseImage}
+                          disabled={editing}
                           accept="image/*"
                           style={{ display: "none", cursor: "pointer" }}
                           id="image-upload"
@@ -1024,7 +1025,7 @@ const CreateCourse = (
                         alignItems="center"
                         style={{ maxWidth: "100%", border: "1px dashed #ccc" }}
                       >
-                        <img
+                        <video
                           src={titleVideoPreviewUrl}
                           alt="Preview"
                           style={{ maxWidth: "100%" }}
@@ -1050,6 +1051,7 @@ const CreateCourse = (
                           type="file"
                           onChange={handleSalesVideo}
                           accept="*"
+                          disabled={editing}
                           style={{ display: "none", cursor: "pointer" }}
                           id="video-upload"
                         />

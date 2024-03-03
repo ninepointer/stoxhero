@@ -24,11 +24,12 @@ import MDSnackbar from '../../../components/MDSnackbar';
 import Checkbox from '@mui/material/Checkbox';
 import Input from '@mui/material/Input';
 import { userContext } from '../../../AuthContext';
+import {useNavigate} from 'react-router-dom';
 
 
 const ariaLabel = { 'aria-label': 'description' };
 
-const Payment = ({ data, setShowPay, showPay, checkPaid }) => {
+const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, signedUp }) => {
   const getDetails = useContext(userContext)
   const [open, setOpen] = React.useState(false);
   const [userWallet, setUserWallet] = useState(0);
@@ -47,9 +48,10 @@ const Payment = ({ data, setShowPay, showPay, checkPaid }) => {
     thanksMessege: "",
     error: ""
   })
+  const navigate = useNavigate();
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
-  const [value, setValue] = useState('wallet');
+  const [value, setValue] = useState(signedUp ? 'bank' : 'wallet');
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = (title, content) => {
     console.log('status success')
@@ -58,6 +60,10 @@ const Payment = ({ data, setShowPay, showPay, checkPaid }) => {
     setSuccessSB(true);
   }
   const closeSuccessSB = () => setSuccessSB(false);
+
+  useEffect(()=>{
+    byLink && setOpen(true);
+  }, [byLink])
 
   const renderSuccessSB = (
     <MDSnackbar
@@ -164,7 +170,10 @@ const Payment = ({ data, setShowPay, showPay, checkPaid }) => {
     setShowPromoCode(false);
     setCode('');
     setVerifiedCode('');
+    if(setShowPay)
     messege.thanksMessege && setShowPay(!showPay);
+    setOpenParent && setOpenParent(false)
+    messege.thanksMessege && navigate(`/courses`);
   };
 
   async function captureIntent() {
@@ -216,6 +225,7 @@ const Payment = ({ data, setShowPay, showPay, checkPaid }) => {
         error: dataResp.message
       })
     } else {
+      // navigate(`/courses`)
       setMessege({
         ...messege,
         thanksMessege: dataResp.message
@@ -233,6 +243,7 @@ const Payment = ({ data, setShowPay, showPay, checkPaid }) => {
       const res = await axios.post(`${apiUrl}payment/initiate`, { amount: Number((amount - discountAmount - bonusRedemption) * 100) + actualAmount * 100, redirectTo: window.location.href, paymentFor: 'Course', productId: data?._id, coupon: verifiedCode, bonusRedemption }, { withCredentials: true });
       console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
       window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
+      // navigate(`/courses`);
     } catch (e) {
       console.log(e);
     }
@@ -287,6 +298,7 @@ const Payment = ({ data, setShowPay, showPay, checkPaid }) => {
 
     <>
       <MDBox>
+      
         <MDButton
           variant='gradient'
           color='error'
@@ -315,10 +327,26 @@ const Payment = ({ data, setShowPay, showPay, checkPaid }) => {
         <DialogContent>
           {messege.thanksMessege ?
 
+            <>
             <Typography textAlign="center" sx={{ width: "100%" }} color="#000" variant="body2">{messege.thanksMessege}</Typography>
+            <DialogActions>
+            <MDButton color='error' onClick={handleClose} autoFocus>
+              Close
+            </MDButton>
+          </DialogActions>
+            </>
+            
             :
             messege.error ?
-              <Typography textAlign="center" sx={{ width: "100%" }} color="#000" variant="body2">{messege.error}</Typography>
+            <>
+            <Typography textAlign="center" sx={{ width: "100%" }} color="#000" variant="body2">{messege.error}</Typography>
+            <DialogActions>
+            <MDButton color='error' onClick={handleClose} autoFocus>
+              Close
+            </MDButton>
+          </DialogActions>
+            </>
+              
               :
               <>
                 <DialogContentText id="alert-dialog-description">
@@ -326,15 +354,15 @@ const Payment = ({ data, setShowPay, showPay, checkPaid }) => {
                   <MDBox display="flex" flexDirection="column"  >
                     <Title variant={{ xs: "h2", md: "h3" }} style={{ color: "#000", fontWeight: "bold", marginTop: "6px", display: "flex", justifyContent: 'center' }} >Choose how to pay</Title>
                     <FormControl>
-                      <RadioGroup
+                       <RadioGroup
                         aria-labelledby="payment-mode-label"
-                        defaultValue="wallet"
+                        defaultValue={'bank'}
                         name="radio-buttons-group"
                         value={value}
                         onChange={handleChange}
                       >
                         <FormControlLabel value="wallet" control={<Radio />} label="Pay from StoxHero Wallet" />
-                        {value == 'wallet' &&
+                        {(value == 'wallet') &&
                           <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="flex-start" mt={0} mb={2} style={{ minWidth: '40vw' }}  >
                             {!showPromoCode ? <MDBox display='flex' justifyContent='flex-start' width='100%' mt={1}
                               onClick={() => { 
