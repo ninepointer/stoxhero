@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react'
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import { CardActionArea, Divider, Grid, Box, Typography } from '@mui/material';
+import { CardActionArea, Divider, Grid, Box } from '@mui/material';
 import axios from "axios";
 import { apiUrl } from "../../../../constants/constants.js"
 import MDBox from '../../../../components/MDBox/index.js'
