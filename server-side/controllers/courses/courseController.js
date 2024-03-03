@@ -15,6 +15,8 @@ const Setting = require("../../models/settings/setting");
 const Coupon = require("../../models/coupon/coupon");
 const AffiliateProgram = require("../../models/affiliateProgram/affiliateProgram");
 const ReferralProgram = require("../../models/campaigns/referralProgram");
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { streamUpload } = require("@uppy/companion");
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -41,6 +43,29 @@ const getAwsS3Url = async (file, type) => {
   try {
     const uploadResult = await s3.upload(params).promise();
     return uploadResult.Location;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Error uploading file to S3");
+  }
+};
+const getAwsS3Key = async (file, type, key) => {
+  if (file && type === "Image") {
+    file.buffer = await sharp(file.buffer)
+      .resize({ width: 512, height: 256 })
+      .toBuffer();
+  }
+  const params = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: key ? key : `courses/${Date.now()}-${file.originalname}`,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+    ACL: "public-read",
+    // or another ACL according to your requirements
+  };
+
+  try {
+    const uploadResult = await s3.upload(params).promise();
+    return { url: uploadResult.Location, key: key };
   } catch (error) {
     console.error(error);
     throw new Error("Error uploading file to S3");
@@ -579,10 +604,17 @@ exports.addSubTopic = async (req, res) => {
   try {
     const { id, contentId } = req.params;
     let { order, topic } = req.body;
-
+    const url = await getAwsS3Key(
+      req.files["fileVid"][0],
+      "Video",
+      `courses/video/${req.params.id}-${topic}-${Date.now()}`
+    );
+    console.log(url);
     const newOption = {
       order,
       topic,
+      videoUrl: url.url,
+      videoKey: url.key,
     };
 
     const course = await Course.findById(id);
@@ -734,7 +766,15 @@ exports.editSubTopic = async (req, res) => {
   try {
     const { id, contentId, subtopicId } = req.params;
     let { order, topic } = req.body;
-
+    let url;
+    if (req.files["filesVid"]?.length > 0) {
+      url = await getAwsS3Key(
+        req.files["fileVid"][0],
+        "Video",
+        `courses/video/${req.params.id}-${topic}-${Date.now()}`
+      );
+    }
+    // console.log(url);
     const course = await Course.findById(id);
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
@@ -750,6 +790,10 @@ exports.editSubTopic = async (req, res) => {
 
     filterSubtopic[0].order = order;
     filterSubtopic[0].topic = topic;
+    if (req.files["filesVid"]?.length > 0) {
+      filterSubtopic[0].videoUrl = url?.url;
+      filterSubtopic[0].videoKey = url?.key;
+    }
 
     const newData = await course.save({ new: true });
 
@@ -765,7 +809,8 @@ exports.editSubTopic = async (req, res) => {
       .status(201)
       .json({ status: "success", data: newfilterQue[0]?.subtopics });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.log(error);
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -2289,5 +2334,56 @@ exports.addUserRating = async (req, res, next) => {
       message: "Something went wrong",
       error: e.message,
     });
+  }
+};
+
+exports.handleS3Upload = async (req, res) => {
+  console.log(
+    req.body,
+    req.files["fileVid"][0],
+    req.files["fileVid"][0].mimetype
+  );
+  // const uploadParams = {
+  //   Bucket: process.env.AWS_BUCKET_NAME,
+  //   Key: `courses/video/${Date.now()}`,
+  //   Body: req.files["fileVid"][0].buffer,
+  //   ContentType: req.files["fileVid"][0].mimetype, // Adjust content type according to your file type
+  // };
+
+  // Pipe the incoming request stream directly to S3 upload stream
+  try {
+    // const uploadStream = s3.upload(uploadParams);
+    // console.log("uploadStream", uploadStream);
+    // req
+    //   .pipe(uploadStream)
+    //   .on("error", (error) => {
+    //     console.log("Error uploading to S3:", error);
+    //     res.status(500).json({ error: "Error uploading to S3" });
+    //   })
+    //   .on("finish", () => {
+    //     console.log("File uploaded successfully");
+    //     res.status(200).json({ message: "File uploaded successfully" });
+    //   });
+    // s3.upload(uploadParams, (err, data) => {
+    //   if (err) {
+    //     console.error("Error uploading to S3:", err);
+    //     res.status(500).json({ error: "Error uploading to S3" });
+    //   } else {
+    //     console.log("File uploaded successfully");
+    //     res.status(200).json({ message: "File uploaded successfully", data });
+    //   }
+    // });
+    const url = await getAwsS3Key(
+      req.files["fileVid"][0],
+      "Video",
+      `courses/video/${req.body?.courseId}-${req.body.contentId}-${Date.now()}`
+    );
+    console.log(url);
+    res.status(200).json({
+      message: "File uploaded successfully",
+      fileUrl: url,
+    });
+  } catch (e) {
+    console.log("error hai", e);
   }
 };

@@ -72,8 +72,10 @@ const CreateCourse = (
   const editor = useRef(null);
   const [file, setFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
+  const [fileVid, setFileVid] = useState(null);
   const [value, setValue] = useState(courseData?.courseDescription || "");
   const [created, setCreated] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const queryString = location.search;
   const urlParams = new URLSearchParams(queryString);
@@ -81,6 +83,41 @@ const CreateCourse = (
   // Get the value of the "mobile" parameter
   const courseId = urlParams.get("id");
   const paramsActiveSteps = urlParams.get("activestep");
+  const handleFileChange = (event) => {
+    setFileVid(event.target.files[0]);
+  };
+
+  const handleUpload = async () => {
+    if (!fileVid) {
+      alert("Please select a file.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("fileVid", fileVid);
+
+    try {
+      const response = await axios.post(`${apiUrl}courses/s3upload`, formData, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: (progressEvent) => {
+          const { loaded, total } = progressEvent;
+          const progress = Math.round((loaded / total) * 100);
+          setUploadProgress(progress);
+        },
+      });
+      console.log("File uploaded successfully:", response.data);
+      setUploadProgress(200);
+      // Reset file input
+      setFileVid(null);
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      setUploadProgress(-1);
+      alert("Error uploading file. Please try again.");
+    }
+  };
 
   useEffect(() => {
     if (courseId) {
@@ -1091,6 +1128,18 @@ const CreateCourse = (
                   </Grid>
                 </Grid>
               )}
+              <input type="file" onChange={handleFileChange} />
+              {uploadProgress > 0 && uploadProgress < 100 && (
+                <span>Upload Progress: {uploadProgress}%</span>
+              )}
+              {uploadProgress == 100 && <span>Storing Data in S3...</span>}
+              {uploadProgress == 200 && (
+                <span>File uploaded successfully.</span>
+              )}
+              {uploadProgress == -1 && (
+                <span>Error in file upload. Try again.</span>
+              )}
+              <button onClick={handleUpload}>Upload</button>
             </Grid>
           </Grid>
           {renderSuccessSB}

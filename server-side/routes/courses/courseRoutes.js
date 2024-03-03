@@ -3,10 +3,11 @@ const Authenticate = require("../../authentication/authentication");
 const restrictTo = require("../../authentication/authorization");
 const courseController = require("../../controllers/courses/courseController");
 const router = express.Router();
-const user = require('./userCourseRoutes');
-const influencer = require('./influencerCourseRoutes');
-
+const user = require("./userCourseRoutes");
+const influencer = require("./influencerCourseRoutes");
 const multer = require("multer");
+const multerS3 = require("multer-s3");
+const AWS = require("aws-sdk");
 
 const storage = multer.memoryStorage(); // Using memory storage
 
@@ -17,11 +18,33 @@ const fileFilter = (req, file, cb) => {
     cb(null, true);
   }
 };
+// Configure AWS SDK
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+});
+const s3 = new AWS.S3();
+
+// Multer configuration for handling file upload
+const uploadVid = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: process.env.AWS_BUCKET_NAME,
+    // contentType: "video/mp4", // Automatically set the content type
+    acl: "public-read", // Set access control for uploaded files
+    key: function (req, file, cb) {
+      cb(null, "courses/videos" + Date.now() + "-" + file.originalname); // Set key (file path) in S3
+    },
+  }),
+});
+
+const uploadVideo = multer({ storage: multer.memoryStorage() });
 
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
-router.use('/influencer', influencer);
-router.use('/user', user);
+router.use("/influencer", influencer);
+router.use("/user", user);
 
 router
   .route("/")
@@ -73,9 +96,7 @@ router.patch(
   "/:id/instructor",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  upload.fields([
-    { name: "instructorImage", maxCount: 1 },
-  ]),
+  upload.fields([{ name: "instructorImage", maxCount: 1 }]),
   courseController.addInstructor
 );
 
@@ -104,6 +125,7 @@ router.patch(
   "/:id/subtopic/:contentId",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
+  upload.fields([{ name: "fileVid", maxCount: 1 }]),
   courseController.addSubTopic
 );
 
@@ -111,9 +133,7 @@ router.patch(
   "/:id/instructor/:instructorId",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  upload.fields([
-    { name: "instructorImage", maxCount: 1 },
-  ]),
+  upload.fields([{ name: "instructorImage", maxCount: 1 }]),
   courseController.editInstructor
 );
 
@@ -142,6 +162,7 @@ router.patch(
   "/:id/subtopic/:contentId/:subtopicId",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
+  upload.fields([{ name: "fileVid", maxCount: 1 }]),
   courseController.editSubTopic
 );
 
@@ -179,8 +200,6 @@ router.get(
   restrictTo("Admin", "SuperAdmin"),
   courseController.getAdminAwaitingApproval
 );
-
-
 
 router.get(
   "/:id",
@@ -245,7 +264,6 @@ router.get(
   courseController.getCourseBenefit
 );
 
-
 router.delete(
   "/:id/instructor/:instructorId",
   Authenticate,
@@ -280,5 +298,11 @@ router.delete(
   restrictTo("Admin", "SuperAdmin"),
   courseController.deleteSubtopic
 );
-
+router.post(
+  "/s3upload",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  upload.fields([{ name: "fileVid", maxCount: 1 }]),
+  courseController.handleS3Upload
+);
 module.exports = router;
