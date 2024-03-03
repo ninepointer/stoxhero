@@ -13,101 +13,161 @@ import MDButton from "../../../components/MDButton";
 import BrokerageEdit from "../BrokerageEdit";
 
 export default function AllActiveBrokerages() {
-
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
   const [activeData, setActiveData] = useState([]);
 
-  useEffect(()=>{
-      axios.get(`${baseUrl}api/v1/readBrokerage`, {withCredentials: true})
-      .then((res)=>{
-          setActiveData(res.data);
-      }).catch((err)=>{
-          return new Error(err);
+  useEffect(() => {
+    axios
+      .get(`${baseUrl}api/v1/readBrokerage`, { withCredentials: true })
+      .then((res) => {
+        setActiveData(res.data);
       })
-  },[])
+      .catch((err) => {
+        return new Error(err);
+      });
+  }, []);
 
-  
   let activebrokeragearr = [];
-  
-  activeData.map((elem)=>{
-    let activebrokerage = {}
+
+  activeData.map((elem) => {
+    let activebrokerage = {};
     // const exchangecolor = elem.exchange == "NFO" ? "info" : "error"
-    const statuscolor = elem.status == "Active" ? "success" : "error"
+    const statuscolor = elem.status == "Active" ? "success" : "error";
     // const instrumentcolor = elem.symbol.slice(-2) == "CE" ? "success" : "error"
 
     activebrokerage.edit = (
-        <MDButton variant="Contained" color="info" fontWeight="medium">
-          {/* <EditSharpIcon/> */}
-          <BrokerageEdit data={elem} id={elem._id}/>
-        </MDButton>
-      );
+      <MDButton variant="Contained" color="info" fontWeight="medium">
+        {/* <EditSharpIcon/> */}
+        <BrokerageEdit data={elem} id={elem._id} />
+      </MDButton>
+    );
     activebrokerage.broker = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
         {elem.brokerName}
       </MDTypography>
     );
     activebrokerage.transaction = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
         {elem.transaction}
       </MDTypography>
     );
     activebrokerage.type = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
         {elem.type}
       </MDTypography>
     );
     activebrokerage.exchange = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
         {elem.exchange}
       </MDTypography>
     );
     activebrokerage.brokeragecharge = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
         {elem.brokerageCharge}
       </MDTypography>
     );
     activebrokerage.exchangecharge = (
-      <MDTypography component="a" variant="caption" color={statuscolor} fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color={statuscolor}
+        fontWeight="medium"
+      >
         {elem.exchangeCharge}
       </MDTypography>
     );
     activebrokerage.gst = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
         {elem.gst}
       </MDTypography>
     );
     activebrokerage.sebicharges = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
         {elem.sebiCharge}
       </MDTypography>
     );
     activebrokerage.stampdutycharges = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
         {elem.stampDuty}
       </MDTypography>
     );
     activebrokerage.sst = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
         {elem.sst}
       </MDTypography>
     );
     activebrokerage.ctt = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
         {elem.ctt}
       </MDTypography>
     );
     activebrokerage.dpcharges = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
         {elem.dpCharge}
       </MDTypography>
     );
-   
-    
-    console.log(typeof(activebrokerage));
-    console.log(activebrokerage)
-    activebrokeragearr.push(activebrokerage)
-  })
+
+    console.log(typeof activebrokerage);
+    console.log(activebrokerage);
+    activebrokeragearr.push(activebrokerage);
+  });
 
   return {
     columns: [
@@ -116,11 +176,23 @@ export default function AllActiveBrokerages() {
       { Header: "Transaction", accessor: "transaction", align: "center" },
       { Header: "Type", accessor: "type", align: "center" },
       { Header: "Exchange", accessor: "exchange", align: "center" },
-      { Header: "Brokerage Charge", accessor: "brokeragecharge", align: "center" },
-      { Header: "Exchange Charge", accessor: "exchangecharge", align: "center" },
+      {
+        Header: "Brokerage Charge",
+        accessor: "brokeragecharge",
+        align: "center",
+      },
+      {
+        Header: "Exchange Charge",
+        accessor: "exchangecharge",
+        align: "center",
+      },
       { Header: "GST(%)", accessor: "gst", align: "center" },
       { Header: "SEBI Charges", accessor: "sebicharges", align: "center" },
-      { Header: "Stamp Duty Charges", accessor: "stampdutycharges", align: "center" },
+      {
+        Header: "Stamp Duty Charges",
+        accessor: "stampdutycharges",
+        align: "center",
+      },
       { Header: "SST", accessor: "sst", align: "center" },
       { Header: "CTT", accessor: "ctt", align: "center" },
       { Header: "DP Charges", accessor: "dpcharges", align: "center" },

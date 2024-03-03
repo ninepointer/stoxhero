@@ -1,17 +1,17 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
 import axios from "axios";
 // @mui material components
 import Card from "@mui/material/Card";
 import Icon from "@mui/material/Icon";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import ViewOrders from '@mui/icons-material/ViewList';
+import ViewOrders from "@mui/icons-material/ViewList";
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
 import MDButton from "../../../../components/MDButton";
 import MDTypography from "../../../../components/MDTypography";
-import Button from '@mui/material/Button';
+import Button from "@mui/material/Button";
 
 // Material Dashboard 2 React examples
 import DataTable from "../../../../examples/Tables/DataTable";
@@ -51,9 +51,8 @@ function MockTraderwiseCompantPNL(props) {
     </Menu>
   );
 
-
-
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
   const [allTrade, setAllTrade] = useState([]);
   const [marketData, setMarketData] = useState([]);
@@ -66,39 +65,47 @@ function MockTraderwiseCompantPNL(props) {
   // const [lastestTradeStatus, setLatestTradeStatus] = useState([]);
 
   useEffect(() => {
-
-    axios.get(`${baseUrl}api/v1/getliveprice`)
+    axios
+      .get(`${baseUrl}api/v1/getliveprice`)
       .then((res) => {
         //console.log("live price data", res)
         setMarketData(res.data);
         // setDetails.setMarketData(data);
-      }).catch((err) => {
-        return new Error(err);
       })
+      .catch((err) => {
+        return new Error(err);
+      });
 
     props.socket.on("tick", (data) => {
       //console.log("this is live market data", data);
-      setMarketData(prevInstruments => {
-        const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
-        data.forEach(instrument => {
+      setMarketData((prevInstruments) => {
+        const instrumentMap = new Map(
+          prevInstruments.map((instrument) => [
+            instrument.instrument_token,
+            instrument,
+          ])
+        );
+        data.forEach((instrument) => {
           instrumentMap.set(instrument.instrument_token, instrument);
         });
         return Array.from(instrumentMap.values());
       });
       // setDetails.setMarketData(data);
-    })
-  }, [])
+    });
+  }, []);
 
   useEffect(() => {
-
-    axios.get(`${baseUrl}api/v1/infinityTrade/mock/traderwiseBatchWise/${props.batchName}`)
+    axios
+      .get(
+        `${baseUrl}api/v1/infinityTrade/mock/traderwiseBatchWise/${props.batchName}`
+      )
       .then((res) => {
         setAllTrade(res.data.data);
-      }).catch((err) => {
-        return new Error(err);
       })
-
-  }, [props.batchName])
+      .catch((err) => {
+        return new Error(err);
+      });
+  }, [props.batchName]);
 
   // useEffect(() => {
   //   return () => {
@@ -134,37 +141,48 @@ function MockTraderwiseCompantPNL(props) {
       //console.log(marketData, "marketData")
       let marketDataInstrument = marketData.filter((elem) => {
         //console.log("market Data Instrument",elem.instrument_token)
-        return (elem.instrument_token == Number(allTrade[i]._id.symbol) || elem.instrument_token == Number(allTrade[i]._id.exchangeInstrumentToken))
-      })
+        return (
+          elem.instrument_token == Number(allTrade[i]._id.symbol) ||
+          elem.instrument_token ==
+            Number(allTrade[i]._id.exchangeInstrumentToken)
+        );
+      });
 
-      let obj = mapForParticularUser.get(allTrade[i]._id.traderId)
+      let obj = mapForParticularUser.get(allTrade[i]._id.traderId);
       //console.log(marketDataInstrument, "marketDataInstrument")
-      obj.totalPnl += ((allTrade[i].amount + ((allTrade[i].lots) * marketDataInstrument[0]?.last_price)));
+      obj.totalPnl +=
+        allTrade[i].amount +
+        allTrade[i].lots * marketDataInstrument[0]?.last_price;
       //console.log("Total P&L: ",allTrade[i]._id.traderId, allTrade[i].amount,Number(allTrade[i]._id.symbol),marketDataInstrument[0]?.instrument_token,marketDataInstrument[0]?.last_price,allTrade[i].lots);
-      obj.lotUsed += Math.abs(allTrade[i].lotUsed)
+      obj.lotUsed += Math.abs(allTrade[i].lotUsed);
       obj.runninglots += allTrade[i].lots;
       obj.brokerage += allTrade[i].brokerage;
-      obj.noOfTrade += allTrade[i].trades
-
+      obj.noOfTrade += allTrade[i].trades;
     } else {
       //console.log(marketData, "marketData")
       //console.log(Number(allTrade[i]._id.symbol) ,Number(allTrade[i]._id.symbol), "symbol")
       let marketDataInstrument = marketData.filter((elem) => {
-        return elem !== undefined && (elem.instrument_token == Number(allTrade[i]._id.symbol) || elem.instrument_token == Number(allTrade[i]._id.exchangeInstrumentToken))
-      })
+        return (
+          elem !== undefined &&
+          (elem.instrument_token == Number(allTrade[i]._id.symbol) ||
+            elem.instrument_token ==
+              Number(allTrade[i]._id.exchangeInstrumentToken))
+        );
+      });
       ////console.log(marketDataInstrument)
       //console.log(marketDataInstrument, "marketDataInstrument")
       mapForParticularUser.set(allTrade[i]._id.traderId, {
         name: allTrade[i]._id.traderName,
-        totalPnl: ((allTrade[i].amount + ((allTrade[i].lots) * marketDataInstrument[0]?.last_price))),
+        totalPnl:
+          allTrade[i].amount +
+          allTrade[i].lots * marketDataInstrument[0]?.last_price,
         lotUsed: Math.abs(allTrade[i].lotUsed),
         runninglots: allTrade[i].lots,
         brokerage: allTrade[i].brokerage,
         noOfTrade: allTrade[i].trades,
-        userId: allTrade[i]._id.traderId
-      })
+        userId: allTrade[i]._id.traderId,
+      });
     }
-
   }
 
   //console.log("mapForParticularUser", mapForParticularUser)
@@ -175,12 +193,10 @@ function MockTraderwiseCompantPNL(props) {
   }
 
   finalTraderPnl.sort((a, b) => {
-    return (b.totalPnl - b.brokerage) - (a.totalPnl - a.brokerage)
+    return b.totalPnl - b.brokerage - (a.totalPnl - a.brokerage);
   });
 
   //console.log("finalTraderPnl", finalTraderPnl)
-
-
 
   let totalGrossPnl = 0;
   let totalTransactionCost = 0;
@@ -189,22 +205,27 @@ function MockTraderwiseCompantPNL(props) {
   let totalLotsUsed = 0;
   let totalTraders = 0;
 
-
-
   finalTraderPnl.map((subelem, index) => {
     let obj = {};
-    let npnlcolor = ((subelem.totalPnl) - (subelem.brokerage)) >= 0 ? "success" : "error"
-    let tradercolor = ((subelem.totalPnl) - (subelem.totalPnl)) >= 0 ? "success" : "error"
-    let gpnlcolor = (subelem.totalPnl) >= 0 ? "success" : "error"
-    let runninglotscolor = subelem.runninglots > 0 ? "info" : (subelem.runninglots < 0 ? "error" : "dark")
-    let runninglotsbgcolor = subelem.runninglots > 0 ? "#ffff00" : ""
-    let traderbackgroundcolor = subelem.runninglots != 0 ? "white" : "#e0e1e5"
+    let npnlcolor =
+      subelem.totalPnl - subelem.brokerage >= 0 ? "success" : "error";
+    let tradercolor =
+      subelem.totalPnl - subelem.totalPnl >= 0 ? "success" : "error";
+    let gpnlcolor = subelem.totalPnl >= 0 ? "success" : "error";
+    let runninglotscolor =
+      subelem.runninglots > 0
+        ? "info"
+        : subelem.runninglots < 0
+        ? "error"
+        : "dark";
+    let runninglotsbgcolor = subelem.runninglots > 0 ? "#ffff00" : "";
+    let traderbackgroundcolor = subelem.runninglots != 0 ? "white" : "#e0e1e5";
 
-    totalGrossPnl += (subelem.totalPnl);
-    totalTransactionCost += (subelem.brokerage);
-    totalNoRunningLots += (subelem.runninglots);
-    totalLotsUsed += (subelem.lotUsed);
-    totalTrades += (subelem.noOfTrade);
+    totalGrossPnl += subelem.totalPnl;
+    totalTransactionCost += subelem.brokerage;
+    totalNoRunningLots += subelem.runninglots;
+    totalLotsUsed += subelem.lotUsed;
+    totalTrades += subelem.noOfTrade;
     totalTraders += 1;
 
     obj.userId = (
@@ -214,44 +235,87 @@ function MockTraderwiseCompantPNL(props) {
     );
 
     obj.traderName = (
-      <MDTypography component="a" variant="caption" color={tradercolor} fontWeight="medium" backgroundColor={traderbackgroundcolor} padding="5px" borderRadius="5px">
-        {(subelem.name)}
+      <MDTypography
+        component="a"
+        variant="caption"
+        color={tradercolor}
+        fontWeight="medium"
+        backgroundColor={traderbackgroundcolor}
+        padding="5px"
+        borderRadius="5px"
+      >
+        {subelem.name}
       </MDTypography>
     );
 
     obj.grossPnl = (
-      <MDTypography component="a" variant="caption" color={gpnlcolor} fontWeight="medium">
-        {(subelem.totalPnl) >= 0.00 ? "+₹" + ((subelem.totalPnl).toFixed(2)) : "-₹" + ((-(subelem.totalPnl)).toFixed(2))}
+      <MDTypography
+        component="a"
+        variant="caption"
+        color={gpnlcolor}
+        fontWeight="medium"
+      >
+        {subelem.totalPnl >= 0.0
+          ? "+₹" + subelem.totalPnl.toFixed(2)
+          : "-₹" + (-subelem.totalPnl).toFixed(2)}
       </MDTypography>
     );
 
     obj.noOfTrade = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
         {subelem.noOfTrade}
       </MDTypography>
     );
 
     obj.runningLots = (
-      <MDTypography component="a" variant="caption" color={runninglotscolor} backgroundColor={runninglotsbgcolor} fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color={runninglotscolor}
+        backgroundColor={runninglotsbgcolor}
+        fontWeight="medium"
+      >
         {subelem.runninglots}
       </MDTypography>
     );
 
     obj.lotUsed = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
         {subelem.lotUsed}
       </MDTypography>
     );
 
     obj.brokerage = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {"₹" + (subelem.brokerage).toFixed(2)}
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
+        {"₹" + subelem.brokerage.toFixed(2)}
       </MDTypography>
     );
 
     obj.netPnl = (
-      <MDTypography component="a" variant="caption" color={npnlcolor} fontWeight="medium">
-        {((subelem.totalPnl) - (subelem.brokerage)) >= 0.00 ? "+₹" + (((subelem.totalPnl) - (subelem.brokerage)).toFixed(2)) : "-₹" + ((-((subelem.totalPnl) - (subelem.brokerage))).toFixed(2))}
+      <MDTypography
+        component="a"
+        variant="caption"
+        color={npnlcolor}
+        fontWeight="medium"
+      >
+        {subelem.totalPnl - subelem.brokerage >= 0.0
+          ? "+₹" + (subelem.totalPnl - subelem.brokerage).toFixed(2)
+          : "-₹" + (-(subelem.totalPnl - subelem.brokerage)).toFixed(2)}
       </MDTypography>
     );
     // obj.view = (
@@ -266,55 +330,113 @@ function MockTraderwiseCompantPNL(props) {
     // );
 
     rows.push(obj);
-  })
+  });
 
   let obj = {};
 
-  const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error"
-  const totalnetPnlcolor = (totalGrossPnl - totalTransactionCost) >= 0 ? "success" : "error"
-
-
+  const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error";
+  const totalnetPnlcolor =
+    totalGrossPnl - totalTransactionCost >= 0 ? "success" : "error";
 
   obj.traderName = (
-    <MDTypography component="a" variant="caption" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
+    <MDTypography
+      component="a"
+      variant="caption"
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
       Traders : {totalTraders}
     </MDTypography>
   );
 
   obj.grossPnl = (
-    <MDTypography component="a" variant="caption" color={totalGrossPnlcolor} padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
-      Gross P&L : {totalGrossPnl >= 0.00 ? "+₹" + (totalGrossPnl.toFixed(2)) : "-₹" + ((-totalGrossPnl).toFixed(2))}
+    <MDTypography
+      component="a"
+      variant="caption"
+      color={totalGrossPnlcolor}
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
+      Gross P&L :{" "}
+      {totalGrossPnl >= 0.0
+        ? "+₹" + totalGrossPnl.toFixed(2)
+        : "-₹" + (-totalGrossPnl).toFixed(2)}
     </MDTypography>
   );
 
   obj.noOfTrade = (
-    <MDTypography component="a" variant="caption" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
+    <MDTypography
+      component="a"
+      variant="caption"
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
       Total Trades : {totalTrades}
     </MDTypography>
   );
 
   obj.runningLots = (
-    <MDTypography component="a" variant="caption" color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
+    <MDTypography
+      component="a"
+      variant="caption"
+      color="dark"
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
       Running Lots : {totalNoRunningLots}
     </MDTypography>
   );
 
   obj.lotUsed = (
-    <MDTypography component="a" variant="caption" color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
+    <MDTypography
+      component="a"
+      variant="caption"
+      color="dark"
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
       Lots Used : {totalLotsUsed}
     </MDTypography>
   );
 
-
   obj.brokerage = (
-    <MDTypography component="a" variant="caption" color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
-      Brokerage : {"₹" + (totalTransactionCost).toFixed(2)}
+    <MDTypography
+      component="a"
+      variant="caption"
+      color="dark"
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
+      Brokerage : {"₹" + totalTransactionCost.toFixed(2)}
     </MDTypography>
   );
 
   obj.netPnl = (
-    <MDTypography component="a" variant="caption" color={totalnetPnlcolor} padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
-      Net P&L : {(totalGrossPnl - totalTransactionCost) >= 0.00 ? "+₹" + ((totalGrossPnl - totalTransactionCost).toFixed(2)) : "-₹" + ((-(totalGrossPnl - totalTransactionCost)).toFixed(2))}
+    <MDTypography
+      component="a"
+      variant="caption"
+      color={totalnetPnlcolor}
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
+      Net P&L :{" "}
+      {totalGrossPnl - totalTransactionCost >= 0.0
+        ? "+₹" + (totalGrossPnl - totalTransactionCost).toFixed(2)
+        : "-₹" + (-(totalGrossPnl - totalTransactionCost)).toFixed(2)}
     </MDTypography>
   );
 
@@ -322,10 +444,15 @@ function MockTraderwiseCompantPNL(props) {
 
   //console.log("traderwise row", rows)
 
-
   return (
     <Card>
-      <MDBox display="flex" justifyContent="space-between" alignItems="center" p={0} ml={2}>
+      <MDBox
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        p={0}
+        ml={2}
+      >
         <MDBox>
           <MDTypography variant="h6" gutterBottom>
             Traderwise Company P&L(Mock) - {props.batchName}
@@ -346,7 +473,11 @@ function MockTraderwiseCompantPNL(props) {
           </MDBox> */}
         </MDBox>
         <MDBox color="text" px={2}>
-          <Icon sx={{ cursor: "pointer", fontWeight: "bold" }} fontSize="small" onClick={openMenu}>
+          <Icon
+            sx={{ cursor: "pointer", fontWeight: "bold" }}
+            fontSize="small"
+            onClick={openMenu}
+          >
             more_vert
           </Icon>
         </MDBox>

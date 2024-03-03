@@ -1,4 +1,4 @@
-import {useState, useContext, useEffect} from "react"
+import { useState, useContext, useEffect } from "react";
 import axios from "axios";
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -24,24 +24,27 @@ import TotalFunds from "./components/TotalFunds";
 import BillingInformation from "./components/BillingInformation";
 import Transactions from "./components/Transactions";
 
-
 function Billing() {
-
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const [marginDetails, setMarginDetails] = useState([]);
   const [render, setRender] = useState(true);
-  useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/getUserMarginDetailsAll`, {withCredentials: true})
-      .then((res)=>{
-              console.log(res.data);
-              setMarginDetails(res.data);
-      }).catch((err)=>{
-          // window.alert("Error Fetching Margin Details");
-          return new Error(err);
+  useEffect(() => {
+    axios
+      .get(`${baseUrl}api/v1/getUserMarginDetailsAll`, {
+        withCredentials: true,
       })
-    },[render])
+      .then((res) => {
+        console.log(res.data);
+        setMarginDetails(res.data);
+      })
+      .catch((err) => {
+        // window.alert("Error Fetching Margin Details");
+        return new Error(err);
+      });
+  }, [render]);
 
-    console.log("marginDetails main", marginDetails)
+  console.log("marginDetails main", marginDetails);
   return (
     <DashboardLayout>
       <DashboardNavbar absolute isMini />
@@ -51,19 +54,27 @@ function Billing() {
             <Grid item xs={12} lg={7}>
               <Grid container spacing={3}>
                 <Grid item xs={12}>
-                  <AddFunds marginDetails = {marginDetails} render={render} setRender={setRender}/>
+                  <AddFunds
+                    marginDetails={marginDetails}
+                    render={render}
+                    setRender={setRender}
+                  />
                 </Grid>
               </Grid>
             </Grid>
             <Grid item xs={12} lg={5}>
-              <TotalFunds marginDetails={marginDetails} render={render}/>
+              <TotalFunds marginDetails={marginDetails} render={render} />
             </Grid>
           </Grid>
         </MDBox>
         <MDBox mb={3}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={7}>
-              <BillingInformation marginDetails = {marginDetails} setMarginDetails = {setMarginDetails} render={render}/>
+              <BillingInformation
+                marginDetails={marginDetails}
+                setMarginDetails={setMarginDetails}
+                render={render}
+              />
             </Grid>
             <Grid item xs={12} md={5}>
               <Transactions render={render} />

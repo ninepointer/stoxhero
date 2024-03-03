@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react"
+import { useState, useEffect } from "react";
 import axios from "axios";
 // @mui material components
 import Card from "@mui/material/Card";
@@ -14,7 +14,7 @@ import { HiUserGroup } from "react-icons/hi";
 
 // Material Dashboard 2 React examples
 import DataTable from "../../../../examples/Tables/DataTable";
- 
+
 // Data
 import data from "./data";
 // import ViewTradeDetail from "./ViewTradeDetail";
@@ -48,10 +48,9 @@ function MockTraderwiseCompantPNL(props) {
     </Menu>
   );
 
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
-
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-    
   const [allTrade, setAllTrade] = useState([]);
   const [marketData, setMarketData] = useState([]);
   const [trackEvent, setTrackEvent] = useState({});
@@ -62,52 +61,58 @@ function MockTraderwiseCompantPNL(props) {
     tradeSymbol: "",
     tradeType: "",
     tradeQuantity: "",
-    tradeStatus: ""
-  })
+    tradeStatus: "",
+  });
 
-  useEffect(()=>{
-    props.socket.on('updatePnl', (data)=>{
+  useEffect(() => {
+    props.socket.on("updatePnl", (data) => {
       // console.log("in the pnl event", data)
-      setTimeout(()=>{
+      setTimeout(() => {
         setTrackEvent(data);
-      })
-    })
-  }, [])
+      });
+    });
+  }, []);
 
-  useEffect(()=>{
-
-    axios.get(`${baseUrl}api/v1/getliveprice`)
-    .then((res) => {
+  useEffect(() => {
+    axios
+      .get(`${baseUrl}api/v1/getliveprice`)
+      .then((res) => {
         //console.log("live price data", res)
         setMarketData(res.data);
         // setDetails.setMarketData(data);
-    }).catch((err) => {
+      })
+      .catch((err) => {
         return new Error(err);
-    })
+      });
 
     props.socket.on("tick", (data) => {
       //console.log("this is live market data", data);
-      setMarketData(prevInstruments => {
-        const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
-        data.forEach(instrument => {
+      setMarketData((prevInstruments) => {
+        const instrumentMap = new Map(
+          prevInstruments.map((instrument) => [
+            instrument.instrument_token,
+            instrument,
+          ])
+        );
+        data.forEach((instrument) => {
           instrumentMap.set(instrument.instrument_token, instrument);
         });
         return Array.from(instrumentMap.values());
       });
       // setDetails.setMarketData(data);
-    })
-  }, [])
+    });
+  }, []);
 
-  useEffect(()=>{
-
-    axios.get(`${baseUrl}api/v1/gettraderwisepnlmocktradecompanytoday`)
-    .then((res) => {
+  useEffect(() => {
+    axios
+      .get(`${baseUrl}api/v1/gettraderwisepnlmocktradecompanytoday`)
+      .then((res) => {
         setAllTrade(res.data);
-    }).catch((err)=>{
+      })
+      .catch((err) => {
         return new Error(err);
-    })
-
-  }, [trackEvent]) 
+      });
+  }, [trackEvent]);
 
   // useEffect(() => {
   //   return () => {
@@ -116,237 +121,378 @@ function MockTraderwiseCompantPNL(props) {
   //   }
   // }, [])
 
-
-  useEffect(()=>{
+  useEffect(() => {
     // Get Lastest Trade timestamp
-    axios.get(`${baseUrl}api/v1/infinityTrade/mock/letestTradeCompany`)
-    // axios.get(`${baseUrl}api/v1/readmocktradecompany`)
-    .then((res)=>{
-      latestLive.tradeTime = (res.data.data.trade_time) ;
-      latestLive.tradeBy = (res.data.data.createdBy) ;
-      latestLive.tradeType = (res.data.data.buyOrSell) ;
-      latestLive.tradeQuantity = (res.data.data.Quantity) ;
-      latestLive.tradeSymbol = (res.data.data.symbol) ;
-      latestLive.tradeStatus = (res.data.data.status)
+    axios
+      .get(`${baseUrl}api/v1/infinityTrade/mock/letestTradeCompany`)
+      // axios.get(`${baseUrl}api/v1/readmocktradecompany`)
+      .then((res) => {
+        latestLive.tradeTime = res.data.data.trade_time;
+        latestLive.tradeBy = res.data.data.createdBy;
+        latestLive.tradeType = res.data.data.buyOrSell;
+        latestLive.tradeQuantity = res.data.data.Quantity;
+        latestLive.tradeSymbol = res.data.data.symbol;
+        latestLive.tradeStatus = res.data.data.status;
 
-      setLatestLive(latestLive)
-    }).catch((err) => {
-      return new Error(err);
-    })
-  }, [trackEvent])
+        setLatestLive(latestLive);
+      })
+      .catch((err) => {
+        return new Error(err);
+      });
+  }, [trackEvent]);
 
   let mapForParticularUser = new Map();
-    //console.log("Length of All Trade Array:",allTrade.length);
-    for(let i = 0; i < allTrade.length; i++){
-      // //console.log(allTrade[i])
-      if(mapForParticularUser.has(allTrade[i]._id.traderId)){
-        //console.log(marketData, "marketData")
-        let marketDataInstrument = marketData.filter((elem)=>{
-          //console.log("market Data Instrument",elem.instrument_token)
-          return (elem.instrument_token == Number(allTrade[i]._id.symbol) || elem.instrument_token == Number(allTrade[i]._id.exchangeInstrumentToken))
-        })
+  //console.log("Length of All Trade Array:",allTrade.length);
+  for (let i = 0; i < allTrade.length; i++) {
+    // //console.log(allTrade[i])
+    if (mapForParticularUser.has(allTrade[i]._id.traderId)) {
+      //console.log(marketData, "marketData")
+      let marketDataInstrument = marketData.filter((elem) => {
+        //console.log("market Data Instrument",elem.instrument_token)
+        return (
+          elem.instrument_token == Number(allTrade[i]._id.symbol) ||
+          elem.instrument_token ==
+            Number(allTrade[i]._id.exchangeInstrumentToken)
+        );
+      });
 
-        let obj = mapForParticularUser.get(allTrade[i]._id.traderId)
-        //console.log(marketDataInstrument, "marketDataInstrument")
-        obj.totalPnl += ((allTrade[i].amount+((allTrade[i].lots)*marketDataInstrument[0]?.last_price)));
-        //console.log("Total P&L: ",allTrade[i]._id.traderId, allTrade[i].amount,Number(allTrade[i]._id.symbol),marketDataInstrument[0]?.instrument_token,marketDataInstrument[0]?.last_price,allTrade[i].lots);
-        obj.lotUsed += Math.abs(allTrade[i].lotUsed)
-        obj.runninglots += allTrade[i].lots;
-        obj.brokerage += allTrade[i].brokerage;
-        obj.noOfTrade += allTrade[i].trades
-        obj.absRunninglots += Math.abs(allTrade[i].lots);
-
-
-      } else{
-        //console.log(marketData, "marketData")
-        //console.log(Number(allTrade[i]._id.symbol) ,Number(allTrade[i]._id.symbol), "symbol")
-        let marketDataInstrument = marketData.filter((elem)=>{
-          return elem !== undefined && (elem.instrument_token == Number(allTrade[i]._id.symbol) || elem.instrument_token == Number(allTrade[i]._id.exchangeInstrumentToken))
-        })
-        ////console.log(marketDataInstrument)
-        //console.log(marketDataInstrument, "marketDataInstrument")
-        mapForParticularUser.set(allTrade[i]._id.traderId, {
-          name : allTrade[i]._id.traderName,
-          totalPnl : ((allTrade[i].amount+((allTrade[i].lots)*marketDataInstrument[0]?.last_price))),
-          lotUsed : Math.abs(allTrade[i].lotUsed),
-          runninglots : allTrade[i].lots,
-          absRunninglots: Math.abs(allTrade[i].lots),
-          brokerage: allTrade[i].brokerage,
-          noOfTrade: allTrade[i].trades,
-          userId: allTrade[i]._id.traderId,
-          algoName: allTrade[i]._id.algoName
-        }) 
-      }
-
+      let obj = mapForParticularUser.get(allTrade[i]._id.traderId);
+      //console.log(marketDataInstrument, "marketDataInstrument")
+      obj.totalPnl +=
+        allTrade[i].amount +
+        allTrade[i].lots * marketDataInstrument[0]?.last_price;
+      //console.log("Total P&L: ",allTrade[i]._id.traderId, allTrade[i].amount,Number(allTrade[i]._id.symbol),marketDataInstrument[0]?.instrument_token,marketDataInstrument[0]?.last_price,allTrade[i].lots);
+      obj.lotUsed += Math.abs(allTrade[i].lotUsed);
+      obj.runninglots += allTrade[i].lots;
+      obj.brokerage += allTrade[i].brokerage;
+      obj.noOfTrade += allTrade[i].trades;
+      obj.absRunninglots += Math.abs(allTrade[i].lots);
+    } else {
+      //console.log(marketData, "marketData")
+      //console.log(Number(allTrade[i]._id.symbol) ,Number(allTrade[i]._id.symbol), "symbol")
+      let marketDataInstrument = marketData.filter((elem) => {
+        return (
+          elem !== undefined &&
+          (elem.instrument_token == Number(allTrade[i]._id.symbol) ||
+            elem.instrument_token ==
+              Number(allTrade[i]._id.exchangeInstrumentToken))
+        );
+      });
+      ////console.log(marketDataInstrument)
+      //console.log(marketDataInstrument, "marketDataInstrument")
+      mapForParticularUser.set(allTrade[i]._id.traderId, {
+        name: allTrade[i]._id.traderName,
+        totalPnl:
+          allTrade[i].amount +
+          allTrade[i].lots * marketDataInstrument[0]?.last_price,
+        lotUsed: Math.abs(allTrade[i].lotUsed),
+        runninglots: allTrade[i].lots,
+        absRunninglots: Math.abs(allTrade[i].lots),
+        brokerage: allTrade[i].brokerage,
+        noOfTrade: allTrade[i].trades,
+        userId: allTrade[i]._id.traderId,
+        algoName: allTrade[i]._id.algoName,
+      });
     }
+  }
 
-    //console.log("mapForParticularUser", mapForParticularUser)
+  //console.log("mapForParticularUser", mapForParticularUser)
 
-    let finalTraderPnl = [];
-    for (let value of mapForParticularUser.values()){
-      finalTraderPnl.push(value);
-    }
+  let finalTraderPnl = [];
+  for (let value of mapForParticularUser.values()) {
+    finalTraderPnl.push(value);
+  }
 
-    finalTraderPnl.sort((a, b)=> {
-      return (b.totalPnl-b.brokerage)-(a.totalPnl-a.brokerage)
-    });
+  finalTraderPnl.sort((a, b) => {
+    return b.totalPnl - b.brokerage - (a.totalPnl - a.brokerage);
+  });
 
-    //console.log("finalTraderPnl", finalTraderPnl)
+  //console.log("finalTraderPnl", finalTraderPnl)
 
+  let totalGrossPnl = 0;
+  let totalTransactionCost = 0;
+  let totalNoRunningLots = 0;
+  let totalTrades = 0;
+  let totalLotsUsed = 0;
+  let totalTraders = 0;
+  let totalAbsRunningLots = 0;
 
+  finalTraderPnl.map((subelem, index) => {
+    let obj = {};
+    let npnlcolor =
+      subelem.totalPnl - subelem.brokerage >= 0 ? "success" : "error";
+    let tradercolor =
+      subelem.totalPnl - subelem.totalPnl >= 0 ? "success" : "error";
+    let gpnlcolor = subelem.totalPnl >= 0 ? "success" : "error";
+    let runninglotscolor =
+      subelem.runninglots > 0
+        ? "info"
+        : subelem.runninglots < 0
+        ? "error"
+        : "dark";
+    let runninglotsbgcolor = subelem.runninglots > 0 ? "#ffff00" : "";
+    let traderbackgroundcolor = subelem.runninglots != 0 ? "white" : "#e0e1e5";
 
-let totalGrossPnl = 0;
-let totalTransactionCost = 0;
-let totalNoRunningLots = 0;
-let totalTrades = 0;
-let totalLotsUsed = 0;
-let totalTraders = 0;
-let totalAbsRunningLots = 0;
+    totalGrossPnl += subelem.totalPnl;
+    totalTransactionCost += subelem.brokerage;
+    totalNoRunningLots += subelem.runninglots;
+    totalLotsUsed += subelem.lotUsed;
+    totalTrades += subelem.noOfTrade;
+    totalTraders += 1;
+    totalAbsRunningLots += subelem.absRunninglots;
 
-finalTraderPnl.map((subelem, index)=>{
+    obj.userId = (
+      <MDTypography component="a" variant="caption" fontWeight="medium">
+        {subelem.userId}
+      </MDTypography>
+    );
+
+    obj.traderName = (
+      <MDTypography
+        component="a"
+        variant="caption"
+        color={tradercolor}
+        fontWeight="medium"
+        backgroundColor={traderbackgroundcolor}
+        padding="5px"
+        borderRadius="5px"
+      >
+        {subelem.name}
+      </MDTypography>
+    );
+
+    obj.grossPnl = (
+      <MDTypography
+        component="a"
+        variant="caption"
+        color={gpnlcolor}
+        fontWeight="medium"
+      >
+        {subelem.totalPnl >= 0.0
+          ? "+₹" + subelem.totalPnl.toFixed(2)
+          : "-₹" + (-subelem.totalPnl).toFixed(2)}
+      </MDTypography>
+    );
+
+    obj.noOfTrade = (
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
+        {subelem.noOfTrade}
+      </MDTypography>
+    );
+
+    obj.runningLots = (
+      <MDTypography
+        component="a"
+        variant="caption"
+        color={runninglotscolor}
+        backgroundColor={runninglotsbgcolor}
+        fontWeight="medium"
+      >
+        {subelem.runninglots}
+      </MDTypography>
+    );
+
+    obj.absRunningLots = (
+      <MDTypography
+        component="a"
+        variant="caption"
+        color={runninglotscolor}
+        backgroundColor={runninglotsbgcolor}
+        fontWeight="medium"
+      >
+        {subelem.absRunninglots}
+      </MDTypography>
+    );
+
+    obj.lotUsed = (
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
+        {subelem.lotUsed}
+      </MDTypography>
+    );
+
+    obj.brokerage = (
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
+        {"₹" + subelem.brokerage.toFixed(2)}
+      </MDTypography>
+    );
+
+    obj.netPnl = (
+      <MDTypography
+        component="a"
+        variant="caption"
+        color={npnlcolor}
+        fontWeight="medium"
+      >
+        {subelem.totalPnl - subelem.brokerage >= 0.0
+          ? "+₹" + (subelem.totalPnl - subelem.brokerage).toFixed(2)
+          : "-₹" + (-(subelem.totalPnl - subelem.brokerage)).toFixed(2)}
+      </MDTypography>
+    );
+    rows.push(obj);
+  });
+
   let obj = {};
-  let npnlcolor = ((subelem.totalPnl)-(subelem.brokerage)) >= 0 ? "success" : "error"
-  let tradercolor = ((subelem.totalPnl)-(subelem.totalPnl)) >= 0 ? "success" : "error"
-  let gpnlcolor = (subelem.totalPnl) >= 0 ? "success" : "error"
-  let runninglotscolor = subelem.runninglots > 0 ? "info" : (subelem.runninglots < 0 ? "error" : "dark")
-  let runninglotsbgcolor = subelem.runninglots > 0 ? "#ffff00" : ""
-  let traderbackgroundcolor = subelem.runninglots != 0 ? "white" : "#e0e1e5"
 
-  totalGrossPnl += (subelem.totalPnl);
-  totalTransactionCost += (subelem.brokerage);
-  totalNoRunningLots += (subelem.runninglots);
-  totalLotsUsed += (subelem.lotUsed);
-  totalTrades += (subelem.noOfTrade);
-  totalTraders += 1;
-  totalAbsRunningLots += subelem.absRunninglots;
-
-
-  obj.userId = (
-    <MDTypography component="a" variant="caption" fontWeight="medium">
-      {subelem.userId}
-    </MDTypography>
-  );
+  const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error";
+  const totalnetPnlcolor =
+    totalGrossPnl - totalTransactionCost >= 0 ? "success" : "error";
 
   obj.traderName = (
-    <MDTypography component="a" variant="caption" color={tradercolor} fontWeight="medium" backgroundColor={traderbackgroundcolor} padding="5px" borderRadius="5px">
-      {(subelem.name)}
+    <MDTypography
+      component="a"
+      variant="caption"
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
+      Traders : {totalTraders}
     </MDTypography>
   );
 
   obj.grossPnl = (
-    <MDTypography component="a" variant="caption" color={gpnlcolor} fontWeight="medium">
-      {(subelem.totalPnl) >= 0.00 ? "+₹" + ((subelem.totalPnl).toFixed(2)): "-₹" + ((-(subelem.totalPnl)).toFixed(2))}
+    <MDTypography
+      component="a"
+      variant="caption"
+      color={totalGrossPnlcolor}
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
+      {totalGrossPnl >= 0.0
+        ? "+₹" + totalGrossPnl.toFixed(2)
+        : "-₹" + (-totalGrossPnl).toFixed(2)}
     </MDTypography>
   );
 
   obj.noOfTrade = (
-    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {subelem.noOfTrade}
+    <MDTypography
+      component="a"
+      variant="caption"
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
+      {totalTrades}
     </MDTypography>
   );
 
   obj.runningLots = (
-    <MDTypography component="a" variant="caption" color={runninglotscolor} backgroundColor={runninglotsbgcolor} fontWeight="medium">
-      {subelem.runninglots}
+    <MDTypography
+      component="a"
+      variant="caption"
+      color="dark"
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
+      {totalNoRunningLots}
     </MDTypography>
   );
 
   obj.absRunningLots = (
-    <MDTypography component="a" variant="caption" color={runninglotscolor} backgroundColor={runninglotsbgcolor} fontWeight="medium">
-      {subelem.absRunninglots}
+    <MDTypography
+      component="a"
+      variant="caption"
+      color="dark"
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
+      {totalAbsRunningLots}
     </MDTypography>
   );
 
   obj.lotUsed = (
-    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {subelem.lotUsed}
+    <MDTypography
+      component="a"
+      variant="caption"
+      color="dark"
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
+      {totalLotsUsed}
     </MDTypography>
   );
 
   obj.brokerage = (
-    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {"₹"+(subelem.brokerage).toFixed(2)}
+    <MDTypography
+      component="a"
+      variant="caption"
+      color="dark"
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
+      {"₹" + totalTransactionCost.toFixed(2)}
     </MDTypography>
   );
 
   obj.netPnl = (
-    <MDTypography component="a" variant="caption" color={npnlcolor} fontWeight="medium">
-      {((subelem.totalPnl)-(subelem.brokerage)) >= 0.00 ? "+₹" + (((subelem.totalPnl)-(subelem.brokerage)).toFixed(2)): "-₹" + ((-((subelem.totalPnl)-(subelem.brokerage))).toFixed(2))}
+    <MDTypography
+      component="a"
+      variant="caption"
+      color={totalnetPnlcolor}
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
+      {totalGrossPnl - totalTransactionCost >= 0.0
+        ? "+₹" + (totalGrossPnl - totalTransactionCost).toFixed(2)
+        : "-₹" + (-(totalGrossPnl - totalTransactionCost)).toFixed(2)}
     </MDTypography>
   );
+
   rows.push(obj);
-})
 
-let obj = {};
-
-const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error"
-const totalnetPnlcolor = (totalGrossPnl-totalTransactionCost) >= 0 ? "success" : "error"
-
-
-
-obj.traderName = (
-  <MDTypography component="a" variant="caption" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
-    Traders : {totalTraders}
-  </MDTypography>
-);
-
-obj.grossPnl = (
-  <MDTypography component="a" variant="caption"  color={totalGrossPnlcolor} padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
-    {totalGrossPnl >= 0.00 ? "+₹" + (totalGrossPnl.toFixed(2)): "-₹" + ((-totalGrossPnl).toFixed(2))}
-  </MDTypography>
-);
-
-obj.noOfTrade = (
-  <MDTypography component="a" variant="caption" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
-    {totalTrades}
-  </MDTypography>
-);
-
-obj.runningLots = (
-  <MDTypography component="a" variant="caption" color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
-    {totalNoRunningLots}
-  </MDTypography>
-);
-
-obj.absRunningLots = (
-  <MDTypography component="a" variant="caption" color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
-    {totalAbsRunningLots}
-  </MDTypography>
-);
-
-obj.lotUsed = (
-  <MDTypography component="a" variant="caption" color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
-    {totalLotsUsed}
-  </MDTypography>
-);
-
-
-obj.brokerage = (
-  <MDTypography component="a" variant="caption"  color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
-    {"₹"+(totalTransactionCost).toFixed(2)}
-  </MDTypography>
-);
-
-obj.netPnl = (
-  <MDTypography component="a" variant="caption"  color={totalnetPnlcolor} padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
-   {(totalGrossPnl-totalTransactionCost) >= 0.00 ? "+₹" + ((totalGrossPnl-totalTransactionCost).toFixed(2)): "-₹" + ((-(totalGrossPnl-totalTransactionCost)).toFixed(2))}
-  </MDTypography>
-);
-
-rows.push(obj);
-
-//console.log("traderwise row", rows)
-
+  //console.log("traderwise row", rows)
 
   return (
     <Card>
-      <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
-
-        <MDBox display="flex" justifyContent="space-between" alignItems="center" flexGrow={1}>
+      <MDBox
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        p={3}
+      >
+        <MDBox
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          flexGrow={1}
+        >
           <MDTypography variant="h6" gutterBottom>
             Traders Company Position(Mock Trade)
           </MDTypography>
-          <MDBox display="flex" alignItems="center" lineHeight={0} textAlign="right">
+          <MDBox
+            display="flex"
+            alignItems="center"
+            lineHeight={0}
+            textAlign="right"
+          >
             <Icon
               sx={{
                 fontWeight: "bold",
@@ -354,17 +500,22 @@ rows.push(obj);
                 mt: 0,
               }}
             >
-              {latestLive.tradeBy ? 'done' : 'stop'}
+              {latestLive.tradeBy ? "done" : "stop"}
             </Icon>
             <MDTypography variant="button" fontWeight="regular" color="text">
-            {latestLive.tradeBy ? 
-              <span>
-                <strong> last trade </strong>
-                {latestLive.tradeBy} {latestLive.tradeType === "BUY" ? "bought " : "sold "}  
-                {Math.abs(latestLive.tradeQuantity)} quantity of {latestLive.tradeSymbol} at {(latestLive.tradeTime).toString().split("T")[1].split(".")[0]} - {latestLive.tradeStatus}
-              </span>
-              : "No real trades today"
-            }
+              {latestLive.tradeBy ? (
+                <span>
+                  <strong> last trade </strong>
+                  {latestLive.tradeBy}{" "}
+                  {latestLive.tradeType === "BUY" ? "bought " : "sold "}
+                  {Math.abs(latestLive.tradeQuantity)} quantity of{" "}
+                  {latestLive.tradeSymbol} at{" "}
+                  {latestLive.tradeTime.toString().split("T")[1].split(".")[0]}{" "}
+                  - {latestLive.tradeStatus}
+                </span>
+              ) : (
+                "No real trades today"
+              )}
             </MDTypography>
           </MDBox>
         </MDBox>
@@ -373,13 +524,22 @@ rows.push(obj);
       </MDBox>
 
       {rows.length === 1 ? (
-      <MDBox display="flex" flexDirection="column" mb={4} sx={{alignItems:"center"}}>
-        <HiUserGroup style={{fontSize: '30px', color:"#1A73E8"}}/>
-        <Typography style={{fontSize: '20px',color:"grey"}}>Nothing here</Typography>
-        <Typography mb={2} fontSize={15} color="grey">Trader wise active mock trades will show up here.</Typography> 
-      </MDBox>)
-      :
-        (<MDBox>
+        <MDBox
+          display="flex"
+          flexDirection="column"
+          mb={4}
+          sx={{ alignItems: "center" }}
+        >
+          <HiUserGroup style={{ fontSize: "30px", color: "#1A73E8" }} />
+          <Typography style={{ fontSize: "20px", color: "grey" }}>
+            Nothing here
+          </Typography>
+          <Typography mb={2} fontSize={15} color="grey">
+            Trader wise active mock trades will show up here.
+          </Typography>
+        </MDBox>
+      ) : (
+        <MDBox>
           <DataTable
             table={{ columns, rows }}
             showTotalEntries={false}
@@ -390,5 +550,5 @@ rows.push(obj);
       )}
     </Card>
   );
-            }
+}
 export default MockTraderwiseCompantPNL;

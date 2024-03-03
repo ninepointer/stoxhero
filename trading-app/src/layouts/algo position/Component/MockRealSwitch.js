@@ -6,8 +6,6 @@
 
 // import Switch from "@mui/material/Switch";
 
-
-
 // export default function MockRealSwitch({userId, props}) {
 
 //     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -29,9 +27,6 @@
 //     let modifiedOn = createdOn;
 //     let modifiedBy = "system";
 //     let checkingMultipleAlgoFlag = 1;
-
-
-
 
 //     useEffect(()=>{
 
@@ -98,7 +93,6 @@
 //         // reRender? setReRender(false) : setReRender(true)
 //     }, [])
 
-
 //     console.log("rendering", userId)
 
 //     const switchButtonFunc = (checkRealTrade)=>{
@@ -109,20 +103,20 @@
 //                 let usedAlgoBox = algoUsed.filter((elem)=>{
 //                     return elem.algoName === tradeDetail[i]._id.algoBoxName;
 //                 })
-    
+
 //                 let apiKeyArr = apiKeyDetails.filter((elem)=>{
 //                     return elem.accountId == usedAlgoBox[0]?.tradingAccount
-                    
+
 //                 })
-    
+
 //                 let accessTokenArr = accessTokenDetails.filter((elem)=>{
 //                     return elem.accountId == usedAlgoBox[0]?.tradingAccount
-                    
+
 //                 })
-    
+
 //                 let transaction_type = tradeDetail[i].lots > 0 ? "BUY" : "SELL";
 //                 let quantity = Math.abs(tradeDetail[i].lots);
-    
+
 //                 let detailObj = {
 //                     symbol: tradeDetail[i]._id.symbol,
 //                     Product: tradeDetail[i]._id.product,
@@ -135,7 +129,6 @@
 //                     tradeBy: tradeDetail[i]._id.name
 //                 }
 
-
 //                 while(quantity > 1800){
 //                     console.log("quantity", quantity)
 //                     //placeLiveOrder(usedAlgoBox[0], detailObj, apiKeyArr, accessTokenArr, transaction_type, 1800);
@@ -144,27 +137,26 @@
 //                 console.log("quantity", quantity)
 //                 //placeLiveOrder(usedAlgoBox[0], detailObj, apiKeyArr, accessTokenArr, transaction_type, quantity);
 
-
 //             }
 //         } else{
 //             for(let i = 0; i < liveTradeDetail.length; i++){
 //                 let usedAlgoBox = algoUsed.filter((elem)=>{
 //                     return elem.algoName === liveTradeDetail[i]._id.algoBoxName;
 //                 })
-    
+
 //                 let apiKeyArr = apiKeyDetails.filter((elem)=>{
 //                     return elem.accountId == usedAlgoBox[0]?.tradingAccount
-                    
+
 //                 })
-    
+
 //                 let accessTokenArr = accessTokenDetails.filter((elem)=>{
 //                     return elem.accountId == usedAlgoBox[0]?.tradingAccount
-                    
+
 //                 })
-    
+
 //                 let transaction_type = liveTradeDetail[i].lots > 0 ? "BUY" : "SELL";
 //                 let quantity = Math.abs(liveTradeDetail[i].lots);
-    
+
 //                 let detailObj = {
 //                     symbol: liveTradeDetail[i]._id.symbol,
 //                     Product: liveTradeDetail[i]._id.product,
@@ -189,27 +181,26 @@
 //             }
 //         }
 
-
 //         console.log("checkRealTrade", checkRealTrade)
 //         if(checkRealTrade){
 //             changeIsRealTrade(false)
 //             // setRealTradeState(false)
 //         } else{
 //             changeIsRealTrade(true)
-            
+
 //         }
 
 //         props.handleSwitchChange(userId)
 //     }
 
 //     const placeLiveOrder = async (algoBox, detailObj, apiKeyArr, accessTokenArr, transaction_type, quantity)=>{
-  
+
 //         const { exchange, symbol, buyOrSell, Product, order_type, validity, variety, instrumentToken, tradeBy } = detailObj;
 //         const { algoName, transactionChange, instrumentChange, exchangeChange, lotMultipler, productChange, tradingAccount, _id, marginDeduction, isDefault } = algoBox;
-  
+
 //         const { apiKey } = apiKeyArr[0];
 //         const { accessToken } = accessTokenArr[0];
-  
+
 //         console.log("detailObj", detailObj, apiKey, accessToken, algoBox)
 //         const res = await fetch(`${baseUrl}api/v1/switchToRealTrade`, {
 //             method: "POST",
@@ -217,13 +208,13 @@
 //                 "content-type": "application/json"
 //             },
 //             body: JSON.stringify({
-                
+
 //                 apiKey, accessToken, tradeBy,
-//                 exchange, symbol, buyOrSell: transaction_type, realBuyOrSell: transaction_type, Quantity: quantity, realQuantity: quantity, Product, order_type, 
-//                 validity, variety, createdBy, userId, createdOn, uId, 
-//                 algoBox: {algoName, transactionChange, instrumentChange, exchangeChange, lotMultipler, 
+//                 exchange, symbol, buyOrSell: transaction_type, realBuyOrSell: transaction_type, Quantity: quantity, realQuantity: quantity, Product, order_type,
+//                 validity, variety, createdBy, userId, createdOn, uId,
+//                 algoBox: {algoName, transactionChange, instrumentChange, exchangeChange, lotMultipler,
 //                 productChange, tradingAccount, _id, marginDeduction, isDefault}, instrumentToken
-  
+
 //             })
 //         });
 //         const dataResp = await res.json();
@@ -262,9 +253,9 @@
 //                 modifiedOn, modifiedBy, isRealTradeEnable: realTrade
 //             })
 //         });
-      
+
 //         const permissionData = await response.json();
-    
+
 //         if (permissionData.status === 422 || permissionData.error || !permissionData) {
 //             window.alert(permissionData.error);
 //         }
@@ -273,7 +264,7 @@
 //         // setTimeout(()=>{
 //         //     reRender? setReRender(false) : setReRender(true)
 //         // }, 1000) checked={render}
-    
+
 //     }
 
 //     let real;
@@ -284,7 +275,6 @@
 //         }
 //     })
 //   return (
-
 
 //     props.users.map((elem)=>{
 //         console.log("elem.userId === userId", elem, userId)
@@ -301,5 +291,3 @@
 
 //   )
 // }
-
-

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
 import axios from "axios";
 // @mui material components
 import Card from "@mui/material/Card";
@@ -16,7 +16,8 @@ import data from "./data";
 import { TextField } from "@mui/material";
 
 function TraderwiseTraderPNL({ socket }) {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const [allTrade, setAllTrade] = useState([]);
   const [marketData, setMarketData] = useState([]);
   const [subscriptions, setSubscription] = useState([]);
@@ -25,54 +26,68 @@ function TraderwiseTraderPNL({ socket }) {
   let { columns, rows } = data({ selectedContest });
 
   useEffect(() => {
-    axios.get(`${baseUrl}api/v1/dailycontest/contests/today`, { withCredentials: true })
+    axios
+      .get(`${baseUrl}api/v1/dailycontest/contests/today`, {
+        withCredentials: true,
+      })
       .then((res) => {
         setSubscription(res.data.data);
-        setselectedContest(res.data.data[0])
-      }).catch(e => console.log(e));
-  }, [])
+        setselectedContest(res.data.data[0]);
+      })
+      .catch((e) => console.log(e));
+  }, []);
 
   useEffect(() => {
-
-    axios.get(`${baseUrl}api/v1/getliveprice`)
+    axios
+      .get(`${baseUrl}api/v1/getliveprice`)
       .then((res) => {
         setMarketData(res.data);
-      }).catch((err) => {
-        return new Error(err);
       })
+      .catch((err) => {
+        return new Error(err);
+      });
 
     socket.on("tick", (data) => {
-      setMarketData(prevInstruments => {
-        const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
-        data.forEach(instrument => {
+      setMarketData((prevInstruments) => {
+        const instrumentMap = new Map(
+          prevInstruments.map((instrument) => [
+            instrument.instrument_token,
+            instrument,
+          ])
+        );
+        data.forEach((instrument) => {
           instrumentMap.set(instrument.instrument_token, instrument);
         });
         return Array.from(instrumentMap.values());
       });
-    })
-  }, [])
+    });
+  }, []);
 
   useEffect(() => {
-    socket.on('updatePnl', (data) => {
+    socket.on("updatePnl", (data) => {
       setTimeout(() => {
         setTrackEvent(data);
-      })
-    })
-  }, [])
+      });
+    });
+  }, []);
 
   useEffect(() => {
     if (!selectedContest?._id) {
       return;
     }
-    axios.get(`${baseUrl}api/v1/dailycontest/trade/${selectedContest?._id}/traderWisePnlTside`, { withCredentials: true })
+    axios
+      .get(
+        `${baseUrl}api/v1/dailycontest/trade/${selectedContest?._id}/traderWisePnlTside`,
+        { withCredentials: true }
+      )
       .then((res) => {
         // console.log("contest data", res.data.data)
         setAllTrade(res.data.data);
-      }).catch((err) => {
-        return new Error(err);
       })
-
-  }, [selectedContest?._id, trackEvent])
+      .catch((err) => {
+        return new Error(err);
+      });
+  }, [selectedContest?._id, trackEvent]);
 
   // useEffect(() => {
   //   return () => {
@@ -84,33 +99,42 @@ function TraderwiseTraderPNL({ socket }) {
   for (let i = 0; i < allTrade.length; i++) {
     if (mapForParticularUser.has(allTrade[i]._id.traderId)) {
       let marketDataInstrument = marketData.filter((elem) => {
-        return elem.instrument_token == Number(allTrade[i]._id.symbol)
-      })
+        return elem.instrument_token == Number(allTrade[i]._id.symbol);
+      });
 
-      let obj = mapForParticularUser.get(allTrade[i]._id.traderId)
-      obj.totalPnl += allTrade[i].lots !== 0 ? ((allTrade[i].amount + ((allTrade[i].lots) * marketDataInstrument[0]?.last_price))) : allTrade[i].amount;
-      obj.lotUsed += Math.abs(allTrade[i].lotUsed)
+      let obj = mapForParticularUser.get(allTrade[i]._id.traderId);
+      obj.totalPnl +=
+        allTrade[i].lots !== 0
+          ? allTrade[i].amount +
+            allTrade[i].lots * marketDataInstrument[0]?.last_price
+          : allTrade[i].amount;
+      obj.lotUsed += Math.abs(allTrade[i].lotUsed);
       obj.runninglots += allTrade[i].lots;
       obj.brokerage += allTrade[i].brokerage;
-      obj.noOfTrade += allTrade[i].trades
-
+      obj.noOfTrade += allTrade[i].trades;
     } else {
       let marketDataInstrument = marketData.filter((elem) => {
-        return elem !== undefined && elem.instrument_token === Number(allTrade[i]._id.symbol)
-      })
+        return (
+          elem !== undefined &&
+          elem.instrument_token === Number(allTrade[i]._id.symbol)
+        );
+      });
       mapForParticularUser.set(allTrade[i]._id.traderId, {
         name: allTrade[i]._id.traderName,
-        totalPnl: allTrade[i].lots !== 0 ? ((allTrade[i].amount + ((allTrade[i].lots) * marketDataInstrument[0]?.last_price))) : allTrade[i].amount,
+        totalPnl:
+          allTrade[i].lots !== 0
+            ? allTrade[i].amount +
+              allTrade[i].lots * marketDataInstrument[0]?.last_price
+            : allTrade[i].amount,
         lotUsed: Math.abs(allTrade[i].lotUsed),
         runninglots: allTrade[i].lots,
         brokerage: allTrade[i].brokerage,
         noOfTrade: allTrade[i].trades,
         userId: allTrade[i]._id.traderId,
         email: allTrade[i]._id.traderEmail,
-        mobile: allTrade[i]._id.traderMobile
-      })
+        mobile: allTrade[i]._id.traderMobile,
+      });
     }
-
   }
 
   let finalTraderPnl = [];
@@ -119,9 +143,8 @@ function TraderwiseTraderPNL({ socket }) {
   }
 
   finalTraderPnl.sort((a, b) => {
-    return (b.totalPnl - b.brokerage) - (a.totalPnl - a.brokerage)
+    return b.totalPnl - b.brokerage - (a.totalPnl - a.brokerage);
   });
-
 
   let totalGrossPnl = 0;
   let totalTransactionCost = 0;
@@ -131,268 +154,528 @@ function TraderwiseTraderPNL({ socket }) {
   let totalTraders = 0;
   let totalPayout = 0;
 
-
-
   finalTraderPnl.map((subelem, index) => {
     let obj = {};
-    let npnlcolor = ((subelem.totalPnl) - (subelem.brokerage)) >= 0 ? "success" : "error"
-    let tradercolor = ((subelem.totalPnl) - (subelem.totalPnl)) >= 0 ? "success" : "error"
-    let gpnlcolor = (subelem.totalPnl) >= 0 ? "success" : "error"
-    let runninglotscolor = subelem.runninglots > 0 ? "info" : (subelem.runninglots < 0 ? "error" : "dark")
-    let runninglotsbgcolor = subelem.runninglots > 0 ? "#ffff00" : ""
-    let traderbackgroundcolor = subelem.runninglots != 0 ? "white" : "#e0e1e5"
+    let npnlcolor =
+      subelem.totalPnl - subelem.brokerage >= 0 ? "success" : "error";
+    let tradercolor =
+      subelem.totalPnl - subelem.totalPnl >= 0 ? "success" : "error";
+    let gpnlcolor = subelem.totalPnl >= 0 ? "success" : "error";
+    let runninglotscolor =
+      subelem.runninglots > 0
+        ? "info"
+        : subelem.runninglots < 0
+        ? "error"
+        : "dark";
+    let runninglotsbgcolor = subelem.runninglots > 0 ? "#ffff00" : "";
+    let traderbackgroundcolor = subelem.runninglots != 0 ? "white" : "#e0e1e5";
 
     // totalPayout += ((subelem?.totalPnl - subelem?.brokerage) * selectedContest?.payoutPercentage) / 100 > 0 && ((subelem?.totalPnl - subelem?.brokerage) * selectedContest?.payoutPercentage) / 100;
-    totalGrossPnl += (subelem.totalPnl);
-    totalTransactionCost += (subelem.brokerage);
-    totalNoRunningLots += (subelem.runninglots);
-    totalLotsUsed += (subelem.lotUsed);
-    totalTrades += (subelem.noOfTrade);
+    totalGrossPnl += subelem.totalPnl;
+    totalTransactionCost += subelem.brokerage;
+    totalNoRunningLots += subelem.runninglots;
+    totalLotsUsed += subelem.lotUsed;
+    totalTrades += subelem.noOfTrade;
     totalTraders += 1;
 
     let payout;
-    if(selectedContest?.payoutType === "Percentage"){
+    if (selectedContest?.payoutType === "Percentage") {
       let payoutCap;
-      if(selectedContest?.entryFee > 0){
-          payoutCap = selectedContest?.entryFee * selectedContest?.payoutCapPercentage/100;
-      } else{
-          payoutCap = selectedContest?.portfolio?.portfolioValue * selectedContest?.payoutCapPercentage/100;
+      if (selectedContest?.entryFee > 0) {
+        payoutCap =
+          (selectedContest?.entryFee * selectedContest?.payoutCapPercentage) /
+          100;
+      } else {
+        payoutCap =
+          (selectedContest?.portfolio?.portfolioValue *
+            selectedContest?.payoutCapPercentage) /
+          100;
       }
 
       // console.log("payoutCap", payoutCap)
-      const tempPayout = Math.min((selectedContest?.payoutPercentage * (subelem.totalPnl-subelem.brokerage))/100, payoutCap)
-      totalPayout += tempPayout > 0 ? tempPayout : 0
-      payout = ((subelem.totalPnl) - (subelem.brokerage)) >= 0 ? (tempPayout) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(tempPayout)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(-tempPayout)) : "+₹0.00";
+      const tempPayout = Math.min(
+        (selectedContest?.payoutPercentage *
+          (subelem.totalPnl - subelem.brokerage)) /
+          100,
+        payoutCap
+      );
+      totalPayout += tempPayout > 0 ? tempPayout : 0;
+      payout =
+        subelem.totalPnl - subelem.brokerage >= 0
+          ? tempPayout >= 0
+            ? "+₹" +
+              new Intl.NumberFormat(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }).format(tempPayout)
+            : "-₹" +
+              new Intl.NumberFormat(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }).format(-tempPayout)
+          : "+₹0.00";
       // console.log("payout tempPayout", payout, tempPayout)
-    }else if(selectedContest?.rewardType == 'Goodies'){
-      if(index+1){
+    } else if (selectedContest?.rewardType == "Goodies") {
+      if (index + 1) {
         const rewards = selectedContest?.rewards;
-        for(let elem of rewards){
-            if(Number(index+1) >= Number(elem.rankStart) && Number(index+1) <= Number(elem.rankEnd)){
-              payout = elem.prize;
-              break;
-            } else{
-              payout = "-";
-            }
+        for (let elem of rewards) {
+          if (
+            Number(index + 1) >= Number(elem.rankStart) &&
+            Number(index + 1) <= Number(elem.rankEnd)
+          ) {
+            payout = elem.prize;
+            break;
+          } else {
+            payout = "-";
+          }
         }
-      } else{
+      } else {
         payout = "-";
       }
-    } 
-    else{
-      if(index+1){
+    } else {
+      if (index + 1) {
         const rewards = selectedContest?.rewards;
-        for(let elem of rewards){
-            if(Number(index+1) >= Number(elem.rankStart) && Number(index+1) <= Number(elem.rankEnd)){
-              payout = "+₹" + elem.prize;
-              break;
-            } else{
-              payout = "+₹" + "0.00";
-            }
+        for (let elem of rewards) {
+          if (
+            Number(index + 1) >= Number(elem.rankStart) &&
+            Number(index + 1) <= Number(elem.rankEnd)
+          ) {
+            payout = "+₹" + elem.prize;
+            break;
+          } else {
+            payout = "+₹" + "0.00";
+          }
         }
-      } else{
+      } else {
         payout = "+₹" + "0.00";
       }
     }
 
     obj.traderName = (
-      <MDTypography component="a" variant="caption" color={tradercolor} fontWeight="medium" backgroundColor={traderbackgroundcolor} padding="5px" borderRadius="5px">
-        {(subelem.name)}
+      <MDTypography
+        component="a"
+        variant="caption"
+        color={tradercolor}
+        fontWeight="medium"
+        backgroundColor={traderbackgroundcolor}
+        padding="5px"
+        borderRadius="5px"
+      >
+        {subelem.name}
       </MDTypography>
     );
 
     obj.grossPnl = (
-      <MDTypography component="a" variant="caption" color={gpnlcolor} fontWeight="medium">
-        {(subelem.totalPnl) >= 0.00 ? "+₹" + ((subelem.totalPnl).toFixed(2)) : "-₹" + ((-(subelem.totalPnl)).toFixed(2))}
+      <MDTypography
+        component="a"
+        variant="caption"
+        color={gpnlcolor}
+        fontWeight="medium"
+      >
+        {subelem.totalPnl >= 0.0
+          ? "+₹" + subelem.totalPnl.toFixed(2)
+          : "-₹" + (-subelem.totalPnl).toFixed(2)}
       </MDTypography>
     );
 
     obj.noOfTrade = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
         {subelem.noOfTrade}
       </MDTypography>
     );
 
     obj.runningLots = (
-      <MDTypography component="a" variant="caption" color={runninglotscolor} backgroundColor={runninglotsbgcolor} fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color={runninglotscolor}
+        backgroundColor={runninglotsbgcolor}
+        fontWeight="medium"
+      >
         {subelem.runninglots}
       </MDTypography>
     );
 
     obj.lotUsed = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
         {subelem.lotUsed}
       </MDTypography>
     );
 
     obj.brokerage = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {"₹" + (subelem.brokerage).toFixed(2)}
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
+        {"₹" + subelem.brokerage.toFixed(2)}
       </MDTypography>
     );
 
     obj.netPnl = (
-      <MDTypography component="a" variant="caption" color={npnlcolor} fontWeight="medium">
-        {((subelem.totalPnl) - (subelem.brokerage)) >= 0.00 ? "+₹" + (((subelem.totalPnl) - (subelem.brokerage)).toFixed(2)) : "-₹" + ((-((subelem.totalPnl) - (subelem.brokerage))).toFixed(2))}
+      <MDTypography
+        component="a"
+        variant="caption"
+        color={npnlcolor}
+        fontWeight="medium"
+      >
+        {subelem.totalPnl - subelem.brokerage >= 0.0
+          ? "+₹" + (subelem.totalPnl - subelem.brokerage).toFixed(2)
+          : "-₹" + (-(subelem.totalPnl - subelem.brokerage)).toFixed(2)}
       </MDTypography>
     );
 
     obj.payout = (
-      <MDTypography component="a" variant="caption" color={npnlcolor} fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color={npnlcolor}
+        fontWeight="medium"
+      >
         {payout}
       </MDTypography>
     );
 
     obj.email = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {(subelem?.email)}
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
+        {subelem?.email}
       </MDTypography>
     );
 
     obj.mobile = (
       <MDTypography component="a" variant="caption" fontWeight="medium">
-        {(subelem.mobile)}
+        {subelem.mobile}
       </MDTypography>
     );
 
     rows.push(obj);
-  })
+  });
 
   let obj = {};
 
-  const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error"
-  const totalnetPnlcolor = (totalGrossPnl - totalTransactionCost) >= 0 ? "success" : "error"
+  const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error";
+  const totalnetPnlcolor =
+    totalGrossPnl - totalTransactionCost >= 0 ? "success" : "error";
 
   obj.traderName = (
-    <MDTypography component="a" variant="caption" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
+    <MDTypography
+      component="a"
+      variant="caption"
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
       Traders : {totalTraders}
     </MDTypography>
   );
 
   obj.grossPnl = (
-    <MDTypography component="a" variant="caption" color={totalGrossPnlcolor} padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
-      {totalGrossPnl >= 0.00 ? "+₹" + (totalGrossPnl.toFixed(2)) : "-₹" + ((-totalGrossPnl).toFixed(2))}
+    <MDTypography
+      component="a"
+      variant="caption"
+      color={totalGrossPnlcolor}
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
+      {totalGrossPnl >= 0.0
+        ? "+₹" + totalGrossPnl.toFixed(2)
+        : "-₹" + (-totalGrossPnl).toFixed(2)}
     </MDTypography>
   );
 
   obj.noOfTrade = (
-    <MDTypography component="a" variant="caption" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
+    <MDTypography
+      component="a"
+      variant="caption"
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
       {totalTrades}
     </MDTypography>
   );
 
   obj.runningLots = (
-    <MDTypography component="a" variant="caption" color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
+    <MDTypography
+      component="a"
+      variant="caption"
+      color="dark"
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
       {totalNoRunningLots}
     </MDTypography>
   );
 
   obj.lotUsed = (
-    <MDTypography component="a" variant="caption" color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
+    <MDTypography
+      component="a"
+      variant="caption"
+      color="dark"
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
       {totalLotsUsed}
     </MDTypography>
   );
 
-
   obj.brokerage = (
-    <MDTypography component="a" variant="caption" color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
-      {"₹" + (totalTransactionCost).toFixed(2)}
+    <MDTypography
+      component="a"
+      variant="caption"
+      color="dark"
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
+      {"₹" + totalTransactionCost.toFixed(2)}
     </MDTypography>
   );
 
   obj.netPnl = (
-    <MDTypography component="a" variant="caption" color={totalnetPnlcolor} padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
-      {(totalGrossPnl - totalTransactionCost) >= 0.00 ? "+₹" + ((totalGrossPnl - totalTransactionCost).toFixed(2)) : "-₹" + ((-(totalGrossPnl - totalTransactionCost)).toFixed(2))}
+    <MDTypography
+      component="a"
+      variant="caption"
+      color={totalnetPnlcolor}
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
+      {totalGrossPnl - totalTransactionCost >= 0.0
+        ? "+₹" + (totalGrossPnl - totalTransactionCost).toFixed(2)
+        : "-₹" + (-(totalGrossPnl - totalTransactionCost)).toFixed(2)}
     </MDTypography>
   );
 
   obj.payout = (
-    <MDTypography component="a" variant="caption" color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
+    <MDTypography
+      component="a"
+      variant="caption"
+      color="dark"
+      padding="5px"
+      borderRadius="5px"
+      backgroundColor="#e0e1e5"
+      fontWeight="medium"
+    >
       +₹{totalPayout?.toFixed(2)}
     </MDTypography>
   );
 
-
-
   rows.push(obj);
 
   let maximumPayout = 0;
-  if(selectedContest?.entryFee > 0){
-    maximumPayout = selectedContest?.participants?.length * selectedContest?.entryFee * selectedContest?.payoutCapPercentage/100;
-  } else{
-    maximumPayout = selectedContest?.participants?.length * selectedContest?.portfolio?.portfolioValue * selectedContest?.payoutCapPercentage/100;
+  if (selectedContest?.entryFee > 0) {
+    maximumPayout =
+      (selectedContest?.participants?.length *
+        selectedContest?.entryFee *
+        selectedContest?.payoutCapPercentage) /
+      100;
+  } else {
+    maximumPayout =
+      (selectedContest?.participants?.length *
+        selectedContest?.portfolio?.portfolioValue *
+        selectedContest?.payoutCapPercentage) /
+      100;
   }
 
   return (
     <>
-      {selectedContest &&
+      {selectedContest && (
         <Card>
-          <MDBox display="flex" justifyContent="space-between" alignItems="center">
+          <MDBox
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
             <MDBox>
               <MDTypography variant="h6" gutterBottom p={3}>
                 Daily TestZone Trader Position(Trader Side)
               </MDTypography>
             </MDBox>
-
           </MDBox>
 
-          <MDBox >
+          <MDBox>
             {/* <MDTypography fontSize={15}>Select Contest</MDTypography> */}
             <TextField
               select
               label=""
-              value={selectedContest?.contestName ? selectedContest?.contestName : subscriptions[0]?.contestName}
+              value={
+                selectedContest?.contestName
+                  ? selectedContest?.contestName
+                  : subscriptions[0]?.contestName
+              }
               minHeight="4em"
               // helperText="Please select subscription"
               variant="outlined"
               sx={{ margin: 1, padding: 1, width: "300px" }}
-              onChange={(e) => { setselectedContest(subscriptions.filter((item) => item.contestName == e.target.value)[0]) }}
+              onChange={(e) => {
+                setselectedContest(
+                  subscriptions.filter(
+                    (item) => item.contestName == e.target.value
+                  )[0]
+                );
+              }}
             >
               {subscriptions?.map((option) => (
-                <MenuItem key={option.contestName} value={option.contestName} minHeight="4em">
+                <MenuItem
+                  key={option.contestName}
+                  value={option.contestName}
+                  minHeight="4em"
+                >
                   {option.contestName}
                 </MenuItem>
               ))}
             </TextField>
-            <MDBox sx={{ display: 'flex', alignItems: 'center', padding: "2px 0px 2px 10px" }}>
-              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+            <MDBox
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                padding: "2px 0px 2px 10px",
+              }}
+            >
+              <MDBox
+                display="flex"
+                justifyContent="center"
+                alignContent="center"
+                alignItems="center"
+                borderRadius={5}
+                p={1}
+              >
                 <MDTypography fontSize={11}>Payout%:&nbsp;</MDTypography>
-                <MDTypography fontSize={13} fontWeight="bold" >{selectedContest?.payoutPercentage}</MDTypography>
+                <MDTypography fontSize={13} fontWeight="bold">
+                  {selectedContest?.payoutPercentage}
+                </MDTypography>
               </MDBox>
 
-              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+              <MDBox
+                display="flex"
+                justifyContent="center"
+                alignContent="center"
+                alignItems="center"
+                borderRadius={5}
+                p={1}
+              >
                 <MDTypography fontSize={11}>Entry Fee:&nbsp;</MDTypography>
-                <MDTypography fontSize={13} fontWeight="bold" >₹{selectedContest?.entryFee}</MDTypography>
+                <MDTypography fontSize={13} fontWeight="bold">
+                  ₹{selectedContest?.entryFee}
+                </MDTypography>
               </MDBox>
 
-              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-                <MDTypography fontSize={11}>Max Participant:&nbsp;</MDTypography>
-                <MDTypography fontSize={13} fontWeight="bold" >{selectedContest?.maxParticipants}</MDTypography>
+              <MDBox
+                display="flex"
+                justifyContent="center"
+                alignContent="center"
+                alignItems="center"
+                borderRadius={5}
+                p={1}
+              >
+                <MDTypography fontSize={11}>
+                  Max Participant:&nbsp;
+                </MDTypography>
+                <MDTypography fontSize={13} fontWeight="bold">
+                  {selectedContest?.maxParticipants}
+                </MDTypography>
               </MDBox>
 
-              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+              <MDBox
+                display="flex"
+                justifyContent="center"
+                alignContent="center"
+                alignItems="center"
+                borderRadius={5}
+                p={1}
+              >
                 <MDTypography fontSize={11}>Participant:&nbsp;</MDTypography>
-                <MDTypography fontSize={13} fontWeight="bold" >{selectedContest?.participants?.length}</MDTypography>
+                <MDTypography fontSize={13} fontWeight="bold">
+                  {selectedContest?.participants?.length}
+                </MDTypography>
               </MDBox>
 
-              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-                <MDTypography fontSize={11}>Expected Collection:&nbsp;</MDTypography>
-                <MDTypography fontSize={13} fontWeight="bold" >₹{selectedContest?.entryFee * selectedContest?.maxParticipants}</MDTypography>
+              <MDBox
+                display="flex"
+                justifyContent="center"
+                alignContent="center"
+                alignItems="center"
+                borderRadius={5}
+                p={1}
+              >
+                <MDTypography fontSize={11}>
+                  Expected Collection:&nbsp;
+                </MDTypography>
+                <MDTypography fontSize={13} fontWeight="bold">
+                  ₹
+                  {selectedContest?.entryFee * selectedContest?.maxParticipants}
+                </MDTypography>
               </MDBox>
 
-              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+              <MDBox
+                display="flex"
+                justifyContent="center"
+                alignContent="center"
+                alignItems="center"
+                borderRadius={5}
+                p={1}
+              >
                 <MDTypography fontSize={11}>Collected Fee:&nbsp;</MDTypography>
-                <MDTypography fontSize={13} fontWeight="bold" >₹{(selectedContest?.entryFee * selectedContest?.participants?.length)}</MDTypography>
+                <MDTypography fontSize={13} fontWeight="bold">
+                  ₹
+                  {selectedContest?.entryFee *
+                    selectedContest?.participants?.length}
+                </MDTypography>
               </MDBox>
 
-              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+              <MDBox
+                display="flex"
+                justifyContent="center"
+                alignContent="center"
+                alignItems="center"
+                borderRadius={5}
+                p={1}
+              >
                 <MDTypography fontSize={11}>PortfolioValue:&nbsp;</MDTypography>
-                <MDTypography fontSize={13} fontWeight="bold" >₹{(selectedContest?.portfolio?.portfolioValue)}</MDTypography>
+                <MDTypography fontSize={13} fontWeight="bold">
+                  ₹{selectedContest?.portfolio?.portfolioValue}
+                </MDTypography>
               </MDBox>
 
-              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+              <MDBox
+                display="flex"
+                justifyContent="center"
+                alignContent="center"
+                alignItems="center"
+                borderRadius={5}
+                p={1}
+              >
                 <MDTypography fontSize={11}>Maximum Payout:&nbsp;</MDTypography>
-                <MDTypography fontSize={13} fontWeight="bold" >₹{maximumPayout}</MDTypography>
+                <MDTypography fontSize={13} fontWeight="bold">
+                  ₹{maximumPayout}
+                </MDTypography>
               </MDBox>
             </MDBox>
           </MDBox>
@@ -406,7 +689,7 @@ function TraderwiseTraderPNL({ socket }) {
             />
           </MDBox>
         </Card>
-      }
+      )}
     </>
   );
 }

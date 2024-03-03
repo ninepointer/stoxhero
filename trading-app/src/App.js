@@ -335,8 +335,10 @@ export default function App() {
                       : detailUser.role?.roleName === Affiliate ||
                         getDetails?.userDetails?.role?.roleName === Affiliate
                       ? routesAffiliate
-                      : (detailUser.role?.roleName === userRole || detailUser.role?.roleName === Influencer) ||
-                        (getDetails?.userDetails?.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === Influencer)
+                      : detailUser.role?.roleName === userRole ||
+                        detailUser.role?.roleName === Influencer ||
+                        getDetails?.userDetails?.role?.roleName === userRole ||
+                        getDetails?.userDetails?.role?.roleName === Influencer
                       ? isCollegeRoute
                         ? routesCollege
                         : userRoutes
@@ -381,9 +383,11 @@ export default function App() {
                   detailUser.role?.roleName === adminRole ||
                   getDetails?.userDetails?.role?.roleName === adminRole
                     ? routes
-                    : (detailUser.role?.roleName === userRole || detailUser.role?.roleName === Influencer) ||
-                    (getDetails?.userDetails?.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === Influencer)
-                ? isCollegeRoute
+                    : detailUser.role?.roleName === userRole ||
+                      detailUser.role?.roleName === Influencer ||
+                      getDetails?.userDetails?.role?.roleName === userRole ||
+                      getDetails?.userDetails?.role?.roleName === Influencer
+                    ? isCollegeRoute
                       ? routesCollege
                       : userRoutes
                     : detailUser.role?.roleName === Affiliate ||
@@ -417,9 +421,11 @@ export default function App() {
           : detailUser.role?.roleName === Affiliate ||
             getDetails?.userDetails?.role?.roleName === Affiliate
           ? getRoutes(routesAffiliate)
-          : (detailUser.role?.roleName === userRole || detailUser.role?.roleName === Influencer) ||
-          (getDetails?.userDetails?.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === Influencer)
-            ? isCollegeRoute
+          : detailUser.role?.roleName === userRole ||
+            detailUser.role?.roleName === Influencer ||
+            getDetails?.userDetails?.role?.roleName === userRole ||
+            getDetails?.userDetails?.role?.roleName === Influencer
+          ? isCollegeRoute
             ? getRoutes(routesCollege)
             : getRoutes(userRoutes)
           : detailUser.role?.roleName === "data" ||
@@ -535,23 +541,16 @@ export default function App() {
           element={<FeaturedContestRegistration />}
         />
 
-          <Route
-            path="/courses/:slug"
-            element={<Courses  />}
-          />
-           <Route
-            path="/courses/:slug/details"
-            element={<CoursesDetail  />}
-          />
-           <Route
-            path="/courses/:slug/fill+details"
-            element={<FillSignupDetail  />}
-          />
+        <Route path="/courses/:slug" element={<Courses />} />
+        <Route path="/courses/:slug/details" element={<CoursesDetail />} />
+        <Route
+          path="/courses/:slug/fill+details"
+          element={<FillSignupDetail />}
+        />
         <Route
           path="/:collegename"
           element={<CollegeSignUp location={myLocation.current} />}
         />
-        
 
         <Route path="*" element={<NotFound />} />
       </Routes>

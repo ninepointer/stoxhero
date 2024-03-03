@@ -1,18 +1,17 @@
-import * as React from 'react';
+import * as React from "react";
 import { useEffect, useState } from "react";
 import DataTable from "../../../examples/Tables/DataTable";
-import MDButton from "../../../components/MDButton"
-import MDBox from "../../../components/MDBox"
-import MDTypography from "../../../components/MDTypography"
+import MDButton from "../../../components/MDButton";
+import MDBox from "../../../components/MDBox";
+import MDTypography from "../../../components/MDTypography";
 import Card from "@mui/material/Card";
 import axios from "axios";
-import { apiUrl } from '../../../constants/constants';
-import { Switch } from '@mui/material';
-
+import { apiUrl } from "../../../constants/constants";
+import { Switch } from "@mui/material";
 
 export default function RegisteredUsers({ data }) {
-
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   let [updateSwitch, setUpdateSwitch] = React.useState(true);
   const [userContestDetail, setUserContestDetails] = useState([]);
 
@@ -22,30 +21,41 @@ export default function RegisteredUsers({ data }) {
     { Header: "Mobile", accessor: "mobile", align: "center" },
     { Header: "City", accessor: "city", align: "center" },
     { Header: "Grade", accessor: "grade", align: "center" },
+  ];
 
-  ]
-
-
-  let rows = []
-
+  let rows = [];
 
   data?.map((elem, index) => {
-
-    let featureObj = {}
+    let featureObj = {};
     featureObj.index = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
         {index + 1}
       </MDTypography>
     );
 
     featureObj.fullname = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
         {elem?.userId?.full_name}
       </MDTypography>
     );
 
     featureObj.mobile = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
         {elem?.userId?.mobile}
       </MDTypography>
     );
@@ -62,14 +72,27 @@ export default function RegisteredUsers({ data }) {
       </MDTypography>
     );
 
-    rows.push(featureObj)
-  })
+    rows.push(featureObj);
+  });
 
   return (
     <Card>
       <MDBox display="flex" justifyContent="space-between" alignItems="left">
-        <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{ backgroundColor: "lightgrey", borderRadius: "2px" }}>
-          <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
+        <MDBox
+          width="100%"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          sx={{ backgroundColor: "lightgrey", borderRadius: "2px" }}
+        >
+          <MDTypography
+            variant="text"
+            fontSize={12}
+            color="black"
+            mt={0.7}
+            alignItems="center"
+            gutterBottom
+          >
             Registered Users({data?.length})
           </MDTypography>
         </MDBox>
@@ -85,4 +108,3 @@ export default function RegisteredUsers({ data }) {
     </Card>
   );
 }
-

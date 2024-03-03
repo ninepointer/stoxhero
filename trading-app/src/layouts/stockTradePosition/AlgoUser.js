@@ -1,21 +1,15 @@
-
 import React from "react";
 import { useEffect, useContext } from "react";
 import { io } from "socket.io-client";
 // @mui material components
-import { Chart } from 'chart.js/auto';
+import { Chart } from "chart.js/auto";
 // Chart.register(...registerables);
 import Grid from "@mui/material/Grid";
 
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
 
-
-
-
 // Data
-
-
 
 // Dashboard components
 
@@ -24,9 +18,9 @@ import TraderwiseTraderPnl from "./AlgoUserComponents/TraderwiseTraderPNL";
 import { socketContext } from "../../socketContext";
 
 function AlgoUser() {
-
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
+  let baseUrl1 =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/";
   // let socket;
   // try{
   //     socket = io.connect(`${baseUrl1}`)
@@ -36,23 +30,16 @@ function AlgoUser() {
 
   const socket = useContext(socketContext);
 
-
-   
-    useEffect(()=>{
-
-        //console.log(socket);
-        // socket.on("connect", ()=>{
-            socket.emit("company-ticks", true)
-        // })
-
-    }, []);
-
+  useEffect(() => {
+    //console.log(socket);
+    // socket.on("connect", ()=>{
+    socket.emit("company-ticks", true);
+    // })
+  }, []);
 
   return (
-
-       <MDBox py={3}>
-
-        {/* <MDBox mt={2}>
+    <MDBox py={3}>
+      {/* <MDBox mt={2}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={12}>
               <OverallTraderPnl socket={socket} batches={batches} setBatches={setBatches} selectedBatch={selectedBatch} setSelectedBatch={setSelectedBatch}/>
@@ -60,16 +47,14 @@ function AlgoUser() {
           </Grid>
         </MDBox> */}
 
-
-        <MDBox mt={2}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={12}>
-              <TraderwiseTraderPnl socket={socket} />
-            </Grid>
+      <MDBox mt={2}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6} lg={12}>
+            <TraderwiseTraderPnl socket={socket} />
           </Grid>
-        </MDBox>
-      </MDBox> 
-
+        </Grid>
+      </MDBox>
+    </MDBox>
   );
 }
 

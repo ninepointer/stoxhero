@@ -6,7 +6,6 @@
 
 // import Switch from "@mui/material/Switch";
 
-
 // export default function SwitchRealMock({userId, Render}) {
 
 //     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -25,8 +24,6 @@
 //     const createdBy = "system";
 //     let modifiedOn = createdOn;
 //     let modifiedBy = "system";
-
-  
 
 //     useEffect(()=>{
 
@@ -87,12 +84,12 @@
 
 //             let apiKeyArr = apiKeyDetails.filter((elem)=>{
 //                 return elem.accountId == usedAlgoBox[0]?.tradingAccount
-                
+
 //             })
 
 //             let accessTokenArr = accessTokenDetails.filter((elem)=>{
 //                 return elem.accountId == usedAlgoBox[0]?.tradingAccount
-                
+
 //             })
 
 //             let transaction_type = tradeDetail[i].lots > 0 ? "BUY" : "SELL";
@@ -127,13 +124,13 @@
 //     }
 
 //     const placeLiveOrder = async (algoBox, detailObj, apiKeyArr, accessTokenArr, transaction_type)=>{
-  
+
 //         const { exchange, symbol, buyOrSell, Quantity, Product, order_type, validity, variety, instrumentToken, tradeBy } = detailObj;
 //         const { algoName, transactionChange, instrumentChange, exchangeChange, lotMultipler, productChange, tradingAccount } = algoBox;
-  
+
 //         const { apiKey } = apiKeyArr[0];
 //         const { accessToken } = accessTokenArr[0];
-  
+
 //         console.log("detailObj", detailObj, apiKey, accessToken, algoBox)
 //         const res = await fetch(`${baseUrl}api/v1/switchToRealTrade`, {
 //             method: "POST",
@@ -141,13 +138,13 @@
 //                 "content-type": "application/json"
 //             },
 //             body: JSON.stringify({
-                
+
 //                 apiKey, accessToken, tradeBy,
-//                 exchange, symbol, buyOrSell: transaction_type, realBuyOrSell: transaction_type, Quantity, realQuantity: Quantity, Product, order_type, 
-//                 validity, variety, createdBy, userId, createdOn, uId, 
-//                 algoBox: {algoName, transactionChange, instrumentChange, exchangeChange, lotMultipler, 
+//                 exchange, symbol, buyOrSell: transaction_type, realBuyOrSell: transaction_type, Quantity, realQuantity: Quantity, Product, order_type,
+//                 validity, variety, createdBy, userId, createdOn, uId,
+//                 algoBox: {algoName, transactionChange, instrumentChange, exchangeChange, lotMultipler,
 //                 productChange, tradingAccount}, instrumentToken
-  
+
 //             })
 //         });
 //         const dataResp = await res.json();
@@ -186,9 +183,9 @@
 //                 modifiedOn, modifiedBy, isRealTradeEnable: realTrade
 //             })
 //         });
-      
+
 //         const permissionData = await response.json();
-    
+
 //         if (permissionData.status === 422 || permissionData.error || !permissionData) {
 //             window.alert(permissionData.error);
 //         }
@@ -204,5 +201,3 @@
 //     </MDBox>
 //   )
 // }
-
-

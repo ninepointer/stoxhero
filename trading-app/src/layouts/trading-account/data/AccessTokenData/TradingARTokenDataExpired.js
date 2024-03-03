@@ -12,7 +12,6 @@
 // import EditSharpIcon from '@mui/icons-material/EditSharp';
 
 export default function AllInActiveAccessTokens() {
-
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   // const [activeData, setActiveData] = useState([]);
@@ -43,12 +42,11 @@ export default function AllInActiveAccessTokens() {
 
   // console.log(inactiveData);
 
-  
   // numberOfClickForRemoveNext = Math.ceil(((orderCountHistoryCompany))/limit);
   // console.log(numberOfClickForRemoveNext, clickToRemove, orderCountHistoryCompany)
 
   // let inactiveparameterarr = [];
-  
+
   // inactiveData.map((elem)=>{
   //   let inactiveparameter = {}
   //   // const exchangecolor = elem.exchange == "NFO" ? "info" : "error"
@@ -85,8 +83,7 @@ export default function AllInActiveAccessTokens() {
   //       {elem.generatedOn}
   //     </MDTypography>
   //   );
-   
-    
+
   //   console.log(typeof(inactiveparameter));
   //   console.log(inactiveparameter)
   //   inactiveparameterarr.push(inactiveparameter)
@@ -100,7 +97,6 @@ export default function AllInActiveAccessTokens() {
       { Header: "Request Token", accessor: "requesttoken", align: "center" },
       { Header: "Status", accessor: "status", align: "center" },
       { Header: "Generated On", accessor: "generatedon", align: "center" },
-     
     ],
 
     rows: [],

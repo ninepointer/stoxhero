@@ -1,43 +1,52 @@
-import React, { useEffect, useState } from 'react';
-import { userContext } from '../../../AuthContext';
-import MDBox from '../../../components/MDBox';
-import MDButton from '../../../components/MDButton';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
+import React, { useEffect, useState } from "react";
+import { userContext } from "../../../AuthContext";
+import MDBox from "../../../components/MDBox";
+import MDButton from "../../../components/MDButton";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 import axios from "axios";
-import paymentQr from '../../../assets/images/paymentQrc.jpg';
-import {apiUrl} from '../../../constants/constants';
+import paymentQr from "../../../assets/images/paymentQrc.jpg";
+import { apiUrl } from "../../../constants/constants";
 
 //icons
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Title from '../../HomePage/components/Title'
-import { Grid } from '@mui/material';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import Title from "../../HomePage/components/Title";
+import { Grid } from "@mui/material";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 // import Box from '@mui/material/Box';
 // import Card from '@mui/material/Card';
 // import CardActions from '@mui/material/CardActions';
 // import CardContent from '@mui/material/CardContent';
-import Button from '@mui/material/Button';
+import Button from "@mui/material/Button";
 // import MDTypography from '../../../components/MDTypography';
 // import { CopyToClipboard } from 'react-copy-to-clipboard';
 // import {BiCopy} from 'react-icons/bi'
-import MDSnackbar from '../../../components/MDSnackbar';
-import { useNavigate } from 'react-router-dom';
-import { CircularProgress, Typography } from '@mui/material';
-import Renew from './renew/renew';
-import { set } from 'react-ga';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
+import MDSnackbar from "../../../components/MDSnackbar";
+import { useNavigate } from "react-router-dom";
+import { CircularProgress, Typography } from "@mui/material";
+import Renew from "./renew/renew";
+import { set } from "react-ga";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormControl from "@mui/material/FormControl";
 
-
-export default function Dialogue({ subscription, amount, name, id, walletCash, bonusCash, setCheckPayment, checkPayment, allowRenewal }) {
+export default function Dialogue({
+  subscription,
+  amount,
+  name,
+  id,
+  walletCash,
+  bonusCash,
+  setCheckPayment,
+  checkPayment,
+  allowRenewal,
+}) {
   // console.log("props", amount, name, id, walletCash)
   const [open, setOpen] = React.useState(false);
   const getDetails = React.useContext(userContext);
@@ -46,68 +55,76 @@ export default function Dialogue({ subscription, amount, name, id, walletCash, b
   const [setting, setSetting] = useState([]);
   const [messege, setMessege] = useState({
     lowBalanceMessage: "",
-    thanksMessege: ""
+    thanksMessege: "",
   });
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
   // const copyText = `https://www.stoxhero.com/signup?referral=${getDetails.userDetails.myReferralCode}`
 
   useEffect(() => {
-
-    axios.get(`${baseUrl}api/v1/loginDetail`, {
-      withCredentials: true,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": true
-      },
-    })
+    axios
+      .get(`${baseUrl}api/v1/loginDetail`, {
+        withCredentials: true,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true,
+        },
+      })
       .then((res) => {
         setUpdatedUser(res.data);
-        let subscribed = (res.data?.subscription)?.filter((elem) => {
-          return (elem?.subscriptionId?._id)?.toString() === (id)?.toString() && elem?.status === "Live";
-        })
+        let subscribed = res.data?.subscription?.filter((elem) => {
+          return (
+            elem?.subscriptionId?._id?.toString() === id?.toString() &&
+            elem?.status === "Live"
+          );
+        });
 
         if (subscribed?.length > 0) {
           setIsSubscribed(true);
         }
-
-      }).catch((err) => {
-        console.log("Fail to fetch data of user", err);
       })
+      .catch((err) => {
+        console.log("Fail to fetch data of user", err);
+      });
 
-    axios.get(`${baseUrl}api/v1/readsetting`, {
-      withCredentials: true,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": true
-      },
-    })
+    axios
+      .get(`${baseUrl}api/v1/readsetting`, {
+        withCredentials: true,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true,
+        },
+      })
       .then((res) => {
         setSetting(res?.data[0]);
         setInterval(() => {
-          setIsLoading(false)
-        }, 5000)
-      }).catch((err) => {
-        console.log("Fail to fetch data of user", err);
+          setIsLoading(false);
+        }, 5000);
       })
-  }, [])
+      .catch((err) => {
+        console.log("Fail to fetch data of user", err);
+      });
+  }, []);
 
   useEffect(() => {
-    let subscribed = (updatedUser?.subscription)?.filter((elem) => {
+    let subscribed = updatedUser?.subscription?.filter((elem) => {
       // console.log("Return:", (elem?.subscriptionId?._id)?.toString(), (id)?.toString(), elem?.status,)
-      return (elem?.subscriptionId?._id)?.toString() === (id)?.toString() && elem?.status === "Live";
-    })
+      return (
+        elem?.subscriptionId?._id?.toString() === id?.toString() &&
+        elem?.status === "Live"
+      );
+    });
     // console.log("Subscribed:", subscribed)
     if (subscribed?.length > 0) {
       setIsSubscribed(true);
     }
-  }, [updatedUser])
-
+  }, [updatedUser]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -115,7 +132,7 @@ export default function Dialogue({ subscription, amount, name, id, walletCash, b
 
   const handleClose = () => {
     setOpen(false);
-    setCheckPayment(!checkPayment)
+    setCheckPayment(!checkPayment);
   };
 
   async function captureIntent() {
@@ -125,11 +142,12 @@ export default function Dialogue({ subscription, amount, name, id, walletCash, b
       credentials: "include",
       headers: {
         "content-type": "application/json",
-        "Access-Control-Allow-Credentials": true
+        "Access-Control-Allow-Credentials": true,
       },
       body: JSON.stringify({
-        purchase_intent_by: getDetails?.userDetails?._id, tenXSubscription: id
-      })
+        purchase_intent_by: getDetails?.userDetails?._id,
+        tenXSubscription: id,
+      }),
     });
   }
 
@@ -142,64 +160,67 @@ export default function Dialogue({ subscription, amount, name, id, walletCash, b
       method: "PATCH",
       credentials: "include",
       headers: {
-        "Accept": "application/json",
-        "content-type": "application/json"
+        Accept: "application/json",
+        "content-type": "application/json",
       },
       body: JSON.stringify({
-        subscriptionAmount: amount, subscriptionName: name, subscribedId: id
-      })
+        subscriptionAmount: amount,
+        subscriptionName: name,
+        subscribedId: id,
+      }),
     });
     const dataResp = await res.json();
     if (dataResp.status === "error" || dataResp.error || !dataResp) {
-      openSuccessSB("error", dataResp.message)
+      openSuccessSB("error", dataResp.message);
     } else {
       setMessege({
         ...messege,
-        thanksMessege: "Congrats you have unlocked your TenX trading subscription"
-      })
+        thanksMessege:
+          "Congrats you have unlocked your TenX trading subscription",
+      });
       setUpdatedUser(dataResp.data);
 
       // openSuccessSB("success", dataResp.message)
     }
-  }
+  };
 
   const [messageObj, setMessageObj] = useState({
-    color: '',
-    icon: '',
-    title: '',
-    content: ''
-  })
+    color: "",
+    icon: "",
+    title: "",
+    content: "",
+  });
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = (value, content) => {
     if (value === "success") {
-      messageObj.color = 'success'
-      messageObj.icon = 'check'
+      messageObj.color = "success";
+      messageObj.icon = "check";
       messageObj.title = "Successful";
-      messageObj.content = content
-    };
+      messageObj.content = content;
+    }
     if (value === "reject") {
-      messageObj.color = 'error'
-      messageObj.icon = 'error'
+      messageObj.color = "error";
+      messageObj.icon = "error";
       messageObj.title = "REJECTED";
       messageObj.content = content;
-    };
+    }
 
     if (value === "else") {
-      messageObj.color = 'error'
-      messageObj.icon = 'error'
+      messageObj.color = "error";
+      messageObj.icon = "error";
       messageObj.title = "REJECTED";
       messageObj.content = content;
-    };
+    }
     if (value === "error") {
-      messageObj.color = 'error'
-      messageObj.icon = 'error'
+      messageObj.color = "error";
+      messageObj.icon = "error";
       messageObj.title = "Error";
       messageObj.content = content;
-    };
+    }
 
     setMessageObj(messageObj);
     setSuccessSB(true);
-  }
+  };
   const closeSuccessSB = () => setSuccessSB(false);
 
   const renderSuccessSB = (
@@ -212,74 +233,231 @@ export default function Dialogue({ subscription, amount, name, id, walletCash, b
       onClose={closeSuccessSB}
       close={closeSuccessSB}
       bgWhite="info"
-      sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto" }}
+      sx={{
+        borderLeft: `10px solid ${
+          messageObj.icon == "check" ? "green" : "red"
+        }`,
+        borderRight: `10px solid ${
+          messageObj.icon == "check" ? "green" : "red"
+        }`,
+        borderRadius: "15px",
+        width: "auto",
+      }}
     />
   );
 
-  const [value, setValue] = useState('wallet');
+  const [value, setValue] = useState("wallet");
 
   const handleChange = (event) => {
     setValue(event.target.value);
   };
 
   const subs_amount = amount;
-  const subs_actualAmount = amount*setting.gstPercentage/100;
+  const subs_actualAmount = (amount * setting.gstPercentage) / 100;
 
-  const initiatePayment = async() => {
-    console.log('initiating');
-    try{
-      const res = await axios.post(`${apiUrl}payment/initiate`,{amount:Number(subs_amount*100) + subs_actualAmount*100, redirectTo:window.location.href, paymentFor:'TenX', productId:id},{withCredentials: true});
+  const initiatePayment = async () => {
+    console.log("initiating");
+    try {
+      const res = await axios.post(
+        `${apiUrl}payment/initiate`,
+        {
+          amount: Number(subs_amount * 100) + subs_actualAmount * 100,
+          redirectTo: window.location.href,
+          paymentFor: "TenX",
+          productId: id,
+        },
+        { withCredentials: true }
+      );
       console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
-      window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
-  }catch(e){
+      window.location.href =
+        res?.data?.data?.instrumentResponse?.redirectInfo?.url;
+    } catch (e) {
       console.log(e);
-  }
-  }
-
+    }
+  };
 
   return (
-
-    <MDBox display='flex' justifyContent='center' alignItems='center' style={{ width: '90%' }}>
-      {isSubscribed ?
-
-        <MDBox display='flex' justifyContent='center' alignItems='center' style={{ width: '100%' }}>
-          <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' flexDirection='row' style={{ width: '100%' }}>
-            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ width: '100%' }}>
-              {allowRenewal && <Renew amount={amount} name={name} id={id} walletCash={walletCash} bonusCash={bonusCash} />}
+    <MDBox
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      style={{ width: "90%" }}
+    >
+      {isSubscribed ? (
+        <MDBox
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          style={{ width: "100%" }}
+        >
+          <Grid
+            container
+            spacing={1}
+            xs={12}
+            md={12}
+            lg={12}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            flexDirection="row"
+            style={{ width: "100%" }}
+          >
+            <Grid
+              item
+              xs={12}
+              md={12}
+              lg={12}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              style={{ width: "100%" }}
+            >
+              {allowRenewal && (
+                <Renew
+                  amount={amount}
+                  name={name}
+                  id={id}
+                  walletCash={walletCash}
+                  bonusCash={bonusCash}
+                />
+              )}
             </Grid>
-            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ width: '100%' }}>
-              <MDButton variant="contained" color="success" sx={{ fontSize: "10px", width: '100%' }} onClick={() => { 
-                    window.webengage.track('tenx_start_trading_clicked', {
-                      user: getDetails?.userDetails?._id,
-                      subscriptionId: id,
-                    })
-                navigate(`/tenxtrading/${name}`, { state: { subscriptionId: id } }) }} size='small'>Start Trading</MDButton>
+            <Grid
+              item
+              xs={12}
+              md={12}
+              lg={12}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              style={{ width: "100%" }}
+            >
+              <MDButton
+                variant="contained"
+                color="success"
+                sx={{ fontSize: "10px", width: "100%" }}
+                onClick={() => {
+                  window.webengage.track("tenx_start_trading_clicked", {
+                    user: getDetails?.userDetails?._id,
+                    subscriptionId: id,
+                  });
+                  navigate(`/tenxtrading/${name}`, {
+                    state: { subscriptionId: id },
+                  });
+                }}
+                size="small"
+              >
+                Start Trading
+              </MDButton>
             </Grid>
           </Grid>
         </MDBox>
-
-        :
-        messege.thanksMessege ?
-          <MDBox display='flex' justifyContent='center' alignItems='center' style={{ width: '100%' }}>
-            <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' flexDirection='row' style={{ width: '100%' }}>
-              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ width: '100%' }}>
-                <MDButton variant="contained" color="success" sx={{ fontSize: "10px", width: '100%' }} onClick={() => { navigate(`/tenxtrading/${name}`, { state: { subscriptionId: id } }) }} size='small'>Start Trading</MDButton>
-              </Grid>
-              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ width: '100%' }}>
-                {allowRenewal && <Renew amount={amount} name={name} id={id} walletCash={walletCash} />}
-              </Grid>
+      ) : messege.thanksMessege ? (
+        <MDBox
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          style={{ width: "100%" }}
+        >
+          <Grid
+            container
+            spacing={1}
+            xs={12}
+            md={12}
+            lg={12}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            flexDirection="row"
+            style={{ width: "100%" }}
+          >
+            <Grid
+              item
+              xs={12}
+              md={12}
+              lg={12}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              style={{ width: "100%" }}
+            >
+              <MDButton
+                variant="contained"
+                color="success"
+                sx={{ fontSize: "10px", width: "100%" }}
+                onClick={() => {
+                  navigate(`/tenxtrading/${name}`, {
+                    state: { subscriptionId: id },
+                  });
+                }}
+                size="small"
+              >
+                Start Trading
+              </MDButton>
             </Grid>
-          </MDBox>
-          :
-          <MDBox display='flex' justifyContent='center' alignItems='center' style={{ width: '100%' }}>
-            <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' flexDirection='row' style={{ width: '100%' }}>
-              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' style={{ width: '100%' }}>
-                <MDButton variant="contained" color="success" sx={{ fontSize: "10px", width: '100%' }} onClick={captureIntent} size='small'>Subscribe</MDButton>
-              </Grid>
+            <Grid
+              item
+              xs={12}
+              md={12}
+              lg={12}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              style={{ width: "100%" }}
+            >
+              {allowRenewal && (
+                <Renew
+                  amount={amount}
+                  name={name}
+                  id={id}
+                  walletCash={walletCash}
+                />
+              )}
             </Grid>
-          </MDBox>
-
-      }
+          </Grid>
+        </MDBox>
+      ) : (
+        <MDBox
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          style={{ width: "100%" }}
+        >
+          <Grid
+            container
+            spacing={1}
+            xs={12}
+            md={12}
+            lg={12}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            flexDirection="row"
+            style={{ width: "100%" }}
+          >
+            <Grid
+              item
+              xs={12}
+              md={12}
+              lg={12}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              style={{ width: "100%" }}
+            >
+              <MDButton
+                variant="contained"
+                color="success"
+                sx={{ fontSize: "10px", width: "100%" }}
+                onClick={captureIntent}
+                size="small"
+              >
+                Subscribe
+              </MDButton>
+            </Grid>
+          </Grid>
+        </MDBox>
+      )}
 
       <Dialog
         open={open}
@@ -288,86 +466,291 @@ export default function Dialogue({ subscription, amount, name, id, walletCash, b
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {!messege.thanksMessege &&
-            <MDBox display="flex" alignItems="center" justifyContent="center" >
+          {!messege.thanksMessege && (
+            <MDBox display="flex" alignItems="center" justifyContent="center">
               <LockOutlinedIcon sx={{ color: "#000" }} />
             </MDBox>
-          }
-
+          )}
         </DialogTitle>
         <DialogContent>
-          {messege.thanksMessege ?
+          {messege.thanksMessege ? (
+            <Typography
+              textAlign="center"
+              sx={{ width: "100%" }}
+              color="#000"
+              variant="body2"
+            >
+              {messege.thanksMessege}
+            </Typography>
+          ) : messege.error ? (
+            <Typography
+              textAlign="center"
+              sx={{ width: "100%" }}
+              color="#000"
+              variant="body2"
+            >
+              {messege.error}
+            </Typography>
+          ) : (
+            <>
+              <DialogContentText id="alert-dialog-description">
+                <MDBox display="flex" flexDirection="column">
+                  <Title
+                    variant={{ xs: "h2", md: "h3" }}
+                    style={{
+                      color: "#000",
+                      fontWeight: "bold",
+                      marginTop: "6px",
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  >
+                    Choose how to pay
+                  </Title>
+                  <FormControl>
+                    <RadioGroup
+                      aria-labelledby="payment-mode-label"
+                      defaultValue="wallet"
+                      name="radio-buttons-group"
+                      value={value}
+                      onChange={handleChange}
+                    >
+                      <FormControlLabel
+                        value="wallet"
+                        control={<Radio />}
+                        label="Pay from StoxHero Wallet"
+                      />
+                      {value == "wallet" && (
+                        <MDBox
+                          display="flex"
+                          flexDirection="column"
+                          justifyContent="center"
+                          alignItems="center"
+                          mt={0}
+                          mb={2}
+                        >
+                          <Typography
+                            textAlign="left"
+                            mt={1}
+                            sx={{
+                              width: "100%",
+                              fontSize: "14px",
+                              fontWeight: 600,
+                            }}
+                            color="#000"
+                            variant="body2"
+                          >
+                            Cost Breakdown
+                          </Typography>
+                          <Typography
+                            textAlign="left"
+                            mt={0}
+                            sx={{
+                              width: "100%",
+                              fontSize: "14px",
+                              fontWeight: 500,
+                            }}
+                            color="#808080"
+                            variant="body2"
+                          >
+                            Fee Amount: ₹{subs_amount ? subs_amount : 0}
+                          </Typography>
+                          <Typography
+                            textAlign="left"
+                            sx={{
+                              width: "100%",
+                              fontSize: "14px",
+                              fontWeight: 500,
+                            }}
+                            color="#808080"
+                            variant="body2"
+                          >
+                            GST({setting?.gstPercentage}%) on Fee: ₹{0}
+                          </Typography>
+                          <Typography
+                            textAlign="left"
+                            sx={{
+                              width: "100%",
+                              fontSize: "14px",
+                              fontWeight: 500,
+                            }}
+                            color="#808080"
+                            variant="body2"
+                          >
+                            Net Transaction Amount: ₹{Number(subs_amount)}
+                          </Typography>
+                        </MDBox>
+                      )}
+                      <FormControlLabel
+                        value="bank"
+                        control={<Radio />}
+                        label="Pay from Bank Account/UPI"
+                      />
+                      {value == "bank" && (
+                        <MDBox
+                          display="flex"
+                          flexDirection="column"
+                          justifyContent="center"
+                          alignItems="center"
+                          mt={0}
+                          mb={0}
+                        >
+                          <Typography
+                            textAlign="justify"
+                            sx={{ width: "100%", fontSize: "14px" }}
+                            color="#000"
+                            variant="body2"
+                          >
+                            Starting October 1, 2023, there's a small change:
+                            GST will now be added to all wallet top-ups due to
+                            new government regulations. Thanks for understanding
+                            and adjusting your transactions accordingly!{" "}
+                          </Typography>
+                          <Typography
+                            textAlign="left"
+                            mt={1}
+                            sx={{
+                              width: "100%",
+                              fontSize: "14px",
+                              fontWeight: 600,
+                            }}
+                            color="#000"
+                            variant="body2"
+                          >
+                            Cost Breakdown
+                          </Typography>
+                          <Typography
+                            textAlign="left"
+                            mt={0}
+                            sx={{
+                              width: "100%",
+                              fontSize: "14px",
+                              fontWeight: 500,
+                            }}
+                            color="#808080"
+                            variant="body2"
+                          >
+                            Fee Amount: ₹{subs_amount ? subs_amount : 0}
+                          </Typography>
+                          <Typography
+                            textAlign="left"
+                            sx={{
+                              width: "100%",
+                              fontSize: "14px",
+                              fontWeight: 500,
+                            }}
+                            color="#808080"
+                            variant="body2"
+                          >
+                            GST({setting?.gstPercentage}%) on Fee: ₹
+                            {subs_actualAmount ? subs_actualAmount : 0}
+                          </Typography>
+                          <Typography
+                            textAlign="left"
+                            sx={{
+                              width: "100%",
+                              fontSize: "14px",
+                              fontWeight: 500,
+                            }}
+                            color="#808080"
+                            variant="body2"
+                          >
+                            Net Transaction Amount: ₹
+                            {Number(subs_amount) + subs_actualAmount}
+                          </Typography>
+                        </MDBox>
+                      )}
+                    </RadioGroup>
+                  </FormControl>
+                </MDBox>
+              </DialogContentText>
 
-            <Typography textAlign="center" sx={{ width: "100%" }} color="#000" variant="body2">{messege.thanksMessege}</Typography>
-            :
-            messege.error ?
-              <Typography textAlign="center" sx={{ width: "100%" }} color="#000" variant="body2">{messege.error}</Typography>
-              :
-              <>
-                <DialogContentText id="alert-dialog-description">
-
-                  <MDBox display="flex" flexDirection="column"  >
-                    <Title variant={{ xs: "h2", md: "h3" }} style={{ color: "#000", fontWeight: "bold", marginTop: "6px", display:"flex", justifyContent:'center' }} >Choose how to pay</Title>
-                    <FormControl>
-                      <RadioGroup
-                        aria-labelledby="payment-mode-label"
-                        defaultValue="wallet"
-                        name="radio-buttons-group"
-                        value={value}
-                        onChange={handleChange}
+              {value == "wallet" && (
+                <MDBox
+                  display="flex"
+                  flexDirection="column"
+                  justifyContent="center"
+                  alignItems="center"
+                  mt={2}
+                >
+                  <MDBox
+                    onClick={() => {
+                      buySubscription();
+                    }}
+                    border="1px solid #4CAF50"
+                    borderRadius="10px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    sx={{
+                      height: "40px",
+                      width: { xs: "85%", md: "auto" },
+                      "&:hover": {
+                        cursor: "pointer",
+                        border: "1px solid #fff",
+                      },
+                    }}
+                    style={{ backgroundColor: "#4CAF50" }}
+                  >
+                    <MDBox display="flex" justifyContent="center">
+                      <Typography
+                        variant="body2"
+                        color="#fff"
+                        style={{ marginRight: "14px", marginLeft: "8px" }}
                       >
-                        <FormControlLabel value="wallet" control={<Radio />} label="Pay from StoxHero Wallet" />
-                        {value == 'wallet' &&
-                          <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={2} >
-                            <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
-                            <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{subs_amount ? subs_amount : 0}</Typography>
-                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{0}</Typography>
-                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(subs_amount)}</Typography>
-                          </MDBox>}
-                        <FormControlLabel value="bank" control={<Radio />} label="Pay from Bank Account/UPI" />
-                        {value == 'bank' &&
-                          <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={0} mb={0} >
-                            <Typography textAlign="justify" sx={{ width: "100%", fontSize: "14px" }} color="#000" variant="body2">Starting October 1, 2023, there's a small change: GST will now be added to all wallet top-ups due to new government regulations. Thanks for understanding and adjusting your transactions accordingly! </Typography>
-                            <Typography textAlign="left" mt={1} sx={{ width: "100%", fontSize: "14px", fontWeight: 600, }} color="#000" variant="body2">Cost Breakdown</Typography>
-                            <Typography textAlign="left" mt={0} sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Fee Amount: ₹{subs_amount ? subs_amount : 0}</Typography>
-                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">GST({setting?.gstPercentage}%) on Fee: ₹{subs_actualAmount ? subs_actualAmount : 0}</Typography>
-                            <Typography textAlign="left" sx={{ width: "100%", fontSize: "14px", fontWeight: 500, }} color="#808080" variant="body2">Net Transaction Amount: ₹{Number(subs_amount) + subs_actualAmount}</Typography>
-                          </MDBox>}
-                      </RadioGroup>
-                    </FormControl>
-                  </MDBox>
-                </DialogContentText>
-
-                {value == 'wallet' &&
-                  <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={2}  >
-                    <MDBox onClick={() => { buySubscription() }} border="1px solid #4CAF50" borderRadius="10px" display="flex" alignItems="center" justifyContent="space-between" sx={{ height: "40px", width: { xs: "85%", md: "auto" }, "&:hover": { cursor: "pointer", border: "1px solid #fff" } }} style={{ backgroundColor: "#4CAF50" }} >
-
-                      <MDBox display="flex" justifyContent="center">
-                        <Typography variant="body2" color="#fff" style={{ marginRight: '14px', marginLeft: "8px" }} >Stoxhero Wallet</Typography>
-                        <AccountBalanceWalletIcon sx={{ marginTop: "5px", color: "#fff", marginRight: "4px" }} />
-                        <Typography variant="body2" sx={{ fontSize: "16.4px", fontWeight: "550" }} color="#fff" > {`₹${walletCash}`}</Typography>
-                      </MDBox>
-
-                      <MDBox>
-                        <ArrowForwardIosIcon sx={{ mt: "8px", color: "#fff", marginRight: "5px", marginLeft: "5px" }} />
-                      </MDBox>
-
+                        Stoxhero Wallet
+                      </Typography>
+                      <AccountBalanceWalletIcon
+                        sx={{
+                          marginTop: "5px",
+                          color: "#fff",
+                          marginRight: "4px",
+                        }}
+                      />
+                      <Typography
+                        variant="body2"
+                        sx={{ fontSize: "16.4px", fontWeight: "550" }}
+                        color="#fff"
+                      >
+                        {" "}
+                        {`₹${walletCash}`}
+                      </Typography>
                     </MDBox>
-                  </MDBox>}
 
-              </>
-          }
-
+                    <MDBox>
+                      <ArrowForwardIosIcon
+                        sx={{
+                          mt: "8px",
+                          color: "#fff",
+                          marginRight: "5px",
+                          marginLeft: "5px",
+                        }}
+                      />
+                    </MDBox>
+                  </MDBox>
+                </MDBox>
+              )}
+            </>
+          )}
         </DialogContent>
-        {value !== 'wallet' &&
+        {value !== "wallet" && (
           <DialogActions>
-            <MDButton color='error' onClick={handleClose} autoFocus>
+            <MDButton color="error" onClick={handleClose} autoFocus>
               Close
             </MDButton>
-            <MDButton color={"success"} onClick={()=>{initiatePayment()}} autoFocus>
-              {`Pay ₹${subs_actualAmount ? Number(subs_amount) + subs_actualAmount : 0} securellly`}
+            <MDButton
+              color={"success"}
+              onClick={() => {
+                initiatePayment();
+              }}
+              autoFocus
+            >
+              {`Pay ₹${
+                subs_actualAmount ? Number(subs_amount) + subs_actualAmount : 0
+              } securellly`}
             </MDButton>
-          </DialogActions>}
+          </DialogActions>
+        )}
       </Dialog>
       {renderSuccessSB}
     </MDBox>
