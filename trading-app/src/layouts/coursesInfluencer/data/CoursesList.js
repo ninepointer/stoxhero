@@ -69,7 +69,7 @@ export default function CoursesList({data, isLoading}) {
                                           <Divider style={{ width: '100%' }} />
                                           <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                                             <Typography variant='caption'>
-                                               {`${elem?.userEnrolled} enrolled • ${elem?.maxEnrolments - elem?.userEnrolled} enrollment left`}
+                                               {`${elem?.userEnrolled} enrolled • ${elem?.maxEnrollments - elem?.userEnrolled} enrollment left`}
                                                {/* ${moment.utc(elem?.courseStartTime).utcOffset('+05:30').format('DD MMM YYYY')} */}
                                             </Typography>
                                           </MDBox>

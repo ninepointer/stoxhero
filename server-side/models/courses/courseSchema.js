@@ -24,7 +24,7 @@ const courseSchema = new Schema({
   courseEndTime: { type: Date },
   registrationStartTime: { type: Date },
   registrationEndTime: { type: Date },
-  maxEnrolments: { type: Number },
+  maxEnrollments: { type: Number },
   coursePrice: { type: Number },
   discountedPrice: { type: Number },
   ratings: [

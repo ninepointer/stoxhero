@@ -152,58 +152,52 @@ export default function CreateQuestions({ createForm, setCreateForm, courseId, c
                             </MDTypography>
                         </MDBox>
 
-                        <Grid container mt={0.5} alignItems="space-between">
-                            <Grid item xs={12} md={6} xl={9} >
-                                <Grid item xs={12} md={12} xl={3}>
-                                    <TextField
-                                        disabled={isSubmitted}
-                                        id="outlined-required"
-                                        placeholder='Order*'
-                                        inputMode='numeric'
-                                        fullWidth
-                                        value={formState?.order}
-                                        onChange={(e) => {
-                                            setFormState(prevState => ({
-                                                ...prevState,
-                                                order: e.target.value
-                                            }))
-                                        }}
-                                    />
-                                </Grid>
-
-                                <Grid item xs={12} md={12} xl={9}>
-                                    <TextField
-                                        disabled={isSubmitted}
-                                        id="outlined-required"
-                                        placeholder='Topic*'
-                                        inputMode='numeric'
-                                        fullWidth
-                                        value={formState?.topic}
-                                        onChange={(e) => {
-                                            setFormState(prevState => ({
-                                                ...prevState,
-                                                topic: e.target.value
-                                            }))
-                                        }}
-                                    />
-                                </Grid>
-                            </Grid>
-
+                        <Grid container spacing={1} mt={0.5} alignItems="space-between">
                             <Grid item xs={12} md={6} xl={3}>
-                                <Grid item xs={12} md={12} xl={12} display='flex' gap={5} >
-                                    {!isSubmitted && (
-                                        <>
-                                            <Grid item xs={12} md={2} xl={1} width="100%">
-                                                <MDButton variant="contained" size="small" color="success" onClick={(e) => { onNext(e, formState) }}>Next</MDButton>
-                                            </Grid>
-                                            <Grid item xs={12} md={2} xl={1} width="100%">
-                                                <MDButton variant="contained" size="small" color="warning" onClick={(e) => { setCreateForm(!createForm) }}>Back</MDButton>
-                                            </Grid>
-                                        </>
-                                    )}
-                                </Grid>
+                                <TextField
+                                    disabled={isSubmitted}
+                                    id="outlined-required"
+                                    placeholder='Order*'
+                                    inputMode='numeric'
+                                    fullWidth
+                                    value={formState?.order}
+                                    onChange={(e) => {
+                                        setFormState(prevState => ({
+                                            ...prevState,
+                                            order: e.target.value
+                                        }))
+                                    }}
+                                />
                             </Grid>
+                            <Grid item xs={12} md={6} xl={9}>
+                                <TextField
+                                    disabled={isSubmitted}
+                                    id="outlined-required"
+                                    placeholder='Topic*'
+                                    inputMode='numeric'
+                                    fullWidth
+                                    value={formState?.topic}
+                                    onChange={(e) => {
+                                        setFormState(prevState => ({
+                                            ...prevState,
+                                            topic: e.target.value
+                                        }))
+                                    }}
+                                />
+                            </Grid>
+
+                            {!isSubmitted && (
+                                <Grid item xs={12} md={12} xl={12} display='flex' justifyContent='flex-end' gap={2}>
+                                    <Grid item>
+                                        <MDButton variant="contained" size="small" color="success" onClick={(e) => { onNext(e, formState) }}>Save</MDButton>
+                                    </Grid>
+                                    <Grid item>
+                                        <MDButton variant="contained" size="small" color="warning" onClick={(e) => { setCreateForm(!createForm) }}>Back</MDButton>
+                                    </Grid>
+                                </Grid>
+                            )}
                         </Grid>
+
                         {renderSuccessSB}
                         {renderErrorSB}
                     </MDBox>

@@ -21,6 +21,7 @@ import PaymentIcon from '@mui/icons-material/Payment';
 import Groups2Icon from '@mui/icons-material/Groups2';
 import { Link, useNavigate } from 'react-router-dom'
 import Payment from '../../../coursesUser/data/payment.js'
+import SignupLoginPopup from './signupLoginPopup.jsx';
 
 
 
@@ -62,7 +63,7 @@ export default function Courses() {
 
     useEffect(() => {
         checkPaidFunc();
-    }, [showPay, courses])
+    }, [courses])
 
     async function checkPaidFunc() {
         const check = await axios.get(`${apiUrl}courses/user/${courses?._id}/checkpaid`, { withCredentials: true })
@@ -125,7 +126,7 @@ export default function Courses() {
                                                 </Grid>
 
                                                 <Grid item xs={12} md={4} lg={12} p={2} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', maxWidth: '100%', height: 'auto', gap: 5 }}>
-                                                    {userId ?
+                                                    {/* {userId ?
                                                         <Payment data={courses} showPay={showPay} setShowPay={setShowPay} checkPaid={checkPaid} />
                                                         :
                                                         <MDButton
@@ -135,7 +136,8 @@ export default function Courses() {
                                                             disabled={checkPaid}
                                                             onClick={() => { navigate(`/courses/${slug}/fill+details?course=${courseSlug}`) }}>
                                                             Pay
-                                                        </MDButton>}
+                                                        </MDButton>} */}
+                                                        <SignupLoginPopup data={courses} slug={slug} checkPaid={checkPaid} />
                                                 </Grid>
                                             </CardActionArea>
                                         </Card>

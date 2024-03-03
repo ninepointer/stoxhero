@@ -44,6 +44,10 @@ export default function Create({ createForm, setCreateForm, courseId, instructor
     async function onNext(e) {
         e.preventDefault()
 
+        if(!selectedUser?.id){
+            return openErrorSB("Missing Field", "Please select instructor")
+        }
+
         if (!formState?.about) {
             setTimeout(() => { setIsSubmitted(false) }, 500)
             return openErrorSB("Missing Field", "Please fill all the mandatory fields")
@@ -63,7 +67,7 @@ export default function Create({ createForm, setCreateForm, courseId, instructor
         }
 
         if (instructor?.about) {
-            const res = await fetch(`${apiUrl}courses/${courseId}/instructor/${instructor?.id}`, {
+            const res = await fetch(`${apiUrl}courses/${courseId}/instructor/${instructor?._id}`, {
                 method: "PATCH",
                 credentials: "include",
                 body: formData
@@ -148,8 +152,6 @@ export default function Create({ createForm, setCreateForm, courseId, instructor
         />
     );
 
-    console.log("selectedUser", selectedUser);
-
     return (
         <>
             {isLoading ? (
@@ -168,15 +170,14 @@ export default function Create({ createForm, setCreateForm, courseId, instructor
 
                         <Grid container mt={0.5} alignItems="space-between">
 
-                            <Grid item xs={12} md={6} xl={10} display="flex"
+                            <Grid item xs={12} md={6} xl={12} display="flex"
                                 justifyContent="space-between"
-                                alignItems="center">
+                                alignItems="center" gap={2}>
                                 <Grid item xs={12} md={6} xl={4}>
                                     <User selectedUser={selectedUser} setSelectedUser={setSelectedUser} />
                                 </Grid>
 
-                                {/* <Grid item xs={12} md={6} xl={12} display='flex' gap={1} mt={1}> */}
-                                <Grid item xs={12} md={6} xl={3}>
+                                <Grid item xs={12} md={6} xl={4}>
                                     <TextField
                                         disabled={isSubmitted}
                                         id="outlined-required"
@@ -193,9 +194,7 @@ export default function Create({ createForm, setCreateForm, courseId, instructor
                                     />
                                 </Grid>
 
-                                {/* </Grid> */}
-
-                                <Grid item xs={12} md={6} xl={3} mb={.5} display='flex' gap={1} mt={1} justifyContent={'space-between'}>
+                                <Grid item xs={12} md={6} xl={4} mb={.5} display='flex' gap={1} mt={1} justifyContent={'space-between'}>
                                     <Grid item xs={12} md={12} xl={12}>
                                         <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(instructor?.image && !instructorImage) ? "warning" : ((instructor?.image && instructorImage) || instructorImage) ? "error" : "success"} component="label">
                                             Upload Image(1080X720)
@@ -215,6 +214,9 @@ export default function Create({ createForm, setCreateForm, courseId, instructor
                                 </Grid>
                             </Grid>
 
+                            <Grid item xs={12} md={6} xl={12} display="flex"
+                                justifyContent="space-between"
+                                alignItems="center" gap={2}>
                             <Grid item xs={12} md={6} xl={3}>
                                 <Grid container xs={12} md={12} xl={12} display="flex" justifyContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                                     {previewUrl ?
@@ -268,17 +270,18 @@ export default function Create({ createForm, setCreateForm, courseId, instructor
                                 </Grid>
                             </Grid>
 
-                            <Grid item xs={12} md={6} xl={6} display='flex' gap={5} >
+                            <Grid item xs={12} md={6} xl={9} display='flex' justifyContent={'flex-end'} gap={2} >
                                 {!isSubmitted && (
                                     <>
                                         <Grid item xs={12} md={2} xl={1} width="100%">
-                                            <MDButton variant="contained" size="small" color="success" onClick={(e) => { onNext(e, formState) }}>Next</MDButton>
+                                            <MDButton variant="contained" size="small" color="success" onClick={(e) => { onNext(e, formState) }}>Save</MDButton>
                                         </Grid>
                                         <Grid item xs={12} md={2} xl={1} width="100%">
                                             <MDButton variant="contained" size="small" color="warning" onClick={(e) => { setCreateForm(!createForm) }}>Back</MDButton>
                                         </Grid>
                                     </>
                                 )}
+                            </Grid>
                             </Grid>
                         </Grid>
                         {renderSuccessSB}

@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.b0b7d91e.css",
-    "main.js": "/static/js/main.5e7d6f2c.js",
+    "main.js": "/static/js/main.9615e452.js",
     "static/js/703.0d407a6f.chunk.js": "/static/js/703.0d407a6f.chunk.js",
     "static/js/513.75e0454c.chunk.js": "/static/js/513.75e0454c.chunk.js",
     "static/media/bgBanner1.jpg": "/static/media/bgBanner1.c9ad6246a3bebeb04615.jpg",
@@ -118,6 +118,7 @@
     "static/media/profit.png": "/static/media/profit.f6b3aca919a6874d41c8.png",
     "static/media/learningmodule.png": "/static/media/learningmodule.d0f0fdc8a2e4dd739417.png",
     "static/media/analytics.png": "/static/media/analytics.ef4ae9957dda38d75342.png",
+    "static/media/logo_dark.png": "/static/media/logo_dark.929cca0ecb63276f4089.png",
     "static/media/sadness.png": "/static/media/sadness.5a0bcb560a8cb5088119.png",
     "static/media/banknifty.png": "/static/media/banknifty.062f46c1696ac2c32914.png",
     "static/media/indeximage.png": "/static/media/indeximage.22b667bd93561373961e.png",
@@ -145,6 +146,7 @@
     "static/media/section7-img4.webp": "/static/media/section7-img4.34ba900b5cf625f3a65b.webp",
     "static/media/tradingjourney.png": "/static/media/tradingjourney.ce9f61d6e5fd571e44f3.png",
     "static/media/battlet.png": "/static/media/battlet.5c0e908acc45965e0e2c.png",
+    "static/media/oneonone.png": "/static/media/oneonone.376372f0f56ff729defc.png",
     "static/media/subscription.png": "/static/media/subscription.8a2fdb2d22de8bf3cf0a.png",
     "static/media/realtrading.png": "/static/media/realtrading.c548eb77612a5702eded.png",
     "static/media/uploadimage.png": "/static/media/uploadimage.f2e1f7ac5e2116662c41.png",
@@ -153,6 +155,7 @@
     "static/media/school.png": "/static/media/school.348d31b52a346f382cd5.png",
     "static/media/checklist.png": "/static/media/checklist.b0c6810831a298ed8e60.png",
     "static/media/featured.png": "/static/media/featured.fe4a71778ac29930fa3c.png",
+    "static/media/workshops.png": "/static/media/workshops.b10a8c7ea0ea65f3ede8.png",
     "static/media/main-bg-0-0.png": "/static/media/main-bg-0-0.68c871dde490a07f93df.png",
     "static/media/money.png": "/static/media/money.5cd11134452477569e57.png",
     "static/media/team-4.jpg": "/static/media/team-4.85c82b6e60178804017f.jpg",
@@ -203,12 +206,12 @@
     "static/media/mew.svg": "/static/media/mew.abd579786274219a78079f023ed7b335.svg",
     "static/media/slick.woff": "/static/media/slick.295183786cd8a1389865.woff",
     "main.b0b7d91e.css.map": "/static/css/main.b0b7d91e.css.map",
-    "main.5e7d6f2c.js.map": "/static/js/main.5e7d6f2c.js.map",
+    "main.9615e452.js.map": "/static/js/main.9615e452.js.map",
     "703.0d407a6f.chunk.js.map": "/static/js/703.0d407a6f.chunk.js.map",
     "513.75e0454c.chunk.js.map": "/static/js/513.75e0454c.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.b0b7d91e.css",
-    "static/js/main.5e7d6f2c.js"
+    "static/js/main.9615e452.js"
   ]
 }
