@@ -25,7 +25,7 @@ export default function CoursesList({data, isLoading}) {
   return (
     <>
       {!isLoading ?
-        <Grid mt={1} mb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' container xs={12} md={12} lg={12} style={{ maxWidth: '80%', height: 'auto' }}>
+        <Grid mt={1} mb={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' container xs={12} md={12} lg={12} style={{ maxWidth: '100%', height: 'auto' }}>
 
           <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
             <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
@@ -69,7 +69,7 @@ export default function CoursesList({data, isLoading}) {
                                           <Divider style={{ width: '100%' }} />
                                           <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                                             <Typography variant='caption'>
-                                               {`${elem?.userEnrolled} enrolled • ${elem?.maxEnrollments - elem?.userEnrolled} enrollment left`}
+                                               {`${elem?.userEnrolled} enrolled • ${(elem?.maxEnrolments || 0) - (elem?.userEnrolled || 0)} enrollment left`}
                                                {/* ${moment.utc(elem?.courseStartTime).utcOffset('+05:30').format('DD MMM YYYY')} */}
                                             </Typography>
                                           </MDBox>

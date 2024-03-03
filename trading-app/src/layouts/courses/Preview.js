@@ -153,10 +153,15 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
 
         <MDBox style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column', marginBottom: '12px', padding: '12px', borderRadius: '16px', boxShadow: "0px 4px 6px -2px rgba(0, 0, 0, 0.5)", width: '100%' }}>
           <MDBox sx={{ display: 'flex', flexDirection: "column" }}>
+            <MDBox sx={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', gap: 5 }}>
+              <img src={course.courseImage} style={{height: '200px', width: '350'}} />
+              <video src={course.salesVideo} style={{ height: '200px', width: '350px' }} controls />
+
+            </MDBox>
+
           <MDTypography style={{ fontSize: '14px', marginBottom: '12px', fontWeight: 800, color: '#000000' }} >Course Basic Details</MDTypography>
-          
             <MDBox>
-              <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Name: <span style={{ fontWeight: 600 }}>{`${course.courseName}`}</span></MDTypography>
                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Language: <span style={{ fontWeight: 600 }}>{`${course?.courseLanguages}`}</span></MDTypography>
                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Duration: <span style={{ fontWeight: 600 }}>{`${course?.courseDurationInMinutes}`}</span></MDTypography>
@@ -172,10 +177,10 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
 
               {(course.courseStartTime || course.courseEndTime) &&
                 <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Registration Starts: <span style={{ fontWeight: 600 }}>{`${moment(course?.registrationStartTime).format('DD MM YY hh:mm a')}`}</span></MDTypography>
-                  <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Registration Ends: <span style={{ fontWeight: 600 }}>{`${moment(course?.registrationEndTime).format('DD MM YY hh:mm a')}`}</span></MDTypography>
-                  <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Starts: <span style={{ fontWeight: 600 }}>{`${moment(course?.courseStartTime).format('DD MM YY hh:mm a')}`}</span></MDTypography>
-                  <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Ends: <span style={{ fontWeight: 600 }}>{`${moment(course?.courseEndTime).format('DD MM YY hh:mm a')}`}</span></MDTypography>
+                  <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Registration Starts: <span style={{ fontWeight: 600 }}>{`${moment(course?.registrationStartTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
+                  <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Registration Ends: <span style={{ fontWeight: 600 }}>{`${moment(course?.registrationEndTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
+                  <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Starts: <span style={{ fontWeight: 600 }}>{`${moment(course?.courseStartTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
+                  <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Ends: <span style={{ fontWeight: 600 }}>{`${moment(course?.courseEndTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
                 </MDBox>
               }
 
@@ -189,7 +194,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
               <div dangerouslySetInnerHTML={{ __html: course?.courseDescription }} />
             </MDBox>
 
-            <MDTypography style={{ fontSize: '14px', marginBottom: '2px', fontWeight: 800, color: '#000000' }} >Pricing Details</MDTypography>
+            <MDTypography style={{ fontSize: '14px', marginTop: '5px', marginBottom: '2px', fontWeight: 800, color: '#000000' }} >Pricing Details</MDTypography>
             <MDBox sx={{ display: 'flex', justifyContent: 'center', flexDirection: "column" }}>
               <MDBox sx={{ display: 'flex', gap: 5 }}>
                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Actual Price: <span style={{ fontWeight: 600 }}>{course?.coursePrice}</span></MDTypography>
@@ -204,25 +209,25 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
             </MDBox> */}
 
             <MDTypography style={{ fontSize: '14px', margin: '2px 0px 2px 0px', fontWeight: 800, color: '#000000' }} >Instructor Details</MDTypography>
-            <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
               {course?.courseInstructors?.map((elem) => {
                 return (
-                  <>
+                  <MDBox sx={{display: 'flex', justifyContent: 'space-between'}}>
                     <MDBox>
-                      <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Instructor Name: <span style={{ fontWeight: 600 }}>{`${elem?.id?.first_name + " " + elem?.id?.last_name}`}</span></MDTypography>
-                      <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >About Instructor: <span style={{ fontWeight: 600 }}>{`${elem?.about}`}</span></MDTypography>
+                      <MDTypography style={{ fontSize: '14px', marginBottom: '2px' }} >Instructor Name: <span style={{ fontWeight: 600 }}>{`${elem?.id?.first_name + " " + elem?.id?.last_name}`}</span></MDTypography>
+                      <MDTypography style={{ fontSize: '14px', marginBottom: '2px' }} >About Instructor: <span style={{ fontWeight: 600 }}>{`${elem?.about}`}</span></MDTypography>
                     </MDBox>
                     <MDBox>
                       <img src={elem?.image} alt="image" style={{ height: '70px', width: '70px' }} />
                     </MDBox>
-                  </>
+                  </MDBox>
                 )
               })}
               
             </MDBox>
 
-            <MDTypography style={{ fontSize: '14px', margin: '2px 0px 2px 0px', fontWeight: 800, color: '#000000' }} >Course Topics</MDTypography>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <MDTypography style={{ fontSize: '14px', margin: '2px 0px 0px 0px', fontWeight: 800, color: '#000000' }} >Course Topics</MDTypography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
               {course?.courseContent?.map((elem) => (
                 <Box key={elem._id} sx={{ margin: '2px' }}>
                   <Typography style={{ fontSize: '16px' }}> <span>{elem?.order}.</span> {elem?.topic}</Typography>
@@ -238,7 +243,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
             </Box>
 
             <MDTypography style={{ fontSize: '14px', margin: '2px 0px 2px 0px', fontWeight: 800, color: '#000000' }} >Course Benefits</MDTypography>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
               {course?.courseBenefits?.map((elem) => (
                 <Box key={elem._id} sx={{ margin: '2px' }}>
                   <Typography style={{ fontSize: '16px', marginBottom: '2px' }}> <span>{elem?.order}.</span> {elem?.benefits}</Typography>
@@ -247,7 +252,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
             </Box>
 
             <MDTypography style={{ fontSize: '14px', margin: '2px 0px 2px 0px', fontWeight: 800, color: '#000000' }} >FAQ's</MDTypography>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
               {course?.faqs?.map((elem) => (
                 <Box key={elem._id} sx={{ margin: '2px' }}>
                   <Typography style={{ fontSize: '16px', marginBottom: '2px' }}> <span>{"Question"} : </span> {elem?.question}</Typography>
@@ -255,6 +260,19 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
                 </Box>
               ))}
             </Box>
+
+            {course?.suggestChanges?.length &&
+            <>
+            <MDTypography style={{ fontSize: '14px', margin: '2px 0px 2px 0px', fontWeight: 800, color: '#000000' }} >Changes</MDTypography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              {course?.suggestChanges?.map((elem, index) => (
+                <Box key={index} sx={{ margin: '2px' }}>
+                  <Typography style={{ fontSize: '16px', marginBottom: '2px' }}> {elem}</Typography>
+                </Box>
+              ))}
+            </Box>
+            </>
+            }
           </MDBox>
 
         </MDBox>
