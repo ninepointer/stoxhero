@@ -84,7 +84,8 @@ export default function Courses() {
                                 <Grid key={courses?._id} item xs={12} md={12} lg={12} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '100%', height: 'auto' }}>
                                     <Grid container xs={12} md={12} lg={12} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '100%', height: 'auto' }}>
                                         <Card
-                                            sx={{ minWidth: '100%', cursor: 'pointer' }}
+                                            sx={{ minWidth: '100%', cursor: 'pointer'  }}
+                                            disableRipple
 
                                         >
                                             <CardActionArea>
@@ -98,7 +99,7 @@ export default function Courses() {
                                                         <Divider style={{ width: '100%' }} />
                                                         <MDBox style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column', marginBottom: '12px', padding: '12px', borderRadius: '16px', boxShadow: "0px 4px 6px -2px rgba(0, 0, 0, 0.5)", width: '100%' }}>
                                                             <MDBox sx={{ display: 'flex', flexDirection: "column" }}>
-                                                                <MDBox sx={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', gap: 5 }}>
+                                                                <MDBox sx={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', gap: 5, flexWrap: 'wrap' }}>
                                                                     <Grid
                                                                         container
                                                                         spacing={1}
@@ -138,7 +139,7 @@ export default function Courses() {
                                                                         spacing={1}
                                                                         xs={12}
                                                                         md={12}
-                                                                        lg={4}
+                                                                        lg={2}
                                                                         display="flex"
                                                                         justifyContent={
                                                                             isMobile ? "center" : "center"
@@ -152,7 +153,7 @@ export default function Courses() {
                                                                             item
                                                                             xs={12}
                                                                             md={12}
-                                                                            lg={6}
+                                                                            lg={12}
                                                                             display="flex"
                                                                             justifyContent={
                                                                                 isMobile ? "center" : "center"
@@ -164,11 +165,11 @@ export default function Courses() {
                                                                         >
                                                                             <SignupLoginPopup data={courses} slug={slug} checkPaid={checkPaid} />
                                                                         </Grid>
-                                                                        <Grid
+                                                                        {/* <Grid
                                                                             item
                                                                             xs={12}
                                                                             md={12}
-                                                                            lg={6}
+                                                                            lg={12}
                                                                             display="flex"
                                                                             justifyContent={
                                                                                 isMobile ? "center" : "center"
@@ -192,12 +193,12 @@ export default function Courses() {
                                                                             >
                                                                                 Course Details
                                                                             </MDButton>
-                                                                        </Grid>
+                                                                        </Grid> */}
                                                                         <Grid
                                                                             item
                                                                             xs={12}
                                                                             md={12}
-                                                                            lg={6}
+                                                                            lg={12}
                                                                             display="flex"
                                                                             justifyContent={
                                                                                 isMobile ? "center" : "center"
@@ -225,7 +226,7 @@ export default function Courses() {
                                                                             item
                                                                             xs={12}
                                                                             md={12}
-                                                                            lg={6}
+                                                                            lg={12}
                                                                             display="flex"
                                                                             justifyContent={
                                                                                 isMobile ? "center" : "center"
@@ -256,16 +257,16 @@ export default function Courses() {
                                                                     </Grid>
                                                                 </MDBox>
 
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px', fontWeight: 800, color: '#000000' }} >Course Basic Details</MDTypography>
-                                                                <MDBox>
-                                                                    <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px', fontWeight: 800, color: '#000000', paddingLeft: isMobile ? '20px' : '0px' }} >Course Basic Details</MDTypography>
+                                                                <MDBox style={{paddingLeft: isMobile ? '20px' : '0px'}}> 
+                                                                    <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', flexDirection: isMobile ? 'column' : 'row' }}>
                                                                         <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Name: <span style={{ fontWeight: 600 }}>{`${courses.courseName}`}</span></MDTypography>
                                                                         <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Language: <span style={{ fontWeight: 600 }}>{`${courses?.courseLanguages}`}</span></MDTypography>
                                                                         <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Duration: <span style={{ fontWeight: 600 }}>{`${courses?.courseDurationInMinutes} min`}</span></MDTypography>
                                                                         {/* <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Max Enrollments: <span style={{ fontWeight: 600 }}>{`${courses?.maxEnrolments}`}</span></MDTypography> */}
                                                                     </MDBox>
 
-                                                                    <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                                    <MDBox sx={{ display: 'flex', justifyContent: 'space-between' , flexDirection: isMobile ? 'column' : 'row' }}>
                                                                         <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Type: <span style={{ fontWeight: 600 }}>{`${courses.type}`}</span></MDTypography>
                                                                         <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Type: <span style={{ fontWeight: 600 }}>{`${courses?.courseType}`}</span></MDTypography>
                                                                         <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Category: <span style={{ fontWeight: 600 }}>{`${courses?.category}`}</span></MDTypography>
@@ -273,7 +274,7 @@ export default function Courses() {
                                                                     </MDBox>
 
                                                                     {(courses.courseStartTime || courses.courseEndTime) &&
-                                                                        <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                                        <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: isMobile ? 'column' : 'row' }}>
                                                                             <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Registration Starts: <span style={{ fontWeight: 600 }}>{`${moment(courses?.registrationStartTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
                                                                             <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Registration Ends: <span style={{ fontWeight: 600 }}>{`${moment(courses?.registrationEndTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
                                                                             <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Starts: <span style={{ fontWeight: 600 }}>{`${moment(courses?.courseStartTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
@@ -286,31 +287,31 @@ export default function Courses() {
                                                                     </MDBox>
                                                                 </MDBox>
 
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '2px', fontWeight: 800, color: '#000000' }} >Course Description</MDTypography>
-                                                                <MDBox style={{ maxWidth: '100%', width: '100%', height: 'auto' }}>
+                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '5px', fontWeight: 800, color: '#000000', paddingLeft: isMobile ? '20px' : '0px' }} >Course Description</MDTypography>
+                                                                <MDBox style={{ maxWidth: '100%', width: '100%', height: 'auto', paddingLeft: isMobile ? '20px' : '0px' }}>
                                                                     <div dangerouslySetInnerHTML={{ __html: courses?.courseDescription }} />
                                                                 </MDBox>
 
-                                                                <MDTypography style={{ fontSize: '14px', marginTop: '5px', marginBottom: '2px', fontWeight: 800, color: '#000000' }} >Pricing Details</MDTypography>
-                                                                <MDBox sx={{ display: 'flex', justifyContent: 'center', flexDirection: "column" }}>
-                                                                    <MDBox sx={{ display: 'flex', gap: 5 }}>
-                                                                        <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Actual Price: <span style={{ fontWeight: 600 }}>₹{
+                                                                <MDTypography style={{ fontSize: '14px', marginTop: '8px', marginBottom: '2px', fontWeight: 800, color: '#000000', paddingLeft: isMobile ? '20px' : '0px' }} >Pricing Details</MDTypography>
+                                                                <MDBox sx={{ display: 'flex', justifyContent: 'center', flexDirection: "column", paddingLeft: isMobile ? '20px' : '0px' }}>
+                                                                    <MDBox sx={{ display: 'flex', gap: isMobile ? 0 : 5, flexDirection: isMobile ? 'column' : 'row' }}>
+                                                                        <MDTypography style={{ fontSize: '14px', marginBottom: '2px' }} >Actual Price: <span style={{ fontWeight: 600 }}>₹{
                                                                             new Intl.NumberFormat(undefined, {
                                                                                 minimumFractionDigits: 0,
                                                                                 maximumFractionDigits: 0,
                                                                             }).format(courses?.coursePrice)
                                                                         }</span></MDTypography>
-                                                                        <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Discounted Price: <span style={{ fontWeight: 600 }}>₹{`${new Intl.NumberFormat(undefined, {
+                                                                        <MDTypography style={{ fontSize: '14px', marginBottom: '2px' }} >Discounted Price: <span style={{ fontWeight: 600 }}>₹{`${new Intl.NumberFormat(undefined, {
                                                                             minimumFractionDigits: 0,
                                                                             maximumFractionDigits: 0,
                                                                         }).format(courses?.discountedPrice)
                                                                             }`}</span></MDTypography>
-                                                                        <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Commission %: <span style={{ fontWeight: 600 }}>{`${courses?.commissionPercentage}`}</span></MDTypography>
+                                                                        
                                                                     </MDBox>
                                                                 </MDBox>
 
-                                                                <MDTypography style={{ fontSize: '14px', margin: '2px 0px 2px 0px', fontWeight: 800, color: '#000000' }} >Instructor Details</MDTypography>
-                                                                <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
+                                                                <MDTypography style={{ fontSize: '14px', margin: '8px 0px 2px 0px', fontWeight: 800, color: '#000000', paddingLeft: isMobile ? '20px' : '0px' }} >Instructor Details</MDTypography>
+                                                                <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column', paddingLeft: isMobile ? '20px' : '0px' }}>
                                                                     {courses?.courseInstructors?.map((courses) => {
                                                                         return (
                                                                             <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -319,7 +320,7 @@ export default function Courses() {
                                                                                     <MDTypography style={{ fontSize: '14px', marginBottom: '2px' }} >About Instructor: <span style={{ fontWeight: 600 }}>{`${courses?.about}`}</span></MDTypography>
                                                                                 </MDBox>
                                                                                 <MDBox>
-                                                                                    <img src={courses?.image} alt="image" style={{ height: '70px', width: '70px' }} />
+                                                                                    <img src={courses?.image} alt="image" style={{ height: '70px', width: '70px', paddingRight: isMobile ? '10px' : '0px' }} />
                                                                                 </MDBox>
                                                                             </MDBox>
                                                                         )
@@ -327,8 +328,8 @@ export default function Courses() {
 
                                                                 </MDBox>
 
-                                                                <MDTypography style={{ fontSize: '14px', margin: '2px 0px 0px 0px', fontWeight: 800, color: '#000000' }} >Course Topics</MDTypography>
-                                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
+                                                                <MDTypography style={{ fontSize: '14px', margin: '2px 0px 0px 0px', fontWeight: 800, color: '#000000', paddingLeft: isMobile ? '20px' : '0px' }} >Course Topics</MDTypography>
+                                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column', paddingLeft: isMobile ? '20px' : '0px' }}>
                                                                     {courses?.courseContent?.map((courses) => (
                                                                         <Box key={courses._id} sx={{ margin: '2px' }}>
                                                                             <Typography style={{ fontSize: '16px' }}> <span>{courses?.order}.</span> {courses?.topic}</Typography>
@@ -343,8 +344,8 @@ export default function Courses() {
                                                                     ))}
                                                                 </Box>
 
-                                                                <MDTypography style={{ fontSize: '14px', margin: '2px 0px 2px 0px', fontWeight: 800, color: '#000000' }} >Course Benefits</MDTypography>
-                                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
+                                                                <MDTypography style={{ fontSize: '14px', margin: '8px 0px 2px 0px', fontWeight: 800, color: '#000000', paddingLeft: isMobile ? '20px' : '0px' }} >Course Benefits</MDTypography>
+                                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column', paddingLeft: isMobile ? '20px' : '0px' }}>
                                                                     {courses?.courseBenefits?.map((courses) => (
                                                                         <Box key={courses._id} sx={{ margin: '2px' }}>
                                                                             <Typography style={{ fontSize: '16px', marginBottom: '2px' }}> <span>{courses?.order}.</span> {courses?.benefits}</Typography>
@@ -352,12 +353,12 @@ export default function Courses() {
                                                                     ))}
                                                                 </Box>
 
-                                                                <MDTypography style={{ fontSize: '14px', margin: '2px 0px 2px 0px', fontWeight: 800, color: '#000000' }} >FAQ's</MDTypography>
-                                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
+                                                                <MDTypography style={{ fontSize: '14px', margin: '8px 0px 2px 0px', fontWeight: 800, color: '#000000', paddingLeft: isMobile ? '20px' : '0px' }} >FAQ's</MDTypography>
+                                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column', paddingLeft: isMobile ? '20px' : '0px' }}>
                                                                     {courses?.faqs?.map((courses) => (
                                                                         <Box key={courses._id} sx={{ margin: '2px' }}>
-                                                                            <Typography style={{ fontSize: '16px', marginBottom: '2px' }}> <span>{"Question"} : </span> {courses?.question}</Typography>
-                                                                            <Typography style={{ fontSize: '16px', marginBottom: '2px' }}> <span>{"Answer"} : </span> {courses?.answer}</Typography>
+                                                                            <Typography style={{ fontSize: '16px', marginBottom: '2px' }}> <span style={{fontWeight: 500}} >{"Question"} : </span> {courses?.question}</Typography>
+                                                                            <Typography style={{ fontSize: '16px', marginBottom: '2px' }}> <span style={{fontWeight: 500}} >{"Answer"} : </span> {courses?.answer}</Typography>
                                                                         </Box>
                                                                     ))}
                                                                 </Box>
@@ -366,11 +367,6 @@ export default function Courses() {
                                                         </MDBox>
                                                     </CardContent>
                                                 </Grid>
-
-                                                {/* <Grid item xs={12} md={4} lg={12} p={2} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', maxWidth: '100%', height: 'auto', gap: 5 }}>
-                                                   
-                                                        <SignupLoginPopup data={courses} slug={slug} checkPaid={checkPaid} />
-                                                </Grid> */}
                                             </CardActionArea>
                                         </Card>
                                     </Grid>

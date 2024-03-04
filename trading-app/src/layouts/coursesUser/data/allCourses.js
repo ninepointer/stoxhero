@@ -53,7 +53,7 @@ const Courses = () => {
         // Handle errors here
         console.error(error);
       });
-  }, [skip])
+  }, [skip, showPay])
 
   const handlePageChange = (event, value) => {
     setSkip((Number(value) - 1) * limitSetting)

@@ -1548,7 +1548,7 @@ exports.getCourseByIdUser = async (req, res) => {
     const courseId = req.params.id;
     const courses = await Course.findOne({ _id: new ObjectId(courseId) })
       .populate("courseInstructors.id", "first_name last_name email")
-      .select("-enrollments -createdOn -createdBy");
+      .select("-enrollments -createdOn -createdBy -commissionPercentage");
     res.status(200).json({ status: "success", data: courses });
   } catch (error) {
     res.status(500).json({
