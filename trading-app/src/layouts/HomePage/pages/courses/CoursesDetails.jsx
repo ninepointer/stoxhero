@@ -289,7 +289,7 @@ export default function Courses() {
 
                                                                 <MDTypography style={{ fontSize: '14px', marginBottom: '5px', fontWeight: 800, color: '#000000', paddingLeft: isMobile ? '20px' : '0px' }} >Course Description</MDTypography>
                                                                 <MDBox style={{ maxWidth: '100%', width: '100%', height: 'auto', paddingLeft: isMobile ? '20px' : '0px' }}>
-                                                                    <div dangerouslySetInnerHTML={{ __html: courses?.courseDescription }} />
+                                                                    <div dangerouslySetInnerHTML={{ __html: courses?.courseDescription }} style={{ fontFamily: 'Work Sans , sans-serif' }} />
                                                                 </MDBox>
 
                                                                 <MDTypography style={{ fontSize: '14px', marginTop: '8px', marginBottom: '2px', fontWeight: 800, color: '#000000', paddingLeft: isMobile ? '20px' : '0px' }} >Pricing Details</MDTypography>

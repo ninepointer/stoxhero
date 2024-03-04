@@ -185,7 +185,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
           
             <MDTypography style={{ fontSize: '14px', marginBottom: '2px', fontWeight: 800, color: '#000000' }} >Course Description</MDTypography>
             <MDBox style={{ maxWidth: '100%', width: '100%', height: 'auto' }}>
-              <div dangerouslySetInnerHTML={{ __html: course?.courseDescription }} />
+              <div dangerouslySetInnerHTML={{ __html: course?.courseDescription }} style={{ fontFamily: 'Work Sans , sans-serif' }} />
             </MDBox>
 
             <MDTypography style={{ fontSize: '14px', marginTop: '5px', marginBottom: '2px', fontWeight: 800, color: '#000000' }} >Pricing Details</MDTypography>
