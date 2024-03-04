@@ -642,10 +642,7 @@ exports.editInstructor = async (req, res) => {
     const { about, image } = req.body;
     let imageUrl;
     if (req?.files?.["instructorImage"]) {
-      imageUrl = await getAwsS3Url(
-        req.files["instructorImage"][0],
-        "Image"
-      );
+      imageUrl = await getAwsS3Url(req.files["instructorImage"][0], "Image");
     }
     const course = await Course.findOneAndUpdate(
       {
@@ -1192,10 +1189,26 @@ exports.getAwaitingApprovals = async (req, res) => {
         },
       },
       {
+        $addFields: {
+          averageRating: { $ifNull: [{ $avg: "$ratings.rating" }, 0] }, // Calculate the average rating or set it to 0 if null
+        },
+      },
+      {
         $project: {
           courseName: 1,
           courseStartTime: 1,
           courseImage: 1,
+          coursePrice: 1,
+          discountedPrice: 1,
+          courseDurationInMinutes: 1,
+          courseType: 1,
+          type: 1,
+          category: 1,
+          level: 1,
+          lectures: {
+            $size: "$courseContent",
+          },
+          averageRating: 1,
           userEnrolled: {
             $size: "$enrollments",
           },
@@ -1243,10 +1256,26 @@ exports.getPendingApproval = async (req, res) => {
         },
       },
       {
+        $addFields: {
+          averageRating: { $ifNull: [{ $avg: "$ratings.rating" }, 0] }, // Calculate the average rating or set it to 0 if null
+        },
+      },
+      {
         $project: {
           courseName: 1,
           courseStartTime: 1,
           courseImage: 1,
+          coursePrice: 1,
+          discountedPrice: 1,
+          courseDurationInMinutes: 1,
+          courseType: 1,
+          type: 1,
+          category: 1,
+          level: 1,
+          lectures: {
+            $size: "$courseContent",
+          },
+          averageRating: 1,
           userEnrolled: {
             $size: "$enrollments",
           },
@@ -1294,10 +1323,27 @@ exports.getPublished = async (req, res) => {
         },
       },
       {
+        $addFields: {
+          averageRating: { $ifNull: [{ $avg: "$ratings.rating" }, 0] }, // Calculate the average rating or set it to 0 if null
+        },
+      },
+      {
         $project: {
           courseName: 1,
           courseStartTime: 1,
           courseImage: 1,
+          coursePrice: 1,
+          discountedPrice: 1,
+          courseDurationInMinutes: 1,
+          courseType: 1,
+          type: 1,
+          status: 1,
+          category: 1,
+          level: 1,
+          lectures: {
+            $size: "$courseContent",
+          },
+          averageRating: 1,
           userEnrolled: {
             $size: "$enrollments",
           },
@@ -1345,10 +1391,27 @@ exports.getUnpublished = async (req, res) => {
         },
       },
       {
+        $addFields: {
+          averageRating: { $ifNull: [{ $avg: "$ratings.rating" }, 0] }, // Calculate the average rating or set it to 0 if null
+        },
+      },
+      {
         $project: {
           courseName: 1,
           courseStartTime: 1,
           courseImage: 1,
+          coursePrice: 1,
+          discountedPrice: 1,
+          courseDurationInMinutes: 1,
+          courseType: 1,
+          type: 1,
+          status: 1,
+          category: 1,
+          level: 1,
+          lectures: {
+            $size: "$courseContent",
+          },
+          averageRating: 1,
           userEnrolled: {
             $size: "$enrollments",
           },
@@ -1413,6 +1476,14 @@ exports.getUserCourses = async (req, res) => {
           coursePrice: 1,
           discountedPrice: 1,
           averageRating: 1,
+          courseDurationInMinutes: 1,
+          courseType: 1,
+          type: 1,
+          category: 1,
+          level: 1,
+          lectures: {
+            $size: "$courseContent",
+          },
           userEnrolled: {
             $size: "$enrollments",
           },
@@ -1426,6 +1497,11 @@ exports.getUserCourses = async (req, res) => {
               },
             },
           },
+          
+          isPaid: {
+            $in: [new ObjectId(userId), "$enrollments.userId"]
+          }
+          
         },
       },
       {
@@ -1520,11 +1596,15 @@ exports.getCoursesByUserSlug = async (req, res) => {
         $project: {
           courseName: 1,
           courseStartTime: 1,
+          courseOverview: 1,
           courseSlug: 1,
           courseImage: 1,
           coursePrice: 1,
           averageRating: 1,
           discountedPrice: 1,
+          courseDurationInMinutes: 1,
+          level: 1,
+          courseContent: 1,
           userEnrolled: {
             $size: "$enrollments",
           },
@@ -2061,7 +2141,8 @@ exports.handleDeductCourseFee = async (
       statusCode: 200,
       data: {
         status: "success",
-        message: "Congratulations on successfully enrolling in the course! It will be a valuable experience for you.",
+        message:
+          "Congratulations on successfully enrolling in the course! It will be a valuable experience for you.",
         data: updateParticipants,
       },
     };
@@ -2184,6 +2265,14 @@ exports.myCourses = async (req, res) => {
                 coursePrice: 1,
                 discountedPrice: 1,
                 userEnrolled: 1,
+                courseDurationInMinutes: 1,
+                courseType: 1,
+                type: 1,
+                category: 1,
+                level: 1,
+                lectures: {
+                  $size: "$courseContent",
+                },
                 maxEnrolments: 1,
                 topics: "$courseContent",
                 coursePrgress: {
@@ -2205,6 +2294,7 @@ exports.myCourses = async (req, res) => {
                     },
                   },
                 },
+            
               },
             },
             {
@@ -2255,7 +2345,7 @@ exports.myCourses = async (req, res) => {
       data: dataArr,
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({
       status: "error",
       message: "Something went wrong",

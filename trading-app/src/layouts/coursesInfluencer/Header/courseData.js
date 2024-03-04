@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from "axios";
 import { apiUrl } from "../../../constants/constants.js"
-import {Card, Box, Typography} from '@mui/material';
+import { Card, Box, Typography } from '@mui/material';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import { CardActionArea, CircularProgress, Divider, Grid } from '@mui/material';
@@ -141,10 +141,10 @@ const Courses = () => {
                                                         <MDTypography style={{ fontSize: '14px', marginBottom: '12px', fontWeight: 800, color: '#000000' }} >Course Basic Details</MDTypography>
                                                         <MDBox>
                                                             <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Name: <span style={{ fontWeight: 600 }}>{`${courses.courseName}`}</span></MDTypography>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Language: <span style={{ fontWeight: 600 }}>{`${courses?.courseLanguages}`}</span></MDTypography>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Duration: <span style={{ fontWeight: 600 }}>{`${courses?.courseDurationInMinutes}`}</span></MDTypography>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Max Enrollments: <span style={{ fontWeight: 600 }}>{`${courses?.maxEnrolments}`}</span></MDTypography>
+                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Name: <span style={{ fontWeight: 600 }}>{`${courses.courseName}`}</span></MDTypography>
+                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Language: <span style={{ fontWeight: 600 }}>{`${courses?.courseLanguages}`}</span></MDTypography>
+                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Duration: <span style={{ fontWeight: 600 }}>{`${courses?.courseDurationInMinutes} min`}</span></MDTypography>
+                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Max Enrollments: <span style={{ fontWeight: 600 }}>{`${courses?.maxEnrolments || 'N/A'}`}</span></MDTypography>
                                                             </MDBox>
 
                                                             <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -176,11 +176,19 @@ const Courses = () => {
                                                         <MDTypography style={{ fontSize: '14px', marginTop: '5px', marginBottom: '2px', fontWeight: 800, color: '#000000' }} >Pricing Details</MDTypography>
                                                         <MDBox sx={{ display: 'flex', justifyContent: 'center', flexDirection: "column" }}>
                                                             <MDBox sx={{ display: 'flex', gap: 5 }}>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Actual Price: <span style={{ fontWeight: 600 }}>{courses?.coursePrice}</span></MDTypography>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Discounted Price: <span style={{ fontWeight: 600 }}>{`${courses?.discountedPrice}`}</span></MDTypography>
+                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Actual Price: <span style={{ fontWeight: 600 }}>₹{
+                                                                    new Intl.NumberFormat(undefined, {
+                                                                        minimumFractionDigits: 0,
+                                                                        maximumFractionDigits: 0,
+                                                                    }).format(courses?.coursePrice)}</span></MDTypography>
+                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Discounted Price: <span style={{ fontWeight: 600 }}>₹{
+                                                                    new Intl.NumberFormat(undefined, {
+                                                                        minimumFractionDigits: 0,
+                                                                        maximumFractionDigits: 0,
+                                                                    }).format(courses?.discountedPrice)}</span></MDTypography>
                                                                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Commission %: <span style={{ fontWeight: 600 }}>{`${courses?.commissionPercentage}`}</span></MDTypography>
                                                             </MDBox>
-                                                        </MDBox> 
+                                                        </MDBox>
 
                                                         <MDTypography style={{ fontSize: '14px', margin: '2px 0px 2px 0px', fontWeight: 800, color: '#000000' }} >Instructor Details</MDTypography>
                                                         <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>

@@ -46,7 +46,7 @@ const Courses = () => {
 
     return (
         <>
-            <CoursesList data={courses} />
+            {courses && <CoursesList data={courses} isLoading={isLoading} />}
             {courses?.length > 0 &&
                 <Grid item xs={12} md={12} lg={12} mt={2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                     <Stack spacing={2}>

@@ -206,17 +206,17 @@ const Form = ({ data, slug, checkPaid }) => {
     return (
 
         <>
-            <MDBox>
+            {/* <MDBox> */}
                 <MDButton
-                    variant='gradient'
-                    color='error'
-                    size='small'
-                  disabled={checkPaid}
-                  onClick={() => { setOpen(true) }}
+                    variant="outlined"
+                    size="small"
+                    color="success"
+                    onClick={() => { setOpen(true) }}
+                    style={{ minWidth: "100%" }}
                 >
-                    Pay Now
+                    Buy course
                 </MDButton>
-            </MDBox>
+            {/* </MDBox> */}
 
             <Dialog
                 open={open}

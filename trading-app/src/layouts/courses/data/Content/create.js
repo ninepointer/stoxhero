@@ -94,7 +94,7 @@ export default function CreateQuestions({
     } else {
       try {
         const response = await axios.patch(
-          `${apiUrl}courses/${courseId}/content/${content?._id}`,
+          `${apiUrl}courses/${courseId}/content`,
           formData,
           {
             withCredentials: true,

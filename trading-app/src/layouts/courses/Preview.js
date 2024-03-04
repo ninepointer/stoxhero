@@ -1,35 +1,31 @@
 import * as React from "react";
 import {
-  useContext,
   useState,
   useEffect,
-  useRef,
-  forwardRef,
-  useImperativeHandle,
 } from "react";
 import {Box, Typography} from "@mui/material";
 import Grid from "@mui/material/Grid";
 import MDTypography from "../../components/MDTypography";
 import MDBox from "../../components/MDBox";
 import MDButton from "../../components/MDButton";
-import { userContext } from "../../AuthContext";
+// import { userContext } from "../../AuthContext";
 import axios from "axios";
-import { CircularProgress } from "@mui/material";
+// import { CircularProgress } from "@mui/material";
 import MDSnackbar from "../../components/MDSnackbar";
-import MenuItem from "@mui/material/MenuItem";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
-import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
+// import MenuItem from "@mui/material/MenuItem";
+// import Select, { SelectChangeEvent } from "@mui/material/Select";
+// import InputLabel from "@mui/material/InputLabel";
+// import FormControl from "@mui/material/FormControl";
 import { useLocation, useNavigate } from "react-router-dom";
-import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
-import dayjs from "dayjs";
-import JoditEditor from "jodit-react";
-import UploadImage from "../../assets/images/uploadimage.png";
-import UploadVideo from "../../assets/images/uploadvideo.png";
+// import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
+// import { LocalizationProvider } from "@mui/x-date-pickers";
+// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+// import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
+// import dayjs from "dayjs";
+// import JoditEditor from "jodit-react";
+// import UploadImage from "../../assets/images/uploadimage.png";
+// import UploadVideo from "../../assets/images/uploadvideo.png";
 import { apiUrl } from "../../constants/constants";
 import moment from 'moment'
 
@@ -43,7 +39,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
 
   // Get the value of the "mobile" parameter
   const courseId = urlParams.get('id');
-  const paramsActiveSteps = urlParams.get('activestep');
+  // const paramsActiveSteps = urlParams.get('activestep');
 
   useEffect(()=>{
     fetchData()
@@ -68,7 +64,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
   async function unpublish(){
     try{
       const publish = await axios.get(`${apiUrl}courses/${courseId}/unpublish`, {withCredentials: true});
-      openSuccessSB('Course Published', '');
+      openSuccessSB('Course UnPublished', '');
       setButtonClicked(true);
     } catch(err){
       openErrorSB('Error', err.message)
@@ -78,7 +74,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
   async function sendCreatorApproval(){
     try{
       const publish = await axios.get(`${apiUrl}courses/${courseId}/creatorapproval`, {withCredentials: true});
-      openSuccessSB('Course sent to approval', '');
+      openSuccessSB('Course sent to creator', '');
       setButtonClicked(true);
     } catch(err){
       openErrorSB('Error', err.message)
@@ -132,8 +128,6 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
     />
   );
 
-  let data = {};
-
   return (
     <>
       <MDBox
@@ -162,14 +156,14 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
           <MDTypography style={{ fontSize: '14px', marginBottom: '12px', fontWeight: 800, color: '#000000' }} >Course Basic Details</MDTypography>
             <MDBox>
               <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Name: <span style={{ fontWeight: 600 }}>{`${course.courseName}`}</span></MDTypography>
-                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Language: <span style={{ fontWeight: 600 }}>{`${course?.courseLanguages}`}</span></MDTypography>
-                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Duration: <span style={{ fontWeight: 600 }}>{`${course?.courseDurationInMinutes}`}</span></MDTypography>
-                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Max Enrollments: <span style={{ fontWeight: 600 }}>{`${course?.maxEnrolments}`}</span></MDTypography>
+                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Name: <span style={{ fontWeight: 600 }}>{`${course.courseName}`}</span></MDTypography>
+                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Language: <span style={{ fontWeight: 600 }}>{`${course?.courseLanguages}`}</span></MDTypography>
+                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Duration: <span style={{ fontWeight: 600 }}>{`${course?.courseDurationInMinutes} min`}</span></MDTypography>
+                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Max Enrollments: <span style={{ fontWeight: 600 }}>{`${course?.maxEnrolments || 'N/A'}`}</span></MDTypography>
               </MDBox>
 
               <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Type: <span style={{ fontWeight: 600 }}>{`${course.type}`}</span></MDTypography>
+                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Type: <span style={{ fontWeight: 600 }}>{`${course?.type}`}</span></MDTypography>
                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Type: <span style={{ fontWeight: 600 }}>{`${course?.courseType}`}</span></MDTypography>
                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Category: <span style={{ fontWeight: 600 }}>{`${course?.category}`}</span></MDTypography>
                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Level: <span style={{ fontWeight: 600 }}>{`${course?.level}`}</span></MDTypography>
@@ -197,8 +191,18 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
             <MDTypography style={{ fontSize: '14px', marginTop: '5px', marginBottom: '2px', fontWeight: 800, color: '#000000' }} >Pricing Details</MDTypography>
             <MDBox sx={{ display: 'flex', justifyContent: 'center', flexDirection: "column" }}>
               <MDBox sx={{ display: 'flex', gap: 5 }}>
-                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Actual Price: <span style={{ fontWeight: 600 }}>{course?.coursePrice}</span></MDTypography>
-                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Discounted Price: <span style={{ fontWeight: 600 }}>{`${course?.discountedPrice}`}</span></MDTypography>
+                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Actual Price: <span style={{ fontWeight: 600 }}>₹{
+                 new Intl.NumberFormat(undefined, {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }).format(course?.coursePrice) }</span></MDTypography>
+                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Discounted Price: <span style={{ fontWeight: 600 }}>
+                ₹{
+                 new Intl.NumberFormat(undefined, {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }).format(course?.discountedPrice) }
+                </span></MDTypography>
                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Commission %: <span style={{ fontWeight: 600 }}>{`${course?.commissionPercentage}`}</span></MDTypography>
               </MDBox>
             </MDBox>
@@ -261,7 +265,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
               ))}
             </Box>
 
-            {course?.suggestChanges?.length &&
+            {course?.suggestChanges?.length ?
             <>
             <MDTypography style={{ fontSize: '14px', margin: '2px 0px 2px 0px', fontWeight: 800, color: '#000000' }} >Changes</MDTypography>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -272,6 +276,8 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
               ))}
             </Box>
             </>
+            :
+            <></>
             }
           </MDBox>
 
