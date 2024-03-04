@@ -25,10 +25,6 @@ import PaymentIcon from "@mui/icons-material/Payment";
 import Groups2Icon from "@mui/icons-material/Groups2";
 import { Link } from "react-router-dom";
 import StarRating from "./starRatings.js";
-// import Card from '@mui/joy/Card';
-// import CardContent from '@mui/joy/CardContent';
-// import CardOverflow from '@mui/joy/CardOverflow';
-// import Typography from '@mui/joy/Typography';
 
 export default function Courses() {
   const [data, setData] = useState(null);
