@@ -28,7 +28,7 @@ export default function Create({
   subtopic,
   contentId,
   courseId,
-  setData,
+  setData, reloadContent, setReloadContent
 }) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [formState, setFormState] = useState({
@@ -79,6 +79,7 @@ export default function Create({
           }
         );
         const data = response.data.data;
+        setReloadContent(!reloadContent);
         if (!data.error) {
           setTimeout(() => {
             setIsSubmitted(true);
@@ -127,6 +128,7 @@ export default function Create({
           }
         );
         const data = response.data.data;
+        setReloadContent(!reloadContent);
         console.log("File uploaded successfully:", response.data);
         setUploadProgress(200);
         if (!data.error) {
@@ -301,7 +303,7 @@ export default function Create({
           <CircularProgress color="info" />
         </MDBox>
       ) : (
-        <MDBox mt={4} p={3}>
+        <MDBox p={3}>
           <MDBox
             display="flex"
             justifyContent="space-between"
@@ -317,106 +319,121 @@ export default function Create({
             </MDTypography>
           </MDBox>
 
-          <Grid container mt={0.5} alignItems="space-between">
-            <Grid
-              item
-              xs={12}
-              md={6}
-              xl={12}
-              display="flex"
-              gap={1}
-              mt={1}
-              justifyContent={"space-between"}
-            >
-              <Grid item xs={12} md={6} xl={6}>
-                <TextField
-                  disabled={isSubmitted}
-                  id="outlined-required"
-                  placeholder="Order*"
-                  inputMode="numeric"
-                  fullWidth
-                  value={formState?.order}
-                  onChange={(e) => {
-                    setFormState((prevState) => ({
-                      ...prevState,
-                      order: e.target.value,
-                    }));
-                  }}
-                />
-              </Grid>
+            <Grid container mt={0.5} alignItems="center" justifyContent="center">
+              <Grid
+                // item
+                container
+                spacing={1}
+                xs={12}
+                md={12}
+                xl={12}
+                display="flex"
+                // gap={1}
+                // mt={1}
+                justifyContent="center"
+              >
+                <Grid item xs={12} md={6} xl={3}>
+                  <TextField
+                    disabled={isSubmitted}
+                    id="outlined-required"
+                    placeholder="Order*"
+                    inputMode="numeric"
+                    fullWidth
+                    value={formState?.order}
+                    onChange={(e) => {
+                      setFormState((prevState) => ({
+                        ...prevState,
+                        order: e.target.value,
+                      }));
+                    }}
+                  />
+                </Grid>
 
-              <Grid item xs={12} md={6} xl={6}>
-                <TextField
-                  disabled={isSubmitted}
-                  id="outlined-required"
-                  placeholder="Topic*"
-                  fullWidth
-                  value={formState?.topic}
-                  onChange={(e) => {
-                    setFormState((prevState) => ({
-                      ...prevState,
-                      topic: e.target.value,
-                    }));
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} md={12} xl={9}>
-                <label>Topic Video</label>
-                <input type="file" onChange={handleFileChange} />
-                {uploadProgress > 0 && uploadProgress < 100 && (
-                  <span>Upload Progress: {uploadProgress}%</span>
-                )}
-                {uploadProgress == 100 && <span>Storing Data in S3...</span>}
-                {uploadProgress == 200 && (
-                  <span>File uploaded successfully.</span>
-                )}
-                {uploadProgress == -1 && (
-                  <span>Error in file upload. Try again.</span>
-                )}
-                {/* <button onClick={handleUpload}>Upload</button> */}
+                <Grid item xs={12} md={6} xl={9}>
+                  <TextField
+                    disabled={isSubmitted}
+                    id="outlined-required"
+                    placeholder="Topic*"
+                    fullWidth
+                    value={formState?.topic}
+                    onChange={(e) => {
+                      setFormState((prevState) => ({
+                        ...prevState,
+                        topic: e.target.value,
+                      }));
+                    }}
+                  />
+                </Grid>
               </Grid>
             </Grid>
-          </Grid>
 
-          <Grid
-            item
-            xs={12}
-            md={6}
-            xl={4}
-            mt={1}
-            display="flex"
-            gap={10}
-            // justifyContent={'space-around'}
-          >
-            {!isSubmitted && (
-              <>
-                <Grid item xs={12} md={2} xl={1} width="100%">
-                  <MDButton
-                    variant="contained"
-                    size="small"
-                    color="success"
-                    onClick={(e) => {
-                      handleUpload(e);
-                    }}
-                  >
-                    Next
-                  </MDButton>
+            <Grid container mt={0.5} alignItems="center" justifyContent="center">
+              <Grid
+                item
+                container
+                spacing={1}
+                xs={12}
+                md={6}
+                xl={12}
+                display="flex"
+                justifyContent="center"
+              >
+                <Grid item xs={12} md={8} xl={6}>
+                  <label>Topic Video</label>
+                  <input type="file" onChange={handleFileChange} />
+                  {uploadProgress > 0 && uploadProgress < 100 && (
+                    <span>Upload Progress: {uploadProgress}%</span>
+                  )}
+                  {uploadProgress == 100 && <span>Storing Data in S3...</span>}
+                  {uploadProgress == 200 && <span>File uploaded successfully.</span>}
+                  {uploadProgress == -1 && <span>Error in file upload. Try again.</span>}
                 </Grid>
-                <Grid item xs={12} md={2} xl={1} width="100%">
-                  <MDButton
-                    variant="contained"
-                    size="small"
-                    color="warning"
-                    onClick={(e) => {
-                      setCreateForm(!createForm);
-                    }}
-                  >
-                    Back
-                  </MDButton>
+
+                <Grid
+                  item
+                  xs={12}
+                  md={6}
+                  xl={6}
+                  mt={1}
+                  display="flex"
+                  justifyContent="flex-end"
+                  gap={1}
+                >
+                  {!isSubmitted && (
+                    <>
+                      <Grid item>
+                        <MDButton
+                          variant="contained"
+                          size="small"
+                          color="success"
+                          onClick={(e) => {
+                            handleUpload(e);
+                          }}
+                        >
+                          Next
+                        </MDButton>
+                      </Grid>
+                      <Grid item>
+                        <MDButton
+                          variant="contained"
+                          size="small"
+                          color="warning"
+                          onClick={(e) => {
+                            setCreateForm(!createForm);
+                          }}
+                        >
+                          Back
+                        </MDButton>
+                      </Grid>
+                    </>
+                  )}
                 </Grid>
-              </>
-            )}
-          </Grid>
+              </Grid>
+            </Grid>
+
+
+
+
           {renderSuccessSB}
           {renderErrorSB}
         </MDBox>

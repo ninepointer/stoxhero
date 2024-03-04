@@ -20,7 +20,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-const List = ({ contentId, courseId, subTopics }) => {
+const List = ({ contentId, courseId, subTopics, reloadContent, setReloadContent }) => {
   let columns = [
     { Header: "Edit", accessor: "edit", align: "center" },
     { Header: "Delete", accessor: "delete", align: "center" },
@@ -37,10 +37,23 @@ const List = ({ contentId, courseId, subTopics }) => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [data, setData] = useState(subTopics);
-  console.log("subtopics data", data);
+
   const handleClose = async (e) => {
     setOpen(false);
   };
+
+  useEffect(() => {
+    axios
+      .get(`${apiUrl}courses/${courseId}/content/${contentId}`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        setData(res?.data?.data?.subtopics);
+      })
+      .catch((err) => {
+        return new Error(err);
+      });
+  }, [reloadContent]);
 
   data?.map((elem) => {
     let obj = {};
@@ -174,6 +187,8 @@ const List = ({ contentId, courseId, subTopics }) => {
                     subtopic={id}
                     data={data}
                     setData={setData}
+                    reloadContent={reloadContent} 
+                    setReloadContent={setReloadContent}
                   />
                 </>
               )}

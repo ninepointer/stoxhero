@@ -430,6 +430,26 @@ exports.getCourseContent = async (req, res) => {
   }
 };
 
+exports.getCourseContentTopic = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const contentId = req.params.contentId;
+    const courses = await Course.findOne({
+      _id: new ObjectId(courseId),
+    }).select("courseContent");
+    const content = courses?.courseContent?.filter(
+      (item) => item?._id?.toString() == contentId?.toString()
+    );
+    res.status(200).json({ status: "success", data: content[0] });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
 exports.getAllCourses = async (req, res) => {
   try {
     const courses = await Course.find();
@@ -625,7 +645,7 @@ exports.addSubTopic = async (req, res) => {
       return res.status(404).json({ message: "Course not found" });
     }
     filter[0].subtopics.push(newOption);
-    const newData = await course.save({ new: true });
+    const newData = await course.save({ new: true, validateBeforeSave: false });
 
     const optionData = newData?.courseContent?.filter((elem) => {
       return elem?._id?.toString() === contentId?.toString();
