@@ -277,7 +277,7 @@ router.post('/phoneloginmobile', async (req,res, next)=>{
             //generate otp
             let mobile_otp = otpGenerator.generate(6, {digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false}); 
             //Create signedup user document
-            let signedUpUser = await SignedUpUser.findOne({mobile: mobile});
+            let signedUpUser = await SignedUpUser.findOne({mobile: mobile}).sort({_id: -1});
             if(signedUpUser){
                 signedUpUser.mobile_otp = mobile_otp;
                 await signedUpUser.save({new: true});
