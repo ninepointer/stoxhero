@@ -280,6 +280,7 @@ router.post('/phoneloginmobile', async (req,res, next)=>{
             let signedUpUser = await SignedUpUser.findOne({mobile: mobile}).sort({_id: -1});
             if(signedUpUser){
                 signedUpUser.mobile_otp = mobile_otp;
+                signedUpUser.lastOtpTime = new Date();
                 await signedUpUser.save({new: true});
             } else {
                 signedUpUser = await SignedUpUser.create({mobile:mobile, mobile_otp:mobile_otp, status:'OTP Verification Pending', lastOtpTime: new Date()});
