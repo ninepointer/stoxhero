@@ -314,14 +314,15 @@ export default function Courses() {
                                                                 <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column', paddingLeft: isMobile ? '20px' : '0px' }}>
                                                                     {courses?.courseInstructors?.map((courses) => {
                                                                         return (
-                                                                            <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                                            <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
+                                                                                 <MDBox>
+                                                                                    <img src={courses?.image} alt="image" style={{ height: '90px', width: '90px', paddingLeft: isMobile ? '0px' : '0px', borderRadius: '50%' }} />
+                                                                                </MDBox>
                                                                                 <MDBox>
                                                                                     <MDTypography style={{ fontSize: '14px', marginBottom: '2px' }} >Instructor Name: <span style={{ fontWeight: 600 }}>{`${courses?.id?.first_name + " " + courses?.id?.last_name}`}</span></MDTypography>
                                                                                     <MDTypography style={{ fontSize: '14px', marginBottom: '2px' }} >About Instructor: <span style={{ fontWeight: 600 }}>{`${courses?.about}`}</span></MDTypography>
                                                                                 </MDBox>
-                                                                                <MDBox>
-                                                                                    <img src={courses?.image} alt="image" style={{ height: '70px', width: '70px', paddingRight: isMobile ? '10px' : '0px' }} />
-                                                                                </MDBox>
+                                                                               
                                                                             </MDBox>
                                                                         )
                                                                     })}

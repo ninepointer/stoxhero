@@ -176,17 +176,17 @@ const Courses = () => {
                                                         <MDTypography style={{ fontSize: '14px', marginTop: '5px', marginBottom: '2px', fontWeight: 800, color: '#000000' }} >Pricing Details</MDTypography>
                                                         <MDBox sx={{ display: 'flex', justifyContent: 'center', flexDirection: "column" }}>
                                                             <MDBox sx={{ display: 'flex', gap: 5 }}>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Actual Price: <span style={{ fontWeight: 600 }}>₹{
+                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Actual Price : <span style={{ fontWeight: 600 }}>₹{
                                                                     new Intl.NumberFormat(undefined, {
                                                                         minimumFractionDigits: 0,
                                                                         maximumFractionDigits: 0,
                                                                     }).format(courses?.coursePrice)}</span></MDTypography>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Discounted Price: <span style={{ fontWeight: 600 }}>₹{
+                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Discounted Price : <span style={{ fontWeight: 600 }}>₹{
                                                                     new Intl.NumberFormat(undefined, {
                                                                         minimumFractionDigits: 0,
                                                                         maximumFractionDigits: 0,
                                                                     }).format(courses?.discountedPrice)}</span></MDTypography>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Commission %: <span style={{ fontWeight: 600 }}>{`${courses?.commissionPercentage}`}</span></MDTypography>
+                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Commission : <span style={{ fontWeight: 600 }}>{`${courses?.commissionPercentage}`}%</span></MDTypography>
                                                             </MDBox>
                                                         </MDBox>
 

@@ -203,7 +203,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
                           maximumFractionDigits: 0,
                         }).format(course?.discountedPrice) }
                 </span></MDTypography>
-                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Commission %: <span style={{ fontWeight: 600 }}>{`${course?.commissionPercentage}`}</span></MDTypography>
+                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Commission : <span style={{ fontWeight: 600 }}>{`${course?.commissionPercentage}`}%</span></MDTypography>
               </MDBox>
             </MDBox>
 
