@@ -80,6 +80,7 @@ import RevenueDashboard from './layouts/revenueDashboard'
 import RevenueAnalytics from './layouts/reveneuAnalytics'
 import AdminDashboard from './layouts/AdminDashboard'
 import AffiliateDashboard from './layouts/affiliateDashboard'
+import InfluencerDashboard from './layouts/InfluencerDashboard'
 import ChallengeDashboard from './layouts/challengeDashboard'
 import DailyContestDashboard from './layouts/dailyContestDashboard'
 import BattleDashboard from './layouts/battleDashboard'
@@ -291,6 +292,14 @@ const routes = [
     icon: <FaAffiliatetheme/>,
     route: "/affiliatedashboard",
     component: <AffiliateDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Influencer Dashboard",
+    key: "influencerdashboard",
+    icon: <FaAffiliatetheme/>,
+    route: "/influencerdashboard",
+    component: <InfluencerDashboard />,
   },
   {
     type: "collapse",
