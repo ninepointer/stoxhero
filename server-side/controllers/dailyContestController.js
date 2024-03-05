@@ -23,7 +23,63 @@ const AffiliateProgram = require('../models/affiliateProgram/affiliateProgram');
 const {sendMultiNotifications} = require('../utils/fcmService');
 const {client, getValue} = require('../marketData/redisClient');
 const ReferralProgram = require("../models/campaigns/referralProgram")
+const AWS = require("aws-sdk");
+const sharp = require("sharp");
 
+
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+});
+
+// Function to upload a file to S3
+const getAwsS3Url = async (file, type) => {
+  if (file && type === "Image") {
+    file.buffer = await sharp(file.buffer)
+      .resize({ width: 512, height: 256 })
+      .toBuffer();
+  }
+  const params = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: `courses/${Date.now()}-${file.originalname}`,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+    ACL: "public-read",
+    // or another ACL according to your requirements
+  };
+
+  try {
+    const uploadResult = await s3.upload(params).promise();
+    return uploadResult.Location;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Error uploading file to S3");
+  }
+};
+const getAwsS3Key = async (file, type, key) => {
+  if (file && type === "Image") {
+    file.buffer = await sharp(file.buffer)
+      .resize({ width: 512, height: 256 })
+      .toBuffer();
+  }
+  const params = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: key ? key : `courses/${Date.now()}-${file.originalname}`,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+    ACL: "public-read",
+    // or another ACL according to your requirements
+  };
+
+  try {
+    const uploadResult = await s3.upload(params).promise();
+    return { url: uploadResult.Location, key: key };
+  } catch (error) {
+    console.error(error);
+    throw new Error("Error uploading file to S3");
+  }
+};
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
     try {
@@ -33,6 +89,10 @@ exports.createContest = async (req, res) => {
             maxParticipants, contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, visibility, 
             payoutType, payoutCapPercentage, rewardType, tdsRelief } = req.body;
 
+            let contestImage;
+            if (req.files["image"]) {
+              contestImage = await getAwsS3Url(req.files["image"][0], "Image");
+            }
             const slug = contestName.replace(/ /g, "-").toLowerCase();
 
         const startTimeDate = new Date(contestStartTime);
@@ -54,7 +114,7 @@ exports.createContest = async (req, res) => {
             maxParticipants, contestStatus, contestEndTime: endTimeDate, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
             contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage,
-            contestLiveTime, payoutPercentageType, rewardType, tdsRelief, slug, visibility
+            contestLiveTime, payoutPercentageType, rewardType, tdsRelief, slug, visibility, image: contestImage
         });
 
         // console.log(contest)
@@ -78,6 +138,27 @@ exports.editContest = async (req, res) => {
     try {
         const { id } = req.params; // ID of the contest to edit
         const updates = req.body;
+        for (let elem in updates) {
+          if (updates[elem] === "undefined" || updates[elem] === "null") {
+            updates[elem] = null;
+          }
+      
+          if (updates[elem] === "false") {
+            updates[elem] = false;
+          }
+      
+          if (updates[elem] === "true") {
+            updates[elem] = true;
+          }
+        }
+
+        if (req?.files?.["image"]) {
+          updates.image = await getAwsS3Url(
+            req.files["image"][0],
+            "Image"
+          );
+        }
+
         let slug;
         if(updates?.contestName){
           updates.slug = updates?.contestName.replace(/ /g, "-").toLowerCase();

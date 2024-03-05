@@ -30,6 +30,10 @@ import { Autocomplete } from "@mui/material";
 import moment from "moment";
 import { Helmet } from "react-helmet";
 import DataTable from "../../../examples/Tables/DataTable";
+import SignupLoginPopup from "./courses/signupLoginPopup"
+import { useMediaQuery } from "@mui/material";
+// import theme from '../utils/theme/index';
+
 
 function sleep(duration) {
   return new Promise((resolve) => {
@@ -54,8 +58,9 @@ const FeaturedContestRegistration = () => {
   const params = new URLSearchParams(location?.search);
   const referrerCode = params.get("referral");
   campaignCode = params.get("campaigncode");
-  console.log("referral", referrerCode, campaignCode);
-  const getDetails = useContext(userContext);
+
+  const newReferrerCode = campaignCode ? campaignCode : referrerCode;
+
   let columns = [
     { Header: "# Rank", accessor: "rank", align: "center" },
     { Header: "Reward", accessor: "reward", align: "center" },
@@ -74,9 +79,6 @@ const FeaturedContestRegistration = () => {
     referrerCode: referrerCode,
   });
 
-  // const [file, setFile] = useState(null);
-  let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
   const getContestDetails = async (name, date) => {
     try {
@@ -89,7 +91,6 @@ const FeaturedContestRegistration = () => {
       console.log(e);
     }
   };
-  console.log("contest details", contestDetails?.rewardType);
 
   useEffect(() => {
     if (!contest) {
@@ -101,164 +102,13 @@ const FeaturedContestRegistration = () => {
     window.webengage.track("featuredTestzone_registration_clicked", {});
   }, []);
 
-  const [buttonClicked, setButtonClicked] = useState(false);
-
-  async function confirmOTP() {
-    setDetails((prevState) => ({
-      ...prevState,
-      mobile_otp: detail.mobile_otp,
-    }));
-    setButtonClicked(true);
-    const {
-      firstName,
-      lastName,
-      email,
-      mobile,
-      contest,
-      referrerCode,
-      campaignCode,
-      mobile_otp,
-    } = detail;
-
-    window.webengage.track("featuredTestzone_confirmation_clicked", {
-      campaignCode: campaignCode,
-      referrerCode: referrerCode,
-      contest: contest,
-      mobile: mobile,
-      email: email,
-    });
-    if (!mobile_otp || !mobile) {
-      return openSuccessSB(
-        "Form Incomplete",
-        "Please fill all the required fields",
-        "Error"
-      );
-    }
-    const res = await fetch(
-      `${baseUrl}api/v1/dailycontest/featured/confirmotp`,
-      {
-        method: "POST",
-        // credentials:"include",
-        headers: {
-          "content-type": "application/json",
-          "Access-Control-Allow-Credentials": false,
-        },
-        body: JSON.stringify({
-          firstName: firstName,
-          lastName: lastName,
-          email: email,
-          mobile: mobile,
-          contest: contest,
-          campaignCode: campaignCode,
-          mobile_otp: mobile_otp,
-          referrerCode,
-        }),
-      }
-    );
-
-    const data = await res.json();
-
-    if (res.status === 201) {
-      setSubmitted(true);
-      setCreating(false);
-      setButtonClicked(false);
-      return openSuccessSB(
-        "TestZone Registration Completed",
-        data?.info,
-        "SUCCESS"
-      );
-    } else {
-      setButtonClicked(false);
-      return openSuccessSB("Error", data.info, "Error");
-    }
-  }
-
-  async function generateOTP() {
-    const {
-      firstName,
-      lastName,
-      email,
-      mobile,
-      contest,
-      referrerCode,
-      campaignCode,
-    } = detail;
-
-    if (!firstName || !lastName || !email || !mobile) {
-      return openSuccessSB(
-        "Form Incomplete",
-        "Please fill all the required fields",
-        "Error"
-      );
-    }
-    if (mobile.length !== 10) {
-      if (mobile.length === 12 && mobile.startsWith("91")) {
-      } else if (mobile.length === 11 && mobile.startsWith("0")) {
-      } else {
-        setOTPGenerated(false);
-        return openSuccessSB(
-          "Invalid Mobile Number",
-          "Enter 10 digit mobile number",
-          "Error"
-        );
-      }
-    }
-
-    setOTPGenerated(true);
-    const res = await fetch(
-      `${baseUrl}api/v1/dailycontest/featured/generateotp`,
-      {
-        method: "POST",
-        // credentials:"include",
-        headers: {
-          "content-type": "application/json",
-          "Access-Control-Allow-Credentials": false,
-        },
-        body: JSON.stringify({
-          firstName: firstName,
-          lastName: lastName,
-          email: email,
-          mobile: mobile,
-          contest: contest,
-          campaignCode: campaignCode,
-          referrerCode,
-        }),
-      }
-    );
-
-    const data = await res.json();
-
-    if (res.status === 201 || res.status === 200) {
-      setOTPGenerated(true);
-      return openSuccessSB("OTP Sent", data.message, "SUCCESS");
-    } else {
-      setOTPGenerated(false);
-      return openSuccessSB("Error", data.message, "Error");
-    }
-  }
-
   const [successSB, setSuccessSB] = useState(false);
   const [msgDetail, setMsgDetail] = useState({
     title: "",
     content: "",
-    // successSB: false,
     color: "",
     icon: "",
   });
-  const openSuccessSB = (title, content, message) => {
-    msgDetail.title = title;
-    msgDetail.content = content;
-    if (message == "SUCCESS") {
-      msgDetail.color = "success";
-      msgDetail.icon = "check";
-    } else {
-      msgDetail.color = "error";
-      msgDetail.icon = "warning";
-    }
-    // console.log(msgDetail)
-    setMsgDetail(msgDetail);
-    setSuccessSB(true);
-  };
 
   const closeSuccessSB = () => {
     setSuccessSB(false);
@@ -277,20 +127,7 @@ const FeaturedContestRegistration = () => {
     />
   );
 
-  const [checkUserExist, setCheckUserExist] = useState(true);
-  async function handleMobile(e) {
-    setDetails((prevState) => ({ ...prevState, mobile: e.target.value }));
-    if (e.target.value.length >= 10) {
-      axios
-        .get(`${apiUrl}user/exist/${e.target.value}`)
-        .then((res) => {
-          setCheckUserExist(res?.data?.data);
-        })
-        .catch((err) => {
-          return new Error(err);
-        });
-    }
-  }
+  // const [checkUserExist, setCheckUserExist] = useState(true);
 
   contestDetails.rewards?.map((elem) => {
     let featureObj = {};
@@ -314,9 +151,9 @@ const FeaturedContestRegistration = () => {
         color="text"
         fontWeight="medium"
       >
-        {contestDetails?.rewardType != "Goodies"
-          ? `₹${elem?.prize}`
-          : `${elem?.prize}`}
+        {contestDetails?.rewardType === "Goodies"
+          ? `${elem?.prize} (Worth ₹${elem?.prizeValue})`
+          : `₹${elem?.prize}`}
       </MDTypography>
     );
 
@@ -331,7 +168,7 @@ const FeaturedContestRegistration = () => {
     }).format(
       (contestDetails?.entryFee *
         (contestDetails?.payoutCapPercentage ?? 1000)) /
-        100
+      100
     );
   } else {
     cap = new Intl.NumberFormat(undefined, {
@@ -340,11 +177,12 @@ const FeaturedContestRegistration = () => {
     }).format(
       (contestDetails?.portfolio?.portfolioValue *
         (contestDetails?.payoutCapPercentage ?? 10)) /
-        100
+      100
     );
   }
 
-  console.log("contestDetails", contestDetails);
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
+
 
   return (
     <MDBox
@@ -379,9 +217,10 @@ const FeaturedContestRegistration = () => {
             md={12}
             lg={6}
             display="flex"
-            justifyContent="center"
-            alignContent="center"
-            alignItems="center"
+            justifyContent="flex-end"
+            // alignContent="center"
+            // alignItems="center"
+            flexDirection={'column'}
           >
             <Grid
               container
@@ -393,9 +232,6 @@ const FeaturedContestRegistration = () => {
               alignContent="center"
               alignItems="center"
             >
-              {/* <Grid item xs={12} md={12} lg={12} p={2} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <img src={logo} style={{ maxWidth: '40%', maxHeight: '20%', width: 'auto', height: 'auto' }}/>
-          </Grid> */}
 
               <Grid
                 item
@@ -432,6 +268,7 @@ const FeaturedContestRegistration = () => {
                     xl={12}
                     pt={1}
                     pb={1}
+                    mt={-20}
                     display="flex"
                     justifyContent="center"
                     alignContent="center"
@@ -487,6 +324,29 @@ const FeaturedContestRegistration = () => {
                         💰 Your Gateway to Stock Market Success! 💰
                       </MDTypography>
                     </Grid>
+
+                    {(contest?.entryFee || contestDetails?.entryFee) && <Grid
+                          item
+                          xs={12}
+                          md={12}
+                          xl={12}
+                          p={1}
+                          display="flex"
+                          justifyContent="center"
+                          alignContent="center"
+                          alignItems="center"
+                        >
+                          <MDTypography
+                            fontSize={15}
+                            fontColor="dark"
+                            fontWeight="bold"
+                          >
+                            💸 Entry Fee:{" "}
+                            {contest
+                              ? contest?.entryFee
+                              : contestDetails?.entryFee}
+                          </MDTypography>
+                        </Grid>}
 
                     <Grid
                       item
@@ -571,6 +431,8 @@ const FeaturedContestRegistration = () => {
                       </MDTypography>
                     </Grid>
 
+
+
                     {contestDetails?.payoutType === "Percentage" ? (
                       <>
                         <Grid
@@ -592,20 +454,16 @@ const FeaturedContestRegistration = () => {
                           >
                             🏆 Reward :{" "}
                             {contestDetails?.entryFee > 0
-                              ? `${
-                                  contestDetails?.payoutPercentage
-                                }% of the net P&L${
-                                  contestDetails?.payoutCapPercentage
-                                    ? `(upto ₹${cap})`
-                                    : ""
-                                }`
-                              : `${
-                                  contestDetails?.payoutPercentage
-                                }% of the net P&L${
-                                  contestDetails?.payoutCapPercentage
-                                    ? `(upto ₹${cap})`
-                                    : ""
-                                }`}
+                              ? `${contestDetails?.payoutPercentage
+                              }% of the net P&L${contestDetails?.payoutCapPercentage
+                                ? `(upto ₹${cap})`
+                                : ""
+                              }`
+                              : `${contestDetails?.payoutPercentage
+                              }% of the net P&L${contestDetails?.payoutCapPercentage
+                                ? `(upto ₹${cap})`
+                                : ""
+                              }`}
                           </MDTypography>
                         </Grid>
 
@@ -633,6 +491,7 @@ const FeaturedContestRegistration = () => {
                             bigger you can earn!
                           </MDTypography>
                         </Grid>
+
                       </>
                     ) : (
                       <>
@@ -681,6 +540,8 @@ const FeaturedContestRegistration = () => {
                           </MDTypography>
                         </Grid>
 
+                        
+
                         <Grid
                           item
                           xs={12}
@@ -726,325 +587,53 @@ const FeaturedContestRegistration = () => {
                             </MDBox>
                           </MDBox>
                         </Grid>
+                       
                       </>
                     )}
                   </Grid>
+
+
                 </MDBox>
               </Grid>
+            </Grid>
 
+            <Grid
+              container
+              spacing={1}
+              xs={12}
+              md={12}
+              lg={12}
+              display="flex"
+              justifyContent={
+                isMobile ? "center" : "flex-end"
+              }
+              alignContent="center"
+              alignItems={
+                isMobile ? "center" : "flex-end"
+              }
+            >
               <Grid
                 item
                 xs={12}
                 md={12}
-                lg={12}
-                pl={5}
-                pr={5}
+                lg={4}
+                pr={4}
                 display="flex"
-                justifyContent="center"
+                justifyContent={
+                  isMobile ? "center" : "flex-end"
+                }
                 alignContent="center"
-                alignItems="center"
-                style={{ width: "100%" }}
+                alignItems={
+                  isMobile ? "center" : "flex-end"
+                }
               >
-                <MDBox
-                  display="flex"
-                  justifyContent="center"
-                  alignContent="center"
-                  alignItems="center"
-                  style={{ width: "100%" }}
-                >
-                  <MDBox
-                    component="form"
-                    role="form"
-                    borderRadius={10}
-                    style={{
-                      backgroundColor: "white",
-                      // height: '100vh',
-                      width: "100%",
-                      boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2)", // Add box shadow
-                    }}
-                    display="flex"
-                    justifyContent="center"
-                    alignContent="center"
-                    alignItems="center"
-                  >
-                    {!submitted ? (
-                      <Grid
-                        container
-                        pt={1}
-                        pb={1}
-                        display="flex"
-                        justifyContent="center"
-                        alignContent="center"
-                        alignItems="center"
-                        style={{ width: "90%" }}
-                      >
-                        <Grid
-                          item
-                          xs={12}
-                          md={12}
-                          xl={12}
-                          mt={1}
-                          display="flex"
-                          justifyContent="center"
-                          alignContent="center"
-                          alignItems="center"
-                        >
-                          <MDTypography
-                            fontSize={15}
-                            fontColor="dark"
-                            fontWeight="bold"
-                          >
-                            Fill in your details to register!
-                          </MDTypography>
-                        </Grid>
-
-                        <Grid
-                          item
-                          xs={12}
-                          md={6}
-                          xl={6}
-                          p={1}
-                          display="flex"
-                          justifyContent="center"
-                          alignContent="center"
-                          alignItems="center"
-                        >
-                          <TextField
-                            required
-                            disabled={otpGenerated}
-                            id="outlined-required"
-                            label="First Name"
-                            type="text"
-                            fullWidth
-                            onChange={(e) => {
-                              setDetails((prevState) => ({
-                                ...prevState,
-                                firstName: e.target.value,
-                              }));
-                            }}
-                          />
-                        </Grid>
-
-                        <Grid item xs={12} md={6} xl={6} p={1}>
-                          <TextField
-                            required
-                            disabled={otpGenerated}
-                            id="outlined-required"
-                            label="Last Name"
-                            type="text"
-                            fullWidth
-                            onChange={(e) => {
-                              setDetails((prevState) => ({
-                                ...prevState,
-                                lastName: e.target.value,
-                              }));
-                            }}
-                          />
-                        </Grid>
-
-                        <Grid item xs={12} md={6} xl={6} p={1}>
-                          <TextField
-                            required
-                            disabled={otpGenerated}
-                            id="outlined-required"
-                            label="Email"
-                            type="email"
-                            fullWidth
-                            onChange={(e) => {
-                              setDetails((prevState) => ({
-                                ...prevState,
-                                email: e.target.value,
-                              }));
-                            }}
-                          />
-                        </Grid>
-
-                        <Grid item xs={12} md={6} xl={6} p={1}>
-                          <TextField
-                            required
-                            disabled={otpGenerated}
-                            id="outlined-required"
-                            label="Mobile(OTP will be sent on this number)"
-                            type="text"
-                            fullWidth
-                            onChange={(e) => {
-                              handleMobile(e);
-                            }}
-                          />
-                        </Grid>
-
-                        {!otpGenerated && (
-                          <Grid item xs={12} md={12} lg={12} p={1}>
-                            <MDBox
-                              mb={1}
-                              display="flex"
-                              justifyContent="space-around"
-                            >
-                              <MDButton
-                                onClick={generateOTP}
-                                variant="gradient"
-                                style={{
-                                  backgroundColor: "#65BA0D",
-                                  color: "white",
-                                  width: "90%",
-                                }}
-                              >
-                                <MDTypography
-                                  fontSize={13}
-                                  fontWeight="bold"
-                                  color="white"
-                                >
-                                  Get Mobile OTP
-                                </MDTypography>
-                              </MDButton>
-                            </MDBox>
-                          </Grid>
-                        )}
-
-                        {!checkUserExist && (
-                          <Grid
-                            item
-                            xs={12}
-                            md={12}
-                            lg={12}
-                            p={1}
-                            display="flex"
-                            justifyContent="center"
-                            alignContent="center"
-                            alignItems="center"
-                          >
-                            <MDTypography fontSize={15} fontWeight="bold">
-                              Looks like you haven't signed up yet 😀
-                            </MDTypography>
-                          </Grid>
-                        )}
-
-                        {otpGenerated && (
-                          <Grid
-                            item
-                            xs={12}
-                            md={6}
-                            lg={12}
-                            p={1}
-                            display="flex"
-                            justifyContent="center"
-                            alignContent="center"
-                            alignItems="center"
-                          >
-                            <TextField
-                              required
-                              id="outlined-required"
-                              label="Please enter the OTP"
-                              type="text"
-                              fullWidth
-                              style={{ width: "40%" }}
-                              onChange={(e) => {
-                                setDetails((prevState) => ({
-                                  ...prevState,
-                                  mobile_otp: e.target.value,
-                                }));
-                              }}
-                            />
-                          </Grid>
-                        )}
-
-                        {otpGenerated && (
-                          <Grid item xs={12} md={6} lg={12} p={1}>
-                            <MDBox
-                              mb={1}
-                              display="flex"
-                              justifyContent="space-around"
-                            >
-                              <MDButton
-                                onClick={() => {
-                                  confirmOTP();
-                                }}
-                                variant="gradient"
-                                style={{
-                                  backgroundColor: "#65BA0D",
-                                  color: "white",
-                                  width: "90%",
-                                }}
-                                disabled={creating || buttonClicked}
-                                // style={{width:'90%'}}
-                              >
-                                {creating ? (
-                                  <CircularProgress size={20} color="inherit" />
-                                ) : (
-                                  "Register & Apply"
-                                )}
-                              </MDButton>
-                            </MDBox>
-                          </Grid>
-                        )}
-                      </Grid>
-                    ) : (
-                      <Grid
-                        container
-                        pt={1}
-                        display="flex"
-                        justifyContent="center"
-                        alignContent="center"
-                        alignItems="center"
-                        style={{ width: "90%" }}
-                      >
-                        <Grid
-                          item
-                          pt={2}
-                          pl={5}
-                          pr={5}
-                          xs={12}
-                          md={12}
-                          lg={12}
-                          display="flex"
-                          justifyContent="center"
-                          flexDirection="column"
-                          alignItems="center"
-                          alignContent="center"
-                          style={{ textAlign: "center" }}
-                        >
-                          <MDTypography>
-                            Thank you for showing interest in the TestZone.
-                          </MDTypography>
-                          <MDTypography mt={1} fontSize={20} fontWeight="bold">
-                            Explore the world of Virtual Options Trading and
-                            real cash earning by downloading StoxHero App!
-                          </MDTypography>
-                        </Grid>
-
-                        <Grid
-                          item
-                          xs={12}
-                          md={12}
-                          lg={12}
-                          p={1}
-                          display="flex"
-                          justifyContent="center"
-                          alignContent="center"
-                          alignItems="center"
-                        >
-                          <MDButton
-                            component="a"
-                            href="https://play.google.com/store/apps/details?id=com.stoxhero.app"
-                            target="_blank"
-                          >
-                            <img
-                              src={playstore}
-                              style={{
-                                maxWidth: "40%",
-                                maxHeight: "20%",
-                                width: "auto",
-                                height: "auto",
-                              }}
-                            />
-                          </MDButton>
-                        </Grid>
-                      </Grid>
-                    )}
-                  </MDBox>
-                </MDBox>
+                <SignupLoginPopup
+                data={contestDetails} testzone={true} referrerCode={newReferrerCode}
+                />
               </Grid>
+
             </Grid>
+
           </Grid>
 
           <Grid
@@ -1098,5 +687,3 @@ const FeaturedContestRegistration = () => {
 };
 
 export default FeaturedContestRegistration;
-
-//6UOWyIuWrBj5QdME6zzOA6p1qsLByKL1

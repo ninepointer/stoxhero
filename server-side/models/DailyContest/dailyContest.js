@@ -10,6 +10,18 @@ const contestSchema = new Schema({
         type: String,
         required: true
     },
+    image:{
+        type: String,
+    },
+    metaTitle:{
+        type: String,
+    },
+    metaKeyword:{
+        type: String,
+    },
+    metaDescription:{
+        type: String,
+    },
     contestStartTime:{
         type: Date,
         required: true

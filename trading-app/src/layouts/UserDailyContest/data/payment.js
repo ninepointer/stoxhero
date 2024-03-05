@@ -12,7 +12,7 @@ import Title from "../../HomePage/components/Title";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import Button from "@mui/material/Button";
-import { Grid, TextField, Typography } from "@mui/material";
+import { Grid, TextField, Typography, CircularProgress } from "@mui/material";
 import paymentQr from "../../../assets/images/paymentQrc.jpg";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -24,11 +24,14 @@ import MDSnackbar from "../../../components/MDSnackbar";
 import Checkbox from "@mui/material/Checkbox";
 import Input from "@mui/material/Input";
 import { userContext } from "../../../AuthContext";
+import {useNavigate} from 'react-router-dom';
 
 const ariaLabel = { "aria-label": "description" };
 
-const Payment = ({ elem, setShowPay, showPay }) => {
+const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent }) => {
   const getDetails = useContext(userContext);
+  const navigate = useNavigate();
+  const [isPaymentStart, setIsPaymentStart] = useState(false);
   const [open, setOpen] = React.useState(false);
   const [userWallet, setUserWallet] = useState(0);
   const [bonusBalance, setBonusBalance] = useState(0);
@@ -48,7 +51,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
   });
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [value, setValue] = useState("wallet");
+  const [value, setValue] = useState(signedUp ? 'bank' : "wallet");
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = (title, content) => {
     console.log("status success");
@@ -91,6 +94,10 @@ const Payment = ({ elem, setShowPay, showPay }) => {
       bgWhite
     />
   );
+
+  useEffect(()=>{
+    byLink && setOpen(true);
+  }, [byLink])
 
   const handleChange = (event) => {
     setValue(event.target.value);
@@ -177,7 +184,9 @@ const Payment = ({ elem, setShowPay, showPay }) => {
     setShowPromoCode(false);
     setCode("");
     setVerifiedCode("");
+    setOpenParent && setOpenParent(false)
     messege.thanksMessege && setShowPay(!showPay);
+    messege.thanksMessege && navigate('/testzone')
   };
 
   async function captureIntent() {
@@ -214,7 +223,10 @@ const Payment = ({ elem, setShowPay, showPay }) => {
       contestId: elem?._id,
       amount: Number(amount - discountAmount - bonusRedemption),
     });
-    const res = await fetch(`${baseUrl}api/v1/dailycontest/feededuct`, {
+
+    setIsPaymentStart(true);
+
+    const res = await fetch(`${apiUrl}dailycontest/feededuct`, {
       method: "PATCH",
       credentials: "include",
       headers: {
@@ -239,6 +251,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         ...messege,
         error: dataResp.message,
       });
+      setIsPaymentStart(false);
     } else {
       setMessege({
         ...messege,
@@ -248,6 +261,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
           elem.contestName
         }, please click on "Start Trading" once the TestZone starts.`,
       });
+      setIsPaymentStart(false);
     }
   };
 
@@ -285,9 +299,11 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         },
         { withCredentials: true }
       );
-      console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
+      // console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
       window.location.href =
         res?.data?.data?.instrumentResponse?.redirectInfo?.url;
+
+       
     } catch (e) {
       console.log(e);
     }
@@ -388,23 +404,38 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         </DialogTitle>
         <DialogContent>
           {messege.thanksMessege ? (
-            <Typography
-              textAlign="center"
-              sx={{ width: "100%" }}
-              color="#000"
-              variant="body2"
-            >
-              {messege.thanksMessege}
-            </Typography>
+            <>
+              <Typography
+                textAlign="center"
+                sx={{ width: "100%" }}
+                color="#000"
+                variant="body2"
+              >
+                {messege.thanksMessege}
+              </Typography>
+
+              <DialogActions>
+                <MDButton color="error" onClick={handleClose} autoFocus>
+                  Close
+                </MDButton>
+              </DialogActions>
+            </>
           ) : messege.error ? (
-            <Typography
-              textAlign="center"
-              sx={{ width: "100%" }}
-              color="#000"
-              variant="body2"
-            >
-              {messege.error}
-            </Typography>
+            <>
+              <Typography
+                textAlign="center"
+                sx={{ width: "100%" }}
+                color="#000"
+                variant="body2"
+              >
+                {messege.error}
+              </Typography>
+              <DialogActions>
+                <MDButton color="error" onClick={handleClose} autoFocus>
+                  Close
+                </MDButton>
+              </DialogActions>
+            </>
           ) : (
             <>
               <DialogContentText id="alert-dialog-description">
@@ -512,14 +543,12 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                                     }}
                                     color="#ab1"
                                     variant="body2"
-                                  >{`Applied ${verifiedCode} - ${
-                                    discountData?.discountType == "Percentage"
-                                      ? `(${discountData?.discount}% off ${
-                                          discountData?.maxDiscount &&
-                                          `upto ₹${discountData?.maxDiscount}`
-                                        })`
+                                  >{`Applied ${verifiedCode} - ${discountData?.discountType == "Percentage"
+                                      ? `(${discountData?.discount}% off ${discountData?.maxDiscount &&
+                                      `upto ₹${discountData?.maxDiscount}`
+                                      })`
                                       : `(FLAT ₹${discountData?.discount}) off`
-                                  }`}</Typography>
+                                    }`}</Typography>
                                 )}
                               {verifiedCode &&
                                 discountData?.rewardType == "Cashback" && (
@@ -533,14 +562,12 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                                     }}
                                     color="#ab1"
                                     variant="body2"
-                                  >{`Applied ${verifiedCode} - ${
-                                    discountData?.discountType == "Percentage"
-                                      ? `(${discountData?.discount}% Cashback ${
-                                          discountData?.maxDiscount &&
-                                          `upto ₹${discountData?.maxDiscount}`
-                                        })`
+                                  >{`Applied ${verifiedCode} - ${discountData?.discountType == "Percentage"
+                                      ? `(${discountData?.discount}% Cashback ${discountData?.maxDiscount &&
+                                      `upto ₹${discountData?.maxDiscount}`
+                                      })`
                                       : `(FLAT ₹${discountData?.discount}) Cashback`
-                                  }`}</Typography>
+                                    }`}</Typography>
                                 )}
                               {invalidCode && (
                                 <Typography
@@ -781,11 +808,10 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                                     }}
                                     color="#ab1"
                                     variant="body2"
-                                  >{`Applied ${verifiedCode} - ${
-                                    discountData?.discountType == "Percentage"
+                                  >{`Applied ${verifiedCode} - ${discountData?.discountType == "Percentage"
                                       ? `(${discountData?.discount}% off)`
                                       : `(FLAT ${discountData?.discount}) off`
-                                  }`}</Typography>
+                                    }`}</Typography>
                                 )}
                               {verifiedCode &&
                                 discountData?.rewardType == "Cashback" && (
@@ -799,11 +825,10 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                                     }}
                                     color="#ab1"
                                     variant="body2"
-                                  >{`Applied ${verifiedCode} - ${
-                                    discountData?.discountType == "Percentage"
+                                  >{`Applied ${verifiedCode} - ${discountData?.discountType == "Percentage"
                                       ? `(${discountData?.discount}% Cashback)`
                                       : `(FLAT ${discountData?.discount}) Cashback`
-                                  }`}</Typography>
+                                    }`}</Typography>
                                 )}
                               {invalidCode && (
                                 <Typography
@@ -955,28 +980,6 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                     </RadioGroup>
                   </FormControl>
 
-                  {/* <Grid container display="flex" flexDirection="row" justifyContent="center" alignContent={"center"} gap={2} >
-                      <Grid container mt={2} xs={12} md={9} xl={12} lg={12}>
-                        <Grid item xs={12} md={6} xl={9} lg={9} >
-                          <TextField
-                            // disabled={((isSubmitted || battle) && (!editing || saving))}
-                            id="outlined-required"
-                            label='Coupen Code'
-                            name='coupenCode'
-                            fullWidth
-                            value={amount}
-                            onChange={(e) => { }}
-                          />
-                        </Grid>
-
-                        <Grid item xs={12} md={6} xl={3} lg={3} >
-                          <MDButton color={"success"} onClick={handleClose} autoFocus>
-                            Apply
-                          </MDButton>
-                        </Grid>
-                      </Grid>
-
-                    </Grid> */}
                 </MDBox>
               </DialogContentText>
               {value == "wallet" && (
@@ -1027,19 +1030,28 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                         color="#fff"
                       >
                         {" "}
-                        {`₹${userWallet}`}
+                        {`₹${Number(userWallet)?.toFixed(2)}`}
                       </Typography>
                     </MDBox>
 
                     <MDBox>
-                      <ArrowForwardIosIcon
-                        sx={{
-                          mt: "8px",
-                          color: "#fff",
-                          marginRight: "5px",
-                          marginLeft: "5px",
-                        }}
-                      />
+                      {isPaymentStart ?
+                        <CircularProgress size={20} color="light"
+                          sx={{
+                            mt: "8px",
+                            marginRight: "5px",
+                            marginLeft: "5px",
+                          }}
+                        />
+                        :
+                        <ArrowForwardIosIcon
+                          sx={{
+                            mt: "8px",
+                            color: "#fff",
+                            marginRight: "5px",
+                            marginLeft: "5px",
+                          }}
+                        />}
                     </MDBox>
                   </MDBox>
                 </MDBox>
@@ -1057,9 +1069,8 @@ const Payment = ({ elem, setShowPay, showPay }) => {
               onClick={() => initiatePayment()}
               autoFocus
             >
-              {`Pay ₹${
-                Number(amount - discountAmount - bonusRedemption) + actualAmount
-              } securely`}
+              {`Pay ₹${(Number(amount - discountAmount - bonusRedemption) + actualAmount).toFixed(2)
+                } securely`}
             </MDButton>
           </DialogActions>
         )}

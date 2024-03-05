@@ -9,12 +9,13 @@ import { Grid, TextField, CircularProgress } from '@mui/material';
 import { apiUrl } from '../../../../constants/constants';
 import MDTypography from '../../../../components/MDTypography';
 import Payment from '../../../coursesUser/data/payment.js'
+import TestZonePayment from '../../../UserDailyContest/data/payment.js'
 
 
 
-const Form = ({ data, slug, checkPaid }) => {
+const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
     const [open, setOpen] = React.useState(false);
-   
+    const [showPay, setShowPay] = React.useState(false);
     const [detail, setDetails] = useState({
         first_name: "",
         last_name: "",
@@ -28,17 +29,17 @@ const Form = ({ data, slug, checkPaid }) => {
         isLogin: "",
         signedUp: false
     });
+    const confirmOtpUrl = testzone ? `dailycontest/featured/confirmotp` : `verifyphoneloginmobile`;
+    const createUserUrl = testzone ? `dailycontest/featured/createuser` : `createuserbycourse`
     const [buttonClicked, setButtonClicked] = useState(false);
-
+    const dailycontestId = data?._id;
     const [buttonLoading, setButtonLoading] = useState({
         getOtp: false,
         confirmOtp: false,
         signup: false,
     })
-    // useEffect(()=>{
-    //     detail.isLogin && setOpen(false);
-    // }, [detail.isLogin])
 
+    
       const handleClickOpen = () => {
         setOpen(true);
       };
@@ -69,7 +70,7 @@ const Form = ({ data, slug, checkPaid }) => {
                 setButtonLoading(prev => ({...prev, getOtp: false}))
                 setDetails(prev => ({ ...prev, errorMessage: 'Enter 10 digit mobile number' }));
                 setDetails(prev => ({ ...prev, otpGenerate: false }))
-                // return openSuccessSB("Invalid mobile Number", "Enter 10 digit mobile number", "Error")
+                return setDetails(prev => ({ ...prev, errorMessage: 'Enter 10 digit mobile number' }));
             }
         }
 
@@ -130,7 +131,7 @@ const Form = ({ data, slug, checkPaid }) => {
 
         // setOTPGenerated(true)
         // setDetails(prev => ({...prev, enterOtp: true}))
-        const res = await fetch(`${apiUrl}verifyphoneloginmobile`, {
+        const res = await fetch(`${apiUrl}${confirmOtpUrl}`, {
             method: "POST",
             // credentials:"include",
             headers: {
@@ -138,7 +139,8 @@ const Form = ({ data, slug, checkPaid }) => {
                 "Access-Control-Allow-Credentials": false
             },
             body: JSON.stringify({
-                mobile: mobile, mobile_otp
+                mobile: mobile, mobile_otp,
+                dailycontestId: dailycontestId
             })
         });
 
@@ -172,7 +174,7 @@ const Form = ({ data, slug, checkPaid }) => {
             mobile_otp,
         } = detail;
 
-        const res = await fetch(`${apiUrl}/createuserbycourse`, {
+        const res = await fetch(`${apiUrl}${createUserUrl}`, {
             method: "PATCH",
             // credentials:"include",
             headers: {
@@ -185,7 +187,8 @@ const Form = ({ data, slug, checkPaid }) => {
                 email: email,
                 mobile: mobile,
                 mobile_otp: mobile_otp,
-                slug
+                slug, dailycontestId: dailycontestId,
+                referrerCode: referrerCode
             })
         });
 
@@ -206,17 +209,33 @@ const Form = ({ data, slug, checkPaid }) => {
     return (
 
         <>
-            {/* <MDBox> */}
-                <MDButton
-                    variant="outlined"
-                    size="small"
-                    color="success"
-                    onClick={() => { setOpen(true) }}
-                    style={{ minWidth: "100%" }}
-                >
-                    Buy course
-                </MDButton>
-            {/* </MDBox> */}
+        {testzone ?
+            <MDButton
+                variant="gradient"
+                size="small"
+                // color="success"
+                sx={{
+                    backgroundColor: '#315C45', 
+                    color: '#ffffff',
+                    '&:hover': {
+                        backgroundColor: '#ff0000', // Change background color to red on hover
+                      },
+                }}
+                onClick={() => { setOpen(true) }}
+                style={{ minWidth: "100%" }}
+            >
+                Register and Pay
+            </MDButton>
+            :
+            <MDButton
+                variant="outlined"
+                size="small"
+                color="success"
+                onClick={() => { setOpen(true) }}
+                style={{ minWidth: "100%" }}
+            >
+                Buy course
+            </MDButton>}
 
             <Dialog
                 open={open}
@@ -229,7 +248,7 @@ const Form = ({ data, slug, checkPaid }) => {
                         {detail.isLogin === false ? 'Please fill your details' :'Please enter mobile'}
                     </MDTypography>
                 </DialogTitle>
-                <DialogContent sx={{ width: detail.isLogin ? "50px" : '500px', height: detail.isLogin ? "5px" : 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                <DialogContent sx={{ width: detail.isLogin ? "1px" : '500px', height: detail.isLogin ? "1px" : 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                     {!detail.enterOtp ?
                     <>
                         <Grid item xs={12} md={12} xl={6} p={1} sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
@@ -265,7 +284,13 @@ const Form = ({ data, slug, checkPaid }) => {
                     </>}
 
                     {detail.isLogin ?
+
+                        testzone ?
+                        <TestZonePayment signedUp={detail.signedUp} elem={data} showPay={showPay}
+                        setShowPay={setShowPay} byLink={true} setOpenParent={setOpen} />
+                        :
                         <Payment data={data} byLink={true} setOpenParent={setOpen} signedUp={detail.signedUp} checkPaid={checkPaid} />
+                        
                         :
                         detail.isLogin === false &&
                         <>
