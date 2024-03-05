@@ -292,7 +292,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent, r
           amount:
             Number((amount - discountAmount - bonusRedemption) * 100) +
             actualAmount * 100,
-          redirectTo: window.location.href,
+          redirectTo: "https://stoxhero.com/testzone",
           paymentFor: "Contest",
           productId: elem?._id,
           coupon: verifiedCode,
@@ -478,7 +478,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent, r
                           mb={2}
                           style={{ minWidth: "40vw" }}
                         >
-                          {!showPromoCode ? (
+                          {!referrerCode && (!showPromoCode ? (
                             <MDBox
                               display="flex"
                               justifyContent="flex-start"
@@ -588,7 +588,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent, r
                                 </Typography>
                               )}
                             </>
-                          )}
+                          ))}
                           <Typography
                             textAlign="left"
                             mt={1}
@@ -745,7 +745,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent, r
                             of the GST on your behalf. To offset it, we've
                             increased our pricing by a bit.{" "}
                           </Typography> */}
-                          {!showPromoCode ? (
+                          {!referrerCode && (!showPromoCode ? (
                             <MDBox
                               display="flex"
                               justifyContent="flex-start"
@@ -851,7 +851,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent, r
                                 </Typography>
                               )}
                             </>
-                          )}
+                          ))}
                           <Typography
                             textAlign="left"
                             mt={1}

@@ -504,7 +504,7 @@ router.post("/phoneloginmobile", async (req, res, next) => {
       }
 
       //send response
-      // if(process.env.PROD=='true') sendOTP(mobile.toString(), mobile_otp);
+      if(process.env.PROD=='true') sendOTP(mobile.toString(), mobile_otp);
       console.log(process.env.PROD, mobile_otp, "sending");
       if (process.env.PROD !== "true") {
         sendOTP("8076284368", mobile_otp);
